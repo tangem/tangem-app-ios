@@ -85,11 +85,7 @@ final class TapScanTask: CardSessionRunnable {
         }
         
         if card.firmwareVersion >= .multiwalletAvailable  {
-            if card.settings.isFilesAllowed {
-                readNote(card, session: session, completion: completion)
-            } else {
-                appendWalletsIfNeeded(session: session, completion: completion)
-            }
+            readNote(card, session: session, completion: completion)
             return
         }
         
@@ -122,10 +118,11 @@ final class TapScanTask: CardSessionRunnable {
                 self.noteWalletData = walletData
                 self.runAttestation(session, completion)
             case .failure(let error):
-                if case TangemSdkError.fileNotFound = error {
+                switch error {
+                case .fileNotFound, .insNotSupported:
                     self.noteWalletData = nil
                     self.appendWalletsIfNeeded(session: session, completion: completion)
-                } else {
+                default:
                     completion(.failure(error))
                 }
             }
