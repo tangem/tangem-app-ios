@@ -163,18 +163,25 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
         }
     }
     
+    func onOnboardingFinished(for cardId: String) {
+        guard let userPrefsService = self.userPrefsService else { return }
+        
+        if let existingIndex = userPrefsService.cardsStartedActivation.firstIndex(where: { $0 == cardId }) {
+            userPrefsService.cardsStartedActivation.remove(at: existingIndex)
+        }
+    
+        if !userPrefsService.cardsFinishedActivation.contains(cardId) {
+            userPrefsService.cardsFinishedActivation.append(cardId)
+        }
+    }
+    
     func goToNextStep() {
         if isOnboardingFinished, !assembly.isPreview {
             DispatchQueue.main.async {
                 self.successCallback?()
             }
             
-            let cardId = input.cardModel.cardInfo.card.cardId
-            if let existingIndex = userPrefsService?.cardsStartedActivation.firstIndex(where: { $0 == cardId }) {
-                userPrefsService?.cardsStartedActivation.remove(at: existingIndex)
-                userPrefsService?.cardsFinishedActivation.append(cardId)
-            }
-            
+            onOnboardingFinished(for: input.cardModel.cardInfo.card.cardId)
             return
         }
         
