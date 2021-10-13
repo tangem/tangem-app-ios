@@ -156,6 +156,15 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         }
     }
     
+    override func onOnboardingFinished(for cardId: String) {
+        super.onOnboardingFinished(for: cardId)
+    
+        //remove pair cid
+        if let pairCardId = twinsService.twinPairCardId {
+            super.onOnboardingFinished(for: pairCardId)
+        }
+    }
+    
     override func mainButtonAction() {
         switch currentStep {
         case .welcome:
@@ -164,7 +173,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
             }
         case .intro:
             userPrefsService?.cardsStartedActivation.append(twinInfo.cid)
-//            userPrefsService.cardsStartedActivation.append(twinInfo.pairCid)
             fallthrough
         case .confetti, .done, .success, .alert:
             goToNextStep()
@@ -174,7 +182,12 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
                 stepUpdatesSubscription = nil
             }
             fallthrough
-        case .second, .third:
+        case .second:
+            if let pairCardId = twinsService.twinPairCardId {
+                userPrefsService?.cardsStartedActivation.append(pairCardId)
+            }
+            fallthrough
+        case .third:
             isMainButtonBusy = true
             subscribeToStepUpdates()
             if assembly.isPreview {
