@@ -128,7 +128,8 @@ struct SingleCardOnboardingView: View {
                                         viewModel.isAddressQrBottomSheetPresented = false
                                      }, content: {
                                         AddressQrBottomSheetContent(shareAddress: viewModel.shareAddress,
-                                                                    address: viewModel.walletAddress)
+                                                                    address: viewModel.walletAddress,
+                                                                    currencyName: viewModel.currencyName)
                                      })
                 .frame(maxWidth: screenSize.width)
         }
