@@ -42,6 +42,9 @@ class UserPrefsService {
     @Storage(type: StorageType.cardsStartedActivation, defaultValue: [])
     var cardsStartedActivation: [String]
     
+    @Storage(type: StorageType.cardsFinishedActivation, defaultValue: [])
+    var cardsFinishedActivation: [String]
+    
     deinit {
         print("UserPrefsService deinit")
     }

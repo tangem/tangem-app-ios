@@ -29,6 +29,10 @@ class OnboardingStepsSetupService {
     }
     
     func steps(for cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
+        if userPrefs.cardsFinishedActivation.contains(cardInfo.card.cardId) {
+            return .justWithError(output: .singleWallet([]))
+        }
+        
         let card = cardInfo.card
         
         if card.isTangemWallet {
@@ -44,6 +48,9 @@ class OnboardingStepsSetupService {
         if card.wallets.count == 0 {
             steps.append(.createWallet)
             steps.append(.success)
+        } else {
+            //cards without any onboarding
+            userPrefs.cardsFinishedActivation.append(card.cardId)
         }
         
         return steps.count > 0 ? .justWithError(output: .singleWallet(steps)) : .justWithError(output: .singleWallet([]))
@@ -100,9 +107,6 @@ class OnboardingStepsSetupService {
         var steps = [TwinsOnboardingStep]()
         
         if !userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId) {
-            if twinCardInfo.pairPublicKey != nil && cardInfo.card.wallets.first != nil {
-                return .justWithError(output: .twins([]))
-            } else {
             let twinPairCid = TapTwinCardIdFormatter.format(cid:"", cardNumber: twinCardInfo.series.pair.number)
             steps.append(.intro(pairNumber: "\(twinPairCid)"))
             
