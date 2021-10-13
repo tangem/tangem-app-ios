@@ -42,6 +42,10 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
         cardModel.walletModels?.first?.displayAddress(for: 0) ?? ""
     }
     
+    var currencyName: String {
+        cardModel.walletModels?.first?.wallet.blockchain.currencySymbol ?? ""
+    }
+    
     private var refreshButtonDispatchWork: DispatchWorkItem?
     
     init(exchangeService: ExchangeService, input: OnboardingInput) {

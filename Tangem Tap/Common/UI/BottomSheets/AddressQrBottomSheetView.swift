@@ -15,8 +15,13 @@ struct AddressQrBottomSheetContent: View {
     
     var shareAddress: String
     var address: String
-    
+    var currencyName: String
+
     @State private var showCheckmark = false
+    
+    private var message: String {
+        String(format: "address_qr_code_message_format".localized, currencyName)
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -26,7 +31,7 @@ struct AddressQrBottomSheetContent: View {
                 .frame(size: .init(width: 206, height: 206))
                 .padding(.top, 49)
                 .padding(.bottom, 30)
-            Text("address_qr_code_message")
+            Text(message)
                 .frame(maxWidth: 225)
                 .font(.system(size: 18, weight: .regular))
                 .multilineTextAlignment(.center)
@@ -108,7 +113,8 @@ struct AddressQrBottomSheetPreviewView: View {
                     model.isBottomSheetPresented = false
                 }, content: {
                     AddressQrBottomSheetContent(shareAddress: "eth:0x01232483902f903678a098bce",
-                                                address: "0x01232483902f903678a098bce")
+                                                address: "0x01232483902f903678a098bce",
+                                                currencyName: "BTC")
                 })
         }
         
@@ -122,7 +128,8 @@ struct AddressQrBottomSheet_Previews: PreviewProvider {
             .previewGroup(devices: [.iPhoneX], withZoomed: false)
         
         AddressQrBottomSheetContent(shareAddress: "eth:0x01232483902f903678a098bce",
-                                    address: "0x01232483902f903678a098bce")
+                                    address: "0x01232483902f903678a098bce",
+                                    currencyName: "BTC")
     }
     
 }
