@@ -123,7 +123,8 @@ extension Assembly {
         let sdk = services.tangemSdk
         let vm = WalletOnboardingViewModel(input: input,
                                            backupService: BackupService(sdk: sdk),
-                                           tangemSdk: sdk)
+                                           tangemSdk: sdk,
+                                           tokensRepo: services.tokenItemsRepository)
         
         initialize(vm, isResetable: false)
         vm.userPrefsService = services.userPrefsService
