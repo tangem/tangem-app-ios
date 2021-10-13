@@ -18,6 +18,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     @Published var thirdCardSettings: AnimatedViewSettings = .zero
     @Published var canDisplayCardImage: Bool = false
     
+    private weak var tokensRepo: TokenItemsRepository!
     private var stackCalculator: StackCalculator = .init()
     private var fanStackCalculator: FanStackCalculator = .init()
     private var bag: Set<AnyCancellable> = []
@@ -234,12 +235,12 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     
     private let tangemSdk: TangemSdk
     
-    init(input: OnboardingInput, backupService: BackupService, tangemSdk: TangemSdk) {
+    init(input: OnboardingInput, backupService: BackupService, tangemSdk: TangemSdk, tokensRepo: TokenItemsRepository) {
         self.backupService = backupService
         // [REDACTED_TODO_COMMENT]
         mainCardImage =  UIImage(named: "wallet_card")! // input.cardImage
         self.tangemSdk = tangemSdk
-        
+        self.tokensRepo = tokensRepo
         super.init(input: input)
         
         if case let .wallet(steps) = input.steps {
@@ -309,11 +310,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         case .createWallet:
             break
         case .backupIntro:
-            withAnimation {
-                currentStepIndex = steps.count - 1
-                setupCardsSettings(animated: true, isContainerSetup: false)
-                shouldFireConfetti = true
-            }
+            jumpToLatestStep()
         case .selectBackupCards:
             if backupCardsAddedCount < 2 {
                 let controller = UIAlertController(title: "common_warning".localized, message: "onboarding_alert_message_not_max_backup_cards_added".localized, preferredStyle: .alert)
@@ -375,6 +372,14 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             self.previewBackupCardsAdded = 0
             self.previewBackupState = .needWriteOriginCard
             self.thirdCardSettings = WelcomeCardLayout.supplementary.cardSettings(at: .welcome, in: self.containerSize, animated: true)
+        }
+    }
+    
+    func jumpToLatestStep() {
+        withAnimation {
+            currentStepIndex = steps.count - 1
+            setupCardsSettings(animated: true, isContainerSetup: false)
+            shouldFireConfetti = true
         }
     }
     
@@ -476,10 +481,15 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                 self?.tangemSdk.startSession(with: CreateWalletAndReadOriginCardTask(), cardId: cardId, completion: { result in
                     switch result {
                     case .success(let resultTuplet):
-                        self?.backupService.setOriginCard(resultTuplet.0)
                         self?.input.cardModel.update(with: resultTuplet.1)
+                        self?.tokensRepo.setCard(resultTuplet.1.cardId)
                         self?.input.cardModel.addBlockchain(.bitcoin(testnet: false))
                         self?.input.cardModel.addBlockchain(.ethereum(testnet: false))
+                        if let originCard = resultTuplet.0 {
+                            self?.backupService.setOriginCard(originCard)
+                        } else { //we cannot create backup with this card for some reason
+                            DispatchQueue.main.async { self?.jumpToLatestStep() }
+                        }
                         promise(.success(()))
                     case .failure(let error):
                         promise(.failure(error))
@@ -590,7 +600,23 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                 Future { [unowned self] promise in
                     self.backupService.proceedBackup { result in
                         switch result {
-                        case .success:
+                        case .success(let state):
+                            if state == .needWriteBackupCard(index: 2) { //todo: refactor this
+                                if let firstCard = backupService.fetchBackupCards().first {
+                                    self.tokensRepo.setCard(firstCard)
+                                    self.input.cardModel.addBlockchain(.bitcoin(testnet: false))
+                                    self.input.cardModel.addBlockchain(.ethereum(testnet: false))
+                                    self.tokensRepo.setCard(self.input.cardModel.cardInfo.card.cardId)
+                                }
+                              
+                            } else if state == .finished {
+                                if let lastCard = backupService.fetchBackupCards().last {
+                                    self.tokensRepo.setCard(lastCard)
+                                    self.input.cardModel.addBlockchain(.bitcoin(testnet: false))
+                                    self.input.cardModel.addBlockchain(.ethereum(testnet: false))
+                                    self.tokensRepo.setCard(self.input.cardModel.cardInfo.card.cardId)
+                                }
+                            }
                             promise(.success(()))
                         case .failure(let error):
                             promise(.failure(error))
