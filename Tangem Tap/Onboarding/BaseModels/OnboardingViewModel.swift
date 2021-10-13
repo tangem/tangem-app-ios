@@ -72,6 +72,10 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
         )
     }
     
+    var isOnboardingFinished: Bool {
+        currentStep.isOnboardingFinished
+    }
+    
     var mainButtonTitle: LocalizedStringKey {
         if !isInitialAnimPlayed, let welcomeStep = input.welcomeStep {
             return welcomeStep.mainButtonTitle
@@ -105,7 +109,7 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
             return false
         }
         
-        if currentStep.isOnboardingFinished {
+        if isOnboardingFinished {
             return false
         }
         
@@ -160,7 +164,7 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
     }
     
     func goToNextStep() {
-        if currentStep.isOnboardingFinished, !assembly.isPreview {
+        if isOnboardingFinished, !assembly.isPreview {
             DispatchQueue.main.async {
                 self.successCallback?()
             }
@@ -168,6 +172,7 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
             let cardId = input.cardModel.cardInfo.card.cardId
             if let existingIndex = userPrefsService?.cardsStartedActivation.firstIndex(where: { $0 == cardId }) {
                 userPrefsService?.cardsStartedActivation.remove(at: existingIndex)
+                userPrefsService?.cardsFinishedActivation.append(cardId)
             }
             
             return
