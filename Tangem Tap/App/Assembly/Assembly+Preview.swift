@@ -14,7 +14,7 @@ extension Assembly {
         case withoutWallet, twin, ethereum, stellar, v4, cardanoNote, cardanoNoteEmptyWallet, ethEmptyNote, tangemWalletEmpty
         
         static func scanResult(for preview: PreviewCard, assembly: Assembly) -> ScanResult {
-            let card = preview.card
+            let card = Card.card
             let ci = CardInfo(card: card,
                               walletData: preview.walletData,
 //                              artworkInfo: nil,
@@ -24,20 +24,6 @@ extension Assembly {
             let scanResult = ScanResult.card(model: vm)
             assembly.services.cardsRepository.cards[card.cardId] = scanResult
             return scanResult
-        }
-        
-        var card: Card {
-            switch self {
-            case .withoutWallet: return .testCardNoWallet
-            case .twin: return .testTwinCard
-            case .ethereum: return .v4Card
-            case .stellar: return .v4Card
-            case .v4: return .v4Card
-            case .cardanoNote: return .cardanoNote
-            case .cardanoNoteEmptyWallet: return .cardanoNoteEmptyWallet
-            case .ethEmptyNote: return .ethEmptyNote
-            case .tangemWalletEmpty: return .emptyTangemWallet
-            }
         }
         
         var walletData: WalletData? {
@@ -83,7 +69,7 @@ extension Assembly {
     }
     
     static func previewCardViewModel(for card: PreviewCard) -> CardViewModel {
-        previewAssembly(for: card).services.cardsRepository.cards[card.card.cardId]!.cardModel!
+        previewAssembly(for: card).services.cardsRepository.cards[Card.card.cardId]!.cardModel!
     }
     
     static var previewAssembly: Assembly {
