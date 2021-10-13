@@ -119,14 +119,14 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     var canPurgeWallet: Bool {
-        if cardInfo.card.firmwareVersion >= .multiwalletAvailable {
+        if cardInfo.card.firmwareVersion >= .multiwalletAvailable &&
+            cardInfo.card.firmwareVersion < .backupAvailable {
             return false
         }
         
         if cardInfo.card.wallets.count == 0 {
             return false
         }
-        
         
         if cardInfo.card.wallets.first?.settings.isPermanent ?? false {
             return false
