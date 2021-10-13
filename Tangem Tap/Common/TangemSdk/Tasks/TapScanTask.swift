@@ -18,7 +18,7 @@ struct TapScanTaskResponse {
     func getCardInfo() -> CardInfo {
         return CardInfo(card: card,
                         walletData: walletData,
-//                        artworkInfo: nil,
+                        //                        artworkInfo: nil,
                         twinCardInfo: decodeTwinFile(from: self),
                         isTangemNote: isTangemNote)
     }
@@ -32,15 +32,15 @@ struct TapScanTaskResponse {
         }
         
         var pairPublicKey: Data?
-
+        
         if let walletPubKey = card.wallets.first?.publicKey, let fullData = twinIssuerData, fullData.count == 129 {
             let pairPubKey = fullData[0..<65]
             let signature = fullData[65..<fullData.count]
             if let _ = try? Secp256k1Utils.verify(publicKey: walletPubKey, message: pairPubKey, signature: signature) {
-               pairPublicKey = pairPubKey
+                pairPublicKey = pairPubKey
             }
         }
-    
+        
         return TwinCardInfo(cid: response.card.cardId,
                             series: series,
                             pairPublicKey: pairPublicKey)
@@ -84,8 +84,12 @@ final class TapScanTask: CardSessionRunnable {
             return
         }
         
-        if card.firmwareVersion >= .multiwalletAvailable && card.settings.isFilesAllowed {
-            readNote(card, session: session, completion: completion)
+        if card.firmwareVersion >= .multiwalletAvailable  {
+            if card.settings.isFilesAllowed {
+                readNote(card, session: session, completion: completion)
+            } else {
+                appendWalletsIfNeeded(session: session, completion: completion)
+            }
             return
         }
         
@@ -93,9 +97,9 @@ final class TapScanTask: CardSessionRunnable {
     }
     
     private func readNote(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
-       // self.noteWalletData = WalletData(blockchain: "BTC") //for test without file
-       // self.runAttestation(session, completion)
-       // return
+        // self.noteWalletData = WalletData(blockchain: "BTC") //for test without file
+        // self.runAttestation(session, completion)
+        // return
         
         let readFileCommand = ReadFilesTask(fileName: "blockchainInfo", walletPublicKey: nil)
         readFileCommand.run(in: session) { (result) in
@@ -196,10 +200,10 @@ final class TapScanTask: CardSessionRunnable {
         case .failed, .skipped:
             let isDevelopmentCard = session.environment.card!.firmwareVersion.type == .sdk
             
-//            if isDevelopmentCard {
-//                self.complete(session, completion)
-//                return
-//            }
+            //            if isDevelopmentCard {
+            //                self.complete(session, completion)
+            //                return
+            //            }
             //Possible production sample or development card
             if isDevelopmentCard || session.environment.config.allowUntrustedCards {
                 session.viewDelegate.attestationDidFail(isDevelopmentCard: isDevelopmentCard) {
