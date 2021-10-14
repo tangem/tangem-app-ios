@@ -43,10 +43,6 @@ extension Card {
         issuer.name.lowercased() == "start2coin"
     }
     
-    var isTangemWallet: Bool {
-        TangemWallet.isWalletBatch(batchId)
-    }
-    
     var isPermanentLegacyWallet: Bool {
         if firmwareVersion < .multiwalletAvailable {
             return wallets.first?.settings.isPermanent ?? false
