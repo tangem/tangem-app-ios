@@ -366,18 +366,6 @@ class MainViewModel: ViewModel, ObservableObject {
         }
     }
     
-    func update(with scan: ScanResult) {
-        if isProcessingNewCard {
-            return
-        }
-        
-        let newState = cardsRepository.lastScanResult
-        if newState != self.state {
-            state = cardsRepository.lastScanResult
-        }
-
-    }
-    
     func fetchWarnings() {
         print("⚠️ Main view model fetching warnings")
         self.warnings = self.warningsManager.warnings(for: .main)
