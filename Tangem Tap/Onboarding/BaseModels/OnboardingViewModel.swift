@@ -169,10 +169,6 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
         if let existingIndex = userPrefsService.cardsStartedActivation.firstIndex(where: { $0 == cardId }) {
             userPrefsService.cardsStartedActivation.remove(at: existingIndex)
         }
-    
-        if !userPrefsService.cardsFinishedActivation.contains(cardId) {
-            userPrefsService.cardsFinishedActivation.append(cardId)
-        }
     }
     
     func goToNextStep() {
