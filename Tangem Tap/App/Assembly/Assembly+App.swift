@@ -156,9 +156,9 @@ extension Assembly {
     // MARK: - Main view model
     func makeMainViewModel() -> MainViewModel {
         if let restored: MainViewModel = get() {
-            restored.update(with: services.cardsRepository.lastScanResult)
             return restored
         }
+        
         let vm =  MainViewModel()
         initialize(vm, isResetable: false)
         vm.cardsRepository = services.cardsRepository
