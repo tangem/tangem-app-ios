@@ -13,9 +13,12 @@ import SwiftUI
 struct CardOperationView: View {
     var title: String
     var buttonTitle: LocalizedStringKey = "common_save_changes"
+    var shouldPopToRoot: Bool = false
     var alert: String
     var actionButtonPressed: (_ completion: @escaping (Result<Void, Error>) -> Void) -> Void
     @Environment(\.presentationMode) var presentationMode
+    @EnvironmentObject var assembly: Assembly
+    @EnvironmentObject var navigation: NavigationCoordinator
     @State var error: AlertBinder?
     @State var isLoading: Bool = false
     
@@ -43,7 +46,14 @@ struct CardOperationView: View {
                                         self.isLoading = false
                                         switch result {
                                         case .success:
-                                            self.presentationMode.wrappedValue.dismiss()
+                                            if self.shouldPopToRoot {
+                                                DispatchQueue.main.async {
+                                                    self.assembly.getLetsStartOnboardingViewModel()?.reset()
+                                                    self.navigation.popToRoot()
+                                                }
+                                            } else {
+                                                self.presentationMode.wrappedValue.dismiss()
+                                            }
                                         case .failure(let error):
                                             if case .userCancelled = error.toTangemSdkError() {
                                                 return
