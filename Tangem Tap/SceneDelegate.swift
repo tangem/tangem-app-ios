@@ -54,17 +54,19 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Called when the scene has moved from an inactive state to an active state.
         // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
         
-        deferredIntentWork = DispatchWorkItem {
-            self.deferredIntents.forEach {
+        deferredIntentWork = DispatchWorkItem { [weak self] in
+            self?.deferredIntents.forEach {
                 switch $0.activityType {
                 case String(describing: ScanTangemCardIntent.self):
-                    self.assembly.makeReadViewModel().scan()
+                    //todo: test
+                    self?.assembly.getLetsStartOnboardingViewModel()?.scanCard()
                 default:
                     break
                 }
             }
-            self.deferredIntents.removeAll()
+            self?.deferredIntents.removeAll()
         }
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: deferredIntentWork!)
     }
 
@@ -86,7 +88,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 
                 handleUrl(url)
             case String(describing: ScanTangemCardIntent.self):
-                popToRoot()
+                assembly.services.navigationCoordinator.popToRoot()
                 deferredIntents.append($0)
             default: return
             }
@@ -105,15 +107,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         }
     }
     
-    private func popToRoot() {
-        assembly.services.navigationCoordinator.readToMain = false
-        assembly.services.navigationCoordinator.readToDisclaimer = false
-        assembly.services.navigationCoordinator.readToShop = false
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.assembly.services.navigationCoordinator.reset()
-        }
-    }
-    
     private func prepareRootController() -> UIViewController {
         let vm = assembly.getLaunchOnboardingViewModel()
         let contentView = ContentView() {
@@ -129,7 +122,7 @@ extension SceneDelegate: URLHandler {
     func handle(url: String) -> Bool {
         guard url.starts(with: "https://app.tangem.com") || url.starts(with: Constants.tangemDomain + "/ndef") else { return false }
         
-        popToRoot()
+        assembly.services.navigationCoordinator.popToRoot()
         return true
     }
     
