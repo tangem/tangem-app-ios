@@ -6,12 +6,12 @@
 //  Copyright © 2021 Tangem AG. All rights reserved.
 //
 
-import Foundation
-
-enum TangemWallet: String {
-    case multiwalletV4 = "AC01"
-    
-    static func isWalletBatch(_ batch: String) -> Bool {
-        TangemWallet(rawValue: batch) != nil
-    }
-}
+//import Foundation
+//
+//enum TangemWallet: String {
+//    case multiwalletV4 = "AC01"
+//    
+//    static func isWalletBatch(_ batch: String) -> Bool {
+//        TangemWallet(rawValue: batch) != nil
+//    }
+//}
