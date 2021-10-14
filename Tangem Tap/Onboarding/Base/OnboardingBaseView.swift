@@ -16,7 +16,7 @@ struct OnboardingBaseView: View {
     var navigationLinks: some View {
         if !viewModel.isFromMainScreen {
             NavigationLink(destination: MainView(viewModel: viewModel.assembly.makeMainViewModel()),
-                           isActive: $viewModel.toMain)
+                           isActive: $navigation.readToMain)
         }
         
         NavigationLink(destination: EmptyView(), isActive: .constant(false))
