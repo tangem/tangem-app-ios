@@ -29,13 +29,9 @@ class OnboardingStepsSetupService {
     }
     
     func steps(for cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
-        if userPrefs.cardsFinishedActivation.contains(cardInfo.card.cardId) {
-            return .justWithError(output: .singleWallet([]))
-        }
-        
         let card = cardInfo.card
         
-        if card.isTangemWallet {
+        if cardInfo.isTangemWallet {
             return stepsForWallet(cardInfo)
         } else if cardInfo.isTangemNote {
             return stepsForNote(cardInfo)
@@ -48,9 +44,6 @@ class OnboardingStepsSetupService {
         if card.wallets.count == 0 {
             steps.append(.createWallet)
             steps.append(.success)
-        } else {
-            //cards without any onboarding
-            userPrefs.cardsFinishedActivation.append(card.cardId)
         }
         
         return steps.count > 0 ? .justWithError(output: .singleWallet(steps)) : .justWithError(output: .singleWallet([]))
@@ -79,13 +72,15 @@ class OnboardingStepsSetupService {
             model.walletManager.update { [unowned self] result in
                 switch result {
                 case .success:
-                    if model.isEmptyIncludingPendingIncomingTxs {
-                        steps.append(.topup)
-                    } else if !self.userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId) {
+                    if self.userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId) {
+                        if model.isEmptyIncludingPendingIncomingTxs {
+                            steps.append(.topup)
+                        }
+                        steps.append(.successTopup)
+                        promise(.success(.singleWallet(steps)))
+                    } else {
                         return promise(.success(.singleWallet([])))
                     }
-                    steps.append(.successTopup)
-                    promise(.success(.singleWallet(steps)))
                 case .failure(let error):
                     if case WalletError.noAccount = error {
                         steps.append(.topup)
