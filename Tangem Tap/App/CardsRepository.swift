@@ -137,7 +137,6 @@ enum ScanResult: Equatable {
 
     static func == (lhs: ScanResult, rhs: ScanResult) -> Bool {
 		switch (lhs, rhs) {
-		
 		case (.card, .card): return true
 		case (.unsupported, .unsupported): return true
 		case (.notScannedYet, .notScannedYet): return true
