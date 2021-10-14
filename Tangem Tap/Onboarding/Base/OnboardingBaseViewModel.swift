@@ -120,10 +120,14 @@ class OnboardingBaseViewModel: ViewModel, ObservableObject {
     }
     
     private func processToMain() {
+        let mainModel = assembly.makeMainViewModel()
+        mainModel.state = assembly.services.cardsRepository.lastScanResult
+        
         if isFromMainScreen {
             navigation.mainToCardOnboarding = false
             return
         }
+        
         navigation.readToMain = true
         //toMain = true
     }
