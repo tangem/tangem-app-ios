@@ -25,6 +25,7 @@ struct CardInfo {
     var artwork: CardArtwork = .notLoaded
     var twinCardInfo: TwinCardInfo?
     var isTangemNote: Bool
+    var isTangemWallet: Bool
     
     var imageLoadDTO: ImageLoadDTO {
         ImageLoadDTO(cardId: card.cardId,
@@ -47,7 +48,10 @@ struct CardInfo {
             return nil
         }
         
-        return Blockchain.from(blockchainName: walletData.blockchain, curve: curve)
+        let blockchainName = isTangemNote ? (walletData.blockchain.lowercased() == "binance" ? "bsc": walletData.blockchain)
+            : walletData.blockchain
+        
+        return Blockchain.from(blockchainName: blockchainName, curve: curve)
     }
     
     var defaultToken: Token? {
