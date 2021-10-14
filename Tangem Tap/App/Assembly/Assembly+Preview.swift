@@ -19,7 +19,8 @@ extension Assembly {
                               walletData: preview.walletData,
 //                              artworkInfo: nil,
                               twinCardInfo: preview.twinInfo,
-                              isTangemNote: preview.isNote)
+                              isTangemNote: preview.isNote,
+                              isTangemWallet: false)
             let vm = assembly.makeCardModel(from: ci)
             let scanResult = ScanResult.card(model: vm)
             assembly.services.cardsRepository.cards[card.cardId] = scanResult
