@@ -82,6 +82,15 @@ class NavigationCoordinator: ObservableObject {
     
     @Published var onboardingReset = false
 
+    func popToRoot() {
+        readToMain = false
+        readToDisclaimer = false
+        readToShop = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.reset()
+        }
+    }
+    
     func reset() {
         readToMain = false
         readToShop = false

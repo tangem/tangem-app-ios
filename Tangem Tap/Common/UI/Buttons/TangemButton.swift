@@ -75,7 +75,7 @@ extension TangemButton {
                             image: image,
                             systemImage: systemImage,
                             iconPosition: .leading,
-                            iconPadding: 0,
+                            iconPadding: 2,
                             action: action)
     }
 }
