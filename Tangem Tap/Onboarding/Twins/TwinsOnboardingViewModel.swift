@@ -183,9 +183,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
             }
             fallthrough
         case .second:
-            if let pairCardId = twinsService.twinPairCardId {
-                userPrefsService?.cardsStartedActivation.append(pairCardId)
-            }
             fallthrough
         case .third:
             isMainButtonBusy = true
@@ -283,6 +280,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
                     if newStep == .done {
                         self.updateCardBalance()
                     }
+                    
                     DispatchQueue.main.async {
                         withAnimation(.easeOut(duration: 0.5)) {
                             self.currentStepIndex += 1
@@ -292,6 +290,12 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
                     }
                 default:
                     print("Wrong state while twinning cards: current - \(self.currentStep), new - \(newStep)")
+                }
+                
+                if let pairCardId = twinsService.twinPairCardId,
+                   let userService = userPrefsService,
+                   !userService.cardsStartedActivation.contains(pairCardId) {
+                    userPrefsService?.cardsStartedActivation.append(pairCardId)
                 }
             })
     }
