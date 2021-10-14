@@ -408,13 +408,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     func purgeWallet(completion: @escaping (Result<Void, Error>) -> Void) {
-        guard cardInfo.card.firmwareVersion < .multiwalletAvailable,
-              let wallet = cardInfo.card.wallets.first else {
-            completion(.failure(TangemSdkError.unsupportedCommand))
-            return
-        }
-        
-        tangemSdk.startSession(with: PurgeWalletAndReadTask(publicKey: wallet.publicKey),
+        tangemSdk.startSession(with: PurgeWalletsAndReadTask(),
                                cardId: cardInfo.card.cardId,
                                initialMessage: Message(header: nil,
                                                       body: "initial_message_purge_wallet_body".localized)) {[unowned self] result in
