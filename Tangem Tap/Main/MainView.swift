@@ -123,6 +123,7 @@ struct MainView: View {
                                      image: "scan",
                                      action: scanAction)
                     .buttonStyle(TangemButtonStyle(colorStyle: .black,
+                                                   layout: .smallVertical,
                                                    isLoading: viewModel.isScanning))
             }
         } else {
@@ -149,7 +150,7 @@ struct MainView: View {
             TangemButton.vertical(title: "wallet_button_send",
                                   systemImage: "arrow.right",
                                   action: action)
-                .buttonStyle(TangemButtonStyle(isDisabled: !viewModel.canSend))
+                .buttonStyle(TangemButtonStyle(layout: .smallVertical, isDisabled: !viewModel.canSend))
         } else {
             TangemButton(title: "wallet_button_send",
                          systemImage: "arrow.right") { action() }
@@ -164,7 +165,7 @@ struct MainView: View {
                                  systemImage: "arrow.up.down.wide") {
                 navigation.mainToTradeSheet = true
             }
-            .buttonStyle(TangemButtonStyle())
+            .buttonStyle(TangemButtonStyle(layout: .smallVertical))
             .actionSheet(isPresented: $navigation.mainToTradeSheet, content: {
                 ActionSheet(title: Text("action_sheet_trade_hint"),
                             buttons: [
@@ -181,7 +182,7 @@ struct MainView: View {
             TangemButton.vertical(title: "wallet_button_topup",
                                  systemImage: "arrow.up",
                                  action: viewModel.buyCryptoAction)
-            .buttonStyle(TangemButtonStyle())
+            .buttonStyle(TangemButtonStyle(layout: .smallVertical))
         }
     }
     
