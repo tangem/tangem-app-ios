@@ -19,7 +19,7 @@ class OnboardingBaseViewModel: ViewModel, ObservableObject {
             if card.isTwinCard {
                 return .twin
             }
-            if card.isTangemWallet {
+            if cardModel.cardInfo.isTangemWallet {
                 return .wallet
             }
             
