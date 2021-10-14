@@ -35,6 +35,7 @@ struct DetailsView: View {
     
     @ObservedObject var viewModel: DetailsViewModel
     @EnvironmentObject var navigation: NavigationCoordinator
+    @EnvironmentObject var assembly: Assembly
     
     //fix remain highlited bug on ios14
     @State private var selection: NavigationTag? = nil
@@ -105,9 +106,12 @@ struct DetailsView: View {
                 } else {
                     NavigationLink(destination: CardOperationView(title: "details_row_title_erase_wallet".localized,
                                                                   buttonTitle: "details_row_title_erase_wallet",
+                                                                  shouldPopToRoot: true,
                                                                   alert: "details_erase_wallet_warning".localized,
-                                                                  actionButtonPressed: {self.viewModel.cardModel.purgeWallet(completion: $0)}
-                    ),
+                                                                  actionButtonPressed: { self.viewModel.cardModel.purgeWallet(completion: $0)}
+                    )
+                    .environmentObject(navigation)
+                    .environmentObject(assembly),
                     tag: NavigationTag.cardOperation, selection: $selection) {
                         DetailsRowView(title: "details_row_title_erase_wallet".localized, subtitle: "")
                     }
