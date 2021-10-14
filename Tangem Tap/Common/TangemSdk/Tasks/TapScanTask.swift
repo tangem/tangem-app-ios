@@ -13,14 +13,16 @@ struct TapScanTaskResponse {
     let card: Card
     let walletData: WalletData?
     let twinIssuerData: Data?
-    let isTangemNote: Bool
+    let isTangemNote: Bool //todo refactor
+    let isTangemWallet: Bool
     
     func getCardInfo() -> CardInfo {
         return CardInfo(card: card,
                         walletData: walletData,
                         //                        artworkInfo: nil,
                         twinCardInfo: decodeTwinFile(from: self),
-                        isTangemNote: isTangemNote)
+                        isTangemNote: isTangemNote,
+                        isTangemWallet: isTangemWallet)
     }
     
     private func decodeTwinFile(from response: TapScanTaskResponse) -> TwinCardInfo? {
@@ -84,7 +86,7 @@ final class TapScanTask: CardSessionRunnable {
             return
         }
         
-        if card.firmwareVersion >= .multiwalletAvailable  {
+        if card.firmwareVersion.doubleValue >= 4.39 && card.settings.maxWalletsCount == 1 {
             readNote(card, session: session, completion: completion)
             return
         }
@@ -241,9 +243,13 @@ final class TapScanTask: CardSessionRunnable {
     }
     
     private func complete(_ session: CardSession, _ completion: @escaping CompletionResult<TapScanTaskResponse>) {
+        let card = session.environment.card!
+        let isNote = noteWalletData != nil
+        let isWallet = card.firmwareVersion.doubleValue >= 4.39 && !isNote
         completion(.success(TapScanTaskResponse(card: session.environment.card!,
                                                 walletData: noteWalletData ?? session.environment.walletData,
                                                 twinIssuerData: twinIssuerData,
-                                                isTangemNote: noteWalletData != nil)))
+                                                isTangemNote: noteWalletData != nil,
+                                                isTangemWallet: isWallet)))
     }
 }
