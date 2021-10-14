@@ -13,6 +13,7 @@ import struct TangemSdk.Card
 import struct TangemSdk.WalletData
 import struct TangemSdk.ArtworkInfo
 import class TangemSdk.TangemSdk
+import enum TangemSdk.TangemSdkError
 #if !CLIP
 import BlockchainSdk
 #endif
@@ -172,7 +173,12 @@ class CardsRepository {
             switch result {
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .scan)
-                completion(.failure(error))
+                switch error {
+                case .wrongCardType:
+                    completion(.failure(TangemSdkError.underlying(error: "alert_unsupported_card".localized)))
+                default:
+                    completion(.failure(error))
+                }
             case .success(let response):
 				Analytics.logScan(card: response.card)
                 #if !CLIP
