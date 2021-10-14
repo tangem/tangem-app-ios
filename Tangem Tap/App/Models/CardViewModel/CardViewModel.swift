@@ -657,17 +657,6 @@ extension CardViewModel {
                 return nil
             }
         }
-        
-//
-//        var wallet: Wallet? {
-//            switch self {
-//            case .loaded(let model):
-//                return model.wallet
-//            default:
-//                return nil
-//            }
-//        }
-        
         var canUpdate: Bool {
             switch self {
             case .loaded:
