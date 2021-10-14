@@ -49,6 +49,10 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
         setupCards(animated: !isInitialSetup)
     }
     
+    func reset() {
+        setupCards(animated: false)
+    }
+    
     func scanCard() {
         guard userPrefsService.isTermsOfServiceAccepted else {
             showDisclaimer()
@@ -56,7 +60,6 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
         }
             
         isScanningCard = true
-        
         
         var subscription: AnyCancellable? = nil
         
