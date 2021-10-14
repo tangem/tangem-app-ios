@@ -26,6 +26,13 @@ extension Assembly {
         
         return vm
     }
+    func getLetsStartOnboardingViewModel() -> WelcomeOnboardingViewModel? {
+        if let restored: WelcomeOnboardingViewModel = get() {
+            return restored
+        }
+        
+        return nil
+    }
     
     func getLetsStartOnboardingViewModel(with callback: @escaping (OnboardingInput) -> Void) -> WelcomeOnboardingViewModel {
         if let restored: WelcomeOnboardingViewModel = get() {
@@ -34,7 +41,7 @@ extension Assembly {
         }
         
         let vm = WelcomeOnboardingViewModel(successCallback: callback)
-        initialize(vm)
+        initialize(vm, isResetable: false)
         vm.cardsRepository = services.cardsRepository
         vm.imageLoaderService = services.imageLoaderService
         vm.stepsSetupService = services.onboardingStepsSetupService
@@ -133,18 +140,18 @@ extension Assembly {
     }
     
     
-    func makeReadViewModel() -> ReadViewModel {
-        if let restored: ReadViewModel = get() {
-            return restored
-        }
-        
-        let vm =  ReadViewModel()
-        initialize(vm, isResetable: false)
-        vm.failedCardScanTracker = services.failedCardScanTracker
-        vm.userPrefsService = services.userPrefsService
-        vm.cardsRepository = services.cardsRepository
-        return vm
-    }
+//    func makeReadViewModel() -> ReadViewModel {
+//        if let restored: ReadViewModel = get() {
+//            return restored
+//        }
+//        
+//        let vm =  ReadViewModel()
+//        initialize(vm, isResetable: false)
+//        vm.failedCardScanTracker = services.failedCardScanTracker
+//        vm.userPrefsService = services.userPrefsService
+//        vm.cardsRepository = services.cardsRepository
+//        return vm
+//    }
     
     // MARK: - Main view model
     func makeMainViewModel() -> MainViewModel {
