@@ -105,7 +105,7 @@ enum ButtonColorStyle {
 struct TangemButtonStyle: ButtonStyle {
     var colorStyle: ButtonColorStyle = .green
     var layout: ButtonLayout = .small
-    var font: Font = .system(size: 17)
+    var font: Font = .system(size: 17, weight: .semibold, design: .default)
     var isDisabled: Bool = false
     var isLoading: Bool = false
 
