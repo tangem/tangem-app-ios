@@ -53,7 +53,7 @@ class OnboardingBaseViewModel: ViewModel, ObservableObject {
     var isTermsOfServiceAccepted: Bool { userPrefsService.isTermsOfServiceAccepted }
     
     @Published var content: Content
-    @Published var toMain: Bool = false
+   // [REDACTED_USERNAME] var toMain: Bool = false
     
     private var resetSubscription: AnyCancellable?
     
@@ -125,7 +125,7 @@ class OnboardingBaseViewModel: ViewModel, ObservableObject {
             return
         }
         navigation.readToMain = true
-        toMain = true
+        //toMain = true
     }
     
 }
