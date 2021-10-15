@@ -170,7 +170,6 @@ struct WalletOnboardingView: View {
             }
         })
         .preference(key: ModalSheetPreferenceKey.self, value: viewModel.isModal)
-        .navigationBarHidden(true)
         .onAppear(perform: {
             if viewModel.isInitialAnimPlayed {
                 return
