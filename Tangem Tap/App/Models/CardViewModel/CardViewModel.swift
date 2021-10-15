@@ -377,8 +377,8 @@ class CardViewModel: Identifiable, ObservableObject {
                 
                 switch result {
                 case .success:
-                    self.cardPinSettings?.isPin1Default = false
-                    self.cardPinSettings?.isPin2Default = true
+                    self.cardPinSettings?.isPin1Default = true
+                    self.cardPinSettings?.isPin2Default = false
                     self.updateCurrentSecOption()
                     completion(.success(()))
                 case .failure(let error):
