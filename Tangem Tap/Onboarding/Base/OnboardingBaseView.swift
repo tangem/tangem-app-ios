@@ -72,7 +72,10 @@ struct OnboardingBaseView: View {
             viewModel.bind()
         })
         .navigationBarTitle("", displayMode: .inline)
-        .navigationBarHidden(true)
+        .navigationBarHidden(!(navigation.readToShop
+                                || navigation.onboardingToBuyCrypto
+                                || navigation.onboardingWalletToShop))
+        //.navigationBarHidden(true)
     }
 }
 

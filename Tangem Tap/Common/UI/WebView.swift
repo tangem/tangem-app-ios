@@ -35,7 +35,6 @@ struct WebViewContainer: View {
         ZStack {
             WebView(url: url, urlActions: urlActions, isLoading: $isLoading)
                 .navigationBarTitle(title, displayMode: .inline)
-                .navigationBarHidden(false)
                 .background(Color.tangemTapBg.edgesIgnoringSafeArea(.all))
             if isLoading && addLoadingIndicator {
                 ActivityIndicatorView(color: .tangemTapGrayDark)
