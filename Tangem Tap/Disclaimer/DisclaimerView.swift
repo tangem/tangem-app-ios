@@ -81,7 +81,7 @@ struct DisclaimerView: View {
                         .font(Font.system(size: 16, weight: .regular, design: .default))
                         .foregroundColor(.tangemTapGrayDark5)
                         .padding(.horizontal, 16)
-                        .padding(.bottom, showAccept ? 150 : 16)
+                        .padding(.bottom, showAccept ? 150 : 0)
                         .padding(.top, style.disclaimerTextTopPadding)
                 }
                 .clipped()
