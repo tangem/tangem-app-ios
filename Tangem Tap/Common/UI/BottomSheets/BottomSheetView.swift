@@ -15,6 +15,8 @@ struct BottomSheetView<Content: View>: View {
     var hideBottomSheetCallback: () -> ()
     var content: Content
     
+    @State private var _isPresented = false
+    
     init(isPresented: Published<Bool>.Publisher, hideBottomSheetCallback: @escaping () -> (), @ViewBuilder content: () -> Content) {
         self.isPresented = isPresented
         self.hideBottomSheetCallback = hideBottomSheetCallback
@@ -34,6 +36,8 @@ struct BottomSheetView<Content: View>: View {
     private var dragGesture: some Gesture {
         DragGesture(coordinateSpace: .global)
             .onChanged { value in
+                guard _isPresented else { return }
+                
                 lastDragValue = value
                 let currentDistanceToBottomEdge = screenSize.height - value.location.y
                 let startDisctanceToBottomEdge = screenSize.height - value.startLocation.y
@@ -41,6 +45,8 @@ struct BottomSheetView<Content: View>: View {
                 sheetOffset = max(0, value.translation.height)
             }
             .onEnded { value in
+                guard _isPresented else { return }
+                
                 let shouldDismiss = value.predictedEndTranslation.height > UIScreen.main.bounds.height / 3
                 let speed: Double = speed(for: value)
                 
@@ -90,6 +96,8 @@ struct BottomSheetView<Content: View>: View {
             .edgesIgnoringSafeArea(.bottom)
         }
         .onReceive(isPresented) { isPresented in
+            _isPresented = isPresented
+            
             guard isPresented else {
                 return
             }
