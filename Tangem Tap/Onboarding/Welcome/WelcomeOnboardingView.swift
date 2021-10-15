@@ -82,7 +82,7 @@ struct WelcomeOnboardingView: View {
             }
             .padding(.horizontal, 40)
             .sheet(isPresented: $navigation.onboardingToDisclaimer, content: {
-                DisclaimerView(style: .sheet(acceptCallback: viewModel.acceptDisclaimer))
+                DisclaimerView(style: .sheet(acceptCallback: viewModel.acceptDisclaimer), showAccept: true)
                     .presentation(modal: true, onDismissalAttempt: nil, onDismissed: viewModel.disclaimerDismissed)
             })
             ScanTroubleshootingView(isPresented: $navigation.readToTroubleshootingScan) {
