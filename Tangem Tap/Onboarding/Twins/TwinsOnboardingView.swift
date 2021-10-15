@@ -166,7 +166,6 @@ struct TwinsOnboardingView: View {
             binder.alert
         })
         .preference(key: ModalSheetPreferenceKey.self, value: currentStep.isModal)
-        .navigationBarHidden(true)
         .onAppear(perform: {
             if viewModel.isInitialAnimPlayed {
                 return
