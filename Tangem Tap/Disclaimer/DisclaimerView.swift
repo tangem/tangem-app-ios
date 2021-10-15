@@ -50,6 +50,7 @@ struct DisclaimerView: View {
     }
     
     let style: Style
+    let showAccept: Bool
     @Environment(\.presentationMode) private var presentationMode
     
     var body: some View {
@@ -80,33 +81,34 @@ struct DisclaimerView: View {
                         .font(Font.system(size: 16, weight: .regular, design: .default))
                         .foregroundColor(.tangemTapGrayDark5)
                         .padding(.horizontal, 16)
-                        .padding(.bottom, 150)
+                        .padding(.bottom, showAccept ? 150 : 16)
                         .padding(.top, style.disclaimerTextTopPadding)
                 }
                 .clipped()
             }
-            
-            TangemButton(title: "common_accept") {
-                if case let .sheet(acceptCallback) = style {
-                    acceptCallback()
+            if showAccept {
+                TangemButton(title: "common_accept") {
+                    if case let .sheet(acceptCallback) = style {
+                        acceptCallback()
+                    }
                 }
+                .buttonStyle(TangemButtonStyle())
+                .background(
+                    LinearGradient(
+                        gradient: Gradient(stops: [
+                            .init(color: .white.opacity(0.2), location: 0.0),
+                            .init(color: .white, location: 0.5),
+                            .init(color: .white, location: 1.0)
+                        ]),
+                        startPoint: .top,
+                        endPoint: .bottom)
+                        .frame(size: CGSize(width: UIScreen.main.bounds.width, height: 135))
+                        .offset(y: -20)
+                )
+                .alignmentGuide(.bottom, computeValue: { dimension in
+                    dimension[.bottom] + 16
+                })
             }
-            .buttonStyle(TangemButtonStyle())
-            .background(
-                LinearGradient(
-                    gradient: Gradient(stops: [
-                        .init(color: .white.opacity(0.2), location: 0.0),
-                        .init(color: .white, location: 0.5),
-                        .init(color: .white, location: 1.0)
-                    ]),
-                    startPoint: .top,
-                    endPoint: .bottom)
-                    .frame(size: CGSize(width: UIScreen.main.bounds.width, height: 135))
-                    .offset(y: -20)
-            )
-            .alignmentGuide(.bottom, computeValue: { dimension in
-                dimension[.bottom] + 16
-            })
         }
         .navigationBarTitle(style.navbarTitle)
         .navigationBarBackButtonHidden(style.navbarItemsHidden)
@@ -117,10 +119,10 @@ struct DisclaimerView: View {
 
 struct DisclaimerView_Previews: PreviewProvider {
     static var previews: some View {
-        DisclaimerView(style: .sheet(acceptCallback: {}))
+        DisclaimerView(style: .sheet(acceptCallback: {}), showAccept: true)
             .previewGroup(devices: [.iPhoneX, .iPhone8Plus], withZoomed: false)
         NavigationView(content: {
-            DisclaimerView(style: .navbar)
+            DisclaimerView(style: .navbar, showAccept: true)
         })
     }
 }
