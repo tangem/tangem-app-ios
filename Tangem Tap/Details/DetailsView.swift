@@ -157,12 +157,14 @@ struct DetailsView: View {
                     }
                 }
                 
-                NavigationLink(destination: WalletConnectView(viewModel: viewModel.assembly.makeWalletConnectViewModel(cardModel: viewModel.cardModel))
-                                .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
-                               tag: NavigationTag.walletConnect, selection: $selection) {
-                    DetailsRowView(title: "WalletConnect",
-                                   subtitle: "")
-                    
+                if viewModel.shouldShowWC {
+                    NavigationLink(destination: WalletConnectView(viewModel: viewModel.assembly.makeWalletConnectViewModel(cardModel: viewModel.cardModel))
+                                    .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
+                                   tag: NavigationTag.walletConnect, selection: $selection) {
+                        DetailsRowView(title: "WalletConnect",
+                                       subtitle: "")
+                        
+                    }
                 }
             }
             Section(header: Color.tangemTapBgGray
