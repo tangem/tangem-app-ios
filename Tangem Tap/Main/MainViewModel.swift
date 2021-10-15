@@ -239,7 +239,7 @@ class MainViewModel: ViewModel, ObservableObject {
             .flatMap {$0.objectWillChange }
             .receive(on: RunLoop.main)
             .sink { [unowned self] in
-                print("‼️ Card model will change")
+                print("⚠️ Card model will change")
                 self.objectWillChange.send()
             }
             .store(in: &bag)
@@ -275,12 +275,21 @@ class MainViewModel: ViewModel, ObservableObject {
             }
             .store(in: &bag)
         
-        $state
-            .compactMap { $0.cardModel }
-            .receive(on: RunLoop.main)
-            .sink { [unowned self] model in
-                print("🌀 Card model updated")
-                assembly.services.warningsService.setupWarnings(for: model.cardInfo)
+//        $state
+//            .compactMap { $0.cardModel }
+//            .receive(on: RunLoop.main)
+//            .sink { [unowned self] model in
+//                print("⚠️ Card model updated")
+//                assembly.services.warningsService.setupWarnings(for: model.cardInfo)
+//            }
+//            .store(in: &bag)
+        
+        warningsManager.warningsUpdatePublisher
+            .sink { [unowned self] (locationUpdate) in
+                if case .main = locationUpdate {
+                    print("⚠️ Main view model fetching warnings")
+                    self.warnings = self.warningsManager.warnings(for: .main)
+                }
             }
             .store(in: &bag)
         
@@ -300,14 +309,15 @@ class MainViewModel: ViewModel, ObservableObject {
             .store(in: &bag)
     
         $state
-            .filter { $0.cardModel != nil }
-            .sink {[unowned  self] _ in
-                print("✅ Receive new card model")
+            .compactMap { $0.cardModel }
+            .sink {[unowned  self] model in
+                print("⚠️ Receive new card model")
                 self.selectedAddressIndex = 0
                 self.isHashesCounted = false
                 self.assembly.reset()
+                self.assembly.services.warningsService.setupWarnings(for: model.cardInfo)
 //                if !self.showTwinCardOnboardingIfNeeded() {
-                    self.showUntrustedDisclaimerIfNeeded()
+                    self.countHashes()
 //                }
             }
             .store(in: &bag)
@@ -326,14 +336,6 @@ class MainViewModel: ViewModel, ObservableObject {
                     }
                 }
                 
-            }
-            .store(in: &bag)
-        
-        warningsManager.warningsUpdatePublisher
-            .sink { [weak self] (locationUpdate) in
-                if case .main = locationUpdate {
-                    self?.fetchWarnings()
-                }
             }
             .store(in: &bag)
     }
@@ -365,12 +367,7 @@ class MainViewModel: ViewModel, ObservableObject {
             
         }
     }
-    
-    func fetchWarnings() {
-        print("⚠️ Main view model fetching warnings")
-        self.warnings = self.warningsManager.warnings(for: .main)
-    }
-    
+
     func createWallet() {
         guard let cardModel = cardModel else {
             return
@@ -427,7 +424,7 @@ class MainViewModel: ViewModel, ObservableObject {
         navigation.mainToSend = true
     }
     
-    func showUntrustedDisclaimerIfNeeded() {
+    func countHashes() {
         guard let card = state.card else {
             return
         }
@@ -578,9 +575,6 @@ class MainViewModel: ViewModel, ObservableObject {
     private func processScannedCard(_ result: ScanResult) {
         func updateState() {
             state = result
-            if let model = result.cardModel {
-                assembly.services.warningsService.setupWarnings(for: model.cardInfo)
-            }
             isScanning = false
             navigation.mainToCardOnboarding = false
             isProcessingNewCard = false
@@ -662,6 +656,7 @@ class MainViewModel: ViewModel, ObservableObject {
             } else {
                 validatedSignedHashesCards.append(card.cardId)
             }
+            print("⚠️ Hashes counted")
             return
         }
 		
