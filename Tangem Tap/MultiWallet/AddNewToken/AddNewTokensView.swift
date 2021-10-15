@@ -30,7 +30,7 @@ fileprivate struct TokenView: View {
     
     private var buttonStyle: TangemButtonStyle {
         TangemButtonStyle(colorStyle: isAdded ? .gray : .green,
-                          layout: isAdded ? .thinHorizontal : .small,
+                          layout: .thinHorizontal,
                           isDisabled: isAdded,
                           isLoading: isLoading)
     }
