@@ -51,8 +51,23 @@ class DetailsViewModel: ViewModel, ObservableObject {
     }
     
     var shouldShowWC: Bool {
-        cardModel.cardInfo.card.wallets.contains(where: { $0.curve == .secp256k1 })
-            && (cardModel.wallets?.contains(where: { $0.blockchain == .ethereum(testnet: false) || $0.blockchain == .ethereum(testnet: true) }) ?? false)
+        if cardModel.cardInfo.isTangemNote {
+            return false
+        }
+        
+        if cardModel.cardInfo.card.isStart2Coin {
+            return false
+        }
+        
+        if cardModel.cardInfo.card.isTwinCard {
+            return false
+        }
+        
+        if !cardModel.cardInfo.card.supportedCurves.contains(.secp256k1) {
+            return false
+        }
+        
+        return true
     }
     
     var isTwinCard: Bool {
