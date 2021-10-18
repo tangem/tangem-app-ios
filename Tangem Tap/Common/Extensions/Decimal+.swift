@@ -14,6 +14,7 @@ extension Decimal {
         formatter.locale = Locale.current
         formatter.numberStyle = .currency
         formatter.currencyCode = code
+        formatter.currencySymbol = code
         formatter.roundingMode = .down 
         return formatter.string(from: self as NSDecimalNumber) ?? "\(self) \(code)"
     }
