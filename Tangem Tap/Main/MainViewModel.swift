@@ -341,32 +341,32 @@ class MainViewModel: ViewModel, ObservableObject {
     }
     
     // MARK: - Scan
-    func scan() {
-        self.isScanning = true
-        cardsRepository.scan { [weak self] scanResult in
-			guard let self = self else { return }
-            switch scanResult {
-            case .success(let result):
-                self.processScannedCard(result)
-                self.failedCardScanTracker.resetCounter()
-            case .failure(let error):
-                self.failedCardScanTracker.recordFailure()
-                
-                if self.failedCardScanTracker.shouldDisplayAlert {
-                    self.navigation.mainToTroubleshootingScan = true
-                } else {
-                    switch error.toTangemSdkError() {
-                    case .unknownError, .cardVerificationFailed:
-                        self.setError(error.alertBinder)
-                    default:
-                        break
-                    }
-                }
-                self.isScanning = false
-            }
-            
-        }
-    }
+//    func scan() {
+//        self.isScanning = true
+//        cardsRepository.scan { [weak self] scanResult in
+//			guard let self = self else { return }
+//            switch scanResult {
+//            case .success(let result):
+//                self.processScannedCard(result)
+//                self.failedCardScanTracker.resetCounter()
+//            case .failure(let error):
+//                self.failedCardScanTracker.recordFailure()
+//
+//                if self.failedCardScanTracker.shouldDisplayAlert {
+//                    self.navigation.mainToTroubleshootingScan = true
+//                } else {
+//                    switch error.toTangemSdkError() {
+//                    case .unknownError, .cardVerificationFailed:
+//                        self.setError(error.alertBinder)
+//                    default:
+//                        break
+//                    }
+//                }
+//                self.isScanning = false
+//            }
+//
+//        }
+//    }
 
     func createWallet() {
         guard let cardModel = cardModel else {
@@ -541,7 +541,7 @@ class MainViewModel: ViewModel, ObservableObject {
     
     func prepareTwinOnboarding() {
         guard let cardModel = self.cardModel else { return }
-        
+
         cardOnboardingStepSetupService!.twinRecreationSteps(for: cardModel.cardInfo)
             .sink { completion in
             switch completion {
@@ -554,7 +554,7 @@ class MainViewModel: ViewModel, ObservableObject {
             }
         } receiveValue: { [weak self] steps in
             guard let self = self else { return }
-            
+
             let input = OnboardingInput(steps: steps,
                                         cardModel: cardModel,
                                         cardImage:  self.image,
@@ -572,58 +572,58 @@ class MainViewModel: ViewModel, ObservableObject {
 
     // MARK: - Private functions
     
-    private func processScannedCard(_ result: ScanResult) {
-        func updateState() {
-            state = result
-            isScanning = false
-            navigation.mainToCardOnboarding = false
-            isProcessingNewCard = false
-            isOnboardingModal = false
-        }
-        
-        guard
-            let cardModel = result.cardModel
-//            cardsRepository.scannedCardsRepository.cards[cardModel.cardInfo.card.cardId] == nil
-        else {
-            updateState()
-            return
-        }
-        
-        isProcessingNewCard = true
-        
-        cardOnboardingStepSetupService
-            .stepsWithCardImage(for: cardModel)
-            .sink { completion in
-                switch completion {
-                case .failure(let error):
-                    Analytics.log(error: error)
-                    print("Failed to load image for new card")
-                    self.isScanning = false
-                    self.error = error.alertBinder
-                case .finished:
-                    break
-                }
-            } receiveValue: { [weak self] (steps, image) in
-                guard let self = self else { return }
-                
-                guard steps.needOnboarding else {
-                    updateState()
-                    return
-                }
-                
-                let input = OnboardingInput(steps: steps,
-                                                cardModel: cardModel,
-                                                cardImage: image,
-                                                cardsPosition: nil,
-                                                welcomeStep: nil,
-                                                currentStepIndex: 0,
-                                                successCallback: updateState)
-                self.assembly.makeCardOnboardingViewModel(with: input)
-                self.navigation.mainToCardOnboarding = true
-                self.isScanning = false
-            }
-            .store(in: &bag)
-    }
+//    private func processScannedCard(_ result: ScanResult) {
+//        func updateState() {
+//            state = result
+//            isScanning = false
+//            navigation.mainToCardOnboarding = false
+//            isProcessingNewCard = false
+//            isOnboardingModal = false
+//        }
+//
+//        guard
+//            let cardModel = result.cardModel
+////            cardsRepository.scannedCardsRepository.cards[cardModel.cardInfo.card.cardId] == nil
+//        else {
+//            updateState()
+//            return
+//        }
+//
+//        isProcessingNewCard = true
+//
+//        cardOnboardingStepSetupService
+//            .stepsWithCardImage(for: cardModel)
+//            .sink { completion in
+//                switch completion {
+//                case .failure(let error):
+//                    Analytics.log(error: error)
+//                    print("Failed to load image for new card")
+//                    self.isScanning = false
+//                    self.error = error.alertBinder
+//                case .finished:
+//                    break
+//                }
+//            } receiveValue: { [weak self] (steps, image) in
+//                guard let self = self else { return }
+//
+//                guard steps.needOnboarding else {
+//                    updateState()
+//                    return
+//                }
+//
+//                let input = OnboardingInput(steps: steps,
+//                                                cardModel: cardModel,
+//                                                cardImage: image,
+//                                                cardsPosition: nil,
+//                                                welcomeStep: nil,
+//                                                currentStepIndex: 0,
+//                                                successCallback: updateState)
+//                self.assembly.makeCardOnboardingViewModel(with: input)
+//                self.navigation.mainToCardOnboarding = true
+//                self.isScanning = false
+//            }
+//            .store(in: &bag)
+//    }
     
     private func checkPositiveBalance() {
         guard rateAppController.shouldCheckBalanceForRateApp else { return }
