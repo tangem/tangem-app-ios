@@ -55,6 +55,16 @@ struct OnboardingBaseView: View {
         }
     }
     
+    var isNavigationBarHidden: Bool {
+        if navigation.readToMain {
+            return false
+        }
+        
+        return !(navigation.readToShop
+                    || navigation.onboardingToBuyCrypto
+                    || navigation.onboardingWalletToShop)
+    }
+    
     var body: some View {
         ZStack {
             navigationLinks
@@ -72,9 +82,7 @@ struct OnboardingBaseView: View {
             viewModel.bind()
         })
         .navigationBarTitle("", displayMode: .inline)
-        .navigationBarHidden(!(navigation.readToShop
-                                || navigation.onboardingToBuyCrypto
-                                || navigation.onboardingWalletToShop))
+        .navigationBarHidden(isNavigationBarHidden)
         //.navigationBarHidden(true)
     }
 }
