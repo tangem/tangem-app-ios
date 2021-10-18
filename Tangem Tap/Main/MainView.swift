@@ -16,6 +16,7 @@ import MessageUI
 struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
     @EnvironmentObject var navigation: NavigationCoordinator
+    
     @Environment(\.viewController) private var viewControllerHolder: UIViewController?
     
     var sendChoiceButtons: [ActionSheet.Button] {
@@ -104,9 +105,19 @@ struct MainView: View {
     
     @ViewBuilder var scanButton: some View {
         let scanAction = {
-            withAnimation {
-                viewModel.scan()
+            DispatchQueue.main.async {
+                self.viewModel.assembly.getLetsStartOnboardingViewModel()?.reset()
+                self.viewModel.assembly.getLaunchOnboardingViewModel().reset()
+                self.navigation.popToRoot()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    self.viewModel.assembly.getLetsStartOnboardingViewModel()?.scanCard()
+                }
             }
+//
+//
+//            withAnimation {
+//                viewModel.scan()
+//            }
         }
         
         if viewModel.canBuyCrypto && !viewModel.canCreateWallet ||
@@ -352,12 +363,12 @@ struct MainView: View {
                     }
                     return MailView(dataCollector: dataCollector, support: .tangem, emailType: emailCase.emailType)
                 }
-            ScanTroubleshootingView(isPresented: $navigation.mainToTroubleshootingScan) {
-                viewModel.scan()
-            } requestSupportAction: {
-                viewModel.failedCardScanTracker.resetCounter()
-                viewModel.emailFeedbackCase = .scanTroubleshooting
-            }
+//            ScanTroubleshootingView(isPresented: $navigation.mainToTroubleshootingScan) {
+//                viewModel.scan()
+//            } requestSupportAction: {
+//                viewModel.failedCardScanTracker.resetCounter()
+//                viewModel.emailFeedbackCase = .scanTroubleshooting
+//            }
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarTitle(navigation.mainToSettings || navigation.mainToBuyCrypto || navigation.mainToTokenDetails ? "" : "wallet_title", displayMode: .inline)
@@ -414,8 +425,11 @@ struct MainView: View {
         HStack(alignment: .center) {
             scanButton
                 .sheet(isPresented: $navigation.mainToCardOnboarding, content: {
-                    OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
-                        .presentation(modal: viewModel.isOnboardingModal, onDismissalAttempt: {}, onDismissed: viewModel.onboardingDismissed)
+                    let model = viewModel.assembly.getCardOnboardingViewModel()
+                    OnboardingBaseView(viewModel: model)
+                        .presentation(modal: viewModel.isOnboardingModal,
+                                      onDismissalAttempt: {},
+                                      onDismissed: viewModel.onboardingDismissed)
                         .environmentObject(navigation)
                         .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
                             viewModel.isOnboardingModal = value
