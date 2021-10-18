@@ -58,9 +58,13 @@ struct DetailsView: View {
                         selection = .securityManagement
                     }
                 }, label: {
+                    HStack {
                     Text("details_row_title_manage_security")
                         .font(.system(size: 16, weight: .regular, design: .default))
                         .foregroundColor(.tangemTapGrayDark6)
+                        Spacer()
+                        ActivityIndicatorView(isAnimating: viewModel.isCheckingPin)
+                    }
                 })
                 .background(
                     NavigationLink(
