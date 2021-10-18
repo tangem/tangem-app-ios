@@ -86,9 +86,9 @@ class OnboardingBaseViewModel: ViewModel, ObservableObject {
     }
     
     func reset() {
-        guard isFromMainScreen else {
-            return
-        }
+//        guard isFromMainScreen else {
+//            return
+//        }
         
         content = .notScanned
     }
