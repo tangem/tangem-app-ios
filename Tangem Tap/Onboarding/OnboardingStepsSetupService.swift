@@ -102,8 +102,10 @@ class OnboardingStepsSetupService {
         var steps = [TwinsOnboardingStep]()
         
         if !userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId) {
-            let twinPairCid = TapTwinCardIdFormatter.format(cid:"", cardNumber: twinCardInfo.series.pair.number)
-            steps.append(.intro(pairNumber: "\(twinPairCid)"))
+            if !self.userPrefs.isTwinCardOnboardingWasDisplayed {
+                let twinPairCid = TapTwinCardIdFormatter.format(cid:"", cardNumber: twinCardInfo.series.pair.number)
+                steps.append(.intro(pairNumber: "\(twinPairCid)"))
+            }
             
             if twinCardInfo.pairPublicKey != nil && cardInfo.card.wallets.first != nil {
                 return .justWithError(output: .twins(steps))
@@ -115,6 +117,7 @@ class OnboardingStepsSetupService {
         if (walletModel.count == 0 && cardInfo.twinCardInfo?.pairPublicKey == nil) {
             steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
             steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
+            userPrefs.isTwinCardOnboardingWasDisplayed = true
             return .justWithError(output: .twins(steps))
         } else {
             let model = walletModel.first!
@@ -122,6 +125,8 @@ class OnboardingStepsSetupService {
                 model.walletManager.update { [unowned self] result in
                     switch result {
                     case .success:
+                        userPrefs.isTwinCardOnboardingWasDisplayed = true
+                        
                         if !model.isEmptyIncludingPendingIncomingTxs
                             && cardInfo.twinCardInfo?.pairPublicKey == nil { //bugged case, has balance go to main
                             return promise(.success(.twins([])))
