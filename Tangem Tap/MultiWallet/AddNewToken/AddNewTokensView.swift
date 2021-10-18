@@ -8,6 +8,7 @@
 
 import SwiftUI
 import BlockchainSdk
+import Combine
 
 fileprivate struct TokenView: View {
     let isTestnet: Bool
@@ -72,7 +73,7 @@ struct AddNewTokensView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 16)
             
-            SearchBar(text: $searchText, placeholder: "common_search".localized)
+            SearchBar(text:$viewModel.enteredSearchText, placeholder: "common_search".localized)
                 .background(Color.white)
                 .padding(.horizontal, 8)
             
@@ -157,6 +158,11 @@ struct AddNewTokensView: View {
                     .listRowInsets(EdgeInsets())
             }
         }
+        .onReceive(viewModel.$enteredSearchText
+                    .dropFirst()
+                    .debounce(for: 0.5, scheduler: DispatchQueue.main), perform: { value in
+            searchText = value
+        })
         .onDisappear(perform: {
             if navigation.addNewTokensToCreateCustomToken { return }
             
