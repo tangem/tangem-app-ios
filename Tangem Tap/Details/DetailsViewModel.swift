@@ -18,6 +18,8 @@ class DetailsViewModel: ViewModel, ObservableObject {
     weak var cardsRepository: CardsRepository!
     weak var onboardingStepsSetupService: OnboardingStepsSetupService!
     
+    @Published var isCheckingPin = false
+    
     weak var ratesService: CoinMarketCapService! {
         didSet {
             ratesService
@@ -136,8 +138,16 @@ class DetailsViewModel: ViewModel, ObservableObject {
     private var bag = Set<AnyCancellable>()
     
     func checkPin(_ completion: @escaping () -> Void) {
+        if cardModel.cardInfo.card.firmwareVersion.doubleValue >= 4.39 {
+            completion()
+            return
+        }
+        
+        isCheckingPin = true
         cardModel.checkPin { [weak self] result in
             guard let self = self else { return }
+            
+            self.isCheckingPin = false
             switch result {
             case .success:
                 completion()
