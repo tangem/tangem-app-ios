@@ -76,6 +76,7 @@ struct TwinsOnboardingView: View {
                                       },
                                       rightItems: {
                                           Button("common_cancel", action: viewModel.backButtonAction)
+                                            .disabled(!viewModel.isFromMain)
                                             .padding(.horizontal, 16)
                                             .opacity(viewModel.isFromMain ? 1.0 : 0.0)
 
