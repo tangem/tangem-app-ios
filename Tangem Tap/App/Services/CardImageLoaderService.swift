@@ -13,12 +13,10 @@ import TangemSdk
 
 class CardImageLoaderService {
 	enum BackedImages {
-		case sergio, marta, `default`, twinCardOne, twinCardTwo
+		case `default`, twinCardOne, twinCardTwo
 		
 		var name: String {
 			switch self {
-			case .sergio: return "card_tg059"
-			case .marta: return "card_tg083"
 			case .default: return "card_default"
 			case .twinCardOne: return "card_tg085"
 			case .twinCardTwo: return "card_tg086"
@@ -38,13 +36,6 @@ class CardImageLoaderService {
     
     func loadImage(cid: String, cardPublicKey: Data, artworkInfo: ArtworkInfo?) -> AnyPublisher<UIImage, Error> {
 		let prefix = String(cid.prefix(4))
-		if prefix.elementsEqual("BC01") { //Sergio
-			return backedLoadImage(.sergio)
-        }
-        
-		if prefix.elementsEqual("BC02") { //Marta
-			return backedLoadImage(.marta)
-        }
 		
 		if let series = TwinCardSeries.allCases.first(where: { prefix.elementsEqual($0.rawValue.uppercased()) }) {
 			return backedLoadImage(series.number == 1 ? .twinCardOne : .twinCardTwo)
@@ -79,19 +70,24 @@ class CardImageLoaderService {
     }
     
     func backedLoadImage(name: String) -> AnyPublisher<UIImage, Error> {
-        let configuration = URLSessionConfiguration.default
-        configuration.requestCachePolicy = .returnCacheDataElseLoad
-        let session = URLSession(configuration: configuration)
-        return session
-            .dataTaskPublisher(for: URL(string: "https://app.tangem.com/cards/\(name).png")!)
-            .subscribe(on: DispatchQueue.global())
-            .tryMap { data, response -> UIImage in
-                if let image = UIImage(data: data) {
-                    return image
-                }
-                
-                throw "Image mapping failed"
-            }.eraseToAnyPublisher()
+        return Just(UIImage(named: "dark_card")!)
+            .setFailureType(to: Error.self)
+            .eraseToAnyPublisher()
+//
+//
+//        let configuration = URLSessionConfiguration.default
+//        configuration.requestCachePolicy = .returnCacheDataElseLoad
+//        let session = URLSession(configuration: configuration)
+//        return session
+//            .dataTaskPublisher(for: URL(string: "https://app.tangem.com/cards/\(name).png")!)
+//            .subscribe(on: DispatchQueue.global())
+//            .tryMap { data, response -> UIImage in
+//                if let image = UIImage(data: data) {
+//                    return image
+//                }
+//
+//                throw "Image mapping failed"
+//            }.eraseToAnyPublisher()
     }
 	
 	func backedLoadImage(_ image: BackedImages) -> AnyPublisher<UIImage, Error> {
