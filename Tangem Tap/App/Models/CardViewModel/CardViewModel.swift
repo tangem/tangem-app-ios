@@ -467,12 +467,15 @@ class CardViewModel: Identifiable, ObservableObject {
         print("‼️ Updating Card view model state")
         let hasWallets = cardInfo.card.wallets.count > 0
 
-        if !hasWallets || userPrefsService.cardsStartedActivation.contains(cardInfo.card.cardId) {
+        if !hasWallets {
             self.state = .empty
         } else {
             print("⁉️ Recreating all wallet models for Card view model state")
             self.state = .loaded(walletModel: self.assembly.loadWallets(from: cardInfo))
-            update()
+            
+            if !userPrefsService.cardsStartedActivation.contains(cardInfo.card.cardId) {
+                update()
+            }
         }
     }
     
