@@ -133,12 +133,12 @@ struct TangemButtonStyle: ButtonStyle {
             VStack(alignment: .center, spacing: 0) {
                 configuration.label
             }
-            .padding(16)
+            .padding(8)
         } else {
             HStack(alignment: .center, spacing: 0) {
                 configuration.label
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, 8)
         }
     }
     
