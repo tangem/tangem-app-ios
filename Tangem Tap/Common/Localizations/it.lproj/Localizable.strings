@@ -599,7 +599,7 @@ Amount to pay: %@";
 "onboarding_button_show_address_qr" = "Show the wallet’s address";
 "onboarding_topup_title" = "Activate a wallet";
 "onboarding_topup_subtitle" = "To get started, simply top up the wallet with any amount";
-"onboarding_topup_subtitle_xrp" = "To get started, simply top up the wallet with 10+ XRP";
+"onboarding_topup_subtitle_xrp" = "To get started, simply top up the wallet with more than 10 XRP";
 
 "onboarding_confetti_title" = "Done!";
 "onboarding_confetti_subtitle" = "Your crypto card is activated and ready to be used";
