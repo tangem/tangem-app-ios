@@ -26,7 +26,7 @@ struct CardView: View {
 			} else {
 				Color.tangemTapGrayLight4
 					.opacity(0.5)
-					.frame(width: width, height: 180, alignment: .center)
+					.frame(width: width, height: 190, alignment: .center)
 					.cornerRadius(6)
 					.padding(.vertical, 16.0)
 			}
