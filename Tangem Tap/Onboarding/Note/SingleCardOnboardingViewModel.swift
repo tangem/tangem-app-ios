@@ -35,8 +35,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     }
     
     override var subtitle: LocalizedStringKey {
-        if currentStep == .topup, cardModel.cardInfo.walletData?.blockchain.lowercased() == "xrp",
-           let state = cardModel.walletModels?.first?.state, case .noAccount = state {
+        if currentStep == .topup, cardModel.cardInfo.walletData?.blockchain.lowercased() == "xrp" {
              return "onboarding_topup_subtitle_xrp"
         } else {
             return super.subtitle
