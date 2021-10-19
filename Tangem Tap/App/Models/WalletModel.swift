@@ -275,7 +275,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     func getBalance(for type: Amount.AmountType) -> String {
-        return wallet.amounts[type]?.description ?? ""
+        return wallet.amounts[type].map { $0.string(with: 8) } ?? ""
     }
     
     func getFiatBalance(for type: Amount.AmountType) -> String {
