@@ -195,37 +195,6 @@ class MainViewModel: ViewModel, ObservableObject {
         
         return walletModels
             .flatMap ({ $0.tokenItemViewModels })
-            .sorted(by: { lhs, rhs in
-                if lhs.blockchain == cardModel.cardInfo.defaultBlockchain && rhs.blockchain == cardModel.cardInfo.defaultBlockchain {
-                    if lhs.amountType.isToken && rhs.amountType.isToken {
-                        if lhs.amountType.token == cardModel.cardInfo.defaultToken {
-                            return true
-                        }
-
-                        if rhs.amountType.token == cardModel.cardInfo.defaultToken {
-                            return false
-                        }
-                    }
-
-                    if !lhs.amountType.isToken {
-                        return true
-                    }
-
-                    if !rhs.amountType.isToken {
-                        return false
-                    }
-                }
-
-                if lhs.blockchain == cardModel.cardInfo.defaultBlockchain {
-                   return true
-                }
-
-                if rhs.blockchain == cardModel.cardInfo.defaultBlockchain {
-                    return false
-                }
-
-                return lhs < rhs
-            })
     }
     
     deinit {
