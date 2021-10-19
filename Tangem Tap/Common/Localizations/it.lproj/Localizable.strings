@@ -159,7 +159,7 @@
 
 "send_fee_include_description" = "Includi commissione";
 
-"send_total_subtitle_format" = "Sarà inviato %@ %@";
+"send_total_subtitle_format" = "Sarà inviato %@";
 
 "send_total_subtitle_fiat_format" = "≈ %@ (inc. commissione: %@)";
 
