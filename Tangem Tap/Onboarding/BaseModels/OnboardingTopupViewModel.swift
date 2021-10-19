@@ -56,7 +56,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
         if let walletModel = input.cardModel.walletModels?.first {
             updateCardBalanceText(for: walletModel)
         }
-        updateCardBalance()
+       // updateCardBalance()
         
     }
     
