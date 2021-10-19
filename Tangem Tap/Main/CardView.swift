@@ -21,10 +21,12 @@ struct CardView: View {
 				Image(uiImage: image)
 					.resizable()
 					.aspectRatio(contentMode: .fit)
+                    .transition(.opacity)
                     .frame(minWidth: width, maxWidth: width, minHeight: 190, alignment: .center)
 					.padding(.vertical, 16.0)
 			} else {
 				Color.tangemTapGrayLight4
+                    .transition(.opacity)
 					.opacity(0.5)
 					.frame(width: width, height: 190, alignment: .center)
 					.cornerRadius(6)

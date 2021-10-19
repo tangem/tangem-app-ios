@@ -240,7 +240,9 @@ class MainViewModel: ViewModel, ObservableObject {
                         break
                     }}){ [unowned self] image in
                 print(image)
-                self.image = image
+                withAnimation {
+                    self.image = image
+                }
             }
             .store(in: &bag)
         
