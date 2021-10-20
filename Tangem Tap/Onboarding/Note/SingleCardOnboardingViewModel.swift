@@ -59,6 +59,8 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         } else {
             fatalError("Wrong onboarding steps passed to initializer")
         }
+      
+        loadImage(for: input.cardModel)
     }
         
     // MARK: Functions
@@ -113,6 +115,13 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
                                                                                                        animated: animated),
                                  intermediateSettings: nil)
         supplementCardSettings = .init(targetSettings: SingleCardOnboardingCardsLayout.supplementary.cardAnimSettings(for: currentStep, containerSize: containerSize, animated: animated), intermediateSettings: nil)
+    }
+    
+    private func loadImage(for cardModel: CardViewModel) {
+        cardModel
+            .imageLoaderPublisher
+            .weakAssign(to: \.cardImage, on: self)
+            .store(in: &bag)
     }
     
     private func сreateWallet() {
