@@ -110,20 +110,20 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     }
     
     private func processScannedCard(_ cardModel: CardViewModel, isWithAnimation: Bool) {
-        stepsSetupService.stepsWithCardImage(for: cardModel)
+        stepsSetupService.steps(for: cardModel.cardInfo)
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
                     self?.error = error.alertBinder
                 }
                 self?.isScanningCard = false
-            } receiveValue: { [unowned self] (steps, image) in
+            } receiveValue: { [unowned self] steps in
                 let input = OnboardingInput(steps: steps,
-                                                cardModel: cardModel,
-                                                cardImage: image,
-                                                cardsPosition: (darkCardSettings, lightCardSettings),
-                                                welcomeStep: .welcome,
-                                                currentStepIndex: 0,
-                                                successCallback: nil)
+                                            cardModel: cardModel,
+                                            cardImage: nil,
+                                            cardsPosition: (darkCardSettings, lightCardSettings),
+                                            welcomeStep: .welcome,
+                                            currentStepIndex: 0,
+                                            successCallback: nil)
                 
                 self.isScanningCard = false
                 self.successCallback(input)
