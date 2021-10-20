@@ -12,7 +12,7 @@ import SwiftUI
 
 struct PendingTxView: View, Identifiable {
     
-    let id = UUID()
+    var id: Int { pendingTx.id }
     let pendingTx: PendingTransaction
     var pushAction: (() -> Void)? = nil
     

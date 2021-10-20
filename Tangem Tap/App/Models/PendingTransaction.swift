@@ -9,7 +9,9 @@
 import Foundation
 import BlockchainSdk
 
-struct PendingTransaction {
+struct PendingTransaction: Hashable, Identifiable {
+    var id: Int { hashValue }
+    
     enum Direction {
         case incoming
         case outgoing
