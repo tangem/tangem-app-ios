@@ -369,7 +369,7 @@ struct MainView: View {
                             }, content: {
                                 AddressQrBottomSheetContent(shareAddress: viewModel.cardModel!.walletModels!.first!.shareAddressString(for: viewModel.selectedAddressIndex),
                                                             address: viewModel.cardModel!.walletModels!.first!.displayAddress(for: viewModel.selectedAddressIndex),
-                                                            currencyName: String(format: "wallet_qr_title_format".localized, viewModel.wallets!.first!.blockchain.displayName))
+                                                            currencyName: viewModel.wallets!.first!.blockchain.displayName)
                             })
         }
         .navigationBarBackButtonHidden(true)
