@@ -29,11 +29,11 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     }
     
     var incomingTransactions: [PendingTransaction] {
-        walletModel?.incomingPendingTransactions ?? []
+        walletModel?.incomingPendingTransactions.filter { $0.amountType == amountType } ?? []
     }
     
     var outgoingTransactions: [PendingTransaction] {
-        walletModel?.outgoingPendingTransactions ?? []
+        walletModel?.outgoingPendingTransactions.filter { $0.amountType == amountType } ?? []
     }
     
     var canBuyCrypto: Bool {
