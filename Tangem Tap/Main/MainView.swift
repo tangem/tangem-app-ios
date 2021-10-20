@@ -16,7 +16,7 @@ import MessageUI
 struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
     @EnvironmentObject var navigation: NavigationCoordinator
-
+    
     var sendChoiceButtons: [ActionSheet.Button] {
         let symbols = viewModel
             .wallets?
@@ -330,6 +330,12 @@ struct MainView: View {
                                                                       payID: viewModel.cardModel!.payId)
                                                 }
                                             }
+                                            
+                                            //                                Color.clear.frame(width: 1, height: 1, alignment: .center)
+                                            //                                    .sheet(isPresented: $navigation.mainToCreatePayID, content: {
+                                            //                                        CreatePayIdView(cardId: viewModel.state.cardModel!.cardInfo.card.cardId ?? "",
+                                            //                                                        cardViewModel: viewModel.state.cardModel!)
+                                            //                                    })
                                         }
                                     }
                                 }
