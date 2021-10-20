@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import EFQRCode
 import BlockchainSdk
 
 struct BalanceAddressView: View {
@@ -44,6 +43,10 @@ struct BalanceAddressView: View {
     
     var showAddressSelector: Bool {
         return walletModel.wallet.addresses.count > 1
+    }
+    
+    private var qrMessage: String {
+        String(format: "address_qr_code_message_format".localized, walletModel.wallet.blockchain.displayName)
     }
     
     var accentColor: Color {
@@ -118,8 +121,7 @@ struct BalanceAddressView: View {
             GeometryReader { geometry in
                 HStack(alignment: .center, spacing: 0) {
                     let imageSize = geometry.size.width * 0.3
-                    let imageSizeInPixels = imageSize * UIScreen.main.scale
-                    Image(uiImage: self.getQrCodeImage(width: imageSizeInPixels, height: imageSizeInPixels))
+                    Image(uiImage: QrCodeGenerator.generateQRCode(from: walletModel.shareAddressString(for: selectedAddressIndex)))
                         .resizable()
                         .scaledToFit()
                         .frame(width: imageSize)
@@ -164,6 +166,12 @@ struct BalanceAddressView: View {
                     .frame(width: geometry.size.width * 0.7)
                 }
             }.frame(height: 114)
+            
+            Text(qrMessage)
+                .font(.system(size: 16, weight: .regular))
+                .multilineTextAlignment(.center)
+                .foregroundColor(.tangemTapGrayDark)
+            
         }
         .padding(16)
         .background(Color.white)
@@ -175,26 +183,10 @@ struct BalanceAddressView: View {
         let av = UIActivityViewController(activityItems: [address], applicationActivities: nil)
         UIApplication.shared.windows.first?.rootViewController?.present(av, animated: true, completion: nil)
     }
-    
-    private func getQrCodeImage(width: CGFloat, height: CGFloat) -> UIImage {
-        let padding: CGFloat = 0
-        
-        if let cgImage = EFQRCode.generate(content: walletModel.shareAddressString(for: selectedAddressIndex),
-                                           size: EFIntSize(width: Int(width), height: Int(height)), backgroundColor: CGColor(red: 0, green: 0, blue: 0, alpha: 0)) {
-            return UIImage(cgImage: cgImage.cropping(to: CGRect(x: padding,
-                                                                y: padding,
-                                                                width: width - padding,
-                                                                height: height-padding))!,
-                           scale: 1.0,
-                           orientation: .up)
-        } else {
-            return UIImage.imageWithSize(width: width, height: height, filledWithColor: UIColor.tangemTapBgGray )
-        }
-    }
 }
 
 struct BalanceAddressView_Previews: PreviewProvider {
-    static let assembly = Assembly.previewAssembly(for: .twin)
+    static let assembly = Assembly.previewAssembly(for: .ethereum)
     
     @State static var cardViewModel = assembly.previewCardViewModel
     
