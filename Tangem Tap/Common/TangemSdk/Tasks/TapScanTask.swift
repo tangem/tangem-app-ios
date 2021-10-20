@@ -103,17 +103,30 @@ final class TapScanTask: CardSessionRunnable {
         readFileCommand.run(in: session) { (result) in
             switch result {
             case .success(let response):
-                guard let file = response.first else {
+                
+                func exit() {
                     self.noteWalletData = nil
                     self.appendWalletsIfNeeded(session: session, completion: completion)
+                }
+                
+                guard let file = response.first,
+                      let namedFile = try? NamedFile(tlvData: file.fileData),
+                      let tlv = Tlv.deserialize(namedFile.payload),
+                      let fileSignature = namedFile.signature,
+                      let fileCounter = namedFile.counter,
+                      let walletData = try? WalletDataDeserializer().deserialize(decoder: TlvDecoder(tlv: tlv)) else {
+                    exit()
                     return
                 }
                 
-                guard let namedFile = try? NamedFile(tlvData: file.fileData),
-                      let tlv = Tlv.deserialize(namedFile.payload),
-                      let walletData = try? WalletDataDeserializer().deserialize(decoder: TlvDecoder(tlv: tlv)) else {
-                    self.noteWalletData = nil
-                    self.appendWalletsIfNeeded(session: session, completion: completion)
+                let dataToVerify = Data(hexString: card.cardId) + namedFile.payload + fileCounter.bytes4
+                let isVerified: Bool = (try? CryptoUtils.verify(curve: .secp256k1,
+                                                                publicKey: card.issuer.publicKey,
+                                                                message: dataToVerify,
+                                                                signature: fileSignature)) ?? false
+                
+                guard isVerified else {
+                    exit()
                     return
                 }
                 
