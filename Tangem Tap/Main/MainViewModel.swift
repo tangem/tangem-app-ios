@@ -229,21 +229,8 @@ class MainViewModel: ViewModel, ObservableObject {
         
         $state
             .compactMap { $0.cardModel }
-            .setFailureType(to: Error.self)
             .flatMap { $0.imageLoaderPublisher }
-            .sink(receiveCompletion: { completion in
-                    switch completion {
-                    case .failure(let error):
-                        Analytics.log(error: error)
-                        print(error.localizedDescription)
-                    case .finished:
-                        break
-                    }}){ [unowned self] image in
-                print(image)
-                withAnimation {
-                    self.image = image
-                }
-            }
+            .weakAssignAnimated(to: \.image, on: self)
             .store(in: &bag)
         
 //        $state
