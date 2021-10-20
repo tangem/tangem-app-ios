@@ -110,7 +110,7 @@ final class TapScanTask: CardSessionRunnable {
                 }
                 
                 guard let file = response.first,
-                      let namedFile = try? NamedFile(tlvData: file.fileData),
+                      let namedFile = try? NamedFile(tlvData: file.data),
                       let tlv = Tlv.deserialize(namedFile.payload),
                       let fileSignature = namedFile.signature,
                       let fileCounter = namedFile.counter,
