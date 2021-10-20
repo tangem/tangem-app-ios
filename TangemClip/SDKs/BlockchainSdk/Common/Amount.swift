@@ -66,12 +66,17 @@ public struct Amount: CustomStringConvertible, Equatable, Comparable {
     
     public func string(with decimals: Int? = nil) -> String {
         let decimalsCount = decimals ?? self.decimals
-        
-        if value == 0 && decimalsCount > 0 {
-            return "0.00 \(currencySymbol)"
-        }
-    
-        return "\(value.rounded(scale: decimalsCount)) \(currencySymbol)"
+        let formatter = NumberFormatter()
+        formatter.locale = Locale.current
+        formatter.numberStyle = .currency
+        formatter.usesGroupingSeparator = true
+        formatter.currencySymbol = currencySymbol
+        formatter.alwaysShowsDecimalSeparator = true
+        formatter.maximumFractionDigits = decimalsCount
+        formatter.minimumFractionDigits = 2
+        formatter.roundingMode = .down
+        return formatter.string(from: value as NSNumber) ??
+            "\(value.rounded(scale: decimalsCount)) \(currencySymbol)"
     }
     
     public static func ==(lhs: Amount, rhs: Amount) -> Bool {
