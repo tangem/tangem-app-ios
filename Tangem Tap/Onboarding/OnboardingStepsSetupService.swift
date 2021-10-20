@@ -20,13 +20,13 @@ class OnboardingStepsSetupService {
         [.createWallet, .topup, .successTopup]
     }
     
-    func stepsWithCardImage(for cardModel: CardViewModel) -> AnyPublisher<(OnboardingSteps, UIImage), Error> {
-        Publishers.Zip(
-            steps(for: cardModel.cardInfo),
-            cardModel.imageLoaderPublisher
-        )
-        .eraseToAnyPublisher()
-    }
+//    func stepsWithCardImage(for cardModel: CardViewModel) -> AnyPublisher<(OnboardingSteps, UIImage), Error> {
+//        Publishers.Zip(
+//            steps(for: cardModel.cardInfo),
+//            cardModel.imageLoaderPublisher
+//        )
+//        .eraseToAnyPublisher()
+//    }
     
     func steps(for cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
         let card = cardInfo.card
