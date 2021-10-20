@@ -186,10 +186,10 @@ class PushTxViewModel: ViewModel, ObservableObject {
         
         $fees
             .dropFirst()
-            .map { [unowned self] in
-                guard $0.count > self.selectedFeeLevel else { return nil }
+            .map { [unowned self] values -> Amount? in
+                guard values.count > self.selectedFeeLevel else { return nil }
                 
-                return $0[self.selectedFeeLevel]
+                return values[self.selectedFeeLevel]
             }
             .weakAssign(to: \.selectedFee, on: self)
             .store(in: &bag)
