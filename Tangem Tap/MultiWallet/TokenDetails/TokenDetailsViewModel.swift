@@ -261,6 +261,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
 //            .print("🐼 TokenDetailsViewModel: Wallet model state")
             .map{ $0.isLoading }
             .filter { !$0 }
+            .delay(for: 1, scheduler: DispatchQueue.global())
             .receive(on: RunLoop.main)
             .sink {[weak self] _ in
                 print("♻️ Token wallet model loading state changed")
