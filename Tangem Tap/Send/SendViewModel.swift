@@ -9,7 +9,6 @@
 import Foundation
 import SwiftUI
 import Combine
-import EFQRCode
 import BlockchainSdk
 import TangemSdk
 import stellarsdk
