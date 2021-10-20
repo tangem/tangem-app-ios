@@ -3,7 +3,7 @@ platform :ios, '13.0'
 project 'Tangem Tap.xcodeproj'
 
 def common_pods
-   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'backup-beta-9'
+   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'backup-beta-10'
    #pod 'TangemSdk', :path => '../tangem-sdk-ios'
    pod 'KeychainSwift', '~> 19.0'
 end
@@ -25,8 +25,8 @@ target 'Tangem Tap' do
   pod 'HDWalletKit', :git => 'https://github.com/lazutkin-andrey/hdwallet.git', :tag => '0.3.12'
   #pod 'HDWalletKit', :path => '../HDWallet'
   
-  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'develop-47'
-#  pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
+  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'develop-50'
+  #pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
   
   pod 'web3swift', :git => 'https://github.com/lazutkin-andrey/web3swift.git', :tag => '2.2.6'
 #  pod 'web3swift', :path => '../web3swift'
@@ -37,7 +37,6 @@ target 'Tangem Tap' do
   pod 'WalletConnectSwift', :git => 'https://github.com/WalletConnect/WalletConnectSwift', :tag => '1.4.0'
   
   pod 'Moya'
-  pod 'EFQRCode' #//TODO: remove
   pod 'Firebase/Crashlytics'
   pod 'Firebase/Analytics'
 	pod 'Firebase/RemoteConfig'
