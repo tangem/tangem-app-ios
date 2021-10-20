@@ -14,7 +14,7 @@ struct PendingTransaction {
         case incoming
         case outgoing
     }
-    
+    let amountType: Amount.AmountType
     let destination: String
     let transferAmount: String
     let canBePushed: Bool
