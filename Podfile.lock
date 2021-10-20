@@ -39,8 +39,6 @@ PODS:
   - DeviceGuru/DeviceGuru (7.0.1):
     - DeviceGuru/Resources
   - DeviceGuru/Resources (7.0.1)
-  - EFQRCode (6.1.0):
-    - swift_qrcodejs (~> 2.2.2)
   - Firebase/Analytics (7.11.0):
     - Firebase/Core
   - Firebase/Core (7.11.0):
@@ -194,9 +192,8 @@ DEPENDENCIES:
   - BigInt
   - BinanceChain (from `https://github.com/lazutkin-andrey/swiftbinancechain.git`, tag `0.0.8`)
   - BitcoinCore.swift (from `https://github.com/lazutkin-andrey/bitcoincore.git`, tag `0.0.15`)
-  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-47`)
+  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-50`)
   - DeviceGuru
-  - EFQRCode
   - Firebase/Analytics
   - Firebase/Crashlytics
   - Firebase/RemoteConfig
@@ -208,7 +205,7 @@ DEPENDENCIES:
   - stellar-ios-mac-sdk (= 2.0.0)
   - SwiftCBOR
   - SwiftyJSON
-  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `backup-beta-9`)
+  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `backup-beta-10`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.4.0`)
   - web3swift (from `https://github.com/lazutkin-andrey/web3swift.git`, tag `2.2.6`)
 
@@ -219,7 +216,6 @@ SPEC REPOS:
     - BigInt
     - CryptoSwift
     - DeviceGuru
-    - EFQRCode
     - Firebase
     - FirebaseABTesting
     - FirebaseAnalytics
@@ -257,13 +253,13 @@ EXTERNAL SOURCES:
     :tag: 0.0.15
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-47
+    :tag: develop-50
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: backup-beta-9
+    :tag: backup-beta-10
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.4.0
@@ -280,13 +276,13 @@ CHECKOUT OPTIONS:
     :tag: 0.0.15
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-47
+    :tag: develop-50
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: backup-beta-9
+    :tag: backup-beta-10
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.4.0
@@ -303,7 +299,6 @@ SPEC CHECKSUMS:
   BlockchainSdk: da59ff083dc856929a14780763a2adeedb7f02aa
   CryptoSwift: 7cc902df1784de3b389a387756c7d710f197730c
   DeviceGuru: 73d82f34cddee25d215b35eb4d094b7a44ec187a
-  EFQRCode: 994654b3ad1657ab751b92422cef8b8f7d1b1496
   Firebase: c121feb35e4126c0b355e3313fa9b487d47319fd
   FirebaseABTesting: e66f1f80747792630d9b292966de206d5df9853b
   FirebaseAnalytics: cd3bd84d722a24a8923918af8af8e5236f615d77
@@ -336,6 +331,6 @@ SPEC CHECKSUMS:
   web3swift: 21ab60f3c80aea2366ebf016f377e5cb654909bf
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: ba6d0e6583b100eb72f7e42f3a5bd7d903695653
+PODFILE CHECKSUM: 5cceedaf8a98bcc9f296e4ec4aeb9e4a86d8b567
 
 COCOAPODS: 1.11.2
