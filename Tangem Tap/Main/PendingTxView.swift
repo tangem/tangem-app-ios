@@ -85,9 +85,9 @@ struct PendingTxView_Previews: PreviewProvider {
         ZStack {
             Color.tangemTapBgGray
             VStack {
-                PendingTxView(pendingTx: PendingTransaction(destination: "0x2314719083467891237649123675478612354", transferAmount: "0.0000000002 BTC", canBePushed: false, direction: .incoming))
-                PendingTxView(pendingTx: PendingTransaction(destination: "0x2314719083467891237649123675478612354", transferAmount: "0.2 BTC", canBePushed: false, direction: .outgoing))
-                PendingTxView(pendingTx: PendingTransaction(destination: "0x2314719083467891237649123675478612354", transferAmount: "0.2 BTC", canBePushed: true, direction: .outgoing))
+                PendingTxView(pendingTx: PendingTransaction(amountType: .coin, destination: "0x2314719083467891237649123675478612354", transferAmount: "0.0000000002 BTC", canBePushed: false, direction: .incoming))
+                PendingTxView(pendingTx: PendingTransaction(amountType: .coin, destination: "0x2314719083467891237649123675478612354", transferAmount: "0.2 BTC", canBePushed: false, direction: .outgoing))
+                PendingTxView(pendingTx: PendingTransaction(amountType: .coin, destination: "0x2314719083467891237649123675478612354", transferAmount: "0.2 BTC", canBePushed: true, direction: .outgoing))
             }
             
         }
