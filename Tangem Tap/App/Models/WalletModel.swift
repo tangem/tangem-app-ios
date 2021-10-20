@@ -75,7 +75,7 @@ class WalletModel: ObservableObject, Identifiable {
     
     var incomingPendingTransactions: [PendingTransaction] {
         wallet.pendingIncomingTransactions.map {
-            PendingTransaction(destination: $0.sourceAddress, transferAmount: $0.amount.description, canBePushed: false, direction: .incoming)
+            PendingTransaction(destination: $0.sourceAddress, transferAmount: $0.amount.string(with: 8), canBePushed: false, direction: .incoming)
         }
     }
     
