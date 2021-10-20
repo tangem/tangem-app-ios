@@ -210,15 +210,14 @@ class CardViewModel: Identifiable, ObservableObject {
     
     var isTestnet: Bool { cardInfo.isTestnet }
     
-    var imageLoaderPublisher: AnyPublisher<UIImage, Error> {
+    var imageLoaderPublisher: AnyPublisher<UIImage, Never> {
         $cardInfo
             .filter { $0.artwork != .notLoaded || $0.card.isTwinCard }
             .map { $0.imageLoadDTO }
             .removeDuplicates()
-            .setFailureType(to: Error.self)
-            .flatMap {[weak self] info -> AnyPublisher<UIImage, Error> in
+            .flatMap {[weak self] info -> AnyPublisher<UIImage, Never> in
                 guard let self = self else {
-                    return .justWithError(output: UIImage())
+                    return Just(UIImage()).eraseToAnyPublisher()
                 }
                 
                 return self.imageLoaderService

@@ -301,26 +301,18 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
     }
     
     private func loadImages() {
-        Publishers.Zip (
-            imageLoaderService.backedLoadImage(.twinCardOne),
-            imageLoaderService.backedLoadImage(.twinCardTwo)
-        )
-        .receive(on: DispatchQueue.main)
-        .sink { [weak self] completion in
-            if case let .failure(error) = completion {
-                self?.alert = error.alertBinder
-                print("Failed to load twin cards images. Reason: \(error)")
+        imageLoaderService.loadImage(.twinCardOne)
+            .zip(imageLoaderService.loadImage(.twinCardTwo))
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] (first, second) in
+                guard let self = self else { return }
+                
+                self.firstTwinImage = self.twinInfo.series.number == 1 ? first : second
+                self.secondTwinImage = self.twinInfo.series.number == 1 ? second : first
+                //            withAnimation {
+                //                self.displayTwinImages = true
+                //            }
             }
-        } receiveValue: { [weak self] (first, second) in
-            guard let self = self else { return }
-            
-            self.firstTwinImage = self.twinInfo.series.number == 1 ? first : second
-            self.secondTwinImage = self.twinInfo.series.number == 1 ? second : first
-//            withAnimation {
-//                self.displayTwinImages = true
-//            }
-        }
-        .store(in: &bag)
+            .store(in: &bag)
     }
-    
 }
