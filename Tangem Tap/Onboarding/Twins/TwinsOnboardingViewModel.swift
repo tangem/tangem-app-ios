@@ -79,7 +79,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
             return true
         }
         
-        return false
+        return super.isOnboardingFinished
     }
     
     override var isSupplementButtonVisible: Bool {
