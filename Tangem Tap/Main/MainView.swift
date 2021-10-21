@@ -367,9 +367,10 @@ struct MainView: View {
                             hideBottomSheetCallback: {
                                 navigation.mainToQR = false
                             }, content: {
+                               
                                 AddressQrBottomSheetContent(shareAddress: viewModel.cardModel?.walletModels?.first?.shareAddressString(for: viewModel.selectedAddressIndex) ?? "",
-                                                            address: viewModel.cardModel?.walletModels?.first?.displayAddress(for: viewModel.selectedAddressIndex) ?? "",
-                                                            currencyName: viewModel.wallets?.first?.blockchain.displayName ?? "")
+                                                                   address: viewModel.cardModel?.walletModels?.first?.displayAddress(for: viewModel.selectedAddressIndex) ?? "",
+                                                                   currencyName: viewModel.qrMessage)
                             })
         }
         .navigationBarBackButtonHidden(true)
