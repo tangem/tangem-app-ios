@@ -197,6 +197,18 @@ class MainViewModel: ViewModel, ObservableObject {
             .flatMap ({ $0.tokenItemViewModels })
     }
     
+    var qrMessage: String {
+        var qrMessage = ""
+        if let wallet = wallets?.first {
+            if let token = wallet.amounts.keys.compactMap( { $0.token }).first {
+                qrMessage = "\(token.name) from \(token.blockchain.displayName) network"
+            } else {
+                qrMessage = wallet.blockchain.displayName
+            }
+        }
+        return qrMessage
+    }
+    
     deinit {
         print("MainViewModel deinit")
     }
