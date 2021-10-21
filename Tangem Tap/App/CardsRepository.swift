@@ -172,12 +172,7 @@ class CardsRepository {
             switch result {
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .scan)
-                switch error {
-                case .wrongCardType:
-                    completion(.failure(TangemSdkError.underlying(error: "alert_unsupported_card".localized)))
-                default:
-                    completion(.failure(error))
-                }
+                completion(.failure(error))
             case .success(let response):
 				Analytics.logScan(card: response.card)
                 #if !CLIP
