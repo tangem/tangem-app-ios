@@ -86,6 +86,8 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
                 }
                 subscription.map { _ = self?.bag.remove($0) }
             } receiveValue: { [weak self] (result, _) in
+                self?.failedCardScanTracker.resetCounter()
+                
                 guard let cardModel = result.cardModel else {
                     return
                 }
