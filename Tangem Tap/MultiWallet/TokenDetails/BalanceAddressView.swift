@@ -46,7 +46,15 @@ struct BalanceAddressView: View {
     }
     
     private var qrMessage: String {
-        String(format: "address_qr_code_message_format".localized, walletModel.wallet.blockchain.displayName)
+        var text: String = ""
+        
+        if case let .token(token) = amountType {
+            text = "\(token.name) from \(token.blockchain.displayName) network"
+        } else {
+            text = walletModel.wallet.blockchain.displayName
+        }
+
+        return String(format: "address_qr_code_message_format".localized, text)
     }
     
     var accentColor: Color {
