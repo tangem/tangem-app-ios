@@ -26,7 +26,7 @@ class CardViewModel: ObservableObject {
     }
 
     var isMultiWallet: Bool {
-        cardInfo.card.isMultiWallet
+        cardInfo.isMultiWallet
     }
 
     var isCardEmpty: Bool {
@@ -66,7 +66,6 @@ class CardViewModel: ObservableObject {
                     return
                 }
 
-                self?.cardInfo.artworkInfo = artwork
                 self?.cardInfo.artwork = .artwork(artwork)
             case .failure:
                 self?.cardInfo.artwork = .noArtwork
