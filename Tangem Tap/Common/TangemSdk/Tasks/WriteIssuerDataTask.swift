@@ -15,6 +15,7 @@ class WriteIssuerDataTask: CardSessionRunnable {
     private let keys: KeyPair
     
     private var signedPubKeyHash: Data!
+    private var command: WriteIssuerDataCommand? = nil
     
     init(pairPubKey: Data, keys: KeyPair) {
         self.pairPubKey = pairPubKey
@@ -73,11 +74,11 @@ class WriteIssuerDataTask: CardSessionRunnable {
             return
         }
         
-        let command = WriteIssuerDataCommand(issuerData: dataToSign,
+        command = WriteIssuerDataCommand(issuerData: dataToSign,
                                              issuerDataSignature: signature,
                                              issuerDataCounter: newCounter,
                                              issuerPublicKey: keys.publicKey)
-        command.run(in: session) { (result) in
+        command!.run(in: session) { (result) in
             switch result {
             case .success(let response):
                 completion(.success(response))
