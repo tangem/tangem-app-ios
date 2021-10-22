@@ -69,7 +69,7 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
         guard
             let walletModel = walletModels.first(where: { $0.wallet.address.lowercased() == transaction.from.lowercased() }),
             let gasLoader = walletModel.walletManager as? EthereumGasLoader,
-            let value = try? EthereumUtils.parseEthereumDecimal(transaction.value, decimalsCount: blockchain.decimalCount),
+            let value = try? EthereumUtils.parseEthereumDecimal(transaction.value ?? "0x0", decimalsCount: blockchain.decimalCount),
             let gas = transaction.gas?.hexToInteger ?? transaction.gasLimit?.hexToInteger
         else {
             return .anyFail(error: WalletConnectServiceError.failedToBuildTx)
