@@ -43,30 +43,9 @@ extension Card {
         issuer.name.lowercased() == "start2coin"
     }
     
-    var isMultiWallet: Bool {
-        if TangemNote.isNoteBatch(batchId) {
-            return false
-        }
-        
-        if isTwinCard {
-            return false
-        }
-        
-        if isStart2Coin {
-            return false
-        }
-        
-        if firmwareVersion.major < 4,
-           !supportedCurves.contains(.secp256k1) {
-            return false
-        }
-        
-        return true
-    }
-    
     var isPermanentLegacyWallet: Bool {
         if firmwareVersion < .multiwalletAvailable {
-            return settings.isPermanentWallet
+            return wallets.first?.settings.isPermanent ?? false
         }
         
         return false
