@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import SwiftUI
 
-class WalletConnectViewModel: ViewModel {
+class WalletConnectViewModel: ViewModel, ObservableObject {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
     weak var walletConnectController: WalletConnectSessionController! {
