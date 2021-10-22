@@ -117,8 +117,8 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 	}
 	
 	private func createWallet(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
-        let createWalletCommand = CreateWalletCommand(curve: .secp256k1/*, isPermanent: false*/)
-		createWalletCommand.run(in: session) { (result) in
+        let createWalletTask = CreateWalletTask(curve: .secp256k1/*, isPermanent: false*/)
+        createWalletTask.run(in: session) { (result) in
 			switch result {
 			case .success(let response):
 				if let fileToWrite = self.fileToWrite {
