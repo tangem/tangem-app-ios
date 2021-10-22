@@ -9,11 +9,13 @@
 import SwiftUI
 
 extension View {
-    func previewGroup(devices: [PreviewDeviceType] = PreviewDeviceType.allCases) -> some View {
+    func previewGroup(devices: [PreviewDeviceType] = [.iPhone7, .iPhone8Plus, .iPhoneX, .iPhone12Pro, .iPhone12ProMax], withZoomed: Bool = true) -> some View {
         Group {
             ForEach(devices) {
                 deviceForPreview($0)
-                deviceForPreviewZoomed($0)
+                if withZoomed {
+                    deviceForPreviewZoomed($0)
+                }
             }
         }
     }
@@ -24,6 +26,7 @@ enum PreviewDeviceType: String, Identifiable, CaseIterable {
 	
 	case iPhone7 = "iPhone 7"
 	case iPhone8Plus = "iPhone 8 Plus"
+    case iPhoneX = "iPhone X"
 	case iPhone12Mini = "iPhone 12 mini"
 	case iPhone11Pro = "iPhone 11 Pro"
 	case iPhone11ProMax = "iPhone 11 Pro Max"
@@ -39,6 +42,7 @@ enum PreviewDeviceType: String, Identifiable, CaseIterable {
         case .iPhone12Pro: return .iphone11Pro
         case .iPhone12ProMax: return .iphone11ProMax
         case .iPhone8Plus: return .iphone8Plus
+        case .iPhoneX: return .iphone11Pro
         }
     }
 }
