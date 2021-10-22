@@ -10,181 +10,103 @@ import Foundation
 import SwiftUI
 
 struct TangemButton: View {
-    let isLoading: Bool    
     let title: LocalizedStringKey
-    let image: String
-    var size: ButtonSize = .small
+    var image: String = ""
+    var systemImage: String = ""
+    var iconPosition: IconPosition = .trailing
+    var iconPadding: CGFloat = 8
     let action: () -> Void
     
+    @ViewBuilder
+    private var icon: some View {
+        if !image.isEmpty {
+            Image(image)
+        } else if !systemImage.isEmpty {
+            Image(systemName: systemImage)
+        } else {
+            EmptyView()
+        }
+    }
+    
+    private var hasImage: Bool {
+        !image.isEmpty || !systemImage.isEmpty
+    }
+    
+    @ViewBuilder
+    private var label: some View {
+        Text(title)
+            .lineLimit(2)
+            .transition(.opacity)
+            .id("tangem_button_\(title)")
+    }
+    
+    
     var body: some View {
-        Button(action: {
-            if !self.isLoading {
-                self.action()
-            }
-        }, label:  {
-            HStack(alignment: .center, spacing: 8) {
-                if isLoading {
-                    ActivityIndicatorView()
-                } else {
-                    Text(title)
-					if !image.isEmpty {
-						Image(image)
-					}
+        Button(action: action, label:  {
+            if !hasImage {
+                label
+            } else {
+                Group {
+                    if iconPosition == .leading {
+                        icon
+                        Spacer(minLength: iconPadding)
+                        label
+                    } else {
+                        label
+                        Spacer(minLength: iconPadding)
+                        icon
+                    }
                 }
             }
-            .padding(.horizontal, 16)
-            .frame(minWidth: size.value.width,
-                   maxWidth: .infinity,
-                   minHeight: size.value.height,
-                   maxHeight: size.value.height,
-                   alignment: .center)
-            .fixedSize()
         })
     }
 }
 
-struct TangemVerticalButton: View {
-    let isLoading: Bool
-    let title: LocalizedStringKey
-    let image: Image?
-    let action: () -> Void
-    
-    init(isLoading: Bool, title: LocalizedStringKey, image: (() -> Image)?, action: @escaping () -> Void) {
-        self.isLoading = isLoading
-        self.title = title
-        self.image = image?()
-        self.action = action
+extension TangemButton {
+    enum IconPosition {
+        case leading, trailing
     }
     
-    init(isLoading: Bool, title: LocalizedStringKey, action: @escaping () -> Void) {
-        self.init(isLoading: isLoading, title: title, image: nil, action: action)
-    }
-    
-    init(isLoading: Bool, title: LocalizedStringKey, image: String, action: @escaping () -> Void) {
-        self.init(isLoading: isLoading, title: title, image: { Image(image) }, action: action)
-    }
-    
-    init(isLoading: Bool, title: LocalizedStringKey, systemImage: String, action: @escaping () -> Void) {
-        self.init(isLoading: isLoading, title: title, image: { Image(systemName: systemImage) }, action: action)
-    }
-    
-    var body: some View {
-        Button(action: {
-            if !self.isLoading {
-                self.action()
-            }
-        }, label:  {
-            
-            VStack(alignment: .center, spacing:0) {
-                if isLoading {
-                    ActivityIndicatorView()
-                } else {
-                    image
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 20, height: 20)
-                    Text(title)
-                        .lineLimit(2)
-                }
-            }
-            .padding(.all, 8)
-            .frame(minWidth: ButtonSize.smallVertical.value.width - 0.1 * ButtonSize.smallVertical.value.width,
-                   maxWidth: ButtonSize.smallVertical.value.width,
-                   minHeight: ButtonSize.smallVertical.value.height,
-                   idealHeight: ButtonSize.smallVertical.value.height,
-                   maxHeight: ButtonSize.smallVertical.value.height,
-                   alignment: .center)
-            .fixedSize()
-        })
-    }
-    
-    
-}
-
-struct TangemLongButton: View {
-    let isLoading: Bool
-    let title: LocalizedStringKey
-    let image: Image?
-    let action: () -> Void
-    
-    init(isLoading: Bool, title: LocalizedStringKey, image: (() -> Image)?, action: @escaping () -> Void) {
-        self.isLoading = isLoading
-        self.title = title
-        self.image = image?()
-        self.action = action
-    }
-    
-    init(isLoading: Bool, title: LocalizedStringKey, action: @escaping () -> Void) {
-        self.init(isLoading: isLoading, title: title, image: nil, action: action)
-    }
-    
-    init(isLoading: Bool, title: LocalizedStringKey, image: String, action: @escaping () -> Void) {
-        self.init(isLoading: isLoading, title: title, image: { Image(image) }, action: action)
-    }
-    
-    init(isLoading: Bool, title: LocalizedStringKey, systemImage: String, action: @escaping () -> Void) {
-        self.init(isLoading: isLoading, title: title, image: { Image(systemName: systemImage) }, action: action)
-    }
-    
-    var body: some View {
-        Button(action: {
-            if !self.isLoading {
-                self.action()
-            }
-        }, label: {
-            HStack(alignment: .center, spacing: 8) {
-                if isLoading {
-                    ActivityIndicatorView()
-                } else {
-                    Text(title)
-                    Spacer()
-                    image
-                }
-            }
-            .padding(.horizontal, 16)
-            .frame(minWidth: ButtonSize.big.value.width - 0.1*ButtonSize.big.value.width,
-                   maxWidth: ButtonSize.big.value.width,
-                   minHeight: ButtonSize.big.value.height,
-                   maxHeight: ButtonSize.big.value.height,
-                   alignment: .center)
-            .fixedSize()
-        })
+    static func vertical(title: LocalizedStringKey,
+                         image: String = "",
+                         systemImage: String = "",
+                         action: @escaping () -> Void) -> TangemButton {
+        return TangemButton(title: title,
+                            image: image,
+                            systemImage: systemImage,
+                            iconPosition: .leading,
+                            iconPadding: 2,
+                            action: action)
     }
 }
 
 struct TangemButton_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
-            TangemButton(isLoading: false,
-                         title: "Recharge de portefeuille",
-                         image: "scan") {}
-                .buttonStyle(TangemButtonStyle(color: .black))
+            TangemButton(title: "Recharge de portefeuille", image: "scan") {}
+                .buttonStyle(TangemButtonStyle(colorStyle: .black))
             
-            TangemLongButton(isLoading: false,
-                             title: "wallet_button_scan",
+            TangemButton(title: "wallet_button_scan", image: "scan") {}
+                .buttonStyle(TangemButtonStyle(colorStyle: .black,
+                                               layout: .big))
+ 
+            HStack {
+                TangemButton(title: "wallet_button_send",
                              image: "scan") {}
-                .buttonStyle(TangemButtonStyle(color: .black))
+                    .buttonStyle(TangemButtonStyle(layout: .smallVertical,
+                                                   isLoading: true))
+                
+                TangemButton.vertical(title: "wallet_button_topup",
+                                      systemImage: "arrow.up") {}
+                    .buttonStyle(TangemButtonStyle(layout: .smallVertical))
+                
             
-                HStack {
-                    TangemVerticalButton(isLoading: true,
-                                         title: "wallet_button_send",
-                                         image: "scan") {}
-                        .buttonStyle(TangemButtonStyle(color: .green))
-                        .layoutPriority(0)
-                    
-                    TangemVerticalButton(isLoading: false,
-                                         title: "wallet_button_topup",
-                                         image: "arrow.up") {}
-                        .buttonStyle(TangemButtonStyle(color: .green))
-                        .layoutPriority(1)
-                    TangemVerticalButton(isLoading: false,
-                                         title: "wallet_button_scan",
-                                         image: "arrow.right") {}
-                        .buttonStyle(TangemButtonStyle(color: .green))
-                        .layoutPriority(0)
-                }
-                .padding(.horizontal, 8)
-            
-            
+                TangemButton.vertical(title: "wallet_button_scan",
+                                      systemImage: "arrow.right") {}
+                    .buttonStyle(TangemButtonStyle(layout: .smallVertical))
+                
+            }
+            .padding(.horizontal, 8)
             
         }
         .environment(\.locale, .init(identifier: "fr"))
