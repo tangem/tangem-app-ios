@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import EFQRCode
 import BlockchainSdk
 
 struct BalanceAddressView: View {
@@ -44,6 +43,18 @@ struct BalanceAddressView: View {
     
     var showAddressSelector: Bool {
         return walletModel.wallet.addresses.count > 1
+    }
+    
+    private var qrMessage: String {
+        var text: String = ""
+        
+        if case let .token(token) = amountType {
+            text = "\(token.name) from \(token.blockchain.displayName) network"
+        } else {
+            text = walletModel.wallet.blockchain.displayName
+        }
+
+        return String(format: "address_qr_code_message_format".localized, text)
     }
     
     var accentColor: Color {
@@ -89,7 +100,7 @@ struct BalanceAddressView: View {
                             .foregroundColor(Color.tangemTapGrayDark)
                     }
                     HStack(alignment: .firstTextBaseline, spacing: 5.0) {
-                        Image(image)
+                        Image(systemName: image)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .foregroundColor(accentColor)
@@ -118,8 +129,7 @@ struct BalanceAddressView: View {
             GeometryReader { geometry in
                 HStack(alignment: .center, spacing: 0) {
                     let imageSize = geometry.size.width * 0.3
-                    let imageSizeInPixels = imageSize * UIScreen.main.scale
-                    Image(uiImage: self.getQrCodeImage(width: imageSizeInPixels, height: imageSizeInPixels))
+                    Image(uiImage: QrCodeGenerator.generateQRCode(from: walletModel.shareAddressString(for: selectedAddressIndex)))
                         .resizable()
                         .scaledToFit()
                         .frame(width: imageSize)
@@ -139,7 +149,7 @@ struct BalanceAddressView: View {
                                 Text("wallet_address_button_explore")
                                     .multilineTextAlignment(.leading)
                                     .lineLimit(1)
-                                Image ("chevron.right")
+                                Image (systemName: "chevron.right")
                             }
                             .font(Font.system(size: 14.0, weight: .bold, design: .default))
                             .foregroundColor(Color.tangemTapGrayDark6)
@@ -149,13 +159,13 @@ struct BalanceAddressView: View {
                         HStack {
                             RoundedRectButton(action: {
                                                 UIPasteboard.general.string = walletModel.displayAddress(for: selectedAddressIndex) },
-                                              imageName: "doc.on.clipboard",
+                                              systemImageName: "doc.on.clipboard",
                                               title: "common_copy".localized,
                                               withVerification: true)
                                 .accessibility(label: Text("voice_over_copy_address"))
                             
                             RoundedRectButton(action: { showShareSheet() },
-                                              imageName: "square.and.arrow.up",
+                                              systemImageName: "square.and.arrow.up",
                                               title: "common_share".localized)
                                 .accessibility(label: Text("voice_over_share_address"))
                         }
@@ -164,6 +174,12 @@ struct BalanceAddressView: View {
                     .frame(width: geometry.size.width * 0.7)
                 }
             }.frame(height: 114)
+            
+            Text(qrMessage)
+                .font(.system(size: 16, weight: .regular))
+                .multilineTextAlignment(.center)
+                .foregroundColor(.tangemTapGrayDark)
+            
         }
         .padding(16)
         .background(Color.white)
@@ -175,26 +191,10 @@ struct BalanceAddressView: View {
         let av = UIActivityViewController(activityItems: [address], applicationActivities: nil)
         UIApplication.shared.windows.first?.rootViewController?.present(av, animated: true, completion: nil)
     }
-    
-    private func getQrCodeImage(width: CGFloat, height: CGFloat) -> UIImage {
-        let padding: CGFloat = 0
-        
-        if let cgImage = EFQRCode.generate(content: walletModel.shareAddressString(for: selectedAddressIndex),
-                                           size: EFIntSize(width: Int(width), height: Int(height)), backgroundColor: CGColor(red: 0, green: 0, blue: 0, alpha: 0)) {
-            return UIImage(cgImage: cgImage.cropping(to: CGRect(x: padding,
-                                                                y: padding,
-                                                                width: width - padding,
-                                                                height: height-padding))!,
-                           scale: 1.0,
-                           orientation: .up)
-        } else {
-            return UIImage.imageWithSize(width: width, height: height, filledWithColor: UIColor.tangemTapBgGray )
-        }
-    }
 }
 
 struct BalanceAddressView_Previews: PreviewProvider {
-    static let assembly = Assembly.previewAssembly(for: .twin)
+    static let assembly = Assembly.previewAssembly(for: .ethereum)
     
     @State static var cardViewModel = assembly.previewCardViewModel
     
