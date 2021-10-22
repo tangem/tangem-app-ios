@@ -65,8 +65,8 @@ class MoonPayService {
         "BTC", "ETH", "BCH"
     ]
     
-    private var canBuyCrypto = true
-    private var canSellCrypto = true
+    private(set) var canBuyCrypto = true
+    private(set) var canSellCrypto = true
     private var bag: Set<AnyCancellable> = []
 	
 	init(keys: MoonPayKeys) {
