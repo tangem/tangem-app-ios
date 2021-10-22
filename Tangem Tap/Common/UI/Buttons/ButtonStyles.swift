@@ -83,7 +83,7 @@ enum ButtonColorStyle {
         case .green: return .tangemTapGreen1
         case .black: return .tangemTapGrayDark5
         case .gray, .grayAlt: return .tangemTapGrayDark
-        case .transparentWhite: return .tangemTapGrayLight4
+        case .transparentWhite: return .clear
         }
     }
     
@@ -91,6 +91,15 @@ enum ButtonColorStyle {
         switch self {
         case .transparentWhite, .grayAlt: return .tangemTapGrayDark6
         default: return .white
+        }
+    }
+    
+    var fgPressedColor: Color {
+        switch self {
+        case .transparentWhite:
+            return .tangemTapGrayDark3
+        default:
+            return fgColor
         }
     }
     
@@ -145,7 +154,7 @@ struct TangemButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         label(for: configuration)
             .font(font)
-            .foregroundColor(colorStyle.fgColor)
+            .foregroundColor(configuration.isPressed ? colorStyle.fgPressedColor : colorStyle.fgColor)
             .frame(width: layout.size?.width, height: layout.size?.height)
             .fixedSize()
             .background(configuration.isPressed ? colorStyle.bgPressedColor : colorStyle.bgColor)
