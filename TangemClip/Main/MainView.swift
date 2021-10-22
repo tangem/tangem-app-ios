@@ -65,12 +65,12 @@ struct MainView: View {
             }
             
             if viewModel.state == .notScannedYet {
-                TangemVerticalButton(isLoading: viewModel.isScanning,
-                                     title: "main_button_read_wallets",
-                                     image: "scan") {
-                    viewModel.scanCard()
-                }
-                .buttonStyle(TangemButtonStyle(color: .black))
+                TangemButton(title: "main_button_read_wallets",
+                             image: "scan",
+                             action: viewModel.scanCard)
+                    .buttonStyle(TangemButtonStyle(colorStyle: .black,
+                                                   layout: .smallVertical,
+                                                   isLoading: viewModel.isScanning))
                 .padding(.bottom, 48)
             }
         }

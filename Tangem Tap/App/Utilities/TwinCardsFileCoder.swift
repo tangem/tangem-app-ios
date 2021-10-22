@@ -18,7 +18,7 @@ protocol TwinCardFileDecoder {
 
 struct TwinCardTlvFileDecoder: TwinCardFileDecoder {
 	func decode(_ file: File) throws -> TwinCardFile {
-		guard let tlv = Tlv.deserialize(file.fileData) else {
+		guard let tlv = Tlv.deserialize(file.data) else {
 			throw TangemSdkError.deserializeApduFailed
 		}
 		

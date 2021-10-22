@@ -18,7 +18,8 @@ class TwinsWalletCreationService {
     }
     
     static let twinFileName = "TwinPublicKey"
-    
+
+    var twinPairCardId: String? = nil
     private let scanMessageKey = "twins_scan_twin_with_number"
     
     private let tangemSdk: TangemSdk
@@ -40,14 +41,14 @@ class TwinsWalletCreationService {
     /// Determines is user start twin wallet creation from Twin card with first number
     var isStartedFromFirstNumber: Bool {
         guard let twin = twinInfo else { return true }
-        return twin.series?.number ?? 1 == 1
+        return twin.series.number == 1
     }
     
     var stepCardNumber: Int {
-        guard
-            let twin = twinInfo,
-            let series = twin.series
-        else { return 1 }
+        guard let twin = twinInfo else { return 1 }
+        
+        let series = twin.series
+        
         switch step.value {
         case .first, .third, .done:
             return series.number
@@ -82,7 +83,6 @@ class TwinsWalletCreationService {
         
         twinInfo = twin
         firstTwinCid = twin.cid
-       // secondTwinCid = twin.pairCid ?? ""
     }
     
     func resetSteps() {
@@ -107,7 +107,10 @@ class TwinsWalletCreationService {
     }
     
     private func createWalletOnSecondCard() {
-        guard let firstTwinKey = firstTwinPublicKey else {
+        guard
+            let firstTwinKey = firstTwinPublicKey,
+            let series = TwinCardSeries.series(for: firstTwinCid)
+        else {
             step.send(.first)
             occuredError.send(TangemSdkError.missingIssuerPublicKey)
             return
@@ -116,10 +119,11 @@ class TwinsWalletCreationService {
         //		switch twinFileToWrite(publicKey: firstTwinKey) {
         //		case .success(let file):
         let task = TwinsCreateWalletTask(firstTwinCardId: firstTwinCid, fileToWrite: firstTwinKey, walletManagerFactory: walletManagerFactory)
-        tangemSdk.startSession(with: task, /*cardId: secondTwinCid,*/ initialMessage: Message(header: "Scan card #2") /*initialMessage(for: secondTwinCid)*/) { (result) in
+        tangemSdk.startSession(with: task, /*cardId: secondTwinCid,*/ initialMessage: Message(header: "Scan card #\(series.pair.number)") /*initialMessage(for: secondTwinCid)*/) { (result) in
             switch result {
             case .success(let response):
                 self.secondTwinPublicKey = response.createWalletResponse.wallet.publicKey
+                self.twinPairCardId = response.createWalletResponse.cardId
                 self.step.send(.third)
             case .failure(let error):
                 self.occuredError.send(error)
