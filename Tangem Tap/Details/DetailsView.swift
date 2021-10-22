@@ -35,6 +35,7 @@ struct DetailsView: View {
     
     @ObservedObject var viewModel: DetailsViewModel
     @EnvironmentObject var navigation: NavigationCoordinator
+    @EnvironmentObject var assembly: Assembly
     
     //fix remain highlited bug on ios14
     @State private var selection: NavigationTag? = nil
@@ -57,13 +58,18 @@ struct DetailsView: View {
                         selection = .securityManagement
                     }
                 }, label: {
+                    HStack {
                     Text("details_row_title_manage_security")
                         .font(.system(size: 16, weight: .regular, design: .default))
                         .foregroundColor(.tangemTapGrayDark6)
+                        Spacer()
+                        ActivityIndicatorView(isAnimating: viewModel.isCheckingPin)
+                    }
                 })
                 .background(
                     NavigationLink(
-                        destination: SecurityManagementView(viewModel: viewModel.assembly.makeSecurityManagementViewModel(with: viewModel.cardModel)),
+                        destination: SecurityManagementView(viewModel: viewModel.assembly.makeSecurityManagementViewModel(with: viewModel.cardModel))
+                            .environmentObject(navigation),
                         tag: NavigationTag.securityManagement,
                         selection: $selection,
                         label: { EmptyView() })
@@ -71,18 +77,45 @@ struct DetailsView: View {
                 )
                 
                 if viewModel.isTwinCard {
-                    NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardWarningViewModel(isRecreating: true)),
-                                   isActive: $navigation.detailsToTwinsRecreateWarning){
-                        DetailsRowView(title: "details_row_title_twins_recreate".localized, subtitle: "")
-                    }
+                    Button(action: {
+                        viewModel.prepareTwinOnboarding()
+                    }, label: {
+                        Text("details_row_title_twins_recreate")
+                            .font(.system(size: 16, weight: .regular, design: .default))
+                            .foregroundColor(.tangemTapGrayDark6)
+                    })
+                    .sheet(isPresented: $navigation.detailsToTwinsRecreateWarning, content: {
+                        OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
+                            .presentation(modal: viewModel.isTwinRecreationModel, onDismissalAttempt: nil, onDismissed: nil)
+                            .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
+                                viewModel.isTwinRecreationModel = value
+                            })
+                            .environmentObject(navigation)
+                    })
+                    .alert(item: $viewModel.error) { $0.alert }
+//                    .sheet(isPresented: $navigation.mainToCardOnboarding, content: {
+//                        OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
+//                            .presentation(modal: viewModel.isOnboardingModal, onDismissalAttempt: nil, onDismissed: viewModel.onboardingDismissed)
+//                            .environmentObject(navigation)
+//                            .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
+//                                viewModel.isOnboardingModal = value
+//                            })
+//                    })
+//                    NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardWarningViewModel(isRecreating: true)),
+//                                   isActive: $navigation.detailsToTwinsRecreateWarning){
+//                        DetailsRowView(title: "details_row_title_twins_recreate".localized, subtitle: "")
+//                    }
                     .disabled(!viewModel.cardModel.canRecreateTwinCard)
                     
                 } else {
                     NavigationLink(destination: CardOperationView(title: "details_row_title_erase_wallet".localized,
                                                                   buttonTitle: "details_row_title_erase_wallet",
+                                                                  shouldPopToRoot: true,
                                                                   alert: "details_erase_wallet_warning".localized,
-                                                                  actionButtonPressed: {self.viewModel.cardModel.purgeWallet(completion: $0)}
-                    ),
+                                                                  actionButtonPressed: { self.viewModel.cardModel.purgeWallet(completion: $0)}
+                    )
+                    .environmentObject(navigation)
+                    .environmentObject(assembly),
                     tag: NavigationTag.cardOperation, selection: $selection) {
                         DetailsRowView(title: "details_row_title_erase_wallet".localized, subtitle: "")
                     }
@@ -98,7 +131,7 @@ struct DetailsView: View {
                     
                 }
                 
-                NavigationLink(destination: DisclaimerView(viewModel: viewModel.assembly.makeDisclaimerViewModel(with: .read))
+                NavigationLink(destination: DisclaimerView(style: .navbar, showAccept: false)
                                 .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
                                tag: NavigationTag.disclaimer, selection: $selection) {
                     DetailsRowView(title: "disclaimer_title".localized,
@@ -128,12 +161,14 @@ struct DetailsView: View {
                     }
                 }
                 
-                NavigationLink(destination: WalletConnectView(viewModel: viewModel.assembly.makeWalletConnectViewModel(cardModel: viewModel.cardModel))
-                                .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
-                               tag: NavigationTag.walletConnect, selection: $selection) {
-                    DetailsRowView(title: "WalletConnect",
-                                   subtitle: "")
-                    
+                if viewModel.shouldShowWC {
+                    NavigationLink(destination: WalletConnectView(viewModel: viewModel.assembly.makeWalletConnectViewModel(cardModel: viewModel.cardModel))
+                                    .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
+                                   tag: NavigationTag.walletConnect, selection: $selection) {
+                        DetailsRowView(title: "WalletConnect",
+                                       subtitle: "")
+                        
+                    }
                 }
             }
             Section(header: Color.tangemTapBgGray

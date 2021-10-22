@@ -11,6 +11,8 @@ import Foundation
 protocol ExchangeService: AnyObject {
     var successCloseUrl: String { get }
     var sellRequestUrl: String { get }
+    var canBuyCrypto: Bool { get }
+    var canSellCrypto: Bool { get }
     func canBuy(_ currency: String) -> Bool
     func canSell(_ currency: String) -> Bool
     func getBuyUrl(currencySymbol: String, walletAddress: String) -> URL?
