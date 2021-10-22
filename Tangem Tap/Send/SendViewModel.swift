@@ -9,7 +9,6 @@
 import Foundation
 import SwiftUI
 import Combine
-import EFQRCode
 import BlockchainSdk
 import TangemSdk
 import stellarsdk
@@ -19,7 +18,7 @@ struct TextHint {
     let message: String
 }
 
-class SendViewModel: ViewModel {
+class SendViewModel: ViewModel, ObservableObject {
     weak var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
     weak var ratesService: CoinMarketCapService!
@@ -225,7 +224,7 @@ class SendViewModel: ViewModel {
             .map {[unowned self] newRates -> Bool in
                 return newRates[self.amountToSend.currencySymbol] != nil
             }
-            .assign(to: \.canFiatCalculation, on: self)
+            .weakAssign(to: \.canFiatCalculation, on: self)
             .store(in: &bag)
         
         $destination //destination validation
