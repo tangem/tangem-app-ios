@@ -13,32 +13,38 @@ struct TapScanTaskResponse {
     let card: Card
     let walletData: WalletData?
     let twinIssuerData: Data?
+    let isTangemNote: Bool //todo refactor
+    let isTangemWallet: Bool
     
     func getCardInfo() -> CardInfo {
         return CardInfo(card: card,
                         walletData: walletData,
-                        artworkInfo: nil,
-                        twinCardInfo: decodeTwinFile(from: self))
+                        //                        artworkInfo: nil,
+                        twinCardInfo: decodeTwinFile(from: self),
+                        isTangemNote: isTangemNote,
+                        isTangemWallet: isTangemWallet)
     }
     
     private func decodeTwinFile(from response: TapScanTaskResponse) -> TwinCardInfo? {
-        guard card.isTwinCard else {
+        guard
+            card.isTwinCard,
+            let series: TwinCardSeries = .series(for: card.cardId)
+        else {
             return nil
         }
         
         var pairPublicKey: Data?
-
+        
         if let walletPubKey = card.wallets.first?.publicKey, let fullData = twinIssuerData, fullData.count == 129 {
             let pairPubKey = fullData[0..<65]
             let signature = fullData[65..<fullData.count]
-            if Secp256k1Utils.verify(publicKey: walletPubKey, message: pairPubKey, signature: signature) ?? false {
-               pairPublicKey = pairPubKey
+            if let _ = try? Secp256k1Utils.verify(publicKey: walletPubKey, message: pairPubKey, signature: signature) {
+                pairPublicKey = pairPubKey
             }
         }
-    
+        
         return TwinCardInfo(cid: response.card.cardId,
-                            series: TwinCardSeries.series(for: card.cardId),
-                           /* pairCid: TwinCardsUtils.makePairCid(for: response.card.cardId),*/
+                            series: series,
                             pairPublicKey: pairPublicKey)
     }
 }
@@ -50,17 +56,20 @@ final class TapScanTask: CardSessionRunnable {
     
     private let targetBatch: String?
     private var twinIssuerData: Data? = nil
+    private var noteWalletData: WalletData? = nil
     
     init(targetBatch: String? = nil) {
         self.targetBatch = targetBatch
     }
     
-    /// read -> appendWallets(createwallets+ scan)  -> readTwinData
+    /// read ->  readTwinData or note Data -> appendWallets(createwallets+ scan)  -> attestation
     public func run(in session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
-        guard let currentBatch = session.environment.card?.batchId.lowercased() else {
+        guard let card = session.environment.card else {
             completion(.failure(TangemSdkError.missingPreflightRead))
             return
         }
+        
+        let currentBatch = card.batchId.lowercased()
         
         if let targetBatch = self.targetBatch?.lowercased(),
            targetBatch != currentBatch {
@@ -68,69 +77,80 @@ final class TapScanTask: CardSessionRunnable {
             return
         }
         
-        if currentBatch == "ac01" || TangemNote.isNoteBatch(currentBatch) { //temporary restrict new wallet and notes
+        if currentBatch == "ac01" { //temporary restrict new wallets
             completion(.failure(TangemSdkError.underlying(error: "error_old_app_need_update".localized)))
             return
         }
         
-        self.appendWalletsIfNeeded(session: session, completion: completion)
+        self.readExtra(card, session: session, completion: completion)
     }
     
-    private func appendWalletsIfNeeded(session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
-        let card = session.environment.card!
-        
-        if card.firmwareVersion >= .multiwalletAvailable {
-            let existingCurves: Set<EllipticCurve> = .init(card.wallets.map({ $0.curve }))
-            let mandatoryСurves: Set<EllipticCurve> = [.secp256k1, .ed25519, .secp256r1]
-            let missingCurves = mandatoryСurves.subtracting(existingCurves)
-            
-            if existingCurves.count > 0, // not empty card
-               missingCurves.count > 0 //not enough curves
-            {
-                appendWallets(Array(missingCurves), session: session, completion: completion)
-                return
-            }
+    private func readExtra(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
+        if card.isTwinCard {
+            readTwin(card, session: session, completion: completion)
+            return
         }
         
-        readTwinIssuerDataIfNeeded(card, session: session, completion: completion)
+        if card.firmwareVersion.doubleValue >= 4.39 && card.settings.maxWalletsCount == 1 {
+            readNote(card, session: session, completion: completion)
+            return
+        }
+        
+        runAttestation(session, completion)
     }
     
-    
-    private func appendWallets(_ curves: [EllipticCurve], session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
-        CreateMultiWalletTask(curves: curves).run(in: session) { result in
+    private func readNote(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
+        // self.noteWalletData = WalletData(blockchain: "BTC") //for test without file
+        // self.runAttestation(session, completion)
+        // return
+        
+        let readFileCommand = ReadFilesTask(fileName: "blockchainInfo", walletPublicKey: nil)
+        readFileCommand.run(in: session) { (result) in
             switch result {
-            case .success:
-                self.scanCard(session: session, completion: completion)
+            case .success(let response):
+                
+                func exit() {
+                    self.noteWalletData = nil
+                    self.appendWalletsIfNeeded(session: session, completion: completion)
+                }
+                
+                guard let file = response.first,
+                      let namedFile = try? NamedFile(tlvData: file.data),
+                      let tlv = Tlv.deserialize(namedFile.payload),
+                      let fileSignature = namedFile.signature,
+                      let fileCounter = namedFile.counter,
+                      let walletData = try? WalletDataDeserializer().deserialize(decoder: TlvDecoder(tlv: tlv)) else {
+                    exit()
+                    return
+                }
+                
+                let dataToVerify = Data(hexString: card.cardId) + namedFile.payload + fileCounter.bytes4
+                let isVerified: Bool = (try? CryptoUtils.verify(curve: .secp256k1,
+                                                                publicKey: card.issuer.publicKey,
+                                                                message: dataToVerify,
+                                                                signature: fileSignature)) ?? false
+                
+                guard isVerified else {
+                    exit()
+                    return
+                }
+                
+                self.noteWalletData = walletData
+                self.runAttestation(session, completion)
             case .failure(let error):
-                completion(.failure(error))
+                switch error {
+                case .fileNotFound, .insNotSupported:
+                    self.noteWalletData = nil
+                    self.appendWalletsIfNeeded(session: session, completion: completion)
+                default:
+                    completion(.failure(error))
+                }
             }
         }
     }
     
-    private func scanCard(session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
-        let scanTask = PreflightReadTask(readMode: .fullCardRead, cardId: nil)
-        scanTask.run(in: session) { scanCompletion in
-            switch scanCompletion {
-            case .failure(let error):
-                completion(.failure(error))
-            case .success(let card):
-                self.readTwinIssuerDataIfNeeded(card, session: session, completion: completion)
-            }
-        }
-    }
-    
-    private func readTwinIssuerDataIfNeeded(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
-        guard card.isTwinCard else {
-            runAttestation(session, completion)
-            return
-        }
-        
-        guard let issuerPubKey = SignerUtils.signerKeys(for: card.issuer.name)?.publicKey else {
-            completion(.failure(TangemSdkError.unknownError))
-            return
-        }
-        
-        let readIssuerDataCommand = ReadIssuerDataCommand(issuerPublicKey: issuerPubKey)
+    private func readTwin(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
+        let readIssuerDataCommand = ReadIssuerDataCommand()
         readIssuerDataCommand.run(in: session) { (result) in
             switch result {
             case .success(let response):
@@ -141,6 +161,34 @@ final class TapScanTask: CardSessionRunnable {
                     return
                 }
                 
+                self.runAttestation(session, completion)
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    private func appendWalletsIfNeeded(session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
+        let card = session.environment.card!
+        
+        let existingCurves: Set<EllipticCurve> = .init(card.wallets.map({ $0.curve }))
+        let mandatoryСurves: Set<EllipticCurve> = [.secp256k1, .ed25519, .secp256r1]
+        let missingCurves = mandatoryСurves.subtracting(existingCurves)
+        
+        if existingCurves.count > 0, // not empty card
+           missingCurves.count > 0 //not enough curves
+        {
+            appendWallets(Array(missingCurves), session: session, completion: completion)
+            return
+        }
+        
+        runAttestation(session, completion)
+    }
+    
+    private func appendWallets(_ curves: [EllipticCurve], session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
+        CreateMultiWalletTask(curves: curves).run(in: session) { result in
+            switch result {
+            case .success:
                 self.runAttestation(session, completion)
             case .failure(let error):
                 completion(.failure(error))
@@ -169,6 +217,10 @@ final class TapScanTask: CardSessionRunnable {
         case .failed, .skipped:
             let isDevelopmentCard = session.environment.card!.firmwareVersion.type == .sdk
             
+            //            if isDevelopmentCard {
+            //                self.complete(session, completion)
+            //                return
+            //            }
             //Possible production sample or development card
             if isDevelopmentCard || session.environment.config.allowUntrustedCards {
                 session.viewDelegate.attestationDidFail(isDevelopmentCard: isDevelopmentCard) {
@@ -209,8 +261,13 @@ final class TapScanTask: CardSessionRunnable {
     }
     
     private func complete(_ session: CardSession, _ completion: @escaping CompletionResult<TapScanTaskResponse>) {
+        let card = session.environment.card!
+        let isNote = noteWalletData != nil
+        let isWallet = card.firmwareVersion.doubleValue >= 4.39 && !isNote
         completion(.success(TapScanTaskResponse(card: session.environment.card!,
-                                                walletData: session.environment.walletData,
-                                                twinIssuerData: twinIssuerData)))
+                                                walletData: noteWalletData ?? session.environment.walletData,
+                                                twinIssuerData: twinIssuerData,
+                                                isTangemNote: noteWalletData != nil,
+                                                isTangemWallet: isWallet)))
     }
 }
