@@ -7,10 +7,13 @@
 //
 
 import Foundation
+import Combine
+import enum TangemSdk.EllipticCurve
 import struct TangemSdk.Card
 import struct TangemSdk.WalletData
 import struct TangemSdk.ArtworkInfo
 import class TangemSdk.TangemSdk
+import enum TangemSdk.TangemSdkError
 #if !CLIP
 import BlockchainSdk
 #endif
@@ -21,8 +24,9 @@ struct CardInfo {
     var card: Card
     var walletData: WalletData?
     var artwork: CardArtwork = .notLoaded
-    var artworkInfo: ArtworkInfo?
     var twinCardInfo: TwinCardInfo?
+    var isTangemNote: Bool
+    var isTangemWallet: Bool
     
     var imageLoadDTO: ImageLoadDTO {
         ImageLoadDTO(cardId: card.cardId,
@@ -39,9 +43,16 @@ struct CardInfo {
     }
     
     var defaultBlockchain: Blockchain? {
-        guard let walletData = walletData, let curve = card.supportedCurves.first else { return nil }
+        guard let walletData = walletData else { return nil }
         
-        return Blockchain.from(blockchainName: walletData.blockchain, curve: curve)
+        guard let curve = isTangemNote ? EllipticCurve.secp256k1 : card.supportedCurves.first else {
+            return nil
+        }
+        
+        let blockchainName = isTangemNote ? (walletData.blockchain.lowercased() == "binance" ? "bsc": walletData.blockchain)
+            : walletData.blockchain
+        
+        return Blockchain.from(blockchainName: blockchainName, curve: curve)
     }
     
     var defaultToken: Token? {
@@ -53,9 +64,45 @@ struct CardInfo {
                      decimalCount: token.decimals,
                      blockchain: blockchain)
     }
+    
+    var artworkInfo: ArtworkInfo? {
+        switch artwork {
+        case .notLoaded, .noArtwork: return nil
+        case .artwork(let artwork): return artwork
+        }
+    }
+    
+    var isMultiWallet: Bool {
+        if isTangemNote {
+            return false
+        }
+        
+        if card.isTwinCard {
+            return false
+        }
+        
+        if card.isStart2Coin {
+            return false
+        }
+        
+        if card.firmwareVersion.major < 4,
+           !card.supportedCurves.contains(.secp256k1) {
+            return false
+        }
+        
+        return true
+    }
 }
 
-enum CardArtwork {
+enum CardArtwork: Equatable {
+    static func == (lhs: CardArtwork, rhs: CardArtwork) -> Bool {
+        switch (lhs, rhs) {
+        case (.notLoaded, .notLoaded), (.noArtwork, .noArtwork): return true
+        case (.artwork(let lhsArt), .artwork(let rhsArt)): return lhsArt == rhsArt
+        default: return false
+        }
+    }
+    
     case notLoaded, noArtwork, artwork(ArtworkInfo)
 }
 
@@ -90,7 +137,6 @@ enum ScanResult: Equatable {
 
     static func == (lhs: ScanResult, rhs: ScanResult) -> Bool {
 		switch (lhs, rhs) {
-		
 		case (.card, .card): return true
 		case (.unsupported, .unsupported): return true
 		case (.notScannedYet, .notScannedYet): return true
@@ -137,6 +183,22 @@ class CardsRepository {
 				completion(.success(processScan(response.getCardInfo())))
             }
         }
+    }
+    
+    func scanPublisher(with batch: String? = nil) ->  AnyPublisher<ScanResult, Error>  {
+        Deferred {
+            Future { [weak self] promise in
+                self?.scan(with: batch) { result in
+                    switch result {
+                    case .success(let scanResult):
+                        promise(.success(scanResult))
+                    case .failure(let error):
+                        promise(.failure(error))
+                    }
+                }
+            }
+        }
+        .eraseToAnyPublisher()
     }
 
 	private func processScan(_ cardInfo: CardInfo) -> ScanResult {
