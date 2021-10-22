@@ -45,7 +45,7 @@ struct WarningView: View {
                 if warning.event?.canBeDismissed ?? false {
                     Spacer()
                     Button(action: { buttonAction(.dismiss) }, label: {
-                        Image("xmark.circle.fill")
+                        Image(systemName: "xmark.circle.fill")
                             .foregroundColor(.tangemTapGrayDark)
                             .frame(width: 26, height: 26)
                     })
