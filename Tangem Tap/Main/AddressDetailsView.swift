@@ -81,7 +81,7 @@ struct AddressDetailView: View {
                                 .foregroundColor(Color.tangemTapGrayDark6)
                                 .multilineTextAlignment(.leading)
                                 .lineLimit(1)
-                            Image ("chevron.right")
+                            Image (systemName: "chevron.right")
                                 .font(Font.system(size: 14.0, weight: .bold, design: .default))
                                 .foregroundColor(Color.tangemTapGrayDark6)
                         }
@@ -91,7 +91,7 @@ struct AddressDetailView: View {
                 CircleActionButton(action: {  UIPasteboard.general.string = walletModel.displayAddress(for: selectedAddressIndex) },
                                    backgroundColor: .tangemTapBgGray,
                                    imageName: "square.on.square",
-                                   isSystemImage: false,
+                                   isSystemImage: true,
                                    imageColor: .tangemTapGrayDark6,
                                    withVerification: true,
                                    isDisabled: false)
@@ -100,7 +100,7 @@ struct AddressDetailView: View {
                 CircleActionButton(action: { self.showQr = true },
                                    backgroundColor: .tangemTapBgGray,
                                    imageName: "qrcode",
-                                   isSystemImage: false,
+                                   isSystemImage: true,
                                    imageColor: .tangemTapGrayDark6,
                                    isDisabled: false)
                     .accessibility(label: Text("voice_over_show_address_qr"))
@@ -129,7 +129,7 @@ struct AddressDetailView: View {
                                     .multilineTextAlignment(.leading)
                                     .lineLimit(1)
                                     .foregroundColor(Color.tangemTapGrayDark6)
-                                Image ("chevron.right")
+                                Image (systemName: "chevron.right")
                                     .font(Font.system(size: 14.0, weight: .bold, design: .default))
                                     .foregroundColor(Color.tangemTapGrayDark6)
                                 
