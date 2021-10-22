@@ -46,7 +46,7 @@ class CreateWalletAndReadTask: CardSessionRunnable {
     }
 
     private func createLegacyWallet(in session: CardSession, curve: EllipticCurve, on card: Card, completion: @escaping CompletionResult<Card>) {
-        let createWalletCommand = CreateWalletCommand(curve: curve)
+        let createWalletCommand = CreateWalletTask(curve: curve)
         self.command = createWalletCommand
         
         createWalletCommand.run(in: session) { createWalletCompletion in
