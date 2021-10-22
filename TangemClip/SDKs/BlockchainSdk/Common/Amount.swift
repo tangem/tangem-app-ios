@@ -40,11 +40,7 @@ public struct Amount: CustomStringConvertible, Equatable, Comparable {
     }
     
     public var description: String {
-        if value == 0 && decimals > 0 {
-            return "0.00 \(currencySymbol)"
-        }
-    
-        return "\(value.rounded(scale: decimals)) \(currencySymbol)"
+        return string()
     }
     
     public init(with blockchain: Blockchain, address: String, type: AmountType = .coin, value: Decimal) {
@@ -66,6 +62,21 @@ public struct Amount: CustomStringConvertible, Equatable, Comparable {
         currencySymbol = amount.currencySymbol
         decimals = amount.decimals
         self.value = value
+    }
+    
+    public func string(with decimals: Int? = nil) -> String {
+        let decimalsCount = decimals ?? self.decimals
+        let formatter = NumberFormatter()
+        formatter.locale = Locale.current
+        formatter.numberStyle = .currency
+        formatter.usesGroupingSeparator = true
+        formatter.currencySymbol = currencySymbol
+        formatter.alwaysShowsDecimalSeparator = true
+        formatter.maximumFractionDigits = decimalsCount
+        formatter.minimumFractionDigits = 2
+        formatter.roundingMode = .down
+        return formatter.string(from: value as NSNumber) ??
+            "\(value.rounded(scale: decimalsCount)) \(currencySymbol)"
     }
     
     public static func ==(lhs: Amount, rhs: Amount) -> Bool {
