@@ -29,6 +29,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 	private var fileToWrite: Data?
     private let walletManagerFactory: WalletManagerFactory?
     private var walletManager: WalletManager? = nil
+    private var scanCommand: TapScanTask? = nil
     
 	init(firstTwinCardId: String?, fileToWrite: Data?, walletManagerFactory: WalletManagerFactory?) {
 		self.firstTwinCardId = firstTwinCardId
@@ -44,10 +45,19 @@ class TwinsCreateWalletTask: CardSessionRunnable {
         }
         
         if let firstTwinCardId = self.firstTwinCardId {
-            guard let firstSeries = TwinCardSeries.series(for: firstTwinCardId),
-                  let secondSeries = TwinCardSeries.series(for: card.cardId),
+            guard let firstSeries = TwinCardSeries.series(for: firstTwinCardId) else {
+                completion(.failure(.underlying(error: "twin_error_not_a_twin_card".localized)))
+                return
+            }
+            
+            guard firstTwinCardId != card.cardId else {
+                completion(.failure(.underlying(error: String(format: "twin_error_same_card".localized, firstSeries.pair.number))))
+                return
+            }
+            
+            guard let secondSeries = TwinCardSeries.series(for: card.cardId),
                   firstSeries.pair == secondSeries else {
-                completion(.failure(.wrongCardType))
+                completion(.failure(.underlying(error: "twin_error_wrong_twin".localized)))
                 return
             }
         }
@@ -107,7 +117,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 	}
 	
 	private func createWallet(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
-        let createWalletCommand = CreateWalletCommand(curve: .secp256k1, isPermanent: false)
+        let createWalletCommand = CreateWalletCommand(curve: .secp256k1/*, isPermanent: false*/)
 		createWalletCommand.run(in: session) { (result) in
 			switch result {
 			case .success(let response):
@@ -125,7 +135,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 	private func writePublicKeyFile(fileToWrite: Data, walletResponse: CreateWalletResponse, in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
 //		let writeFileCommand = WriteFileCommand(dataToWrite: FileDataProtectedByPasscode(data: fileToWrite))
         
-        guard let issuerKeys = SignerUtils.signerKeys(for: session.environment.card!.issuer.name) else {
+        guard let issuerKeys = SignerUtils.signerKeys(for: session.environment.card!.issuer.publicKey) else {
             completion(.failure(TangemSdkError.unknownError))
             return
         }
@@ -151,8 +161,8 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 	}
     
     private func scanCard(session: CardSession, walletResponse: CreateWalletResponse, completion: @escaping CompletionResult<CommandResponse>) {
-        let scanTask = TapScanTask()
-        scanTask.run(in: session) { scanCompletion in
+        self.scanCommand =  TapScanTask()
+        scanCommand!.run(in: session) { scanCompletion in
             switch scanCompletion {
             case .failure(let error):
                 completion(.failure(error))
