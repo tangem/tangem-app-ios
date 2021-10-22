@@ -22,8 +22,8 @@ class CreateMultiWalletTask: CardSessionRunnable {
     
     private func createWallet(at index: Int, session: CardSession, completion: @escaping CompletionResult<SuccessResponse>) {
         let curve = curves[index]
-        let createWalletCommand = CreateWalletCommand(curve: curve/*, isPermanent: false*/)
-        createWalletCommand.run(in: session) { createWalletCompletion in
+        let createWalletTask = CreateWalletTask(curve: curve/*, isPermanent: false*/)
+        createWalletTask.run(in: session) { createWalletCompletion in
             switch createWalletCompletion {
             case .failure(let error):
                 completion(.failure(error))
