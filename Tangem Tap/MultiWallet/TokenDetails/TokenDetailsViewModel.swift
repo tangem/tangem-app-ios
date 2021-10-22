@@ -9,7 +9,7 @@ import SwiftUI
 import BlockchainSdk
 import Combine
 
-class TokenDetailsViewModel: ViewModel {
+class TokenDetailsViewModel: ViewModel, ObservableObject {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
     weak var exchangeService: ExchangeService!
@@ -29,11 +29,11 @@ class TokenDetailsViewModel: ViewModel {
     }
     
     var incomingTransactions: [PendingTransaction] {
-        walletModel?.incomingPendingTransactions ?? []
+        walletModel?.incomingPendingTransactions.filter { $0.amountType == amountType } ?? []
     }
     
     var outgoingTransactions: [PendingTransaction] {
-        walletModel?.outgoingPendingTransactions ?? []
+        walletModel?.outgoingPendingTransactions.filter { $0.amountType == amountType } ?? []
     }
     
     var canBuyCrypto: Bool {
@@ -250,8 +250,8 @@ class TokenDetailsViewModel: ViewModel {
         $isRefreshing
             .removeDuplicates()
             .filter { $0 }
-            .sink{ [unowned self] _ in
-                self.walletModel?.update()
+            .sink{ [weak self] _ in
+                self?.walletModel?.update()
             }
             .store(in: &bag)
         
@@ -261,11 +261,12 @@ class TokenDetailsViewModel: ViewModel {
 //            .print("🐼 TokenDetailsViewModel: Wallet model state")
             .map{ $0.isLoading }
             .filter { !$0 }
+            .delay(for: 1, scheduler: DispatchQueue.global())
             .receive(on: RunLoop.main)
-            .sink {[unowned self] _ in
+            .sink {[weak self] _ in
                 print("♻️ Token wallet model loading state changed")
                 withAnimation {
-                    self.isRefreshing = false
+                    self?.isRefreshing = false
                 }
             }
             .store(in: &bag)
