@@ -67,6 +67,22 @@ class DetailsViewModel: ViewModel, ObservableObject {
         }
     }
     
+    var backupVisible: Bool {
+        return cardModel.cardInfo.isTangemWallet
+    }
+    
+    var canCreateBackup: Bool {
+        if !cardModel.cardInfo.isTangemWallet {
+            return false
+        }
+        
+        if !cardModel.cardInfo.card.settings.isBackupAllowed {
+            return false
+        }
+        
+       return cardModel.cardInfo.card.backupStatus == .noBackup
+    }
+    
     var shouldShowWC: Bool {
         if cardModel.cardInfo.isTangemNote {
             return false
@@ -197,6 +213,36 @@ class DetailsViewModel: ViewModel, ObservableObject {
                                         })
             self.assembly.makeCardOnboardingViewModel(with: input)
             self.navigation.detailsToTwinsRecreateWarning = true
+        }
+        .store(in: &bag)
+    }
+    
+    func prepareBackup() {
+        onboardingStepsSetupService.backupSteps()
+            .sink { completion in
+            switch completion {
+            case .failure(let error):
+                Analytics.log(error: error)
+                print("Failed to load image for new card")
+                self.error = error.alertBinder
+            case .finished:
+                break
+            }
+        } receiveValue: { [weak self] steps in
+            guard let self = self else { return }
+            
+            let input = OnboardingInput(steps: steps,
+                                        cardModel: self.cardModel,
+                                        cardImage: nil,
+                                        cardsPosition: nil,
+                                        welcomeStep: nil,
+                                        currentStepIndex: 0,
+                                        successCallback: { [weak self] in
+                                            self?.navigation.detailsToBackup = false
+                                        },
+                                        isStandalone: true)
+            self.assembly.makeCardOnboardingViewModel(with: input)
+            self.navigation.detailsToBackup = true
         }
         .store(in: &bag)
     }
