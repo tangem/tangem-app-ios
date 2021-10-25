@@ -129,7 +129,7 @@ extension Assembly {
     func makeWalletOnboardingViewModel(with input: OnboardingInput) -> WalletOnboardingViewModel {
         let sdk = services.tangemSdk
         let vm = WalletOnboardingViewModel(input: input,
-                                           backupService: BackupService(sdk: sdk),
+                                           backupService: services.backupService,
                                            tangemSdk: sdk,
                                            tokensRepo: services.tokenItemsRepository)
         
