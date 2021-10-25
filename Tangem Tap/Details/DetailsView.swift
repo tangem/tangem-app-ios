@@ -121,6 +121,11 @@ struct DetailsView: View {
                     }
                     .disabled(!viewModel.cardModel.canPurgeWallet)
                 }
+                
+                if let backupStatus = viewModel.backupStatus {
+                    DetailsRowView(title: "details_row_title_backup_status".localized,
+                                   subtitle: backupStatus)
+                }
             }
             
             Section(header: HeaderView(text: "details_section_title_app".localized), footer: FooterView()) {
@@ -249,9 +254,9 @@ struct SettingsView_Previews: PreviewProvider {
         NavigationView {
             DetailsView(viewModel: assembly.makeDetailsViewModel())
                 .environmentObject(assembly.services.navigationCoordinator)
+                .environmentObject(assembly)
         }
         .navigationViewStyle(StackNavigationViewStyle())
-        .deviceForPreviewZoomed(.iPhone7)
     }
 }
 
