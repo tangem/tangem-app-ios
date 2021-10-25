@@ -688,3 +688,8 @@ Amount to pay: %@";
 
 "onboarding_alert_twins_recreate_subtitle" = "This action is irreversible. You will not have access to the old wallet.";
 "onboarding_twin_exit_warning" = "The twinning process is partly complete. You can’t exit it now.";
+
+"details_row_title_backup_status" = "Backup status";
+"details_backup_status_format_active" = "Active. Backup cards count: %@";
+"details_backup_status_format_linked" = "Linked. Backup cards count: %@";
+"details_backup_status_no_backup" = "No backup";
