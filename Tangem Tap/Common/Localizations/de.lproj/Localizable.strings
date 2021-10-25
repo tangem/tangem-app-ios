@@ -694,3 +694,5 @@ Amount to pay: %@";
 "details_backup_status_format_active" = "Active. Backup cards count: %@";
 "details_backup_status_format_linked" = "Linked. Backup cards count: %@";
 "details_backup_status_no_backup" = "No backup";
+
+"details_row_title_create_backup" = "Create backup";
