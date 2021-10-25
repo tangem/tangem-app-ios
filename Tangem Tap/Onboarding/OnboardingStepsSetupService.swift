@@ -20,14 +20,6 @@ class OnboardingStepsSetupService {
         [.createWallet, .topup, .successTopup]
     }
     
-//    func stepsWithCardImage(for cardModel: CardViewModel) -> AnyPublisher<(OnboardingSteps, UIImage), Error> {
-//        Publishers.Zip(
-//            steps(for: cardModel.cardInfo),
-//            cardModel.imageLoaderPublisher
-//        )
-//        .eraseToAnyPublisher()
-//    }
-    
     func steps(for cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
         let card = cardInfo.card
         
@@ -160,18 +152,26 @@ class OnboardingStepsSetupService {
             return .justWithError(output: .wallet([]))
         }
         
+        
+        let isBackupAllowed = cardInfo.card.settings.isBackupAllowed
+        
         var steps = [WalletOnboardingStep]()
+       
         if cardInfo.card.wallets.count == 0 {
             steps.append(.createWallet)
-            steps.append(.backupIntro)
-        } else if userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId) {
+            if isBackupAllowed {
+                steps.append(.backupIntro)
+            }
+        } else if userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId) && isBackupAllowed {
             steps.append(.backupIntro)
             steps.append(.scanOriginCard)
         } else {
             return .justWithError(output: .wallet([]))
         }
         
-        steps.append(contentsOf: [.selectBackupCards, .backupCards, .success])
+        if isBackupAllowed {
+            steps.append(contentsOf: [.selectBackupCards, .backupCards, .success])
+        }
         return .justWithError(output: .wallet(steps))
     }
     
