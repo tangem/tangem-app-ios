@@ -150,7 +150,7 @@ struct WalletOnboardingView: View {
                 OnboardingTextButtonView(
                     title: viewModel.title,
                     subtitle: viewModel.subtitle,
-                    textOffset: .zero,
+                    textOffset: currentStep.messagesOffset,
                     buttonsSettings: .init(main: viewModel.mainButtonSettings,
                                            supplement: viewModel.supplementButtonSettings)
 
@@ -159,7 +159,6 @@ struct WalletOnboardingView: View {
                 }
                 .padding(.horizontal, 40)
             }
-            
         }
         .alert(item: $viewModel.alert, content: { alertBinder in
             alertBinder.alert
