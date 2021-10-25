@@ -80,6 +80,8 @@ class DetailsViewModel: ViewModel, ObservableObject {
             return false
         }
         
+        //todo: respect involved cards
+        
        return cardModel.cardInfo.card.backupStatus == .noBackup
     }
     
@@ -218,7 +220,7 @@ class DetailsViewModel: ViewModel, ObservableObject {
     }
     
     func prepareBackup() {
-        onboardingStepsSetupService.backupSteps()
+        onboardingStepsSetupService.backupSteps(cardModel.cardInfo)
             .sink { completion in
             switch completion {
             case .failure(let error):
