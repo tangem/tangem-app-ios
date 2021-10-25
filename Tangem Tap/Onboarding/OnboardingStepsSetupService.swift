@@ -49,6 +49,14 @@ class OnboardingStepsSetupService {
         return .justWithError(output: .twins(steps))
     }
     
+    func backupSteps() -> AnyPublisher<OnboardingSteps, Error> {
+        var steps: [WalletOnboardingStep] = []
+        steps.append(.backupIntro)
+        steps.append(.scanOriginCard)
+        steps.append(contentsOf: [.selectBackupCards, .backupCards, .success])
+        return .justWithError(output: .wallet(steps))
+    }
+    
     private func stepsForNote(_ cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
         let walletModel = assembly.loadWallets(from: cardInfo)
         var steps: [SingleCardOnboardingStep] = []
