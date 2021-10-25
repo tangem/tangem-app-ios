@@ -131,6 +131,14 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         }
     }
     
+    override var isSupplementButtonVisible: Bool {
+        if currentStep == .backupIntro && input.isStandalone {
+            return false
+        }
+        
+        return super.isSupplementButtonVisible
+    }
+    
     override var supplementButtonSettings: TangemButtonSettings {
         .init(
             title: supplementButtonTitle,
