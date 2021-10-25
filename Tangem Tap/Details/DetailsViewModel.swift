@@ -52,6 +52,21 @@ class DetailsViewModel: ViewModel, ObservableObject {
         cardModel.hasWallet
     }
     
+    var backupStatus: String? {
+        guard let status = cardModel.cardInfo.card.backupStatus else {
+            return nil
+        }
+      
+        switch status {
+        case .active(let cardsCount):
+            return String(format: "details_backup_status_format_active".localized, cardsCount)
+        case .cardLinked(let cardsCount):
+            return String(format: "details_backup_status_format_linked".localized, cardsCount)
+        case .noBackup:
+            return "details_backup_status_no_backup".localized
+        }
+    }
+    
     var shouldShowWC: Bool {
         if cardModel.cardInfo.isTangemNote {
             return false
