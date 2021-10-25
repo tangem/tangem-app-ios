@@ -37,7 +37,7 @@ where Data : RandomAccessCollection, Data.Element : Hashable, Content : View {
     
     var body: some View {
         GeometryReader { geometry in
-            HStack(spacing: 0) {
+            HStack(alignment: .top, spacing: 0) {
                 // render all the content, making sure that each page fills
                 // the entire PagerView
                 ForEach(data, id: \.self) { elem in
