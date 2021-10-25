@@ -15,6 +15,7 @@ class OnboardingStepsSetupService {
     
     weak var userPrefs: UserPrefsService!
     weak var assembly: Assembly!
+    weak var backupService: BackupService!
     
     static var previewSteps: [SingleCardOnboardingStep] {
         [.createWallet, .topup, .successTopup]
@@ -49,12 +50,8 @@ class OnboardingStepsSetupService {
         return .justWithError(output: .twins(steps))
     }
     
-    func backupSteps() -> AnyPublisher<OnboardingSteps, Error> {
-        var steps: [WalletOnboardingStep] = []
-        steps.append(.backupIntro)
-        steps.append(.scanOriginCard)
-        steps.append(contentsOf: [.selectBackupCards, .backupCards, .success])
-        return .justWithError(output: .wallet(steps))
+    func backupSteps(_ cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
+        return .justWithError(output: .wallet(makeBackupSteps(cardInfo)))
     }
     
     private func stepsForNote(_ cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
@@ -156,31 +153,43 @@ class OnboardingStepsSetupService {
     }
     
     private func stepsForWallet(_ cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
-        if let backupStatus = cardInfo.card.backupStatus, backupStatus.isActive {
+        if let backupStatus = cardInfo.card.backupStatus,
+           backupStatus.isActive ||
+            (cardInfo.card.wallets.count != 0 &&
+                !userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId)) {
             return .justWithError(output: .wallet([]))
         }
         
-        
-        let isBackupAllowed = cardInfo.card.settings.isBackupAllowed
-        
-        var steps = [WalletOnboardingStep]()
-       
-        if cardInfo.card.wallets.count == 0 {
-            steps.append(.createWallet)
-            if isBackupAllowed {
-                steps.append(.backupIntro)
-            }
-        } else if userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId) && isBackupAllowed {
-            steps.append(.backupIntro)
-            steps.append(.scanOriginCard)
-        } else {
-            return .justWithError(output: .wallet([]))
-        }
-        
-        if isBackupAllowed {
-            steps.append(contentsOf: [.selectBackupCards, .backupCards, .success])
-        }
+        let steps = makeBackupSteps(cardInfo)
         return .justWithError(output: .wallet(steps))
     }
     
+    private func makeBackupSteps(_ cardInfo: CardInfo) -> [WalletOnboardingStep] {
+        if !cardInfo.card.settings.isBackupAllowed {
+            return []
+        }
+        
+        var steps: [WalletOnboardingStep] = .init()
+        
+        //todo: respect involved cards?
+        
+        if cardInfo.card.wallets.count == 0 {
+            steps.append(.createWallet)
+            steps.append(.backupIntro)
+        } else {
+            if !backupService.originCardIsSet {
+                steps.append(.backupIntro)
+                steps.append(.scanOriginCard)
+            }
+        }
+        
+        if backupService.addedBackupCardsCount < BackupService.maxBackupCardsCount {
+            steps.append(.selectBackupCards)
+        }
+        
+        steps.append(.backupCards)
+        steps.append(.success)
+        
+       return steps
+    }
 }
