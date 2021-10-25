@@ -17,4 +17,6 @@ struct OnboardingInput {
     
     var currentStepIndex: Int
     var successCallback: (() -> Void)?
+    
+    var isStandalone = false
 }
