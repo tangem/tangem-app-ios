@@ -35,7 +35,7 @@ extension Assembly {
     }
     
     var previewWalletOnboardingInput: OnboardingInput {
-        .init(steps: .wallet([.backupCards, .success]),
+        .init(steps: .wallet([.createWallet, .backupIntro, .selectBackupCards, .backupCards, .success]),
               cardModel: previewCardViewModel,
               cardImage: UIImage(named: "wallet_card")!,
               cardsPosition: nil,
