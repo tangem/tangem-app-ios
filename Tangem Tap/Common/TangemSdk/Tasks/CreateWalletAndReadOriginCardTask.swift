@@ -29,17 +29,15 @@ class CreateWalletAndReadOriginCardTask: CardSessionRunnable {
     }
     
     private func readOriginCard(_ card: Card, in session: CardSession, completion: @escaping CompletionResult<(OriginCard?, Card)>) {
-        completion(.success((nil, card)))
-//        linkingCommand = StartOriginCardLinkingCommand()
-//        linkingCommand!.run(in: session) { result in
-//            switch result {
-//            case .success(let originCard):
-//                completion(.success((originCard, card)))
-//            case .failure(let error):
-//                print(error)
-//                completion(.success((nil, card)))
-//            }
-//        }
+        linkingCommand = StartOriginCardLinkingCommand()
+        linkingCommand!.run(in: session) { result in
+            switch result {
+            case .success(let originCard):
+                completion(.success((originCard, card)))
+            case .failure:
+                completion(.success((nil, card)))
+            }
+        }
     }
     
 }
