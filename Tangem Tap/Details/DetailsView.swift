@@ -30,7 +30,7 @@ struct DetailsRowView: View {
 
 struct DetailsView: View {
     private enum NavigationTag: String {
-        case currency, disclaimer, cardTermsOfUse, securityManagement, cardOperation, manageTokens, walletConnect
+        case currency, disclaimer, cardTermsOfUse, securityManagement, cardOperation, manageTokens, walletConnect, backup
     }
     
     @ObservedObject var viewModel: DetailsViewModel
@@ -92,7 +92,6 @@ struct DetailsView: View {
                             })
                             .environmentObject(navigation)
                     })
-                    .alert(item: $viewModel.error) { $0.alert }
 //                    .sheet(isPresented: $navigation.mainToCardOnboarding, content: {
 //                        OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
 //                            .presentation(modal: viewModel.isOnboardingModal, onDismissalAttempt: nil, onDismissed: viewModel.onboardingDismissed)
@@ -122,9 +121,28 @@ struct DetailsView: View {
                     .disabled(!viewModel.cardModel.canPurgeWallet)
                 }
                 
-                if let backupStatus = viewModel.backupStatus {
-                    DetailsRowView(title: "details_row_title_backup_status".localized,
-                                   subtitle: backupStatus)
+                if viewModel.backupVisible {
+                    Button(action: {
+                        viewModel.prepareBackup()
+                    }, label: {
+                        Text("details_row_title_create_backup")
+                            .font(.system(size: 16, weight: .regular, design: .default))
+                            .foregroundColor(.tangemTapGrayDark6)
+                    })
+                    .disabled(!viewModel.canCreateBackup)
+                    .sheet(isPresented: $navigation.detailsToBackup, content: {
+                        OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
+                            .presentation(modal: viewModel.isTwinRecreationModel, onDismissalAttempt: nil, onDismissed: nil)
+                            .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
+                                viewModel.isTwinRecreationModel = value
+                            })
+                            .environmentObject(navigation)
+                    })
+                    
+                    if let backupStatus = viewModel.backupStatus {
+                        DetailsRowView(title: "details_row_title_backup_status".localized,
+                                       subtitle: backupStatus)
+                    }
                 }
             }
             
@@ -181,6 +199,7 @@ struct DetailsView: View {
                 EmptyView()
             }
         }
+        .alert(item: $viewModel.error) { $0.alert }
         .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("details_title", displayMode: .inline)
         .navigationBarBackButtonHidden(false)
