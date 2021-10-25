@@ -19,8 +19,14 @@ class AppServicesAssembly: ServicesAssembly {
         let service = OnboardingStepsSetupService()
         service.userPrefs = userPrefsService
         service.assembly = assembly
+        service.backupService = backupService
         return service
     }()
+    
+    lazy var backupService: BackupService = {
+        BackupService(sdk: tangemSdk)
+    }()
+    
     lazy var exchangeService: ExchangeService = MoonPayService(keys: keysManager.moonPayKeys)
     lazy var walletConnectService = WalletConnectService(assembly: assembly, cardScanner: walletConnectCardScanner, signer: signer, scannedCardsRepository: scannedCardsRepository)
     
