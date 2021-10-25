@@ -67,6 +67,7 @@ class NavigationCoordinator: ObservableObject {
     @Published var detailsToTwinsRecreateWarning: Bool = false //for back
     @Published var detailsToSendEmail: Bool = false
     @Published var detailsToManageTokens: Bool = false
+    @Published var detailsToBackup: Bool = false //for back
     
     // MARK: Manage tokens
     @Published var manageTokensToAddNewTokens = false
