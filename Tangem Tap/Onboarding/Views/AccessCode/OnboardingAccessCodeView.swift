@@ -138,7 +138,7 @@ struct OnboardingAccessCodeView: View {
                     }
                 }
             
-            content.transition(.opacity)
+            content
             
             Text(error.description)
                 .id("error_\(error.rawValue)")
@@ -167,9 +167,7 @@ struct OnboardingAccessCodeView: View {
                     return
                 }
                 
-                withAnimation {
-                    state = nextState
-                }
+                state = nextState
             }
             .buttonStyle(TangemButtonStyle(layout: .wide))
             .padding(.bottom, 16)
