@@ -43,7 +43,7 @@ class DetailsViewModel: ViewModel, ObservableObject {
                 .store(in: &bag)
         }
     }
-    @Published var isTwinRecreationModel: Bool = false
+    @Published var isTwinRecreationModel: Bool = true
     @Published var error: AlertBinder?
     
     var dataCollector: DetailsFeedbackDataCollector!
