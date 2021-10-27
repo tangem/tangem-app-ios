@@ -86,7 +86,9 @@ struct DetailsView: View {
                     })
                     .sheet(isPresented: $navigation.detailsToTwinsRecreateWarning, content: {
                         OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
-                            .presentation(modal: viewModel.isTwinRecreationModel, onDismissalAttempt: nil, onDismissed: nil)
+                            .presentation(modal: viewModel.isTwinRecreationModel, onDismissalAttempt: {
+                                assembly.getTwinOnboardingViewModel()?.backButtonAction()
+                            }, onDismissed: nil)
                             .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
                                 viewModel.isTwinRecreationModel = value
                             })
@@ -132,7 +134,9 @@ struct DetailsView: View {
                     .disabled(!viewModel.canCreateBackup)
                     .sheet(isPresented: $navigation.detailsToBackup, content: {
                         OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
-                            .presentation(modal: viewModel.isTwinRecreationModel, onDismissalAttempt: nil, onDismissed: nil)
+                            .presentation(modal: viewModel.isTwinRecreationModel, onDismissalAttempt: {
+                                assembly.getWalletOnboardingViewModel()?.backButtonAction()
+                            }, onDismissed: nil)
                             .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
                                 viewModel.isTwinRecreationModel = value
                             })
