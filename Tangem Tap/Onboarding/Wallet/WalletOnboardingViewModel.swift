@@ -391,7 +391,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         }
     }
     
-    func backButtonAction() {
+    override func backButtonAction() {
         switch currentStep {
         case .backupCards:
             if backupServiceState == .needWriteOriginCard {
@@ -400,7 +400,11 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             
             alert = AlertBinder(alert: AlertBuilder.makeOkGotItAlert(message: "onboarding_backup_exit_warning".localized))
         default:
-            reset()
+            if isFromMain {
+                input.successCallback?()
+            } else {
+                reset()
+            }
         }
     }
     
