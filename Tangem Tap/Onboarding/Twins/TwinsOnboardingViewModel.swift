@@ -20,6 +20,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
     @Published var displayTwinImages: Bool = false
     @Published var alertAccepted: Bool = false
     
+    var retwinMode: Bool = false
+    
     override var currentStep: TwinsOnboardingStep {
         guard currentStepIndex < steps.count else {
             return assembly.isPreview ? .intro(pairNumber: pairNumber) : .welcome
@@ -112,6 +114,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
     init(imageLoaderService: CardImageLoaderService, twinsService: TwinsWalletCreationService, exchangeService: ExchangeService, input: OnboardingInput) {
         self.imageLoaderService = imageLoaderService
         self.twinsService = twinsService
+        
         if let twinInfo = input.cardModel.cardInfo.twinCardInfo {
 //            pairNumber = TapTwinCardIdFormatter.format(cid: twinInfo.pairCid, cardNumber: nil)
             pairNumber = "\(twinInfo.series.pair.number)"
@@ -132,6 +135,10 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         }
         if isFromMain {
             displayTwinImages = true
+        }
+        
+        if case .alert = steps.first {
+            retwinMode = true //todo: fix it
         }
         
         twinsService.setupTwins(for: twinInfo)
@@ -172,7 +179,9 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
                 goToNextStep()
             }
         case .intro:
-            userPrefsService?.cardsStartedActivation.append(twinInfo.cid)
+            if !retwinMode, !(userPrefsService?.cardsStartedActivation.contains(twinInfo.cid) ?? false) {
+                userPrefsService?.cardsStartedActivation.append(twinInfo.cid)
+            }
             fallthrough
         case .confetti, .done, .success, .alert:
             goToNextStep()
@@ -294,6 +303,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
                 
                 if let pairCardId = twinsService.twinPairCardId,
                    let userService = userPrefsService,
+                   !retwinMode,
                    !userService.cardsStartedActivation.contains(pairCardId) {
                     userPrefsService?.cardsStartedActivation.append(pairCardId)
                 }
