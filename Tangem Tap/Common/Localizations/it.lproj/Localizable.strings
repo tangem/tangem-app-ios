@@ -695,3 +695,11 @@ Amount to pay: %@";
 "details_backup_status_format_linked" = "Linked. Backup cards count: %@";
 "details_backup_status_no_backup" = "No backup";
 "details_row_title_create_backup" = "Create backup";
+"welcome_interrupted_backup_alert_message" = "You have an interrupted backup. Do you want to resume?";
+"welcome_interrupted_backup_alert_resume" = "Yes, resume";
+"welcome_interrupted_backup_alert_discard" = "Discard";
+
+"welcome_interrupted_backup_discard_title" = "This is an irreversible action";
+"welcome_interrupted_backup_discard_message" = "If you will discard the backup now, then you will have to reset the cards to factory settings to start over again";
+"welcome_interrupted_backup_discard_resume" = "Resume backup";
+"welcome_interrupted_backup_discard_discard" = "Discard anyway";
