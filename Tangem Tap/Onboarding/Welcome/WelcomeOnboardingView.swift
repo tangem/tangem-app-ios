@@ -95,9 +95,9 @@ struct WelcomeOnboardingView: View {
                 MailView(dataCollector: viewModel.failedCardScanTracker, support: .tangem, emailType: .failedToScanCard)
             })
         }
-        .alert(item: $viewModel.error, content: { error in
-            error.alert
-        })
+        .alert(item: $viewModel.error, content: { $0.alert })
+        .actionSheet(item: $viewModel.discardAlert, content: { $0.sheet })
+        .onAppear(perform: viewModel.onAppear)
     }
 }
 
