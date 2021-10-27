@@ -171,6 +171,8 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
         }
     }
     
+    func backButtonAction() {}
+    
     func goToNextStep() {
         if isOnboardingFinished, !assembly.isPreview {
             DispatchQueue.main.async {
