@@ -240,5 +240,4 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
         
         alert = sdkError.alertBinder
     }
-    
 }
