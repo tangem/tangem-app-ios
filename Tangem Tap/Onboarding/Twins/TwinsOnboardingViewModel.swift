@@ -179,13 +179,14 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
                 goToNextStep()
             }
         case .intro:
-            if !retwinMode, !(userPrefsService?.cardsStartedActivation.contains(twinInfo.cid) ?? false) {
-                userPrefsService?.cardsStartedActivation.append(twinInfo.cid)
-            }
             fallthrough
         case .confetti, .done, .success, .alert:
             goToNextStep()
         case .first:
+            if !retwinMode, !(userPrefsService?.cardsStartedActivation.contains(twinInfo.cid) ?? false) {
+                userPrefsService?.cardsStartedActivation.append(twinInfo.cid)
+            }
+            
             if twinsService.step.value != .first {
                 twinsService.resetSteps()
                 stepUpdatesSubscription = nil
