@@ -253,7 +253,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         supplementCardSettings = TwinOnboardingCardLayout.second.animSettings(at: currentStep, containerSize: containerSize, stackCalculator: stackCalculator, animated: animated && !isContainerSetup)
     }
     
-    func backButtonAction() {
+    override func backButtonAction() {
         switch currentStep {
         case .second, .third:
             alert = AlertBinder(alert: AlertBuilder.makeOkGotItAlert(message: "onboarding_twin_exit_warning".localized))
