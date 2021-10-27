@@ -47,6 +47,7 @@ extension Assembly {
         vm.stepsSetupService = services.onboardingStepsSetupService
         vm.userPrefsService = services.userPrefsService
         vm.failedCardScanTracker = services.failedCardScanTracker
+        vm.backupService = services.backupService
         return vm
     }
     
