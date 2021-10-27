@@ -18,11 +18,12 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     weak var stepsSetupService: OnboardingStepsSetupService!
     weak var imageLoaderService: CardImageLoaderService!
     weak var userPrefsService: UserPrefsService!
-    
+    weak var backupService: BackupService!
     weak var failedCardScanTracker: FailedCardScanTracker!
     
     @Published var isScanningCard: Bool = false
     @Published var error: AlertBinder?
+    @Published var discardAlert: ActionSheetBinder?
     @Published var darkCardSettings: AnimatedViewSettings = .zero
     @Published var lightCardSettings: AnimatedViewSettings = .zero
     
@@ -105,6 +106,33 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     
     func disclaimerDismissed() {
         scanCard()
+    }
+    
+    func onAppear() {
+        if backupService.hasIncompletedBackup {
+            let alert = Alert(title: Text("common_warning"),
+                              message: Text("welcome_interrupted_backup_alert_message"),
+                              primaryButton: .default(Text("welcome_interrupted_backup_alert_resume"), action: continueIncompletedBackup),
+                              secondaryButton: .destructive(Text("welcome_interrupted_backup_alert_discard"), action: showExtraDiscardAlert))
+            
+            self.error = AlertBinder(alert: alert)
+        }
+    }
+    
+    func showExtraDiscardAlert() {
+        let buttonResume: ActionSheet.Button = .cancel(Text("welcome_interrupted_backup_discard_resume"), action: continueIncompletedBackup)
+        let buttonDiscard: ActionSheet.Button = .destructive(Text("welcome_interrupted_backup_discard_discard"), action: backupService.discardSavedBackup)
+        let sheet = ActionSheet(title: Text("welcome_interrupted_backup_discard_title"),
+                                message: Text("welcome_interrupted_backup_discard_message"),
+                                buttons: [buttonDiscard, buttonResume])
+        
+        DispatchQueue.main.async {
+            self.discardAlert = ActionSheetBinder(sheet: sheet)
+        }
+    }
+    
+    func continueIncompletedBackup() {
+
     }
     
     private func showDisclaimer() {
