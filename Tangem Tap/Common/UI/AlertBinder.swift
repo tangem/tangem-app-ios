@@ -9,6 +9,15 @@
 import Foundation
 import SwiftUI
 
+struct ActionSheetBinder: Identifiable {
+    let id = UUID()
+    let sheet: ActionSheet
+
+    init(sheet: ActionSheet) {
+        self.sheet = sheet
+    }
+}
+
 struct AlertBinder: Identifiable {
     let id = UUID()
     let alert: Alert
