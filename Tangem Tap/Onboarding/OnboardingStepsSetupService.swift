@@ -64,20 +64,20 @@ class OnboardingStepsSetupService {
             return .justWithError(output: .singleWallet(steps))
         }
         
+        if !self.userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId) {
+            return .justWithError(output: .singleWallet(steps))
+        }
+        
         let model = walletModel.first!
         return Future { promise in
-            model.walletManager.update { [unowned self] result in
+            model.walletManager.update { result in
                 switch result {
                 case .success:
-                    if self.userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId) {
-                        if model.isEmptyIncludingPendingIncomingTxs {
-                            steps.append(.topup)
-                        }
-                        steps.append(.successTopup)
-                        promise(.success(.singleWallet(steps)))
-                    } else {
-                        return promise(.success(.singleWallet([])))
+                    if model.isEmptyIncludingPendingIncomingTxs {
+                        steps.append(.topup)
                     }
+                    steps.append(.successTopup)
+                    promise(.success(.singleWallet(steps)))
                 case .failure(let error):
                     if case WalletError.noAccount = error {
                         steps.append(.topup)
