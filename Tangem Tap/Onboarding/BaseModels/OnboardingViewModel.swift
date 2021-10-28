@@ -179,7 +179,7 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
                 self.successCallback?()
             }
             
-            onOnboardingFinished(for: input.cardModel.cardInfo.card.cardId)
+            onOnboardingFinished(for: input.cardModel.cardId)
             return
         }
         
