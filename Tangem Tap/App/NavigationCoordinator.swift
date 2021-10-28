@@ -23,6 +23,8 @@ class NavigationCoordinator: ObservableObject {
     @Published var readToTroubleshootingScan = false
     @Published var readToSendEmail: Bool = false
     
+    @Published var welcomeToBackup: Bool = false
+    
     @Published var onboardingToDisclaimer: Bool = false
     @Published var onboardingToBuyCrypto: Bool = false
     @Published var onboardingToQrTopup: Bool = false
