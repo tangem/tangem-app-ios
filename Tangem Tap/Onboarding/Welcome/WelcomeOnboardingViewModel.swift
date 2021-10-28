@@ -22,6 +22,7 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     weak var failedCardScanTracker: FailedCardScanTracker!
     
     @Published var isScanningCard: Bool = false
+    @Published var isBackupModal: Bool = false
     @Published var error: AlertBinder?
     @Published var discardAlert: ActionSheetBinder?
     @Published var darkCardSettings: AnimatedViewSettings = .zero
@@ -132,7 +133,37 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     }
     
     func continueIncompletedBackup() {
-
+        guard let originCardId = backupService.originCardId else {
+            return
+        }
+        
+        stepsSetupService.stepsForBackupResume()
+            .sink { completion in
+                switch completion {
+                case .failure(let error):
+                    Analytics.log(error: error)
+                    print("Failed to load image for new card")
+                    self.error = error.alertBinder
+                case .finished:
+                    break
+                }
+            } receiveValue: { [weak self] steps in
+                guard let self = self else { return }
+                
+                let input = OnboardingInput(steps: steps,
+                                            cardModel: .cardId(originCardId),
+                                            cardImage: nil,
+                                            cardsPosition: nil,
+                                            welcomeStep: nil,
+                                            currentStepIndex: 0,
+                                            successCallback: { [weak self] in
+                                                self?.navigation.welcomeToBackup = false
+                                            },
+                                            isStandalone: false)
+                self.assembly.makeCardOnboardingViewModel(with: input)
+                self.navigation.welcomeToBackup = true
+            }
+            .store(in: &bag)
     }
     
     private func showDisclaimer() {
