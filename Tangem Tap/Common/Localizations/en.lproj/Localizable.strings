@@ -702,5 +702,7 @@ Amount to pay: %@";
 "welcome_interrupted_backup_discard_title" = "This is an irreversible action";
 "welcome_interrupted_backup_discard_message" = "If you will discard the backup now, then you will have to reset the cards to factory settings to start over again";
 "welcome_interrupted_backup_discard_resume" = "Resume backup";
-"welcome_interrupted_backup_discard_discard" = "Discard anyway";
+"welcome_interrupted_backup_discard_discard" = "Discard";
 
+"onboarding_title_prepare_origin" = "Prepare the origin card";
+"onboarding_button_backup_origin" = "Tap the origin card";
