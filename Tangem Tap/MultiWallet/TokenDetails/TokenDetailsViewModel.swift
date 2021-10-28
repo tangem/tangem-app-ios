@@ -178,7 +178,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
             if amountType == .coin {
                 card.removeBlockchain(walletModel.wallet.blockchain)
             } else if case let .token(token) = amountType {
-                walletModel.removeToken(token)
+                walletModel.removeToken(token, for: card.cardInfo.card.cardId)
             }
         }
     }

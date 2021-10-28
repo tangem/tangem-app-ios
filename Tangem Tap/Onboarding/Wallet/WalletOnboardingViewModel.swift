@@ -450,7 +450,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             return
         }
         
-        userPrefsService?.cardsStartedActivation.append(input.cardModel.cardInfo.card.cardId)
+        userPrefsService?.cardsStartedActivation.append(input.cardModel.cardId)
         stepPublisher = createWalletAndReadOriginCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
             .first()
@@ -487,16 +487,15 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
     
     private func createWalletAndReadOriginCardPublisher() -> AnyPublisher<Void, Error> {
-        let cardId = input.cardModel.cardInfo.card.cardId
+        let cardId = input.cardModel.cardId
         return Deferred {
             Future { [weak self] promise in
                 self?.tangemSdk.startSession(with: CreateWalletAndReadOriginCardTask(), cardId: cardId, completion: { result in
                     switch result {
                     case .success(let resultTuplet):
-                        self?.input.cardModel.update(with: resultTuplet.1)
-                        self?.tokensRepo.setCard(resultTuplet.1.cardId)
-                        self?.input.cardModel.addBlockchain(.bitcoin(testnet: false))
-                        self?.input.cardModel.addBlockchain(.ethereum(testnet: false))
+                        self?.input.cardModel.cardModel?.update(with: resultTuplet.1)
+                        self?.input.cardModel.cardModel?.addBlockchain(.bitcoin(testnet: false))
+                        self?.input.cardModel.cardModel?.addBlockchain(.ethereum(testnet: false))
                         if let originCard = resultTuplet.0 {
                             self?.backupService.setOriginCard(originCard)
                         } else { //we cannot create backup with this card for some reason
@@ -615,18 +614,14 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                         case .success(let state):
                             if state == .needWriteBackupCard(index: 2) { //todo: refactor this
                                 if let firstCard = backupService.fetchBackupCards().first {
-                                    self.tokensRepo.setCard(firstCard)
-                                    self.input.cardModel.addBlockchain(.bitcoin(testnet: false))
-                                    self.input.cardModel.addBlockchain(.ethereum(testnet: false))
-                                    self.tokensRepo.setCard(self.input.cardModel.cardInfo.card.cardId)
+                                    self.tokensRepo.append(.blockchain(.bitcoin(testnet: false)), for: firstCard)
+                                    self.tokensRepo.append(.blockchain(.ethereum(testnet: false)), for: firstCard)
                                 }
                               
                             } else if state == .finished {
                                 if let lastCard = backupService.fetchBackupCards().last {
-                                    self.tokensRepo.setCard(lastCard)
-                                    self.input.cardModel.addBlockchain(.bitcoin(testnet: false))
-                                    self.input.cardModel.addBlockchain(.ethereum(testnet: false))
-                                    self.tokensRepo.setCard(self.input.cardModel.cardInfo.card.cardId)
+                                    self.tokensRepo.append(.blockchain(.bitcoin(testnet: false)), for: lastCard)
+                                    self.tokensRepo.append(.blockchain(.ethereum(testnet: false)), for: lastCard)
                                 }
                             }
                             promise(.success(()))
