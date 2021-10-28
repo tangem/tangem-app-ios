@@ -20,12 +20,12 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
     var previewUpdates: Int = 0
     var walletModelUpdateCancellable: AnyCancellable?
     
-    var cardModel: CardViewModel
+    var cardModel: CardViewModel?
     
     var canBuyCrypto: Bool { exchangeService.canBuyCrypto }
     
     var buyCryptoURL: URL? {
-        if let wallet = cardModel.wallets?.first {
+        if let wallet = cardModel?.wallets?.first {
             return exchangeService.getBuyUrl(currencySymbol: wallet.blockchain.currencySymbol,
                                              walletAddress: wallet.address)
         }
@@ -35,25 +35,25 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
     var buyCryptoCloseUrl: String { exchangeService.successCloseUrl.removeLatestSlash() }
     
     var shareAddress: String {
-        cardModel.walletModels?.first?.shareAddressString(for: 0) ?? ""
+        cardModel?.walletModels?.first?.shareAddressString(for: 0) ?? ""
     }
     
     var walletAddress: String {
-        cardModel.walletModels?.first?.displayAddress(for: 0) ?? ""
+        cardModel?.walletModels?.first?.displayAddress(for: 0) ?? ""
     }
     
     var currencyName: String {
-        cardModel.walletModels?.first?.wallet.blockchain.currencySymbol ?? ""
+        cardModel?.walletModels?.first?.wallet.blockchain.currencySymbol ?? ""
     }
     
     private var refreshButtonDispatchWork: DispatchWorkItem?
     
     init(exchangeService: ExchangeService, input: OnboardingInput) {
         self.exchangeService = exchangeService
-        self.cardModel = input.cardModel
+        self.cardModel = input.cardModel.cardModel
         super.init(input: input)
         
-        if let walletModel = input.cardModel.walletModels?.first {
+        if let walletModel = self.cardModel?.walletModels?.first {
             updateCardBalanceText(for: walletModel)
         }
        // updateCardBalance()
@@ -71,11 +71,11 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
         }
         
         guard
-            let walletModel = cardModel.walletModels?.first,
+            let walletModel = cardModel?.walletModels?.first,
             walletModelUpdateCancellable == nil
         else { return }
         
-        if cardModel.isNotPairedTwin { return }
+        if cardModel!.isNotPairedTwin { return }
         
         refreshButtonState = .activityIndicator
         walletModelUpdateCancellable = walletModel.$state
