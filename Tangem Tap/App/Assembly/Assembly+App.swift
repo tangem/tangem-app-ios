@@ -239,7 +239,7 @@ extension Assembly {
             walletManagers.append(twinWalletManager)
         } else {
             //If this card supports multiwallet feature, load all saved tokens from persistent storage
-            let tokenItems = services.tokenItemsRepository.fetch(for: cardInfo.card.cardId)
+            let tokenItems = services.tokenItemsRepository.getItems(for: cardInfo.card.cardId)
             if cardInfo.isMultiWallet, tokenItems.count > 0 {
                 
                 //Load erc20 tokens if exists

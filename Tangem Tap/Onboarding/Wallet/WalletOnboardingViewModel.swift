@@ -47,8 +47,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             return ""
         case .backupCards:
             switch backupServiceState {
-            case .needWriteOriginCard: return "onboarding_title_backup_card \(1)"
-            case .needWriteBackupCard(let index): return "onboarding_title_backup_card \(1 + index)"
+            case .needWriteOriginCard: return "onboarding_title_prepare_origin"
+            case .needWriteBackupCard(let index): return "onboarding_title_backup_card \(index)"
             default: break
             }
         default: break
@@ -98,8 +98,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                 "onboarding_button_max_backup_cards_added"
         case .backupCards:
             switch backupServiceState {
-            case .needWriteOriginCard: return "onboarding_button_backup_card \(1)"
-            case .needWriteBackupCard(let index): return "onboarding_button_backup_card \(1 + index)"
+            case .needWriteOriginCard: return "onboarding_button_backup_origin"
+            case .needWriteBackupCard(let index): return "onboarding_button_backup_card \(index)"
             default: break
             }
         default: break
@@ -449,8 +449,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             previewGoToNextStepDelayed()
             return
         }
-        
-        userPrefsService?.cardsStartedActivation.append(input.cardModel.cardId)
+        if !input.isStandalone {
+            userPrefsService?.cardsStartedActivation.append(input.cardModel.cardId)
+        }
         stepPublisher = createWalletAndReadOriginCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
             .first()
@@ -613,13 +614,13 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                         switch result {
                         case .success(let state):
                             if state == .needWriteBackupCard(index: 2) { //todo: refactor this
-                                if let firstCard = backupService.fetchBackupCards().first {
+                                if let firstCard = backupService.backupCardIds.first {
                                     self.tokensRepo.append(.blockchain(.bitcoin(testnet: false)), for: firstCard)
                                     self.tokensRepo.append(.blockchain(.ethereum(testnet: false)), for: firstCard)
                                 }
                               
                             } else if state == .finished {
-                                if let lastCard = backupService.fetchBackupCards().last {
+                                if let lastCard = backupService.backupCardIds.last {
                                     self.tokensRepo.append(.blockchain(.bitcoin(testnet: false)), for: lastCard)
                                     self.tokensRepo.append(.blockchain(.ethereum(testnet: false)), for: lastCard)
                                 }
