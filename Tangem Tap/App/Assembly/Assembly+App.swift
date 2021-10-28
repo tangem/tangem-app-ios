@@ -239,10 +239,11 @@ extension Assembly {
             walletManagers.append(twinWalletManager)
         } else {
             //If this card supports multiwallet feature, load all saved tokens from persistent storage
-            if cardInfo.isMultiWallet, services.tokenItemsRepository.items.count > 0 {
+            let tokenItems = services.tokenItemsRepository.fetch(for: cardInfo.card.cardId)
+            if cardInfo.isMultiWallet, tokenItems.count > 0 {
                 
                 //Load erc20 tokens if exists
-                let tokens = services.tokenItemsRepository.items.compactMap { $0.token }
+                let tokens = tokenItems.compactMap { $0.token }
                 if let secpWalletPublicKey = cardInfo.card.wallets.first(where: { $0.curve == .secp256k1 })?.publicKey {
                     let tokenManagers = services.walletManagerFactory.makeWalletManagers(for: cardInfo.card.cardId, with: secpWalletPublicKey, and: tokens)
                     walletManagers.append(contentsOf: tokenManagers)
@@ -250,8 +251,7 @@ extension Assembly {
                 
                 //Load blockchains if exists
                 let existingBlockchains = walletManagers.map { $0.wallet.blockchain }
-                let additionalBlockchains = services.tokenItemsRepository.items
-                    .compactMap ({ $0.blockchain }).filter{ !existingBlockchains.contains($0) }
+                let additionalBlockchains = tokenItems.compactMap ({ $0.blockchain }).filter{ !existingBlockchains.contains($0) }
                 let additionalWalletManagers = makeWalletManagers(from: cardInfo, blockchains: additionalBlockchains)
                 walletManagers.append(contentsOf: additionalWalletManagers)
             }
@@ -419,7 +419,6 @@ extension Assembly {
         
         let vm = AddNewTokensViewModel(cardModel: cardModel)
         initialize(vm)
-        vm.tokenItemsRepository = services.tokenItemsRepository
         return vm
     }
     
