@@ -50,6 +50,10 @@ class OnboardingStepsSetupService {
         return .justWithError(output: .twins(steps))
     }
     
+    func stepsForBackupResume() -> AnyPublisher<OnboardingSteps, Error> {
+        return .justWithError(output: .wallet([.backupCards, .success]))
+    }
+    
     func backupSteps(_ cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
         return .justWithError(output: .wallet(makeBackupSteps(cardInfo)))
     }
