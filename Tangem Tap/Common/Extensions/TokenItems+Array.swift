@@ -7,7 +7,9 @@
 //
 
 import Foundation
+#if !CLIP
 import BlockchainSdk
+#endif
 
 extension Array where Element == TokenItem {
     mutating func remove(token: Token) {

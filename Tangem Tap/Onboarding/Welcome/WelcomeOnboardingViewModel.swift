@@ -148,7 +148,7 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
                 self?.isScanningCard = false
             } receiveValue: { [unowned self] steps in
                 let input = OnboardingInput(steps: steps,
-                                            cardModel: cardModel,
+                                            cardModel: .cardModel(cardModel),
                                             cardImage: nil,
                                             cardsPosition: (darkCardSettings, lightCardSettings),
                                             welcomeStep: .welcome,

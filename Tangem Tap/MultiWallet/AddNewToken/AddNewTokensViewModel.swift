@@ -13,11 +13,12 @@ import BlockchainSdk
 class AddNewTokensViewModel: ViewModel, ObservableObject {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
-    weak var tokenItemsRepository: TokenItemsRepository!
     
     @Published var enteredSearchText = ""
     
-    var availableBlockchains: [Blockchain]  { get { tokenItemsRepository.supportedItems.blockchains(for: cardModel.cardInfo).sorted(by: { $0.displayName < $1.displayName }) } }
+    lazy var supportedItems = SupportedTokenItems()
+    
+    var availableBlockchains: [Blockchain]  { get { supportedItems.blockchains(for: cardModel.cardInfo).sorted(by: { $0.displayName < $1.displayName }) } }
     
     var visibleEthTokens: [Token] {
         isEthTokensVisible ?
@@ -27,8 +28,8 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
     
     var availableEthereumTokens: [Token]  {
         isTestnet ?
-            tokenItemsRepository.supportedItems.ethereumTokensTestnet :
-            tokenItemsRepository.supportedItems.ethereumTokens
+            supportedItems.ethereumTokensTestnet :
+            supportedItems.ethereumTokens
     }
     
     var visibleBnbTokens: [Token] {
@@ -39,8 +40,8 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
     
     var availableBnbTokens: [Token] {
         isTestnet ?
-            tokenItemsRepository.supportedItems.binanceTokensTestnet :
-            tokenItemsRepository.supportedItems.binanceTokens
+            supportedItems.binanceTokensTestnet :
+            supportedItems.binanceTokens
     }
     
     var visibleBscTokens: [Token] {
@@ -50,8 +51,8 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
     }
     var availableBscTokens: [Token] {
         isTestnet ?
-            tokenItemsRepository.supportedItems.binanceSmartChainTokensTestnet :
-            tokenItemsRepository.supportedItems.binanceSmartChainTokens
+            supportedItems.binanceSmartChainTokensTestnet :
+            supportedItems.binanceSmartChainTokens
     }
     
     @Published var searchText: String = ""
@@ -76,7 +77,7 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
     }
     
     func isAdded(_ token: Token) -> Bool {
-        tokenItemsRepository.items.contains(where: { $0.token == token })
+        cardModel.wallets!.contains(where: { $0.amounts.contains(where: { $0.key.token == token })})
     }
     
     func isAdded(_ blockchain: Blockchain) -> Bool {
