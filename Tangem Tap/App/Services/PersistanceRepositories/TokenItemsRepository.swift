@@ -9,12 +9,7 @@
 import Foundation
 
 class TokenItemsRepository {
-    lazy var supportedItems = SupportedTokenItems()
-    
-    private(set) var items: Set<TokenItem> = []
-    private(set) var cardId: String = ""
     private let persistanceStorage: PersistentStorage
-    private var storageKey: PersistentStorageKey { .wallets(cid: cardId) }
     private let lockQueue = DispatchQueue(label: "token_items_repo_queue")
     
     internal init(persistanceStorage: PersistentStorage) {
@@ -25,48 +20,43 @@ class TokenItemsRepository {
         print("TokenItemsRepository deinit")
     }
     
-    func setCard(_ cardId: String) {
-        self.cardId = cardId
-        fetch()
-    }
-    
-    func append(_ tokenItem: TokenItem) {
+    func append(_ tokenItem: TokenItem, for cardId: String) {
         lockQueue.sync {
-            items.insert(tokenItem)
-            save()
+            var items = fetch(for: cardId)
+            items.append(tokenItem)
+            save(items, for: cardId)
         }
     }
     
-    func append(_ tokenItems: [TokenItem]) {
+    func append(_ tokenItems: [TokenItem], for cardId: String) {
         lockQueue.sync {
-            for token in tokenItems {
-                items.insert(token)
-            }
-            save()
+            var items = fetch(for: cardId)
+            items.append(contentsOf: tokenItems)
+            save(items, for: cardId)
         }
     }
     
-    func remove(_ tokenItem: TokenItem) {
+    func remove(_ tokenItem: TokenItem, for cardId: String) {
         lockQueue.sync {
+            var items = fetch(for: cardId)
             items.remove(tokenItem)
-            save()
+            save(items, for: cardId)
         }
     }
     
-    func removeAll() {
+    func removeAll(for cardId: String) {
         lockQueue.sync {
-            items = []
-            save()
+            save([], for: cardId)
         }
     }
     
-    func save() {
-        try? persistanceStorage.store(value: items, for: storageKey)
-    }
-    
-    func fetch() {
+    func fetch(for cardId: String) -> [TokenItem] {
         lockQueue.sync {
-            items = (try? persistanceStorage.value(for: storageKey)) ?? []
+           return (try? persistanceStorage.value(for: .wallets(cid: cardId))) ?? []
         }
+    }
+    
+    private func save(_ items: [TokenItem], for cardId: String) {
+        try? persistanceStorage.store(value: items, for: .wallets(cid: cardId))
     }
 }
