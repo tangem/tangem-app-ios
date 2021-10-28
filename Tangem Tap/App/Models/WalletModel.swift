@@ -233,8 +233,8 @@ class WalletModel: ObservableObject, Identifiable {
         wallet.getExploreURL(for: wallet.addresses[index].value)
     }
     
-    func addToken(_ token: Token) -> AnyPublisher<Amount, Error>? {
-        tokenItemsRepository.append(.token(token))
+    func addToken(_ token: Token, for cardId: String) -> AnyPublisher<Amount, Error>? {
+        tokenItemsRepository.append(.token(token), for: cardId)
         return walletManager.addToken(token)
             .map {[weak self] in
                 self?.updateTokensViewModels()
@@ -269,12 +269,12 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     
-    func removeToken(_ token: Token) {
+    func removeToken(_ token: Token, for cardId: String) {
         guard canRemove(amountType: .token(value: token)) else {
             return
         }
         
-        tokenItemsRepository.remove(.token(token))
+        tokenItemsRepository.remove(.token(token), for: cardId)
         walletManager.removeToken(token)
         tokenViewModels.removeAll(where: { $0.token == token })
     }
