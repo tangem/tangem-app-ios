@@ -50,10 +50,14 @@ class TokenItemsRepository {
         }
     }
     
-    func fetch(for cardId: String) -> [TokenItem] {
+    func getItems(for cardId: String) -> [TokenItem] {
         lockQueue.sync {
-           return (try? persistanceStorage.value(for: .wallets(cid: cardId))) ?? []
+            fetch(for: cardId)
         }
+    }
+    
+    private func fetch(for cardId: String) -> [TokenItem] {
+        return (try? persistanceStorage.value(for: .wallets(cid: cardId))) ?? []
     }
     
     private func save(_ items: [TokenItem], for cardId: String) {
