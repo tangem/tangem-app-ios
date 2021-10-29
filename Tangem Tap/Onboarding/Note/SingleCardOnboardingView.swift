@@ -133,9 +133,7 @@ struct SingleCardOnboardingView: View {
                                      })
                 .frame(maxWidth: screenSize.width)
         }
-        .alert(item: $viewModel.alert, content: { binder in
-            binder.alert
-        })
+        .alert(item: $viewModel.alert, content: { $0.alert })
         .onAppear(perform: {
             viewModel.playInitialAnim()
             viewModel.onAppear()
