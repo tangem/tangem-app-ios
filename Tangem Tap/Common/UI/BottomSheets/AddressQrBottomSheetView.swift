@@ -9,19 +9,13 @@
 import SwiftUI
 import Combine
 
-
-
 struct AddressQrBottomSheetContent: View {
     
     var shareAddress: String
     var address: String
-    var currencyName: String
+    var qrNotice: String
 
     @State private var showCheckmark = false
-    
-    private var message: String {
-        String(format: "address_qr_code_message_format".localized, currencyName)
-    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -31,7 +25,7 @@ struct AddressQrBottomSheetContent: View {
                 .frame(size: .init(width: 206, height: 206))
                 .padding(.top, 49)
                 .padding(.bottom, 30)
-            Text(message)
+            Text(qrNotice)
                 .frame(maxWidth: 225)
                 .font(.system(size: 18, weight: .regular))
                 .multilineTextAlignment(.center)
@@ -59,7 +53,7 @@ struct AddressQrBottomSheetContent: View {
                         
                         Group {
                         showCheckmark ?
-                            Image(systemName: "checkmark.square")
+                            Image(systemName: "checkmark")
                             .id("1")
                             : Image(systemName: "doc.on.clipboard")
                             .id("2")
@@ -114,7 +108,7 @@ struct AddressQrBottomSheetPreviewView: View {
                 }, content: {
                     AddressQrBottomSheetContent(shareAddress: "eth:0x01232483902f903678a098bce",
                                                 address: "0x01232483902f903678a098bce",
-                                                currencyName: "BTC")
+                                                qrNotice: "BTC")
                 })
         }
         
@@ -129,7 +123,7 @@ struct AddressQrBottomSheet_Previews: PreviewProvider {
         
         AddressQrBottomSheetContent(shareAddress: "eth:0x01232483902f903678a098bce",
                                     address: "0x01232483902f903678a098bce",
-                                    currencyName: "BTC")
+                                    qrNotice: "BTC")
     }
     
 }
