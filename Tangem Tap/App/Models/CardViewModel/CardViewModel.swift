@@ -413,7 +413,7 @@ class CardViewModel: Identifiable, ObservableObject {
                                                       body: "initial_message_purge_wallet_body".localized)) {[unowned self] result in
             switch result {
             case .success(let response):
-                self.tokenItemsRepository.removeAll()
+                self.tokenItemsRepository.removeAll(for: cardInfo.card.cardId)
                 self.clearTwinPairKey()
                // self.update(with: response)
                 completion(.success(()))
@@ -511,7 +511,8 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
         
-        let unusedBlockhains = tokenItemsRepository.supportedItems.blockchains(for: cardInfo).subtracting(currentBlockhains).map { $0 }
+        let supportedItems = SupportedTokenItems()
+        let unusedBlockhains = supportedItems.blockchains(for: cardInfo).subtracting(currentBlockhains).map { $0 }
         let models = assembly.makeWallets(from: cardInfo, blockchains: unusedBlockhains)
         if models.isEmpty {
             return
@@ -523,7 +524,7 @@ class CardViewModel: Identifiable, ObservableObject {
             .sink(receiveValue: { [unowned self] _ in
                 let notEmptyWallets = models.filter { !$0.wallet.isEmpty }
                 if notEmptyWallets.count > 0 {
-                    tokenItemsRepository.append(notEmptyWallets.map({TokenItem.blockchain($0.wallet.blockchain)}))
+                    tokenItemsRepository.append(notEmptyWallets.map({TokenItem.blockchain($0.wallet.blockchain)}), for: cardInfo.card.cardId)
                     updateLoadedState(with: notEmptyWallets)
                 }
             })
@@ -557,10 +558,10 @@ class CardViewModel: Identifiable, ObservableObject {
                         tokens = tokens.filter { $0 != defaultToken }
                     }
                     let tokenItems = tokens.map { TokenItem.token($0) }
-                    self.tokenItemsRepository.append(tokenItems)
+                    self.tokenItemsRepository.append(tokenItems, for: self.cardInfo.card.cardId)
                     
                     if sholdAddWalletManager {
-                        self.tokenItemsRepository.append(.blockchain(ethWalletModel!.wallet.blockchain))
+                        self.tokenItemsRepository.append(.blockchain(ethWalletModel!.wallet.blockchain), for: self.cardInfo.card.cardId)
                         self.stateUpdateQueue.sync {
                             self.state = .loaded(walletModel: self.walletModels! + [ethWalletModel!])
                         }
@@ -582,7 +583,7 @@ class CardViewModel: Identifiable, ObservableObject {
             tokenWalletModels[blockchain] = model
         }
         
-        walletModel?.addToken(token)?.sink(receiveCompletion: { addCompletion in
+        walletModel?.addToken(token, for: cardInfo.card.cardId)?.sink(receiveCompletion: { addCompletion in
             if case let .failure(error) = addCompletion {
                 print("Failed to add token to model", error)
                 completion(.failure(error))
@@ -596,7 +597,7 @@ class CardViewModel: Identifiable, ObservableObject {
   
     @discardableResult
     func addBlockchain(_ blockchain: Blockchain) -> WalletModel? {
-        tokenItemsRepository.append(.blockchain(blockchain))
+        tokenItemsRepository.append(.blockchain(blockchain), for: cardInfo.card.cardId)
         let newWalletModels = assembly.makeWallets(from: cardInfo, blockchains: [blockchain])
         newWalletModels.forEach {$0.update()}
         updateLoadedState(with: newWalletModels)
@@ -609,7 +610,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
         
         tokenWalletModels[blockchain] = nil
-        tokenItemsRepository.remove(.blockchain(blockchain))
+        tokenItemsRepository.remove(.blockchain(blockchain), for: cardInfo.card.cardId)
         
         stateUpdateQueue.sync {
             if let walletModels = self.walletModels {

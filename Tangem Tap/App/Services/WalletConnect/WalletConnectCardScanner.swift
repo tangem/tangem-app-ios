@@ -82,17 +82,13 @@ class WalletConnectCardScanner {
             }
             
         } else {
-            let tokenRepoCardId = tokenItemsRepository.cardId
-            tokenItemsRepository.setCard(cardInfo.card.cardId)
             
             if let targetWallet = findWallet(in: assembly.loadWallets(from: cardInfo).map { $0.wallet }) {
                 wallet = targetWallet
             } else {
-                tokenItemsRepository.append(.blockchain(blockchain))
+                tokenItemsRepository.append(.blockchain(blockchain), for: cardInfo.card.cardId)
                 wallet = assembly.makeWallets(from: cardInfo, blockchains: [blockchain]).first!.wallet
             }
-            tokenItemsRepository.setCard(tokenRepoCardId)
-            
         }
         
         scannedCardsRepository.add(cardInfo.card)
