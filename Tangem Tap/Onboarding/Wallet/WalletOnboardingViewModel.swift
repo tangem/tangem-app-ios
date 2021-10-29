@@ -47,8 +47,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             return ""
         case .backupCards:
             switch backupServiceState {
-            case .needWriteOriginCard: return "onboarding_title_backup_card \(1)"
-            case .needWriteBackupCard(let index): return "onboarding_title_backup_card \(1 + index)"
+            case .needWriteOriginCard: return "onboarding_title_prepare_origin"
+            case .needWriteBackupCard(let index): return "onboarding_title_backup_card \(index)"
             default: break
             }
         default: break
@@ -98,8 +98,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                 "onboarding_button_max_backup_cards_added"
         case .backupCards:
             switch backupServiceState {
-            case .needWriteOriginCard: return "onboarding_button_backup_card \(1)"
-            case .needWriteBackupCard(let index): return "onboarding_button_backup_card \(1 + index)"
+            case .needWriteOriginCard: return "onboarding_button_backup_origin"
+            case .needWriteBackupCard(let index): return "onboarding_button_backup_card \(index)"
             default: break
             }
         default: break
@@ -129,6 +129,14 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         case .selectBackupCards: return canAddBackupCards
         default: return true
         }
+    }
+    
+    override var isSupplementButtonVisible: Bool {
+        if currentStep == .backupIntro && input.isStandalone {
+            return false
+        }
+        
+        return super.isSupplementButtonVisible
     }
     
     override var supplementButtonSettings: TangemButtonSettings {
@@ -383,7 +391,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         }
     }
     
-    func backButtonAction() {
+    override func backButtonAction() {
         switch currentStep {
         case .backupCards:
             if backupServiceState == .needWriteOriginCard {
@@ -392,7 +400,11 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             
             alert = AlertBinder(alert: AlertBuilder.makeOkGotItAlert(message: "onboarding_backup_exit_warning".localized))
         default:
-            reset()
+            if isFromMain {
+                input.successCallback?()
+            } else {
+                reset()
+            }
         }
     }
     
@@ -437,8 +449,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             previewGoToNextStepDelayed()
             return
         }
-        
-        userPrefsService?.cardsStartedActivation.append(input.cardModel.cardInfo.card.cardId)
+        if !input.isStandalone {
+            userPrefsService?.cardsStartedActivation.append(input.cardModel.cardId)
+        }
         stepPublisher = createWalletAndReadOriginCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
             .first()
@@ -475,16 +488,15 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
     
     private func createWalletAndReadOriginCardPublisher() -> AnyPublisher<Void, Error> {
-        let cardId = input.cardModel.cardInfo.card.cardId
+        let cardId = input.cardModel.cardId
         return Deferred {
             Future { [weak self] promise in
                 self?.tangemSdk.startSession(with: CreateWalletAndReadOriginCardTask(), cardId: cardId, completion: { result in
                     switch result {
                     case .success(let resultTuplet):
-                        self?.input.cardModel.update(with: resultTuplet.1)
-                        self?.tokensRepo.setCard(resultTuplet.1.cardId)
-                        self?.input.cardModel.addBlockchain(.bitcoin(testnet: false))
-                        self?.input.cardModel.addBlockchain(.ethereum(testnet: false))
+                        self?.input.cardModel.cardModel?.update(with: resultTuplet.1)
+                        self?.input.cardModel.cardModel?.addBlockchain(.bitcoin(testnet: false))
+                        self?.input.cardModel.cardModel?.addBlockchain(.ethereum(testnet: false))
                         if let originCard = resultTuplet.0 {
                             self?.backupService.setOriginCard(originCard)
                         } else { //we cannot create backup with this card for some reason
@@ -602,19 +614,15 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                         switch result {
                         case .success(let state):
                             if state == .needWriteBackupCard(index: 2) { //todo: refactor this
-                                if let firstCard = backupService.fetchBackupCards().first {
-                                    self.tokensRepo.setCard(firstCard)
-                                    self.input.cardModel.addBlockchain(.bitcoin(testnet: false))
-                                    self.input.cardModel.addBlockchain(.ethereum(testnet: false))
-                                    self.tokensRepo.setCard(self.input.cardModel.cardInfo.card.cardId)
+                                if let firstCard = backupService.backupCardIds.first {
+                                    self.tokensRepo.append(.blockchain(.bitcoin(testnet: false)), for: firstCard)
+                                    self.tokensRepo.append(.blockchain(.ethereum(testnet: false)), for: firstCard)
                                 }
                               
                             } else if state == .finished {
-                                if let lastCard = backupService.fetchBackupCards().last {
-                                    self.tokensRepo.setCard(lastCard)
-                                    self.input.cardModel.addBlockchain(.bitcoin(testnet: false))
-                                    self.input.cardModel.addBlockchain(.ethereum(testnet: false))
-                                    self.tokensRepo.setCard(self.input.cardModel.cardInfo.card.cardId)
+                                if let lastCard = backupService.backupCardIds.last {
+                                    self.tokensRepo.append(.blockchain(.bitcoin(testnet: false)), for: lastCard)
+                                    self.tokensRepo.append(.blockchain(.ethereum(testnet: false)), for: lastCard)
                                 }
                             }
                             promise(.success(()))
