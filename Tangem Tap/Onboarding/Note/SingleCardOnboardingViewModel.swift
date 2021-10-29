@@ -42,6 +42,23 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         }
     }
     
+    override var mainButtonTitle: LocalizedStringKey {
+        if case .topup = currentStep, !exchangeService.canBuyCrypto {
+            return currentStep.supplementButtonTitle
+        }
+        
+        return super.mainButtonTitle
+    }
+    
+    override var isSupplementButtonVisible: Bool {
+        switch currentStep {
+        case .topup:
+            return currentStep.isSupplementButtonVisible && exchangeService.canBuyCrypto
+        default:
+            return currentStep.isSupplementButtonVisible
+        }
+    }
+    
     private(set) var numberOfSteps: Int
     
     private var bag: Set<AnyCancellable> = []
@@ -89,7 +106,11 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         case .createWallet:
             сreateWallet()
         case .topup:
-            navigation.onboardingToBuyCrypto = true
+            if exchangeService.canBuyCrypto {
+                navigation.onboardingToBuyCrypto = true
+            } else {
+                supplementButtonAction()
+            }
         case .successTopup:
             if assembly.isPreview {
                 reset()
@@ -225,26 +246,5 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
                 self.updateCardBalance()
             }
         }
-//        let model = walletModel.first!
-//        return Future { promise in
-//            model.walletManager.update { result in
-//                switch result {
-//                case .success:
-//                    if model.isEmptyIncludingPendingIncomingTxs {
-//                        steps.append(.topup)
-//                    }
-//                    steps.append(.successTopup)
-//                    promise(.success(.singleWallet(steps)))
-//                case .failure(let error):
-//                    if case WalletError.noAccount = error {
-//                        steps.append(.topup)
-//                        steps.append(.successTopup)
-//                        promise(.success(.singleWallet(steps)))
-//                        return
-//                    }
-//                    promise(.failure(error))
-//                }
-//            }
-//        }.eraseToAnyPublisher()
     }
 }
