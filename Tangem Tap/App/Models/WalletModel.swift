@@ -190,20 +190,18 @@ class WalletModel: ObservableObject, Identifiable {
     
     func getQRReceiveMessage(for amountType: Amount.AmountType? = nil)  -> String {
         let type: Amount.AmountType = amountType ?? wallet.amounts.keys.first(where: { $0.isToken }) ?? .coin
-        
-        guard let amount = wallet.amounts[type] else {
-            return ""
-        }
-        
+        //todo: handle default token
+        let symbol = wallet.amounts[type]?.currencySymbol ?? wallet.blockchain.currencySymbol
+       
         if case let .token(token) = amountType {
             return String(format: "address_qr_code_message_token_format".localized,
                           token.name,
-                          amount.currencySymbol,
+                          symbol,
                           token.blockchain.displayName)
         } else {
             return String(format: "address_qr_code_message_format".localized,
                           wallet.blockchain.displayName,
-                          amount.currencySymbol)
+                          symbol)
         }
     }
     
