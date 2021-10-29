@@ -20,14 +20,6 @@ class OnboardingStepsSetupService {
         [.createWallet, .topup, .successTopup]
     }
     
-//    func stepsWithCardImage(for cardModel: CardViewModel) -> AnyPublisher<(OnboardingSteps, UIImage), Error> {
-//        Publishers.Zip(
-//            steps(for: cardModel.cardInfo),
-//            cardModel.imageLoaderPublisher
-//        )
-//        .eraseToAnyPublisher()
-//    }
-    
     func steps(for cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
         let card = cardInfo.card
         
@@ -71,27 +63,9 @@ class OnboardingStepsSetupService {
             return .justWithError(output: .singleWallet(steps))
         }
         
-        let model = walletModel.first!
-        return Future { promise in
-            model.walletManager.update { result in
-                switch result {
-                case .success:
-                    if model.isEmptyIncludingPendingIncomingTxs {
-                        steps.append(.topup)
-                    }
-                    steps.append(.successTopup)
-                    promise(.success(.singleWallet(steps)))
-                case .failure(let error):
-                    if case WalletError.noAccount = error {
-                        steps.append(.topup)
-                        steps.append(.successTopup)
-                        promise(.success(.singleWallet(steps)))
-                        return
-                    }
-                    promise(.failure(error))
-                }
-            }
-        }.eraseToAnyPublisher()
+        steps.append(.topup)
+        steps.append(.successTopup)
+        return .justWithError(output: .singleWallet(steps))
     }
     
     private func stepsForTwins(_ cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
