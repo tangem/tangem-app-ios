@@ -134,8 +134,8 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
     
     var isSupplementButtonVisible: Bool {
         switch self {
-        case .welcome, .createWallet, .topup: return true
-        case .successTopup, .success: return false
+        case .welcome, .topup: return true
+        case .successTopup, .success, .createWallet: return false
         }
     }
     
@@ -145,13 +145,6 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
         case .createWallet: return "onboarding_button_how_it_works"
         case .topup: return "onboarding_button_show_address_qr"
         case .successTopup, .success: return ""
-        }
-    }
-    
-    var isContainSupplementButton: Bool {
-        switch self {
-        case .success: return false
-        default: return true
         }
     }
     
