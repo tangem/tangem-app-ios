@@ -187,6 +187,26 @@ class WalletModel: ObservableObject, Identifiable {
         return rateString
     }
     
+    
+    func getQRReceiveMessage(for amountType: Amount.AmountType? = nil)  -> String {
+        let type: Amount.AmountType = amountType ?? wallet.amounts.keys.first(where: { $0.isToken }) ?? .coin
+        
+        guard let amount = wallet.amounts[type] else {
+            return ""
+        }
+        
+        if case let .token(token) = amountType {
+            return String(format: "address_qr_code_message_token_format".localized,
+                          token.name,
+                          amount.currencySymbol,
+                          token.blockchain.displayName)
+        } else {
+            return String(format: "address_qr_code_message_format".localized,
+                          wallet.blockchain.displayName,
+                          amount.currencySymbol)
+        }
+    }
+    
     func getFiatFormatted(for amount: Amount?) -> String? {
         return getFiat(for: amount)?.currencyFormatted(code: ratesService.selectedCurrencyCode)
     }
