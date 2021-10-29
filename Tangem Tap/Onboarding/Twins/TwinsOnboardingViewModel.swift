@@ -70,7 +70,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         }
         
         if case .topup = currentStep, !exchangeService.canBuyCrypto {
-            return currentStep.supplementButtonTitle
+            return "onboarding_button_receive_crypto"
         }
         
         return super.mainButtonTitle
