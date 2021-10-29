@@ -38,6 +38,7 @@
 		5D24A12A24FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D24A12924FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift */; };
 		5D24A12C24FF9E3A002A3BCA /* Decimal+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D24A12B24FF9E3A002A3BCA /* Decimal+.swift */; };
 		5D2C7DAC251378CA001B29D0 /* Pods_Tangem_Tap.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 13E2B49EFB622F929FD5C46A /* Pods_Tangem_Tap.framework */; settings = {ATTRIBUTES = (Required, ); }; };
+		5D2DCDD9272AC6D30008FE52 /* TokenItems+Array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6784D825EBA1D800149995 /* TokenItems+Array.swift */; };
 		5D383E3F24D95BA600C9BFF6 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5D383E4124D95BA600C9BFF6 /* Localizable.strings */; };
 		5D384B8B24FD154C00C2C92C /* PayIDService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D384B8A24FD154C00C2C92C /* PayIDService.swift */; };
 		5D384B9124FD4E1800C2C92C /* String+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D384B9024FD4E1800C2C92C /* String+.swift */; };
@@ -4254,6 +4255,7 @@
 				B066B1D1262D6B1100EB85A5 /* OP_VER.swift in Sources */,
 				B02D4281262EAC0E00BCA3D9 /* HexEncoding.swift in Sources */,
 				5DE7DD4E2696286500472205 /* TokensListItemView.swift in Sources */,
+				5D2DCDD9272AC6D30008FE52 /* TokenItems+Array.swift in Sources */,
 				B066B144262D6B1100EB85A5 /* TezosWalletManager.swift in Sources */,
 				5D17EC7426946F48002782DE /* Token+.swift in Sources */,
 				B066B201262D6B1100EB85A5 /* BlockchairResponses.swift in Sources */,

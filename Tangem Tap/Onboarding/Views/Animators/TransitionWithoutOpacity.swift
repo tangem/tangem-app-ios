@@ -18,5 +18,5 @@ struct TransitionWithoutOpacity: AnimatableModifier {
     }
 }
 extension AnyTransition {
-    static let withoutOpcaity: AnyTransition = .modifier(active: TransitionWithoutOpacity(1), identity: TransitionWithoutOpacity(0))
+    static let withoutOpacity: AnyTransition = .modifier(active: TransitionWithoutOpacity(1), identity: TransitionWithoutOpacity(0))
 }
