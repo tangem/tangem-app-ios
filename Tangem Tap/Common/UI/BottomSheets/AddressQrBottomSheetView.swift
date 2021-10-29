@@ -53,7 +53,7 @@ struct AddressQrBottomSheetContent: View {
                         
                         Group {
                         showCheckmark ?
-                            Image(systemName: "checkmark.square")
+                            Image(systemName: "checkmark")
                             .id("1")
                             : Image(systemName: "doc.on.clipboard")
                             .id("2")
