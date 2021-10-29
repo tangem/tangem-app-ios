@@ -138,6 +138,7 @@ struct SingleCardOnboardingView: View {
         })
         .onAppear(perform: {
             viewModel.playInitialAnim()
+            viewModel.onAppear()
         })
     }
 }
