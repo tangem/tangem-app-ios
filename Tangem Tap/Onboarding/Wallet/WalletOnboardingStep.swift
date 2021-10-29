@@ -75,10 +75,11 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
     }
     
     var messagesOffset: CGSize {
-        .zero
+        switch self {
+        case .success: return CGSize(width: 0, height: -2)
+        default: return .zero
+        }
     }
-    
-    
 }
 
 extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
