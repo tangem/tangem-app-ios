@@ -19,8 +19,14 @@ class AppServicesAssembly: ServicesAssembly {
         let service = OnboardingStepsSetupService()
         service.userPrefs = userPrefsService
         service.assembly = assembly
+        service.backupService = backupService
         return service
     }()
+    
+    lazy var backupService: BackupService = {
+        BackupService(sdk: tangemSdk)
+    }()
+    
     lazy var exchangeService: ExchangeService = MoonPayService(keys: keysManager.moonPayKeys)
     lazy var walletConnectService = WalletConnectService(assembly: assembly, cardScanner: walletConnectCardScanner, signer: signer, scannedCardsRepository: scannedCardsRepository)
     
@@ -74,8 +80,7 @@ class AppServicesAssembly: ServicesAssembly {
     override func onDidScan(_ cardInfo: CardInfo) {
         featuresService.setupFeatures(for: cardInfo.card)
 //        warningsService.setupWarnings(for: cardInfo)
-        tokenItemsRepository.setCard(cardInfo.card.cardId)
-        
+
         if !featuresService.linkedTerminal {
             tangemSdk.config.linkedTerminal = false
         }

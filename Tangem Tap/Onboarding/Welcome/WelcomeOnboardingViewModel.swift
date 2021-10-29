@@ -18,11 +18,13 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     weak var stepsSetupService: OnboardingStepsSetupService!
     weak var imageLoaderService: CardImageLoaderService!
     weak var userPrefsService: UserPrefsService!
-    
+    weak var backupService: BackupService!
     weak var failedCardScanTracker: FailedCardScanTracker!
     
     @Published var isScanningCard: Bool = false
+    @Published var isBackupModal: Bool = false
     @Published var error: AlertBinder?
+    @Published var discardAlert: ActionSheetBinder?
     @Published var darkCardSettings: AnimatedViewSettings = .zero
     @Published var lightCardSettings: AnimatedViewSettings = .zero
     
@@ -107,6 +109,63 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
         scanCard()
     }
     
+    func onAppear() {
+        if backupService.hasIncompletedBackup {
+            let alert = Alert(title: Text("common_warning"),
+                              message: Text("welcome_interrupted_backup_alert_message"),
+                              primaryButton: .default(Text("welcome_interrupted_backup_alert_resume"), action: continueIncompletedBackup),
+                              secondaryButton: .destructive(Text("welcome_interrupted_backup_alert_discard"), action: showExtraDiscardAlert))
+            
+            self.error = AlertBinder(alert: alert)
+        }
+    }
+    
+    func showExtraDiscardAlert() {
+        let buttonResume: ActionSheet.Button = .cancel(Text("welcome_interrupted_backup_discard_resume"), action: continueIncompletedBackup)
+        let buttonDiscard: ActionSheet.Button = .destructive(Text("welcome_interrupted_backup_discard_discard"), action: backupService.discardSavedBackup)
+        let sheet = ActionSheet(title: Text("welcome_interrupted_backup_discard_title"),
+                                message: Text("welcome_interrupted_backup_discard_message"),
+                                buttons: [buttonDiscard, buttonResume])
+        
+        DispatchQueue.main.async {
+            self.discardAlert = ActionSheetBinder(sheet: sheet)
+        }
+    }
+    
+    func continueIncompletedBackup() {
+        guard let originCardId = backupService.originCardId else {
+            return
+        }
+        
+        stepsSetupService.stepsForBackupResume()
+            .sink { completion in
+                switch completion {
+                case .failure(let error):
+                    Analytics.log(error: error)
+                    print("Failed to load image for new card")
+                    self.error = error.alertBinder
+                case .finished:
+                    break
+                }
+            } receiveValue: { [weak self] steps in
+                guard let self = self else { return }
+                
+                let input = OnboardingInput(steps: steps,
+                                            cardModel: .cardId(originCardId),
+                                            cardImage: nil,
+                                            cardsPosition: nil,
+                                            welcomeStep: nil,
+                                            currentStepIndex: 0,
+                                            successCallback: { [weak self] in
+                                                self?.navigation.welcomeToBackup = false
+                                            },
+                                            isStandalone: false)
+                self.assembly.makeCardOnboardingViewModel(with: input)
+                self.navigation.welcomeToBackup = true
+            }
+            .store(in: &bag)
+    }
+    
     private func showDisclaimer() {
         navigation.onboardingToDisclaimer = true
     }
@@ -120,7 +179,7 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
                 self?.isScanningCard = false
             } receiveValue: { [unowned self] steps in
                 let input = OnboardingInput(steps: steps,
-                                            cardModel: cardModel,
+                                            cardModel: .cardModel(cardModel),
                                             cardImage: nil,
                                             cardsPosition: (darkCardSettings, lightCardSettings),
                                             welcomeStep: .welcome,
