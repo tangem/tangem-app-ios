@@ -129,15 +129,14 @@ struct SingleCardOnboardingView: View {
                                      }, content: {
                                         AddressQrBottomSheetContent(shareAddress: viewModel.shareAddress,
                                                                     address: viewModel.walletAddress,
-                                                                    currencyName: viewModel.currencyName)
+                                                                    qrNotice: viewModel.qrNoticeMessage)
                                      })
                 .frame(maxWidth: screenSize.width)
         }
-        .alert(item: $viewModel.alert, content: { binder in
-            binder.alert
-        })
+        .alert(item: $viewModel.alert, content: { $0.alert })
         .onAppear(perform: {
             viewModel.playInitialAnim()
+            viewModel.onAppear()
         })
     }
 }
