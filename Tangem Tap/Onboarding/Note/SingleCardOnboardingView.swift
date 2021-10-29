@@ -129,7 +129,7 @@ struct SingleCardOnboardingView: View {
                                      }, content: {
                                         AddressQrBottomSheetContent(shareAddress: viewModel.shareAddress,
                                                                     address: viewModel.walletAddress,
-                                                                    currencyName: viewModel.currencyName)
+                                                                    qrNotice: viewModel.qrNoticeMessage)
                                      })
                 .frame(maxWidth: screenSize.width)
         }
