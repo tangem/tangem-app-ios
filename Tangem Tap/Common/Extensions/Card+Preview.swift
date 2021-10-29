@@ -121,7 +121,8 @@ extension Card {
           "isPasscodeSet" : true,
           "isAccessCodeSet" : true,
           "backupStatus" : {
-              "status" : "noBackup"
+              "status" : "active",
+              "cardsCount" : 2
           }
         }
         """
