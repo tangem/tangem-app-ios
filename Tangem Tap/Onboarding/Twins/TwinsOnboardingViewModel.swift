@@ -115,7 +115,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         self.imageLoaderService = imageLoaderService
         self.twinsService = twinsService
         
-        if let twinInfo = input.cardModel.cardInfo.twinCardInfo {
+        if let twinInfo = input.cardModel.cardModel?.cardInfo.twinCardInfo {
 //            pairNumber = TapTwinCardIdFormatter.format(cid: twinInfo.pairCid, cardNumber: nil)
             pairNumber = "\(twinInfo.series.pair.number)"
 //            if twinInfo.series.number != 1 {
@@ -253,7 +253,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         supplementCardSettings = TwinOnboardingCardLayout.second.animSettings(at: currentStep, containerSize: containerSize, stackCalculator: stackCalculator, animated: animated && !isContainerSetup)
     }
     
-    func backButtonAction() {
+    override func backButtonAction() {
         switch currentStep {
         case .second, .third:
             alert = AlertBinder(alert: AlertBuilder.makeOkGotItAlert(message: "onboarding_twin_exit_warning".localized))

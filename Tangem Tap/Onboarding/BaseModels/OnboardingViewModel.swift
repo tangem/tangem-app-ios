@@ -171,13 +171,15 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
         }
     }
     
+    func backButtonAction() {}
+    
     func goToNextStep() {
         if isOnboardingFinished, !assembly.isPreview {
             DispatchQueue.main.async {
                 self.successCallback?()
             }
             
-            onOnboardingFinished(for: input.cardModel.cardInfo.card.cardId)
+            onOnboardingFinished(for: input.cardModel.cardId)
             return
         }
         
@@ -238,5 +240,4 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
         
         alert = sdkError.alertBinder
     }
-    
 }
