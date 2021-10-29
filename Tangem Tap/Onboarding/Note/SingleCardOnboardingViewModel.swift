@@ -42,6 +42,23 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         }
     }
     
+    override var mainButtonTitle: LocalizedStringKey {
+        if case .topup = currentStep, !exchangeService.canBuyCrypto {
+            return "onboarding_button_receive_crypto"
+        }
+        
+        return super.mainButtonTitle
+    }
+    
+    override var isSupplementButtonVisible: Bool {
+        switch currentStep {
+        case .topup:
+            return currentStep.isSupplementButtonVisible && exchangeService.canBuyCrypto
+        default:
+            return currentStep.isSupplementButtonVisible
+        }
+    }
+    
     private(set) var numberOfSteps: Int
     
     private var bag: Set<AnyCancellable> = []
@@ -89,7 +106,11 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         case .createWallet:
             сreateWallet()
         case .topup:
-            navigation.onboardingToBuyCrypto = true
+            if exchangeService.canBuyCrypto {
+                navigation.onboardingToBuyCrypto = true
+            } else {
+                supplementButtonAction()
+            }
         case .successTopup:
             if assembly.isPreview {
                 reset()
@@ -219,4 +240,11 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         }
     }
     
+    func onAppear() {
+        if steps.first == .topup && currentStep == .topup {
+            DispatchQueue.main.async {
+                self.updateCardBalance()
+            }
+        }
+    }
 }
