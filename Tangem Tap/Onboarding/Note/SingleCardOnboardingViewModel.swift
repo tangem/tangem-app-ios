@@ -35,7 +35,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     }
     
     override var subtitle: LocalizedStringKey {
-        if currentStep == .topup, cardModel.cardInfo.walletData?.blockchain.lowercased() == "xrp" {
+        if currentStep == .topup, cardModel!.cardInfo.walletData?.blockchain.lowercased() == "xrp" {
              return "onboarding_topup_subtitle_xrp"
         } else {
             return super.subtitle
@@ -51,7 +51,12 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     
     override init(exchangeService: ExchangeService, input: OnboardingInput) {
         cardImage = input.cardImage
-        numberOfSteps = SingleCardOnboardingStep.maxNumberOfSteps(isNote: input.cardModel.cardInfo.isTangemNote)
+        
+        guard let cardModel = input.cardModel.cardModel else {
+            fatalError("Missing card")
+        }
+        
+        numberOfSteps = SingleCardOnboardingStep.maxNumberOfSteps(isNote: cardModel.cardInfo.isTangemNote)
         super.init(exchangeService: exchangeService, input: input)
         
         if case let .singleWallet(steps) = input.steps {
@@ -60,7 +65,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             fatalError("Wrong onboarding steps passed to initializer")
         }
       
-        loadImage(for: input.cardModel)
+        loadImage(for: cardModel)
     }
         
     // MARK: Functions
@@ -130,20 +135,20 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         if assembly.isPreview {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 self.cardModel = Assembly.PreviewCard.scanResult(for: .cardanoNoteEmptyWallet, assembly: self.assembly).cardModel!
-                self.updateCardBalanceText(for: self.cardModel.walletModels!.first!)
+                self.updateCardBalanceText(for: self.cardModel!.walletModels!.first!)
                 self.isMainButtonBusy = false
                 self.goToNextStep()
             }
             return
         }
         
-        let cardInfo = cardModel.cardInfo
+        let cardInfo = cardModel!.cardInfo
         
         var subscription: AnyCancellable? = nil
         
         subscription = Deferred {
             Future { (promise: @escaping Future<Void, Error>.Promise) in
-                self.cardModel.createWallet { result in
+                self.cardModel!.createWallet { result in
                     switch result {
                     case .success:
                         promise(.success(()))
