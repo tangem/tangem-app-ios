@@ -15,18 +15,11 @@ class OnboardingStepsSetupService {
     
     weak var userPrefs: UserPrefsService!
     weak var assembly: Assembly!
+    weak var backupService: BackupService!
     
     static var previewSteps: [SingleCardOnboardingStep] {
         [.createWallet, .topup, .successTopup]
     }
-    
-//    func stepsWithCardImage(for cardModel: CardViewModel) -> AnyPublisher<(OnboardingSteps, UIImage), Error> {
-//        Publishers.Zip(
-//            steps(for: cardModel.cardInfo),
-//            cardModel.imageLoaderPublisher
-//        )
-//        .eraseToAnyPublisher()
-//    }
     
     func steps(for cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
         let card = cardInfo.card
@@ -55,6 +48,14 @@ class OnboardingStepsSetupService {
         steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
         steps.append(.success)
         return .justWithError(output: .twins(steps))
+    }
+    
+    func stepsForBackupResume() -> AnyPublisher<OnboardingSteps, Error> {
+        return .justWithError(output: .wallet([.backupCards, .success]))
+    }
+    
+    func backupSteps(_ cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
+        return .justWithError(output: .wallet(makeBackupSteps(cardInfo)))
     }
     
     private func stepsForNote(_ cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
@@ -156,23 +157,43 @@ class OnboardingStepsSetupService {
     }
     
     private func stepsForWallet(_ cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
-        if let backupStatus = cardInfo.card.backupStatus, backupStatus.isActive {
+        if let backupStatus = cardInfo.card.backupStatus,
+           backupStatus.isActive ||
+            (cardInfo.card.wallets.count != 0 &&
+                !userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId)) {
             return .justWithError(output: .wallet([]))
         }
         
-        var steps = [WalletOnboardingStep]()
-        if cardInfo.card.wallets.count == 0 {
-            steps.append(.createWallet)
-            steps.append(.backupIntro)
-        } else if userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId) {
-            steps.append(.backupIntro)
-            steps.append(.scanOriginCard)
-        } else {
-            return .justWithError(output: .wallet([]))
-        }
-        
-        steps.append(contentsOf: [.selectBackupCards, .backupCards, .success])
+        let steps = makeBackupSteps(cardInfo)
         return .justWithError(output: .wallet(steps))
     }
     
+    private func makeBackupSteps(_ cardInfo: CardInfo) -> [WalletOnboardingStep] {
+        if !cardInfo.card.settings.isBackupAllowed {
+            return []
+        }
+        
+        var steps: [WalletOnboardingStep] = .init()
+        
+        //todo: respect involved cards?
+        
+        if cardInfo.card.wallets.count == 0 {
+            steps.append(.createWallet)
+            steps.append(.backupIntro)
+        } else {
+            if !backupService.originCardIsSet {
+                steps.append(.backupIntro)
+                steps.append(.scanOriginCard)
+            }
+        }
+        
+        if backupService.addedBackupCardsCount < BackupService.maxBackupCardsCount {
+            steps.append(.selectBackupCards)
+        }
+        
+        steps.append(.backupCards)
+        steps.append(.success)
+        
+       return steps
+    }
 }
