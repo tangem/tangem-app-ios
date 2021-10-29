@@ -20,10 +20,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     @Published var cardImage: UIImage?
     @Published var isCardScanned: Bool = true
 
-    override var currentProgress: CGFloat {
-        CGFloat(currentStep.progressStep) / CGFloat(numberOfSteps)
-    }
-    
     var shopURL: URL { Constants.shopURL }
     
     override var currentStep: SingleCardOnboardingStep {
@@ -59,8 +55,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         }
     }
     
-    private(set) var numberOfSteps: Int
-    
     private var bag: Set<AnyCancellable> = []
     private var previewUpdateCounter: Int = 0
     private var walletCreatedWhileOnboarding: Bool = false
@@ -68,7 +62,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     
     override init(exchangeService: ExchangeService, input: OnboardingInput) {
         cardImage = input.cardImage
-        numberOfSteps = SingleCardOnboardingStep.maxNumberOfSteps(isNote: input.cardModel.cardInfo.isTangemNote)
         super.init(exchangeService: exchangeService, input: input)
         
         if case let .singleWallet(steps) = input.steps {
