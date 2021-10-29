@@ -107,7 +107,7 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
     
     var isSupplementButtonVisible: Bool {
         switch self {
-        case .scanOriginCard, .backupCards, .success: return false
+        case .scanOriginCard, .backupCards, .success, .createWallet: return false
         default: return true
         }
     }
