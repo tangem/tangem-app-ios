@@ -42,8 +42,8 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
         cardModel.walletModels?.first?.displayAddress(for: 0) ?? ""
     }
     
-    var currencyName: String {
-        cardModel.walletModels?.first?.wallet.blockchain.currencySymbol ?? ""
+    var qrNoticeMessage: String {
+        cardModel.walletModels?.first?.getQRReceiveMessage() ?? ""
     }
     
     private var refreshButtonDispatchWork: DispatchWorkItem?
