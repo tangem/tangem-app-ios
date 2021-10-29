@@ -12,13 +12,17 @@ enum OnboardingSteps {
     case singleWallet([SingleCardOnboardingStep]), twins([TwinsOnboardingStep]), wallet([WalletOnboardingStep])
     
     var needOnboarding: Bool {
+        stepsCount > 0
+    }
+    
+    var stepsCount: Int {
         switch self {
         case .singleWallet(let steps):
-            return steps.count > 0
+            return steps.count
         case .twins(let steps):
-            return steps.count > 0
+            return steps.count
         case .wallet(let steps):
-            return steps.count > 0
+            return steps.count
         }
     }
 }
