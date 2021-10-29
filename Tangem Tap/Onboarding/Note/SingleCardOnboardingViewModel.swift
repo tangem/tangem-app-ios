@@ -219,4 +219,32 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         }
     }
     
+    func onAppear() {
+        if steps.first == .topup && currentStep == .topup {
+            DispatchQueue.main.async {
+                self.updateCardBalance()
+            }
+        }
+//        let model = walletModel.first!
+//        return Future { promise in
+//            model.walletManager.update { result in
+//                switch result {
+//                case .success:
+//                    if model.isEmptyIncludingPendingIncomingTxs {
+//                        steps.append(.topup)
+//                    }
+//                    steps.append(.successTopup)
+//                    promise(.success(.singleWallet(steps)))
+//                case .failure(let error):
+//                    if case WalletError.noAccount = error {
+//                        steps.append(.topup)
+//                        steps.append(.successTopup)
+//                        promise(.success(.singleWallet(steps)))
+//                        return
+//                    }
+//                    promise(.failure(error))
+//                }
+//            }
+//        }.eraseToAnyPublisher()
+    }
 }
