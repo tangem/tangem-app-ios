@@ -96,7 +96,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
                     }
                     self.resetRefreshButtonState()
                 case .failed(let error):
-                    print(error)
+                    self.alert = error.alertBinder
                     self.resetRefreshButtonState()
                 case .loading, .created:
                     return
@@ -107,6 +107,11 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
     }
     
     func updateCardBalanceText(for model: WalletModel) {
+        if case .failed = model.state {
+            cardBalance = "–"
+            return
+        }
+        
         if model.wallet.amounts.count == 0 {
             cardBalance = "0.00 " + model.wallet.blockchain.currencySymbol
         } else {
