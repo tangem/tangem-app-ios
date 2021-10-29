@@ -38,20 +38,20 @@ struct OnboardingBaseView: View {
         case .notScanned:
             if viewModel.isFromMainScreen {
                 defaultLaunchView
-                    .transition(.withoutOpcaity)
+                    .transition(.withoutOpacity)
             } else {
                 WelcomeOnboardingView(viewModel: viewModel.assembly.getLetsStartOnboardingViewModel(with: viewModel.processScannedCard(with:)))
-                    .transition(.withoutOpcaity)
+                    .transition(.withoutOpacity)
             }
         case .singleCard:
             defaultLaunchView
-                .transition(.withoutOpcaity)
+                .transition(.withoutOpacity)
         case .twin:
             TwinsOnboardingView(viewModel: viewModel.assembly.getTwinsOnboardingViewModel())
-                .transition(.withoutOpcaity)
+                .transition(.withoutOpacity)
         case .wallet:
             WalletOnboardingView(viewModel: viewModel.assembly.getWalletOnboardingViewModel())
-                .transition(.withoutOpcaity)
+                .transition(.withoutOpacity)
         }
     }
     
