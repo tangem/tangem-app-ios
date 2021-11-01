@@ -613,17 +613,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                     self.backupService.proceedBackup { result in
                         switch result {
                         case .success(let state):
-                            if state == .needWriteBackupCard(index: 2) { //todo: refactor this
-                                if let firstCard = backupService.backupCardIds.first {
-                                    self.tokensRepo.append(.blockchain(.bitcoin(testnet: false)), for: firstCard)
-                                    self.tokensRepo.append(.blockchain(.ethereum(testnet: false)), for: firstCard)
-                                }
-                              
+                            if state == .needWriteBackupCard(index: 2) {
+                                backupService.backupCardIds.first.map { self.addTokens(for: $0 )}
                             } else if state == .finished {
-                                if let lastCard = backupService.backupCardIds.last {
-                                    self.tokensRepo.append(.blockchain(.bitcoin(testnet: false)), for: lastCard)
-                                    self.tokensRepo.append(.blockchain(.ethereum(testnet: false)), for: lastCard)
-                                }
+                                backupService.backupCardIds.last.map { self.addTokens(for: $0 )}
                             }
                             promise(.success(()))
                         case .failure(let error):
@@ -656,6 +649,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         }
     }
     
+    private func addTokens(for cardId: String) {
+        tokensRepo.append(.blockchain(.bitcoin(testnet: false)), for: cardId)
+        tokensRepo.append(.blockchain(.ethereum(testnet: false)), for: cardId)
+    }
 }
 
 extension NotificationCenter {
