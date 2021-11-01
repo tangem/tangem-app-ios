@@ -70,7 +70,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             fatalError("Wrong onboarding steps passed to initializer")
         }
       
-        loadImage(for: cardModel)
+        cardModel.map { loadImage(for: $0) }
     }
         
     // MARK: Functions
