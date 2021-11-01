@@ -12,13 +12,17 @@ enum OnboardingSteps {
     case singleWallet([SingleCardOnboardingStep]), twins([TwinsOnboardingStep]), wallet([WalletOnboardingStep])
     
     var needOnboarding: Bool {
+        stepsCount > 0
+    }
+    
+    var stepsCount: Int {
         switch self {
         case .singleWallet(let steps):
-            return steps.count > 0
+            return steps.count
         case .twins(let steps):
-            return steps.count > 0
+            return steps.count
         case .wallet(let steps):
-            return steps.count > 0
+            return steps.count
         }
     }
 }
@@ -35,7 +39,6 @@ protocol OnboardingButtonsInfoProvider {
     var mainButtonTitle: LocalizedStringKey { get }
     var supplementButtonTitle: LocalizedStringKey { get }
     var isSupplementButtonVisible: Bool { get }
-    var isContainSupplementButton: Bool { get }
     var checkmarkText: LocalizedStringKey? { get }
 }
 

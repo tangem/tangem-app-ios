@@ -22,8 +22,6 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
     
     var cardModel: CardViewModel?
     
-    var canBuyCrypto: Bool { exchangeService.canBuyCrypto }
-    
     var buyCryptoURL: URL? {
         if let wallet = cardModel?.wallets?.first {
             return exchangeService.getBuyUrl(currencySymbol: wallet.blockchain.currencySymbol,
@@ -42,8 +40,8 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
         cardModel?.walletModels?.first?.displayAddress(for: 0) ?? ""
     }
     
-    var currencyName: String {
-        cardModel?.walletModels?.first?.wallet.blockchain.currencySymbol ?? ""
+    var qrNoticeMessage: String {
+        cardModel?.walletModels?.first?.getQRReceiveMessage() ?? ""
     }
     
     private var refreshButtonDispatchWork: DispatchWorkItem?
@@ -96,7 +94,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
                     }
                     self.resetRefreshButtonState()
                 case .failed(let error):
-                    print(error)
+                    self.alert = error.alertBinder
                     self.resetRefreshButtonState()
                 case .loading, .created:
                     return
@@ -107,6 +105,11 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
     }
     
     func updateCardBalanceText(for model: WalletModel) {
+        if case .failed = model.state {
+            cardBalance = "–"
+            return
+        }
+        
         if model.wallet.amounts.count == 0 {
             cardBalance = "0.00 " + model.wallet.blockchain.currencySymbol
         } else {
