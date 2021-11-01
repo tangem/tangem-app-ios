@@ -23,6 +23,11 @@ class TokenItemsRepository {
     func append(_ tokenItem: TokenItem, for cardId: String) {
         lockQueue.sync {
             var items = fetch(for: cardId)
+            
+            if items.contains(tokenItem) {
+                return
+            }
+            
             items.append(tokenItem)
             save(items, for: cardId)
         }
@@ -31,7 +36,13 @@ class TokenItemsRepository {
     func append(_ tokenItems: [TokenItem], for cardId: String) {
         lockQueue.sync {
             var items = fetch(for: cardId)
-            items.append(contentsOf: tokenItems)
+            
+            for tokenItem in tokenItems {
+                if !items.contains(tokenItem) {
+                    items.append(tokenItem)
+                }
+            }
+
             save(items, for: cardId)
         }
     }
