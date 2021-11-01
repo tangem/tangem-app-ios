@@ -45,18 +45,6 @@ struct BalanceAddressView: View {
         return walletModel.wallet.addresses.count > 1
     }
     
-    private var qrMessage: String {
-        var text: String = ""
-        
-        if case let .token(token) = amountType {
-            text = "\(token.name) from \(token.blockchain.displayName) network"
-        } else {
-            text = walletModel.wallet.blockchain.displayName
-        }
-
-        return String(format: "address_qr_code_message_format".localized, text)
-    }
-    
     var accentColor: Color {
         if walletModel.state.errorDescription == nil
             && !walletModel.wallet.hasPendingTx(for: amountType)
@@ -175,7 +163,7 @@ struct BalanceAddressView: View {
                 }
             }.frame(height: 114)
             
-            Text(qrMessage)
+            Text(walletModel.getQRReceiveMessage(for: amountType))
                 .font(.system(size: 16, weight: .regular))
                 .multilineTextAlignment(.center)
                 .foregroundColor(.tangemTapGrayDark)
