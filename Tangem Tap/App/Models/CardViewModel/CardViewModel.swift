@@ -102,7 +102,8 @@ class CardViewModel: Identifiable, ObservableObject {
         }
         
         if (cardInfo.card.wallets.first?.settings.isPermanent ?? false) ||
-            cardInfo.card.firmwareVersion >= .multiwalletAvailable {
+            (cardInfo.card.firmwareVersion >= .multiwalletAvailable &&
+                cardInfo.card.firmwareVersion < .backupAvailable) {
             return TangemSdkError.purgeWalletProhibited.localizedDescription
         }
         
