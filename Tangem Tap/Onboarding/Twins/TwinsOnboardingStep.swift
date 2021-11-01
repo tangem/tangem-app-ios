@@ -98,20 +98,6 @@ extension TwinsOnboardingStep: OnboardingProgressStepIndicatable {
         }
     }
     
-    static var maxNumberOfSteps: Int { 6 }
-    
-    var progressStep: Int {
-        switch self {
-        case .welcome, .alert: return 1
-        case .intro, .first: return 2
-        case .second: return 3
-        case .third: return 4
-        case .topup: return 5
-        case .confetti: return 6
-        case .done, .success: return 6
-        }
-    }
-    
     var successCircleOpacity: Double {
         switch self {
         case .success: return 1
