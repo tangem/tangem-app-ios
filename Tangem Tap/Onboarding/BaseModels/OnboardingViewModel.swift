@@ -37,7 +37,7 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
     }
     
     var currentProgress: CGFloat {
-        CGFloat(currentStep.progressStep) / CGFloat(Step.maxNumberOfSteps)
+        CGFloat(currentStepIndex + 1) / CGFloat(input.steps.stepsCount)
     }
     
     var navbarTitle: LocalizedStringKey {
