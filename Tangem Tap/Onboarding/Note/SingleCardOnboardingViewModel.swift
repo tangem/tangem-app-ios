@@ -39,7 +39,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     }
     
     override var mainButtonTitle: LocalizedStringKey {
-        if case .topup = currentStep, !exchangeService.canBuyCrypto {
+        if case .topup = currentStep, !canBuyCrypto {
             return "onboarding_button_receive_crypto"
         }
         
@@ -49,7 +49,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     override var isSupplementButtonVisible: Bool {
         switch currentStep {
         case .topup:
-            return currentStep.isSupplementButtonVisible && exchangeService.canBuyCrypto
+            return currentStep.isSupplementButtonVisible && canBuyCrypto
         default:
             return currentStep.isSupplementButtonVisible
         }
@@ -59,6 +59,15 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     private var previewUpdateCounter: Int = 0
     private var walletCreatedWhileOnboarding: Bool = false
     private var scheduledUpdate: DispatchWorkItem?
+    
+    private var canBuyCrypto: Bool {
+        if let currency = cardModel.wallets?.first?.blockchain.currencySymbol,
+           exchangeService.canBuy(currency) {
+            return true
+        }
+        
+        return false
+    }
     
     override init(exchangeService: ExchangeService, input: OnboardingInput) {
         cardImage = input.cardImage
@@ -99,7 +108,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         case .createWallet:
             сreateWallet()
         case .topup:
-            if exchangeService.canBuyCrypto {
+            if canBuyCrypto {
                 navigation.onboardingToBuyCrypto = true
             } else {
                 supplementButtonAction()
