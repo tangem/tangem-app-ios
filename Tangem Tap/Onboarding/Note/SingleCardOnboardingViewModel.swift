@@ -20,10 +20,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     @Published var cardImage: UIImage?
     @Published var isCardScanned: Bool = true
 
-    override var currentProgress: CGFloat {
-        CGFloat(currentStep.progressStep) / CGFloat(numberOfSteps)
-    }
-    
     var shopURL: URL { Constants.shopURL }
     
     override var currentStep: SingleCardOnboardingStep {
@@ -42,7 +38,22 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         }
     }
     
-    private(set) var numberOfSteps: Int
+    override var mainButtonTitle: LocalizedStringKey {
+        if case .topup = currentStep, !exchangeService.canBuyCrypto {
+            return "onboarding_button_receive_crypto"
+        }
+        
+        return super.mainButtonTitle
+    }
+    
+    override var isSupplementButtonVisible: Bool {
+        switch currentStep {
+        case .topup:
+            return currentStep.isSupplementButtonVisible && exchangeService.canBuyCrypto
+        default:
+            return currentStep.isSupplementButtonVisible
+        }
+    }
     
     private var bag: Set<AnyCancellable> = []
     private var previewUpdateCounter: Int = 0
@@ -51,12 +62,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     
     override init(exchangeService: ExchangeService, input: OnboardingInput) {
         cardImage = input.cardImage
-        
-        guard let cardModel = input.cardModel.cardModel else {
-            fatalError("Missing card")
-        }
-        
-        numberOfSteps = SingleCardOnboardingStep.maxNumberOfSteps(isNote: cardModel.cardInfo.isTangemNote)
         super.init(exchangeService: exchangeService, input: input)
         
         if case let .singleWallet(steps) = input.steps {
@@ -65,7 +70,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             fatalError("Wrong onboarding steps passed to initializer")
         }
       
-        loadImage(for: cardModel)
+        cardModel.map { loadImage(for: $0) }
     }
         
     // MARK: Functions
@@ -94,7 +99,11 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         case .createWallet:
             сreateWallet()
         case .topup:
-            navigation.onboardingToBuyCrypto = true
+            if exchangeService.canBuyCrypto {
+                navigation.onboardingToBuyCrypto = true
+            } else {
+                supplementButtonAction()
+            }
         case .successTopup:
             if assembly.isPreview {
                 reset()
@@ -224,4 +233,11 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         }
     }
     
+    func onAppear() {
+        if steps.first == .topup && currentStep == .topup {
+            DispatchQueue.main.async {
+                self.updateCardBalance()
+            }
+        }
+    }
 }
