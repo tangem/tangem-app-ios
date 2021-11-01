@@ -41,7 +41,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
     }
     
     var qrNoticeMessage: String {
-        cardModel.walletModels?.first?.getQRReceiveMessage() ?? ""
+        cardModel?.walletModels?.first?.getQRReceiveMessage() ?? ""
     }
     
     private var refreshButtonDispatchWork: DispatchWorkItem?
