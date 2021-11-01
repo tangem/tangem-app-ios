@@ -108,7 +108,7 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
     
     var isSupplementButtonVisible: Bool {
         switch self {
-        case .scanOriginCard, .backupCards, .success: return false
+        case .scanOriginCard, .backupCards, .success, .createWallet: return false
         default: return true
         }
     }
@@ -131,22 +131,6 @@ extension WalletOnboardingStep: OnboardingInitialStepInfo {
 }
 
 extension WalletOnboardingStep: OnboardingProgressStepIndicatable {
-    static var maxNumberOfSteps: Int {
-        6
-    }
-    
-    var progressStep: Int {
-        switch self {
-        case .welcome: return 0
-        case .createWallet: return 1
-        case .scanOriginCard: return 3
-        case .backupIntro: return 2
-        case .selectBackupCards: return 4
-        case .backupCards: return 5
-        case .success: return 6
-        }
-    }
-    
     var isOnboardingFinished: Bool {
         self == .success
     }
