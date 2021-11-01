@@ -134,8 +134,8 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
     
     var isSupplementButtonVisible: Bool {
         switch self {
-        case .welcome, .createWallet, .topup: return true
-        case .successTopup, .success: return false
+        case .welcome, .topup: return true
+        case .successTopup, .success, .createWallet: return false
         }
     }
     
@@ -148,13 +148,6 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
         }
     }
     
-    var isContainSupplementButton: Bool {
-        switch self {
-        case .success: return false
-        default: return true
-        }
-    }
-    
     var checkmarkText: LocalizedStringKey? {
         return nil
     }
@@ -162,27 +155,6 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
 }
 
 extension SingleCardOnboardingStep: OnboardingProgressStepIndicatable {
-    static func maxNumberOfSteps(isNote: Bool) -> Int {
-        isNote ?
-            self.allCases.count :
-            2   // Old cards has 2 steps - read card and create wallet.
-    }
-    
-    static var maxNumberOfSteps: Int {
-        self.allCases.count
-    }
-    
-    /// Use this steps for progress bar. First step is always Read card.
-    var progressStep: Int {
-        switch self {
-        case .welcome: return 1
-        case .createWallet: return 2
-        case .topup: return 3
-        case .successTopup: return 4
-        case .success: return 5
-        }
-    }
-    
     var isOnboardingFinished: Bool {
         switch self {
         case .success, .successTopup: return true

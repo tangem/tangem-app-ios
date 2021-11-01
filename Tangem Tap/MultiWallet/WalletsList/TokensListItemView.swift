@@ -64,7 +64,7 @@ struct TokensListItemView: View {
                 .font(Font.system(size: 17.0, weight: .medium, design: .default))
                 
                 
-                HStack(alignment: .top, spacing: 5.0) {
+                HStack(alignment: .firstTextBaseline, spacing: 5.0) {
                     if item.state.errorDescription != nil  || item.hasTransactionInProgress {
                         Image(systemName: "exclamationmark.circle" )
                             .resizable()
