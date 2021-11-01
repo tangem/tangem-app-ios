@@ -238,6 +238,12 @@ final class TapScanTask: CardSessionRunnable {
             self.complete(session, completion)
             
         case .verifiedOffline:
+            if session.environment.config.attestationMode == .offline {
+                self.complete(session, completion)
+                return
+            }
+            
+            session.viewDelegate.setState(.empty)
             session.viewDelegate.attestationCompletedOffline() {
                 self.complete(session, completion)
             } onCancel: {
