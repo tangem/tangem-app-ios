@@ -69,7 +69,7 @@ struct MainView: View {
                              image: "scan",
                              action: viewModel.scanCard)
                     .buttonStyle(TangemButtonStyle(colorStyle: .black,
-                                                   layout: .smallVertical,
+                                                   layout: .big,
                                                    isLoading: viewModel.isScanning))
                 .padding(.bottom, 48)
             }
