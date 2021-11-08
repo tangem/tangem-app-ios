@@ -285,9 +285,10 @@ class MainViewModel: ViewModel, ObservableObject {
             .store(in: &bag)
         
         $isRefreshing
+            .dropFirst()
             .removeDuplicates()
             .filter { $0 }
-            .sink{ [unowned self] _ in
+            .sink{ [unowned self] value in
                 if let cardModel = self.cardModel, cardModel.state.canUpdate, cardModel.walletModels?.count ?? 0 > 0 {
                     cardModel.update()
                 } else {
