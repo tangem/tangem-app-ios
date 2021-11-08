@@ -90,6 +90,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
                 case .idle:
                     if !walletModel.isEmptyIncludingPendingIncomingTxs {
                         self.goToNextStep()
+                        self.walletModelUpdateCancellable = nil
                         return
                     }
                     self.resetRefreshButtonState()
@@ -129,16 +130,16 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
     }
     
     private func resetRefreshButtonState() {
-        guard refreshButtonDispatchWork == nil else { return }
-        
-        refreshButtonDispatchWork = DispatchWorkItem(block: {
+//        guard refreshButtonDispatchWork == nil else { return }
+//
+//        refreshButtonDispatchWork = DispatchWorkItem(block: {
             withAnimation {
                 self.refreshButtonState = .refreshButton
             }
-            self.refreshButtonDispatchWork = nil
-        })
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: refreshButtonDispatchWork!)
+//            self.refreshButtonDispatchWork = nil
+//        })
+//        
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: refreshButtonDispatchWork!)
     }
     
 }
