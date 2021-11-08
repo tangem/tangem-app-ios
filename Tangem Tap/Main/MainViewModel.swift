@@ -182,8 +182,34 @@ class MainViewModel: ViewModel, ObservableObject {
     }
 	
 	var cardNumber: Int? {
-		cardModel?.cardInfo.twinCardInfo?.series.number
+        guard let cardInfo = cardModel?.cardInfo else { return nil }
+        
+        if let twinNumber = cardInfo.twinCardInfo?.series.number {
+            return twinNumber
+        }
+       
+        if cardInfo.isTangemWallet,
+           let backupStatus = cardInfo.card.backupStatus, backupStatus.isActive {
+            return 1
+        }
+        
+        return nil
 	}
+    
+    var totalCards: Int? {
+        guard let cardInfo = cardModel?.cardInfo else { return nil }
+        
+        if cardInfo.twinCardInfo?.series.number != nil {
+            return 2
+        }
+       
+        if cardInfo.isTangemWallet,
+           let backupStatus = cardInfo.card.backupStatus, case let .active(totalCards) = backupStatus {
+            return totalCards
+        }
+        
+        return nil
+    }
 	
 	var isTwinCard: Bool {
 		cardModel?.isTwinCard ?? false
