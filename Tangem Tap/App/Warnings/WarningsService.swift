@@ -97,7 +97,8 @@ class WarningsService {
     }
     
     private func addAuthFailedIfNeeded(in container: WarningsContainer, for cardInfo: CardInfo) {
-        if cardInfo.artwork == .noArtwork {
+        if cardInfo.card.attestation.status == .failed ||
+            cardInfo.card.attestation.status == .skipped {
             container.add(WarningEvent.failedToValidateCard.warning)
         }
     }
