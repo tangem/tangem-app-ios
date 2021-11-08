@@ -102,7 +102,8 @@ class CardViewModel: Identifiable, ObservableObject {
         }
         
         if (cardInfo.card.wallets.first?.settings.isPermanent ?? false) ||
-            cardInfo.card.firmwareVersion >= .multiwalletAvailable {
+            (cardInfo.card.firmwareVersion >= .multiwalletAvailable &&
+                cardInfo.card.firmwareVersion < .backupAvailable) {
             return TangemSdkError.purgeWalletProhibited.localizedDescription
         }
         
@@ -434,14 +435,16 @@ class CardViewModel: Identifiable, ObservableObject {
         }
         
         tangemSdk.loadCardInfo(cardPublicKey: cardInfo.card.cardPublicKey, cardId: cardInfo.card.cardId) {[weak self] result in
+            guard let self = self else { return }
+            
             switch result {
             case .success(let info):
                 guard let artwork = info.artwork else { return }
 
-                self?.cardInfo.artwork = .artwork(artwork)
+                self.cardInfo.artwork = .artwork(artwork)
             case .failure:
-                self?.cardInfo.artwork = .noArtwork
-                self?.warningsAppendor.appendWarning(for: WarningEvent.failedToValidateCard)
+                self.cardInfo.artwork = .noArtwork
+                self.warningsConfigurator.setupWarnings(for: self.cardInfo)
             }
         }
     }
