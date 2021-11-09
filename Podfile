@@ -25,7 +25,7 @@ target 'Tangem Tap' do
   pod 'HDWalletKit', :git => 'https://github.com/lazutkin-andrey/hdwallet.git', :tag => '0.3.12'
   #pod 'HDWalletKit', :path => '../HDWallet'
   
-  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'develop-51'
+  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'develop-52'
   #pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
   
   pod 'web3swift', :git => 'https://github.com/lazutkin-andrey/web3swift.git', :tag => '2.2.6'
@@ -41,8 +41,8 @@ target 'Tangem Tap' do
   pod 'Firebase/Analytics'
 	pod 'Firebase/RemoteConfig'
   pod 'DeviceGuru'
-  pod 'Kingfisher'
-  pod 'stellar-ios-mac-sdk', '2.0.0' #tmp
+  pod 'Kingfisher', :git => 'https://github.com/onevcat/Kingfisher.git', :branch => 'version6-xcode13'
+  pod 'stellar-ios-mac-sdk'
   target 'Tangem TapTests' do
     inherit! :search_paths
     # Pods for testing
