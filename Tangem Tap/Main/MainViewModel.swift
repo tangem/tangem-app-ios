@@ -146,14 +146,17 @@ class MainViewModel: ViewModel, ObservableObject {
             }
             
             return exchangeService.getBuyUrl(currencySymbol: wallet.blockchain.currencySymbol,
-                                          walletAddress: wallet.address)
+                                             blockchain: wallet.blockchain,
+                                             walletAddress: wallet.address)
         }
         return nil
     }
     
     var sellCryptoURL: URL? {
         if let wallet = wallets?.first {
-            return exchangeService.getSellUrl(currencySymbol: wallet.blockchain.currencySymbol, walletAddress: wallet.address)
+            return exchangeService.getSellUrl(currencySymbol: wallet.blockchain.currencySymbol,
+                                              blockchain: wallet.blockchain,
+                                              walletAddress: wallet.address)
         }
         
         return nil
@@ -182,8 +185,34 @@ class MainViewModel: ViewModel, ObservableObject {
     }
 	
 	var cardNumber: Int? {
-		cardModel?.cardInfo.twinCardInfo?.series.number
+        guard let cardInfo = cardModel?.cardInfo else { return nil }
+        
+        if let twinNumber = cardInfo.twinCardInfo?.series.number {
+            return twinNumber
+        }
+       
+        if cardInfo.isTangemWallet,
+           let backupStatus = cardInfo.card.backupStatus, backupStatus.isActive {
+            return 1
+        }
+        
+        return nil
 	}
+    
+    var totalCards: Int? {
+        guard let cardInfo = cardModel?.cardInfo else { return nil }
+        
+        if cardInfo.twinCardInfo?.series.number != nil {
+            return 2
+        }
+       
+        if cardInfo.isTangemWallet,
+           let backupStatus = cardInfo.card.backupStatus, case let .active(totalCards) = backupStatus {
+            return totalCards
+        }
+        
+        return nil
+    }
 	
 	var isTwinCard: Bool {
 		cardModel?.isTwinCard ?? false
@@ -285,9 +314,10 @@ class MainViewModel: ViewModel, ObservableObject {
             .store(in: &bag)
         
         $isRefreshing
+            .dropFirst()
             .removeDuplicates()
             .filter { $0 }
-            .sink{ [unowned self] _ in
+            .sink{ [unowned self] value in
                 if let cardModel = self.cardModel, cardModel.state.canUpdate, cardModel.walletModels?.count ?? 0 > 0 {
                     cardModel.update()
                 } else {
