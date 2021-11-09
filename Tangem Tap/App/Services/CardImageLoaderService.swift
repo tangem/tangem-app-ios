@@ -145,5 +145,7 @@ extension CardImageLoaderService {
         var headers: [String : String] {
             ["application/json" : "Content-Type"]
         }
+        
+        var configuration: URLSessionConfiguration? { return nil }
     }
 }
