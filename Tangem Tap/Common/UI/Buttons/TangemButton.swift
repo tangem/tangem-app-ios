@@ -49,11 +49,11 @@ struct TangemButton: View {
                 Group {
                     if iconPosition == .leading {
                         icon
-                        Spacer(minLength: iconPadding)
+                        Color.clear.frame(width: iconPadding, height: iconPadding)
                         label
                     } else {
                         label
-                        Spacer(minLength: iconPadding)
+                        Color.clear.frame(width: iconPadding, height: iconPadding)
                         icon
                     }
                 }
