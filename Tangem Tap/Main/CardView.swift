@@ -12,8 +12,8 @@ struct CardView: View {
 	
 	var image: UIImage?
 	var width: CGFloat
-	
 	var currentCardNumber: Int?
+    var totalCards: Int?
 	
     var body: some View {
 		ZStack(alignment: .bottomLeading) {
@@ -32,12 +32,12 @@ struct CardView: View {
 					.cornerRadius(6)
 					.padding(.vertical, 16.0)
 			}
-			if let currentCardNumber = currentCardNumber {
-				Text(String(format: "wallet_twins_chip_format".localized, currentCardNumber))
+			if let currentCardNumber = currentCardNumber, let totalCards = totalCards  {
+				Text(String(format: "card_label_number_format".localized, currentCardNumber, totalCards))
 					.font(.system(size: 14, weight: .bold))
 					.foregroundColor(.white)
 					.padding(EdgeInsets(top: 6, leading: 14, bottom: 6, trailing: 14))
-					.background(Color.black)
+                    .background(Color.gray)
 					.cornerRadius(14)
 					.offset(x: 24)
 					
@@ -48,6 +48,6 @@ struct CardView: View {
 
 struct CardView_Previews: PreviewProvider {
     static var previews: some View {
-		CardView(image: UIImage(named: "twin"), width: UIScreen.main.bounds.width, currentCardNumber: 2)
+		CardView(image: UIImage(named: "twin"), width: UIScreen.main.bounds.width, currentCardNumber: 1, totalCards: 3)
     }
 }
