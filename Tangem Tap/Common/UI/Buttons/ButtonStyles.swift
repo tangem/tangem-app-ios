@@ -174,7 +174,9 @@ struct TangemButtonStyle: ButtonStyle {
 struct ButtonStyles_Previews: PreviewProvider {
     static var previews: some View {
         VStack(alignment: .center, spacing: 16.0) {
-            TangemButton(title: "Tangem Wide button", action: {})
+            TangemButton(title: "Tangem Wide button",
+                         systemImage: "arrow.up",
+                         action: {})
                 .buttonStyle(TangemButtonStyle(layout: .wide))
 
             TangemButton(title: "Tangem custom button", action: {})
