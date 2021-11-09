@@ -72,6 +72,13 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             case 1: return "onboarding_subtitle_success_backup_one_card"
             default: return "onboarding_subtitle_success_backup"
             }
+        case .backupCards:
+            switch backupServiceState {
+            case .needWriteOriginCard:
+                return backupService.originCardId.map { "onboarding_subtitle_scan_origin_card \(CardIdFormatter(style: .lastMasked(4)).string(from: $0))" }
+                ?? super.subtitle
+            default: return super.subtitle
+            }
         default: return super.subtitle
         }
     }
@@ -93,15 +100,15 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     override var mainButtonTitle: LocalizedStringKey {
         switch currentStep {
         case .selectBackupCards:
-            return canAddBackupCards ?
-                "onboarding_button_add_backup_card" :
-                "onboarding_button_max_backup_cards_added"
+            return "onboarding_button_add_backup_card"
         case .backupCards:
             switch backupServiceState {
             case .needWriteOriginCard: return "onboarding_button_backup_origin"
             case .needWriteBackupCard(let index): return "onboarding_button_backup_card \(index)"
             default: break
             }
+        case .success:
+            return input.isStandalone ? "common_continue" : super.mainButtonTitle
         default: break
         }
         return super.mainButtonTitle
@@ -497,6 +504,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                         self?.input.cardModel.cardModel?.update(with: resultTuplet.1)
                         self?.input.cardModel.cardModel?.addBlockchain(.bitcoin(testnet: false))
                         self?.input.cardModel.cardModel?.addBlockchain(.ethereum(testnet: false))
+                        self?.input.cardModel.cardModel?.update()
                         if let originCard = resultTuplet.0 {
                             self?.backupService.setOriginCard(originCard)
                         } else { //we cannot create backup with this card for some reason
@@ -515,7 +523,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     private func readOriginCardPublisher() -> AnyPublisher<Void, Error> {
         Deferred {
             Future { [weak self] promise in
-                self?.backupService.readOriginCard { result in
+                guard let self = self else { return }
+                
+                self.backupService.readOriginCard(cardId: self.input.cardModel.cardId) { result in
                     switch result {
                     case .success:
                         promise(.success(()))
@@ -612,11 +622,11 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                 Future { [unowned self] promise in
                     self.backupService.proceedBackup { result in
                         switch result {
-                        case .success(let state):
-                            if state == .needWriteBackupCard(index: 2) {
-                                backupService.backupCardIds.first.map { self.addTokens(for: $0 )}
-                            } else if state == .finished {
-                                backupService.backupCardIds.last.map { self.addTokens(for: $0 )}
+                        case .success(let updatedCard):
+                            if updatedCard.cardId == backupService.originCardId {
+                                self.input.cardModel.cardModel?.update(with: updatedCard)
+                            } else { //add tokens for backup cards
+                                self.addTokens(for: updatedCard.cardId)
                             }
                             promise(.success(()))
                         case .failure(let error):
