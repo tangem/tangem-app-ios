@@ -7,16 +7,15 @@
 //
 
 import Foundation
+import BlockchainSdk
 
 protocol ExchangeService: AnyObject {
     var successCloseUrl: String { get }
     var sellRequestUrl: String { get }
-    var canBuyCrypto: Bool { get }
-    var canSellCrypto: Bool { get }
-    func canBuy(_ currency: String) -> Bool
-    func canSell(_ currency: String) -> Bool
-    func getBuyUrl(currencySymbol: String, walletAddress: String) -> URL?
-    func getSellUrl(currencySymbol: String, walletAddress: String) -> URL?
+    func canBuy(_ currency: String, blockchain: Blockchain) -> Bool
+    func canSell(_ currency: String, blockchain: Blockchain) -> Bool
+    func getBuyUrl(currencySymbol: String, blockchain: Blockchain, walletAddress: String) -> URL?
+    func getSellUrl(currencySymbol: String, blockchain: Blockchain, walletAddress: String) -> URL?
     func extractSellCryptoRequest(from data: String) -> SellCryptoRequest?
 }
 

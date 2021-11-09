@@ -608,17 +608,16 @@ Amount to pay: %@";
 
 "address_qr_code_message_format" = "Send only %@ (%@) to this address. Sending any other currency will result in its irreversible loss.";
 "address_qr_code_message_token_format" = "Send only %@ (%@) from %@ network to this address. Sending any other currency will result in its irreversible loss.";
-
-"onboarding_title_twin_first_card" = "Tap the #1 twin card";
-"onboarding_title_twin_second_card" = "Tap the #2 twin card";
+"onboarding_title_twin_first_card" = "Scan the #1 twin card";
+"onboarding_title_twin_second_card" = "Scan the #2 twin card";
 "onboarding_subtitle_intro %@" = "This one that you are holding in your hands and the other one with number %@.";
 "onboarding_subtitle_reset_twin_warning" = "If the process of re-creating the wallet gets interrupted in any way, you’ll have to start over.";
-"onboarding_button_tap_first_card" = "Tap the card #1";
-"onboarding_button_tap_second_card" = "Tap the card #2";
+"onboarding_button_tap_first_card" = "Scan the card #1";
+"onboarding_button_tap_second_card" = "Scan the card #2";
 
-"twin_error_same_card" = "You've tapped same card. To create twin wallet you need to tap card with number %d";
-"twin_error_not_a_twin_card" = "You've tapped not a twin card. To create twin wallet you need to tap a Tangem Twin card";
-"twin_error_wrong_twin" = "You've tapped wrong twin card. Please try another one";
+"twin_error_same_card" = "You've scanned same card. To create twin wallet you need to scan card with number %d";
+"twin_error_not_a_twin_card" = "You've scanned not a twin card. To create twin wallet you need to scan a Tangem Twin card";
+"twin_error_wrong_twin" = "You've scanned wrong twin card. Please try another one";
 
 "onboarding_success" = "Success!";
 "onboarding_getting_started" = "Getting started";
@@ -628,21 +627,20 @@ Amount to pay: %@";
 "onboarding_button_skip_backup" = "Skip for later";
 "onboarding_button_finalize_backup" = "Finalize the backup process";
 "onboarding_button_add_backup_card" = "Add backup card";
-"onboarding_button_max_backup_cards_added" = "You hit the maximum";
-"onboarding_button_backup_card %lld" = "Tap the card #%lld";
-"onboarding_button_scan_origin_card" = "Scan origin card";
+"onboarding_button_backup_card %lld" = "Scan the card #%lld";
+"onboarding_button_scan_origin_card" = "Scan primary card";
 "onboarding_button_buy_more_cards" = "Buy more cards";
 
-"onboarding_title_backup_card" = "Backup your card";
+"onboarding_title_backup_card" = "Backup your wallet";
 "onboarding_title_no_backup_cards" = "No backup cards";
 "onboarding_title_scan_origin_card" = "Prepare your card";
 "onboarding_title_one_backup_card" = "One backup card added";
 "onboarding_title_two_backup_cards" = "Two backup cards added";
-"onboarding_title_backup_card %lld" = "Prepare the #%lld backup card";
+"onboarding_title_backup_card %lld" = "Backup card #%lld";
 
-"onboarding_subtitle_backup_card" = "You can backup your keys up to 2 other blank wallet cards";
-"onboarding_subtitle_no_backup_cards" = "To start the backup process add up to 2 cards";
-"onboarding_subtitle_scan_origin_card" = "Scan the origin card to start the backup process";
+"onboarding_subtitle_backup_card" = "You can backup your keys up to two other blank wallet cards";
+"onboarding_subtitle_no_backup_cards" = "To start the backup process add up to two cards";
+"onboarding_subtitle_scan_origin_card %@" = "Prepare the primary card with number %@";
 "onboarding_subtitle_one_backup_card" = "You can add one more card or finalize the backup process";
 "onboarding_subtitle_two_backup_cards" = "Max number of cards added. Finalize the backup process";
 "onboarding_subtitle_backup_warning" = "If the process of backup gets interrupted in any way, you’ll have to start over";
@@ -666,18 +664,17 @@ Amount to pay: %@";
 
 "common_create" = "Create";
 "common_submit" = "Submit";
-"common_finalize" = "Finalize";
 
 "onboarding_subtitle_success_backup" = "You have created 2 backup cards, and now these cards are ready for use.";
 "onboarding_navbar_title_creating_backup" = "Creating a backup";
 "onboarding_backup_exit_warning" = "The backup process is partly complete. You can’t exit it now.";
 
-"onboarding_wallet_info_title_first" = "Backup your card";
+"onboarding_wallet_info_title_first" = "Backup your wallet";
 "onboarding_wallet_info_title_second" = "Identical cards";
 "onboarding_wallet_info_title_third" = "Access code";
 "onboarding_wallet_info_title_fourth" = "Access code restore";
 
-"onboarding_wallet_info_subtitle_first" = "You can backup your keys up to 2 other blank Tangem Wallet cards.";
+"onboarding_wallet_info_subtitle_first" = "You can backup your keys up to two other blank Tangem Wallet cards.";
 "onboarding_wallet_info_subtitle_second" = "All the backup cards can be used as full-functoinal wallets with the identical keys.";
 "onboarding_wallet_info_subtitle_third" = "You will be able to set an access code to protect your wallets.";
 "onboarding_wallet_info_subtitle_fourth" = "Access code can be restored with one of backup cards.";
@@ -685,7 +682,7 @@ Amount to pay: %@";
 "onboarding_subtitle_success_tangem_wallet_onboarding" = "Your Tangem Wallet card is configured and ready for use.";
 "onboarding_subtitle_success_backup_one_card" = "You have created 1 backup card, nd now this card are ready for use.";
 
-"common_origin_card" = "Origin Card";
+"common_origin_card" = "Primary Card";
 
 "onboarding_alert_i_understand" = "I understand";
 
@@ -705,7 +702,11 @@ Amount to pay: %@";
 "welcome_interrupted_backup_discard_title" = "This is an irreversible action";
 "welcome_interrupted_backup_discard_message" = "If you will discard the backup now, then you will have to reset the cards to factory settings to start over again";
 "welcome_interrupted_backup_discard_resume" = "Resume backup";
-"welcome_interrupted_backup_discard_discard" = "Discard anyway";
+"welcome_interrupted_backup_discard_discard" = "Discard";
 
-"onboarding_title_prepare_origin" = "Prepare the origin card";
-"onboarding_button_backup_origin" = "Tap the origin card";
+"onboarding_title_prepare_origin" = "Primary card";
+"onboarding_button_backup_origin" = "Scan the primary card";
+
+"onboarding_button_continue_wallet" = "Continue to my wallet";
+
+"card_label_number_format" = "Card %d of %d";

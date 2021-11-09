@@ -735,8 +735,6 @@
 		B0FACFFA26BA649E00F45E88 /* ServicesAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FACFF926BA649E00F45E88 /* ServicesAssembly.swift */; };
 		B0FACFFC26BA64E700F45E88 /* Assembly+Preview.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FACFFB26BA64E700F45E88 /* Assembly+Preview.swift */; };
 		B0FACFFD26BA654F00F45E88 /* ServicesAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FACFF926BA649E00F45E88 /* ServicesAssembly.swift */; };
-		B0FACFFE26BA654F00F45E88 /* ServicesAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FACFF926BA649E00F45E88 /* ServicesAssembly.swift */; };
-		B0FACFFF26BA655200F45E88 /* Assembly+Preview.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FACFFB26BA64E700F45E88 /* Assembly+Preview.swift */; };
 		B0FAD00026BA655300F45E88 /* Assembly+Preview.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FACFFB26BA64E700F45E88 /* Assembly+Preview.swift */; };
 		B0FAD00326BA67AF00F45E88 /* Assembly+Clip.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FAD00126BA671D00F45E88 /* Assembly+Clip.swift */; };
 		B0FAD00526BA67C000F45E88 /* Assembly+App.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FAD00426BA67C000F45E88 /* Assembly+App.swift */; };
@@ -4184,7 +4182,6 @@
 				B09FC1B0257DFB6E009524D4 /* KeysManager.swift in Sources */,
 				B09BB875259A085600B92000 /* FirebaseJsonConfigFetcher.swift in Sources */,
 				B0462F9926B0065700FB44B7 /* Error+.swift in Sources */,
-				B0FACFFE26BA654F00F45E88 /* ServicesAssembly.swift in Sources */,
 				5D3F77DD24BF56DC00E8695B /* Tangem_TapTests.swift in Sources */,
 				B0462F9826AFD8DF00FB44B7 /* TestnetBuyCryptoService.swift in Sources */,
 				B0462F9A26B0066100FB44B7 /* AlertBinder.swift in Sources */,
@@ -4193,7 +4190,6 @@
 				B09BB879259A092B00B92000 /* WarningEvent.swift in Sources */,
 				B09BB871259A085100B92000 /* TapWarning.swift in Sources */,
 				B09FC1B1257DFB6E009524D4 /* FeaturesConfigManager.swift in Sources */,
-				B0FACFFF26BA655200F45E88 /* Assembly+Preview.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
