@@ -25,6 +25,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
     var buyCryptoURL: URL? {
         if let wallet = cardModel?.wallets?.first {
             return exchangeService.getBuyUrl(currencySymbol: wallet.blockchain.currencySymbol,
+                                             blockchain: wallet.blockchain,
                                              walletAddress: wallet.address)
         }
         return nil
@@ -90,6 +91,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
                 case .idle:
                     if !walletModel.isEmptyIncludingPendingIncomingTxs {
                         self.goToNextStep()
+                        self.walletModelUpdateCancellable = nil
                         return
                     }
                     self.resetRefreshButtonState()
@@ -129,16 +131,16 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
     }
     
     private func resetRefreshButtonState() {
-        guard refreshButtonDispatchWork == nil else { return }
-        
-        refreshButtonDispatchWork = DispatchWorkItem(block: {
+//        guard refreshButtonDispatchWork == nil else { return }
+//
+//        refreshButtonDispatchWork = DispatchWorkItem(block: {
             withAnimation {
                 self.refreshButtonState = .refreshButton
             }
-            self.refreshButtonDispatchWork = nil
-        })
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: refreshButtonDispatchWork!)
+//            self.refreshButtonDispatchWork = nil
+//        })
+//        
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: refreshButtonDispatchWork!)
     }
     
 }
