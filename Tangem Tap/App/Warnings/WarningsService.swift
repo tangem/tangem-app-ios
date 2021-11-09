@@ -59,6 +59,9 @@ class WarningsService {
         addLowRemainingSignaturesWarningIfNeeded(in: container, for: cardInfo.card)
         addOldCardWarning(in: container, for: cardInfo.card)
         addOldDeviceOldCardWarningIfNeeded(in: container, for: cardInfo.card)
+        
+        addAuthFailedIfNeeded(in: container, for: cardInfo)
+        
         if rateAppChecker.shouldShowRateAppWarning {
             Analytics.log(event: .displayRateAppWarning)
             container.add(WarningEvent.rateApp.warning)
@@ -91,6 +94,13 @@ class WarningsService {
                 $0.blockchains?.contains { $0.lowercased() == (cardInfo.walletData?.blockchain ?? "").lowercased() } ?? false
         }
         return cardRemoteWarnings
+    }
+    
+    private func addAuthFailedIfNeeded(in container: WarningsContainer, for cardInfo: CardInfo) {
+        if cardInfo.card.firmwareVersion.type != .sdk &&
+            (cardInfo.card.attestation.status == .failed || cardInfo.card.attestation.status == .skipped) {
+            container.add(WarningEvent.failedToValidateCard.warning)
+        }
     }
     
     private func addDevCardWarningIfNeeded(in container: WarningsContainer, for card: Card) {
