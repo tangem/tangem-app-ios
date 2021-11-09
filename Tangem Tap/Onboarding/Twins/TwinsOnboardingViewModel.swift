@@ -69,7 +69,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
             }
         }
         
-        if case .topup = currentStep, !exchangeService.canBuyCrypto {
+        if case .topup = currentStep, !canBuy {
             return "onboarding_button_receive_crypto"
         }
         
@@ -87,7 +87,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
     override var isSupplementButtonVisible: Bool {
         switch currentStep {
         case .topup:
-            return currentStep.isSupplementButtonVisible && exchangeService.canBuyCrypto
+            return currentStep.isSupplementButtonVisible && canBuy
         default:
             return currentStep.isSupplementButtonVisible
         }
@@ -111,6 +111,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
     private var twinInfo: TwinCardInfo
     private var stepUpdatesSubscription: AnyCancellable?
     
+    private var canBuy: Bool { exchangeService.canBuy("BTC", blockchain: .bitcoin(testnet: false)) }
+                                                      
     init(imageLoaderService: CardImageLoaderService, twinsService: TwinsWalletCreationService, exchangeService: ExchangeService, input: OnboardingInput) {
         self.imageLoaderService = imageLoaderService
         self.twinsService = twinsService
@@ -206,7 +208,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
             }
             twinsService.executeCurrentStep()
         case .topup:
-            if exchangeService.canBuyCrypto {
+            if canBuy {
                 navigation.onboardingToBuyCrypto = true
             } else {
                 supplementButtonAction()
