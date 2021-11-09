@@ -16,7 +16,7 @@ enum WalletOnboardingStep {
         case .welcome: return ""
         case .createWallet, .backupIntro: return "onboarding_getting_started"
         case .scanOriginCard, .selectBackupCards: return "onboarding_navbar_title_creating_backup"
-        case .backupCards: return "common_finalize"
+        case .backupCards: return "onboarding_button_finalize_backup"
         case .success: return "common_done"
         }
     }
@@ -65,7 +65,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         switch self {
         case .welcome: return WelcomeStep.welcome.subtitle
         case .createWallet: return "onboarding_create_subtitle"
-        case .scanOriginCard: return "onboarding_subtitle_scan_origin_card"
+        case .scanOriginCard: return ""
         case .backupIntro: return "onboarding_subtitle_backup_card"
         case .selectBackupCards: return "onboarding_subtitle_no_backup_cards"
         case .backupCards: return "onboarding_subtitle_backup_warning"
@@ -91,7 +91,7 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
         case .backupIntro: return "onboarding_button_backup_now"
         case .selectBackupCards: return "onboarding_button_add_backup_card"
         case .backupCards: return ""
-        case .success: return "common_continue"
+        case .success: return "onboarding_button_continue_wallet"
         }
     }
     
