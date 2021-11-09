@@ -61,8 +61,8 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     private var scheduledUpdate: DispatchWorkItem?
     
     private var canBuyCrypto: Bool {
-        if let currency = cardModel?.wallets?.first?.blockchain.currencySymbol,
-           exchangeService.canBuy(currency) {
+        if let blockchain = cardModel?.wallets?.first?.blockchain,
+           exchangeService.canBuy(blockchain.currencySymbol, blockchain: blockchain) {
             return true
         }
         
