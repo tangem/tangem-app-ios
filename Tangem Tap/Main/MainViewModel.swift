@@ -146,14 +146,17 @@ class MainViewModel: ViewModel, ObservableObject {
             }
             
             return exchangeService.getBuyUrl(currencySymbol: wallet.blockchain.currencySymbol,
-                                          walletAddress: wallet.address)
+                                             blockchain: wallet.blockchain,
+                                             walletAddress: wallet.address)
         }
         return nil
     }
     
     var sellCryptoURL: URL? {
         if let wallet = wallets?.first {
-            return exchangeService.getSellUrl(currencySymbol: wallet.blockchain.currencySymbol, walletAddress: wallet.address)
+            return exchangeService.getSellUrl(currencySymbol: wallet.blockchain.currencySymbol,
+                                              blockchain: wallet.blockchain,
+                                              walletAddress: wallet.address)
         }
         
         return nil
