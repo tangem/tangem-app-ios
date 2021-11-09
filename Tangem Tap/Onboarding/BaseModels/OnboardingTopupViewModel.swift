@@ -25,6 +25,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
     var buyCryptoURL: URL? {
         if let wallet = cardModel?.wallets?.first {
             return exchangeService.getBuyUrl(currencySymbol: wallet.blockchain.currencySymbol,
+                                             blockchain: wallet.blockchain,
                                              walletAddress: wallet.address)
         }
         return nil
