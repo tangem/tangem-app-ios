@@ -16,7 +16,6 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     weak var navigation: NavigationCoordinator!
     weak var cardsRepository: CardsRepository!
     weak var stepsSetupService: OnboardingStepsSetupService!
-    weak var imageLoaderService: CardImageLoaderService!
     weak var userPrefsService: UserPrefsService!
     weak var backupService: BackupService!
     weak var failedCardScanTracker: FailedCardScanTracker!
