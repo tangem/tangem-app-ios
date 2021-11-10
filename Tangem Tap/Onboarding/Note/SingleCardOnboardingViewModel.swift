@@ -15,7 +15,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     
     weak var cardsRepository: CardsRepository!
     weak var stepsSetupService: OnboardingStepsSetupService!
-    weak var imageLoaderService: CardImageLoaderService!
     
     @Published var cardImage: UIImage?
     @Published var isCardScanned: Bool = true
