@@ -12,12 +12,22 @@ import Combine
 
 class NavigationCoordinator: ObservableObject {
     // MARK: ReadView
-    @Published var readToMain: Bool = false
+    @Published var readToMain: Bool = false {
+        didSet {
+            print("Did set read to main: \(readToMain)")
+        }
+    }
     @Published var readToShop: Bool = false
     @Published var readToDisclaimer: Bool = false
     @Published var readToTwinOnboarding = false
     @Published var readToTroubleshootingScan = false
     @Published var readToSendEmail: Bool = false
+    
+    @Published var onboardingToDisclaimer: Bool = false
+    @Published var onboardingToBuyCrypto: Bool = false
+    @Published var onboardingToQrTopup: Bool = false
+    @Published var onboardingWalletToShop: Bool = false
+    @Published var onboardingWalletToAccessCode: Bool = false
     
     // MARK: DisclaimerView
     @Published var disclaimerToMain: Bool = false
@@ -32,8 +42,6 @@ class NavigationCoordinator: ObservableObject {
     @Published var mainToSendChoise = false
     @Published var mainToCreatePayID = false
     @Published var mainToBuyCrypto = false
-    @Published var mainToTwinOnboarding = false
-    @Published var mainToTwinsWalletWarning = false
     @Published var mainToQR = false
     @Published var mainToTokenDetails = false
     @Published var mainToAddTokens: Bool = false
@@ -41,6 +49,7 @@ class NavigationCoordinator: ObservableObject {
     @Published var mainToWalletConnectQR: Bool = false
     @Published var mainToTradeSheet: Bool = false
     @Published var mainToSellCrypto: Bool = false
+    @Published var mainToCardOnboarding: Bool = false 
     
     // MARK: SendView
     @Published var sendToQR = false
@@ -70,7 +79,18 @@ class NavigationCoordinator: ObservableObject {
     
     // MARK: WalletConnectView
     @Published var walletConnectToQR = false
+    
+    @Published var onboardingReset = false
 
+    func popToRoot() {
+        readToMain = false
+        readToDisclaimer = false
+        readToShop = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.reset()
+        }
+    }
+    
     func reset() {
         readToMain = false
         readToShop = false
@@ -92,8 +112,6 @@ class NavigationCoordinator: ObservableObject {
         mainToSendChoise = false
         mainToCreatePayID = false
         mainToBuyCrypto = false
-        mainToTwinOnboarding = false
-        mainToTwinsWalletWarning = false
         mainToQR = false
         mainToTokenDetails = false
         mainToAddTokens = false
