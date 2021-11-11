@@ -29,7 +29,7 @@ struct AddressQrBottomSheetContent: View {
                 .frame(maxWidth: 225)
                 .font(.system(size: 18, weight: .regular))
                 .multilineTextAlignment(.center)
-                .foregroundColor(.tangemTapGrayDark)
+                .foregroundColor(.tangemGrayDark)
             HStack(spacing: 10) {
                 Button(action: {
                         showCheckmark = true
@@ -49,7 +49,7 @@ struct AddressQrBottomSheetContent: View {
                             .truncationMode(.middle)
                             .frame(maxWidth: 100)
                             .font(.system(size: 15, weight: .semibold))
-                            .foregroundColor(.tangemTapGrayDark6)
+                            .foregroundColor(.tangemGrayDark6)
                         
                         Group {
                         showCheckmark ?
@@ -59,19 +59,19 @@ struct AddressQrBottomSheetContent: View {
                             .id("2")
                         }
                         .frame(width: 18, height: 18)
-                        .foregroundColor(.tangemTapGreen)
+                        .foregroundColor(.tangemGreen)
                     }
                     .frame(height: 40)
                     .padding(.horizontal, 16)
-                    .background(Color.tangemTapBgGray)
+                    .background(Color.tangemBgGray)
                     .cornerRadius(20)
                 })
                 Button(action: { showShareSheet() }, label: {
                     Image(systemName: "arrowshape.turn.up.right")
                         .frame(height: 40)
-                        .foregroundColor(.tangemTapGreen)
+                        .foregroundColor(.tangemGreen)
                         .padding(.horizontal, 16)
-                        .background(Color.tangemTapBgGray)
+                        .background(Color.tangemBgGray)
                         .cornerRadius(20)
                 })
             }

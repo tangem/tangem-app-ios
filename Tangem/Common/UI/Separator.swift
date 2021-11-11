@@ -10,7 +10,7 @@ import SwiftUI
 
 struct Separator: View {
     var body: some View {
-        Color.tangemTapGrayLight5
+        Color.tangemGrayLight5
             .frame(width: nil, height: 1.0, alignment: .center)
             .padding(.vertical, 4.0)
     }

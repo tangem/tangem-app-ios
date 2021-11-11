@@ -64,7 +64,7 @@ struct WalletOnboardingView: View {
                     let size = geom.size
                     ZStack(alignment: .center) {
                         Circle()
-                            .foregroundColor(.tangemTapBgGray)
+                            .foregroundColor(.tangemBgGray)
                             .frame(size: viewModel.isInitialAnimPlayed ? currentStep.backgroundFrameSize(in: size) : .zero)
                             .offset(viewModel.isInitialAnimPlayed ? currentStep.backgroundOffset(in: size) : .zero)
                         
@@ -82,7 +82,7 @@ struct WalletOnboardingView: View {
                                       rightItems: {
                                         Button(action: { navigation.onboardingWalletToShop = true }) {
                                             Text("home_button_shop")
-                                                .foregroundColor(.tangemTapGreen)
+                                                .foregroundColor(.tangemGreen)
                                                 .padding(.horizontal, 16)
                                         }
                                         .frame(height: viewModel.navbarSize.height)
