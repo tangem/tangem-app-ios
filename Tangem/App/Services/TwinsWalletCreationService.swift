@@ -174,7 +174,7 @@ class TwinsWalletCreationService {
     }
     
     private func initialMessage(for cardId: String) -> Message {
-        Message(header: String(format: scanMessageKey.localized, TapTwinCardIdFormatter.format(cid: cardId, cardNumber: stepCardNumber)))
+        Message(header: String(format: scanMessageKey.localized, AppTwinCardIdFormatter.format(cid: cardId, cardNumber: stepCardNumber)))
     }
     
 }

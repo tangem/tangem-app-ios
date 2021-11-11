@@ -463,7 +463,7 @@ extension Assembly {
 //    func makeTwinCardOnboardingViewModel(isFromMain: Bool) -> TwinCardOnboardingViewModel {
 //        let scanResult = services.cardsRepository.lastScanResult
 //        let twinInfo = scanResult.cardModel?.cardInfo.twinCardInfo
-//        let twinPairCid = TapTwinCardIdFormatter.format(cid: /*twinInfo?.pairCid ??*/ "", cardNumber: twinInfo?.series.pair.number ?? 1)
+//        let twinPairCid = AppTwinCardIdFormatter.format(cid: /*twinInfo?.pairCid ??*/ "", cardNumber: twinInfo?.series.pair.number ?? 1)
 //		return makeTwinCardOnboardingViewModel(state: .onboarding(withPairCid: twinPairCid, isFromMain: isFromMain))
 //	}
 //

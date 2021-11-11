@@ -26,7 +26,7 @@
 //                    .font(Font.system(size: 30.0, weight: .bold, design: .default))
 //                    .foregroundColor(Color.tangemGrayDark6)
 //                    .padding(.top, 22.0)
-//                Text(String(format: NSLocalizedString("wallet_create_payid_card_format", comment: ""), TapCardIdFormatter(cid: cardId).formatted()))
+//                Text(String(format: NSLocalizedString("wallet_create_payid_card_format", comment: ""), AppCardIdFormatter(cid: cardId).formatted()))
 //                    .font(Font.system(size: 13.0, weight: .medium, design: .default))
 //                    .foregroundColor(Color.tangemGrayDark)
 //                    .padding(.bottom, 22.0)
