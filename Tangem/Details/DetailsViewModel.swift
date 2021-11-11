@@ -164,8 +164,8 @@ class DetailsViewModel: ViewModel, ObservableObject {
     var cardCid: String {
         let cardId = cardModel.cardInfo.card.cardId
         return isTwinCard ?
-            TapTwinCardIdFormatter.format(cid: cardId, cardNumber: cardModel.cardInfo.twinCardInfo?.series.number) :
-            TapCardIdFormatter(cid: cardId).formatted()
+            AppTwinCardIdFormatter.format(cid: cardId, cardNumber: cardModel.cardInfo.twinCardInfo?.series.number) :
+            AppCardIdFormatter(cid: cardId).formatted()
     }
     
     private var bag = Set<AnyCancellable>()
