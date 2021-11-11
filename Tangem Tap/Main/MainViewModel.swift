@@ -14,7 +14,6 @@ import TangemSdk
 
 class MainViewModel: ViewModel, ObservableObject {
     // MARK: Dependencies -
-    weak var imageLoaderService: CardImageLoaderService!
     weak var exchangeService: ExchangeService!
 	weak var userPrefsService: UserPrefsService!
     weak var cardsRepository: CardsRepository!
@@ -549,7 +548,6 @@ class MainViewModel: ViewModel, ObservableObject {
 
             let input = OnboardingInput(steps: steps,
                                         cardModel: .cardModel(cardModel),
-                                        cardImage:  self.image,
                                         cardsPosition: nil,
                                         welcomeStep: nil,
                                         currentStepIndex: 0,
