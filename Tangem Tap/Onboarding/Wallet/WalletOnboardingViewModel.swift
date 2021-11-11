@@ -14,14 +14,12 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     
     let backupService: BackupService
     
-    @Published var mainCardImage: UIImage
     @Published var thirdCardSettings: AnimatedViewSettings = .zero
     @Published var canDisplayCardImage: Bool = false
     
     private weak var tokensRepo: TokenItemsRepository!
     private var stackCalculator: StackCalculator = .init()
     private var fanStackCalculator: FanStackCalculator = .init()
-    private var bag: Set<AnyCancellable> = []
     private var stepPublisher: AnyCancellable?
     
 //    override var isBackButtonVisible: Bool {
@@ -252,8 +250,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     
     init(input: OnboardingInput, backupService: BackupService, tangemSdk: TangemSdk, tokensRepo: TokenItemsRepository) {
         self.backupService = backupService
-        // [REDACTED_TODO_COMMENT]
-        mainCardImage =  UIImage(named: "wallet_card")! // input.cardImage
         self.tangemSdk = tangemSdk
         self.tokensRepo = tokensRepo
         super.init(input: input)
