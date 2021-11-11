@@ -27,14 +27,14 @@ struct CardOperationView: View {
             Spacer()
             Image(systemName: "exclamationmark.circle")
                 .font(.system(size: 120.0, weight: .regular, design: .default))
-                .foregroundColor(.tangemTapWarning)
+                .foregroundColor(.tangemWarning)
             Text("common_warning".localized.uppercased())
                 .font(.system(size: 40.0, weight: .medium, design: .default))
-                .foregroundColor(.tangemTapWarning)
+                .foregroundColor(.tangemWarning)
             Text(alert)
                 .font(.system(size: 29.0, weight: .regular, design: .default))
                 .multilineTextAlignment(.center)
-                .foregroundColor(.tangemTapGrayDark6)
+                .foregroundColor(.tangemGrayDark6)
                 .padding(.horizontal, 36.0)
             Spacer()
             HStack(alignment: .center, spacing: 8.0) {
@@ -72,7 +72,7 @@ struct CardOperationView: View {
             .padding(.horizontal, 16.0)
             .padding(.bottom, 16.0)
         }
-        .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
+        .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle(title)
     }
 }
