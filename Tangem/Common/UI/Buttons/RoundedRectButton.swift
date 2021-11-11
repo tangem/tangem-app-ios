@@ -13,7 +13,7 @@ struct RoundedRectButton: View {
     var backgroundColor: Color = .init(red: 224.0/255.0, green: 230.0/255.0, blue: 250.0/255.0, opacity: 1)
     var systemImageName: String?
     let title: String
-    var foregroundColor: Color = .tangemTapBlue
+    var foregroundColor: Color = .tangemBlue
     var withVerification: Bool = false
     var isDisabled = false
     
