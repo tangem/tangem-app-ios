@@ -59,12 +59,6 @@ struct BalanceView: View {
         return "wallet_balance_verified".localized
     }
     
-    var image: String {
-        balanceViewModel.state.errorDescription == nil
-            && !balanceViewModel.hasTransactionInProgress
-            && !balanceViewModel.state.isLoading ? "checkmark.circle" : "exclamationmark.circle"
-    }
-    
     var accentColor: Color {
         if balanceViewModel.state.errorDescription == nil
             && !balanceViewModel.hasTransactionInProgress
@@ -101,7 +95,7 @@ struct BalanceView: View {
             
             
             HStack(alignment: .firstTextBaseline, spacing: 5.0) {
-                Image(balanceViewModel.state.errorDescription == nil && !balanceViewModel.hasTransactionInProgress ? "checkmark.circle" : "exclamationmark.circle" )
+                Image(systemName: balanceViewModel.state.errorDescription == nil && !balanceViewModel.hasTransactionInProgress ? "checkmark.circle" : "exclamationmark.circle" )
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .foregroundColor(accentColor)
