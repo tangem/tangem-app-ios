@@ -12,8 +12,8 @@ struct ProgressBar: View {
     let height: CGFloat
     /// Must be in 0...1 range. Values smaller than 0 displays no progress, and > 1 displays max progress
     let currentProgress: CGFloat
-    var backgroundColor: Color = .tangemTapGrayDark.opacity(0.12)
-    var progressColor: Color = .tangemTapGreen
+    var backgroundColor: Color = .tangemGrayDark.opacity(0.12)
+    var progressColor: Color = .tangemGreen
     
     var body: some View {
             Rectangle()
@@ -33,7 +33,7 @@ struct ProgressBarPreviewView: View {
     
     var body: some View {
         VStack {
-            ProgressBar(height: 5, currentProgress: progress, backgroundColor: .tangemTapGrayDark.opacity(0.12), progressColor: .blue)
+            ProgressBar(height: 5, currentProgress: progress, backgroundColor: .tangemGrayDark.opacity(0.12), progressColor: .blue)
                 .padding()
             Spacer()
                 .frame(height: 50)

@@ -51,7 +51,7 @@ struct AmountView: View {
                 .foregroundColor(labelColor)
             Spacer()
             if isLoading {
-                ActivityIndicatorView(color: UIColor.tangemTapGrayDark)
+                ActivityIndicatorView(color: UIColor.tangemGrayDark)
                     .offset(x: 8)
             } else {
                 valueText
@@ -73,11 +73,11 @@ struct AmountView_Previews: PreviewProvider {
                 blinker.blink.toggle()
             }
             AmountView(label: "Amount",
-                       labelColor: .tangemTapGrayDark6,
+                       labelColor: .tangemGrayDark6,
                        labelFont: .system(size: 14, weight: .regular, design: .default),
                        isLoading: false,
                        amountText: "0 BTC",
-                       amountColor: .tangemTapGrayDark6,
+                       amountColor: .tangemGrayDark6,
                        amountFont: .system(size: 15, weight: .regular, design: .default),
                        amountScaleFactor: 1,
                        amountLineLimit: 1,
