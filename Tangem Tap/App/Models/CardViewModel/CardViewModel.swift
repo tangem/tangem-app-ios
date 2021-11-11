@@ -211,8 +211,14 @@ class CardViewModel: Identifiable, ObservableObject {
     
     var isTestnet: Bool { cardInfo.isTestnet }
     
+    var cachedImage: UIImage? = nil
+    
     var imageLoaderPublisher: AnyPublisher<UIImage, Never> {
-        $cardInfo
+        if let cached = cachedImage {
+            return Just(cached).eraseToAnyPublisher()
+        }
+        
+        return $cardInfo
             .filter { $0.artwork != .notLoaded || $0.card.isTwinCard }
             .map { $0.imageLoadDTO }
             .removeDuplicates()
@@ -225,6 +231,14 @@ class CardViewModel: Identifiable, ObservableObject {
                     .loadImage(cid: info.cardId,
                                cardPublicKey: info.cardPublicKey,
                                artworkInfo: info.artwotkInfo)
+                    .map {[weak self] (image, canBeCached) -> UIImage in
+                        if canBeCached {
+                            self?.cachedImage = image
+                        }
+                        
+                        return image
+                    }
+                    .eraseToAnyPublisher()
             }
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
