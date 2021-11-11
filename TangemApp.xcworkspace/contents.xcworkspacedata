@@ -2,9 +2,12 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:Tangem Tap.xcodeproj">
+      location = "group:/Users/alexander.osokin/repos/tangem/tangem-ios/TangemApp.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:Pods/Pods.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:TangemApp.xcodeproj">
    </FileRef>
 </Workspace>
