@@ -1,5 +1,5 @@
 //
-//  TapWarning.swift
+//  AppWarning.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -25,7 +25,7 @@ enum WarningsLocation: String, Decodable {
     case main, send
 }
 
-struct TapWarning: Decodable, Hashable {
+struct AppWarning: Decodable, Hashable {
     let title: String
     let message: String
     let priority: WarningPriority
@@ -48,7 +48,7 @@ struct TapWarning: Decodable, Hashable {
         self.event = event
     }
     
-    init(from remote: RemoteTapWarning) {
+    init(from remote: RemoteAppWarning) {
         title = remote.title
         message = remote.message
         priority = remote.priority
@@ -61,12 +61,12 @@ struct TapWarning: Decodable, Hashable {
         blockchains = remote.blockchains
     }
     
-    static func fetch(remote: [RemoteTapWarning]) -> [TapWarning] {
-        remote.map { TapWarning(from: $0) }
+    static func fetch(remote: [RemoteAppWarning]) -> [AppWarning] {
+        remote.map { AppWarning(from: $0) }
     }
 }
 
-struct RemoteTapWarning: Decodable {
+struct RemoteAppWarning: Decodable {
     let title: String
     let message: String
     let priority: WarningPriority
