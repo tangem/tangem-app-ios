@@ -27,7 +27,7 @@ enum AlertBuilder {
     
     static var okButtonTitle: String { "common_ok".localized }
     
-    static func makeSuccessAlert(message: String, okAction: (() -> Void)? = nil) -> Alert {
+    static func makeSuccessAlert(message: String, okAction: @escaping (() -> Void) = { }) -> Alert {
         Alert(title: Text(successTitle),
               message: Text(message),
               dismissButton: Alert.Button.default(Text(okButtonTitle), action: okAction))
@@ -37,5 +37,11 @@ enum AlertBuilder {
         let alert = UIAlertController(title: successTitle, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: okButtonTitle, style: .default, handler: { _ in okAction?() }))
         return alert
+    }
+    
+    static func makeOkGotItAlert(message: String, okAction: @escaping (() -> Void) = { }) -> Alert {
+        Alert(title: Text("common_warning"),
+              message: Text(message),
+              dismissButton: .default(Text("warning_button_ok"), action: okAction))
     }
 }

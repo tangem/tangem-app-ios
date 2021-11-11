@@ -12,7 +12,7 @@ import SwiftUI
 
 struct PendingTxView: View, Identifiable {
     
-    let id = UUID()
+    var id: Int { pendingTx.id }
     let pendingTx: PendingTransaction
     var pushAction: (() -> Void)? = nil
     
@@ -48,20 +48,24 @@ struct PendingTxView: View, Identifiable {
     
     var body: some View {
         VStack(alignment: .leading) {
-            HStack(spacing: 8.0) {
+            HStack(spacing: 0) {
                 if address != "unknown" {
-                    Image(self.pendingTx.direction == .incoming ?  "arrow.down" :
+                    Image(systemName: self.pendingTx.direction == .incoming ?  "arrow.down" :
                             "arrow.right")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .foregroundColor(Color.tangemTapGrayDark6)
                         .frame(width: 12.0, height: 12.0)
+                        .padding(.trailing, 8)
                 }
+                
                 Text(text)
                     .font(Font.system(size: 13.0, weight: .medium, design: .default))
                     .foregroundColor(Color.tangemTapGrayDark6)
                     .lineLimit(1)
-                Spacer()
+                
+                Spacer(minLength: 0)
+                
                 if pendingTx.canBePushed {
                     RoundedRectButton(action: {
                         pushAction?()
@@ -81,9 +85,9 @@ struct PendingTxView_Previews: PreviewProvider {
         ZStack {
             Color.tangemTapBgGray
             VStack {
-                PendingTxView(pendingTx: PendingTransaction(destination: "sadfasdfasdfsadf", transferAmount: "0.2 BTC", canBePushed: false, direction: .incoming))
-                PendingTxView(pendingTx: PendingTransaction(destination: "sadfasdfasdfsadf", transferAmount: "0.2 BTC", canBePushed: false, direction: .outgoing))
-                PendingTxView(pendingTx: PendingTransaction(destination: "sadfasdfasdfsadf", transferAmount: "0.2 BTC", canBePushed: true, direction: .outgoing))
+                PendingTxView(pendingTx: PendingTransaction(amountType: .coin, destination: "0x2314719083467891237649123675478612354", transferAmount: "0.0000000002 BTC", canBePushed: false, direction: .incoming))
+                PendingTxView(pendingTx: PendingTransaction(amountType: .coin, destination: "0x2314719083467891237649123675478612354", transferAmount: "0.2 BTC", canBePushed: false, direction: .outgoing))
+                PendingTxView(pendingTx: PendingTransaction(amountType: .coin, destination: "0x2314719083467891237649123675478612354", transferAmount: "0.2 BTC", canBePushed: true, direction: .outgoing))
             }
             
         }
