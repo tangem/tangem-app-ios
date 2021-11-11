@@ -1,6 +1,6 @@
 //
 //  Option.swift
-//  Tangem Tap
+//  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
 //  Copyright © 2020 Tangem AG. All rights reserved.
