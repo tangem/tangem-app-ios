@@ -31,7 +31,7 @@ class WalletConnectCardScanner {
     func scanCard(for wcNetwork: WalletConnectNetwork) -> AnyPublisher<WalletInfo, Error> {
         Deferred {
             Future { [weak self] promise in
-                self?.tangemSdk.startSession(with: TapScanTask(), initialMessage: Message(header: "wallet_connect_scan_card_message".localized)) { result in
+                self?.tangemSdk.startSession(with: AppScanTask(), initialMessage: Message(header: "wallet_connect_scan_card_message".localized)) { result in
                     guard let self = self else { return }
                     
                     switch result {
