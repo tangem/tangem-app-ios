@@ -55,7 +55,7 @@
 //                    HStack {
 //                        Text(title)
 //                            .font(Font.system(size: 30.0, weight: .bold, design: .default) )
-//                            .foregroundColor(Color.tangemTapGrayDark6)
+//                            .foregroundColor(Color.tangemGrayDark6)
 //                        Spacer()
 //                    }
 //                    Image(uiImage: self.getQrCodeImage(width: 600.0, height: 600.0))
@@ -63,7 +63,7 @@
 //                        .aspectRatio(contentMode: .fit)
 //                    Text(shareString)
 //                        .font(Font.system(size: 13.0, weight: .regular, design: .default) )
-//                        .foregroundColor(Color.tangemTapGrayDark)
+//                        .foregroundColor(Color.tangemGrayDark)
 //                        .multilineTextAlignment(.center)
 //                }
 //                .padding(.all, 36.0)
@@ -116,7 +116,7 @@
 //                           scale: 1.0,
 //                           orientation: .up)
 //        } else {
-//            return UIImage.imageWithSize(width: width, height: height, filledWithColor: UIColor.tangemTapBgGray )
+//            return UIImage.imageWithSize(width: width, height: height, filledWithColor: UIColor.tangemBgGray )
 //        }
 //    }
 //}

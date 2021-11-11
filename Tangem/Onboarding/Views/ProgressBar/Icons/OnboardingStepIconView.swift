@@ -23,14 +23,14 @@ struct OnboardingStepIconView: View {
         var iconColor: Color {
             switch self {
             case .passed, .current: return .white
-            case .future: return .tangemTapGrayDark
+            case .future: return .tangemGrayDark
             }
         }
         
         var backgroundColor: Color {
             switch self {
-            case .passed, .current: return .tangemTapGreen
-            case .future: return .tangemTapGrayLight4
+            case .passed, .current: return .tangemGreen
+            case .future: return .tangemGrayLight4
             }
         }
     }
@@ -54,7 +54,7 @@ struct OnboardingStepIconView: View {
                 .animation(.easeIn)
             Circle()
                 .frame(size: state == .passed ? circleSize : .zero)
-                .foregroundColor(.tangemTapGrayDark6)
+                .foregroundColor(.tangemGrayDark6)
                 .animation(.easeIn)
             Circle()
                 .strokeBorder(lineWidth: 4)

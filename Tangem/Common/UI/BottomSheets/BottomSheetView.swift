@@ -75,7 +75,7 @@ struct BottomSheetView<Content: View>: View {
                         .frame(size: .init(width: 33, height: 5))
                         .cornerRadius(2.5)
                         .padding(.top, 12)
-                        .foregroundColor(.tangemTapGrayLight4)
+                        .foregroundColor(.tangemGrayLight4)
                     content
                     TangemButton(title: "common_close") {
                         hideBottomSheet(with: defaultAnimDuration)

@@ -13,137 +13,137 @@ extension Color {
     
     //MARK: Primary
     
-    @nonobjc static var tangemTapGreen: Color {
-        return Color("tangem_tap_green")
+    @nonobjc static var tangemGreen: Color {
+        return Color("tangem_green")
     }
     
-    @nonobjc static var tangemTapGreen1: Color {
-        return Color("tangem_tap_green1")
+    @nonobjc static var tangemGreen1: Color {
+        return Color("tangem_green1")
     }
     
-    @nonobjc static var tangemTapGreen2: Color {
-        return Color("tangem_tap_green2")
+    @nonobjc static var tangemGreen2: Color {
+        return Color("tangem_green2")
     }
     
     //MARK: Complimentary
     
-    @nonobjc static var tangemTapWarning: Color {
-        return Color("tangem_tap_warning")
+    @nonobjc static var tangemWarning: Color {
+        return Color("tangem_warning")
     }
     
-    @nonobjc static var tangemTapBlue: Color {
-        return Color("tangem_tap_blue")
+    @nonobjc static var tangemBlue: Color {
+        return Color("tangem_blue")
     }
     
-    @nonobjc static var tangemTapBlue1: Color {
-        return Color("tangem_tap_blue1")
+    @nonobjc static var tangemBlue1: Color {
+        return Color("tangem_blue1")
     }
     
-    @nonobjc static var tangemTapBlue2: Color {
-        return Color("tangem_tap_blue2")
+    @nonobjc static var tangemBlue2: Color {
+        return Color("tangem_blue2")
     }
     
-    @nonobjc static var tangemTapBlue3: Color {
-        return Color("tangem_tap_blue3")
+    @nonobjc static var tangemBlue3: Color {
+        return Color("tangem_blue3")
     }
     
-    @nonobjc static var tangemTapCritical: Color {
-        return Color(.tangemTapCritical)
+    @nonobjc static var tangemCritical: Color {
+        return Color(.tangemCritical)
     }
     
     //MARK: Gray Dark
     
-    @nonobjc static var tangemTapGrayDark: Color {
-        return Color("tangem_tap_gray_dark")
+    @nonobjc static var tangemGrayDark: Color {
+        return Color("tangem_gray_dark")
     }
     
-    @nonobjc static var tangemTapGrayDark2: Color {
-        return Color("tangem_tap_gray_dark2")
+    @nonobjc static var tangemGrayDark2: Color {
+        return Color("tangem_gray_dark2")
     }
     
-    @nonobjc static var tangemTapGrayDark3: Color {
-        return Color("tangem_tap_gray_dark3")
+    @nonobjc static var tangemGrayDark3: Color {
+        return Color("tangem_gray_dark3")
     }
     
-    @nonobjc static var tangemTapGrayDark4: Color {
-        return Color("tangem_tap_gray_dark4")
+    @nonobjc static var tangemGrayDark4: Color {
+        return Color("tangem_gray_dark4")
     }
     
-    @nonobjc static var tangemTapGrayDark5: Color {
-        return Color("tangem_tap_gray_dark5")
+    @nonobjc static var tangemGrayDark5: Color {
+        return Color("tangem_gray_dark5")
     }
     
-    @nonobjc static var tangemTapGrayDark6: Color {
-        return Color("tangem_tap_gray_dark6")
+    @nonobjc static var tangemGrayDark6: Color {
+        return Color("tangem_gray_dark6")
     }
     
     //MARK: Gray Light
     
-    @nonobjc static var tangemTapGrayLight4: Color {
-        return Color("tangem_tap_gray_light4")
+    @nonobjc static var tangemGrayLight4: Color {
+        return Color("tangem_gray_light4")
     }
     
-    @nonobjc static var tangemTapGrayLight5: Color {
-        return Color("tangem_tap_gray_light5")
+    @nonobjc static var tangemGrayLight5: Color {
+        return Color("tangem_gray_light5")
     }
     
-    @nonobjc static var tangemTapGrayLight6: Color {
-        return Color("tangem_tap_gray_light6")
+    @nonobjc static var tangemGrayLight6: Color {
+        return Color("tangem_gray_light6")
     }
     
     //MARK: Background
     
-    @nonobjc static var tangemTapBgGray: Color {
-		return Color(.tangemTapBgGray)
+    @nonobjc static var tangemBgGray: Color {
+		return Color(.tangemBgGray)
     }
 	
-	@nonobjc static var tangemTapBgGray2: Color {
-		return Color(.tangemTapBgGray2)
+	@nonobjc static var tangemBgGray2: Color {
+		return Color(.tangemBgGray2)
 	}
     
-    @nonobjc static var tangemTapBg: Color {
-        return Color("tangem_tap_bg")
+    @nonobjc static var tangemBg: Color {
+        return Color("tangem_bg")
     }
     
     //MARK: Tints
     
-    @nonobjc static var tangemTapBlueLight: Color {
-        return Color("tangem_tap_blue_light")
+    @nonobjc static var tangemBlueLight: Color {
+        return Color("tangem_blue_light")
     }
 	
-	@nonobjc static var tangemTapBlueLight2: Color {
-		return Color("tangem_tap_blue_light2")
+	@nonobjc static var tangemBlueLight2: Color {
+		return Color("tangem_blue_light2")
 	}
 }
 
 extension UIColor {
     //MARK: Background
-    @nonobjc static var tangemTapBgGray: UIColor {
-        return UIColor(named: "tangem_tap_bg_gray")!
+    @nonobjc static var tangemBgGray: UIColor {
+        return UIColor(named: "tangem_bg_gray")!
     }
 	
-	@nonobjc static var tangemTapBgGray2: UIColor {
-		return UIColor(named: "tangem_tap_bg_gray2")!
+	@nonobjc static var tangemBgGray2: UIColor {
+		return UIColor(named: "tangem_bg_gray2")!
 	}
     
-    @nonobjc static var tangemTapGrayDark4: UIColor {
-        return UIColor(named: "tangem_tap_gray_dark4")!
+    @nonobjc static var tangemGrayDark4: UIColor {
+        return UIColor(named: "tangem_gray_dark4")!
        }
     
-    @nonobjc static var tangemTapGrayDark6: UIColor {
-        return UIColor(named: "tangem_tap_gray_dark6")!
+    @nonobjc static var tangemGrayDark6: UIColor {
+        return UIColor(named: "tangem_gray_dark6")!
        }
     
-    @nonobjc static var tangemTapBlue: UIColor {
-        return UIColor(named: "tangem_tap_blue")!
+    @nonobjc static var tangemBlue: UIColor {
+        return UIColor(named: "tangem_blue")!
     }
     
-    @nonobjc static var tangemTapGrayDark: UIColor {
-        return UIColor(named: "tangem_tap_gray_dark")!
+    @nonobjc static var tangemGrayDark: UIColor {
+        return UIColor(named: "tangem_gray_dark")!
     }
     
-    @nonobjc static var tangemTapCritical: UIColor {
-        UIColor(named: "tangem_tap_critical")!
+    @nonobjc static var tangemCritical: UIColor {
+        UIColor(named: "tangem_critical")!
     }
 }
 

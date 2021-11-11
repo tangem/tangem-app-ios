@@ -23,7 +23,7 @@ struct OnboardingMessagesView: View {
                 .multilineTextAlignment(.center)
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
-                .foregroundColor(.tangemTapGrayDark6)
+                .foregroundColor(.tangemGrayDark6)
                 .padding(.bottom, 14)
                 .onTapGesture {
                     // [REDACTED_TODO_COMMENT]
@@ -38,7 +38,7 @@ struct OnboardingMessagesView: View {
                 .multilineTextAlignment(.center)
                 .minimumScaleFactor(0.8)
                 .font(.system(size: 18, weight: .regular))
-                .foregroundColor(.tangemTapGrayDark6)
+                .foregroundColor(.tangemGrayDark6)
                 .frame(maxWidth: .infinity)
                 .transition(.opacity)
                 .id("onboarding_subtitle_\(subtitle)")

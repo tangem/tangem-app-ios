@@ -24,7 +24,7 @@ struct CounterView: View {
         }
         .padding(EdgeInsets(top: 2, leading: 5, bottom: 2, trailing: 5))
         .frame(minWidth: 40, minHeight: 24, maxHeight: 24)
-        .background(Color.tangemTapGrayDark5)
+        .background(Color.tangemGrayDark5)
         .cornerRadius(50)
     }
 }
@@ -46,7 +46,7 @@ struct WarningView: View {
                     Spacer()
                     Button(action: { buttonAction(.dismiss) }, label: {
                         Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.tangemTapGrayDark)
+                            .foregroundColor(.tangemGrayDark)
                             .frame(width: 26, height: 26)
                     })
                     .offset(x: 6)
@@ -91,7 +91,7 @@ struct WarningView: View {
                     })
                     .frame(height: 24)
                     if warningButtons.count > 1, item.offset < warningButtons.count - 1 {
-                        Color.tangemTapGrayDark5
+                        Color.tangemGrayDark5
                             .frame(width: 1, height: 16)
                             .padding(.horizontal, 30)
                     }
