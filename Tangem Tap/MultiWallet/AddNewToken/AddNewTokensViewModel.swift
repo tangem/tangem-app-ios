@@ -10,10 +10,12 @@ import Foundation
 import Combine
 import BlockchainSdk
 
-class AddNewTokensViewModel: ViewModel {
+class AddNewTokensViewModel: ViewModel, ObservableObject {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
     weak var tokenItemsRepository: TokenItemsRepository!
+    
+    @Published var enteredSearchText = ""
     
     var availableBlockchains: [Blockchain]  { get { tokenItemsRepository.supportedItems.blockchains(for: cardModel.cardInfo).sorted(by: { $0.displayName < $1.displayName }) } }
     
