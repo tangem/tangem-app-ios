@@ -35,7 +35,7 @@ struct CurrencySelectView: View {
                                     .foregroundColor(.tangemTapGrayDark6)
                                 Spacer()
                                 if self.viewModel.ratesService.selectedCurrencyCode == currency.symbol {
-                                    Image("checkmark.circle")
+                                    Image(systemName: "checkmark.circle")
                                         .font(.system(size: 18, weight: .regular, design: .default))
                                         .foregroundColor(Color.tangemTapGreen)
                                 }
