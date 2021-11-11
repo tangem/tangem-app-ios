@@ -1,5 +1,5 @@
 //
-//  Tangem_TapTests.swift
+//  TangemTests.swift
 //  TangemTests
 //
 //  Created by [REDACTED_AUTHOR]
@@ -7,9 +7,9 @@
 //
 
 import XCTest
-@testable import Tangem_Tap
+@testable import Tangem
 
-class Tangem_TapTests: XCTestCase {
+class TangemTests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
