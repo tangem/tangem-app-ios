@@ -45,7 +45,7 @@ extension Wallet {
             CircleImageTextView(name: token.name, color: token.color)
         } else {
             CircleImageTextView(name: blockchain.displayName,
-                            color: Color.tangemTapGrayLight4)
+                            color: Color.tangemGrayLight4)
         }
     }
 }
