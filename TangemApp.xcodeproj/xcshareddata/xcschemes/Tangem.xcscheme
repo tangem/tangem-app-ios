@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "5D3F77C124BF56D800E8695B"
-               BuildableName = "Tangem Tap.app"
-               BlueprintName = "Tangem Tap"
-               ReferencedContainer = "container:Tangem Tap.xcodeproj">
+               BuildableName = "Tangem.app"
+               BlueprintName = "Tangem"
+               ReferencedContainer = "container:TangemApp.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "5D3F77D724BF56DC00E8695B"
-               BuildableName = "Tangem TapTests.xctest"
-               BlueprintName = "Tangem TapTests"
-               ReferencedContainer = "container:Tangem Tap.xcodeproj">
+               BuildableName = "TangemTests.xctest"
+               BlueprintName = "TangemTests"
+               ReferencedContainer = "container:TangemApp.xcodeproj">
             </BuildableReference>
          </TestableReference>
          <TestableReference
@@ -43,9 +43,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "5D3F77E224BF56DC00E8695B"
-               BuildableName = "Tangem TapUITests.xctest"
-               BlueprintName = "Tangem TapUITests"
-               ReferencedContainer = "container:Tangem Tap.xcodeproj">
+               BuildableName = "TangemUITests.xctest"
+               BlueprintName = "TangemUITests"
+               ReferencedContainer = "container:TangemApp.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -65,9 +65,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "5D3F77C124BF56D800E8695B"
-            BuildableName = "Tangem Tap.app"
-            BlueprintName = "Tangem Tap"
-            ReferencedContainer = "container:Tangem Tap.xcodeproj">
+            BuildableName = "Tangem.app"
+            BlueprintName = "Tangem"
+            ReferencedContainer = "container:TangemApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
@@ -104,9 +104,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "5D3F77C124BF56D800E8695B"
-            BuildableName = "Tangem Tap.app"
-            BlueprintName = "Tangem Tap"
-            ReferencedContainer = "container:Tangem Tap.xcodeproj">
+            BuildableName = "Tangem.app"
+            BlueprintName = "Tangem"
+            ReferencedContainer = "container:TangemApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
