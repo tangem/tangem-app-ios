@@ -3,84 +3,126 @@
 //  Tangem Tap
 //
 //  Created by [REDACTED_AUTHOR]
-//  Copyright © 2020 Tangem AG. All rights reserved.
+//  Copyright © 2021 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
 
 struct DisclaimerView: View {
-    @ObservedObject var viewModel: DisclaimerViewModel
-    @EnvironmentObject var navigation: NavigationCoordinator
     
-    private let disclaimerTitle: LocalizedStringKey = "disclaimer_title"
-    
-    var navigationLinks: some View {
-        Group {
-            if viewModel.state == .accept { //prevent reuse shared navigation state
-                NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(isFromMain: false)),
-                               isActive: $navigation.disclaimerToTwinOnboarding)
-                  
-                NavigationLink(destination: MainView(viewModel: viewModel.assembly.makeMainViewModel()),
-                               isActive: $navigation.disclaimerToMain)
+    enum Style {
+        case sheet(acceptCallback: () -> Void), navbar
+        
+        var navbarTitle: LocalizedStringKey {
+            switch self {
+            case .sheet: return ""
+            case .navbar: return "disclaimer_title"
             }
-            
-            //https://forums.swift.org/t/14-5-beta3-navigationlink-unexpected-pop/45279
-            // Weird IOS 14.5/XCode 12.5 bug. Navigation link cause an immediate pop, if there are exactly 2 links presented
-            NavigationLink(destination: EmptyView()) {
-                EmptyView()
+        }
+        
+        var withHeaderStack: Bool {
+            switch self {
+            case .sheet: return true
+            case .navbar: return false
+            }
+        }
+        
+        var disclaimerTextTopPadding: CGFloat {
+            switch self {
+            case .sheet: return 0
+            case .navbar: return 16
+            }
+        }
+        
+        var navbarItemsHidden: Bool {
+            switch self {
+            case .navbar: return false
+            default: return true
+            }
+        }
+        
+        var isWithCloseButton: Bool {
+            switch self {
+            case .sheet: return false
+            case .navbar: return false
             }
         }
     }
     
-    var isNavBarHidden: Bool {
-        // prevent navbar glitches
-        if viewModel.state == .accept  && navigation.disclaimerToTwinOnboarding {
-            // hide navbar when navigate to twin onboarding
-           return true
-        }
-    
-        return false
-    }
+    let style: Style
+    let showAccept: Bool
+    @Environment(\.presentationMode) private var presentationMode
     
     var body: some View {
-        VStack(alignment: .trailing) {
-            ScrollView {
-                Text("disclaimer_text")
-                    .font(Font.system(size: 16, weight: .regular, design: .default))
-                    .foregroundColor(.tangemTapGrayDark2)
-                    .padding()
+        ZStack(alignment: .bottom) {
+            VStack(spacing: 0) {
+                if style.withHeaderStack {
+                    HStack {
+                        Text("disclaimer_title")
+                            .font(.system(size: 30, weight: .bold, design: .default))
+                            .foregroundColor(.tangemTapGrayDark6)
+                        Spacer()
+                        if style.isWithCloseButton {
+                            Button(action: { presentationMode.wrappedValue.dismiss() }, label: {
+                                Image(systemName: "xmark")
+                                    .resizable()
+                                    .foregroundColor(.tangemTapGrayDark4.opacity(0.6))
+                                    .frame(width: 11, height: 11)
+                            })
+                            .frame(width: 30, height: 30)
+                            .background(Color.tangemTapBgGray)
+                            .cornerRadius(15)
+                        }
+                    }
+                    .padding(EdgeInsets(top: 20, leading: 16, bottom: 20, trailing: 16))
+                }
+                ScrollView {
+                    Text("disclaimer_text")
+                        .font(Font.system(size: 16, weight: .regular, design: .default))
+                        .foregroundColor(.tangemTapGrayDark5)
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, showAccept ? 150 : 0)
+                        .padding(.top, style.disclaimerTextTopPadding)
+                }
+                .clipped()
             }
-            
-            if viewModel.state == .accept {
-                button
-                    .padding([.bottom, .trailing])
+            if showAccept {
+                TangemButton(title: "common_accept") {
+                    if case let .sheet(acceptCallback) = style {
+                        acceptCallback()
+                    }
+                }
+                .buttonStyle(TangemButtonStyle())
+                .background(
+                    LinearGradient(
+                        gradient: Gradient(stops: [
+                            .init(color: .white.opacity(0.2), location: 0.0),
+                            .init(color: .white, location: 0.5),
+                            .init(color: .white, location: 1.0)
+                        ]),
+                        startPoint: .top,
+                        endPoint: .bottom)
+                        .frame(size: CGSize(width: UIScreen.main.bounds.width, height: 135))
+                        .offset(y: -20)
+                )
+                .alignmentGuide(.bottom, computeValue: { dimension in
+                    dimension[.bottom] + 16
+                })
             }
-            
-            navigationLinks
         }
-        .foregroundColor(.tangemTapGrayDark6)
-        .navigationBarTitle("disclaimer_title")
-        .navigationBarBackButtonHidden(viewModel.state == .accept)
-        .navigationBarHidden(isNavBarHidden)
+        .navigationBarTitle(style.navbarTitle)
+        .navigationBarBackButtonHidden(style.navbarItemsHidden)
+        .navigationBarHidden(style.navbarItemsHidden)
     }
     
-    private var button: some View {
-        TangemLongButton(isLoading: false,
-                         title: "common_accept",
-                         image: "arrow.right") {
-            self.viewModel.accept()
-        }
-        .buttonStyle(TangemButtonStyle(color: .green))
-    }
 }
 
 struct DisclaimerView_Previews: PreviewProvider {
-    static let assembly = Assembly.previewAssembly
-    
     static var previews: some View {
-        DisclaimerView(viewModel: assembly.makeDisclaimerViewModel(with: .read))
-            .environmentObject(assembly.services.navigationCoordinator)
-            .deviceForPreviewZoomed(.iPhone7)
+        DisclaimerView(style: .sheet(acceptCallback: {}), showAccept: true)
+            .previewGroup(devices: [.iPhoneX, .iPhone8Plus], withZoomed: false)
+        NavigationView(content: {
+            DisclaimerView(style: .navbar, showAccept: true)
+        })
     }
 }
