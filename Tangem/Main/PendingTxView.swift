@@ -54,14 +54,14 @@ struct PendingTxView: View, Identifiable {
                             "arrow.right")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .foregroundColor(Color.tangemTapGrayDark6)
+                        .foregroundColor(Color.tangemGrayDark6)
                         .frame(width: 12.0, height: 12.0)
                         .padding(.trailing, 8)
                 }
                 
                 Text(text)
                     .font(Font.system(size: 13.0, weight: .medium, design: .default))
-                    .foregroundColor(Color.tangemTapGrayDark6)
+                    .foregroundColor(Color.tangemGrayDark6)
                     .lineLimit(1)
                 
                 Spacer(minLength: 0)
@@ -83,7 +83,7 @@ struct PendingTxView: View, Identifiable {
 struct PendingTxView_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
-            Color.tangemTapBgGray
+            Color.tangemBgGray
             VStack {
                 PendingTxView(pendingTx: PendingTransaction(amountType: .coin, destination: "0x2314719083467891237649123675478612354", transferAmount: "0.0000000002 BTC", canBePushed: false, direction: .incoming))
                 PendingTxView(pendingTx: PendingTransaction(amountType: .coin, destination: "0x2314719083467891237649123675478612354", transferAmount: "0.2 BTC", canBePushed: false, direction: .outgoing))

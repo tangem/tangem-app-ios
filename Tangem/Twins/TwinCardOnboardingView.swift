@@ -98,7 +98,7 @@
 //            }
 //        }
 //        .edgesIgnoringSafeArea(.top)
-//        .background(Color(.tangemTapBgGray2).edgesIgnoringSafeArea(.all))
+//        .background(Color(.tangemBgGray2).edgesIgnoringSafeArea(.all))
 //        .navigationBarBackButtonHidden(true)
 //        .onAppear {
 //            if #available(iOS 14.0, *) {} else {
@@ -137,7 +137,7 @@
 //                        .font(.system(size: 15, weight: .medium))
 //                        .fixedSize(horizontal: false, vertical: true)
 //                    Text(String(format: "twins_onboarding_description_format".localized, pairCid))
-//                        .foregroundColor(.tangemTapGrayDark3)
+//                        .foregroundColor(.tangemGrayDark3)
 //                        .fixedSize(horizontal: false, vertical: true)
 //                }
 //                .font(.system(size: 13, weight: .regular))
@@ -170,7 +170,7 @@
 //                }
 //                
 //                Text(isRecreating ? "details_twins_recreate_warning" : "details_twins_create_warning")
-//                    .foregroundColor(.tangemTapGrayDark3)
+//                    .foregroundColor(.tangemGrayDark3)
 //                    .font(.system(size: 13, weight: .regular))
 //                    .lineSpacing(6)
 //                    .fixedSize(horizontal: false, vertical: true)
