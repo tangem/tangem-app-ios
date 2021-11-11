@@ -140,7 +140,7 @@ struct CustomTextField: UIViewRepresentable {
         toolbarItems = [UIBarButtonItem(barButtonSystemItem: .flexibleSpace,
                                          target: nil,
                                          action: nil),
-                         UIBarButtonItem(image: UIImage(named: "keyboard.chevron.compact.down"),
+                         UIBarButtonItem(image: UIImage(systemName: "keyboard.chevron.compact.down"),
                                          style: .plain,
                                          target: context.coordinator,
                                          action: #selector(context.coordinator.hideKeyboard))]
