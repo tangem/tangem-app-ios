@@ -1,5 +1,5 @@
 //
-//  CardIdFormatter.swift
+//  AppCardIdFormatter.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import TangemSdk
 
-struct TapCardIdFormatter {
+struct AppCardIdFormatter {
     let cid: String
 
     func formatted() -> String {
@@ -24,7 +24,7 @@ struct TapCardIdFormatter {
     }
 }
 
-struct TapTwinCardIdFormatter {
+struct AppTwinCardIdFormatter {
     static func format(cid: String, cardNumber: Int?) -> String {
         String(cid.dropLast().suffix(4)) + (cardNumber != nil ? " #\(cardNumber!)" : "")
     }
