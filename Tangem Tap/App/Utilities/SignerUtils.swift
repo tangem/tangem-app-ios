@@ -19,6 +19,10 @@ struct SignerUtils {
     static func signerKeys(for issuer: String) -> KeyPair? {
         return issuers.first(where: {$0.id.lowercased() == issuer.lowercased()})
     }
+    
+    static func signerKeys(for publicKey: Data) -> KeyPair? {
+        return issuers.first(where: {$0.publicKey == publicKey})
+    }
 }
 
 struct KeyPair: Equatable, Codable {
