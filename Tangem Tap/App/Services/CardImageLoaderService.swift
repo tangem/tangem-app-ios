@@ -21,7 +21,7 @@ class CardImageLoaderService {
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = 10
         configuration.timeoutIntervalForResource = 30
-        configuration.requestCachePolicy = .returnCacheDataDontLoad
+        configuration.requestCachePolicy = .returnCacheDataElseLoad
         return configuration
     }
     
@@ -32,15 +32,19 @@ class CardImageLoaderService {
     }
     
     func loadImage(cid: String, cardPublicKey: Data, artworkInfo: ArtworkInfo?) -> AnyPublisher<ImageResponse, Never> {
-        let prefix = String(cid.prefix(4))
+        let prefix = String(cid.prefix(4)).uppercased()
         
         if let series = TwinCardSeries.allCases.first(where: { prefix.elementsEqual($0.rawValue.uppercased()) }) {
-            return loadImage(image: series.number == 1 ? .twinCardOne : .twinCardTwo)
+            return loadTwinImageWithError(for: series.number)
                 .map { ($0, true) }
                 .replaceError(with: (defaultImage, false))
                 .eraseToAnyPublisher()
         }
         
+        if prefix == "AC01" { //wallet
+            return Just(( UIImage(named: "wallet_card")!, true)).eraseToAnyPublisher()
+        }
+           
         guard let artworkId = artworkInfo?.id else {
             return Just((defaultImage, false)).eraseToAnyPublisher()
         }
@@ -68,8 +72,8 @@ class CardImageLoaderService {
             .eraseToAnyPublisher()
     }
     
-    func loadImage(_ image: ConstantImage) -> AnyPublisher<UIImage, Never> {
-        loadImage(image: image)
+    func loadTwinImage(for number: Int) -> AnyPublisher<UIImage, Never> {
+        loadTwinImageWithError(for: number)
             .replaceError(with: defaultImage)
             .eraseToAnyPublisher()
     }
@@ -84,7 +88,12 @@ class CardImageLoaderService {
             .eraseToAnyPublisher()
     }
     
-    private func loadImage(image: ConstantImage) -> AnyPublisher<UIImage, Error> {
+    private func loadTwinImageWithError(for number: Int) -> AnyPublisher<UIImage, Error> {
+        let image: ConstantImage = number == 1 ? .twinCardOne : .twinCardTwo
+        return loadImage(image)
+    }
+    
+    private func loadImage(_ image: ConstantImage) -> AnyPublisher<UIImage, Error> {
         loadImage(by: image.rawValue)
     }
     
@@ -153,7 +162,8 @@ extension CardImageLoaderService {
         }
     }
 }
-extension CardImageLoaderService {
+
+fileprivate extension CardImageLoaderService {
     enum ConstantImage: String {
         case twinCardOne = "card_tg085"
         case twinCardTwo = "card_tg086"
@@ -166,7 +176,7 @@ fileprivate enum ImageError: Error {
     case badNdef
 }
 
-
+//can't move it out from here due to compile error
 extension Publisher where Output == String {
     func replaceEmptyString(with error: Error) -> AnyPublisher<String, Error> {
         tryMap { string -> String in
