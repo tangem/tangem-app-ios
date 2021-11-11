@@ -16,7 +16,6 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     weak var navigation: NavigationCoordinator!
     weak var cardsRepository: CardsRepository!
     weak var stepsSetupService: OnboardingStepsSetupService!
-    weak var imageLoaderService: CardImageLoaderService!
     weak var userPrefsService: UserPrefsService!
     weak var backupService: BackupService!
     weak var failedCardScanTracker: FailedCardScanTracker!
@@ -152,7 +151,6 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
                 
                 let input = OnboardingInput(steps: steps,
                                             cardModel: .cardId(originCardId),
-                                            cardImage: nil,
                                             cardsPosition: nil,
                                             welcomeStep: nil,
                                             currentStepIndex: 0,
@@ -180,7 +178,6 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
             } receiveValue: { [unowned self] steps in
                 let input = OnboardingInput(steps: steps,
                                             cardModel: .cardModel(cardModel),
-                                            cardImage: nil,
                                             cardsPosition: (darkCardSettings, lightCardSettings),
                                             welcomeStep: .welcome,
                                             currentStepIndex: 0,
