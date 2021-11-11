@@ -77,7 +77,7 @@
 //    func scan(with batch: String, _ completion: @escaping (Result<ScanResult, Error>) -> Void) {
 //        Analytics.log(event: .readyToScan)
 //        tangemSdk.config = assembly.sdkConfig
-//        tangemSdk.startSession(with: TapScanTask(targetBatch: batch)) {[unowned self] result in
+//        tangemSdk.startSession(with: AppScanTask(targetBatch: batch)) {[unowned self] result in
 //            switch result {
 //            case .failure(let error):
 //                Analytics.log(error: error)
