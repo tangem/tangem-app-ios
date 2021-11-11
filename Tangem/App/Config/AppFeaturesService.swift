@@ -12,7 +12,7 @@ import TangemSdk
 class AppFeaturesService {
 	
     private let configProvider: FeaturesConfigProvider
-	private var features = AppFeatures.all
+    private var features: Set<AppFeature> = .all
     
     init(configProvider: FeaturesConfigProvider) {
         self.configProvider = configProvider
@@ -26,12 +26,12 @@ class AppFeaturesService {
 		features = getFeatures(for: card)
 	}
     
-    private func getFeatures(for card: Card) -> AppFeatures {
+    private func getFeatures(for card: Card) -> Set<AppFeature> {
         if card.isStart2Coin {
             return .none
         }
         
-		var features = AppFeatures.all
+		var features =  Set<AppFeature>.all
         let configFeatures = configProvider.features
 		
         if card.isTwinCard ||
