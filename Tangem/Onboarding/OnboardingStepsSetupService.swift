@@ -86,7 +86,7 @@ class OnboardingStepsSetupService {
         
         if !userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId) {
             if !self.userPrefs.isTwinCardOnboardingWasDisplayed {
-                let twinPairCid = TapTwinCardIdFormatter.format(cid:"", cardNumber: twinCardInfo.series.pair.number)
+                let twinPairCid = AppTwinCardIdFormatter.format(cid:"", cardNumber: twinCardInfo.series.pair.number)
                 steps.append(.intro(pairNumber: "\(twinPairCid)"))
             }
             
