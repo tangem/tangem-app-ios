@@ -206,7 +206,6 @@ class DetailsViewModel: ViewModel, ObservableObject {
             
             let input = OnboardingInput(steps: steps,
                                         cardModel: .cardModel(self.cardModel),
-                                        cardImage: nil,
                                         cardsPosition: nil,
                                         welcomeStep: nil,
                                         currentStepIndex: 0,
@@ -235,7 +234,6 @@ class DetailsViewModel: ViewModel, ObservableObject {
             
             let input = OnboardingInput(steps: steps,
                                         cardModel: .cardModel(self.cardModel),
-                                        cardImage: nil,
                                         cardsPosition: nil,
                                         welcomeStep: nil,
                                         currentStepIndex: 0,
