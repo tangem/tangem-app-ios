@@ -27,6 +27,9 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
     @Published var supplementCardSettings: AnimatedViewSettings = .zero
     @Published var isNavBarVisible: Bool = false
     @Published var alert: AlertBinder?
+    @Published var cardImage: UIImage?
+    
+    var bag: Set<AnyCancellable> = []
     
     var currentStep: Step {
         if currentStepIndex >= steps.count {
@@ -140,6 +143,15 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
             isInitialAnimPlayed = true
             isNavBarVisible = true
         }
+        
+        input.cardModel.cardModel.map { loadImage(for: $0) }
+    }
+    
+    private func loadImage(for cardModel: CardViewModel) {
+        cardModel
+            .imageLoaderPublisher
+            .weakAssign(to: \.cardImage, on: self)
+            .store(in: &bag)
     }
     
     func setupContainer(with size: CGSize) {
