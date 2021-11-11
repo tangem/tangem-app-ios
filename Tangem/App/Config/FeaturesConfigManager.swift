@@ -10,14 +10,14 @@ import Foundation
 import FirebaseRemoteConfig
 
 protocol RemoteWarningProvider {
-    var warnings: [TapWarning] { get }
+    var warnings: [AppWarning] { get }
 }
 
 protocol FeaturesConfigProvider {
-    var features: TapFeatures { get }
+    var features: AppFeatures { get }
 }
 
-struct TapFeatures: Decodable {
+struct AppFeatures: Decodable {
     let isWalletPayIdEnabled: Bool
     let isSendingToPayIdEnabled: Bool
     let isTopUpEnabled: Bool
@@ -30,8 +30,8 @@ class FeaturesConfigManager: RemoteWarningProvider, FeaturesConfigProvider {
     
     private let config: RemoteConfig
     
-    private(set) var features: TapFeatures
-    private(set) var warnings: [TapWarning] = []
+    private(set) var features: AppFeatures
+    private(set) var warnings: [AppWarning] = []
     
     init() throws {
         config = RemoteConfig.remoteConfig()
@@ -43,7 +43,7 @@ class FeaturesConfigManager: RemoteWarningProvider, FeaturesConfigProvider {
         settings.minimumFetchInterval = 1200
         #endif
         config.configSettings = settings
-        features = try JsonUtils.readBundleFile(with: featuresFileName, type: TapFeatures.self)
+        features = try JsonUtils.readBundleFile(with: featuresFileName, type: AppFeatures.self)
         fetch()
     }
     
@@ -57,7 +57,7 @@ class FeaturesConfigManager: RemoteWarningProvider, FeaturesConfigProvider {
     }
 
 //    private func setupFeatures() {
-//        if let features = FirebaseJsonConfigFetcher.fetch(from: config, type: TapFeatures.self, withKey: .features) {
+//        if let features = FirebaseJsonConfigFetcher.fetch(from: config, type: AppFeatures.self, withKey: .features) {
 //            print("Features config from Firebase successflly parsed")
 //            self.features = features
 //        }
@@ -65,10 +65,10 @@ class FeaturesConfigManager: RemoteWarningProvider, FeaturesConfigProvider {
 //    }
 
     private func setupWarnings() {
-        guard let warnings = FirebaseJsonConfigFetcher.fetch(from: config, type: [RemoteTapWarning].self, withKey: .warnings) else {
+        guard let warnings = FirebaseJsonConfigFetcher.fetch(from: config, type: [RemoteAppWarning].self, withKey: .warnings) else {
             return
         }
 
-        self.warnings = TapWarning.fetch(remote: warnings)
+        self.warnings = AppWarning.fetch(remote: warnings)
     }
 }
