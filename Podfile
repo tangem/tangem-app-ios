@@ -1,6 +1,6 @@
 # Uncomment the next line to define a global platform for your project
 platform :ios, '13.0'
-project 'Tangem Tap.xcodeproj'
+project 'TangemApp.xcodeproj'
 
 def common_pods
    pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'backup-beta-20'
@@ -9,14 +9,14 @@ def common_pods
 end
 
 
-target 'Tangem Tap' do
+target 'Tangem' do
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
   inhibit_all_warnings!
 
   common_pods
   
-  # Pods for Tangem Tap
+  # Pods for Tangem
   pod 'AnyCodable-FlightSchool'
   
   pod 'BinanceChain', :git => 'https://github.com/lazutkin-andrey/swiftbinancechain.git', :tag => '0.0.8'
@@ -43,12 +43,12 @@ target 'Tangem Tap' do
   pod 'DeviceGuru'
   pod 'Kingfisher', :git => 'https://github.com/onevcat/Kingfisher.git', :branch => 'version6-xcode13'
   pod 'stellar-ios-mac-sdk'
-  target 'Tangem TapTests' do
+  target 'TangemTests' do
     inherit! :search_paths
     # Pods for testing
   end
 
-  target 'Tangem TapUITests' do
+  target 'TangemUITests' do
     # Pods for testing
   end
 
