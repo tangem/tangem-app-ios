@@ -105,8 +105,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         return settings
     }
     
-    
-    private var bag: Set<AnyCancellable> = []
     private var stackCalculator: StackCalculator = .init()
     private var twinInfo: TwinCardInfo
     private var stepUpdatesSubscription: AnyCancellable?
@@ -145,7 +143,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         
         twinsService.setupTwins(for: twinInfo)
         bind()
-        loadImages()
+        loadSecondTwinImage()
     }
     
     override func setupContainer(with size: CGSize) {
@@ -313,15 +311,15 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
             })
     }
     
-    private func loadImages() {
-        imageLoaderService.loadImage(.twinCardOne)
-            .zip(imageLoaderService.loadImage(.twinCardTwo))
+    private func loadSecondTwinImage() {
+        imageLoaderService.loadTwinImage(for: twinInfo.series.pair.number)
+            .zip($cardImage.compactMap { $0 })
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] (first, second) in
+            .sink { [weak self] (paired, main) in
                 guard let self = self else { return }
                 
-                self.firstTwinImage = self.twinInfo.series.number == 1 ? first : second
-                self.secondTwinImage = self.twinInfo.series.number == 1 ? second : first
+                self.firstTwinImage = main
+                self.secondTwinImage = paired
                 //            withAnimation {
                 //                self.displayTwinImages = true
                 //            }
