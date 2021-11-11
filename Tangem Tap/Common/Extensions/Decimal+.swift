@@ -13,6 +13,7 @@ extension Decimal {
         let formatter = NumberFormatter()
         formatter.locale = Locale.current
         formatter.numberStyle = .currency
+        formatter.usesGroupingSeparator = true
         formatter.currencyCode = code
         formatter.roundingMode = .down 
         return formatter.string(from: self as NSDecimalNumber) ?? "\(self) \(code)"

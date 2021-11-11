@@ -12,7 +12,7 @@ import SwiftUI
 import BlockchainSdk
 import TangemSdk
 
-class MainViewModel: ViewModel {
+class MainViewModel: ViewModel, ObservableObject {
     // MARK: Dependencies -
     weak var imageLoaderService: CardImageLoaderService!
     weak var exchangeService: ExchangeService!
@@ -24,6 +24,7 @@ class MainViewModel: ViewModel {
     weak var assembly: Assembly!
     weak var negativeFeedbackDataCollector: NegativeFeedbackDataCollector!
     weak var failedCardScanTracker: FailedCardScanTracker!
+    weak var cardOnboardingStepSetupService: OnboardingStepsSetupService!
     
     //MARK: - Published variables
     
@@ -45,6 +46,7 @@ class MainViewModel: ViewModel {
     }
     @Published var emailFeedbackCase: EmailFeedbackCase? = nil
     @Published var txIndexToPush: Int? = nil
+    @Published var isOnboardingModal: Bool = true
     
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
@@ -70,6 +72,7 @@ class MainViewModel: ViewModel {
     
     private var bag = Set<AnyCancellable>()
     private var isHashesCounted = false
+    private var isProcessingNewCard = false
     
     public var canCreateTwinWallet: Bool {
         if isTwinCard {
@@ -143,14 +146,17 @@ class MainViewModel: ViewModel {
             }
             
             return exchangeService.getBuyUrl(currencySymbol: wallet.blockchain.currencySymbol,
-                                          walletAddress: wallet.address)
+                                             blockchain: wallet.blockchain,
+                                             walletAddress: wallet.address)
         }
         return nil
     }
     
     var sellCryptoURL: URL? {
         if let wallet = wallets?.first {
-            return exchangeService.getSellUrl(currencySymbol: wallet.blockchain.currencySymbol, walletAddress: wallet.address)
+            return exchangeService.getSellUrl(currencySymbol: wallet.blockchain.currencySymbol,
+                                              blockchain: wallet.blockchain,
+                                              walletAddress: wallet.address)
         }
         
         return nil
@@ -179,7 +185,7 @@ class MainViewModel: ViewModel {
     }
 	
 	var cardNumber: Int? {
-		cardModel?.cardInfo.twinCardInfo?.series?.number
+		cardModel?.cardInfo.twinCardInfo?.series.number
 	}
 	
 	var isTwinCard: Bool {
@@ -192,37 +198,10 @@ class MainViewModel: ViewModel {
         
         return walletModels
             .flatMap ({ $0.tokenItemViewModels })
-            .sorted(by: { lhs, rhs in
-                if lhs.blockchain == cardModel.cardInfo.defaultBlockchain && rhs.blockchain == cardModel.cardInfo.defaultBlockchain {
-                    if lhs.amountType.isToken && rhs.amountType.isToken {
-                        if lhs.amountType.token == cardModel.cardInfo.defaultToken {
-                            return true
-                        }
-
-                        if rhs.amountType.token == cardModel.cardInfo.defaultToken {
-                            return false
-                        }
-                    }
-
-                    if !lhs.amountType.isToken {
-                        return true
-                    }
-
-                    if !rhs.amountType.isToken {
-                        return false
-                    }
-                }
-
-                if lhs.blockchain == cardModel.cardInfo.defaultBlockchain {
-                   return true
-                }
-
-                if rhs.blockchain == cardModel.cardInfo.defaultBlockchain {
-                    return false
-                }
-
-                return lhs < rhs
-            })
+    }
+    
+    var qrMessage: String {
+        return self.cardModel?.walletModels?.first?.getQRReceiveMessage() ?? ""
     }
     
     deinit {
@@ -236,7 +215,7 @@ class MainViewModel: ViewModel {
             .flatMap {$0.objectWillChange }
             .receive(on: RunLoop.main)
             .sink { [unowned self] in
-                print("‼️ Card model will change")
+                print("⚠️ Card model will change")
                 self.objectWillChange.send()
             }
             .store(in: &bag)
@@ -253,41 +232,29 @@ class MainViewModel: ViewModel {
                 self.checkPositiveBalance()
             }
             .store(in: &bag)
-        
     
+        
         $state
             .compactMap { $0.cardModel }
-            .flatMap { $0.$cardInfo }
-            .map { $0.imageLoadDTO }
-            .removeDuplicates()
-            .setFailureType(to: Error.self)
-            .flatMap {[unowned self] info in
-                self.imageLoaderService
-                    .loadImage(cid: info.cardId,
-                               cardPublicKey: info.cardPublicKey,
-                               artworkInfo: info.artwotkInfo)
-            }
-            .receive(on: RunLoop.main)
-            .sink(receiveCompletion: { completion in
-                    switch completion {
-                    case .failure(let error):
-                        Analytics.log(error: error)
-                        print(error.localizedDescription)
-                    case .finished:
-                        break
-                    }}){ [unowned self] image in
-                print(image)
-                self.image = image
-            }
+            .flatMap { $0.imageLoaderPublisher }
+            .weakAssignAnimated(to: \.image, on: self)
             .store(in: &bag)
         
-        $state
-            .compactMap { $0.cardModel }
-            .flatMap { $0.$state }
-            .receive(on: RunLoop.main)
-            .sink { [unowned self] state in
-                print("🌀 Card model state updated")
-                self.fetchWarnings()
+//        $state
+//            .compactMap { $0.cardModel }
+//            .receive(on: RunLoop.main)
+//            .sink { [unowned self] model in
+//                print("⚠️ Card model updated")
+//                assembly.services.warningsService.setupWarnings(for: model.cardInfo)
+//            }
+//            .store(in: &bag)
+        
+        warningsManager.warningsUpdatePublisher
+            .sink { [unowned self] (locationUpdate) in
+                if case .main = locationUpdate {
+                    print("⚠️ Main view model fetching warnings")
+                    self.warnings = self.warningsManager.warnings(for: .main)
+                }
             }
             .store(in: &bag)
         
@@ -307,22 +274,24 @@ class MainViewModel: ViewModel {
             .store(in: &bag)
     
         $state
-            .filter { $0.cardModel != nil }
-            .sink {[unowned  self] _ in
-                print("✅ Receive new card model")
+            .compactMap { $0.cardModel }
+            .sink {[unowned  self] model in
+                print("⚠️ Receive new card model")
                 self.selectedAddressIndex = 0
                 self.isHashesCounted = false
                 self.assembly.reset()
-                if !self.showTwinCardOnboardingIfNeeded() {
-                    self.showUntrustedDisclaimerIfNeeded()
-                }
+                self.assembly.services.warningsService.setupWarnings(for: model.cardInfo)
+//                if !self.showTwinCardOnboardingIfNeeded() {
+                    self.countHashes()
+//                }
             }
             .store(in: &bag)
         
         $isRefreshing
+            .dropFirst()
             .removeDuplicates()
             .filter { $0 }
-            .sink{ [unowned self] _ in
+            .sink{ [unowned self] value in
                 if let cardModel = self.cardModel, cardModel.state.canUpdate, cardModel.walletModels?.count ?? 0 > 0 {
                     cardModel.update()
                 } else {
@@ -335,48 +304,36 @@ class MainViewModel: ViewModel {
                 
             }
             .store(in: &bag)
-        
-        warningsManager.warningsUpdatePublisher
-            .sink { [weak self] (locationUpdate) in
-                if case .main = locationUpdate {
-                    self?.fetchWarnings()
-                }
-            }
-            .store(in: &bag)
     }
     
-    // MARK: Scan
-    func scan() {
-        self.isScanning = true
-        cardsRepository.scan { [weak self] scanResult in
-			guard let self = self else { return }
-            switch scanResult {
-            case .success(let state):
-                self.state = state
-                self.failedCardScanTracker.resetCounter()
-            case .failure(let error):
-                self.failedCardScanTracker.recordFailure()
-                
-                if self.failedCardScanTracker.shouldDisplayAlert {
-                    self.navigation.mainToTroubleshootingScan = true
-                } else {
-                    switch error.toTangemSdkError() {
-                    case .unknownError, .cardVerificationFailed:
-                        self.setError(error.alertBinder)
-                    default:
-                        break
-                    }
-                }
-            }
-            self.isScanning = false
-        }
-    }
-    
-    func fetchWarnings() {
-        print("⚠️ Main view model fetching warnings")
-        self.warnings = self.warningsManager.warnings(for: .main)
-    }
-    
+    // MARK: - Scan
+//    func scan() {
+//        self.isScanning = true
+//        cardsRepository.scan { [weak self] scanResult in
+//			guard let self = self else { return }
+//            switch scanResult {
+//            case .success(let result):
+//                self.processScannedCard(result)
+//                self.failedCardScanTracker.resetCounter()
+//            case .failure(let error):
+//                self.failedCardScanTracker.recordFailure()
+//
+//                if self.failedCardScanTracker.shouldDisplayAlert {
+//                    self.navigation.mainToTroubleshootingScan = true
+//                } else {
+//                    switch error.toTangemSdkError() {
+//                    case .unknownError, .cardVerificationFailed:
+//                        self.setError(error.alertBinder)
+//                    default:
+//                        break
+//                    }
+//                }
+//                self.isScanning = false
+//            }
+//
+//        }
+//    }
+
     func createWallet() {
         guard let cardModel = cardModel else {
             return
@@ -389,11 +346,11 @@ class MainViewModel: ViewModel {
                                                  primaryButton: .cancel(),
                                                  secondaryButton: .destructive(Text("I understand, continue anyway")) { [weak self] in
                                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                                        self?.navigation.mainToTwinsWalletWarning = true
+                                                        self?.prepareTwinOnboarding()
                                                     }
                                                  }))
             } else {
-                navigation.mainToTwinsWalletWarning = true
+                prepareTwinOnboarding()
             }
 		} else {
 			self.isCreatingWallet = true
@@ -433,7 +390,7 @@ class MainViewModel: ViewModel {
         navigation.mainToSend = true
     }
     
-    func showUntrustedDisclaimerIfNeeded() {
+    func countHashes() {
         guard let card = state.card else {
             return
         }
@@ -502,7 +459,7 @@ class MainViewModel: ViewModel {
         
         guard
             cardInfo.isTestnet,
-            !cardInfo.card.isMultiWallet,
+            !cardInfo.isMultiWallet,
             let walletModel = cardModel?.walletModels?.first,
             let token = walletModel.tokenItemViewModels.first?.amountType.token,
             case .ethereum(testnet: true) = token.blockchain
@@ -543,8 +500,96 @@ class MainViewModel: ViewModel {
             break
         }
     }
+    
+    func onboardingDismissed() {
+        
+    }
+    
+    func prepareTwinOnboarding() {
+        guard let cardModel = self.cardModel else { return }
+
+        cardOnboardingStepSetupService!.twinRecreationSteps(for: cardModel.cardInfo)
+            .sink { completion in
+            switch completion {
+            case .failure(let error):
+                Analytics.log(error: error)
+                print("Failed to load image for new card")
+                self.error = error.alertBinder
+            case .finished:
+                break
+            }
+        } receiveValue: { [weak self] steps in
+            guard let self = self else { return }
+
+            let input = OnboardingInput(steps: steps,
+                                        cardModel: cardModel,
+                                        cardImage:  self.image,
+                                        cardsPosition: nil,
+                                        welcomeStep: nil,
+                                        currentStepIndex: 0,
+                                        successCallback: { [weak self] in
+                                            self?.navigation.mainToCardOnboarding = false
+                                        })
+            self.assembly.makeCardOnboardingViewModel(with: input)
+            self.navigation.mainToCardOnboarding = true
+        }
+        .store(in: &bag)
+    }
 
     // MARK: - Private functions
+    
+//    private func processScannedCard(_ result: ScanResult) {
+//        func updateState() {
+//            state = result
+//            isScanning = false
+//            navigation.mainToCardOnboarding = false
+//            isProcessingNewCard = false
+//            isOnboardingModal = false
+//        }
+//
+//        guard
+//            let cardModel = result.cardModel
+////            cardsRepository.scannedCardsRepository.cards[cardModel.cardInfo.card.cardId] == nil
+//        else {
+//            updateState()
+//            return
+//        }
+//
+//        isProcessingNewCard = true
+//
+//        cardOnboardingStepSetupService
+//            .stepsWithCardImage(for: cardModel)
+//            .sink { completion in
+//                switch completion {
+//                case .failure(let error):
+//                    Analytics.log(error: error)
+//                    print("Failed to load image for new card")
+//                    self.isScanning = false
+//                    self.error = error.alertBinder
+//                case .finished:
+//                    break
+//                }
+//            } receiveValue: { [weak self] (steps, image) in
+//                guard let self = self else { return }
+//
+//                guard steps.needOnboarding else {
+//                    updateState()
+//                    return
+//                }
+//
+//                let input = OnboardingInput(steps: steps,
+//                                                cardModel: cardModel,
+//                                                cardImage: image,
+//                                                cardsPosition: nil,
+//                                                welcomeStep: nil,
+//                                                currentStepIndex: 0,
+//                                                successCallback: updateState)
+//                self.assembly.makeCardOnboardingViewModel(with: input)
+//                self.navigation.mainToCardOnboarding = true
+//                self.isScanning = false
+//            }
+//            .store(in: &bag)
+//    }
     
     private func checkPositiveBalance() {
         guard rateAppController.shouldCheckBalanceForRateApp else { return }
@@ -555,16 +600,17 @@ class MainViewModel: ViewModel {
     }
 	
 	private func validateHashesCount() {
-        guard let card = state.card else { return }
+        guard let cardInfo = state.cardModel?.cardInfo else { return }
         
+        let card = cardInfo.card
         guard cardModel?.hasWallet ?? false else {
-            card.isMultiWallet ? warningsManager.hideWarning(for: .multiWalletSignedHashes) : warningsManager.hideWarning(for: .numberOfSignedHashesIncorrect)
+            cardInfo.isMultiWallet ? warningsManager.hideWarning(for: .multiWalletSignedHashes) : warningsManager.hideWarning(for: .numberOfSignedHashesIncorrect)
             return
         }
         
         if isHashesCounted { return }
         
-		if card.isTwinCard { return }
+        if card.isTwinCard { return }
 
         if validatedSignedHashesCards.contains(card.cardId) { return }
         
@@ -576,6 +622,7 @@ class MainViewModel: ViewModel {
             } else {
                 validatedSignedHashesCards.append(card.cardId)
             }
+            print("⚠️ Hashes counted")
             return
         }
 		
@@ -616,14 +663,14 @@ class MainViewModel: ViewModel {
             .store(in: &bag)
 	}
 		
-	private func showTwinCardOnboardingIfNeeded() -> Bool {
-		guard let model = cardModel, model.isTwinCard else { return false }
-		
-		if userPrefsService.isTwinCardOnboardingWasDisplayed { return false }
-		
-		navigation.mainToTwinOnboarding = true
-		return true
-	}
+//	private func showTwinCardOnboardingIfNeeded() -> Bool {
+//		guard let model = cardModel, model.isTwinCard else { return false }
+//
+//		if userPrefsService.isTwinCardOnboardingWasDisplayed { return false }
+//
+//		navigation.mainToTwinOnboarding = true
+//		return true
+//	}
     
     private func setError(_ error: AlertBinder?)  {
         if self.error != nil {
