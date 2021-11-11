@@ -43,7 +43,6 @@ extension Assembly {
         let vm = WelcomeOnboardingViewModel(successCallback: callback)
         initialize(vm, isResetable: false)
         vm.cardsRepository = services.cardsRepository
-        vm.imageLoaderService = services.imageLoaderService
         vm.stepsSetupService = services.onboardingStepsSetupService
         vm.userPrefsService = services.userPrefsService
         vm.failedCardScanTracker = services.failedCardScanTracker
@@ -93,7 +92,6 @@ extension Assembly {
         vm.stepsSetupService = services.onboardingStepsSetupService
         vm.userPrefsService = services.userPrefsService
         vm.exchangeService = services.exchangeService
-        vm.imageLoaderService = services.imageLoaderService
         
         return vm
     }
@@ -181,7 +179,6 @@ extension Assembly {
         let vm =  MainViewModel()
         initialize(vm, isResetable: false)
         vm.cardsRepository = services.cardsRepository
-        vm.imageLoaderService = services.imageLoaderService
         vm.exchangeService = services.exchangeService
         vm.userPrefsService = services.userPrefsService
         vm.warningsManager = services.warningsService
