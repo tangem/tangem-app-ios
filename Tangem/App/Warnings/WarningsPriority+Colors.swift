@@ -11,15 +11,15 @@ import SwiftUI
 extension WarningPriority {
     var backgroundColor: Color {
         switch self {
-        case .info: return .tangemTapGrayDark6
-        case .warning: return .tangemTapWarning
-        case .critical: return .tangemTapCritical
+        case .info: return .tangemGrayDark6
+        case .warning: return .tangemWarning
+        case .critical: return .tangemCritical
         }
     }
     
     var messageColor: Color {
         switch self {
-        case .info: return .tangemTapGrayDark
+        case .info: return .tangemGrayDark
         default: return .white
         }
     }
