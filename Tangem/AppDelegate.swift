@@ -35,11 +35,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
-        UISwitch.appearance().onTintColor = .tangemTapBlue
+        UISwitch.appearance().onTintColor = .tangemBlue
         UITableView.appearance().backgroundColor = .clear
         UINavigationBar.appearance().shadowImage = UIImage()
-        UINavigationBar.appearance().barTintColor = UIColor.tangemTapBgGray
-        UINavigationBar.appearance().tintColor = UIColor.tangemTapGrayDark6
+        UINavigationBar.appearance().barTintColor = UIColor.tangemBgGray
+        UINavigationBar.appearance().tintColor = UIColor.tangemGrayDark6
         
         
         
