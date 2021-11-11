@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-class CurrencySelectViewModel: ViewModel {
+class CurrencySelectViewModel: ViewModel, ObservableObject {
     weak var assembly: Assembly!
     weak var ratesService: CoinMarketCapService!
     weak var navigation: NavigationCoordinator!
