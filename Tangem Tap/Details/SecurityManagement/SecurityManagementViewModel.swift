@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 import Combine
 
-class SecurityManagementViewModel: ViewModel {
+class SecurityManagementViewModel: ViewModel, ObservableObject {
     weak var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
     var bag = Set<AnyCancellable>()
