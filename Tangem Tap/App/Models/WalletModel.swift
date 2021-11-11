@@ -75,21 +75,30 @@ class WalletModel: ObservableObject, Identifiable {
     
     var incomingPendingTransactions: [PendingTransaction] {
         wallet.pendingIncomingTransactions.map {
-            PendingTransaction(destination: $0.sourceAddress, transferAmount: $0.amount.description, canBePushed: false, direction: .incoming)
+            PendingTransaction(amountType: $0.amount.type,
+                               destination: $0.sourceAddress,
+                               transferAmount: $0.amount.string(with: 8),
+                               canBePushed: false,
+                               direction: .incoming)
         }
     }
     
     var outgoingPendingTransactions: [PendingTransaction] {
-        let txPusher = walletManager as? TransactionPusher
+        //let txPusher = walletManager as? TransactionPusher
         
         return wallet.pendingOutgoingTransactions.map {
-            let isTxStuckByTime = Date().timeIntervalSince($0.date ?? Date()) > Constants.bitcoinTxStuckTimeSec
+           // let isTxStuckByTime = Date().timeIntervalSince($0.date ?? Date()) > Constants.bitcoinTxStuckTimeSec
             
-            return PendingTransaction(destination: $0.destinationAddress,
-                                      transferAmount: $0.amount.description,
+            return PendingTransaction(amountType: $0.amount.type,
+                                      destination: $0.destinationAddress,
+                                      transferAmount: $0.amount.string(with: 8),
                                       canBePushed: false, // (txPusher?.isPushAvailable(for: $0.hash ?? "") ?? false) && isTxStuckByTime, //[REDACTED_TODO_COMMENT]
                                       direction: .outgoing)
         }
+    }
+    
+    var isEmptyIncludingPendingIncomingTxs: Bool {
+        wallet.isEmpty && incomingPendingTransactions.count == 0
     }
     
     let walletManager: WalletManager
@@ -176,6 +185,24 @@ class WalletModel: ObservableObject, Identifiable {
         }
         
         return rateString
+    }
+    
+    
+    func getQRReceiveMessage(for amountType: Amount.AmountType? = nil)  -> String {
+        let type: Amount.AmountType = amountType ?? wallet.amounts.keys.first(where: { $0.isToken }) ?? .coin
+        //todo: handle default token
+        let symbol = wallet.amounts[type]?.currencySymbol ?? wallet.blockchain.currencySymbol
+       
+        if case let .token(token) = amountType {
+            return String(format: "address_qr_code_message_token_format".localized,
+                          token.name,
+                          symbol,
+                          token.blockchain.displayName)
+        } else {
+            return String(format: "address_qr_code_message_format".localized,
+                          wallet.blockchain.displayName,
+                          symbol)
+        }
     }
     
     func getFiatFormatted(for amount: Amount?) -> String? {
@@ -271,7 +298,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     func getBalance(for type: Amount.AmountType) -> String {
-        return wallet.amounts[type]?.description ?? ""
+        return wallet.amounts[type].map { $0.string(with: 8) } ?? ""
     }
     
     func getFiatBalance(for type: Amount.AmountType) -> String {
@@ -284,6 +311,20 @@ class WalletModel: ObservableObject, Identifiable {
         }
         
         return .blockchain(wallet.blockchain)
+    }
+    
+    func startUpdatingTimer() {
+        print("⏰ Starting updating timer for Wallet model")
+        updateTimer = Timer.TimerPublisher(interval: 10.0,
+                                           tolerance: 0.1,
+                                           runLoop: .main,
+                                           mode: .common)
+            .autoconnect()
+            .sink() {[weak self] _ in
+                print("⏰ Updating timer alarm ‼️ Wallet model will be updated")
+                self?.update()
+                self?.updateTimer?.cancel()
+            }
     }
     
     private func updateBalanceViewModel(with wallet: Wallet, state: State) {
@@ -372,21 +413,6 @@ class WalletModel: ObservableObject, Identifiable {
         }
         
         tokenItemViewModels = [blockchainItem] + items
-    }
-    
-    
-    func startUpdatingTimer() {
-        print("⏰ Starting updating timer for Wallet model")
-        updateTimer = Timer.TimerPublisher(interval: 10.0,
-                                           tolerance: 0.1,
-                                           runLoop: .main,
-                                           mode: .common)
-            .autoconnect()
-            .sink() {[weak self] _ in
-                print("⏰ Updating timer alarm ‼️ Wallet model will be updated")
-                self?.update()
-                self?.updateTimer?.cancel()
-            }
     }
 }
 
