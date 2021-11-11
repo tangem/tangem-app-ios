@@ -14,8 +14,8 @@
 //    
 //    var body: some View {
 //        isSelected ?
-//            Color.tangemTapBlue :
-//            Color.tangemTapBlueLight2
+//            Color.tangemBlue :
+//            Color.tangemBlueLight2
 //    }
 //    
 //}
@@ -43,7 +43,7 @@
 //            VStack(alignment: .leading, spacing: 8) {
 //                Text(viewModel.step.stepTitle)
 //                    .font(.system(size: 30, weight: .bold))
-//                    .foregroundColor(.tangemTapBlue)
+//                    .foregroundColor(.tangemBlue)
 //                HStack {
 //                    SimpleProgressBar(isSelected: true)
 //                    SimpleProgressBar(isSelected: viewModel.step >= .second)
@@ -84,8 +84,8 @@
 //                .padding(.bottom, 16)
 //            }
 //            .padding(.horizontal, 24)
-//            .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
-//            .foregroundColor(.tangemTapGrayDark6)
+//            .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
+//            .foregroundColor(.tangemGrayDark6)
 //        }
 //        .onDisappear(perform: {
 //            guard self.viewModel.isDismissing else { return }
