@@ -29,7 +29,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 	private var fileToWrite: Data?
     private let walletManagerFactory: WalletManagerFactory?
     private var walletManager: WalletManager? = nil
-    private var scanCommand: TapScanTask? = nil
+    private var scanCommand: AppScanTask? = nil
     
 	init(firstTwinCardId: String?, fileToWrite: Data?, walletManagerFactory: WalletManagerFactory?) {
 		self.firstTwinCardId = firstTwinCardId
@@ -75,7 +75,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
                     case .success:
                         let wallet = self.walletManager!.wallet
                         if wallet.hasPendingTx || !wallet.isEmpty {
-                            let number = TapTwinCardIdFormatter.format(cid: card.cardId, cardNumber: TwinCardSeries.series(for: card.cardId)?.number)
+                            let number = AppTwinCardIdFormatter.format(cid: card.cardId, cardNumber: TwinCardSeries.series(for: card.cardId)?.number)
                             let err = "Your wallet on the card \(number) is not empty, please scan it and withdraw your funds before creating twin wallet or they will be lost."
                             completion(.failure(err.toTangemSdkError()))
                         } else {
@@ -161,7 +161,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 	}
     
     private func scanCard(session: CardSession, walletResponse: CreateWalletResponse, completion: @escaping CompletionResult<CommandResponse>) {
-        self.scanCommand =  TapScanTask()
+        self.scanCommand =  AppScanTask()
         scanCommand!.run(in: session) { scanCompletion in
             switch scanCompletion {
             case .failure(let error):
