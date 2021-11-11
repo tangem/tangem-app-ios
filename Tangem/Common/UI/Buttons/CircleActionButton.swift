@@ -38,7 +38,7 @@ struct CircleActionButton: View {
 			ZStack {
 				Circle()
 					.frame(width: diameter, height: diameter, alignment: .center)
-					.foregroundColor(isVerify ? Color.tangemTapGreen : backgroundColor)
+					.foregroundColor(isVerify ? Color.tangemGreen : backgroundColor)
 				Group {
                     if isVerify {
                         Image(systemName: "checkmark")
@@ -72,9 +72,9 @@ struct CircleActionButton: View {
 struct CircleActionButton_Previews: PreviewProvider {
     static var previews: some View {
 		CircleActionButton(diameter: 40,
-						   backgroundColor: .tangemTapBgGray,
+						   backgroundColor: .tangemBgGray,
 						   imageName: "doc.on.clipboard",
 						   isSystemImage: true,
-						   imageColor: .tangemTapGrayDark6)
+						   imageColor: .tangemGrayDark6)
     }
 }

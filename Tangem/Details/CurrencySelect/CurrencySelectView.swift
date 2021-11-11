@@ -19,7 +19,7 @@ struct CurrencySelectView: View {
     var body: some View {
         VStack {
             if viewModel.loading {
-                ActivityIndicatorView(isAnimating: true, style: .medium, color: .tangemTapGrayDark)
+                ActivityIndicatorView(isAnimating: true, style: .medium, color: .tangemGrayDark)
             } else {
                 VStack {
                     SearchBar(text: $searchText, placeholder: "common_search".localized)
@@ -32,12 +32,12 @@ struct CurrencySelectView: View {
                             HStack {
                                 Text(currency.description)
                                     .font(.system(size: 16, weight: .regular, design: .default))
-                                    .foregroundColor(.tangemTapGrayDark6)
+                                    .foregroundColor(.tangemGrayDark6)
                                 Spacer()
                                 if self.viewModel.ratesService.selectedCurrencyCode == currency.symbol {
                                     Image(systemName: "checkmark.circle")
                                         .font(.system(size: 18, weight: .regular, design: .default))
-                                        .foregroundColor(Color.tangemTapGreen)
+                                        .foregroundColor(Color.tangemGreen)
                                 }
                             }
                             .contentShape(Rectangle())
@@ -49,7 +49,7 @@ struct CurrencySelectView: View {
                     }
                     
                 }
-                .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
+                .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
             }
         }
         .navigationBarTitle("details_row_title_currency", displayMode: .inline)

@@ -24,11 +24,11 @@
 //        VStack(alignment: .leading, spacing: 8) {
 //                Text("wallet_create_payid")
 //                    .font(Font.system(size: 30.0, weight: .bold, design: .default))
-//                    .foregroundColor(Color.tangemTapGrayDark6)
+//                    .foregroundColor(Color.tangemGrayDark6)
 //                    .padding(.top, 22.0)
 //                Text(String(format: NSLocalizedString("wallet_create_payid_card_format", comment: ""), TapCardIdFormatter(cid: cardId).formatted()))
 //                    .font(Font.system(size: 13.0, weight: .medium, design: .default))
-//                    .foregroundColor(Color.tangemTapGrayDark)
+//                    .foregroundColor(Color.tangemGrayDark)
 //                    .padding(.bottom, 22.0)
 //            HStack(alignment: .firstBaselineCustom, spacing: 0.0) {
 //                VStack(alignment: .leading) {
@@ -43,7 +43,7 @@
 //                        .alignmentGuide(.firstBaselineCustom) { d in
 //                            d[.bottom] / 2 } //First responder custom shit
 //                        //   .disableAutocorrectiontrue)
-//                    Color.tangemTapGrayLight5
+//                    Color.tangemGrayLight5
 //                        .frame(height: 1.0, alignment: .center)
 //                }
 //                
@@ -51,7 +51,7 @@
 //                    .font(Font.system(size: 16.0, weight: .regular, design: .default))
 //                    .lineLimit(1)
 //                    .minimumScaleFactor(0.8)
-//                    .foregroundColor(Color.tangemTapGrayDark4)
+//                    .foregroundColor(Color.tangemGrayDark4)
 //                    .alignmentGuide(.firstBaselineCustom) { d in
 //                        d[.bottom] / 2 + 0.35 } //First responder custom shit
 //                    .padding(.trailing)
@@ -60,7 +60,7 @@
 //            HStack {
 //                Text("wallet_create_payid_info")
 //                    .font(Font.system(size: 14.0, weight: .medium, design: .default))
-//                    .foregroundColor(Color.tangemTapGrayDark)
+//                    .foregroundColor(Color.tangemGrayDark)
 //                    .multilineTextAlignment(.leading)
 //                    .lineLimit(4)
 //                    .padding(.trailing)
