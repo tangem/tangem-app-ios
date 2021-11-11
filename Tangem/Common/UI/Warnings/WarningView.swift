@@ -31,7 +31,7 @@ struct CounterView: View {
 
 struct WarningView: View {
     
-    let warning: TapWarning
+    let warning: AppWarning
     var buttonAction: (WarningButton) -> Void = { _ in }
     
     var body: some View {
@@ -106,12 +106,12 @@ struct WarningView: View {
 }
 
 struct WarningView_Previews: PreviewProvider {
-    @State static var warnings: [TapWarning] = [
+    @State static var warnings: [AppWarning] = [
         WarningEvent.numberOfSignedHashesIncorrect.warning,
         WarningEvent.rateApp.warning,
-        TapWarning(title: "Warning", message: "Blockchain is currently unavailable", priority: .critical, type: .permanent),
-        TapWarning(title: "Good news, everyone!", message: "New Tangem Cards available. Visit our web site to learn more", priority: .info, type: .temporary),
-        TapWarning(title: "Attention!", message: "Something huuuuuge is going to happen!", priority: .warning, type: .permanent),
+        AppWarning(title: "Warning", message: "Blockchain is currently unavailable", priority: .critical, type: .permanent),
+        AppWarning(title: "Good news, everyone!", message: "New Tangem Cards available. Visit our web site to learn more", priority: .info, type: .temporary),
+        AppWarning(title: "Attention!", message: "Something huuuuuge is going to happen!", priority: .warning, type: .permanent),
         WarningsList.multiWalletSignedHashes
     ]
     static var previews: some View {
