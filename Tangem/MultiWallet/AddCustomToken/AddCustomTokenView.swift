@@ -24,7 +24,7 @@
 //        VStack(alignment: .leading, spacing: 4) {
 //            Text(title)
 //                .font(.system(size: 13, weight: .regular))
-//                .foregroundColor(Color.tangemTapGrayDark6)
+//                .foregroundColor(Color.tangemGrayDark6)
 //            CustomTextField(text: text, isResponder: $isResponder, actionButtonTapped: $buttonTapped, handleKeyboard: true, keyboard: keyboardType, font: UIFont.systemFont(ofSize: 17, weight: .regular), placeholder: placeholder)
 //        }
 //        .onTapGesture {
@@ -69,7 +69,7 @@
 //            }
 //        })
 //        .alert(item: $viewModel.error, content: { $0.alert })
-//        .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
+//        .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
 //        .navigationBarTitle("add_custom_token_title")
 //        .navigationBarHidden(false)
 //        .navigationBarBackButtonHidden(false)

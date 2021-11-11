@@ -15,14 +15,14 @@ struct CardRectView: View {
         ZStack {
             if withShadow {
                 Rectangle()
-                    .fill(Color.tangemTapBlue.opacity(0.1))
+                    .fill(Color.tangemBlue.opacity(0.1))
                    // .aspectRatio(1.86, contentMode: .fit)
                     .cornerRadius(22.0)
                     .offset(x: -12.0, y: 8.0)
                     .frame(width: 456, height: 244, alignment: .center)
             }
             Rectangle()
-                .fill(Color.tangemTapBlue)
+                .fill(Color.tangemBlue)
                // .aspectRatio(1.86, contentMode: .fit)
                 .cornerRadius(22.0)
                 .frame(width: 456, height: 244, alignment: .center)
