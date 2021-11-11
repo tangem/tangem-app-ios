@@ -20,7 +20,7 @@ public class XRPAddressService: AddressService {
         var key: Data
         switch curve {
         case .secp256k1:
-            key = Secp256k1Utils.convertKeyToCompressed(walletPublicKey)!
+            key = Secp256k1Utils.compressPublicKey(walletPublicKey)!
         case .ed25519, .secp256r1:
             key = [UInt8(0xED)] + walletPublicKey
         }
