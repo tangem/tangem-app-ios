@@ -45,10 +45,10 @@ fileprivate struct TokenView: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text(name)
                     .font(.system(size: 17, weight: .medium))
-                    .foregroundColor(.tangemTapGrayDark6)
+                    .foregroundColor(.tangemGrayDark6)
                 Text(symbol)
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(.tangemTapGrayDark)
+                    .foregroundColor(.tangemGrayDark)
             }
             Spacer()
             TangemButton(title: buttonTitle, action: buttonAction)
@@ -175,7 +175,7 @@ struct AddNewTokensView: View {
         //                navigation.addNewTokensToCreateCustomToken = true
         //            })
         //            .font(.system(size: 17, weight: .medium))
-        //            .foregroundColor(.tangemTapBlue2)
+        //            .foregroundColor(.tangemBlue2)
         //            .frame(minHeight: 44)
         //            .background(
         //                NavigationLink(destination: AddCustomTokenView(viewModel: viewModel.assembly.makeAddCustomTokenViewModel(for: viewModel.cardModel.erc20TokenWalletModel)), isActive: $navigation.addNewTokensToCreateCustomToken))
@@ -195,7 +195,7 @@ extension AddNewTokensView {
             HStack {
                 Text(text)
                     .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(.tangemTapGrayDark)
+                    .foregroundColor(.tangemGrayDark)
                     .padding(.leading, 20)
                 
                 Spacer()
@@ -203,7 +203,7 @@ extension AddNewTokensView {
                     Image(systemName: "chevron.down")
                         .rotationEffect(isExpanded ? .zero : Angle(degrees: -90))
                         .padding(.trailing, 16)
-                        .foregroundColor(.tangemTapGrayDark)
+                        .foregroundColor(.tangemGrayDark)
                 }
             }
             
