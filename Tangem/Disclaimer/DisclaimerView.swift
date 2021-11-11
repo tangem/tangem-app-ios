@@ -60,17 +60,17 @@ struct DisclaimerView: View {
                     HStack {
                         Text("disclaimer_title")
                             .font(.system(size: 30, weight: .bold, design: .default))
-                            .foregroundColor(.tangemTapGrayDark6)
+                            .foregroundColor(.tangemGrayDark6)
                         Spacer()
                         if style.isWithCloseButton {
                             Button(action: { presentationMode.wrappedValue.dismiss() }, label: {
                                 Image(systemName: "xmark")
                                     .resizable()
-                                    .foregroundColor(.tangemTapGrayDark4.opacity(0.6))
+                                    .foregroundColor(.tangemGrayDark4.opacity(0.6))
                                     .frame(width: 11, height: 11)
                             })
                             .frame(width: 30, height: 30)
-                            .background(Color.tangemTapBgGray)
+                            .background(Color.tangemBgGray)
                             .cornerRadius(15)
                         }
                     }
@@ -79,7 +79,7 @@ struct DisclaimerView: View {
                 ScrollView {
                     Text("disclaimer_text")
                         .font(Font.system(size: 16, weight: .regular, design: .default))
-                        .foregroundColor(.tangemTapGrayDark5)
+                        .foregroundColor(.tangemGrayDark5)
                         .padding(.horizontal, 16)
                         .padding(.bottom, showAccept ? 150 : 0)
                         .padding(.top, style.disclaimerTextTopPadding)
