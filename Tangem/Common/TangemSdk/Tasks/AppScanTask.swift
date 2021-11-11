@@ -1,5 +1,5 @@
 //
-//  TapScanTask.swift
+//  AppScanTask.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import TangemSdk
 
-struct TapScanTaskResponse {
+struct AppScanTaskResponse {
     let card: Card
     let walletData: WalletData?
     let twinIssuerData: Data?
@@ -25,7 +25,7 @@ struct TapScanTaskResponse {
                         isTangemWallet: isTangemWallet)
     }
     
-    private func decodeTwinFile(from response: TapScanTaskResponse) -> TwinCardInfo? {
+    private func decodeTwinFile(from response: AppScanTaskResponse) -> TwinCardInfo? {
         guard
             card.isTwinCard,
             let series: TwinCardSeries = .series(for: card.cardId)
@@ -49,9 +49,9 @@ struct TapScanTaskResponse {
     }
 }
 
-final class TapScanTask: CardSessionRunnable {
+final class AppScanTask: CardSessionRunnable {
     deinit {
-        print("TapScanTask deinit")
+        print("AppScanTask deinit")
     }
     
     private let targetBatch: String?
@@ -63,7 +63,7 @@ final class TapScanTask: CardSessionRunnable {
     }
     
     /// read ->  readTwinData or note Data -> appendWallets(createwallets+ scan)  -> attestation
-    public func run(in session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
+    public func run(in session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
         guard let card = session.environment.card else {
             completion(.failure(TangemSdkError.missingPreflightRead))
             return
@@ -80,7 +80,7 @@ final class TapScanTask: CardSessionRunnable {
         self.readExtra(card, session: session, completion: completion)
     }
     
-    private func readExtra(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
+    private func readExtra(_ card: Card, session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
         if card.isTwinCard {
             readTwin(card, session: session, completion: completion)
             return
@@ -94,7 +94,7 @@ final class TapScanTask: CardSessionRunnable {
         runAttestation(session, completion)
     }
     
-    private func readNote(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
+    private func readNote(_ card: Card, session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
         // self.noteWalletData = WalletData(blockchain: "BTC") //for test without file
         // self.runAttestation(session, completion)
         // return
@@ -144,7 +144,7 @@ final class TapScanTask: CardSessionRunnable {
         }
     }
     
-    private func readTwin(_ card: Card, session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
+    private func readTwin(_ card: Card, session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
         let readIssuerDataCommand = ReadIssuerDataCommand()
         readIssuerDataCommand.run(in: session) { (result) in
             switch result {
@@ -163,7 +163,7 @@ final class TapScanTask: CardSessionRunnable {
         }
     }
     
-    private func appendWalletsIfNeeded(session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
+    private func appendWalletsIfNeeded(session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
         let card = session.environment.card!
         
         let existingCurves: Set<EllipticCurve> = .init(card.wallets.map({ $0.curve }))
@@ -180,7 +180,7 @@ final class TapScanTask: CardSessionRunnable {
         runAttestation(session, completion)
     }
     
-    private func appendWallets(_ curves: [EllipticCurve], session: CardSession, completion: @escaping CompletionResult<TapScanTaskResponse>) {
+    private func appendWallets(_ curves: [EllipticCurve], session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
         CreateMultiWalletTask(curves: curves).run(in: session) { result in
             switch result {
             case .success:
@@ -191,7 +191,7 @@ final class TapScanTask: CardSessionRunnable {
         }
     }
     
-    private func runAttestation(_ session: CardSession, _ completion: @escaping CompletionResult<TapScanTaskResponse>) {
+    private func runAttestation(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
         let attestationTask = AttestationTask(mode: session.environment.config.attestationMode)
         attestationTask.run(in: session) { result in
             switch result {
@@ -207,7 +207,7 @@ final class TapScanTask: CardSessionRunnable {
     private func processAttestationReport(_ report: Attestation,
                                           _ attestationTask: AttestationTask,
                                           _ session: CardSession,
-                                          _ completion: @escaping CompletionResult<TapScanTaskResponse>) {
+                                          _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
         switch report.status {
         case .failed, .skipped:
             let isDevelopmentCard = session.environment.card!.firmwareVersion.type == .sdk
@@ -261,11 +261,11 @@ final class TapScanTask: CardSessionRunnable {
         }
     }
     
-    private func complete(_ session: CardSession, _ completion: @escaping CompletionResult<TapScanTaskResponse>) {
+    private func complete(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
         let card = session.environment.card!
         let isNote = noteWalletData != nil
         let isWallet = card.firmwareVersion.doubleValue >= 4.39 && !isNote
-        completion(.success(TapScanTaskResponse(card: session.environment.card!,
+        completion(.success(AppScanTaskResponse(card: session.environment.card!,
                                                 walletData: noteWalletData ?? session.environment.walletData,
                                                 twinIssuerData: twinIssuerData,
                                                 isTangemNote: noteWalletData != nil,

@@ -83,7 +83,7 @@ class BnbSignHandler: WalletConnectSignHandler {
             return
         }
         
-        let message = String(format: "wallet_connect_bnb_sign_message".localized, session.session.dAppInfo.peerMeta.name, TapCardIdFormatter(cid: session.wallet.cid).formatted(), bnbMessage.message)
+        let message = String(format: "wallet_connect_bnb_sign_message".localized, session.session.dAppInfo.peerMeta.name, AppCardIdFormatter(cid: session.wallet.cid).formatted(), bnbMessage.message)
         askToSign(in: session, request: request, message: message, dataToSign: bnbMessage.data)
     }
     

@@ -9,7 +9,7 @@
 import Foundation
 
 extension WarningEvent {
-    var warning: TapWarning {
+    var warning: AppWarning {
         switch self {
         case .numberOfSignedHashesIncorrect:
             return WarningsList.numberOfSignedHashesIncorrect

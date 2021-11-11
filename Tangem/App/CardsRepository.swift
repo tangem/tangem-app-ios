@@ -168,7 +168,7 @@ class CardsRepository {
     func scan(with batch: String? = nil, _ completion: @escaping (Result<ScanResult, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
         delegate?.onWillScan()
-        tangemSdk.startSession(with: TapScanTask(targetBatch: batch)) {[unowned self] result in
+        tangemSdk.startSession(with: AppScanTask(targetBatch: batch)) {[unowned self] result in
             switch result {
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .scan)
