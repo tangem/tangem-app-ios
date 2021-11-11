@@ -22,8 +22,8 @@ struct MessageView: View {
         
         var iconColor: Color {
             switch self {
-            case .error: return .tangemTapWarning
-            case .message: return .tangemTapGreen
+            case .error: return .tangemWarning
+            case .message: return .tangemGreen
             }
         }
     }
@@ -49,12 +49,12 @@ struct MessageView: View {
                     .multilineTextAlignment(.leading)
                     .lineLimit(2)
                     .alignmentGuide(.textAndImage) { d in d[.bottom] / 2 }
-                    .foregroundColor(Color.tangemTapGrayDark6)
+                    .foregroundColor(Color.tangemGrayDark6)
                     .minimumScaleFactor(0.8)
                 Text(subtitle)
                     .font(Font.system(size: 13.0))
                     .fontWeight(.medium)
-                    .foregroundColor(Color.tangemTapGrayDark)
+                    .foregroundColor(Color.tangemGrayDark)
                     .multilineTextAlignment(.leading)
             }
             .padding(.vertical, 16.0)
@@ -69,7 +69,7 @@ struct MessageView: View {
 struct MessageView_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
-            Color.tangemTapBgGray
+            Color.tangemBgGray
             VStack {
                 MessageView(title: "Empty card", subtitle: "Create wallet to start using Tangem card", type: .error)
                 MessageView(title: "Empty wallets", subtitle: "Wallet are empty", type: .message)
