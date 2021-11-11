@@ -24,7 +24,32 @@ struct ArrowBack: View {
 	}
 }
 
-
+struct BackButton: View {
+    
+    let height: CGFloat
+    let isVisible: Bool
+    let isEnabled: Bool
+    var color: Color = .tangemTapGrayDark6
+    var hPadding: CGFloat = 16
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action, label: {
+            HStack(spacing: 5) {
+                Image(systemName: "chevron.left")
+                    .padding(-1) //remove default? extra padding
+                Text("common_back")
+                    .font(.system(size: 17, weight: .regular))
+            }
+        })
+        .allowsHitTesting(isEnabled)
+        .opacity(isVisible ? 1.0 : 0.0)
+        .frame(height: height)
+        .foregroundColor(isEnabled ? color : color.opacity(0.5))
+        .padding(.horizontal, hPadding)
+    }
+    
+}
 
 struct NavigationBar<LeftButtons: View, RightButtons: View>: View {
 	
@@ -81,9 +106,18 @@ struct NavigationBar<LeftButtons: View, RightButtons: View>: View {
 				.foregroundColor(settings.titleColor)
 		}
 		.padding(.horizontal, settings.horizontalPadding)
-		.frame(height: settings.height)
+        .frame(width: UIScreen.main.bounds.size.width, height: settings.height)
 		.background(settings.backgroundColor.edgesIgnoringSafeArea(.all))
 	}
+}
+
+extension NavigationBar where LeftButtons == EmptyView, RightButtons == EmptyView {
+    init(title: LocalizedStringKey, settings: Settings = .init()) {
+        self.title = title
+        self.settings = settings
+        leftButtons = EmptyView()
+        rightButtons = EmptyView()
+    }
 }
 
 extension NavigationBar where LeftButtons == EmptyView {
@@ -149,17 +183,26 @@ struct NavigationBar_Previews: PreviewProvider {
 				NavigationBar(title: "Hello, World!", backAction: {})
 				Spacer()
 			}.deviceForPreview(.iPhone11Pro)
-			VStack {
-				NavigationBar(title: "Hello, World!", rightButtons: {
-					Button(action: {},
-						   label: {
-							Image("verticalDots")
-								.foregroundColor(Color.tangemTapGrayDark6)
-								.frame(width: 44.0, height: 44.0, alignment: .center)
-						   })
-				})
-				Spacer()
-			}.deviceForPreview(.iPhone11ProMax)
+//			VStack {
+//				NavigationBar(title: "Hello, World!", rightButtons: {
+//					Button(action: {},
+//						   label: {
+//							Image("verticalDots")
+//								.foregroundColor(Color.tangemTapGrayDark6)
+//								.frame(width: 44.0, height: 44.0, alignment: .center)
+//						   })
+//				})
+//				Spacer()
+//			}.deviceForPreview(.iPhone11ProMax)
+            VStack {
+                NavigationBar(title: "Hello, World!")
+                Spacer()
+            }.deviceForPreview(.iPhone11ProMax)
+            
+            HStack {
+                BackButton(height: 44, isVisible: true, isEnabled: true) { }
+                Spacer()
+            }.deviceForPreview(.iPhone11ProMax)
 		}
 	}
 }
