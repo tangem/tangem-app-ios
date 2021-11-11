@@ -10,17 +10,17 @@ import Foundation
 import Combine
 
 class WarningsContainer: ObservableObject {
-    @Published var criticals: [TapWarning]
-    @Published var warnings: [TapWarning]
-    @Published var infos: [TapWarning]
+    @Published var criticals: [AppWarning]
+    @Published var warnings: [AppWarning]
+    @Published var infos: [AppWarning]
     
-    init(criticals: [TapWarning] = [], warnings: [TapWarning] = [], infos: [TapWarning] = []) {
+    init(criticals: [AppWarning] = [], warnings: [AppWarning] = [], infos: [AppWarning] = []) {
         self.criticals = criticals
         self.warnings = warnings
         self.infos = infos
     }
     
-    func add(_ warning: TapWarning) {
+    func add(_ warning: AppWarning) {
         switch warning.priority {
         case .critical:
             if criticals.contains(warning) { return }
@@ -39,7 +39,7 @@ class WarningsContainer: ObservableObject {
         }
     }
     
-    func add(_ warnings: [TapWarning]) {
+    func add(_ warnings: [AppWarning]) {
         warnings.forEach { add($0) }
     }
     
@@ -47,8 +47,8 @@ class WarningsContainer: ObservableObject {
         add(event.warning)
     }
     
-    func warning(at index: Int, with priority: WarningPriority) -> TapWarning? {
-        var warning: TapWarning?
+    func warning(at index: Int, with priority: WarningPriority) -> AppWarning? {
+        var warning: AppWarning?
         switch priority {
         case .info:
             if index < infos.count {
@@ -66,7 +66,7 @@ class WarningsContainer: ObservableObject {
         return warning
     }
     
-    func remove(_ warning: TapWarning) {
+    func remove(_ warning: AppWarning) {
         switch warning.priority {
         case .critical:
             criticals.removeAll(where: { $0 == warning })
