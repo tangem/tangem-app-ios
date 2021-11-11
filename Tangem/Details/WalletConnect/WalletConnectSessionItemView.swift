@@ -19,10 +19,10 @@ struct WalletConnectSessionItemView: View {
                 Text(dAppName)
                     .font(.system(size: 17, weight: .medium))
                     .padding(.bottom, 2)
-                    .foregroundColor(.tangemTapGrayDark6)
+                    .foregroundColor(.tangemGrayDark6)
                 Text(String(format: "wallet_connect_card_number".localized, cardId))
                     .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(.tangemTapGrayDark)
+                    .foregroundColor(.tangemGrayDark)
             }
             Spacer()
             TangemButton(title: "common_disconnect", action: disconnectEvent)
