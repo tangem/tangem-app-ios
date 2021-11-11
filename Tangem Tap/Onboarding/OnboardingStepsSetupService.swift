@@ -91,6 +91,7 @@ class OnboardingStepsSetupService {
             }
             
             if twinCardInfo.pairPublicKey != nil && cardInfo.card.wallets.first != nil {
+                userPrefs.isTwinCardOnboardingWasDisplayed = true
                 return .justWithError(output: .twins(steps))
             }
         }
