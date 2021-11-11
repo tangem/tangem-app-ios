@@ -37,14 +37,14 @@
 //		
 //		var colors: [Color] {
 //			switch self {
-//			case .gray: return [Color.tangemTapGrayDark6.opacity(0.22),
-//								Color.tangemTapGrayDark4.opacity(0.2),
-//								Color.tangemTapGrayDark2.opacity(0.2),
-//								Color.tangemTapGrayLight5.opacity(0.35)]
-//			case .orange: return [Color.tangemTapWarning.opacity(0.55),
-//								  Color.tangemTapWarning.opacity(0.45),
-//								  Color.tangemTapWarning.opacity(0.35),
-//								  Color.tangemTapWarning.opacity(0.25)]
+//			case .gray: return [Color.tangemGrayDark6.opacity(0.22),
+//								Color.tangemGrayDark4.opacity(0.2),
+//								Color.tangemGrayDark2.opacity(0.2),
+//								Color.tangemGrayLight5.opacity(0.35)]
+//			case .orange: return [Color.tangemWarning.opacity(0.55),
+//								  Color.tangemWarning.opacity(0.45),
+//								  Color.tangemWarning.opacity(0.35),
+//								  Color.tangemWarning.opacity(0.25)]
 //			}
 //		}
 //	}
