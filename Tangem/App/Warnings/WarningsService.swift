@@ -21,7 +21,7 @@ protocol WarningAppendor: AnyObject {
 protocol WarningsManager: WarningAppendor {
     var warningsUpdatePublisher: PassthroughSubject<WarningsLocation, Never> { get }
     func warnings(for location: WarningsLocation) -> WarningsContainer
-    func hideWarning(_ warning: TapWarning)
+    func hideWarning(_ warning: AppWarning)
     func hideWarning(for event: WarningEvent)
 }
 
@@ -85,7 +85,7 @@ class WarningsService {
         return container
     }
     
-    private func remoteWarnings(for cardInfo: CardInfo, location: WarningsLocation) -> [TapWarning] {
+    private func remoteWarnings(for cardInfo: CardInfo, location: WarningsLocation) -> [AppWarning] {
         let remoteWarnings = remoteWarningProvider.warnings
         let mainRemoteWarnings = remoteWarnings.filter { $0.location.contains { $0 == location } }
 
@@ -166,7 +166,7 @@ extension WarningsService: WarningsManager {
         }
     }
     
-    func hideWarning(_ warning: TapWarning) {
+    func hideWarning(_ warning: AppWarning) {
         mainWarnings.remove(warning)
         sendWarnings.remove(warning)
     }
