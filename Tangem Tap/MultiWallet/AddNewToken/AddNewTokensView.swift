@@ -8,6 +8,7 @@
 
 import SwiftUI
 import BlockchainSdk
+import Combine
 
 fileprivate struct TokenView: View {
     let isTestnet: Bool
@@ -19,6 +20,21 @@ fileprivate struct TokenView: View {
     var tokenItem: TokenItem
     var addAction: () -> Void
     var removeAction: () -> Void
+    
+    private var buttonTitle: LocalizedStringKey {
+        isAdded ? "common_added" : "common_add"
+    }
+    
+    private var buttonAction: () -> Void {
+        isAdded ? removeAction : addAction
+    }
+    
+    private var buttonStyle: TangemButtonStyle {
+        TangemButtonStyle(colorStyle: isAdded ? .gray : .green,
+                          layout: .thinHorizontal,
+                          isDisabled: isAdded,
+                          isLoading: isLoading)
+    }
     
     var body: some View {
         HStack {
@@ -35,15 +51,11 @@ fileprivate struct TokenView: View {
                     .foregroundColor(.tangemTapGrayDark)
             }
             Spacer()
-            TangemButton(isLoading: isLoading, title: isAdded ? "common_added" : "common_add", image: "", size: .thinHorizontal, action: isAdded ? removeAction : addAction)
-                .buttonStyle(isAdded ?
-                                TangemButtonStyle(color: .gray, isDisabled: true) :
-                                TangemButtonStyle(color: .green, isDisabled: false))
-                .disabled(isAdded)
+            TangemButton(title: buttonTitle, action: buttonAction)
+                .buttonStyle(buttonStyle)
         }
         .padding(.vertical, 8)
     }
-    
 }
 
 struct AddNewTokensView: View {
@@ -61,7 +73,7 @@ struct AddNewTokensView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 16)
             
-            SearchBar(text: $searchText, placeholder: "common_search".localized)
+            SearchBar(text:$viewModel.enteredSearchText, placeholder: "common_search".localized)
                 .background(Color.white)
                 .padding(.horizontal, 8)
             
@@ -146,6 +158,11 @@ struct AddNewTokensView: View {
                     .listRowInsets(EdgeInsets())
             }
         }
+        .onReceive(viewModel.$enteredSearchText
+                    .dropFirst()
+                    .debounce(for: 0.5, scheduler: DispatchQueue.main), perform: { value in
+            searchText = value
+        })
         .onDisappear(perform: {
             if navigation.addNewTokensToCreateCustomToken { return }
             
