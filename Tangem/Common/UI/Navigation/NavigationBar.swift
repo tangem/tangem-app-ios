@@ -11,7 +11,7 @@ import SwiftUI
 struct ArrowBack: View {
 	let action: () -> Void
 	let height: CGFloat
-	var color: Color = .tangemTapGrayDark6
+	var color: Color = .tangemGrayDark6
 	
 	var body: some View {
 		Button(action: action, label: {
@@ -29,7 +29,7 @@ struct BackButton: View {
     let height: CGFloat
     let isVisible: Bool
     let isEnabled: Bool
-    var color: Color = .tangemTapGrayDark6
+    var color: Color = .tangemGrayDark6
     var hPadding: CGFloat = 16
     let action: () -> Void
     
@@ -61,8 +61,8 @@ struct NavigationBar<LeftButtons: View, RightButtons: View>: View {
 		let height: CGFloat
 		
 		init(titleFont: Font = .system(size: 17, weight: .medium),
-			 titleColor: Color = .tangemTapGrayDark6,
-			 backgroundColor: Color = .tangemTapBgGray,
+			 titleColor: Color = .tangemGrayDark6,
+			 backgroundColor: Color = .tangemBgGray,
 			 horizontalPadding: CGFloat = 0,
 			 height: CGFloat = 44) {
 			
@@ -188,7 +188,7 @@ struct NavigationBar_Previews: PreviewProvider {
 //					Button(action: {},
 //						   label: {
 //							Image("verticalDots")
-//								.foregroundColor(Color.tangemTapGrayDark6)
+//								.foregroundColor(Color.tangemGrayDark6)
 //								.frame(width: 44.0, height: 44.0, alignment: .center)
 //						   })
 //				})

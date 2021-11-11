@@ -35,9 +35,9 @@ struct TokensListItemView: View {
         if item.state.errorDescription == nil
             && !item.hasTransactionInProgress
             && !item.state.isLoading {
-            return .tangemTapGrayDark
+            return .tangemGrayDark
         }
-        return .tangemTapWarning
+        return .tangemWarning
     }
     
     var body: some View {
@@ -60,7 +60,7 @@ struct TokensListItemView: View {
                 }
                 .lineLimit(2)
                 .minimumScaleFactor(0.8)
-                .foregroundColor(Color.tangemTapGrayDark6)
+                .foregroundColor(Color.tangemGrayDark6)
                 .font(Font.system(size: 17.0, weight: .medium, design: .default))
                 
                 
@@ -78,7 +78,7 @@ struct TokensListItemView: View {
                     Text(item.fiatBalance)
                         .fixedSize(horizontal: false, vertical: true)
                         .lineLimit(1)
-                        .foregroundColor(Color.tangemTapGrayDark)
+                        .foregroundColor(Color.tangemGrayDark)
                 }
                 .frame(minHeight: 20)
                 .font(Font.system(size: 14.0, weight: .medium, design: .default))
@@ -88,7 +88,7 @@ struct TokensListItemView: View {
         .padding(16)
         .background(Color.white)
         .cornerRadius(6.0)
-        .shadow(color: .tangemTapGrayLight5, radius: 2, x: 0, y: 1)
+        .shadow(color: .tangemGrayLight5, radius: 2, x: 0, y: 1)
     }
 }
 
@@ -96,7 +96,7 @@ struct TokensListItemView: View {
 struct WalletsViewItem_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
-            Color.tangemTapBgGray
+            Color.tangemBgGray
             VStack {
                 TokensListItemView(item: TokenItemViewModel(state: .idle, hasTransactionInProgress: false,
                                                             name: "Ethereum ",
