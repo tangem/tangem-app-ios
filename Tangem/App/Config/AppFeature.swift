@@ -8,8 +8,6 @@
 
 import Foundation
 
-typealias AppFeatures = Set<AppFeature>
-
 enum AppFeature: String, Option {
 	case payIDReceive
 	case payIDSend
@@ -20,21 +18,21 @@ enum AppFeature: String, Option {
 }
 
 extension Set where Element == AppFeature {
-	static var all: AppFeatures {
+	static var all:  Set<AppFeature> {
 		return Set(Element.allCases)
 	}
 	
-	static var none: AppFeatures {
+	static var none:  Set<AppFeature> {
 		return Set()
 	}
 	
-	static var allExceptPayReceive: AppFeatures {
+	static var allExceptPayReceive:  Set<AppFeature> {
 		var features = all
 		features.remove(.payIDReceive)
 		return features
 	}
 	
-	static func allExcept(_ set: AppFeatures) -> AppFeatures {
+	static func allExcept(_ set:  Set<AppFeature>) ->  Set<AppFeature> {
 		var features = all
 		set.forEach { features.remove($0) }
 		return features
