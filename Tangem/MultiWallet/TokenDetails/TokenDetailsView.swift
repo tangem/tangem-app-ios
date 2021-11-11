@@ -123,7 +123,7 @@ struct TokenDetailsView: View {
             if let subtitle = viewModel.tokenSubtitle {
                 Text(subtitle)
                     .font(.system(size: 14, weight: .regular, design: .default))
-                    .foregroundColor(.tangemTapGrayDark)
+                    .foregroundColor(.tangemGrayDark)
                     .padding(.bottom, 8)
             }
             
@@ -170,11 +170,11 @@ struct TokenDetailsView: View {
             }
             
         }, label: { Text("wallet_remove_token")
-            .foregroundColor(viewModel.canDelete ? Color.tangemTapGrayDark6 : Color.tangemTapGrayLight5)
+            .foregroundColor(viewModel.canDelete ? Color.tangemGrayDark6 : Color.tangemGrayLight5)
         })
         .disabled(!viewModel.canDelete)
         )
-        .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
+        .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
         .ignoresKeyboard()
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
                     .filter {_ in !navigation.detailsToSend

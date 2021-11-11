@@ -17,11 +17,11 @@ struct DetailsRowView: View {
         HStack (alignment: .center) {
             Text(title)
                 .font(Font.system(size: 16.0, weight: .regular, design: .default))
-                .foregroundColor(.tangemTapGrayDark6)
+                .foregroundColor(.tangemGrayDark6)
             Spacer()
             Text(subtitle)
                 .font(Font.system(size: 16.0, weight: .regular, design: .default))
-                .foregroundColor(.tangemTapGrayDark)
+                .foregroundColor(.tangemGrayDark)
         }
        // .padding(.leading)
         //.listRowInsets(EdgeInsets())
@@ -61,7 +61,7 @@ struct DetailsView: View {
                     HStack {
                     Text("details_row_title_manage_security")
                         .font(.system(size: 16, weight: .regular, design: .default))
-                        .foregroundColor(.tangemTapGrayDark6)
+                        .foregroundColor(.tangemGrayDark6)
                         Spacer()
                         ActivityIndicatorView(isAnimating: viewModel.isCheckingPin)
                     }
@@ -82,7 +82,7 @@ struct DetailsView: View {
                     }, label: {
                         Text("details_row_title_twins_recreate")
                             .font(.system(size: 16, weight: .regular, design: .default))
-                            .foregroundColor(.tangemTapGrayDark6)
+                            .foregroundColor(.tangemGrayDark6)
                     })
                     .sheet(isPresented: $navigation.detailsToTwinsRecreateWarning, content: {
                         OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
@@ -129,7 +129,7 @@ struct DetailsView: View {
                     }, label: {
                         Text("details_row_title_create_backup")
                             .font(.system(size: 16, weight: .regular, design: .default))
-                            .foregroundColor(.tangemTapGrayDark6)
+                            .foregroundColor(.tangemGrayDark6)
                     })
                     .disabled(!viewModel.canCreateBackup)
                     .sheet(isPresented: $navigation.detailsToBackup, content: {
@@ -159,7 +159,7 @@ struct DetailsView: View {
                 }
                 
                 NavigationLink(destination: DisclaimerView(style: .navbar, showAccept: false)
-                                .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
+                                .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all)),
                                tag: NavigationTag.disclaimer, selection: $selection) {
                     DetailsRowView(title: "disclaimer_title".localized,
                                    subtitle: "")
@@ -170,7 +170,7 @@ struct DetailsView: View {
                 }, label: {
                     Text("details_row_title_send_feedback".localized)
                         .font(.system(size: 16, weight: .regular, design: .default))
-                        .foregroundColor(.tangemTapGrayDark6)
+                        .foregroundColor(.tangemGrayDark6)
                 })
                 .sheet(isPresented: $navigation.detailsToSendEmail, content: {
                     MailView(dataCollector: viewModel.dataCollector,
@@ -180,7 +180,7 @@ struct DetailsView: View {
                 
                 if let cardTouURL = viewModel.cardTouURL {
                     NavigationLink(destination: WebViewContainer(url: cardTouURL, title: "details_row_title_card_tou")
-                                    .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
+                                    .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all)),
                                    tag: NavigationTag.cardTermsOfUse, selection: $selection) {
                         DetailsRowView(title: "details_row_title_card_tou".localized,
                                        subtitle: "")
@@ -190,7 +190,7 @@ struct DetailsView: View {
                 
                 if viewModel.shouldShowWC {
                     NavigationLink(destination: WalletConnectView(viewModel: viewModel.assembly.makeWalletConnectViewModel(cardModel: viewModel.cardModel))
-                                    .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all)),
+                                    .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all)),
                                    tag: NavigationTag.walletConnect, selection: $selection) {
                         DetailsRowView(title: "WalletConnect",
                                        subtitle: "")
@@ -198,13 +198,13 @@ struct DetailsView: View {
                     }
                 }
             }
-            Section(header: Color.tangemTapBgGray
+            Section(header: Color.tangemBgGray
                         .listRowInsets(EdgeInsets())) {
                 EmptyView()
             }
         }
         .alert(item: $viewModel.error) { $0.alert }
-        .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
+        .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("details_title", displayMode: .inline)
         .navigationBarBackButtonHidden(false)
         .navigationBarHidden(false)
@@ -235,12 +235,12 @@ extension DetailsView {
             HStack {
                 Text(text)
                     .font(.headline)
-                    .foregroundColor(.tangemTapBlue)
+                    .foregroundColor(.tangemBlue)
                     .padding(16)
                 Spacer()
             }
             .padding(.top, additionalTopPadding)
-            .background(Color.tangemTapBgGray)
+            .background(Color.tangemBgGray)
             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 1, trailing: 0))
         }
     }
@@ -250,20 +250,20 @@ extension DetailsView {
         var additionalBottomPadding: CGFloat = 0
         var body: some View {
             if text.isEmpty {
-                Color.tangemTapBgGray
-                    .listRowBackground(Color.tangemTapBgGray)
+                Color.tangemBgGray
+                    .listRowBackground(Color.tangemBgGray)
                     .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
                     .frame(height: 0)
             } else {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(text)
                         .font(.footnote)
-                        .foregroundColor(.tangemTapGrayDark)
+                        .foregroundColor(.tangemGrayDark)
                         .padding()
                         .padding(.bottom, additionalBottomPadding)
                     Color.clear.frame(height: 0)
                 }
-                .background(Color.tangemTapBgGray)
+                .background(Color.tangemBgGray)
                 .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
             }
         }
