@@ -114,7 +114,7 @@ struct CustomTextField: UIViewRepresentable {
     var actionButton : String? =  nil
     var keyboard : UIKeyboardType = .default
 	var clearButtonMode: UITextField.ViewMode = .never
-    var textColor: UIColor = UIColor.tangemTapGrayDark4
+    var textColor: UIColor = UIColor.tangemGrayDark4
     var font: UIFont = UIFont.systemFont(ofSize: 16.0)
     let placeholder: String
     let toolbarItems: [UIBarButtonItem]? = nil
@@ -159,7 +159,7 @@ struct CustomTextField: UIViewRepresentable {
         if !toolbarItems.isEmpty {
             let toolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 44))
             toolbar.items = toolbarItems
-            toolbar.backgroundColor = UIColor.tangemTapBgGray
+            toolbar.backgroundColor = UIColor.tangemBgGray
             toolbar.tintColor = UIColor.black
             textField.inputAccessoryView = toolbar
         }
