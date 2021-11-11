@@ -10,7 +10,7 @@ import Foundation
 import BlockchainSdk
 import Combine
 
-class PushTxViewModel: ViewModel {
+class PushTxViewModel: ViewModel, ObservableObject {
     
     weak var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
@@ -161,7 +161,7 @@ class PushTxViewModel: ViewModel {
             .map {[unowned self] newRates -> Bool in
                 return newRates[self.amountToSend.currencySymbol] != nil
             }
-            .assign(to: \.canFiatCalculation, on: self)
+            .weakAssign(to: \.canFiatCalculation, on: self)
             .store(in: &bag)
         
         $isFiatCalculation
@@ -181,17 +181,17 @@ class PushTxViewModel: ViewModel {
                 let fee = self.fees[feeLevel]
                 return fee
             }
-            .assign(to: \.selectedFee, on: self)
+            .weakAssign(to: \.selectedFee, on: self)
             .store(in: &bag)
         
         $fees
             .dropFirst()
-            .map { [unowned self] in
-                guard $0.count > self.selectedFeeLevel else { return nil }
+            .map { [unowned self] values -> Amount? in
+                guard values.count > self.selectedFeeLevel else { return nil }
                 
-                return $0[self.selectedFeeLevel]
+                return values[self.selectedFeeLevel]
             }
-            .assign(to: \.selectedFee, on: self)
+            .weakAssign(to: \.selectedFee, on: self)
             .store(in: &bag)
 
         $isFeeIncluded

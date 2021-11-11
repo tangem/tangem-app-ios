@@ -45,12 +45,12 @@ enum WalletConnectAction: String {
     case bnbSign = "bnb_sign"
     case bnbTxConfirmation = "bnb_tx_confirmation"
     
-    var shouldDisplaySuccessAlert: Bool {
-        switch self {
-        case .bnbTxConfirmation: return false
-        default: return true
-        }
-    }
+//    var shouldDisplaySuccessAlert: Bool {
+//        switch self {
+//        case .bnbTxConfirmation: return false
+//        default: return true
+//        }
+//    }
     
     var successMessage: String {
         switch self {
@@ -197,9 +197,9 @@ extension WalletConnectService: WalletConnectHandlerDelegate {
         server.send(response)
         Analytics.logWcEvent(.action(action))
         
-        if action.shouldDisplaySuccessAlert {
-            presentOnTop(WalletConnectUIBuilder.makeAlert(for: .success, message: action.successMessage), delay: 0.5)
-        }
+//        if action.shouldDisplaySuccessAlert {
+//            presentOnTop(WalletConnectUIBuilder.makeAlert(for: .success, message: action.successMessage), delay: 0.5)
+//        }
     }
     
     func sendInvalid(_ request: Request) {
@@ -402,7 +402,6 @@ enum WalletConnectServiceError: LocalizedError {
     case other(Error)
     case noChainId
     case unsupportedNetwork
-    
     var shouldHandle: Bool {
         switch self {
         case .cancelled, .deallocated, .failedToFindSigner: return false

@@ -12,11 +12,14 @@ import Combine
 import TangemSdk
 import BlockchainSdk
 
-class DetailsViewModel: ViewModel {
+class DetailsViewModel: ViewModel, ObservableObject {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
     weak var cardsRepository: CardsRepository!
-
+    weak var onboardingStepsSetupService: OnboardingStepsSetupService!
+    
+    @Published var isCheckingPin = false
+    
     weak var ratesService: CoinMarketCapService! {
         didSet {
             ratesService
@@ -29,7 +32,7 @@ class DetailsViewModel: ViewModel {
         }
     }
     
-
+    
     @Published var cardModel: CardViewModel! {
         didSet {
             cardModel.objectWillChange
@@ -40,21 +43,38 @@ class DetailsViewModel: ViewModel {
                 .store(in: &bag)
         }
     }
+    @Published var isTwinRecreationModel: Bool = false
+    @Published var error: AlertBinder?
     
     var dataCollector: DetailsFeedbackDataCollector!
-	
+    
     var hasWallet: Bool {
         cardModel.hasWallet
     }
     
     var shouldShowWC: Bool {
-        cardModel.cardInfo.card.wallets.contains(where: { $0.curve == .secp256k1 })
-            && (cardModel.wallets?.contains(where: { $0.blockchain == .ethereum(testnet: false) || $0.blockchain == .ethereum(testnet: true) }) ?? false)
+        if cardModel.cardInfo.isTangemNote {
+            return false
+        }
+        
+        if cardModel.cardInfo.card.isStart2Coin {
+            return false
+        }
+        
+        if cardModel.cardInfo.card.isTwinCard {
+            return false
+        }
+        
+        if !cardModel.cardInfo.card.supportedCurves.contains(.secp256k1) {
+            return false
+        }
+        
+        return true
     }
     
-	var isTwinCard: Bool {
-		cardModel.isTwinCard
-	}
+    var isTwinCard: Bool {
+        cardModel.isTwinCard
+    }
     
     var cardTouURL: URL? {
         guard cardModel.isStart2CoinCard else { //is this card is S2C
@@ -111,15 +131,23 @@ class DetailsViewModel: ViewModel {
     var cardCid: String {
         let cardId = cardModel.cardInfo.card.cardId
         return isTwinCard ?
-            TapTwinCardIdFormatter.format(cid: cardId, cardNumber: cardModel.cardInfo.twinCardInfo?.series?.number) :
+            TapTwinCardIdFormatter.format(cid: cardId, cardNumber: cardModel.cardInfo.twinCardInfo?.series.number) :
             TapCardIdFormatter(cid: cardId).formatted()
     }
     
     private var bag = Set<AnyCancellable>()
     
     func checkPin(_ completion: @escaping () -> Void) {
+        if cardModel.cardInfo.card.firmwareVersion.doubleValue >= 4.39 {
+            completion()
+            return
+        }
+        
+        isCheckingPin = true
         cardModel.checkPin { [weak self] result in
             guard let self = self else { return }
+            
+            self.isCheckingPin = false
             switch result {
             case .success:
                 completion()
@@ -129,14 +157,32 @@ class DetailsViewModel: ViewModel {
         }
     }
     
-    func purgeWallet(completion: @escaping (Result<Void, Error>) -> Void ) {
-        cardModel.purgeWallet() {result in
-            switch result {
-            case .success:
-                completion(.success(()))
+    func prepareTwinOnboarding() {
+        onboardingStepsSetupService.twinRecreationSteps(for: cardModel.cardInfo)
+            .sink { completion in
+            switch completion {
             case .failure(let error):
-                completion(.failure(error))
+                Analytics.log(error: error)
+                print("Failed to load image for new card")
+                self.error = error.alertBinder
+            case .finished:
+                break
             }
+        } receiveValue: { [weak self] steps in
+            guard let self = self else { return }
+            
+            let input = OnboardingInput(steps: steps,
+                                        cardModel: self.cardModel,
+                                        cardImage: nil,
+                                        cardsPosition: nil,
+                                        welcomeStep: nil,
+                                        currentStepIndex: 0,
+                                        successCallback: { [weak self] in
+                                            self?.navigation.detailsToTwinsRecreateWarning = false
+                                        })
+            self.assembly.makeCardOnboardingViewModel(with: input)
+            self.navigation.detailsToTwinsRecreateWarning = true
         }
+        .store(in: &bag)
     }
 }
