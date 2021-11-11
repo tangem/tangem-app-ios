@@ -90,10 +90,10 @@ struct OnboardingAccessCodeView: View {
                     VStack(alignment: .leading, spacing: 3) {
                         Text(feature.title)
                             .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.tangemTapGrayDark6)
+                            .foregroundColor(.tangemGrayDark6)
                         Text(feature.description)
                             .font(.system(size: 16, weight: .regular))
-                            .foregroundColor(.tangemTapGrayDark2)
+                            .foregroundColor(.tangemGrayDark2)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -109,11 +109,11 @@ struct OnboardingAccessCodeView: View {
     var inputContent: some View {
         Text("onboarding_access_code_hint")
             .font(.system(size: 16, weight: .regular))
-            .foregroundColor(.tangemTapGrayDark6)
+            .foregroundColor(.tangemGrayDark6)
             .padding(.bottom, 32)
             .padding(.top, 13)
             .multilineTextAlignment(.center)
-        CustomPasswordTextField(placeholder: "Access code", color: .tangemTapGrayDark6, password: state == .inputCode ? $firstEnteredCode : $secondEnteredCode, onCommit: {
+        CustomPasswordTextField(placeholder: "Access code", color: .tangemGrayDark6, password: state == .inputCode ? $firstEnteredCode : $secondEnteredCode, onCommit: {
             
         })
         .frame(height: 44)
@@ -126,7 +126,7 @@ struct OnboardingAccessCodeView: View {
                 .font(.system(size: 32, weight: .bold))
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 10)
-                .foregroundColor(.tangemTapGrayDark6)
+                .foregroundColor(.tangemGrayDark6)
                 .padding(.top, Constants.isSmallScreen ? 20 : 72)
                 .lineLimit(2)
                 .id("title_\(state.rawValue)")
@@ -145,7 +145,7 @@ struct OnboardingAccessCodeView: View {
                 .multilineTextAlignment(.center)
                 .font(.system(size: 15, weight: .regular))
                 .opacity(error.errorOpacity)
-                .foregroundColor(.tangemTapCritical)
+                .foregroundColor(.tangemCritical)
             Spacer()
             TangemButton(title: state.buttonTitle) {
                 let nextState: ViewState
@@ -198,7 +198,7 @@ struct CustomPasswordTextField: View {
     
     let placeholder: LocalizedStringKey
     let color: Color
-    var backgroundColor: Color = .tangemTapBgGray2
+    var backgroundColor: Color = .tangemBgGray2
     
     var password: Binding<String>
     
@@ -234,7 +234,7 @@ struct CustomPasswordTextField: View {
                 })
             }
             .padding(.leading, 16)
-            .background(Color.tangemTapBgGray2)
+            .background(Color.tangemBgGray2)
             .cornerRadius(10)
         }
     }
