@@ -48,7 +48,7 @@
 //            ScrollView {
 //                Text("disclaimer_text")
 //                    .font(Font.system(size: 16, weight: .regular, design: .default))
-//                    .foregroundColor(.tangemTapGrayDark2)
+//                    .foregroundColor(.tangemGrayDark2)
 //                    .padding()
 //            }
 //            
@@ -59,7 +59,7 @@
 //            
 //            navigationLinks
 //        }
-//        .foregroundColor(.tangemTapGrayDark6)
+//        .foregroundColor(.tangemGrayDark6)
 //        .navigationBarTitle("disclaimer_title")
 //        .navigationBarBackButtonHidden(viewModel.state == .accept)
 //        .navigationBarHidden(isNavBarHidden)

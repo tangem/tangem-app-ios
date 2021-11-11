@@ -32,7 +32,7 @@ struct SendView: View {
                     HStack {
                         Text("send_title")
                             .font(Font.system(size: 30.0, weight: .bold, design: .default) )
-                            .foregroundColor(Color.tangemTapGrayDark6)
+                            .foregroundColor(Color.tangemGrayDark6)
                         Spacer()
                     }
                     .padding(.bottom)
@@ -41,10 +41,10 @@ struct SendView: View {
                                    suplementView: {
                                     if !viewModel.isSellingCrypto {
                                         CircleActionButton(action: {self.viewModel.pasteClipboardTapped() },
-                                                           backgroundColor: .tangemTapBgGray,
+                                                           backgroundColor: .tangemBgGray,
                                                            imageName: self.viewModel.validatedClipboard == nil ? "doc.on.clipboard" : "doc.on.clipboard.fill",
                                                            isSystemImage: true,
-                                                           imageColor: .tangemTapGrayDark6,
+                                                           imageColor: .tangemGrayDark6,
                                                            isDisabled: self.viewModel.validatedClipboard == nil)
                                             .accessibility(label: Text(self.viewModel.validatedClipboard == nil ? "voice_over_nothing_to_paste" : "voice_over_paste_from_clipboard"))
                                             .disabled(self.viewModel.validatedClipboard == nil)
@@ -56,10 +56,10 @@ struct SendView: View {
                                                     self.viewModel.navigation.sendToQR = true
                                                 }
                                             },
-                                            backgroundColor: .tangemTapBgGray,
+                                            backgroundColor: .tangemBgGray,
                                             imageName: "qrcode.viewfinder",
                                             isSystemImage: true,
-                                            imageColor: .tangemTapGrayDark6
+                                            imageColor: .tangemGrayDark6
                                         )
                                         .accessibility(label: Text("voice_over_scan_qr_with_address"))
                                         .sheet(isPresented: self.$viewModel.navigation.sendToQR) {
@@ -104,7 +104,7 @@ struct SendView: View {
                                             handleKeyboard: true,
                                             actionButton: "send_max_amount_label".localized,
                                             keyboard: UIKeyboardType.decimalPad,
-                                            textColor: viewModel.isSellingCrypto ? UIColor.tangemTapGrayDark6.withAlphaComponent(0.6) : UIColor.tangemTapGrayDark6,
+                                            textColor: viewModel.isSellingCrypto ? UIColor.tangemGrayDark6.withAlphaComponent(0.6) : UIColor.tangemGrayDark6,
                                             font: UIFont.systemFont(ofSize: 38.0, weight: .light),
                                             placeholder: "",
                                             decimalCount: self.viewModel.inputDecimalsCount)
@@ -117,11 +117,11 @@ struct SendView: View {
                                 Text(self.viewModel.currencyUnit)
                                     .font(Font.system(size: 38.0, weight: .light, design: .default))
                                     .foregroundColor(!viewModel.isSellingCrypto ?
-                                                        Color.tangemTapBlue : Color.tangemTapGrayDark6.opacity(0.5))
+                                                        Color.tangemBlue : Color.tangemGrayDark6.opacity(0.5))
                                 if !viewModel.isSellingCrypto {
                                     Image(systemName: "arrow.up.arrow.down")
                                         .font(Font.system(size: 17.0, weight: .regular, design: .default))
-                                        .foregroundColor(Color.tangemTapBlue)
+                                        .foregroundColor(Color.tangemBlue)
                                 }
                             }
                             }
@@ -133,13 +133,13 @@ struct SendView: View {
                             Text(self.viewModel.amountHint?.message ?? " " )
                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
                                 .foregroundColor((self.viewModel.amountHint?.isError ?? false ) ?
-                                                    Color.red : Color.tangemTapGrayDark)
+                                                    Color.red : Color.tangemGrayDark)
                             Spacer()
                             Text(self.viewModel.walletTotalBalanceFormatted)
                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
                                 .lineLimit(2)
                                 .fixedSize(horizontal: false, vertical: true)
-                                .foregroundColor(Color.tangemTapGrayDark)
+                                .foregroundColor(Color.tangemGrayDark)
                         }
                     }
                     if self.viewModel.shouldShowNetworkBlock {
@@ -147,7 +147,7 @@ struct SendView: View {
                             HStack {
                                 Text("send_network_fee_title")
                                     .font(Font.system(size: 14.0, weight: .medium, design: .default))
-                                    .foregroundColor(Color.tangemTapGrayDark6)
+                                    .foregroundColor(Color.tangemGrayDark6)
                                 Spacer()
                                 Button(action: {
                                     withAnimation {
@@ -157,7 +157,7 @@ struct SendView: View {
                                     if !viewModel.isSellingCrypto {
                                         Image(systemName: self.viewModel.isNetworkFeeBlockOpen ? "chevron.up" : "chevron.down")
                                             .font(Font.system(size: 14.0, weight: .medium, design: .default))
-                                            .foregroundColor(Color.tangemTapGrayDark6)
+                                            .foregroundColor(Color.tangemGrayDark6)
                                             .padding()
                                     }
                                 }
@@ -176,7 +176,7 @@ struct SendView: View {
                                         Toggle(isOn: self.$viewModel.isFeeIncluded) {
                                             Text("send_fee_include_description")
                                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
-                                                .foregroundColor(Color.tangemTapGrayDark6)
+                                                .foregroundColor(Color.tangemGrayDark6)
                                         }
                                     }
                                 }
@@ -190,42 +190,42 @@ struct SendView: View {
                         HStack{
                             Text("send_amount_label")
                                 .font(Font.system(size: 14.0, weight: .medium, design: .default))
-                                .foregroundColor(Color.tangemTapGrayDark6)
+                                .foregroundColor(Color.tangemGrayDark6)
                             Spacer()
                             Text(self.viewModel.sendAmount)
                                 .font(Font.system(size: 14.0, weight: .medium, design: .default))
                                 .fixedSize(horizontal: false, vertical: true)
-                                .foregroundColor(Color.tangemTapGrayDark6)
+                                .foregroundColor(Color.tangemGrayDark6)
                         }
                         HStack{
                             Text("send_fee_label")
                                 .font(Font.system(size: 14.0, weight: .medium, design: .default))
-                                .foregroundColor(Color.tangemTapGrayDark)
+                                .foregroundColor(Color.tangemGrayDark)
                             Spacer()
                             if self.viewModel.isFeeLoading {
-                                ActivityIndicatorView(color: UIColor.tangemTapGrayDark)
+                                ActivityIndicatorView(color: UIColor.tangemGrayDark)
                                     .offset(x: 8)
                             } else {
                                 Text(self.viewModel.sendFee)
                                     .font(Font.system(size: 14.0, weight: .medium, design: .default))
-                                    .foregroundColor(Color.tangemTapGrayDark)
+                                    .foregroundColor(Color.tangemGrayDark)
                                     .frame(height: 20)
                             }
                         }
-                        Color.tangemTapGrayLight5
+                        Color.tangemGrayLight5
                             .frame(width: nil, height: 1.0, alignment: .center)
                             .padding(.vertical, 8.0)
                         HStack{
                             Text("send_total_label")
                                 .font(Font.system(size: 20.0, weight: .bold, design: .default))
-                                .foregroundColor(Color.tangemTapGrayDark6)
+                                .foregroundColor(Color.tangemGrayDark6)
                             Spacer()
                             Text(self.viewModel.sendTotal)
                                 .font(Font.system(size: 20.0, weight: .bold, design: .default))
                                 .lineLimit(1)
                                 .minimumScaleFactor(0.5)
                                 .fixedSize(horizontal: false, vertical: true)
-                                .foregroundColor(Color.tangemTapGrayDark6)
+                                .foregroundColor(Color.tangemGrayDark6)
                             
                         }
                         if !viewModel.isSellingCrypto {
@@ -234,7 +234,7 @@ struct SendView: View {
                                 Text(self.viewModel.sendTotalSubtitle)
                                     .font(Font.system(size: 14.0, weight: .bold, design: .default))
                                     .fixedSize(horizontal: false, vertical: true)
-                                    .foregroundColor(Color.tangemTapGrayDark)
+                                    .foregroundColor(Color.tangemGrayDark)
                             }
                         }
                     }
