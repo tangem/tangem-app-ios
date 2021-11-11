@@ -98,20 +98,20 @@ struct WalletOnboardingView: View {
                         
                         AnimatedView(settings: viewModel.$thirdCardSettings) {
                             OnboardingCardView(placeholderCardType: secondCardPlaceholder,
-                                               cardImage: viewModel.mainCardImage,
+                                               cardImage: viewModel.cardImage,
                                                cardScanned: (viewModel.backupCardsAddedCount >= 2 || currentStep == .backupIntro) && viewModel.canDisplayCardImage)
                         }
                         
                         AnimatedView(settings: viewModel.$supplementCardSettings) {
                             OnboardingCardView(placeholderCardType: secondCardPlaceholder,
-                                               cardImage: viewModel.mainCardImage,
+                                               cardImage: viewModel.cardImage,
                                                cardScanned: (viewModel.backupCardsAddedCount >= 1 || currentStep == .backupIntro) && viewModel.canDisplayCardImage)
                         }
                         
                         AnimatedView(settings: viewModel.$mainCardSettings) {
                             ZStack(alignment: .topTrailing) {
                                 OnboardingCardView(placeholderCardType: .dark,
-                                                   cardImage: viewModel.mainCardImage,
+                                                   cardImage: viewModel.cardImage,
                                                    cardScanned: viewModel.isInitialAnimPlayed && currentStep != .welcome)
                                 Text("common_origin_card")
                                     .font(.system(size: 13, weight: .semibold))
