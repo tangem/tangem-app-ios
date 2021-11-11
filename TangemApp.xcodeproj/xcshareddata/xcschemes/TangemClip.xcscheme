@@ -17,7 +17,7 @@
                BlueprintIdentifier = "B0D3600025F26C7400929564"
                BuildableName = "TangemClip.app"
                BlueprintName = "TangemClip"
-               ReferencedContainer = "container:Tangem Tap.xcodeproj">
+               ReferencedContainer = "container:TangemApp.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -47,7 +47,7 @@
             BlueprintIdentifier = "B0D3600025F26C7400929564"
             BuildableName = "TangemClip.app"
             BlueprintName = "TangemClip"
-            ReferencedContainer = "container:Tangem Tap.xcodeproj">
+            ReferencedContainer = "container:TangemApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <EnvironmentVariables>
@@ -71,7 +71,7 @@
             BlueprintIdentifier = "B0D3600025F26C7400929564"
             BuildableName = "TangemClip.app"
             BlueprintName = "TangemClip"
-            ReferencedContainer = "container:Tangem Tap.xcodeproj">
+            ReferencedContainer = "container:TangemApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
