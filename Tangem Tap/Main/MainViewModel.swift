@@ -548,7 +548,6 @@ class MainViewModel: ViewModel, ObservableObject {
 
             let input = OnboardingInput(steps: steps,
                                         cardModel: .cardModel(cardModel),
-                                        cardImage:  self.image,
                                         cardsPosition: nil,
                                         welcomeStep: nil,
                                         currentStepIndex: 0,
