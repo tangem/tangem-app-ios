@@ -107,7 +107,7 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
                         
                         var m = ""
                         m += String(format: "wallet_connect_create_tx_message".localized,
-                                    TapCardIdFormatter(cid: wallet.cid).formatted(),
+                                    AppCardIdFormatter(cid: wallet.cid).formatted(),
                                     dApp.peerMeta.name,
                                     dApp.peerMeta.url.absoluteString,
                                     valueAmount.description,
