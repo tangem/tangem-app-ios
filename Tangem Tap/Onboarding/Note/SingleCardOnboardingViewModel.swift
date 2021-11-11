@@ -16,7 +16,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     weak var cardsRepository: CardsRepository!
     weak var stepsSetupService: OnboardingStepsSetupService!
     
-    @Published var cardImage: UIImage?
     @Published var isCardScanned: Bool = true
 
     var shopURL: URL { Constants.shopURL }
@@ -54,7 +53,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         }
     }
     
-    private var bag: Set<AnyCancellable> = []
     private var previewUpdateCounter: Int = 0
     private var walletCreatedWhileOnboarding: Bool = false
     private var scheduledUpdate: DispatchWorkItem?
@@ -69,7 +67,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     }
     
     override init(exchangeService: ExchangeService, input: OnboardingInput) {
-        cardImage = input.cardImage
         super.init(exchangeService: exchangeService, input: input)
         
         if case let .singleWallet(steps) = input.steps {
@@ -77,8 +74,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         } else {
             fatalError("Wrong onboarding steps passed to initializer")
         }
-      
-        cardModel.map { loadImage(for: $0) }
     }
         
     // MARK: Functions
@@ -137,13 +132,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
                                                                                                        animated: animated),
                                  intermediateSettings: nil)
         supplementCardSettings = .init(targetSettings: SingleCardOnboardingCardsLayout.supplementary.cardAnimSettings(for: currentStep, containerSize: containerSize, animated: animated), intermediateSettings: nil)
-    }
-    
-    private func loadImage(for cardModel: CardViewModel) {
-        cardModel
-            .imageLoaderPublisher
-            .weakAssign(to: \.cardImage, on: self)
-            .store(in: &bag)
     }
     
     private func сreateWallet() {
