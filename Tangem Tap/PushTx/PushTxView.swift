@@ -69,7 +69,7 @@ struct PushTxView: View {
                                     .font(Font.system(size: 38.0, weight: .light, design: .default))
                                     .foregroundColor(self.viewModel.canFiatCalculation ?
                                                         Color.tangemTapBlue : Color.tangemTapBlue.opacity(0.5))
-                                Image("arrow.up.arrow.down")
+                                Image(systemName: "arrow.up.arrow.down")
                                     .font(Font.system(size: 17.0, weight: .regular, design: .default))
                                     .foregroundColor(self.viewModel.canFiatCalculation ?
                                                         Color.tangemTapBlue : Color.tangemTapBlue.opacity(0.5))
@@ -148,9 +148,8 @@ struct PushTxView: View {
                     //                    .padding(.bottom, 16)
                     HStack(alignment: .center, spacing: 8.0) {
                         Spacer()
-                        TangemLongButton(isLoading: false,
-                                         title: "wallet_button_send",
-                                         image: "arrow.right") {
+                        TangemButton(title: "wallet_button_send",
+                                     systemImage: "arrow.right") {
                             viewModel.send() {
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
                                     let alert = AlertBuilder.makeSuccessAlert(message: "send_transaction_success".localized) {
@@ -160,9 +159,8 @@ struct PushTxView: View {
                                     self.viewModel.sendError = AlertBinder(alert: alert, error: nil)
                                 })
                             }
-                        }.buttonStyle(TangemButtonStyle(color: .green,
-                                                        isDisabled: !self.viewModel.isSendEnabled))
-                        .disabled(!viewModel.isSendEnabled)
+                        }.buttonStyle(TangemButtonStyle(layout: .big,
+                                                        isDisabled: !viewModel.isSendEnabled))
                         .sheet(isPresented: $navigation.pushToSendEmail, content: {
                             MailView(dataCollector: viewModel.emailDataCollector, support: .tangem, emailType: .failedToSendTx)
                         })
