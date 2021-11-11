@@ -15,7 +15,6 @@ extension Assembly {
     var previewNoteCardOnboardingInput: OnboardingInput {
         OnboardingInput(steps: .singleWallet([.createWallet, .success]),
                             cardModel: .cardModel(previewCardViewModel),
-                            cardImage: UIImage(named: "note_btc")!,
                             cardsPosition: nil,
                             welcomeStep: nil,
                             currentStepIndex: 0,
@@ -27,7 +26,6 @@ extension Assembly {
                              .first, .second, .third,
                              .topup, .confetti, .done]),
               cardModel: .cardModel(.previewViewModel(for: .twin)),
-              cardImage: UIImage(named: "card_btc")!,
               cardsPosition: nil,
               welcomeStep: nil,
               currentStepIndex: 0,
@@ -37,7 +35,6 @@ extension Assembly {
     var previewWalletOnboardingInput: OnboardingInput {
         .init(steps: .wallet([.createWallet, .backupIntro, .selectBackupCards, .backupCards, .success]),
               cardModel: .cardModel(previewCardViewModel),
-              cardImage: UIImage(named: "wallet_card")!,
               cardsPosition: nil,
               welcomeStep: nil,
               currentStepIndex: 0,
