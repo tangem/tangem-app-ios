@@ -49,9 +49,9 @@ struct BalanceAddressView: View {
         if walletModel.state.errorDescription == nil
             && !walletModel.wallet.hasPendingTx(for: amountType)
             && !walletModel.state.isLoading {
-            return .tangemTapGreen
+            return .tangemGreen
         }
-        return .tangemTapWarning
+        return .tangemWarning
     }
     
     var balance: String {
@@ -75,7 +75,7 @@ struct BalanceAddressView: View {
                     } else {
                         Text(balance)
                             .font(Font.system(size: 20.0, weight: .bold, design: .default))
-                            .foregroundColor(Color.tangemTapGrayDark6)
+                            .foregroundColor(Color.tangemGrayDark6)
                             .minimumScaleFactor(0.8)
                             .multilineTextAlignment(.leading)
                             .truncationMode(.middle)
@@ -85,7 +85,7 @@ struct BalanceAddressView: View {
                             .font(Font.system(size: 14.0, weight: .medium, design: .default))
                             .lineLimit(1)
                             .fixedSize(horizontal: false, vertical: true)
-                            .foregroundColor(Color.tangemTapGrayDark)
+                            .foregroundColor(Color.tangemGrayDark)
                     }
                     HStack(alignment: .firstTextBaseline, spacing: 5.0) {
                         Image(systemName: image)
@@ -127,7 +127,7 @@ struct BalanceAddressView: View {
                             .font(Font.system(size: 13.0, weight: .medium, design: .default))
                             .lineLimit(3)
                             .truncationMode(.middle)
-                            .foregroundColor(Color.tangemTapGrayDark)
+                            .foregroundColor(Color.tangemGrayDark)
                             .fixedSize(horizontal: false, vertical: true)
                         Button(action: {
                                 if let url = walletModel.exploreURL(for: selectedAddressIndex) {
@@ -140,7 +140,7 @@ struct BalanceAddressView: View {
                                 Image (systemName: "chevron.right")
                             }
                             .font(Font.system(size: 14.0, weight: .bold, design: .default))
-                            .foregroundColor(Color.tangemTapGrayDark6)
+                            .foregroundColor(Color.tangemGrayDark6)
                         }
                         .padding(.bottom, 8)
                         
@@ -166,7 +166,7 @@ struct BalanceAddressView: View {
             Text(walletModel.getQRReceiveMessage(for: amountType))
                 .font(.system(size: 16, weight: .regular))
                 .multilineTextAlignment(.center)
-                .foregroundColor(.tangemTapGrayDark)
+                .foregroundColor(.tangemGrayDark)
             
         }
         .padding(16)

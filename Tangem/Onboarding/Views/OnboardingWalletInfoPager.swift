@@ -99,7 +99,7 @@ where Data : RandomAccessCollection, Data.Element : Hashable, Content : View {
                 HStack(spacing: 6) {
                     ForEach(0..<data.count) { index in
                         Circle()
-                            .foregroundColor((index == currentIndex) ? .tangemTapGrayDark6 : .tangemTapGrayLight5)
+                            .foregroundColor((index == currentIndex) ? .tangemGrayDark6 : .tangemGrayLight5)
                             .frame(width: 10, height: 10)
                     }
                 }

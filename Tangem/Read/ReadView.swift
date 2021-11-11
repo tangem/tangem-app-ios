@@ -106,7 +106,7 @@
 //            
 //            Text(titleKey)
 //                .font(Font.system(size: 29.0, weight: .light, design: .default))
-//                .foregroundColor(Color.tangemTapGrayDark6)
+//                .foregroundColor(Color.tangemGrayDark6)
 //                .padding(.leading, 16)
 //                .padding(.trailing, 50)
 //            Spacer()
@@ -150,7 +150,7 @@
 //            .padding([.leading, .bottom], 16.0)
 //        }
 //        .edgesIgnoringSafeArea(.top)
-//        .background(Color.tangemTapBg.edgesIgnoringSafeArea(.all))
+//        .background(Color.tangemBg.edgesIgnoringSafeArea(.all))
 //        .alert(item: $viewModel.scanError) { $0.alert }
 //    }
 //}
