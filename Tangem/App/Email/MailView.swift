@@ -54,9 +54,9 @@ struct MailView: UIViewControllerRepresentable {
                     self?.$presentation.wrappedValue.dismiss()
                 }
             })
-            alert.view.tintColor = .tangemTapGrayDark6
-            alert.setValue(NSAttributedString(string: title, attributes: [.foregroundColor: UIColor.tangemTapGrayDark6, .font: UIFont.systemFont(ofSize: 16, weight: .bold)]), forKey: "attributedTitle")
-            alert.setValue(NSAttributedString(string: message, attributes: [.foregroundColor: UIColor.tangemTapGrayDark6, .font: UIFont.systemFont(ofSize: 14, weight: .regular)]), forKey: "attributedMessage")
+            alert.view.tintColor = .tangemGrayDark6
+            alert.setValue(NSAttributedString(string: title, attributes: [.foregroundColor: UIColor.tangemGrayDark6, .font: UIFont.systemFont(ofSize: 16, weight: .bold)]), forKey: "attributedTitle")
+            alert.setValue(NSAttributedString(string: message, attributes: [.foregroundColor: UIColor.tangemGrayDark6, .font: UIFont.systemFont(ofSize: 14, weight: .regular)]), forKey: "attributedMessage")
             alert.addAction(okAction)
             controller.present(alert, animated: true, completion: nil)
         }
