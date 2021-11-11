@@ -82,7 +82,7 @@ struct HorizontalButtonStack: View {
         .font(.system(size: 17))
         .foregroundColor(Color.white)
         .frame(height: height)
-        .background(Color.tangemTapGreen)
+        .background(Color.tangemGreen)
         .cornerRadius(8)
     }
 }

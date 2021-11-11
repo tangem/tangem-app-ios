@@ -69,7 +69,7 @@ struct AddressDetailView: View {
                         .font(Font.system(size: 14.0, weight: .medium, design: .default))
                         .lineLimit(1)
                         .truncationMode(.middle)
-                        .foregroundColor(Color.tangemTapGrayDark)
+                        .foregroundColor(Color.tangemGrayDark)
                     Button(action: {
                         if let url = walletModel.exploreURL(for: selectedAddressIndex) {
                             UIApplication.shared.open(url, options: [:], completionHandler: nil)
@@ -78,37 +78,37 @@ struct AddressDetailView: View {
                         HStack {
                             Text("wallet_address_button_explore")
                                 .font(Font.system(size: 14.0, weight: .bold, design: .default))
-                                .foregroundColor(Color.tangemTapGrayDark6)
+                                .foregroundColor(Color.tangemGrayDark6)
                                 .multilineTextAlignment(.leading)
                                 .lineLimit(1)
                             Image (systemName: "chevron.right")
                                 .font(Font.system(size: 14.0, weight: .bold, design: .default))
-                                .foregroundColor(Color.tangemTapGrayDark6)
+                                .foregroundColor(Color.tangemGrayDark6)
                         }
                     }
                 }
                 Spacer()
                 CircleActionButton(action: {  UIPasteboard.general.string = walletModel.displayAddress(for: selectedAddressIndex) },
-                                   backgroundColor: .tangemTapBgGray,
+                                   backgroundColor: .tangemBgGray,
                                    imageName: "square.on.square",
                                    isSystemImage: true,
-                                   imageColor: .tangemTapGrayDark6,
+                                   imageColor: .tangemGrayDark6,
                                    withVerification: true,
                                    isDisabled: false)
                     .accessibility(label: Text("voice_over_copy_address"))
                 
                 CircleActionButton(action: { self.showQr = true },
-                                   backgroundColor: .tangemTapBgGray,
+                                   backgroundColor: .tangemBgGray,
                                    imageName: "qrcode",
                                    isSystemImage: true,
-                                   imageColor: .tangemTapGrayDark6,
+                                   imageColor: .tangemGrayDark6,
                                    isDisabled: false)
                     .accessibility(label: Text("voice_over_show_address_qr"))
             }
             .padding(.horizontal, 24.0)
             .padding(.vertical, 16.0)
             if showPayIdBlock {
-                Color.tangemTapGrayLight5
+                Color.tangemGrayLight5
                     .frame(width: nil, height: 1.0, alignment: .center)
                     .padding(.horizontal, 24.0)
                     .padding(.top, 8.0)
@@ -128,10 +128,10 @@ struct AddressDetailView: View {
                                     .font(Font.system(size: 14.0, weight: .bold, design: .default))
                                     .multilineTextAlignment(.leading)
                                     .lineLimit(1)
-                                    .foregroundColor(Color.tangemTapGrayDark6)
+                                    .foregroundColor(Color.tangemGrayDark6)
                                 Image (systemName: "chevron.right")
                                     .font(Font.system(size: 14.0, weight: .bold, design: .default))
-                                    .foregroundColor(Color.tangemTapGrayDark6)
+                                    .foregroundColor(Color.tangemGrayDark6)
                                 
                             }
                         }
@@ -139,7 +139,7 @@ struct AddressDetailView: View {
                         Text(payIdText)
                             .font(Font.system(size: 14.0, weight: .medium, design: .default))
                             .fixedSize(horizontal: false, vertical: true)
-                            .foregroundColor(Color.tangemTapGrayDark)
+                            .foregroundColor(Color.tangemGrayDark)
                             .onTapGesture {
                                 UIPasteboard.general.string = self.payIdText
                                 //[REDACTED_TODO_COMMENT]
@@ -166,7 +166,7 @@ struct AddressDetailView_Previews: PreviewProvider {
     
     static var previews: some View {
         ZStack {
-            Color.tangemTapBgGray
+            Color.tangemBgGray
             AddressDetailView(showCreatePayID: $showPayID,
                               showQr: $showQR,
                               selectedAddressIndex: $addressIndex,
