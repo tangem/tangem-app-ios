@@ -18,11 +18,11 @@ struct FilledInputView: View {
         VStack(alignment: .leading, spacing: 0) {
             Text(title)
                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
-                .foregroundColor(Color.tangemTapGrayDark)
+                .foregroundColor(Color.tangemGrayDark)
                 .padding(.bottom, 4)
             Text(text)
                 .font(.system(size: 16, weight: .regular))
-                .foregroundColor(.tangemTapGrayDark6)
+                .foregroundColor(.tangemGrayDark6)
             Separator()
         }
         
@@ -45,7 +45,7 @@ struct PushTxView: View {
                     HStack {
                         Text("common_push")
                             .font(Font.system(size: 30.0, weight: .bold, design: .default) )
-                            .foregroundColor(Color.tangemTapGrayDark6)
+                            .foregroundColor(Color.tangemGrayDark6)
                         Spacer()
                     }
                     .padding(.bottom)
@@ -54,12 +54,12 @@ struct PushTxView: View {
                     VStack(alignment: .leading) {
                         Text("push_tx_address_hint")
                             .font(Font.system(size: 13.0, weight: .medium, design: .default))
-                            .foregroundColor(Color.tangemTapGrayDark)
+                            .foregroundColor(Color.tangemGrayDark)
                             .opacity(0.6)
                             .padding(.bottom, 4)
                         HStack {
                             Text(viewModel.previousTotal)
-                                .foregroundColor(.tangemTapGrayDark6)
+                                .foregroundColor(.tangemGrayDark6)
                                 .opacity(0.6)
                             Spacer()
                             Button(action: {
@@ -68,14 +68,14 @@ struct PushTxView: View {
                                 Text(self.viewModel.currency)
                                     .font(Font.system(size: 38.0, weight: .light, design: .default))
                                     .foregroundColor(self.viewModel.canFiatCalculation ?
-                                                        Color.tangemTapBlue : Color.tangemTapBlue.opacity(0.5))
+                                                        Color.tangemBlue : Color.tangemBlue.opacity(0.5))
                                 Image(systemName: "arrow.up.arrow.down")
                                     .font(Font.system(size: 17.0, weight: .regular, design: .default))
                                     .foregroundColor(self.viewModel.canFiatCalculation ?
-                                                        Color.tangemTapBlue : Color.tangemTapBlue.opacity(0.5))
+                                                        Color.tangemBlue : Color.tangemBlue.opacity(0.5))
                             }
                             }
-                            .foregroundColor(.tangemTapBlue)
+                            .foregroundColor(.tangemBlue)
                             .disabled(!self.viewModel.canFiatCalculation)
                         }
                         .font(.system(size: 38, weight: .light))
@@ -89,12 +89,12 @@ struct PushTxView: View {
                             .font(Font.system(size: 13.0, weight: .medium, design: .default))
                             .lineLimit(2)
                             .fixedSize(horizontal: false, vertical: true)
-                            .foregroundColor(Color.tangemTapGrayDark)
+                            .foregroundColor(Color.tangemGrayDark)
                     }
                     VStack(alignment: .leading) {
                         Text("send_network_fee_title")
                             .font(Font.system(size: 14.0, weight: .medium, design: .default))
-                            .foregroundColor(Color.tangemTapGrayDark6)
+                            .foregroundColor(Color.tangemGrayDark6)
                             .padding(.vertical, 8.0)
                         PickerView(contents: ["send_fee_picker_low".localized,
                                               "send_fee_picker_normal".localized,
@@ -104,31 +104,31 @@ struct PushTxView: View {
                         Text(viewModel.amountHint?.message ?? " " )
                             .font(.system(size: 13.0, weight: .medium, design: .default))
                             .foregroundColor((viewModel.amountHint?.isError ?? false ) ?
-                                                Color.red : Color.tangemTapGrayDark)
+                                                Color.red : Color.tangemGrayDark)
                         Toggle(isOn: self.$viewModel.isFeeIncluded) {
                             Text("send_fee_include_description")
                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
-                                .foregroundColor(Color.tangemTapGrayDark6)
+                                .foregroundColor(Color.tangemGrayDark6)
                         }
                     }
                     Spacer()
                     VStack (spacing: 8.0) {
                         AmountView(label: "send_amount_label",
-                                   labelColor: .tangemTapGrayDark6,
+                                   labelColor: .tangemGrayDark6,
                                    amountText: viewModel.amount)
                         
                         AmountView(label: "push_previous_fee",
-                                   labelColor: .tangemTapGrayDark,
+                                   labelColor: .tangemGrayDark,
                                    amountText: viewModel.previousFee)
                             .opacity(0.6)
                         AmountView(label: "push_additional_fee",
-                                   labelColor: .tangemTapGrayDark,
+                                   labelColor: .tangemGrayDark,
                                    isLoading: viewModel.isFeeLoading,
                                    amountText: viewModel.additionalFee)
                         Separator()
                         
                         AmountView(label: "send_total_label",
-                                   labelColor: .tangemTapGrayDark6,
+                                   labelColor: .tangemGrayDark6,
                                    labelFont: .system(size: 20, weight: .bold, design: .default),
                                    amountText: viewModel.sendTotal,
                                    amountScaleFactor: 0.5,
@@ -138,7 +138,7 @@ struct PushTxView: View {
                             Text(viewModel.sendTotalSubtitle)
                                 .font(Font.system(size: 14.0, weight: .bold, design: .default))
                                 .fixedSize(horizontal: false, vertical: true)
-                                .foregroundColor(Color.tangemTapGrayDark)
+                                .foregroundColor(Color.tangemGrayDark)
                         }
                     }
                     //                    WarningListView(warnings: viewModel.warnings, warningButtonAction: {

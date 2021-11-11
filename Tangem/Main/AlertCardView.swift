@@ -30,7 +30,7 @@ struct AlertCardView: View {
         .foregroundColor(.white)
         .padding(.horizontal, 24.0)
         .padding(.vertical, 16.0)
-        .background(Color.tangemTapGrayDark)
+        .background(Color.tangemGrayDark)
         .cornerRadius(6.0)
     }
 }
