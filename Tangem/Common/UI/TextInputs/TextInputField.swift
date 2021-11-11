@@ -34,21 +34,21 @@ struct TextInputField<SupplementView: View>: View {
 				VStack(alignment: .leading, spacing: 0.0) {
 					Text(text.wrappedValue.isEmpty ? " " : placeholder)
 						.font(Font.system(size: 13.0, weight: .medium, design: .default))
-						.foregroundColor(Color.tangemTapGrayDark)
+						.foregroundColor(Color.tangemGrayDark)
 					CustomTextField(text: text,
 									isResponder:  Binding.constant(nil),
 									actionButtonTapped: Binding.constant(true),
 									handleKeyboard: true,
 									keyboard: keyboardType,
 									clearButtonMode: clearButtonMode,
-									textColor: UIColor.tangemTapGrayDark6,
+									textColor: UIColor.tangemGrayDark6,
 									font: UIFont.systemFont(ofSize: 16.0, weight: .regular),
 									placeholder: placeholder)
 				}
 				Spacer()
 				suplementView
 			}
-			Color.tangemTapGrayLight5
+			Color.tangemGrayLight5
 				.frame(width: nil, height: 1.0, alignment: .center)
 				.padding(.top, 8.0)
 				.padding(.bottom, 4.0)
@@ -57,7 +57,7 @@ struct TextInputField<SupplementView: View>: View {
 				Text(message ?? " ")
 					.font(Font.system(size: 13.0, weight: .medium, design: .default))
 					.foregroundColor(
-						isErrorMessage ? Color.red : Color.tangemTapGrayDark
+						isErrorMessage ? Color.red : Color.tangemGrayDark
 					)
 				Spacer()
 			}

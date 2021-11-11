@@ -16,7 +16,7 @@ extension Token: Identifiable {
     public var id: Int { return hashValue }
     
     var color: Color {
-        let defaultValue = Color.tangemTapGrayLight4
+        let defaultValue = Color.tangemGrayLight4
         let hexPart = contractAddress.drop0xPrefix
         if hexPart.hexToInteger != nil {
             let hex = String(hexPart.prefix(6)) + "FF"

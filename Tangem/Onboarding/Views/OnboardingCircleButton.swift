@@ -73,25 +73,25 @@ struct OnboardingCircleButton: View {
                         Image("refresh")
                             .resizable()
                             .renderingMode(.template)
-                            .foregroundColor(state == .refreshButton ? .tangemTapGrayDark6 : .white)
+                            .foregroundColor(state == .refreshButton ? .tangemGrayDark6 : .white)
                             .frame(size: size.refreshImageSize)
                     )
             })
             .allowsHitTesting(state == .refreshButton)
             ActivityIndicatorView(isAnimating: state == .activityIndicator,
                                   style: size.activityIndicatorStyle,
-                                  color: .tangemTapGrayDark6)
+                                  color: .tangemGrayDark6)
                 .frame(size: buttonSize)
                 .background(Color.white)
                 .cornerRadius(buttonSize.height / 2)
                 .opacity(state == .activityIndicator ? 1.0 : 0.0)
             Circle()
                 .frame(size: buttonSize)
-                .foregroundColor(.tangemTapGreen)
+                .foregroundColor(.tangemGreen)
                 .opacity(0.2)
                 .cornerRadius(buttonSize.height / 2)
                 .scaleEffect(state == .doneCheckmark ? 1.0 : 0.0001)
-            Color.tangemTapGreen
+            Color.tangemGreen
                 .frame(size: successButtonSize)
                 .cornerRadius(successButtonSize.height)
                 .overlay(
@@ -107,7 +107,7 @@ struct OnboardingCircleButton: View {
     var body: some View {
         Circle()
             .strokeBorder(style: StrokeStyle(lineWidth: 1))
-            .foregroundColor(state == .doneCheckmark ? .tangemTapGreen : .tangemTapGrayLight4)
+            .foregroundColor(state == .doneCheckmark ? .tangemGreen : .tangemGrayLight4)
             .background(backgroundView)
             .frame(size: buttonSize)
     }

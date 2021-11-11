@@ -11,7 +11,7 @@ import SwiftUI
 struct CircledCheckmarkView: View {
     
     var borderColor: Color = .white
-    var foregroundColor: Color = .tangemTapGreen
+    var foregroundColor: Color = .tangemGreen
     var filled: Bool
     
     var body: some View {

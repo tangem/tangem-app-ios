@@ -18,7 +18,7 @@ struct WalletConnectView: View {
     
     @ViewBuilder
     var navBarButton: some View {
-        NavigationBusyButton(isBusy: viewModel.isServiceBusy, color: .tangemTapBlue, systemImageName: "plus", action: {
+        NavigationBusyButton(isBusy: viewModel.isServiceBusy, color: .tangemBlue, systemImageName: "plus", action: {
             if viewModel.hasWCInPasteboard {
                 isActionSheetVisible = true
             } else {
@@ -68,7 +68,7 @@ struct WalletConnectView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
+        .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle(Text("wallet_connect_sessions_title"))
         .navigationBarItems(trailing: navBarButton)
         .alert(item: $viewModel.alert) { $0.alert }
