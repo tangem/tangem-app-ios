@@ -26,14 +26,14 @@ struct AddTokensView: View {
         .frame(height: 56)
         .background(Color.white)
         .cornerRadius(6)
-        .shadow(color: .tangemTapGrayLight5, radius: 2, x: 0, y: 1)
+        .shadow(color: .tangemGrayLight5, radius: 2, x: 0, y: 1)
     }
 }
 
 struct AddTokensView_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
-            Color.tangemTapGrayLight5
+            Color.tangemGrayLight5
             AddTokensView(action: {})
                 .padding()
         }

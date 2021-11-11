@@ -17,9 +17,9 @@ struct ProgressIndicatorView: View {
     var body: some View {
         ZStack {
             Circle()
-                .foregroundColor(.tangemTapGrayLight4)
+                .foregroundColor(.tangemGrayLight4)
             Circle()
-                .foregroundColor(.tangemTapGrayDark6)
+                .foregroundColor(.tangemGrayDark6)
                 .scaleEffect(filled ? 1.0 : 0.0)
                 .animation(
                     .easeIn(duration: animDuration)

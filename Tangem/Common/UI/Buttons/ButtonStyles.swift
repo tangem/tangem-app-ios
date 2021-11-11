@@ -70,26 +70,26 @@ enum ButtonColorStyle {
     
     var bgColor: Color {
         switch self {
-        case .green: return .tangemTapGreen
-        case .black: return .tangemTapGrayDark6
-        case .gray: return .tangemTapGrayLight4
+        case .green: return .tangemGreen
+        case .black: return .tangemGrayDark6
+        case .gray: return .tangemGrayLight4
         case .transparentWhite: return .clear
-        case .grayAlt: return .tangemTapBgGray
+        case .grayAlt: return .tangemBgGray
         }
     }
     
     var bgPressedColor: Color {
         switch self {
-        case .green: return .tangemTapGreen1
-        case .black: return .tangemTapGrayDark5
-        case .gray, .grayAlt: return .tangemTapGrayDark
+        case .green: return .tangemGreen1
+        case .black: return .tangemGrayDark5
+        case .gray, .grayAlt: return .tangemGrayDark
         case .transparentWhite: return .clear
         }
     }
     
     var fgColor: Color {
         switch self {
-        case .transparentWhite, .grayAlt: return .tangemTapGrayDark6
+        case .transparentWhite, .grayAlt: return .tangemGrayDark6
         default: return .white
         }
     }
@@ -97,7 +97,7 @@ enum ButtonColorStyle {
     var fgPressedColor: Color {
         switch self {
         case .transparentWhite:
-            return .tangemTapGrayDark3
+            return .tangemGrayDark3
         default:
             return fgColor
         }
@@ -105,7 +105,7 @@ enum ButtonColorStyle {
     
     var indicatorColor: UIColor {
         switch self {
-        case .transparentWhite, .grayAlt: return .tangemTapGrayDark6
+        case .transparentWhite, .grayAlt: return .tangemGrayDark6
         default: return .white
         }
     }
