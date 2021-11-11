@@ -13,13 +13,10 @@ import TangemSdk
 
 class CardImageLoaderService {
 	enum BackedImages {
-		case sergio, marta, `default`, twinCardOne, twinCardTwo
+		case twinCardOne, twinCardTwo
 		
 		var name: String {
 			switch self {
-			case .sergio: return "card_tg059"
-			case .marta: return "card_tg083"
-			case .default: return "card_default"
 			case .twinCardOne: return "card_tg085"
 			case .twinCardTwo: return "card_tg086"
 			}
@@ -27,6 +24,8 @@ class CardImageLoaderService {
 	}
 	
     let networkService: NetworkService
+    
+    private var defaultImage: UIImage { .init(named: "dark_card")! }
     
     init(networkService: NetworkService) {
         self.networkService = networkService
@@ -36,28 +35,45 @@ class CardImageLoaderService {
         print("ImageLoaderService deinit")
     }
     
-    func loadImage(cid: String, cardPublicKey: Data, artworkInfo: ArtworkInfo?) -> AnyPublisher<UIImage, Error> {
+    func loadImage(cid: String, cardPublicKey: Data, artworkInfo: ArtworkInfo?) -> AnyPublisher<UIImage, Never> {
 		let prefix = String(cid.prefix(4))
-		if prefix.elementsEqual("BC01") { //Sergio
-			return backedLoadImage(.sergio)
-        }
-        
-		if prefix.elementsEqual("BC02") { //Marta
-			return backedLoadImage(.marta)
-        }
 		
 		if let series = TwinCardSeries.allCases.first(where: { prefix.elementsEqual($0.rawValue.uppercased()) }) {
-			return backedLoadImage(series.number == 1 ? .twinCardOne : .twinCardTwo)
+			return loadImage(series.number == 1 ? .twinCardOne : .twinCardTwo)
 		}
         
         guard let artworkId = artworkInfo?.id else {
-			return backedLoadImage(.default)
+			return Just(defaultImage).eraseToAnyPublisher()
         }
         
         let endpoint = TangemEndpoint.artwork(cid: cid,
                                               cardPublicKey: cardPublicKey,
                                               artworkId: artworkId)
         
+        return loadImage(at: endpoint)
+    }
+    
+    func loadImage(batch: String) -> AnyPublisher<UIImage, Never> {
+        if batch.isEmpty {
+            return Just(defaultImage).eraseToAnyPublisher()
+        }
+
+        return loadImage(at: GithubEndpoint.byBatch(batch))
+    }
+
+    func loadImage(byNdefLink link: String) -> AnyPublisher<UIImage, Never> {
+        guard let url = URL(string: link) else {
+            return Just(defaultImage).eraseToAnyPublisher()
+        }
+
+        return loadImage(at: GithubEndpoint.byNdefLink(url))
+    }
+    
+    func loadImage(_ image: BackedImages) -> AnyPublisher<UIImage, Never> {
+        backedLoadImage(name: image.name)
+    }
+    
+    private func loadImage(at endpoint: NetworkEndpoint) -> AnyPublisher<UIImage, Never> {
         return networkService
             .requestPublisher(endpoint)
             .subscribe(on: DispatchQueue.global())
@@ -68,17 +84,11 @@ class CardImageLoaderService {
                 
                 throw "Image mapping failed"
             }
-            .tryCatch {[weak self] error -> AnyPublisher<UIImage, Error> in
-                guard let self = self else {
-                    throw error
-                }
-                
-				return self.backedLoadImage(name: BackedImages.default.name)
-            }
+            .replaceError(with: defaultImage)
             .eraseToAnyPublisher()
     }
     
-    func backedLoadImage(name: String) -> AnyPublisher<UIImage, Error> {
+    private func backedLoadImage(name: String) -> AnyPublisher<UIImage, Never> {
         let configuration = URLSessionConfiguration.default
         configuration.requestCachePolicy = .returnCacheDataElseLoad
         let session = URLSession(configuration: configuration)
@@ -89,19 +99,17 @@ class CardImageLoaderService {
                 if let image = UIImage(data: data) {
                     return image
                 }
-                
+
                 throw "Image mapping failed"
-            }.eraseToAnyPublisher()
+            }
+            .replaceError(with: defaultImage)
+            .eraseToAnyPublisher()
     }
-	
-	func backedLoadImage(_ image: BackedImages) -> AnyPublisher<UIImage, Error> {
-		backedLoadImage(name: image.name)
-	}
 }
 
 
 extension CardImageLoaderService {
-    enum ImageEndpoint: NetworkEndpoint {
+    enum GithubEndpoint: NetworkEndpoint {
         case byBatch(String)
         case byNdefLink(URL)
 
@@ -137,45 +145,5 @@ extension CardImageLoaderService {
         var headers: [String : String] {
             ["application/json" : "Content-Type"]
         }
-
-    }
-    
-    func loadImage(batch: String) -> AnyPublisher<UIImage, Error> {
-        if batch.isEmpty {
-            return backedLoadImage(.default)
-        }
-
-        let endpoint = ImageEndpoint.byBatch(batch)
-
-        return publisher(for: endpoint)
-    }
-
-    func loadImage(byNdefLink link: String) -> AnyPublisher<UIImage, Error> {
-        guard let url = URL(string: link) else {
-            return backedLoadImage(.default)
-        }
-
-        return publisher(for: ImageEndpoint.byNdefLink(url))
-    }
-    
-    private func publisher(for endpoint: NetworkEndpoint) -> AnyPublisher<UIImage, Error> {
-        return networkService
-            .requestPublisher(endpoint)
-            .subscribe(on: DispatchQueue.global())
-            .tryMap { data -> UIImage in
-                if let image = UIImage(data: data) {
-                    return image
-                }
-
-                throw "Image mapping failed"
-            }
-            .tryCatch {[weak self] error -> AnyPublisher<UIImage, Error> in
-                guard let self = self else {
-                    throw error
-                }
-
-                return self.backedLoadImage(name: BackedImages.default.name)
-            }
-            .eraseToAnyPublisher()
     }
 }
