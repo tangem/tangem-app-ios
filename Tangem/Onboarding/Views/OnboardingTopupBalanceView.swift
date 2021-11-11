@@ -23,7 +23,7 @@ struct OnboardingTopupBalanceUpdater: View {
             VStack(spacing: 0) {
                 Text("onboarding_balance")
                     .font(.system(size: 14, weight: .semibold))
-                    .foregroundColor(.tangemTapGrayDark)
+                    .foregroundColor(.tangemGrayDark)
                     .padding(.bottom, 8)
                     .transition(.opacity)
                 Text(balance)
@@ -32,7 +32,7 @@ struct OnboardingTopupBalanceUpdater: View {
                     .lineLimit(2)
                     .minimumScaleFactor(0.3)
                     .font(.system(size: 28, weight: .bold))
-                    .foregroundColor(Color.tangemTapGrayDark6)
+                    .foregroundColor(Color.tangemGrayDark6)
                     .frame(maxWidth: frame.width - 26, maxHeight: frame.height * 0.155)
                     .transition(.opacity)
                     .id("onboarding_balance_\(balance)")
@@ -69,7 +69,7 @@ struct OnboardingTopupBalanceView: View {
             Rectangle()
                 .frame(size: backgroundFrameSize)
                 .cornerRadius(cornerSize)
-                .foregroundColor(Color.tangemTapBgGray)
+                .foregroundColor(Color.tangemBgGray)
                 .opacity(0.8)
                 .offset(backgroundOffset)
             OnboardingTopupBalanceUpdater(
