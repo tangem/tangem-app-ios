@@ -39,7 +39,7 @@ struct SecurityManagementRowView: View {
                     .padding([.bottom, .leading, .trailing], 8.0)
                     .opacity(isEnabled ? 1.0 : 0.5)
                 Spacer()
-                Image(isSelected ? "checkmark.circle.fill" : "circle")
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                     .font(Font.system(size: 21.0, weight: .light, design: .default))
                     .foregroundColor(isSelected ? Color.tangemTapBlueLight : Color.tangemTapGrayLight4)
             }
@@ -75,14 +75,14 @@ struct SecurityManagementView: View {
             
             HStack(alignment: .center, spacing: 8.0) {
                 Spacer()
-                TangemLongButton(isLoading: viewModel.isLoading,
-                             title: viewModel.selectedOption == .longTap ? "common_save_changes" : "common_continue",
+                TangemButton(title: viewModel.selectedOption == .longTap ? "common_save_changes" : "common_continue",
                              image: "save") {
                                 self.viewModel.onTap()
-                }.buttonStyle(TangemButtonStyle(color: .black,
-                                                isDisabled: viewModel.selectedOption == viewModel.cardViewModel.currentSecOption))
+                }.buttonStyle(TangemButtonStyle(colorStyle: .black,
+                                                layout: .big,
+                                                isDisabled: viewModel.selectedOption == viewModel.cardViewModel.currentSecOption,
+                                                isLoading: viewModel.isLoading))
                 .alert(item: $viewModel.error) { $0.alert }
-                .disabled(viewModel.selectedOption == viewModel.cardViewModel.currentSecOption)
             }
             .padding(.horizontal, 16.0)
             .padding(.bottom, 16.0)
