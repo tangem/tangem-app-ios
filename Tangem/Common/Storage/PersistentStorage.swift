@@ -90,7 +90,7 @@ class PersistentStorage {
         
         do {
             let contents = try fileManager.contentsOfDirectory(atPath: cloudContainerUrl.path)
-            guard contents.count > 0 else {
+            guard !contents.isEmpty else {
                 return
             }
             

@@ -62,7 +62,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
             }
         }
         
-        if card.wallets.count == 0 {
+        if card.wallets.isEmpty {
             createWallet(in: session, completion: completion)
 		} else {
             if let walletManagerFactory = self.walletManagerFactory,
