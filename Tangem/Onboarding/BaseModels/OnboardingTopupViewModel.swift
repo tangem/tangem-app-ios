@@ -112,7 +112,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
             return
         }
         
-        if model.wallet.amounts.count == 0 {
+        if model.wallet.amounts.isEmpty {
             cardBalance = "0.00 " + model.wallet.blockchain.currencySymbol
         } else {
             cardBalance = model.getBalance(for: .coin)
