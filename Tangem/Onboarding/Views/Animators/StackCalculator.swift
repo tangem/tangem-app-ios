@@ -48,7 +48,7 @@ struct StackCalculator {
     }
     
     private func calculatePrehideSettings(for index: Int) -> CardAnimSettings {
-        guard cardsSettings.count > 0 else { return .zero }
+        guard !cardsSettings.isEmpty else { return .zero }
         
         let settings = cardsSettings[0]
         let targetFrameHeight = settings.frame.height
