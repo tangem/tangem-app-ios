@@ -125,7 +125,7 @@ class CardViewModel: Identifiable, ObservableObject {
             return false
         }
         
-        if cardInfo.card.wallets.count == 0 {
+        if cardInfo.card.wallets.isEmpty {
             return false
         }
         
@@ -481,7 +481,7 @@ class CardViewModel: Identifiable, ObservableObject {
     
     func updateState() {
         print("‼️ Updating Card view model state")
-        let hasWallets = cardInfo.card.wallets.count > 0
+        let hasWallets = !cardInfo.card.wallets.isEmpty
 
         if !hasWallets {
             self.state = .empty
@@ -540,7 +540,7 @@ class CardViewModel: Identifiable, ObservableObject {
             .collect(models.count)
             .sink(receiveValue: { [unowned self] _ in
                 let notEmptyWallets = models.filter { !$0.wallet.isEmpty }
-                if notEmptyWallets.count > 0 {
+                if !notEmptyWallets.isEmpty {
                     tokenItemsRepository.append(notEmptyWallets.map({TokenItem.blockchain($0.wallet.blockchain)}), for: cardInfo.card.cardId)
                     updateLoadedState(with: notEmptyWallets)
                 }
