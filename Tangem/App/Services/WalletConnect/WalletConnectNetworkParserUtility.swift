@@ -36,7 +36,7 @@ enum WalletConnectNetworkParserUtility {
         } else if dAppInfo.peerMeta.url.absoluteString.hasSuffix("binance.org") {
             if dAppInfo.peerMeta.icons.first?.absoluteString.contains("dex-bin") ?? false {
                 wcNetwork = .bnb(testnet: false)
-            } else if dAppInfo.peerMeta.icons.filter({ $0.absoluteString.contains("testnet-bin") }).count > 0 {
+            } else if !dAppInfo.peerMeta.icons.filter({ $0.absoluteString.contains("testnet-bin") }).isEmpty {
                 wcNetwork = .bnb(testnet: true)
             } else {
                 return nil
