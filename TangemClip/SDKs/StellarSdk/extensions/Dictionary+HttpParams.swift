@@ -24,7 +24,7 @@ extension Dictionary {
             guard let value = value as? String else { return "" }
             return "\(key)=\(value)"
         }
-        return parameterArray.filter{$0.count > 0}.joined(separator: "&").addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+        return parameterArray.filter{!$0.isEmpty}.joined(separator: "&").addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
     }
     
 }

@@ -94,7 +94,7 @@ struct AddNewTokensView: View {
                                   }, removeAction: {})}
                 }
                 
-                if viewModel.availableEthereumTokens.count > 0 {
+                if !viewModel.availableEthereumTokens.isEmpty {
                     Section(header: HeaderView(text: "add_token_section_title_popular_tokens".localized, collapsible: true, isExpanded: viewModel.isEthTokensVisible, onCollapseAction: {
                         withAnimation {
                             viewModel.isEthTokensVisible.toggle()
@@ -114,7 +114,7 @@ struct AddNewTokensView: View {
                     }
                 }
                 
-                if viewModel.availableBnbTokens.count > 0 {
+                if !viewModel.availableBnbTokens.isEmpty {
                     Section(header: HeaderView(text: "add_token_section_title_binance_tokens".localized, collapsible: true, isExpanded: viewModel.isBnbTokensVisible, onCollapseAction: {
                         withAnimation {
                             viewModel.isBnbTokensVisible.toggle()
@@ -134,7 +134,7 @@ struct AddNewTokensView: View {
                     }
                 }
                 
-                if viewModel.availableBscTokens.count > 0 {
+                if !viewModel.availableBscTokens.isEmpty {
                     Section(header: HeaderView(text: "add_token_section_title_binance_smart_chain_tokens".localized, collapsible: true, isExpanded: viewModel.isBscTokensVisible, onCollapseAction: {
                         withAnimation {
                             viewModel.isBscTokensVisible.toggle()
