@@ -34,12 +34,12 @@ class OnboardingStepsSetupService {
         
         var steps: [SingleCardOnboardingStep] = []
         
-        if card.wallets.count == 0 {
+        if card.wallets.isEmpty {
             steps.append(.createWallet)
             steps.append(.success)
         }
         
-        return steps.count > 0 ? .justWithError(output: .singleWallet(steps)) : .justWithError(output: .singleWallet([]))
+        return steps.isEmpty ? .justWithError(output: .singleWallet([])) : .justWithError(output: .singleWallet(steps))
     }
     
     func twinRecreationSteps(for cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
@@ -98,7 +98,7 @@ class OnboardingStepsSetupService {
         
         let walletModel = assembly.loadWallets(from: cardInfo)
         
-        if (walletModel.count == 0 && cardInfo.twinCardInfo?.pairPublicKey == nil) {
+        if (walletModel.isEmpty && cardInfo.twinCardInfo?.pairPublicKey == nil) {
             steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
             steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
             userPrefs.isTwinCardOnboardingWasDisplayed = true
@@ -160,7 +160,7 @@ class OnboardingStepsSetupService {
         
         //todo: respect involved cards?
         
-        if cardInfo.card.wallets.count == 0 {
+        if cardInfo.card.wallets.isEmpty {
             steps.append(.createWallet)
             steps.append(.backupIntro)
         } else {
