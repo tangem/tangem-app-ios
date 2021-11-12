@@ -237,7 +237,7 @@ extension Assembly {
         } else {
             //If this card supports multiwallet feature, load all saved tokens from persistent storage
             let tokenItems = services.tokenItemsRepository.getItems(for: cardInfo.card.cardId)
-            if cardInfo.isMultiWallet, tokenItems.count > 0 {
+            if cardInfo.isMultiWallet, !tokenItems.isEmpty {
                 
                 //Load erc20 tokens if exists
                 let tokens = tokenItems.compactMap { $0.token }
