@@ -365,7 +365,7 @@ class WalletModel: ObservableObject, Identifiable {
             }) { [weak self] rates in
                 guard let self = self else { return }
                 
-                if self.rates.count > 0 && rates.count == 0 {
+                if !self.rates.isEmpty && rates.count == 0 {
                     return
                 }
                 

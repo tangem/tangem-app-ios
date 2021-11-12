@@ -23,7 +23,7 @@ struct HorizontalButtonStack: View {
     var body: some View {
         GeometryReader { geo in
             HStack(spacing: 0) {
-                if buttons.count > 0 {
+                if !buttons.isEmpty {
                     ForEach(Array(buttons.enumerated()), id: \.offset) { item in
                         let buttonIndex: Int = item.offset
                         let button: ButtonInfo = item.element
