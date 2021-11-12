@@ -47,7 +47,7 @@ struct WalletConnectView: View {
                         .cancel()
                     ])
                 })
-            if viewModel.sessions.count == 0 {
+            if viewModel.sessions.isEmpty {
                 Text("wallet_connect_no_sessions_title")
                     .font(.system(size: 24, weight: .semibold))
                     .padding(.bottom, 10)
