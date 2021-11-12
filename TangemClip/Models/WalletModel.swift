@@ -210,7 +210,7 @@ class WalletModel: ObservableObject {
                     break
                 }
             }) {[unowned self] rates in
-                if self.rates.count > 0 && rates.count == 0 {
+                if !self.rates.isEmpty && rates.isEmpty {
                     return
                 }
 
