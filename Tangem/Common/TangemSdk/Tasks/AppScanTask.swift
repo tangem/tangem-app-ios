@@ -170,8 +170,8 @@ final class AppScanTask: CardSessionRunnable {
         let mandatoryСurves: Set<EllipticCurve> = [.secp256k1, .ed25519, .secp256r1]
         let missingCurves = mandatoryСurves.subtracting(existingCurves)
         
-        if existingCurves.count > 0, // not empty card
-           missingCurves.count > 0 //not enough curves
+        if !existingCurves.isEmpty, // not empty card
+           !missingCurves.isEmpty //not enough curves
         {
             appendWallets(Array(missingCurves), session: session, completion: completion)
             return

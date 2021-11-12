@@ -150,7 +150,7 @@ struct BalanceView: View {
                 .padding(.horizontal, 24.0)
                 
                 Color.clear.frame(height: 16)
-            } else if tokenViewModels.count > 0 {
+            } else if !tokenViewModels.isEmpty {
                 VStack(spacing: 8) {
                     ForEach(tokenViewModels, id: \.tokenName) { token in
                         TokenBalanceView(tokenViewModel: token)
