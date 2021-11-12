@@ -70,7 +70,7 @@ struct WarningView: View {
     }
     
     var warningButtons: [WarningButton] {
-        if let buttons = warning.event?.buttons, buttons.count > 0 {
+        if let buttons = warning.event?.buttons, !buttons.isEmpty {
             return buttons
         } else {
            return [.okGotIt]
