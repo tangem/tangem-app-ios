@@ -25,15 +25,15 @@ public struct Wallet {
 	}
     
     public var isEmpty: Bool {
-        return amounts.filter { $0.key != .reserve && !$0.value.isEmpty }.count == 0
+        return amounts.filter { $0.key != .reserve && !$0.value.isEmpty }.isEmpty
     }
 
     public var hasPendingTx: Bool {
-        return transactions.filter { $0.status == .unconfirmed }.count > 0
+        return !transactions.filter { $0.status == .unconfirmed }.isEmpty
     }
     
     public func hasPendingTx(for amountType: Amount.AmountType) -> Bool {
-        return transactions.filter { $0.status == .unconfirmed && $0.amount.type == amountType }.count > 0
+        return !transactions.filter { $0.status == .unconfirmed && $0.amount.type == amountType }.isEmpty
     }
     
     internal init(blockchain: Blockchain, addresses: [Address]) {
