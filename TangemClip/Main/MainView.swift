@@ -37,7 +37,7 @@ struct MainView: View {
                             if viewModel.isCardEmpty {
                                 MessageView(title: "main_error_empty_card_title".localized, subtitle: "main_error_empty_card_subtitle".localized, type: .error)
                             } else {
-                                if cardModel.loadingBalancesCounter == 0 && viewModel.tokenItemViewModels.count == 0 {
+                                if cardModel.loadingBalancesCounter == 0 && viewModel.tokenItemViewModels.isEmpty {
                                     MessageView(title: "main_error_empty_wallets_title".localized, subtitle: "main_error_empty_wallets_subtitle".localized, type: .message)
                                         .animation(.easeInOut)
                                 } else {
