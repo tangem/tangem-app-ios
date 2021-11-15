@@ -203,6 +203,7 @@ struct DetailsView: View {
                 EmptyView()
             }
         }
+        .listStyle(GroupedListStyle())
         .alert(item: $viewModel.error) { $0.alert }
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("details_title", displayMode: .inline)
