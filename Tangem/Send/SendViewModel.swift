@@ -275,7 +275,7 @@ class SendViewModel: ViewModel, ObservableObject {
         
         $isFiatCalculation //handle conversion
             .uiPublisher
-            .filter {[unowned self] _ in self.amountToSend.value != 0 }
+            .filter {[unowned self] _ in self.amountText != "0" }
             .sink { [unowned self] value in
                 self.amountText = value ? self.walletModel.getFiat(for: self.amountToSend)?.description
                     ?? ""
