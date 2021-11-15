@@ -44,16 +44,16 @@ struct BalanceView: View {
     var tokenViewModels: [TokenBalanceViewModel]
     
     var blockchainText: String {
+        if balanceViewModel.state.isLoading {
+            return  "wallet_balance_loading".localized
+        }
+        
         if balanceViewModel.state.errorDescription != nil {
             return "wallet_balance_blockchain_unreachable".localized
         }
         
         if balanceViewModel.hasTransactionInProgress {
             return  "wallet_balance_tx_in_progress".localized
-        }
-        
-        if balanceViewModel.state.isLoading {
-            return  "wallet_balance_loading".localized
         }
         
         return "wallet_balance_verified".localized
