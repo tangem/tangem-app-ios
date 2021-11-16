@@ -26,9 +26,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
         assembly.services.walletConnectService.restore()
         // Create the SwiftUI view that provides the window contents.
-        assembly.services.userPrefsService.numberOfLaunches += 1
         assembly.services.urlHandlers.append(self)
-        print("Launch number:", assembly.services.userPrefsService.numberOfLaunches)
      
 //        let vm = assembly.makeReadViewModel()
 //        let contentView = ContentView() { ReadView(viewModel: vm) }
