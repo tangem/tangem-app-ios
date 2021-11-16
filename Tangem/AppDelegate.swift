@@ -54,6 +54,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         FirebaseApp.configure()
         #endif
         
+        let userPrefs = UserPrefsService()
+        userPrefs.numberOfLaunches += 1
+        print("Launch number:", userPrefs.numberOfLaunches)
+        
         return true
     }
     
