@@ -70,6 +70,9 @@ struct TokenDetailsView: View {
                                                             viewModel.buyCryptoCloseUrl: { _ in
                                                                 navigation.detailsToBuyCrypto = false
                                                                 viewModel.sendAnalyticsEvent(.userBoughtCrypto)
+                                                                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                                                    viewModel.walletModel?.update(silent: true)
+                                                                }
                                                             }
                                                          ]),
                            isActive: $navigation.detailsToBuyCrypto)
