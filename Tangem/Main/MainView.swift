@@ -210,6 +210,9 @@ struct MainView: View {
                                                          urlActions: [ viewModel.buyCryptoCloseUrl : { _ in
                                                             navigation.mainToBuyCrypto = false
                                                             viewModel.sendAnalyticsEvent(.userBoughtCrypto)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    self.viewModel.state.cardModel?.update()
+                }
                                                          }
                                                          ]),
                            isActive: $navigation.mainToBuyCrypto)
