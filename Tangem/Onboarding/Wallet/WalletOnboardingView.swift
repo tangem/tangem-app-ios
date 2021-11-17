@@ -88,7 +88,7 @@ struct WalletOnboardingView: View {
                                         .frame(height: viewModel.navbarSize.height)
                                         .opacity(viewModel.isShopButtonVisible ? 1.0 : 0.0)
                                       })
-                            .offset(x: 0, y: -geom.size.height / 2 + (isNavbarVisible ? viewModel.navbarSize.height / 2 : 0))
+                            .offset(x: 0, y: -geom.size.height / 2 + (isNavbarVisible ? viewModel.navbarSize.height / 2 + 4 : 0))
                             .opacity(isNavbarVisible ? 1.0 : 0.0)
                         
                         ProgressBar(height: 5, currentProgress: viewModel.currentProgress)
