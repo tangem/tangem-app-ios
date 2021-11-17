@@ -28,7 +28,7 @@ struct OnboardingAccessCodeView: View {
         
         var buttonTitle: LocalizedStringKey {
             switch self {
-            case .intro: return "common_create"
+            case .intro: return "common_continue"
             case .inputCode: return "common_continue"
             case .repeatCode: return "common_submit"
             }
