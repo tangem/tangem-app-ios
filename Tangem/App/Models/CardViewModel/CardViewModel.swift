@@ -261,7 +261,8 @@ class CardViewModel: Identifiable, ObservableObject {
     
     init(cardInfo: CardInfo) {
         self.cardInfo = cardInfo
-        
+        self.cardPinSettings?.isPin1Default = cardInfo.card.isAccessCodeSet
+        cardInfo.card.isPasscodeSet.map { self.cardPinSettings?.isPin2Default = $0 }
         updateCurrentSecOption()
     }
     
