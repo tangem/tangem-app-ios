@@ -138,6 +138,7 @@ class WalletModel: ObservableObject, Identifiable {
         }
         
         if !silent {
+            updateBalanceViewModel(with: self.wallet, state: .loading)
             state = .loading
         }
         
@@ -330,7 +331,7 @@ class WalletModel: ObservableObject, Identifiable {
     private func updateBalanceViewModel(with wallet: Wallet, state: State) {
         balanceViewModel = BalanceViewModel(isToken: false,
                                             hasTransactionInProgress: wallet.hasPendingTx,
-                                            state: self.state,
+                                            state: state,
                                             name:  wallet.blockchain.displayName,
                                             fiatBalance: getFiatBalance(for: .coin),
                                             balance: getBalance(for: .coin),
