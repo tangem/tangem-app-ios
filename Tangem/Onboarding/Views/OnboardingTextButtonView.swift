@@ -127,7 +127,7 @@ struct OnboardingTextButtonView_Previews: PreviewProvider {
     
     static var previews: some View {
         OnboardingTextButtonView(
-            title: "Create a wallet",
+            title: "Create wallet",
             subtitle: "Let’s generate all the keys on your card and create a secure wallet",
             textOffset: .init(width: 0, height: -100),
             buttonsSettings:

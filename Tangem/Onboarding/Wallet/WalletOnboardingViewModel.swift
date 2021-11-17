@@ -75,6 +75,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             case .needWriteOriginCard:
                 return backupService.originCardId.map { "onboarding_subtitle_scan_origin_card \(CardIdFormatter(style: .lastMasked(4)).string(from: $0))" }
                 ?? super.subtitle
+            case .needWriteBackupCard(let index):
+                let cardId = backupService.backupCardIds[index - 1]
+                let formattedCardId = CardIdFormatter(style: .lastMasked(4)).string(from: cardId)
+                return "onboarding_subtitle_scan_backup_card \(formattedCardId)"
             default: return super.subtitle
             }
         default: return super.subtitle
@@ -122,9 +126,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     var mainButtonIconName: String {
         switch currentStep {
         case .selectBackupCards:
-            return canAddBackupCards ?
-                "plus" :
-                ""
+            return "plus"
         default: return ""
         }
     }
