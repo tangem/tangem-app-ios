@@ -394,6 +394,17 @@ class MainViewModel: ViewModel, ObservableObject {
 		}
     }
     
+    func onScan() {
+        DispatchQueue.main.async {
+            self.assembly.getLetsStartOnboardingViewModel()?.reset()
+            self.assembly.getLaunchOnboardingViewModel().reset()
+            self.navigation.popToRoot()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                self.assembly.getLetsStartOnboardingViewModel()?.scanCard()
+            }
+        }
+    }
+    
     func sendTapped() {
         guard let wallet = wallets?.first else {
             return

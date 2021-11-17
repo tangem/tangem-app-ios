@@ -101,100 +101,6 @@ struct MainView: View {
         return nil
     }
     
-    @ViewBuilder var scanButton: some View {
-        let scanAction = {
-            DispatchQueue.main.async {
-                self.viewModel.assembly.getLetsStartOnboardingViewModel()?.reset()
-                self.viewModel.assembly.getLaunchOnboardingViewModel().reset()
-                self.navigation.popToRoot()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    self.viewModel.assembly.getLetsStartOnboardingViewModel()?.scanCard()
-                }
-            }
-            //
-            //
-            //            withAnimation {
-            //                viewModel.scan()
-            //            }
-        }
-        
-        if viewModel.canBuyCrypto && !viewModel.canCreateWallet ||
-            ((viewModel.cardModel?.isNotPairedTwin ?? false)
-                && (viewModel.cardModel?.hasBalance ?? false)) {
-            if  (viewModel.cardModel?.isMultiWallet ?? false) {
-                TangemButton(title: "wallet_button_scan",
-                             image: "scan",
-                             action: scanAction)
-                    .buttonStyle(TangemButtonStyle(colorStyle: .black,
-                                                   isLoading: viewModel.isScanning))
-            } else {
-                TangemButton.vertical(title: "wallet_button_scan",
-                                      image: "scan",
-                                      action: scanAction)
-                    .buttonStyle(TangemButtonStyle(colorStyle: .black,
-                                                   layout: .smallVertical,
-                                                   isLoading: viewModel.isScanning))
-            }
-        } else {
-            TangemButton(title: "wallet_button_scan",
-                         image: "scan",
-                         action: scanAction)
-                .buttonStyle(TangemButtonStyle(colorStyle: .black,
-                                               isLoading: viewModel.isScanning))
-        }
-    }
-    
-    var createWalletButton: some View {
-        TangemButton(title: viewModel.isTwinCard ? "wallet_button_create_twin_wallet" : "wallet_button_create_wallet",
-                     systemImage: "arrow.right") { viewModel.createWallet()  }
-            .buttonStyle(TangemButtonStyle(layout: .big,
-                                           isDisabled: !viewModel.canCreateWallet || !viewModel.canCreateTwinWallet,
-                                           isLoading: viewModel.isCreatingWallet))
-    }
-    
-    @ViewBuilder var sendButton: some View {
-        let action = { viewModel.sendTapped() }
-        
-        if viewModel.canBuyCrypto {
-            TangemButton.vertical(title: "wallet_button_send",
-                                  systemImage: "arrow.right",
-                                  action: action)
-                .buttonStyle(TangemButtonStyle(layout: .smallVertical, isDisabled: !viewModel.canSend))
-        } else {
-            TangemButton(title: "wallet_button_send",
-                         systemImage: "arrow.right") { action() }
-                .buttonStyle(TangemButtonStyle(layout: .big, isDisabled: !viewModel.canSend))
-        }
-    }
-    
-    @ViewBuilder
-    var exchangeCryptoButton: some View {
-        if viewModel.canSellCrypto {
-            TangemButton.vertical(title: "wallet_button_trade",
-                                  systemImage: "arrow.up.down.wide") {
-                navigation.mainToTradeSheet = true
-            }
-            .buttonStyle(TangemButtonStyle(layout: .smallVertical))
-            .actionSheet(isPresented: $navigation.mainToTradeSheet, content: {
-                ActionSheet(title: Text("action_sheet_trade_hint"),
-                            buttons: [
-                                .default(Text("wallet_button_topup"), action: {
-                                    viewModel.buyCryptoAction()
-                                }),
-                                .default(Text("wallet_button_sell_crypto"), action: {
-                                    viewModel.sellCryptoAction()
-                                }),
-                                .cancel()
-                            ])
-            })
-        } else {
-            TangemButton.vertical(title: "wallet_button_topup",
-                                  systemImage: "arrow.up",
-                                  action: viewModel.buyCryptoAction)
-                .buttonStyle(TangemButtonStyle(layout: .smallVertical))
-        }
-    }
-    
     var navigationLinks: some View {
         VStack {
             NavigationLink(destination: DetailsView(viewModel: viewModel.assembly.makeDetailsViewModel()),
@@ -415,61 +321,118 @@ struct MainView: View {
         .alert(item: $viewModel.error) { $0.alert }
     }
     
-    var bottomButtons: some View {
-        HStack(alignment: .center) {
-            scanButton
-                .sheet(isPresented: $navigation.mainToCardOnboarding, content: {
-                    let model = viewModel.assembly.getCardOnboardingViewModel()
-                    OnboardingBaseView(viewModel: model)
-                        .presentation(modal: viewModel.isOnboardingModal,
-                                      onDismissalAttempt: {},
-                                      onDismissed: viewModel.onboardingDismissed)
+    var createWalletButton: some View {
+        TangemButton(title: viewModel.isTwinCard ? "wallet_button_create_twin_wallet" : "wallet_button_create_wallet",
+                     systemImage: "arrow.right") { viewModel.createWallet()  }
+            .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
+                                           isDisabled: !viewModel.canCreateWallet || !viewModel.canCreateTwinWallet,
+                                           isLoading: viewModel.isCreatingWallet))
+    }
+    
+    var scanButton: some View {
+        TangemButton(title: "wallet_button_scan",
+                     image: "scan",
+                     action: viewModel.onScan)
+            .buttonStyle(TangemButtonStyle(colorStyle: .black,
+                                           layout: .flexibleWidth,
+                                           isLoading: viewModel.isScanning))
+            .sheet(isPresented: $navigation.mainToCardOnboarding, content: {
+                let model = viewModel.assembly.getCardOnboardingViewModel()
+                OnboardingBaseView(viewModel: model)
+                    .presentation(modal: viewModel.isOnboardingModal,
+                                  onDismissalAttempt: {},
+                                  onDismissed: viewModel.onboardingDismissed)
+                    .environmentObject(navigation)
+                    .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
+                        viewModel.isOnboardingModal = value
+                    })
+            })
+    }
+    
+   var sendButton: some View {
+        TangemButton(title: "wallet_button_send",
+                     systemImage: "arrow.right",
+                    action: viewModel.sendTapped)
+            .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
+                                           isDisabled: !viewModel.canSend))
+            .sheet(isPresented: $navigation.mainToSend) {
+                if let sellRequest = viewModel.sellCryptoRequest {
+                    let blockchain = viewModel.wallets!.first!.blockchain
+                    SendView(viewModel: viewModel.assembly.makeSellCryptoSendViewModel(
+                                with: Amount(with: blockchain, value: sellRequest.amount),
+                                destination: sellRequest.targetAddress,
+                                blockchain: blockchain,
+                                card: viewModel.state.cardModel!), onSuccess: {})
                         .environmentObject(navigation)
-                        .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
-                            viewModel.isOnboardingModal = value
-                        })
-                })
-            
-            if viewModel.canCreateWallet {
-                createWalletButton
+                } else {
+                    SendView(viewModel: viewModel.assembly.makeSendViewModel(
+                                with: viewModel.amountToSend!,
+                                blockchain: viewModel.wallets!.first!.blockchain,
+                                card: viewModel.state.cardModel!), onSuccess: {})
+                        .environmentObject(navigation) // Fix for crash (Fatal error: No ObservableObject of type NavigationCoordinator found.) which appearse time to time. May be some bug with environment object O_o
+                }
+            }
+            .actionSheet(isPresented: $navigation.mainToSendChoise) {
+                ActionSheet(title: Text("wallet_choice_wallet_option_title"),
+                            message: nil,
+                            buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
+                
+            }
+
+    }
+    
+    @ViewBuilder
+    var exchangeCryptoButton: some View {
+        if viewModel.canSellCrypto {
+            TangemButton.vertical(title: "wallet_button_trade",
+                                  systemImage: "arrow.up.down.wide") {
+                navigation.mainToTradeSheet = true
+            }
+            .buttonStyle(TangemButtonStyle(layout: .flexibleWidth))
+            .actionSheet(isPresented: $navigation.mainToTradeSheet, content: {
+                ActionSheet(title: Text("action_sheet_trade_hint"),
+                            buttons: [
+                                .default(Text("wallet_button_topup"), action: {
+                                    viewModel.buyCryptoAction()
+                                }),
+                                .default(Text("wallet_button_sell_crypto"), action: {
+                                    viewModel.sellCryptoAction()
+                                }),
+                                .cancel()
+                            ])
+            })
+        } else {
+            TangemButton.vertical(title: "wallet_button_topup",
+                                  systemImage: "arrow.up",
+                                  action: viewModel.buyCryptoAction)
+                .buttonStyle(TangemButtonStyle(layout: .flexibleWidth))
+        }
+    }
+    
+    var bottomButtons: some View {
+        VStack {
+            HStack(alignment: .center) {
+
+                if viewModel.canCreateWallet {
+                    createWalletButton
+                }
+                
+                if !viewModel.canCreateWallet
+                    && viewModel.canBuyCrypto
+                    && !(viewModel.cardModel?.isMultiWallet ?? true)  {
+                    exchangeCryptoButton
+                }
+                
+                if let cardModel = viewModel.cardModel, !cardModel.isMultiWallet,
+                   (!viewModel.canCreateWallet || (cardModel.isTwinCard && cardModel.hasBalance)) {
+                    sendButton
+                }
             }
             
-            if !viewModel.canCreateWallet && viewModel.canBuyCrypto && !(viewModel.cardModel?.isMultiWallet ?? true)  {
-                exchangeCryptoButton
-            }
-            
-            if let cardModel = viewModel.cardModel, !cardModel.isMultiWallet,
-               (!viewModel.canCreateWallet || (cardModel.isTwinCard && cardModel.hasBalance)) {
-                sendButton
-                    .sheet(isPresented: $navigation.mainToSend) {
-                        if let sellRequest = viewModel.sellCryptoRequest {
-                            let blockchain = viewModel.wallets!.first!.blockchain
-                            SendView(viewModel: viewModel.assembly.makeSellCryptoSendViewModel(
-                                        with: Amount(with: blockchain, value: sellRequest.amount),
-                                        destination: sellRequest.targetAddress,
-                                        blockchain: blockchain,
-                                        card: viewModel.state.cardModel!), onSuccess: {})
-                                .environmentObject(navigation)
-                        } else {
-                            SendView(viewModel: viewModel.assembly.makeSendViewModel(
-                                        with: viewModel.amountToSend!,
-                                        blockchain: viewModel.wallets!.first!.blockchain,
-                                        card: viewModel.state.cardModel!), onSuccess: {})
-                                .environmentObject(navigation) // Fix for crash (Fatal error: No ObservableObject of type NavigationCoordinator found.) which appearse time to time. May be some bug with environment object O_o
-                        }
-                    }
-                    .actionSheet(isPresented: $navigation.mainToSendChoise) {
-                        ActionSheet(title: Text("wallet_choice_wallet_option_title"),
-                                    message: nil,
-                                    buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
-                        
-                    }
-            }
+            scanButton
         }
     }
 }
-
-
 
 struct MainView_Previews: PreviewProvider {
     static let assembly: Assembly = .previewAssembly(for: .stellar)

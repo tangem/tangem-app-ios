@@ -28,38 +28,6 @@ struct TokenDetailsView: View {
         return incTx + outgTx
     }
     
-    private var buyCryptoButtonInfo: HorizontalButtonStack.ButtonInfo {
-        .init(imageName: "arrow.up",
-              title: "wallet_button_topup",
-              action: { viewModel.buyCryptoAction() },
-              isDisabled: !viewModel.canBuyCrypto)
-    }
-    private var sellCryptoButtonInfo: HorizontalButtonStack.ButtonInfo {
-        .init(imageName: "arrow.down",
-              title: "wallet_button_sell_crypto",
-              action: { viewModel.sellCryptoAction() },
-              isDisabled: !viewModel.canSellCrypto || !viewModel.canSend)
-    }
-    
-    private var sendButtonInfo: HorizontalButtonStack.ButtonInfo {
-        .init(imageName: "arrow.right",
-              title: "wallet_button_send",
-              action: viewModel.sendButtonAction,
-              isDisabled: !viewModel.canSend)
-    }
-    private var bottomButtonsInfo: [HorizontalButtonStack.ButtonInfo] {
-        var buttons = [HorizontalButtonStack.ButtonInfo]()
-        
-        buttons.append(buyCryptoButtonInfo)
-        
-        if viewModel.canSellCrypto {
-            buttons.append(sellCryptoButtonInfo)
-        }
-        
-        buttons.append(sendButtonInfo)
-        return buttons
-    }
-    
     var navigationLinks: some View {
         Group {
             NavigationLink(destination: WebViewContainer(url: viewModel.buyCryptoUrl,
@@ -97,7 +65,29 @@ struct TokenDetailsView: View {
     
     @ViewBuilder var bottomButtons: some View {
         HStack(alignment: .center) {
-            HorizontalButtonStack(buttons: bottomButtonsInfo)
+            
+            TangemButton(title: "wallet_button_topup",
+                         systemImage: "arrow.up",
+                         action: viewModel.buyCryptoAction)
+                .buttonStyle(TangemButtonStyle(colorStyle: .green,
+                                               layout: .flexibleWidth,
+                                               isDisabled: !viewModel.canBuyCrypto))
+            
+            if viewModel.canSellCrypto {
+                TangemButton(title: "wallet_button_sell_crypto",
+                             systemImage: "arrow.down",
+                             action: viewModel.sellCryptoAction)
+                    .buttonStyle(TangemButtonStyle(colorStyle: .green,
+                                                   layout: .flexibleWidth,
+                                                   isDisabled: !viewModel.canSellCrypto || !viewModel.canSend))
+            }
+
+            TangemButton(title: "wallet_button_send",
+                         systemImage: "arrow.right",
+                         action: viewModel.sendButtonAction)
+                .buttonStyle(TangemButtonStyle(colorStyle: .green,
+                                               layout: .flexibleWidth,
+                                               isDisabled: !viewModel.canSend))
         }
         .sheet(isPresented: $navigation.detailsToSend) {
             if let sellCryptoRequest = viewModel.sellCryptoRequest {
