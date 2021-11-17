@@ -67,6 +67,18 @@ class SupportedTokenItems {
         tokens(fromFile: "binanceSmartChainTokens_testnet", for: .bsc(testnet: true))
     }
     
+    func availableBscTokens(isTestnet: Bool) -> [Token] {
+        isTestnet ? binanceSmartChainTokensTestnet : binanceSmartChainTokens
+    }
+    
+    func availableBnbTokens(isTestnet: Bool) -> [Token] {
+        isTestnet ? binanceTokensTestnet : binanceTokens
+    }
+    
+    func availableEthTokens(isTestnet: Bool) -> [Token] {
+        isTestnet ? ethereumTokensTestnet : ethereumTokens
+    }
+    
     func blockchains(for cardInfo: CardInfo) -> Set<Blockchain> {
         var availableBlockchains = Set<Blockchain>()
         
