@@ -68,7 +68,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         case .scanOriginCard: return ""
         case .backupIntro: return "onboarding_subtitle_backup_card"
         case .selectBackupCards: return "onboarding_subtitle_no_backup_cards"
-        case .backupCards: return "onboarding_subtitle_backup_warning"
+        case .backupCards: return ""
         case .success: return "onboarding_subtitle_success_backup"
         }
         
