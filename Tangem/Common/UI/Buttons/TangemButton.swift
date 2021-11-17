@@ -13,7 +13,7 @@ struct TangemButton: View {
     let title: LocalizedStringKey
     var image: String = ""
     var systemImage: String = ""
-    var iconPosition: IconPosition = .trailing
+    var iconPosition: IconPosition = .leading
     var iconPadding: CGFloat = 8
     let action: () -> Void
     

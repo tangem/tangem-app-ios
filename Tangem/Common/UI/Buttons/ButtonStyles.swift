@@ -17,26 +17,44 @@ enum ButtonLayout {
     case wide
     case customWidth(CGFloat)
     case custom(size: CGSize)
-    case flexible
+    case flexibleWidth
     
-    var size: CGSize? {
+    var idealWidth: CGFloat? {
         switch self {
         case .small:
-            return CGSize(width: 95.0, height: defaultHeight)
+            return 95.0
         case .big:
-            return CGSize(width: 200.0, height: defaultHeight)
+            return 200.0
         case .smallVertical:
-            return CGSize(width: 100.0, height: defaultHeight)
+            return 100.0
         case .thinHorizontal:
-            return CGSize(width: 109, height: 32)
+            return 109
         case .wide:
-            return CGSize(width: UIScreen.main.bounds.width - 80, height: defaultHeight)
+            return UIScreen.main.bounds.width - 80
         case .customWidth(let width):
-            return .init(width: width, height: defaultHeight)
+            return width
         case .custom(let size):
-            return size
-        case .flexible:
+            return size.width
+        case .flexibleWidth:
             return nil
+        }
+    }
+    
+    var maxWidth: CGFloat? {
+        switch self {
+        case .flexibleWidth:
+            return .infinity
+        default:
+            return nil
+        }
+    }
+    
+    var height: CGFloat? {
+        switch self {
+        case .thinHorizontal:
+            return 32
+        default:
+            return defaultHeight
         }
     }
     
@@ -155,12 +173,15 @@ struct TangemButtonStyle: ButtonStyle {
         label(for: configuration)
             .font(font)
             .foregroundColor(configuration.isPressed ? colorStyle.fgPressedColor : colorStyle.fgColor)
-            .frame(width: layout.size?.width, height: layout.size?.height)
-            .fixedSize()
+            .frame(minWidth: layout.idealWidth,
+                   idealWidth: layout.idealWidth,
+                   maxWidth: layout.maxWidth,
+                   idealHeight: layout.height)
+            .fixedSize(horizontal: false, vertical: true)
             .background(configuration.isPressed ? colorStyle.bgPressedColor : colorStyle.bgColor)
             .overlay(loadingOverlay)
             .overlay(disabledOverlay)
-            .cornerRadius(8)
+            .cornerRadius(14)
             .allowsHitTesting(!isDisabled && !isLoading)
     }
 }
@@ -205,16 +226,16 @@ struct ButtonStyles_Previews: PreviewProvider {
             
             Button(action: {}) { Text("Go to shop") }
                 .buttonStyle(TangemButtonStyle(colorStyle: .transparentWhite,
-                                               layout: .flexible))
+                                               layout: .flexibleWidth))
             
             Button(action: {}) { Text("Go to shop") }
                 .buttonStyle(TangemButtonStyle(colorStyle: .transparentWhite,
-                                               layout: .flexible,
+                                               layout: .flexibleWidth,
                                                isDisabled: true))
             
             Button(action: {}) { Text("Go to shop") }
                 .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt,
-                                               layout: .flexible,
+                                               layout: .flexibleWidth,
                                                font: .system(size: 18)))
         }
     }
