@@ -133,6 +133,17 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
             for walletModel in walletModels {
                 dataToFormat.append(.separator(.dashes))
                 dataToFormat.append(EmailCollectedData(type: .card(.blockchain), data: walletModel.wallet.blockchain.displayName))
+                
+                let tokens = walletModel.wallet.amounts.keys.compactMap ({ $0.token })
+                if !tokens.isEmpty {
+                    dataToFormat.append(EmailCollectedData(type: .token(.tokens), data: ""))
+                }
+                
+                for token in tokens {
+                    dataToFormat.append(EmailCollectedData(type: .token(.name), data: token.name))
+                    dataToFormat.append(EmailCollectedData(type: .token(.contractAddress), data: token.contractAddress))
+                }
+                
                 dataToFormat.append(EmailCollectedData(type: .wallet(.walletManagerHost), data: walletModel.walletManager.currentHost))
                 if walletModel.addressNames.count > 1 {
                     var explorerLinks = "Multiple explorers links: "
