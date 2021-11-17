@@ -80,7 +80,7 @@ struct EmailCollectedData {
 }
 
 enum EmailCollectedDataType {
-    case logs, card(CardData), send(SendData), wallet(WalletData), error, separator(SeparatorType)
+    case logs, card(CardData), send(SendData), wallet(WalletData), error, separator(SeparatorType), token(TokenData)
     
     enum CardData: String {
         case cardId = "Card ID", firmwareVersion = "Firmware version", cardBlockchain = "Card Blockchain", blockchain, token
@@ -94,6 +94,10 @@ enum EmailCollectedDataType {
         case walletAddress = "Wallet address", explorerLink = "Explorer link", signedHashes = "Signed hashes", walletManagerHost = "Host"
     }
     
+    enum TokenData: String {
+        case contractAddress = "Contract address", name = "Name", tokens = "Tokens"
+    }
+    
     enum SeparatorType: String {
         case dashes = "--------", newLine = "\n"
     }
@@ -104,6 +108,7 @@ enum EmailCollectedDataType {
         case .card(let data): return data.rawValue.capitalizingFirstLetter() + ": "
         case .send(let data): return data.rawValue.capitalizingFirstLetter() + ": "
         case .wallet(let data): return data.rawValue + ": "
+        case .token(let data): return data.rawValue + ": "
         case .error: return "Error: "
         case .separator(let type): return type.rawValue
         }
