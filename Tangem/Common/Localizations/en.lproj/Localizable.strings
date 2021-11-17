@@ -709,3 +709,5 @@ Amount to pay: %@";
 "onboarding_button_continue_wallet" = "Continue to my wallet";
 
 "card_label_number_format" = "Card %d of %d";
+
+"send_title_currency_format %@" = "Sending %@";
