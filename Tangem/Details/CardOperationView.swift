@@ -37,38 +37,35 @@ struct CardOperationView: View {
                 .foregroundColor(.tangemGrayDark6)
                 .padding(.horizontal, 36.0)
             Spacer()
-            HStack(alignment: .center, spacing: 8.0) {
-                Spacer()
-                TangemButton(title: buttonTitle, image: "save") {
-                                self.isLoading = true
-                                self.actionButtonPressed {result in
-                                    DispatchQueue.main.async {
-                                        self.isLoading = false
-                                        switch result {
-                                        case .success:
-                                            if self.shouldPopToRoot {
-                                                DispatchQueue.main.async {
-                                                    self.assembly.getLetsStartOnboardingViewModel()?.reset()
-                                                    self.assembly.getLaunchOnboardingViewModel().reset()
-                                                    self.navigation.popToRoot()
-                                                }
-                                            } else {
-                                                self.presentationMode.wrappedValue.dismiss()
+            TangemButton(title: buttonTitle) {
+                            self.isLoading = true
+                            self.actionButtonPressed {result in
+                                DispatchQueue.main.async {
+                                    self.isLoading = false
+                                    switch result {
+                                    case .success:
+                                        if self.shouldPopToRoot {
+                                            DispatchQueue.main.async {
+                                                self.assembly.getLetsStartOnboardingViewModel()?.reset()
+                                                self.assembly.getLaunchOnboardingViewModel().reset()
+                                                self.navigation.popToRoot()
                                             }
-                                        case .failure(let error):
-                                            if case .userCancelled = error.toTangemSdkError() {
-                                                return
-                                            }
-                                            
-                                            self.error = error.alertBinder
+                                        } else {
+                                            self.presentationMode.wrappedValue.dismiss()
                                         }
+                                    case .failure(let error):
+                                        if case .userCancelled = error.toTangemSdkError() {
+                                            return
+                                        }
+                                        
+                                        self.error = error.alertBinder
                                     }
                                 }
-                }.buttonStyle(TangemButtonStyle(colorStyle: .black,
-                                                layout: .big,
-                                                isLoading: self.isLoading))
-                    .alert(item: self.$error) { $0.alert }
-            }
+                            }
+            }.buttonStyle(TangemButtonStyle(colorStyle: .black,
+                                            layout: .flexibleWidth,
+                                            isLoading: self.isLoading))
+                .alert(item: self.$error) { $0.alert }
             .padding(.horizontal, 16.0)
             .padding(.bottom, 16.0)
         }
