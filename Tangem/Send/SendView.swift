@@ -30,7 +30,7 @@ struct SendView: View {
             ScrollView {
                 VStack(spacing: 0.0) {
                     HStack {
-                        Text("send_title")
+                        Text("send_title_currency_format \(viewModel.amountToSend.currencySymbol)")
                             .font(Font.system(size: 30.0, weight: .bold, design: .default) )
                             .foregroundColor(Color.tangemGrayDark6)
                         Spacer()
