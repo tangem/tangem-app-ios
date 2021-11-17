@@ -248,7 +248,7 @@
 "alert_failed_to_send_email_message" = "Reason: %@";
 
 "alert_failed_to_send_transaction_title" = "Can't send a transaction";
-"alert_failed_to_send_transaction_message" = "Reason: %@. Do you want to send feedback?";
+"alert_failed_to_send_transaction_message" = "Reason: %@. Do you want to request support?";
 
 "alert_troubleshooting_scan_card_title" = "Are you having difficulty scanning your card?";
 "alert_troubleshooting_scan_card_message" = "Please try to tap the card exactly as shown in the animation or request support.";
@@ -644,7 +644,7 @@ Amount to pay: %@";
 "onboarding_subtitle_two_backup_cards" = "Max number of cards added. Finalize the backup process";
 "onboarding_subtitle_backup_warning" = "If the process of backup gets interrupted in any way, you’ll have to start over";
 
-"onboarding_alert_message_not_max_backup_cards_added" = "You've added one backup card. When backup process is finished you can't add more backup cards. If you have one more card, you can add it to backup, otherwise you can buy it in shop. Do you like to continue backup process?";
+"onboarding_alert_message_not_max_backup_cards_added" = "You've added one backup card. When backup process is finished you can't add more backup cards. If you have one more card, you can add it to backup, otherwise you can buy it in shop. Do you want to continue backup process?";
 
 "onboarding_access_code_intro_title" = "Create Access Code";
 "onboarding_access_code_repeat_code_title" = "Re-enter your Access Code";
