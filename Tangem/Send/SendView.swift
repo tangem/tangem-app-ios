@@ -21,8 +21,8 @@ struct SendView: View {
     
     private var addressHint: String {
         viewModel.isPayIdSupported ?
-            "send_destination_hint".localized :
-            "send_destination_hint_address".localized
+        "send_destination_hint".localized :
+        "send_destination_hint_address".localized
     }
     
     var body: some View {
@@ -30,7 +30,7 @@ struct SendView: View {
             ScrollView {
                 VStack(spacing: 0.0) {
                     HStack {
-                        Text("send_title")
+                        Text("send_title_currency_format \(viewModel.amountToSend.currencySymbol)")
                             .font(Font.system(size: 30.0, weight: .bold, design: .default) )
                             .foregroundColor(Color.tangemGrayDark6)
                         Spacer()
@@ -39,36 +39,36 @@ struct SendView: View {
                     TextInputField(placeholder: self.addressHint,
                                    text: self.$viewModel.destination,
                                    suplementView: {
-                                    if !viewModel.isSellingCrypto {
-                                        CircleActionButton(action: {self.viewModel.pasteClipboardTapped() },
-                                                           backgroundColor: .tangemBgGray,
-                                                           imageName: self.viewModel.validatedClipboard == nil ? "doc.on.clipboard" : "doc.on.clipboard.fill",
-                                                           isSystemImage: true,
-                                                           imageColor: .tangemGrayDark6,
-                                                           isDisabled: self.viewModel.validatedClipboard == nil)
-                                            .accessibility(label: Text(self.viewModel.validatedClipboard == nil ? "voice_over_nothing_to_paste" : "voice_over_paste_from_clipboard"))
-                                            .disabled(self.viewModel.validatedClipboard == nil)
-                                        CircleActionButton(
-                                            action: {
-                                                if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
-                                                    self.viewModel.showCameraDeniedAlert = true
-                                                } else {
-                                                    self.viewModel.navigation.sendToQR = true
-                                                }
-                                            },
-                                            backgroundColor: .tangemBgGray,
-                                            imageName: "qrcode.viewfinder",
-                                            isSystemImage: true,
-                                            imageColor: .tangemGrayDark6
-                                        )
-                                        .accessibility(label: Text("voice_over_scan_qr_with_address"))
-                                        .sheet(isPresented: self.$viewModel.navigation.sendToQR) {
-                                            QRScanView(code: self.$viewModel.scannedQRCode)
-                                                .edgesIgnoringSafeArea(.all)
-                                        }
-                                        .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
+                        if !viewModel.isSellingCrypto {
+                            CircleActionButton(action: {self.viewModel.pasteClipboardTapped() },
+                                               backgroundColor: .tangemBgGray,
+                                               imageName: self.viewModel.validatedClipboard == nil ? "doc.on.clipboard" : "doc.on.clipboard.fill",
+                                               isSystemImage: true,
+                                               imageColor: .tangemGrayDark6,
+                                               isDisabled: self.viewModel.validatedClipboard == nil)
+                                .accessibility(label: Text(self.viewModel.validatedClipboard == nil ? "voice_over_nothing_to_paste" : "voice_over_paste_from_clipboard"))
+                                .disabled(self.viewModel.validatedClipboard == nil)
+                            CircleActionButton(
+                                action: {
+                                    if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
+                                        self.viewModel.showCameraDeniedAlert = true
+                                    } else {
+                                        self.viewModel.navigation.sendToQR = true
                                     }
-                                   },
+                                },
+                                backgroundColor: .tangemBgGray,
+                                imageName: "qrcode.viewfinder",
+                                isSystemImage: true,
+                                imageColor: .tangemGrayDark6
+                            )
+                                .accessibility(label: Text("voice_over_scan_qr_with_address"))
+                                .sheet(isPresented: self.$viewModel.navigation.sendToQR) {
+                                    QRScanView(code: self.$viewModel.scannedQRCode)
+                                        .edgesIgnoringSafeArea(.all)
+                                }
+                                .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
+                        }
+                    },
                                    message: self.viewModel.destinationHint?.message ?? " " ,
                                    isErrorMessage: self.viewModel.destinationHint?.isError ?? false)
                         .disabled(viewModel.isSellingCrypto)
@@ -117,7 +117,7 @@ struct SendView: View {
                                 Text(self.viewModel.currencyUnit)
                                     .font(Font.system(size: 38.0, weight: .light, design: .default))
                                     .foregroundColor(!viewModel.isSellingCrypto ?
-                                                        Color.tangemBlue : Color.tangemGrayDark6.opacity(0.5))
+                                                     Color.tangemBlue : Color.tangemGrayDark6.opacity(0.5))
                                 if !viewModel.isSellingCrypto {
                                     Image(systemName: "arrow.up.arrow.down")
                                         .font(Font.system(size: 17.0, weight: .regular, design: .default))
@@ -133,7 +133,7 @@ struct SendView: View {
                             Text(self.viewModel.amountHint?.message ?? " " )
                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
                                 .foregroundColor((self.viewModel.amountHint?.isError ?? false ) ?
-                                                    Color.red : Color.tangemGrayDark)
+                                                 Color.red : Color.tangemGrayDark)
                             Spacer()
                             Text(self.viewModel.walletTotalBalanceFormatted)
                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
@@ -241,39 +241,38 @@ struct SendView: View {
                     WarningListView(warnings: viewModel.warnings, warningButtonAction: {
                         self.viewModel.warningButtonAction(at: $0, priority: $1, button: $2)
                     })
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.vertical, 16)
-                    HStack(alignment: .center, spacing: 8.0) {
-                        Spacer()
-                        TangemButton(title: "wallet_button_send",
-                                     systemImage: "arrow.right") {
-                            self.viewModel.send() {
-                                DispatchQueue.main.async {
-                                    let alert = AlertBuilder.makeSuccessAlert(message: "send_transaction_success".localized) {
-                                        presentationMode.wrappedValue.dismiss()
-                                        onSuccess()
-                                    }
-                                    self.viewModel.sendError = AlertBinder(alert: alert, error: nil)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .padding(.vertical, 16)
+                    TangemButton(title: "wallet_button_send",
+                                 systemImage: "arrow.right") {
+                        self.viewModel.send() {
+                            DispatchQueue.main.async {
+                                let alert = AlertBuilder.makeSuccessAlert(message: "send_transaction_success".localized) {
+                                    presentationMode.wrappedValue.dismiss()
+                                    onSuccess()
                                 }
+                                self.viewModel.sendError = AlertBinder(alert: alert, error: nil)
                             }
-                        }.buttonStyle(TangemButtonStyle(layout: .big,
-                                                        isDisabled: !self.viewModel.isSendEnabled))
-                        .sheet(isPresented: $navigation.sendToSendEmail, content: {
-                            MailView(dataCollector: viewModel.emailDataCollector, support: .tangem, emailType: .failedToSendTx)
-                        })
-                        .alert(item: self.$viewModel.sendError) { binder in
-                            if binder.error == nil {
-                                return binder.alert
-                            }
-                            return Alert(title: Text("alert_failed_to_send_transaction_title"),
-                                         message: Text(String(format: "alert_failed_to_send_transaction_message".localized, binder.error?.localizedDescription ?? "Unknown error")),
-                                         primaryButton: .default(Text("alert_button_send_feedback"), action: {
-                                            navigation.sendToSendEmail = true
-                                         }),
-                                         secondaryButton: .default(Text("common_no")))
                         }
                     }
-                    .padding(.top, 16.0)
+                                 .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
+                                                                isDisabled: !self.viewModel.isSendEnabled))
+                                 .padding(.top, 16.0)
+                                 .sheet(isPresented: $navigation.sendToSendEmail, content: {
+                                     MailView(dataCollector: viewModel.emailDataCollector, support: .tangem, emailType: .failedToSendTx)
+                                 })
+                                 .alert(item: self.$viewModel.sendError) { binder in
+                                     if binder.error == nil {
+                                         return binder.alert
+                                     }
+                                     return Alert(title: Text("alert_failed_to_send_transaction_title"),
+                                                  message: Text(String(format: "alert_failed_to_send_transaction_message".localized, binder.error?.localizedDescription ?? "Unknown error")),
+                                                  primaryButton: .default(Text("alert_button_request_support"), action: {
+                                         navigation.sendToSendEmail = true
+                                     }),
+                                                  secondaryButton: .default(Text("common_no")))
+                                 }
+                    
                 }
                 .padding()
                 .frame(minWidth: geometry.size.width,
