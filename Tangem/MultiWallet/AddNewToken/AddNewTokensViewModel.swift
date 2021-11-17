@@ -27,9 +27,7 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
     }
     
     var availableEthereumTokens: [Token]  {
-        isTestnet ?
-            supportedItems.ethereumTokensTestnet :
-            supportedItems.ethereumTokens
+        supportedItems.availableEthTokens(isTestnet: isTestnet)
     }
     
     var visibleBnbTokens: [Token] {
@@ -39,9 +37,7 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
     }
     
     var availableBnbTokens: [Token] {
-        isTestnet ?
-            supportedItems.binanceTokensTestnet :
-            supportedItems.binanceTokens
+        supportedItems.availableBnbTokens(isTestnet: isTestnet)
     }
     
     var visibleBscTokens: [Token] {
@@ -49,10 +45,9 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
             availableBscTokens :
             []
     }
+    
     var availableBscTokens: [Token] {
-        isTestnet ?
-            supportedItems.binanceSmartChainTokensTestnet :
-            supportedItems.binanceSmartChainTokens
+        supportedItems.availableBscTokens(isTestnet: isTestnet)
     }
     
     @Published var searchText: String = ""
