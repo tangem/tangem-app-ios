@@ -564,7 +564,9 @@ class CardViewModel: Identifiable, ObservableObject {
             ethWalletModel = assembly.makeWallets(from: cardInfo, blockchains: [blockchain]).first!
         }
         
-        (ethWalletModel!.walletManager as! TokenFinder).findErc20Tokens() {[weak self] result in
+        let supportedItems = SupportedTokenItems()
+        
+        (ethWalletModel!.walletManager as! TokenFinder).findErc20Tokens(knownTokens: supportedItems.availableEthTokens(isTestnet: cardInfo.isTestnet)) {[weak self] result in
             guard let self = self else { return }
             
             switch result {
