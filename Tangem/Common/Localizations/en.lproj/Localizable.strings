@@ -248,7 +248,7 @@
 "alert_failed_to_send_email_message" = "Reason: %@";
 
 "alert_failed_to_send_transaction_title" = "Can't send a transaction";
-"alert_failed_to_send_transaction_message" = "Reason: %@. Do you want to send feedback?";
+"alert_failed_to_send_transaction_message" = "Reason: %@. Do you want to request support?";
 
 "alert_troubleshooting_scan_card_title" = "Are you having difficulty scanning your card?";
 "alert_troubleshooting_scan_card_message" = "Please try to tap the card exactly as shown in the animation or request support.";
@@ -591,7 +591,7 @@ Amount to pay: %@";
 "onboarding_navbar_activating_card" = "Activating card";
 "onboarding_button_create_wallet" = "Create wallet";
 "onboarding_button_how_it_works" = "How it works?";
-"onboarding_create_title" = "Create a wallet";
+"onboarding_create_title" = "Create wallet";
 "onboarding_create_subtitle" = "Let’s generate all the keys on your card and create a secure wallet";
 
 "onboarding_button_buy_crypto" = "Buy crypto";
@@ -642,9 +642,9 @@ Amount to pay: %@";
 "onboarding_subtitle_scan_origin_card %@" = "Prepare the primary card with number %@";
 "onboarding_subtitle_one_backup_card" = "You can add one more card or finalize the backup process";
 "onboarding_subtitle_two_backup_cards" = "Max number of cards added. Finalize the backup process";
-"onboarding_subtitle_backup_warning" = "If the process of backup gets interrupted in any way, you’ll have to start over";
+"onboarding_subtitle_backup_warning" = "If the process of backup gets interrupted in any way you’ll have to start over";
 
-"onboarding_alert_message_not_max_backup_cards_added" = "You've added one backup card. When backup process is finished you can't add more backup cards. If you have one more card, you can add it to backup, otherwise you can buy it in shop. Do you like to continue backup process?";
+"onboarding_alert_message_not_max_backup_cards_added" = "You’ve added one backup card. When backup process is finished you can’t add more backup cards. If you have one more card, add it in backup, otherwise you can buy it in shop. Do you like to continue backup process?";
 
 "onboarding_access_code_intro_title" = "Create Access Code";
 "onboarding_access_code_repeat_code_title" = "Re-enter your Access Code";
@@ -668,13 +668,13 @@ Amount to pay: %@";
 "onboarding_navbar_title_creating_backup" = "Creating a backup";
 "onboarding_backup_exit_warning" = "The backup process is partly complete. You can’t exit it now.";
 
-"onboarding_wallet_info_title_first" = "Backup your wallet";
+"onboarding_wallet_info_title_first" = "Backup wallet";
 "onboarding_wallet_info_title_second" = "Identical cards";
 "onboarding_wallet_info_title_third" = "Access code";
 "onboarding_wallet_info_title_fourth" = "Access code restore";
 
 "onboarding_wallet_info_subtitle_first" = "You can backup your keys up to two other blank Tangem Wallet cards.";
-"onboarding_wallet_info_subtitle_second" = "All the backup cards can be used as full-functoinal wallets with the identical keys.";
+"onboarding_wallet_info_subtitle_second" = "All the backup cards can be used as full-functoinal with the identical keys.";
 "onboarding_wallet_info_subtitle_third" = "You will be able to set an access code to protect your wallets.";
 "onboarding_wallet_info_subtitle_fourth" = "Access code can be restored with one of backup cards.";
 
@@ -689,8 +689,8 @@ Amount to pay: %@";
 "onboarding_twin_exit_warning" = "The twinning process is partly complete. You can’t exit it now.";
 
 "details_row_title_backup_status" = "Backup status";
-"details_backup_status_format_active" = "Active. Backup cards count: %@";
-"details_backup_status_format_linked" = "Linked. Backup cards count: %@";
+"details_backup_status_format_active" = "Active. Backup cards count: %d";
+"details_backup_status_format_linked" = "Linked. Backup cards count: %d";
 "details_backup_status_no_backup" = "No backup";
 
 "details_row_title_create_backup" = "Create backup";
@@ -709,3 +709,7 @@ Amount to pay: %@";
 "onboarding_button_continue_wallet" = "Continue to my wallet";
 
 "card_label_number_format" = "Card %d of %d";
+
+"send_title_currency_format %@" = "Sending %@";
+
+"onboarding_subtitle_scan_backup_card %@" = "Prepare the backup card with number %@";
