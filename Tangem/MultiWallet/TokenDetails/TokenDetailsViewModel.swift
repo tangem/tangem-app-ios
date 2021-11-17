@@ -250,6 +250,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         $isRefreshing
             .removeDuplicates()
             .filter { $0 }
+            .delay(for: 1, scheduler: DispatchQueue.main)
             .sink{ [weak self] _ in
                 self?.walletModel?.update()
             }
