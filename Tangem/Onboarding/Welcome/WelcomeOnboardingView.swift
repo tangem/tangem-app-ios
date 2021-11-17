@@ -82,13 +82,14 @@ struct WelcomeOnboardingView: View {
                     
                 }
                 .padding(.horizontal, 40)
-                
-                ScanTroubleshootingView(isPresented: $navigation.readToTroubleshootingScan) {
-                    self.viewModel.scanCard()
-                } requestSupportAction: {
-                    self.viewModel.failedCardScanTracker.resetCounter()
-                    self.navigation.readToSendEmail = true
-                }
+            }
+            .actionSheet(item: $viewModel.discardAlert, content: { $0.sheet })
+            
+            ScanTroubleshootingView(isPresented: $navigation.readToTroubleshootingScan) {
+                self.viewModel.scanCard()
+            } requestSupportAction: {
+                self.viewModel.failedCardScanTracker.resetCounter()
+                self.navigation.readToSendEmail = true
             }
             
             Color.clear.frame(width: 1, height: 1)
@@ -116,7 +117,6 @@ struct WelcomeOnboardingView: View {
             
         }
         .alert(item: $viewModel.error, content: { $0.alert })
-        .actionSheet(item: $viewModel.discardAlert, content: { $0.sheet })
         .onAppear(perform: viewModel.onAppear)
     }
 }
