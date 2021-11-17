@@ -196,7 +196,7 @@ extension Assembly {
     func makeTokenDetailsViewModel( blockchain: Blockchain, amountType: Amount.AmountType = .coin) -> TokenDetailsViewModel {
         if let restored: TokenDetailsViewModel = get() {
             if let cardModel = services.cardsRepository.lastScanResult.cardModel {
-                restored.card = cardModel
+             //   restored.card = cardModel
             }
             return restored
         }
