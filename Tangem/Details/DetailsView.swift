@@ -128,32 +128,20 @@ struct DetailsView: View {
                                     })
                                     .environmentObject(navigation)
                             })
-                        
-                        NavigationLink(destination: CardOperationView(title: "details_row_title_reset_factory_settings".localized,
-                                                                      shouldPopToRoot: true,
-                                                                      alert: "details_row_title_reset_factory_settings_warning".localized,
-                                                                      actionButtonPressed: { self.viewModel.cardModel.resetToFactory(completion: $0)}
-                                                                     )
-                                        .environmentObject(navigation)
-                                        .environmentObject(assembly),
-                                       tag: NavigationTag.resetToFactory, selection: $selection) {
-                            DetailsRowView(title: "details_row_title_reset_factory_settings".localized, subtitle: "")
-                                .disabled(!viewModel.cardModel.canPurgeWallet)
-                        }
-                    } else {
-                        NavigationLink(destination: CardOperationView(title: "details_row_title_erase_wallet".localized,
-                                                                      buttonTitle: "details_row_title_erase_wallet",
-                                                                      shouldPopToRoot: true,
-                                                                      alert: "details_erase_wallet_warning".localized,
-                                                                      actionButtonPressed: { self.viewModel.cardModel.purgeWallet(completion: $0)}
-                                                                     )
-                                        .environmentObject(navigation)
-                                        .environmentObject(assembly),
-                                       tag: NavigationTag.cardOperation, selection: $selection) {
-                            DetailsRowView(title: "details_row_title_erase_wallet".localized, subtitle: "")
-                        }
-                                       .disabled(!viewModel.cardModel.canPurgeWallet)
                     }
+                    
+                    NavigationLink(destination: CardOperationView(title: "details_row_title_reset_factory_settings".localized,
+                                                                  shouldPopToRoot: true,
+                                                                  alert: "details_row_title_reset_factory_settings_warning".localized,
+                                                                  actionButtonPressed: { self.viewModel.cardModel.resetToFactory(completion: $0)}
+                                                                 )
+                                    .environmentObject(navigation)
+                                    .environmentObject(assembly),
+                                   tag: NavigationTag.resetToFactory, selection: $selection) {
+                        DetailsRowView(title: "details_row_title_reset_factory_settings".localized, subtitle: "")
+                            .disabled(!viewModel.cardModel.canPurgeWallet)
+                    }
+                    
                 }
             }
             
