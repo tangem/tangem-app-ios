@@ -98,7 +98,7 @@ class WarningsService {
     
     private func addAuthFailedIfNeeded(in container: WarningsContainer, for cardInfo: CardInfo) {
         if cardInfo.card.firmwareVersion.type != .sdk &&
-            (cardInfo.card.attestation.status == .failed || cardInfo.card.attestation.status == .skipped) {
+            (cardInfo.card.attestation.status == .failed) {
             container.add(WarningEvent.failedToValidateCard.warning)
         }
     }
