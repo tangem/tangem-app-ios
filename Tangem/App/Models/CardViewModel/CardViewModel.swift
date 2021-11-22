@@ -407,34 +407,53 @@ class CardViewModel: Identifiable, ObservableObject {
     // MARK: - Wallet
     
     func createWallet(_ completion: @escaping (Result<Void, Error>) -> Void) {
+        let card = self.cardInfo.card
         tangemSdk.startSession(with: CreateWalletAndReadTask(with: cardInfo.defaultBlockchain?.curve),
                                cardId: cardInfo.card.cardId,
                                initialMessage: Message(header: nil,
-                                                       body: "initial_message_create_wallet_body".localized)) {[unowned self] result in
+                                                       body: "initial_message_create_wallet_body".localized)) {[weak self] result in
             switch result {
             case .success(let card):
-                self.update(with: card)
+                self?.update(with: card)
                 completion(.success(()))
             case .failure(let error):
-                Analytics.logCardSdkError(error, for: .createWallet, card: cardInfo.card)
+                Analytics.logCardSdkError(error, for: .purgeWallet, card: card)
                 completion(.failure(error))
             }
         }
     }
     
     func purgeWallet(completion: @escaping (Result<Void, Error>) -> Void) {
+        let card = self.cardInfo.card
         tangemSdk.startSession(with: PurgeWalletsAndReadTask(),
                                cardId: cardInfo.card.cardId,
                                initialMessage: Message(header: nil,
-                                                      body: "initial_message_purge_wallet_body".localized)) {[unowned self] result in
+                                                      body: "initial_message_purge_wallet_body".localized)) {[weak self] result in
             switch result {
             case .success(let response):
-                self.tokenItemsRepository.removeAll(for: cardInfo.card.cardId)
-                self.clearTwinPairKey()
+                self?.tokenItemsRepository.removeAll(for: response.cardId)
+                self?.clearTwinPairKey()
                // self.update(with: response)
                 completion(.success(()))
             case .failure(let error):
-                Analytics.logCardSdkError(error, for: .purgeWallet, card: cardInfo.card)
+                Analytics.logCardSdkError(error, for: .purgeWallet, card: card)
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    
+    func resetToFactory(completion: @escaping (Result<Void, Error>) -> Void) {
+        let card = self.cardInfo.card
+        tangemSdk.startSession(with: ResetToFactorySettingsTask(),
+                               cardId: cardInfo.card.cardId) { [weak self] result in
+            switch result {
+            case .success(let response):
+                self?.tokenItemsRepository.removeAll(for: response.cardId)
+               // self.update(with: response)
+                completion(.success(()))
+            case .failure(let error):
+                Analytics.logCardSdkError(error, for: .purgeWallet, card: card)
                 completion(.failure(error))
             }
         }
