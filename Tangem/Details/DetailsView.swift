@@ -23,14 +23,14 @@ struct DetailsRowView: View {
                 .font(Font.system(size: 16.0, weight: .regular, design: .default))
                 .foregroundColor(.tangemGrayDark)
         }
-       // .padding(.leading)
+        // .padding(.leading)
         //.listRowInsets(EdgeInsets())
     }
 }
 
 struct DetailsView: View {
     private enum NavigationTag: String {
-        case currency, disclaimer, cardTermsOfUse, securityManagement, cardOperation, manageTokens, walletConnect, backup
+        case currency, disclaimer, cardTermsOfUse, securityManagement, cardOperation, manageTokens, walletConnect, backup, resetToFactory
     }
     
     @ObservedObject var viewModel: DetailsViewModel
@@ -47,7 +47,7 @@ struct DetailsView: View {
                                subtitle: viewModel.cardCid)
                 DetailsRowView(title: "details_row_title_issuer".localized,
                                subtitle: viewModel.cardModel.cardInfo.card.issuer.name)
-
+                
                 if viewModel.hasWallet, !viewModel.isTwinCard {
                     DetailsRowView(title: "details_row_title_signed_hashes".localized,
                                    subtitle: String(format: "details_row_subtitle_signed_hashes_format".localized,
@@ -59,22 +59,22 @@ struct DetailsView: View {
                     }
                 }, label: {
                     HStack {
-                    Text("details_row_title_manage_security")
-                        .font(.system(size: 16, weight: .regular, design: .default))
-                        .foregroundColor(.tangemGrayDark6)
+                        Text("details_row_title_manage_security")
+                            .font(.system(size: 16, weight: .regular, design: .default))
+                            .foregroundColor(.tangemGrayDark6)
                         Spacer()
                         ActivityIndicatorView(isAnimating: viewModel.isCheckingPin)
                     }
                 })
-                .background(
-                    NavigationLink(
-                        destination: SecurityManagementView(viewModel: viewModel.assembly.makeSecurityManagementViewModel(with: viewModel.cardModel))
-                            .environmentObject(navigation),
-                        tag: NavigationTag.securityManagement,
-                        selection: $selection,
-                        label: { EmptyView() })
-                        .disabled(true)
-                )
+                    .background(
+                        NavigationLink(
+                            destination: SecurityManagementView(viewModel: viewModel.assembly.makeSecurityManagementViewModel(with: viewModel.cardModel))
+                                .environmentObject(navigation),
+                            tag: NavigationTag.securityManagement,
+                            selection: $selection,
+                            label: { EmptyView() })
+                            .disabled(true)
+                    )
                 
                 if viewModel.isTwinCard {
                     Button(action: {
@@ -84,68 +84,75 @@ struct DetailsView: View {
                             .font(.system(size: 16, weight: .regular, design: .default))
                             .foregroundColor(.tangemGrayDark6)
                     })
-                    .sheet(isPresented: $navigation.detailsToTwinsRecreateWarning, content: {
-                        OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
-                            .presentation(modal: viewModel.isTwinRecreationModel, onDismissalAttempt: {
-                                assembly.getTwinOnboardingViewModel()?.backButtonAction()
-                            }, onDismissed: nil)
-                            .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
-                                viewModel.isTwinRecreationModel = value
-                            })
-                            .environmentObject(navigation)
-                    })
-//                    .sheet(isPresented: $navigation.mainToCardOnboarding, content: {
-//                        OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
-//                            .presentation(modal: viewModel.isOnboardingModal, onDismissalAttempt: nil, onDismissed: viewModel.onboardingDismissed)
-//                            .environmentObject(navigation)
-//                            .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
-//                                viewModel.isOnboardingModal = value
-//                            })
-//                    })
-//                    NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardWarningViewModel(isRecreating: true)),
-//                                   isActive: $navigation.detailsToTwinsRecreateWarning){
-//                        DetailsRowView(title: "details_row_title_twins_recreate".localized, subtitle: "")
-//                    }
-                    .disabled(!viewModel.cardModel.canRecreateTwinCard)
+                        .sheet(isPresented: $navigation.detailsToTwinsRecreateWarning, content: {
+                            OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
+                                .presentation(modal: viewModel.isTwinRecreationModel, onDismissalAttempt: {
+                                    assembly.getTwinOnboardingViewModel()?.backButtonAction()
+                                }, onDismissed: nil)
+                                .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
+                                    viewModel.isTwinRecreationModel = value
+                                })
+                                .environmentObject(navigation)
+                        })
+                    //                    .sheet(isPresented: $navigation.mainToCardOnboarding, content: {
+                    //                        OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
+                    //                            .presentation(modal: viewModel.isOnboardingModal, onDismissalAttempt: nil, onDismissed: viewModel.onboardingDismissed)
+                    //                            .environmentObject(navigation)
+                    //                            .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
+                    //                                viewModel.isOnboardingModal = value
+                    //                            })
+                    //                    })
+                    //                    NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardWarningViewModel(isRecreating: true)),
+                    //                                   isActive: $navigation.detailsToTwinsRecreateWarning){
+                    //                        DetailsRowView(title: "details_row_title_twins_recreate".localized, subtitle: "")
+                    //                    }
+                        .disabled(!viewModel.cardModel.canRecreateTwinCard)
                     
                 } else {
-                    NavigationLink(destination: CardOperationView(title: "details_row_title_erase_wallet".localized,
-                                                                  buttonTitle: "details_row_title_erase_wallet",
-                                                                  shouldPopToRoot: true,
-                                                                  alert: "details_erase_wallet_warning".localized,
-                                                                  actionButtonPressed: { self.viewModel.cardModel.purgeWallet(completion: $0)}
-                    )
-                    .environmentObject(navigation)
-                    .environmentObject(assembly),
-                    tag: NavigationTag.cardOperation, selection: $selection) {
-                        DetailsRowView(title: "details_row_title_erase_wallet".localized, subtitle: "")
-                    }
-                    .disabled(!viewModel.cardModel.canPurgeWallet)
-                }
-                
-                if viewModel.backupVisible {
-                    Button(action: {
-                        viewModel.prepareBackup()
-                    }, label: {
-                        Text("details_row_title_create_backup")
-                            .font(.system(size: 16, weight: .regular, design: .default))
-                            .foregroundColor(.tangemGrayDark6)
-                    })
-                    .disabled(!viewModel.canCreateBackup)
-                    .sheet(isPresented: $navigation.detailsToBackup, content: {
-                        OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
-                            .presentation(modal: viewModel.isTwinRecreationModel, onDismissalAttempt: {
-                                assembly.getWalletOnboardingViewModel()?.backButtonAction()
-                            }, onDismissed: nil)
-                            .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
-                                viewModel.isTwinRecreationModel = value
+                    if viewModel.backupVisible {
+                        Button(action: {
+                            viewModel.prepareBackup()
+                        }, label: {
+                            Text("details_row_title_create_backup")
+                                .font(.system(size: 16, weight: .regular, design: .default))
+                                .foregroundColor(.tangemGrayDark6)
+                        })
+                            .disabled(!viewModel.canCreateBackup)
+                            .sheet(isPresented: $navigation.detailsToBackup, content: {
+                                OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
+                                    .presentation(modal: viewModel.isTwinRecreationModel, onDismissalAttempt: {
+                                        assembly.getWalletOnboardingViewModel()?.backButtonAction()
+                                    }, onDismissed: nil)
+                                    .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
+                                        viewModel.isTwinRecreationModel = value
+                                    })
+                                    .environmentObject(navigation)
                             })
-                            .environmentObject(navigation)
-                    })
-                    
-                    if let backupStatus = viewModel.backupStatus {
-                        DetailsRowView(title: "details_row_title_backup_status".localized,
-                                       subtitle: backupStatus)
+                        
+                        NavigationLink(destination: CardOperationView(title: "details_row_title_reset_factory_settings".localized,
+                                                                      shouldPopToRoot: true,
+                                                                      alert: "details_row_title_reset_factory_settings_warning".localized,
+                                                                      actionButtonPressed: { self.viewModel.cardModel.resetToFactory(completion: $0)}
+                                                                     )
+                                        .environmentObject(navigation)
+                                        .environmentObject(assembly),
+                                       tag: NavigationTag.resetToFactory, selection: $selection) {
+                            DetailsRowView(title: "details_row_title_reset_factory_settings".localized, subtitle: "")
+                                .disabled(!viewModel.cardModel.canPurgeWallet)
+                        }
+                    } else {
+                        NavigationLink(destination: CardOperationView(title: "details_row_title_erase_wallet".localized,
+                                                                      buttonTitle: "details_row_title_erase_wallet",
+                                                                      shouldPopToRoot: true,
+                                                                      alert: "details_erase_wallet_warning".localized,
+                                                                      actionButtonPressed: { self.viewModel.cardModel.purgeWallet(completion: $0)}
+                                                                     )
+                                        .environmentObject(navigation)
+                                        .environmentObject(assembly),
+                                       tag: NavigationTag.cardOperation, selection: $selection) {
+                            DetailsRowView(title: "details_row_title_erase_wallet".localized, subtitle: "")
+                        }
+                                       .disabled(!viewModel.cardModel.canPurgeWallet)
                     }
                 }
             }
@@ -172,11 +179,11 @@ struct DetailsView: View {
                         .font(.system(size: 16, weight: .regular, design: .default))
                         .foregroundColor(.tangemGrayDark6)
                 })
-                .sheet(isPresented: $navigation.detailsToSendEmail, content: {
-                    MailView(dataCollector: viewModel.dataCollector,
-                             support: viewModel.cardModel.emailSupport,
-                             emailType: .appFeedback(support: viewModel.cardModel.isStart2CoinCard ? .start2coin : .tangem))
-                })
+                    .sheet(isPresented: $navigation.detailsToSendEmail, content: {
+                        MailView(dataCollector: viewModel.dataCollector,
+                                 support: viewModel.cardModel.emailSupport,
+                                 emailType: .appFeedback(support: viewModel.cardModel.isStart2CoinCard ? .start2coin : .tangem))
+                    })
                 
                 if let cardTouURL = viewModel.cardTouURL {
                     NavigationLink(destination: WebViewContainer(url: cardTouURL, title: "details_row_title_card_tou")
