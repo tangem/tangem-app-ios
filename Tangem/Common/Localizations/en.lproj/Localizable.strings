@@ -713,3 +713,7 @@ Amount to pay: %@";
 "send_title_currency_format %@" = "Sending %@";
 
 "onboarding_subtitle_scan_backup_card %@" = "Prepare the backup card with number %@";
+
+"details_row_title_reset_factory_settings" = "Reset to factory settings";
+
+"details_row_title_reset_factory_settings_warning" = "This action is irreversible. If, after resetting the card, someone sends funds to it, then you will not be able to withdraw them.";
