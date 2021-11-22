@@ -423,26 +423,6 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
     
-    func purgeWallet(completion: @escaping (Result<Void, Error>) -> Void) {
-        let card = self.cardInfo.card
-        tangemSdk.startSession(with: PurgeWalletsAndReadTask(),
-                               cardId: cardInfo.card.cardId,
-                               initialMessage: Message(header: nil,
-                                                      body: "initial_message_purge_wallet_body".localized)) {[weak self] result in
-            switch result {
-            case .success(let response):
-                self?.tokenItemsRepository.removeAll(for: response.cardId)
-                self?.clearTwinPairKey()
-               // self.update(with: response)
-                completion(.success(()))
-            case .failure(let error):
-                Analytics.logCardSdkError(error, for: .purgeWallet, card: card)
-                completion(.failure(error))
-            }
-        }
-    }
-    
-    
     func resetToFactory(completion: @escaping (Result<Void, Error>) -> Void) {
         let card = self.cardInfo.card
         tangemSdk.startSession(with: ResetToFactorySettingsTask(),
@@ -450,6 +430,7 @@ class CardViewModel: Identifiable, ObservableObject {
             switch result {
             case .success(let response):
                 self?.tokenItemsRepository.removeAll(for: response.cardId)
+                self?.clearTwinPairKey()
                // self.update(with: response)
                 completion(.success(()))
             case .failure(let error):
