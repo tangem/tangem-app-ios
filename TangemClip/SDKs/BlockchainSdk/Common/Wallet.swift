@@ -25,15 +25,15 @@ public struct Wallet {
 	}
     
     public var isEmpty: Bool {
-        return amounts.filter { $0.key != .reserve && !$0.value.isEmpty }.count == 0
+        return amounts.filter { $0.key != .reserve && !$0.value.isEmpty }.isEmpty
     }
 
     public var hasPendingTx: Bool {
-        return transactions.filter { $0.status == .unconfirmed }.count > 0
+        return !transactions.filter { $0.status == .unconfirmed }.isEmpty
     }
     
     public func hasPendingTx(for amountType: Amount.AmountType) -> Bool {
-        return transactions.filter { $0.status == .unconfirmed && $0.amount.type == amountType }.count > 0
+        return !transactions.filter { $0.status == .unconfirmed && $0.amount.type == amountType }.isEmpty
     }
     
     internal init(blockchain: Blockchain, addresses: [Address]) {
@@ -114,5 +114,18 @@ extension Wallet {
     public enum WalletState {
         case created
         case loaded
+    }
+    
+    public struct PublicKey: Codable, Hashable {
+        private let publicKey: Data
+        private let derivedKey: Data?
+        
+        public var signingPublicKey: Data { publicKey }
+        public var blockchainPublicKey: Data { derivedKey ?? publicKey }
+        
+        public init(publicKey: Data, derivedKey: Data?) {
+            self.publicKey = publicKey
+            self.derivedKey = derivedKey
+        }
     }
 }
