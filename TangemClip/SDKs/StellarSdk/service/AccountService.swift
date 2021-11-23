@@ -170,7 +170,7 @@ open class AccountService: NSObject {
         if let limit = limit { params["limit"] = String(limit) }
         
         if let pathParams = params.stringFromHttpParameters(),
-            pathParams.count > 0 {
+            !pathParams.isEmpty {
             requestPath += "?\(pathParams)"
         }
         

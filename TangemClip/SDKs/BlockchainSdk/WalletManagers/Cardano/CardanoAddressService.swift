@@ -43,7 +43,7 @@ public class CardanoAddressService: AddressService {
             
         } else {
             guard let decoded58 = address.base58DecodedData?.bytes,
-                decoded58.count > 0 else {
+                !decoded58.isEmpty else {
                     return false
             }
             

@@ -30,7 +30,7 @@ class CardViewModel: ObservableObject {
     }
 
     var isCardEmpty: Bool {
-        cardInfo.card.wallets.count == 0
+        cardInfo.card.wallets.isEmpty
     }
 
     @Published private(set) var walletModels: [WalletModel] = []
