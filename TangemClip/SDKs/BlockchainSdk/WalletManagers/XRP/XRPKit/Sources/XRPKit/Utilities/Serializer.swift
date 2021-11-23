@@ -261,7 +261,7 @@ class Serializer {
          3 fields are present.)
          */
         
-        if pathset.count == 0 {
+        if pathset.isEmpty {
             fatalError("PathSet type must not be empty")
         }
         
@@ -280,7 +280,7 @@ class Serializer {
     
     private func pathAsBytes(path: [[String:Any]]) -> Data {
         //    Helper function for representing one member of a pathset as a bytes object
-        if path.count == 0 {
+        if path.isEmpty {
             fatalError("Path type must not be empty")
         }
         
