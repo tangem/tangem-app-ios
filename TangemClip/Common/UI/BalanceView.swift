@@ -20,17 +20,17 @@
 //                Text(tokenViewModel.balance)
 //            }
 //            .font(.system(size: 13, weight: .medium))
-//            .foregroundColor(.tangemTapGrayDark6)
+//            .foregroundColor(.tangemGrayDark6)
 //            .padding(.bottom, 2)
 //            HStack {
 //                Spacer()
 //                Text(tokenViewModel.fiatBalance)
 //                    .font(.system(size: 13, weight: .medium))
-//                    .foregroundColor(.tangemTapGrayDark)
+//                    .foregroundColor(.tangemGrayDark)
 //            }
 //        }
 //        .padding(8)
-//        .background(Color.tangemTapGrayLight6)
+//        .background(Color.tangemGrayLight6)
 //        .cornerRadius(6)
 //    }
 //}
@@ -52,7 +52,7 @@
 //    }
 //    
 //    var accentColor: Color {
-//        return .tangemTapWarning
+//        return .tangemWarning
 //    }
 //    
 //    var body: some View {
@@ -63,14 +63,14 @@
 //            HStack(alignment: .firstTextBaseline) {
 //                Text(balanceViewModel.name)
 //                    .font(Font.system(size: 20.0, weight: .bold, design: .default))
-//                    .foregroundColor(Color.tangemTapGrayDark6)
+//                    .foregroundColor(Color.tangemGrayDark6)
 //                    .minimumScaleFactor(0.8)
 //                    .lineLimit(2)
 //                    .fixedSize(horizontal: false, vertical: true)
 //                Spacer()
 //                Text(balanceViewModel.balance)
 //                    .font(Font.system(size: 20.0, weight: .bold, design: .default))
-//                    .foregroundColor(Color.tangemTapGrayDark6)
+//                    .foregroundColor(Color.tangemGrayDark6)
 //                    .minimumScaleFactor(0.8)
 //                    .multilineTextAlignment(.trailing)
 //                    .truncationMode(.middle)
@@ -98,32 +98,32 @@
 //                Text(balanceViewModel.fiatBalance)
 //                    .font(Font.system(size: 14.0, weight: .medium, design: .default))
 //                    .lineLimit(1)
-//                    .foregroundColor(Color.tangemTapGrayDark)
+//                    .foregroundColor(Color.tangemGrayDark)
 //            }
 //            .padding(.bottom, 16.0)
 //            .padding(.horizontal, 24.0)
 //            
 //            
 //            if balanceViewModel.isToken {
-//                Color.tangemTapGrayLight5
+//                Color.tangemGrayLight5
 //                    .frame(width: nil, height: 1.0, alignment: .center)
 //                    .padding(.bottom, 8)
 //                    .padding(.horizontal, 24.0)
 //                HStack(alignment: .firstTextBaseline) {
 //                    Text(balanceViewModel.secondaryName)
 //                        .font(Font.system(size: 14.0, weight: .medium, design: .default))
-//                        .foregroundColor(Color.tangemTapGrayDark6)
+//                        .foregroundColor(Color.tangemGrayDark6)
 //                        .lineLimit(1)
 //                    Spacer()
 //                    VStack(alignment: .trailing, spacing: 8) {
 //                        Text(balanceViewModel.secondaryBalance)
 //                            .font(Font.system(size: 13.0, weight: .medium, design: .default))
-//                            .foregroundColor(Color.tangemTapGrayDark6)
+//                            .foregroundColor(Color.tangemGrayDark6)
 //                            .lineLimit(1)
 //                        Text(balanceViewModel.secondaryFiatBalance)
 //                            .font(Font.system(size: 13.0, weight: .medium, design: .default))
 //                            .lineLimit(1)
-//                            .foregroundColor(Color.tangemTapGrayDark)
+//                            .foregroundColor(Color.tangemGrayDark)
 //                    }
 //                    
 //                }
@@ -153,7 +153,7 @@
 //    
 //    static var previews: some View {
 //        ZStack {
-//            Color.tangemTapBgGray
+//            Color.tangemBgGray
 //            VStack {
 //                BalanceView(balanceViewModel: BalanceViewModel(isToken: false,
 //                                                               state: .loading,
