@@ -468,7 +468,7 @@ Cette avertissement a été modifié, pour la dernière fois, le 1 octobre 2020.
 "mail_error_no_accounts_title" = "No Mail accounts";
 "mail_error_no_accounts_body" = "Please, set up an account to send email";
 
-"token_details_tx_note_message" = "Please wait for %@ transaction to complete to be able to send funds";
+"token_details_send_blocked_tx %@" = "Please wait for %@ transaction to complete to be able to send funds";
 
 "warning_low_signatures_format" = "There are only %@ signatures available on this card. You must withdraw all of your funds.";
 
@@ -718,3 +718,5 @@ Amount to pay: %@";
 "details_row_title_reset_factory_settings" = "Reset to factory settings";
 
 "details_row_title_reset_factory_settings_warning" = "This action is irreversible. If, after resetting the card, someone sends funds to it, then you will not be able to withdraw them.";
+
+"token_details_send_blocked_fee %@" = "Not enough funds for fee on your %@ wallet to send a transaction. Top up your %@ wallet first.";
