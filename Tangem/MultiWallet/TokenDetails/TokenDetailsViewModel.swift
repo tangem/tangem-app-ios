@@ -114,17 +114,19 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         }
     }
     
-    var shouldShowTxNote: Bool {
-        guard let walletModel = walletModel else { return false }
-        
-        return walletModel.wallet.hasPendingTx && !walletModel.wallet.hasPendingTx(for: amountType)
-    }
+    var sendBlockedReason: String? {
+        guard let wallet = walletModel?.wallet,
+         let currentAmount = wallet.amounts[amountType] else { return nil }
     
-    var txNoteMessage: String {
-        guard let walletModel = walletModel else { return "" }
+        if wallet.hasPendingTx && !wallet.hasPendingTx(for: amountType) { //has pending tx for fee
+            return "token_details_send_blocked_tx \(wallet.amounts[.coin]?.currencySymbol ?? "")".localized
+        }
         
-        let name = walletModel.wallet.transactions.first?.amount.currencySymbol ?? ""
-        return String(format: "token_details_tx_note_message".localized, name)
+        if !canSend && !currentAmount.isEmpty { //no fee
+            return "token_details_send_blocked_fee \(wallet.blockchain.displayName)".localized
+        }
+        
+        return nil
     }
     
     var amountToSend: Amount? {
