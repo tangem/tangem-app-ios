@@ -79,84 +79,42 @@ struct AddNewTokensView: View {
             
             List {
                 Section(header: HeaderView(text: "add_token_section_title_blockchains".localized, collapsible: false)) {
-                    ForEach(viewModel.availableBlockchains.filter {
-                        searchText.isEmpty || $0.displayName.lowercased().contains(searchText.lowercased())
-                            || $0.currencySymbol.lowercased().contains(searchText.lowercased())
-                    }) { blockchain in
-                        TokenView(isTestnet: viewModel.isTestnet,
-                                  isAdded: viewModel.isAdded(blockchain),
-                                  isLoading: false,
-                                  name: blockchain.displayName,
-                                  symbol: blockchain.currencySymbol,
-                                  tokenItem: .blockchain(blockchain),
-                                  addAction: {
-                                    viewModel.addBlockchain(blockchain)
-                                  }, removeAction: {})}
+                    ForEach(viewModel.getBlockchains(filter: searchText)) { tokenView(for: $0) }
                 }
                 
                 if !viewModel.availableEthereumTokens.isEmpty {
-                    Section(header: HeaderView(text: "add_token_section_title_popular_tokens".localized, collapsible: true, isExpanded: viewModel.isEthTokensVisible, onCollapseAction: {
-                        withAnimation {
-                            viewModel.isEthTokensVisible.toggle()
-                        }
-                    })) {
-                        ForEach(viewModel.visibleEthTokens.filter {
-                                    searchText.isEmpty || $0.name.lowercased().contains(searchText.lowercased()) || $0.symbol.lowercased().contains(searchText.lowercased()) }) { token in
-                            TokenView(isTestnet: viewModel.isTestnet,
-                                      isAdded: viewModel.isAdded(token),
-                                      isLoading: viewModel.pendingTokensUpdate.contains(token), name: token.name,
-                                      symbol: token.symbol,
-                                      tokenItem: .token(token),
-                                      addAction: {
-                                        viewModel.addTokenToList(token: token, blockchain: .ethereum(testnet: viewModel.isTestnet))
-                                      }, removeAction: { })
-                        }
+                    Section(header: HeaderView(text: "add_token_section_title_popular_tokens".localized,
+                                               collapsible: true,
+                                               isExpanded: viewModel.isEthTokensVisible,
+                                               onCollapseAction: { withAnimation { viewModel.isEthTokensVisible.toggle() }})) {
+                        ForEach(viewModel.getVisibleEthTokens(filter: searchText)) { tokenView(for: $0) }
                     }
                 }
                 
                 if !viewModel.availableBnbTokens.isEmpty {
-                    Section(header: HeaderView(text: "add_token_section_title_binance_tokens".localized, collapsible: true, isExpanded: viewModel.isBnbTokensVisible, onCollapseAction: {
-                        withAnimation {
-                            viewModel.isBnbTokensVisible.toggle()
-                        }
-                    })) {
-                        ForEach(viewModel.visibleBnbTokens.filter {
-                                    searchText.isEmpty || $0.name.lowercased().contains(searchText.lowercased()) || $0.symbol.lowercased().contains(searchText.lowercased()) }) { token in
-                            TokenView(isTestnet: viewModel.isTestnet,
-                                      isAdded: viewModel.isAdded(token),
-                                      isLoading: viewModel.pendingTokensUpdate.contains(token), name: token.name,
-                                      symbol: token.symbol,
-                                      tokenItem: .token(token),
-                                      addAction: {
-                                        viewModel.addTokenToList(token: token, blockchain: .binance(testnet: viewModel.isTestnet))
-                                      }, removeAction: { })
-                        }
+                    Section(header: HeaderView(text: "add_token_section_title_binance_tokens".localized,
+                                               collapsible: true,
+                                               isExpanded: viewModel.isBnbTokensVisible,
+                                               onCollapseAction: { withAnimation { viewModel.isBnbTokensVisible.toggle() }})) {
+                        ForEach(viewModel.getVisibleBnbTokens(filter: searchText)) { tokenView(for: $0) }
                     }
                 }
                 
                 if !viewModel.availableBscTokens.isEmpty {
-                    Section(header: HeaderView(text: "add_token_section_title_binance_smart_chain_tokens".localized, collapsible: true, isExpanded: viewModel.isBscTokensVisible, onCollapseAction: {
-                        withAnimation {
-                            viewModel.isBscTokensVisible.toggle()
-                        }
-                    })) {
-                        ForEach(viewModel.visibleBscTokens.filter {
-                                    searchText.isEmpty || $0.name.lowercased().contains(searchText.lowercased()) || $0.symbol.lowercased().contains(searchText.lowercased()) }) { token in
-                            TokenView(isTestnet: viewModel.isTestnet,
-                                      isAdded: viewModel.isAdded(token),
-                                      isLoading: viewModel.pendingTokensUpdate.contains(token), name: token.name,
-                                      symbol: token.symbol,
-                                      tokenItem: .token(token),
-                                      addAction: {
-                                        viewModel.addTokenToList(token: token, blockchain: .bsc(testnet: viewModel.isTestnet))
-                                      }, removeAction: { })
-                        }
+                    Section(header: HeaderView(text: "add_token_section_title_binance_smart_chain_tokens".localized, collapsible: true, isExpanded: viewModel.isBscTokensVisible, onCollapseAction: { withAnimation { viewModel.isBscTokensVisible.toggle() }})) {
+                         ForEach(viewModel.getVisibleBscTokens(filter: searchText)) { tokenView(for: $0) }
                     }
                 }
+                    
                 Color.white
                     .frame(width: 50, height: 150, alignment: .center)
                     .listRowInsets(EdgeInsets())
             }
+            
+            TangemButton(title: "common_save_changes", action: viewModel.saveChanges)
+                .buttonStyle(TangemButtonStyle(colorStyle: .black,
+                                               layout: .flexibleWidth,
+                                               isLoading: viewModel.isLoading))
         }
         .onReceive(viewModel.$enteredSearchText
                     .dropFirst()
@@ -170,16 +128,17 @@ struct AddNewTokensView: View {
         })
         .alert(item: $viewModel.error, content: { $0.alert })
         .background(Color.white)
-        //        .navigationBarItems(
-        //            trailing: Button("add_custom", action: {
-        //                navigation.addNewTokensToCreateCustomToken = true
-        //            })
-        //            .font(.system(size: 17, weight: .medium))
-        //            .foregroundColor(.tangemBlue2)
-        //            .frame(minHeight: 44)
-        //            .background(
-        //                NavigationLink(destination: AddCustomTokenView(viewModel: viewModel.assembly.makeAddCustomTokenViewModel(for: viewModel.cardModel.erc20TokenWalletModel)), isActive: $navigation.addNewTokensToCreateCustomToken))
-        //        )
+    }
+    
+    private func tokenView(for item: TokenItem) -> some View {
+        TokenView(isTestnet: viewModel.isTestnet,
+                  isAdded: viewModel.isAdded(item),
+                  isLoading: false,
+                  name: item.name,
+                  symbol: item.symbol,
+                  tokenItem: item,
+                  addAction: { viewModel.add(item) },
+                  removeAction: {})
     }
 }
 
