@@ -48,7 +48,7 @@ class AppServicesAssembly: ServicesAssembly {
         TwinsWalletCreationService(tangemSdk: tangemSdk,
                                    twinFileEncoder: TwinCardTlvFileEncoder(),
                                    cardsRepository: cardsRepository,
-                                   walletManagerFactory: walletManagerFactory)
+                                   walletManagerFactory: WalletManagerFactory(config: keysManager.blockchainConfig))
     }()
     
     
