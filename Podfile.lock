@@ -198,7 +198,7 @@ DEPENDENCIES:
   - BigInt
   - BinanceChain (from `https://github.com/lazutkin-andrey/swiftbinancechain.git`, tag `0.0.8`)
   - BitcoinCore.swift (from `https://github.com/lazutkin-andrey/bitcoincore.git`, tag `0.0.15`)
-  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-60`)
+  - BlockchainSdk (from `../blockchain-sdk-swift`)
   - DeviceGuru
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -211,7 +211,7 @@ DEPENDENCIES:
   - stellar-ios-mac-sdk
   - SwiftCBOR
   - SwiftyJSON
-  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `backup-beta-21`)
+  - TangemSdk (from `../tangem-sdk-ios`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.4.0`)
   - web3swift (from `https://github.com/lazutkin-andrey/web3swift.git`, tag `2.2.6`)
 
@@ -257,8 +257,7 @@ EXTERNAL SOURCES:
     :git: https://github.com/lazutkin-andrey/bitcoincore.git
     :tag: 0.0.15
   BlockchainSdk:
-    :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-60
+    :path: "../blockchain-sdk-swift"
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
@@ -266,8 +265,7 @@ EXTERNAL SOURCES:
     :branch: version6-xcode13
     :git: https://github.com/onevcat/Kingfisher.git
   TangemSdk:
-    :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: backup-beta-21
+    :path: "../tangem-sdk-ios"
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.4.0
@@ -282,18 +280,12 @@ CHECKOUT OPTIONS:
   BitcoinCore.swift:
     :git: https://github.com/lazutkin-andrey/bitcoincore.git
     :tag: 0.0.15
-  BlockchainSdk:
-    :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-60
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
   Kingfisher:
     :commit: 5ecd8df18f1750efaa57d1b9623090156da01ef3
     :git: https://github.com/onevcat/Kingfisher.git
-  TangemSdk:
-    :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: backup-beta-21
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.4.0
@@ -342,6 +334,6 @@ SPEC CHECKSUMS:
   web3swift: 21ab60f3c80aea2366ebf016f377e5cb654909bf
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 59d200bf1837e562a951f47ed0759175cc83b9ea
+PODFILE CHECKSUM: 2ab3bae02f60d57704723b3d2ce5f25f3bbb7d85
 
 COCOAPODS: 1.11.2
