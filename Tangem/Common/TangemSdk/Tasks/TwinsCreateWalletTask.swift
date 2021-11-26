@@ -67,9 +67,9 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 		} else {
             if let walletManagerFactory = self.walletManagerFactory,
                let wallet = card.wallets.first {
-                self.walletManager = try? walletManagerFactory.makeWalletManager(from: card.cardId,
-                                                                                 wallet: wallet,
-                                                                                 blockchain: .bitcoin(testnet: false))
+                self.walletManager = try? walletManagerFactory.makeWalletManager(cardId: card.cardId,
+                                                                                 blockchain: .bitcoin(testnet: false),
+                                                                                 walletPublicKey: wallet.publicKey)
                 
                 walletManager?.update(completion: { result in         
                     switch result {
@@ -162,7 +162,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 	}
     
     private func scanCard(session: CardSession, walletResponse: CreateWalletResponse, completion: @escaping CompletionResult<CommandResponse>) {
-        self.scanCommand =  AppScanTask()
+        self.scanCommand =  AppScanTask(tokenItemsRepository: nil)
         scanCommand!.run(in: session) { scanCompletion in
             switch scanCompletion {
             case .failure(let error):
