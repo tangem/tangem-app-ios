@@ -42,7 +42,7 @@ class PersonalSignHandler: WalletConnectSignHandler {
     override func sign(data: Data, cardId: String, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<String, Error> {
         let hash = data.sha3(.keccak256)
         
-        return signer.sign(hash: hash, cardId: cardId, walletPublicKey: walletPublicKey.seedKey, hdPath: walletPublicKey.hdPath)
+        return signer.sign(hash: hash, cardId: cardId, walletPublicKey: walletPublicKey)
             .tryMap { response -> String in
                 if let unmarshalledSig = Secp256k1Utils.unmarshal(secp256k1Signature: response,
                                                                   hash: hash,
