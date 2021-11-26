@@ -62,8 +62,14 @@ public class WalletManager {
         wallet.remove(token: token)
     }
     
-    public func addToken(_ token: Token) -> AnyPublisher<Amount, Error> {
-        return Fail(error: BlockchainSdkError.notImplemented).eraseToAnyPublisher()
+    public func addToken(_ token: Token) {
+        if !cardTokens.contains(token) {
+            cardTokens.append(token)
+        }
+    }
+    
+    public func addTokens(_ tokens: [Token]) {
+        tokens.forEach { addToken($0) }
     }
 }
 
