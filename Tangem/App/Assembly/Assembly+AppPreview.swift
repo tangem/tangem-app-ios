@@ -11,7 +11,6 @@ import TangemSdk
 import BlockchainSdk
 
 extension Assembly {
-    
     var previewNoteCardOnboardingInput: OnboardingInput {
         OnboardingInput(steps: .singleWallet([.createWallet, .success]),
                             cardModel: .cardModel(previewCardViewModel),

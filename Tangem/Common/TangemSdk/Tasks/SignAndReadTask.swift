@@ -12,17 +12,17 @@ import TangemSdk
 class SignAndReadTask: CardSessionRunnable {
     let hashes: [Data]
     let walletPublicKey: Data
-    let hdPath: DerivationPath?
+    let derivationPath: DerivationPath?
     private var signCommand: SignHashesCommand? = nil
     
-    init(hashes: [Data], walletPublicKey: Data, hdPath: DerivationPath?) {
+    init(hashes: [Data], walletPublicKey: Data, derivationPath: DerivationPath?) {
         self.hashes = hashes
         self.walletPublicKey = walletPublicKey
-        self.hdPath = hdPath
+        self.derivationPath = derivationPath
     }
     
     func run(in session: CardSession, completion: @escaping CompletionResult<SignAndReadTaskResponse>) {
-        signCommand = SignHashesCommand(hashes: hashes, walletPublicKey: walletPublicKey, hdPath: hdPath)
+        signCommand = SignHashesCommand(hashes: hashes, walletPublicKey: walletPublicKey, derivationPath: derivationPath)
         signCommand!.run(in: session) { signResult in
             switch signResult {
             case .success(let signResponse):
