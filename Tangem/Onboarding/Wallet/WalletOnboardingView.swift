@@ -38,7 +38,7 @@ struct WalletOnboardingView: View {
     
     var secondCardPlaceholder: OnboardingCardView.CardType {
         switch currentStep {
-        case .welcome, .backupIntro, .createWallet, .scanOriginCard: return .light
+        case .welcome, .backupIntro, .createWallet, .scanPrimaryCard: return .light
         default: return .dark
         }
     }
