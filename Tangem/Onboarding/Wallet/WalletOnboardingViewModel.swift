@@ -456,7 +456,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             return
         }
         if !input.isStandalone {
-            userPrefsService?.cardsStartedActivation.append(input.cardModel.cardId)
+            userPrefsService?.cardsStartedActivation.append(input.cardInput.cardId)
         }
         stepPublisher = preparePrimaryCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
@@ -494,7 +494,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
     
     private func preparePrimaryCardPublisher() -> AnyPublisher<Void, Error> {
-        let cardId = input.cardModel.cardId
+        let cardId = input.cardInput.cardId
         return Deferred {
             Future { [weak self] promise in
                 guard let self = self else { return }
@@ -506,7 +506,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                         let tokenItems = blockchains.map { TokenItem.blockchain($0) }
                         self.tokensRepo.append(tokenItems, for: cardId)
                         
-                        if let cardModel = self.input.cardModel.cardModel {
+                        if let cardModel = self.input.cardInput.cardModel {
                             cardModel.cardInfo.derivedKeys = result.derivedKeys
                             cardModel.update(with: result.card)
                             cardModel.update()
@@ -528,7 +528,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             Future { [weak self] promise in
                 guard let self = self else { return }
                 
-                self.backupService.readPrimaryCard(cardId: self.input.cardModel.cardId) { result in
+                self.backupService.readPrimaryCard(cardId: self.input.cardInput.cardId) { result in
                     switch result {
                     case .success:
                         promise(.success(()))
@@ -627,7 +627,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                         switch result {
                         case .success(let updatedCard):
                             if updatedCard.cardId == backupService.primaryCardId {
-                                self.input.cardModel.cardModel?.update(with: updatedCard)
+                                self.input.cardInput.cardModel?.update(with: updatedCard)
                             } else { //add tokens for backup cards
                                 self.addTokens(for: updatedCard.cardId)
                             }
