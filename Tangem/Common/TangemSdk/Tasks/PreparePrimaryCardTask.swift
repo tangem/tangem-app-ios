@@ -23,7 +23,7 @@ class PreparePrimaryCardTask: CardSessionRunnable {
             return
         }
         
-        let createWalletsTask = CreateMultiWalletTask(curves: [.secp256k1, .ed25519, .secp256r1])
+        let createWalletsTask = CreateMultiWalletTask()
         createWalletsTask.run(in: session) { result in
             switch result {
             case .success:
