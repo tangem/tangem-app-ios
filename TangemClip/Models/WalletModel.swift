@@ -30,7 +30,6 @@ class WalletModel: ObservableObject {
     }
 
     let walletManager: WalletManager
-    let cardWallet: Card.Wallet
 
     private let selectedCurrencyCode = "USD"
 
@@ -42,8 +41,7 @@ class WalletModel: ObservableObject {
         wallet.addresses.map { $0.localizedName }
     }
 
-    init(cardWallet: Card.Wallet, walletManager: WalletManager) {
-        self.cardWallet = cardWallet
+    init(walletManager: WalletManager) {
         self.walletManager = walletManager
 
         updateBalanceViewModel(with: walletManager.wallet, state: .idle)
