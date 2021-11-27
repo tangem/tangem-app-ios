@@ -11,17 +11,20 @@ import SwiftUI
 import Kingfisher
 
 struct TokenIconView: View {
-    
     var token: TokenItem
+    var size: CGSize
+    
+    private var processor: DownsamplingImageProcessor { .init(size: size) }
     
     var body: some View {
         if let path = token.imagePath, let url = URL(string: path) {
             KFImage(url)
+                .placeholder { token.imageView }
+                .setProcessor(processor)
+                .cacheOriginalImage()
+                .scaleFactor(UIScreen.main.scale)
                 .resizable()
-                .placeholder {
-                    token.imageView
-                }
-                .fade(duration: 0.3)
+                .scaledToFit()
         } else {
             token.imageView
         }
