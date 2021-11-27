@@ -121,7 +121,7 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     
     func showExtraDiscardAlert() {
         let buttonResume: ActionSheet.Button = .cancel(Text("welcome_interrupted_backup_discard_resume"), action: continueIncompletedBackup)
-        let buttonDiscard: ActionSheet.Button = .destructive(Text("welcome_interrupted_backup_discard_discard"), action: backupService.discardSavedBackup)
+        let buttonDiscard: ActionSheet.Button = .destructive(Text("welcome_interrupted_backup_discard_discard"), action: backupService.discardIncompletedBackup)
         let sheet = ActionSheet(title: Text("welcome_interrupted_backup_discard_title"),
                                 message: Text("welcome_interrupted_backup_discard_message"),
                                 buttons: [buttonDiscard, buttonResume])
@@ -132,7 +132,7 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     }
     
     func continueIncompletedBackup() {
-        guard let originCardId = backupService.originCardId else {
+        guard let primaryCardId = backupService.primaryCardId else {
             return
         }
         
@@ -150,7 +150,7 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
                 guard let self = self else { return }
                 
                 let input = OnboardingInput(steps: steps,
-                                            cardModel: .cardId(originCardId),
+                                            cardInput: .cardId(primaryCardId),
                                             cardsPosition: nil,
                                             welcomeStep: nil,
                                             currentStepIndex: 0,
@@ -177,7 +177,7 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
                 self?.isScanningCard = false
             } receiveValue: { [unowned self] steps in
                 let input = OnboardingInput(steps: steps,
-                                            cardModel: .cardModel(cardModel),
+                                            cardInput: .cardModel(cardModel),
                                             cardsPosition: (darkCardSettings, lightCardSettings),
                                             welcomeStep: .welcome,
                                             currentStepIndex: 0,
