@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import TangemSdk
 import SwiftUI
 
 class AddNewTokensViewModel: ViewModel, ObservableObject {
@@ -69,7 +70,9 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
             case .success:
                 self.navigation.mainToAddTokens = false
             case .failure(let error):
-                self.error = error.alertBinder
+                if case TangemSdkError.userCancelled = error {} else {
+                    self.error = error.alertBinder
+                }
             }
         }
     }
