@@ -31,7 +31,9 @@ class WalletConnectCardScanner {
     func scanCard(for wcNetwork: WalletConnectNetwork) -> AnyPublisher<WalletInfo, Error> {
         Deferred {
             Future { [weak self] promise in
-                self?.tangemSdk.startSession(with: AppScanTask(), initialMessage: Message(header: "wallet_connect_scan_card_message".localized)) { result in
+                guard let self = self else { return }
+                
+                self.tangemSdk.startSession(with: AppScanTask(tokenItemsRepository: self.tokenItemsRepository), initialMessage: Message(header: "wallet_connect_scan_card_message".localized)) {[weak self] result in
                     guard let self = self else { return }
                     
                     switch result {
@@ -83,15 +85,15 @@ class WalletConnectCardScanner {
             
         } else {
             
-            if let targetWallet = findWallet(in: assembly.loadWallets(from: cardInfo).map { $0.wallet }) {
+            if let targetWallet = findWallet(in: assembly.makeAllWalletModels(from: cardInfo).map { $0.wallet }) {
                 wallet = targetWallet
             } else {
                 tokenItemsRepository.append(.blockchain(blockchain), for: cardInfo.card.cardId)
-                wallet = assembly.makeWallets(from: cardInfo, blockchains: [blockchain]).first!.wallet
+                wallet = assembly.makeWalletModels(from: cardInfo, blockchains: [blockchain]).first!.wallet
             }
         }
         
-        scannedCardsRepository.add(cardInfo.card)
+        scannedCardsRepository.add(cardInfo)
         
         return WalletInfo(cid: cardInfo.card.cardId,
                           walletPublicKey: wallet.publicKey,
