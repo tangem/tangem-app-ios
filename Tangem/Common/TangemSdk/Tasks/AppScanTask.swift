@@ -68,7 +68,7 @@ final class AppScanTask: CardSessionRunnable {
         self.targetBatch = targetBatch
     }
     
-    /// read ->  readTwinData or note Data -> appendWallets(createwallets+ scan)  -> attestation
+    /// read ->  readTwinData or note Data or derive wallet's keys -> appendWallets(createwallets+ scan)  -> attestation
     public func run(in session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
         guard let card = session.environment.card else {
             completion(.failure(TangemSdkError.missingPreflightRead))
@@ -97,7 +97,7 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
         
-        runAttestation(session, completion)
+        deriveKeysIfNeeded(session, completion)
     }
     
     private func readNote(_ card: Card, session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
@@ -190,7 +190,7 @@ final class AppScanTask: CardSessionRunnable {
         CreateMultiWalletTask(curves: curves).run(in: session) { result in
             switch result {
             case .success:
-                self.deriveKeysIfNeeded(session, completion)
+                self.runAttestation(session, completion)
             case .failure(let error):
                 completion(.failure(error))
             }
