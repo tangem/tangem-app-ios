@@ -12,7 +12,7 @@ import TangemSdk
 class CreateMultiWalletTask: CardSessionRunnable {
     private let curves: [EllipticCurve]
 
-    init(curves: [EllipticCurve] = [.secp256k1, .ed25519, .secp256r1]) {
+    init(curves: [EllipticCurve] = [.secp256k1, .ed25519]) {
         self.curves = curves
     }
     

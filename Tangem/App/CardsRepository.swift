@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import enum TangemSdk.EllipticCurve
 import struct TangemSdk.Card
+import struct TangemSdk.ExtendedPublicKey
 import struct TangemSdk.WalletData
 import struct TangemSdk.ArtworkInfo
 import class TangemSdk.TangemSdk
@@ -27,6 +28,7 @@ struct CardInfo {
     var twinCardInfo: TwinCardInfo?
     var isTangemNote: Bool
     var isTangemWallet: Bool
+    var derivedKeys: [Data:[ExtendedPublicKey]] = [:]
     
     var imageLoadDTO: ImageLoadDTO {
         ImageLoadDTO(cardId: card.cardId,
@@ -155,6 +157,7 @@ class CardsRepository {
     weak var tangemSdk: TangemSdk!
     weak var assembly: Assembly!
     weak var scannedCardsRepository: ScannedCardsRepository!
+    weak var tokenItemsRepository: TokenItemsRepository!
     
     var cards = [String: ScanResult]()
 	var lastScanResult: ScanResult = .notScannedYet
@@ -168,7 +171,7 @@ class CardsRepository {
     func scan(with batch: String? = nil, _ completion: @escaping (Result<ScanResult, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
         delegate?.onWillScan()
-        tangemSdk.startSession(with: AppScanTask(targetBatch: batch)) {[unowned self] result in
+        tangemSdk.startSession(with: AppScanTask(tokenItemsRepository: tokenItemsRepository, targetBatch: batch)) {[unowned self] result in
             switch result {
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .scan)
@@ -178,7 +181,7 @@ class CardsRepository {
                 #if !CLIP
                 let interaction = INInteraction(intent: ScanTangemCardIntent(), response: nil)
                 interaction.donate(completion: nil)
-                self.scannedCardsRepository.add(response.card)
+                self.scannedCardsRepository.add(response.getCardInfo())
                 #endif
 				completion(.success(processScan(response.getCardInfo())))
             }

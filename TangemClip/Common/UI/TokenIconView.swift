@@ -10,8 +10,8 @@ import Foundation
 import SwiftUI
 
 struct TokenIconView: View {
-    
     var token: TokenItem
+    var size: CGSize
     
     var body: some View {
         if let path = token.imagePath, let url = URL(string: path) {
