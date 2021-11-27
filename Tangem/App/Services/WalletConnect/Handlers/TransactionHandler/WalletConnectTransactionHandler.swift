@@ -64,7 +64,7 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
         }
         
         let blockchain = wallet.blockchain
-        let walletModels = assembly.makeWallets(from: card, blockchains: [blockchain])
+        let walletModels = assembly.makeWalletModels(from: card, blockchains: [blockchain])
         
         guard
             let walletModel = walletModels.first(where: { $0.wallet.address.lowercased() == transaction.from.lowercased() }),
