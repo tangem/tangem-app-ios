@@ -43,7 +43,7 @@ class WalletManagerAssembly {
          
             if !tokenItems.isEmpty {
                 //Load tokens if exists
-                let savedBlockchains = Set(tokenItems.map { $0.blockchain })
+                let savedBlockchains = tokenItems.map { $0.blockchain }
                 let savedTokens = tokenItems.compactMap { $0.token }
                 let groupedTokens = Dictionary(grouping: savedTokens, by: { $0.blockchain })
                 
@@ -106,25 +106,21 @@ class WalletManagerAssembly {
                                    blockchain: Blockchain,
                                    seedKey: ExtendedPublicKey?,
                                    derivedKeys: [Data: [ExtendedPublicKey]]) -> WalletManager? {
-        var walletManager: WalletManager? = nil
-        
-        if let seedKey = seedKey {
+        if blockchain.curve == .secp256k1, let seedKey = seedKey {
             guard let derivedKeys = derivedKeys[seedKey.compressedPublicKey],
                   let derivedKey = derivedKeys.first(where: { $0.derivationPath == blockchain.derivationPath }) else {
                 return nil
             }
             
-            walletManager = try? factory.makeWalletManager(cardId: cardId,
+            return try? factory.makeWalletManager(cardId: cardId,
                                                            blockchain: blockchain,
                                                            seedKey: seedKey,
                                                            derivedKey: derivedKey)
         } else {
-            walletManager = try? factory.makeWalletManager(cardId: cardId,
+            return try? factory.makeWalletManager(cardId: cardId,
                                                            blockchain: blockchain,
                                                            walletPublicKey: walletPublicKey)
         }
-        
-        return walletManager
     }
     
     /// Try to load native walletmanager from card
