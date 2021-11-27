@@ -13,7 +13,7 @@ import BlockchainSdk
 extension Assembly {
     var previewNoteCardOnboardingInput: OnboardingInput {
         OnboardingInput(steps: .singleWallet([.createWallet, .success]),
-                            cardModel: .cardModel(previewCardViewModel),
+                            cardInput: .cardModel(previewCardViewModel),
                             cardsPosition: nil,
                             welcomeStep: nil,
                             currentStepIndex: 0,
@@ -24,7 +24,7 @@ extension Assembly {
         .init(steps: .twins([.intro(pairNumber: "0128"),
                              .first, .second, .third,
                              .topup, .confetti, .done]),
-              cardModel: .cardModel(.previewViewModel(for: .twin)),
+              cardInput: .cardModel(.previewViewModel(for: .twin)),
               cardsPosition: nil,
               welcomeStep: nil,
               currentStepIndex: 0,
@@ -33,7 +33,7 @@ extension Assembly {
     
     var previewWalletOnboardingInput: OnboardingInput {
         .init(steps: .wallet([.createWallet, .backupIntro, .selectBackupCards, .backupCards, .success]),
-              cardModel: .cardModel(previewCardViewModel),
+              cardInput: .cardModel(previewCardViewModel),
               cardsPosition: nil,
               welcomeStep: nil,
               currentStepIndex: 0,
