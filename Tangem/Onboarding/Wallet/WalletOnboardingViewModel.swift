@@ -9,6 +9,7 @@
 import SwiftUI
 import Combine
 import TangemSdk
+import BlockchainSdk
 
 class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, ObservableObject {
     
@@ -45,8 +46,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             return ""
         case .backupCards:
             switch backupServiceState {
-            case .needWriteOriginCard: return "onboarding_title_prepare_origin"
-            case .needWriteBackupCard(let index): return "onboarding_title_backup_card \(index)"
+            case .finalizingPrimaryCard: return "onboarding_title_prepare_origin"
+            case .finalizingBackupCard(let index): return "onboarding_title_backup_card \(index)"
             default: break
             }
         default: break
@@ -72,10 +73,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             }
         case .backupCards:
             switch backupServiceState {
-            case .needWriteOriginCard:
-                return backupService.originCardId.map { "onboarding_subtitle_scan_origin_card \(CardIdFormatter(style: .lastMasked(4)).string(from: $0))" }
+            case .finalizingPrimaryCard:
+                return backupService.primaryCardId.map { "onboarding_subtitle_scan_origin_card \(CardIdFormatter(style: .lastMasked(4)).string(from: $0))" }
                 ?? super.subtitle
-            case .needWriteBackupCard(let index):
+            case .finalizingBackupCard(let index):
                 let cardId = backupService.backupCardIds[index - 1]
                 let formattedCardId = CardIdFormatter(style: .lastMasked(4)).string(from: cardId)
                 return "onboarding_subtitle_scan_backup_card \(formattedCardId)"
@@ -105,8 +106,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             return "onboarding_button_add_backup_card"
         case .backupCards:
             switch backupServiceState {
-            case .needWriteOriginCard: return "onboarding_button_backup_origin"
-            case .needWriteBackupCard(let index): return "onboarding_button_backup_card \(index)"
+            case .finalizingPrimaryCard: return "onboarding_button_backup_origin"
+            case .finalizingBackupCard(let index): return "onboarding_button_backup_card \(index)"
             default: break
             }
         case .success:
@@ -182,7 +183,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     
     var isModal: Bool {
         switch (currentStep, backupServiceState) {
-        case (.backupCards, .needWriteBackupCard): return true
+        case (.backupCards, .finalizingBackupCard): return true
         default: return false
         }
     }
@@ -201,9 +202,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         }
     }
     
-    private var originCardStackIndex: Int {
+    private var primaryCardStackIndex: Int {
         switch backupServiceState {
-        case .needWriteBackupCard(let index):
+        case .finalizingBackupCard(let index):
             return backupCardsAddedCount - index + 1
         default: return 0
         }
@@ -211,7 +212,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     
     private var firstBackupCardStackIndex: Int {
         switch backupServiceState {
-        case .needWriteBackupCard(let index):
+        case .finalizingBackupCard(let index):
             switch index {
             case 1: return 0
             case 2: return 2
@@ -223,7 +224,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     
     private var secondBackupCardStackIndex: Int {
         switch backupServiceState {
-        case .needWriteBackupCard(let index):
+        case .finalizingBackupCard(let index):
             return backupCardsAddedCount - index
         default: return 2
         }
@@ -246,7 +247,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
     
     @Published private var previewBackupCardsAdded: Int = 0
-    @Published private var previewBackupState: BackupService.State = .needWriteOriginCard
+    @Published private var previewBackupState: BackupService.State = .finalizingPrimaryCard
     
     private let tangemSdk: TangemSdk
     
@@ -300,8 +301,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             goToNextStep()
         case .createWallet:
             createWallet()
-        case .scanOriginCard:
-            readOriginCard()
+        case .scanPrimaryCard:
+            readPrimaryCard()
         case .backupIntro:
             goToNextStep()
         case .selectBackupCards:
@@ -362,9 +363,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             
             thirdCardSettings = .init(targetSettings: backupCardSettings, intermediateSettings: nil)
         case .backupCards:
-            let prehideSettings: CardAnimSettings? = backupServiceState == .needWriteOriginCard ? nil : stackCalculator.prehideAnimSettings
-            mainCardSettings = .init(targetSettings: stackCalculator.cardSettings(at: originCardStackIndex),
-                                     intermediateSettings: ((originCardStackIndex == backupCardsAddedCount && animated) ? prehideSettings : nil))
+            let prehideSettings: CardAnimSettings? = backupServiceState == .finalizingPrimaryCard ? nil : stackCalculator.prehideAnimSettings
+            mainCardSettings = .init(targetSettings: stackCalculator.cardSettings(at: primaryCardStackIndex),
+                                     intermediateSettings: ((primaryCardStackIndex == backupCardsAddedCount && animated) ? prehideSettings : nil))
             
             supplementCardSettings = .init(targetSettings: stackCalculator.cardSettings(at: firstBackupCardStackIndex),
                                            intermediateSettings: ((firstBackupCardStackIndex == backupCardsAddedCount && animated) ? prehideSettings : nil))
@@ -383,7 +384,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     override func reset(includeInResetAnim: (() -> Void)? = nil) {
         super.reset {
             self.previewBackupCardsAdded = 0
-            self.previewBackupState = .needWriteOriginCard
+            self.previewBackupState = .finalizingPrimaryCard
             self.thirdCardSettings = WelcomeCardLayout.supplementary.cardSettings(at: .welcome, in: self.containerSize, animated: true)
         }
     }
@@ -399,7 +400,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     override func backButtonAction() {
         switch currentStep {
         case .backupCards:
-            if backupServiceState == .needWriteOriginCard {
+            if backupServiceState == .finalizingPrimaryCard {
                 fallthrough
             }
             
@@ -423,7 +424,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                 self.goToNextStep()
                 if self.assembly.isPreview {
                     withAnimation {
-                        self.previewBackupState = .needWriteOriginCard
+                        self.previewBackupState = .finalizingPrimaryCard
                     }
                 }
             }
@@ -455,9 +456,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             return
         }
         if !input.isStandalone {
-            userPrefsService?.cardsStartedActivation.append(input.cardModel.cardId)
+            userPrefsService?.cardsStartedActivation.append(input.cardInput.cardId)
         }
-        stepPublisher = createWalletAndReadOriginCardPublisher()
+        stepPublisher = preparePrimaryCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
             .first()
             .sink(receiveCompletion: { [weak self] completion in
@@ -467,17 +468,17 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                     print(error)
                 }
                 self?.stepPublisher = nil
-            }, receiveValue: processOriginCardScan)
+            }, receiveValue: processPrimaryCardScan)
     }
     
-    private func readOriginCard() {
+    private func readPrimaryCard() {
         isMainButtonBusy = true
         if assembly.isPreview {
             previewGoToNextStepDelayed()
             return
         }
         
-        stepPublisher = readOriginCardPublisher()
+        stepPublisher = readPrimaryCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
             .first()
             .sink(
@@ -489,25 +490,29 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                     }
                     self?.stepPublisher = nil
                 },
-                receiveValue: processOriginCardScan)
+                receiveValue: processPrimaryCardScan)
     }
     
-    private func createWalletAndReadOriginCardPublisher() -> AnyPublisher<Void, Error> {
-        let cardId = input.cardModel.cardId
+    private func preparePrimaryCardPublisher() -> AnyPublisher<Void, Error> {
+        let cardId = input.cardInput.cardId
         return Deferred {
             Future { [weak self] promise in
-                self?.tangemSdk.startSession(with: CreateWalletAndReadOriginCardTask(), cardId: cardId, completion: { result in
+                guard let self = self else { return }
+                
+                self.tangemSdk.startSession(with: PreparePrimaryCardTask(), cardId: cardId, completion: { result in
                     switch result {
-                    case .success(let resultTuplet):
-                        self?.input.cardModel.cardModel?.update(with: resultTuplet.1)
-                        self?.input.cardModel.cardModel?.addBlockchain(.bitcoin(testnet: false))
-                        self?.input.cardModel.cardModel?.addBlockchain(.ethereum(testnet: false))
-                        self?.input.cardModel.cardModel?.update()
-                        if let originCard = resultTuplet.0 {
-                            self?.backupService.setOriginCard(originCard)
-                        } else { //we cannot create backup with this card for some reason
-                            DispatchQueue.main.async { self?.jumpToLatestStep() }
+                    case .success(let result):
+                        let blockchains = SupportedTokenItems().predefinedBlockchains
+                        let tokenItems = blockchains.map { TokenItem.blockchain($0) }
+                        self.tokensRepo.append(tokenItems, for: cardId)
+                        
+                        if let cardModel = self.input.cardInput.cardModel {
+                            cardModel.cardInfo.derivedKeys = result.derivedKeys
+                            cardModel.update(with: result.card)
+                            cardModel.update()
                         }
+                        
+                        self.backupService.setPrimaryCard(result.primaryCard)
                         promise(.success(()))
                     case .failure(let error):
                         promise(.failure(error))
@@ -518,12 +523,12 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         .eraseToAnyPublisher()
     }
     
-    private func readOriginCardPublisher() -> AnyPublisher<Void, Error> {
+    private func readPrimaryCardPublisher() -> AnyPublisher<Void, Error> {
         Deferred {
             Future { [weak self] promise in
                 guard let self = self else { return }
                 
-                self.backupService.readOriginCard(cardId: self.input.cardModel.cardId) { result in
+                self.backupService.readPrimaryCard(cardId: self.input.cardInput.cardId) { result in
                     switch result {
                     case .success:
                         promise(.success(()))
@@ -536,7 +541,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         .eraseToAnyPublisher()
     }
     
-    private func processOriginCardScan(_ result: (Void, Notification)) {
+    private func processPrimaryCardScan(_ result: (Void, Notification)) {
         print("Origin card read successfully")
         isMainButtonBusy = false
         goToNextStep()
@@ -590,20 +595,20 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         if assembly.isPreview {
             let newPreviewState: BackupService.State
             switch backupServiceState {
-            case .needWriteOriginCard:
-                newPreviewState = .needWriteBackupCard(index: 1)
-            case .needWriteBackupCard(let index):
+            case .finalizingPrimaryCard:
+                newPreviewState = .finalizingBackupCard(index: 1)
+            case .finalizingBackupCard(let index):
                 switch index {
                 case 1:
                     if backupCardsAddedCount == 2 {
-                        newPreviewState = .needWriteBackupCard(index: 2)
+                        newPreviewState = .finalizingBackupCard(index: 2)
                     } else {
                         newPreviewState = .finished
                     }
                 default:
                     newPreviewState = .finished
                 }
-            default: newPreviewState = .needWriteOriginCard
+            default: newPreviewState = .finalizingPrimaryCard
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
                 withAnimation {
@@ -621,8 +626,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                     self.backupService.proceedBackup { result in
                         switch result {
                         case .success(let updatedCard):
-                            if updatedCard.cardId == backupService.originCardId {
-                                self.input.cardModel.cardModel?.update(with: updatedCard)
+                            if updatedCard.cardId == backupService.primaryCardId {
+                                self.input.cardInput.cardModel?.update(with: updatedCard)
                             } else { //add tokens for backup cards
                                 self.addTokens(for: updatedCard.cardId)
                             }

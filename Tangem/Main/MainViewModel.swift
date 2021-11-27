@@ -558,7 +558,7 @@ class MainViewModel: ViewModel, ObservableObject {
             guard let self = self else { return }
 
             let input = OnboardingInput(steps: steps,
-                                        cardModel: .cardModel(cardModel),
+                                        cardInput: .cardModel(cardModel),
                                         cardsPosition: nil,
                                         welcomeStep: nil,
                                         currentStepIndex: 0,
