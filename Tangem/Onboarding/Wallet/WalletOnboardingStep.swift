@@ -9,13 +9,13 @@
 import SwiftUI
 
 enum WalletOnboardingStep {
-    case welcome, createWallet, scanOriginCard, backupIntro, selectBackupCards, backupCards, success
+    case welcome, createWallet, scanPrimaryCard, backupIntro, selectBackupCards, backupCards, success
     
     var navbarTitle: LocalizedStringKey {
         switch self {
         case .welcome: return ""
         case .createWallet, .backupIntro: return "onboarding_getting_started"
-        case .scanOriginCard, .selectBackupCards: return "onboarding_navbar_title_creating_backup"
+        case .scanPrimaryCard, .selectBackupCards: return "onboarding_navbar_title_creating_backup"
         case .backupCards: return "onboarding_button_finalize_backup"
         case .success: return "common_done"
         }
@@ -52,7 +52,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         switch self {
         case .welcome: return WelcomeStep.welcome.title
         case .createWallet: return "onboarding_button_create_wallet"
-        case .scanOriginCard: return "onboarding_title_scan_origin_card"
+        case .scanPrimaryCard: return "onboarding_title_scan_origin_card"
         case .backupIntro: return "onboarding_title_backup_card"
         case .selectBackupCards: return "onboarding_title_no_backup_cards"
         case .backupCards: return "onboarding_title_backup_card \(1)"
@@ -65,7 +65,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         switch self {
         case .welcome: return WelcomeStep.welcome.subtitle
         case .createWallet: return "onboarding_create_subtitle"
-        case .scanOriginCard: return ""
+        case .scanPrimaryCard: return ""
         case .backupIntro: return "onboarding_subtitle_backup_card"
         case .selectBackupCards: return "onboarding_subtitle_no_backup_cards"
         case .backupCards: return ""
@@ -87,7 +87,7 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
         switch self {
         case .welcome: return WelcomeStep.welcome.mainButtonTitle
         case .createWallet: return "wallet_button_create_wallet"
-        case .scanOriginCard: return "onboarding_button_scan_origin_card"
+        case .scanPrimaryCard: return "onboarding_button_scan_origin_card"
         case .backupIntro: return "onboarding_button_backup_now"
         case .selectBackupCards: return "onboarding_button_add_backup_card"
         case .backupCards: return ""
@@ -108,7 +108,7 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
     
     var isSupplementButtonVisible: Bool {
         switch self {
-        case .scanOriginCard, .backupCards, .success, .createWallet: return false
+        case .scanPrimaryCard, .backupCards, .success, .createWallet: return false
         default: return true
         }
     }

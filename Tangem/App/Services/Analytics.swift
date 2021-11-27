@@ -46,6 +46,7 @@ class Analytics {
         case changeSecOptions = "change_sec_options"
         case createWallet = "create_wallet"
         case purgeWallet = "purge_wallet"
+        case deriveKeys = "derive_keys"
     }
     
     enum ParameterKey: String {
