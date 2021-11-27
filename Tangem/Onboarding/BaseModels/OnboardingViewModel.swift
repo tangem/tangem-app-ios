@@ -144,7 +144,7 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
             isNavBarVisible = true
         }
         
-        input.cardModel.cardModel.map { loadImage(for: $0) }
+        input.cardInput.cardModel.map { loadImage(for: $0) }
     }
     
     private func loadImage(for cardModel: CardViewModel) {
@@ -191,7 +191,7 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
                 self.successCallback?()
             }
             
-            onOnboardingFinished(for: input.cardModel.cardId)
+            onOnboardingFinished(for: input.cardInput.cardId)
             return
         }
         
