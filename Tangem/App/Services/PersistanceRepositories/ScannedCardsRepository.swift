@@ -19,8 +19,8 @@ class ScannedCardsRepository {
         fetch()
     }
     
-    func add(_ card: Card) {
-        cards[card.cardId] = .savedCard(from: card)
+    func add(_ cardInfo: CardInfo) {
+        cards[cardInfo.card.cardId] = .savedCard(from: cardInfo)
         save()
     }
     
@@ -29,11 +29,6 @@ class ScannedCardsRepository {
     }
     
     private func fetch() {
-        if let cards: [String: Card] = try? storage.value(for: storageKey) {
-            self.cards = cards.compactMapValues { .savedCard(from: $0) }
-            save()
-            return
-        }
         cards = (try? storage.value(for: storageKey)) ?? [:]
     }
 }
