@@ -173,7 +173,7 @@ final class AppScanTask: CardSessionRunnable {
         let card = session.environment.card!
         
         let existingCurves: Set<EllipticCurve> = .init(card.wallets.map({ $0.curve }))
-        let mandatoryСurves: Set<EllipticCurve> = [.secp256k1, .ed25519, .secp256r1]
+        let mandatoryСurves: Set<EllipticCurve> = [.secp256k1, .ed25519]
         let missingCurves = mandatoryСurves.subtracting(existingCurves)
         
         if !existingCurves.isEmpty, // not empty card
