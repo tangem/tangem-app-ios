@@ -145,8 +145,8 @@ struct TokenDetailsView: View {
                             .padding(.top, 16)
                         
                         
-                        if viewModel.shouldShowTxNote {
-                            AlertCardView(title: "", message: viewModel.txNoteMessage)
+                        if let sendBlockedReason = viewModel.sendBlockedReason {
+                            AlertCardView(title: "", message: sendBlockedReason)
                         }
                     }
                 }
