@@ -252,19 +252,9 @@ class WalletModel: ObservableObject, Identifiable {
         wallet.getExploreURL(for: wallet.addresses[index].value)
     }
     
-    func addToken(_ token: Token, for cardId: String) -> AnyPublisher<Amount, Error>? {
-        tokenItemsRepository.append(.token(token), for: cardId)
-        return walletManager.addToken(token)
-            .map {[weak self] in
-                self?.updateTokensViewModels()
-                self?.updateTokensRates([token])
-                return $0
-            }
-            .mapError {[weak self] error in
-                self?.updateTokensViewModels()
-                return error
-            }
-            .eraseToAnyPublisher()
+    func addTokens(_ tokens: [Token]) {
+        walletManager.addTokens(tokens)
+        updateTokensViewModels()
     }
     
     func canRemove(amountType: Amount.AmountType) -> Bool {
@@ -348,10 +338,10 @@ class WalletModel: ObservableObject, Identifiable {
             .flatMap({ [$0.currencySymbol: Decimal(1.0)] })
             .reduce(into: [String: Decimal](), { $0[$1.0] = $1.1 })
         
-        loadRates(for: currenciesToExchange, shouldAppendResults: false)
+        loadRates(for: currenciesToExchange)
     }
     
-    private func loadRates(for currenciesToExchange: [String: Decimal], shouldAppendResults: Bool) {
+    private func loadRates(for currenciesToExchange: [String: Decimal]) {
         ratesService
             .loadRates(for: currenciesToExchange)
             .receive(on: RunLoop.main)
@@ -370,23 +360,11 @@ class WalletModel: ObservableObject, Identifiable {
                     return
                 }
                 
-                if shouldAppendResults {
-                    self.rates.merge(rates) { (_, new) in new }
-                    self.updateTokensViewModels()
-                } else {
-                    self.rates = rates
-                    self.updateBalanceViewModel(with: self.wallet, state: self.state)
-                }
+                self.rates = rates
+                self.updateBalanceViewModel(with: self.wallet, state: self.state)
                 
             }
             .store(in: &bag)
-    }
-    
-    private func updateTokensRates(_ tokens: [Token]) {
-        let cardTokens = tokens.map { ($0.symbol, Decimal(1.0)) }
-            .reduce(into: [String:Decimal](), { $0[$1.0] = $1.1 })
-        
-        loadRates(for: cardTokens, shouldAppendResults: true)
     }
     
     private func updateTokensViewModels() {
