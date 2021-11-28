@@ -12,15 +12,26 @@ import BlockchainSdk
 #endif
 import SwiftUI
 
-enum TokenItem: Codable, Hashable {
+enum TokenItem: Codable, Hashable, Identifiable {
     case blockchain(Blockchain)
     case token(Token)
     
-    var blockchain: Blockchain? {
-        if case let .blockchain(blockchain) = self {
+    var id: Int {
+        switch self {
+        case .token(let token):
+            return token.hashValue
+        case .blockchain(let blockchain):
+            return blockchain.hashValue
+        }
+    }
+    
+    var blockchain: Blockchain {
+        switch self {
+        case .token(let token):
+            return token.blockchain
+        case .blockchain(let blockchain):
             return blockchain
         }
-        return nil
     }
     
     var token: Token? {
@@ -28,6 +39,24 @@ enum TokenItem: Codable, Hashable {
             return token
         }
         return nil
+    }
+    
+    var name: String {
+        switch self {
+        case .token(let token):
+            return token.name
+        case .blockchain(let blockchain):
+            return blockchain.displayName
+        }
+    }
+    
+    var symbol: String {
+        switch self {
+        case .token(let token):
+            return token.symbol
+        case .blockchain(let blockchain):
+            return blockchain.currencySymbol
+        }
     }
     
     var amountType: Amount.AmountType {
