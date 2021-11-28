@@ -506,7 +506,7 @@ class CardViewModel: Identifiable, ObservableObject {
             print("⁉️ Recreating all wallet models for Card view model state")
             self.state = .loaded(walletModel: self.assembly.makeAllWalletModels(from: cardInfo))
             
-            if !userPrefsService.cardsStartedActivation.contains(cardInfo.card.cardId) {
+            if !userPrefsService.cardsStartedActivation.contains(cardInfo.card.cardId)  || cardInfo.isTangemWallet {
                 update()
             }
         }
@@ -725,7 +725,7 @@ class CardViewModel: Identifiable, ObservableObject {
         cardInfo.card.isPasscodeSet.map { self.cardPinSettings.isPin2Default = !$0 }
     }
     
-    private func updateCurrentSecOption() {
+    func updateCurrentSecOption() {
         updateCardPinSettings()
         if !(cardPinSettings.isPin1Default ?? true) {
             self.currentSecOption = .accessCode
