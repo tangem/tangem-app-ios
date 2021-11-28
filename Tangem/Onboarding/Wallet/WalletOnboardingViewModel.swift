@@ -507,8 +507,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                         if let cardModel = self?.input.cardInput.cardModel {
                             cardModel.cardInfo.derivedKeys = result.derivedKeys
                             cardModel.update(with: result.card)
-                            cardModel.update()
-
                         }
                         
                         self?.backupService.setPrimaryCard(result.primaryCard)
@@ -541,7 +539,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
     
     private func processPrimaryCardScan(_ result: (Void, Notification)) {
-        print("Origin card read successfully")
         isMainButtonBusy = false
         goToNextStep()
     }
