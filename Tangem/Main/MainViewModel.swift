@@ -206,8 +206,8 @@ class MainViewModel: ViewModel, ObservableObject {
         }
        
         if cardInfo.isTangemWallet,
-           let backupStatus = cardInfo.card.backupStatus, case let .active(totalCards) = backupStatus {
-            return totalCards
+           let backupStatus = cardInfo.card.backupStatus, case let .active(backupCards) = backupStatus {
+            return backupCards + 1
         }
         
         return nil
@@ -558,7 +558,7 @@ class MainViewModel: ViewModel, ObservableObject {
             guard let self = self else { return }
 
             let input = OnboardingInput(steps: steps,
-                                        cardModel: .cardModel(cardModel),
+                                        cardInput: .cardModel(cardModel),
                                         cardsPosition: nil,
                                         welcomeStep: nil,
                                         currentStepIndex: 0,

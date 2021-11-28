@@ -205,7 +205,7 @@ class DetailsViewModel: ViewModel, ObservableObject {
             guard let self = self else { return }
             
             let input = OnboardingInput(steps: steps,
-                                        cardModel: .cardModel(self.cardModel),
+                                        cardInput: .cardModel(self.cardModel),
                                         cardsPosition: nil,
                                         welcomeStep: nil,
                                         currentStepIndex: 0,
@@ -233,7 +233,7 @@ class DetailsViewModel: ViewModel, ObservableObject {
             guard let self = self else { return }
             
             let input = OnboardingInput(steps: steps,
-                                        cardModel: .cardModel(self.cardModel),
+                                        cardInput: .cardModel(self.cardModel),
                                         cardsPosition: nil,
                                         welcomeStep: nil,
                                         currentStepIndex: 0,
