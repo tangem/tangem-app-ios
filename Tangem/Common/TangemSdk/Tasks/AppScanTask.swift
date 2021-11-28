@@ -16,6 +16,7 @@ struct AppScanTaskResponse {
     let isTangemNote: Bool //todo refactor
     let isTangemWallet: Bool
     let derivedKeys: [Data: [ExtendedPublicKey]]
+    let primaryCard: PrimaryCard?
     
     func getCardInfo() -> CardInfo {
         return CardInfo(card: card,
@@ -24,7 +25,8 @@ struct AppScanTaskResponse {
                         twinCardInfo: decodeTwinFile(from: self),
                         isTangemNote: isTangemNote,
                         isTangemWallet: isTangemWallet,
-                        derivedKeys: derivedKeys)
+                        derivedKeys: derivedKeys,
+                        primaryCard: primaryCard)
     }
     
     private func decodeTwinFile(from response: AppScanTaskResponse) -> TwinCardInfo? {
@@ -56,16 +58,21 @@ final class AppScanTask: CardSessionRunnable {
         print("AppScanTask deinit")
     }
     
+    private let tokenItemsRepository: TokenItemsRepository?
+    private let userPrefsService: UserPrefsService?
+    
     private let targetBatch: String?
     private var twinIssuerData: Data? = nil
     private var noteWalletData: WalletData? = nil
+    private var primaryCard: PrimaryCard? = nil
 
     private var derivedKeys: [Data: [ExtendedPublicKey]] = [:]
-    private var tokenItemsRepository: TokenItemsRepository?
+
     
-    init(tokenItemsRepository: TokenItemsRepository?, targetBatch: String? = nil) {
+    init(tokenItemsRepository: TokenItemsRepository?, userPrefsService: UserPrefsService?, targetBatch: String? = nil) {
         self.tokenItemsRepository = tokenItemsRepository
         self.targetBatch = targetBatch
+        self.userPrefsService = userPrefsService
     }
     
     /// read ->  readTwinData or note Data or derive wallet's keys -> appendWallets(createwallets+ scan)  -> attestation
@@ -92,12 +99,26 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
         
-        if card.firmwareVersion.doubleValue >= 4.39 && card.settings.maxWalletsCount == 1 {
-            readNote(card, session: session, completion: completion)
-            return
+        if card.firmwareVersion.doubleValue >= 4.39 {
+            if card.settings.maxWalletsCount == 1 {
+                readNote(card, session: session, completion: completion)
+                return
+            }
+            
+            if let userPrefsService = self.userPrefsService,
+               userPrefsService.cardsStartedActivation.contains(card.cardId),
+               card.backupStatus == .noBackup {
+                readPrimaryCard(session, completion)
+                return
+            } else {
+                deriveKeysIfNeeded(session, completion)
+                return
+            }
+            
         }
         
-        deriveKeysIfNeeded(session, completion)
+        
+        runAttestation(session, completion)
     }
     
     private func readNote(_ card: Card, session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
@@ -197,6 +218,18 @@ final class AppScanTask: CardSessionRunnable {
         }
     }
     
+    private func readPrimaryCard(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
+        StartPrimaryCardLinkingCommand().run(in: session) { result in
+            switch result {
+            case .success(let primaryCard):
+                self.primaryCard = primaryCard
+                self.deriveKeysIfNeeded(session, completion)
+            case .failure: //ignore any error
+                self.deriveKeysIfNeeded(session, completion)
+            }
+        }
+    }
+    
     private func deriveKeysIfNeeded(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
         guard let tokenItemsRepository = self.tokenItemsRepository,
               let wallet = session.environment.card?.wallets.first( where: { $0.curve == .secp256k1 }),
@@ -245,12 +278,9 @@ final class AppScanTask: CardSessionRunnable {
         switch report.status {
         case .failed, .skipped:
             let isDevelopmentCard = session.environment.card!.firmwareVersion.type == .sdk
-            
-            //            if isDevelopmentCard {
-            //                self.complete(session, completion)
-            //                return
-            //            }
+        
             //Possible production sample or development card
+            session.viewDelegate.setState(.empty)
             if isDevelopmentCard || session.environment.config.allowUntrustedCards {
                 session.viewDelegate.attestationDidFail(isDevelopmentCard: isDevelopmentCard) {
                     self.complete(session, completion)
@@ -289,6 +319,7 @@ final class AppScanTask: CardSessionRunnable {
             }
             
         case .warning:
+            session.viewDelegate.setState(.empty)
             session.viewDelegate.attestationCompletedWithWarnings {
                 self.complete(session, completion)
             }
@@ -304,6 +335,7 @@ final class AppScanTask: CardSessionRunnable {
                                                 twinIssuerData: twinIssuerData,
                                                 isTangemNote: noteWalletData != nil,
                                                 isTangemWallet: isWallet,
-                                                derivedKeys: derivedKeys)))
+                                                derivedKeys: derivedKeys,
+                                                primaryCard: self.primaryCard)))
     }
 }
