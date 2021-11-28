@@ -36,7 +36,6 @@ class ServicesAssembly {
 
     lazy var ratesService = CoinMarketCapService(apiKey: keysManager.coinMarketKey)
     lazy var userPrefsService = UserPrefsService()
-    lazy var walletManagerFactory = WalletManagerFactory(config: keysManager.blockchainConfig)
     lazy var imageLoaderService: CardImageLoaderService = CardImageLoaderService()
    
     lazy var tangemSdk: TangemSdk = .init()
@@ -48,6 +47,8 @@ class ServicesAssembly {
         crepo.assembly = assembly
         crepo.delegate = self
         crepo.scannedCardsRepository = scannedCardsRepository
+        crepo.tokenItemsRepository = tokenItemsRepository
+        crepo.userPrefsService = userPrefsService
         return crepo
     }()
     
