@@ -14,6 +14,7 @@ import Combine
 class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardingStep>, ObservableObject {
     
     weak var cardsRepository: CardsRepository!
+    weak var tokensRepo: TokenItemsRepository!
     weak var stepsSetupService: OnboardingStepsSetupService!
     
     @Published var isCardScanned: Bool = true
@@ -174,7 +175,16 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             }
             subscription.map { _ = self?.bag.remove($0) }
         } receiveValue: { [weak self] (_, _) in
-            self?.updateCardBalance()
+            
+            if cardInfo.isMultiWallet {
+                let blockchains = SupportedTokenItems().predefinedBlockchains
+                let tokenItems = blockchains.map { TokenItem.blockchain($0) }
+                self?.tokensRepo.append(tokenItems, for: cardInfo.card.cardId)
+                self?.cardModel?.updateState()
+            } else {
+                self?.updateCardBalance()
+            }
+            
             self?.walletCreatedWhileOnboarding = true
             if cardInfo.isTangemNote {
                 self?.userPrefsService?.cardsStartedActivation.append(cardInfo.card.cardId)
