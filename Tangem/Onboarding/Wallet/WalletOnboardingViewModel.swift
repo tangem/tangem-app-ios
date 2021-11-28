@@ -499,20 +499,17 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             Future { [weak self] promise in
                 guard let self = self else { return }
                 
-                self.tangemSdk.startSession(with: PreparePrimaryCardTask(), cardId: cardId, completion: { result in
+                self.tangemSdk.startSession(with: PreparePrimaryCardTask(), cardId: cardId, completion: {[weak self] result in
                     switch result {
                     case .success(let result):
-                        let blockchains = SupportedTokenItems().predefinedBlockchains
-                        let tokenItems = blockchains.map { TokenItem.blockchain($0) }
-                        self.tokensRepo.append(tokenItems, for: cardId)
+                        self?.addTokens(for:cardId )
                         
-                        if let cardModel = self.input.cardInput.cardModel {
+                        if let cardModel = self?.input.cardInput.cardModel {
                             cardModel.cardInfo.derivedKeys = result.derivedKeys
                             cardModel.update(with: result.card)
-                            cardModel.update()
                         }
                         
-                        self.backupService.setPrimaryCard(result.primaryCard)
+                        self?.backupService.setPrimaryCard(result.primaryCard)
                         promise(.success(()))
                     case .failure(let error):
                         promise(.failure(error))
@@ -542,7 +539,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
     
     private func processPrimaryCardScan(_ result: (Void, Notification)) {
-        print("Origin card read successfully")
         isMainButtonBusy = false
         goToNextStep()
     }
@@ -627,7 +623,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                         switch result {
                         case .success(let updatedCard):
                             if updatedCard.cardId == backupService.primaryCardId {
-                                self.input.cardInput.cardModel?.update(with: updatedCard)
+                                self.input.cardInput.cardModel?.cardInfo.card = updatedCard
+                                self.input.cardInput.cardModel?.updateCurrentSecOption()
                             } else { //add tokens for backup cards
                                 self.addTokens(for: updatedCard.cardId)
                             }
@@ -663,8 +660,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
     
     private func addTokens(for cardId: String) {
-        tokensRepo.append(.blockchain(.bitcoin(testnet: false)), for: cardId)
-        tokensRepo.append(.blockchain(.ethereum(testnet: false)), for: cardId)
+        let blockchains = SupportedTokenItems().predefinedBlockchains
+        let tokenItems = blockchains.map { TokenItem.blockchain($0) }
+        self.tokensRepo.append(tokenItems, for: cardId)
     }
 }
 
