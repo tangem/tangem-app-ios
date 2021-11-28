@@ -104,7 +104,7 @@ struct BalanceAddressView: View {
                 }
                 Spacer()
                 
-                TokenIconView(token: walletModel.getTokenItem(for: amountType))
+                TokenIconView(token: walletModel.getTokenItem(for: amountType), size: CGSize(width: 80, height: 80))
                     .saturation(walletModel.isTestnet ? 0 : 1)
                     .frame(width: 40, height: 40, alignment: .center)
             }
