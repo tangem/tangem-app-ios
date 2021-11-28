@@ -508,6 +508,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                             cardModel.cardInfo.derivedKeys = result.derivedKeys
                             cardModel.update(with: result.card)
                             cardModel.update()
+
                         }
                         
                         self?.backupService.setPrimaryCard(result.primaryCard)
