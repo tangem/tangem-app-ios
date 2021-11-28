@@ -11,9 +11,7 @@ import TangemSdk
 import BlockchainSdk
 
 extension Assembly {
-    
     // MARK: - Onboarding
-    
     func getLaunchOnboardingViewModel() -> OnboardingBaseViewModel {
         let key = "launch_onboarding_screen"
         if let restored: OnboardingBaseViewModel = get(key: key) {
@@ -92,7 +90,7 @@ extension Assembly {
         vm.stepsSetupService = services.onboardingStepsSetupService
         vm.userPrefsService = services.userPrefsService
         vm.exchangeService = services.exchangeService
-        
+        vm.tokensRepo = services.tokenItemsRepository
         return vm
     }
     
@@ -209,120 +207,6 @@ extension Assembly {
         vm.exchangeService = services.exchangeService
         return vm
     }
-    
-    ///Make wallets for blockchains
-    func makeWallets(from cardInfo: CardInfo, blockchains: [Blockchain]) -> [WalletModel] {
-        let walletManagers = makeWalletManagers(from: cardInfo, blockchains: blockchains)
-        return makeWalletModels(walletManagers: walletManagers, cardToken: cardInfo.defaultToken)
-    }
-    
-    func makeWallets(from cardDto: SavedCard, blockchains: [Blockchain]) -> [WalletModel] {
-        let walletManagers = makeWalletManagers(from: cardDto, blockchains: blockchains)
-        return makeWalletModels(walletManagers: walletManagers, cardToken: nil)
-    }
-    
-    ///Load all possible wallets for card
-    func loadWallets(from cardInfo: CardInfo) -> [WalletModel] {
-        var walletManagers: [WalletManager] = .init()
-        
-        //If this card is Twin, return twinWallet
-        if cardInfo.card.isTwinCard,
-           let savedPairKey = cardInfo.twinCardInfo?.pairPublicKey,
-           let publicKey = cardInfo.card.wallets.first?.publicKey,
-           let twinWalletManager = try? services.walletManagerFactory.makeTwinWalletManager(from: cardInfo.card.cardId,
-                                                                                            walletPublicKey: publicKey,
-                                                                                            pairKey: savedPairKey,
-                                                                                            isTestnet: false) {  //[REDACTED_TODO_COMMENT]
-            walletManagers.append(twinWalletManager)
-        } else {
-            //If this card supports multiwallet feature, load all saved tokens from persistent storage
-            let tokenItems = services.tokenItemsRepository.getItems(for: cardInfo.card.cardId)
-            if cardInfo.isMultiWallet, !tokenItems.isEmpty {
-                
-                //Load erc20 tokens if exists
-                let tokens = tokenItems.compactMap { $0.token }
-                if let secpWallet = cardInfo.card.wallets.first(where: { $0.curve == .secp256k1 }),
-                   let tokenManagers = try? services.walletManagerFactory.makeWalletManagers(for: cardInfo.card.cardId,
-                                                                                                wallet: secpWallet,
-                                                                                                and: tokens) {
-                    walletManagers.append(contentsOf: tokenManagers)
-                }
-                
-                //Load blockchains if exists
-                let existingBlockchains = walletManagers.map { $0.wallet.blockchain }
-                let additionalBlockchains = tokenItems.compactMap ({ $0.blockchain }).filter{ !existingBlockchains.contains($0) }
-                let additionalWalletManagers = makeWalletManagers(from: cardInfo, blockchains: additionalBlockchains)
-                walletManagers.append(contentsOf: additionalWalletManagers)
-            }
-            
-            //Try found default card wallet
-            if let nativeWalletManager = makeNativeWalletManager(from: cardInfo), !walletManagers.contains(where: { $0.wallet.blockchain == nativeWalletManager.wallet.blockchain }) {
-                walletManagers.append(nativeWalletManager)
-            }
-        }
-        return makeWalletModels(walletManagers: walletManagers, cardToken: cardInfo.defaultToken)
-    }
-    
-    //Make walletModel from walletManager
-    private func makeWalletModels(walletManagers: [WalletManager], cardToken: BlockchainSdk.Token?) -> [WalletModel] {
-        return walletManagers.map { manager -> WalletModel in
-            let model = WalletModel(walletManager: manager, defaultToken: cardToken)
-            model.tokenItemsRepository = services.tokenItemsRepository
-            model.ratesService = services.ratesService
-            return model
-        }
-    }
-    
-    /// Try to load native walletmanager from card
-    private func makeNativeWalletManager(from cardInfo: CardInfo) -> WalletManager? {
-        if let defaultBlockchain = cardInfo.defaultBlockchain,
-           let cardWalletManager = makeWalletManagers(from: cardInfo, blockchains: [defaultBlockchain]).first {
-            
-            if let defaultToken = cardInfo.defaultToken {
-                _ = cardWalletManager.addToken(defaultToken)
-            }
-            
-            return cardWalletManager
-            
-        }
-        
-        return nil
-    }
-    
-    ///Try to make WalletManagers for blockchains with suitable wallet
-    private func makeWalletManagers(from cardInfo: CardInfo, blockchains: [Blockchain]) -> [WalletManager] {
-        var walletManagers = [WalletManager]()
-        
-        for blockchain in blockchains {
-            if let wallet = cardInfo.card.wallets.first(where: { $0.curve == blockchain.curve }),
-               let wm = try? services.walletManagerFactory.makeWalletManager(from: cardInfo.card.cardId,
-                                                                             wallet: wallet,
-                                                                             blockchain: blockchain) {
-                walletManagers.append(wm)
-            }
-        }
-        
-        return walletManagers
-    }
-    
-    private func makeWalletManagers(from cardDto: SavedCard, blockchains: [Blockchain]) -> [WalletManager] {
-        let cid = cardDto.cardId
-        
-        var walletManagers = [WalletManager]()
-        
-        for blockchain in blockchains {
-            if let wallet = cardDto.wallets.first(where: { $0.curve == blockchain.curve }),
-               let wm = try? services.walletManagerFactory.makeWalletManager(from: cid,
-                                                                             walletPublicKey: wallet.publicKey,
-                                                                             chainCode: wallet.chainCode,
-                                                                             blockchain: blockchain) {
-                walletManagers.append(wm)
-            }
-        }
-        
-        return walletManagers
-    }
-    
     
     // MARK: Card model
     func makeCardModel(from info: CardInfo) -> CardViewModel {
@@ -464,51 +348,46 @@ extension Assembly {
         return vm
     }
     
-    //    func makeTwinCardOnboardingViewModel(isFromMain: Bool) -> TwinCardOnboardingViewModel {
-    //        let scanResult = services.cardsRepository.lastScanResult
-    //        let twinInfo = scanResult.cardModel?.cardInfo.twinCardInfo
-    //        let twinPairCid = AppTwinCardIdFormatter.format(cid: /*twinInfo?.pairCid ??*/ "", cardNumber: twinInfo?.series.pair.number ?? 1)
-    //		return makeTwinCardOnboardingViewModel(state: .onboarding(withPairCid: twinPairCid, isFromMain: isFromMain))
-    //	}
-    //
-    //    func makeTwinCardWarningViewModel(isRecreating: Bool) -> TwinCardOnboardingViewModel {
-    //        makeTwinCardOnboardingViewModel(state: .warning(isRecreating: isRecreating))
-    //    }
-    //
-    //    func makeTwinCardOnboardingViewModel(state: TwinCardOnboardingViewModel.State) -> TwinCardOnboardingViewModel {
-    //        let key = String(describing: TwinCardOnboardingViewModel.self) + "_" + state.storageKey
-    //        if let vm: TwinCardOnboardingViewModel = get(key: key) {
-    //            vm.state = state
-    //            return vm
-    //        }
-    //
-    //        let vm = TwinCardOnboardingViewModel(state: state, imageLoader: services.imageLoaderService)
-    //        initialize(vm, with: key, isResetable: false)
-    //        vm.userPrefsService = services.userPrefsService
-    //        return vm
-    //    }
-    //
-    //    func makeTwinsWalletCreationViewModel(isRecreating: Bool) -> TwinsWalletCreationViewModel {
-    //        if let twinInfo = services.cardsRepository.lastScanResult.cardModel!.cardInfo.twinCardInfo {
-    //            services.twinsWalletCreationService.setupTwins(for: twinInfo)
-    //        }
-    //        if let vm: TwinsWalletCreationViewModel = get() {
-    //            vm.walletCreationService = services.twinsWalletCreationService
-    //            return vm
-    //        }
-    //
-    //        let vm = TwinsWalletCreationViewModel(isRecreatingWallet: isRecreating,
-    //                                              walletCreationService: services.twinsWalletCreationService,
-    //                                              imageLoaderService: services.imageLoaderService)
-    //        initialize(vm)
-    //        return vm
-    //    }
-    
+   
     func makeWalletConnectViewModel(cardModel: CardViewModel) -> WalletConnectViewModel {
         let vm = WalletConnectViewModel(cardModel: cardModel)
         initialize(vm)
         vm.walletConnectController = services.walletConnectService
         return vm
+    }
+    
+    func makeAllWalletModels(from cardInfo: CardInfo) -> [WalletModel] {
+        let walletManagerFactory = WalletManagerFactory(config: services.keysManager.blockchainConfig)
+        let assembly = WalletManagerAssembly(factory: walletManagerFactory,
+                                             tokenItemsRepository: services.tokenItemsRepository)
+        let walletManagers = assembly.makeAllWalletManagers(for: cardInfo)
+        return makeWalletModels(walletManagers: walletManagers, cardToken: cardInfo.defaultToken)
+    }
+    
+    func makeWalletModels(from cardInfo: CardInfo, blockchains: [Blockchain]) -> [WalletModel] {
+        let walletManagerFactory = WalletManagerFactory(config: services.keysManager.blockchainConfig)
+        let assembly = WalletManagerAssembly(factory: walletManagerFactory,
+                                             tokenItemsRepository: services.tokenItemsRepository)
+        let walletManagers = assembly.makeWalletManagers(from: cardInfo, blockchains: blockchains)
+        return makeWalletModels(walletManagers: walletManagers, cardToken: cardInfo.defaultToken)
+    }
+    
+    func makeWalletModels(from cardDto: SavedCard, blockchains: [Blockchain]) -> [WalletModel] {
+        let walletManagerFactory = WalletManagerFactory(config: services.keysManager.blockchainConfig)
+        let assembly = WalletManagerAssembly(factory: walletManagerFactory,
+                                             tokenItemsRepository: services.tokenItemsRepository)
+        let walletManagers = assembly.makeWalletManagers(from: cardDto, blockchains: blockchains)
+        return makeWalletModels(walletManagers: walletManagers, cardToken: nil)
+    }
+    
+    //Make walletModel from walletManager
+    private func makeWalletModels(walletManagers: [WalletManager], cardToken: BlockchainSdk.Token?) -> [WalletModel] {
+        return walletManagers.map { manager -> WalletModel in
+            let model = WalletModel(walletManager: manager, defaultToken: cardToken)
+            model.tokenItemsRepository = services.tokenItemsRepository
+            model.ratesService = services.ratesService
+            return model
+        }
     }
     
     private func initialize<V: ViewModel>(_ vm: V, isResetable: Bool = true) {
@@ -535,16 +414,6 @@ extension Assembly {
     }
     
     public func reset() {
-        //        var persistentKeys = [String]()
-        //        persistentKeys.append(String(describing: type(of: MainViewModel.self)))
-        //        persistentKeys.append(String(describing: type(of: ReadViewModel.self)))
-        //        persistentKeys.append(String(describing: DeprecatedDisclaimerViewModel.self) + "_\(DeprecatedDisclaimerViewModel.State.accept)")
-        //        persistentKeys.append(String(describing: TwinCardOnboardingViewModel.self) + "_" + TwinCardOnboardingViewModel.State.onboarding(withPairCid: "", isFromMain: false).storageKey)
-        //        persistentKeys.append(String(describing: type(of: CardOnboardingViewModel.self)))
-        //        persistentKeys.append(String(describing: type(of: NoteOnboardingViewModel.self)))
-        
-        //        let indicesToRemove = modelsStorage.keys.filter { !persistentKeys.contains($0) }
-        //        indicesToRemove.forEach { modelsStorage.removeValue(forKey: $0) }
         modelsStorage.removeAll()
     }
     
