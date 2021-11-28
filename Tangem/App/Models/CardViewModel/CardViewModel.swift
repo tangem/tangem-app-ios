@@ -14,8 +14,8 @@ import Alamofire
 import SwiftUI
 
 struct CardPinSettings {
-    var isPin1Default: Bool
-    var isPin2Default: Bool
+    var isPin1Default: Bool? = nil
+    var isPin2Default: Bool? = nil
 }
 
 class CardViewModel: Identifiable, ObservableObject {
@@ -35,7 +35,7 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published private(set) var currentSecOption: SecurityManagementOption = .longTap
     @Published public var cardInfo: CardInfo
     
-    private var cardPinSettings: CardPinSettings?
+    private var cardPinSettings: CardPinSettings = CardPinSettings()
     
     private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
     
@@ -74,18 +74,26 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     var canSetAccessCode: Bool {
+        if cardInfo.isTangemWallet {
+            return cardInfo.card.settings.isSettingAccessCodeAllowed
+        }
+        
         return cardInfo.card.settings.isSettingAccessCodeAllowed
             && featuresService.canSetAccessCode
     }
     
     var canSetPasscode: Bool {
+        if cardInfo.isTangemWallet {
+            return cardInfo.card.settings.isSettingPasscodeAllowed
+        }
+        
         return cardInfo.card.settings.isSettingPasscodeAllowed
             /*&& cardInfo.card.settings.isRemovingAccessCodeAllowed*/ //Disable temporary because of sdk inverted mapping bug
             && (featuresService.canSetPasscode || isPairedTwin)
     }
     
     var canSetLongTap: Bool {
-        return cardInfo.card.settings.isSettingPasscodeAllowed
+        return cardInfo.card.settings.isResettingUserCodesAllowed
     }
     
     var canSign: Bool {
@@ -242,8 +250,6 @@ class CardViewModel: Identifiable, ObservableObject {
     
     init(cardInfo: CardInfo) {
         self.cardInfo = cardInfo
-        self.cardPinSettings?.isPin1Default = cardInfo.card.isAccessCodeSet
-        cardInfo.card.isPasscodeSet.map { self.cardPinSettings?.isPin2Default = $0 }
         updateCurrentSecOption()
     }
     
@@ -340,8 +346,8 @@ class CardViewModel: Identifiable, ObservableObject {
                 
                 switch result {
                 case .success:
-                    self.cardPinSettings?.isPin1Default = false
-                    self.cardPinSettings?.isPin2Default = true
+                    self.cardPinSettings.isPin1Default = false
+                    self.cardPinSettings.isPin2Default = true
                     self.updateCurrentSecOption()
                     completion(.success(()))
                 case .failure(let error):
@@ -356,8 +362,8 @@ class CardViewModel: Identifiable, ObservableObject {
                 
                 switch result {
                 case .success:
-                    self.cardPinSettings?.isPin1Default = true
-                    self.cardPinSettings?.isPin2Default = true
+                    self.cardPinSettings.isPin1Default = true
+                    self.cardPinSettings.isPin2Default = true
                     self.updateCurrentSecOption()
                     completion(.success(()))
                 case .failure(let error):
@@ -373,8 +379,8 @@ class CardViewModel: Identifiable, ObservableObject {
                 
                 switch result {
                 case .success:
-                    self.cardPinSettings?.isPin1Default = true
-                    self.cardPinSettings?.isPin2Default = false
+                    self.cardPinSettings.isPin1Default = true
+                    self.cardPinSettings.isPin2Default = false
                     self.updateCurrentSecOption()
                     completion(.success(()))
                 case .failure(let error):
@@ -475,12 +481,14 @@ class CardViewModel: Identifiable, ObservableObject {
 	func update(with card: Card) {
         print("🟩 Updating Card view model with new Card")
         cardInfo.card = card
+        self.updateCurrentSecOption()
         updateModel()
 	}
     
     func update(with cardInfo: CardInfo) {
         print("🔷 Updating Card view model with new CardInfo")
         self.cardInfo = cardInfo
+        self.updateCurrentSecOption()
         updateModel()
     }
     
@@ -712,10 +720,16 @@ class CardViewModel: Identifiable, ObservableObject {
         return true
     }
     
+    private func updateCardPinSettings() {
+        cardPinSettings.isPin1Default = !cardInfo.card.isAccessCodeSet
+        cardInfo.card.isPasscodeSet.map { self.cardPinSettings.isPin2Default = !$0 }
+    }
+    
     private func updateCurrentSecOption() {
-        if !(cardPinSettings?.isPin1Default ?? true) {
+        updateCardPinSettings()
+        if !(cardPinSettings.isPin1Default ?? true) {
             self.currentSecOption = .accessCode
-        } else if !(cardPinSettings?.isPin2Default ?? true) {
+        } else if !(cardPinSettings.isPin2Default ?? true) {
             self.currentSecOption = .passCode
         }
         else {
