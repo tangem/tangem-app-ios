@@ -164,8 +164,9 @@ class OnboardingStepsSetupService {
             steps.append(.createWallet)
             steps.append(.backupIntro)
         } else {
+            steps.append(.backupIntro)
+            
             if !backupService.primaryCardIsSet {
-                steps.append(.backupIntro)
                 steps.append(.scanPrimaryCard)
             }
         }
