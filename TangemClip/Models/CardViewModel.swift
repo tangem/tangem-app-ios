@@ -75,9 +75,8 @@ class CardViewModel: ObservableObject {
     }
 
     func updateState() {
-        assembly.makeWalletModels(from: cardInfo)
-            .map { $0.isEmpty ? State.empty : State.loaded(walletModel: $0) }
-            .assign(to: &$state)
+        let models = assembly.makeWalletModels(from: cardInfo)
+        self.state = models.isEmpty ? .empty : .loaded(walletModel: models)
         searchTokens()
         updateWallets()
     }
