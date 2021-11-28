@@ -101,9 +101,7 @@ class CardViewModel: Identifiable, ObservableObject {
             return nil
         }
         
-        if (cardInfo.card.wallets.first?.settings.isPermanent ?? false) ||
-            (cardInfo.card.firmwareVersion >= .multiwalletAvailable &&
-                cardInfo.card.firmwareVersion < .backupAvailable) {
+        if cardInfo.card.wallets.contains(where: { $0.settings.isPermanent }){
             return TangemSdkError.purgeWalletProhibited.localizedDescription
         }
         
@@ -120,19 +118,14 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     var canPurgeWallet: Bool {
-        if cardInfo.card.firmwareVersion >= .multiwalletAvailable &&
-            cardInfo.card.firmwareVersion < .backupAvailable {
-            return false
-        }
-        
         if cardInfo.card.wallets.isEmpty {
             return false
         }
         
-        if cardInfo.card.wallets.first?.settings.isPermanent ?? false {
+        if cardInfo.card.wallets.contains(where: { $0.settings.isPermanent }) {
             return false
         }
-        
+
         if let walletModels = state.walletModels {
             if walletModels.contains(where: { !$0.canCreateOrPurgeWallet }) {
                 return false
