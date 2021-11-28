@@ -59,7 +59,7 @@ class OnboardingStepsSetupService {
     }
     
     private func stepsForNote(_ cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
-        let walletModel = assembly.loadWallets(from: cardInfo)
+        let walletModel = assembly.makeAllWalletModels(from: cardInfo)
         var steps: [SingleCardOnboardingStep] = []
         guard walletModel.count == 1 else {
             steps.append(.createWallet)
@@ -96,7 +96,7 @@ class OnboardingStepsSetupService {
             }
         }
         
-        let walletModel = assembly.loadWallets(from: cardInfo)
+        let walletModel = assembly.makeAllWalletModels(from: cardInfo)
         
         if (walletModel.isEmpty && cardInfo.twinCardInfo?.pairPublicKey == nil) {
             steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
@@ -164,9 +164,10 @@ class OnboardingStepsSetupService {
             steps.append(.createWallet)
             steps.append(.backupIntro)
         } else {
-            if !backupService.originCardIsSet {
-                steps.append(.backupIntro)
-                steps.append(.scanOriginCard)
+            steps.append(.backupIntro)
+            
+            if !backupService.primaryCardIsSet {
+                steps.append(.scanPrimaryCard)
             }
         }
         

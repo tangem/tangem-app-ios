@@ -15,6 +15,8 @@ struct AppScanTaskResponse {
     let twinIssuerData: Data?
     let isTangemNote: Bool //todo refactor
     let isTangemWallet: Bool
+    let derivedKeys: [Data: [ExtendedPublicKey]]
+    let primaryCard: PrimaryCard?
     
     func getCardInfo() -> CardInfo {
         return CardInfo(card: card,
@@ -22,7 +24,9 @@ struct AppScanTaskResponse {
                         //                        artworkInfo: nil,
                         twinCardInfo: decodeTwinFile(from: self),
                         isTangemNote: isTangemNote,
-                        isTangemWallet: isTangemWallet)
+                        isTangemWallet: isTangemWallet,
+                        derivedKeys: derivedKeys,
+                        primaryCard: primaryCard)
     }
     
     private func decodeTwinFile(from response: AppScanTaskResponse) -> TwinCardInfo? {
@@ -54,15 +58,24 @@ final class AppScanTask: CardSessionRunnable {
         print("AppScanTask deinit")
     }
     
+    private let tokenItemsRepository: TokenItemsRepository?
+    private let userPrefsService: UserPrefsService?
+    
     private let targetBatch: String?
     private var twinIssuerData: Data? = nil
     private var noteWalletData: WalletData? = nil
+    private var primaryCard: PrimaryCard? = nil
+
+    private var derivedKeys: [Data: [ExtendedPublicKey]] = [:]
+
     
-    init(targetBatch: String? = nil) {
+    init(tokenItemsRepository: TokenItemsRepository?, userPrefsService: UserPrefsService?, targetBatch: String? = nil) {
+        self.tokenItemsRepository = tokenItemsRepository
         self.targetBatch = targetBatch
+        self.userPrefsService = userPrefsService
     }
     
-    /// read ->  readTwinData or note Data -> appendWallets(createwallets+ scan)  -> attestation
+    /// read ->  readTwinData or note Data or derive wallet's keys -> appendWallets(createwallets+ scan)  -> attestation
     public func run(in session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
         guard let card = session.environment.card else {
             completion(.failure(TangemSdkError.missingPreflightRead))
@@ -86,10 +99,24 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
         
-        if card.firmwareVersion.doubleValue >= 4.39 && card.settings.maxWalletsCount == 1 {
-            readNote(card, session: session, completion: completion)
-            return
+        if card.firmwareVersion.doubleValue >= 4.39 {
+            if card.settings.maxWalletsCount == 1 {
+                readNote(card, session: session, completion: completion)
+                return
+            }
+            
+            if let userPrefsService = self.userPrefsService,
+               userPrefsService.cardsStartedActivation.contains(card.cardId),
+               card.backupStatus == .noBackup {
+                readPrimaryCard(session, completion)
+                return
+            } else {
+                deriveKeysIfNeeded(session, completion)
+                return
+            }
+            
         }
+        
         
         runAttestation(session, completion)
     }
@@ -167,7 +194,7 @@ final class AppScanTask: CardSessionRunnable {
         let card = session.environment.card!
         
         let existingCurves: Set<EllipticCurve> = .init(card.wallets.map({ $0.curve }))
-        let mandatoryСurves: Set<EllipticCurve> = [.secp256k1, .ed25519, .secp256r1]
+        let mandatoryСurves: Set<EllipticCurve> = [.secp256k1, .ed25519]
         let missingCurves = mandatoryСurves.subtracting(existingCurves)
         
         if !existingCurves.isEmpty, // not empty card
@@ -177,13 +204,53 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
         
-        runAttestation(session, completion)
+        deriveKeysIfNeeded(session, completion)
     }
     
     private func appendWallets(_ curves: [EllipticCurve], session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
         CreateMultiWalletTask(curves: curves).run(in: session) { result in
             switch result {
             case .success:
+                self.runAttestation(session, completion)
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    private func readPrimaryCard(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
+        StartPrimaryCardLinkingCommand().run(in: session) { result in
+            switch result {
+            case .success(let primaryCard):
+                self.primaryCard = primaryCard
+                self.deriveKeysIfNeeded(session, completion)
+            case .failure: //ignore any error
+                self.deriveKeysIfNeeded(session, completion)
+            }
+        }
+    }
+    
+    private func deriveKeysIfNeeded(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
+        guard let tokenItemsRepository = self.tokenItemsRepository,
+              let wallet = session.environment.card?.wallets.first( where: { $0.curve == .secp256k1 }),
+              wallet.chainCode != nil else {
+                  self.runAttestation(session, completion)
+                  return
+              }
+        
+        let derivationPathes = Set(tokenItemsRepository.getItems(for: session.environment.card!.cardId).map { $0.blockchain })
+            .filter { $0.curve == .secp256k1 }
+            .compactMap { $0.derivationPath }
+        
+        if derivationPathes.isEmpty {
+            self.runAttestation(session, completion)
+            return
+        }
+        
+        DeriveWalletPublicKeysTask(walletPublicKey: wallet.publicKey, derivationPathes: derivationPathes).run(in: session) { result in
+            switch result {
+            case .success(let keys):
+                self.derivedKeys = [wallet.publicKey : keys]
                 self.runAttestation(session, completion)
             case .failure(let error):
                 completion(.failure(error))
@@ -211,12 +278,9 @@ final class AppScanTask: CardSessionRunnable {
         switch report.status {
         case .failed, .skipped:
             let isDevelopmentCard = session.environment.card!.firmwareVersion.type == .sdk
-            
-            //            if isDevelopmentCard {
-            //                self.complete(session, completion)
-            //                return
-            //            }
+        
             //Possible production sample or development card
+            session.viewDelegate.setState(.empty)
             if isDevelopmentCard || session.environment.config.allowUntrustedCards {
                 session.viewDelegate.attestationDidFail(isDevelopmentCard: isDevelopmentCard) {
                     self.complete(session, completion)
@@ -255,6 +319,7 @@ final class AppScanTask: CardSessionRunnable {
             }
             
         case .warning:
+            session.viewDelegate.setState(.empty)
             session.viewDelegate.attestationCompletedWithWarnings {
                 self.complete(session, completion)
             }
@@ -269,6 +334,8 @@ final class AppScanTask: CardSessionRunnable {
                                                 walletData: noteWalletData ?? session.environment.walletData,
                                                 twinIssuerData: twinIssuerData,
                                                 isTangemNote: noteWalletData != nil,
-                                                isTangemWallet: isWallet)))
+                                                isTangemWallet: isWallet,
+                                                derivedKeys: derivedKeys,
+                                                primaryCard: self.primaryCard)))
     }
 }
