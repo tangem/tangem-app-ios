@@ -48,6 +48,7 @@ class ServicesAssembly {
         crepo.delegate = self
         crepo.scannedCardsRepository = scannedCardsRepository
         crepo.tokenItemsRepository = tokenItemsRepository
+        crepo.userPrefsService = userPrefsService
         return crepo
     }()
     

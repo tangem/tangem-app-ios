@@ -13,6 +13,7 @@ import struct TangemSdk.Card
 import struct TangemSdk.ExtendedPublicKey
 import struct TangemSdk.WalletData
 import struct TangemSdk.ArtworkInfo
+import struct TangemSdk.PrimaryCard
 import class TangemSdk.TangemSdk
 import enum TangemSdk.TangemSdkError
 #if !CLIP
@@ -29,6 +30,7 @@ struct CardInfo {
     var isTangemNote: Bool
     var isTangemWallet: Bool
     var derivedKeys: [Data:[ExtendedPublicKey]] = [:]
+    var primaryCard: PrimaryCard? = nil
     
     var imageLoadDTO: ImageLoadDTO {
         ImageLoadDTO(cardId: card.cardId,
@@ -158,6 +160,7 @@ class CardsRepository {
     weak var assembly: Assembly!
     weak var scannedCardsRepository: ScannedCardsRepository!
     weak var tokenItemsRepository: TokenItemsRepository!
+    weak var userPrefsService: UserPrefsService!
     
     var cards = [String: ScanResult]()
 	var lastScanResult: ScanResult = .notScannedYet
@@ -171,7 +174,9 @@ class CardsRepository {
     func scan(with batch: String? = nil, _ completion: @escaping (Result<ScanResult, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
         delegate?.onWillScan()
-        tangemSdk.startSession(with: AppScanTask(tokenItemsRepository: tokenItemsRepository, targetBatch: batch)) {[unowned self] result in
+        tangemSdk.startSession(with: AppScanTask(tokenItemsRepository: tokenItemsRepository,
+                                                 userPrefsService: userPrefsService,
+                                                 targetBatch: batch)) {[unowned self] result in
             switch result {
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .scan)
