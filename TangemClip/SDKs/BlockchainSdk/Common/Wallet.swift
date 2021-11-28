@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemSdk
 
 public struct Wallet {
     public let blockchain: Blockchain
@@ -117,15 +118,16 @@ extension Wallet {
     }
     
     public struct PublicKey: Codable, Hashable {
-        private let publicKey: Data
+        public let seedKey: Data
+        public let derivationPath: DerivationPath?
         private let derivedKey: Data?
         
-        public var signingPublicKey: Data { publicKey }
-        public var blockchainPublicKey: Data { derivedKey ?? publicKey }
+        public var blockchainKey: Data { derivedKey ?? seedKey }
         
-        public init(publicKey: Data, derivedKey: Data?) {
-            self.publicKey = publicKey
+        public init(seedKey: Data, derivedKey: Data?, derivationPath: DerivationPath?) {
+            self.seedKey = seedKey
             self.derivedKey = derivedKey
+            self.derivationPath = derivationPath
         }
     }
 }
