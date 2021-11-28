@@ -139,8 +139,8 @@ struct DetailsView: View {
                                     .environmentObject(assembly),
                                    tag: NavigationTag.resetToFactory, selection: $selection) {
                         DetailsRowView(title: "details_row_title_reset_factory_settings".localized, subtitle: "")
-                            .disabled(!viewModel.cardModel.canPurgeWallet)
                     }
+                                   .disabled(!viewModel.cardModel.canPurgeWallet)
                     
                 }
             }
