@@ -506,7 +506,7 @@ class CardViewModel: Identifiable, ObservableObject {
             print("⁉️ Recreating all wallet models for Card view model state")
             self.state = .loaded(walletModel: self.assembly.makeAllWalletModels(from: cardInfo))
             
-            if !userPrefsService.cardsStartedActivation.contains(cardInfo.card.cardId) {
+            if !userPrefsService.cardsStartedActivation.contains(cardInfo.card.cardId)  || cardInfo.isTangemWallet {
                 update()
             }
         }
