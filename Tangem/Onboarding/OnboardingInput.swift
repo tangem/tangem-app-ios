@@ -11,7 +11,7 @@ import TangemSdk
 
 struct OnboardingInput {
     let steps: OnboardingSteps
-    let cardModel: CardInput
+    let cardInput: CardInput
     let cardsPosition: (dark: AnimatedViewSettings, light: AnimatedViewSettings)?
     let welcomeStep: WelcomeStep?
     
