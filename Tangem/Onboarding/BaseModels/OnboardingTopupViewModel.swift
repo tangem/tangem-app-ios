@@ -49,7 +49,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
     
     init(exchangeService: ExchangeService, input: OnboardingInput) {
         self.exchangeService = exchangeService
-        self.cardModel = input.cardModel.cardModel
+        self.cardModel = input.cardInput.cardModel
         super.init(input: input)
         
         if let walletModel = self.cardModel?.walletModels?.first {

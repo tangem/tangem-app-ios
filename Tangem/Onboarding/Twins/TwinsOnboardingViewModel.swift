@@ -115,7 +115,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         self.imageLoaderService = imageLoaderService
         self.twinsService = twinsService
         
-        if let twinInfo = input.cardModel.cardModel?.cardInfo.twinCardInfo {
+        if let twinInfo = input.cardInput.cardModel?.cardInfo.twinCardInfo {
 //            pairNumber = AppTwinCardIdFormatter.format(cid: twinInfo.pairCid, cardNumber: nil)
             pairNumber = "\(twinInfo.series.pair.number)"
 //            if twinInfo.series.number != 1 {
