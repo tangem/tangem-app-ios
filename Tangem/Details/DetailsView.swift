@@ -115,7 +115,7 @@ struct DetailsView: View {
                         }, label: {
                             Text("details_row_title_create_backup")
                                 .font(.system(size: 16, weight: .regular, design: .default))
-                                .foregroundColor(.tangemGrayDark6)
+                                .foregroundColor(viewModel.canCreateBackup ? .tangemGrayDark6 : .tangemGrayDark)
                         })
                             .disabled(!viewModel.canCreateBackup)
                             .sheet(isPresented: $navigation.detailsToBackup, content: {
