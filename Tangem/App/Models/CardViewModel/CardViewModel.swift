@@ -725,7 +725,7 @@ class CardViewModel: Identifiable, ObservableObject {
         cardInfo.card.isPasscodeSet.map { self.cardPinSettings.isPin2Default = !$0 }
     }
     
-    private func updateCurrentSecOption() {
+    func updateCurrentSecOption() {
         updateCardPinSettings()
         if !(cardPinSettings.isPin1Default ?? true) {
             self.currentSecOption = .accessCode
