@@ -169,6 +169,8 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     }
     
     private func processScannedCard(_ cardModel: CardViewModel, isWithAnimation: Bool) {
+        cardModel.cardInfo.primaryCard.map { backupService.setPrimaryCard($0) }
+        
         stepsSetupService.steps(for: cardModel.cardInfo)
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
