@@ -719,3 +719,5 @@ Amount to pay: %@";
 "details_row_title_reset_factory_settings_warning" = "This action is irreversible. If, after resetting the card, someone sends funds to it, then you will not be able to withdraw them.";
 
 "token_details_send_blocked_fee_format" = "Not enough funds for fee on your %@ wallet to send a transaction. Top up your %@ wallet first.";
+
+"onboarding_subtitle_scan_primary" = "Scan the primary card to start the backup process.";
