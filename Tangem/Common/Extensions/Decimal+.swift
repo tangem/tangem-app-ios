@@ -15,7 +15,10 @@ extension Decimal {
         formatter.numberStyle = .currency
         formatter.usesGroupingSeparator = true
         formatter.currencyCode = code
-        formatter.roundingMode = .down 
+        if code == "RUB" {
+            formatter.currencySymbol = "₽"
+        }
+        formatter.roundingMode = .down
         return formatter.string(from: self as NSDecimalNumber) ?? "\(self) \(code)"
     }
 }
