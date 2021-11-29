@@ -119,11 +119,11 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
          let currentAmount = wallet.amounts[amountType] else { return nil }
     
         if wallet.hasPendingTx && !wallet.hasPendingTx(for: amountType) { //has pending tx for fee
-            return "token_details_send_blocked_tx \(wallet.amounts[.coin]?.currencySymbol ?? "")".localized
+            return String(format: "token_details_send_blocked_tx_format".localized, wallet.amounts[.coin]?.currencySymbol ?? "")
         }
         
         if !canSend && !currentAmount.isEmpty { //no fee
-            return "token_details_send_blocked_fee \(wallet.blockchain.displayName)".localized
+            return String(format: "token_details_send_blocked_fee_format".localized, wallet.blockchain.displayName, wallet.blockchain.displayName)
         }
         
         return nil
