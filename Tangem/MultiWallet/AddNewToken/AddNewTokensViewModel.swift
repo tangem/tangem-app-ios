@@ -197,6 +197,16 @@ struct TokenModel: Identifiable, Hashable {
     let tokenItem: TokenItem
     var sectionId: String
     var isAdded: Bool
+    
+    var canAdd: Bool { //temp
+        if tokenItem.blockchain == .cardano(shelley: true)
+            || tokenItem.blockchain == .stellar(testnet: false) {
+            return false
+        }
+        
+        return true
+    }
+    
     var onTap: (String, TokenItem) -> Void
     
     func tap() {
