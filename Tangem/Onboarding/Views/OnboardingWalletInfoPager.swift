@@ -60,7 +60,7 @@ where Data : RandomAccessCollection, Data.Element : Hashable, Content : View {
                     // 1.25 is the parameter that defines how much does the user need to swipe
                     // for the page to change. 1.0 would require swiping all the way to the edge
                     // of the screen to change the page.
-                    let offset = value.translation.width / geometry.size.width * 1.25
+                    let offset = value.translation.width / geometry.size.width * 2
                     let newIndex = (CGFloat(currentIndex) - offset).rounded()
                     currentIndex = min(max(Int(newIndex), 0), data.count - 1)
                     indexUpdateNotifier.send()
