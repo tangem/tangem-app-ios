@@ -94,7 +94,7 @@ struct WelcomeOnboardingView: View {
             
             Color.clear.frame(width: 1, height: 1)
                 .sheet(isPresented: $navigation.welcomeToBackup, content: {
-                    OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
+                    OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel(), isModal: true)
                         .presentation(modal: viewModel.isBackupModal, onDismissalAttempt: {
                             viewModel.assembly.getWalletOnboardingViewModel()?.backButtonAction()
                         }, onDismissed: nil)
