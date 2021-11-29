@@ -43,11 +43,13 @@ class WalletManagerAssembly {
          
             if !tokenItems.isEmpty {
                 //Load tokens if exists
-                let savedBlockchains = tokenItems.map { $0.blockchain }
+                let savedBlockchains = Set(tokenItems.map { $0.blockchain })
                 let savedTokens = tokenItems.compactMap { $0.token }
                 let groupedTokens = Dictionary(grouping: savedTokens, by: { $0.blockchain })
                 
-                walletManagers.append(contentsOf: makeWalletManagers(from: cardInfo, blockchains: Array(savedBlockchains)))
+                walletManagers.append(contentsOf: makeWalletManagers(from: cardInfo,
+                                                                     blockchains: Array(savedBlockchains)
+                                                                        .sorted{$0.displayName < $1.displayName}))
                 groupedTokens.forEach { tokenGroup in
                     if let manager = walletManagers.first(where: {$0.wallet.blockchain == tokenGroup.key }) {
                         manager.addTokens(tokenGroup.value)
