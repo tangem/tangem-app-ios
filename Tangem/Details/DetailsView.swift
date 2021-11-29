@@ -119,14 +119,15 @@ struct DetailsView: View {
                         })
                             .disabled(!viewModel.canCreateBackup)
                             .sheet(isPresented: $navigation.detailsToBackup, content: {
-                                OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
-                                    .presentation(modal: viewModel.isTwinRecreationModel, onDismissalAttempt: {
-                                        assembly.getWalletOnboardingViewModel()?.backButtonAction()
-                                    }, onDismissed: nil)
-                                    .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
-                                        viewModel.isTwinRecreationModel = value
-                                    })
-                                    .environmentObject(navigation)
+                                    OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel(), isModal: true)
+                                        .presentation(modal: viewModel.isTwinRecreationModel, onDismissalAttempt: {
+                                            assembly.getWalletOnboardingViewModel()?.backButtonAction()
+                                        }, onDismissed: nil)
+                                        .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
+                                            viewModel.isTwinRecreationModel = value
+                                        })
+                                        .environmentObject(navigation)
+                                        .navigationBarHidden(true)
                             })
                     }
                     
