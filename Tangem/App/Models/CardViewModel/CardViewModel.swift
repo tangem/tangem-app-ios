@@ -639,30 +639,30 @@ class CardViewModel: Identifiable, ObservableObject {
         tokenItemsRepository.append(tokenItems, for: cardInfo.card.cardId)
         
         let existingBlockchains = Set(walletModels.map { $0.wallet.blockchain })
-        var newBlockchains = tokenItems.compactMap { $0.blockchain }
+        let newBlockchains = Set(tokenItems.map { $0.blockchain })
         let tokens = tokenItems.compactMap { $0.token }
         let groupedTokens = Dictionary(grouping: tokens, by: { $0.blockchain })
-        newBlockchains.append(contentsOf: Set(groupedTokens.keys).subtracting(existingBlockchains))
-        
+        let blockchainsToAdd = Array(newBlockchains.subtracting(existingBlockchains)).sorted { $0.displayName < $1.displayName }
+ 
         if cardInfo.isTangemWallet {
-            let candidateDerivationPathes = Set(newBlockchains.compactMap { $0.derivationPath })
+            let candidateDerivationPathes = Set(blockchainsToAdd.compactMap { $0.derivationPath })
             let existingDerivationPathes = Set(existingBlockchains.compactMap { $0.derivationPath })
             let newDerivationPathes = candidateDerivationPathes.subtracting(existingDerivationPathes)
             if newDerivationPathes.isEmpty {
-                finishAddingTokens(newBlockchains, groupedTokens, completion: completion)
+                finishAddingTokens(blockchainsToAdd, groupedTokens, completion: completion)
                 return
             }
             
             deriveKeys(derivationPathes: Array(newDerivationPathes)) { result in
                 switch result {
                 case .success:
-                    self.finishAddingTokens(newBlockchains, groupedTokens, completion: completion)
+                    self.finishAddingTokens(blockchainsToAdd, groupedTokens, completion: completion)
                 case .failure(let error):
                     completion(.failure(error))
                 }
             }
         } else {
-            finishAddingTokens(newBlockchains, groupedTokens, completion: completion)
+            finishAddingTokens(blockchainsToAdd, groupedTokens, completion: completion)
         }
     }
     
