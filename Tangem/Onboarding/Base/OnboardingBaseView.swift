@@ -12,6 +12,8 @@ struct OnboardingBaseView: View {
     @ObservedObject var viewModel: OnboardingBaseViewModel
     @EnvironmentObject var navigation: NavigationCoordinator
     
+    var isModal: Bool = false
+    
     @ViewBuilder
     var navigationLinks: some View {
         if !viewModel.isFromMainScreen {
@@ -69,9 +71,19 @@ struct OnboardingBaseView: View {
         ZStack {
             navigationLinks
             
-            //NavigationView {
+            if isModal {
+                NavigationView {
                 content
                     .navigationBarTitle(viewModel.content.navbarTitle, displayMode: .inline)
+                    .navigationBarHidden(true)
+                }
+            } else {
+                content
+                    .navigationBarTitle(viewModel.content.navbarTitle, displayMode: .inline)
+            }
+            //NavigationView {
+//                content
+//                    .navigationBarTitle(viewModel.content.navbarTitle, displayMode: .inline)
                 //            .navigationBarHidden(
                 //                !navigation.onboardingToBuyCrypto &&
                 //                    !navigation.readToShop
