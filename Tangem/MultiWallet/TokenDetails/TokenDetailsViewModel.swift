@@ -116,7 +116,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     
     var sendBlockedReason: String? {
         guard let wallet = walletModel?.wallet,
-         let currentAmount = wallet.amounts[amountType] else { return nil }
+              let currentAmount = wallet.amounts[amountType], amountType.isToken else { return nil }
     
         if wallet.hasPendingTx && !wallet.hasPendingTx(for: amountType) { //has pending tx for fee
             return String(format: "token_details_send_blocked_tx_format".localized, wallet.amounts[.coin]?.currencySymbol ?? "")
