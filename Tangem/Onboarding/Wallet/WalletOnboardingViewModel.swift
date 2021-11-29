@@ -411,6 +411,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             } else {
                 reset()
             }
+            
+            backupService.discardIncompletedBackup()
         }
     }
     
