@@ -101,12 +101,18 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
         var listData: [SectionModel] = []
         
         let supportedItems = SupportedTokenItems()
-        
+
         let blockchainsItems: [TokenModel] =
         supportedItems.blockchains(for: cardModel.cardInfo.card.walletCurves, isTestnet: cardModel.cardInfo.isTestnet)
             .sorted(by: { $0.displayName < $1.displayName })
             .map { TokenItem.blockchain($0) }
-            .map { TokenModel(tokenItem: $0, sectionId: Sections.blockchains.rawValue, isAdded: isAdded($0), onTap: onItemTap) }
+            .map { TokenModel(tokenItem: $0,
+                              sectionId: Sections.blockchains.rawValue,
+                              isAdded: isAdded($0),
+                              canAdd: cardModel.cardInfo.isTangemWallet ?
+                              $0 != .blockchain(.stellar(testnet: false)) && $0 != .blockchain(.cardano(shelley: true))
+                              : true,
+                              onTap: onItemTap) }
         
         listData.append(SectionModel(id: Sections.blockchains.rawValue,
                                      name: "add_token_section_title_blockchains".localized,
@@ -197,15 +203,7 @@ struct TokenModel: Identifiable, Hashable {
     let tokenItem: TokenItem
     var sectionId: String
     var isAdded: Bool
-    
-    var canAdd: Bool { //temp
-        if tokenItem.blockchain == .cardano(shelley: true)
-            || tokenItem.blockchain == .stellar(testnet: false) {
-            return false
-        }
-        
-        return true
-    }
+    var canAdd: Bool = true
     
     var onTap: (String, TokenItem) -> Void
     
