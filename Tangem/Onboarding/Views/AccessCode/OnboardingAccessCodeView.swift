@@ -83,20 +83,23 @@ struct OnboardingAccessCodeView: View {
             Image("input_with_lock")
                 .scaleEffect(Constants.isSmallScreen ? 0.7 : 1)
             Spacer()
-            ForEach(0..<ViewState.featuresDescription.count) { index in
-                let feature = ViewState.featuresDescription[index]
-                HStack(spacing: 20) {
-                    Image(feature.icon)
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(feature.title)
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.tangemGrayDark6)
-                        Text(feature.description)
-                            .font(.system(size: 16, weight: .regular))
-                            .foregroundColor(.tangemGrayDark2)
-                            .fixedSize(horizontal: false, vertical: true)
+            VStack(alignment: .leading) {
+                ForEach(0..<3) { index in
+                    let feature = ViewState.featuresDescription[index]
+                    HStack(alignment: .customTop, spacing: 20) {
+                        Image(feature.icon)
+                            .alignmentGuide(.customTop) { d in d[VerticalAlignment.top] - 4 }
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(feature.title)
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.tangemGrayDark6)
+                            Text(feature.description)
+                                .font(.system(size: 16, weight: .regular))
+                                .foregroundColor(.tangemGrayDark2)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .alignmentGuide(.customTop) { d in d[VerticalAlignment.top]}
+                        }
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
             .padding(.horizontal, Constants.isSmallScreen ? 0 :10)
