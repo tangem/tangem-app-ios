@@ -467,7 +467,7 @@ This disclaimer was amended for the last time on October 1st, 2020.";
 "mail_error_no_accounts_title" = "No Mail accounts";
 "mail_error_no_accounts_body" = "Please, set up an account to send email";
 
-"token_details_send_blocked_tx %@" = "Please wait for %@ transaction to complete to be able to send funds";
+"token_details_send_blocked_tx_format" = "Please wait for %@ transaction to complete to be able to send funds";
 
 "warning_low_signatures_format" = "There are only %@ signatures available on this card. You must withdraw all of your funds.";
 
@@ -638,7 +638,7 @@ Amount to pay: %@";
 "onboarding_title_backup_card %lld" = "Backup card #%lld";
 
 "onboarding_subtitle_backup_card" = "You can backup your keys up to two other blank wallet cards";
-"onboarding_subtitle_no_backup_cards" = "To start the backup process add up to two cards";
+"onboarding_subtitle_no_backup_cards" = "To start the backup process add up to two backup cards";
 "onboarding_subtitle_scan_origin_card %@" = "Prepare the primary card with number %@";
 "onboarding_subtitle_one_backup_card" = "You can add one more card or finalize the backup process";
 "onboarding_subtitle_two_backup_cards" = "Max number of cards added. Finalize the backup process";
@@ -718,4 +718,6 @@ Amount to pay: %@";
 
 "details_row_title_reset_factory_settings_warning" = "This action is irreversible. If, after resetting the card, someone sends funds to it, then you will not be able to withdraw them.";
 
-"token_details_send_blocked_fee %@" = "Not enough funds for fee on your %@ wallet to send a transaction. Top up your %@ wallet first.";
+"token_details_send_blocked_fee_format" = "Not enough funds for fee on your %@ wallet to send a transaction. Top up your %@ wallet first.";
+
+"onboarding_subtitle_scan_primary" = "Scan the primary card to start the backup process.";
