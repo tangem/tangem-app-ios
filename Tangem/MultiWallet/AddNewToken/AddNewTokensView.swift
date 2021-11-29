@@ -99,9 +99,9 @@ fileprivate struct TokenView: View {
     }
     
     private var buttonStyle: TangemButtonStyle {
-        TangemButtonStyle(colorStyle: token.isAdded  ? .gray : .green,
+        TangemButtonStyle(colorStyle: token.isAdded || !token.canAdd ? .gray : .green,
                           layout: .thinHorizontal,
-                          isDisabled: token.isAdded)
+                          isDisabled: token.isAdded || !token.canAdd )
     }
     
     var body: some View {
