@@ -146,7 +146,8 @@ extension Assembly {
         let vm = WalletOnboardingViewModel(input: input,
                                            backupService: services.backupService,
                                            tangemSdk: sdk,
-                                           tokensRepo: services.tokenItemsRepository)
+                                           tokensRepo: services.tokenItemsRepository,
+                                           imageLoaderService: services.imageLoaderService)
         
         initialize(vm, isResetable: false)
         vm.userPrefsService = services.userPrefsService
