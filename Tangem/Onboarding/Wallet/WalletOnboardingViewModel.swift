@@ -19,6 +19,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     @Published var canDisplayCardImage: Bool = false
     
     private weak var tokensRepo: TokenItemsRepository!
+    private weak var imageLoaderService: CardImageLoaderService!
     private var stackCalculator: StackCalculator = .init()
     private var fanStackCalculator: FanStackCalculator = .init()
     private var stepPublisher: AnyCancellable?
@@ -251,10 +252,11 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     
     private let tangemSdk: TangemSdk
     
-    init(input: OnboardingInput, backupService: BackupService, tangemSdk: TangemSdk, tokensRepo: TokenItemsRepository) {
+    init(input: OnboardingInput, backupService: BackupService, tangemSdk: TangemSdk, tokensRepo: TokenItemsRepository, imageLoaderService: CardImageLoaderService) {
         self.backupService = backupService
         self.tangemSdk = tangemSdk
         self.tokensRepo = tokensRepo
+        self.imageLoaderService = imageLoaderService
         super.init(input: input)
         
         if case let .wallet(steps) = input.steps {
@@ -264,6 +266,22 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         if isFromMain {
             canDisplayCardImage = true
         }
+        
+        if case let .cardId(cardId) = input.cardInput { //saved backup
+            DispatchQueue.main.async {
+                self.loadImageForRestoredbackup(cardId: cardId, cardPublicKey: Data())
+            }
+        }
+    }
+    
+    private func loadImageForRestoredbackup(cardId: String, cardPublicKey: Data) {
+        imageLoaderService
+            .loadImage(cid: cardId,
+                       cardPublicKey: cardPublicKey,
+                       artworkInfo: nil)
+            .map { $0.image }
+            .weakAssign(to: \.cardImage, on: self)
+            .store(in: &bag)
     }
     
     override func setupContainer(with size: CGSize) {
