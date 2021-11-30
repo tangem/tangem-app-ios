@@ -94,18 +94,6 @@ struct DetailsView: View {
                                 })
                                 .environmentObject(navigation)
                         })
-                    //                    .sheet(isPresented: $navigation.mainToCardOnboarding, content: {
-                    //                        OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
-                    //                            .presentation(modal: viewModel.isOnboardingModal, onDismissalAttempt: nil, onDismissed: viewModel.onboardingDismissed)
-                    //                            .environmentObject(navigation)
-                    //                            .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
-                    //                                viewModel.isOnboardingModal = value
-                    //                            })
-                    //                    })
-                    //                    NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardWarningViewModel(isRecreating: true)),
-                    //                                   isActive: $navigation.detailsToTwinsRecreateWarning){
-                    //                        DetailsRowView(title: "details_row_title_twins_recreate".localized, subtitle: "")
-                    //                    }
                         .disabled(!viewModel.cardModel.canRecreateTwinCard)
                     
                 } else {
