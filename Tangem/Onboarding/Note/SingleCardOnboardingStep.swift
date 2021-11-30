@@ -114,10 +114,11 @@ extension SingleCardOnboardingStep: OnboardingMessagesProvider {
     }
     
     var messagesOffset: CGSize {
-        switch self {
-        case .success: return successMessagesOffset
-        default: return .zero
-        }
+        return .zero
+//        switch self {
+//        case .success: return successMessagesOffset
+//        default: return .zero
+ //       }
     }
 }
 
