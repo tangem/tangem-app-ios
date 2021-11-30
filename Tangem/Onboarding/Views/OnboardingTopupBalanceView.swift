@@ -33,7 +33,7 @@ struct OnboardingTopupBalanceUpdater: View {
                     .minimumScaleFactor(0.3)
                     .font(.system(size: 28, weight: .bold))
                     .foregroundColor(Color.tangemGrayDark6)
-                    .frame(maxWidth: frame.width - 26, maxHeight: frame.height * 0.155)
+                    //.frame(maxWidth: max(frame.width - 26, 0), maxHeight: frame.height * 0.155)
                     .transition(.opacity)
                     .id("onboarding_balance_\(balance)")
                     .fixedSize()
