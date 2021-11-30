@@ -132,6 +132,12 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         super.init(exchangeService: exchangeService, input: input)
         if case let .twins(steps) = input.steps {
             self.steps = steps
+            
+            if case .topup = steps.first {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    self.updateCardBalance()
+                }
+            }
         }
         if isFromMain {
             displayTwinImages = true
@@ -144,6 +150,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         twinsService.setupTwins(for: twinInfo)
         bind()
         loadSecondTwinImage()
+        
+       
     }
     
     override func setupContainer(with size: CGSize) {
@@ -292,7 +300,11 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
                 switch (self.currentStep, newStep) {
                 case (.first, .second), (.second, .third), (.third, .done):
                     if newStep == .done {
-                        self.updateCardBalance()
+                        if input.isStandalone {
+                            self.fireConfetti()
+                        } else {
+                            self.updateCardBalance()
+                        }
                     }
                     
                     DispatchQueue.main.async {
