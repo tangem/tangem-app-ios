@@ -33,6 +33,7 @@ struct CardOperationView: View {
                 .foregroundColor(.tangemWarning)
             Text(alert)
                 .font(.system(size: 29.0, weight: .regular, design: .default))
+                .minimumScaleFactor(0.6)
                 .multilineTextAlignment(.center)
                 .foregroundColor(.tangemGrayDark6)
                 .padding(.horizontal, 36.0)

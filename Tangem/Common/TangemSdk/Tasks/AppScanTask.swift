@@ -238,16 +238,16 @@ final class AppScanTask: CardSessionRunnable {
                   return
               }
         
-        let derivationPathes = Set(tokenItemsRepository.getItems(for: session.environment.card!.cardId).map { $0.blockchain })
+        let derivationPaths = Set(tokenItemsRepository.getItems(for: session.environment.card!.cardId).map { $0.blockchain })
             .filter { $0.curve == .secp256k1 }
             .compactMap { $0.derivationPath }
         
-        if derivationPathes.isEmpty {
+        if derivationPaths.isEmpty {
             self.runAttestation(session, completion)
             return
         }
         
-        DeriveWalletPublicKeysTask(walletPublicKey: wallet.publicKey, derivationPathes: derivationPathes).run(in: session) { result in
+        DeriveWalletPublicKeysTask(walletPublicKey: wallet.publicKey, derivationPaths: derivationPaths).run(in: session) { result in
             switch result {
             case .success(let keys):
                 self.derivedKeys = [wallet.publicKey : keys]

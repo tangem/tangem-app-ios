@@ -112,6 +112,7 @@ struct SingleCardOnboardingView: View {
                 .readSize { value in
                     viewModel.setupContainer(with: value)
                 }
+                
                 OnboardingTextButtonView(
                     title: viewModel.title,
                     subtitle: viewModel.subtitle,
