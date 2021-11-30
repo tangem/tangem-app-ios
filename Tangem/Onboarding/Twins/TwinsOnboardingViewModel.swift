@@ -292,7 +292,11 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
                 switch (self.currentStep, newStep) {
                 case (.first, .second), (.second, .third), (.third, .done):
                     if newStep == .done {
-                        self.updateCardBalance()
+                        if input.isStandalone {
+                            self.fireConfetti()
+                        } else {
+                            self.updateCardBalance()
+                        }
                     }
                     
                     DispatchQueue.main.async {
