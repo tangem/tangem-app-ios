@@ -47,6 +47,7 @@ struct AddNewTokensView: View {
                                                isDisabled: viewModel.pendingTokenItems.isEmpty,
                                                isLoading: viewModel.isLoading))
                 .padding([.leading, .trailing, .top], 16)
+                .padding(.bottom, 8)
         }
         .ignoresKeyboard()
         .onReceive(viewModel.$enteredSearchText
