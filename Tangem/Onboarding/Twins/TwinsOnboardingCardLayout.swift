@@ -25,7 +25,7 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
             return WelcomeCardLayout.main.cardSettings(at: .welcome, in: containerSize, animated: animated)
         case (.welcome, .second):
             return WelcomeCardLayout.supplementary.cardSettings(at: .welcome, in: containerSize, animated: animated)
-        case (.done, _), (.topup, _), (.confetti, _):
+        case (.done, _), (.topup, _):
             var settings = stackCalculator.cardSettings(at: stackIndex(at: step))
             settings.scale *= 0.5
             settings.offset += offset(at: step, in: containerSize)
@@ -48,7 +48,7 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
         case (.intro, _), (.alert, _): return 75
         case (.first, .first), (.second, .second), (.third, .first): return 80
         case (.first, .second), (.second, .first), (.third, .second): return 120
-        case (.done, _), (.topup, _), (.confetti, _):
+        case (.done, _), (.topup, _):
             return 220
         }
     }
@@ -61,7 +61,7 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
             return 0.454
         case (.first, .second), (.second, .first), (.third, .second):
             return 0.395
-        case (.done, _), (.topup, _), (.confetti, _):
+        case (.done, _), (.topup, _):
             return 0.246
         }
     }
@@ -84,9 +84,9 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
         case (.first, .second), (.second, .first), (.third, .second):
 //            return .init(width: 0, height: containerHeight * 0.095)
             return .zero
-        case (.done, .first), (.topup, .first), (.confetti, .first):
+        case (.done, .first), (.topup, .first):
             return .init(width: 0, height: -containerHeight * 0.18)
-        case (.done, .second), (.topup, .second), (.confetti, .second):
+        case (.done, .second), (.topup, .second):
             return .init(width: 0, height: -containerHeight * 0.28)
         }
     }
