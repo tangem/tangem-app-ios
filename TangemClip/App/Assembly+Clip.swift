@@ -26,7 +26,7 @@ extension Assembly {
         let vm = CardViewModel(cardInfo: info)
         vm.assembly = self
         vm.tangemSdk = services.tangemSdk
-        vm.updateState()
+        //vm.updateState()
         return vm
     }
     
