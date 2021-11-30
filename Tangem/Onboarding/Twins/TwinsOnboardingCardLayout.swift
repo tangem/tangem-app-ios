@@ -28,7 +28,7 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
         case (.done, _), (.topup, _):
             var settings = stackCalculator.cardSettings(at: stackIndex(at: step))
             settings.scale *= 0.5
-            settings.offset += offset(at: step, in: containerSize)
+            settings.offset = offset(at: step, in: containerSize)
             return .init(targetSettings: settings, intermediateSettings: nil)
         default:
             return .init(targetSettings: CardAnimSettings(frame: frame(for: step, containerSize: containerSize),
@@ -85,9 +85,9 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
 //            return .init(width: 0, height: containerHeight * 0.095)
             return .zero
         case (.done, .first), (.topup, .first):
-            return .init(width: 0, height: -containerHeight * 0.18)
+            return .init(width: 0, height: -containerHeight * 0.12)
         case (.done, .second), (.topup, .second):
-            return .init(width: 0, height: -containerHeight * 0.28)
+            return .init(width: 0, height: -containerHeight * 0.08)
         }
     }
     
