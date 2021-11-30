@@ -40,6 +40,7 @@ class RateAppService: RateAppChecker, RateAppController {
         if userPrefsService.didUserRespondToRateApp {
             return
         }
+        
         let numberOfLaunches = userPrefsService.numberOfLaunches
 
         guard
