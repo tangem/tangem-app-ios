@@ -427,7 +427,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
     
-    func deriveKeys(derivationPathes: [DerivationPath], completion: @escaping (Result<Void, Error>) -> Void) {
+    func deriveKeys(derivationPaths: [DerivationPath], completion: @escaping (Result<Void, Error>) -> Void) {
         let card = self.cardInfo.card
         
         guard let wallet = cardInfo.card.wallets.first(where: { $0.curve == .secp256k1 }) else {
@@ -437,7 +437,7 @@ class CardViewModel: Identifiable, ObservableObject {
         
         tangemSdk.deriveWalletPublicKeys(cardId: cardInfo.card.cardId,
                                          walletPublicKey: wallet.publicKey,
-                                         derivationPathes: derivationPathes) {[weak self] result in
+                                         derivationPaths: derivationPaths) {[weak self] result in
             switch result {
             case .success(let newKeys):
                 guard let self = self else { return }
@@ -645,15 +645,15 @@ class CardViewModel: Identifiable, ObservableObject {
         let blockchainsToAdd = Array(newBlockchains.subtracting(existingBlockchains)).sorted { $0.displayName < $1.displayName }
  
         if cardInfo.isTangemWallet {
-            let candidateDerivationPathes = Set(blockchainsToAdd.compactMap { $0.derivationPath })
-            let existingDerivationPathes = Set(existingBlockchains.compactMap { $0.derivationPath })
-            let newDerivationPathes = candidateDerivationPathes.subtracting(existingDerivationPathes)
-            if newDerivationPathes.isEmpty {
+            let candidateDerivationPaths = Set(blockchainsToAdd.compactMap { $0.derivationPath })
+            let existingDerivationPaths = Set(existingBlockchains.compactMap { $0.derivationPath })
+            let newDerivationPaths = candidateDerivationPaths.subtracting(existingDerivationPaths)
+            if newDerivationPaths.isEmpty {
                 finishAddingTokens(blockchainsToAdd, groupedTokens, completion: completion)
                 return
             }
             
-            deriveKeys(derivationPathes: Array(newDerivationPathes)) { result in
+            deriveKeys(derivationPaths: Array(newDerivationPaths)) { result in
                 switch result {
                 case .success:
                     self.finishAddingTokens(blockchainsToAdd, groupedTokens, completion: completion)
