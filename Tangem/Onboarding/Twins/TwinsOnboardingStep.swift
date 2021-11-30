@@ -23,10 +23,10 @@ extension SuccessStep {
 }
 
 enum TwinsOnboardingStep {
-    case welcome, intro(pairNumber: String), first, second, third, topup, confetti, done, success, alert
+    case welcome, intro(pairNumber: String), first, second, third, topup, done, success, alert
     
     static var previewCases: [TwinsOnboardingStep] {
-        [.intro(pairNumber: "2"), .topup, .confetti, .done]
+        [.intro(pairNumber: "2"), .topup, .done]
     }
     
     static var twinningProcessSteps: [TwinsOnboardingStep] {
@@ -34,7 +34,7 @@ enum TwinsOnboardingStep {
     }
     
     static var topupSteps: [TwinsOnboardingStep] {
-        [.topup, .confetti, .done]
+        [.topup, .done]
     }
     
     var topTwinCardIndex: Int {
@@ -60,7 +60,7 @@ enum TwinsOnboardingStep {
     
     func backgroundFrame(in container: CGSize) -> CGSize {
         switch self {
-        case .topup, .confetti, .done:
+        case .topup,  .done:
             return defaultBackgroundFrameSize(in: container)
         case .welcome:
             return .zero
@@ -70,7 +70,7 @@ enum TwinsOnboardingStep {
     
     func backgroundCornerRadius(in container: CGSize) -> CGFloat {
         switch self {
-        case .topup, .confetti, .done: return defaultBackgroundCornerRadius
+        case .topup,  .done: return defaultBackgroundCornerRadius
         case .welcome: return 0
         default: return backgroundFrame(in: container).height / 2
         }
@@ -82,7 +82,7 @@ enum TwinsOnboardingStep {
     
     var backgroundOpacity: Double {
         switch self {
-        case .topup, .confetti, .done: return 1
+        case .topup,  .done: return 1
         default: return 0
         }
     }
@@ -127,8 +127,7 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
         case .second: return "onboarding_title_twin_second_card"
         case .third: return "onboarding_title_twin_first_card"
         case .topup: return "onboarding_topup_title"
-        case .confetti: return "onboarding_confetti_title"
-        case .done: return ""
+        case .done: return "onboarding_confetti_title"
         case .success: return successTitle
         case .alert: return "common_warning"
         }
@@ -140,9 +139,7 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
         case .intro(let pairNumber): return "onboarding_subtitle_intro \(pairNumber)"
         case .first, .second, .third: return "onboarding_subtitle_reset_twin_warning"
         case .topup: return "onboarding_topup_subtitle"
-        case .confetti: return "Your crypto card is activated and ready to be used"
-        case .done: return ""
-        case .success: return ""
+        case .done, .success: return "Your crypto card is activated and ready to be used"
         case .alert: return "onboarding_alert_twins_recreate_subtitle"
         }
     }
@@ -162,7 +159,6 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
         case .first, .third: return "onboarding_button_tap_first_card"
         case .second: return "onboarding_button_tap_second_card"
         case .topup: return "onboarding_button_buy_crypto"
-        case .confetti: return "common_continue"
         case .done: return "common_continue"
         case .success: return successButtonTitle
         case .alert: return "common_continue"

@@ -127,7 +127,7 @@ class OnboardingStepsSetupService {
                         } else if !self.userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId) {
                             return promise(.success(.twins([])))
                         }
-                        steps.append(.confetti)
+
                         steps.append(.done)
                         promise(.success(.twins(steps)))
                     case .failure(let error):

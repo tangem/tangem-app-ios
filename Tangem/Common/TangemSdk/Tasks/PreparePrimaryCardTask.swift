@@ -51,9 +51,9 @@ class PreparePrimaryCardTask: CardSessionRunnable {
             return
         }
         
-        let pathes = SupportedTokenItems().predefinedBlockchains.compactMap { $0.derivationPath }
+        let paths = SupportedTokenItems().predefinedBlockchains.compactMap { $0.derivationPath }
         
-        derivingCommand = DeriveWalletPublicKeysTask(walletPublicKey: wallet.publicKey, derivationPathes: pathes)
+        derivingCommand = DeriveWalletPublicKeysTask(walletPublicKey: wallet.publicKey, derivationPaths: paths)
         derivingCommand!.run(in: session) { result in
             switch result {
             case .success(let keys):
