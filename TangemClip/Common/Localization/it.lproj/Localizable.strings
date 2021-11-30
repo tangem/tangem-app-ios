@@ -94,3 +94,5 @@
 "wallet_error_no_account" = "Account is not created";
 
 "error_old_app_need_update" = "Oops, the current version of the application is not ready to work with this card, please check for updates.";
+
+"main_warning" = "To read wallets open the main app";
