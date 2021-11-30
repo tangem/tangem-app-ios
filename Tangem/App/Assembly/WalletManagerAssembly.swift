@@ -33,6 +33,15 @@ class WalletManagerAssembly {
                 return [twinManager]
             }
             
+            //temp for bugged case
+            if cardInfo.twinCardInfo?.pairPublicKey == nil,
+               let wallet = cardInfo.card.wallets.first,
+               let bitcoinManager = try? factory.makeWalletManager(cardId: cardInfo.card.cardId,
+                                                                   blockchain: .bitcoin(testnet: false),
+                                                                   walletPublicKey: wallet.publicKey ) {
+                return [bitcoinManager]
+            }
+            
             return []
         }
         
