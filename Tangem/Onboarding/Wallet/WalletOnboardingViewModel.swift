@@ -393,7 +393,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         withAnimation {
             currentStepIndex = steps.count - 1
             setupCardsSettings(animated: true, isContainerSetup: false)
-            shouldFireConfetti = true
+            fireConfetti()
         }
     }
     
@@ -441,7 +441,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             setupCardsSettings(animated: true, isContainerSetup: false)
         case .backupCards:
             if backupServiceState == .finished {
-                shouldFireConfetti = true
+                fireConfetti()
                 self.goToNextStep()
             } else {
                 setupCardsSettings(animated: true, isContainerSetup: false)

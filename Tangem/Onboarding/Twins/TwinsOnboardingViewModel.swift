@@ -180,7 +180,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
             }
         case .intro:
             fallthrough
-        case .confetti, .done, .success, .alert:
+        case .done, .success, .alert:
             goToNextStep()
         case .first:
             if !retwinMode, !(userPrefsService?.cardsStartedActivation.contains(twinInfo.cid) ?? false) {
@@ -222,11 +222,15 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
                 displayTwinImages = true
             }
         }
-        if case .confetti = currentStep {
+        
+        switch currentStep {
+        case .done, .success:
             withAnimation {
                 refreshButtonState = .doneCheckmark
-                shouldFireConfetti = true
+                fireConfetti()
             }
+        default:
+            break
         }
     }
     
