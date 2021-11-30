@@ -87,7 +87,7 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
         case (.done, .first), (.topup, .first), (.confetti, .first):
             return .init(width: 0, height: -containerHeight * 0.18)
         case (.done, .second), (.topup, .second), (.confetti, .second):
-            return .init(width: 0, height: -containerHeight * 0.215)
+            return .init(width: 0, height: -containerHeight * 0.28)
         }
     }
     
