@@ -29,6 +29,7 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
     @Published var alert: AlertBinder?
     @Published var cardImage: UIImage?
     
+    private var confettiFired: Bool = false
     var bag: Set<AnyCancellable> = []
     
     var currentStep: Step {
@@ -184,6 +185,13 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
     }
     
     func backButtonAction() {}
+    
+    func fireConfetti() {
+        if !confettiFired {
+            shouldFireConfetti = true
+            confettiFired = true
+        }
+    }
     
     func goToNextStep() {
         if isOnboardingFinished, !assembly.isPreview {

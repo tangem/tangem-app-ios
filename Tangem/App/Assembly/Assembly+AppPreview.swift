@@ -23,7 +23,7 @@ extension Assembly {
     var previewTwinOnboardingInput: OnboardingInput {
         .init(steps: .twins([.intro(pairNumber: "0128"),
                              .first, .second, .third,
-                             .topup, .confetti, .done]),
+                             .topup, .done]),
               cardInput: .cardModel(.previewViewModel(for: .twin)),
               cardsPosition: nil,
               welcomeStep: nil,
