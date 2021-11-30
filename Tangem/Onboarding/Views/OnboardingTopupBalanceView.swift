@@ -36,6 +36,7 @@ struct OnboardingTopupBalanceUpdater: View {
                     .frame(maxWidth: frame.width - 26, maxHeight: frame.height * 0.155)
                     .transition(.opacity)
                     .id("onboarding_balance_\(balance)")
+                    .fixedSize()
             }
             .offset(offset)
             
