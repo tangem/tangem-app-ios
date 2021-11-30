@@ -215,7 +215,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             }
             fallthrough
         case .success:
-            shouldFireConfetti = true
+           fireConfetti()
         default:
             break
         }
