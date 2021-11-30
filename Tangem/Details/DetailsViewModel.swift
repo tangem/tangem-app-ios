@@ -211,7 +211,8 @@ class DetailsViewModel: ViewModel, ObservableObject {
                                         currentStepIndex: 0,
                                         successCallback: { [weak self] in
                                             self?.navigation.detailsToTwinsRecreateWarning = false
-                                        })
+                                        },
+                                        isStandalone: true)
             self.assembly.makeCardOnboardingViewModel(with: input)
             self.navigation.detailsToTwinsRecreateWarning = true
         }
