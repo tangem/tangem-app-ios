@@ -515,11 +515,15 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     
     private func preparePrimaryCardPublisher() -> AnyPublisher<Void, Error> {
         let cardId = input.cardInput.cardId
+        guard let issuerSignature = input.cardInput.cardModel?.cardInfo.card.issuerSignature else {
+            return Fail(error: TangemSdkError.certificateSignatureRequired).eraseToAnyPublisher()
+        }
+        
         return Deferred {
             Future { [weak self] promise in
                 guard let self = self else { return }
                 
-                self.tangemSdk.startSession(with: PreparePrimaryCardTask(), cardId: cardId, completion: {[weak self] result in
+                self.tangemSdk.startSession(with: PreparePrimaryCardTask(issuerSignature: issuerSignature), cardId: cardId, completion: {[weak self] result in
                     switch result {
                     case .success(let result):
                         self?.addTokens(for:cardId )
