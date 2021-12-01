@@ -84,66 +84,51 @@ class OnboardingStepsSetupService {
         
         var steps = [TwinsOnboardingStep]()
         
-        if !userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId) {
-            if !self.userPrefs.isTwinCardOnboardingWasDisplayed {
-                let twinPairCid = AppTwinCardIdFormatter.format(cid:"", cardNumber: twinCardInfo.series.pair.number)
-                steps.append(.intro(pairNumber: "\(twinPairCid)"))
-            }
-            
-            if twinCardInfo.pairPublicKey != nil && cardInfo.card.wallets.first != nil {
-                userPrefs.isTwinCardOnboardingWasDisplayed = true
-                return .justWithError(output: .twins(steps))
-            }
+        if !userPrefs.isTwinCardOnboardingWasDisplayed { //show intro only once
+            userPrefs.isTwinCardOnboardingWasDisplayed = true
+            let twinPairCid = AppTwinCardIdFormatter.format(cid:"", cardNumber: twinCardInfo.series.pair.number)
+            steps.append(.intro(pairNumber: "\(twinPairCid)"))
         }
         
-        //check bug
-      if cardInfo.twinCardInfo?.pairPublicKey == nil,
-         let walletModel = assembly.makeAllWalletModels(from: cardInfo).first {
-          return Future { promise in
-              walletModel.walletManager.update { [unowned self] result in
-                  switch result {
-                  case .success:
-                      userPrefs.isTwinCardOnboardingWasDisplayed = true
-                      
-                      if !walletModel.isEmptyIncludingPendingIncomingTxs
-                          && cardInfo.twinCardInfo?.pairPublicKey == nil { //bugged case, has balance go to main
-                          return promise(.success(.twins([])))
-                      }
-                      
-                      if walletModel.isEmptyIncludingPendingIncomingTxs {
-                          if cardInfo.twinCardInfo?.pairPublicKey == nil { //It's safe to twin
-                              steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
-                              steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
-                              return promise(.success(.twins(steps)))
+        if cardInfo.card.wallets.isEmpty { //twin without created wallet. Start onboarding
+            steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
+            steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
+            return .justWithError(output: .twins(steps))
+        } else {//twin with created wallet
+            if twinCardInfo.pairPublicKey == nil { //is not twinned
+                //check balance because of legacy bug
+              if let walletModel = assembly.makeAllWalletModels(from: cardInfo).first {
+                  return Future { promise in
+                      walletModel.walletManager.update { result in
+                          switch result {
+                          case .success:
+                              if walletModel.isEmptyIncludingPendingIncomingTxs { //Empty balance, It's safe to onboarding
+                                  steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
+                                  steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
+                                  return promise(.success(.twins(steps)))
+                              } else { //bugged case, has balance go to main
+                                  return promise(.success(.twins([])))
+                              }
+                          case .failure(let error):
+                              promise(.failure(error))
                           }
-                          
-                          steps.append(.topup)
-                      } else if !self.userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId) {
-                          return promise(.success(.twins([])))
                       }
-
-                      steps.append(.done)
-                      promise(.success(.twins(steps)))
-                  case .failure(let error):
-                      promise(.failure(error))
                   }
+                  .eraseToAnyPublisher()
+              } else { //will use this branch in future releases. Just start onboarding
+                  steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
+                  steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
+                  return .justWithError(output: .twins(steps))
               }
-          }
-          .eraseToAnyPublisher()
-      } else {
-          userPrefs.isTwinCardOnboardingWasDisplayed = true
-          
-          if !self.userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId) {
-              return .justWithError(output: .twins([]))
-          }
-    
-          if cardInfo.twinCardInfo?.pairPublicKey == nil {
-              steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
-          }
-          
-          steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
-          return .justWithError(output: .twins(steps))
-      }
+            } else { //is twinned
+                if userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId) { //card is in onboarding process, go to topup
+                    steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
+                    return .justWithError(output: .twins(steps))
+                } else { //unknown twin, ready to use, go to main
+                    return .justWithError(output: .twins(steps))
+                }
+            }
+        }
     }
     
     private func stepsForWallet(_ cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
