@@ -64,7 +64,7 @@ final class AppScanTask: CardSessionRunnable {
     private let targetBatch: String?
     private var twinIssuerData: Data? = nil
     private var noteWalletData: WalletData? = nil
-    private var primaryCard: PrimaryCard? = nil
+    private var rawPrimaryCard: RawPrimaryCard? = nil
 
     private var derivedKeys: [Data: [ExtendedPublicKey]] = [:]
 
@@ -222,7 +222,7 @@ final class AppScanTask: CardSessionRunnable {
         StartPrimaryCardLinkingCommand().run(in: session) { result in
             switch result {
             case .success(let primaryCard):
-                self.primaryCard = primaryCard
+                self.rawPrimaryCard = primaryCard
                 self.deriveKeysIfNeeded(session, completion)
             case .failure: //ignore any error
                 self.deriveKeysIfNeeded(session, completion)
@@ -262,66 +262,10 @@ final class AppScanTask: CardSessionRunnable {
         let attestationTask = AttestationTask(mode: session.environment.config.attestationMode)
         attestationTask.run(in: session) { result in
             switch result {
-            case .success(let report):
-                self.processAttestationReport(report, attestationTask, session, completion)
+            case .success:
+                self.complete(session, completion)
             case .failure(let error):
                 completion(.failure(error))
-            }
-        }
-    }
-    
-    //[REDACTED_TODO_COMMENT]
-    private func processAttestationReport(_ report: Attestation,
-                                          _ attestationTask: AttestationTask,
-                                          _ session: CardSession,
-                                          _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        switch report.status {
-        case .failed, .skipped:
-            let isDevelopmentCard = session.environment.card!.firmwareVersion.type == .sdk
-        
-            //Possible production sample or development card
-            session.viewDelegate.setState(.empty)
-            if isDevelopmentCard || session.environment.config.allowUntrustedCards {
-                session.viewDelegate.attestationDidFail(isDevelopmentCard: isDevelopmentCard) {
-                    self.complete(session, completion)
-                } onCancel: {
-                    completion(.failure(.userCancelled))
-                }
-                
-                return
-            }
-            
-            completion(.failure(.cardVerificationFailed))
-            
-        case .verified:
-            self.complete(session, completion)
-            
-        case .verifiedOffline:
-            if session.environment.config.attestationMode == .offline {
-                self.complete(session, completion)
-                return
-            }
-            
-            session.viewDelegate.setState(.empty)
-            session.viewDelegate.attestationCompletedOffline() {
-                self.complete(session, completion)
-            } onCancel: {
-                completion(.failure(.userCancelled))
-            } onRetry: {
-                attestationTask.retryOnline(session) { result in
-                    switch result {
-                    case .success(let report):
-                        self.processAttestationReport(report, attestationTask, session, completion)
-                    case .failure(let error):
-                        completion(.failure(error))
-                    }
-                }
-            }
-            
-        case .warning:
-            session.viewDelegate.setState(.empty)
-            session.viewDelegate.attestationCompletedWithWarnings {
-                self.complete(session, completion)
             }
         }
     }
@@ -330,12 +274,19 @@ final class AppScanTask: CardSessionRunnable {
         let card = session.environment.card!
         let isNote = noteWalletData != nil
         let isWallet = card.firmwareVersion.doubleValue >= 4.39 && !isNote
+        
+        var primaryCard: PrimaryCard? = nil
+        if let signature = session.environment.card?.issuerSignature,
+           let rawCard = rawPrimaryCard {
+            primaryCard = PrimaryCard(rawCard, issuerSignature: signature)
+        }
+        
         completion(.success(AppScanTaskResponse(card: session.environment.card!,
                                                 walletData: noteWalletData ?? session.environment.walletData,
                                                 twinIssuerData: twinIssuerData,
                                                 isTangemNote: noteWalletData != nil,
                                                 isTangemWallet: isWallet,
                                                 derivedKeys: derivedKeys,
-                                                primaryCard: self.primaryCard)))
+                                                primaryCard: primaryCard)))
     }
 }
