@@ -10,6 +10,12 @@ import TangemSdk
 import BlockchainSdk
 
 class PreparePrimaryCardTask: CardSessionRunnable {
+    private let issuerSignature: Data
+    
+    init(issuerSignature: Data) {
+        self.issuerSignature = issuerSignature
+    }
+    
     private var derivingCommand: DeriveWalletPublicKeysTask? = nil
     
     func run(in session: CardSession, completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
@@ -37,7 +43,8 @@ class PreparePrimaryCardTask: CardSessionRunnable {
     private func readPrimaryCard(in session: CardSession, completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
         StartPrimaryCardLinkingCommand().run(in: session) { result in
             switch result {
-            case .success(let primaryCard):
+            case .success(let rawCard):
+                let primaryCard = PrimaryCard(rawCard, issuerSignature: self.issuerSignature)
                 self.deriveKeys(primaryCard, in: session, completion: completion)
             case .failure(let error):
                 completion(.failure(error))
