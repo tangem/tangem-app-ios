@@ -515,6 +515,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     
     private func preparePrimaryCardPublisher() -> AnyPublisher<Void, Error> {
         let cardId = input.cardInput.cardId
+       
         return Deferred {
             Future { [weak self] promise in
                 guard let self = self else { return }
