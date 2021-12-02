@@ -176,7 +176,8 @@ class CardsRepository {
         delegate?.onWillScan()
         tangemSdk.startSession(with: AppScanTask(tokenItemsRepository: tokenItemsRepository,
                                                  userPrefsService: userPrefsService,
-                                                 targetBatch: batch)) {[unowned self] result in
+                                                 targetBatch: batch,
+                                                 shouldDeriveEth: false)) {[unowned self] result in
             switch result {
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .scan)
