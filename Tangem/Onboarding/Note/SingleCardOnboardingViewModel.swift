@@ -207,6 +207,10 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     private func stepUpdate() {
         switch currentStep {
         case .topup:
+            if let walletModel = self.cardModel?.walletModels?.first {
+                updateCardBalanceText(for: walletModel)
+            }
+            
             if walletCreatedWhileOnboarding {
                 return
             }
@@ -214,6 +218,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             withAnimation {
                 isBalanceRefresherVisible = true
             }
+            
             updateCardBalance()
         case .successTopup:
             withAnimation {
