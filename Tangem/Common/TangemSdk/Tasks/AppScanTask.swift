@@ -70,13 +70,13 @@ final class AppScanTask: CardSessionRunnable {
     private var primaryCard: PrimaryCard? = nil
     private var derivedKeys: [Data: [ExtendedPublicKey]] = [:]
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
-    private var shouldDeriveEth: Bool = false
+    private var shouldDeriveWC: Bool = false
     
-    init(tokenItemsRepository: TokenItemsRepository?, userPrefsService: UserPrefsService?, targetBatch: String? = nil, shouldDeriveEth: Bool ) {
+    init(tokenItemsRepository: TokenItemsRepository?, userPrefsService: UserPrefsService?, targetBatch: String? = nil, shouldDeriveWC: Bool ) {
         self.tokenItemsRepository = tokenItemsRepository
         self.targetBatch = targetBatch
         self.userPrefsService = userPrefsService
-        self.shouldDeriveEth = true
+        self.shouldDeriveWC = shouldDeriveWC
     }
     
     /// read ->  readTwinData or note Data or derive wallet's keys -> appendWallets(createwallets+ scan)  -> attestation
@@ -243,10 +243,10 @@ final class AppScanTask: CardSessionRunnable {
               }
         
         var tokenItems = Set(tokenItemsRepository.getItems(for: session.environment.card!.cardId).map { $0.blockchain })
-        if shouldDeriveEth {
-            let eth = Blockchain.ethereum(testnet: false)  //WC
-            if !tokenItems.contains(eth) {
-                tokenItems.insert(eth)
+        if shouldDeriveWC {
+            let wcBlockchains: Set<Blockchain> = [.ethereum(testnet: false), .binance(testnet: false), .ethereum(testnet: true), .binance(testnet: true) ]
+            for wcBlockchain in wcBlockchains {
+                tokenItems.insert(wcBlockchain)
             }
         }
         
