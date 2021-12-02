@@ -64,10 +64,9 @@ final class AppScanTask: CardSessionRunnable {
     private let targetBatch: String?
     private var twinIssuerData: Data? = nil
     private var noteWalletData: WalletData? = nil
-    private var rawPrimaryCard: RawPrimaryCard? = nil
-
+    private var primaryCard: PrimaryCard? = nil
     private var derivedKeys: [Data: [ExtendedPublicKey]] = [:]
-
+    private var linkingCommand: StartPrimaryCardLinkingTask? = nil
     
     init(tokenItemsRepository: TokenItemsRepository?, userPrefsService: UserPrefsService?, targetBatch: String? = nil) {
         self.tokenItemsRepository = tokenItemsRepository
@@ -116,7 +115,6 @@ final class AppScanTask: CardSessionRunnable {
             }
             
         }
-        
         
         runAttestation(session, completion)
     }
@@ -219,10 +217,11 @@ final class AppScanTask: CardSessionRunnable {
     }
     
     private func readPrimaryCard(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        StartPrimaryCardLinkingCommand().run(in: session) { result in
+        linkingCommand = StartPrimaryCardLinkingTask()
+        linkingCommand!.run(in: session) { result in
             switch result {
             case .success(let primaryCard):
-                self.rawPrimaryCard = primaryCard
+                self.primaryCard = primaryCard
                 self.deriveKeysIfNeeded(session, completion)
             case .failure: //ignore any error
                 self.deriveKeysIfNeeded(session, completion)
@@ -274,12 +273,6 @@ final class AppScanTask: CardSessionRunnable {
         let card = session.environment.card!
         let isNote = noteWalletData != nil
         let isWallet = card.firmwareVersion.doubleValue >= 4.39 && !isNote
-        
-        var primaryCard: PrimaryCard? = nil
-        if let signature = session.environment.card?.issuerSignature,
-           let rawCard = rawPrimaryCard {
-            primaryCard = PrimaryCard(rawCard, issuerSignature: signature)
-        }
         
         completion(.success(AppScanTaskResponse(card: session.environment.card!,
                                                 walletData: noteWalletData ?? session.environment.walletData,
