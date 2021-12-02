@@ -121,23 +121,20 @@ extension CardImageLoaderService {
         case byBatch(String)
         case byNdefLink(URL)
         
-        private var baseURL: URL {
-            URL(string: "https://raw.githubusercontent.com/tangem/ndef-registry/main")!
+        var baseUrl: String {
+           return "https://raw.githubusercontent.com/tangem/ndef-registry/main/"
         }
         
-        private var imageSuffix: String { "card.png" }
-        
-        var url: URL {
+        var path: String {
             switch self {
             case .byBatch(let batch):
-                let url = baseURL.appendingPathComponent(batch)
-                    .appendingPathComponent(imageSuffix)
-                return url
+                return "\(batch)/\(imageSuffix)"
             case .byNdefLink(let link):
-                let url = link.appendingPathComponent(imageSuffix)
-                return url
+                return "\(link)/\(imageSuffix)"
             }
         }
+        
+        var queryItems: [URLQueryItem]? { return nil}
         
         var method: String {
             switch self {
@@ -146,12 +143,10 @@ extension CardImageLoaderService {
             }
         }
         
-        var body: Data? {
-            nil
-        }
+        var body: Data? { nil }
         
         var headers: [String : String] {
-            ["application/json" : "Content-Type"]
+           ["Content-Type" : "application/json"]
         }
         
         var configuration: URLSessionConfiguration? {
@@ -160,6 +155,8 @@ extension CardImageLoaderService {
             configuration.timeoutIntervalForResource = 30
             return configuration
         }
+        
+        private var imageSuffix: String { "card.png" }
     }
 }
 
