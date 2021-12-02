@@ -593,7 +593,7 @@ Amount to pay: %@";
 "onboarding_button_create_wallet" = "Create wallet";
 "onboarding_button_how_it_works" = "How it works?";
 "onboarding_create_title" = "Create wallet";
-"onboarding_create_subtitle" = "Let’s generate all the keys on your card and create a secure wallet";
+"onboarding_create_subtitle" = "Let’s generate all the keys on your card and create a secure wallet.";
 
 "onboarding_button_buy_crypto" = "Buy crypto";
 "onboarding_button_receive_crypto" = "Receive crypto";
@@ -626,7 +626,7 @@ Amount to pay: %@";
 "onboarding_button_get_backup_card" = "Get a backup card";
 "onboarding_button_skip_backup" = "Skip for later";
 "onboarding_button_finalize_backup" = "Finalize the backup process";
-"onboarding_button_add_backup_card" = "Add backup card";
+"onboarding_button_add_backup_card" = "Add a backup card";
 "onboarding_button_backup_card %lld" = "Scan the card #%lld";
 "onboarding_button_scan_origin_card" = "Scan primary card";
 "onboarding_button_buy_more_cards" = "Buy more cards";
@@ -638,12 +638,12 @@ Amount to pay: %@";
 "onboarding_title_two_backup_cards" = "Two backup cards added";
 "onboarding_title_backup_card %lld" = "Backup card #%lld";
 
-"onboarding_subtitle_backup_card" = "You can backup your keys up to two other blank wallet cards";
-"onboarding_subtitle_no_backup_cards" = "To start the backup process add up to two backup cards";
+"onboarding_subtitle_backup_card" = "You can backup your keys up to two other blank wallet cards.";
+"onboarding_subtitle_no_backup_cards" = "To start the backup process add up to two backup cards.";
 "onboarding_subtitle_scan_origin_card %@" = "Prepare the primary card with number %@";
-"onboarding_subtitle_one_backup_card" = "You can add one more card or finalize the backup process";
-"onboarding_subtitle_two_backup_cards" = "Max number of cards added. Finalize the backup process";
-"onboarding_subtitle_backup_warning" = "If the process of backup gets interrupted in any way you’ll have to start over";
+"onboarding_subtitle_one_backup_card" = "You can add one more card or finalize the backup process.";
+"onboarding_subtitle_two_backup_cards" = "Max number of cards added. Finalize the backup process.";
+"onboarding_subtitle_backup_warning" = "If the process of backup gets interrupted in any way you’ll have to start over.";
 
 "onboarding_alert_message_not_max_backup_cards_added" = "You’ve added one backup card. When backup process is finished you can’t add more backup cards. If you have one more card, add it in backup, otherwise you can buy it in shop. Do you like to continue backup process?";
 
