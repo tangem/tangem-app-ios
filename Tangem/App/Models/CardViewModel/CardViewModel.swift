@@ -528,7 +528,7 @@ class CardViewModel: Identifiable, ObservableObject {
                     }
                 }
                 if !itemsToAdd.isEmpty {
-                    state = .loaded(walletModel: existingWalletModels + itemsToAdd)
+                    state = .loaded(walletModel: (existingWalletModels + itemsToAdd).sorted{ $0.wallet.blockchain.displayName < $1.wallet.blockchain.displayName})
                 }
             }
         }
