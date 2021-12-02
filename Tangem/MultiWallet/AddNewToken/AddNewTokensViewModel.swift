@@ -16,8 +16,8 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
     
-    @Published var searchText = ""
     @Published var enteredSearchText = ""
+    @Published var searchText = ""
     @Published var isLoading: Bool = false
     @Published var error: AlertBinder?
     @Published var pendingTokenItems: [TokenItem] = []
@@ -35,13 +35,15 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
             return true
         }
         
-        guard let wallets = cardModel.wallets else { return false }
-        
-        if let token = tokenItem.token {
-            return wallets.contains(where: { $0.amounts.contains(where: { $0.key.token == token })})
-        } else {
-            return wallets.contains(where: { $0.blockchain == tokenItem.blockchain })
+        if let walletManager = cardModel.walletModels?.first(where: { $0.wallet.blockchain == tokenItem.blockchain })?.walletManager {
+            if let token = tokenItem.token {
+                return walletManager.cardTokens.contains(token)
+            } else {
+                return true
+            }
         }
+        
+        return false
     }
     
     func onItemTap(_ sectionId: String, _ tokenItem: TokenItem) -> Void {
@@ -87,6 +89,7 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
         DispatchQueue.main.async {
             self.pendingTokenItems = []
             self.data = []
+            self.enteredSearchText = ""
             self.searchText = ""
         }
     }
