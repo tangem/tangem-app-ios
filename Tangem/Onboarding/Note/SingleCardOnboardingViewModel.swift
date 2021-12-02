@@ -75,6 +75,12 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         } else {
             fatalError("Wrong onboarding steps passed to initializer")
         }
+        
+        if steps.first == .topup && currentStep == .topup {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                self.updateCardBalance()
+            }
+        }
     }
         
     // MARK: Functions
@@ -180,16 +186,16 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
                 let blockchains = SupportedTokenItems().predefinedBlockchains
                 let tokenItems = blockchains.map { TokenItem.blockchain($0) }
                 self?.tokensRepo.append(tokenItems, for: cardInfo.card.cardId)
-                self?.cardModel?.updateState()
-            } else {
-                self?.updateCardBalance()
             }
             
-            self?.walletCreatedWhileOnboarding = true
             if cardInfo.isTangemNote {
                 self?.userPrefsService?.cardsStartedActivation.append(cardInfo.card.cardId)
             }
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            
+            self?.cardModel?.updateState()
+            self?.walletCreatedWhileOnboarding = true
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self?.isMainButtonBusy = false
                 self?.goToNextStep()
             }
@@ -236,14 +242,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
                 }
                 .store(in: &self.bag)
 
-        }
-    }
-    
-    func onAppear() {
-        if steps.first == .topup && currentStep == .topup {
-            DispatchQueue.main.async {
-                self.updateCardBalance()
-            }
         }
     }
 }
