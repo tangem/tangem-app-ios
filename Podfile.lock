@@ -211,7 +211,7 @@ DEPENDENCIES:
   - stellar-ios-mac-sdk
   - SwiftCBOR
   - SwiftyJSON
-  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `backup-beta-24`)
+  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `backup-beta-26`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.4.0`)
   - web3swift (from `https://github.com/lazutkin-andrey/web3swift.git`, tag `2.2.6`)
 
@@ -267,7 +267,7 @@ EXTERNAL SOURCES:
     :git: https://github.com/onevcat/Kingfisher.git
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: backup-beta-24
+    :tag: backup-beta-26
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.4.0
@@ -293,7 +293,7 @@ CHECKOUT OPTIONS:
     :git: https://github.com/onevcat/Kingfisher.git
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: backup-beta-24
+    :tag: backup-beta-26
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.4.0
@@ -342,6 +342,6 @@ SPEC CHECKSUMS:
   web3swift: 21ab60f3c80aea2366ebf016f377e5cb654909bf
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 370848d92d73e74fcaf662e1e0a9b77643627a33
+PODFILE CHECKSUM: 8d9e6d8e24846fbc98c9f1986661f914b9c44823
 
 COCOAPODS: 1.11.2
