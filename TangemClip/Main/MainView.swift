@@ -63,9 +63,10 @@ struct MainView: View {
                 }
                 .frame(width: geometry.size.width)
             }
-            .appStoreOverlay(isPresented: .constant(true)) { () -> SKOverlay.Configuration in
+            .appStoreOverlay(isPresented: $viewModel.shouldShowGetFullApp) { () -> SKOverlay.Configuration in
                 SKOverlay.AppClipConfiguration(position: .bottom)
             }
+            .onAppear(perform: viewModel.onAppear)
             
 //            if viewModel.state == .notScannedYet {
 //                TangemButton(title: "main_button_read_wallets",
