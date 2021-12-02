@@ -84,5 +84,4 @@ class RateAppService: RateAppChecker, RateAppController {
         userPrefsService.positiveBalanceAppearanceDate = Date()
         userPrefsService.positiveBalanceAppearanceLaunch = userPrefsService.numberOfLaunches
     }
-    
 }
