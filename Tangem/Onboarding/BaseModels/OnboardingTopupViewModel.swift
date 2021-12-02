@@ -8,13 +8,14 @@
 
 import SwiftUI
 import Combine
+import BlockchainSdk
 
 class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> {
     unowned var exchangeService: ExchangeService
     
     @Published var isAddressQrBottomSheetPresented: Bool = false
     @Published var refreshButtonState: OnboardingCircleButton.State = .refreshButton
-    @Published var cardBalance: String = "0.00"
+    @Published var cardBalance: String = ""
     @Published var isBalanceRefresherVisible: Bool = false
     
     var previewUpdates: Int = 0
@@ -113,7 +114,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
         }
         
         if model.wallet.amounts.isEmpty {
-            cardBalance = "0.00 " + model.wallet.blockchain.currencySymbol
+            cardBalance = Amount(with: model.wallet.blockchain, type: .coin, value: 0).string(with: 8)
         } else {
             cardBalance = model.getBalance(for: .coin)
         }
