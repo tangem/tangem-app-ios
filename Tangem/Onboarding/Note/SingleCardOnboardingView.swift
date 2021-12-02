@@ -12,7 +12,7 @@ struct SingleCardOnboardingView: View {
     
     @EnvironmentObject var navigation: NavigationCoordinator
     @ObservedObject var viewModel: SingleCardOnboardingViewModel
-
+    
     private let horizontalPadding: CGFloat = 16
     private let screenSize: CGSize = UIScreen.main.bounds.size
     
@@ -31,9 +31,12 @@ struct SingleCardOnboardingView: View {
                                                          title: "wallet_button_topup",
                                                          addLoadingIndicator: true,
                                                          urlActions: [ viewModel.buyCryptoCloseUrl : { _ in
-                                                            navigation.onboardingToBuyCrypto = false
-                                                         }
-                                                         ]),
+                navigation.onboardingToBuyCrypto = false
+                DispatchQueue.main.async {
+                    self.viewModel.updateCardBalance()
+                }
+            }
+                                                                     ]),
                            isActive: $navigation.onboardingToBuyCrypto)
             
             NavigationLink(destination: EmptyView(), isActive: .constant(false))
@@ -56,13 +59,13 @@ struct SingleCardOnboardingView: View {
                         NavigationBar(title: "onboarding_navbar_activating_card",
                                       settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear),
                                       leftButtons: {
-                                        BackButton(height: viewModel.navbarSize.height,
-                                                   isVisible: viewModel.isBackButtonVisible,
-                                                   isEnabled: viewModel.isBackButtonEnabled,
-                                                   hPadding: horizontalPadding) {
-                                            viewModel.reset()
-                                        }
-                                      })
+                            BackButton(height: viewModel.navbarSize.height,
+                                       isVisible: viewModel.isBackButtonVisible,
+                                       isEnabled: viewModel.isBackButtonEnabled,
+                                       hPadding: horizontalPadding) {
+                                viewModel.reset()
+                            }
+                        })
                             .frame(size: viewModel.navbarSize)
                             .offset(x: 0, y: -size.height / 2 + (isTopItemsVisible ? viewModel.navbarSize.height / 2 : 0))
                             .opacity(isTopItemsVisible ? 1.0 : 0.0)
@@ -125,19 +128,18 @@ struct SingleCardOnboardingView: View {
                 .padding(.horizontal, 40)
             }
             BottomSheetView(isPresented: viewModel.$isAddressQrBottomSheetPresented,
-                                     hideBottomSheetCallback: {
-                                        viewModel.isAddressQrBottomSheetPresented = false
-                                     }, content: {
-                                        AddressQrBottomSheetContent(shareAddress: viewModel.shareAddress,
-                                                                    address: viewModel.walletAddress,
-                                                                    qrNotice: viewModel.qrNoticeMessage)
-                                     })
+                            hideBottomSheetCallback: {
+                viewModel.isAddressQrBottomSheetPresented = false
+            }, content: {
+                AddressQrBottomSheetContent(shareAddress: viewModel.shareAddress,
+                                            address: viewModel.walletAddress,
+                                            qrNotice: viewModel.qrNoticeMessage)
+            })
                 .frame(maxWidth: screenSize.width)
         }
         .alert(item: $viewModel.alert, content: { $0.alert })
         .onAppear(perform: {
             viewModel.playInitialAnim()
-            viewModel.onAppear()
         })
     }
 }
@@ -147,7 +149,7 @@ struct OnboardingView_Previews: PreviewProvider {
     static var assembly: Assembly = {
         let assembly = Assembly.previewAssembly
         let previewModel = assembly.previewCardViewModel
-//        assembly.makeOnboardingViewModel(with: assembly.previewNoteCardOnboardingInput)
+        //        assembly.makeOnboardingViewModel(with: assembly.previewNoteCardOnboardingInput)
         return assembly
     }()
     
@@ -157,8 +159,8 @@ struct OnboardingView_Previews: PreviewProvider {
                 .environmentObject(assembly)
                 .environmentObject(assembly.services.navigationCoordinator)
         }
-//        .previewGroup(devices: [.iPhoneX], withZoomed: false)
-//        .previewGroup()
+        //        .previewGroup(devices: [.iPhoneX], withZoomed: false)
+        //        .previewGroup()
     }
 }
 
