@@ -33,7 +33,7 @@ class WalletConnectCardScanner {
             Future { [weak self] promise in
                 guard let self = self else { return }
                 
-                self.tangemSdk.startSession(with: AppScanTask(tokenItemsRepository: self.tokenItemsRepository, userPrefsService: nil), initialMessage: Message(header: "wallet_connect_scan_card_message".localized)) {[weak self] result in
+                self.tangemSdk.startSession(with: AppScanTask(tokenItemsRepository: self.tokenItemsRepository, userPrefsService: nil, shouldDeriveEth: true), initialMessage: Message(header: "wallet_connect_scan_card_message".localized)) {[weak self] result in
                     guard let self = self else { return }
                     
                     switch result {
