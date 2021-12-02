@@ -520,7 +520,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             Future { [weak self] promise in
                 guard let self = self else { return }
                 
-                self.tangemSdk.startSession(with: PreparePrimaryCardTask(), cardId: cardId, completion: {[weak self] result in
+                self.tangemSdk.startSession(with: PreparePrimaryCardTask(),
+                                            cardId: cardId,
+                                            initialMessage: Message(header: nil,
+                                                                    body: "initial_message_create_wallet_body".localized)) {[weak self] result in
                     switch result {
                     case .success(let result):
                         self?.addTokens(for:cardId )
@@ -535,7 +538,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                     case .failure(let error):
                         promise(.failure(error))
                     }
-                })
+                }
             }
         }
         .eraseToAnyPublisher()
