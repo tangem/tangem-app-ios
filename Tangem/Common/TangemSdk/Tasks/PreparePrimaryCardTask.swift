@@ -11,6 +11,7 @@ import BlockchainSdk
 
 class PreparePrimaryCardTask: CardSessionRunnable {
     private var derivingCommand: DeriveWalletPublicKeysTask? = nil
+    private var linkingCommand: StartPrimaryCardLinkingTask? = nil
     
     func run(in session: CardSession, completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
         guard let card = session.environment.card else {
@@ -35,10 +36,11 @@ class PreparePrimaryCardTask: CardSessionRunnable {
     }
     
     private func readPrimaryCard(in session: CardSession, completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
-        StartPrimaryCardLinkingCommand().run(in: session) { result in
+        linkingCommand = StartPrimaryCardLinkingTask()
+        linkingCommand!.run(in: session) { result in
             switch result {
-            case .success(let primaryCard):
-                self.deriveKeys(primaryCard, in: session, completion: completion)
+            case .success(let card):
+                self.deriveKeys(card, in: session, completion: completion)
             case .failure(let error):
                 completion(.failure(error))
             }
