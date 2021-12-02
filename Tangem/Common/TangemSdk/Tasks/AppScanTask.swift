@@ -8,6 +8,9 @@
 
 import Foundation
 import TangemSdk
+#if !CLIP
+import BlockchainSdk
+#endif
 
 struct AppScanTaskResponse {
     let card: Card
@@ -67,11 +70,13 @@ final class AppScanTask: CardSessionRunnable {
     private var primaryCard: PrimaryCard? = nil
     private var derivedKeys: [Data: [ExtendedPublicKey]] = [:]
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
+    private var shouldDeriveWC: Bool = false
     
-    init(tokenItemsRepository: TokenItemsRepository?, userPrefsService: UserPrefsService?, targetBatch: String? = nil) {
+    init(tokenItemsRepository: TokenItemsRepository?, userPrefsService: UserPrefsService?, targetBatch: String? = nil, shouldDeriveWC: Bool ) {
         self.tokenItemsRepository = tokenItemsRepository
         self.targetBatch = targetBatch
         self.userPrefsService = userPrefsService
+        self.shouldDeriveWC = shouldDeriveWC
     }
     
     /// read ->  readTwinData or note Data or derive wallet's keys -> appendWallets(createwallets+ scan)  -> attestation
@@ -237,7 +242,15 @@ final class AppScanTask: CardSessionRunnable {
                   return
               }
         
-        let derivationPaths = Set(tokenItemsRepository.getItems(for: session.environment.card!.cardId).map { $0.blockchain })
+        var tokenItems = Set(tokenItemsRepository.getItems(for: session.environment.card!.cardId).map { $0.blockchain })
+        if shouldDeriveWC {
+            let wcBlockchains: Set<Blockchain> = [.ethereum(testnet: false), .binance(testnet: false), .ethereum(testnet: true), .binance(testnet: true) ]
+            for wcBlockchain in wcBlockchains {
+                tokenItems.insert(wcBlockchain)
+            }
+        }
+        
+        let derivationPaths = tokenItems
             .filter { $0.curve == .secp256k1 }
             .compactMap { $0.derivationPath }
         
