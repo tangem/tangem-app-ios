@@ -72,31 +72,49 @@ class WalletConnectCardScanner {
             wallets.first(where: { $0.blockchain == blockchain })
         }
         
-        var wallet: Wallet
+        var wallet: Wallet? = nil
         
-        if cardsRepository.lastScanResult.cardModel?.cardInfo.card.cardId == cardInfo.card.cardId {
-            let model = cardsRepository.lastScanResult.cardModel!
-            if let targetWallet = findWallet(in: model.wallets ?? []) {
+        if let existingCardModel = cardsRepository.lastScanResult.cardModel,
+           existingCardModel.cardInfo.card.cardId == cardInfo.card.cardId {
+            if let targetWallet = findWallet(in: existingCardModel.wallets ?? []) {
                 wallet = targetWallet
             } else {
-                model.addBlockchain(blockchain)
-                wallet = model.wallets!.first(where: { $0.blockchain == blockchain })!
+                let newDerivations = cardInfo.derivedKeys
+                if !newDerivations.isEmpty {
+                    for newDerivation in newDerivations {
+                        if let existingDerivations = existingCardModel.cardInfo.derivedKeys[newDerivation.key] {
+                            let uniqueDerivations = Set(newDerivation.value + existingDerivations)
+                            existingCardModel.cardInfo.derivedKeys.updateValue(Array(uniqueDerivations), forKey: newDerivation.key)
+                        } else {
+                            existingCardModel.cardInfo.derivedKeys.updateValue(newDerivation.value, forKey: newDerivation.key)
+                        }
+                    }
+                }
+                
+                existingCardModel.addBlockchain(blockchain)
+                wallet = existingCardModel.wallets?.first(where: { $0.blockchain == blockchain })
             }
-            
         } else {
-            
             if let targetWallet = findWallet(in: assembly.makeAllWalletModels(from: cardInfo).map { $0.wallet }) {
                 wallet = targetWallet
             } else {
                 tokenItemsRepository.append(.blockchain(blockchain), for: cardInfo.card.cardId)
-                wallet = assembly.makeWalletModels(from: cardInfo, blockchains: [blockchain]).first!.wallet
+                wallet = assembly.makeWalletModels(from: cardInfo, blockchains: [blockchain]).first?.wallet
             }
+        }
+        
+        guard let wallet = wallet else {
+            throw WalletConnectCardScannerError.notValidCard
         }
         
         scannedCardsRepository.add(cardInfo)
         
+        let derivedKey = wallet.publicKey.blockchainKey != wallet.publicKey.seedKey ? wallet.publicKey.blockchainKey : nil
+        
         return WalletInfo(cid: cardInfo.card.cardId,
-                          walletPublicKey: wallet.publicKey,
+                          walletPublicKey: wallet.publicKey.seedKey,
+                          derivedPublicKey: derivedKey,
+                          derivationPath: wallet.publicKey.derivationPath,
                           blockchain: blockchain,
                           chainId: chainId)
     }
