@@ -61,14 +61,19 @@ struct QRScannerView: UIViewRepresentable {
         }
         
         func qrScanningDidFail() {
-            presentationMode.dismiss()
+            DispatchQueue.main.async {
+                self.presentationMode.dismiss()
+            }
         }
         
         func qrScanningSucceededWithCode(_ str: String?) {
             if let str = str {
                 self.code = str
             }
-            presentationMode.dismiss()
+            
+            DispatchQueue.main.async {
+                self.presentationMode.dismiss()
+            }
         }
         
         func qrScanningDidStop() {
