@@ -13,17 +13,22 @@ import TangemSdk
 
 struct WalletInfo: Codable, Hashable {
     let cid: String
-    let walletPublicKey: Wallet.PublicKey
+    let walletPublicKey: Data
+    let derivedPublicKey: Data?
+    let derivationPath: DerivationPath?
     let blockchain: Blockchain
     let chainId: Int?
     
     var address: String {
-        blockchain.makeAddresses(from: walletPublicKey.blockchainKey, with: nil).first!.value
+        let blockchainKey = derivedPublicKey ?? walletPublicKey
+        return blockchain.makeAddresses(from: blockchainKey, with: nil).first!.value
     }
     
-    internal init(cid: String, walletPublicKey: Wallet.PublicKey, blockchain: Blockchain, chainId: Int?) {
+    internal init(cid: String, walletPublicKey: Data, derivedPublicKey: Data?, derivationPath: DerivationPath?, blockchain: Blockchain, chainId: Int?) {
         self.cid = cid
         self.walletPublicKey = walletPublicKey
+        self.derivedPublicKey = derivedPublicKey
+        self.derivationPath = derivationPath
         self.blockchain = blockchain
         self.chainId = chainId
     }
