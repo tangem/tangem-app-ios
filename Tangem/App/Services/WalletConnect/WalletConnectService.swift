@@ -376,7 +376,7 @@ extension WalletConnectService: URLHandler {
             var query = components.query
         else { return nil }
         
-        guard (absoluteStr.starts(with: Constants.tangemDomain) && query.starts(with: uriPrefix + wcPrefix)) ||
+        guard query.starts(with: uriPrefix + wcPrefix) ||
                 ((Bundle.main.infoDictionary?["CFBundleURLTypes"] as? [[String:Any]])?.map { $0["CFBundleURLSchemes"] as? [String] }.contains(where: { $0?.contains(scheme) ?? false }) ?? false)
         else { return nil }
         
