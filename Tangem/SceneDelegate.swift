@@ -118,7 +118,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 extension SceneDelegate: URLHandler {
     func handle(url: String) -> Bool {
-        guard url.starts(with: "https://app.tangem.com") || url.starts(with: Constants.tangemDomain + "/ndef") else { return false }
+        guard url.starts(with: "https://app.tangem.com")
+                || url.starts(with: Constants.tangemDomain + "/ndef")
+                || url.starts(with: Constants.tangemDomain + "/wc") else { return false }
         
         assembly.services.navigationCoordinator.popToRoot()
         return true
