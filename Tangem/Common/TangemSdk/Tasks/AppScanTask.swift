@@ -244,7 +244,9 @@ final class AppScanTask: CardSessionRunnable {
         
         var tokenItems = Set(tokenItemsRepository.getItems(for: session.environment.card!.cardId).map { $0.blockchain })
         if shouldDeriveWC {
-            let wcBlockchains: Set<Blockchain> = [.ethereum(testnet: false), .binance(testnet: false), .ethereum(testnet: true), .binance(testnet: true) ]
+            let wcBlockchains: Set<Blockchain> = [.ethereum(testnet: false),
+                                                  .binance(testnet: false),
+                                                  .ethereum(testnet: true)]
             for wcBlockchain in wcBlockchains {
                 tokenItems.insert(wcBlockchain)
             }
