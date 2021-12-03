@@ -322,7 +322,11 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         case .scanPrimaryCard:
             readPrimaryCard()
         case .backupIntro:
-            goToNextStep()
+            if NFCUtils.isPoorNfcQualityDevice {
+                showOldDeviceAlert()
+            } else {
+                goToNextStep()
+            }
         case .selectBackupCards:
             addBackupCard()
         case .backupCards:
@@ -687,6 +691,13 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         let blockchains = SupportedTokenItems().predefinedBlockchains
         let tokenItems = blockchains.map { TokenItem.blockchain($0) }
         self.tokensRepo.append(tokenItems, for: cardId)
+    }
+    
+    private func showOldDeviceAlert() {
+        let controller = UIAlertController(title: "common_warning".localized,
+                                           message: "onboarding_alert_message_old_device".localized, preferredStyle: .alert)
+        controller.addAction(UIAlertAction(title: "common_ok".localized, style: .default, handler: nil))
+        UIApplication.topViewController?.present(controller, animated: true, completion: nil)
     }
 }
 
