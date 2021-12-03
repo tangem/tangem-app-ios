@@ -82,7 +82,7 @@ struct DetailsView: View {
                     }, label: {
                         Text("details_row_title_twins_recreate")
                             .font(.system(size: 16, weight: .regular, design: .default))
-                            .foregroundColor(.tangemGrayDark6)
+                            .foregroundColor(viewModel.cardModel.canRecreateTwinCard ? .tangemGrayDark6 : .tangemGrayDark)
                     })
                         .sheet(isPresented: $navigation.detailsToTwinsRecreateWarning, content: {
                             OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
