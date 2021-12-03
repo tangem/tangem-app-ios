@@ -3,8 +3,8 @@ platform :ios, '13.0'
 project 'TangemApp.xcodeproj'
 
 def common_pods
-   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'backup-beta-27'
-   #pod 'TangemSdk', :path => '../tangem-sdk-ios'
+   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'backup-beta-28'
+  #pod 'TangemSdk', :path => '../tangem-sdk-ios'
    pod 'KeychainSwift', '~> 19.0'
 end
 
