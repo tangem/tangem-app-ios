@@ -33,7 +33,7 @@ extension AccountService {
                 }
                 
                 let balance = resp.balances.filter { $0.assetCode == token.symbol && $0.assetIssuer == token.contractAddress }
-                return StellarTargetAccountResponse(accountCreated: true, trustlineCreated: balance.count > 0 )
+                return StellarTargetAccountResponse(accountCreated: true, trustlineCreated: !balance.isEmpty )
             }
             .tryCatch { error -> AnyPublisher<StellarTargetAccountResponse, Error> in
                 guard
