@@ -66,7 +66,7 @@ class ServiceHelper: NSObject {
     
     init(baseURL: String) {
         if let url = URL(string: baseURL), let components = URLComponents(url: url, resolvingAgainstBaseURL: false), let queryItems = components.queryItems {
-            self.baseUrlQueryItems = queryItems.count > 0 ? queryItems : nil
+            self.baseUrlQueryItems = queryItems.isEmpty ? nil : queryItems
             var bComponents = components
             bComponents.query = nil
             if let bUrl = bComponents.url {
