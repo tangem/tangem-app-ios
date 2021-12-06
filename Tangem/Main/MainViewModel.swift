@@ -249,12 +249,11 @@ class MainViewModel: ViewModel, ObservableObject {
             .compactMap { $0.cardModel }
             .flatMap { $0.$state }
             .compactMap { $0.walletModels }
-            .flatMap { Publishers.MergeMany($0.map { $0.objectWillChange.debounce(for: 0.3, scheduler: DispatchQueue.main) }) }
+            .flatMap { Publishers.MergeMany($0.map { $0.objectWillChange.debounce(for: 0.3, scheduler: DispatchQueue.main) }).collect($0.count) }
             .receive(on: RunLoop.main)
             .sink { [unowned self] _ in
                 print("⚠️ Wallet model will change")
                 self.objectWillChange.send()
-                self.checkPositiveBalance()
             }
             .store(in: &bag)
     
@@ -264,16 +263,7 @@ class MainViewModel: ViewModel, ObservableObject {
             .flatMap { $0.imageLoaderPublisher }
             .weakAssignAnimated(to: \.image, on: self)
             .store(in: &bag)
-        
-//        $state
-//            .compactMap { $0.cardModel }
-//            .receive(on: RunLoop.main)
-//            .sink { [unowned self] model in
-//                print("⚠️ Card model updated")
-//                assembly.services.warningsService.setupWarnings(for: model.cardInfo)
-//            }
-//            .store(in: &bag)
-        
+
         warningsManager.warningsUpdatePublisher
             .sink { [unowned self] (locationUpdate) in
                 if case .main = locationUpdate {
@@ -291,6 +281,7 @@ class MainViewModel: ViewModel, ObservableObject {
             .delay(for: 1, scheduler: DispatchQueue.global())
             .receive(on: RunLoop.main)
             .sink {[unowned self] _ in
+                self.checkPositiveBalance()
                 print("♻️ Wallet model loading state changed")
                 withAnimation {
                     self.isRefreshing = false
