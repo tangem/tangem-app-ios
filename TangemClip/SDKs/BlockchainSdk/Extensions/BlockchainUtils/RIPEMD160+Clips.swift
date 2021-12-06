@@ -314,7 +314,7 @@ struct RIPEMD160 {
             var X = [UInt32](repeating: 0, count: 16)
             
             // Process remaining bytes from last call:
-            if buffer.count > 0 && buffer.count + length >= 64 {
+            if !buffer.isEmpty && buffer.count + length >= 64 {
                 let amount = 64 - buffer.count
                 buffer.append(ptr, count: amount)
                 buffer.withUnsafeBytes { _ = memcpy(&X, $0, 64) }
