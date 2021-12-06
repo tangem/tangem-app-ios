@@ -1,22 +1,22 @@
 # Uncomment the next line to define a global platform for your project
 platform :ios, '13.0'
-project 'Tangem Tap.xcodeproj'
+project 'TangemApp.xcodeproj'
 
 def common_pods
-   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'backup-beta-13'
-   #pod 'TangemSdk', :path => '../tangem-sdk-ios'
+   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'backup-beta-29'
+  #pod 'TangemSdk', :path => '../tangem-sdk-ios'
    pod 'KeychainSwift', '~> 19.0'
 end
 
 
-target 'Tangem Tap' do
+target 'Tangem' do
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
   inhibit_all_warnings!
 
   common_pods
   
-  # Pods for Tangem Tap
+  # Pods for Tangem
   pod 'AnyCodable-FlightSchool'
   
   pod 'BinanceChain', :git => 'https://github.com/lazutkin-andrey/swiftbinancechain.git', :tag => '0.0.8'
@@ -25,7 +25,7 @@ target 'Tangem Tap' do
   pod 'HDWalletKit', :git => 'https://github.com/lazutkin-andrey/hdwallet.git', :tag => '0.3.12'
   #pod 'HDWalletKit', :path => '../HDWallet'
   
-  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'develop-51'
+  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'develop-61'
   #pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
   
   pod 'web3swift', :git => 'https://github.com/lazutkin-andrey/web3swift.git', :tag => '2.2.6'
@@ -41,14 +41,14 @@ target 'Tangem Tap' do
   pod 'Firebase/Analytics'
 	pod 'Firebase/RemoteConfig'
   pod 'DeviceGuru'
-  pod 'Kingfisher'
-  pod 'stellar-ios-mac-sdk', '2.0.0' #tmp
-  target 'Tangem TapTests' do
+  pod 'Kingfisher', :git => 'https://github.com/onevcat/Kingfisher.git', :branch => 'version6-xcode13'
+  pod 'stellar-ios-mac-sdk'
+  target 'TangemTests' do
     inherit! :search_paths
     # Pods for testing
   end
 
-  target 'Tangem TapUITests' do
+  target 'TangemUITests' do
     # Pods for testing
   end
 
