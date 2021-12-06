@@ -54,7 +54,7 @@ func unwrap(any:Any) -> Any? {
         return any
     }
     
-    if mi.children.count == 0 { return nil }
+    if mi.children.isEmpty { return nil }
     let (_, some) = mi.children.first!
     return some
     
