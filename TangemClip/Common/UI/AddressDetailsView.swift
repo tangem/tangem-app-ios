@@ -39,7 +39,7 @@ struct AddressDetailView: View {
                         .font(Font.system(size: 14.0, weight: .medium, design: .default))
                         .lineLimit(1)
                         .truncationMode(.middle)
-                        .foregroundColor(Color.tangemTapGrayDark)
+                        .foregroundColor(Color.tangemGrayDark)
                     Button(action: {
                         if let url = walletModel.exploreURL(for: selectedAddressIndex) {
                             UIApplication.shared.open(url, options: [:], completionHandler: nil)
@@ -48,29 +48,29 @@ struct AddressDetailView: View {
                         HStack {
                             Text("wallet_address_button_explore")
                                 .font(Font.system(size: 14.0, weight: .bold, design: .default))
-                                .foregroundColor(Color.tangemTapGrayDark6)
+                                .foregroundColor(Color.tangemGrayDark6)
                                 .multilineTextAlignment(.leading)
                                 .lineLimit(1)
                             Image (systemName: "chevron.right")
                                 .font(Font.system(size: 14.0, weight: .bold, design: .default))
-                                .foregroundColor(Color.tangemTapGrayDark6)
+                                .foregroundColor(Color.tangemGrayDark6)
                         }
                     }
                 }
                 Spacer()
                 CircleActionButton(action: {  UIPasteboard.general.string = walletModel.displayAddress(for: selectedAddressIndex) },
-                                   backgroundColor: .tangemTapBgGray,
+                                   backgroundColor: .tangemBgGray,
                                    imageName: "square.on.square",
                                    isSystemImage: true,
-                                   imageColor: .tangemTapGrayDark6,
+                                   imageColor: .tangemGrayDark6,
                                    withVerification: true,
                                    isDisabled: false)
                 
 //                CircleActionButton(action: { self.showQr = true },
-//                                   backgroundColor: .tangemTapBgGray,
+//                                   backgroundColor: .tangemBgGray,
 //                                   imageName: "qrcode",
 //                                   isSystemImage: true,
-//                                   imageColor: .tangemTapGrayDark6,
+//                                   imageColor: .tangemGrayDark6,
 //                                   isDisabled: false)
             }
             .padding(.horizontal, 24.0)
@@ -90,7 +90,7 @@ struct AddressDetailView: View {
 //
 //    static var previews: some View {
 //        ZStack {
-//            Color.tangemTapBgGray
+//            Color.tangemBgGray
 //            AddressDetailView(selectedAddressIndex: $addressIndex,
 //                              walletModel: cardViewModel.walletModels.first!)
 //        }.previewGroup()

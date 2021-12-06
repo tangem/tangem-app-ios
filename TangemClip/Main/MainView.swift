@@ -28,16 +28,19 @@ struct MainView: View {
                             .fixedSize(horizontal: false, vertical: true)
                         switch viewModel.state {
                         case .notScannedYet:
-                            Text("main_hint")
+                            Spacer()
+                            Text("main_warning")
+                                .font(.largeTitle)
                                 .multilineTextAlignment(.center)
                                 .fixedSize(horizontal: false, vertical: true)
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 2)
+                            Spacer()
                         case .card(let cardModel):
                             if viewModel.isCardEmpty {
                                 MessageView(title: "main_error_empty_card_title".localized, subtitle: "main_error_empty_card_subtitle".localized, type: .error)
                             } else {
-                                if cardModel.loadingBalancesCounter == 0 && viewModel.tokenItemViewModels.count == 0 {
+                                if cardModel.loadingBalancesCounter == 0 && viewModel.tokenItemViewModels.isEmpty {
                                     MessageView(title: "main_error_empty_wallets_title".localized, subtitle: "main_error_empty_wallets_subtitle".localized, type: .message)
                                         .animation(.easeInOut)
                                 } else {
@@ -46,7 +49,7 @@ struct MainView: View {
                                             .onTapGesture { }
                                     }
                                     .padding(.horizontal, 16)
-                                    ActivityIndicatorView(isAnimating: cardModel.loadingBalancesCounter != 0, style: .medium, color: .tangemTapGrayDark6)
+                                    ActivityIndicatorView(isAnimating: cardModel.loadingBalancesCounter != 0, style: .medium, color: .tangemGrayDark6)
                                         .padding(.vertical, 10)
                                         .opacity(cardModel.loadingBalancesCounter > 0 ? 1 : 0)
                                         .animation(.easeInOut)
@@ -63,18 +66,19 @@ struct MainView: View {
             .appStoreOverlay(isPresented: $viewModel.shouldShowGetFullApp) { () -> SKOverlay.Configuration in
                 SKOverlay.AppClipConfiguration(position: .bottom)
             }
+            .onAppear(perform: viewModel.onAppear)
             
-            if viewModel.state == .notScannedYet {
-                TangemButton(title: "main_button_read_wallets",
-                             image: "scan",
-                             action: viewModel.scanCard)
-                    .buttonStyle(TangemButtonStyle(colorStyle: .black,
-                                                   layout: .big,
-                                                   isLoading: viewModel.isScanning))
-                .padding(.bottom, 48)
-            }
+//            if viewModel.state == .notScannedYet {
+//                TangemButton(title: "main_button_read_wallets",
+//                             image: "scan",
+//                             action: viewModel.scanCard)
+//                    .buttonStyle(TangemButtonStyle(colorStyle: .black,
+//                                                   layout: .big,
+//                                                   isLoading: viewModel.isScanning))
+//                .padding(.bottom, 48)
+//            }
         }
-        .background(Color.tangemTapBgGray.edgesIgnoringSafeArea(.all))
+        .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
     }
     
     
