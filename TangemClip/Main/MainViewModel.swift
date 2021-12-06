@@ -91,8 +91,14 @@ class MainViewModel: ObservableObject {
     func updateCardBatch(_ batch: String?, fullLink: String) {
         savedBatch = batch
         state = .notScannedYet
-        shouldShowGetFullApp = false
+      //  shouldShowGetFullApp = false
         loadImageByBatch(batch, fullLink: fullLink)
+    }
+    
+    func onAppear() {
+        DispatchQueue.main.async {
+            self.shouldShowGetFullApp = true
+        }
     }
     
     private func loadImageByBatch(_ batch: String?, fullLink: String) {
