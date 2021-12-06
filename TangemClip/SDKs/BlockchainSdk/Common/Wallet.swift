@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import TangemSdk
 
 public struct Wallet {
     public let blockchain: Blockchain
@@ -25,15 +26,15 @@ public struct Wallet {
 	}
     
     public var isEmpty: Bool {
-        return amounts.filter { $0.key != .reserve && !$0.value.isEmpty }.count == 0
+        return amounts.filter { $0.key != .reserve && !$0.value.isEmpty }.isEmpty
     }
 
     public var hasPendingTx: Bool {
-        return transactions.filter { $0.status == .unconfirmed }.count > 0
+        return !transactions.filter { $0.status == .unconfirmed }.isEmpty
     }
     
     public func hasPendingTx(for amountType: Amount.AmountType) -> Bool {
-        return transactions.filter { $0.status == .unconfirmed && $0.amount.type == amountType }.count > 0
+        return !transactions.filter { $0.status == .unconfirmed && $0.amount.type == amountType }.isEmpty
     }
     
     internal init(blockchain: Blockchain, addresses: [Address]) {
@@ -114,5 +115,19 @@ extension Wallet {
     public enum WalletState {
         case created
         case loaded
+    }
+    
+    public struct PublicKey: Codable, Hashable {
+        public let seedKey: Data
+        public let derivationPath: DerivationPath?
+        private let derivedKey: Data?
+        
+        public var blockchainKey: Data { derivedKey ?? seedKey }
+        
+        public init(seedKey: Data, derivedKey: Data?, derivationPath: DerivationPath?) {
+            self.seedKey = seedKey
+            self.derivedKey = derivedKey
+            self.derivationPath = derivationPath
+        }
     }
 }
