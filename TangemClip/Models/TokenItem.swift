@@ -51,7 +51,7 @@
 //                    .resizable()
 //            } else {
 //                CircleImageTextView(name: blockchain.displayName,
-//                                color: Color.tangemTapGrayLight4)
+//                                color: Color.tangemGrayLight4)
 //            }
 //        }
 //    }
