@@ -80,7 +80,7 @@ class BlockcypherNetworkProvider: BitcoinNetworkProvider {
     }
     
     private func getRandomToken() -> String? {
-        guard tokens.count > 0 else { return nil }
+        guard !tokens.isEmpty else { return nil }
         
         let tokenIndex = Int.random(in: 0..<tokens.count)
         return tokens[tokenIndex]
