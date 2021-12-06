@@ -30,7 +30,6 @@ class WalletModel: ObservableObject {
     }
 
     let walletManager: WalletManager
-    let cardWallet: Card.Wallet
 
     private let selectedCurrencyCode = "USD"
 
@@ -42,8 +41,7 @@ class WalletModel: ObservableObject {
         wallet.addresses.map { $0.localizedName }
     }
 
-    init(cardWallet: Card.Wallet, walletManager: WalletManager) {
-        self.cardWallet = cardWallet
+    init(walletManager: WalletManager) {
         self.walletManager = walletManager
 
         updateBalanceViewModel(with: walletManager.wallet, state: .idle)
@@ -70,7 +68,9 @@ class WalletModel: ObservableObject {
             return nil
         }
 
+        self.updateBalanceViewModel(with: self.wallet, state: .loading)
         state = .loading
+   
         return Future { (promise) in
             self.walletManager.update { result in
                 DispatchQueue.main.async { [weak self] in
@@ -177,7 +177,7 @@ class WalletModel: ObservableObject {
 
     private func updateBalanceViewModel(with wallet: Wallet, state: State) {
         balanceViewModel = BalanceViewModel(isToken: false,
-                                            hasTransactionInProgress: wallet.hasPendingTx, state: self.state,
+                                            hasTransactionInProgress: wallet.hasPendingTx, state: state,
                                             name:  wallet.blockchain.displayName,
                                             fiatBalance: getFiatBalance(for: .coin),
                                             balance: getBalance(for: .coin),
@@ -210,7 +210,7 @@ class WalletModel: ObservableObject {
                     break
                 }
             }) {[unowned self] rates in
-                if self.rates.count > 0 && rates.count == 0 {
+                if !self.rates.isEmpty && rates.isEmpty {
                     return
                 }
 
