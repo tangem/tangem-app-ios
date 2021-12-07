@@ -29,7 +29,7 @@ enum WalletConnectNetworkParserUtility {
             // So far, I could not find alternative services where you can connect Binance wallet via WC.
             // peer_id is never the same for the dApp
             // I think this list will continue to expand
-        } else if dAppInfo.peerMeta.url.absoluteString.contains("matic.network") {
+        } else if dAppInfo.peerMeta.url.absoluteString.contains("polygon.technology") {
             let id = EthereumNetwork.polygon.id
             wcNetwork = .eth(chainId: id)
             chainId = id
