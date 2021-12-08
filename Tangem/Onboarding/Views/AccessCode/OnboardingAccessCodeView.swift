@@ -83,7 +83,7 @@ struct OnboardingAccessCodeView: View {
             Image("input_with_lock")
                 .scaleEffect(Constants.isSmallScreen ? 0.7 : 1)
             Spacer()
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 20) {
                 ForEach(0..<3) { index in
                     let feature = ViewState.featuresDescription[index]
                     HStack(alignment: .customTop, spacing: 20) {
