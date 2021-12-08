@@ -37,7 +37,7 @@ struct OnboardingMessagesView: View {
 //                .background(Color.yellow)
                 .multilineTextAlignment(.center)
                 .minimumScaleFactor(0.8)
-                .font(.system(size: 18, weight: .regular))
+                .font(.system(size: 16, weight: .regular))
                 .foregroundColor(.tangemGrayDark6)
                 .frame(maxWidth: .infinity)
                 .transition(.opacity)
