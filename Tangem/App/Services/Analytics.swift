@@ -47,6 +47,10 @@ class Analytics {
         case createWallet = "create_wallet"
         case purgeWallet = "purge_wallet"
         case deriveKeys = "derive_keys"
+        case preparePrimary = "prepare_primary"
+        case readPrimary = "read_primary"
+        case addbackup = "add_backup"
+        case proceedBackup = "proceed_backup"
     }
     
     enum ParameterKey: String {
