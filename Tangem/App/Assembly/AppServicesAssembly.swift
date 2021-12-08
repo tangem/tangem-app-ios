@@ -55,7 +55,7 @@ class AppServicesAssembly: ServicesAssembly {
     lazy var signer: TransactionSigner = {
         let signer = DefaultSigner(tangemSdk: self.tangemSdk,
                                    initialMessage: Message(header: nil,
-                                                           body: "initial_message_sign_header".localized))
+                                                           body: "initial_message_sign_body".localized))
         signer.delegate = cardsRepository
         TestnetBuyCryptoService.signer = signer
         return signer
