@@ -487,7 +487,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             .first()
             .sink(receiveCompletion: { [weak self] completion in
                 if case .failure(let error) = completion {
-                    self?.processSdkError(error)
+                    if let card = self?.input.cardInput.cardModel?.cardInfo.card {
+                        Analytics.logCardSdkError(error.toTangemSdkError(), for: .preparePrimary, card: card)
+                    }
                     self?.isMainButtonBusy = false
                     print(error)
                 }
@@ -508,7 +510,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             .sink(
                 receiveCompletion: { [weak self] completion in
                     if case .failure(let error) = completion {
-                        self?.processSdkError(error)
+                        if let card = self?.input.cardInput.cardModel?.cardInfo.card {
+                            Analytics.logCardSdkError(error.toTangemSdkError(), for: .readPrimary, card: card)
+                        }
                         print("Failed to read origin card: \(error)")
                         self?.isMainButtonBusy = false
                     }
@@ -602,7 +606,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             .sink(receiveCompletion: { [weak self] completion in
                 if case let .failure(error) = completion {
                     print("Failed to add backup card. Reason: \(error)")
-                    self?.processSdkError(error)
+                    if let card = self?.input.cardInput.cardModel?.cardInfo.card {
+                        Analytics.logCardSdkError(error.toTangemSdkError(), for: .addbackup, card: card)
+                    }
                     self?.isMainButtonBusy = false
                 }
                 self?.stepPublisher = nil
@@ -668,7 +674,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
                     print("Failed to proceed backup. Reason: \(error)")
-                    self?.processSdkError(error)
+                    if let card = self?.input.cardInput.cardModel?.cardInfo.card {
+                        Analytics.logCardSdkError(error.toTangemSdkError(), for: .proceedBackup, card: card)
+                    }
                     self?.isMainButtonBusy = false
                 }
                 self?.stepPublisher = nil
