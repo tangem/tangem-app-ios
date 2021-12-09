@@ -191,7 +191,7 @@ class MainViewModel: ViewModel, ObservableObject {
         }
        
         if cardInfo.isTangemWallet,
-           let backupStatus = cardInfo.card.backupStatus, backupStatus.isActive {
+           let backupStatus = cardInfo.card.backupStatus, case .active = backupStatus {
             return 1
         }
         
