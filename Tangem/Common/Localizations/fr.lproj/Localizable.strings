@@ -269,17 +269,15 @@ Tangem is the only hardware wallet to offer signature count protection.";
 
 // MARK: - Initial message
 
-"initial_message_sign_header" = "Touchez pour signer";
+"initial_message_sign_body" = "To sign, connect your phone and the card exactly as it shown above";
 
-"initial_message_sign_body" = "Appuyez votre carte au téléphone comme indiqué ci-dessus";
+"initial_message_purge_wallet_body" = "To reset to factory settings, connect your phone and the card exactly as it shown above";
 
-"initial_message_purge_wallet_body" = "Touchez, pour annuler un portefeuille";
+"initial_message_create_wallet_body" = "To create wallet, connect your phone and the card exactly as it shown above";
 
-"initial_message_create_wallet_body" = "Touchez, pour créer un portefeuille";
+"initial_message_change_access_code_body" = "To change the access code, connect your phone and the card exactly as it shown above";
 
-"initial_message_change_access_code_body" = "Touchez, pour modifier le code d’accès";
-
-"initial_message_change_passcode_body" = "Touchez, pour modifier le mot de passe";
+"initial_message_change_passcode_body" = "To change the passcode, connect your phone and the card exactly as it shown above";
 
 
 
@@ -359,7 +357,7 @@ Cette avertissement a été modifié, pour la dernière fois, le 1 octobre 2020.
 "wallet_create_payid_empty" = "Saisissez d’abord le PayString requis";
 "initial_message_scan_header" = "Posez pour scanner";
 "initial_message_tap_header" = "Posez la carte";
-"details_notification_erase_wallet_not_possible" = "Votre solde sur ce portefeuille n'est pas nul, ou vous avez des transactions non confirmées. Impossible de supprimer la fonction du portefeuille";
+"details_notification_erase_wallet_not_possible" = "Your balance on this wallet is not zero, or you have unconfirmed transactions. Reset to factory settings not possible.";
 "details_notification_security_option_already_active" = "Cette option est déjà active";
 
 // MARK: - Twin Cards
