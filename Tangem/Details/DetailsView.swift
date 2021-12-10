@@ -107,7 +107,7 @@ struct DetailsView: View {
                         })
                             .disabled(!viewModel.canCreateBackup)
                             .sheet(isPresented: $navigation.detailsToBackup, content: {
-                                    OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel(), isModal: true)
+                                    OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
                                         .presentation(modal: viewModel.isTwinRecreationModel, onDismissalAttempt: {
                                             assembly.getWalletOnboardingViewModel()?.backButtonAction()
                                         }, onDismissed: nil)

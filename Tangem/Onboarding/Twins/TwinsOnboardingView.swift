@@ -37,22 +37,8 @@ struct TwinsOnboardingView: View {
     
     var currentStep: TwinsOnboardingStep { viewModel.currentStep }
     
-    @ViewBuilder
-    var navigationLinks: some View {
-        NavigationLink(destination: WebViewContainer(url: viewModel.buyCryptoURL,
-                                                     title: "wallet_button_topup",
-                                                     addLoadingIndicator: true,
-                                                     urlActions: [ viewModel.buyCryptoCloseUrl : { _ in
-                                                        navigation.onboardingToBuyCrypto = false
-                                                     }
-                                                     ]),
-                       isActive: $navigation.onboardingToBuyCrypto)
-    }
-    
     var body: some View {
         ZStack {
-            navigationLinks
-            
             ConfettiView(shouldFireConfetti: $viewModel.shouldFireConfetti)
                 .allowsHitTesting(false)
                 .frame(maxWidth: screenSize.width)
@@ -164,6 +150,15 @@ struct TwinsOnboardingView: View {
                 .offset(x: -screenSize.width/2, y: -screenSize.height/2)
                 .opacity(currentStep.isBackgroundVisible ? 1 : 0)
         )
+        .sheet(isPresented: $navigation.onboardingToBuyCrypto) {
+            WebViewContainer(url: viewModel.buyCryptoURL,
+                             title: "wallet_button_topup",
+                             addLoadingIndicator: true,
+                             withCloseButton: true,
+                             urlActions: [ viewModel.buyCryptoCloseUrl : { _ in
+                navigation.onboardingToBuyCrypto = false
+            }])
+        }
         .alert(item: $viewModel.alert, content: { binder in
             binder.alert
         })
@@ -178,6 +173,7 @@ struct TwinsOnboardingView: View {
             }
             
         })
+
     }
 }
 
