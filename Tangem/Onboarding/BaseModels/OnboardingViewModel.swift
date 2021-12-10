@@ -247,17 +247,4 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
     func setupCardsSettings(animated: Bool, isContainerSetup: Bool) {
         fatalError("Not implemented")
     }
-    
-    func processSdkError(_ error: Error) {
-        guard let sdkError = error as? TangemSdkError else {
-            alert = error.alertBinder
-            return
-        }
-        
-        if case .userCancelled = sdkError {
-            return
-        }
-        
-        alert = sdkError.alertBinder
-    }
 }
