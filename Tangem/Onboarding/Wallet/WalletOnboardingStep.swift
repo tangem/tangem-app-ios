@@ -15,8 +15,7 @@ enum WalletOnboardingStep {
         switch self {
         case .welcome: return ""
         case .createWallet, .backupIntro: return "onboarding_getting_started"
-        case .scanPrimaryCard, .selectBackupCards: return "onboarding_navbar_title_creating_backup"
-        case .backupCards: return "onboarding_button_finalize_backup"
+        case .scanPrimaryCard, .selectBackupCards, .backupCards: return "onboarding_navbar_title_creating_backup"
         case .success: return "common_done"
         }
     }
@@ -55,10 +54,9 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         case .scanPrimaryCard: return "onboarding_title_scan_origin_card"
         case .backupIntro: return "onboarding_title_backup_card"
         case .selectBackupCards: return "onboarding_title_no_backup_cards"
-        case .backupCards: return "onboarding_title_backup_card \(1)"
+        case .backupCards: return ""
         case .success: return successTitle
         }
-        
     }
     
     var subtitle: LocalizedStringKey {
@@ -71,7 +69,6 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         case .backupCards: return ""
         case .success: return "onboarding_subtitle_success_backup"
         }
-        
     }
     
     var messagesOffset: CGSize {
