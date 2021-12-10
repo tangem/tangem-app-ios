@@ -175,7 +175,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         .first()
         .sink { [weak self] completion in
             if case let .failure(error) = completion {
-                self?.processSdkError(error)
                 self?.isMainButtonBusy = false
                 print("Failed to create wallet. \(error)")
             }
