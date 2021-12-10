@@ -269,17 +269,15 @@ Tangem is the only hardware wallet to offer signature count protection.";
 
 // MARK: - Initial message
 
-"initial_message_sign_header" = "Avvicina per firmare";
+"initial_message_sign_body" = "To sign, connect your phone and the card exactly as it shown above";
 
-"initial_message_sign_body" = "Avvicina la carta al telefono come mostrato sopra ";
+"initial_message_purge_wallet_body" = "To reset to factory settings, connect your phone and the card exactly as it shown above";
 
-"initial_message_purge_wallet_body" = "Avvicina per cancellare il portafoglio";
+"initial_message_create_wallet_body" = "To create wallet, connect your phone and the card exactly as it shown above";
 
-"initial_message_create_wallet_body" = "Avvicina per creare il portafoglio";
+"initial_message_change_access_code_body" = "To change the access code, connect your phone and the card exactly as it shown above";
 
-"initial_message_change_access_code_body" = "Avvicina per modificare il codice di accesso";
-
-"initial_message_change_passcode_body" = "Avvicina per modificare la password";
+"initial_message_change_passcode_body" = "To change the passcode, connect your phone and the card exactly as it shown above";
 
 
 
@@ -359,7 +357,7 @@ Questa nota legale è stata modificata l'ultima volta 01.10.2020.";
 "wallet_create_payid_empty" = "Inserire prima il PayString desiderato";
 "initial_message_scan_header" = "Avvicina per scansionare";
 "initial_message_tap_header" = "Avvicina la carta";
-"details_notification_erase_wallet_not_possible" = "Il tuo saldo su questo portafoglio non è pari a zero o hai transazioni non confermate. Non è possibile eliminare la funzione portafoglio.";
+"details_notification_erase_wallet_not_possible" = "Your balance on this wallet is not zero, or you have unconfirmed transactions. Reset to factory settings not possible.";
 "details_notification_security_option_already_active" = "E' l'opzione attualmente attiva";
 
 // MARK: - Twin Cards
