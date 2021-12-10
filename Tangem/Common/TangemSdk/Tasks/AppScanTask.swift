@@ -57,10 +57,6 @@ struct AppScanTaskResponse {
 }
 
 final class AppScanTask: CardSessionRunnable {
-    deinit {
-        print("AppScanTask deinit")
-    }
-    
     private let tokenItemsRepository: TokenItemsRepository?
     private let userPrefsService: UserPrefsService?
     
@@ -77,6 +73,10 @@ final class AppScanTask: CardSessionRunnable {
         self.targetBatch = targetBatch
         self.userPrefsService = userPrefsService
         self.shouldDeriveWC = shouldDeriveWC
+    }
+    
+    deinit {
+        print("AppScanTask deinit")
     }
     
     /// read ->  readTwinData or note Data or derive wallet's keys -> appendWallets(createwallets+ scan)  -> attestation
