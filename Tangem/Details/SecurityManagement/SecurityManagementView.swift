@@ -66,13 +66,34 @@ struct SecurityManagementView: View {
     
     var body: some View {
         VStack {
-            List(viewModel.cardViewModel.availableSecOptions) { option in
-                SecurityManagementRowView(selectedOption: self.$viewModel.selectedOption,
-                                          option: option)
-                    .environmentObject(self.viewModel.cardViewModel)
-            }
-            .listStyle(PlainListStyle())
             
+            List {
+                Section {
+                    ForEach(viewModel.cardViewModel.availableSecOptions) { option in
+                        SecurityManagementRowView(selectedOption: self.$viewModel.selectedOption,
+                                                  option: option)
+                            .environmentObject(self.viewModel.cardViewModel)
+                    }
+                } footer: {
+                    if let disclaimer = viewModel.accessCodeDisclaimer {
+                        HStack(spacing: 0) {
+                            Spacer()
+                            Text(disclaimer)
+                                .font(.body)
+                                .foregroundColor(.tangemGrayDark)
+                                .multilineTextAlignment(.center)
+                                .padding(.top, 4)
+                            Spacer()
+                        }
+                    } else {
+                        EmptyView()
+                    }
+                }
+            }
+            .listRowInsets(EdgeInsets())
+            .listStyle(GroupedListStyle())
+
+
             TangemButton(title: viewModel.selectedOption == .longTap ? "common_save_changes" : "common_continue") {
                             self.viewModel.onTap()
             }.buttonStyle(TangemButtonStyle(colorStyle: .black,
