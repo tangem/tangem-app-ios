@@ -53,12 +53,6 @@ struct WebViewContainer: View {
             }
         }
     }
-    
-    static var shopView: WebViewContainer {
-        WebViewContainer(url: Constants.shopURL,
-                         title: "home_button_shop",
-                         withCloseButton: true)
-    }
 }
 
 
