@@ -32,6 +32,14 @@ class SecurityManagementViewModel: ViewModel, ObservableObject {
     @Published var selectedOption: SecurityManagementOption = .longTap
     @Published var isLoading: Bool = false
     
+    var accessCodeDisclaimer: String? {
+        if cardViewModel.cardInfo.isTangemWallet, cardViewModel.cardInfo.card.backupStatus == .noBackup {
+            return "manage_security_access_code_disclaimer".localized
+        }
+        
+        return nil
+    }
+    
     var actionButtonPressedHandler: (_ completion: @escaping (Result<Void, Error>) -> Void) -> Void {
         return { completion in
             self.cardViewModel.changeSecOption(self.selectedOption,
