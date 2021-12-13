@@ -722,3 +722,5 @@ Amount to pay: %@";
 "onboarding_subtitle_scan_primary" = "Scan the primary card to start the backup process.";
 
 "onboarding_alert_message_old_device" = "iPhone 7/7+ is not able to create a backup for Tangem Wallet due to some system limitations. Please use another phone to perform this operation. All other functions work stably.";
+
+"card_operation_button_title_reset" = "Reset the card";
