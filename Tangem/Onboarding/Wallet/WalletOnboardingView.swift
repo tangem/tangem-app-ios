@@ -158,7 +158,11 @@ struct WalletOnboardingView: View {
                     }})
             
             Color.clear.frame(width: 1, height: 1)
-                .sheet(isPresented: $navigation.onboardingWalletToShop, content: { WebViewContainer.shopView })
+                .sheet(isPresented: $navigation.onboardingWalletToShop, content: {
+                    WebViewContainer(url: Constants.walletShopURL,
+                                     title: "home_button_shop",
+                                     withCloseButton: true)
+                })
             
         }
         .alert(item: $viewModel.alert, content: { alertBinder in
