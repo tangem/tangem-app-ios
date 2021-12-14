@@ -429,25 +429,21 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
     
-    func deriveKeys(derivationPaths: [DerivationPath], completion: @escaping (Result<Void, Error>) -> Void) {
+    func deriveKeys(derivationPaths:  [Data: Set<DerivationPath>], completion: @escaping (Result<Void, Error>) -> Void) {
         let card = self.cardInfo.card
         
-        guard let wallet = cardInfo.card.wallets.first(where: { $0.curve == .secp256k1 }) else {
-            completion(.failure(TangemSdkError.walletNotFound))
-            return
-        }
-        
-        tangemSdk.deriveWalletPublicKeys(cardId: cardInfo.card.cardId,
-                                         walletPublicKey: wallet.publicKey,
-                                         derivationPaths: derivationPaths) {[weak self] result in
+        tangemSdk.startSession(with: DerivationTask(derivationPaths), cardId: card.cardId) {[weak self] result in
             switch result {
-            case .success(let newKeys):
+            case .success(let newDerivations):
                 guard let self = self else { return }
                 
-                let existingKeys = self.cardInfo.derivedKeys[wallet.publicKey] ?? []
-                self.cardInfo.derivedKeys.updateValue(existingKeys + newKeys,
-                                                      forKey: wallet.publicKey)
+                for newDerivation in newDerivations {
+                    let existingKeys = self.cardInfo.derivedKeys[newDerivation.key] ?? []
+                    self.cardInfo.derivedKeys.updateValue(existingKeys + newDerivation.value,
+                                                          forKey: newDerivation.key)
+                }
                 
+              
                 completion(.success(()))
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .purgeWallet, card: card)
@@ -647,15 +643,27 @@ class CardViewModel: Identifiable, ObservableObject {
         let blockchainsToAdd = Array(newBlockchains.subtracting(existingBlockchains)).sorted { $0.displayName < $1.displayName }
  
         if cardInfo.isTangemWallet {
-            let candidateDerivationPaths = Set(blockchainsToAdd.compactMap { $0.derivationPath })
-            let existingDerivationPaths = Set(existingBlockchains.compactMap { $0.derivationPath })
-            let newDerivationPaths = candidateDerivationPaths.subtracting(existingDerivationPaths)
+            var newDerivationPaths: [Data: Set<DerivationPath>] = [:]
+
+            for blockchain in blockchainsToAdd {
+                if let path = blockchain.derivationPath,
+                   let publicKey = cardInfo.card.wallets.first(where: { $0.curve == blockchain.curve })?.publicKey {
+                    if !(cardInfo.derivedKeys[publicKey]?.contains(where: { $0.derivationPath == path }) ?? false) {
+                        if newDerivationPaths[publicKey] == nil {
+                            newDerivationPaths[publicKey] = .init()
+                        }
+                        
+                        newDerivationPaths[publicKey]?.insert(path)
+                    }
+                }
+            }
+           
             if newDerivationPaths.isEmpty {
                 finishAddingTokens(blockchainsToAdd, groupedTokens, completion: completion)
                 return
             }
             
-            deriveKeys(derivationPaths: Array(newDerivationPaths)) { result in
+            deriveKeys(derivationPaths: newDerivationPaths) { result in
                 switch result {
                 case .success:
                     self.finishAddingTokens(blockchainsToAdd, groupedTokens, completion: completion)
