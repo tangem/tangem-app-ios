@@ -235,36 +235,43 @@ final class AppScanTask: CardSessionRunnable {
     }
     
     private func deriveKeysIfNeeded(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        guard let tokenItemsRepository = self.tokenItemsRepository,
-              let wallet = session.environment.card?.wallets.first( where: { $0.curve == .secp256k1 }),
-              wallet.chainCode != nil else {
-                  self.runAttestation(session, completion)
-                  return
-              }
+        guard let tokenItemsRepository = self.tokenItemsRepository else {
+            self.runAttestation(session, completion)
+            return
+        }
         
-        var tokenItems = Set(tokenItemsRepository.getItems(for: session.environment.card!.cardId).map { $0.blockchain })
+        var blockchains = Set(tokenItemsRepository.getItems(for: session.environment.card!.cardId).map { $0.blockchain })
         if shouldDeriveWC {
             let wcBlockchains: Set<Blockchain> = [.ethereum(testnet: false),
                                                   .binance(testnet: false),
                                                   .ethereum(testnet: true)]
             for wcBlockchain in wcBlockchains {
-                tokenItems.insert(wcBlockchain)
+                blockchains.insert(wcBlockchain)
             }
         }
         
-        let derivationPaths = tokenItems
-            .filter { $0.curve == .secp256k1 }
-            .compactMap { $0.derivationPath }
+        var derivations: [Data: Set<DerivationPath>] = [:]
         
-        if derivationPaths.isEmpty {
+        for blockchain in blockchains {
+            if let wallet = session.environment.card?.wallets.first(where: { $0.curve == blockchain.curve }),
+               wallet.chainCode != nil,
+               let path = blockchain.derivationPath {
+                if derivations[wallet.publicKey] == nil {
+                    derivations[wallet.publicKey] = .init()
+                }
+                derivations[wallet.publicKey]?.insert(path)
+            }
+        }
+        
+        if derivations.isEmpty {
             self.runAttestation(session, completion)
             return
         }
         
-        DeriveWalletPublicKeysTask(walletPublicKey: wallet.publicKey, derivationPaths: derivationPaths).run(in: session) { result in
+        DerivationTask(derivations).run(in: session) { result in
             switch result {
-            case .success(let keys):
-                self.derivedKeys = [wallet.publicKey : keys]
+            case .success(let derivedKeys):
+                self.derivedKeys = derivedKeys
                 self.runAttestation(session, completion)
             case .failure(let error):
                 completion(.failure(error))
