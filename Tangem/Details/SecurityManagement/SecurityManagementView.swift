@@ -62,19 +62,18 @@ struct SecurityManagementRowView: View {
 
 struct SecurityManagementView: View {
     @ObservedObject var viewModel: SecurityManagementViewModel
-	@EnvironmentObject var navigation: NavigationCoordinator
+    @EnvironmentObject var navigation: NavigationCoordinator
     
     var body: some View {
         VStack {
             
             List {
-                Section {
+                Section(content: {
                     ForEach(viewModel.cardViewModel.availableSecOptions) { option in
-                        SecurityManagementRowView(selectedOption: self.$viewModel.selectedOption,
-                                                  option: option)
+                        SecurityManagementRowView(selectedOption: self.$viewModel.selectedOption, option: option)
                             .environmentObject(self.viewModel.cardViewModel)
                     }
-                } footer: {
+                }, footer: {
                     if viewModel.accessCodeDisclaimer != nil {
                         HStack(spacing: 0) {
                             Spacer()
@@ -88,26 +87,26 @@ struct SecurityManagementView: View {
                     } else {
                         EmptyView()
                     }
-                }
+                })
             }
             .listRowInsets(EdgeInsets())
             .listStyle(GroupedListStyle())
-
-
+            
+            
             TangemButton(title: viewModel.selectedOption == .longTap ? "common_save_changes" : "common_continue") {
-                            self.viewModel.onTap()
+                self.viewModel.onTap()
             }.buttonStyle(TangemButtonStyle(colorStyle: .black,
                                             layout: .flexibleWidth,
                                             isDisabled: viewModel.selectedOption == viewModel.cardViewModel.currentSecOption,
                                             isLoading: viewModel.isLoading))
-            .alert(item: $viewModel.error) { $0.alert }
-            .padding(.horizontal, 16.0)
-            .padding(.bottom, 16.0)
-			
-			NavigationLink(destination: CardOperationView(title: viewModel.selectedOption.title,
-														  alert: "details_security_management_warning".localized,
-														  actionButtonPressed: viewModel.actionButtonPressedHandler),
-						   isActive: $navigation.securityToWarning)
+                .alert(item: $viewModel.error) { $0.alert }
+                .padding(.horizontal, 16.0)
+                .padding(.bottom, 16.0)
+            
+            NavigationLink(destination: CardOperationView(title: viewModel.selectedOption.title,
+                                                          alert: "details_security_management_warning".localized,
+                                                          actionButtonPressed: viewModel.actionButtonPressedHandler),
+                           isActive: $navigation.securityToWarning)
         }
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("details_manage_security_title", displayMode: .inline)
