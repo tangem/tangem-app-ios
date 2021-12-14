@@ -112,9 +112,6 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
             .map { TokenModel(tokenItem: $0,
                               sectionId: Sections.blockchains.rawValue,
                               isAdded: isAdded($0),
-                              canAdd: cardModel.cardInfo.isTangemWallet ?
-                              $0 != .blockchain(.stellar(testnet: false)) && $0 != .blockchain(.cardano(shelley: true))
-                              : true,
                               onTap: onItemTap) }
         
         listData.append(SectionModel(id: Sections.blockchains.rawValue,
