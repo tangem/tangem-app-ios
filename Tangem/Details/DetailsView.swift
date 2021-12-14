@@ -107,7 +107,7 @@ struct DetailsView: View {
                         })
                             .disabled(!viewModel.canCreateBackup)
                             .sheet(isPresented: $navigation.detailsToBackup, content: {
-                                    OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel(), isModal: true)
+                                    OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
                                         .presentation(modal: viewModel.isTwinRecreationModel, onDismissalAttempt: {
                                             assembly.getWalletOnboardingViewModel()?.backButtonAction()
                                         }, onDismissed: nil)
@@ -120,10 +120,10 @@ struct DetailsView: View {
                     }
                     
                     NavigationLink(destination: CardOperationView(title: "details_row_title_reset_factory_settings".localized,
+                                                                  buttonTitle: "card_operation_button_title_reset",
                                                                   shouldPopToRoot: true,
                                                                   alert: "details_row_title_reset_factory_settings_warning".localized,
-                                                                  actionButtonPressed: { self.viewModel.cardModel.resetToFactory(completion: $0)}
-                                                                 )
+                                                                  actionButtonPressed: { self.viewModel.cardModel.resetToFactory(completion: $0)})
                                     .environmentObject(navigation)
                                     .environmentObject(assembly),
                                    tag: NavigationTag.resetToFactory, selection: $selection) {
