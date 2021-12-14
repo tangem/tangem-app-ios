@@ -43,17 +43,8 @@ struct WalletOnboardingView: View {
         }
     }
     
-    var navigationLinks: some View {
-        VStack {
-            NavigationLink(destination: WebViewContainer.shopView,
-                           isActive: $navigation.onboardingWalletToShop)
-        }
-    }
-    
     var body: some View {
-        ZStack {
-            navigationLinks
-            
+        ZStack {            
             ConfettiView(shouldFireConfetti: $viewModel.shouldFireConfetti)
                 .allowsHitTesting(false)
                 .frame(maxWidth: screenSize.width)
@@ -159,14 +150,23 @@ struct WalletOnboardingView: View {
                 }
                 .padding(.horizontal, 40)
             }
+            
+            Color.clear.frame(width: 1, height: 1)
+                .sheet(isPresented: $navigation.onboardingWalletToAccessCode, content: {
+                    OnboardingAccessCodeView { accessCode in
+                        viewModel.saveAccessCode(accessCode)
+                    }})
+            
+            Color.clear.frame(width: 1, height: 1)
+                .sheet(isPresented: $navigation.onboardingWalletToShop, content: {
+                    WebViewContainer(url: Constants.walletShopURL,
+                                     title: "home_button_shop",
+                                     withCloseButton: true)
+                })
+            
         }
         .alert(item: $viewModel.alert, content: { alertBinder in
             alertBinder.alert
-        })
-        .sheet(isPresented: $navigation.onboardingWalletToAccessCode, content: {
-            OnboardingAccessCodeView { accessCode in
-                viewModel.saveAccessCode(accessCode)
-            }
         })
         .preference(key: ModalSheetPreferenceKey.self, value: viewModel.isModal)
         .onAppear(perform: {
