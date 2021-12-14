@@ -75,10 +75,10 @@ struct SecurityManagementView: View {
                             .environmentObject(self.viewModel.cardViewModel)
                     }
                 } footer: {
-                    if let disclaimer = viewModel.accessCodeDisclaimer {
+                    if viewModel.accessCodeDisclaimer != nil {
                         HStack(spacing: 0) {
                             Spacer()
-                            Text(disclaimer)
+                            Text(viewModel.accessCodeDisclaimer!)
                                 .font(.body)
                                 .foregroundColor(.tangemGrayDark)
                                 .multilineTextAlignment(.center)
