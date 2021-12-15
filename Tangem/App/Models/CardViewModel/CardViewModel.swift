@@ -250,6 +250,7 @@ class CardViewModel: Identifiable, ObservableObject {
     
     init(cardInfo: CardInfo) {
         self.cardInfo = cardInfo
+        updateCardPinSettings()
         updateCurrentSecOption()
     }
     
@@ -479,6 +480,7 @@ class CardViewModel: Identifiable, ObservableObject {
 	func update(with card: Card) {
         print("🟩 Updating Card view model with new Card")
         cardInfo.card = card
+        updateCardPinSettings()
         self.updateCurrentSecOption()
         updateModel()
 	}
@@ -486,6 +488,7 @@ class CardViewModel: Identifiable, ObservableObject {
     func update(with cardInfo: CardInfo) {
         print("🔷 Updating Card view model with new CardInfo")
         self.cardInfo = cardInfo
+        updateCardPinSettings() 
         self.updateCurrentSecOption()
         updateModel()
     }
@@ -736,7 +739,6 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     func updateCurrentSecOption() {
-        updateCardPinSettings()
         if !(cardPinSettings.isPin1Default ?? true) {
             self.currentSecOption = .accessCode
         } else if !(cardPinSettings.isPin2Default ?? true) {
