@@ -18,8 +18,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     weak var stepsSetupService: OnboardingStepsSetupService!
     
     @Published var isCardScanned: Bool = true
-
-    var shopURL: URL { Constants.shopURL }
     
     override var currentStep: SingleCardOnboardingStep {
         guard currentStepIndex < steps.count else {
