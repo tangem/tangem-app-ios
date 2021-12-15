@@ -132,6 +132,7 @@ struct MainView: View {
                                                          ]),
                            isActive: $navigation.mainToSellCrypto)
             
+            NavigationLink(destination: EmptyView(), isActive: .constant(false))
             
             //            NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(isFromMain: true)),
             //                           isActive: $navigation.mainToTwinOnboarding)
