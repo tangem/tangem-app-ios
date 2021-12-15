@@ -114,14 +114,6 @@ struct SingleCardOnboardingView: View {
             })
                 .frame(maxWidth: screenSize.width)
             
-            
-            Color.clear.frame(width: 1, height: 1)
-                .sheet(isPresented: $navigation.readToShop) {
-                    WebViewContainer(url: Constants.shopURL,
-                                     title: "home_button_shop",
-                                     withCloseButton: true)
-                }
-            
             Color.clear.frame(width: 1, height: 1)
                 .sheet(isPresented: $navigation.onboardingToBuyCrypto) {
                     WebViewContainer(url: viewModel.buyCryptoURL,
