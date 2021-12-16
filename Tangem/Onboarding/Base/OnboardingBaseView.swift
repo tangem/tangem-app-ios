@@ -18,8 +18,6 @@ struct OnboardingBaseView: View {
             NavigationLink(destination: MainView(viewModel: viewModel.assembly.makeMainViewModel()),
                            isActive: $navigation.readToMain)
         }
-        
-        NavigationLink(destination: EmptyView(), isActive: .constant(false))
     }
     
     @ViewBuilder
