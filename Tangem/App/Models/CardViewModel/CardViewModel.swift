@@ -733,7 +733,7 @@ class CardViewModel: Identifiable, ObservableObject {
         return true
     }
     
-    private func updateCardPinSettings() {
+    func updateCardPinSettings() {
         cardPinSettings.isPin1Default = !cardInfo.card.isAccessCodeSet
         cardInfo.card.isPasscodeSet.map { self.cardPinSettings.isPin2Default = !$0 }
     }
