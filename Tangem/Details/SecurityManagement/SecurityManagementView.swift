@@ -107,8 +107,6 @@ struct SecurityManagementView: View {
                                                           alert: "details_security_management_warning".localized,
                                                           actionButtonPressed: viewModel.actionButtonPressedHandler),
                            isActive: $navigation.securityToWarning)
-            
-            NavigationLink(destination: EmptyView(), isActive: .constant(false))
         }
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("details_manage_security_title", displayMode: .inline)
