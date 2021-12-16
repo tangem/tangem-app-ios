@@ -109,7 +109,7 @@ struct WelcomeOnboardingView: View {
             
             Color.clear.frame(width: 1, height: 1)
                 .sheet(isPresented: $navigation.readToShop, content: {
-                    WebViewContainer(url: viewModel.shopURL, title: "home_button_shop", withCloseButton: true)
+                    WebViewContainer(url: Constants.shopURL, title: "home_button_shop", withCloseButton: true)
                 })
         }
         .alert(item: $viewModel.error, content: { $0.alert })
