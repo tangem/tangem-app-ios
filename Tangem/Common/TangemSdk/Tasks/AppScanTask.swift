@@ -244,7 +244,10 @@ final class AppScanTask: CardSessionRunnable {
         if shouldDeriveWC {
             let wcBlockchains: Set<Blockchain> = [.ethereum(testnet: false),
                                                   .binance(testnet: false),
-                                                  .ethereum(testnet: true)]
+                                                  .ethereum(testnet: true),
+                                                  .rsk,
+                                                  .bsc(testnet: false),
+                                                  .polygon(testnet: false)]
             for wcBlockchain in wcBlockchains {
                 blockchains.insert(wcBlockchain)
             }
