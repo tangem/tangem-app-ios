@@ -719,6 +719,7 @@
         "symbol" : "VOYRME",
         "name" : "VOYR",
         "contractAddress" : "0x33a887Cf76383be39DC51786e8f641c9D6665D84",
+        "customIcon" : "voyr",
         "blockchain" : {
             "key" : "bsc",
             "curve" : "secp256k1",
