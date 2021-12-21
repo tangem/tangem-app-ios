@@ -25,17 +25,33 @@ struct WalletConnectView: View {
                 scanQrCode()
             }
         }).accessibility(label: Text("voice_over_open_new_wallet_connect_session"))
-        .sheet(isPresented: $navigation.walletConnectToQR) {
-            QRScanView(code: $viewModel.code)
-                .edgesIgnoringSafeArea(.all)
-        }
-        .cameraAccessDeniedAlert($showCameraDeniedAlert)
     }
     
     var body: some View {
-        VStack {
-            Color.clear
-                .frame(width: 0.5, height: 0.5)
+        ZStack {
+            VStack {
+                if viewModel.sessions.isEmpty {
+                    Text("wallet_connect_no_sessions_title")
+                        .font(.system(size: 24, weight: .semibold))
+                        .padding(.bottom, 10)
+                    Text("wallet_connect_no_sessions_message")
+                        .multilineTextAlignment(.center)
+                        .font(.system(size: 17, weight: .medium))
+                        .padding(.horizontal, 40)
+                } else {
+                    List {
+                        ForEach(Array(viewModel.sessions.enumerated()), id: \.element) { (i, item) -> WalletConnectSessionItemView in
+                            WalletConnectSessionItemView(dAppName: item.session.dAppInfo.peerMeta.name,
+                                                         cardId: item.wallet.cid) {
+                                viewModel.disconnectSession(at: i)
+                            }
+                        }
+                        .listRowInsets(.none)
+                    }
+                }
+            }
+            
+            Color.clear.frame(width: 0.5, height: 0.5)
                 .actionSheet(isPresented: $isActionSheetVisible, content: {
                     ActionSheet(title: Text("common_select_action"), message: Text("wallet_connect_clipboard_alert"), buttons: [
                         .default(Text("wallet_connect_paste_from_clipboard"), action: {
@@ -47,31 +63,24 @@ struct WalletConnectView: View {
                         .cancel()
                     ])
                 })
-            if viewModel.sessions.isEmpty {
-                Text("wallet_connect_no_sessions_title")
-                    .font(.system(size: 24, weight: .semibold))
-                    .padding(.bottom, 10)
-                Text("wallet_connect_no_sessions_message")
-                    .multilineTextAlignment(.center)
-                    .font(.system(size: 17, weight: .medium))
-                    .padding(.horizontal, 40)
-            } else {
-                List {
-                    ForEach(Array(viewModel.sessions.enumerated()), id: \.element) { (i, item) -> WalletConnectSessionItemView in
-                        WalletConnectSessionItemView(dAppName: item.session.dAppInfo.peerMeta.name,
-                                                            cardId: item.wallet.cid) {
-                            viewModel.disconnectSession(at: i)
-                        }
-                    }
-                    .listRowInsets(.none)
+            
+            Color.clear.frame(width: 0.5, height: 0.5)
+                .sheet(isPresented: $navigation.walletConnectToQR) {
+                    QRScanView(code: $viewModel.code)
+                        .edgesIgnoringSafeArea(.all)
                 }
-            }
+               
+            Color.clear .frame(width: 0.5, height: 0.5)
+                .cameraAccessDeniedAlert($showCameraDeniedAlert)
+            
+            Color.clear .frame(width: 0.5, height: 0.5)
+                .alert(item: $viewModel.alert) { $0.alert }
+            
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle(Text("wallet_connect_sessions_title"))
         .navigationBarItems(trailing: navBarButton)
-        .alert(item: $viewModel.alert) { $0.alert }
     }
     
     private func scanQrCode() {
