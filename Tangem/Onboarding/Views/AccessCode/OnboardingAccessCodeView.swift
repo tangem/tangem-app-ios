@@ -177,6 +177,11 @@ struct OnboardingAccessCodeView: View {
         }
         .padding(.horizontal, 40)
         .keyboardAdaptive(animated: .constant(true))
+        .onDisappear {
+            DispatchQueue.main.async {
+                self.error = .none
+            }
+        }
     }
     
     private func isAccessCodeValid() -> Bool {
