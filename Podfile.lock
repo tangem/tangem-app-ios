@@ -198,7 +198,7 @@ DEPENDENCIES:
   - BigInt
   - BinanceChain (from `https://github.com/lazutkin-andrey/swiftbinancechain.git`, tag `0.0.8`)
   - BitcoinCore.swift (from `https://github.com/lazutkin-andrey/bitcoincore.git`, tag `0.0.15`)
-  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-62`)
+  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-63`)
   - DeviceGuru
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -211,7 +211,7 @@ DEPENDENCIES:
   - stellar-ios-mac-sdk
   - SwiftCBOR
   - SwiftyJSON
-  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `backup-beta-32`)
+  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `reset-beta-3`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.4.0`)
   - web3swift (from `https://github.com/lazutkin-andrey/web3swift.git`, tag `2.2.6`)
 
@@ -258,7 +258,7 @@ EXTERNAL SOURCES:
     :tag: 0.0.15
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-62
+    :tag: develop-63
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
@@ -267,7 +267,7 @@ EXTERNAL SOURCES:
     :git: https://github.com/onevcat/Kingfisher.git
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: backup-beta-32
+    :tag: reset-beta-3
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.4.0
@@ -284,7 +284,7 @@ CHECKOUT OPTIONS:
     :tag: 0.0.15
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-62
+    :tag: develop-63
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
@@ -293,7 +293,7 @@ CHECKOUT OPTIONS:
     :git: https://github.com/onevcat/Kingfisher.git
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: backup-beta-32
+    :tag: reset-beta-3
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.4.0
@@ -342,6 +342,6 @@ SPEC CHECKSUMS:
   web3swift: 21ab60f3c80aea2366ebf016f377e5cb654909bf
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 52c793cbc5ce79366728d3dc97a330023b6b3d66
+PODFILE CHECKSUM: 484909a04d1addfd4ce1478e5476e93533ae7d80
 
 COCOAPODS: 1.11.2
