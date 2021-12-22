@@ -17,7 +17,8 @@ struct WebViewContainer: View {
 //    var closeUrl: String? = nil
     var title: LocalizedStringKey
     var addLoadingIndicator = false
-//    [REDACTED_USERNAME](\.presentationMode) var presentationMode
+    var withCloseButton = false
+    @Environment(\.presentationMode) var presentationMode
     @State private var isLoading: Bool = true
     
     var urlActions: [String : ((String) -> Void)] = [:]
@@ -32,20 +33,25 @@ struct WebViewContainer: View {
 //    }
     
     var body: some View {
-        ZStack {
-            WebView(url: url, urlActions: urlActions, isLoading: $isLoading)
-                .navigationBarTitle(title, displayMode: .inline)
-                .background(Color.tangemBg.edgesIgnoringSafeArea(.all))
-            if isLoading && addLoadingIndicator {
-                ActivityIndicatorView(color: .tangemGrayDark)
+        VStack {
+            if withCloseButton {
+                HStack {
+                    Button("common_close") {
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                    Spacer()
+                }
+                .padding([.horizontal, .top])
             }
-           
+            ZStack {
+                WebView(url: url, urlActions: urlActions, isLoading: $isLoading)
+                    .navigationBarTitle(title, displayMode: .inline)
+                    .background(Color.tangemBg.edgesIgnoringSafeArea(.all))
+                if isLoading && addLoadingIndicator {
+                    ActivityIndicatorView(color: .tangemGrayDark)
+                }
+            }
         }
-    }
-    
-    static var shopView: WebViewContainer {
-        WebViewContainer(url: Constants.shopURL,
-                         title: "home_button_shop")
     }
 }
 
