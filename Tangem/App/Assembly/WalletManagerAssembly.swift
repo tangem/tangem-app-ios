@@ -117,7 +117,7 @@ class WalletManagerAssembly {
                                    blockchain: Blockchain,
                                    seedKey: ExtendedPublicKey?,
                                    derivedKeys: [Data: [ExtendedPublicKey]]) -> WalletManager? {
-        if blockchain.curve == .secp256k1, let seedKey = seedKey {
+        if blockchain.curve == .secp256k1 || blockchain.curve == .ed25519, let seedKey = seedKey {
             guard let derivedKeys = derivedKeys[seedKey.compressedPublicKey],
                   let derivedKey = derivedKeys.first(where: { $0.derivationPath == blockchain.derivationPath }) else {
                 return nil
