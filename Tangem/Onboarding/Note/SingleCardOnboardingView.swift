@@ -21,28 +21,7 @@ struct SingleCardOnboardingView: View {
     private var isTopItemsVisible: Bool {
         viewModel.isNavBarVisible
     }
-    
-    var navigationLinks: some View {
-        VStack(spacing: 0) {
-            NavigationLink(destination: WebViewContainer.shopView,
-                           isActive: $navigation.readToShop)
-            
-            NavigationLink(destination: WebViewContainer(url: viewModel.buyCryptoURL,
-                                                         title: "wallet_button_topup",
-                                                         addLoadingIndicator: true,
-                                                         urlActions: [ viewModel.buyCryptoCloseUrl : { _ in
-                navigation.onboardingToBuyCrypto = false
-                DispatchQueue.main.async {
-                    self.viewModel.updateCardBalance()
-                }
-            }
-                                                                     ]),
-                           isActive: $navigation.onboardingToBuyCrypto)
-            
-            NavigationLink(destination: EmptyView(), isActive: .constant(false))
-        }
-    }
-    
+
     var body: some View {
         ZStack {
             ConfettiView(shouldFireConfetti: $viewModel.shouldFireConfetti)
@@ -50,8 +29,6 @@ struct SingleCardOnboardingView: View {
                 .frame(maxWidth: screenSize.width)
                 .zIndex(100)
             VStack(spacing: 0) {
-                navigationLinks
-                
                 GeometryReader { proxy in
                     let size = proxy.size
                     ZStack(alignment: .center) {
@@ -136,6 +113,20 @@ struct SingleCardOnboardingView: View {
                                             qrNotice: viewModel.qrNoticeMessage)
             })
                 .frame(maxWidth: screenSize.width)
+            
+            Color.clear.frame(width: 1, height: 1)
+                .sheet(isPresented: $navigation.onboardingToBuyCrypto) {
+                    WebViewContainer(url: viewModel.buyCryptoURL,
+                                     title: "wallet_button_topup",
+                                     addLoadingIndicator: true,
+                                     withCloseButton: true,
+                                     urlActions: [ viewModel.buyCryptoCloseUrl : { _ in
+                        DispatchQueue.main.async {
+                            self.navigation.onboardingToBuyCrypto = false
+                            self.viewModel.updateCardBalance()
+                        }
+                    }])
+                }
         }
         .alert(item: $viewModel.alert, content: { $0.alert })
         .onAppear(perform: {
