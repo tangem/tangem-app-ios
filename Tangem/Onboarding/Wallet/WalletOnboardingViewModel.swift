@@ -658,6 +658,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                         case .success(let updatedCard):
                             if updatedCard.cardId == backupService.primaryCardId {
                                 self.input.cardInput.cardModel?.cardInfo.card = updatedCard
+                                self.input.cardInput.cardModel?.updateCardPinSettings()
                                 self.input.cardInput.cardModel?.updateCurrentSecOption()
                             } else { //add tokens for backup cards
                                 self.addTokens(for: updatedCard.cardId)
