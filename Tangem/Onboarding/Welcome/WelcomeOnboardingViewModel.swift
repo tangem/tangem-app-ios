@@ -27,8 +27,6 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     @Published var darkCardSettings: AnimatedViewSettings = .zero
     @Published var lightCardSettings: AnimatedViewSettings = .zero
     
-    var shopURL: URL { Constants.shopURL }
-    
     var currentStep: WelcomeStep {
         .welcome
     }
