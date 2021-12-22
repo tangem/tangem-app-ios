@@ -17,17 +17,9 @@ struct WelcomeOnboardingView: View {
     
     var currentStep: WelcomeStep { .welcome }
     
-    @ViewBuilder
-    var navigationLinks: some View {
-        NavigationLink(destination: WebViewContainer(url: viewModel.shopURL, title: "home_button_shop"),
-                       isActive: $navigation.readToShop)
-    }
-    
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
-                navigationLinks
-                
                 ZStack {
                     let bgSize = containerSize * 1.5
                     
@@ -94,7 +86,7 @@ struct WelcomeOnboardingView: View {
             
             Color.clear.frame(width: 1, height: 1)
                 .sheet(isPresented: $navigation.welcomeToBackup, content: {
-                    OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel(), isModal: true)
+                    OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
                         .presentation(modal: viewModel.isBackupModal, onDismissalAttempt: {
                             viewModel.assembly.getWalletOnboardingViewModel()?.backButtonAction()
                         }, onDismissed: nil)
@@ -115,6 +107,10 @@ struct WelcomeOnboardingView: View {
                         .presentation(modal: true, onDismissalAttempt: nil, onDismissed: viewModel.disclaimerDismissed)
                 })
             
+            Color.clear.frame(width: 1, height: 1)
+                .sheet(isPresented: $navigation.readToShop, content: {
+                    WebViewContainer(url: Constants.shopURL, title: "home_button_shop", withCloseButton: true)
+                })
         }
         .alert(item: $viewModel.error, content: { $0.alert })
         .onAppear(perform: viewModel.onAppear)
