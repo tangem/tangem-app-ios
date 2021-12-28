@@ -530,7 +530,7 @@ for
 
 URL: %@";
 
-"wallet_connect_failed_to_build_tx" = "Failed to create transaction from Dapp data";
+"wallet_connect_failed_to_build_tx" = "Failed to create transaction from Dapp data. Code: %@";
 "wallet_connect_personal_sign_message" = "Message for %@:\n";
 "wallet_connect_alert_sign_message" = "Requesting to sign a message\nwith card %@\n\n%@";
 
