@@ -77,6 +77,6 @@ extension PreparePrimaryCardTask {
     struct PreparePrimaryCardTaskResponse {
         let card: Card
         let primaryCard: PrimaryCard
-        let derivedKeys: [Data: [ExtendedPublicKey]]
+        let derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]
     }
 }
