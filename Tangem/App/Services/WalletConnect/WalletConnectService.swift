@@ -74,6 +74,15 @@ enum WalletConnectNetwork {
             return .binance(testnet: testnet)
         }
     }
+    
+    var chainId: Int? {
+        switch self {
+        case .eth(let chainId):
+            return chainId
+        case .bnb:
+            return nil
+        }
+    }
 }
 
 class WalletConnectService: ObservableObject {
@@ -339,6 +348,10 @@ extension WalletConnectService: ServerDelegate {
             sessions.remove(at: index)
             save()
         }
+    }
+    
+    func server(_ server: Server, didUpdate session: Session) {
+        //todo: handle?
     }
 }
 
