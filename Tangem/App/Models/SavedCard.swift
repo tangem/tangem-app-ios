@@ -12,14 +12,31 @@ import TangemSdk
 struct SavedCard: Codable {
     let cardId: String
     let wallets: [SavedCardWallet]
-    var derivedKeys: [Data: [ExtendedPublicKey]] = [:]
+    var derivedKeys: [Data: [SavedExtendedPublicKey]] = [:]
+    
+    func getDerivedKeys(for walletPublicKey: Data) -> [DerivationPath: ExtendedPublicKey] {
+        guard let derived = derivedKeys[walletPublicKey] else { return [:] }
+
+        let dict: [DerivationPath: ExtendedPublicKey] = derived.reduce(into: [:]) {
+            $0[$1.derivationPath] = .init(publicKey: $1.compressedPublicKey,
+                                          chainCode: $1.chainCode)
+        }
+        
+        return dict
+    }
     
     static func savedCard(from cardInfo: CardInfo) -> SavedCard {
         let wallets: [SavedCardWallet] = cardInfo.card.wallets.map {
             .init(publicKey: $0.publicKey, curve: $0.curve, chainCode: $0.chainCode)
         }
         
-        return .init(cardId: cardInfo.card.cardId, wallets: wallets, derivedKeys: cardInfo.derivedKeys)
+        let keys: [Data: [SavedExtendedPublicKey]] = cardInfo.derivedKeys.mapValues { derivations in
+            return derivations.reduce(into: []) {
+                $0.append(.init(from: $1.key, key: $1.value))
+            }
+        }
+        
+        return .init(cardId: cardInfo.card.cardId, wallets: wallets, derivedKeys: keys)
     }
 }
 
@@ -28,13 +45,17 @@ struct SavedCardWallet: Codable {
     let curve: EllipticCurve
     let chainCode: Data?
     
-    public var extendedPublicKey: ExtendedPublicKey? {
-        guard let chainCode = self.chainCode else {
-            return nil
-        }
+    public var isHdWalletAllowed: Bool {  chainCode != nil }
+}
 
-        return ExtendedPublicKey(compressedPublicKey: publicKey, //no way to get uncompressed key here
-                                 chainCode: chainCode,
-                                 derivationPath: .init())
+struct SavedExtendedPublicKey: Codable {
+    public let compressedPublicKey: Data
+    public let chainCode: Data
+    public let derivationPath: DerivationPath
+    
+    init(from derivationPath: DerivationPath, key: ExtendedPublicKey) {
+        self.compressedPublicKey = key.publicKey
+        self.chainCode = key.chainCode
+        self.derivationPath = derivationPath
     }
 }
