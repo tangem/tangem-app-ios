@@ -11,7 +11,7 @@ import TangemSdk
 
 public class EthereumAddressService: AddressService {
     public func makeAddress(from walletPublicKey: Data) -> String {
-        let walletPublicKey = Secp256k1Utils.decompressPublicKey(walletPublicKey)!
+        let walletPublicKey = try! Secp256k1Key(with: walletPublicKey).decompress()
         //skip secp256k1 prefix
         let keccak = walletPublicKey[1...].sha3(.keccak256)
         let addressBytes = keccak[12...]
