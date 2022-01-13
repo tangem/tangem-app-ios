@@ -49,7 +49,7 @@ class WalletManagerAssembly {
         if cardInfo.isMultiWallet {
             var walletManagers: [WalletManager] = []
             let tokenItems = tokenItemsRepository.getItems(for: cardInfo.card.cardId)
-         
+            
             if !tokenItems.isEmpty {
                 //Load tokens if exists
                 let savedBlockchains = Set(tokenItems.map { $0.blockchain })
@@ -90,8 +90,8 @@ class WalletManagerAssembly {
                 return makeWalletManager(cardId: cardInfo.card.cardId,
                                          walletPublicKey: wallet.publicKey,
                                          blockchain: blockchain,
-                                         seedKey: wallet.extendedPublicKey,
-                                         derivedKeys: cardInfo.derivedKeys)
+                                         isHDWalletAllowed: cardInfo.card.settings.isHDWalletAllowed,
+                                         derivedKeys: cardInfo.derivedKeys[wallet.publicKey] ?? [:])
             }
             
             return nil
@@ -104,8 +104,8 @@ class WalletManagerAssembly {
                 return makeWalletManager(cardId: cardDto.cardId,
                                          walletPublicKey: wallet.publicKey,
                                          blockchain: blockchain,
-                                         seedKey: wallet.extendedPublicKey,
-                                         derivedKeys: cardDto.derivedKeys)
+                                         isHDWalletAllowed: wallet.isHdWalletAllowed,
+                                         derivedKeys: cardDto.getDerivedKeys(for: wallet.publicKey))
             }
             
             return nil
@@ -115,22 +115,19 @@ class WalletManagerAssembly {
     private func makeWalletManager(cardId: String,
                                    walletPublicKey: Data,
                                    blockchain: Blockchain,
-                                   seedKey: ExtendedPublicKey?,
-                                   derivedKeys: [Data: [ExtendedPublicKey]]) -> WalletManager? {
-        if blockchain.curve == .secp256k1 || blockchain.curve == .ed25519, let seedKey = seedKey {
-            guard let derivedKeys = derivedKeys[seedKey.compressedPublicKey],
-                  let derivedKey = derivedKeys.first(where: { $0.derivationPath == blockchain.derivationPath }) else {
-                return nil
-            }
+                                   isHDWalletAllowed: Bool,
+                                   derivedKeys: [DerivationPath: ExtendedPublicKey]) -> WalletManager? {
+        if isHDWalletAllowed, blockchain.curve == .secp256k1 || blockchain.curve == .ed25519  {
+            guard let derivedKey = derivedKeys[blockchain.derivationPath!] else { return nil }
             
             return try? factory.makeWalletManager(cardId: cardId,
-                                                           blockchain: blockchain,
-                                                           seedKey: seedKey,
-                                                           derivedKey: derivedKey)
+                                                  blockchain: blockchain,
+                                                  seedKey: walletPublicKey,
+                                                  derivedKey: derivedKey)
         } else {
             return try? factory.makeWalletManager(cardId: cardId,
-                                                           blockchain: blockchain,
-                                                           walletPublicKey: walletPublicKey)
+                                                  blockchain: blockchain,
+                                                  walletPublicKey: walletPublicKey)
         }
     }
     
