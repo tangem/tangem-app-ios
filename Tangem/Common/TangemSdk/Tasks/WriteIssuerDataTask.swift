@@ -66,9 +66,9 @@ class WriteIssuerDataTask: CardSessionRunnable {
         let dataToSign = pairPubKey + signedPubKeyHash
         let newCounter = (counter ?? 0) + 1
         
-        let hashes = FileHashHelper.prepareHash(for: cardId, fileData: dataToSign, fileCounter: newCounter, privateKey: keys.privateKey)
-        guard
-            let signature = hashes.finalizingSignature
+       
+        guard let hashes = try? FileHashHelper.prepareHash(for: cardId, fileData: dataToSign, fileCounter: newCounter, privateKey: keys.privateKey),
+              let signature = hashes.finalizingSignature
         else {
             completion(.failure(.signHashesNotAvailable))
             return
