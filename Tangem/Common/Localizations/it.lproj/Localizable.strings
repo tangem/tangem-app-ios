@@ -550,6 +550,7 @@ URL: %@";
 "add_token_section_title_binance_smart_chain_tokens" = "Binance Smart Chain tokens";
 
 "add_token_section_title_binance_tokens" = "Binance tokens";
+"add_token_section_title_polygon_tokens" = "Polygon tokens";
 
 "keychain_failed_to_create_key" = "Failed to create SecKey representation";
 "keychain_failed_to_store_key" = "Failed to store key: ";
