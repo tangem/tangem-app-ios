@@ -147,6 +147,7 @@
 		5DE7DD4D269627EF00472205 /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CA5A9B25F77A5B0078F42F /* MainViewModel.swift */; };
 		5DE7DD4E2696286500472205 /* TokensListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6C128125E13DE10010A0C5 /* TokensListItemView.swift */; };
 		5DEC50A525F160930022CE83 /* CircleImageTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DEC50A425F160930022CE83 /* CircleImageTextView.swift */; };
+		5DEE58152791D51000CCC4DD /* polygonTokens.json in Resources */ = {isa = PBXBuildFile; fileRef = 5DEE58142791D51000CCC4DD /* polygonTokens.json */; };
 		5DF2522724F914E30015B429 /* AppScanTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF2522624F914E30015B429 /* AppScanTask.swift */; };
 		5DF2522924F93C2A0015B429 /* QRCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF2522824F93C2A0015B429 /* QRCodeView.swift */; };
 		5DF2522B24F9439D0015B429 /* UIImage+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF2522A24F9439D0015B429 /* UIImage+.swift */; };
@@ -928,6 +929,7 @@
 		5DDE22F92609023B008657C6 /* WalletConnectViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectViewModel.swift; sourceTree = "<group>"; };
 		5DE2038D24EE8A510044EF46 /* ActivityIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicatorView.swift; sourceTree = "<group>"; };
 		5DEC50A425F160930022CE83 /* CircleImageTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircleImageTextView.swift; sourceTree = "<group>"; };
+		5DEE58142791D51000CCC4DD /* polygonTokens.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = polygonTokens.json; sourceTree = "<group>"; };
 		5DF2522624F914E30015B429 /* AppScanTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppScanTask.swift; sourceTree = "<group>"; };
 		5DF2522824F93C2A0015B429 /* QRCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeView.swift; sourceTree = "<group>"; };
 		5DF2522A24F9439D0015B429 /* UIImage+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIImage+.swift"; sourceTree = "<group>"; };
@@ -3432,6 +3434,7 @@
 			isa = PBXGroup;
 			children = (
 				B080765E25D10667006CF606 /* ethereumTokens.json */,
+				5DEE58142791D51000CCC4DD /* polygonTokens.json */,
 				B0C4A1D02671E39B00DCB921 /* ethereumTokens_testnet.json */,
 				B0C34956267B60A70027CC9D /* binanceSmartChainTokens.json */,
 				B016E6BF26805BA3007178B9 /* binanceSmartChainTokens_testnet.json */,
@@ -3743,6 +3746,7 @@
 				5DBBAB0D24D8547F00E78F1C /* Colors.xcassets in Resources */,
 				5DFB499624E44BC90037E76F /* Tokens.xcassets in Resources */,
 				B087636026830795000A35F9 /* binanceTokens.json in Resources */,
+				5DEE58152791D51000CCC4DD /* polygonTokens.json in Resources */,
 				5D15102E264BD49600961000 /* issuers.json in Resources */,
 				B0C4A1D12671EB2400DCB921 /* ethereumTokens_testnet.json in Resources */,
 				B0A359ED2589117200E25B34 /* features_firebase.json in Resources */,
