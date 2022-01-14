@@ -22,28 +22,32 @@ class SupportedTokenItems {
     }()
     
     lazy var ethereumTokens: [Token] = {
-        tokens(fromFile: "ethereumTokens", for: .ethereum(testnet: false))
+        tokens(fromFile: "ethereumTokens")
     }()
     
     lazy var ethereumTokensTestnet: [Token] = {
-        tokens(fromFile: "ethereumTokens_testnet", for: .ethereum(testnet: true))
+        tokens(fromFile: "ethereumTokens_testnet")
     }()
     
     lazy var binanceTokens: [Token] = {
-        tokens(fromFile: "binanceTokens", for: .binance(testnet: false))
+        tokens(fromFile: "binanceTokens")
     }()
     
     lazy var binanceTokensTestnet: [Token] = {
-        tokens(fromFile: "binanceTokens_testnet", for: .binance(testnet: false), shouldSortByName: true, shouldPrintJson: true)
+        tokens(fromFile: "binanceTokens_testnet", shouldSortByName: true, shouldPrintJson: true)
     }()
     
     lazy var binanceSmartChainTokens: [Token] = {
-        tokens(fromFile: "binanceSmartChainTokens", for: .bsc(testnet: false))
+        tokens(fromFile: "binanceSmartChainTokens")
     }()
     
     var binanceSmartChainTokensTestnet: [Token] {
-        tokens(fromFile: "binanceSmartChainTokens_testnet", for: .bsc(testnet: true))
+        tokens(fromFile: "binanceSmartChainTokens_testnet")
     }
+    
+    lazy var polygonTokens: [Token] = {
+        tokens(fromFile: "polygonTokens")
+    }()
     
     private lazy var blockchains: Set<Blockchain> = {
         [
@@ -86,6 +90,10 @@ class SupportedTokenItems {
         isTestnet ? ethereumTokensTestnet : ethereumTokens
     }
     
+    func availablePolygonTokens(isTestnet: Bool) -> [Token] {
+        polygonTokens
+    }
+    
     func blockchains(for curves: [EllipticCurve], isTestnet: Bool) -> Set<Blockchain> {
         var availableBlockchains = Set<Blockchain>()
         
@@ -99,7 +107,7 @@ class SupportedTokenItems {
         return availableBlockchains
     }
     
-    private func tokens(fromFile fileName: String, for blockchain: Blockchain, shouldSortByName: Bool = false, shouldPrintJson: Bool = false) -> [Token] {
+    private func tokens(fromFile fileName: String, shouldSortByName: Bool = false, shouldPrintJson: Bool = false) -> [Token] {
         var tokens = try? JsonUtils.readBundleFile(with: fileName,
                                                    type: [Token].self,
                                                    shouldAddCompilationCondition: false)
