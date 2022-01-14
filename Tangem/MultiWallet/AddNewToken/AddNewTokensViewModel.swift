@@ -150,6 +150,16 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
                                      collapsible: true,
                                      expanded: true))
         
+        let polygonTokens: [TokenModel] = supportedItems.availablePolygonTokens(isTestnet: isTestnet)
+            .map { TokenItem.token($0) }
+            .map { TokenModel(tokenItem: $0, sectionId: Sections.polygon.rawValue, isAdded: isAdded($0), onTap: onItemTap) }
+        
+        listData.append(SectionModel(id: Sections.polygon.rawValue,
+                                     name: "add_token_section_title_polygon_tokens".localized,
+                                     items: polygonTokens,
+                                     collapsible: true,
+                                     expanded: true))
+        
         self.data = listData
     }
 }
@@ -160,6 +170,7 @@ extension AddNewTokensViewModel {
         case eth
         case bsc
         case bnb
+        case polygon
     }
 }
 
