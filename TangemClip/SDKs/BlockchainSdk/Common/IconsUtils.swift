@@ -24,13 +24,10 @@ public enum IconsUtils {
             .appendingPathComponent(logoSuffix)
     }
     
-    public static func getTokenIconUrl(for blockchain: Blockchain, token: Token) -> URL? {
-        guard
-            blockchain.tokenIconsAvailable,
-            let blockchainPath = blockchain.getPath
-        else { return nil }
+    public static func getTokenIconUrl(token: Token) -> URL? {
+        guard let blockchainPath = token.blockchain.getPath else { return nil }
         
-        let tokenPath = normalizeAssetPath(token.contractAddress, blockchain: blockchain)
+        let tokenPath = normalizeAssetPath(token.contractAddress, blockchain: token.blockchain)
         return URL(string: baseUrl)?
             .appendingPathComponent(blockchainPath)
             .appendingPathComponent("assets")
@@ -38,8 +35,10 @@ public enum IconsUtils {
             .appendingPathComponent(logoSuffix)
     }
     
-    private static func normalizeAssetPath(_ path: String, blockchain: Blockchain) -> String {
-        switch blockchain {
+    private static func normalizeAssetPath(_ token: Token) -> String {
+        let path = token.contractAddress
+        
+        switch token.blockchain {
         case .ethereum:
             return ethereumAddressToChecksum(path) ?? path
         case .binance:
@@ -99,15 +98,6 @@ fileprivate extension Blockchain {
             return "smartchain"
         case .polygon:
             return "polygon"
-        }
-    }
-    
-    var tokenIconsAvailable: Bool {
-        switch self {
-        case .ethereum, .binance:
-            return true
-        default:
-            return false
         }
     }
 }
