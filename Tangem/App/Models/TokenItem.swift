@@ -99,7 +99,7 @@ enum TokenItem: Codable, Hashable, Identifiable {
                 return url
             }
             
-            return IconsUtils.getTokenIconUrl(for: .ethereum(testnet: false), token: token)?.absoluteString
+            return IconsUtils.getTokenIconUrl(token: token)?.absoluteString
         }
     }
     
