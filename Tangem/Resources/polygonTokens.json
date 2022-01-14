@@ -1,0 +1,673 @@
+[
+  {
+    "decimalCount" : 18,
+    "symbol" : "PUSD",
+    "name" : "PUSD",
+    "contractAddress" : "0x9aF3b7DC29D3C4B1A5731408B6A9656fA7aC3b72",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "IF",
+    "name" : "Impossible Finance",
+    "contractAddress" : "0xB0e1fc65C1a741b4662B813eB787d369b8614Af1",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "PolyDoge",
+    "name" : "PolyDoge",
+    "contractAddress" : "0x8A953CfE442c5E8855cc6c61b1293FA648BAE472",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "GMEE",
+    "name" : "GAMEE Token",
+    "contractAddress" : "0xcf32822ff397Ef82425153a9dcb726E5fF61DCA7",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "0xBTC",
+    "name" : "0xBitcoin Token",
+    "contractAddress" : "0x71B821aa52a49F32EEd535fCA6Eb5aa130085978",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 6,
+    "symbol" : "USDT",
+    "name" : "(PoS) Tether USD",
+    "contractAddress" : "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "IRON",
+    "name" : "IRON Stablecoin",
+    "contractAddress" : "0xD86b5923F3AD7b585eD81B448170ae026c65ae9a",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "UNCX",
+    "name" : "UniCrypt",
+    "contractAddress" : "0x9EECD634c7a934F752aF0EB90DdA9Ecc262F199F",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "LINK",
+    "name" : "ChainLink Token",
+    "contractAddress" : "0x53E0bca35eC356BD5ddDFebbD1Fc0fD03FaBad39",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "OVR",
+    "name" : "OVR",
+    "contractAddress" : "0x1631244689EC1fEcbDD22fb5916E920dFC9b8D30",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "GAMER",
+    "name" : "GameStation",
+    "contractAddress" : "0x3f6b3595ecF70735D3f48D69b09C4E4506DB3F47",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "DEUS",
+    "name" : "DEUS",
+    "contractAddress" : "0xDE5ed76E7c05eC5e4572CfC88d1ACEA165109E44",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 9,
+    "symbol" : "HOGE",
+    "name" : "Hoge Finance",
+    "contractAddress" : "0x58c1BBb508e96CfEC1787Acf6Afe1C7008A5B064",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "WEXpoly",
+    "name" : "WaultSwap Polygon",
+    "contractAddress" : "0x4c4BF319237D98a30A929A96112EfFa8DA3510EB",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 6,
+    "symbol" : "wCCX",
+    "name" : "Wrapped CCX",
+    "contractAddress" : "0x137Ee749f0F8c2eD34cA00dE33BB59E3dafA494A",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "ADDY",
+    "name" : "Adamant",
+    "contractAddress" : "0xc3FdbadC7c795EF1D6Ba111e06fF8F16A20Ea539",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "IDIA",
+    "name" : "Impossible Finance IDIA",
+    "contractAddress" : "0x0b15Ddf19D47E6a86A56148fb4aFFFc6929BcB89",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "SUSHI",
+    "name" : "SushiToken (PoS)",
+    "contractAddress" : "0x0b3F868E0BE5597D5DB7fEB59E1CADBb0fdDa50a",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "OMEN",
+    "name" : "Augury Finance",
+    "contractAddress" : "0x76e63a3E7Ba1e2E61D3DA86a87479f983dE89a7E",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 9,
+    "symbol" : "WOLF",
+    "name" : "moonwolf.io",
+    "contractAddress" : "0x8f18dC399594b451EdA8c5da02d0563c0b2d0f16",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "PGX",
+    "name" : "Pegaxy",
+    "contractAddress" : "0xc1c93D475dc82Fe72DBC7074d55f5a734F8cEEAE",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "RISE",
+    "name" : "EverRise",
+    "contractAddress" : "0x0cD022ddE27169b20895e0e2B2B8A33B25e63579",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "BLOK",
+    "name" : "BLOK",
+    "contractAddress" : "0x229b1b6C23ff8953D663C4cBB519717e323a0a84",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "FOUR",
+    "name" : "The 4th Pillar Token",
+    "contractAddress" : "0x48cBc913dE09317dF2365e6827Df50dA083701D5",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "QI",
+    "name" : "Qi Dao",
+    "contractAddress" : "0x580A84C73811E1839F75d86d75d88cCa0c241fF4",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "DG",
+    "name" : "Decentral Games",
+    "contractAddress" : "0xef938b6da8576a896f6E0321ef80996F4890f9c4",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "BANANA",
+    "name" : "Ape Swap Finance Banana",
+    "contractAddress" : "0x5d47bAbA0d66083C52009271faF3F50DCc01023C",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "WSPP",
+    "name" : "WolfSafePoorPeople",
+    "contractAddress" : "0x46D502Fac9aEA7c5bC7B13C8Ec9D02378C33D36F",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "EQZ",
+    "name" : "Equalizer",
+    "contractAddress" : "0xEAf631ac57F3CDDDd261770dD47F85066131a156",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "DLYCOP",
+    "name" : "Daily COP",
+    "contractAddress" : "0x1659fFb2d40DfB1671Ac226A0D9Dcc95A774521A",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "PEAR",
+    "name" : "PearZap Token",
+    "contractAddress" : "0xc8bcb58caEf1bE972C0B638B1dD8B0748Fdc8A44",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 2,
+    "symbol" : "TEL",
+    "name" : "Telcoin",
+    "contractAddress" : "0xdF7837DE1F2Fa4631D716CF2502f8b230F1dcc32",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "MM",
+    "name" : "Million",
+    "contractAddress" : "0x5647Fe4281F8F6F01E84BCE775AD4b828A7b8927",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 6,
+    "symbol" : "USDC",
+    "name" : "USD Coin (PoS)",
+    "contractAddress" : "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 7,
+    "symbol" : "ISLAMI",
+    "name" : "ISLAMICOIN",
+    "contractAddress" : "0x9c891326Fd8b1a713974f73bb604677E1E63396D",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "ARDN",
+    "name" : "Ariadne",
+    "contractAddress" : "0xB6EBc3ca1741a8f37551E44A51eC00aD417B38CA",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "PYQ",
+    "name" : "PYQ",
+    "contractAddress" : "0x5a3064CbDCCF428ae907796cF6aD5a664CD7F3d8",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "UNI",
+    "name" : "Uniswap (PoS)",
+    "contractAddress" : "0xb33EaAd8d922B1083446DC23f610c2567fB5180f",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "ROUTE",
+    "name" : "Route",
+    "contractAddress" : "0x16ECCfDbb4eE1A85A33f3A9B21175Cd7Ae753dB4",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "ROLL",
+    "name" : "Polyroll Token",
+    "contractAddress" : "0xC68e83a305b0FaD69E264A1769a0A070F190D2d6",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 6,
+    "symbol" : "maUSDC",
+    "name" : "Matic Aave interest bearing USDC",
+    "contractAddress" : "0x9719d867A500Ef117cC201206B8ab51e794d3F82",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "PAINT",
+    "name" : "Paint",
+    "contractAddress" : "0x7c28F627eA3aEc8B882b51eb1935f66e5b875714",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "CPIE",
+    "name" : "CremePieSwap",
+    "contractAddress" : "0xfad70FD116559914240faB82b0078c4E82a6a1B8",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "GFI",
+    "name" : "Gravity Finance",
+    "contractAddress" : "0x874e178A2f3f3F9d34db862453Cd756E7eAb0381",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "CRO",
+    "name" : "Crypto.com Coin",
+    "contractAddress" : "0xAdA58DF0F643D959C2A47c9D4d4c1a4deFe3F11C",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "QUICK",
+    "name" : "QuickSwap",
+    "contractAddress" : "0x831753DD7087CaC61aB5644b308642cc1c33Dc13",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "DEI",
+    "name" : "DEI",
+    "contractAddress" : "0xDE12c7959E1a72bbe8a5f7A1dc8f8EeF9Ab011B3",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "pCherry",
+    "name" : "CherryPick",
+    "contractAddress" : "0xE33dC9d2D7D64c1e23467aC7eD7F8eF56d0a8d66",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "DATA",
+    "name" : "Streamr",
+    "contractAddress" : "0x3a9A81d576d83FF21f26f325066054540720fC34",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "WMATIC",
+    "name" : "Wrapped MATIC",
+    "contractAddress" : "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "Krill",
+    "name" : "Krill",
+    "contractAddress" : "0x05089C9EBFFa4F0AcA269e32056b1b36B37ED71b",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "TITAN",
+    "name" : "IRON Titanium Token",
+    "contractAddress" : "0xaAa5B9e6c589642f98a1cDA99B9D024B8407285A",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "CRV",
+    "name" : "CRV (PoS)",
+    "contractAddress" : "0x172370d5Cd63279eFa6d502DAB29171933a610AF",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "STACK",
+    "name" : " Stacker Ventures Token (PoS)",
+    "contractAddress" : "0xccBe9B810d6574701d324fD6DbE0A1b68f9d5bf7",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 9,
+    "symbol" : "SRAT",
+    "name" : "SpaceRat",
+    "contractAddress" : "0x1132f58810Ee9fF13E97aECCd8DDa688Cc5eb8F4",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "DAI",
+    "name" : "(PoS) Dai Stablecoin",
+    "contractAddress" : "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "WETH",
+    "name" : "Wrapped Ether",
+    "contractAddress" : "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "DFYN",
+    "name" : "DFYN Token (PoS)",
+    "contractAddress" : "0xC168E40227E4ebD8C1caE80F7a55a4F0e6D66C97",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "FISH",
+    "name" : "Fish",
+    "contractAddress" : "0x3a3Df212b7AA91Aa0402B9035b098891d276572B",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "miMATIC",
+    "name" : "miMATIC",
+    "contractAddress" : "0xa3Fa99A148fA48D14Ed51d610c367C61876997F1",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 18,
+    "symbol" : "AAVE",
+    "name" : "Aave (PoS)",
+    "contractAddress" : "0xD6DF932A45C0f255f85145f286eA0b292B21C90B",
+    "blockchain" : {
+      "key" : "polygon",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  }
+]
