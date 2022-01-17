@@ -27,7 +27,7 @@ public enum IconsUtils {
     public static func getTokenIconUrl(token: Token) -> URL? {
         guard let blockchainPath = token.blockchain.getPath else { return nil }
         
-        let tokenPath = normalizeAssetPath(token.contractAddress, blockchain: token.blockchain)
+        let tokenPath = normalizeAssetPath(token)
         return URL(string: baseUrl)?
             .appendingPathComponent(blockchainPath)
             .appendingPathComponent("assets")
