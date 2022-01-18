@@ -49,6 +49,14 @@ class SupportedTokenItems {
         tokens(fromFile: "polygonTokens")
     }()
     
+    lazy var solanaTokens: [Token] = {
+        tokens(fromFile: "solanaTokens")
+    }()
+    
+    lazy var solanaTokensTestnet: [Token] = {
+        tokens(fromFile: "solanaTokens_testnet")
+    }()
+    
     private lazy var blockchains: Set<Blockchain> = {
         [
             .ethereum(testnet: false),
@@ -94,6 +102,10 @@ class SupportedTokenItems {
     
     func availablePolygonTokens(isTestnet: Bool) -> [Token] {
         polygonTokens
+    }
+    
+    func availableSolanaTokens(isTestnet: Bool) -> [Token] {
+        isTestnet ? solanaTokens : solanaTokensTestnet
     }
     
     func blockchains(for curves: [EllipticCurve], isTestnet: Bool) -> Set<Blockchain> {
