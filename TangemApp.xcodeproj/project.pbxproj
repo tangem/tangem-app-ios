@@ -751,6 +751,8 @@
 		B0FB2995263BD3ED007B400F /* EthereumUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FB2994263BD3ED007B400F /* EthereumUtils.swift */; };
 		B0FB98A52598D24300B769A3 /* Card+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FB98A42598D24300B769A3 /* Card+.swift */; };
 		B0FC4A822630245F000444D7 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = B0FC49BF2630245E000444D7 /* Localizable.strings */; };
+		DA6EA846279705BE00689592 /* solanaTokens.json in Resources */ = {isa = PBXBuildFile; fileRef = DA6EA845279705BE00689592 /* solanaTokens.json */; };
+		DA6EA8482797061000689592 /* solanaTokens_testnet.json in Resources */ = {isa = PBXBuildFile; fileRef = DA6EA8472797061000689592 /* solanaTokens_testnet.json */; };
 		F06BBA2FE022C3EF1F3B6513 /* Pods_Tangem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F3AA1BEE46AF490A6F95DA /* Pods_Tangem.framework */; };
 /* End PBXBuildFile section */
 
@@ -1530,6 +1532,8 @@
 		BD6C9959F53AF1BAC643BEDD /* Pods-Tangem Tap-Tangem TapUITests.firebase.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap-Tangem TapUITests.firebase.xcconfig"; path = "Target Support Files/Pods-Tangem Tap-Tangem TapUITests/Pods-Tangem Tap-Tangem TapUITests.firebase.xcconfig"; sourceTree = "<group>"; };
 		D513FF545D1945A2BACAA25F /* Pods_Tangem_TangemUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tangem_TangemUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9B0B0F1869C2BD108CE901A /* Pods-Tangem-TangemUITests.firebase.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.firebase.xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.firebase.xcconfig"; sourceTree = "<group>"; };
+		DA6EA845279705BE00689592 /* solanaTokens.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = solanaTokens.json; sourceTree = "<group>"; };
+		DA6EA8472797061000689592 /* solanaTokens_testnet.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = solanaTokens_testnet.json; sourceTree = "<group>"; };
 		E53081CA3060D2785F9D22F0 /* Pods-Tangem-TangemUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release.xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release.xcconfig"; sourceTree = "<group>"; };
 		F3B96D298A039D2A8811CEF0 /* Pods-Tangem Tap.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap.release.xcconfig"; path = "Target Support Files/Pods-Tangem Tap/Pods-Tangem Tap.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -3441,6 +3445,8 @@
 				B087635D2683077E000A35F9 /* binanceTokens.json */,
 				B087635E2683077E000A35F9 /* binanceTokens_testnet.json */,
 				B0CC817D25CD6281006D49B9 /* breadwallet_tokens.json */,
+				DA6EA845279705BE00689592 /* solanaTokens.json */,
+				DA6EA8472797061000689592 /* solanaTokens_testnet.json */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -3746,6 +3752,7 @@
 				5DBBAB0D24D8547F00E78F1C /* Colors.xcassets in Resources */,
 				5DFB499624E44BC90037E76F /* Tokens.xcassets in Resources */,
 				B087636026830795000A35F9 /* binanceTokens.json in Resources */,
+				DA6EA846279705BE00689592 /* solanaTokens.json in Resources */,
 				5DEE58152791D51000CCC4DD /* polygonTokens.json in Resources */,
 				5D15102E264BD49600961000 /* issuers.json in Resources */,
 				B0C4A1D12671EB2400DCB921 /* ethereumTokens_testnet.json in Resources */,
@@ -3754,6 +3761,7 @@
 				B0D34EBF2626EA4300625AC5 /* GoogleService-Info.plist in Resources */,
 				B087635F26830795000A35F9 /* binanceTokens_testnet.json in Resources */,
 				5D3F77CF24BF56DC00E8695B /* Preview Assets.xcassets in Resources */,
+				DA6EA8482797061000689592 /* solanaTokens_testnet.json in Resources */,
 				B0ED200E267C730D00D5C3E5 /* binanceSmartChainTokens.json in Resources */,
 				B016E6C026807053007178B9 /* binanceSmartChainTokens_testnet.json in Resources */,
 				5D5CE1A82625FF00009023EC /* config_dev.json in Resources */,
