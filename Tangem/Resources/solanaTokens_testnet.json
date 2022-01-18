@@ -1,0 +1,13 @@
+[
+  {
+    "decimalCount" : 9,
+    "symbol" : "TST",
+    "name" : "TEST",
+    "contractAddress" : "HmSghNPg6KCk711YJA92aPejt8auyFkvmaED6jbHfUs4",
+    "blockchain" : {
+      "key" : "solana",
+      "curve" : "ed25519",
+      "testnet" : true
+    }
+  },
+]
