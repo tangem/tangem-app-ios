@@ -160,6 +160,17 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
                                      collapsible: true,
                                      expanded: true))
         
+        let solanaTokens: [TokenModel] = supportedItems.availableSolanaTokens(isTestnet: isTestnet)
+            .map { TokenItem.token($0) }
+            .map { TokenModel(tokenItem: $0, sectionId: Sections.solana.rawValue, isAdded: isAdded($0), onTap: onItemTap) }
+        
+#warning("[REDACTED_TODO_COMMENT]")
+        listData.append(SectionModel(id: Sections.solana.rawValue,
+                                     name: "Solana tokens",
+                                     items: solanaTokens,
+                                     collapsible: true,
+                                     expanded: true))
+        
         self.data = listData
     }
 }
@@ -171,6 +182,7 @@ extension AddNewTokensViewModel {
         case bsc
         case bnb
         case polygon
+        case solana
     }
 }
 
