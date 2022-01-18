@@ -43,6 +43,10 @@ target 'Tangem' do
   pod 'DeviceGuru'
   pod 'Kingfisher', :git => 'https://github.com/onevcat/Kingfisher.git', :branch => 'version6-xcode13'
   pod 'stellar-ios-mac-sdk'
+
+  pod 'Solana.Swift', :git => 'https://github.com/tangem/Solana.Swift', :branch => 'feature/add-external-signer'
+  # pod 'Solana.Swift', :path => '../Solana.Swift'
+
   target 'TangemTests' do
     inherit! :search_paths
     # Pods for testing
