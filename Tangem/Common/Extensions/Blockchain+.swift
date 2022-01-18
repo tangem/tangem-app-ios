@@ -44,6 +44,8 @@ extension Blockchain: Identifiable {
             return nil
         case .polygon:
             return nil
+        case .solana:
+            return nil
         }
     }
     
@@ -68,6 +70,8 @@ extension Blockchain: Identifiable {
             return "https://faucet.matic.network"
         case .stellar:
             return "https://laboratory.stellar.org/#account-creator?network=test"
+        case .solana:
+            return "https://solfaucet.com"
         default:
             return nil
         }
