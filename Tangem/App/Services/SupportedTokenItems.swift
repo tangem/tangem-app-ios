@@ -63,7 +63,8 @@ class SupportedTokenItems {
             .cardano(shelley: true),
             .dogecoin,
             .bsc(testnet: false),
-            .polygon(testnet: false)
+            .polygon(testnet: false),
+            .solana(testnet: false),
         ]
     }()
     
@@ -74,7 +75,8 @@ class SupportedTokenItems {
             .binance(testnet: true),
             .stellar(testnet: true),
             .bsc(testnet: true),
-            .polygon(testnet: true)
+            .polygon(testnet: true),
+            .solana(testnet: true),
         ]
     }()
     
