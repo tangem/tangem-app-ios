@@ -203,13 +203,16 @@ public enum Blockchain {
         case .bitcoin, .ducatus: return 0
         case .litecoin: return 2
         case .dogecoin: return 3
-        case .ethereum, .bsc, .rsk, .polygon: return 60
+        case .ethereum: return 60
+        case .bsc: return 9006
         case .bitcoinCash: return 145
         case .binance: return 714
         case .xrp: return 144
         case .tezos: return 1729
         case .stellar: return 148
         case .cardano: return 1815
+        case .rsk: return 137
+        case .polygon: return 966
         case .solana: return 501
         }
     }
