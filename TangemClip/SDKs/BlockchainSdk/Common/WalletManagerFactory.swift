@@ -168,6 +168,8 @@ public class WalletManagerFactory {
             return TezosWalletManager(wallet: wallet).then {
                 $0.networkService = TezosNetworkService()
             }
+        case .solana:
+            fatalError()
         }
     }
 }
