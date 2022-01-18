@@ -25,6 +25,7 @@ public enum Blockchain {
     case dogecoin
     case bsc(testnet: Bool)
     case polygon(testnet: Bool)
+    case solana(testnet: Bool)
     
     public var isTestnet: Bool {
         switch self {
@@ -42,12 +43,14 @@ public enum Blockchain {
             return testnet
         case .polygon(let testnet):
             return testnet
+        case .solana(let testnet):
+            return testnet
         }
     }
     
     public var curve: EllipticCurve {
         switch self {
-        case .stellar, .cardano:
+        case .stellar, .cardano, .solana:
             return .ed25519
         case .xrp(let curve):
             return curve
@@ -68,6 +71,8 @@ public enum Blockchain {
             return 6
         case .stellar:
             return 7
+        case .solana:
+            return 9
         }
     }
     
@@ -105,6 +110,8 @@ public enum Blockchain {
             return "BNB"
         case .polygon:
             return "MATIC"
+        case .solana:
+            return "SOL"
         }
     }
     
@@ -121,6 +128,8 @@ public enum Blockchain {
             return "Binance Smart Chain" + (testnet ? testnetSuffix : "")
         case .polygon(let testnet):
             return "Polygon" + (testnet ? testnetSuffix : "")
+        case .solana(let testnet):
+            return "Solana" + (testnet ? testnetSuffix : "")
         default:
             var name = "\(self)".capitalizingFirstLetter()
             if let index = name.firstIndex(of: "(") {
@@ -140,6 +149,8 @@ public enum Blockchain {
             return "Binance Asset"
         case .bsc:
             return "Binance Smart Chain token"
+        case .solana:
+            return "Solana Token"
         default:
             return displayName
         }
@@ -199,6 +210,7 @@ public enum Blockchain {
         case .tezos: return 1729
         case .stellar: return 148
         case .cardano: return 1815
+        case .solana: return 501
         }
     }
     
@@ -272,6 +284,10 @@ public enum Blockchain {
             let baseUrl = testnet ? "https://explorer-mumbai.maticvigil.com/address/" : "https://polygonscan.com/address/"
             let link = baseUrl + address
             return URL(string: link)
+        case .solana(let testnet):
+            let baseUrl = "https://explorer.solana.com/address/"
+            let cluster = testnet ? "" : "?cluster=testnet"
+            return URL(string: baseUrl + address + cluster)
         }
     }
     
@@ -295,6 +311,7 @@ public enum Blockchain {
         case "doge": return .dogecoin
         case "bsc": return .bsc(testnet: isTestnet)
         case "polygon": return .polygon(testnet: isTestnet)
+        case "solana": return .solana(testnet: isTestnet)
         default: return nil
         }
     }
@@ -327,6 +344,8 @@ public enum Blockchain {
             return TezosAddressService(curve: curve)
         case .dogecoin:
             return BitcoinLegacyAddressService(networkParams: DogecoinNetworkParams())
+        case .solana:
+            fatalError()
         }
     }
 }
@@ -349,6 +368,7 @@ extension Blockchain: Equatable, Hashable, Codable {
         case .dogecoin: return "dogecoin"
         case .bsc: return "bsc"
         case .polygon: return "polygon"
+        case .solana: return "solana"
         }
     }
     
@@ -385,6 +405,7 @@ extension Blockchain: Equatable, Hashable, Codable {
         case "dogecoin": self = .dogecoin
         case "bsc": self = .bsc(testnet: isTestnet)
         case "polygon", "matic": self = .polygon(testnet: isTestnet)
+        case "solana": self = .solana(testnet: isTestnet)
         default: throw BlockchainSdkError.decodingFailed
         }
     }
