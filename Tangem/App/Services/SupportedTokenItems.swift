@@ -105,7 +105,7 @@ class SupportedTokenItems {
     }
     
     func availableSolanaTokens(isTestnet: Bool) -> [Token] {
-        isTestnet ? solanaTokens : solanaTokensTestnet
+        isTestnet ? solanaTokensTestnet : solanaTokens
     }
     
     func blockchains(for curves: [EllipticCurve], isTestnet: Bool) -> Set<Blockchain> {
