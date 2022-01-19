@@ -1,9 +1,20 @@
 [
   {
     "decimalCount" : 9,
-    "symbol" : "TST",
-    "name" : "TEST",
-    "contractAddress" : "HmSghNPg6KCk711YJA92aPejt8auyFkvmaED6jbHfUs4",
+    "symbol" : "TCA",
+    "name" : "Tangem Coin A",
+    "contractAddress" : "FdkU6R2cjHVdhxh7Ymqkhj8SNjtHKpVuHdDiNVy3mhv6",
+    "blockchain" : {
+      "key" : "solana",
+      "curve" : "ed25519",
+      "testnet" : true
+    }
+  },
+  {
+    "decimalCount" : 9,
+    "symbol" : "TCB",
+    "name" : "Tangem Coin B",
+    "contractAddress" : "FtPCJMGNasF9TSMEw9KeqEdRy9LJYbdLVRZMMrUB4pfZ",
     "blockchain" : {
       "key" : "solana",
       "curve" : "ed25519",
