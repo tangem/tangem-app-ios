@@ -25,6 +25,7 @@ public enum Blockchain {
     case dogecoin
     case bsc(testnet: Bool)
     case polygon(testnet: Bool)
+    case avalanche(testnet: Bool)
     case solana(testnet: Bool)
     
     public var isTestnet: Bool {
@@ -42,6 +43,8 @@ public enum Blockchain {
         case .binance(let testnet):
             return testnet
         case .polygon(let testnet):
+            return testnet
+        case .avalanche(let testnet):
             return testnet
         case .solana(let testnet):
             return testnet
@@ -71,6 +74,8 @@ public enum Blockchain {
             return 6
         case .stellar:
             return 7
+        case .avalanche:
+            return 9
         case .solana:
             return 9
         }
@@ -110,6 +115,8 @@ public enum Blockchain {
             return "BNB"
         case .polygon:
             return "MATIC"
+        case .avalanche:
+            return "AVAX"
         case .solana:
             return "SOL"
         }
@@ -128,6 +135,8 @@ public enum Blockchain {
             return "Binance Smart Chain" + (testnet ? testnetSuffix : "")
         case .polygon(let testnet):
             return "Polygon" + (testnet ? testnetSuffix : "")
+        case .avalanche(let testnet):
+            return "Avalanche C-Chain" + (testnet ? testnetSuffix : "")
         case .solana(let testnet):
             return "Solana" + (testnet ? testnetSuffix : "")
         default:
@@ -182,16 +191,35 @@ public enum Blockchain {
         }
     }
     
-    /// BIP44
     public var derivationPath: DerivationPath? {
-        guard curve == .secp256k1 else { return  nil }
+        guard curve == .secp256k1 || curve == .ed25519 else { return  nil }
         
-        let bip44 = BIP44(coinType: coinType,
-                          account: 0,
-                          change: .external,
-                          addressIndex: 0)
-        
-        return bip44.buildPath()
+        switch self {
+        case .stellar:
+            //Path according to sep-0005. https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0005.md
+            return DerivationPath(nodes: [.hardened(BIP44.purpose),
+                                          .hardened(coinType),
+                                          .hardened(0)])
+        case .cardano(let shelley):
+            if !shelley { //We use shelley for all new cards with HD wallets feature
+                return nil
+            }
+            
+            //Path according to CIP-1852. https://cips.cardano.org/cips/cip1852/
+            return DerivationPath(nodes: [.hardened(1852), //purpose
+                                          .hardened(coinType),
+                                          .hardened(0),
+                                          .nonHardened(0),
+                                          .nonHardened(0)])
+        default:
+            //Standart bip44
+            let bip44 = BIP44(coinType: coinType,
+                              account: 0,
+                              change: .external,
+                              addressIndex: 0)
+            
+            return bip44.buildPath()
+        }
     }
     
     public var coinType: UInt32 {
@@ -213,6 +241,7 @@ public enum Blockchain {
         case .cardano: return 1815
         case .rsk: return 137
         case .polygon: return 966
+        case .avalanche: return 9000
         case .solana: return 501
         }
     }
@@ -220,11 +249,10 @@ public enum Blockchain {
     public func makeAddresses(from walletPublicKey: Data, with pairPublicKey: Data?) -> [Address] {
         let addressService = getAddressService()
         if let multiSigAddressProvider = addressService as? MultisigAddressProvider,
-           let pairKey = pairPublicKey,
-           let addresses = multiSigAddressProvider.makeAddresses(from: walletPublicKey, with: pairKey) {
-            return addresses
+           let pairKey = pairPublicKey {
+            return multiSigAddressProvider.makeAddresses(from: walletPublicKey, with: pairKey) ?? []
         }
-        
+     
         return addressService.makeAddresses(from: walletPublicKey)
     }
     
@@ -259,7 +287,7 @@ public enum Blockchain {
         case .ethereum(let testnet):
             let baseUrl = testnet ? "https://rinkeby.etherscan.io/address/" : "https://etherscan.io/address/"
             let exploreLink = tokenContractAddress == nil ? baseUrl + address :
-                "https://etherscan.io/token/\(tokenContractAddress!)?a=\(address)"
+            "https://etherscan.io/token/\(tokenContractAddress!)?a=\(address)"
             return URL(string: exploreLink)
         case .litecoin:
             return URL(string: "https://blockchair.com/litecoin/address/\(address)")
@@ -285,6 +313,10 @@ public enum Blockchain {
             return URL(string: link)
         case .polygon(let testnet):
             let baseUrl = testnet ? "https://explorer-mumbai.maticvigil.com/address/" : "https://polygonscan.com/address/"
+            let link = baseUrl + address
+            return URL(string: link)
+        case .avalanche(let testnet):
+            let baseUrl = testnet ? "https://snowtrace.io/address/" : "https://testnet.snowtrace.io/address/"
             let link = baseUrl + address
             return URL(string: link)
         case .solana(let testnet):
@@ -314,6 +346,7 @@ public enum Blockchain {
         case "doge": return .dogecoin
         case "bsc": return .bsc(testnet: isTestnet)
         case "polygon": return .polygon(testnet: isTestnet)
+        case "avalanche": return .avalanche(testnet: isTestnet)
         case "solana": return .solana(testnet: isTestnet)
         default: return nil
         }
@@ -329,7 +362,7 @@ public enum Blockchain {
             return BitcoinAddressService(networkParams: LitecoinNetworkParams())
         case .stellar:
             return StellarAddressService()
-        case .ethereum, .bsc, .polygon:
+        case .ethereum, .bsc, .polygon, .avalanche:
             return EthereumAddressService()
         case .rsk:
             return RskAddressService()
@@ -371,6 +404,7 @@ extension Blockchain: Equatable, Hashable, Codable {
         case .dogecoin: return "dogecoin"
         case .bsc: return "bsc"
         case .polygon: return "polygon"
+        case .avalanche: return "avalanche"
         case .solana: return "solana"
         }
     }
@@ -408,6 +442,7 @@ extension Blockchain: Equatable, Hashable, Codable {
         case "dogecoin": self = .dogecoin
         case "bsc": self = .bsc(testnet: isTestnet)
         case "polygon", "matic": self = .polygon(testnet: isTestnet)
+        case "avalanche": self = .avalanche(testnet: isTestnet)
         case "solana": self = .solana(testnet: isTestnet)
         default: throw BlockchainSdkError.decodingFailed
         }
@@ -424,3 +459,4 @@ extension Blockchain: Equatable, Hashable, Codable {
         }
     }
 }
+
