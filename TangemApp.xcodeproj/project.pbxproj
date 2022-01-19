@@ -91,6 +91,7 @@
 		5D9DCB01255191380059799C /* DisclamerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCB00255191380059799C /* DisclamerViewModel.swift */; };
 		5D9DCB06255193C30059799C /* UserPrefsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCB05255193C30059799C /* UserPrefsService.swift */; };
 		5D9DCB0C255199AA0059799C /* SecurityManagementViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCB0B255199AA0059799C /* SecurityManagementViewModel.swift */; };
+		5DA247312796F5B100DB4E4F /* avalanchecTokens.json in Resources */ = {isa = PBXBuildFile; fileRef = 5DA247302796F5B100DB4E4F /* avalanchecTokens.json */; };
 		5DA3A2F1251CB6CA009A8E08 /* SecurityManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA3A2F0251CB6CA009A8E08 /* SecurityManagementView.swift */; };
 		5DAC0888251391D900B73E8B /* CoreNFC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DAC08832513917F00B73E8B /* CoreNFC.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		5DB862B8252396CD00566AA0 /* DefaultSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DB862B7252396CD00566AA0 /* DefaultSigner.swift */; };
@@ -906,6 +907,7 @@
 		5D9DCB00255191380059799C /* DisclamerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisclamerViewModel.swift; sourceTree = "<group>"; };
 		5D9DCB05255193C30059799C /* UserPrefsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPrefsService.swift; sourceTree = "<group>"; };
 		5D9DCB0B255199AA0059799C /* SecurityManagementViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityManagementViewModel.swift; sourceTree = "<group>"; };
+		5DA247302796F5B100DB4E4F /* avalanchecTokens.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = avalanchecTokens.json; sourceTree = "<group>"; };
 		5DA3A2F0251CB6CA009A8E08 /* SecurityManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityManagementView.swift; sourceTree = "<group>"; };
 		5DAC08832513917F00B73E8B /* CoreNFC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreNFC.framework; path = System/Library/Frameworks/CoreNFC.framework; sourceTree = SDKROOT; };
 		5DB862B7252396CD00566AA0 /* DefaultSigner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultSigner.swift; sourceTree = "<group>"; };
@@ -3437,6 +3439,7 @@
 		B0CC817C25CD626A006D49B9 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				5DA247302796F5B100DB4E4F /* avalanchecTokens.json */,
 				B080765E25D10667006CF606 /* ethereumTokens.json */,
 				5DEE58142791D51000CCC4DD /* polygonTokens.json */,
 				B0C4A1D02671E39B00DCB921 /* ethereumTokens_testnet.json */,
@@ -3749,6 +3752,7 @@
 				B0A359EF2589117200E25B34 /* features_dev.json in Resources */,
 				5D3F77D224BF56DC00E8695B /* LaunchScreen.storyboard in Resources */,
 				5D5CE1A92625FF00009023EC /* config_prod.json in Resources */,
+				5DA247312796F5B100DB4E4F /* avalanchecTokens.json in Resources */,
 				5DBBAB0D24D8547F00E78F1C /* Colors.xcassets in Resources */,
 				5DFB499624E44BC90037E76F /* Tokens.xcassets in Resources */,
 				B087636026830795000A35F9 /* binanceTokens.json in Resources */,
