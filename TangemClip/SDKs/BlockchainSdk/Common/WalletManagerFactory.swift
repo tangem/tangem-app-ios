@@ -168,6 +168,14 @@ public class WalletManagerFactory {
             return TezosWalletManager(wallet: wallet).then {
                 $0.networkService = TezosNetworkService()
             }
+            
+        case .avalanche(let testnet):
+            return EthereumWalletManager(wallet: wallet).then {
+                let network: EthereumNetwork = testnet ? .avalancheTestnet : .avalanche
+                $0.networkService = EthereumNetworkService(network: network,
+                                                           providers: [EthereumJsonRpcProvider(network: network)],
+                                                           blockchairProvider: nil)
+            }
         case .solana:
             fatalError()
         }
