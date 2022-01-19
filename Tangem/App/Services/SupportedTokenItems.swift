@@ -29,7 +29,9 @@ class SupportedTokenItems {
         .bsc(testnet: false) : "binanceSmartChainTokens",
         .bsc(testnet: true) : "binanceSmartChainTokens_tesnet",
         .polygon(testnet: false) : "polygonTokens",
-        .avalanche(testnet: false) : "avalanchecTokens"
+        .avalanche(testnet: false) : "avalanchecTokens",
+        .solana(testnet: false): "solanaTokens",
+        .solana(testnet: true): "solanaTokens_testnet",
     ]
     
     private lazy var blockchains: Set<Blockchain> = {
@@ -60,7 +62,8 @@ class SupportedTokenItems {
             .stellar(testnet: true),
             .bsc(testnet: true),
             .polygon(testnet: true),
-            .avalanche(testnet: true)
+            .avalanche(testnet: true),
+            .solana(testnet: true),
         ]
     }()
     
