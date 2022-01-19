@@ -27,7 +27,7 @@ class SupportedTokenItems {
         .binance(testnet: false) : "binanceTokens",
         .binance(testnet: true) : "binanceTokens_testnet",
         .bsc(testnet: false) : "binanceSmartChainTokens",
-        .bsc(testnet: true) : "binanceSmartChainTokens_tesnet",
+        .bsc(testnet: true) : "binanceSmartChainTokens_testnet",
         .polygon(testnet: false) : "polygonTokens",
         .avalanche(testnet: false) : "avalanchecTokens",
         .solana(testnet: false): "solanaTokens",
@@ -76,9 +76,14 @@ class SupportedTokenItems {
         guard let src = sources[blockchain] else {
             return []
         }
-        
-        return (try? JsonUtils.readBundleFile(with: src,
-                                              type: [Token].self,
-                                              shouldAddCompilationCondition: false)) ?? []
+
+        do {
+            return try JsonUtils.readBundleFile(with: src,
+                                                type: [Token].self,
+                                                shouldAddCompilationCondition: false)
+        } catch {
+            Log.error(error.localizedDescription)
+            return []
+        }
     }
 }
