@@ -439,7 +439,7 @@ Cette avertissement a été modifié, pour la dernière fois, le 1 octobre 2020.
 "add_tokens_title" = "Add tokens";
 "add_custom" = "Add Custom";
 "add_token_section_title_custom_tokens" = "Custom tokens";
-"add_token_section_title_popular_tokens" = "Ethereum tokens";
+"add_token_section_title_tokens_format" = "%@ tokens";
 "add_token_section_title_blockchains" = "Blockchains";
 
 "add_custom_token_title" = "Add custom token";
@@ -547,10 +547,6 @@ URL: %@";
 "push_current_total" = "Current total";
 
 "push_additional_fee" = "Additional fee";
-"add_token_section_title_binance_smart_chain_tokens" = "Binance Smart Chain tokens";
-
-"add_token_section_title_binance_tokens" = "Binance tokens";
-"add_token_section_title_polygon_tokens" = "Polygon tokens";
 
 "keychain_failed_to_create_key" = "Failed to create SecKey representation";
 "keychain_failed_to_store_key" = "Failed to store key: ";

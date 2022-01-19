@@ -25,7 +25,7 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
     
     private let cardModel: CardViewModel
     private var isTestnet: Bool {  cardModel.isTestnet }
-
+    
     init(cardModel: CardViewModel) {
         self.cardModel = cardModel
     }
@@ -93,7 +93,7 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
             self.searchText = ""
         }
     }
-
+    
     func onCollapse(_ section: SectionModel) {
         if let index = data.firstIndex(where: { $0.id == section.id }) {
             data[index].toggleExpanded()
@@ -101,79 +101,88 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
     }
     
     private func getData()  {
-        var listData: [SectionModel] = []
-        
-        let supportedItems = SupportedTokenItems()
-
-        let blockchainsItems: [TokenModel] =
-        supportedItems.blockchains(for: cardModel.cardInfo.card.walletCurves, isTestnet: cardModel.cardInfo.isTestnet)
-            .sorted(by: { $0.displayName < $1.displayName })
-            .map { TokenItem.blockchain($0) }
-            .map { TokenModel(tokenItem: $0,
-                              sectionId: Sections.blockchains.rawValue,
-                              isAdded: isAdded($0),
-                              onTap: onItemTap) }
-        
-        listData.append(SectionModel(id: Sections.blockchains.rawValue,
-                                     name: "add_token_section_title_blockchains".localized,
-                                     items: blockchainsItems,
-                                     collapsible: false,
-                                     expanded: true))
-        
-        let ethItems: [TokenModel] = supportedItems.availableEthTokens(isTestnet: isTestnet)
-            .map { TokenItem.token($0) }
-            .map { TokenModel(tokenItem: $0, sectionId: Sections.eth.rawValue, isAdded: isAdded($0), onTap: onItemTap) }
-        
-        listData.append(SectionModel(id: Sections.eth.rawValue,
-                                     name: "add_token_section_title_popular_tokens".localized,
-                                     items: ethItems,
-                                     collapsible: true,
-                                     expanded: true))
-        
-        let bscItems: [TokenModel] = supportedItems.availableBscTokens(isTestnet: isTestnet)
-            .map { TokenItem.token($0) }
-            .map { TokenModel(tokenItem: $0, sectionId: Sections.bsc.rawValue, isAdded: isAdded($0), onTap: onItemTap) }
-        
-        listData.append(SectionModel(id: Sections.bsc.rawValue,
-                                     name: "add_token_section_title_binance_smart_chain_tokens".localized,
-                                     items: bscItems,
-                                     collapsible: true,
-                                     expanded: true))
-        
-        let bnbItems: [TokenModel] = supportedItems.availableBnbTokens(isTestnet: isTestnet)
-            .map { TokenItem.token($0) }
-            .map { TokenModel(tokenItem: $0, sectionId: Sections.bnb.rawValue, isAdded: isAdded($0), onTap: onItemTap) }
-        
-        listData.append(SectionModel(id: Sections.bnb.rawValue,
-                                     name: "add_token_section_title_binance_tokens".localized,
-                                     items: bnbItems,
-                                     collapsible: true,
-                                     expanded: true))
-        
-        let polygonTokens: [TokenModel] = supportedItems.availablePolygonTokens(isTestnet: isTestnet)
-            .map { TokenItem.token($0) }
-            .map { TokenModel(tokenItem: $0, sectionId: Sections.polygon.rawValue, isAdded: isAdded($0), onTap: onItemTap) }
-        
-        listData.append(SectionModel(id: Sections.polygon.rawValue,
-                                     name: "add_token_section_title_polygon_tokens".localized,
-                                     items: polygonTokens,
-                                     collapsible: true,
-                                     expanded: true))
-        
-        self.data = listData
+        self.data = Sections.allCases.compactMap { $0.sectionModel(for: cardModel.cardInfo, isAdded: isAdded, onTap: onItemTap) }
     }
 }
 
 extension AddNewTokensViewModel {
-    enum Sections: String {
+    enum Sections: String, CaseIterable {
         case blockchains
         case eth
         case bsc
         case bnb
         case polygon
+        case avalanche
+        
+        private var collapsible: Bool {
+            switch self {
+            case .blockchains:
+                return false
+            default:
+                return true
+            }
+        }
+        
+        func sectionModel(for cardInfo: CardInfo, isAdded: (TokenItem) -> Bool, onTap: @escaping (String, TokenItem) -> Void) -> SectionModel? {
+            let items = tokenItems(curves: cardInfo.card.walletCurves,
+                                   isTestnet: cardInfo.isTestnet)
+                .map { TokenModel(tokenItem: $0,
+                                  sectionId: rawValue,
+                                  isAdded: isAdded($0),
+                                  onTap: onTap) }
+            
+            guard !items.isEmpty else { return nil }
+            
+            return SectionModel(id: rawValue,
+                                name: sectionName(isTestnet: cardInfo.isTestnet),
+                                items: items,
+                                collapsible: collapsible,
+                                expanded: true)
+        }
+        
+        private func tokenBlockchain(isTestnet: Bool) -> Blockchain {
+            switch self {
+            case .blockchains:
+                fatalError("Impossible is possible")
+            case .eth:
+                return .ethereum(testnet: isTestnet)
+            case .bsc:
+                return .bsc(testnet: isTestnet)
+            case .bnb:
+                return .binance(testnet: isTestnet)
+            case .polygon:
+                return .polygon(testnet: isTestnet)
+            case .avalanche:
+                return .avalanche(testnet: isTestnet)
+            }
+        }
+        
+        private func sectionName(isTestnet: Bool) -> String {
+            switch self {
+            case .blockchains:
+                return "add_token_section_title_blockchains".localized
+            default:
+                return "add_token_section_title_tokens_format".localized(tokenBlockchain(isTestnet: isTestnet).displayName)
+            }
+        }
+        
+        private func tokenItems(curves: [EllipticCurve], isTestnet: Bool) -> [TokenItem] {
+            let supportedItems = SupportedTokenItems()
+            
+            switch self {
+            case .blockchains:
+                return supportedItems.blockchains(for: curves, isTestnet: isTestnet)
+                    .sorted(by: { $0.displayName < $1.displayName })
+                    .map { TokenItem.blockchain($0) }
+            default:
+                if !curves.contains(.secp256k1) { return [] }
+                
+                return supportedItems.tokens(for: tokenBlockchain(isTestnet: isTestnet))
+                    .map { TokenItem.token($0) }
+            }
+        }
     }
 }
-
 
 struct SectionModel: Identifiable, Hashable {
     let id: String

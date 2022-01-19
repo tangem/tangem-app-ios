@@ -1,0 +1,35 @@
+[
+  {
+    "decimalCount" : 18,
+    "symbol" : "PNG",
+    "name" : "Pangolin",
+    "contractAddress" : "0x60781C2586D68229fde47564546784ab3fACA982",
+    "blockchain" : {
+      "key" : "avalanche",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 9,
+    "symbol" : "APE-X",
+    "name" : "Ape-X",
+    "contractAddress" : "0xd039C9079ca7F2a87D632A9C0d7cEa0137bAcFB5",
+    "blockchain" : {
+      "key" : "avalanche",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  },
+  {
+    "decimalCount" : 9,
+    "symbol" : "GG",
+    "name" : "Galaxy Goggle",
+    "contractAddress" : "0xF2F7CE610a091B94d41D69f4fF1129434a82E2f0",
+    "blockchain" : {
+      "key" : "avalanche",
+      "curve" : "secp256k1",
+      "testnet" : false
+    }
+  }
+]
