@@ -44,6 +44,8 @@ extension Blockchain: Identifiable {
             return nil
         case .polygon:
             return nil
+        case .avalanche:
+            return nil
         }
     }
     
