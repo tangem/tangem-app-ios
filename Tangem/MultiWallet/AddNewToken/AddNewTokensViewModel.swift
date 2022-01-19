@@ -113,6 +113,7 @@ extension AddNewTokensViewModel {
         case bnb
         case polygon
         case avalanche
+        case solana
         
         private var collapsible: Bool {
             switch self {
@@ -154,6 +155,8 @@ extension AddNewTokensViewModel {
                 return .polygon(testnet: isTestnet)
             case .avalanche:
                 return .avalanche(testnet: isTestnet)
+            case .solana:
+                return .solana(testnet: isTestnet)
             }
         }
         
