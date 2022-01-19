@@ -583,7 +583,7 @@ class CardViewModel: Identifiable, ObservableObject {
             ethWalletModel = assembly.makeWalletModels(from: cardInfo, blockchains: [ethBlockchain]).first
         }
         
-        let knownTokens = SupportedTokenItems().availableEthTokens(isTestnet: cardInfo.isTestnet)
+        let knownTokens = SupportedTokenItems().tokens(for: ethBlockchain)
         
         guard let tokenFinder = ethWalletModel?.walletManager as? TokenFinder else {
             self.userPrefsService.searchedCards.append(self.cardInfo.card.cardId)
