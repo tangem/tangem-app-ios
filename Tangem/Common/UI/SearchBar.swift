@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 struct SearchBar: UIViewRepresentable {
 
@@ -15,15 +16,22 @@ struct SearchBar: UIViewRepresentable {
     var placeholder: String
 
     class Coordinator: NSObject, UISearchBarDelegate {
-
         @Binding var text: String
-
+        
+        @Published private var inputText = ""
+        private var cancellable: AnyCancellable? = nil
+        
         init(text: Binding<String>) {
             _text = text
+            super.init()
+            cancellable = $inputText
+                .dropFirst()
+                .debounce(for: 0.5, scheduler: DispatchQueue.main, options: nil)
+                .weakAssign(to: \.text, on: self)
         }
 
         func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-            text = searchText
+            inputText = searchText
         }
         
         func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
