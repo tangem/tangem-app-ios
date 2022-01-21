@@ -28,6 +28,7 @@ PODS:
     - HDWalletKit
     - Moya
     - Sodium
+    - Solana.Swift
     - stellar-ios-mac-sdk
     - SwiftCBOR
     - SwiftyJSON
@@ -203,7 +204,7 @@ DEPENDENCIES:
   - BigInt
   - BinanceChain (from `https://github.com/lazutkin-andrey/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/lazutkin-andrey/bitcoincore.git`, tag `0.0.15`)
-  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-67`)
+  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-68`)
   - DeviceGuru
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -213,7 +214,7 @@ DEPENDENCIES:
   - Kingfisher (from `https://github.com/onevcat/Kingfisher.git`, branch `version6-xcode13`)
   - Moya
   - Sodium
-  - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, branch `feature/add-external-signer`)
+  - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-1`)
   - Starscream (~> 4.0.4)
   - stellar-ios-mac-sdk
   - SwiftCBOR
@@ -266,7 +267,7 @@ EXTERNAL SOURCES:
     :tag: 0.0.15
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-67
+    :tag: develop-68
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
@@ -274,8 +275,8 @@ EXTERNAL SOURCES:
     :branch: version6-xcode13
     :git: https://github.com/onevcat/Kingfisher.git
   Solana.Swift:
-    :branch: feature/add-external-signer
     :git: https://github.com/tangem/Solana.Swift
+    :tag: add-external-signer-1
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
     :tag: develop-128
@@ -295,7 +296,7 @@ CHECKOUT OPTIONS:
     :tag: 0.0.15
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-67
+    :tag: develop-68
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
@@ -303,8 +304,8 @@ CHECKOUT OPTIONS:
     :commit: 5ecd8df18f1750efaa57d1b9623090156da01ef3
     :git: https://github.com/onevcat/Kingfisher.git
   Solana.Swift:
-    :commit: bb8de04811d3642816f9d264820b653d20ff0ed1
     :git: https://github.com/tangem/Solana.Swift
+    :tag: add-external-signer-1
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
     :tag: develop-128
@@ -321,7 +322,7 @@ SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   BinanceChain: b77d4c0e496efbf13bdb1f428621480fd52f4ba1
   BitcoinCore.swift: 64ac4e69d9a6ef917bcbb0c23f1324cf57a822fb
-  BlockchainSdk: da59ff083dc856929a14780763a2adeedb7f02aa
+  BlockchainSdk: fdee56dae5f5ab516f928cc893d89bfdaab8f44e
   CryptoSwift: a532e74ed010f8c95f611d00b8bbae42e9fe7c17
   DeviceGuru: 257ae5fa0c7e9bb0c11d0f620b30d3407e3e5a07
   Firebase: 44213362f1dcc52555b935dc925ed35ac55f1b20
@@ -358,6 +359,6 @@ SPEC CHECKSUMS:
   web3swift: 93f68f5430c11a78bba2351c139d2d22f2c04b5e
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 70abe59ead4f0bc94919f7dee48fdca52b60a0cf
+PODFILE CHECKSUM: 4c2a90e05341abb2b8bae20d287dcdd33ea0a8cc
 
 COCOAPODS: 1.11.2
