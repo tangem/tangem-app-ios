@@ -157,8 +157,7 @@ extension AddNewTokensViewModel {
                           isAdded: (TokenItem) -> Bool,
                           canAdd: (TokenItem) -> Bool,
                           onTap: @escaping (String, TokenItem) -> Void) -> SectionModel? {
-            let items = tokenItems(curves: cardInfo.card.walletCurves,
-                                   isTestnet: cardInfo.isTestnet)
+            let items = tokenItems(for: cardInfo)
                 .map { TokenModel(tokenItem: $0,
                                   sectionId: rawValue,
                                   isAdded: isAdded($0),
@@ -202,17 +201,22 @@ extension AddNewTokensViewModel {
             }
         }
         
-        private func tokenItems(curves: [EllipticCurve], isTestnet: Bool) -> [TokenItem] {
+        private func tokenItems(for cardInfo: CardInfo) -> [TokenItem] {
             let supportedItems = SupportedTokenItems()
             
             switch self {
             case .blockchains:
-                return supportedItems.blockchains(for: curves, isTestnet: isTestnet)
+                return supportedItems.blockchains(for: cardInfo.card.walletCurves, isTestnet: cardInfo.isTestnet)
                     .sorted(by: { $0.displayName < $1.displayName })
                     .map { TokenItem.blockchain($0) }
+            case .solana:
+                if cardInfo.card.firmwareVersion.doubleValue < 4.52 { //[REDACTED_TODO_COMMENT]
+                    return []
+                }
+                fallthrough
             default:
-                let tokenBlockchain = self.tokenBlockchain(isTestnet: isTestnet)
-                guard curves.contains(tokenBlockchain.curve) else {
+                let tokenBlockchain = self.tokenBlockchain(isTestnet: cardInfo.isTestnet)
+                guard cardInfo.card.walletCurves.contains(tokenBlockchain.curve) else {
                     return []
                 }
                 
