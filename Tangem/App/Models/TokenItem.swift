@@ -59,6 +59,15 @@ enum TokenItem: Codable, Hashable, Identifiable {
         }
     }
     
+    var contractAddress: String? {
+        switch self {
+        case .token(let token):
+            return token.contractAddress
+        case .blockchain:
+            return nil
+        }
+    }
+    
     var amountType: Amount.AmountType {
         switch self {
         case .token(let token):
@@ -133,7 +142,7 @@ enum TokenItem: Codable, Hashable, Identifiable {
     }
 }
 
-fileprivate struct TokenDTO: Decodable {
+struct TokenDTO: Decodable {
     let name: String
     let symbol: String
     let contractAddress: String

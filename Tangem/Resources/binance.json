@@ -1,0 +1,1196 @@
+[
+  {
+    "decimalCount" : 8,
+    "symbol" : "EOSBULL",
+    "name" : "3X Long EOS Token",
+    "contractAddress" : "EOSBULL-F0D"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "ETHBULL",
+    "name" : "3X Long Ethereum Token",
+    "contractAddress" : "ETHBULL-D33"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "XRPBULL",
+    "name" : "3X Long XRP Token",
+    "contractAddress" : "XRPBULL-E7C"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BEAR",
+    "name" : "3X Short Bitcoin Token",
+    "contractAddress" : "BEAR-14C"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "EOSBEAR",
+    "name" : "3X Short EOS Token",
+    "contractAddress" : "EOSBEAR-721"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "ETHBEAR",
+    "name" : "3X Short Ethereum Token",
+    "contractAddress" : "ETHBEAR-B2B"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "XRPBEAR",
+    "name" : "3X Short XRP Token",
+    "contractAddress" : "XRPBEAR-00B"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BULL",
+    "name" : "3x Long Bitcoin Token",
+    "contractAddress" : "BULL-BE4"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "ANKR",
+    "name" : "ANKR",
+    "contractAddress" : "ANKR-E97"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "ARPA",
+    "name" : "ARPA",
+    "contractAddress" : "ARPA-575"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "ATOM",
+    "name" : "ATOMBEP2",
+    "contractAddress" : "ATOM-596"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "AXPR",
+    "name" : "AXPR.B",
+    "contractAddress" : "AXPR-777"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "AAVE",
+    "name" : "Aave Token",
+    "contractAddress" : "AAVE-8FA"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "AERGO",
+    "name" : "Aergo",
+    "contractAddress" : "AERGO-46B"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "ARN",
+    "name" : "Aeron",
+    "contractAddress" : "ARN-71B"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "ABCD",
+    "name" : "Africa Stable-Coin",
+    "contractAddress" : "ABCD-5D8"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "ALA",
+    "name" : "Alaris",
+    "contractAddress" : "ALA-DCD"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "ATP",
+    "name" : "Atlas Protocol",
+    "contractAddress" : "ATP-38C"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "AWC",
+    "name" : "Atomic Wallet Token",
+    "contractAddress" : "AWC-986"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BAW",
+    "name" : "BAWnetwork",
+    "contractAddress" : "BAW-DFB"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BCH",
+    "name" : "BCH BEP2",
+    "contractAddress" : "BCH-1FD"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BETX",
+    "name" : "BETX Token",
+    "contractAddress" : "BETX-A0C"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BOLT",
+    "name" : "BOLT Token",
+    "contractAddress" : "BOLT-4C6"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BST2",
+    "name" : "BOOSTO",
+    "contractAddress" : "BST2-2F2"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BTTB",
+    "name" : "BTTB",
+    "contractAddress" : "BTTB-D31"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BAKE",
+    "name" : "BakeryToken",
+    "contractAddress" : "BAKE-5E0"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BAND",
+    "name" : "BandProtocolBEP2",
+    "contractAddress" : "BAND-34B"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BAT",
+    "name" : "Basic Attention Token",
+    "contractAddress" : "BAT-07A"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BEL",
+    "name" : "Bella Protocol",
+    "contractAddress" : "BEL-D85"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BZNT",
+    "name" : "Bezant Token",
+    "contractAddress" : "BZNT-464"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BHC",
+    "name" : "Billion Happiness",
+    "contractAddress" : "BHC-3E8M"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BETH",
+    "name" : "Binance Beacon ETH",
+    "contractAddress" : "BETH-654"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BGBP",
+    "name" : "Binance GBP Stable Coin",
+    "contractAddress" : "BGBP-CF3"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BIDR",
+    "name" : "Binance IDR",
+    "contractAddress" : "BIDR-0E9"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BKRW",
+    "name" : "Binance KRW",
+    "contractAddress" : "BKRW-AB7"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BUSD",
+    "name" : "Binance USD",
+    "contractAddress" : "BUSD-BD1"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BTCB",
+    "name" : "Bitcoin BEP2",
+    "contractAddress" : "BTCB-1DE"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BCHA",
+    "name" : "Bitcoin Cash ABC",
+    "contractAddress" : "BCHA-959"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BKBT",
+    "name" : "Bitwires Token",
+    "contractAddress" : "BKBT-3A6"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BCPT",
+    "name" : "Blockmason Credit Protocol",
+    "contractAddress" : "BCPT-95A"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BLINK",
+    "name" : "Blockmason Link",
+    "contractAddress" : "BLINK-9C6"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BURGER",
+    "name" : "Burger Swap",
+    "contractAddress" : "BURGER-33A"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "CAS",
+    "name" : "CASHAA",
+    "contractAddress" : "CAS-167"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "COTI",
+    "name" : "COTI",
+    "contractAddress" : "COTI-CBB"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "CAN",
+    "name" : "CanYaCoin",
+    "contractAddress" : "CAN-677"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "ADA",
+    "name" : "CardanoBEP2",
+    "contractAddress" : "ADA-9F4"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "CTK-EB8",
+    "name" : "CertiK Token",
+    "contractAddress" : "CTK-EB8"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "CHZ",
+    "name" : "Chiliz",
+    "contractAddress" : "CHZ-ECD"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "COCOS",
+    "name" : "CocosTokenV2",
+    "contractAddress" : "COCOS-CED"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "COMP",
+    "name" : "Compound",
+    "contractAddress" : "COMP-DEE"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "COS",
+    "name" : "Contentos",
+    "contractAddress" : "COS-2E4"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "COVA",
+    "name" : "Covalent Token",
+    "contractAddress" : "COVA-218"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "CRPT",
+    "name" : "Crypterium Token",
+    "contractAddress" : "CRPT-8C9"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "CNNS",
+    "name" : "Crypto Neo-value Neural System",
+    "contractAddress" : "CNNS-E16"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "CBM",
+    "name" : "CryptoBonusMiles",
+    "contractAddress" : "CBM-4B2"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "CBIX",
+    "name" : "Cubiex",
+    "contractAddress" : "CBIX-3C9"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "DARC",
+    "name" : "DARC Token",
+    "contractAddress" : "DARC-087"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "DOS",
+    "name" : "DOS Network Token",
+    "contractAddress" : "DOS-120"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "DREP",
+    "name" : "DREP",
+    "contractAddress" : "DREP-7D2"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "DAI",
+    "name" : "DaiBEP2",
+    "contractAddress" : "DAI-D75"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "DFY",
+    "name" : "DeFi For You.",
+    "contractAddress" : "DFY-EA0"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "DEFI",
+    "name" : "DeFi Token",
+    "contractAddress" : "DEFI-FA5"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "DEEP",
+    "name" : "DeepCloud",
+    "contractAddress" : "DEEP-9D3"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "DOGE",
+    "name" : "Dogecoin",
+    "contractAddress" : "DOGE-B67"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "DUSK",
+    "name" : "Dusk Network",
+    "contractAddress" : "DUSK-45E"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "EOS",
+    "name" : "EOS BEP2",
+    "contractAddress" : "EOS-CDD"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BET",
+    "name" : "EOSBet Token",
+    "contractAddress" : "BET-844"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "EQL",
+    "name" : "EQUAL",
+    "contractAddress" : "EQL-586"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "ETH",
+    "name" : "ETH BEP2",
+    "contractAddress" : "ETH-1C9"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "RNO",
+    "name" : "Earneo",
+    "contractAddress" : "RNO-14E"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "ERD",
+    "name" : "Elrond",
+    "contractAddress" : "ERD-D06"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "EET",
+    "name" : "Energy Eco Token",
+    "contractAddress" : "EET-45C"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "XBASE",
+    "name" : "Eterbase Coin",
+    "contractAddress" : "XBASE-CD2"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "ETC",
+    "name" : "Ethereum Classic",
+    "contractAddress" : "ETC-758"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "FTT",
+    "name" : "FTX Token",
+    "contractAddress" : "FTT-F11"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "FTM",
+    "name" : "Fantom",
+    "contractAddress" : "FTM-A64"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "FRM",
+    "name" : "Ferrum Network Token",
+    "contractAddress" : "FRM-DE7"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "FIL",
+    "name" : "Filecoin",
+    "contractAddress" : "FIL-E2C"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "FSN",
+    "name" : "Fusion",
+    "contractAddress" : "FSN-E14"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "GTEX",
+    "name" : "GTEX",
+    "contractAddress" : "GTEX-71B"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "GTO",
+    "name" : "Gifto",
+    "contractAddress" : "GTO-908"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "GIV",
+    "name" : "Givly Coin",
+    "contractAddress" : "GIV-94E"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "GMAT",
+    "name" : "GoWithMi",
+    "contractAddress" : "GMAT-FC8"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "ONE",
+    "name" : "Harmony.One",
+    "contractAddress" : "ONE-5F9"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "HNST",
+    "name" : "Honest",
+    "contractAddress" : "HNST-3C9"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "USDH",
+    "name" : "HonestCoin",
+    "contractAddress" : "USDH-5B5"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BHFT",
+    "name" : "Humanity First Token",
+    "contractAddress" : "BHFT-BBE"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "ENTRP",
+    "name" : "Hut34 Entropy",
+    "contractAddress" : "ENTRP-C8D"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "HYN",
+    "name" : "Hyperion Token",
+    "contractAddress" : "HYN-F21"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "IRIS",
+    "name" : "IRIS Network",
+    "contractAddress" : "IRIS-D88"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "INJ",
+    "name" : "Injective Protocol",
+    "contractAddress" : "INJ-FAE"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "IOTX",
+    "name" : "IoTeX Network",
+    "contractAddress" : "IOTX-0ED"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "JDXU",
+    "name" : "JDXUCoin",
+    "contractAddress" : "JDXU-706"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "KAT",
+    "name" : "Kambria Token",
+    "contractAddress" : "KAT-7BB"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "KAVA",
+    "name" : "Kava BEP2 Token",
+    "contractAddress" : "KAVA-10C"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "DARC",
+    "name" : "Konstellation Network",
+    "contractAddress" : "DARC-24B"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "LINK",
+    "name" : "LINKBEP2",
+    "contractAddress" : "LINK-AAD"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "LIT",
+    "name" : "LITION",
+    "contractAddress" : "LIT-099"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "LTC",
+    "name" : "LTC BEP2",
+    "contractAddress" : "LTC-F07"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "LTO",
+    "name" : "LTO Network",
+    "contractAddress" : "LTO-BDF"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "LYFE",
+    "name" : "LYFE",
+    "contractAddress" : "LYFE-6AB"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "LBA",
+    "name" : "Lend-Borrow-Asset",
+    "contractAddress" : "LBA-340"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "LOKI",
+    "name" : "Loki",
+    "contractAddress" : "LOKI-6A9"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "MDAB",
+    "name" : "MDAB",
+    "contractAddress" : "MDAB-D42"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "MEETONE",
+    "name" : "MEET.ONE",
+    "contractAddress" : "MEETONE-031"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "ART",
+    "name" : "Maecenas ART Token",
+    "contractAddress" : "ART-3C9"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "MKR",
+    "name" : "Maker",
+    "contractAddress" : "MKR-F04"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "MVL",
+    "name" : "Mass Vehicle Ledger",
+    "contractAddress" : "MVL-7B0"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "MATIC",
+    "name" : "Matic Token",
+    "contractAddress" : "MATIC-84A"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "MCASH",
+    "name" : "Mcashchain",
+    "contractAddress" : "MCASH-869"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "MDT",
+    "name" : "Measurable Data Token",
+    "contractAddress" : "MDT-14A"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "MEDB",
+    "name" : "MediBloc",
+    "contractAddress" : "MEDB-87E"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "MITH",
+    "name" : "Mithril",
+    "contractAddress" : "MITH-C76"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "MITX",
+    "name" : "Morpheus Infrastructure Token",
+    "contractAddress" : "MITX-CAA"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "MTV",
+    "name" : "MultiVAC",
+    "contractAddress" : "MTV-4C6"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "MZK",
+    "name" : "Muzika",
+    "contractAddress" : "MZK-2C7"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "WISH",
+    "name" : "MyWish",
+    "contractAddress" : "WISH-2D5"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "NEAR",
+    "name" : "NEAR Protocol",
+    "contractAddress" : "NEAR-4FD"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "NEW",
+    "name" : "NEWTON",
+    "contractAddress" : "NEW-09E"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "NODE",
+    "name" : "NODE",
+    "contractAddress" : "NODE-F3A"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "NOIZB",
+    "name" : "NOIZ Token",
+    "contractAddress" : "NOIZB-878"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "NOW",
+    "name" : "NOW Token",
+    "contractAddress" : "NOW-E68"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "NPXB",
+    "name" : "NPX Binance token",
+    "contractAddress" : "NPXB-1E8"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "NEXO",
+    "name" : "Nexo",
+    "contractAddress" : "NEXO-A84"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "ONT",
+    "name" : "ONTBEP2",
+    "contractAddress" : "ONT-33D"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "OWTX",
+    "name" : "OpenWeb Token",
+    "contractAddress" : "OWTX-A6B"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "ECO",
+    "name" : "Ormeus Ecosystem",
+    "contractAddress" : "ECO-083"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "PIBNB",
+    "name" : "PCHAIN Token",
+    "contractAddress" : "PIBNB-43C"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "CAKE",
+    "name" : "PancakeSwap Token",
+    "contractAddress" : "CAKE-435"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "PHV",
+    "name" : "PathHive Network",
+    "contractAddress" : "PHV-4A1"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "PAX",
+    "name" : "Paxos Standard",
+    "contractAddress" : "PAX-F25"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "PCAT",
+    "name" : "Pink Care Token",
+    "contractAddress" : "PCAT-4BB"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "PVT",
+    "name" : "Pivot Token",
+    "contractAddress" : "PVT-554"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "PLG",
+    "name" : "Pledge Coin",
+    "contractAddress" : "PLG-D8D"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "DOT",
+    "name" : "PolkadotBEP2",
+    "contractAddress" : "DOT-64C"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "PROPEL",
+    "name" : "Propel",
+    "contractAddress" : "PROPEL-6D9"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "NPXSXEM",
+    "name" : "Pundi X NEM",
+    "contractAddress" : "NPXSXEM-89C"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "RAVEN",
+    "name" : "Raven Protocol",
+    "contractAddress" : "RAVEN-F66"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "PHB",
+    "name" : "Red Pulse Phoenix Binance",
+    "contractAddress" : "PHB-2DF"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "RUNE",
+    "name" : "Rune",
+    "contractAddress" : "RUNE-B1A"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "IDRTB",
+    "name" : "Rupiah Token",
+    "contractAddress" : "IDRTB-178"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "SBC",
+    "name" : "SB Token",
+    "contractAddress" : "SBC-5D4"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "SPARTA-7F3",
+    "name" : "SPARTAN PROTOCOL TOKEN",
+    "contractAddress" : "SPARTA-7F3"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "SWIPE.B",
+    "name" : "SWIPE Token",
+    "contractAddress" : "SWIPE.B-DC0"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "SHR",
+    "name" : "ShareToken",
+    "contractAddress" : "SHR-DB6"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "SLV",
+    "name" : "Silverway",
+    "contractAddress" : "SLV-986"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "SPNDB",
+    "name" : "Spendcoin",
+    "contractAddress" : "SPNDB-916"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "SUSHI",
+    "name" : "SushiToken",
+    "contractAddress" : "SUSHI-134"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "SWINGBY",
+    "name" : "Swingby Token",
+    "contractAddress" : "SWINGBY-888"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "SXP",
+    "name" : "Swipe",
+    "contractAddress" : "SXP-CCC"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "SNX",
+    "name" : "Synthetix Network Token",
+    "contractAddress" : "SNX-C26"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "TBC",
+    "name" : "TBCC Coin",
+    "contractAddress" : "TBC-3A7"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "TOP",
+    "name" : "TOP Network",
+    "contractAddress" : "TOP-491"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "TROY",
+    "name" : "TROY",
+    "contractAddress" : "TROY-9B8"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "TRXB",
+    "name" : "TRXB",
+    "contractAddress" : "TRXB-2E6"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "MTXLT",
+    "name" : "Tixl",
+    "contractAddress" : "MTXLT-286"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "TCT",
+    "name" : "TokenClub",
+    "contractAddress" : "TCT-826"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "TOMOB",
+    "name" : "TomoChain",
+    "contractAddress" : "TOMOB-4BC"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "AVA",
+    "name" : "Travala.com Token",
+    "contractAddress" : "AVA-645"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "TM2",
+    "name" : "Traxia 2",
+    "contractAddress" : "TM2-0C4"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "TAUDB",
+    "name" : "TrueAUD",
+    "contractAddress" : "TAUDB-888"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "TCADB",
+    "name" : "TrueCAD",
+    "contractAddress" : "TCADB-888"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "TRUE",
+    "name" : "TrueChain",
+    "contractAddress" : "TRUE-D84"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "TGBPB",
+    "name" : "TrueGBP",
+    "contractAddress" : "TGBPB-888"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "THKDB",
+    "name" : "TrueHKD",
+    "contractAddress" : "THKDB-888"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "TUSDB",
+    "name" : "TrueUSD",
+    "contractAddress" : "TUSDB-888"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "TWT",
+    "name" : "Trust Wallet",
+    "contractAddress" : "TWT-8C2"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "UPX",
+    "name" : "UPX",
+    "contractAddress" : "UPX-F3E"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "USDC",
+    "name" : "USD Coin",
+    "contractAddress" : "USDC-CD2"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "USDSB",
+    "name" : "USDS",
+    "contractAddress" : "USDSB-1AC"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "USDT",
+    "name" : "USDTBEP2",
+    "contractAddress" : "USDT-6D8"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "UGAS",
+    "name" : "Ultrain Coin",
+    "contractAddress" : "UGAS-B0C"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "UNI",
+    "name" : "Uniswap",
+    "contractAddress" : "UNI-DD8"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "UNFI-FB7",
+    "name" : "Uniswap Finance",
+    "contractAddress" : "UNFI-FB7"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "UND",
+    "name" : "United Network Distribution",
+    "contractAddress" : "UND-EBC"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "VIDT",
+    "name" : "V-ID Token",
+    "contractAddress" : "VIDT-F53"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "VRAB",
+    "name" : "VERA",
+    "contractAddress" : "VRAB-B56"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "VNDC",
+    "name" : "VNDC",
+    "contractAddress" : "VNDC-DB9"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "XVS",
+    "name" : "Venus",
+    "contractAddress" : "XVS-795"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "VDX",
+    "name" : "Vodi X",
+    "contractAddress" : "VDX-A17"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "VOTE",
+    "name" : "Vote",
+    "contractAddress" : "VOTE-FD4"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "WINB",
+    "name" : "WINB",
+    "contractAddress" : "WINB-41F"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "WICC",
+    "name" : "WaykiChain Coin",
+    "contractAddress" : "WICC-01D"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "WRX",
+    "name" : "WazirX Token",
+    "contractAddress" : "WRX-ED1"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "XRP",
+    "name" : "XRP BEP2",
+    "contractAddress" : "XRP-BF2"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "XTZ",
+    "name" : "XTZ BEP2",
+    "contractAddress" : "XTZ-F7A"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "XNS",
+    "name" : "Xeonbit Token",
+    "contractAddress" : "XNS-760"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "YFII",
+    "name" : "YFIIBEP2",
+    "contractAddress" : "YFII-061"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "STYL",
+    "name" : "Yin Lang Music IP Token",
+    "contractAddress" : "STYL-65B"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "ZEBI",
+    "name" : "ZEBI",
+    "contractAddress" : "ZEBI-84F"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "ZEC",
+    "name" : "ZECBEP2",
+    "contractAddress" : "ZEC-93E"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "ELF",
+    "name" : "aelf",
+    "contractAddress" : "ELF-D72"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "BIFI",
+    "name" : "beefy.finance",
+    "contractAddress" : "BIFI-290"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "EBST",
+    "name" : "eBoost",
+    "contractAddress" : "EBST-783"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "EVT",
+    "name" : "everiToken",
+    "contractAddress" : "EVT-49B"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "PYN",
+    "name" : "paycentos",
+    "contractAddress" : "PYN-C37"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "QBX",
+    "name" : "qiibeeToken",
+    "contractAddress" : "QBX-38C"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "YFI",
+    "name" : "yearnfinance",
+    "contractAddress" : "YFI-1A4"
+  },
+  {
+    "decimalCount" : 8,
+    "symbol" : "CSM",
+    "name" : "“Consentium”",
+    "contractAddress" : "CSM-734"
+  }
+]
