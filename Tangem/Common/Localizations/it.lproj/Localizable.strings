@@ -723,3 +723,5 @@ Amount to pay: %@";
 "card_operation_button_title_reset" = "Reset the card";
 
 "manage_security_access_code_disclaimer" = "Access code is available only for cards with a backup.";
+
+"solana_rent_warning" = "Solana network charges a rent of %@ every 2 days. Accounts that can’t afford the rent are purged from the network. Deposit your account with more than %@ to use it for free.";
