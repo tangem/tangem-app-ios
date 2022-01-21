@@ -16,18 +16,46 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
     
-    @Published var enteredSearchText = ""
-    @Published var searchText = ""
+    var enteredSearchText = CurrentValueSubject<String, Never>("") //I can't use @Published here, because of swiftui redraw perfomance drop
     @Published var isLoading: Bool = false
+    @Published var isSearching: Bool = false
     @Published var error: AlertBinder?
     @Published var pendingTokenItems: [TokenItem] = []
     @Published var data: [SectionModel] = []
     
     private let cardModel: CardViewModel
     private var isTestnet: Bool {  cardModel.isTestnet }
+    private var bag = Set<AnyCancellable>()
+    private var searchCancellable: AnyCancellable? = nil
     
     init(cardModel: CardViewModel) {
         self.cardModel = cardModel
+        
+        enteredSearchText
+            .sink { [unowned self] string in
+                self.startSearch(with: string)
+            }
+            .store(in: &bag)
+    }
+    
+    func startSearch(with searchText: String) {
+        isSearching = true
+        searchCancellable =
+        Just(searchText)
+            .receive(on: DispatchQueue.global(), options: nil)
+            .map {[unowned self] string in
+                return self.data.map { $0.search(string) }
+            }
+            .receive(on: DispatchQueue.main, options: nil)
+            .sink(receiveValue: {[unowned self] results in
+                results.forEach { result in
+                    if let index = data.firstIndex(where: { $0.id == result.0 }) {
+                        self.data[index].applySearch(result.1)
+                    }
+                }
+                
+                self.isSearching = false
+            })
     }
     
     func isAdded(_ tokenItem: TokenItem) -> Bool {
@@ -35,15 +63,19 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
             return true
         }
         
+        return !canAdd(tokenItem)
+    }
+    
+    func canAdd(_ tokenItem: TokenItem) -> Bool {
         if let walletManager = cardModel.walletModels?.first(where: { $0.wallet.blockchain == tokenItem.blockchain })?.walletManager {
             if let token = tokenItem.token {
-                return walletManager.cardTokens.contains(token)
+                return !walletManager.cardTokens.contains(token)
             } else {
-                return true
+                return false
             }
         }
         
-        return false
+        return true
     }
     
     func onItemTap(_ sectionId: String, _ tokenItem: TokenItem) -> Void {
@@ -56,9 +88,7 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
         }
         
         if let index = data.firstIndex(where: { $0.id == sectionId }) {
-            if let itemIndex = data[index].items.firstIndex(where: { $0.id == tokenItem.id }) {
-                data[index].items[itemIndex].isAdded = isAdded(tokenItem)
-            }
+            data[index].onTap(tokenItem, isAdded: isAdded(tokenItem))
         }
         
     }
@@ -89,8 +119,7 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
         DispatchQueue.main.async {
             self.pendingTokenItems = []
             self.data = []
-            self.enteredSearchText = ""
-            self.searchText = ""
+            self.enteredSearchText.value = ""
         }
     }
     
@@ -101,7 +130,7 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
     }
     
     private func getData()  {
-        self.data = Sections.allCases.compactMap { $0.sectionModel(for: cardModel.cardInfo, isAdded: isAdded, onTap: onItemTap) }
+        self.data = Sections.allCases.compactMap { $0.sectionModel(for: cardModel.cardInfo, isAdded: isAdded, canAdd: canAdd, onTap: onItemTap) }
     }
 }
 
@@ -124,12 +153,16 @@ extension AddNewTokensViewModel {
             }
         }
         
-        func sectionModel(for cardInfo: CardInfo, isAdded: (TokenItem) -> Bool, onTap: @escaping (String, TokenItem) -> Void) -> SectionModel? {
+        func sectionModel(for cardInfo: CardInfo,
+                          isAdded: (TokenItem) -> Bool,
+                          canAdd: (TokenItem) -> Bool,
+                          onTap: @escaping (String, TokenItem) -> Void) -> SectionModel? {
             let items = tokenItems(curves: cardInfo.card.walletCurves,
                                    isTestnet: cardInfo.isTestnet)
                 .map { TokenModel(tokenItem: $0,
                                   sectionId: rawValue,
                                   isAdded: isAdded($0),
+                                  canAdd: canAdd($0),
                                   onTap: onTap) }
             
             guard !items.isEmpty else { return nil }
@@ -138,7 +171,7 @@ extension AddNewTokensViewModel {
                                 name: sectionName(isTestnet: cardInfo.isTestnet),
                                 items: items,
                                 collapsible: collapsible,
-                                expanded: true)
+                                expanded: !collapsible)
         }
         
         private func tokenBlockchain(isTestnet: Bool) -> Blockchain {
@@ -193,21 +226,61 @@ extension AddNewTokensViewModel {
 struct SectionModel: Identifiable, Hashable {
     let id: String
     let name: String
-    var items: [TokenModel]
     let collapsible: Bool
     var expanded: Bool
     
-    func searchResults(_ searchText: String) -> [TokenModel] {
-        if searchText.isEmpty {
-            return items
-        } else {
-            let filter = searchText.lowercased()
-            
-            return items.filter {
-                $0.tokenItem.name.lowercased().contains(filter)
-                || $0.tokenItem.symbol.lowercased().contains(filter)
-            }
+    var items: [TokenModel] { expanded ? (filteredItems ?? rawItems) : [] }
+    
+    private var filteredItems: [TokenModel]? = nil
+    private var rawItems: [TokenModel]
+    
+    init(id: String, name: String, items: [TokenModel], collapsible: Bool, expanded: Bool) {
+        self.id = id
+        self.name = name
+        self.collapsible = collapsible
+        self.expanded = expanded
+        self.rawItems = items
+    }
+    
+    mutating func onTap(_ item: TokenItem, isAdded: Bool) {
+        if let itemIndex = rawItems.firstIndex(where: { $0.id == item.id }) {
+            rawItems[itemIndex].isAdded = isAdded
         }
+        
+        if let itemIndex = filteredItems?.firstIndex(where: { $0.id == item.id }) {
+            filteredItems?[itemIndex].isAdded = isAdded
+        }
+    }
+    
+    mutating func applySearch(_ results: [TokenModel]?) {
+        if filteredItems == nil && results == nil {
+            return
+        }
+        
+        filteredItems = results
+    }
+    
+    func search(_ searchText: String) -> (String, [TokenModel]?)  {
+        if searchText.isEmpty {
+            return (id, nil)
+        }
+        
+        let filter = searchText.lowercased()
+        
+        let filtered  = self.items.filter {
+            $0.tokenItem.name.lowercased().contains(filter)
+            || $0.tokenItem.symbol.lowercased().contains(filter)
+        }
+        .sorted(by: { lhs, rhs in
+            if lhs.tokenItem.name.lowercased() == filter
+                || lhs.tokenItem.symbol.lowercased() == filter {
+                return true
+            }
+
+            return false
+        })
+        
+        return (id, filtered)
     }
     
     func hash(into hasher: inout Hasher) {
@@ -231,8 +304,20 @@ struct TokenModel: Identifiable, Hashable {
     var isAdded: Bool
     var canAdd: Bool = true
     
-    var onTap: (String, TokenItem) -> Void
+    var subtitle: String {
+        var string = tokenItem.symbol
+        
+        if let contractAddress = tokenItem.contractAddress {
+            let addressFormater = AddressFormatter(address: contractAddress)
+            string += " (\(addressFormater.truncated()))"
+        }
+        
+       return string
+    }
     
+    
+    var onTap: (String, TokenItem) -> Void
+
     func tap() {
         onTap(sectionId, tokenItem)
     }
