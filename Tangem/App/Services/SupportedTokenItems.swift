@@ -27,7 +27,7 @@ class SupportedTokenItems {
         .binance(testnet: false) : "binance",
         .binance(testnet: true) : "binanceTestnet",
         .bsc(testnet: false) : "bsc",
-        .bsc(testnet: true) : "bscTesnet",
+        .bsc(testnet: true) : "bscTestnet",
         .polygon(testnet: false) : "polygon",
         .avalanche(testnet: false) : "avalanche",
         .avalanche(testnet: true) : "avalancheTestnet",
