@@ -176,6 +176,8 @@ public class WalletManagerFactory {
                                                            providers: [EthereumJsonRpcProvider(network: network)],
                                                            blockchairProvider: nil)
             }
+        case .solana:
+            fatalError()
         }
     }
 }
