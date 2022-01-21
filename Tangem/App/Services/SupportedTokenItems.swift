@@ -22,16 +22,17 @@ class SupportedTokenItems {
     }()
     
     private let sources: [Blockchain: String] = [
-        .ethereum(testnet: false) : "ethereumTokens",
-        .ethereum(testnet: true) : "ethereumTokens_testnet",
-        .binance(testnet: false) : "binanceTokens",
-        .binance(testnet: true) : "binanceTokens_testnet",
-        .bsc(testnet: false) : "binanceSmartChainTokens",
-        .bsc(testnet: true) : "binanceSmartChainTokens_testnet",
-        .polygon(testnet: false) : "polygonTokens",
-        .avalanche(testnet: false) : "avalanchecTokens",
-        .solana(testnet: false): "solanaTokens",
-        .solana(testnet: true): "solanaTokens_testnet",
+        .ethereum(testnet: false) : "ethereum",
+        .ethereum(testnet: true) : "ethereumTestnet",
+        .binance(testnet: false) : "binance",
+        .binance(testnet: true) : "binanceTestnet",
+        .bsc(testnet: false) : "bsc",
+        .bsc(testnet: true) : "bscTesnet",
+        .polygon(testnet: false) : "polygon",
+        .avalanche(testnet: false) : "avalanche",
+        .avalanche(testnet: true) : "avalancheTestnet",
+        .solana(testnet: false): "solana",
+        .solana(testnet: true): "solanaTestnet",
     ]
     
     private lazy var blockchains: Set<Blockchain> = {
@@ -76,11 +77,20 @@ class SupportedTokenItems {
         guard let src = sources[blockchain] else {
             return []
         }
-
+        
         do {
-            return try JsonUtils.readBundleFile(with: src,
-                                                type: [Token].self,
-                                                shouldAddCompilationCondition: false)
+            let tokens = try JsonUtils.readBundleFile(with: src,
+                                                      type: [TokenDTO].self,
+                                                      shouldAddCompilationCondition: false)
+            return tokens.map {
+                Token(name: $0.name,
+                      symbol: $0.symbol,
+                      contractAddress: $0.contractAddress,
+                      decimalCount: $0.decimalCount,
+                      customIcon: $0.customIcon,
+                      customIconUrl: $0.customIconUrl,
+                      blockchain: blockchain)
+            }
         } catch {
             Log.error(error.localizedDescription)
             return []
