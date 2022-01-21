@@ -16,29 +16,35 @@ struct AddNewTokensView: View {
     @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text("add_tokens_title")
-                .font(Font.system(size: 36, weight: .bold, design: .default))
-                .padding(.horizontal, 16)
-                .padding(.vertical, 16)
+        VStack(spacing: 0) {
+            HStack {
+                Text("add_tokens_title")
+                    .font(Font.system(size: 36, weight: .bold, design: .default))
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 16)
+                Spacer()
+            }
             
-            SearchBar(text:$viewModel.enteredSearchText, placeholder: "common_search".localized)
+            SearchBar(text: $viewModel.enteredSearchText.value, placeholder: "common_search".localized)
                 .background(Color.white)
                 .padding(.horizontal, 8)
             
-            List {
-                ForEach(viewModel.data) { section in
-                    Section(header: HeaderView(text: section.name,
-                                               collapsible: section.collapsible,
-                                               isExpanded: section.expanded)
-                                .onTapGesture(perform: { withAnimation { viewModel.onCollapse(section) } })) {
-                        if section.expanded {
-                            ForEach(section.searchResults(viewModel.searchText)) { tokenModel in
-                                TokenView(token: tokenModel)
-                            }
+            if viewModel.isSearching {
+                Spacer()
+                ActivityIndicatorView(color: .gray)
+                Spacer()
+            } else {
+                List {
+                    ForEach(viewModel.data) { section in
+                        Section(header: HeaderView(text: section.name,
+                                                   collapsible: section.collapsible,
+                                                   isExpanded: section.expanded)
+                                    .onTapGesture(perform: { viewModel.onCollapse(section) })) {
+                            ForEach(section.items) { TokenView(token: $0) }
                         }
                     }
                 }
+                .listStyle(PlainListStyle())
             }
             
             TangemButton(title: "common_save_changes", action: viewModel.saveChanges)
@@ -50,11 +56,6 @@ struct AddNewTokensView: View {
                 .padding(.bottom, 8)
         }
         .ignoresKeyboard()
-        .onReceive(viewModel.$enteredSearchText
-                    .dropFirst()
-                    .debounce(for: 0.5, scheduler: DispatchQueue.main), perform: { value in
-            viewModel.searchText = value
-        })
         .onAppear { viewModel.onAppear() }
         .onDisappear { viewModel.onDissapear() }
         .alert(item: $viewModel.error, content: { $0.alert })
@@ -73,7 +74,7 @@ fileprivate struct HeaderView: View {
             Text(text)
                 .font(.system(size: 14, weight: .medium))
                 .foregroundColor(.tangemGrayDark)
-                .padding(.leading, 20)
+                .padding(.leading, 16)
             
             Spacer()
             if collapsible {
@@ -81,11 +82,10 @@ fileprivate struct HeaderView: View {
                     .rotationEffect(isExpanded ? .zero : Angle(degrees: -90))
                     .padding(.trailing, 16)
                     .foregroundColor(.tangemGrayDark)
+                    .animation(.default.speed(2), value: isExpanded)
             }
         }
-        
-        .padding(.top, 16)
-        .padding(.vertical, 5)
+        .padding(.top, 8)
         .padding(.top, additionalTopPadding)
         .background(Color.white)
         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
@@ -102,7 +102,7 @@ fileprivate struct TokenView: View {
     private var buttonStyle: TangemButtonStyle {
         TangemButtonStyle(colorStyle: token.isAdded || !token.canAdd ? .gray : .green,
                           layout: .thinHorizontal,
-                          isDisabled: token.isAdded || !token.canAdd )
+                          isDisabled: !token.canAdd )
     }
     
     var body: some View {
@@ -115,7 +115,7 @@ fileprivate struct TokenView: View {
                 Text(token.tokenItem.name)
                     .font(.system(size: 17, weight: .medium))
                     .foregroundColor(.tangemGrayDark6)
-                Text(token.tokenItem.symbol)
+                Text(token.subtitle)
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.tangemGrayDark)
             }
