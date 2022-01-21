@@ -1,0 +1,14 @@
+[
+  {
+    "decimalCount" : 9,
+    "symbol" : "TCA",
+    "name" : "Tangem Coin A",
+    "contractAddress" : "FdkU6R2cjHVdhxh7Ymqkhj8SNjtHKpVuHdDiNVy3mhv6"
+  },
+  {
+    "decimalCount" : 9,
+    "symbol" : "TCB",
+    "name" : "Tangem Coin B",
+    "contractAddress" : "FtPCJMGNasF9TSMEw9KeqEdRy9LJYbdLVRZMMrUB4pfZ"
+  }
+]
