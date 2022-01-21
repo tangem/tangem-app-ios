@@ -28,6 +28,7 @@ PODS:
     - HDWalletKit
     - Moya
     - Sodium
+    - Solana.Swift
     - stellar-ios-mac-sdk
     - SwiftCBOR
     - SwiftyJSON
@@ -171,6 +172,10 @@ PODS:
   - PromisesObjC (2.0.0)
   - secp256k1.swift (0.1.4)
   - Sodium (0.9.1)
+  - Solana.Swift (1.1):
+    - secp256k1.swift
+    - Starscream (~> 4.0.0)
+    - TweetNacl (~> 1.0.2)
   - Starscream (4.0.4)
   - stellar-ios-mac-sdk (2.0.7)
   - SwiftCBOR (0.4.4)
@@ -178,6 +183,7 @@ PODS:
   - SwiftProtobuf (1.18.0)
   - SwiftyJSON (5.0.1)
   - TangemSdk (3.2.1)
+  - TweetNacl (1.0.2)
   - WalletConnectSwift (1.6.2):
     - CryptoSwift (~> 1.4)
     - Starscream (~> 4.0.4)
@@ -198,7 +204,7 @@ DEPENDENCIES:
   - BigInt
   - BinanceChain (from `https://github.com/lazutkin-andrey/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/lazutkin-andrey/bitcoincore.git`, tag `0.0.15`)
-  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-67`)
+  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-68`)
   - DeviceGuru
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -208,6 +214,7 @@ DEPENDENCIES:
   - Kingfisher (from `https://github.com/onevcat/Kingfisher.git`, branch `version6-xcode13`)
   - Moya
   - Sodium
+  - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-1`)
   - Starscream (~> 4.0.4)
   - stellar-ios-mac-sdk
   - SwiftCBOR
@@ -248,6 +255,7 @@ SPEC REPOS:
     - SwiftDate
     - SwiftProtobuf
     - SwiftyJSON
+    - TweetNacl
     - XCGLogger
 
 EXTERNAL SOURCES:
@@ -259,13 +267,16 @@ EXTERNAL SOURCES:
     :tag: 0.0.15
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-67
+    :tag: develop-68
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
   Kingfisher:
     :branch: version6-xcode13
     :git: https://github.com/onevcat/Kingfisher.git
+  Solana.Swift:
+    :git: https://github.com/tangem/Solana.Swift
+    :tag: add-external-signer-1
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
     :tag: develop-128
@@ -285,13 +296,16 @@ CHECKOUT OPTIONS:
     :tag: 0.0.15
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-67
+    :tag: develop-68
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
   Kingfisher:
     :commit: 5ecd8df18f1750efaa57d1b9623090156da01ef3
     :git: https://github.com/onevcat/Kingfisher.git
+  Solana.Swift:
+    :git: https://github.com/tangem/Solana.Swift
+    :tag: add-external-signer-1
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
     :tag: develop-128
@@ -308,7 +322,7 @@ SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   BinanceChain: b77d4c0e496efbf13bdb1f428621480fd52f4ba1
   BitcoinCore.swift: 64ac4e69d9a6ef917bcbb0c23f1324cf57a822fb
-  BlockchainSdk: da59ff083dc856929a14780763a2adeedb7f02aa
+  BlockchainSdk: fdee56dae5f5ab516f928cc893d89bfdaab8f44e
   CryptoSwift: a532e74ed010f8c95f611d00b8bbae42e9fe7c17
   DeviceGuru: 257ae5fa0c7e9bb0c11d0f620b30d3407e3e5a07
   Firebase: 44213362f1dcc52555b935dc925ed35ac55f1b20
@@ -332,6 +346,7 @@ SPEC CHECKSUMS:
   PromisesObjC: 68159ce6952d93e17b2dfe273b8c40907db5ba58
   secp256k1.swift: a7e7a214f6db6ce5db32cc6b2b45e5c4dd633634
   Sodium: 23d11554ecd556196d313cf6130d406dfe7ac6da
+  Solana.Swift: c86f550e70aeaf1f2171435ef95dca16fc55c950
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   stellar-ios-mac-sdk: dbace17a64d1e565ddd084a839aea569c672d539
   SwiftCBOR: ce5354ec8b660da2d6fc754462881119dbe1f963
@@ -339,10 +354,11 @@ SPEC CHECKSUMS:
   SwiftProtobuf: c3c12645230d9b09c72267e0de89468c5543bd86
   SwiftyJSON: 2f33a42c6fbc52764d96f13368585094bfd8aa5e
   TangemSdk: 24127483da68cffe64a4bd766893f11dedbdb430
+  TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   WalletConnectSwift: 046ae74e8cb69445be9c94c66ef66f9cb019b68f
   web3swift: 93f68f5430c11a78bba2351c139d2d22f2c04b5e
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 5b4a2e82e21983aca170afef900aabf04b3fcaaa
+PODFILE CHECKSUM: 4c2a90e05341abb2b8bae20d287dcdd33ea0a8cc
 
 COCOAPODS: 1.11.2
