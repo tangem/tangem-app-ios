@@ -113,6 +113,7 @@ extension AddNewTokensViewModel {
         case bnb
         case polygon
         case avalanche
+        case solana
         
         private var collapsible: Bool {
             switch self {
@@ -154,6 +155,8 @@ extension AddNewTokensViewModel {
                 return .polygon(testnet: isTestnet)
             case .avalanche:
                 return .avalanche(testnet: isTestnet)
+            case .solana:
+                return .solana(testnet: isTestnet)
             }
         }
         
@@ -175,9 +178,12 @@ extension AddNewTokensViewModel {
                     .sorted(by: { $0.displayName < $1.displayName })
                     .map { TokenItem.blockchain($0) }
             default:
-                if !curves.contains(.secp256k1) { return [] }
+                let tokenBlockchain = self.tokenBlockchain(isTestnet: isTestnet)
+                guard curves.contains(tokenBlockchain.curve) else {
+                    return []
+                }
                 
-                return supportedItems.tokens(for: tokenBlockchain(isTestnet: isTestnet))
+                return supportedItems.tokens(for: tokenBlockchain)
                     .map { TokenItem.token($0) }
             }
         }
