@@ -27,9 +27,11 @@ class SupportedTokenItems {
         .binance(testnet: false) : "binanceTokens",
         .binance(testnet: true) : "binanceTokens_testnet",
         .bsc(testnet: false) : "binanceSmartChainTokens",
-        .bsc(testnet: true) : "binanceSmartChainTokens_tesnet",
+        .bsc(testnet: true) : "binanceSmartChainTokens_testnet",
         .polygon(testnet: false) : "polygonTokens",
-        .avalanche(testnet: false) : "avalanchecTokens"
+        .avalanche(testnet: false) : "avalanchecTokens",
+        .solana(testnet: false): "solanaTokens",
+        .solana(testnet: true): "solanaTokens_testnet",
     ]
     
     private lazy var blockchains: Set<Blockchain> = {
@@ -47,7 +49,8 @@ class SupportedTokenItems {
             .dogecoin,
             .bsc(testnet: false),
             .polygon(testnet: false),
-            .avalanche(testnet: false)
+            .avalanche(testnet: false),
+            .solana(testnet: false),
         ]
     }()
     
@@ -59,7 +62,8 @@ class SupportedTokenItems {
             .stellar(testnet: true),
             .bsc(testnet: true),
             .polygon(testnet: true),
-            .avalanche(testnet: true)
+            .avalanche(testnet: true),
+            .solana(testnet: true),
         ]
     }()
     
@@ -72,9 +76,14 @@ class SupportedTokenItems {
         guard let src = sources[blockchain] else {
             return []
         }
-        
-        return (try? JsonUtils.readBundleFile(with: src,
-                                              type: [Token].self,
-                                              shouldAddCompilationCondition: false)) ?? []
+
+        do {
+            return try JsonUtils.readBundleFile(with: src,
+                                                type: [Token].self,
+                                                shouldAddCompilationCondition: false)
+        } catch {
+            Log.error(error.localizedDescription)
+            return []
+        }
     }
 }
