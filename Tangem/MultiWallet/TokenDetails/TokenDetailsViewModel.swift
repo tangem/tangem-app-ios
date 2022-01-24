@@ -157,6 +157,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     
     @Published var isRefreshing = false
     @Published var txIndexToPush: Int? = nil
+    @Published var solanaRentWarning: String? = nil
     
     let amountType: Amount.AmountType
     let blockchain: Blockchain
@@ -280,6 +281,26 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
                 self?.objectWillChange.send()
             }
             .store(in: &bag)
+        
+        if let rentProvider = walletModel?.walletManager as? RentProvider {
+            Publishers.Zip(rentProvider.rentAmount(), rentProvider.minimalBalanceForRentExemption())
+                .receive(on: RunLoop.main)
+                .sink { _ in
+
+                } receiveValue: { [weak self] (rentAmount, minimalBalanceForRentExemption) in
+                    guard
+                        let self = self,
+                        let amount = self.walletModel?.wallet.amounts[.coin],
+                        amount < minimalBalanceForRentExemption
+                    else {
+                        self?.solanaRentWarning = nil
+                        return
+                    }
+                    
+                    self.solanaRentWarning = "solana_rent_warning".localized(rentAmount.description, minimalBalanceForRentExemption.description)
+                }
+                .store(in: &bag)
+        }
     }
 }
 
