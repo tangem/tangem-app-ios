@@ -439,7 +439,7 @@ Questa nota legale è stata modificata l'ultima volta 01.10.2020.";
 "add_tokens_title" = "Add tokens";
 "add_custom" = "Add Custom";
 "add_token_section_title_custom_tokens" = "Custom tokens";
-"add_token_section_title_popular_tokens" = "Ethereum tokens";
+"add_token_section_title_tokens_format" = "%@ tokens";
 "add_token_section_title_blockchains" = "Blockchains";
 
 "add_custom_token_title" = "Add custom token";
@@ -530,7 +530,7 @@ for
 
 URL: %@";
 
-"wallet_connect_failed_to_build_tx" = "Failed to create transaction from Dapp data";
+"wallet_connect_failed_to_build_tx" = "Failed to create transaction from Dapp data. Code: %@";
 "wallet_connect_personal_sign_message" = "Message for %@:\n";
 "wallet_connect_alert_sign_message" = "Requesting to sign a message\nwith card %@\n\n%@";
 
@@ -547,9 +547,6 @@ URL: %@";
 "push_current_total" = "Current total";
 
 "push_additional_fee" = "Additional fee";
-"add_token_section_title_binance_smart_chain_tokens" = "Binance Smart Chain tokens";
-
-"add_token_section_title_binance_tokens" = "Binance tokens";
 
 "keychain_failed_to_create_key" = "Failed to create SecKey representation";
 "keychain_failed_to_store_key" = "Failed to store key: ";
@@ -726,3 +723,5 @@ Amount to pay: %@";
 "card_operation_button_title_reset" = "Reset the card";
 
 "manage_security_access_code_disclaimer" = "Access code is available only for cards with a backup.";
+
+"solana_rent_warning" = "Solana network charges a rent of %@ every 2 days. Accounts that can’t afford the rent are purged from the network. Deposit your account with more than %@ to use it for free.";
