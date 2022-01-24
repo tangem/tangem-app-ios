@@ -148,6 +148,10 @@ struct TokenDetailsView: View {
                         if let sendBlockedReason = viewModel.sendBlockedReason {
                             AlertCardView(title: "", message: sendBlockedReason)
                         }
+                        
+                        if let solanaRentWarning = viewModel.solanaRentWarning {
+                            AlertCardView(title: "common_warning".localized, message: solanaRentWarning)
+                        }
                     }
                 }
             }

@@ -58,6 +58,12 @@
 		5D3F77E824BF56DC00E8695B /* TangemUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F77E724BF56DC00E8695B /* TangemUITests.swift */; };
 		5D43E2D72514D5B700697E5B /* CardOperationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D43E2D62514D5B700697E5B /* CardOperationView.swift */; };
 		5D5332B125F9091900D32CA5 /* TokenItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5332B025F9091900D32CA5 /* TokenItem.swift */; };
+		5D5468E3279AC5C700C5FC71 /* avalancheTestnet.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D5468E1279AC5C700C5FC71 /* avalancheTestnet.json */; };
+		5D5468E4279AC5C700C5FC71 /* polygon.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D5468E2279AC5C700C5FC71 /* polygon.json */; };
+		5D5468E8279AC88500C5FC71 /* solanaTestnet.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D5468E5279AC88400C5FC71 /* solanaTestnet.json */; };
+		5D5468E9279AC88500C5FC71 /* binanceTestnet.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D5468E6279AC88500C5FC71 /* binanceTestnet.json */; };
+		5D5468EA279AC88500C5FC71 /* ethereumTestnet.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D5468E7279AC88500C5FC71 /* ethereumTestnet.json */; };
+		5D5468EC279AC8B300C5FC71 /* bscTestnet.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D5468EB279AC8B200C5FC71 /* bscTestnet.json */; };
 		5D549FCB2698A5DD00CE763A /* Card+Preview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB499924E554140037E76F /* Card+Preview.swift */; };
 		5D559BCC25406BB40009E0F6 /* AppFeaturesService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D559BCB25406BB40009E0F6 /* AppFeaturesService.swift */; };
 		5D5CE1A82625FF00009023EC /* config_dev.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D5CE1A62625FF00009023EC /* config_dev.json */; };
@@ -91,6 +97,12 @@
 		5D9DCB01255191380059799C /* DisclamerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCB00255191380059799C /* DisclamerViewModel.swift */; };
 		5D9DCB06255193C30059799C /* UserPrefsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCB05255193C30059799C /* UserPrefsService.swift */; };
 		5D9DCB0C255199AA0059799C /* SecurityManagementViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCB0B255199AA0059799C /* SecurityManagementViewModel.swift */; };
+		5DA247372799380300DB4E4F /* bsc.json in Resources */ = {isa = PBXBuildFile; fileRef = 5DA247322799380200DB4E4F /* bsc.json */; };
+		5DA247382799380300DB4E4F /* binance.json in Resources */ = {isa = PBXBuildFile; fileRef = 5DA247332799380300DB4E4F /* binance.json */; };
+		5DA247392799380300DB4E4F /* avalanche.json in Resources */ = {isa = PBXBuildFile; fileRef = 5DA247342799380300DB4E4F /* avalanche.json */; };
+		5DA2473A2799380300DB4E4F /* ethereum.json in Resources */ = {isa = PBXBuildFile; fileRef = 5DA247352799380300DB4E4F /* ethereum.json */; };
+		5DA2473B2799380300DB4E4F /* solana.json in Resources */ = {isa = PBXBuildFile; fileRef = 5DA247362799380300DB4E4F /* solana.json */; };
+		5DA2473C2799B0AC00DB4E4F /* AddressFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF612A124E6E0ED001BF301 /* AddressFormatter.swift */; };
 		5DA3A2F1251CB6CA009A8E08 /* SecurityManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA3A2F0251CB6CA009A8E08 /* SecurityManagementView.swift */; };
 		5DAC0888251391D900B73E8B /* CoreNFC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DAC08832513917F00B73E8B /* CoreNFC.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		5DB862B8252396CD00566AA0 /* DefaultSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DB862B7252396CD00566AA0 /* DefaultSigner.swift */; };
@@ -99,8 +111,6 @@
 		5DBBAB0D24D8547F00E78F1C /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0C24D8547F00E78F1C /* Colors.xcassets */; };
 		5DBBAB0F24D8617C00E78F1C /* CardRectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0E24D8617C00E78F1C /* CardRectView.swift */; };
 		5DCC20BD2500FC58007B467E /* QRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DCC20BC2500FC58007B467E /* QRScannerView.swift */; };
-		5DD11D7E2768C0E300C99644 /* DerivationTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD11D7D2768C0E300C99644 /* DerivationTask.swift */; };
-		5DD11D7F2768D9E500C99644 /* DerivationTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD11D7D2768C0E300C99644 /* DerivationTask.swift */; };
 		5DD24B41274FAC2400BF80BE /* WalletManagerAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD24B40274FAC2400BF80BE /* WalletManagerAssembly.swift */; };
 		5DD4CB4E24FAAB1A008F23CC /* KeyboardAdaptive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD4CB4B24FAAB1A008F23CC /* KeyboardAdaptive.swift */; };
 		5DD4CB5024FAAB1A008F23CC /* KeyboardHeightPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD4CB4D24FAAB1A008F23CC /* KeyboardHeightPublisher.swift */; };
@@ -182,7 +192,6 @@
 		B01416AC2632A92B00D82A9C /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B069F36E2631AD3C00ACFD19 /* ImageLoader.swift */; };
 		B01416B12632A93800D82A9C /* ImageCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = B069F3B02631D57500ACFD19 /* ImageCache.swift */; };
 		B01416B72632AA1E00D82A9C /* IconsUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01416B62632AA1D00D82A9C /* IconsUtils.swift */; };
-		B016E6C026807053007178B9 /* binanceSmartChainTokens_testnet.json in Resources */ = {isa = PBXBuildFile; fileRef = B016E6BF26805BA3007178B9 /* binanceSmartChainTokens_testnet.json */; };
 		B018F2FD2591FE8600D8F89A /* AppWarning.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018F2FC2591FE8600D8F89A /* AppWarning.swift */; };
 		B018F304259204A200D8F89A /* WarningEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B018F303259204A200D8F89A /* WarningEvent.swift */; };
 		B01983C82660C7EA00107390 /* DogecoinNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B01983C52660C7EA00107390 /* DogecoinNetworkService.swift */; };
@@ -614,11 +623,8 @@
 		B086906E260A2D73005976CD /* ActivityIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE2038D24EE8A510044EF46 /* ActivityIndicatorView.swift */; };
 		B0869073260A2D7B005976CD /* TangemButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09BB855259A075500B92000 /* TangemButton.swift */; };
 		B0869078260A2DFF005976CD /* View+PreviewDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C8A0D32562C86A00DEEAC7 /* View+PreviewDevice.swift */; };
-		B087635F26830795000A35F9 /* binanceTokens_testnet.json in Resources */ = {isa = PBXBuildFile; fileRef = B087635E2683077E000A35F9 /* binanceTokens_testnet.json */; };
-		B087636026830795000A35F9 /* binanceTokens.json in Resources */ = {isa = PBXBuildFile; fileRef = B087635D2683077E000A35F9 /* binanceTokens.json */; };
 		B08ACD8225D2BC3D007387BD /* AddNewTokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08ACD8125D2BC3D007387BD /* AddNewTokensView.swift */; };
 		B08ACD8A25D2BC47007387BD /* AddNewTokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08ACD8925D2BC47007387BD /* AddNewTokensViewModel.swift */; };
-		B08ACD9425D2E056007387BD /* ethereumTokens.json in Resources */ = {isa = PBXBuildFile; fileRef = B080765E25D10667006CF606 /* ethereumTokens.json */; };
 		B08B8CEB26D6276000D4BB7B /* Assembly+AppPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08B8CEA26D6276000D4BB7B /* Assembly+AppPreview.swift */; };
 		B094B31026B2FC2000791AEC /* TangemNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = B094B30F26B2FC2000791AEC /* TangemNote.swift */; };
 		B094B31126B2FCD300791AEC /* TangemNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = B094B30F26B2FC2000791AEC /* TangemNote.swift */; };
@@ -673,7 +679,6 @@
 		B0C04BBE2563FDF4008A3B51 /* NavigationLink+EmptyLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C04BBD2563FDF4008A3B51 /* NavigationLink+EmptyLabel.swift */; };
 		B0C171CE264C173400E4BA5C /* CameraAccessDeniedModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C171CD264C173400E4BA5C /* CameraAccessDeniedModifier.swift */; };
 		B0C34953267B19B90027CC9D /* RoundedCorner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05209BD261F1FF3000DD204 /* RoundedCorner.swift */; };
-		B0C4A1D12671EB2400DCB921 /* ethereumTokens_testnet.json in Resources */ = {isa = PBXBuildFile; fileRef = B0C4A1D02671E39B00DCB921 /* ethereumTokens_testnet.json */; };
 		B0C4A1D32671F3FC00DCB921 /* TestnetBuyCryptoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C4A1D22671F3FB00DCB921 /* TestnetBuyCryptoService.swift */; };
 		B0C4F76B26F0896E0086D815 /* SingleCardOnboardingCardsLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C4F76A26F0896E0086D815 /* SingleCardOnboardingCardsLayout.swift */; };
 		B0C4F76D26F089850086D815 /* SingleCardOnboardingStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C4F76C26F089850086D815 /* SingleCardOnboardingStep.swift */; };
@@ -723,7 +728,6 @@
 		B0E9E2FD2679DA5B00269C7A /* Separator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E9E2FC2679DA5B00269C7A /* Separator.swift */; };
 		B0E9E2FF2679DA8000269C7A /* AmountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E9E2FE2679DA8000269C7A /* AmountView.swift */; };
 		B0EC1200267386FC00137059 /* PendingTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EC11FF267386FC00137059 /* PendingTransaction.swift */; };
-		B0ED200E267C730D00D5C3E5 /* binanceSmartChainTokens.json in Resources */ = {isa = PBXBuildFile; fileRef = B0C34956267B60A70027CC9D /* binanceSmartChainTokens.json */; };
 		B0F16D7126EF5ED800687C47 /* ProgressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F16D7026EF5ED800687C47 /* ProgressBar.swift */; };
 		B0F62C4825DE4ABE005C8BA0 /* EmailType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F62C4725DE4ABE005C8BA0 /* EmailType.swift */; };
 		B0F62C5025DE4EC9005C8BA0 /* MailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F62C4F25DE4EC9005C8BA0 /* MailView.swift */; };
@@ -870,6 +874,12 @@
 		5D3F77E924BF56DC00E8695B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5D43E2D62514D5B700697E5B /* CardOperationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardOperationView.swift; sourceTree = "<group>"; };
 		5D5332B025F9091900D32CA5 /* TokenItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItem.swift; sourceTree = "<group>"; };
+		5D5468E1279AC5C700C5FC71 /* avalancheTestnet.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = avalancheTestnet.json; sourceTree = "<group>"; };
+		5D5468E2279AC5C700C5FC71 /* polygon.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = polygon.json; sourceTree = "<group>"; };
+		5D5468E5279AC88400C5FC71 /* solanaTestnet.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = solanaTestnet.json; sourceTree = "<group>"; };
+		5D5468E6279AC88500C5FC71 /* binanceTestnet.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = binanceTestnet.json; sourceTree = "<group>"; };
+		5D5468E7279AC88500C5FC71 /* ethereumTestnet.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ethereumTestnet.json; sourceTree = "<group>"; };
+		5D5468EB279AC8B200C5FC71 /* bscTestnet.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = bscTestnet.json; sourceTree = "<group>"; };
 		5D559BCB25406BB40009E0F6 /* AppFeaturesService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppFeaturesService.swift; sourceTree = "<group>"; };
 		5D5CE19E2625FEE9009023EC /* config_example.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = config_example.json; sourceTree = "<group>"; };
 		5D5CE1A62625FF00009023EC /* config_dev.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = config_dev.json; path = "tangem-app-config/config_dev.json"; sourceTree = SOURCE_ROOT; };
@@ -905,6 +915,11 @@
 		5D9DCB00255191380059799C /* DisclamerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisclamerViewModel.swift; sourceTree = "<group>"; };
 		5D9DCB05255193C30059799C /* UserPrefsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPrefsService.swift; sourceTree = "<group>"; };
 		5D9DCB0B255199AA0059799C /* SecurityManagementViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityManagementViewModel.swift; sourceTree = "<group>"; };
+		5DA247322799380200DB4E4F /* bsc.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = bsc.json; sourceTree = "<group>"; };
+		5DA247332799380300DB4E4F /* binance.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = binance.json; sourceTree = "<group>"; };
+		5DA247342799380300DB4E4F /* avalanche.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = avalanche.json; sourceTree = "<group>"; };
+		5DA247352799380300DB4E4F /* ethereum.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ethereum.json; sourceTree = "<group>"; };
+		5DA247362799380300DB4E4F /* solana.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = solana.json; sourceTree = "<group>"; };
 		5DA3A2F0251CB6CA009A8E08 /* SecurityManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityManagementView.swift; sourceTree = "<group>"; };
 		5DAC08832513917F00B73E8B /* CoreNFC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreNFC.framework; path = System/Library/Frameworks/CoreNFC.framework; sourceTree = SDKROOT; };
 		5DB862B7252396CD00566AA0 /* DefaultSigner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultSigner.swift; sourceTree = "<group>"; };
@@ -914,7 +929,6 @@
 		5DBBAB0E24D8617C00E78F1C /* CardRectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardRectView.swift; sourceTree = "<group>"; };
 		5DBFEA4D24DD642C0080D3DC /* Tangem.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Tangem.entitlements; sourceTree = "<group>"; };
 		5DCC20BC2500FC58007B467E /* QRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerView.swift; sourceTree = "<group>"; };
-		5DD11D7D2768C0E300C99644 /* DerivationTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DerivationTask.swift; sourceTree = "<group>"; };
 		5DD1D62E25558975007910EF /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5DD24B40274FAC2400BF80BE /* WalletManagerAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletManagerAssembly.swift; sourceTree = "<group>"; };
 		5DD4CB4B24FAAB1A008F23CC /* KeyboardAdaptive.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardAdaptive.swift; sourceTree = "<group>"; };
@@ -965,7 +979,6 @@
 		B00D714F258A1B6C00A9442C /* JsonUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsonUtils.swift; sourceTree = "<group>"; };
 		B013A7B72621CC510032F2AE /* SendTransactionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendTransactionHandler.swift; sourceTree = "<group>"; };
 		B01416B62632AA1D00D82A9C /* IconsUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconsUtils.swift; sourceTree = "<group>"; };
-		B016E6BF26805BA3007178B9 /* binanceSmartChainTokens_testnet.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = binanceSmartChainTokens_testnet.json; sourceTree = "<group>"; };
 		B018F2FC2591FE8600D8F89A /* AppWarning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppWarning.swift; sourceTree = "<group>"; };
 		B018F303259204A200D8F89A /* WarningEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningEvent.swift; sourceTree = "<group>"; };
 		B01983C52660C7EA00107390 /* DogecoinNetworkService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DogecoinNetworkService.swift; sourceTree = "<group>"; };
@@ -1393,12 +1406,9 @@
 		B074BAC026779B28005D641B /* PushTxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTxView.swift; sourceTree = "<group>"; };
 		B074BAC226779BC8005D641B /* PushTxViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTxViewModel.swift; sourceTree = "<group>"; };
 		B07AE16B25DD548A0045179A /* RateAppService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RateAppService.swift; sourceTree = "<group>"; };
-		B080765E25D10667006CF606 /* ethereumTokens.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ethereumTokens.json; sourceTree = "<group>"; };
 		B082E922255A8EF000A0CEA9 /* StorageType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageType.swift; sourceTree = "<group>"; };
 		B085154C26D7797400E1A836 /* TwinsOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsOnboardingView.swift; sourceTree = "<group>"; };
 		B085154E26D77C2400E1A836 /* TwinsOnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsOnboardingViewModel.swift; sourceTree = "<group>"; };
-		B087635D2683077E000A35F9 /* binanceTokens.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = binanceTokens.json; sourceTree = "<group>"; };
-		B087635E2683077E000A35F9 /* binanceTokens_testnet.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = binanceTokens_testnet.json; sourceTree = "<group>"; };
 		B08ACD8125D2BC3D007387BD /* AddNewTokensView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNewTokensView.swift; sourceTree = "<group>"; };
 		B08ACD8925D2BC47007387BD /* AddNewTokensViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNewTokensViewModel.swift; sourceTree = "<group>"; };
 		B08B8CEA26D6276000D4BB7B /* Assembly+AppPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Assembly+AppPreview.swift"; sourceTree = "<group>"; };
@@ -1449,8 +1459,6 @@
 		B0C04BB82563F591008A3B51 /* TwinCardOnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinCardOnboardingViewModel.swift; sourceTree = "<group>"; };
 		B0C04BBD2563FDF4008A3B51 /* NavigationLink+EmptyLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationLink+EmptyLabel.swift"; sourceTree = "<group>"; };
 		B0C171CD264C173400E4BA5C /* CameraAccessDeniedModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraAccessDeniedModifier.swift; sourceTree = "<group>"; };
-		B0C34956267B60A70027CC9D /* binanceSmartChainTokens.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = binanceSmartChainTokens.json; sourceTree = "<group>"; };
-		B0C4A1D02671E39B00DCB921 /* ethereumTokens_testnet.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = ethereumTokens_testnet.json; sourceTree = "<group>"; };
 		B0C4A1D22671F3FB00DCB921 /* TestnetBuyCryptoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestnetBuyCryptoService.swift; sourceTree = "<group>"; };
 		B0C4F76A26F0896E0086D815 /* SingleCardOnboardingCardsLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleCardOnboardingCardsLayout.swift; sourceTree = "<group>"; };
 		B0C4F76C26F089850086D815 /* SingleCardOnboardingStep.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleCardOnboardingStep.swift; sourceTree = "<group>"; };
@@ -1476,7 +1484,6 @@
 		B0CAFA8C26C6C0FE001238DA /* QRCodeGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeGenerator.swift; sourceTree = "<group>"; };
 		B0CBE9FD26260D3F00072191 /* ScannedCardsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScannedCardsRepository.swift; sourceTree = "<group>"; };
 		B0CC670B26455C44007D227A /* WalletConnectCardScanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectCardScanner.swift; sourceTree = "<group>"; };
-		B0CC817D25CD6281006D49B9 /* breadwallet_tokens.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = breadwallet_tokens.json; sourceTree = "<group>"; };
 		B0CC818225CD63FB006D49B9 /* Token+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Token+.swift"; sourceTree = "<group>"; };
 		B0CCA7212568FD0F009325E3 /* TwinsCreateWalletTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsCreateWalletTask.swift; sourceTree = "<group>"; };
 		B0D1271D26AEF341008DC75C /* WalletConnectNetworkParserUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectNetworkParserUtility.swift; sourceTree = "<group>"; };
@@ -2064,7 +2071,6 @@
 				5D17EC7726947ED9002782DE /* SignAndReadTask.swift */,
 				B02275D62701D9FB004C752B /* PreparePrimaryCardTask.swift */,
 				5DFCE54B274BDEE200C1B1A0 /* ResetToFactorySettingsTask.swift */,
-				5DD11D7D2768C0E300C99644 /* DerivationTask.swift */,
 			);
 			path = Tasks;
 			sourceTree = "<group>";
@@ -3435,13 +3441,17 @@
 		B0CC817C25CD626A006D49B9 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				B080765E25D10667006CF606 /* ethereumTokens.json */,
-				B0C4A1D02671E39B00DCB921 /* ethereumTokens_testnet.json */,
-				B0C34956267B60A70027CC9D /* binanceSmartChainTokens.json */,
-				B016E6BF26805BA3007178B9 /* binanceSmartChainTokens_testnet.json */,
-				B087635D2683077E000A35F9 /* binanceTokens.json */,
-				B087635E2683077E000A35F9 /* binanceTokens_testnet.json */,
-				B0CC817D25CD6281006D49B9 /* breadwallet_tokens.json */,
+				5D5468EB279AC8B200C5FC71 /* bscTestnet.json */,
+				5D5468E6279AC88500C5FC71 /* binanceTestnet.json */,
+				5D5468E7279AC88500C5FC71 /* ethereumTestnet.json */,
+				5D5468E5279AC88400C5FC71 /* solanaTestnet.json */,
+				5D5468E1279AC5C700C5FC71 /* avalancheTestnet.json */,
+				5D5468E2279AC5C700C5FC71 /* polygon.json */,
+				5DA247342799380300DB4E4F /* avalanche.json */,
+				5DA247332799380300DB4E4F /* binance.json */,
+				5DA247322799380200DB4E4F /* bsc.json */,
+				5DA247352799380300DB4E4F /* ethereum.json */,
+				5DA247362799380300DB4E4F /* solana.json */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -3742,22 +3752,27 @@
 			buildActionMask = 2147483647;
 			files = (
 				B0A359EF2589117200E25B34 /* features_dev.json in Resources */,
+				5D5468E3279AC5C700C5FC71 /* avalancheTestnet.json in Resources */,
 				5D3F77D224BF56DC00E8695B /* LaunchScreen.storyboard in Resources */,
 				5D5CE1A92625FF00009023EC /* config_prod.json in Resources */,
+				5DA2473B2799380300DB4E4F /* solana.json in Resources */,
 				5DBBAB0D24D8547F00E78F1C /* Colors.xcassets in Resources */,
 				5DFB499624E44BC90037E76F /* Tokens.xcassets in Resources */,
-				B087636026830795000A35F9 /* binanceTokens.json in Resources */,
+				5DA2473A2799380300DB4E4F /* ethereum.json in Resources */,
 				5D15102E264BD49600961000 /* issuers.json in Resources */,
-				B0C4A1D12671EB2400DCB921 /* ethereumTokens_testnet.json in Resources */,
+				5D5468EA279AC88500C5FC71 /* ethereumTestnet.json in Resources */,
+				5DA247392799380300DB4E4F /* avalanche.json in Resources */,
+				5D5468E9279AC88500C5FC71 /* binanceTestnet.json in Resources */,
+				5DA247372799380300DB4E4F /* bsc.json in Resources */,
 				B0A359ED2589117200E25B34 /* features_firebase.json in Resources */,
+				5D5468EC279AC8B300C5FC71 /* bscTestnet.json in Resources */,
 				5D383E3F24D95BA600C9BFF6 /* Localizable.strings in Resources */,
 				B0D34EBF2626EA4300625AC5 /* GoogleService-Info.plist in Resources */,
-				B087635F26830795000A35F9 /* binanceTokens_testnet.json in Resources */,
 				5D3F77CF24BF56DC00E8695B /* Preview Assets.xcassets in Resources */,
-				B0ED200E267C730D00D5C3E5 /* binanceSmartChainTokens.json in Resources */,
-				B016E6C026807053007178B9 /* binanceSmartChainTokens_testnet.json in Resources */,
+				5DA247382799380300DB4E4F /* binance.json in Resources */,
+				5D5468E8279AC88500C5FC71 /* solanaTestnet.json in Resources */,
+				5D5468E4279AC5C700C5FC71 /* polygon.json in Resources */,
 				5D5CE1A82625FF00009023EC /* config_dev.json in Resources */,
-				B08ACD9425D2E056007387BD /* ethereumTokens.json in Resources */,
 				B0A359EE2589117200E25B34 /* features_prod.json in Resources */,
 				5D3F77CC24BF56DC00E8695B /* Assets.xcassets in Resources */,
 			);
@@ -4111,7 +4126,6 @@
 				B0BA7BCB26C5684E00D7066F /* AddressQrBottomSheetView.swift in Sources */,
 				5D6C128725E144DF0010A0C5 /* AddTokensView.swift in Sources */,
 				B09BB862259A075600B92000 /* NavigationButton.swift in Sources */,
-				5DD11D7E2768C0E300C99644 /* DerivationTask.swift in Sources */,
 				B0BA7BC726C4F9A300D7066F /* OnboardingCircleButton.swift in Sources */,
 				B04BA23126F07ECE0036784C /* OnboardingTextButtonView.swift in Sources */,
 				B094B31026B2FC2000791AEC /* TangemNote.swift in Sources */,
@@ -4417,6 +4431,7 @@
 				B066B19B262D6B1100EB85A5 /* OP_MAX.swift in Sources */,
 				B066B12E262D6B1100EB85A5 /* XRPWallet.swift in Sources */,
 				B0F7361D25F7B03900DD348F /* TwinCardsUtils.swift in Sources */,
+				5DA2473C2799B0AC00DB4E4F /* AddressFormatter.swift in Sources */,
 				B066B1AC262D6B1100EB85A5 /* OP_MIN.swift in Sources */,
 				B066B1DA262D6B1100EB85A5 /* OP_ENDIF.swift in Sources */,
 				B066B1BE262D6B1100EB85A5 /* OP_DEPTH.swift in Sources */,
@@ -4535,7 +4550,6 @@
 				B066B12D262D6B1100EB85A5 /* XRPHistoricalTransaction.swift in Sources */,
 				B066B1BA262D6B1100EB85A5 /* OP_SWAP.swift in Sources */,
 				B066B15C262D6B1100EB85A5 /* BinanceNetworkService.swift in Sources */,
-				5DD11D7F2768D9E500C99644 /* DerivationTask.swift in Sources */,
 				5DE7DD262695C57B00472205 /* SavedCard.swift in Sources */,
 				B0869069260A2D55005976CD /* ButtonStyles.swift in Sources */,
 				B066B445262D6EFA00EB85A5 /* Digest.swift in Sources */,
