@@ -66,13 +66,28 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
         let blockchain = wallet.blockchain
         let walletModels = assembly.makeWalletModels(from: card, blockchains: [blockchain])
         
-        guard
-            let walletModel = walletModels.first(where: { $0.wallet.address.lowercased() == transaction.from.lowercased() }),
-            let gasLoader = walletModel.walletManager as? EthereumGasLoader,
-            let value = try? EthereumUtils.parseEthereumDecimal(transaction.value ?? "0x0", decimalsCount: blockchain.decimalCount),
-            let gas = transaction.gas?.hexToInteger ?? transaction.gasLimit?.hexToInteger
-        else {
-            return .anyFail(error: WalletConnectServiceError.failedToBuildTx)
+        guard let walletModel = walletModels.first(where: { $0.wallet.address.lowercased() == transaction.from.lowercased() }) else {
+            let error = WalletConnectServiceError.failedToBuildTx(code: .wrongAddress)
+            Analytics.log(error: error)
+            return .anyFail(error: error)
+        }
+        
+        guard let gasLoader = walletModel.walletManager as? EthereumGasLoader else {
+            let error = WalletConnectServiceError.failedToBuildTx(code: .noWalletManager)
+            Analytics.log(error: error)
+            return .anyFail(error: error)
+        }
+        
+        guard let value = try? EthereumUtils.parseEthereumDecimal(transaction.value ?? "0x0", decimalsCount: blockchain.decimalCount) else {
+            let error = WalletConnectServiceError.failedToBuildTx(code: .noValue)
+            Analytics.log(error: error)
+            return .anyFail(error: error)
+        }
+        
+        guard let gas = transaction.gas?.hexToInteger ?? transaction.gasLimit?.hexToInteger  else {
+            let error = WalletConnectServiceError.failedToBuildTx(code: .noGas)
+            Analytics.log(error: error)
+            return .anyFail(error: error)
         }
         
         let valueAmount = Amount(with: blockchain, type: .coin, value: value)
