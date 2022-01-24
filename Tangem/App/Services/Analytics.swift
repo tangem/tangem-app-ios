@@ -10,84 +10,32 @@ import Foundation
 #if !CLIP
 import FirebaseAnalytics
 import FirebaseCrashlytics
+import AppsFlyerLib
 #endif
 import TangemSdk
 
 class Analytics {
-    enum Event: String {
-        case cardIsScanned = "card_is_scanned"
-        case transactionIsSent = "transaction_is_sent"
-        case transactionIsPushed = "transaction_is_pushed"
-        case readyToScan = "ready_to_scan"
-        case displayRateAppWarning = "rate_app_warning_displayed"
-        case negativeRateAppFeedback = "negative_rate_app_feedback"
-        case positiveRateAppFeedback = "positive_rate_app_feedback"
-        case dismissRateAppWarning = "dismiss_rate_app_warning"
-        case wcSuccessResponse = "wallet_connect_success_response"
-        case wcInvalidRequest = "wallet_connect_invalid_request"
-        case wcNewSession = "wallet_connect_new_session"
-        case wcSessionDisconnected = "wallet_connect_session_disconnected"
-        case userBoughtCrypto = "user_bought_crypto"
-        case userSoldCrypto = "user_sold_crypto"
-        
-        fileprivate static var nfcError: String {
-            "nfc_error"
-        }
-        
-    }
-    
-    enum Action: String {
-        case scan = "tap_scan_task"
-        case sendTx = "send_transaction"
-        case pushTx = "push_transaction"
-        case walletConnectSign = "wallet_connect_personal_sign"
-        case walletConnectTxSend = "wallet_connect_tx_sign"
-        case readPinSettings = "read_pin_settings"
-        case changeSecOptions = "change_sec_options"
-        case createWallet = "create_wallet"
-        case purgeWallet = "purge_wallet"
-        case deriveKeys = "derive_keys"
-        case preparePrimary = "prepare_primary"
-        case readPrimary = "read_primary"
-        case addbackup = "add_backup"
-        case proceedBackup = "proceed_backup"
-    }
-    
-    enum ParameterKey: String {
-        case blockchain = "blockchain"
-        case batchId = "batch_id"
-        case firmware = "firmware"
-        case action = "action"
-        case errorDescription = "error_description"
-        case errorCode = "error_code"
-        case newSecOption = "new_security_option"
-        case errorKey = "Tangem SDK error key"
-        case walletConnectAction = "wallet_connect_action"
-        case walletConnectRequest = "wallet_connect_request"
-        case walletConnectDappUrl = "wallet_connect_dapp_url"
-        case currencyCode = "currency_code"
+    static func log(_ event: Event, params: [ParameterKey: ParameterValue]) {
+        log(event: event, with: params.mapValues { $0.rawValue })
     }
     
     static func log(event: Event, with params: [ParameterKey: Any]? = nil) {
         #if !CLIP
-        FirebaseAnalytics.Analytics.logEvent(event.rawValue, parameters: params?.firebaseParams)
+        let key = event.rawValue
+        let values = params?.firebaseParams
+        FirebaseAnalytics.Analytics.logEvent(key, parameters: values)
+        AppsFlyerLib.shared().logEvent(key, withValues: values)
         #endif
     }
     
     static func logScan(card: Card) {
-        #if !CLIP
-        let params = collectCardData(card)
-        FirebaseAnalytics.Analytics.logEvent(Event.cardIsScanned.rawValue, parameters: params.firebaseParams)
-        #endif
+        log(event: .cardIsScanned, with: collectCardData(card))
     }
     
     static func logTx(blockchainName: String?, isPushed: Bool = false) {
-        #if !CLIP
-        FirebaseAnalytics.Analytics.logEvent(isPushed ? Event.transactionIsPushed.rawValue : Event.transactionIsSent.rawValue,
-                                             parameters: [ParameterKey.blockchain.rawValue: blockchainName ?? ""])
-        #endif
+        log(event: isPushed ? .transactionIsPushed : .transactionIsSent,
+            with: [ParameterKey.blockchain: blockchainName ?? ""])
     }
-   
     
     static func logCardSdkError(_ error: TangemSdkError, for action: Action, parameters: [ParameterKey: Any] = [:]) {
         #if !CLIP
@@ -103,11 +51,7 @@ class Analytics {
     }
     
     static func logCardSdkError(_ error: TangemSdkError, for action: Action, card: Card, parameters: [ParameterKey: Any] = [:]) {
-        #if !CLIP
-        let params = collectCardData(card, additionalParams: parameters)
-        
-        logCardSdkError(error, for: action, parameters: params)
-        #endif
+        logCardSdkError(error, for: action, parameters: collectCardData(card, additionalParams: parameters))
     }
     
     static func log(error: Error) {
@@ -148,7 +92,8 @@ class Analytics {
             }
             params[.walletConnectDappUrl] = url.absoluteString
         }
-        FirebaseAnalytics.Analytics.logEvent(firEvent.rawValue, parameters: params.firebaseParams)
+        
+        log(event: firEvent, with: params)
     }
     #endif
     
@@ -160,16 +105,69 @@ class Analytics {
     }
 }
 
-fileprivate extension Dictionary where Key == Analytics.ParameterKey, Value == Any {
-    var firebaseParams: [String: Any] {
-        var convertedParams = [String:Any]()
-        forEach { convertedParams[$0.key.rawValue] = $0.value }
-        return convertedParams
-    }
-}
-
-#if !CLIP
 extension Analytics {
+    enum Event: String {
+        case cardIsScanned = "card_is_scanned"
+        case transactionIsSent = "transaction_is_sent"
+        case transactionIsPushed = "transaction_is_pushed"
+        case readyToScan = "ready_to_scan"
+        case displayRateAppWarning = "rate_app_warning_displayed"
+        case negativeRateAppFeedback = "negative_rate_app_feedback"
+        case positiveRateAppFeedback = "positive_rate_app_feedback"
+        case dismissRateAppWarning = "dismiss_rate_app_warning"
+        case wcSuccessResponse = "wallet_connect_success_response"
+        case wcInvalidRequest = "wallet_connect_invalid_request"
+        case wcNewSession = "wallet_connect_new_session"
+        case wcSessionDisconnected = "wallet_connect_session_disconnected"
+        case userBoughtCrypto = "user_bought_crypto"
+        case userSoldCrypto = "user_sold_crypto"
+        case getACard = "get_card"
+        
+        fileprivate static var nfcError: String {
+            "nfc_error"
+        }
+    }
+    
+    enum Action: String {
+        case scan = "tap_scan_task"
+        case sendTx = "send_transaction"
+        case pushTx = "push_transaction"
+        case walletConnectSign = "wallet_connect_personal_sign"
+        case walletConnectTxSend = "wallet_connect_tx_sign"
+        case readPinSettings = "read_pin_settings"
+        case changeSecOptions = "change_sec_options"
+        case createWallet = "create_wallet"
+        case purgeWallet = "purge_wallet"
+        case deriveKeys = "derive_keys"
+        case preparePrimary = "prepare_primary"
+        case readPrimary = "read_primary"
+        case addbackup = "add_backup"
+        case proceedBackup = "proceed_backup"
+    }
+    
+    enum ParameterKey: String {
+        case blockchain = "blockchain"
+        case batchId = "batch_id"
+        case firmware = "firmware"
+        case action = "action"
+        case errorDescription = "error_description"
+        case errorCode = "error_code"
+        case newSecOption = "new_security_option"
+        case errorKey = "Tangem SDK error key"
+        case walletConnectAction = "wallet_connect_action"
+        case walletConnectRequest = "wallet_connect_request"
+        case walletConnectDappUrl = "wallet_connect_dapp_url"
+        case currencyCode = "currency_code"
+        case source = "source"
+    }
+    
+    enum ParameterValue: String {
+        case welcome
+        case walletOnboardingBuyMore = "wallet_onboaring_buy_more_cards"
+        case walletOnboarding = "wallet_onboarding"
+    }
+    
+    #if !CLIP
     enum WalletConnectEvent {
         enum SessionEvent {
             case disconnect, connect
@@ -177,5 +175,13 @@ extension Analytics {
         
         case error(Error, WalletConnectAction?), session(SessionEvent, URL), action(WalletConnectAction), invalidRequest(json: String?)
     }
+    #endif
 }
-#endif
+
+fileprivate extension Dictionary where Key == Analytics.ParameterKey, Value == Any {
+    var firebaseParams: [String: Any] {
+        var convertedParams = [String:Any]()
+        forEach { convertedParams[$0.key.rawValue] = $0.value }
+        return convertedParams
+    }
+}
