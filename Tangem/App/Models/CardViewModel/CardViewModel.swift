@@ -430,25 +430,25 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
     
-    func deriveKeys(derivationPaths:  [Data: Set<DerivationPath>], completion: @escaping (Result<Void, Error>) -> Void) {
+    func deriveKeys(derivationPaths:  [Data: [DerivationPath]], completion: @escaping (Result<Void, Error>) -> Void) {
         let card = self.cardInfo.card
         
-        tangemSdk.startSession(with: DerivationTask(derivationPaths), cardId: card.cardId) {[weak self] result in
+        tangemSdk.startSession(with: DeriveMultipleWalletPublicKeysTask(derivationPaths), cardId: card.cardId) {[weak self] result in
             switch result {
             case .success(let newDerivations):
-                guard let self = self else { return }
-                
-                for newDerivation in newDerivations {
-                    let existingKeys = self.cardInfo.derivedKeys[newDerivation.key] ?? []
-                    self.cardInfo.derivedKeys.updateValue(existingKeys + newDerivation.value,
-                                                          forKey: newDerivation.key)
-                }
-                
-              
+                self?.updateDerivations(with: newDerivations)
                 completion(.success(()))
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .purgeWallet, card: card)
                 completion(.failure(error))
+            }
+        }
+    }
+    
+    func updateDerivations(with newDerivations: [Data: [DerivationPath:ExtendedPublicKey]]) {
+        for newKey in newDerivations {
+            for newDerivation in newKey.value {
+                self.cardInfo.derivedKeys[newKey.key, default: [:]][newDerivation.key] = newDerivation.value
             }
         }
     }
@@ -583,7 +583,7 @@ class CardViewModel: Identifiable, ObservableObject {
             ethWalletModel = assembly.makeWalletModels(from: cardInfo, blockchains: [ethBlockchain]).first
         }
         
-        let knownTokens = SupportedTokenItems().availableEthTokens(isTestnet: cardInfo.isTestnet)
+        let knownTokens = SupportedTokenItems().tokens(for: ethBlockchain)
         
         guard let tokenFinder = ethWalletModel?.walletManager as? TokenFinder else {
             self.userPrefsService.searchedCards.append(self.cardInfo.card.cardId)
@@ -646,17 +646,13 @@ class CardViewModel: Identifiable, ObservableObject {
         let blockchainsToAdd = Array(newBlockchains.subtracting(existingBlockchains)).sorted { $0.displayName < $1.displayName }
  
         if cardInfo.isTangemWallet {
-            var newDerivationPaths: [Data: Set<DerivationPath>] = [:]
+            var newDerivationPaths: [Data: [DerivationPath]] = [:]
 
             for blockchain in blockchainsToAdd {
                 if let path = blockchain.derivationPath,
                    let publicKey = cardInfo.card.wallets.first(where: { $0.curve == blockchain.curve })?.publicKey {
-                    if !(cardInfo.derivedKeys[publicKey]?.contains(where: { $0.derivationPath == path }) ?? false) {
-                        if newDerivationPaths[publicKey] == nil {
-                            newDerivationPaths[publicKey] = .init()
-                        }
-                        
-                        newDerivationPaths[publicKey]?.insert(path)
+                    if cardInfo.derivedKeys[publicKey]?[path] == nil {
+                        newDerivationPaths[publicKey, default: []].append(path)
                     }
                 }
             }
