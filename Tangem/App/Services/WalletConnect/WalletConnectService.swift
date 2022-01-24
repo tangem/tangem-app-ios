@@ -74,6 +74,15 @@ enum WalletConnectNetwork {
             return .binance(testnet: testnet)
         }
     }
+    
+    var chainId: Int? {
+        switch self {
+        case .eth(let chainId):
+            return chainId
+        case .bnb:
+            return nil
+        }
+    }
 }
 
 class WalletConnectService: ObservableObject {
@@ -340,6 +349,10 @@ extension WalletConnectService: ServerDelegate {
             save()
         }
     }
+    
+    func server(_ server: Server, didUpdate session: Session) {
+        //todo: handle?
+    }
 }
 
 extension WalletConnectService: URLHandler {
@@ -398,7 +411,7 @@ enum WalletConnectServiceError: LocalizedError {
     case cardNotFound
     case sessionNotFound
     case txNotFound
-    case failedToBuildTx
+    case failedToBuildTx(code: TxErrorCodes)
     case other(Error)
     case noChainId
     case unsupportedNetwork
@@ -417,7 +430,7 @@ enum WalletConnectServiceError: LocalizedError {
         case .cardNotFound: return "wallet_connect_card_not_found".localized
         case .txNotFound: return "wallet_connect_tx_not_found".localized
         case .sessionNotFound: return "wallet_connect_session_not_found".localized
-        case .failedToBuildTx: return "wallet_connect_failed_to_build_tx".localized
+        case .failedToBuildTx(let code): return String(format: "wallet_connect_failed_to_build_tx".localized, code.rawValue)
         case .other(let error): return error.localizedDescription
         case .noChainId: return "wallet_connect_service_no_chain_id".localized
         case .unsupportedNetwork: return "wallet_connect_scanner_error_unsupported_network".localized
@@ -427,3 +440,12 @@ enum WalletConnectServiceError: LocalizedError {
 }
 
 fileprivate typealias ExtractedWCUrl = (url: String, handleDelay: TimeInterval)
+
+extension WalletConnectServiceError {
+    enum TxErrorCodes: Int {
+        case noWalletManager
+        case wrongAddress
+        case noGas
+        case noValue
+    }
+}

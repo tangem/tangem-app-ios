@@ -14,6 +14,7 @@ import struct TangemSdk.ExtendedPublicKey
 import struct TangemSdk.WalletData
 import struct TangemSdk.ArtworkInfo
 import struct TangemSdk.PrimaryCard
+import struct TangemSdk.DerivationPath
 import class TangemSdk.TangemSdk
 import enum TangemSdk.TangemSdkError
 #if !CLIP
@@ -29,7 +30,7 @@ struct CardInfo {
     var twinCardInfo: TwinCardInfo?
     var isTangemNote: Bool
     var isTangemWallet: Bool
-    var derivedKeys: [Data:[ExtendedPublicKey]] = [:]
+    var derivedKeys: [Data:[DerivationPath:ExtendedPublicKey]] = [:]
     var primaryCard: PrimaryCard? = nil
     
     var imageLoadDTO: ImageLoadDTO {
@@ -176,8 +177,7 @@ class CardsRepository {
         delegate?.onWillScan()
         tangemSdk.startSession(with: AppScanTask(tokenItemsRepository: tokenItemsRepository,
                                                  userPrefsService: userPrefsService,
-                                                 targetBatch: batch,
-                                                 shouldDeriveWC: false)) {[unowned self] result in
+                                                 targetBatch: batch)) {[unowned self] result in
             switch result {
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .scan)
