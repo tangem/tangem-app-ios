@@ -24,6 +24,7 @@ class KeysManager {
         let blockchairApiKey: String
         let blockcypherTokens: [String]
         let infuraProjectId: String
+        let appsFlyerDevKey: String
     }
     
     private let keysFileName = "config"
@@ -32,6 +33,10 @@ class KeysManager {
     
     var coinMarketKey: String {
         keys.coinMarketCapKey
+    }
+    
+    var appsFlyerDevKey: String {
+        keys.appsFlyerDevKey
     }
     
     var moonPayKeys: MoonPayKeys {
