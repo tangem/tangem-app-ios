@@ -1,6 +1,9 @@
 PODS:
   - Alamofire (5.5.0)
   - AnyCodable-FlightSchool (0.6.2)
+  - AppsFlyerFramework (6.5.1):
+    - AppsFlyerFramework/Main (= 6.5.1)
+  - AppsFlyerFramework/Main (6.5.1)
   - BigInt (5.2.0)
   - BinanceChain (1.0.1-beta):
     - BinanceChain/Core (= 1.0.1-beta)
@@ -201,6 +204,7 @@ PODS:
 DEPENDENCIES:
   - Alamofire
   - AnyCodable-FlightSchool
+  - AppsFlyerFramework
   - BigInt
   - BinanceChain (from `https://github.com/lazutkin-andrey/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/lazutkin-andrey/bitcoincore.git`, tag `0.0.15`)
@@ -227,6 +231,7 @@ SPEC REPOS:
   trunk:
     - Alamofire
     - AnyCodable-FlightSchool
+    - AppsFlyerFramework
     - BigInt
     - CryptoSwift
     - DeviceGuru
@@ -319,6 +324,7 @@ CHECKOUT OPTIONS:
 SPEC CHECKSUMS:
   Alamofire: 1c4fb5369c3fe93d2857c780d8bbe09f06f97e7c
   AnyCodable-FlightSchool: ac75ed9bae659e16a41ebfa6c71a663d6f2c111c
+  AppsFlyerFramework: 78311a699dd031f8a74648326ebc704752764694
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   BinanceChain: b77d4c0e496efbf13bdb1f428621480fd52f4ba1
   BitcoinCore.swift: 64ac4e69d9a6ef917bcbb0c23f1324cf57a822fb
@@ -359,6 +365,6 @@ SPEC CHECKSUMS:
   web3swift: 93f68f5430c11a78bba2351c139d2d22f2c04b5e
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 90309a204b2b0333262aca6ea75135ebb9fb8640
+PODFILE CHECKSUM: cbd54e84193377ece5a6e828c452f47a6c7f7420
 
 COCOAPODS: 1.11.2
