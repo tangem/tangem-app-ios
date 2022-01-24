@@ -43,7 +43,7 @@ target 'Tangem' do
   pod 'DeviceGuru'
   pod 'Kingfisher', :git => 'https://github.com/onevcat/Kingfisher.git', :branch => 'version6-xcode13'
   pod 'stellar-ios-mac-sdk'
-
+  pod 'AppsFlyerFramework'
   pod 'Solana.Swift', :git => 'https://github.com/tangem/Solana.Swift', :tag => 'add-external-signer-1'
   # pod 'Solana.Swift', :path => '../Solana.Swift'
 
