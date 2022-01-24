@@ -289,17 +289,15 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
 
                 } receiveValue: { [weak self] (rentAmount, minimalBalanceForRentExemption) in
                     guard
-                        let walletModel = self?.walletModel,
-                        let amount = walletModel.wallet.amounts[.coin],
+                        let self = self,
+                        let amount = self.walletModel?.wallet.amounts[.coin],
                         amount < minimalBalanceForRentExemption
                     else {
                         self?.solanaRentWarning = nil
                         return
                     }
                     
-                    let rentAmountFormatted = rentAmount.string(with: 8)
-                    let minimalBalanceForRentExemptionFormatted = minimalBalanceForRentExemption.string(with: 8)
-                    self?.solanaRentWarning = String(format: "solana_rent_warning".localized, rentAmountFormatted, minimalBalanceForRentExemptionFormatted)
+                    self.solanaRentWarning = "solana_rent_warning".localized(rentAmount.description, minimalBalanceForRentExemption.description)
                 }
                 .store(in: &bag)
         }
