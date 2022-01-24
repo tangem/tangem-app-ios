@@ -50,21 +50,15 @@ public class BitcoinAddressService: AddressService {
     
     private func create1Of2MultisigOutputScript(firstPublicKey: Data, secondPublicKey: Data) throws -> HDWalletScript? {
         var pubKeys = try [firstPublicKey, secondPublicKey].map { (key: Data) throws -> HDPublicKey in
-            guard let compressed = Secp256k1Utils.compressPublicKey(key) else {
-                throw BlockchainSdkError.failedToCreateMultisigScript
-            }
-            
-            guard let deCompressed = Secp256k1Utils.decompressPublicKey(key) else {
-                throw BlockchainSdkError.failedToCreateMultisigScript
-            }
-            
+            let key = try Secp256k1Key(with: key)
+            let compressed = try key.compress()
+            let deCompressed = try key.decompress()
             return HDPublicKey(uncompressedPublicKey: deCompressed, compressedPublicKey: compressed, coin: .bitcoin)
         }
         pubKeys.sort(by: { $0.compressedPublicKey.lexicographicallyPrecedes($1.compressedPublicKey) })
         return ScriptFactory.Standard.buildMultiSig(publicKeys: pubKeys, signaturesRequired: 1)
     }
 }
-
 
 public class BitcoinLegacyAddressService: AddressService {
     private let converter: Base58AddressConverter
@@ -110,7 +104,7 @@ public class BitcoinBech32AddressService: AddressService {
     }
     
     public func makeAddress(from walletPublicKey: Data) -> String {
-        let compressedKey = Secp256k1Utils.compressPublicKey(walletPublicKey)!
+        let compressedKey = try! Secp256k1Key(with: walletPublicKey).compress()
         let publicKey = BitcoinCorePublicKey(withAccount: 0,
                                              index: 0,
                                              external: true,
