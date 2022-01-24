@@ -65,6 +65,7 @@ struct WelcomeOnboardingView: View {
                             size: .wide,
                             action: {
                                 navigation.readToShop = true
+                                Analytics.log(.getACard, params: [.source: .welcome])
                             },
                             isBusy: false,
                             isEnabled: true,
