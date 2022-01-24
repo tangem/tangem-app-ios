@@ -297,10 +297,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
                         return
                     }
                     
-                    let precision = self.blockchain.decimalCount
-                    let rentAmountFormatted = rentAmount.string(with: precision)
-                    let minimalBalanceForRentExemptionFormatted = minimalBalanceForRentExemption.string(with: precision)
-                    self.solanaRentWarning = String(format: "solana_rent_warning".localized, rentAmountFormatted, minimalBalanceForRentExemptionFormatted)
+                    self.solanaRentWarning = "solana_rent_warning".localized(rentAmount.description, minimalBalanceForRentExemption.description)
                 }
                 .store(in: &bag)
         }
