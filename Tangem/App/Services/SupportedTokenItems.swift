@@ -21,29 +21,19 @@ class SupportedTokenItems {
         ]
     }()
     
-    lazy var ethereumTokens: [Token] = {
-        tokens(fromFile: "ethereumTokens", for: .ethereum(testnet: false))
-    }()
-    
-    lazy var ethereumTokensTestnet: [Token] = {
-        tokens(fromFile: "ethereumTokens_testnet", for: .ethereum(testnet: true))
-    }()
-    
-    lazy var binanceTokens: [Token] = {
-        tokens(fromFile: "binanceTokens", for: .binance(testnet: false))
-    }()
-    
-    lazy var binanceTokensTestnet: [Token] = {
-        tokens(fromFile: "binanceTokens_testnet", for: .binance(testnet: false), shouldSortByName: true, shouldPrintJson: true)
-    }()
-    
-    lazy var binanceSmartChainTokens: [Token] = {
-        tokens(fromFile: "binanceSmartChainTokens", for: .bsc(testnet: false))
-    }()
-    
-    var binanceSmartChainTokensTestnet: [Token] {
-        tokens(fromFile: "binanceSmartChainTokens_testnet", for: .bsc(testnet: true))
-    }
+    private let sources: [Blockchain: String] = [
+        .ethereum(testnet: false) : "ethereum",
+        .ethereum(testnet: true) : "ethereumTestnet",
+        .binance(testnet: false) : "binance",
+        .binance(testnet: true) : "binanceTestnet",
+        .bsc(testnet: false) : "bsc",
+        .bsc(testnet: true) : "bscTestnet",
+        .polygon(testnet: false) : "polygon",
+        .avalanche(testnet: false) : "avalanche",
+        .avalanche(testnet: true) : "avalancheTestnet",
+        .solana(testnet: false): "solana",
+        .solana(testnet: true): "solanaTestnet",
+    ]
     
     private lazy var blockchains: Set<Blockchain> = {
         [
@@ -59,7 +49,9 @@ class SupportedTokenItems {
             .cardano(shelley: true),
             .dogecoin,
             .bsc(testnet: false),
-            .polygon(testnet: false)
+            .polygon(testnet: false),
+            .avalanche(testnet: false),
+            .solana(testnet: false),
         ]
     }()
     
@@ -70,50 +62,38 @@ class SupportedTokenItems {
             .binance(testnet: true),
             .stellar(testnet: true),
             .bsc(testnet: true),
-            .polygon(testnet: true)
+            .polygon(testnet: true),
+            .avalanche(testnet: true),
+            .solana(testnet: true),
         ]
     }()
     
-    func availableBscTokens(isTestnet: Bool) -> [Token] {
-        isTestnet ? binanceSmartChainTokensTestnet : binanceSmartChainTokens
-    }
-    
-    func availableBnbTokens(isTestnet: Bool) -> [Token] {
-        isTestnet ? binanceTokensTestnet : binanceTokens
-    }
-    
-    func availableEthTokens(isTestnet: Bool) -> [Token] {
-        isTestnet ? ethereumTokensTestnet : ethereumTokens
-    }
-    
     func blockchains(for curves: [EllipticCurve], isTestnet: Bool) -> Set<Blockchain> {
-        var availableBlockchains = Set<Blockchain>()
-        
-        for curve in curves {
-            let blockchains = isTestnet ? testnetBlockchains : blockchains
-            blockchains.filter { $0.curve == curve }.forEach {
-                availableBlockchains.insert($0)
-            }
-        }
-        
-        return availableBlockchains
+        let allBlockchains = isTestnet ? testnetBlockchains : blockchains
+        return allBlockchains.filter { curves.contains($0.curve) }
     }
     
-    private func tokens(fromFile fileName: String, for blockchain: Blockchain, shouldSortByName: Bool = false, shouldPrintJson: Bool = false) -> [Token] {
-        var tokens = try? JsonUtils.readBundleFile(with: fileName,
-                                                   type: [Token].self,
-                                                   shouldAddCompilationCondition: false)
-        if shouldSortByName {
-            tokens?.sort(by: { $0.name < $1.name && $0.symbol < $1.symbol })
+    func tokens(for blockchain: Blockchain) -> [Token] {
+        guard let src = sources[blockchain] else {
+            return []
         }
         
-        if shouldPrintJson, let tokens = tokens {
-            let encoder = JSONEncoder()
-            encoder.outputFormatting = .prettyPrinted
-            let json = String(data: try! encoder.encode(tokens), encoding: .utf8)
-            print(json!)
+        do {
+            let tokens = try JsonUtils.readBundleFile(with: src,
+                                                      type: [TokenDTO].self,
+                                                      shouldAddCompilationCondition: false)
+            return tokens.map {
+                Token(name: $0.name,
+                      symbol: $0.symbol,
+                      contractAddress: $0.contractAddress,
+                      decimalCount: $0.decimalCount,
+                      customIcon: $0.customIcon,
+                      customIconUrl: $0.customIconUrl,
+                      blockchain: blockchain)
+            }
+        } catch {
+            Log.error(error.localizedDescription)
+            return []
         }
-        
-        return tokens ?? []
     }
 }
