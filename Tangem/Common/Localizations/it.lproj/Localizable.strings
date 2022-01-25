@@ -40,8 +40,6 @@
 
 "common_added" = "Added";
 
-"common_remove" = "Remove";
-
 "common_search" = "Search";
 
 "home_welcome" = "Benvenuti in Tangem. Hai una delle nostre schede?";
@@ -58,8 +56,6 @@
 
 "home_button_scan" = "Scansiona carta";
 
-"wallet_error_no_account_subtitle_format" = "Carica %@+ %@ per creare un conto";
-
 "wallet_button_scan" = "Scansiona";
 
 "wallet_button_send" = "Invia";
@@ -71,10 +67,6 @@
 "wallet_title" = "Tangem";
 
 "wallet_choice_wallet_option_title" = "Scegli l'opzione del portafoglio";
-
-"wallet_balance_token_title" = "Token";
-
-"wallet_balance_tokens_title" = "Token";
 
 "wallet_balance_verified" = "Saldo verificato";
 
@@ -91,16 +83,7 @@
 "wallet_error_unsupported_blockchain_subtitle" = " La tua carta Tangem è stata creata per funzionare con un'altra applicazione. Leggere il nome e le istruzioni sulla carta e installare l'applicazione corretta";
 
 "wallet_balance_loading" = "Il saldo sta per essere caricato…";
-
 "wallet_balance_tx_in_progress" = "Transazione in corso...";
-
-
-"pendingTxView_sending_format" = "Sending %@ to %@";
-
-"pendingTxView_receiving_format" = "Receiving %@ from %@";
-
-
-
 "wallet_pending_tx_receiving" = "Ricevi\u0020";
 "wallet_pending_tx_receiving_address_format" = " da %@ ";
 "wallet_pending_tx_sending" = "Invia\u0020";
@@ -110,8 +93,6 @@
 "wallet_address_button_explore" = "Cerca indirizzo";
 
 "wallet_address_button_create_payid" = "Crea PayString";
-
-"wallet_qr_title_format" = "portafoglio %@";
 
 "wallet_create_payid" = "Crea PayString";
 
@@ -136,8 +117,6 @@
 "send_destination_hint" = "Indirizzo o PayString";
 
 "send_destination_hint_address" = "Indirizzo";
-
-"send_title" = "Invia";
 
 "send_network_fee_title" = "Costi della rete";
 
@@ -187,27 +166,13 @@
 
 "details_row_title_currency" = "Valuta dell'applicazione";
 
-"details_section_title_settings" = "Impostazioni";
-
 "details_section_title_card" = "Carta";
 
 "details_section_title_app" = "App";
 
-"details_row_title_validate" = "Convalidare la carta";
-
 "details_row_title_manage_security" = "Gestione del portafoglio";
 
-"details_row_title_erase_wallet" = "Cancella il portafoglio";
-
 "details_row_title_send_feedback" = "Send feedback";
-
-"details_currency_search_placeholder" = "Cerca";
-
-"details_section_title_blockchain" = "Blockchain";
-
-"details_row_title_manage_tokens" = "Manage tokens";
-
-"details_erase_wallet_warning" = "Questa azione è irreversibile. Se dopo aver eliminato il portafoglio qualcuno invia dei fondi, non potrai ritirarli.";
 
 "details_security_management_warning" = "Se dimentichi il codice, perderai la possibilità di utilizzare la carta. Non è possibile in alcun modo ripristinare o modificare il codice se lo perdi.";
 
@@ -346,19 +311,9 @@ Questa nota legale è stata modificata l'ultima volta 01.10.2020.";
 
 "common_accept" = "Accetta";
 
-"send_error_payid_verification_failed" = "Verifica del PayString fallita";
-"send_error_payid_unsupported_by_blockchain" = "PayString non supportato dalla blockchain";
-"send_error_payid_not_registered" = "PayString non registrato";
-"send_error_payid_request_failed" = "Richiesta PayString fallita";
-"send_error_address_same_as_wallet" = "L'indirizzo corrisponde all'indirizzo del tuo portafoglio";
 "send_error_invalid_memo_id" = "Invalid Memo Id. It won't be added to transaction";
 "send_error_invalid_destination_tag" = "Invalid Destination Tag. It won't be added to transaction";
-"wallet_notification_address_copied" = "L'indirizzo è stato copiato con successo";
-"wallet_create_payid_empty" = "Inserire prima il PayString desiderato";
-"initial_message_scan_header" = "Avvicina per scansionare";
-"initial_message_tap_header" = "Avvicina la carta";
 "details_notification_erase_wallet_not_possible" = "Your balance on this wallet is not zero, or you have unconfirmed transactions. Reset to factory settings not possible.";
-"details_notification_security_option_already_active" = "E' l'opzione attualmente attiva";
 
 // MARK: - Twin Cards
 
@@ -374,11 +329,7 @@ Questa nota legale è stata modificata l'ultima volta 01.10.2020.";
 "details_twins_recreate_toolbar" = "Re-create wallet";
 "details_row_title_twins_create" = "Create wallet";
 
-
 "details_row_title_twins_recreate" = "Re-create twin wallet";
-
-
-"wallet_twins_chip_format" = "Card %d of 2";
 "details_twins_recreate_step_format" = "Step %d";
 "details_twins_recreate_title_format" = "Tap the #%d twin card";
 "details_twins_recreate_subtitle" = "If the process of re-creating the wallet gets interrupted in any way, you’ll have to start over.";
@@ -394,18 +345,6 @@ Questa nota legale è stata modificata l'ultima volta 01.10.2020.";
 "twin_process_preparing_card" = "Preparing card";
 
 "twin_process_creating_wallet" = "Creating wallet";
-
-// old
-"twin_wallet_creation_step_title_first" = "1st step";
-"twin_wallet_creation_step_title_second" = "2nd step";
-"twin_wallet_creation_step_title_third" = "3rd step";
-
-"twin_wallet_creation_title_tap_first_twin" = "Tap #1 twin card";
-"twin_wallet_creation_title_tap_second_twin" = "Tap #2 twin card";
-
-"twin_wallet_creation_tap_first_card" = "Tap the card #1";
-"twin_wallet_creation_tap_second_card" = "Tap the card #2 ";
-
 
 "wallet_button_create_twin_wallet" = "Create twin wallet";
 "wallet_error_empty_twin_card" = "Create twin wallet";
@@ -430,11 +369,6 @@ Questa nota legale è stata modificata l'ultima volta 01.10.2020.";
 "warning_failed_to_verify_card_message" = "This card might be a production sample or counterfeit";
 
 // MARK: - Managed tokens
-
-"manage_tokens_no_tokens" = "No tokens yet";
-"manage_tokens_section_title_added_tokens" = "Added tokens";
-"manage_tokens_alert_remove_token_title" = "Remove %@ token";
-"manage_tokens_alert_remove_token_message" = "Are you sure you want to remove this token?";
 
 "add_tokens_title" = "Add tokens";
 "add_custom" = "Add Custom";
@@ -482,9 +416,7 @@ Questa nota legale è stata modificata l'ultima volta 01.10.2020.";
 "voice_over_open_network_fee_settings" = "Open network fee settings";
 "voice_over_close_network_fee_settings" = "Close network fee settings";
 
-"wallet_connect" = "Wallet Connect";
 "wallet_connect_sessions_title" = "Wallet Connect Sessions";
-"wallet_connect_session_opened" = "WalletConnect session opened with %@";
 "wallet_connect_no_sessions_title" = "Ooops. No Sessions.";
 "wallet_connect_no_sessions_message" = "No opened WalletConnect sessions";
 "wallet_connect_clipboard_alert" = "Clipboard contain WalletConnect code. Use copied value or scan QR-code";
@@ -542,17 +474,7 @@ URL: %@";
 
 "common_push" = "Push";
 "push_previous_fee" = "Previous fee";
-"push_current_fee" = "Current fee";
-"push_previous_total" = "Previous total";
-"push_current_total" = "Current total";
-
 "push_additional_fee" = "Additional fee";
-
-"keychain_failed_to_create_key" = "Failed to create SecKey representation";
-"keychain_failed_to_store_key" = "Failed to store key: ";
-"keychain_failed_to_read_key" = "Failed to read key from Keychain: ";
-"keychain_failed_to_convert_to_key" = "Keychain failed to convert to key: ";
-"keychain_failed_to_delete_key" = "Keychain failed to remove key from DB: ";
 
 "wallet_connect_service_no_chain_id" = "Dapp didn't provide essential data to establish WalletConnect session";
 "wallet_connect_scanner_error_unsupported_network" = "This network is not supported";
@@ -577,9 +499,6 @@ Amount to pay: %@";
 "wallet_button_trade" = "Trade";
 "action_sheet_trade_hint" = "Do you want to buy or sell crypto?";
 
-"error_old_app_need_update" = "Oops, the current version of the application is not ready to work with this card, please check for updates.";
-
-"onboarding_button_read_card" = "Read card";
 "onboarding_button_shop" = "Get a new card";
 "onboarding_read_title" = "Welcome to Tangem";
 "onboarding_read_subtitle" = "The safest way to buy, use and store cryptocurrency";
@@ -618,7 +537,6 @@ Amount to pay: %@";
 "onboarding_getting_started" = "Getting started";
 
 "onboarding_button_backup_now" = "Backup now";
-"onboarding_button_get_backup_card" = "Get a backup card";
 "onboarding_button_skip_backup" = "Skip for later";
 "onboarding_button_finalize_backup" = "Finalize the backup process";
 "onboarding_button_add_backup_card" = "Add a backup card";
@@ -638,7 +556,6 @@ Amount to pay: %@";
 "onboarding_subtitle_scan_origin_card %@" = "Prepare the primary card with number %@";
 "onboarding_subtitle_one_backup_card" = "You can add one more card or finalize the backup process.";
 "onboarding_subtitle_two_backup_cards" = "Max number of cards added. Finalize the backup process.";
-"onboarding_subtitle_backup_warning" = "If the process of backup gets interrupted in any way you’ll have to start over.";
 
 "onboarding_alert_message_not_max_backup_cards_added" = "You’ve added one backup card. When backup process is finished you can’t add more backup cards. If you have one more card, add it in backup, otherwise you can buy it in shop. Do you like to continue backup process?";
 
@@ -657,7 +574,6 @@ Amount to pay: %@";
 "onboarding_access_code_too_short" = "Access code must be at least 4 characters long";
 "onboarding_access_codes_doesnt_match" = "Entered access code didn't match initial access code";
 
-"common_create" = "Create";
 "common_submit" = "Submit";
 
 "onboarding_subtitle_success_backup" = "You have created 2 backup cards, and now these cards are ready for use.";
@@ -684,7 +600,6 @@ Amount to pay: %@";
 "onboarding_alert_twins_recreate_subtitle" = "This action is irreversible. You will not have access to the old wallet.";
 "onboarding_twin_exit_warning" = "The twinning process is partly complete. You can’t exit it now.";
 
-"details_row_title_backup_status" = "Backup status";
 "details_backup_status_format_active" = "Active. Backup cards count: %d";
 "details_backup_status_format_linked" = "Linked. Backup cards count: %d";
 "details_backup_status_no_backup" = "No backup";
