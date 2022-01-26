@@ -645,7 +645,7 @@ class CardViewModel: Identifiable, ObservableObject {
         let groupedTokens = Dictionary(grouping: tokens, by: { $0.blockchain })
         let blockchainsToAdd = Array(newBlockchains.subtracting(existingBlockchains)).sorted { $0.displayName < $1.displayName }
  
-        if cardInfo.isTangemWallet {
+        if cardInfo.card.settings.isHDWalletAllowed {
             var newDerivationPaths: [Data: [DerivationPath]] = [:]
 
             for blockchain in blockchainsToAdd {
