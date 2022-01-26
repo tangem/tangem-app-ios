@@ -262,6 +262,10 @@ class WalletModel: ObservableObject, Identifiable {
             return false
         }
         
+        if case .noAccount = state {
+            return true
+        }
+
         if let amount = wallet.amounts[amountType], !amount.isEmpty {
             return false
         }
