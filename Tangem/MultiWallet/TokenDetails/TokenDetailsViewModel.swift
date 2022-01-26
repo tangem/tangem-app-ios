@@ -172,18 +172,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     }
     
     func onRemove() {
-        if let walletModel = self.walletModel, amountType == .coin, case .noAccount = walletModel.state {
-            card.removeBlockchain(walletModel.wallet.blockchain)
-            return
-        }
-
-        if let walletModel = self.walletModel {
-            if amountType == .coin {
-                card.removeBlockchain(walletModel.wallet.blockchain)
-            } else if case let .token(token) = amountType {
-                walletModel.removeToken(token, for: card.cardInfo.card.cardId)
-            }
-        }
+        card.remove(amountType: amountType, blockchain: blockchain)
     }
     
     func buyCryptoAction() {
@@ -296,8 +285,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
                         self?.solanaRentWarning = nil
                         return
                     }
-                    
-                    self.solanaRentWarning = "solana_rent_warning".localized(rentAmount.description, minimalBalanceForRentExemption.description)
+                    self.solanaRentWarning = String(format: "solana_rent_warning".localized, rentAmount.description, minimalBalanceForRentExemption.description)
                 }
                 .store(in: &bag)
         }
