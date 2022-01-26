@@ -170,7 +170,7 @@ extension AddNewTokensViewModel {
                                 name: sectionName(isTestnet: cardInfo.isTestnet),
                                 items: items,
                                 collapsible: collapsible,
-                                expanded: !collapsible)
+                                expanded: true)
         }
         
         private func tokenBlockchain(isTestnet: Bool) -> Blockchain {
@@ -262,6 +262,10 @@ struct SectionModel: Identifiable, Hashable {
         }
         
         filteredItems = results
+        
+        if results != nil && !expanded {
+            expanded = true
+        }
     }
     
     func search(_ searchText: String) -> (String, [TokenModel]?)  {
@@ -271,7 +275,7 @@ struct SectionModel: Identifiable, Hashable {
         
         let filter = searchText.lowercased()
         
-        let filtered  = self.items.filter {
+        let filtered  = self.rawItems.filter {
             $0.tokenItem.name.lowercased().contains(filter)
             || $0.tokenItem.symbol.lowercased().contains(filter)
         }
