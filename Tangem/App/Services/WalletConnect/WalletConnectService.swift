@@ -100,6 +100,7 @@ class WalletConnectService: ObservableObject {
     private var bag: Set<AnyCancellable> = []
     private var isWaitingToConnect: Bool = false
     private var timer: DispatchWorkItem?
+    private let updateQueue = DispatchQueue(label: "ws_sessions_update_queue")
     
     init(assembly: Assembly, cardScanner: WalletConnectCardScanner, signer: TangemSigner, scannedCardsRepository: ScannedCardsRepository) {
         self.cardScanner = cardScanner
@@ -122,15 +123,20 @@ class WalletConnectService: ObservableObject {
     }
     
     func restore() {
-        let decoder = JSONDecoder()
-        if let oldSessionsObject = UserDefaults.standard.object(forKey: sessionsKey) as? Data {
-            sessions = (try? decoder.decode([WalletConnectSession].self, from: oldSessionsObject)) ?? []
-            sessions.forEach {
-                do {
-                    try server.reconnect(to: $0.session)
-                } catch {
-                    handle(WalletConnectServiceError.other(error))
+        updateQueue.sync {
+            let decoder = JSONDecoder()
+            if let oldSessionsObject = UserDefaults.standard.object(forKey: self.sessionsKey) as? Data {
+                DispatchQueue.main.async {
+                    self.sessions = (try? decoder.decode([WalletConnectSession].self, from: oldSessionsObject)) ?? []
+                    self.sessions.forEach {
+                        do {
+                            try self.server.reconnect(to: $0.session)
+                        } catch {
+                            self.handle(WalletConnectServiceError.other(error))
+                        }
+                    }
                 }
+                
             }
         }
     }
@@ -148,9 +154,11 @@ class WalletConnectService: ObservableObject {
     }
     
     private func save() {
-        let encoder = JSONEncoder()
-        if let sessionsData = try? encoder.encode(sessions) {
-            UserDefaults.standard.set(sessionsData, forKey: sessionsKey)
+        updateQueue.sync {
+            let encoder = JSONEncoder()
+            if let sessionsData = try? encoder.encode(self.sessions) {
+                UserDefaults.standard.set(sessionsData, forKey: self.sessionsKey)
+            }
         }
     }
     
