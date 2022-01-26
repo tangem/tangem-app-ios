@@ -296,8 +296,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
                         self?.solanaRentWarning = nil
                         return
                     }
-                    
-                    self.solanaRentWarning = "solana_rent_warning".localized(rentAmount.description, minimalBalanceForRentExemption.description)
+                    self.solanaRentWarning = String(format: "solana_rent_warning".localized, rentAmount.description, minimalBalanceForRentExemption.description)
                 }
                 .store(in: &bag)
         }
