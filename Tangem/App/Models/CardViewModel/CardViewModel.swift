@@ -700,7 +700,15 @@ class CardViewModel: Identifiable, ObservableObject {
         completion(.success(()))
     }
     
-    func removeBlockchain(_ blockchain: Blockchain) {
+    func remove(amountType: Amount.AmountType, blockchain: Blockchain) {
+        if amountType == .coin {
+            removeBlockchain(blockchain)
+        } else if case let .token(token) = amountType {
+            removeToken(token, blockchain: blockchain)
+        }
+    }
+    
+    private func removeBlockchain(_ blockchain: Blockchain) {
         guard canRemoveBlockchain(blockchain) else {
             return
         }
@@ -710,6 +718,18 @@ class CardViewModel: Identifiable, ObservableObject {
         stateUpdateQueue.sync {
             if let walletModels = self.walletModels {
                 state = .loaded(walletModel: walletModels.filter { $0.wallet.blockchain != blockchain })
+            }
+        }
+    }
+    
+    private func removeToken(_ token: BlockchainSdk.Token, blockchain: Blockchain) {
+        if let walletModel = walletModels?.first(where: { $0.wallet.blockchain == blockchain}) {
+            walletModel.removeToken(token, for: cardInfo.card.cardId)
+            
+            stateUpdateQueue.sync {
+                if let walletModels = self.walletModels {
+                    state = .loaded(walletModel: walletModels)
+                }
             }
         }
     }
