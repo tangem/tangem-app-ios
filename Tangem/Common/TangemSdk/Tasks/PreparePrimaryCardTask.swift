@@ -39,8 +39,19 @@ class PreparePrimaryCardTask: CardSessionRunnable {
         linkingCommand = StartPrimaryCardLinkingTask()
         linkingCommand!.run(in: session) { result in
             switch result {
-            case .success(let card):
-                self.deriveKeys(card, in: session, completion: completion)
+            case .success(let primaryCard):
+                guard let card = session.environment.card else {
+                    completion(.failure(.missingPreflightRead))
+                    return
+                }
+                
+                if !card.settings.isHDWalletAllowed {
+                    let response = PreparePrimaryCardTaskResponse(card: card, primaryCard: primaryCard, derivedKeys: [:])
+                    completion(.success(response))
+                    return
+                }
+                
+                self.deriveKeys(primaryCard, in: session, completion: completion)
             case .failure(let error):
                 completion(.failure(error))
             }
