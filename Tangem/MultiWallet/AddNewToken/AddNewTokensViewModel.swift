@@ -297,7 +297,9 @@ struct SectionModel: Identifiable, Hashable {
     }
     
     mutating func toggleExpanded() {
-        expanded.toggle()
+        if collapsible {
+            expanded.toggle()
+        }
     }
     
     static func == (lhs: SectionModel, rhs: SectionModel) -> Bool {
