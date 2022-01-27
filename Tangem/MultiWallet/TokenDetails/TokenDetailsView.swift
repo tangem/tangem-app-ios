@@ -89,22 +89,6 @@ struct TokenDetailsView: View {
                                                layout: .flexibleWidth,
                                                isDisabled: !viewModel.canSend))
         }
-        .sheet(isPresented: $navigation.detailsToSend) {
-            if let sellCryptoRequest = viewModel.sellCryptoRequest {
-                SendView(viewModel: viewModel.assembly.makeSellCryptoSendViewModel(
-                            with: Amount(with: viewModel.blockchain, value: sellCryptoRequest.amount),
-                            destination: sellCryptoRequest.targetAddress,
-                            blockchain: viewModel.blockchain,
-                            card: viewModel.card), onSuccess: {})
-                    .environmentObject(navigation)
-            } else if let amountToSend = viewModel.amountToSend {
-                SendView(viewModel: viewModel.assembly.makeSendViewModel(
-                            with: amountToSend,
-                            blockchain: viewModel.blockchain,
-                            card: viewModel.card), onSuccess: {})
-                    .environmentObject(navigation)
-            }
-        }
     }
     
     var body: some View {
@@ -125,18 +109,11 @@ struct TokenDetailsView: View {
                 RefreshableScrollView(refreshing: self.$viewModel.isRefreshing) {
                     VStack(spacing: 8.0) {
                         ForEach(self.pendingTransactionViews) { $0 }
-                            .sheet(item: $viewModel.txIndexToPush) { index in
-                                if let tx = viewModel.transactionToPush {
-                                    PushTxView(viewModel: viewModel.assembly.makePushViewModel(for: tx,
-                                                                                               blockchain: viewModel.blockchain,
-                                                                                               card: viewModel.card),
-                                               onSuccess: {})
-                                        .environmentObject(navigation)
-                                }
-                            }
                         
                         if let walletModel = viewModel.walletModel {
-                            BalanceAddressView(walletModel: walletModel, amountType: viewModel.amountType)
+                            BalanceAddressView(walletModel: walletModel,
+                                               amountType: viewModel.amountType,
+                                               showExplorerURL: $viewModel.showExplorerURL)
                                 .frame(width: geometry.size.width)
                             
                         }
@@ -155,6 +132,40 @@ struct TokenDetailsView: View {
                     }
                 }
             }
+            
+            Color.clear.frame(width: 0.5, height: 0.5)
+                .sheet(item: $viewModel.showExplorerURL) {
+                    WebViewContainer(url: $0, title: "common_explorer_format \(viewModel.blockchain.displayName)", withCloseButton: true)
+                }
+            
+            Color.clear.frame(width: 0.5, height: 0.5)
+                .sheet(item: $viewModel.txIndexToPush) { index in
+                    if let tx = viewModel.transactionToPush {
+                        PushTxView(viewModel: viewModel.assembly.makePushViewModel(for: tx,
+                                                                                   blockchain: viewModel.blockchain,
+                                                                                   card: viewModel.card),
+                                   onSuccess: {})
+                            .environmentObject(navigation)
+                    }
+                }
+            
+            Color.clear.frame(width: 0.5, height: 0.5)
+                .sheet(isPresented: $navigation.detailsToSend) {
+                    if let sellCryptoRequest = viewModel.sellCryptoRequest {
+                        SendView(viewModel: viewModel.assembly.makeSellCryptoSendViewModel(
+                                    with: Amount(with: viewModel.blockchain, value: sellCryptoRequest.amount),
+                                    destination: sellCryptoRequest.targetAddress,
+                                    blockchain: viewModel.blockchain,
+                                    card: viewModel.card), onSuccess: {})
+                            .environmentObject(navigation)
+                    } else if let amountToSend = viewModel.amountToSend {
+                        SendView(viewModel: viewModel.assembly.makeSendViewModel(
+                                    with: amountToSend,
+                                    blockchain: viewModel.blockchain,
+                                    card: viewModel.card), onSuccess: {})
+                            .environmentObject(navigation)
+                    }
+                }
         }
         .padding(.horizontal, 16)
         .padding(.bottom, 16.0)
