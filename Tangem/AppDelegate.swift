@@ -38,7 +38,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         UISwitch.appearance().onTintColor = .tangemBlue
         UITableView.appearance().backgroundColor = .clear
-
+        UIScrollView.appearance().keyboardDismissMode = .onDrag
         if #available(iOS 15.0, *) {
             let appearance = UINavigationBarAppearance()
             appearance.backgroundColor = UIColor.tangemBgGray.withAlphaComponent(0.85)
