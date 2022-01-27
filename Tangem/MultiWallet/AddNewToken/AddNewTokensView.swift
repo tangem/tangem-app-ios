@@ -71,7 +71,7 @@ fileprivate struct HeaderView: View {
     
     var body: some View {
         HStack {
-            Text(text)
+            Text(text.uppercased())
                 .font(.system(size: 14, weight: .medium))
                 .foregroundColor(.tangemGrayDark)
                 .padding(.leading, 16)
@@ -85,7 +85,8 @@ fileprivate struct HeaderView: View {
                     .animation(.default.speed(2), value: isExpanded)
             }
         }
-        .padding(.top, 8)
+        .padding(.top, Device.isIOS13 ?  16 : 8)
+        .padding(.bottom, Device.isIOS13 ?  8 : 4)
         .padding(.top, additionalTopPadding)
         .background(Color.white)
         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
