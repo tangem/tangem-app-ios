@@ -74,6 +74,8 @@ extension Blockchain: Identifiable {
             return "https://laboratory.stellar.org/#account-creator?network=test"
         case .solana:
             return "https://solfaucet.com"
+        case .avalanche:
+            return "https://faucet.avax-test.network/"
         default:
             return nil
         }
