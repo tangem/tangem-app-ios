@@ -155,6 +155,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     @Published var isRefreshing = false
     @Published var txIndexToPush: Int? = nil
     @Published var solanaRentWarning: String? = nil
+    @Published var showExplorerURL: URL? = nil
     
     let amountType: Amount.AmountType
     let blockchain: Blockchain
