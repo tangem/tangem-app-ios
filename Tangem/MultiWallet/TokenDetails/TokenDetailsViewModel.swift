@@ -98,20 +98,17 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     }
     
     var canDelete: Bool {
-        guard let walletModel = self.walletModel else {
-            return false
-        }
-        
-        let canRemoveAmountType = walletModel.canRemove(amountType: amountType)
-        if case .noAccount = walletModel.state, canRemoveAmountType {
-            return true
-        }
-        
-        if amountType == .coin {
-            return card.canRemoveBlockchain(walletModel.wallet.blockchain)
-        } else {
-            return canRemoveAmountType
-        }
+        return card.canRemove(amountType: amountType, blockchain: blockchain)
+//        let canRemoveAmountType = walletModel.canRemove(amountType: amountType)
+//        if case .noAccount = walletModel.state, canRemoveAmountType {
+//            return true
+//        }
+//
+//        if amountType == .coin {
+//            return card.canRemoveBlockchain(walletModel.wallet.blockchain)
+//        } else {
+//            return canRemoveAmountType
+//        }
     }
     
     var sendBlockedReason: String? {
