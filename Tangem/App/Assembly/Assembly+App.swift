@@ -220,10 +220,6 @@ extension Assembly {
         vm.tokenItemsRepository = services.tokenItemsRepository
         vm.userPrefsService = services.userPrefsService
         vm.imageLoaderService = services.imageLoaderService
-        //[REDACTED_TODO_COMMENT]
-        //        if services.featuresService.isPayIdEnabled, let payIdService = PayIDService.make(from: blockchain) {
-        //            vm.payIDService = payIdService
-        //        }
         vm.updateState()
         return vm
     }
@@ -318,6 +314,11 @@ extension Assembly {
                                               cardViewModel: card,
                                               signer: services.signer,
                                               warningsManager: services.warningsService)
+        
+        if services.featuresService.isPayIdEnabled, let payIdService = PayIDService.make(from: blockchain) {
+            vm.payIDService = payIdService
+        }
+        
         prepareSendViewModel(vm)
         return vm
     }

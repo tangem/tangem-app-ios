@@ -21,7 +21,6 @@ struct CardPinSettings {
 class CardViewModel: Identifiable, ObservableObject {
     //MARK: Services
     weak var featuresService: AppFeaturesService!
-    var payIDService: PayIDService? = nil
     weak var tangemSdk: TangemSdk!
     weak var assembly: Assembly!
     weak var warningsConfigurator: WarningsConfigurator!
