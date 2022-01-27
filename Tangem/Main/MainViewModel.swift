@@ -33,6 +33,7 @@ class MainViewModel: ViewModel, ObservableObject {
     @Published var isCreatingWallet: Bool = false
     @Published var image: UIImage? = nil
     @Published var selectedAddressIndex: Int = 0
+    @Published var showExplorerURL: URL? = nil
     @Published var state: ScanResult = .unsupported {
         willSet {
             print("⚠️ Reset bag")
