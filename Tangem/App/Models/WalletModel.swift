@@ -103,6 +103,7 @@ class WalletModel: ObservableObject, Identifiable {
     
     let walletManager: WalletManager
     private let defaultToken: Token?
+    private let defaultBlockchain: Blockchain?
     private var bag = Set<AnyCancellable>()
     private var updateTimer: AnyCancellable? = nil
     
@@ -110,8 +111,9 @@ class WalletModel: ObservableObject, Identifiable {
         print("🗑 WalletModel deinit")
     }
     
-    init(walletManager: WalletManager, defaultToken: Token?) {
+    init(walletManager: WalletManager, defaultToken: Token?, defaultBlockchain: Blockchain?) {
         self.defaultToken = defaultToken
+        self.defaultBlockchain = defaultBlockchain
         self.walletManager = walletManager
         
         updateBalanceViewModel(with: walletManager.wallet, state: .idle)
@@ -262,10 +264,10 @@ class WalletModel: ObservableObject, Identifiable {
             return false
         }
         
-        if case .noAccount = state {
-            return true
+        if amountType == .coin, wallet.blockchain == defaultBlockchain {
+            return false
         }
-
+        
         if let amount = wallet.amounts[amountType], !amount.isEmpty {
             return false
         }
@@ -282,14 +284,15 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     
-    func removeToken(_ token: Token, for cardId: String) {
+    func removeToken(_ token: Token, for cardId: String) -> Bool {
         guard canRemove(amountType: .token(value: token)) else {
-            return
+            return false
         }
         
         tokenItemsRepository.remove(.token(token), for: cardId)
         walletManager.removeToken(token)
         tokenViewModels.removeAll(where: { $0.token == token })
+        return true
     }
     
     func getBalance(for type: Amount.AmountType) -> String {
