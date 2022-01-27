@@ -316,7 +316,7 @@ public enum Blockchain {
             let link = baseUrl + address
             return URL(string: link)
         case .avalanche(let testnet):
-            let baseUrl = testnet ? "https://snowtrace.io/address/" : "https://testnet.snowtrace.io/address/"
+            let baseUrl = testnet ? "https://testnet.snowtrace.io/address/" : "https://snowtrace.io/address/"
             let link = baseUrl + address
             return URL(string: link)
         case .solana(let testnet):

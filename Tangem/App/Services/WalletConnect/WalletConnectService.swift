@@ -450,7 +450,7 @@ enum WalletConnectServiceError: LocalizedError {
 fileprivate typealias ExtractedWCUrl = (url: String, handleDelay: TimeInterval)
 
 extension WalletConnectServiceError {
-    enum TxErrorCodes: Int {
+    enum TxErrorCodes: String {
         case noWalletManager
         case wrongAddress
         case noGas
