@@ -23,7 +23,7 @@ class SendViewModel: ViewModel, ObservableObject {
     weak var assembly: Assembly!
     weak var ratesService: CoinMarketCapService!
     weak var featuresService: AppFeaturesService!
-    
+    var payIDService: PayIDService? = nil
     var emailDataCollector: SendScreenDataCollector!
     
     private unowned let warningsManager: WarningsManager
@@ -68,8 +68,7 @@ class SendViewModel: ViewModel, ObservableObject {
     }
     
     var isPayIdSupported: Bool {
-        featuresService.canSendToPayId
-            && cardViewModel.payIDService != nil
+        featuresService.canSendToPayId && payIDService != nil
     }
     
     var hasAdditionalInputFields: Bool {
@@ -483,7 +482,7 @@ class SendViewModel: ViewModel, ObservableObject {
             return
         }
         
-        if cardViewModel.payIDService?.validate(input) ?? false || validateAddress(input) {
+        if payIDService?.validate(input) ?? false || validateAddress(input) {
             validatedClipboard = input
         }
     }
@@ -504,7 +503,7 @@ class SendViewModel: ViewModel, ObservableObject {
         }
         
         if isPayIdSupported,
-           let payIdService = cardViewModel.payIDService,
+           let payIdService = self.payIDService,
            payIdService.validate(destination) {
             payIdService.resolve(destination) {[weak self] result in
                 switch result {
