@@ -21,7 +21,6 @@ struct CardPinSettings {
 class CardViewModel: Identifiable, ObservableObject {
     //MARK: Services
     weak var featuresService: AppFeaturesService!
-    var payIDService: PayIDService? = nil
     weak var tangemSdk: TangemSdk!
     weak var assembly: Assembly!
     weak var warningsConfigurator: WarningsConfigurator!
@@ -700,7 +699,19 @@ class CardViewModel: Identifiable, ObservableObject {
         completion(.success(()))
     }
     
+    func canRemove(amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
+        if let walletModel = walletModels?.first(where: { $0.wallet.blockchain == blockchain }) {
+            return walletModel.canRemove(amountType: amountType)
+        }
+        
+        return false
+    }
+    
     func remove(amountType: Amount.AmountType, blockchain: Blockchain) {
+        guard canRemove(amountType: amountType, blockchain: blockchain) else {
+            return
+        }
+        
         if amountType == .coin {
             removeBlockchain(blockchain)
         } else if case let .token(token) = amountType {
@@ -709,10 +720,6 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     private func removeBlockchain(_ blockchain: Blockchain) {
-        guard canRemoveBlockchain(blockchain) else {
-            return
-        }
-        
         tokenItemsRepository.remove(.blockchain(blockchain), for: cardInfo.card.cardId)
         
         stateUpdateQueue.sync {
@@ -724,29 +731,16 @@ class CardViewModel: Identifiable, ObservableObject {
     
     private func removeToken(_ token: BlockchainSdk.Token, blockchain: Blockchain) {
         if let walletModel = walletModels?.first(where: { $0.wallet.blockchain == blockchain}) {
-            walletModel.removeToken(token, for: cardInfo.card.cardId)
+            let isRemoved = walletModel.removeToken(token, for: cardInfo.card.cardId)
             
-            stateUpdateQueue.sync {
-                if let walletModels = self.walletModels {
-                    state = .loaded(walletModel: walletModels)
+            if isRemoved {
+                stateUpdateQueue.sync {
+                    if let walletModels = self.walletModels {
+                        state = .loaded(walletModel: walletModels)
+                    }
                 }
             }
         }
-    }
-    
-    func canRemoveBlockchain(_ blockchain: Blockchain) -> Bool {
-        if let defaultBlockchain = cardInfo.defaultBlockchain,
-           defaultBlockchain == blockchain {
-            return false
-        }
-        
-        if let walletModel = walletModels?.first(where: { $0.wallet.blockchain == blockchain}) {
-            if !walletModel.canRemove(amountType: .coin) {
-                return false
-            }
-        }
-        
-        return true
     }
     
     func updateCardPinSettings() {
