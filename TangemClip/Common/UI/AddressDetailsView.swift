@@ -10,6 +10,7 @@ import SwiftUI
 
 struct AddressDetailView: View {
     @Binding var selectedAddressIndex: Int
+    @Binding var showExplorerURL: URL?
     var walletModel: WalletModel
     
     var showAddressSelector: Bool {
@@ -42,7 +43,7 @@ struct AddressDetailView: View {
                         .foregroundColor(Color.tangemGrayDark)
                     Button(action: {
                         if let url = walletModel.exploreURL(for: selectedAddressIndex) {
-                            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                            showExplorerURL = url
                         }
                     }) {
                         HStack {
