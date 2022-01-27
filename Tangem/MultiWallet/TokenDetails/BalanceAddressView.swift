@@ -12,7 +12,7 @@ import BlockchainSdk
 struct BalanceAddressView: View {
     @ObservedObject var walletModel: WalletModel
     var amountType: Amount.AmountType
-    
+    @Binding var showExplorerURL: URL?
     @State private var selectedAddressIndex: Int = 0
     
     var blockchainText: String {
@@ -131,7 +131,7 @@ struct BalanceAddressView: View {
                             .fixedSize(horizontal: false, vertical: true)
                         Button(action: {
                                 if let url = walletModel.exploreURL(for: selectedAddressIndex) {
-                                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                                    showExplorerURL = url
                                 }}) {
                             HStack {
                                 Text("wallet_address_button_explore")
@@ -207,7 +207,7 @@ struct BalanceAddressView_Previews: PreviewProvider {
             Color.gray
             ScrollView {
             BalanceAddressView(
-                walletModel: walletModel, amountType: .coin)
+                walletModel: walletModel, amountType: .coin, showExplorerURL: .constant(nil))
                 .padding()
             }
         }
