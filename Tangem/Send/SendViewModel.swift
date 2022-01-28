@@ -236,10 +236,8 @@ class SendViewModel: ViewModel, ObservableObject {
             }
             .store(in: &bag)
         
-        $transaction
+        $transaction    //update total block
             .combineLatest($isFiatCalculation.uiPublisherWithFirst)
-            //.debounce(for: 0.3, scheduler: RunLoop.main)
-            //update total block
             .sink { [unowned self] tx, isFiatCalculation in
                 if let tx = tx {
                     self.isSendEnabled = true
@@ -283,7 +281,7 @@ class SendViewModel: ViewModel, ObservableObject {
                 }
                 
                 if let converted = value ? self.walletModel.getFiat(for: decimals, currencySymbol: self.amountToSend.currencySymbol)
-                    : self.walletModel.getCrypto(for: decimals, currencySymbol: self.amountToSend.currencySymbol) {
+                    : self.walletModel.getCrypto(for: Amount(with: self.amountToSend, value: decimals)) {
                     self.amountText = converted.description
                 } else {
                     self.amountText = "0"
@@ -317,9 +315,7 @@ class SendViewModel: ViewModel, ObservableObject {
                     return
                 }
                 
-                let newAmountValue = isFiat ? self.walletModel.getCrypto(for: decimals,
-                                                                       currencySymbol: self.amountToSend.currencySymbol)?.rounded(scale: amountToSend.decimals,
-                                                                                                                                  roundingMode: .down) ?? 0 : decimals
+                let newAmountValue = isFiat ? self.walletModel.getCrypto(for: Amount(with: self.amountToSend, value: decimals)) ?? 0 : decimals
                 let newAmount = Amount(with: self.amountToSend, value: newAmountValue)
                 
                 if let amountError = self.walletModel.walletManager.validate(amount: newAmount) {
@@ -332,26 +328,7 @@ class SendViewModel: ViewModel, ObservableObject {
                 
             }
             .store(in: &bag)
-        
-//        $amountToSend //amount validation
-//            .dropFirst()
-//            .sink {[unowned self] newAmount in
-//                if newAmount.value == 0 {
-//                    self.amountHint = nil
-//                    self.amountValidated = false
-//                    return
-//                }
-//
-//                if let amountError = self.walletModel.walletManager.validate(amount: newAmount) {
-//                    self.amountValidated = false
-//                    self.amountHint = TextHint(isError: true, message: amountError.localizedDescription)
-//                } else {
-//                    self.amountValidated = true
-//                    self.amountHint = nil
-//                }
-//            }
-//            .store(in: &bag)
-        
+                
         $validatedAmount//update fee
             .dropFirst()
             .compactMap { $0 }
@@ -376,12 +353,15 @@ class SendViewModel: ViewModel, ObservableObject {
             .store(in: &bag)
         
         $validatedAmount
-            .compactMap { $0 }
-            .combineLatest($validatedDestination.compactMap { $0 },
-                           $selectedFee.compactMap { $0 },
+            .combineLatest($validatedDestination,
+                           $selectedFee,
                            $isFeeIncluded)
             .debounce(for: 0.5, scheduler: RunLoop.main, options: nil)
             .map {[unowned self] amount, destination, fee, isFeeIncluded -> BlockchainSdk.Transaction? in
+                guard let amount = amount, let destination = destination, let fee = fee else {
+                    return nil
+                }
+             
                 let result = self.walletModel.walletManager.createTransaction(amount: isFeeIncluded ? amount - fee : amount,
                                                                               fee: fee,
                                                                               destinationAddress: destination)
@@ -404,11 +384,7 @@ class SendViewModel: ViewModel, ObservableObject {
         $maxAmountTapped //handle max amount tap
             .dropFirst()
             .sink { [unowned self] _ in
-                //guard let amount = self.walletModel.wallet.amounts[self.amountToSend.type] else { return  }
-                
-               // self.validatedAmount = amount
                 self.amountText = self.walletTotalBalanceDecimals
-                
                 withAnimation {
                     self.isFeeIncluded = true
                     self.isNetworkFeeBlockOpen = true
