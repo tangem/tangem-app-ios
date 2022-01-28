@@ -453,7 +453,6 @@ extension WalletConnectServiceError {
     enum TxErrorCodes: String {
         case noWalletManager
         case wrongAddress
-        case noGas
         case noValue
     }
 }
