@@ -32,7 +32,7 @@ class SupportedTokenItems {
         .avalanche(testnet: false) : "avalanche",
         .avalanche(testnet: true) : "avalancheTestnet",
         .solana(testnet: false): "solana",
-        .solana(testnet: true): "solanaDevnet",
+        .solana(testnet: true): "solanaTestnet", // Solana devnet
     ]
     
     private lazy var blockchains: Set<Blockchain> = {
