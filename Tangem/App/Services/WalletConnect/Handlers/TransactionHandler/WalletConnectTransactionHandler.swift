@@ -84,35 +84,36 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
             return .anyFail(error: error)
         }
         
-        guard let gas = transaction.gas?.hexToInteger ?? transaction.gasLimit?.hexToInteger  else {
-            let error = WalletConnectServiceError.failedToBuildTx(code: .noGas)
-            Analytics.log(error: error)
-            return .anyFail(error: error)
-        }
-        
         let valueAmount = Amount(with: blockchain, type: .coin, value: value)
+        
+        let gasFromDApp = transaction.gas?.hexToInteger ?? transaction.gasLimit?.hexToInteger
+        let gasPublisher = gasFromDApp.map { Just($0).setFailureType(to: Error.self).eraseToAnyPublisher() }
+        ?? getGasLimit(for: valueAmount, destination: transaction.to, txSender: gasLoader)
+        
+        let gasPricePublisher = getGasPrice(for: valueAmount, tx: transaction, txSender: gasLoader, decimalCount: blockchain.decimalCount)
+        let walletUpdatePublisher = walletModel
+            .$state
+            .setFailureType(to: Error.self)
+            .tryMap { state -> WalletModel.State in
+                switch state {
+                case .failed(let error):
+                    throw error
+                case .noAccount(let message):
+                    throw message
+                default:
+                    return state
+                }
+            }
+            .filter { $0 == .idle }
+        
         walletModel.update()
         
         // This zip attempting to load gas price and update wallet balance.
         // In some cases (ex. when swapping currencies on OpenSea) dApp didn't send gasPrice, that why we need to load this data from blockchain
         // Also we must identify that wallet failed to update balance.
         // If we couldn't get gasPrice and can't update wallet balance reject message will be send to dApp
-        return Publishers.Zip(getGasPrice(for: valueAmount, tx: transaction, txSender: gasLoader, decimalCount: blockchain.decimalCount),
-                                 walletModel
-                                    .$state
-                                    .setFailureType(to: Error.self)
-                                    .tryMap { state -> WalletModel.State in
-                                        switch state {
-                                        case .failed(let error):
-                                            throw error
-                                        case .noAccount(let message):
-                                            throw message
-                                        default:
-                                            return state
-                                        }
-                                    }
-                                    .filter { $0 == .idle })
-            .flatMap { (gasPrice, state) -> AnyPublisher<Transaction, Error> in
+        return Publishers.Zip3(gasPublisher, gasPricePublisher, walletUpdatePublisher)
+            .flatMap { (gas, gasPrice, state) -> AnyPublisher<Transaction, Error> in
                 Future { [weak self] promise in
                     let gasAmount = Amount(with: blockchain, type: .coin, value: Decimal(gas * gasPrice) / blockchain.decimalValue)
                     let totalAmount = valueAmount + gasAmount
@@ -176,4 +177,10 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
         return .justWithError(output: gasPrice)
     }
     
+    private func getGasLimit(for amount: Amount, destination: String, txSender: EthereumGasLoader) -> AnyPublisher<Int, Error> {
+        return txSender.getGasLimit(amount: amount, destination: destination)
+            .map { Int($0) }
+            .setFailureType(to: Error.self)
+            .eraseToAnyPublisher()
+    }
 }
