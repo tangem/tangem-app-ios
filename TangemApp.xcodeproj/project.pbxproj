@@ -758,6 +758,7 @@
 		B0FB2995263BD3ED007B400F /* EthereumUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FB2994263BD3ED007B400F /* EthereumUtils.swift */; };
 		B0FB98A52598D24300B769A3 /* Card+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FB98A42598D24300B769A3 /* Card+.swift */; };
 		B0FC4A822630245F000444D7 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = B0FC49BF2630245E000444D7 /* Localizable.strings */; };
+		DAC7C04327A3E358002F7252 /* solanaDevnet.json in Resources */ = {isa = PBXBuildFile; fileRef = DAC7C04227A3E13C002F7252 /* solanaDevnet.json */; };
 		F06BBA2FE022C3EF1F3B6513 /* Pods_Tangem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F3AA1BEE46AF490A6F95DA /* Pods_Tangem.framework */; };
 /* End PBXBuildFile section */
 
@@ -1542,6 +1543,7 @@
 		BD6C9959F53AF1BAC643BEDD /* Pods-Tangem Tap-Tangem TapUITests.firebase.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap-Tangem TapUITests.firebase.xcconfig"; path = "Target Support Files/Pods-Tangem Tap-Tangem TapUITests/Pods-Tangem Tap-Tangem TapUITests.firebase.xcconfig"; sourceTree = "<group>"; };
 		D513FF545D1945A2BACAA25F /* Pods_Tangem_TangemUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tangem_TangemUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9B0B0F1869C2BD108CE901A /* Pods-Tangem-TangemUITests.firebase.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.firebase.xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.firebase.xcconfig"; sourceTree = "<group>"; };
+		DAC7C04227A3E13C002F7252 /* solanaDevnet.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = solanaDevnet.json; sourceTree = "<group>"; };
 		E53081CA3060D2785F9D22F0 /* Pods-Tangem-TangemUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release.xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release.xcconfig"; sourceTree = "<group>"; };
 		F3B96D298A039D2A8811CEF0 /* Pods-Tangem Tap.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap.release.xcconfig"; path = "Target Support Files/Pods-Tangem Tap/Pods-Tangem Tap.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -3451,6 +3453,7 @@
 				5D5468E6279AC88500C5FC71 /* binanceTestnet.json */,
 				5D5468E7279AC88500C5FC71 /* ethereumTestnet.json */,
 				5D5468E5279AC88400C5FC71 /* solanaTestnet.json */,
+				DAC7C04227A3E13C002F7252 /* solanaDevnet.json */,
 				5D5468E1279AC5C700C5FC71 /* avalancheTestnet.json */,
 				5D5468E2279AC5C700C5FC71 /* polygon.json */,
 				5DA247342799380300DB4E4F /* avalanche.json */,
@@ -3757,6 +3760,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DAC7C04327A3E358002F7252 /* solanaDevnet.json in Resources */,
 				B0A359EF2589117200E25B34 /* features_dev.json in Resources */,
 				5D5468E3279AC5C700C5FC71 /* avalancheTestnet.json in Resources */,
 				5D3F77D224BF56DC00E8695B /* LaunchScreen.storyboard in Resources */,
