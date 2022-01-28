@@ -219,25 +219,24 @@ class WalletModel: ObservableObject, Identifiable {
         return nil
     }
     
-    func getCrypto(for amount: Amount?) -> Decimal? {
-        if let amount = amount {
-            return getCrypto(for: amount.value, currencySymbol: amount.currencySymbol)
-        }
-        return nil
-    }
-    
     func getFiat(for value: Decimal, currencySymbol: String) -> Decimal? {
         if let quotes = rates[currencySymbol],
            let rate = quotes[ratesService.selectedCurrencyCode] {
-            return (value * rate).rounded(scale: 2)
+            let fiatValue = value * rate
+            if fiatValue == 0 {
+                return 0
+            }
+            return max(fiatValue, 0.01).rounded(scale: 2)
         }
         return nil
     }
     
-    func getCrypto(for value: Decimal, currencySymbol: String) -> Decimal? {
-        if let quotes = rates[currencySymbol],
+    func getCrypto(for amount: Amount?) -> Decimal? {
+        guard let amount = amount else { return nil }
+        
+        if let quotes = rates[amount.currencySymbol],
            let rate = quotes[ratesService.selectedCurrencyCode] {
-            return (value / rate).rounded(blockchain: walletManager.wallet.blockchain)
+            return (amount.value / rate).rounded(scale: amount.decimals)
         }
         return nil
     }
