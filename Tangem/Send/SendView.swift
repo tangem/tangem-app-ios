@@ -177,7 +177,7 @@ struct SendView: View {
                                             Text("send_fee_include_description")
                                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
                                                 .foregroundColor(Color.tangemGrayDark6)
-                                        }
+                                        }.tintCompat(.tangemBlue)
                                     }
                                 }
                                 .padding(.vertical, 8.0)
