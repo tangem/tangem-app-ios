@@ -70,6 +70,7 @@
 		5D5CE1A92625FF00009023EC /* config_prod.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D5CE1A72625FF00009023EC /* config_prod.json */; };
 		5D5D013C25CC1F3900DA8616 /* TransparentModal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5D013B25CC1F3900DA8616 /* TransparentModal.swift */; };
 		5D5E059224FEA4B800F04DE1 /* CoinMarketCapService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5E059124FEA4B800F04DE1 /* CoinMarketCapService.swift */; };
+		5D62446127A7CAB60069DEC2 /* Bool+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D62446027A7CAB60069DEC2 /* Bool+.swift */; };
 		5D6784C325EB8EF000149995 /* TokenItemsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6784C225EB8EF000149995 /* TokenItemsRepository.swift */; };
 		5D6784CE25EB92F300149995 /* SupportedTokenItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6784CD25EB92F300149995 /* SupportedTokenItems.swift */; };
 		5D6784D925EBA1D800149995 /* TokenItems+Array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6784D825EBA1D800149995 /* TokenItems+Array.swift */; };
@@ -104,7 +105,6 @@
 		5DA2473B2799380300DB4E4F /* solana.json in Resources */ = {isa = PBXBuildFile; fileRef = 5DA247362799380300DB4E4F /* solana.json */; };
 		5DA2473C2799B0AC00DB4E4F /* AddressFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF612A124E6E0ED001BF301 /* AddressFormatter.swift */; };
 		5DA3A2F1251CB6CA009A8E08 /* SecurityManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA3A2F0251CB6CA009A8E08 /* SecurityManagementView.swift */; };
-		5DA5067B27A2A6D8000A8901 /* Device.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA5067A27A2A6D8000A8901 /* Device.swift */; };
 		5DA5067D27A2FF57000A8901 /* URL+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA5067C27A2FF56000A8901 /* URL+.swift */; };
 		5DAC0888251391D900B73E8B /* CoreNFC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DAC08832513917F00B73E8B /* CoreNFC.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		5DB862B8252396CD00566AA0 /* DefaultSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DB862B7252396CD00566AA0 /* DefaultSigner.swift */; };
@@ -889,6 +889,7 @@
 		5D5CE1B52625FFD8009023EC /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5D5D013B25CC1F3900DA8616 /* TransparentModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransparentModal.swift; sourceTree = "<group>"; };
 		5D5E059124FEA4B800F04DE1 /* CoinMarketCapService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinMarketCapService.swift; sourceTree = "<group>"; };
+		5D62446027A7CAB60069DEC2 /* Bool+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bool+.swift"; sourceTree = "<group>"; };
 		5D6784C225EB8EF000149995 /* TokenItemsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItemsRepository.swift; sourceTree = "<group>"; };
 		5D6784CD25EB92F300149995 /* SupportedTokenItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportedTokenItems.swift; sourceTree = "<group>"; };
 		5D6784D825EBA1D800149995 /* TokenItems+Array.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TokenItems+Array.swift"; sourceTree = "<group>"; };
@@ -923,7 +924,6 @@
 		5DA247352799380300DB4E4F /* ethereum.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = ethereum.json; sourceTree = "<group>"; };
 		5DA247362799380300DB4E4F /* solana.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = solana.json; sourceTree = "<group>"; };
 		5DA3A2F0251CB6CA009A8E08 /* SecurityManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityManagementView.swift; sourceTree = "<group>"; };
-		5DA5067A27A2A6D8000A8901 /* Device.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Device.swift; sourceTree = "<group>"; };
 		5DA5067C27A2FF56000A8901 /* URL+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+.swift"; sourceTree = "<group>"; };
 		5DAC08832513917F00B73E8B /* CoreNFC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreNFC.framework; path = System/Library/Frameworks/CoreNFC.framework; sourceTree = SDKROOT; };
 		5DB862B7252396CD00566AA0 /* DefaultSigner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultSigner.swift; sourceTree = "<group>"; };
@@ -1904,6 +1904,7 @@
 				5D6784E325EBC94B00149995 /* Blockchain+.swift */,
 				5D74F718262722FF00B03897 /* Publisher+.swift */,
 				5DA5067C27A2FF56000A8901 /* URL+.swift */,
+				5D62446027A7CAB60069DEC2 /* Bool+.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -1948,7 +1949,6 @@
 				B082E91E255A8E7800A0CEA9 /* Storage */,
 				5D119E84256BF1E50046CAD2 /* Option.swift */,
 				B0453671264D4B730005B23E /* Constants.swift */,
-				5DA5067A27A2A6D8000A8901 /* Device.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -4120,12 +4120,12 @@
 				5D00FCD1261738C5004626DE /* WalletConnectEthTransaction.swift in Sources */,
 				B0A9435B2564E87F00A7958E /* TwinsWalletCreationViewModel.swift in Sources */,
 				5DD4CB5424FAEE8B008F23CC /* AppCardIdFormatter.swift in Sources */,
+				5D62446127A7CAB60069DEC2 /* Bool+.swift in Sources */,
 				B0D34E772626DF2F00625AC5 /* WalletConnectRequestHandler.swift in Sources */,
 				B0323F2C258C041D005C7CD5 /* SignerUtils.swift in Sources */,
 				B051A1B826219D0700809FD2 /* NavigationBusyButton.swift in Sources */,
 				5DBBAB0824D850EA00E78F1C /* CircleView.swift in Sources */,
 				5D242A5F273C1F24008F79B5 /* Publisher+.swift in Sources */,
-				5DA5067B27A2A6D8000A8901 /* Device.swift in Sources */,
 				5D24A12A24FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift in Sources */,
 				5DBBAB0F24D8617C00E78F1C /* CardRectView.swift in Sources */,
 				B0606E122684A946004004ED /* BlinkingModifier.swift in Sources */,

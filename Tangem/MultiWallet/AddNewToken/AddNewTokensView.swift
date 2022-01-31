@@ -85,8 +85,8 @@ fileprivate struct HeaderView: View {
                     .animation(.default.speed(2), value: isExpanded)
             }
         }
-        .padding(.top, Device.isIOS13 ?  16 : 8)
-        .padding(.bottom, Device.isIOS13 ?  8 : 4)
+        .padding(.top, .iOS13 ?  16 : 8)
+        .padding(.bottom, .iOS13 ?  8 : 4)
         .padding(.top, additionalTopPadding)
         .background(Color.white)
         .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
