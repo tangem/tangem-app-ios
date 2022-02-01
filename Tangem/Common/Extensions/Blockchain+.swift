@@ -48,6 +48,10 @@ extension Blockchain: Identifiable {
             return nil
         case .solana:
             return nil
+        case .polkadot:
+            return nil
+        case .kusama:
+            return nil
         }
     }
     
