@@ -173,6 +173,8 @@ PODS:
   - PromiseKit/UIKit (6.15.3):
     - PromiseKit/CorePromise
   - PromisesObjC (2.0.0)
+  - ScaleCodec (0.2.1):
+    - BigInt (~> 5.2)
   - secp256k1.swift (0.1.4)
   - Sodium (0.9.1)
   - Solana.Swift (1.1):
@@ -217,6 +219,7 @@ DEPENDENCIES:
   - KeychainSwift (~> 19.0)
   - Kingfisher (from `https://github.com/onevcat/Kingfisher.git`, branch `version6-xcode13`)
   - Moya
+  - ScaleCodec (~> 0.2)
   - Sodium
   - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-1`)
   - Starscream (~> 4.0.4)
@@ -252,6 +255,7 @@ SPEC REPOS:
     - ObjcExceptionBridging
     - PromiseKit
     - PromisesObjC
+    - ScaleCodec
     - secp256k1.swift
     - Sodium
     - Starscream
@@ -350,6 +354,7 @@ SPEC CHECKSUMS:
   ObjcExceptionBridging: c30e00eb3700467e695faeea30e26e18bd445001
   PromiseKit: 3b2b6995e51a954c46dbc550ce3da44fbfb563c5
   PromisesObjC: 68159ce6952d93e17b2dfe273b8c40907db5ba58
+  ScaleCodec: 5d7d0439940c600f49babad6ea265a09377c404b
   secp256k1.swift: a7e7a214f6db6ce5db32cc6b2b45e5c4dd633634
   Sodium: 23d11554ecd556196d313cf6130d406dfe7ac6da
   Solana.Swift: c86f550e70aeaf1f2171435ef95dca16fc55c950
@@ -365,6 +370,6 @@ SPEC CHECKSUMS:
   web3swift: 93f68f5430c11a78bba2351c139d2d22f2c04b5e
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 638101f58b01fe9103b91dae35f22573e7539bbd
+PODFILE CHECKSUM: 3e30756674915734506167f927f28ef247fdf652
 
 COCOAPODS: 1.11.2
