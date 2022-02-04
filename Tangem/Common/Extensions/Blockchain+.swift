@@ -80,6 +80,8 @@ extension Blockchain: Identifiable {
             return "https://solfaucet.com"
         case .avalanche:
             return "https://faucet.avax-test.network/"
+        case .polkadot:
+            return "https://matrix.to/#/!cJFtAIkwxuofiSYkPN:matrix.org?via=matrix.org&via=matrix.parity.io&via=web3.foundation"
         default:
             return nil
         }
