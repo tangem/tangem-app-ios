@@ -134,6 +134,13 @@
   },
   {
     "decimalCount" : 18,
+    "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0x72fAa679E1008Ad8382959FF48E392042A8b06f7/logo.png",
+    "symbol" : "bALBT",
+    "name" : "AllianceBlock Token",
+    "contractAddress" : "0x72fAa679E1008Ad8382959FF48E392042A8b06f7"
+  },
+  {
+    "decimalCount" : 18,
     "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0x8F0528cE5eF7B51152A59745bEfDD91D97091d2F/logo.png",
     "symbol" : "ALPACA",
     "name" : "Alpaca Finance",
@@ -505,6 +512,13 @@
   },
   {
     "decimalCount" : 18,
+    "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0xAD6cAEb32CD2c308980a548bD0Bc5AA4306c6c18/logo.png",
+    "symbol" : "BAND",
+    "name" : "Binance-Peg Band Protocol",
+    "contractAddress" : "0xAD6cAEb32CD2c308980a548bD0Bc5AA4306c6c18"
+  },
+  {
+    "decimalCount" : 18,
     "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0x8fF795a6F4D97E7887C79beA79aba5cc76444aDf/logo.png",
     "symbol" : "BCH",
     "name" : "Binance-Peg Bitcoin Cash",
@@ -575,10 +589,31 @@
   },
   {
     "decimalCount" : 18,
+    "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0x16939ef78684453bfDFb47825F8a5F714f12623a/logo.png",
+    "symbol" : "XTZ",
+    "name" : "Binance-Peg Tezos",
+    "contractAddress" : "0x16939ef78684453bfDFb47825F8a5F714f12623a"
+  },
+  {
+    "decimalCount" : 18,
     "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0x1D2F0da169ceB9fC7B3144628dB156f3F6c60dBE/logo.png",
     "symbol" : "XRP",
     "name" : "Binance-Peg XRP",
     "contractAddress" : "0x1d2f0da169ceb9fc7b3144628db156f3f6c60dbe"
+  },
+  {
+    "decimalCount" : 18,
+    "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0x7F70642d88cf1C4a3a7abb072B53B929b653edA5/logo.png",
+    "symbol" : "YFII",
+    "name" : "Binance-Peg YFII.finance",
+    "contractAddress" : "0x7F70642d88cf1C4a3a7abb072B53B929b653edA5"
+  },
+  {
+    "decimalCount" : 18,
+    "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0x88f1A5ae2A3BF98AEAF342D26B30a79438c9142e/logo.png",
+    "symbol" : "YFI",
+    "name" : "Binance-Peg yearn.finance",
+    "contractAddress" : "0x88f1A5ae2A3BF98AEAF342D26B30a79438c9142e"
   },
   {
     "decimalCount" : 18,
@@ -824,6 +859,13 @@
     "symbol" : "CAS",
     "name" : "Cashaa",
     "contractAddress" : "0x780207b8c0fdc32cf60e957415bfa1f2d4d9718c"
+  },
+  {
+    "decimalCount" : 6,
+    "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0xA8c2B8eec3d368C0253ad3dae65a5F2BBB89c929/logo.png",
+    "symbol" : "CTK",
+    "name" : "CertiK Token",
+    "contractAddress" : "0xA8c2B8eec3d368C0253ad3dae65a5F2BBB89c929"
   },
   {
     "decimalCount" : 18,
@@ -1568,6 +1610,13 @@
     "contractAddress" : "0xeda21b525ac789eab1a08ef2404dd8505ffb973d"
   },
   {
+    "decimalCount" : 6,
+    "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0xf79037F6f6bE66832DE4E7516be52826BC3cBcc4/logo.png",
+    "symbol" : "HARD",
+    "name" : "Hard Protocol",
+    "contractAddress" : "0xf79037F6f6bE66832DE4E7516be52826BC3cBcc4"
+  },
+  {
     "decimalCount" : 18,
     "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0x4B5C23cac08a567ecf0c1fFcA8372A45a5D33743/logo.png",
     "symbol" : "FARM",
@@ -1580,6 +1629,13 @@
     "symbol" : "HEAD",
     "name" : "Head Football",
     "contractAddress" : "0x7917c830eca3360e24e09fd422310a734ac9d2c9"
+  },
+  {
+    "decimalCount" : 6,
+    "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0xC7d8D35EBA58a0935ff2D5a33Df105DD9f071731/logo.png",
+    "symbol" : "HGET",
+    "name" : "Hedget",
+    "contractAddress" : "0xC7d8D35EBA58a0935ff2D5a33Df105DD9f071731"
   },
   {
     "decimalCount" : 18,
@@ -1884,6 +1940,13 @@
   },
   {
     "decimalCount" : 18,
+    "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0x7320c128e89bA4584Ab02ed1C9c96285b726443C/logo.png",
+    "symbol" : "KOKO",
+    "name" : "KokoSwap",
+    "contractAddress" : "0x7320c128e89ba4584ab02ed1c9c96285b726443c"
+  },
+  {
+    "decimalCount" : 18,
     "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0xc732B6586A93b6B7CF5FeD3470808Bc74998224D/logo.png",
     "symbol" : "KMON",
     "name" : "Kryptomon",
@@ -1951,6 +2014,13 @@
     "symbol" : "LINA",
     "name" : "Linear (BSC)",
     "contractAddress" : "0x762539b45a1dcce3d36d080f74d1aed37844b878"
+  },
+  {
+    "decimalCount" : 18,
+    "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0xb59490aB09A0f526Cc7305822aC65f2Ab12f9723/logo.png",
+    "symbol" : "LIT",
+    "name" : "Litentry",
+    "contractAddress" : "0xb59490aB09A0f526Cc7305822aC65f2Ab12f9723"
   },
   {
     "decimalCount" : 18,
@@ -2049,6 +2119,13 @@
     "symbol" : "MTW",
     "name" : "Meta World Game",
     "contractAddress" : "0xfce3efebc79d21a6b7cc7f3a7216e66e81f4b23b"
+  },
+  {
+    "decimalCount" : 18,
+    "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0xb4404DaB7C0eC48b428Cf37DeC7fb628bcC41B36/logo.png",
+    "symbol" : "GEAR",
+    "name" : "MetaGear",
+    "contractAddress" : "0xb4404dab7c0ec48b428cf37dec7fb628bcc41b36"
   },
   {
     "decimalCount" : 18,
@@ -2527,6 +2604,13 @@
     "contractAddress" : "0x461f6c9ae13a7dac7055c73fbf8dab529d667041"
   },
   {
+    "decimalCount" : 9,
+    "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0xC7FB8c5eFE8564205eE5CbA4dE8eeA8a086a4bd2/logo.png",
+    "symbol" : "POCROC",
+    "name" : "PocketRocket",
+    "contractAddress" : "0xC7FB8c5eFE8564205eE5CbA4dE8eeA8a086a4bd2"
+  },
+  {
     "decimalCount" : 18,
     "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0x4B5DeCb9327B4D511A58137A1aDE61434AacdD43/logo.png",
     "symbol" : "PKN",
@@ -2794,6 +2878,13 @@
   },
   {
     "decimalCount" : 9,
+    "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0x3aabCf53A1930A42E18D938C019E83Ebee50a849/logo.png",
+    "symbol" : "SPG",
+    "name" : "SPONGE",
+    "contractAddress" : "0x3aabCf53A1930A42E18D938C019E83Ebee50a849"
+  },
+  {
+    "decimalCount" : 9,
     "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0x4CbdA3D23c031cd403db2d24512aD920BF22f205/logo.png",
     "symbol" : "SFX",
     "name" : "SUBX FINANCE LAB",
@@ -2805,6 +2896,13 @@
     "symbol" : "SWAPZ",
     "name" : "SWAPZ.app",
     "contractAddress" : "0xd522a1dce1ca4b138dda042a78672307eb124cc2"
+  },
+  {
+    "decimalCount" : 18,
+    "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0xE40255C5d7fa7ceEc5120408C78C787CECB4cfdb/logo.png",
+    "symbol" : "SWGb",
+    "name" : "SWGb",
+    "contractAddress" : "0xE40255C5d7fa7ceEc5120408C78C787CECB4cfdb"
   },
   {
     "decimalCount" : 18,
@@ -3109,6 +3207,13 @@
   },
   {
     "decimalCount" : 18,
+    "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0xeAF7D8395CCE52DAef138d39a1CEfA51b97C15aE/logo.png",
+    "symbol" : "TBC",
+    "name" : "TeraBlock Token",
+    "contractAddress" : "0xeAF7D8395CCE52DAef138d39a1CEfA51b97C15aE"
+  },
+  {
+    "decimalCount" : 18,
     "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0x55d398326f99059fF775485246999027B3197955/logo.png",
     "symbol" : "USDT",
     "name" : "Tether",
@@ -3312,10 +3417,24 @@
   },
   {
     "decimalCount" : 18,
+    "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0x1F36FB2D91d9951Cf58aE4c1956C0b77e224F1E9/logo.png",
+    "symbol" : "VCG",
+    "name" : "VCGamers",
+    "contractAddress" : "0x1f36fb2d91d9951cf58ae4c1956c0b77e224f1e9"
+  },
+  {
+    "decimalCount" : 18,
     "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0x3f515f0a8e93F2E2f891ceeB3Db4e62e202d7110/logo.png",
     "symbol" : "VIDT",
     "name" : "VIDT Datalink",
     "contractAddress" : "0x3f515f0a8e93f2e2f891ceeb3db4e62e202d7110"
+  },
+  {
+    "decimalCount" : 18,
+    "customIconUrl" : "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/smartchain/assets/0x33a887Cf76383be39DC51786e8f641c9D6665D84/logo.png",
+    "symbol" : "VOYRME",
+    "name" : "VOYR",
+    "contractAddress" : "0x33a887Cf76383be39DC51786e8f641c9D6665D84"
   },
   {
     "decimalCount" : 18,
