@@ -344,7 +344,7 @@
   },
   {
     "decimalCount" : 6,
-    "customIconUrl" : "https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/GsNzxJfFn6zQdJGeYsupJWzUAm57Ba7335mfhWvFiE9Z/logo.png",
+    "customIconUrl" : "https://raw.githubusercontent.com/dexlab-project/assets/master/dexlab/dexlab_symbol_logo.svg",
     "symbol" : "DXL",
     "name" : "Dexlab",
     "contractAddress" : "GsNzxJfFn6zQdJGeYsupJWzUAm57Ba7335mfhWvFiE9Z"
