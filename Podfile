@@ -46,6 +46,7 @@ target 'Tangem' do
   pod 'AppsFlyerFramework'
   pod 'Solana.Swift', :git => 'https://github.com/tangem/Solana.Swift', :tag => 'add-external-signer-1'
   # pod 'Solana.Swift', :path => '../Solana.Swift'
+  pod 'Mobile-Buy-SDK' # Shopify
 
   target 'TangemTests' do
     inherit! :search_paths
