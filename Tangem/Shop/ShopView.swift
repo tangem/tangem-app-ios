@@ -19,7 +19,7 @@ struct ShopView: View {
 }
 
 struct ShopView_Previews: PreviewProvider {
-    static let assembly: Assembly = .previewAssembly(for: .ethereum)
+    static let assembly: Assembly = .previewAssembly
     
     static var previews: some View {
         ShopView(viewModel: assembly.makeShopViewModel())
