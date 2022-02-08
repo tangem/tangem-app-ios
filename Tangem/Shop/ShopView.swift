@@ -13,81 +13,113 @@ struct ShopView: View {
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var navigation: NavigationCoordinator
     
+    private let sectionRowVerticalPadding = 12.0
+    private let sectionCornerRadius = 18.0
+    private let applePayCornerRadius = 18.0
+    
     var body: some View {
-        VStack {
-            SheetDragHandler()
+        GeometryReader { geometry in
             
-            Image("wallet_card")
-                .padding(.top)
-            
-            Spacer()
-            
-            Text("One Wallet")
-                .font(.system(size: 30, weight: .bold))
-            
-            Picker("Variant", selection: $viewModel.selectedVariant) {
-                Text("3 cards").tag(ShopViewModel.ProductVariant.threeCards)
-                Text("2 cards").tag(ShopViewModel.ProductVariant.twoCards)
-            }
-            .pickerStyle(.segmented)
-            .padding(.horizontal)
-            .frame(minWidth: 0, maxWidth: 250)
-            
-            Spacer()
-            
-            Form {
-                Section {
-                    HStack {
-                        Image(systemName: "square")
-                        Text("Delivery (Free shipping)")
-                        
-//                        Spacer()
-                        
-//                        Button {
-//
-//                        } label: {
-//                            Text("Estimate")
-//                                .foregroundColor(Color.tangemGreen1)
-//                        }
+            ScrollView {
+                VStack {
+                    SheetDragHandler()
+                    
+                    Image("wallet_card")
+                        .padding(.top)
+                    
+                    Spacer()
+                        .frame(maxHeight: .infinity)
+                    
+                    Text("One Wallet")
+                        .font(.system(size: 30, weight: .bold))
+                    
+                    Picker("Variant", selection: $viewModel.selectedBundle) {
+                        Text("3 cards").tag(ShopViewModel.Bundle.threeCards)
+                        Text("2 cards").tag(ShopViewModel.Bundle.twoCards)
                     }
-                    HStack {
-                        Image(systemName: "square")
-                        TextField("I have a promo code...", text: .constant(""))
-                    }
-                }
-                
-                Section {
-                    HStack {
-                        Text("Total")
-                        
-                        Spacer()
-                        
-                        if let totalAmountWithoutDiscount = viewModel.totalAmountWithoutDiscount {
-                            Text(totalAmountWithoutDiscount)
-                                .strikethrough()
+                    .pickerStyle(.segmented)
+                    .frame(minWidth: 0, maxWidth: 250)
+                    
+                    Spacer()
+                        .frame(maxHeight: .infinity)
+                    
+                    VStack(spacing: 0) {
+                        HStack {
+                            Image(systemName: "square")
+                            Text("Delivery (Free shipping)")
+                            Spacer()
                         }
+                        .padding(.horizontal)
+                        .padding(.vertical, sectionRowVerticalPadding)
                         
-                        Text(viewModel.totalAmount)
-                            .font(.system(size: 22, weight: .bold))
+                        Separator()
+                            .foregroundColor(Color.red)
+                        
+                        HStack {
+                            Image(systemName: "square")
+                            TextField("I have a promo code...", text: $viewModel.discountCode)
+                        }
+                        .padding(.horizontal)
+                        .padding(.vertical, sectionRowVerticalPadding)
+                    }
+                    .background(Color.white.cornerRadius(sectionCornerRadius))
+                    .padding(.bottom, 8)
+                    
+                    
+                    VStack {
+                        HStack {
+                            Text("Total")
+                            
+                            Spacer()
+                            
+                            if let totalAmountWithoutDiscount = viewModel.totalAmountWithoutDiscount {
+                                Text(totalAmountWithoutDiscount)
+                                    .strikethrough()
+                            }
+                            
+                            Text(viewModel.totalAmount)
+                                .font(.system(size: 22, weight: .bold))
+                        }
+                        .padding(.horizontal)
+                        .padding(.vertical, sectionRowVerticalPadding)
+                    }
+                    .background(Color.white.cornerRadius(sectionCornerRadius))
+                    .padding(.bottom, 8)
+                    
+                    
+                    if viewModel.canShowApplePay {
+                        ApplePayButton {
+                            viewModel.showingApplePay = true
+                        }
+                        .frame(height: 46)
+                        .cornerRadius(applePayCornerRadius)
+                        
+                        Button {
+                            viewModel.showingWebCheckout = true
+                        } label: {
+                            Text("Other payment methods")
+                        }
+                        .buttonStyle(TangemButtonStyle(colorStyle: .transparentWhite, layout: .flexibleWidth))
+                    } else {
+                        Button {
+                            viewModel.showingWebCheckout = true
+                        } label: {
+                            Text("Buy now")
+                        }
+                        .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
                     }
                 }
+                .padding(.horizontal)
+                .frame(minWidth: geometry.size.width,
+                       maxWidth: geometry.size.width,
+                       minHeight: geometry.size.height,
+                       maxHeight: .infinity, alignment: .top)
             }
-            
-            ApplePayButton {
-                viewModel.showingApplePay = true
-            }
-            .frame(height: 46)
-            .cornerRadius(23)
-            .padding(.horizontal)
-
-            Button {
-                viewModel.showingWebCheckout = true
-            } label: {
-                Text("Other payment methods")
-            }
-            .buttonStyle(TangemButtonStyle(colorStyle: .transparentWhite, layout: .flexibleWidth))
         }
         .background(Color(UIColor.tangemBgGray).edgesIgnoringSafeArea(.all))
+        .onAppear {
+            viewModel.didAppear()
+        }
     }
 }
 
