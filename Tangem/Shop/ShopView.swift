@@ -14,7 +14,80 @@ struct ShopView: View {
     @EnvironmentObject var navigation: NavigationCoordinator
     
     var body: some View {
-        Text("Hello, World!")
+        VStack {
+            SheetDragHandler()
+            
+            Image("wallet_card")
+                .padding(.top)
+            
+            Spacer()
+            
+            Text("One Wallet")
+                .font(.system(size: 30, weight: .bold))
+            
+            Picker("Variant", selection: $viewModel.selectedVariant) {
+                Text("3 cards").tag(ShopViewModel.ProductVariant.threeCards)
+                Text("2 cards").tag(ShopViewModel.ProductVariant.twoCards)
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal)
+            .frame(minWidth: 0, maxWidth: 250)
+            
+            Spacer()
+            
+            Form {
+                Section {
+                    HStack {
+                        Image(systemName: "square")
+                        Text("Delivery (Free shipping)")
+                        
+//                        Spacer()
+                        
+//                        Button {
+//
+//                        } label: {
+//                            Text("Estimate")
+//                                .foregroundColor(Color.tangemGreen1)
+//                        }
+                    }
+                    HStack {
+                        Image(systemName: "square")
+                        TextField("I have a promo code...", text: .constant(""))
+                    }
+                }
+                
+                Section {
+                    HStack {
+                        Text("Total")
+                        
+                        Spacer()
+                        
+                        if let totalAmountWithoutDiscount = viewModel.totalAmountWithoutDiscount {
+                            Text(totalAmountWithoutDiscount)
+                                .strikethrough()
+                        }
+                        
+                        Text(viewModel.totalAmount)
+                            .font(.system(size: 22, weight: .bold))
+                    }
+                }
+            }
+            
+            ApplePayButton {
+                viewModel.showingApplePay = true
+            }
+            .frame(height: 46)
+            .cornerRadius(23)
+            .padding(.horizontal)
+
+            Button {
+                viewModel.showingWebCheckout = true
+            } label: {
+                Text("Other payment methods")
+            }
+            .buttonStyle(TangemButtonStyle(colorStyle: .transparentWhite, layout: .flexibleWidth))
+        }
+        .background(Color(UIColor.tangemBgGray).edgesIgnoringSafeArea(.all))
     }
 }
 
