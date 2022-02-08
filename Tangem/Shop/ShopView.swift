@@ -52,8 +52,7 @@ struct ShopView: View {
                         .padding(.horizontal)
                         .padding(.vertical, sectionRowVerticalPadding)
                         
-                        Separator()
-                            .foregroundColor(Color.red)
+                        Separator(height: 0.5)
                         
                         HStack {
                             Image(systemName: "square")
