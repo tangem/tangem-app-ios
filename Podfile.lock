@@ -151,6 +151,7 @@ PODS:
     - secp256k1.swift
   - KeychainSwift (19.0.0)
   - Kingfisher (6.3.1)
+  - Mobile-Buy-SDK (7.0.0)
   - Moya (15.0.0):
     - Moya/Core (= 15.0.0)
   - Moya/Core (15.0.0):
@@ -216,6 +217,7 @@ DEPENDENCIES:
   - HDWalletKit (from `https://github.com/lazutkin-andrey/hdwallet.git`, tag `0.3.12`)
   - KeychainSwift (~> 19.0)
   - Kingfisher (from `https://github.com/onevcat/Kingfisher.git`, branch `version6-xcode13`)
+  - Mobile-Buy-SDK
   - Moya
   - Sodium
   - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-1`)
@@ -247,6 +249,7 @@ SPEC REPOS:
     - GoogleDataTransport
     - GoogleUtilities
     - KeychainSwift
+    - Mobile-Buy-SDK
     - Moya
     - nanopb
     - ObjcExceptionBridging
@@ -345,6 +348,7 @@ SPEC CHECKSUMS:
   HDWalletKit: 5f03c82ab8ac7972951feae247780d39823f04ea
   KeychainSwift: a06190cf933ad46b1e0abc3d77d29c06331715c7
   Kingfisher: 8b783c3d7be73a99b2172a743a5bc0a4dd331d79
+  Mobile-Buy-SDK: 18ee3b74f99a1a5fa42ad3c997af3d0774928438
   Moya: 138f0573e53411fb3dc17016add0b748dfbd78ee
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   ObjcExceptionBridging: c30e00eb3700467e695faeea30e26e18bd445001
@@ -365,6 +369,6 @@ SPEC CHECKSUMS:
   web3swift: 93f68f5430c11a78bba2351c139d2d22f2c04b5e
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: ebd130b51ff1cb5ffc432441bb3fc7b234628406
+PODFILE CHECKSUM: 001b695c61f617085491bdff224ffa51932042f9
 
 COCOAPODS: 1.11.2
