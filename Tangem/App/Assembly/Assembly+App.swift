@@ -359,6 +359,10 @@ extension Assembly {
     }
     
     func makeShopViewModel() -> ShopViewModel {
+        if let restored: ShopViewModel = get() {
+            return restored
+        }
+        
         let vm = ShopViewModel()
         initialize(vm)
         vm.shopifyService = services.shopifyService
