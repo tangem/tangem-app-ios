@@ -69,7 +69,13 @@ enum WalletConnectNetwork {
     var blockchain: Blockchain? {
         switch self {
         case .eth(let chainId):
-            return EthereumNetwork.network(for: chainId)?.blockchain
+            let items = SupportedTokenItems()
+            let allBlockchains = items.blockchains(for: [.secp256k1], isTestnet: nil)
+            if let blockchain = allBlockchains.first(where: { $0.chainId == chainId }) {
+                return blockchain
+            }
+            
+            return nil
         case .bnb(let testnet):
             return .binance(testnet: testnet)
         }
