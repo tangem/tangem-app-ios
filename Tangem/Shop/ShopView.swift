@@ -58,6 +58,7 @@ struct ShopView: View {
                         HStack {
                             Image(systemName: "square")
                             TextField("I have a promo code...", text: $viewModel.discountCode)
+                            ActivityIndicatorView(isAnimating: viewModel.checkingDiscountCode, color: .tangemGrayDark)
                         }
                         .padding(.horizontal)
                         .padding(.vertical, sectionRowVerticalPadding)
