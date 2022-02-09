@@ -17,6 +17,8 @@ struct ShopView: View {
     private let sectionCornerRadius = 18.0
     private let applePayCornerRadius = 18.0
     
+    #warning("[REDACTED_TODO_COMMENT]")
+    
     var body: some View {
         GeometryReader { geometry in
             
