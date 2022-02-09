@@ -25,7 +25,7 @@ struct ShopView: View {
                 VStack {
                     SheetDragHandler()
                     
-                    Image("wallet_card")
+                    cardStack
                         .padding(.top)
                     
                     Spacer()
@@ -133,6 +133,25 @@ struct ShopView: View {
             viewModel.didAppear()
         }
         .navigationBarHidden(true)
+    }
+    
+    private var cardStack: some View {
+        let secondCardOffset = 12.0
+        let thirdCardOffset = 22.0
+        
+        return Image("wallet_card")
+            .background(
+                Color(hex: "#2E343BFF")
+                    .cornerRadius(12)
+                    .padding(.horizontal, 16)
+                    .offset(x: 0, y: secondCardOffset)
+            )
+            .background(
+                Color(hex: "#595D61FF")
+                    .cornerRadius(12)
+                    .padding(.horizontal, 36)
+                    .offset(x: 0, y: viewModel.showingThirdCard ? thirdCardOffset : secondCardOffset)
+            )
     }
 }
 
