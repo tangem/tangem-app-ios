@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import MobileBuySDK
+import SwiftUI
 
 #warning("[REDACTED_TODO_COMMENT]")
 
@@ -44,6 +45,7 @@ class ShopViewModel: ViewModel, ObservableObject {
     @Published var showingWebCheckout = false
     
     // MARK: - Output
+    @Published var showingThirdCard = true
     @Published var totalAmountWithoutDiscount: String? = nil
     @Published var totalAmount = ""
     @Published var order: Order?
@@ -56,8 +58,6 @@ class ShopViewModel: ViewModel, ObservableObject {
         self.canUseApplePay = shopifyService.canUseApplePay()
         
         $selectedBundle
-            .debounce(for: 1.0, scheduler: RunLoop.main, options: nil)
-            .removeDuplicates()
             .sink { [weak self] newBundle in
                 self?.didSelectBundle(newBundle)
             }
@@ -108,6 +108,10 @@ class ShopViewModel: ViewModel, ObservableObject {
     }
     
     private func didSelectBundle(_ bundle: Bundle) {
+        withAnimation(.easeOut(duration: 0.25)) {
+            showingThirdCard = (bundle == .threeCards)
+        }
+        
         let sku = bundle.sku
         guard let variant = shopifyProductVariants.first(where: {
             $0.sku == sku
