@@ -88,7 +88,7 @@ struct ShopView: View {
                     .padding(.bottom, 8)
                     
                     
-                    if viewModel.canShowApplePay {
+                    if viewModel.canUseApplePay {
                         ApplePayButton {
                             viewModel.showingApplePay = true
                         }
