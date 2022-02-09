@@ -37,9 +37,8 @@ class ShopViewModel: ViewModel, ObservableObject {
     // MARK: - Input
     @Published var selectedBundle: Bundle = .threeCards
     @Published var discountCode = ""
-    #warning("TODO")
-    @Published var canShowApplePay = true
-    @Published var showingApplePay = false
+    
+    @Published var canUseApplePay = true
     @Published var showingWebCheckout = false
     
     // MARK: - Output
@@ -51,6 +50,8 @@ class ShopViewModel: ViewModel, ObservableObject {
     private var checkoutID: GraphQL.ID?
     
     func didAppear() {
+        self.canUseApplePay = shopifyService.canUseApplePay()
+        
         $selectedBundle
             .debounce(for: 1.0, scheduler: RunLoop.main, options: nil)
             .removeDuplicates()
