@@ -45,6 +45,7 @@ class ShopViewModel: ViewModel, ObservableObject {
     @Published var showingWebCheckout = false
     
     // MARK: - Output
+    @Published var checkingDiscountCode = false
     @Published var showingThirdCard = true
     @Published var totalAmountWithoutDiscount: String? = nil
     @Published var totalAmount = ""
@@ -64,6 +65,7 @@ class ShopViewModel: ViewModel, ObservableObject {
             .store(in: &bag)
         
         $discountCode
+            .dropFirst()
             .debounce(for: 1.0, scheduler: RunLoop.main, options: nil)
             .removeDuplicates()
             .sink { [weak self] code in
@@ -158,6 +160,11 @@ class ShopViewModel: ViewModel, ObservableObject {
             return
         }
         
+        let isCurrentVariantID = (variantID == currentVariantID)
+        if isCurrentVariantID && discountCode != nil {
+            checkingDiscountCode = true
+        }
+        
         shopifyService.applyDiscount(discountCode, checkoutID: checkoutID)
             .sink { _ in
 
@@ -166,8 +173,9 @@ class ShopViewModel: ViewModel, ObservableObject {
                     self?.discountCode = ""
                 }
                 self?.checkoutByVariantID[variantID] = checkout
-                if variantID == self?.currentVariantID {
+                if isCurrentVariantID {
                     self?.updatePrice()
+                    self?.checkingDiscountCode = false
                 }
             }
             .store(in: &bag)
