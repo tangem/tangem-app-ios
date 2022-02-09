@@ -120,6 +120,7 @@ class ShopViewModel: ViewModel, ObservableObject {
         }
         
         self.currentVariantID = variant.id
+        updatePrice()
         createCheckout()
     }
     
@@ -158,20 +159,36 @@ class ShopViewModel: ViewModel, ObservableObject {
         return formatter
     }
     
-    private func updateCheckoutFields(_ checkout: Checkout) {
-        let currentVariant = shopifyProductVariants.first {
+    private func updatePrice() {
+        guard let currentVariant = shopifyProductVariants.first(where: {
             $0.id == currentVariantID
+        }) else {
+            return
         }
         
-        let formatter = moneyFormatter(checkout.currencyCode)
-        
-        self.totalAmount = formatter.string(from: NSDecimalNumber(decimal: checkout.total)) ?? ""
-        if let currentVariant = currentVariant,
-           let originalAmount = currentVariant.originalAmount {
+        let formatter = moneyFormatter(currentVariant.currencyCode)
+        self.totalAmount = formatter.string(from: NSDecimalNumber(decimal: currentVariant.amount)) ?? ""
+        if let originalAmount = currentVariant.originalAmount {
             self.totalAmountWithoutDiscount = formatter.string(from: NSDecimalNumber(decimal: originalAmount))
         } else {
             self.totalAmountWithoutDiscount = nil
         }
+    }
+    
+    private func updateCheckoutFields(_ checkout: Checkout) {
+//        let currentVariant = shopifyProductVariants.first {
+//            $0.id == currentVariantID
+//        }
+//
+//        let formatter = moneyFormatter(checkout.currencyCode)
+//
+//        self.totalAmount = formatter.string(from: NSDecimalNumber(decimal: checkout.total)) ?? ""
+//        if let currentVariant = currentVariant,
+//           let originalAmount = currentVariant.originalAmount {
+//            self.totalAmountWithoutDiscount = formatter.string(from: NSDecimalNumber(decimal: originalAmount))
+//        } else {
+//            self.totalAmountWithoutDiscount = nil
+//        }
     }
     
     func openApplePayCheckout() {
