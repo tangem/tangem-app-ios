@@ -30,6 +30,7 @@ PODS:
     - BitcoinCore.swift
     - HDWalletKit
     - Moya
+    - ScaleCodec
     - Sodium
     - Solana.Swift
     - stellar-ios-mac-sdk
@@ -210,7 +211,7 @@ DEPENDENCIES:
   - BigInt
   - BinanceChain (from `https://github.com/lazutkin-andrey/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/lazutkin-andrey/bitcoincore.git`, tag `0.0.15`)
-  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-76`)
+  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-82`)
   - DeviceGuru
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -276,7 +277,7 @@ EXTERNAL SOURCES:
     :tag: 0.0.15
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-76
+    :tag: develop-82
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
@@ -305,7 +306,7 @@ CHECKOUT OPTIONS:
     :tag: 0.0.15
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-76
+    :tag: develop-82
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
@@ -332,7 +333,7 @@ SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   BinanceChain: b77d4c0e496efbf13bdb1f428621480fd52f4ba1
   BitcoinCore.swift: 64ac4e69d9a6ef917bcbb0c23f1324cf57a822fb
-  BlockchainSdk: fdee56dae5f5ab516f928cc893d89bfdaab8f44e
+  BlockchainSdk: dc61afa84bef366f16c0649baf9db50934e25bca
   CryptoSwift: a532e74ed010f8c95f611d00b8bbae42e9fe7c17
   DeviceGuru: 257ae5fa0c7e9bb0c11d0f620b30d3407e3e5a07
   Firebase: 44213362f1dcc52555b935dc925ed35ac55f1b20
@@ -370,6 +371,6 @@ SPEC CHECKSUMS:
   web3swift: 93f68f5430c11a78bba2351c139d2d22f2c04b5e
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 3e30756674915734506167f927f28ef247fdf652
+PODFILE CHECKSUM: 2df540f144180b964215c6e79103537d71e9b23d
 
 COCOAPODS: 1.11.2
