@@ -39,11 +39,14 @@ class ShopViewModel: ViewModel, ObservableObject {
     @Published var discountCode = ""
     
     @Published var canUseApplePay = true
+    
+    @Published var webCheckoutUrl: URL?
     @Published var showingWebCheckout = false
     
     // MARK: - Output
     @Published var totalAmountWithoutDiscount: String? = nil
     @Published var totalAmount = ""
+    @Published var order: Order?
     
     private var shopifyProductVariants: [ProductVariant] = []
     private var currentVariantID: GraphQL.ID = GraphQL.ID(rawValue: "")
@@ -165,5 +168,38 @@ class ShopViewModel: ViewModel, ObservableObject {
         } else {
             self.totalAmountWithoutDiscount = nil
         }
+    }
+    
+    func openApplePayCheckout() {
+        guard let checkoutID = checkoutID else { return }
+        shopifyService
+            .startApplePaySession(checkoutID: checkoutID)
+            .sink { completion in
+                print("Finished Apple Pay session", completion)
+            } receiveValue: { [weak self] checkout in
+                print("Checkout after Apple Pay session", checkout)
+                self?.order = checkout.order
+            }
+            .store(in: &bag)
+    }
+    
+    func openWebCheckout() {
+        guard let checkoutID = checkoutID else { return }
+        
+        // Checking order ID
+        shopifyService.checkout(pollUntilOrder: false, checkoutID: checkoutID)
+            .flatMap { [unowned self] checkout -> AnyPublisher<Checkout, Error> in
+                self.webCheckoutUrl = checkout.webUrl
+                self.showingWebCheckout = true
+                
+                return self.shopifyService.checkout(pollUntilOrder: true, checkoutID: checkoutID)
+            }
+            .sink { _ in
+                
+            } receiveValue: { [weak self] checkout in
+                self?.order = checkout.order
+                self?.showingWebCheckout = false
+            }
+            .store(in: &bag)
     }
 }
