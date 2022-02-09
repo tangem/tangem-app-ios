@@ -52,7 +52,7 @@ class ShopViewModel: ViewModel, ObservableObject {
     
     private var shopifyProductVariants: [ProductVariant] = []
     private var currentVariantID: GraphQL.ID = GraphQL.ID(rawValue: "")
-    private var checkoutID: GraphQL.ID?
+    private var checkoutByVariantID: [GraphQL.ID: Checkout] = [:]
     
     func didAppear() {
         self.canUseApplePay = shopifyService.canUseApplePay()
@@ -66,10 +66,8 @@ class ShopViewModel: ViewModel, ObservableObject {
         $discountCode
             .debounce(for: 1.0, scheduler: RunLoop.main, options: nil)
             .removeDuplicates()
-            .sink { [weak self] v in
-                print(v)
-                
-                self?.createCheckout()
+            .sink { [weak self] code in
+                self?.setDiscountCode(code.isEmpty ? nil : code)
             }
             .store(in: &bag)
 
@@ -121,34 +119,59 @@ class ShopViewModel: ViewModel, ObservableObject {
         
         self.currentVariantID = variant.id
         updatePrice()
-        createCheckout()
+        createCheckouts()
     }
     
-    private func createCheckout() {
-        let lineItems: [CheckoutLineItem] = [.checkoutInput(variantID: currentVariantID, quantity: 1)]
+    private func createCheckouts() {
+        // Create a checkout for each product so that we can switch between them immediately.
+        // The same logic is behind applying discount codes.
+        shopifyProductVariants.forEach {
+            createCheckout(variantID: $0.id)
+        }
+    }
+    
+    private func createCheckout(variantID: GraphQL.ID) {
+        let checkoutID = checkoutByVariantID[variantID]?.id
+        guard checkoutID == nil else {
+            return
+        }
         
-        var publisher = shopifyService
+        let lineItems: [CheckoutLineItem] = [.checkoutInput(variantID: variantID, quantity: 1)]
+        shopifyService
             .createCheckout(checkoutID: checkoutID, lineItems: lineItems)
-        
-//        if checkoutID == nil {
-//            if !discountCode.isEmpty {
-//                publisher = publisher
-//                    .flatMap { [unowned self] checkout in
-//                        self.shopifyService.applyDiscount(discountCode, checkoutID: checkout.id)
-//                    }
-//                    .eraseToAnyPublisher()
-//            }
-//        }
-        
-        publisher
-            .sink { completion in
+            .sink { _ in
                 
-            } receiveValue: { [unowned self] checkout in
-                print(checkout)
-                self.checkoutID = checkout.id
-                self.updateCheckoutFields(checkout)
+            } receiveValue: { [weak self] checkout in
+                self?.checkoutByVariantID[variantID] = checkout
             }
             .store(in: &bag)
+    }
+    
+    private func setDiscountCode(_ discountCode: String?) {
+        shopifyProductVariants.forEach {
+            setDiscountCode(discountCode, variantID: $0.id)
+        }
+    }
+    
+    private func setDiscountCode(_ discountCode: String?, variantID: GraphQL.ID) {
+        guard let checkoutID = checkoutByVariantID[variantID]?.id else {
+            return
+        }
+        
+        shopifyService.applyDiscount(discountCode, checkoutID: checkoutID)
+            .sink { _ in
+
+            } receiveValue: { [weak self] checkout in
+                if checkout.discount == nil {
+                    self?.discountCode = ""
+                }
+                self?.checkoutByVariantID[variantID] = checkout
+                if variantID == self?.currentVariantID {
+                    self?.updatePrice()
+                }
+            }
+            .store(in: &bag)
+
     }
     
     private func moneyFormatter(_ currencyCode: String) -> NumberFormatter {
@@ -165,9 +188,19 @@ class ShopViewModel: ViewModel, ObservableObject {
         }) else {
             return
         }
+
         
+        let totalAmount: Decimal
+        if let checkout = checkoutByVariantID[currentVariantID] {
+            totalAmount = checkout.total
+        } else{
+            totalAmount = currentVariant.amount
+        }
+
+
         let formatter = moneyFormatter(currentVariant.currencyCode)
-        self.totalAmount = formatter.string(from: NSDecimalNumber(decimal: currentVariant.amount)) ?? ""
+        
+        self.totalAmount = formatter.string(from: NSDecimalNumber(decimal: totalAmount)) ?? ""
         if let originalAmount = currentVariant.originalAmount {
             self.totalAmountWithoutDiscount = formatter.string(from: NSDecimalNumber(decimal: originalAmount))
         } else {
@@ -175,24 +208,11 @@ class ShopViewModel: ViewModel, ObservableObject {
         }
     }
     
-    private func updateCheckoutFields(_ checkout: Checkout) {
-//        let currentVariant = shopifyProductVariants.first {
-//            $0.id == currentVariantID
-//        }
-//
-//        let formatter = moneyFormatter(checkout.currencyCode)
-//
-//        self.totalAmount = formatter.string(from: NSDecimalNumber(decimal: checkout.total)) ?? ""
-//        if let currentVariant = currentVariant,
-//           let originalAmount = currentVariant.originalAmount {
-//            self.totalAmountWithoutDiscount = formatter.string(from: NSDecimalNumber(decimal: originalAmount))
-//        } else {
-//            self.totalAmountWithoutDiscount = nil
-//        }
-    }
-    
     func openApplePayCheckout() {
-        guard let checkoutID = checkoutID else { return }
+        guard let checkoutID = checkoutByVariantID[currentVariantID]?.id else {
+            return
+        }
+        
         shopifyService
             .startApplePaySession(checkoutID: checkoutID)
             .sink { completion in
@@ -205,7 +225,9 @@ class ShopViewModel: ViewModel, ObservableObject {
     }
     
     func openWebCheckout() {
-        guard let checkoutID = checkoutID else { return }
+        guard let checkoutID = checkoutByVariantID[currentVariantID]?.id else {
+            return
+        }
         
         // Checking order ID
         shopifyService.checkout(pollUntilOrder: false, checkoutID: checkoutID)
