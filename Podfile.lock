@@ -220,7 +220,7 @@ DEPENDENCIES:
   - KeychainSwift (~> 19.0)
   - Kingfisher (from `https://github.com/onevcat/Kingfisher.git`, branch `version6-xcode13`)
   - Moya
-  - ScaleCodec (~> 0.2)
+  - ScaleCodec
   - Sodium
   - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-1`)
   - Starscream (~> 4.0.4)
@@ -371,6 +371,6 @@ SPEC CHECKSUMS:
   web3swift: 93f68f5430c11a78bba2351c139d2d22f2c04b5e
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 2df540f144180b964215c6e79103537d71e9b23d
+PODFILE CHECKSUM: 8e782ff406c1485deaefd52268d20f3c7dd7b1ca
 
 COCOAPODS: 1.11.2
