@@ -140,6 +140,7 @@ struct ShopView: View {
         let secondCardOffset = 12.0
         let thirdCardOffset = 22.0
         
+        #warning("[REDACTED_TODO_COMMENT]")
         return Image("wallet_card")
             .background(
                 Color(hex: "#2E343BFF")
