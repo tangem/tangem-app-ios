@@ -56,20 +56,14 @@ public class WalletManagerFactory {
         try makeWalletManager(from: .bitcoin(testnet: isTestnet),
                               publicKey: .init(seedKey: walletPublicKey, derivedKey: nil, derivationPath: nil),
                               cardId: cardId,
-                              pairPublicKey: pairKey,
-                              tokens: [])
+                              pairPublicKey: pairKey)
     }
     
     func makeWalletManager(from blockchain: Blockchain,
                            publicKey: Wallet.PublicKey,
                            cardId: String,
-                           pairPublicKey: Data? = nil,
-                           tokens: [Token] = []) throws -> WalletManager {
-        if blockchain.curve == .ed25519, publicKey.seedKey.count > 32 || publicKey.blockchainKey.count > 32  {
-            throw "Wrong key"
-        }
-        
-        let addresses = blockchain.makeAddresses(from: publicKey.blockchainKey, with: pairPublicKey)
+                           pairPublicKey: Data? = nil) throws -> WalletManager {
+        let addresses = try blockchain.makeAddresses(from: publicKey.blockchainKey, with: pairPublicKey)
         let wallet = Wallet(blockchain: blockchain, addresses: addresses)
         
         switch blockchain {
@@ -104,40 +98,28 @@ public class WalletManagerFactory {
             }
             
         case .stellar(let testnet):
-            return StellarWalletManager(wallet: wallet, cardTokens: tokens).then {
+            return StellarWalletManager(wallet: wallet).then {
                 let url = testnet ? "https://horizon-testnet.stellar.org" : "https://horizon.stellar.org"
                 let stellarSdk = StellarSDK(withHorizonUrl: url)
                 $0.stellarSdk = stellarSdk
                 $0.networkService = StellarNetworkService(stellarSdk: stellarSdk)
             }
             
-        case .ethereum(let testnet):
-            return EthereumWalletManager(wallet: wallet, cardTokens: tokens).then {
-                let ethereumNetwork = testnet ? EthereumNetwork.testnet(projectId: config.infuraProjectId) : EthereumNetwork.mainnet(projectId: config.infuraProjectId)
-                let jsonRpcProviders = [
-                    EthereumJsonRpcProvider(network: ethereumNetwork),
-                    EthereumJsonRpcProvider(network: .tangem)
-                ]
-                let blockchair = BlockchairNetworkProvider(endpoint: .bitcoin, apiKey: config.blockchairApiKey)
-                $0.networkService = EthereumNetworkService(network: ethereumNetwork, providers: jsonRpcProviders, blockchairProvider: blockchair)
-            }
-            
-        case .rsk:
-            return EthereumWalletManager(wallet: wallet, cardTokens: tokens).then {
-                let blockchair = BlockchairNetworkProvider(endpoint: .bitcoin, apiKey: config.blockchairApiKey)
-                $0.networkService = EthereumNetworkService(network: .rsk, providers: [EthereumJsonRpcProvider(network: .rsk)], blockchairProvider: blockchair)
-            }
-            
-        case .bsc(let testnet):
+        case .ethereum:
             return EthereumWalletManager(wallet: wallet).then {
-                let network: EthereumNetwork = testnet ? .bscTestnet : .bscMainnet
-                $0.networkService = EthereumNetworkService(network: network, providers: [EthereumJsonRpcProvider(network: network)], blockchairProvider: nil)
+                let rpcUrls = blockchain.getJsonRpcURLs(infuraProjectId: config.infuraProjectId)!
+                let jsonRpcProviders = rpcUrls.map { EthereumJsonRpcProvider(url: $0) }
+                
+                let blockchair = BlockchairNetworkProvider(endpoint: .bitcoin, apiKey: config.blockchairApiKey)
+                $0.networkService = EthereumNetworkService(decimals: blockchain.decimalCount, providers: jsonRpcProviders, blockchairProvider: blockchair)
             }
             
-        case .polygon(let testnet):
+        case .rsk, .bsc, .polygon, .avalanche, .fantom:
             return EthereumWalletManager(wallet: wallet).then {
-                let network: EthereumNetwork = testnet ? .polygonTestnet : .polygon
-                $0.networkService = EthereumNetworkService(network: network, providers: [EthereumJsonRpcProvider(network: network)], blockchairProvider: nil)
+               let rpcUrls = blockchain.getJsonRpcURLs(infuraProjectId: config.infuraProjectId)!
+                let jsonRpcProviders = rpcUrls.map { EthereumJsonRpcProvider(url: $0) }
+                
+                $0.networkService = EthereumNetworkService(decimals: blockchain.decimalCount, providers: jsonRpcProviders, blockchairProvider: nil)
             }
             
         case .bitcoinCash:
@@ -147,7 +129,7 @@ public class WalletManagerFactory {
             }
             
         case .binance(let testnet):
-            return BinanceWalletManager(wallet: wallet, cardTokens: tokens).then {
+            return BinanceWalletManager(wallet: wallet).then {
                 $0.networkService = BinanceNetworkService(isTestNet: testnet)
             }
             
@@ -169,15 +151,8 @@ public class WalletManagerFactory {
                 $0.networkService = TezosNetworkService()
             }
             
-        case .avalanche(let testnet):
-            return EthereumWalletManager(wallet: wallet).then {
-                let network: EthereumNetwork = testnet ? .avalancheTestnet : .avalanche
-                $0.networkService = EthereumNetworkService(network: network,
-                                                           providers: [EthereumJsonRpcProvider(network: network)],
-                                                           blockchairProvider: nil)
-            }
         case .solana, .polkadot, .kusama:
-            fatalError()
+            fatalError("Not implemented")
         }
     }
 }
