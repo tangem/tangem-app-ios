@@ -142,7 +142,7 @@ class MainViewModel: ViewModel, ObservableObject {
         if let wallet = wallets?.first {
             let blockchain = wallet.blockchain
             if blockchain.isTestnet {
-                return URL(string: blockchain.testnetBuyCryptoLink ?? "")
+                return blockchain.testnetFaucetURL
             }
             
             return exchangeService.getBuyUrl(currencySymbol: wallet.blockchain.currencySymbol,
