@@ -31,6 +31,8 @@ enum SupportedBlockchains {
                 .stellar(testnet: testnet),
                 .cardano(shelley: true),
                 .solana(testnet: testnet),
+                .polkadot(testnet: testnet),
+                .kusama,
             ]
         default:
             return []
