@@ -21,7 +21,6 @@ struct ShopView: View {
     
     var body: some View {
         GeometryReader { geometry in
-            
             ScrollView {
                 VStack {
                     SheetDragHandler()
@@ -90,25 +89,37 @@ struct ShopView: View {
                     
                     if viewModel.canUseApplePay {
                         ApplePayButton {
-                            viewModel.showingApplePay = true
+                            viewModel.openApplePayCheckout()
                         }
                         .frame(height: 46)
                         .cornerRadius(applePayCornerRadius)
                         
                         Button {
-                            viewModel.showingWebCheckout = true
+                            viewModel.openWebCheckout()
                         } label: {
                             Text("Other payment methods")
                         }
                         .buttonStyle(TangemButtonStyle(colorStyle: .transparentWhite, layout: .flexibleWidth))
                     } else {
                         Button {
-                            viewModel.showingWebCheckout = true
+                            viewModel.openWebCheckout()
                         } label: {
                             Text("Buy now")
                         }
                         .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
                     }
+                    
+                    NavigationLink(isActive: $viewModel.showingWebCheckout) {
+                        if let webCheckoutUrl = viewModel.webCheckoutUrl {
+                            WebViewContainer(url: webCheckoutUrl, title: "SHOP")
+                                .edgesIgnoringSafeArea(.all)
+                        } else {
+                            EmptyView()
+                        }
+                    } label: {
+                        EmptyView()
+                    }
+                    .hidden()
                 }
                 .padding(.horizontal)
                 .frame(minWidth: geometry.size.width,
@@ -121,6 +132,7 @@ struct ShopView: View {
         .onAppear {
             viewModel.didAppear()
         }
+        .navigationBarHidden(true)
     }
 }
 
