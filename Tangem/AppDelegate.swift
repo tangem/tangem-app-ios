@@ -8,6 +8,7 @@
 
 import UIKit
 import Firebase
+import AppsFlyerLib
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -37,7 +38,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         UISwitch.appearance().onTintColor = .tangemBlue
         UITableView.appearance().backgroundColor = .clear
-
+        UIScrollView.appearance().keyboardDismissMode = .onDrag
         if #available(iOS 15.0, *) {
             let appearance = UINavigationBarAppearance()
             appearance.backgroundColor = UIColor.tangemBgGray.withAlphaComponent(0.85)
@@ -57,8 +58,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             UITableView.appearance().tableFooterView = UIView()
         }
         
+        AppsFlyerLib.shared().appsFlyerDevKey = try! KeysManager().appsFlyerDevKey
+        AppsFlyerLib.shared().appleAppID = "1354868448"
+        NotificationCenter.default.addObserver(self, selector: NSSelectorFromString("sendLaunch"),
+                                               name: UIApplication.didBecomeActiveNotification, object: nil)
+
         #if RELEASE
         FirebaseApp.configure()
+        #else
+        AppsFlyerLib.shared().isDebug = true
         #endif
         
         let userPrefs = UserPrefsService()
@@ -66,6 +74,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         print("Launch number:", userPrefs.numberOfLaunches)
         
         return true
+    }
+    
+    // SceneDelegate support - start AppsFlyer SDK
+    @objc func sendLaunch() {
+        AppsFlyerLib.shared().start()
     }
     
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
@@ -96,4 +109,3 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
 }
-
