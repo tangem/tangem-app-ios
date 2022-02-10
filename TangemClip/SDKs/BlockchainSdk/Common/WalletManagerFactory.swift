@@ -20,18 +20,18 @@ public class WalletManagerFactory {
     /// - Parameters:
     ///   - cardId: Card's cardId
     ///   - blockchain: blockhain to create. If nil, card native blockchain will be used
-    ///   - seedKey: ExtendedPublicKey of the wallet
+    ///   - seedKey: Public key  of the wallet
     ///   - derivedKey: Derived ExtendedPublicKey by the card
+    ///   - derivationPath: DerivationPath for derivedKey
     /// - Returns: WalletManager?
-    public func makeWalletManager(cardId: String, blockchain: Blockchain, seedKey: ExtendedPublicKey, derivedKey: ExtendedPublicKey) throws -> WalletManager {
-        guard blockchain.derivationPath == derivedKey.derivationPath else {
-            throw "Wrong path"
-        }
-        
+    public func makeWalletManager(cardId: String,
+                                  blockchain: Blockchain,
+                                  seedKey: Data,
+                                  derivedKey: ExtendedPublicKey) throws -> WalletManager {
         return try makeWalletManager(from: blockchain,
-                                     publicKey: .init(seedKey: seedKey.compressedPublicKey,
-                                                      derivedKey: derivedKey.compressedPublicKey,
-                                                      derivationPath: derivedKey.derivationPath),
+                                     publicKey: .init(seedKey: seedKey,
+                                                      derivedKey: derivedKey.publicKey,
+                                                      derivationPath: blockchain.derivationPath),
                                      cardId: cardId)
     }
     
@@ -54,10 +54,10 @@ public class WalletManagerFactory {
     ///   - walletPublicKey: Wallet's publicKey
     public func makeTwinWalletManager(from cardId: String, walletPublicKey: Data, pairKey: Data, isTestnet: Bool) throws -> WalletManager {
         try makeWalletManager(from: .bitcoin(testnet: isTestnet),
-                          publicKey: .init(seedKey: walletPublicKey, derivedKey: nil, derivationPath: nil),
-                          cardId: cardId,
-                          pairPublicKey: pairKey,
-                          tokens: [])
+                              publicKey: .init(seedKey: walletPublicKey, derivedKey: nil, derivationPath: nil),
+                              cardId: cardId,
+                              pairPublicKey: pairKey,
+                              tokens: [])
     }
     
     func makeWalletManager(from blockchain: Blockchain,
@@ -168,6 +168,16 @@ public class WalletManagerFactory {
             return TezosWalletManager(wallet: wallet).then {
                 $0.networkService = TezosNetworkService()
             }
+            
+        case .avalanche(let testnet):
+            return EthereumWalletManager(wallet: wallet).then {
+                let network: EthereumNetwork = testnet ? .avalancheTestnet : .avalanche
+                $0.networkService = EthereumNetworkService(network: network,
+                                                           providers: [EthereumJsonRpcProvider(network: network)],
+                                                           blockchairProvider: nil)
+            }
+        case .solana:
+            fatalError()
         }
     }
 }
