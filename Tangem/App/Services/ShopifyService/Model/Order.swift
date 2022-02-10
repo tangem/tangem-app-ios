@@ -37,34 +37,22 @@ struct Order {
     }
 }
 
-#warning("TODO")
 extension Storefront.OrderQuery {
     @discardableResult
     func orderFieldsFragment() -> Storefront.OrderQuery {
         self
-        // TODO
             .cancelReason()
             .canceledAt()
             .currencyCode()
-//            .currentSubtotalPrice()
-//            .currentTotalDuties()
-//            .currentTotalPrice()
-//            .currentTotalTax()
             .customerLocale()
             .customerUrl()
-//            .discountApplications()
             .edited()
             .email()
             .financialStatus()
             .fulfillmentStatus()
             .id()
-//            .lineItems()
-//            .metafield()
-//            .metafields()
             .name()
             .orderNumber()
-//            .originalTotalDuties()
-//            .originalTotalPrice()
             .phone()
             .processedAt()
             .shippingAddress { $0
@@ -87,13 +75,6 @@ extension Storefront.OrderQuery {
                 .provinceCode()
                 .zip()
             }
-//            .shippingDiscountAllocations()
             .statusUrl()
-//            .subtotalPriceV2()
-//            .successfulFulfillments()
-//            .totalPriceV2()
-//            .totalRefundedV2()
-//            .totalShippingPriceV2()
-//            .totalTaxV2()
     }
 }
