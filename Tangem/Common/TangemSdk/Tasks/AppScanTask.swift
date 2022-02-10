@@ -18,7 +18,7 @@ struct AppScanTaskResponse {
     let twinIssuerData: Data?
     let isTangemNote: Bool //todo refactor
     let isTangemWallet: Bool
-    let derivedKeys: [Data: [ExtendedPublicKey]]
+    let derivedKeys: [Data: [DerivationPath:ExtendedPublicKey]]
     let primaryCard: PrimaryCard?
     
     func getCardInfo() -> CardInfo {
@@ -45,7 +45,7 @@ struct AppScanTaskResponse {
         if let walletPubKey = card.wallets.first?.publicKey, let fullData = twinIssuerData, fullData.count == 129 {
             let pairPubKey = fullData[0..<65]
             let signature = fullData[65..<fullData.count]
-            if let _ = try? Secp256k1Utils.verify(publicKey: walletPubKey, message: pairPubKey, signature: signature) {
+            if (try? Secp256k1Signature(with: signature).verify(with: walletPubKey, message: pairPubKey)) ?? false {
                 pairPublicKey = pairPubKey
             }
         }
@@ -64,15 +64,15 @@ final class AppScanTask: CardSessionRunnable {
     private var twinIssuerData: Data? = nil
     private var noteWalletData: WalletData? = nil
     private var primaryCard: PrimaryCard? = nil
-    private var derivedKeys: [Data: [ExtendedPublicKey]] = [:]
+    private var derivedKeys: [Data: [DerivationPath:ExtendedPublicKey]] = [:]
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
-    private var shouldDeriveWC: Bool = false
+    private var mandatoryBlockchain: Blockchain? //for wc
     
-    init(tokenItemsRepository: TokenItemsRepository?, userPrefsService: UserPrefsService?, targetBatch: String? = nil, shouldDeriveWC: Bool ) {
+    init(tokenItemsRepository: TokenItemsRepository?, userPrefsService: UserPrefsService?, targetBatch: String? = nil, mandatoryBlockchain: Blockchain? = nil) {
         self.tokenItemsRepository = tokenItemsRepository
         self.targetBatch = targetBatch
         self.userPrefsService = userPrefsService
-        self.shouldDeriveWC = shouldDeriveWC
+        self.mandatoryBlockchain = mandatoryBlockchain
     }
     
     deinit {
@@ -235,34 +235,19 @@ final class AppScanTask: CardSessionRunnable {
     }
     
     private func deriveKeysIfNeeded(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        guard let tokenItemsRepository = self.tokenItemsRepository else {
+        guard let tokenItemsRepository = self.tokenItemsRepository,
+        session.environment.card?.settings.isHDWalletAllowed == true else {
             self.runAttestation(session, completion)
             return
         }
         
-        var blockchains = Set(tokenItemsRepository.getItems(for: session.environment.card!.cardId).map { $0.blockchain })
-        if shouldDeriveWC {
-            let wcBlockchains: Set<Blockchain> = [.ethereum(testnet: false),
-                                                  .binance(testnet: false),
-                                                  .ethereum(testnet: true),
-                                                  .rsk,
-                                                  .bsc(testnet: false),
-                                                  .polygon(testnet: false)]
-            for wcBlockchain in wcBlockchains {
-                blockchains.insert(wcBlockchain)
-            }
-        }
-        
-        var derivations: [Data: Set<DerivationPath>] = [:]
-        
-        for blockchain in blockchains {
+        var savedBlockchains = tokenItemsRepository.getItems(for: session.environment.card!.cardId).map { $0.blockchain }
+        mandatoryBlockchain.map { savedBlockchains.append($0) }
+        let uniqueBlockchains = Set(savedBlockchains)
+        let derivations: [Data: [DerivationPath]] = uniqueBlockchains.reduce(into: [:]) { partialResult, blockchain in
             if let wallet = session.environment.card?.wallets.first(where: { $0.curve == blockchain.curve }),
-               wallet.chainCode != nil,
                let path = blockchain.derivationPath {
-                if derivations[wallet.publicKey] == nil {
-                    derivations[wallet.publicKey] = .init()
-                }
-                derivations[wallet.publicKey]?.insert(path)
+                partialResult[wallet.publicKey, default: []].append(path)
             }
         }
         
@@ -271,7 +256,7 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
         
-        DerivationTask(derivations).run(in: session) { result in
+        DeriveMultipleWalletPublicKeysTask(derivations).run(in: session) { result in
             switch result {
             case .success(let derivedKeys):
                 self.derivedKeys = derivedKeys
