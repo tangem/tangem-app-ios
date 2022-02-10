@@ -71,9 +71,7 @@
 // MARK: - AppClips
 
 "main_title" = "Tangem Clip";
-"main_hint" = "Tap \"Read wallets\" button to load wallet information from card";
 "main_button_read_wallets" = "Read wallets";
-"main_button_get_full_app" = "Get full app";
 
 // Errors
 "main_error_empty_card_title" = "Empty card";
@@ -83,7 +81,6 @@
 "main_error_unsupported_card_title" = "Unsupported card";
 "main_error_unsupported_card_subtitle" = "Can't read card wallet information.\nPlease, use full app to load info from blockchain";
 
-"wallet_error_no_account_subtitle_format" = "Load %@+ %@ to create account";
 "wallet_balance_loading" = "Balance is loading…";
 "wallet_balance_blockchain_unreachable" = "Blockchain is unreachable";
 
@@ -92,7 +89,5 @@
 
 "wallet_balance_tx_in_progress" = "Transaction is in progress...";
 "wallet_error_no_account" = "Account is not created";
-
-"error_old_app_need_update" = "Oops, the current version of the application is not ready to work with this card, please check for updates.";
 
 "main_warning" = "To read wallets open the main app";
