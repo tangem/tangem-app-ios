@@ -46,7 +46,7 @@ struct ShopView: View {
                     
                     VStack(spacing: 0) {
                         HStack {
-                            Image(systemName: "square")
+                            Image("box")
                             Text("Delivery (Free shipping)")
                             Spacer()
                         }
@@ -56,7 +56,7 @@ struct ShopView: View {
                         Separator(height: 0.5)
                         
                         HStack {
-                            Image(systemName: "square")
+                            Image("ticket")
                             TextField("I have a promo code...", text: $viewModel.discountCode)
                             ActivityIndicatorView(isAnimating: viewModel.checkingDiscountCode, color: .tangemGrayDark)
                         }
