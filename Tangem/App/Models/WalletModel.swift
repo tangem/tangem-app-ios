@@ -208,25 +208,25 @@ class WalletModel: ObservableObject, Identifiable {
         }
     }
     
-    func getFiatFormatted(for amount: Amount?) -> String? {
-        return getFiat(for: amount)?.currencyFormatted(code: ratesService.selectedCurrencyCode)
+    func getFiatFormatted(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> String? {
+        return getFiat(for: amount, roundingMode: roundingMode)?.currencyFormatted(code: ratesService.selectedCurrencyCode)
     }
     
-    func getFiat(for amount: Amount?) -> Decimal? {
+    func getFiat(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> Decimal? {
         if let amount = amount {
-            return getFiat(for: amount.value, currencySymbol: amount.currencySymbol)
+            return getFiat(for: amount.value, currencySymbol: amount.currencySymbol, roundingMode: roundingMode)
         }
         return nil
     }
     
-    func getFiat(for value: Decimal, currencySymbol: String) -> Decimal? {
+    func getFiat(for value: Decimal, currencySymbol: String, roundingMode: NSDecimalNumber.RoundingMode = .down) -> Decimal? {
         if let quotes = rates[currencySymbol],
            let rate = quotes[ratesService.selectedCurrencyCode] {
             let fiatValue = value * rate
             if fiatValue == 0 {
                 return 0
             }
-            return max(fiatValue, 0.01).rounded(scale: 2)
+            return max(fiatValue, 0.01).rounded(scale: 2, roundingMode: roundingMode)
         }
         return nil
     }
