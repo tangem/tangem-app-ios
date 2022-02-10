@@ -103,6 +103,7 @@ class WalletModel: ObservableObject, Identifiable {
     
     let walletManager: WalletManager
     private let defaultToken: Token?
+    private let defaultBlockchain: Blockchain?
     private var bag = Set<AnyCancellable>()
     private var updateTimer: AnyCancellable? = nil
     
@@ -110,8 +111,9 @@ class WalletModel: ObservableObject, Identifiable {
         print("🗑 WalletModel deinit")
     }
     
-    init(walletManager: WalletManager, defaultToken: Token?) {
+    init(walletManager: WalletManager, defaultToken: Token?, defaultBlockchain: Blockchain?) {
         self.defaultToken = defaultToken
+        self.defaultBlockchain = defaultBlockchain
         self.walletManager = walletManager
         
         updateBalanceViewModel(with: walletManager.wallet, state: .idle)
@@ -217,25 +219,24 @@ class WalletModel: ObservableObject, Identifiable {
         return nil
     }
     
-    func getCrypto(for amount: Amount?) -> Decimal? {
-        if let amount = amount {
-            return getCrypto(for: amount.value, currencySymbol: amount.currencySymbol)
-        }
-        return nil
-    }
-    
     func getFiat(for value: Decimal, currencySymbol: String) -> Decimal? {
         if let quotes = rates[currencySymbol],
            let rate = quotes[ratesService.selectedCurrencyCode] {
-            return (value * rate).rounded(scale: 2)
+            let fiatValue = value * rate
+            if fiatValue == 0 {
+                return 0
+            }
+            return max(fiatValue, 0.01).rounded(scale: 2)
         }
         return nil
     }
     
-    func getCrypto(for value: Decimal, currencySymbol: String) -> Decimal? {
-        if let quotes = rates[currencySymbol],
+    func getCrypto(for amount: Amount?) -> Decimal? {
+        guard let amount = amount else { return nil }
+        
+        if let quotes = rates[amount.currencySymbol],
            let rate = quotes[ratesService.selectedCurrencyCode] {
-            return (value / rate).rounded(blockchain: walletManager.wallet.blockchain)
+            return (amount.value / rate).rounded(scale: amount.decimals)
         }
         return nil
     }
@@ -262,6 +263,10 @@ class WalletModel: ObservableObject, Identifiable {
             return false
         }
         
+        if amountType == .coin, wallet.blockchain == defaultBlockchain {
+            return false
+        }
+        
         if let amount = wallet.amounts[amountType], !amount.isEmpty {
             return false
         }
@@ -278,14 +283,15 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     
-    func removeToken(_ token: Token, for cardId: String) {
+    func removeToken(_ token: Token, for cardId: String) -> Bool {
         guard canRemove(amountType: .token(value: token)) else {
-            return
+            return false
         }
         
         tokenItemsRepository.remove(.token(token), for: cardId)
         walletManager.removeToken(token)
         tokenViewModels.removeAll(where: { $0.token == token })
+        return true
     }
     
     func getBalance(for type: Amount.AmountType) -> String {
