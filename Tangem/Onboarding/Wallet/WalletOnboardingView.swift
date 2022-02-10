@@ -71,7 +71,10 @@ struct WalletOnboardingView: View {
                                         }
                                       },
                                       rightItems: {
-                                        Button(action: { navigation.onboardingWalletToShop = true }) {
+                                        Button(action: {
+                                            navigation.onboardingWalletToShop = true
+                                            Analytics.log(.getACard, params: [.source: .walletOnboarding])
+                                        }) {
                                             Text("home_button_shop")
                                                 .foregroundColor(.tangemGreen)
                                                 .padding(.horizontal, 16)
