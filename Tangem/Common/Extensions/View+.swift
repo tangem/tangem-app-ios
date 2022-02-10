@@ -10,8 +10,7 @@ import Foundation
 import SwiftUI
 
 extension View {
-    @ViewBuilder
-    func ignoresKeyboard() -> some View {
+    @ViewBuilder func ignoresKeyboard() -> some View {
         if #available(iOS 14.0, *) {
             self.ignoresSafeArea(.keyboard)
         } else {
@@ -24,4 +23,12 @@ extension View {
 	func toAnyView() -> AnyView {
 		AnyView(self)
 	}
+    
+    @ViewBuilder func tintCompat(_ color: Color) -> some View {
+        if #available(iOS 15.0, *) {
+            self.tint(color)
+        } else {
+            self
+        }
+    }
 }
