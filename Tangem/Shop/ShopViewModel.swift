@@ -88,7 +88,7 @@ class ShopViewModel: ViewModel, ObservableObject {
         shopifyService
             .products(collectionTitleFilter: nil)
             .sink { completion in
-                print(completion)
+                
             } receiveValue: { [unowned self] collections in
                 let allProducts: [Product] = collections.reduce([]) { partialResult, collection in
                     return partialResult + collection.products
