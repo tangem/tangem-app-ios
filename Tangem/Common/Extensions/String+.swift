@@ -13,6 +13,10 @@ extension String {
         return NSLocalizedString(self, comment: "")
     }
     
+    internal func localized(_ arguments: CVarArg) -> String {
+        return String(format: localized, arguments)
+    }
+    
     func removeLatestSlash() -> String {
         if self.last == "/" {
             return String(self.dropLast())
