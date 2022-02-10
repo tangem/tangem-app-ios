@@ -143,16 +143,15 @@ struct ShopView: View {
         let secondCardOffset = 12.0
         let thirdCardOffset = 22.0
         
-        #warning("[REDACTED_TODO_COMMENT]")
         return Image("wallet_card")
             .background(
-                Color(hex: "#2E343BFF")
+                Color.underlyingCardBackground1
                     .cornerRadius(12)
                     .padding(.horizontal, 16)
                     .offset(x: 0, y: secondCardOffset)
             )
             .background(
-                Color(hex: "#595D61FF")
+                Color.underlyingCardBackground2
                     .cornerRadius(12)
                     .padding(.horizontal, 36)
                     .offset(x: 0, y: viewModel.showingThirdCard ? thirdCardOffset : secondCardOffset)
