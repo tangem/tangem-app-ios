@@ -154,6 +154,7 @@ struct ShopView: View {
                     .padding(.horizontal, 36)
                     .offset(x: 0, y: viewModel.showingThirdCard ? thirdCardOffset : secondCardOffset)
             )
+            .padding(.bottom, thirdCardOffset)
     }
 }
 
