@@ -13,6 +13,7 @@ struct AddressDetailView: View {
     @Binding var showCreatePayID: Bool
     @Binding var showQr: Bool
     @Binding var selectedAddressIndex: Int
+    @Binding var showExplorerURL: URL?
     var walletModel: WalletModel
     var payID: PayIdStatus
     
@@ -72,7 +73,7 @@ struct AddressDetailView: View {
                         .foregroundColor(Color.tangemGrayDark)
                     Button(action: {
                         if let url = walletModel.exploreURL(for: selectedAddressIndex) {
-                            UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                            self.showExplorerURL = url
                         }
                     }) {
                         HStack {
@@ -160,16 +161,14 @@ struct AddressDetailView: View {
 struct AddressDetailView_Previews: PreviewProvider {
     static let assembly: Assembly = .previewAssembly(for: .v4)
     @State static var cardViewModel = assembly.previewCardViewModel
-    @State static var showPayID = false
-    @State static var showQR = false
-    @State static var addressIndex = 0
     
     static var previews: some View {
         ZStack {
             Color.tangemBgGray
-            AddressDetailView(showCreatePayID: $showPayID,
-                              showQr: $showQR,
-                              selectedAddressIndex: $addressIndex,
+            AddressDetailView(showCreatePayID: .constant(false),
+                              showQr: .constant(false),
+                              selectedAddressIndex: .constant(0),
+                              showExplorerURL: .constant(nil),
                               walletModel: cardViewModel.walletModels!.first!,
                               payID: .notCreated)
         }
