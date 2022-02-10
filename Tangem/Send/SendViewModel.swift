@@ -244,14 +244,14 @@ class SendViewModel: ViewModel, ObservableObject {
                     let totalAmount = tx.amount + tx.fee
                     var totalFiatAmount: Decimal? = nil
                     
-                    if let famount = self.walletModel.getFiat(for: tx.amount), let ffee = self.walletModel.getFiat(for: tx.fee) {
+                    if let famount = self.walletModel.getFiat(for: tx.amount, roundingMode: .plain), let ffee = self.walletModel.getFiat(for: tx.fee, roundingMode: .plain) {
                         totalFiatAmount = famount + ffee
                     }
                     
                     let totalFiatAmountFormatted = totalFiatAmount?.currencyFormatted(code: self.ratesService.selectedCurrencyCode)
                     
                     if isFiatCalculation {
-                        self.sendAmount = self.walletModel.getFiatFormatted(for: tx.amount) ?? ""
+                        self.sendAmount = self.walletModel.getFiatFormatted(for: tx.amount,  roundingMode: .plain) ?? ""
                         self.sendTotal = totalFiatAmountFormatted ?? " "
                         self.sendTotalSubtitle = tx.amount.type == tx.fee.type ?
                             String(format: "send_total_subtitle_format".localized, totalAmount.description) :
@@ -263,7 +263,7 @@ class SendViewModel: ViewModel, ObservableObject {
                         self.sendTotal =  (tx.amount + tx.fee).description
                         self.sendTotalSubtitle = totalFiatAmountFormatted == nil ? " " :  String(format: "send_total_subtitle_fiat_format".localized,
                                                                                                  totalFiatAmountFormatted!,
-                                                                                                 self.walletModel.getFiatFormatted(for: tx.fee)!)
+                                                                                                 self.walletModel.getFiatFormatted(for: tx.fee,  roundingMode: .plain)!)
                     }
                 } else {
                     self.fillTotalBlockWithDefaults()
