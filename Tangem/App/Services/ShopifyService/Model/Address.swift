@@ -101,7 +101,6 @@ extension Address {
     }
 }
 
-#warning("TODO")
 extension Storefront.MailingAddressQuery {
     @discardableResult
     func addressFieldsFragment() -> Storefront.MailingAddressQuery {
@@ -109,20 +108,11 @@ extension Storefront.MailingAddressQuery {
             .address1()
             .address2()
             .city()
-//            .company()
             .country()
-//            .countryCodeV2()
             .firstName()
-//            .formatted()
-//            .formattedArea()
-//            .id()
             .lastName()
-//            .latitude()
-//            .longitude()
-//            .name()
             .phone()
             .province()
-//            .provinceCode()
             .zip()
     }
 }
