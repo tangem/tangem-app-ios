@@ -112,7 +112,7 @@ struct ShopView: View {
                     
                     NavigationLink(isActive: $viewModel.showingWebCheckout) {
                         if let webCheckoutUrl = viewModel.webCheckoutUrl {
-                            WebViewContainer(url: webCheckoutUrl, title: "SHOP")
+                            WebViewContainer(url: webCheckoutUrl, title: "")
                                 .edgesIgnoringSafeArea(.all)
                         } else {
                             EmptyView()
