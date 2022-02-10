@@ -14,7 +14,7 @@ import WebKit
 
 struct WebViewContainer: View {
     var url: URL?
-//    var closeUrl: String? = nil
+    //    var closeUrl: String? = nil
     var title: LocalizedStringKey
     var addLoadingIndicator = false
     var withCloseButton = false
@@ -22,35 +22,42 @@ struct WebViewContainer: View {
     @State private var isLoading: Bool = true
     
     var urlActions: [String : ((String) -> Void)] = [:]
-//    {
-//        if let closeUrl = closeUrl {
-//            return [closeUrl: {
-//                self.presentationMode.wrappedValue.dismiss()
-//            }]
-//        } else {
-//            return [:]
-//        }
-//    }
+    //    {
+    //        if let closeUrl = closeUrl {
+    //            return [closeUrl: {
+    //                self.presentationMode.wrappedValue.dismiss()
+    //            }]
+    //        } else {
+    //            return [:]
+    //        }
+    //    }
+    
+    private var content: some View {
+        ZStack {
+            WebView(url: url, urlActions: urlActions, isLoading: $isLoading)
+                .navigationBarTitle(title, displayMode: .inline)
+                .background(Color.tangemBg.edgesIgnoringSafeArea(.all))
+            if isLoading && addLoadingIndicator {
+                ActivityIndicatorView(color: .tangemGrayDark)
+            }
+        }
+    }
     
     var body: some View {
         VStack {
             if withCloseButton {
-                HStack {
-                    Button("common_close") {
-                        presentationMode.wrappedValue.dismiss()
-                    }
-                    Spacer()
+                NavigationView {
+                    content
+                        .navigationBarItems(leading:
+                            Button("common_close") {
+                                presentationMode.wrappedValue.dismiss()
+                            }
+                        )
                 }
-                .padding([.horizontal, .top])
+            } else {
+                content
             }
-            ZStack {
-                WebView(url: url, urlActions: urlActions, isLoading: $isLoading)
-                    .navigationBarTitle(title, displayMode: .inline)
-                    .background(Color.tangemBg.edgesIgnoringSafeArea(.all))
-                if isLoading && addLoadingIndicator {
-                    ActivityIndicatorView(color: .tangemGrayDark)
-                }
-            }
+            
         }
     }
 }
@@ -92,11 +99,11 @@ struct WebView: UIViewRepresentable {
             
             decisionHandler(.allow)
         }
-
+        
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
             isLoading.wrappedValue = false
         }
-
+        
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
             isLoading.wrappedValue = false
         }
