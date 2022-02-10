@@ -1,0 +1,21 @@
+//
+//  ShopContainerView.swift
+//  Tangem
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2022 Tangem AG. All rights reserved.
+//
+
+import SwiftUI
+
+struct ShopContainerView: View {
+    @ObservedObject var viewModel: ShopViewModel
+    
+    var body: some View {
+        if let order = viewModel.order {
+            ShopOrderView(order: order)
+        } else {
+            ShopView(viewModel: viewModel)
+        }
+    }
+}
