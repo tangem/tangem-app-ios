@@ -73,6 +73,16 @@ class ShopViewModel: ViewModel, ObservableObject {
             }
             .store(in: &bag)
 
+        $showingWebCheckout
+            .dropFirst()
+            .removeDuplicates()
+            .sink { [unowned self] showingWebCheckout in
+                if !showingWebCheckout {
+                    self.didCloseWebCheckout()
+                }
+            }
+            .store(in: &bag)
+        
         fetchProduct()
     }
     
@@ -122,6 +132,20 @@ class ShopViewModel: ViewModel, ObservableObject {
         self.currentVariantID = variant.id
         updatePrice()
         createCheckouts()
+    }
+    
+    private func didCloseWebCheckout() {
+        shopifyService.cancelTasks()
+        if order == nil {
+            /*
+                HACK:
+                After web checkout was displayed it becomes impossible
+                to validate a partial address on the Shopify side.
+                Thus Apple Pay becomes unusable. Re-create the checkout as a workaround.
+            */
+            checkoutByVariantID = [:]
+            createCheckouts()
+        }
     }
     
     private func createCheckouts() {
