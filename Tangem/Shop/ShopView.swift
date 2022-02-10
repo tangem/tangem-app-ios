@@ -40,14 +40,6 @@ struct ShopView: View {
                     }
                     .pickerStyle(.segmented)
                     .frame(minWidth: 0, maxWidth: 250)
-                    .onAppear {
-                        UISegmentedControl.appearance().selectedSegmentTintColor = .black
-                        UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor.white], for: .selected)
-                    }
-                    .onDisappear {
-                        UISegmentedControl.appearance().selectedSegmentTintColor = nil
-                        UISegmentedControl.appearance().setTitleTextAttributes(nil, for: .selected)
-                    }
                     
                     Spacer()
                         .frame(maxHeight: .infinity)
@@ -140,6 +132,9 @@ struct ShopView: View {
         .background(Color(UIColor.tangemBgGray).edgesIgnoringSafeArea(.all))
         .onAppear {
             viewModel.didAppear()
+
+            UISegmentedControl.appearance().selectedSegmentTintColor = .black
+            UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor.white], for: .selected)
         }
         .navigationBarHidden(true)
     }
