@@ -235,6 +235,7 @@ struct MainView: View {
                                                     AddressDetailView(showCreatePayID: $navigation.mainToCreatePayID,
                                                                       showQr: $navigation.mainToQR,
                                                                       selectedAddressIndex: $viewModel.selectedAddressIndex,
+                                                                      showExplorerURL: $viewModel.showExplorerURL,
                                                                       walletModel: walletModel,
                                                                       payID: viewModel.cardModel!.payId)
                                                 }
@@ -270,6 +271,13 @@ struct MainView: View {
                         dataCollector = viewModel.failedCardScanTracker
                     }
                     return MailView(dataCollector: dataCollector, support: .tangem, emailType: emailCase.emailType)
+                }
+            
+            Color.clear
+                .frame(width: 0.5, height: 0.5)
+                .sheet(item: $viewModel.showExplorerURL) { url -> WebViewContainer in
+                    let blockchainName = viewModel.wallets?.first?.blockchain.displayName ?? ""
+                    return WebViewContainer(url: url, title: "common_explorer_format \(blockchainName)", withCloseButton: true)
                 }
             
             BottomSheetView(isPresented: navigation.$mainToQR,
