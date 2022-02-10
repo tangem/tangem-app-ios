@@ -74,6 +74,15 @@ enum WalletConnectNetwork {
             return .binance(testnet: testnet)
         }
     }
+    
+    var chainId: Int? {
+        switch self {
+        case .eth(let chainId):
+            return chainId
+        case .bnb:
+            return nil
+        }
+    }
 }
 
 class WalletConnectService: ObservableObject {
@@ -91,6 +100,7 @@ class WalletConnectService: ObservableObject {
     private var bag: Set<AnyCancellable> = []
     private var isWaitingToConnect: Bool = false
     private var timer: DispatchWorkItem?
+    private let updateQueue = DispatchQueue(label: "ws_sessions_update_queue")
     
     init(assembly: Assembly, cardScanner: WalletConnectCardScanner, signer: TangemSigner, scannedCardsRepository: ScannedCardsRepository) {
         self.cardScanner = cardScanner
@@ -113,15 +123,20 @@ class WalletConnectService: ObservableObject {
     }
     
     func restore() {
-        let decoder = JSONDecoder()
-        if let oldSessionsObject = UserDefaults.standard.object(forKey: sessionsKey) as? Data {
-            sessions = (try? decoder.decode([WalletConnectSession].self, from: oldSessionsObject)) ?? []
-            sessions.forEach {
-                do {
-                    try server.reconnect(to: $0.session)
-                } catch {
-                    handle(WalletConnectServiceError.other(error))
+        updateQueue.sync {
+            let decoder = JSONDecoder()
+            if let oldSessionsObject = UserDefaults.standard.object(forKey: self.sessionsKey) as? Data {
+                DispatchQueue.main.async {
+                    self.sessions = (try? decoder.decode([WalletConnectSession].self, from: oldSessionsObject)) ?? []
+                    self.sessions.forEach {
+                        do {
+                            try self.server.reconnect(to: $0.session)
+                        } catch {
+                            self.handle(WalletConnectServiceError.other(error))
+                        }
+                    }
                 }
+                
             }
         }
     }
@@ -139,9 +154,11 @@ class WalletConnectService: ObservableObject {
     }
     
     private func save() {
-        let encoder = JSONEncoder()
-        if let sessionsData = try? encoder.encode(sessions) {
-            UserDefaults.standard.set(sessionsData, forKey: sessionsKey)
+        updateQueue.sync {
+            let encoder = JSONEncoder()
+            if let sessionsData = try? encoder.encode(self.sessions) {
+                UserDefaults.standard.set(sessionsData, forKey: self.sessionsKey)
+            }
         }
     }
     
@@ -340,6 +357,10 @@ extension WalletConnectService: ServerDelegate {
             save()
         }
     }
+    
+    func server(_ server: Server, didUpdate session: Session) {
+        //todo: handle?
+    }
 }
 
 extension WalletConnectService: URLHandler {
@@ -398,7 +419,7 @@ enum WalletConnectServiceError: LocalizedError {
     case cardNotFound
     case sessionNotFound
     case txNotFound
-    case failedToBuildTx
+    case failedToBuildTx(code: TxErrorCodes)
     case other(Error)
     case noChainId
     case unsupportedNetwork
@@ -417,7 +438,7 @@ enum WalletConnectServiceError: LocalizedError {
         case .cardNotFound: return "wallet_connect_card_not_found".localized
         case .txNotFound: return "wallet_connect_tx_not_found".localized
         case .sessionNotFound: return "wallet_connect_session_not_found".localized
-        case .failedToBuildTx: return "wallet_connect_failed_to_build_tx".localized
+        case .failedToBuildTx(let code): return String(format: "wallet_connect_failed_to_build_tx".localized, code.rawValue)
         case .other(let error): return error.localizedDescription
         case .noChainId: return "wallet_connect_service_no_chain_id".localized
         case .unsupportedNetwork: return "wallet_connect_scanner_error_unsupported_network".localized
@@ -427,3 +448,11 @@ enum WalletConnectServiceError: LocalizedError {
 }
 
 fileprivate typealias ExtractedWCUrl = (url: String, handleDelay: TimeInterval)
+
+extension WalletConnectServiceError {
+    enum TxErrorCodes: String {
+        case noWalletManager
+        case wrongAddress
+        case noValue
+    }
+}
