@@ -97,7 +97,7 @@ class BnbSignHandler: WalletConnectSignHandler {
             let jsonEncoder = JSONEncoder()
             jsonEncoder.outputFormatting = .sortedKeys
             let rawKey = session.wallet.derivedPublicKey ?? session.wallet.walletPublicKey
-            let pubkey = Secp256k1Utils.decompressPublicKey(rawKey)!.hexString
+            let pubkey = try! Secp256k1Key(with: rawKey).decompress().hexString
             let signResponse = BnbSignResponse(signature: signature, publicKey: pubkey)
             
             // Important note!
