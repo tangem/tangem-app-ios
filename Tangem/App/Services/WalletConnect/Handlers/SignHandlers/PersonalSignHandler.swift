@@ -44,12 +44,10 @@ class PersonalSignHandler: WalletConnectSignHandler {
         
         return signer.sign(hash: hash, cardId: cardId, walletPublicKey: walletPublicKey)
             .tryMap { response -> String in
-                if let unmarshalledSig = Secp256k1Utils.unmarshal(secp256k1Signature: response,
-                                                                  hash: hash,
-                                                                  publicKey: walletPublicKey.blockchainKey) {
-                    
+                if let unmarshalledSig = try? Secp256k1Signature(with: response).unmarshal(with: walletPublicKey.blockchainKey,
+                                                                                           hash: hash) {
                     let strSig =  "0x" + unmarshalledSig.r.hexString + unmarshalledSig.s.hexString +
-                        unmarshalledSig.v.hexString
+                    unmarshalledSig.v.hexString
                     return strSig
                 } else {
                     throw WalletConnectServiceError.signFailed
