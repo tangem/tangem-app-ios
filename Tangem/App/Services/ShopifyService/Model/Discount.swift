@@ -55,15 +55,10 @@ extension Discount {
     }
 }
 
-#warning("TODO")
 extension Storefront.DiscountCodeApplicationQuery {
     func discountFieldsFragment() {
         self
             .code()
-//            .applicable()
-//            .allocationMethod()
-//            .targetSelection()
-//            .targetType()
             .value { $0
                 .onMoneyV2 { $0
                     .amount()
