@@ -15,8 +15,6 @@ enum ShopifyError: Error {
     case userError(errors: [DisplayableError])
 }
 
-#warning("[REDACTED_TODO_COMMENT]")
-
 class ShopifyService {
     private let client: Graph.Client
     private let shop: ShopifyShop
@@ -60,7 +58,12 @@ class ShopifyService {
             }
         }
         
-        return Future { promise in
+        return Future { [weak self] promise in
+            guard let self = self else {
+                promise(.failure(ShopifyError.unknown))
+                return
+            }
+            
             let task = self.client.queryGraphWith(query) { query, error in
                 if let query = query {
                     promise(.success(query.shop.name))
@@ -98,7 +101,12 @@ class ShopifyService {
             }
         }
 
-        return Future { promise in
+        return Future { [weak self] promise in
+            guard let self = self else {
+                promise(.failure(ShopifyError.unknown))
+                return
+            }
+            
             let task = self.client.queryGraphWith(query) { response, error in
                 if let response = response {
                     let collections = response.collections.edges.map { Collection($0.node) }
@@ -130,7 +138,12 @@ class ShopifyService {
             }
         }
         
-        let future: Future<Checkout, Error> = Future { promise in
+        let future: Future<Checkout, Error> = Future { [weak self] promise in
+            guard let self = self else {
+                promise(.failure(ShopifyError.unknown))
+                return
+            }
+            
             let retryHandler: Graph.RetryHandler<Storefront.QueryRoot>  = .init() { response, error in
                 guard pollUntilOrder else { return false }
                 
@@ -202,7 +215,12 @@ class ShopifyService {
     )
     -> AnyPublisher<Checkout, Error>
     {
-        return Future { promise in
+        Future { [weak self] promise in
+            guard let self = self else {
+                promise(.failure(ShopifyError.unknown))
+                return
+            }
+            
             let retryHandler = self.retryHandler(checkShippingRates: checkShippingRates, payloadProvider: payloadProvider)
             let task = self.client.mutateGraphWith(mutation, retryHandler: retryHandler) { mutation, error in
                 guard
@@ -389,7 +407,7 @@ class ShopifyService {
             .zip(shopName())
             .sink { _ in
                 
-            } receiveValue: { checkout, shopName in
+            } receiveValue: { [unowned self] checkout, shopName in
                 self.paySession = PaySession(
                     shopName: shopName,
                     checkout: checkout.payCheckout,
