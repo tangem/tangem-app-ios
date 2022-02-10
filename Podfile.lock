@@ -188,7 +188,7 @@ PODS:
   - SwiftDate (6.3.1)
   - SwiftProtobuf (1.18.0)
   - SwiftyJSON (5.0.1)
-  - TangemSdk (3.2.1)
+  - TangemSdk (3.3.0)
   - TweetNacl (1.0.2)
   - WalletConnectSwift (1.6.2):
     - CryptoSwift (~> 1.4)
@@ -211,7 +211,7 @@ DEPENDENCIES:
   - BigInt
   - BinanceChain (from `https://github.com/lazutkin-andrey/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/lazutkin-andrey/bitcoincore.git`, tag `0.0.15`)
-  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-82`)
+  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-83`)
   - DeviceGuru
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -227,9 +227,9 @@ DEPENDENCIES:
   - stellar-ios-mac-sdk
   - SwiftCBOR
   - SwiftyJSON
-  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-128`)
+  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-130`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.6.2`)
-  - web3swift (from `https://github.com/lazutkin-andrey/web3swift.git`, tag `2.2.7`)
+  - web3swift (from `https://github.com/lazutkin-andrey/web3swift.git`, tag `2.2.8`)
 
 SPEC REPOS:
   trunk:
@@ -277,7 +277,7 @@ EXTERNAL SOURCES:
     :tag: 0.0.15
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-82
+    :tag: develop-83
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
@@ -289,13 +289,13 @@ EXTERNAL SOURCES:
     :tag: add-external-signer-1
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-128
+    :tag: develop-130
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.6.2
   web3swift:
     :git: https://github.com/lazutkin-andrey/web3swift.git
-    :tag: 2.2.7
+    :tag: 2.2.8
 
 CHECKOUT OPTIONS:
   BinanceChain:
@@ -306,7 +306,7 @@ CHECKOUT OPTIONS:
     :tag: 0.0.15
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-82
+    :tag: develop-83
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
@@ -318,13 +318,13 @@ CHECKOUT OPTIONS:
     :tag: add-external-signer-1
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-128
+    :tag: develop-130
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.6.2
   web3swift:
     :git: https://github.com/lazutkin-andrey/web3swift.git
-    :tag: 2.2.7
+    :tag: 2.2.8
 
 SPEC CHECKSUMS:
   Alamofire: 1c4fb5369c3fe93d2857c780d8bbe09f06f97e7c
@@ -365,12 +365,12 @@ SPEC CHECKSUMS:
   SwiftDate: 72d28954e8e1c6c1c0f917ccc8005e4f83c7d4b2
   SwiftProtobuf: c3c12645230d9b09c72267e0de89468c5543bd86
   SwiftyJSON: 2f33a42c6fbc52764d96f13368585094bfd8aa5e
-  TangemSdk: 24127483da68cffe64a4bd766893f11dedbdb430
+  TangemSdk: ac74b567f0d2fc02fb006e8db71b5c92d0e2de8d
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   WalletConnectSwift: 046ae74e8cb69445be9c94c66ef66f9cb019b68f
   web3swift: 93f68f5430c11a78bba2351c139d2d22f2c04b5e
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 8e782ff406c1485deaefd52268d20f3c7dd7b1ca
+PODFILE CHECKSUM: ca5c9c2e319527d460dfbf19eaa5648ad364c8fb
 
 COCOAPODS: 1.11.2
