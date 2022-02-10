@@ -3694,9 +3694,9 @@
 		DA23788E27B250D3009795A8 /* Shop */ = {
 			isa = PBXGroup;
 			children = (
+				DA23788F27B250EB009795A8 /* ShopViewModel.swift */,
 				DAB1E62327B4E10800C1F510 /* ShopContainerView.swift */,
 				DA23789127B250F6009795A8 /* ShopView.swift */,
-				DA23788F27B250EB009795A8 /* ShopViewModel.swift */,
 				DAB1E62527B4E40D00C1F510 /* ShopOrderView.swift */,
 			);
 			path = Shop;
