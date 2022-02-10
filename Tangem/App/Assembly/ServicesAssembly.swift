@@ -54,7 +54,7 @@ class ServicesAssembly {
     
     private lazy var defaultSdkConfig: Config = {
         var config = Config()
-        config.filter.allowedCardTypes = [.release, .sdk] //todo: check it!!
+        config.filter.allowedCardTypes = [.release, .sdk]
         config.logConfig = Log.Config.custom(logLevel: Log.Level.allCases, loggers: [logger, ConsoleLogger()])
         config.filter.batchIdFilter = .deny(["0027", //todo: tangem tags
                                              "0030",
