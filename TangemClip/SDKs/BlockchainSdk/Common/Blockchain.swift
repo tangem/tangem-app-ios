@@ -9,8 +9,9 @@
 import Foundation
 import TangemSdk
 
+// MARK: - Base
 @available(iOS 13.0, *)
-public enum Blockchain {
+public enum Blockchain: Equatable, Hashable {
     case bitcoin(testnet: Bool)
     case litecoin
     case stellar(testnet: Bool)
@@ -27,9 +28,10 @@ public enum Blockchain {
     case polygon(testnet: Bool)
     case avalanche(testnet: Bool)
     case solana(testnet: Bool)
+    case fantom(testnet: Bool)
     case polkadot(testnet: Bool)
     case kusama
-    
+
     public var isTestnet: Bool {
         switch self {
         case .bitcoin(let testnet):
@@ -49,6 +51,8 @@ public enum Blockchain {
         case .avalanche(let testnet):
             return testnet
         case .solana(let testnet):
+            return testnet
+        case .fantom(let testnet):
             return testnet
         case .polkadot(let testnet):
             return testnet
@@ -72,23 +76,19 @@ public enum Blockchain {
         switch self {
         case .bitcoin, .litecoin, .bitcoinCash, .ducatus, .binance, .dogecoin:
             return 8
-        case .ethereum, .rsk, .bsc, .polygon:
+        case .ethereum, .rsk, .bsc, .polygon, .avalanche, .fantom:
             return 18
         case  .cardano, .xrp, .tezos:
             return 6
         case .stellar:
             return 7
-        case .avalanche, .solana:
+        case .solana:
             return 9
         case .polkadot(let testnet):
             return testnet ? 12 : 10
         case .kusama:
             return 12
         }
-    }
-    
-    public var decimalValue: Decimal {
-        return pow(Decimal(10), decimalCount)
     }
     
     public var currencySymbol: String {
@@ -125,6 +125,8 @@ public enum Blockchain {
             return "AVAX"
         case .solana:
             return "SOL"
+        case .fantom:
+            return "FTM"
         case .polkadot(let testnet):
             return testnet ? "WND" : "DOT"
         case .kusama:
@@ -133,32 +135,29 @@ public enum Blockchain {
     }
     
     public var displayName: String {
-        let testnetSuffix = " Testnet"
+        let testnetSuffix = isTestnet ? " Testnet" : ""
+        
         switch self {
-        case .bitcoinCash(let testnet):
-            return "Bitcoin Cash" + (testnet ? testnetSuffix : "")
+        case .bitcoinCash:
+            return "Bitcoin Cash" + testnetSuffix
         case .xrp:
             return "XRP Ledger"
         case .rsk:
             return "\(self)".uppercased()
-        case .bsc(let testnet):
-            return "Binance Smart Chain" + (testnet ? testnetSuffix : "")
-        case .polygon(let testnet):
-            return "Polygon" + (testnet ? testnetSuffix : "")
-        case .avalanche(let testnet):
-            return "Avalanche C-Chain" + (testnet ? testnetSuffix : "")
-        case .solana(let testnet):
-            return "Solana" + (testnet ? testnetSuffix : "")
-        case .polkadot(let testnet):
-            return "Polkadot" + (testnet ? (testnetSuffix + " (Westend)") : "")
-        case .kusama:
-            return "Kusama"
+        case .bsc:
+            return "Binance Smart Chain" + testnetSuffix
+        case .avalanche:
+            return "Avalanche C-Chain" + testnetSuffix
+        case .fantom:
+            return isTestnet ? "Fantom" + testnetSuffix : "Fantom Opera"
+        case .polkadot:
+            return "Polkadot" + testnetSuffix + (isTestnet ? " (Westend)" : "")
         default:
             var name = "\(self)".capitalizingFirstLetter()
             if let index = name.firstIndex(of: "(") {
                 name = String(name.prefix(upTo: index))
             }
-            return isTestnet ?  name + testnetSuffix : name
+            return name + testnetSuffix
         }
     }
     
@@ -172,32 +171,65 @@ public enum Blockchain {
             return "Binance Asset"
         case .bsc:
             return "Binance Smart Chain token"
-        case .solana:
-            return "Solana Token"
         default:
-            return displayName
+            return "\(displayName) token"
         }
     }
-    
-    public var qrPrefixes: [String] {
+}
+
+// MARK: - Ethereum based blockchain definition
+@available(iOS 13.0, *)
+extension Blockchain {
+    //Only fot Ethereum compatible blockchains
+    public var chainId: Int? {
         switch self {
-        case .bitcoin:
-            return ["bitcoin:"]
-        case .ethereum(let testnet):
-            return [testnet ? "" : "ethereum:"]
-        case .litecoin:
-            return ["litecoin:"]
-        case .xrp:
-            return ["xrpl:", "ripple:", "xrp:"]
-        case .binance:
-            return ["bnb:"]
-        case .dogecoin:
-            return ["doge:", "dogecoin:"]
-        default:
-            return [""]
+        case .ethereum: return isTestnet ? 4 : 1
+        case .rsk: return 30
+        case .bsc: return isTestnet ? 97 : 56
+        case .polygon: return isTestnet ? 80001 : 137
+        case .avalanche: return isTestnet ? 43113 : 43114
+        case .fantom: return isTestnet ? 4002 : 250
+        default: return nil
         }
     }
     
+    //Only fot Ethereum compatible blockchains
+    public func getJsonRpcURLs(infuraProjectId: String?) -> [URL]? {
+        switch self {
+        case .ethereum:
+            guard let infuraProjectId = infuraProjectId else {
+                fatalError("infuraProjectId missing")
+            }
+            
+            return isTestnet ? [URL(string:"https://rinkeby.infura.io/v3/\(infuraProjectId)")!]
+            : [URL(string: "https://mainnet.infura.io/v3/\(infuraProjectId)")!,
+               URL(string: "https://eth.tangem.com/")!]
+        case .rsk:
+            return [URL(string: "https://public-node.rsk.co/")!]
+        case .bsc:
+            return isTestnet ? [URL(string: "https://data-seed-prebsc-1-s1.binance.org:8545/")!]
+            : [URL(string: "https://bsc-dataseed.binance.org/")!]
+        case .polygon:
+            return isTestnet ? [URL(string: "https://rpc-mumbai.maticvigil.com/")!]
+            : [URL(string: "https://rpc-mainnet.maticvigil.com/")!]
+        case .avalanche:
+            return isTestnet ? [URL(string: "https://api.avax-test.network/ext/bc/C/rpc")!]
+            : [URL(string: "https://api.avax.network/ext/bc/C/rpc")!]
+        case .fantom:
+            return isTestnet ? [URL(string: "https://rpc.testnet.fantom.network/")!]
+            : [URL(string: "https://rpc.ftm.tools/")!,
+               URL(string: "https://rpcapi.fantom.network/")!,
+               URL(string: "http://rpc.ankr.tools/ftm")!,
+               URL(string: "https://ftmrpc.ultimatenodes.io/")!]
+        default:
+            return nil
+        }
+    }
+}
+
+// MARK: - Address creation
+@available(iOS 13.0, *)
+extension Blockchain {
     public var defaultAddressType: AddressType {
         switch self {
         case .bitcoin, .litecoin: return .bitcoin(type: .bech32)
@@ -209,8 +241,10 @@ public enum Blockchain {
         guard curve == .secp256k1 || curve == .ed25519 else { return  nil }
         
         switch self {
-        case .stellar:
+        case .stellar, .solana:
             //Path according to sep-0005. https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0005.md
+            // Solana path consistent with TrustWallet:
+            // https://github.com/trustwallet/wallet-core/blob/456f22d6a8ce8a66ccc73e3b42bcfec5a6afe53a/registry.json#L1013
             return DerivationPath(nodes: [.hardened(BIP44.purpose),
                                           .hardened(coinType),
                                           .hardened(0)])
@@ -258,142 +292,44 @@ public enum Blockchain {
         case .polygon: return 966
         case .avalanche: return 9000
         case .solana: return 501
+        case .fantom: return 1007
         case .polkadot: return 354
         case .kusama: return 434
         }
     }
     
-    public func makeAddresses(from walletPublicKey: Data, with pairPublicKey: Data?) -> [Address] {
+    public func makeAddresses(from walletPublicKey: Data, with pairPublicKey: Data?) throws -> [Address] {
         let addressService = getAddressService()
         if let multiSigAddressProvider = addressService as? MultisigAddressProvider,
            let pairKey = pairPublicKey {
-            return multiSigAddressProvider.makeAddresses(from: walletPublicKey, with: pairKey) ?? []
+            return try multiSigAddressProvider.makeAddresses(from: walletPublicKey, with: pairKey)
         }
      
-        return addressService.makeAddresses(from: walletPublicKey)
+        return try addressService.makeAddresses(from: walletPublicKey)
     }
     
     public func validate(address: String) -> Bool {
         getAddressService().validate(address)
     }
     
-    public func getShareString(from address: String) -> String {
-        switch self {
-        case .bitcoin, .ethereum, .litecoin, .binance:
-            return "\(qrPrefixes.first ?? "")\(address)"
-        default:
-            return "\(address)"
-        }
-    }
-    
-    public func getExploreURL(from address: String, tokenContractAddress: String? = nil) -> URL? {
-        switch self {
-        case .binance(let testnet):
-            let baseUrl = testnet ? "https://testnet-explorer.binance.org/address/" : "https://explorer.binance.org/address/"
-            return URL(string: baseUrl + address)
-        case .bitcoin(let testnet):
-            let baseUrl = testnet ? "https://www.blockchain.com/btc-testnet/address/" : "https://www.blockchain.com/btc/address/"
-            return URL(string: baseUrl + address)
-        case .bitcoinCash(let testnet):
-            let baseUrl = testnet ? "https://www.blockchain.com/bch-testnet/address/" : "https://www.blockchain.com/bch/address/"
-            return URL(string: baseUrl + address)
-        case .cardano:
-            return URL(string: "https://cardanoexplorer.com/address/\(address)")
-        case .ducatus:
-            return URL(string: "https://insight.ducatus.io/#/DUC/mainnet/address/\(address)")
-        case .ethereum(let testnet):
-            let baseUrl = testnet ? "https://rinkeby.etherscan.io/address/" : "https://etherscan.io/address/"
-            let exploreLink = tokenContractAddress == nil ? baseUrl + address :
-            "https://etherscan.io/token/\(tokenContractAddress!)?a=\(address)"
-            return URL(string: exploreLink)
-        case .litecoin:
-            return URL(string: "https://blockchair.com/litecoin/address/\(address)")
-        case .rsk:
-            var exploreLink = "https://explorer.rsk.co/address/\(address)"
-            if tokenContractAddress != nil {
-                exploreLink += "?__tab=tokens"
-            }
-            return URL(string: exploreLink)
-        case .stellar(let testnet):
-            let baseUrl = testnet ? "https://stellar.expert/explorer/testnet/account/" : "https://stellar.expert/explorer/public/account/"
-            let exploreLink =  baseUrl + address
-            return URL(string: exploreLink)
-        case .xrp:
-            return URL(string: "https://xrpscan.com/account/\(address)")
-        case .tezos:
-            return URL(string: "https://tezblock.io/account/\(address)")
-        case .dogecoin:
-            return URL(string: "https://blockchair.com/dogecoin/address/\(address)")
-        case .bsc(let testnet):
-            let baseUrl = testnet ? "https://testnet.bscscan.com/address/" : "https://bscscan.com/address/"
-            let link = baseUrl + address
-            return URL(string: link)
-        case .polygon(let testnet):
-            let baseUrl = testnet ? "https://explorer-mumbai.maticvigil.com/address/" : "https://polygonscan.com/address/"
-            let link = baseUrl + address
-            return URL(string: link)
-        case .avalanche(let testnet):
-            let baseUrl = testnet ? "https://snowtrace.io/address/" : "https://testnet.snowtrace.io/address/"
-            let link = baseUrl + address
-            return URL(string: link)
-        case .solana(let testnet):
-            let baseUrl = "https://explorer.solana.com/address/"
-            let cluster = testnet ? "?cluster=testnet" : ""
-            return URL(string: baseUrl + address + cluster)
-        case .polkadot(let testnet):
-            let subdomain = testnet ? "westend" : "polkadot"
-            return URL(string: "https://\(subdomain).subscan.io/account/\(address)")
-        case .kusama:
-            return URL(string: "https://kusama.subscan.io/account/\(address)")
-        }
-    }
-    
-    public static func from(blockchainName: String, curve: EllipticCurve) -> Blockchain? {
-        let testnetAttribute = "/test"
-        let isTestnet = blockchainName.contains(testnetAttribute)
-        let cleanName = blockchainName.remove(testnetAttribute).lowercased()
-        switch cleanName {
-        case "btc": return .bitcoin(testnet: isTestnet)
-        case "xlm", "asset", "xlm-tag": return .stellar(testnet: isTestnet)
-        case "eth", "token", "nfttoken": return .ethereum(testnet: isTestnet)
-        case "ltc": return .litecoin
-        case "rsk", "rsktoken": return .rsk
-        case "bch": return .bitcoinCash(testnet: isTestnet)
-        case "binance", "binanceasset": return .binance(testnet: isTestnet)
-        case "cardano": return .cardano(shelley: false)
-        case "cardano-s": return .cardano(shelley: true)
-        case "xrp": return .xrp(curve: curve)
-        case "duc": return .ducatus
-        case "xtz": return .tezos(curve: curve)
-        case "doge": return .dogecoin
-        case "bsc": return .bsc(testnet: isTestnet)
-        case "polygon": return .polygon(testnet: isTestnet)
-        case "avalanche": return .avalanche(testnet: isTestnet)
-        case "solana": return .solana(testnet: isTestnet)
-        case "polkadot": return .polkadot(testnet: isTestnet)
-        case "kusama": return .kusama
-        default: return nil
-        }
-    }
-    
     func getAddressService() -> AddressService {
         switch self {
-        case .bitcoin(let testnet):
-            let network: BitcoinNetwork = testnet ? .testnet : .mainnet
+        case .bitcoin:
+            let network: BitcoinNetwork = isTestnet ? .testnet : .mainnet
             let networkParams = network.networkParams
             return BitcoinAddressService(networkParams: networkParams)
         case .litecoin:
             return BitcoinAddressService(networkParams: LitecoinNetworkParams())
         case .stellar:
             return StellarAddressService()
-        case .ethereum, .bsc, .polygon, .avalanche:
+        case .ethereum, .bsc, .polygon, .avalanche, .fantom:
             return EthereumAddressService()
         case .rsk:
             return RskAddressService()
         case .bitcoinCash:
             return BitcoinCashAddressService()
-        case .binance(let testnet):
-            return BinanceAddressService(testnet: testnet)
+        case .binance:
+            return BinanceAddressService(testnet: isTestnet)
         case .ducatus:
             return BitcoinLegacyAddressService(networkParams: DucatusNetworkParams())
         case .cardano(let shelley):
@@ -405,14 +341,47 @@ public enum Blockchain {
         case .dogecoin:
             return BitcoinLegacyAddressService(networkParams: DogecoinNetworkParams())
         case .solana, .polkadot, .kusama:
-            fatalError()
+            fatalError("not implemented")
         }
     }
 }
 
+// MARK: - Sharing options
+@available(iOS 13.0, *)
+extension Blockchain {
+    public var qrPrefixes: [String] {
+        switch self {
+        case .bitcoin:
+            return ["bitcoin:"]
+        case .ethereum:
+            return [isTestnet ? "" : "ethereum:"]
+        case .litecoin:
+            return ["litecoin:"]
+        case .xrp:
+            return ["xrpl:", "ripple:", "xrp:"]
+        case .binance:
+            return ["bnb:"]
+        case .dogecoin:
+            return ["doge:", "dogecoin:"]
+        default:
+            return [""]
+        }
+    }
+    
+    public func getShareString(from address: String) -> String {
+        switch self {
+        case .bitcoin, .ethereum, .litecoin, .binance:
+            return "\(qrPrefixes.first ?? "")\(address)"
+        default:
+            return "\(address)"
+        }
+    }
+}
 
-extension Blockchain: Equatable, Hashable, Codable {
-    var codingKey: String {
+// MARK: - Codable
+@available(iOS 13.0, *)
+extension Blockchain: Codable {
+    public var codingKey: String {
         switch self {
         case .binance: return "binance"
         case .bitcoin: return "bitcoin"
@@ -430,6 +399,7 @@ extension Blockchain: Equatable, Hashable, Codable {
         case .polygon: return "polygon"
         case .avalanche: return "avalanche"
         case .solana: return "solana"
+        case .fantom: return "fantom"
         case .polkadot: return "polkadot"
         case .kusama: return "kusama"
         }
@@ -470,6 +440,7 @@ extension Blockchain: Equatable, Hashable, Codable {
         case "polygon", "matic": self = .polygon(testnet: isTestnet)
         case "avalanche": self = .avalanche(testnet: isTestnet)
         case "solana": self = .solana(testnet: isTestnet)
+        case "fantom": self = .fantom(testnet: isTestnet)
         case "polkadot": self = .polkadot(testnet: isTestnet)
         case "kusama": self = .kusama
         default: throw BlockchainSdkError.decodingFailed
@@ -488,3 +459,147 @@ extension Blockchain: Equatable, Hashable, Codable {
     }
 }
 
+// MARK: - URLs
+@available(iOS 13.0, *)
+extension Blockchain {
+    public var testnetFaucetURL: URL? {
+        guard isTestnet else { return nil }
+        
+        switch self {
+        case .bitcoin:
+            return URL(string: "https://coinfaucet.eu/en/btc-testnet/")
+        case .ethereum:
+            return URL(string: "https://faucet.rinkeby.io")
+        case .bitcoinCash:
+            // alt
+            // return URL(string: "https://faucet.fullstack.cash")
+            return URL(string: "https://coinfaucet.eu/en/bch-testnet/")
+        case .bsc:
+            return URL(string: "https://testnet.binance.org/faucet-smart")
+        case .binance:
+            return URL(string: "https://docs.binance.org/smart-chain/wallet/binance.html")
+//            return URL(string: "https://docs.binance.org/guides/testnet.html")
+        case .polygon:
+            return URL(string: "https://faucet.matic.network")
+        case .stellar:
+            return URL(string: "https://laboratory.stellar.org/#account-creator?network=test")
+        case .solana:
+            return URL(string: "https://solfaucet.com")
+        case .avalanche:
+            return URL(string: "https://faucet.avax-test.network/")
+        case .fantom:
+            return URL(string: "https://faucet.fantom.network")
+        case .polkadot:
+            return URL(string: "https://matrix.to/#/!cJFtAIkwxuofiSYkPN:matrix.org?via=matrix.org&via=matrix.parity.io&via=web3.foundation")
+        default:
+            return nil
+        }
+    }
+    
+    public func getExploreURL(from address: String, tokenContractAddress: String? = nil) -> URL? {
+        switch self {
+        case .binance:
+            let baseUrl = isTestnet ? "https://testnet-explorer.binance.org/address/" : "https://explorer.binance.org/address/"
+            return URL(string: baseUrl + address)
+        case .bitcoin:
+            let baseUrl = isTestnet ? "https://www.blockchain.com/btc-testnet/address/" : "https://www.blockchain.com/btc/address/"
+            return URL(string: baseUrl + address)
+        case .bitcoinCash:
+            let baseUrl = isTestnet ? "https://www.blockchain.com/bch-testnet/address/" : "https://www.blockchain.com/bch/address/"
+            return URL(string: baseUrl + address)
+        case .cardano:
+            return URL(string: "https://explorer.cardano.org/en/address.html?address=\(address)")
+        case .ducatus:
+            return URL(string: "https://insight.ducatus.io/#/DUC/mainnet/address/\(address)")
+        case .ethereum:
+            let baseUrl = isTestnet ? "https://rinkeby.etherscan.io/address/" : "https://etherscan.io/address/"
+            let exploreLink = tokenContractAddress == nil ? baseUrl + address :
+            "https://etherscan.io/token/\(tokenContractAddress!)?a=\(address)"
+            return URL(string: exploreLink)
+        case .litecoin:
+            return URL(string: "https://blockchair.com/litecoin/address/\(address)")
+        case .rsk:
+            var exploreLink = "https://explorer.rsk.co/address/\(address)"
+            if tokenContractAddress != nil {
+                exploreLink += "?__tab=tokens"
+            }
+            return URL(string: exploreLink)
+        case .stellar:
+            let baseUrl = isTestnet ? "https://stellar.expert/explorer/testnet/account/" : "https://stellar.expert/explorer/public/account/"
+            let exploreLink =  baseUrl + address
+            return URL(string: exploreLink)
+        case .xrp:
+            return URL(string: "https://xrpscan.com/account/\(address)")
+        case .tezos:
+            return URL(string: "https://tezblock.io/account/\(address)")
+        case .dogecoin:
+            return URL(string: "https://blockchair.com/dogecoin/address/\(address)")
+        case .bsc:
+            let baseUrl = isTestnet ? "https://testnet.bscscan.com/address/" : "https://bscscan.com/address/"
+            let link = baseUrl + address
+            return URL(string: link)
+        case .polygon:
+            let baseUrl = isTestnet ? "https://explorer-mumbai.maticvigil.com/address/" : "https://polygonscan.com/address/"
+            let link = baseUrl + address
+            return URL(string: link)
+        case .avalanche:
+            let baseUrl = isTestnet ? "https://testnet.snowtrace.io/address/" : "https://snowtrace.io/address/"
+            let link = baseUrl + address
+            return URL(string: link)
+        case .solana:
+            let baseUrl = "https://explorer.solana.com/address/"
+            let cluster = isTestnet ? "?cluster=testnet" : ""
+            return URL(string: baseUrl + address + cluster)
+        case .fantom:
+            let baseUrl = isTestnet ? "https://testnet.ftmscan.com/address/" : "https://ftmscan.com/address/"
+            let link = baseUrl + address
+            return URL(string: link)
+        case .polkadot:
+            let subdomain = isTestnet ? "westend" : "polkadot"
+            return URL(string: "https://\(subdomain).subscan.io/account/\(address)")
+        case .kusama:
+            return URL(string: "https://kusama.subscan.io/account/\(address)")
+        }
+    }
+}
+
+// MARK: - Helpers
+@available(iOS 13.0, *)
+extension Blockchain {
+    public var decimalValue: Decimal {
+        return pow(Decimal(10), decimalCount)
+    }
+}
+
+// MARK: - Card's factory
+@available(iOS 13.0, *)
+extension Blockchain {
+    public static func from(blockchainName: String, curve: EllipticCurve) -> Blockchain? {
+        let testnetAttribute = "/test"
+        let isTestnet = blockchainName.contains(testnetAttribute)
+        let cleanName = blockchainName.remove(testnetAttribute).lowercased()
+        switch cleanName {
+        case "btc": return .bitcoin(testnet: isTestnet)
+        case "xlm", "asset", "xlm-tag": return .stellar(testnet: isTestnet)
+        case "eth", "token", "nfttoken": return .ethereum(testnet: isTestnet)
+        case "ltc": return .litecoin
+        case "rsk", "rsktoken": return .rsk
+        case "bch": return .bitcoinCash(testnet: isTestnet)
+        case "binance", "binanceasset": return .binance(testnet: isTestnet)
+        case "cardano": return .cardano(shelley: false)
+        case "cardano-s": return .cardano(shelley: true)
+        case "xrp": return .xrp(curve: curve)
+        case "duc": return .ducatus
+        case "xtz": return .tezos(curve: curve)
+        case "doge": return .dogecoin
+        case "bsc": return .bsc(testnet: isTestnet)
+        case "polygon": return .polygon(testnet: isTestnet)
+        case "avalanche": return .avalanche(testnet: isTestnet)
+        case "solana": return .solana(testnet: isTestnet)
+        case "fantom": return .fantom(testnet: isTestnet)
+        case "polkadot": return .polkadot(testnet: isTestnet)
+        case "kusama": return .kusama
+        default: return nil
+        }
+    }
+}
