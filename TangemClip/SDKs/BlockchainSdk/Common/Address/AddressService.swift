@@ -9,14 +9,14 @@
 import Foundation
 
 public protocol AddressService: MultipleAddressProvider {
-    func makeAddress(from walletPublicKey: Data) -> String
+    func makeAddress(from walletPublicKey: Data) throws -> String
     func validate(_ address: String) -> Bool
 }
 
 
 extension AddressService {
-    public func makeAddresses(from walletPublicKey: Data) -> [Address] {
-        let address = makeAddress(from: walletPublicKey)
+    public func makeAddresses(from walletPublicKey: Data) throws -> [Address] {
+        let address = try makeAddress(from: walletPublicKey)
         return [PlainAddress(value: address)]
     }
 }
