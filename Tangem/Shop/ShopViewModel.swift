@@ -11,8 +11,6 @@ import Combine
 import MobileBuySDK
 import SwiftUI
 
-#warning("[REDACTED_TODO_COMMENT]")
-
 class ShopViewModel: ViewModel, ObservableObject {
     enum Bundle: String, CaseIterable, Identifiable {
         case twoCards, threeCards
@@ -59,8 +57,8 @@ class ShopViewModel: ViewModel, ObservableObject {
         self.canUseApplePay = shopifyService.canUseApplePay()
         
         $selectedBundle
-            .sink { [weak self] newBundle in
-                self?.didSelectBundle(newBundle)
+            .sink { [unowned self] newBundle in
+                self.didSelectBundle(newBundle)
             }
             .store(in: &bag)
         
@@ -68,8 +66,8 @@ class ShopViewModel: ViewModel, ObservableObject {
             .dropFirst()
             .debounce(for: 1.0, scheduler: RunLoop.main, options: nil)
             .removeDuplicates()
-            .sink { [weak self] code in
-                self?.setDiscountCode(code.isEmpty ? nil : code)
+            .sink { [unowned self] code in
+                self.setDiscountCode(code.isEmpty ? nil : code)
             }
             .store(in: &bag)
 
@@ -91,11 +89,7 @@ class ShopViewModel: ViewModel, ObservableObject {
             .products(collectionTitleFilter: nil)
             .sink { completion in
                 print(completion)
-            } receiveValue: { [weak self] collections in
-                guard let self = self else {
-                    return
-                }
-                
+            } receiveValue: { [unowned self] collections in
                 let allProducts: [Product] = collections.reduce([]) { partialResult, collection in
                     return partialResult + collection.products
                 }
@@ -167,8 +161,8 @@ class ShopViewModel: ViewModel, ObservableObject {
             .createCheckout(checkoutID: checkoutID, lineItems: lineItems)
             .sink { _ in
                 
-            } receiveValue: { [weak self] checkout in
-                self?.checkoutByVariantID[variantID] = checkout
+            } receiveValue: { [unowned self] checkout in
+                self.checkoutByVariantID[variantID] = checkout
             }
             .store(in: &bag)
     }
@@ -192,14 +186,14 @@ class ShopViewModel: ViewModel, ObservableObject {
         shopifyService.applyDiscount(discountCode, checkoutID: checkoutID)
             .sink { _ in
 
-            } receiveValue: { [weak self] checkout in
+            } receiveValue: { [unowned self] checkout in
                 if checkout.discount == nil {
-                    self?.discountCode = ""
+                    self.discountCode = ""
                 }
-                self?.checkoutByVariantID[variantID] = checkout
+                self.checkoutByVariantID[variantID] = checkout
                 if isCurrentVariantID {
-                    self?.updatePrice()
-                    self?.checkingDiscountCode = false
+                    self.updatePrice()
+                    self.checkingDiscountCode = false
                 }
             }
             .store(in: &bag)
@@ -249,9 +243,9 @@ class ShopViewModel: ViewModel, ObservableObject {
             .startApplePaySession(checkoutID: checkoutID)
             .sink { completion in
                 print("Finished Apple Pay session", completion)
-            } receiveValue: { [weak self] checkout in
+            } receiveValue: { [unowned self] checkout in
                 print("Checkout after Apple Pay session", checkout)
-                self?.order = checkout.order
+                self.order = checkout.order
             }
             .store(in: &bag)
     }
@@ -271,9 +265,9 @@ class ShopViewModel: ViewModel, ObservableObject {
             }
             .sink { _ in
                 
-            } receiveValue: { [weak self] checkout in
-                self?.order = checkout.order
-                self?.showingWebCheckout = false
+            } receiveValue: { [unowned self] checkout in
+                self.order = checkout.order
+                self.showingWebCheckout = false
             }
             .store(in: &bag)
     }
