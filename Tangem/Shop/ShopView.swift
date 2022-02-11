@@ -31,12 +31,12 @@ struct ShopView: View {
                     Spacer()
                         .frame(maxHeight: .infinity)
                     
-                    Text("One Wallet")
+                    Text("shop_one_wallet")
                         .font(.system(size: 30, weight: .bold))
                     
                     Picker("", selection: $viewModel.selectedBundle) {
-                        Text("3 cards").tag(ShopViewModel.Bundle.threeCards)
-                        Text("2 cards").tag(ShopViewModel.Bundle.twoCards)
+                        Text("shop_3_cards").tag(ShopViewModel.Bundle.threeCards)
+                        Text("shop_2_cards").tag(ShopViewModel.Bundle.twoCards)
                     }
                     .pickerStyle(.segmented)
                     .frame(minWidth: 0, maxWidth: 250)
@@ -47,8 +47,9 @@ struct ShopView: View {
                     VStack(spacing: 0) {
                         HStack {
                             Image("box")
-                            Text("Delivery (Free shipping)")
+                            Text("shop_shipping")
                             Spacer()
+                            Text("shop_free")
                         }
                         .padding(.horizontal)
                         .padding(.vertical, sectionRowVerticalPadding)
@@ -57,7 +58,7 @@ struct ShopView: View {
                         
                         HStack {
                             Image("ticket")
-                            TextField("I have a promo code...", text: $viewModel.discountCode)
+                            TextField("shop_i_have_a_promo_code", text: $viewModel.discountCode)
                             ActivityIndicatorView(isAnimating: viewModel.checkingDiscountCode, color: .tangemGrayDark)
                         }
                         .padding(.horizontal)
@@ -69,7 +70,7 @@ struct ShopView: View {
                     
                     VStack {
                         HStack {
-                            Text("Total")
+                            Text("shop_total")
                             
                             Spacer()
                             
@@ -98,14 +99,14 @@ struct ShopView: View {
                         Button {
                             viewModel.openWebCheckout()
                         } label: {
-                            Text("Other payment methods")
+                            Text("shop_other_payment_methods")
                         }
                         .buttonStyle(TangemButtonStyle(colorStyle: .transparentWhite, layout: .flexibleWidth))
                     } else {
                         Button {
                             viewModel.openWebCheckout()
                         } label: {
-                            Text("Buy now")
+                            Text("shop_buy_now")
                         }
                         .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
                     }
