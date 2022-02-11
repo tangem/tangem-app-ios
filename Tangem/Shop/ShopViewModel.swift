@@ -45,6 +45,7 @@ class ShopViewModel: ViewModel, ObservableObject {
     // MARK: - Output
     @Published var checkingDiscountCode = false
     @Published var showingThirdCard = true
+    @Published var productsLoading = false
     @Published var totalAmountWithoutDiscount: String? = nil
     @Published var totalAmount = ""
     @Published var order: Order?
@@ -92,6 +93,7 @@ class ShopViewModel: ViewModel, ObservableObject {
     }
     
     private func fetchProduct() {
+        productsLoading = true
         shopifyService
             .products(collectionTitleFilter: nil)
             .sink { completion in
@@ -110,9 +112,8 @@ class ShopViewModel: ViewModel, ObservableObject {
                     return
                 }
 
-                
+                self.productsLoading = false
                 self.shopifyProductVariants = walletProduct.variants
-                
                 self.didSelectBundle(self.selectedBundle)
             }
             .store(in: &bag)
