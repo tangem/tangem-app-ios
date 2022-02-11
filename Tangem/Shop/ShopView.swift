@@ -72,13 +72,17 @@ struct ShopView: View {
                             
                             Spacer()
                             
-                            if let totalAmountWithoutDiscount = viewModel.totalAmountWithoutDiscount {
-                                Text(totalAmountWithoutDiscount)
-                                    .strikethrough()
+                            if viewModel.productsLoading {
+                                ActivityIndicatorView(isAnimating: viewModel.productsLoading, color: .tangemGrayDark)
+                            } else {
+                                if let totalAmountWithoutDiscount = viewModel.totalAmountWithoutDiscount {
+                                    Text(totalAmountWithoutDiscount)
+                                        .strikethrough()
+                                }
+                                
+                                Text(viewModel.totalAmount)
+                                    .font(.system(size: 22, weight: .bold))
                             }
-                            
-                            Text(viewModel.totalAmount)
-                                .font(.system(size: 22, weight: .bold))
                         }
                         .padding(.horizontal)
                         .padding(.vertical, sectionRowVerticalPadding)
