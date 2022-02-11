@@ -14,7 +14,7 @@ struct ShopOrderView: View {
     var body: some View {
         VStack {
             SheetDragHandler()
-            WebViewContainer(url: order.statusUrl, title: "Order")
+            WebViewContainer(url: order.statusUrl, title: "")
         }
         .edgesIgnoringSafeArea(.all)
         .navigationBarHidden(true)
