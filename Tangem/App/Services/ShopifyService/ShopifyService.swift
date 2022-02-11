@@ -194,7 +194,7 @@ class ShopifyService {
             let payload = payloadProvider(response)
             let checkout = payload?.checkout
             
-            if let userErrors = payload?.checkoutUserErrors {
+            if let userErrors = payload?.checkoutUserErrors, !userErrors.isEmpty {
                 print("User errors:", userErrors)
                 return false
             }
