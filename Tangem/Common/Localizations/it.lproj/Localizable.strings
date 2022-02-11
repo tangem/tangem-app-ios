@@ -642,3 +642,13 @@ Amount to pay: %@";
 "solana_rent_warning" = "Solana network charges a rent of %@ every 2 days. Accounts that can’t afford the rent are purged from the network. Deposit your account with more than %@ to use it for free.";
 
 "common_explorer_format %@" = "%@ explorer";
+
+"shop_one_wallet" = "One Wallet";
+"shop_3_cards" = "3 cards";
+"shop_2_cards" = "2 cards";
+"shop_shipping" = "Shipping";
+"shop_free" = "Free";
+"shop_i_have_a_promo_code" = "I have a promo code...";
+"shop_total" = "Total";
+"shop_other_payment_methods" = "Other payment methods";
+"shop_buy_now" = "Buy now";
