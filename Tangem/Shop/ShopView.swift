@@ -144,6 +144,7 @@ struct ShopView: View {
             UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor.white], for: .selected)
         }
         .navigationBarHidden(true)
+        .keyboardAdaptive(animated: .constant(true))
     }
     
     private var cardStack: some View {
