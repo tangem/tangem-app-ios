@@ -34,7 +34,7 @@ struct ShopView: View {
                     Text("One Wallet")
                         .font(.system(size: 30, weight: .bold))
                     
-                    Picker("Variant", selection: $viewModel.selectedBundle) {
+                    Picker("", selection: $viewModel.selectedBundle) {
                         Text("3 cards").tag(ShopViewModel.Bundle.threeCards)
                         Text("2 cards").tag(ShopViewModel.Bundle.twoCards)
                     }
