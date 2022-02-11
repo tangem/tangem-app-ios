@@ -526,6 +526,7 @@ extension ShopifyService: PaySessionDelegate {
     }
     
     func paySessionDidFinish(_ paySession: PaySession) {
+        cancelTasks()
         self.paySession = nil
         self.paySessionPublisher?.send(completion: .failure(ShopifyError.applePayFailed))
     }
