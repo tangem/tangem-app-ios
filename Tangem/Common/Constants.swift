@@ -16,8 +16,6 @@ enum Constants {
         3600 * 24 * 1
 //        0 // for testing RBF
     }
-    static var shopURL: URL { URL(string: "https://cards.tangem.com/")! }
-    static var walletShopURL: URL { URL(string: "https://wallet.tangem.com/")! }
     static var isSmallScreen: Bool {
         UIScreen.main.bounds.width < 375 || UIScreen.main.bounds.height < 650
     }
