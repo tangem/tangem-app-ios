@@ -14,13 +14,13 @@ enum EthereumTarget: TargetType {
     static let infuraTokenId = 03
     static let coinId = 67
     
-    case balance(address: String, network: EthereumNetwork)
-    case tokenBalance(address: String, contractAddress: String, network: EthereumNetwork)
+    case balance(address: String, url: URL)
+    case tokenBalance(address: String, contractAddress: String, url: URL)
     
     var baseURL: URL {
         switch self {
-        case .balance(_, let network): return network.url
-        case .tokenBalance(_, _, let network): return network.url
+        case .balance(_, let url): return url
+        case .tokenBalance(_, _, let url): return url
         }
     }
     
