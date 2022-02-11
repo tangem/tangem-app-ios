@@ -178,5 +178,6 @@ struct ShopView_Previews: PreviewProvider {
     static var previews: some View {
         ShopView(viewModel: assembly.makeShopViewModel())
             .environmentObject(assembly.services.navigationCoordinator)
+            .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
     }
 }
