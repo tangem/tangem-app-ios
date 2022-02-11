@@ -184,9 +184,7 @@ class ShopifyService {
     private func retryHandler(
         checkShippingRates: Bool,
         payloadProvider: @escaping (Storefront.Mutation) -> CheckoutPayload?
-    )
-    -> Graph.RetryHandler<Storefront.Mutation>
-    {
+    ) -> Graph.RetryHandler<Storefront.Mutation> {
         // Return true if request needs to be retried
         .init { response, error in
             guard let response = response else { return true }
@@ -218,9 +216,7 @@ class ShopifyService {
         description: String,
         checkShippingRates: Bool = false,
         payloadProvider: @escaping (Storefront.Mutation) -> CheckoutPayload?
-    )
-    -> AnyPublisher<Checkout, Error>
-    {
+    ) -> AnyPublisher<Checkout, Error> {
         Future { [weak self] promise in
             guard let self = self else {
                 promise(.failure(ShopifyError.unknown))
