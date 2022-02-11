@@ -85,8 +85,8 @@ struct ShopView: View {
                             }
                             .font(.system(size: 22, weight: .bold))
                             
-                            if viewModel.productsLoading {
-                                ActivityIndicatorView(isAnimating: viewModel.productsLoading, color: .tangemGrayDark)
+                            if viewModel.loadingProducts {
+                                ActivityIndicatorView(isAnimating: viewModel.loadingProducts, color: .tangemGrayDark)
                             }
                         }
                         .padding(.horizontal)
