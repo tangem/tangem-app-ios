@@ -30,7 +30,7 @@ enum WalletConnectNetworkParserUtility {
             // peer_id is never the same for the dApp
             // I think this list will continue to expand
         } else if dAppInfo.peerMeta.url.absoluteString.contains("polygon.technology") {
-            let id = EthereumNetwork.polygon.id
+            let id = Blockchain.polygon(testnet: false).chainId!
             wcNetwork = .eth(chainId: id)
             chainId = id
         } else if dAppInfo.peerMeta.url.absoluteString.hasSuffix("binance.org") {
@@ -44,7 +44,7 @@ enum WalletConnectNetworkParserUtility {
         } else {
             // WC interface doesn't provide info about network. So in cases when chainId is null we use ethereum main network
             // Dapps on ethereum mainnet sending null in chainId
-            let id = EthereumNetwork.mainnet(projectId: "").id
+            let id = Blockchain.ethereum(testnet: false).chainId!
             chainId = id
             wcNetwork = .eth(chainId: id)
         }
