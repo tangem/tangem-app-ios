@@ -191,7 +191,13 @@ class ShopifyService {
         .init { response, error in
             guard let response = response else { return true }
             
-            let checkout = payloadProvider(response)?.checkout
+            let payload = payloadProvider(response)
+            let checkout = payload?.checkout
+            
+            if let userErrors = payload?.checkoutUserErrors {
+                print("User errors:", userErrors)
+                return false
+            }
             
             if checkShippingRates && checkout?.availableShippingRates?.ready != true {
                 print("Shipping rates not ready, continue polling")
