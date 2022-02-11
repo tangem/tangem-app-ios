@@ -21,7 +21,6 @@ struct ApplePayButton: UIViewRepresentable {
         return button
     }
     
-    
     func updateUIView(_ uiView: UIViewType, context: Context) {
     }
     
