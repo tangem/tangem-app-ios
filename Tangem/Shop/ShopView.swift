@@ -52,7 +52,7 @@ struct ShopView: View {
                         .padding(.horizontal)
                         .padding(.vertical, sectionRowVerticalPadding)
                         
-                        Separator(height: 0.5)
+                        Separator(height: 0.5, padding: 0)
                         
                         HStack {
                             Image("ticket")
