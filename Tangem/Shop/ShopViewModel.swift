@@ -52,9 +52,16 @@ class ShopViewModel: ViewModel, ObservableObject {
     private var shopifyProductVariants: [ProductVariant] = []
     private var currentVariantID: GraphQL.ID = GraphQL.ID(rawValue: "")
     private var checkoutByVariantID: [GraphQL.ID: Checkout] = [:]
+    private var initialized = false
     
     func didAppear() {
-        self.canUseApplePay = shopifyService.canUseApplePay()
+        guard !initialized else {
+            return
+        }
+        
+        initialized = true
+        
+        canUseApplePay = shopifyService.canUseApplePay()
         
         $selectedBundle
             .sink { [unowned self] newBundle in
