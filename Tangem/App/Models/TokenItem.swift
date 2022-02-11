@@ -9,10 +9,11 @@
 import Foundation
 #if !CLIP
 import BlockchainSdk
+import Kingfisher
 #endif
 import SwiftUI
 
-enum TokenItem: Codable, Hashable, Identifiable {
+enum TokenItem: Hashable, Identifiable {
     case blockchain(Blockchain)
     case token(Token)
     
@@ -77,41 +78,51 @@ enum TokenItem: Codable, Hashable, Identifiable {
         }
     }
     
-    @ViewBuilder var imageView: some View {
+    
+    
+    @ViewBuilder func iconView(size: CGSize) -> some View {
+        if let url = imageURL {
+        #if !CLIP
+            KFImage(url)
+                .placeholder { imageView }
+                .setProcessor(DownsamplingImageProcessor(size: size))
+                .cacheOriginalImage()
+                .scaleFactor(UIScreen.main.scale)
+                .resizable()
+                .scaledToFit()
+        #else
+            WebImage(imagePath: url, placeholder: imageView.toAnyView())
+        #endif
+        } else {
+            imageView
+        }
+    }
+    
+    @ViewBuilder private var imageView: some View {
         switch self {
         case .token(let token):
-            if let iconName = token.customIcon {
-                Image(iconName)
-                    .resizable()
-            } else {
-                CircleImageTextView(name: token.name, color: token.color)
-            }
+            CircleImageTextView(name: token.name, color: token.color)
         case .blockchain(let blockchain):
-            if let image = blockchain.imageName {
+            if let image = IconsUtils.getBlockchainIcon(blockchain) {
                 Image(image)
                     .resizable()
             } else {
-                CircleImageTextView(name: blockchain.displayName,
-                                color: Color.tangemGrayLight4)
+                CircleImageTextView(name: blockchain.displayName, color: Color.tangemGrayLight4)
             }
         }
     }
     
-    var imagePath: String? {
+    private var imageURL: URL? {
         switch self {
         case .blockchain(let blockchain):
-            return IconsUtils.getBlockchainIconUrl(blockchain)?.absoluteString
+            return IconsUtils.getBlockchainIconUrl(blockchain).flatMap { URL(string: $0.absoluteString) }
         case .token(let token):
-            guard token.customIcon == nil else { return nil }
-            
-            if let url = token.customIconUrl {
-                return url
-            }
-            
-            return IconsUtils.getTokenIconUrl(token: token)?.absoluteString
+            return token.customIconUrl.flatMap{ URL(string: $0) }
         }
     }
-    
+}
+
+extension TokenItem: Codable {
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         if let blockchain = try? container.decode(Blockchain.self) {
@@ -123,7 +134,6 @@ enum TokenItem: Codable, Hashable, Identifiable {
                                 symbol: tokenDto.symbol,
                                 contractAddress: tokenDto.contractAddress,
                                 decimalCount: tokenDto.decimalCount,
-                                customIcon: tokenDto.customIcon,
                                 customIconUrl: tokenDto.customIconUrl,
                                 blockchain: .ethereum(testnet: false)))
         } else {
