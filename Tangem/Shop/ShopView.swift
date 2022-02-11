@@ -25,6 +25,7 @@ struct ShopView: View {
                     
                     cardStack
                         .padding(.top)
+                        .layoutPriority(1)
                     
                     Spacer()
                         .frame(maxHeight: .infinity)
@@ -152,6 +153,8 @@ struct ShopView: View {
         let thirdCardOffset = 22.0
         
         return Image("wallet_card")
+            .resizable()
+            .aspectRatio(contentMode: .fit)
             .background(
                 Color.underlyingCardBackground1
                     .cornerRadius(12)
@@ -165,6 +168,7 @@ struct ShopView: View {
                     .offset(x: 0, y: viewModel.showingThirdCard ? thirdCardOffset : secondCardOffset)
             )
             .padding(.bottom, thirdCardOffset)
+            .padding(.horizontal, 20)
     }
 }
 
