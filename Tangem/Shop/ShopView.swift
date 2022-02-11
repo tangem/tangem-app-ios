@@ -72,16 +72,20 @@ struct ShopView: View {
                             
                             Spacer()
                             
+                            if let totalAmountWithoutDiscount = viewModel.totalAmountWithoutDiscount {
+                                Text(totalAmountWithoutDiscount)
+                                    .strikethrough()
+                            }
+                            
+                            ZStack {
+                                Text(viewModel.totalAmount)
+                                Text("0")
+                                    .foregroundColor(.clear)
+                            }
+                            .font(.system(size: 22, weight: .bold))
+                            
                             if viewModel.productsLoading {
                                 ActivityIndicatorView(isAnimating: viewModel.productsLoading, color: .tangemGrayDark)
-                            } else {
-                                if let totalAmountWithoutDiscount = viewModel.totalAmountWithoutDiscount {
-                                    Text(totalAmountWithoutDiscount)
-                                        .strikethrough()
-                                }
-                                
-                                Text(viewModel.totalAmount)
-                                    .font(.system(size: 22, weight: .bold))
                             }
                         }
                         .padding(.horizontal)
