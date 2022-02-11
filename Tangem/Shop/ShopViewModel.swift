@@ -36,16 +36,14 @@ class ShopViewModel: ViewModel, ObservableObject {
     // MARK: - Input
     @Published var selectedBundle: Bundle = .threeCards
     @Published var discountCode = ""
-    
     @Published var canUseApplePay = true
-    
     @Published var webCheckoutUrl: URL?
     @Published var showingWebCheckout = false
     
     // MARK: - Output
     @Published var checkingDiscountCode = false
     @Published var showingThirdCard = true
-    @Published var productsLoading = false
+    @Published var loadingProducts = false
     @Published var totalAmountWithoutDiscount: String? = nil
     @Published var totalAmount = ""
     @Published var order: Order?
@@ -93,7 +91,7 @@ class ShopViewModel: ViewModel, ObservableObject {
     }
     
     private func fetchProduct() {
-        productsLoading = true
+        loadingProducts = true
         shopifyService
             .products(collectionTitleFilter: nil)
             .sink { completion in
@@ -103,16 +101,17 @@ class ShopViewModel: ViewModel, ObservableObject {
                     return partialResult + collection.products
                 }
                 
+                let skusToDisplay = Bundle.allCases.map { $0.sku }
                 let walletProduct = allProducts.first { product in
                     let variantSkus = product.variants.compactMap { $0.sku }
-                    return variantSkus.contains("TG115x2") && variantSkus.contains("TG115x3")
+                    return skusToDisplay.allSatisfy { variantSkus.contains($0) }
                 }
 
                 guard let walletProduct = walletProduct else {
                     return
                 }
 
-                self.productsLoading = false
+                self.loadingProducts = false
                 self.shopifyProductVariants = walletProduct.variants
                 self.didSelectBundle(self.selectedBundle)
             }
@@ -205,7 +204,6 @@ class ShopViewModel: ViewModel, ObservableObject {
                 }
             }
             .store(in: &bag)
-
     }
     
     private func moneyFormatter(_ currencyCode: String) -> NumberFormatter {
