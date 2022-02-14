@@ -46,6 +46,7 @@ class ShopViewModel: ViewModel, ObservableObject {
     @Published var loadingProducts = false
     @Published var totalAmountWithoutDiscount: String? = nil
     @Published var totalAmount = ""
+    @Published var pollingForOrder = false
     @Published var order: Order?
     
     private var shopifyProductVariants: [ProductVariant] = []
@@ -253,8 +254,13 @@ class ShopViewModel: ViewModel, ObservableObject {
         
         shopifyService
             .startApplePaySession(checkoutID: checkoutID)
+            .flatMap { [unowned self] _ -> AnyPublisher<Checkout, Error> in
+                self.pollingForOrder = true
+                return self.shopifyService.checkout(pollUntilOrder: true, checkoutID: checkoutID)
+            }
             .sink { completion in
                 print("Finished Apple Pay session", completion)
+                self.pollingForOrder = false
             } receiveValue: { [unowned self] checkout in
                 print("Checkout after Apple Pay session", checkout)
                 self.order = checkout.order
