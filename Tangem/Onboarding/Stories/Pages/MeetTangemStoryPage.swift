@@ -17,8 +17,9 @@ struct MeetTangemStoryPage: View {
             
             Spacer()
             
-            Image(systemName: "person")
-                .foregroundColor(.white)
+            Image("hand_with_card")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
             
             Spacer()
             
