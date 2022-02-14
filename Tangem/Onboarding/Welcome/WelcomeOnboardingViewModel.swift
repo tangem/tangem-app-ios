@@ -12,6 +12,19 @@ import TangemSdk
 
 class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     
+    enum StoryPage: Int, Identifiable, CaseIterable {
+        var id: Int {
+            self.rawValue
+        }
+        
+        case meetTangem
+        case awe
+        case backup
+        case currencies
+        case web3
+        case finish
+    }
+    
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
     weak var cardsRepository: CardsRepository!
