@@ -55,7 +55,7 @@ class WarningsService {
         let container = WarningsContainer()
         
         addTestnetCardWarningIfNeeded(in: container, for: cardInfo)
-        addDevCardWarningIfNeeded(in: container, for: cardInfo.card)
+        addDevCardWarningIfNeeded(in: container, for: cardInfo)
         addLowRemainingSignaturesWarningIfNeeded(in: container, for: cardInfo.card)
         addOldCardWarning(in: container, for: cardInfo.card)
         addOldDeviceOldCardWarningIfNeeded(in: container, for: cardInfo.card)
@@ -103,8 +103,8 @@ class WarningsService {
         }
     }
     
-    private func addDevCardWarningIfNeeded(in container: WarningsContainer, for card: Card) {
-        guard card.firmwareVersion.type == .sdk else {
+    private func addDevCardWarningIfNeeded(in container: WarningsContainer, for cardInfo: CardInfo) {
+        guard cardInfo.card.firmwareVersion.type == .sdk, !cardInfo.isTestnet else {
             return
         }
         
