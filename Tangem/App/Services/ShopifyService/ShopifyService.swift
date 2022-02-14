@@ -431,14 +431,14 @@ class ShopifyService {
 
 extension ShopifyService: PaySessionDelegate {
     func paySession(_ paySession: PaySession, didRequestShippingRatesFor address: PayPostalAddress, checkout: PayCheckout, provide: @escaping (PayCheckout?, [PayShippingRate]) -> Void) {
-        print("Providing shipping rates...")
+        print("Apple Pay: Providing shipping rates...")
 
         // Update the checkout with an incomplete address. Full address will be given to us after authorisation.
         updateAddress(Address(address), checkoutID: GraphQL.ID(rawValue: checkout.id), waitForShippingRates: true)
             .sink { completion in
                 switch completion {
                 case .failure(let error):
-                    print("Failed to update shipping address", error)
+                    print("Apple Pay: Failed to update shipping address", error)
                     provide(nil, [])
                 case .finished:
                     break
@@ -454,18 +454,18 @@ extension ShopifyService: PaySessionDelegate {
     // WARNING:
     // This method is only called for checkouts that DON'T require shipping
     func paySession(_ paySession: PaySession, didUpdateShippingAddress address: PayPostalAddress, checkout: PayCheckout, provide: @escaping (PayCheckout?) -> Void) {
-        print("Did update shipping address...")
+        print("Apple Pay: Did update shipping address...")
         provide(nil)
     }
     
     func paySession(_ paySession: PaySession, didSelectShippingRate shippingRate: PayShippingRate, checkout: PayCheckout, provide: @escaping (PayCheckout?) -> Void) {
-        print("Updating shipping rates...")
+        print("Apple Pay: Updating shipping rates...")
         
         updateShippingRate(handle: shippingRate.handle, checkoutID: GraphQL.ID(rawValue: checkout.id))
             .sink { completion in
                 switch completion {
                 case .failure(let error):
-                    print("Failed to update shipping rate", error)
+                    print("Apple Pay: Failed to update shipping rate", error)
                     provide(nil)
                 case .finished:
                     break
@@ -478,7 +478,7 @@ extension ShopifyService: PaySessionDelegate {
     }
     
     func paySession(_ paySession: PaySession, didAuthorizePayment authorization: PayAuthorization, checkout: PayCheckout, completeTransaction: @escaping (PaySession.TransactionStatus) -> Void) {
-        print("Apple Pay authorization granted, proceeding to checkout")
+        print("Apple Pay: Authorization granted, proceeding to checkout")
         
         guard let email = authorization.shippingAddress.email else {
             print("No email provided")
@@ -487,7 +487,7 @@ extension ShopifyService: PaySessionDelegate {
         }
         
         guard let currencyCode = Storefront.CurrencyCode(rawValue: checkout.currencyCode) else {
-            print("Invalid currency", checkout.currencyCode)
+            print("Apple Pay: Invalid currency", checkout.currencyCode)
             completeTransaction(.failure)
             return
         }
@@ -511,6 +511,7 @@ extension ShopifyService: PaySessionDelegate {
                 self.completeWithTokenizedPayment(payment, checkoutID: checkoutID)
             }
             .sink { [unowned self] completion in
+                print("Apple Pay: finished", completion)
                 switch completion {
                 case .finished:
                     completeTransaction(.success)
@@ -522,6 +523,7 @@ extension ShopifyService: PaySessionDelegate {
                 
                 self.paySessionPublisher = nil
             } receiveValue: { [unowned self] checkout in
+                print("Apple Pay: Finished with checkout", checkout)
                 self.paySessionPublisher?.send(checkout)
             }
             .store(in: &subscriptions)
