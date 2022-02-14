@@ -56,6 +56,8 @@
 
 "home_button_scan" = "Scan card";
 
+"home_button_order" = "Order card";
+
 "wallet_button_scan" = "Scan";
 
 "wallet_button_send" = "Send";
@@ -643,3 +645,15 @@ Amount to pay: %@";
 "solana_rent_warning" = "Solana network charges a rent of %@ every 2 days. Accounts that can’t afford the rent are purged from the network. Deposit your account with more than %@ to use it for free.";
 
 "common_explorer_format %@" = "%@ explorer";
+
+"story_meet_title" = "Meet\nTangem";
+"story_awe_title" = "Revolutionary Hardware Wallet ";
+"story_awe_description" = "To buy, store, send, pay, exchange, lend, borrow and stake crypto";
+"story_backup_title" = "Ultra Secure Backup";
+"story_backup_description" = "Up to 3 physical cards to one wallet to keep your keys always offline";
+"story_currencies_title" = "Thousands of currencies";
+"story_currencies_description" = "A hardware wallet for your Bitcoin, Ethereum and many more currencies simultaneously – all in one card. ";
+"story_web3_title" = "Web 3.0 compatible";
+"story_web3_description" = "Exchange, buy NFT’s, make loans and deposits in more than 100 different decentralized applications with help of Wallet Connect.";
+"story_finish_title" = "The wallet for everyone";
+"story_finish_description" = "Use it on the go, anywhere, anytime. No wires or batteries. Just tap the card to your phone when you need your crypto.";
