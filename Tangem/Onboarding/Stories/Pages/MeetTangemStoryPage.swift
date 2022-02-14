@@ -12,8 +12,10 @@ struct MeetTangemStoryPage: View {
     var body: some View {
         VStack {
             Text("story_meet_title")
+                .font(.system(size: 60, weight: .semibold))
                 .multilineTextAlignment(.center)
                 .foregroundColor(.white)
+                .padding(.horizontal)
             
             Spacer()
             
