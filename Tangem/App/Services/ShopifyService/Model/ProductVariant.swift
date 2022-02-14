@@ -16,18 +16,9 @@ struct ProductVariant {
     let currencyCode: String
     
     let product: Product
+}
 
-    init(id: GraphQL.ID, sku: String, title: String, amount: Decimal, originalAmount: Decimal?, currencyCode: String, product: Product) {
-        self.id = id
-        self.sku = sku
-        self.title = title
-        self.amount = amount
-        self.originalAmount = originalAmount
-        self.currencyCode = currencyCode
-
-        self.product = product
-    }
-    
+extension ProductVariant {
     init(_ productVariant: Storefront.ProductVariant) {
         self.id = productVariant.id
         self.sku = productVariant.sku
