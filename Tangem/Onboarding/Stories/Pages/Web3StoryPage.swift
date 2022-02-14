@@ -12,11 +12,16 @@ struct Web3StoryPage: View {
     var body: some View {
         VStack {
             Text("story_web3_title")
+                .font(.system(size: 36, weight: .semibold))
                 .multilineTextAlignment(.center)
+                .padding(.horizontal)
+                .padding(.bottom, 12)
             
             Text("story_web3_description")
+                .font(.system(size: 20))
                 .multilineTextAlignment(.center)
                 .foregroundColor(.gray)
+                .padding(.horizontal)
             Spacer()
             
 
