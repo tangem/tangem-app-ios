@@ -25,7 +25,9 @@ class StoriesViewModel: ObservableObject {
     }
     
     func onAppear() {
-        restartTimer()
+        DispatchQueue.main.async {
+            self.restartTimer()
+        }
     }
     
     func move(forward: Bool) {
