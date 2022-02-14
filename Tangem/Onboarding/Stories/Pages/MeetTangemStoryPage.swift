@@ -15,7 +15,7 @@ struct MeetTangemStoryPage: View {
                 .font(.system(size: 60, weight: .semibold))
                 .multilineTextAlignment(.center)
                 .foregroundColor(.white)
-                .padding(.horizontal)
+                .padding()
             
             Spacer()
             
