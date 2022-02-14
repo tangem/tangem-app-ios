@@ -21,8 +21,9 @@ struct AweStoryPage: View {
             Spacer()
             
 
-            Image(systemName: "person")
-                .foregroundColor(.white)
+            Image("coin_shower")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
             
             Spacer()
             
