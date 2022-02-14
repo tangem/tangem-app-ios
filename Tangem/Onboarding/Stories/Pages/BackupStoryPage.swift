@@ -12,11 +12,16 @@ struct BackupStoryPage: View {
     var body: some View {
         VStack {
             Text("story_backup_title")
+                .font(.system(size: 36, weight: .semibold))
                 .multilineTextAlignment(.center)
+                .padding(.horizontal)
+                .padding(.bottom, 12)
             
             Text("story_backup_description")
+                .font(.system(size: 24))
                 .multilineTextAlignment(.center)
                 .foregroundColor(.gray)
+                .padding(.horizontal)
             Spacer()
             
 
