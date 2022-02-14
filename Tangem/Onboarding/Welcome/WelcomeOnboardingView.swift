@@ -38,6 +38,7 @@ struct WelcomeOnboardingView: View {
                     FinishStoryPage()
                 }
             }
+            .preferredColorScheme([2,3,4].contains(storiesModel.selection) ? .light : .dark)
             .actionSheet(item: $viewModel.discardAlert, content: { $0.sheet })
             
             ScanTroubleshootingView(isPresented: $navigation.readToTroubleshootingScan) {
