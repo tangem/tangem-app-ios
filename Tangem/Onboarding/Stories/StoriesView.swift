@@ -19,7 +19,7 @@ struct StoriesView<Content: View>: View {
     var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .top) {
-                TabView(selection: $viewModel.selection, content: content)
+                content()
                     .simultaneousGesture(
                         DragGesture(minimumDistance: 0).onEnded { v in
                             let width = geo.size.width
