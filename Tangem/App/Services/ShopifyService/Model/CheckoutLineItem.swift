@@ -14,22 +14,17 @@ struct CheckoutLineItem {
     let quantity: Int32
     let amount: Decimal
     
+    static func checkoutInput(variantID: GraphQL.ID, quantity: Int32) -> CheckoutLineItem {
+        return CheckoutLineItem(id: variantID, title: "", quantity: quantity, amount: 0)
+    }
+}
+
+extension CheckoutLineItem {
     init(_ item: Storefront.CheckoutLineItem) {
         self.id = item.id
         self.title = item.title
         self.quantity = item.quantity
         self.amount = item.variant?.priceV2.amount ?? Decimal()
-    }
-
-    init(variantID: GraphQL.ID, title: String, quantity: Int32, amount: Decimal) {
-        self.id = variantID
-        self.title = title
-        self.quantity = quantity
-        self.amount = amount
-    }
-    
-    static func checkoutInput(variantID: GraphQL.ID, quantity: Int32) -> CheckoutLineItem {
-        return CheckoutLineItem(variantID: variantID, title: "", quantity: quantity, amount: 0)
     }
 }
 
