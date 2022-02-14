@@ -20,7 +20,9 @@ struct Web3StoryPage: View {
             Spacer()
             
 
-            Image(systemName: "person")
+            Image("dapps")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
             
             Spacer()
             

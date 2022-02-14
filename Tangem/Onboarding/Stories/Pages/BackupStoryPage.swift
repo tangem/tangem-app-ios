@@ -20,7 +20,9 @@ struct BackupStoryPage: View {
             Spacer()
             
 
-            Image(systemName: "person")
+            Image("cards_flying")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
             
             Spacer()
             
