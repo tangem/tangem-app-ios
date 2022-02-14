@@ -17,7 +17,7 @@ struct StoriesProgressView: View {
             ForEach(0..<numberOfPages) { index in
                 GeometryReader { geo in
                     Rectangle()
-                        .fill(Color.white.opacity(0.2))
+                        .fill(Color.primary.opacity(0.2))
                         .overlay(overlay(index, width: geo.size.width), alignment: .leading)
                         .clipShape(Capsule())
                 }
@@ -29,11 +29,11 @@ struct StoriesProgressView: View {
     @ViewBuilder
     func overlay(_ index: Int, width: CGFloat) -> some View {
         if index < currentPage {
-            Color.white
+            Color.primary
         } else if index > currentPage {
             EmptyView()
         } else {
-            Color.white.frame(width: progress * width)
+            Color.primary.frame(width: progress * width)
         }
     }
 }
@@ -44,6 +44,7 @@ struct StoriesProgressView_Previews: PreviewProvider {
             Color.purple
             StoriesProgressView(numberOfPages: 4, currentPage: .constant(2), progress: .constant(0.3))
                 .padding()
+                .preferredColorScheme(.dark)
         }
         .previewLayout(.fixed(width: 400, height: 100))
     }
