@@ -179,8 +179,18 @@ struct ShopView: View {
     @ViewBuilder
     private var orderActivityOverlay: some View {
         if viewModel.pollingForOrder {
-            Color.white.opacity(0.3)
-                .overlay(ActivityIndicatorView(isAnimating: true, style: .medium, color: .tangemGrayDark))
+            Color.white
+                .overlay(
+                    VStack {
+                        ActivityIndicatorView(isAnimating: true, style: .medium, color: .tangemGrayDark)
+                        Text("shop_placing_order")
+                            .lineLimit(1)
+                            .font(.system(size: 40, weight: .semibold))
+                            .minimumScaleFactor(0.3)
+                            .padding(.horizontal)
+                    }
+                )
+                .edgesIgnoringSafeArea(.all)
         } else {
             EmptyView()
         }
