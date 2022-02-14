@@ -21,8 +21,9 @@ struct FinishStoryPage: View {
             Spacer()
             
             
-            Image(systemName: "person")
-                .foregroundColor(.white)
+            Image("amazement")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
             
             Spacer()
             
