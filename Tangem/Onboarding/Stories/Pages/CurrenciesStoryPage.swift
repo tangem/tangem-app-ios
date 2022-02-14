@@ -20,7 +20,9 @@ struct CurrenciesStoryPage: View {
             Spacer()
             
 
-            Image(systemName: "person")
+            Image("currencies")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
             
             Spacer()
             
