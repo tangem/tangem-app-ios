@@ -11,70 +11,32 @@ import SwiftUI
 struct WelcomeOnboardingView: View {
     
     @ObservedObject var viewModel: WelcomeOnboardingViewModel
+    @StateObject var storiesModel = StoriesViewModel(numberOfViews: WelcomeOnboardingViewModel.StoryPage.allCases.count, storyDuration: 5)
     @EnvironmentObject var navigation: NavigationCoordinator
-    
-    @State var containerSize: CGSize = .zero
     
     var currentStep: WelcomeStep { .welcome }
     
     var body: some View {
         ZStack {
-            VStack(spacing: 0) {
-                ZStack {
-                    let bgSize = containerSize * 1.5
-                    
-                    WelcomeBackgroundView()
-                        .frame(size: bgSize)
-                        .offset(x: bgSize.width/3,
-                                y: (containerSize.height - bgSize.height) * 0.2)
-                    
-                    AnimatedView(settings: viewModel.$lightCardSettings) {
-                        OnboardingCardView(placeholderCardType: .light,
-                                           cardImage: nil,
-                                           cardScanned: false)
-                    }
-                    
-                    AnimatedView(settings: viewModel.$darkCardSettings) {
-                        OnboardingCardView(placeholderCardType: .dark,
-                                           cardImage: nil,
-                                           cardScanned: false)
-                    }
+            StoriesView(viewModel: storiesModel) {
+                if storiesModel.selection == WelcomeOnboardingViewModel.StoryPage.meetTangem.rawValue {
+                    MeetTangemStoryPage()
                 }
-                .position(x: containerSize.width / 2, y: containerSize.height / 2)
-                .readSize { size in
-                    containerSize = size
-                    viewModel.setupContainer(size)
+                if storiesModel.selection == WelcomeOnboardingViewModel.StoryPage.awe.rawValue {
+                    AweStoryPage()
                 }
-                
-                OnboardingTextButtonView(
-                    title: currentStep.title,
-                    subtitle: currentStep.subtitle,
-                    buttonsSettings:
-                        .init(main: TangemButtonSettings(
-                            title: currentStep.mainButtonTitle,
-                            size: .wide,
-                            action: {
-                                viewModel.scanCard()
-                            },
-                            isBusy: viewModel.isScanningCard,
-                            isEnabled: true,
-                            isVisible: true
-                        ),
-                        supplement: TangemButtonSettings(
-                            title: currentStep.supplementButtonTitle,
-                            size: .wide,
-                            action: {
-                                navigation.readToShop = true
-                                Analytics.log(.getACard, params: [.source: .welcome])
-                            },
-                            isBusy: false,
-                            isEnabled: true,
-                            isVisible: true,
-                            color: .transparentWhite))
-                ) {
-                    
+                if storiesModel.selection == WelcomeOnboardingViewModel.StoryPage.backup.rawValue {
+                    BackupStoryPage()
                 }
-                .padding(.horizontal, 40)
+                if storiesModel.selection == WelcomeOnboardingViewModel.StoryPage.currencies.rawValue {
+                    CurrenciesStoryPage()
+                }
+                if storiesModel.selection == WelcomeOnboardingViewModel.StoryPage.web3.rawValue {
+                    Web3StoryPage()
+                }
+                if storiesModel.selection == WelcomeOnboardingViewModel.StoryPage.finish.rawValue {
+                    FinishStoryPage()
+                }
             }
             .actionSheet(item: $viewModel.discardAlert, content: { $0.sheet })
             
