@@ -15,8 +15,7 @@ struct AweStoryPage: View {
                 .font(.system(size: 36, weight: .semibold))
                 .multilineTextAlignment(.center)
                 .foregroundColor(.white)
-                .padding(.horizontal)
-                .padding(.bottom, 12)
+                .padding()
             
             Text("story_awe_description")
                 .font(.system(size: 24))
