@@ -97,22 +97,28 @@ class ShopViewModel: ViewModel, ObservableObject {
             .sink { completion in
                 
             } receiveValue: { [unowned self] collections in
-                let allProducts: [Product] = collections.reduce([]) { partialResult, collection in
-                    return partialResult + collection.products
+                // There can be multiple variants with the same SKU and the same ID along multiple products.
+                let allVariants: [ProductVariant] = collections.reduce([]) { partialResult, collection in
+                    let products = collection.products
+                    let variants = products.reduce([]) {
+                        return $0 + $1.variants
+                    }
+                    return partialResult + variants
                 }
                 
                 let skusToDisplay = Bundle.allCases.map { $0.sku }
-                let walletProduct = allProducts.first { product in
-                    let variantSkus = product.variants.compactMap { $0.sku }
-                    return skusToDisplay.allSatisfy { variantSkus.contains($0) }
+                let variants = skusToDisplay.compactMap { skuToDisplay in
+                    allVariants.first {
+                        $0.sku == skuToDisplay
+                    }
                 }
-
-                guard let walletProduct = walletProduct else {
+                
+                guard variants.count == skusToDisplay.count else {
                     return
                 }
 
                 self.loadingProducts = false
-                self.shopifyProductVariants = walletProduct.variants
+                self.shopifyProductVariants = variants
                 self.didSelectBundle(self.selectedBundle)
             }
             .store(in: &bag)
