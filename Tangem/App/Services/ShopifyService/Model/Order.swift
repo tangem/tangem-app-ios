@@ -15,17 +15,9 @@ struct Order {
     let financialStatus: String
     let statusUrl: URL
     let address: String
-    
-    init(id: GraphQL.ID, number: Int, processedDate: Date, fulfillmentStatus: String, financialStatus: String, statusUrl: URL, address: String) {
-        self.id = id
-        self.number = number
-        self.processedDate = processedDate
-        self.fulfillmentStatus = fulfillmentStatus
-        self.financialStatus = financialStatus
-        self.statusUrl = statusUrl
-        self.address = address
-    }
+}
 
+extension Order {
     init(_ order: Storefront.Order) {
         self.id = order.id
         self.number = Int(order.orderNumber)
