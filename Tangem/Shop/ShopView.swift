@@ -137,6 +137,7 @@ struct ShopView: View {
                        maxHeight: .infinity, alignment: .top)
             }
         }
+        .overlay(orderActivityOverlay)
         .background(Color(UIColor.tangemBgGray).edgesIgnoringSafeArea(.all))
         .onAppear {
             viewModel.didAppear()
@@ -169,6 +170,16 @@ struct ShopView: View {
             )
             .padding(.bottom, thirdCardOffset)
             .padding(.horizontal, 20)
+    }
+    
+    @ViewBuilder
+    private var orderActivityOverlay: some View {
+        if viewModel.pollingForOrder {
+            Color.white.opacity(0.3)
+                .overlay(ActivityIndicatorView(isAnimating: true, style: .medium, color: .tangemGrayDark))
+        } else {
+            EmptyView()
+        }
     }
 }
 
