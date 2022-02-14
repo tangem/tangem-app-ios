@@ -78,27 +78,11 @@ enum TokenItem: Hashable, Identifiable {
         }
     }
     
-    
-    
-    @ViewBuilder func iconView(size: CGSize) -> some View {
-        if let url = imageURL {
-        #if !CLIP
-            KFImage(url)
-                .placeholder { imageView }
-                .setProcessor(DownsamplingImageProcessor(size: size))
-                .cacheOriginalImage()
-                .scaleFactor(UIScreen.main.scale)
-                .resizable()
-                .scaledToFit()
-        #else
-            WebImage(imagePath: url, placeholder: imageView.toAnyView())
-        #endif
-        } else {
-            imageView
-        }
+    var iconView: TokenIconView {
+        TokenIconView(token: self)
     }
     
-    @ViewBuilder private var imageView: some View {
+    @ViewBuilder fileprivate var imageView: some View {
         switch self {
         case .token(let token):
             CircleImageTextView(name: token.name, color: token.color)
@@ -112,7 +96,7 @@ enum TokenItem: Hashable, Identifiable {
         }
     }
     
-    private var imageURL: URL? {
+    fileprivate var imageURL: URL? {
         switch self {
         case .blockchain(let blockchain):
             return IconsUtils.getBlockchainIconUrl(blockchain).flatMap { URL(string: $0.absoluteString) }
@@ -159,4 +143,29 @@ struct TokenDTO: Decodable {
     let decimalCount: Int
     let customIcon: String?
     let customIconUrl: String?
+}
+
+
+struct TokenIconView: View {
+    var token: TokenItem
+    var size: CGSize = .init(width: 80, height: 80)
+    
+    var body: some View {
+        if let url = token.imageURL {
+        #if !CLIP
+            KFImage(url)
+                .placeholder { token.imageView }
+                .setProcessor(DownsamplingImageProcessor(size: size))
+                .cacheOriginalImage()
+                .scaleFactor(UIScreen.main.scale)
+                .resizable()
+                .scaledToFit()
+        #else
+            WebImage(imagePath: url, placeholder: token.imageView.toAnyView())
+        #endif
+        } else {
+            token.imageView
+        }
+    }
+    
 }
