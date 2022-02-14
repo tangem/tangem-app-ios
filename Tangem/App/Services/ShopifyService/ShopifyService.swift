@@ -46,6 +46,7 @@ class ShopifyService {
     }
     
     func cancelTasks() {
+        print("Shopify: Cancelling tasks")
         tasks.forEach { $0.cancel() }
     }
     
