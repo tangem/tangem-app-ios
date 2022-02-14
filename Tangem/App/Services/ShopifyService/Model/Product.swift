@@ -11,13 +11,9 @@ struct Product {
     let id: GraphQL.ID
     let title: String
     let variants: [ProductVariant]
-    
-    init(id: GraphQL.ID, title: String, variants: [ProductVariant]) {
-        self.id = id
-        self.title = title
-        self.variants = variants
-    }
+}
 
+extension Product {
     init(_ product: Storefront.Product) {
         self.id = product.id
         self.title = product.title
