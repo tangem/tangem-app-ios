@@ -758,6 +758,9 @@
 		B0FB2995263BD3ED007B400F /* EthereumUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FB2994263BD3ED007B400F /* EthereumUtils.swift */; };
 		B0FB98A52598D24300B769A3 /* Card+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FB98A42598D24300B769A3 /* Card+.swift */; };
 		B0FC4A822630245F000444D7 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = B0FC49BF2630245E000444D7 /* Localizable.strings */; };
+		DA03EC8C27BA232200A1565C /* StoriesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA03EC8927BA232100A1565C /* StoriesView.swift */; };
+		DA03EC8D27BA232200A1565C /* StoriesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA03EC8A27BA232100A1565C /* StoriesViewModel.swift */; };
+		DA03EC8E27BA232200A1565C /* StoriesProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA03EC8B27BA232200A1565C /* StoriesProgressView.swift */; };
 		F06BBA2FE022C3EF1F3B6513 /* Pods_Tangem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F3AA1BEE46AF490A6F95DA /* Pods_Tangem.framework */; };
 /* End PBXBuildFile section */
 
@@ -1541,6 +1544,9 @@
 		BD6C9959F53AF1BAC643BEDD /* Pods-Tangem Tap-Tangem TapUITests.firebase.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap-Tangem TapUITests.firebase.xcconfig"; path = "Target Support Files/Pods-Tangem Tap-Tangem TapUITests/Pods-Tangem Tap-Tangem TapUITests.firebase.xcconfig"; sourceTree = "<group>"; };
 		D513FF545D1945A2BACAA25F /* Pods_Tangem_TangemUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tangem_TangemUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9B0B0F1869C2BD108CE901A /* Pods-Tangem-TangemUITests.firebase.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.firebase.xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.firebase.xcconfig"; sourceTree = "<group>"; };
+		DA03EC8927BA232100A1565C /* StoriesView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoriesView.swift; sourceTree = "<group>"; };
+		DA03EC8A27BA232100A1565C /* StoriesViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoriesViewModel.swift; sourceTree = "<group>"; };
+		DA03EC8B27BA232200A1565C /* StoriesProgressView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoriesProgressView.swift; sourceTree = "<group>"; };
 		E53081CA3060D2785F9D22F0 /* Pods-Tangem-TangemUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release.xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release.xcconfig"; sourceTree = "<group>"; };
 		F3B96D298A039D2A8811CEF0 /* Pods-Tangem Tap.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap.release.xcconfig"; path = "Target Support Files/Pods-Tangem Tap/Pods-Tangem Tap.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -3510,6 +3516,7 @@
 		B0E1564926B9417E005B33E4 /* Onboarding */ = {
 			isa = PBXGroup;
 			children = (
+				DA03EC8827BA230A00A1565C /* Stories */,
 				B0AA865026DC90D600287F80 /* Welcome */,
 				B099614926D51C29000E3779 /* Base */,
 				B099614626D5189C000E3779 /* Note */,
@@ -3615,6 +3622,16 @@
 				A689E1567E7840EFA99FE59E /* Pods-TangemTests.firebase.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		DA03EC8827BA230A00A1565C /* Stories */ = {
+			isa = PBXGroup;
+			children = (
+				DA03EC8927BA232100A1565C /* StoriesView.swift */,
+				DA03EC8B27BA232200A1565C /* StoriesProgressView.swift */,
+				DA03EC8A27BA232100A1565C /* StoriesViewModel.swift */,
+			);
+			path = Stories;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -3978,6 +3995,7 @@
 				5DF2522B24F9439D0015B429 /* UIImage+.swift in Sources */,
 				B0E1564F26B948B3005B33E4 /* OnboardingStepsSetupService.swift in Sources */,
 				B0F62C4825DE4ABE005C8BA0 /* EmailType.swift in Sources */,
+				DA03EC8C27BA232200A1565C /* StoriesView.swift in Sources */,
 				B0C4F77F26F0C0BF0086D815 /* TransitionWithoutOpacity.swift in Sources */,
 				5D384B9124FD4E1800C2C92C /* String+.swift in Sources */,
 				5DD4CB4E24FAAB1A008F23CC /* KeyboardAdaptive.swift in Sources */,
@@ -4158,6 +4176,7 @@
 				B08B8CEB26D6276000D4BB7B /* Assembly+AppPreview.swift in Sources */,
 				B0A9E93F25921D21007B6D36 /* WarningView.swift in Sources */,
 				5D78D118261DFEBA00F98B18 /* PurgeWalletsAndReadResponse.swift in Sources */,
+				DA03EC8E27BA232200A1565C /* StoriesProgressView.swift in Sources */,
 				B0AA865226DC90E600287F80 /* WelcomeOnboardingView.swift in Sources */,
 				5D225CB92524B721001564A3 /* Analytics.swift in Sources */,
 				B0C04BB92563F591008A3B51 /* TwinCardOnboardingViewModel.swift in Sources */,
@@ -4167,6 +4186,7 @@
 				B02275D72701D9FB004C752B /* PreparePrimaryCardTask.swift in Sources */,
 				B029C1DC270229530017C848 /* OnboardingAccessCodeView.swift in Sources */,
 				B0F62C5525DE4F6B005C8BA0 /* DeviceInfoProvider.swift in Sources */,
+				DA03EC8D27BA232200A1565C /* StoriesViewModel.swift in Sources */,
 				B020A51426F1DBE700D38596 /* OnboardingInput.swift in Sources */,
 				B0A0911026D3636F00F46DF5 /* AnimationCompletionObserverModifier.swift in Sources */,
 				B0D76D4D25D4E4610073FA98 /* AddCustomTokenViewModel.swift in Sources */,
