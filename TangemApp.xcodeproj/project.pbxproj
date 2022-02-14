@@ -761,6 +761,12 @@
 		DA03EC8C27BA232200A1565C /* StoriesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA03EC8927BA232100A1565C /* StoriesView.swift */; };
 		DA03EC8D27BA232200A1565C /* StoriesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA03EC8A27BA232100A1565C /* StoriesViewModel.swift */; };
 		DA03EC8E27BA232200A1565C /* StoriesProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA03EC8B27BA232200A1565C /* StoriesProgressView.swift */; };
+		DA03EC9127BA2A6100A1565C /* MeetTangemStoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA03EC9027BA2A6100A1565C /* MeetTangemStoryPage.swift */; };
+		DA03EC9527BA2C0700A1565C /* AweStoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA03EC9427BA2C0700A1565C /* AweStoryPage.swift */; };
+		DA03EC9727BA2E5100A1565C /* BackupStoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA03EC9627BA2E5100A1565C /* BackupStoryPage.swift */; };
+		DA03EC9927BA2E5E00A1565C /* CurrenciesStoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA03EC9827BA2E5E00A1565C /* CurrenciesStoryPage.swift */; };
+		DA03EC9B27BA2E6E00A1565C /* Web3StoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA03EC9A27BA2E6E00A1565C /* Web3StoryPage.swift */; };
+		DA03EC9D27BA2E7A00A1565C /* FinishStoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA03EC9C27BA2E7A00A1565C /* FinishStoryPage.swift */; };
 		F06BBA2FE022C3EF1F3B6513 /* Pods_Tangem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F3AA1BEE46AF490A6F95DA /* Pods_Tangem.framework */; };
 /* End PBXBuildFile section */
 
@@ -1547,6 +1553,12 @@
 		DA03EC8927BA232100A1565C /* StoriesView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoriesView.swift; sourceTree = "<group>"; };
 		DA03EC8A27BA232100A1565C /* StoriesViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoriesViewModel.swift; sourceTree = "<group>"; };
 		DA03EC8B27BA232200A1565C /* StoriesProgressView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoriesProgressView.swift; sourceTree = "<group>"; };
+		DA03EC9027BA2A6100A1565C /* MeetTangemStoryPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetTangemStoryPage.swift; sourceTree = "<group>"; };
+		DA03EC9427BA2C0700A1565C /* AweStoryPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AweStoryPage.swift; sourceTree = "<group>"; };
+		DA03EC9627BA2E5100A1565C /* BackupStoryPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupStoryPage.swift; sourceTree = "<group>"; };
+		DA03EC9827BA2E5E00A1565C /* CurrenciesStoryPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrenciesStoryPage.swift; sourceTree = "<group>"; };
+		DA03EC9A27BA2E6E00A1565C /* Web3StoryPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Web3StoryPage.swift; sourceTree = "<group>"; };
+		DA03EC9C27BA2E7A00A1565C /* FinishStoryPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinishStoryPage.swift; sourceTree = "<group>"; };
 		E53081CA3060D2785F9D22F0 /* Pods-Tangem-TangemUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release.xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release.xcconfig"; sourceTree = "<group>"; };
 		F3B96D298A039D2A8811CEF0 /* Pods-Tangem Tap.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap.release.xcconfig"; path = "Target Support Files/Pods-Tangem Tap/Pods-Tangem Tap.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -3627,11 +3639,25 @@
 		DA03EC8827BA230A00A1565C /* Stories */ = {
 			isa = PBXGroup;
 			children = (
+				DA03EC8F27BA2A4C00A1565C /* Pages */,
 				DA03EC8927BA232100A1565C /* StoriesView.swift */,
 				DA03EC8B27BA232200A1565C /* StoriesProgressView.swift */,
 				DA03EC8A27BA232100A1565C /* StoriesViewModel.swift */,
 			);
 			path = Stories;
+			sourceTree = "<group>";
+		};
+		DA03EC8F27BA2A4C00A1565C /* Pages */ = {
+			isa = PBXGroup;
+			children = (
+				DA03EC9027BA2A6100A1565C /* MeetTangemStoryPage.swift */,
+				DA03EC9427BA2C0700A1565C /* AweStoryPage.swift */,
+				DA03EC9627BA2E5100A1565C /* BackupStoryPage.swift */,
+				DA03EC9827BA2E5E00A1565C /* CurrenciesStoryPage.swift */,
+				DA03EC9A27BA2E6E00A1565C /* Web3StoryPage.swift */,
+				DA03EC9C27BA2E7A00A1565C /* FinishStoryPage.swift */,
+			);
+			path = Pages;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -4049,6 +4075,7 @@
 				5D09380A25E6AEB10049B8F0 /* BalanceAddressView.swift in Sources */,
 				B09BB883259A09CE00B92000 /* WarningEvent+.swift in Sources */,
 				5D09381425E6CB2D0049B8F0 /* HorizontalButtonStack.swift in Sources */,
+				DA03EC9B27BA2E6E00A1565C /* Web3StoryPage.swift in Sources */,
 				B0CAFA8D26C6C0FE001238DA /* QRCodeGenerator.swift in Sources */,
 				5D09383725EAB45C0049B8F0 /* TokenItemViewModel.swift in Sources */,
 				B0B9E0B62629779500408726 /* AlertBinder.swift in Sources */,
@@ -4058,6 +4085,7 @@
 				B085154D26D7797400E1A836 /* TwinsOnboardingView.swift in Sources */,
 				B013A7B82621CC510032F2AE /* SendTransactionHandler.swift in Sources */,
 				B0CCA7222568FD0F009325E3 /* TwinsCreateWalletTask.swift in Sources */,
+				DA03EC9527BA2C0700A1565C /* AweStoryPage.swift in Sources */,
 				B0323F27258BFCF4005C7CD5 /* WriteIssuerDataTask.swift in Sources */,
 				5D80ED422550172A0008DEF0 /* UIApplication+.swift in Sources */,
 				5D6784CE25EB92F300149995 /* SupportedTokenItems.swift in Sources */,
@@ -4072,6 +4100,7 @@
 				B0CBE9FE26260D3F00072191 /* ScannedCardsRepository.swift in Sources */,
 				5D78D11D261E084700F98B18 /* CreateMultiWalletTask.swift in Sources */,
 				B0FAD00A26BA78FE00F45E88 /* TangemWallet.swift in Sources */,
+				DA03EC9127BA2A6100A1565C /* MeetTangemStoryPage.swift in Sources */,
 				B07AE16C25DD548A0045179A /* RateAppService.swift in Sources */,
 				B0F79C73268A2E98008C9B30 /* SavedCard.swift in Sources */,
 				5DFCCB7424C3819A0014A293 /* SendView.swift in Sources */,
@@ -4093,6 +4122,7 @@
 				5D69E0E325016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift in Sources */,
 				B0FB98A52598D24300B769A3 /* Card+.swift in Sources */,
 				B0C807232620549F00F7DADE /* WalletConnectSessionItemView.swift in Sources */,
+				DA03EC9927BA2E5E00A1565C /* CurrenciesStoryPage.swift in Sources */,
 				B069B6DB268AFEBA004E7928 /* BnbSignHandler.swift in Sources */,
 				5DFB499A24E554140037E76F /* Card+Preview.swift in Sources */,
 				B0C4F77926F092640086D815 /* WelcomeCardLayout.swift in Sources */,
@@ -4108,6 +4138,7 @@
 				5DF2522724F914E30015B429 /* AppScanTask.swift in Sources */,
 				5DD6DF21251E018A00F2693E /* AlertCardView.swift in Sources */,
 				B0C87B432566461600F861DE /* TwinCardsFileCoder.swift in Sources */,
+				DA03EC9727BA2E5100A1565C /* BackupStoryPage.swift in Sources */,
 				B022034B26FDB266001DCB12 /* CardViewModel+Combine.swift in Sources */,
 				5D09383C25EAE7FD0049B8F0 /* PersistentStorage.swift in Sources */,
 				B018F2FD2591FE8600D8F89A /* AppWarning.swift in Sources */,
@@ -4148,6 +4179,7 @@
 				5D242A5F273C1F24008F79B5 /* Publisher+.swift in Sources */,
 				5D24A12A24FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift in Sources */,
 				5DBBAB0F24D8617C00E78F1C /* CardRectView.swift in Sources */,
+				DA03EC9D27BA2E7A00A1565C /* FinishStoryPage.swift in Sources */,
 				B0606E122684A946004004ED /* BlinkingModifier.swift in Sources */,
 				5D119E85256BF1E50046CAD2 /* Option.swift in Sources */,
 				5DF2522D24F95E390015B429 /* UIScreen+.swift in Sources */,
