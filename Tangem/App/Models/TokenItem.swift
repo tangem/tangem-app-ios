@@ -167,5 +167,4 @@ struct TokenIconView: View {
             token.imageView
         }
     }
-    
 }
