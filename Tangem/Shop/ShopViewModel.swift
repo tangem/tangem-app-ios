@@ -70,15 +70,6 @@ class ShopViewModel: ViewModel, ObservableObject {
                 self.didSelectBundle(newBundle)
             }
             .store(in: &bag)
-        
-        $discountCode
-            .dropFirst()
-            .debounce(for: 1.0, scheduler: RunLoop.main, options: nil)
-            .removeDuplicates()
-            .sink { [unowned self] code in
-                self.setDiscountCode(code.isEmpty ? nil : code)
-            }
-            .store(in: &bag)
 
         $showingWebCheckout
             .dropFirst()
@@ -91,6 +82,10 @@ class ShopViewModel: ViewModel, ObservableObject {
             .store(in: &bag)
         
         fetchProduct()
+    }
+    
+    func didEnterDiscountCode() {
+        setDiscountCode(discountCode.isEmpty ? nil : discountCode)
     }
     
     private func fetchProduct() {
