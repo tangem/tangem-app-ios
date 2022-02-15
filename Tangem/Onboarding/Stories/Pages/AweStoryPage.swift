@@ -9,6 +9,9 @@
 import SwiftUI
 
 struct AweStoryPage: View {
+    var scanCard: (() -> Void)
+    var orderCard: (() -> Void)
+    
     var body: some View {
         VStack {
             Text("story_awe_title")
@@ -32,11 +35,21 @@ struct AweStoryPage: View {
             Spacer()
             
             HStack {
-                Text("Scan Card")
+                Button {
+                    scanCard()
+                } label: {
+                    Text("home_button_scan")
+                }
+                .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
                 
-                Text("Order Card")
+                Button {
+                    orderCard()
+                } label: {
+                    Text("home_button_order")
+                }
+                .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt, layout: .flexibleWidth))
             }
-            .foregroundColor(.white)
+            .padding(.horizontal)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.black.edgesIgnoringSafeArea(.all))
@@ -45,6 +58,6 @@ struct AweStoryPage: View {
 
 struct AweStoryPage_Previews: PreviewProvider {
     static var previews: some View {
-        AweStoryPage()
+        AweStoryPage { } orderCard: { }
     }
 }

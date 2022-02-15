@@ -21,17 +21,17 @@ struct WelcomeOnboardingView: View {
             StoriesView(viewModel: storiesModel) {
                 switch storiesModel.selection {
                 case WelcomeOnboardingViewModel.StoryPage.meetTangem.rawValue:
-                    MeetTangemStoryPage()
+                    MeetTangemStoryPage(scanCard: scanCard, orderCard: orderCard)
                 case WelcomeOnboardingViewModel.StoryPage.awe.rawValue:
-                    AweStoryPage()
+                    AweStoryPage(scanCard: scanCard, orderCard: orderCard)
                 case WelcomeOnboardingViewModel.StoryPage.backup.rawValue:
-                    BackupStoryPage()
+                    BackupStoryPage(scanCard: scanCard, orderCard: orderCard)
                 case WelcomeOnboardingViewModel.StoryPage.currencies.rawValue:
-                    CurrenciesStoryPage()
+                    CurrenciesStoryPage(scanCard: scanCard, orderCard: orderCard)
                 case WelcomeOnboardingViewModel.StoryPage.web3.rawValue:
-                    Web3StoryPage()
+                    Web3StoryPage(scanCard: scanCard, orderCard: orderCard)
                 case WelcomeOnboardingViewModel.StoryPage.finish.rawValue:
-                    FinishStoryPage()
+                    FinishStoryPage(scanCard: scanCard, orderCard: orderCard)
                 default:
                     EmptyView()
                 }
@@ -76,6 +76,15 @@ struct WelcomeOnboardingView: View {
         }
         .alert(item: $viewModel.error, content: { $0.alert })
         .onAppear(perform: viewModel.onAppear)
+    }
+    
+    private func scanCard() {
+        viewModel.scanCard()
+    }
+    
+    private func orderCard() {
+        navigation.readToShop = true
+        Analytics.log(.getACard, params: [.source: .welcome])
     }
 }
 
