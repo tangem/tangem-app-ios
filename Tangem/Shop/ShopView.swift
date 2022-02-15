@@ -18,8 +18,9 @@ struct ShopView: View {
     private let applePayCornerRadius = 18.0
     
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             SheetDragHandler()
+                .padding(.bottom, 12)
             
             GeometryReader { geometry in
                 ScrollView {
