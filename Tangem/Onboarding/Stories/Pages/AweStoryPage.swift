@@ -32,8 +32,6 @@ struct AweStoryPage: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
             
-            Spacer()
-            
             HStack {
                 Button {
                     scanCard()
@@ -52,7 +50,7 @@ struct AweStoryPage: View {
             .padding(.horizontal)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color.black.edgesIgnoringSafeArea(.all))
+        .background(Color("tangem_dark_story_background").edgesIgnoringSafeArea(.all))
     }
 }
 
