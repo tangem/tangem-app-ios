@@ -52,7 +52,6 @@ struct ShopView: View {
                 }
             }
         }
-        .overlay(orderActivityOverlay)
         .background(Color(UIColor.tangemBgGray).edgesIgnoringSafeArea(.all))
         .onAppear(perform: viewModel.didAppear)
         .navigationBarHidden(true)
@@ -188,26 +187,6 @@ struct ShopView: View {
             EmptyView()
         }
         .hidden()
-    }
-    
-    @ViewBuilder
-    private var orderActivityOverlay: some View {
-        if viewModel.pollingForOrder {
-            Color.white
-                .overlay(
-                    VStack {
-                        ActivityIndicatorView(isAnimating: true, style: .medium, color: .tangemGrayDark)
-                        Text("shop_placing_order")
-                            .lineLimit(1)
-                            .font(.system(size: 40, weight: .semibold))
-                            .minimumScaleFactor(0.3)
-                            .padding(.horizontal)
-                    }
-                )
-                .edgesIgnoringSafeArea(.all)
-        } else {
-            EmptyView()
-        }
     }
 }
 
