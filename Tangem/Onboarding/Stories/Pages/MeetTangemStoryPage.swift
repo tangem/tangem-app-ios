@@ -13,21 +13,22 @@ struct MeetTangemStoryPage: View {
     var orderCard: (() -> Void)
     
     var body: some View {
-        VStack {
-            Text("story_meet_title")
-                .font(.system(size: 60, weight: .semibold))
-                .multilineTextAlignment(.center)
-                .foregroundColor(.white)
-                .padding()
-            
-            Spacer()
-            
-            Image("hand_with_card")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-            
-            Spacer()
-            
+        ZStack(alignment: .bottom) {
+            VStack {
+                Text("story_meet_title")
+                    .font(.system(size: 60, weight: .semibold))
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.white)
+                    .padding()
+                
+                Spacer()
+                
+                Image("hand_with_card")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .edgesIgnoringSafeArea(.bottom)
+            }
+                
             HStack {
                 Button {
                     scanCard()
