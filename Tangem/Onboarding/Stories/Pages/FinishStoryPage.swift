@@ -19,6 +19,7 @@ struct FinishStoryPage: View {
                 .multilineTextAlignment(.center)
                 .foregroundColor(.white)
                 .padding()
+                .padding(.top, StoriesConstants.titleExtraTopPadding)
             
             Text("story_finish_description")
                 .font(.system(size: 24))
