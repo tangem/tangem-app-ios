@@ -71,11 +71,7 @@ struct BottomSheetView<Content: View>: View {
                         hideBottomSheet(with: defaultAnimDuration)
                     }
                 VStack {
-                    Rectangle()
-                        .frame(size: .init(width: 33, height: 5))
-                        .cornerRadius(2.5)
-                        .padding(.top, 12)
-                        .foregroundColor(.tangemGrayLight4)
+                    SheetDragHandler()
                     content
                     TangemButton(title: "common_close") {
                         hideBottomSheet(with: defaultAnimDuration)
