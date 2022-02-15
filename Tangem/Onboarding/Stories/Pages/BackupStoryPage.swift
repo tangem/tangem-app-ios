@@ -18,6 +18,7 @@ struct BackupStoryPage: View {
                 .font(.system(size: 36, weight: .semibold))
                 .multilineTextAlignment(.center)
                 .padding()
+                .padding(.top, StoriesConstants.titleExtraTopPadding)
             
             Text("story_backup_description")
                 .font(.system(size: 24))
