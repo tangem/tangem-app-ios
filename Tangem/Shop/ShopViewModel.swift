@@ -55,6 +55,8 @@ class ShopViewModel: ViewModel, ObservableObject {
     private var initialized = false
     
     func didAppear() {
+        showingWebCheckout = false
+        
         guard !initialized else {
             return
         }
