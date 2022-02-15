@@ -358,6 +358,17 @@ extension Assembly {
         return vm
     }
     
+    func makeShopViewModel() -> ShopViewModel {
+        if let restored: ShopViewModel = get() {
+            return restored
+        }
+        
+        let vm = ShopViewModel()
+        initialize(vm)
+        vm.shopifyService = services.shopifyService
+        return vm
+    }
+    
     func makeAllWalletModels(from cardInfo: CardInfo) -> [WalletModel] {
         let walletManagerFactory = WalletManagerFactory(config: services.keysManager.blockchainConfig)
         let assembly = WalletManagerAssembly(factory: walletManagerFactory,
