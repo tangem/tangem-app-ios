@@ -18,6 +18,7 @@ struct Web3StoryPage: View {
                 .font(.system(size: 36, weight: .semibold))
                 .multilineTextAlignment(.center)
                 .padding()
+                .padding(.top, StoriesConstants.titleExtraTopPadding)
             
             Text("story_web3_description")
                 .font(.system(size: 20))

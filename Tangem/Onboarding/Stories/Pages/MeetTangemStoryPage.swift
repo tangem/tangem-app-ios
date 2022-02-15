@@ -20,6 +20,7 @@ struct MeetTangemStoryPage: View {
                     .multilineTextAlignment(.center)
                     .foregroundColor(.white)
                     .padding()
+                    .padding(.top, StoriesConstants.titleExtraTopPadding)
                 
                 Spacer()
                 
