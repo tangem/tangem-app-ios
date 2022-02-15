@@ -56,7 +56,7 @@ struct ShopView: View {
         .onAppear(perform: viewModel.didAppear)
         .navigationBarHidden(true)
         .navigationBarTitle("") // HACK: Don't remove it, otherwise navigation title will NOT hide on iOS 13
-        .keyboardAdaptive(animated: .constant(true))
+        .keyboardAdaptive(animated: .constant(false))
     }
     
     private var cardStack: some View {
@@ -108,10 +108,9 @@ struct ShopView: View {
             
             HStack {
                 Image("ticket")
-                
                 TextField("shop_i_have_a_promo_code", text: $viewModel.discountCode) { editing in
                     if !editing {
-                        viewModel.didEnterDiscountCode()
+                       viewModel.didEnterDiscountCode()
                     }
                 }
                 .disableAutocorrection(true)
