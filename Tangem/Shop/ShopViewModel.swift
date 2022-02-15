@@ -88,6 +88,49 @@ class ShopViewModel: ViewModel, ObservableObject {
         setDiscountCode(discountCode.isEmpty ? nil : discountCode)
     }
     
+    func openApplePayCheckout() {
+        guard let checkoutID = checkoutByVariantID[currentVariantID]?.id else {
+            return
+        }
+        
+        shopifyService
+            .startApplePaySession(checkoutID: checkoutID)
+            .flatMap { [unowned self] _ -> AnyPublisher<Checkout, Error> in
+                self.pollingForOrder = true
+                return self.shopifyService.checkout(pollUntilOrder: true, checkoutID: checkoutID)
+            }
+            .sink { completion in
+                print("Finished Apple Pay session", completion)
+                self.pollingForOrder = false
+            } receiveValue: { [unowned self] checkout in
+                print("Checkout after Apple Pay session", checkout)
+                self.order = checkout.order
+            }
+            .store(in: &bag)
+    }
+    
+    func openWebCheckout() {
+        guard let checkoutID = checkoutByVariantID[currentVariantID]?.id else {
+            return
+        }
+        
+        // Checking order ID
+        shopifyService.checkout(pollUntilOrder: false, checkoutID: checkoutID)
+            .flatMap { [unowned self] checkout -> AnyPublisher<Checkout, Error> in
+                self.webCheckoutUrl = checkout.webUrl
+                self.showingWebCheckout = true
+                
+                return self.shopifyService.checkout(pollUntilOrder: true, checkoutID: checkoutID)
+            }
+            .sink { _ in
+                
+            } receiveValue: { [unowned self] checkout in
+                self.order = checkout.order
+                self.showingWebCheckout = false
+            }
+            .store(in: &bag)
+    }
+    
     private func fetchProduct() {
         loadingProducts = true
         shopifyService
@@ -242,48 +285,5 @@ class ShopViewModel: ViewModel, ObservableObject {
         } else {
             self.totalAmountWithoutDiscount = nil
         }
-    }
-    
-    func openApplePayCheckout() {
-        guard let checkoutID = checkoutByVariantID[currentVariantID]?.id else {
-            return
-        }
-        
-        shopifyService
-            .startApplePaySession(checkoutID: checkoutID)
-            .flatMap { [unowned self] _ -> AnyPublisher<Checkout, Error> in
-                self.pollingForOrder = true
-                return self.shopifyService.checkout(pollUntilOrder: true, checkoutID: checkoutID)
-            }
-            .sink { completion in
-                print("Finished Apple Pay session", completion)
-                self.pollingForOrder = false
-            } receiveValue: { [unowned self] checkout in
-                print("Checkout after Apple Pay session", checkout)
-                self.order = checkout.order
-            }
-            .store(in: &bag)
-    }
-    
-    func openWebCheckout() {
-        guard let checkoutID = checkoutByVariantID[currentVariantID]?.id else {
-            return
-        }
-        
-        // Checking order ID
-        shopifyService.checkout(pollUntilOrder: false, checkoutID: checkoutID)
-            .flatMap { [unowned self] checkout -> AnyPublisher<Checkout, Error> in
-                self.webCheckoutUrl = checkout.webUrl
-                self.showingWebCheckout = true
-                
-                return self.shopifyService.checkout(pollUntilOrder: true, checkoutID: checkoutID)
-            }
-            .sink { _ in
-                
-            } receiveValue: { [unowned self] checkout in
-                self.order = checkout.order
-                self.showingWebCheckout = false
-            }
-            .store(in: &bag)
     }
 }
