@@ -653,3 +653,4 @@ Amount to pay: %@";
 "shop_other_payment_methods" = "Other payment methods";
 "shop_buy_now" = "Buy now";
 "shop_placing_order" = "Placing your order";
+"shop_web_checkout_title" = "Your order";
