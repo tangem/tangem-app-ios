@@ -775,6 +775,7 @@
 		DA23788D27B248CD009795A8 /* ShopifyShop.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA23788A27B2488D009795A8 /* ShopifyShop.swift */; };
 		DA23789027B250EB009795A8 /* ShopViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA23788F27B250EB009795A8 /* ShopViewModel.swift */; };
 		DA23789227B250F6009795A8 /* ShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA23789127B250F6009795A8 /* ShopView.swift */; };
+		DA2D04D327BB9B07006F1E69 /* ShopOrderProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2D04D227BB9B07006F1E69 /* ShopOrderProgressView.swift */; };
 		DA5FAD8627B2791C00EE53AE /* ApplePayButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5FAD8527B2791C00EE53AE /* ApplePayButton.swift */; };
 		DA5FAD8A27B27F7F00EE53AE /* SheetDragHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5FAD8927B27F7F00EE53AE /* SheetDragHandler.swift */; };
 		DAB1E62427B4E10800C1F510 /* ShopContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB1E62327B4E10800C1F510 /* ShopContainerView.swift */; };
@@ -1577,6 +1578,7 @@
 		DA23788A27B2488D009795A8 /* ShopifyShop.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShopifyShop.swift; sourceTree = "<group>"; };
 		DA23788F27B250EB009795A8 /* ShopViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopViewModel.swift; sourceTree = "<group>"; };
 		DA23789127B250F6009795A8 /* ShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopView.swift; sourceTree = "<group>"; };
+		DA2D04D227BB9B07006F1E69 /* ShopOrderProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopOrderProgressView.swift; sourceTree = "<group>"; };
 		DA5FAD8527B2791C00EE53AE /* ApplePayButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApplePayButton.swift; sourceTree = "<group>"; };
 		DA5FAD8927B27F7F00EE53AE /* SheetDragHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetDragHandler.swift; sourceTree = "<group>"; };
 		DAB1E62327B4E10800C1F510 /* ShopContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopContainerView.swift; sourceTree = "<group>"; };
@@ -3696,6 +3698,7 @@
 				DAB1E62327B4E10800C1F510 /* ShopContainerView.swift */,
 				DA23789127B250F6009795A8 /* ShopView.swift */,
 				DAB1E62527B4E40D00C1F510 /* ShopOrderView.swift */,
+				DA2D04D227BB9B07006F1E69 /* ShopOrderProgressView.swift */,
 			);
 			path = Shop;
 			sourceTree = "<group>";
@@ -4261,6 +4264,7 @@
 				B0C04BB92563F591008A3B51 /* TwinCardOnboardingViewModel.swift in Sources */,
 				B0E1564D26B941AF005B33E4 /* SingleCardOnboardingViewModel.swift in Sources */,
 				B09BB85F259A075600B92000 /* TangemButton.swift in Sources */,
+				DA2D04D327BB9B07006F1E69 /* ShopOrderProgressView.swift in Sources */,
 				B0A0A2DC25825E8A005FC94D /* TwinOnboardingBackground.swift in Sources */,
 				B02275D72701D9FB004C752B /* PreparePrimaryCardTask.swift in Sources */,
 				B029C1DC270229530017C848 /* OnboardingAccessCodeView.swift in Sources */,
