@@ -33,106 +33,16 @@ struct ShopView: View {
                     Text("shop_one_wallet")
                         .font(.system(size: 30, weight: .bold))
                     
-                    Picker("", selection: $viewModel.selectedBundle) {
-                        Text("shop_3_cards").tag(ShopViewModel.Bundle.threeCards)
-                        Text("shop_2_cards").tag(ShopViewModel.Bundle.twoCards)
-                    }
-                    .pickerStyle(.segmented)
-                    .frame(minWidth: 0, maxWidth: 250)
+                    cardSelector
                     
                     Spacer()
                         .frame(maxHeight: .infinity)
                     
-                    VStack(spacing: 0) {
-                        HStack {
-                            Image("box")
-                            Text("shop_shipping")
-                            Spacer()
-                            Text("shop_free")
-                        }
-                        .padding(.horizontal)
-                        .padding(.vertical, sectionRowVerticalPadding)
-                        
-                        Separator(height: 0.5, padding: 0)
-                        
-                        HStack {
-                            Image("ticket")
-                            
-                            TextField("shop_i_have_a_promo_code", text: $viewModel.discountCode)
-                                .disableAutocorrection(true)
-                                .keyboardType(.alphabet)
-                            
-                            ActivityIndicatorView(isAnimating: viewModel.checkingDiscountCode, color: .tangemGrayDark)
-                        }
-                        .padding(.horizontal)
-                        .padding(.vertical, sectionRowVerticalPadding)
-                    }
-                    .background(Color.white.cornerRadius(sectionCornerRadius))
-                    .padding(.bottom, 8)
+                    purchaseForm
                     
+                    buyButtons
                     
-                    VStack {
-                        HStack {
-                            Text("shop_total")
-                            
-                            Spacer()
-                            
-                            if let totalAmountWithoutDiscount = viewModel.totalAmountWithoutDiscount {
-                                Text(totalAmountWithoutDiscount)
-                                    .strikethrough()
-                            }
-                            
-                            ZStack {
-                                Text(viewModel.totalAmount)
-                                Text("0")
-                                    .foregroundColor(.clear)
-                            }
-                            .font(.system(size: 22, weight: .bold))
-                            
-                            if viewModel.loadingProducts {
-                                ActivityIndicatorView(isAnimating: viewModel.loadingProducts, color: .tangemGrayDark)
-                            }
-                        }
-                        .padding(.horizontal)
-                        .padding(.vertical, sectionRowVerticalPadding)
-                    }
-                    .background(Color.white.cornerRadius(sectionCornerRadius))
-                    .padding(.bottom, 8)
-                    
-                    
-                    if viewModel.canUseApplePay {
-                        ApplePayButton {
-                            viewModel.openApplePayCheckout()
-                        }
-                        .frame(height: 46)
-                        .cornerRadius(applePayCornerRadius)
-                        
-                        Button {
-                            viewModel.openWebCheckout()
-                        } label: {
-                            Text("shop_other_payment_methods")
-                        }
-                        .buttonStyle(TangemButtonStyle(colorStyle: .transparentWhite, layout: .flexibleWidth))
-                    } else {
-                        Button {
-                            viewModel.openWebCheckout()
-                        } label: {
-                            Text("shop_buy_now")
-                        }
-                        .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
-                    }
-                    
-                    NavigationLink(isActive: $viewModel.showingWebCheckout) {
-                        if let webCheckoutUrl = viewModel.webCheckoutUrl {
-                            WebViewContainer(url: webCheckoutUrl, title: "shop_web_checkout_title", addLoadingIndicator: true)
-                                .edgesIgnoringSafeArea(.all)
-                        } else {
-                            EmptyView()
-                        }
-                    } label: {
-                        EmptyView()
-                    }
-                    .hidden()
+                    webCheckoutLink
                 }
                 .padding(.horizontal)
                 .frame(minWidth: geometry.size.width,
@@ -169,6 +79,113 @@ struct ShopView: View {
             )
             .padding(.bottom, thirdCardOffset)
             .padding(.horizontal, 20)
+    }
+    
+    @ViewBuilder
+    private var cardSelector: some View {
+        Picker("", selection: $viewModel.selectedBundle) {
+            Text("shop_3_cards").tag(ShopViewModel.Bundle.threeCards)
+            Text("shop_2_cards").tag(ShopViewModel.Bundle.twoCards)
+        }
+        .pickerStyle(.segmented)
+        .frame(minWidth: 0, maxWidth: 250)
+    }
+    
+    @ViewBuilder
+    private var purchaseForm: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Image("box")
+                Text("shop_shipping")
+                Spacer()
+                Text("shop_free")
+            }
+            .padding(.horizontal)
+            .padding(.vertical, sectionRowVerticalPadding)
+            
+            Separator(height: 0.5, padding: 0)
+            
+            HStack {
+                Image("ticket")
+                
+                TextField("shop_i_have_a_promo_code", text: $viewModel.discountCode)
+                    .disableAutocorrection(true)
+                    .keyboardType(.alphabet)
+                
+                ActivityIndicatorView(isAnimating: viewModel.checkingDiscountCode, color: .tangemGrayDark)
+            }
+            .padding(.horizontal)
+            .padding(.vertical, sectionRowVerticalPadding)
+        }
+        .background(Color.white.cornerRadius(sectionCornerRadius))
+        .padding(.bottom, 8)
+        
+        VStack {
+            HStack {
+                Text("shop_total")
+                
+                Spacer()
+                
+                if let totalAmountWithoutDiscount = viewModel.totalAmountWithoutDiscount {
+                    Text(totalAmountWithoutDiscount)
+                        .strikethrough()
+                }
+                
+                ZStack {
+                    Text(viewModel.totalAmount)
+                    Text("0")
+                        .foregroundColor(.clear)
+                }
+                .font(.system(size: 22, weight: .bold))
+                
+                if viewModel.loadingProducts {
+                    ActivityIndicatorView(isAnimating: viewModel.loadingProducts, color: .tangemGrayDark)
+                }
+            }
+            .padding(.horizontal)
+            .padding(.vertical, sectionRowVerticalPadding)
+        }
+        .background(Color.white.cornerRadius(sectionCornerRadius))
+        .padding(.bottom, 8)
+    }
+    
+    @ViewBuilder
+    private var buyButtons: some View {
+        if viewModel.canUseApplePay {
+            ApplePayButton {
+                viewModel.openApplePayCheckout()
+            }
+            .frame(height: 46)
+            .cornerRadius(applePayCornerRadius)
+            
+            Button {
+                viewModel.openWebCheckout()
+            } label: {
+                Text("shop_other_payment_methods")
+            }
+            .buttonStyle(TangemButtonStyle(colorStyle: .transparentWhite, layout: .flexibleWidth))
+        } else {
+            Button {
+                viewModel.openWebCheckout()
+            } label: {
+                Text("shop_buy_now")
+            }
+            .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
+        }
+    }
+    
+    private var webCheckoutLink: some View {
+        NavigationLink(isActive: $viewModel.showingWebCheckout) {
+            if let webCheckoutUrl = viewModel.webCheckoutUrl {
+                WebViewContainer(url: webCheckoutUrl, title: "shop_web_checkout_title", addLoadingIndicator: true)
+                    .edgesIgnoringSafeArea(.all)
+            } else {
+                EmptyView()
+            }
+        } label: {
+            EmptyView()
+        }
+        .hidden()
     }
     
     @ViewBuilder
