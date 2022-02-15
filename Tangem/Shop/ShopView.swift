@@ -25,7 +25,6 @@ struct ShopView: View {
                 ScrollView {
                     VStack {
                         cardStack
-                            .padding(.top)
                             .layoutPriority(1)
                         
                         Spacer()
