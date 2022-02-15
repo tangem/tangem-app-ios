@@ -25,14 +25,25 @@ struct CurrenciesStoryPage: View {
                 .foregroundColor(.gray)
                 .padding(.horizontal)
             
-            Spacer()
-            
-
-            Image("currencies")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-            
-            Spacer()
+            Color.clear
+                .background(
+                    Image("currencies")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .fixedSize(horizontal: false, vertical: true)
+                    ,
+                    alignment: .top
+                )
+                .clipped()
+                .overlay(
+                    GeometryReader { geometry in
+                        VStack {
+                            Spacer()
+                            LinearGradient(colors: [.white.opacity(0), .white], startPoint: .top, endPoint: .bottom)
+                                .frame(height: geometry.size.height / 3)
+                        }
+                    }
+                )
             
             HStack {
                 Button {
