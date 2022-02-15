@@ -9,6 +9,9 @@
 import SwiftUI
 
 struct CurrenciesStoryPage: View {
+    var scanCard: (() -> Void)
+    var orderCard: (() -> Void)
+    
     var body: some View {
         VStack {
             Text("story_currencies_title")
@@ -32,10 +35,21 @@ struct CurrenciesStoryPage: View {
             Spacer()
             
             HStack {
-                Text("Scan Card")
+                Button {
+                    scanCard()
+                } label: {
+                    Text("home_button_scan")
+                }
+                .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt, layout: .flexibleWidth))
                 
-                Text("Order Card")
+                Button {
+                    orderCard()
+                } label: {
+                    Text("home_button_order")
+                }
+                .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
             }
+            .padding(.horizontal)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -43,6 +57,6 @@ struct CurrenciesStoryPage: View {
 
 struct CurrenciesStoryPage_Previews: PreviewProvider {
     static var previews: some View {
-        CurrenciesStoryPage()
+        CurrenciesStoryPage { } orderCard: { }
     }
 }
