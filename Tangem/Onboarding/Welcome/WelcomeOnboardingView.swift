@@ -19,23 +19,21 @@ struct WelcomeOnboardingView: View {
     var body: some View {
         ZStack {
             StoriesView(viewModel: storiesModel) {
-                if storiesModel.selection == WelcomeOnboardingViewModel.StoryPage.meetTangem.rawValue {
+                switch storiesModel.selection {
+                case WelcomeOnboardingViewModel.StoryPage.meetTangem.rawValue:
                     MeetTangemStoryPage()
-                }
-                if storiesModel.selection == WelcomeOnboardingViewModel.StoryPage.awe.rawValue {
+                case WelcomeOnboardingViewModel.StoryPage.awe.rawValue:
                     AweStoryPage()
-                }
-                if storiesModel.selection == WelcomeOnboardingViewModel.StoryPage.backup.rawValue {
+                case WelcomeOnboardingViewModel.StoryPage.backup.rawValue:
                     BackupStoryPage()
-                }
-                if storiesModel.selection == WelcomeOnboardingViewModel.StoryPage.currencies.rawValue {
+                case WelcomeOnboardingViewModel.StoryPage.currencies.rawValue:
                     CurrenciesStoryPage()
-                }
-                if storiesModel.selection == WelcomeOnboardingViewModel.StoryPage.web3.rawValue {
+                case WelcomeOnboardingViewModel.StoryPage.web3.rawValue:
                     Web3StoryPage()
-                }
-                if storiesModel.selection == WelcomeOnboardingViewModel.StoryPage.finish.rawValue {
+                case WelcomeOnboardingViewModel.StoryPage.finish.rawValue:
                     FinishStoryPage()
+                default:
+                    EmptyView()
                 }
             }
             .preferredColorScheme([2,3,4].contains(storiesModel.selection) ? .light : .dark)
