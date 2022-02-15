@@ -143,12 +143,7 @@ struct ShopView: View {
         }
         .overlay(orderActivityOverlay)
         .background(Color(UIColor.tangemBgGray).edgesIgnoringSafeArea(.all))
-        .onAppear {
-            viewModel.didAppear()
-
-            UISegmentedControl.appearance().selectedSegmentTintColor = .black
-            UISegmentedControl.appearance().setTitleTextAttributes([.foregroundColor: UIColor.white], for: .selected)
-        }
+        .onAppear(perform: viewModel.didAppear)
         .navigationBarHidden(true)
         .keyboardAdaptive(animated: .constant(true))
     }
