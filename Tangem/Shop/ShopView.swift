@@ -109,9 +109,13 @@ struct ShopView: View {
             HStack {
                 Image("ticket")
                 
-                TextField("shop_i_have_a_promo_code", text: $viewModel.discountCode)
-                    .disableAutocorrection(true)
-                    .keyboardType(.alphabet)
+                TextField("shop_i_have_a_promo_code", text: $viewModel.discountCode) { editing in
+                    if !editing {
+                        viewModel.didEnterDiscountCode()
+                    }
+                }
+                .disableAutocorrection(true)
+                .keyboardType(.alphabet)
                 
                 ActivityIndicatorView(isAnimating: viewModel.checkingDiscountCode, color: .tangemGrayDark)
             }
