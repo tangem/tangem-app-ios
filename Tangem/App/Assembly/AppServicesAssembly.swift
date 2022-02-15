@@ -76,6 +76,7 @@ class AppServicesAssembly: ServicesAssembly {
     lazy var warningsService = WarningsService(remoteWarningProvider: configManager, rateAppChecker: rateAppService)
     lazy var rateAppService: RateAppService = .init(userPrefsService: userPrefsService)
     private let configManager = try! FeaturesConfigManager()
+    lazy var shopifyService = ShopifyService(shop: keysManager.shopifyShop, testApplePayPayments: false)
     
     override func onDidScan(_ cardInfo: CardInfo) {
         featuresService.setupFeatures(for: cardInfo.card)
