@@ -14,6 +14,8 @@ struct ShopContainerView: View {
     var body: some View {
         if let order = viewModel.order {
             ShopOrderView(order: order)
+        } else if viewModel.pollingForOrder {
+            ShopOrderProgressView()
         } else {
             ShopView(viewModel: viewModel)
         }
