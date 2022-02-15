@@ -18,37 +18,39 @@ struct ShopView: View {
     private let applePayCornerRadius = 18.0
     
     var body: some View {
-        GeometryReader { geometry in
-            ScrollView {
-                VStack {
-                    SheetDragHandler()
-                    
-                    cardStack
-                        .padding(.top)
-                        .layoutPriority(1)
-                    
-                    Spacer()
-                        .frame(maxHeight: .infinity)
-                    
-                    Text("shop_one_wallet")
-                        .font(.system(size: 30, weight: .bold))
-                    
-                    cardSelector
-                    
-                    Spacer()
-                        .frame(maxHeight: .infinity)
-                    
-                    purchaseForm
-                    
-                    buyButtons
-                    
-                    webCheckoutLink
+        VStack {
+            SheetDragHandler()
+            
+            GeometryReader { geometry in
+                ScrollView {
+                    VStack {
+                        cardStack
+                            .padding(.top)
+                            .layoutPriority(1)
+                        
+                        Spacer()
+                            .frame(maxHeight: .infinity)
+                        
+                        Text("shop_one_wallet")
+                            .font(.system(size: 30, weight: .bold))
+                        
+                        cardSelector
+                        
+                        Spacer()
+                            .frame(maxHeight: .infinity)
+                        
+                        purchaseForm
+                        
+                        buyButtons
+                        
+                        webCheckoutLink
+                    }
+                    .padding(.horizontal)
+                    .frame(minWidth: geometry.size.width,
+                           maxWidth: geometry.size.width,
+                           minHeight: geometry.size.height,
+                           maxHeight: .infinity, alignment: .top)
                 }
-                .padding(.horizontal)
-                .frame(minWidth: geometry.size.width,
-                       maxWidth: geometry.size.width,
-                       minHeight: geometry.size.height,
-                       maxHeight: .infinity, alignment: .top)
             }
         }
         .overlay(orderActivityOverlay)
