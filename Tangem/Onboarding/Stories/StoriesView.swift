@@ -21,11 +21,13 @@ struct StoriesView<Content: View>: View {
             ZStack(alignment: .top) {
                 content()
                     .simultaneousGesture(
-                        DragGesture(minimumDistance: 0).onEnded { v in
-                            let width = geo.size.width
-                            let moveForward = v.location.x > (width / 2)
-                            viewModel.move(forward: moveForward)
-                        }
+                        DragGesture(minimumDistance: 0)
+                            .onChanged {
+                                viewModel.didDrag($0.location)
+                            }
+                            .onEnded {
+                                viewModel.didEndDrag($0.location, viewWidth: geo.size.width)
+                            }
                     )
                 
                 StoriesProgressView(numberOfPages: viewModel.numberOfViews, currentPage: $viewModel.selection, progress: $viewModel.currentProgress)
