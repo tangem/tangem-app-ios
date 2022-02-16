@@ -11,7 +11,7 @@ import SwiftUI
 struct WelcomeOnboardingView: View {
     
     @ObservedObject var viewModel: WelcomeOnboardingViewModel
-    @StateObject var storiesModel = StoriesViewModel(numberOfViews: WelcomeOnboardingViewModel.StoryPage.allCases.count, storyDuration: 5)
+    @StateObject var storiesModel = StoriesViewModel(numberOfViews: WelcomeOnboardingViewModel.StoryPage.allCases.count, storyDuration: 8)
     @EnvironmentObject var navigation: NavigationCoordinator
     
     var currentStep: WelcomeStep { .welcome }
@@ -21,7 +21,7 @@ struct WelcomeOnboardingView: View {
             StoriesView(viewModel: storiesModel) {
                 switch storiesModel.selection {
                 case WelcomeOnboardingViewModel.StoryPage.meetTangem.rawValue:
-                    MeetTangemStoryPage(scanCard: scanCard, orderCard: orderCard)
+                    MeetTangemStoryPage(progress: $storiesModel.currentProgress, scanCard: scanCard, orderCard: orderCard)
                 case WelcomeOnboardingViewModel.StoryPage.awe.rawValue:
                     AweStoryPage(scanCard: scanCard, orderCard: orderCard)
                 case WelcomeOnboardingViewModel.StoryPage.backup.rawValue:
