@@ -646,6 +646,14 @@ Amount to pay: %@";
 "common_explorer_format %@" = "%@ explorer";
 
 "story_meet_title" = "Meet\nTangem";
+"story_meet_buy" = "Buy";
+"story_meet_store" = "Store";
+"story_meet_send" = "Send";
+"story_meet_pay" = "Pay";
+"story_meet_exchange" = "Exchange";
+"story_meet_lend" = "Lend";
+"story_meet_borrow" = "Borrow";
+"story_meet_stake" = "Stake";
 "story_awe_title" = "Revolutionary Hardware Wallet ";
 "story_awe_description" = "To buy, store, send, pay, exchange, lend and borrow crypto";
 "story_backup_title" = "Ultra Secure Backup";
