@@ -9,51 +9,110 @@
 import SwiftUI
 
 struct MeetTangemStoryPage: View {
+    @Binding var progress: Double
     var scanCard: (() -> Void)
     var orderCard: (() -> Void)
     
+    private let words: [LocalizedStringKey] = [
+        "",
+        "",
+        "story_meet_buy",
+        "story_meet_store",
+        "story_meet_send",
+        "story_meet_pay",
+        "story_meet_exchange",
+        "story_meet_lend",
+        "story_meet_borrow",
+        "story_meet_borrow", // Duplicate the last word to make it last longer
+//        "story_meet_stake", // no stake for now
+        "",
+    ]
+    
+    private let wordListDisplayDuration = 0.6
+    
     var body: some View {
-        ZStack(alignment: .bottom) {
-            VStack {
+        ZStack {
+            ForEach(0..<words.count) { index in
+                Text(words[index])
+                    .foregroundColor(.white)
+                    .font(.system(size: 60, weight: .semibold))
+                    .modifier(FadeModifier(
+                        progress: progress,
+                        start: Double(index) / Double(words.count) * wordListDisplayDuration,
+                        end: Double(index+1) / Double(words.count) * wordListDisplayDuration
+                    ))
+            }
+
+            VStack(spacing: 0) {
                 Text("story_meet_title")
                     .font(.system(size: 60, weight: .semibold))
                     .multilineTextAlignment(.center)
                     .foregroundColor(.white)
                     .padding()
                     .padding(.top, StoriesConstants.titleExtraTopPadding)
-                
-                Spacer()
-                
+                    .modifier(FadeModifier(
+                        progress: progress,
+                        start: wordListDisplayDuration,
+                        end: 1
+                    ))
+
+                Spacer(minLength: 0)
+
                 Image("hand_with_card")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .edgesIgnoringSafeArea(.bottom)
+                    .scaleEffect(1 + pow(1 - progress, 3))
+                    .modifier(FadeModifier(progress: progress, start: wordListDisplayDuration, end: 1))
             }
-                
-            HStack {
-                Button {
-                    scanCard()
-                } label: {
-                    Text("home_button_scan")
+            
+            VStack {
+                Spacer()
+            
+                HStack {
+                    Button {
+                        scanCard()
+                    } label: {
+                        Text("home_button_scan")
+                    }
+                    .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
+
+                    Button {
+                        orderCard()
+                    } label: {
+                        Text("home_button_order")
+                    }
+                    .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt, layout: .flexibleWidth))
                 }
-                .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
-                
-                Button {
-                    orderCard()
-                } label: {
-                    Text("home_button_order")
-                }
-                .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt, layout: .flexibleWidth))
             }
             .padding(.horizontal)
+            .modifier(FadeModifier(progress: progress, start: wordListDisplayDuration, end: 1))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color("tangem_dark_story_background").edgesIgnoringSafeArea(.all))
     }
 }
 
+
+fileprivate struct FadeModifier: AnimatableModifier {
+    var progress: Double
+    let start: Double
+    let end: Double
+
+    var animatableData: CGFloat {
+        get { progress }
+        set { progress = newValue }
+    }
+
+    func body(content: Content) -> some View {
+        content
+            .opacity((start <= progress && progress < end) ? 1 : 0)
+    }
+}
+
+
 struct MeetTangemStoryPage_Previews: PreviewProvider {
     static var previews: some View {
-        MeetTangemStoryPage { } orderCard: { }
+        MeetTangemStoryPage(progress: .constant(0.8)) { } orderCard: { }
     }
 }
