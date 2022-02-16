@@ -64,7 +64,7 @@ struct WarningView: View {
             buttons
             Color.clear.frame(height: 0, alignment: .center)
         }
-        .padding(.horizontal, 24)
+        .padding(.horizontal, 16)
         .background(warning.priority.backgroundColor)
         .cornerRadius(6)
     }
@@ -80,7 +80,7 @@ struct WarningView: View {
     @ViewBuilder var buttons: some View {
         if warning.type.isWithAction {
             HStack(spacing: 0) {
-                Spacer()
+                Spacer(minLength: 0)
                 ForEach(Array(warningButtons.enumerated()), id: \.element.id, content: { item in
                     Button(action: {
                         buttonAction(item.element)
@@ -93,7 +93,7 @@ struct WarningView: View {
                     if warningButtons.count > 1, item.offset < warningButtons.count - 1 {
                         Color.tangemGrayDark5
                             .frame(width: 1, height: 16)
-                            .padding(.horizontal, 30)
+                            .padding(.horizontal, 4)
                     }
                 })
             }
