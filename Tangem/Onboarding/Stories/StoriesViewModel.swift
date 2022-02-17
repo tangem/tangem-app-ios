@@ -16,6 +16,7 @@ class StoriesViewModel: ObservableObject {
     
     private var timerSubscription: AnyCancellable?
     private var longTapTimerSubscription: AnyCancellable?
+    private var longTapDetected = false
     private var currentDragLocation: CGPoint?
     
     private let fps: Double = 60
@@ -35,6 +36,10 @@ class StoriesViewModel: ObservableObject {
     }
     
     func didDrag(_ point: CGPoint) {
+        if longTapDetected {
+            return
+        }
+
         currentDragLocation = point
         pauseTimer()
         
@@ -42,6 +47,8 @@ class StoriesViewModel: ObservableObject {
             .autoconnect()
             .sink { [unowned self] _ in
                 self.currentDragLocation = nil
+                self.longTapTimerSubscription = nil
+                self.longTapDetected = true
             }
     }
     
@@ -55,6 +62,7 @@ class StoriesViewModel: ObservableObject {
         
         currentDragLocation = nil
         longTapTimerSubscription = nil
+        longTapDetected = false
     }
     
     private func move(forward: Bool) {
