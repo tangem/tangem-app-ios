@@ -26,7 +26,7 @@ struct StoriesView<Content: View>: View {
                                 viewModel.didDrag($0.location)
                             }
                             .onEnded {
-                                viewModel.didEndDrag($0.location, viewWidth: geo.size.width)
+                                viewModel.didEndDrag($0.location, destination: $0.predictedEndLocation, viewWidth: geo.size.width)
                             }
                     )
                 
