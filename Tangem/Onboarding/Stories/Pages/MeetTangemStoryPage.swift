@@ -31,6 +31,9 @@ struct MeetTangemStoryPage: View {
     
     private let wordListDisplayDuration = 0.6
     
+    private let titleProgressStart = 0.7
+    private let titleProgressEnd = 0.9
+    
     var body: some View {
         ZStack {
             ForEach(0..<words.count) { index in
@@ -57,9 +60,10 @@ struct MeetTangemStoryPage: View {
                     .padding(.top, StoriesConstants.titleExtraTopPadding)
                     .modifier(FadeModifier(
                         progress: progress,
-                        start: wordListDisplayDuration,
-                        end: 1
+                        start: titleProgressStart,
+                        end: .infinity
                     ))
+                    .offset(x: 0, y: 40 * pow(2, -10 * normalizeTextProgress(progress)))
 
                 Spacer(minLength: 0)
 
@@ -98,7 +102,16 @@ struct MeetTangemStoryPage: View {
     }
     
     private func normalizeSecondPartProgress(_ progress: Double) -> Double {
-        return (progress - wordListDisplayDuration) / (1 - wordListDisplayDuration)
+        normalizeProgress(progress: progress, start: wordListDisplayDuration, end: 1)
+    }
+    
+    private func normalizeTextProgress(_ progress: Double) -> Double {
+        normalizeProgress(progress: progress, start: titleProgressStart, end: titleProgressEnd)
+    }
+    
+    private func normalizeProgress(progress: Double, start: Double, end: Double) -> Double {
+        let value = (progress - start) / (end - start)
+        return max(0, min(value, 1))
     }
 }
 
