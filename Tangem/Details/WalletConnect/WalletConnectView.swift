@@ -48,6 +48,7 @@ struct WalletConnectView: View {
                         }
                         .listRowInsets(.none)
                     }
+                    .listStyle(PlainListStyle())
                 }
             }
             
