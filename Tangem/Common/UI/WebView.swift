@@ -100,7 +100,7 @@ struct WebView: UIViewRepresentable {
             decisionHandler(.allow)
         }
         
-        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
             isLoading.wrappedValue = false
         }
         
