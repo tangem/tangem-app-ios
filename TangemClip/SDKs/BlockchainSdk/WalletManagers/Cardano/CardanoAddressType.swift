@@ -11,10 +11,12 @@ import Foundation
 public enum CardanoAddressType: String {
     case bech32, legacy
     
-    var localizedName: String {
+    public var localizedName: String {
         switch self {
-        case .bech32: return "Default"
-        case .legacy: return "Legacy"
+        case .legacy:
+            return "address_type_legacy".localized
+        case .bech32:
+            return "address_type_default".localized
         }
     }
 }
