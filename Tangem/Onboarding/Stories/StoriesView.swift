@@ -35,6 +35,7 @@ struct StoriesView<Content: View>: View {
             }
         }
         .onAppear(perform: viewModel.onAppear)
+        .onDisappear(perform: viewModel.onDisappear)
     }
 }
 
