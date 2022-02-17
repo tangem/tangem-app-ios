@@ -14,6 +14,9 @@ struct FinishStoryPage: View {
     
     var body: some View {
         VStack {
+            StoriesTangemLogo()
+                .padding()
+
             Text("story_finish_title")
                 .font(.system(size: 36, weight: .semibold))
                 .multilineTextAlignment(.center)
