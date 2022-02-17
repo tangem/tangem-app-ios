@@ -438,3 +438,15 @@ URL: %@";
 "feedback_preface_support" = "Hi support team,";
 "feedback_preface_tx_push_failed" = "Please tell us more about your issue. Every small detail can help.";
 "feedback_data_collection_message" = "Following information is optional. You can erase it if you don’t want to share it.";
+
+"shop_one_wallet" = "One Wallet";
+"shop_3_cards" = "3 cards";
+"shop_2_cards" = "2 cards";
+"shop_shipping" = "Shipping";
+"shop_free" = "Free";
+"shop_i_have_a_promo_code" = "I have a promo code...";
+"shop_total" = "Total";
+"shop_other_payment_methods" = "Other payment methods";
+"shop_buy_now" = "Buy now";
+"shop_placing_order" = "Placing your order";
+"shop_web_checkout_title" = "Your order";
