@@ -917,6 +917,7 @@
 		5D6784D825EBA1D800149995 /* TokenItems+Array.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TokenItems+Array.swift"; sourceTree = "<group>"; };
 		5D6784E325EBC94B00149995 /* Blockchain+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Blockchain+.swift"; sourceTree = "<group>"; };
 		5D69E0E225016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapSwitchTogglColoredToggleStyleeStyle.swift; sourceTree = "<group>"; };
+		5D6A4B7527BA61BE00943F14 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Intents.strings; sourceTree = "<group>"; };
 		5D6C128125E13DE10010A0C5 /* TokensListItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokensListItemView.swift; sourceTree = "<group>"; };
 		5D6C128625E144DF0010A0C5 /* AddTokensView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTokensView.swift; sourceTree = "<group>"; };
 		5D73C9852513C85D00487CA5 /* CurrencySelectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencySelectView.swift; sourceTree = "<group>"; };
@@ -933,6 +934,8 @@
 		5D9004E324FA79F700E90939 /* ViewStateHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewStateHandler.swift; sourceTree = "<group>"; };
 		5D9004E624FA7DE300E90939 /* CreatePayIdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePayIdView.swift; sourceTree = "<group>"; };
 		5D958E1324F513D9006BD932 /* RefreshableScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshableScrollView.swift; sourceTree = "<group>"; };
+		5D9D568627B6C80100FA7A76 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
+		5D9D568727B6C80100FA7A76 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5D9DCAD2255172520059799C /* NavigationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationCoordinator.swift; sourceTree = "<group>"; };
 		5D9DCADD2551744F0059799C /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
 		5D9DCAE225517D450059799C /* Assembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assembly.swift; sourceTree = "<group>"; };
@@ -3822,6 +3825,7 @@
 				fr,
 				it,
 				Base,
+				ru,
 			);
 			mainGroup = 5D3F77B924BF56D800E8695B;
 			productRefGroup = 5D3F77C324BF56D800E8695B /* Products */;
@@ -4833,6 +4837,7 @@
 				5D2CE0F1275503B000CD05A1 /* fr */,
 				5D2CE0F3275503B400CD05A1 /* de */,
 				5D2CE0F5275503B700CD05A1 /* it */,
+				5D6A4B7527BA61BE00943F14 /* ru */,
 			);
 			name = Intents.intentdefinition;
 			sourceTree = "<group>";
@@ -4844,6 +4849,7 @@
 				5D011A262530E76000758010 /* de */,
 				B022D30F253746C900D934D7 /* fr */,
 				5DD1D62E25558975007910EF /* it */,
+				5D9D568627B6C80100FA7A76 /* ru */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -4871,6 +4877,7 @@
 				B0FC49C12630245E000444D7 /* en */,
 				B0FC49C32630245E000444D7 /* it */,
 				B0FC49C42630245E000444D7 /* fr */,
+				5D9D568727B6C80100FA7A76 /* ru */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
