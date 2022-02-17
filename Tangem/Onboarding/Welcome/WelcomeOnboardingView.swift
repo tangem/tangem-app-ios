@@ -74,7 +74,7 @@ struct WelcomeOnboardingView: View {
                 ) {
                     
                 }
-                .padding(.horizontal, 40)
+                .padding(.horizontal, 32)
             }
             .actionSheet(item: $viewModel.discardAlert, content: { $0.sheet })
             
