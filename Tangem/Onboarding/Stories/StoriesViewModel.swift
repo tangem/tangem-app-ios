@@ -36,6 +36,12 @@ class StoriesViewModel: ObservableObject {
         }
     }
     
+    func onDisappear() {
+        DispatchQueue.main.async {
+            self.pauseTimer()
+        }
+    }
+    
     func didDrag(_ current: CGPoint) {
         if longTapDetected {
             return
