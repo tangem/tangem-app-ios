@@ -19,7 +19,7 @@ class StoriesViewModel: ObservableObject {
     private var longTapDetected = false
     private var currentDragLocation: CGPoint?
     
-    private let fps: Double = 60
+    private let fps: Double = 30
     private let storyDuration: Double
     private let restartAutomatically = true
     private let longTapDuration = 0.5
