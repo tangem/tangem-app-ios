@@ -3733,11 +3733,11 @@
 			isa = PBXGroup;
 			children = (
 				DAC53CEF27BE63830027147D /* Pages */,
-				DAC53CEA27BE63830027147D /* StoriesConstants.swift */,
-				DAC53CEB27BE63830027147D /* StoriesProgressView.swift */,
-				DAC53CEC27BE63830027147D /* StoriesTangemLogo.swift */,
-				DAC53CED27BE63830027147D /* StoriesViewModel.swift */,
 				DAC53CEE27BE63830027147D /* StoriesView.swift */,
+				DAC53CED27BE63830027147D /* StoriesViewModel.swift */,
+				DAC53CEB27BE63830027147D /* StoriesProgressView.swift */,
+				DAC53CEA27BE63830027147D /* StoriesConstants.swift */,
+				DAC53CEC27BE63830027147D /* StoriesTangemLogo.swift */,
 			);
 			path = Stories;
 			sourceTree = "<group>";
