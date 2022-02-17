@@ -62,7 +62,7 @@ struct MeetTangemStoryPage: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .edgesIgnoringSafeArea(.bottom)
-                    .scaleEffect(1 + pow(1 - progress, 3))
+                    .scaleEffect((1 + pow(2, -10 * normalizeSecondPartProgress(progress))))
                     .modifier(FadeModifier(progress: progress, start: wordListDisplayDuration, end: 1))
             }
             
@@ -90,6 +90,10 @@ struct MeetTangemStoryPage: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color("tangem_dark_story_background").edgesIgnoringSafeArea(.all))
+    }
+    
+    private func normalizeSecondPartProgress(_ progress: Double) -> Double {
+        return (progress - wordListDisplayDuration) / (1 - wordListDisplayDuration)
     }
 }
 
