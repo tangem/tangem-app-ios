@@ -36,7 +36,7 @@ struct WelcomeOnboardingView: View {
                     EmptyView()
                 }
             }
-            .preferredColorScheme([2,3,4].contains(storiesModel.selection) ? .light : .dark)
+            .environment(\.colorScheme, [2,3,4].contains(storiesModel.selection) ? .light : .dark)
             .actionSheet(item: $viewModel.discardAlert, content: { $0.sheet })
             
             ScanTroubleshootingView(isPresented: $navigation.readToTroubleshootingScan) {
