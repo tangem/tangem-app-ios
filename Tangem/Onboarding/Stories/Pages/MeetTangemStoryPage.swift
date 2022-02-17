@@ -63,7 +63,7 @@ struct MeetTangemStoryPage: View {
                         start: titleProgressStart,
                         end: .infinity
                     ))
-                    .offset(x: 0, y: 40 * pow(2, -10 * normalizeTextProgress(progress)))
+                    .offset(x: 0, y: 40 * pow(2, -15 * normalizeTextProgress(progress)))
 
                 Spacer(minLength: 0)
 
@@ -71,7 +71,7 @@ struct MeetTangemStoryPage: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .edgesIgnoringSafeArea(.bottom)
-                    .scaleEffect((1 + pow(2, -10 * normalizeSecondPartProgress(progress))))
+                    .scaleEffect((1 + pow(2, -25 * normalizeSecondPartProgress(progress))))
                     .modifier(FadeModifier(progress: progress, start: wordListDisplayDuration, end: 1))
             }
             
