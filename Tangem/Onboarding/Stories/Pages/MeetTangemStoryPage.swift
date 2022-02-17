@@ -95,7 +95,7 @@ struct MeetTangemStoryPage: View {
                 }
             }
             .padding(.horizontal)
-            .modifier(FadeModifier(progress: progress, start: wordListDisplayDuration, end: 1))
+            .modifier(FadeModifier(progress: progress, start: wordListDisplayDuration, end: .infinity))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color("tangem_dark_story_background").edgesIgnoringSafeArea(.all))
