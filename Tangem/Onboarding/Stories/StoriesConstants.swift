@@ -9,5 +9,5 @@
 import Foundation
 
 enum StoriesConstants {
-    static let titleExtraTopPadding: Double = 40
+    static let titleExtraTopPadding: Double = 20
 }
