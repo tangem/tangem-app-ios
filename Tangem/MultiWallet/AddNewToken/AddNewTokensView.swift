@@ -108,7 +108,7 @@ fileprivate struct TokenView: View {
     
     var body: some View {
         HStack {
-            token.tokenItem.iconView(size: .init(width: 80, height: 80))
+            token.tokenItem.iconView
                 .saturation(token.tokenItem.blockchain.isTestnet ? 0 : 1.0)
                 .frame(width: 40, height: 40, alignment: .center)
             
