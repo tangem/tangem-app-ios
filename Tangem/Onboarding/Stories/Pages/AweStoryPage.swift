@@ -14,6 +14,9 @@ struct AweStoryPage: View {
     
     var body: some View {
         VStack {
+            StoriesTangemLogo()
+                .padding()
+            
             Text("story_awe_title")
                 .font(.system(size: 36, weight: .semibold))
                 .multilineTextAlignment(.center)
