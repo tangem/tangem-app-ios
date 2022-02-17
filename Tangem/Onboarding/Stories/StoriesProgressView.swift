@@ -13,7 +13,7 @@ struct StoriesProgressView: View {
     @Binding var progress: Double
     
     var body: some View {
-        HStack {
+        HStack(spacing: 4) {
             ForEach(0..<numberOfPages) { index in
                 GeometryReader { geo in
                     Rectangle()
