@@ -768,6 +768,7 @@
 		DA03EC9B27BA2E6E00A1565C /* Web3StoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA03EC9A27BA2E6E00A1565C /* Web3StoryPage.swift */; };
 		DA03EC9D27BA2E7A00A1565C /* FinishStoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA03EC9C27BA2E7A00A1565C /* FinishStoryPage.swift */; };
 		DAC0F28C27BBE24A006ED3B7 /* StoriesConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC0F28B27BBE24A006ED3B7 /* StoriesConstants.swift */; };
+		DAC53CE827BE36DF0027147D /* StoriesTangemLogo.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC53CE727BE36DF0027147D /* StoriesTangemLogo.swift */; };
 		F06BBA2FE022C3EF1F3B6513 /* Pods_Tangem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F3AA1BEE46AF490A6F95DA /* Pods_Tangem.framework */; };
 /* End PBXBuildFile section */
 
@@ -1561,6 +1562,7 @@
 		DA03EC9A27BA2E6E00A1565C /* Web3StoryPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Web3StoryPage.swift; sourceTree = "<group>"; };
 		DA03EC9C27BA2E7A00A1565C /* FinishStoryPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinishStoryPage.swift; sourceTree = "<group>"; };
 		DAC0F28B27BBE24A006ED3B7 /* StoriesConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesConstants.swift; sourceTree = "<group>"; };
+		DAC53CE727BE36DF0027147D /* StoriesTangemLogo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesTangemLogo.swift; sourceTree = "<group>"; };
 		E53081CA3060D2785F9D22F0 /* Pods-Tangem-TangemUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release.xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release.xcconfig"; sourceTree = "<group>"; };
 		F3B96D298A039D2A8811CEF0 /* Pods-Tangem Tap.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap.release.xcconfig"; path = "Target Support Files/Pods-Tangem Tap/Pods-Tangem Tap.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -3646,6 +3648,7 @@
 				DA03EC8B27BA232200A1565C /* StoriesProgressView.swift */,
 				DA03EC8A27BA232100A1565C /* StoriesViewModel.swift */,
 				DAC0F28B27BBE24A006ED3B7 /* StoriesConstants.swift */,
+				DAC53CE727BE36DF0027147D /* StoriesTangemLogo.swift */,
 			);
 			path = Stories;
 			sourceTree = "<group>";
@@ -4236,6 +4239,7 @@
 				5DCC20BD2500FC58007B467E /* QRScannerView.swift in Sources */,
 				5DA3A2F1251CB6CA009A8E08 /* SecurityManagementView.swift in Sources */,
 				B0F79C6A2689AC56008C9B30 /* FileEncryptionUtility.swift in Sources */,
+				DAC53CE827BE36DF0027147D /* StoriesTangemLogo.swift in Sources */,
 				B046FC3626BC1DB600A7EECE /* OnboardingProgressIndicator.swift in Sources */,
 				B053759126CA3EFA0090FCFC /* CheckmarkSwitch.swift in Sources */,
 				5DF2522924F93C2A0015B429 /* QRCodeView.swift in Sources */,
