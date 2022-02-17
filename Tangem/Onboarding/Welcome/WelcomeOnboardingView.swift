@@ -21,7 +21,12 @@ struct WelcomeOnboardingView: View {
             StoriesView(viewModel: storiesModel) {
                 switch storiesModel.selection {
                 case WelcomeOnboardingViewModel.StoryPage.meetTangem.rawValue:
-                    MeetTangemStoryPage(progress: $storiesModel.currentProgress, scanCard: scanCard, orderCard: orderCard)
+                    MeetTangemStoryPage(
+                        progress: $storiesModel.currentProgress,
+                        immediatelyShowButtons: !viewModel.isSeeingStoriesFirstTime,
+                        scanCard: scanCard,
+                        orderCard: orderCard
+                    )
                 case WelcomeOnboardingViewModel.StoryPage.awe.rawValue:
                     AweStoryPage(scanCard: scanCard, orderCard: orderCard)
                 case WelcomeOnboardingViewModel.StoryPage.backup.rawValue:
