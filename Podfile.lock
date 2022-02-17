@@ -152,6 +152,7 @@ PODS:
     - secp256k1.swift
   - KeychainSwift (19.0.0)
   - Kingfisher (6.3.1)
+  - Mobile-Buy-SDK (7.0.0)
   - Moya (15.0.0):
     - Moya/Core (= 15.0.0)
   - Moya/Core (15.0.0):
@@ -211,7 +212,7 @@ DEPENDENCIES:
   - BigInt
   - BinanceChain (from `https://github.com/lazutkin-andrey/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/lazutkin-andrey/bitcoincore.git`, tag `0.0.15`)
-  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-83`)
+  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-85`)
   - DeviceGuru
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -219,6 +220,7 @@ DEPENDENCIES:
   - HDWalletKit (from `https://github.com/lazutkin-andrey/hdwallet.git`, tag `0.3.12`)
   - KeychainSwift (~> 19.0)
   - Kingfisher (from `https://github.com/onevcat/Kingfisher.git`, branch `version6-xcode13`)
+  - Mobile-Buy-SDK
   - Moya
   - ScaleCodec
   - Sodium
@@ -227,7 +229,7 @@ DEPENDENCIES:
   - stellar-ios-mac-sdk
   - SwiftCBOR
   - SwiftyJSON
-  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-130`)
+  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-132`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.6.2`)
   - web3swift (from `https://github.com/lazutkin-andrey/web3swift.git`, tag `2.2.8`)
 
@@ -251,6 +253,7 @@ SPEC REPOS:
     - GoogleDataTransport
     - GoogleUtilities
     - KeychainSwift
+    - Mobile-Buy-SDK
     - Moya
     - nanopb
     - ObjcExceptionBridging
@@ -277,7 +280,7 @@ EXTERNAL SOURCES:
     :tag: 0.0.15
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-83
+    :tag: develop-85
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
@@ -289,7 +292,7 @@ EXTERNAL SOURCES:
     :tag: add-external-signer-1
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-130
+    :tag: develop-132
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.6.2
@@ -306,7 +309,7 @@ CHECKOUT OPTIONS:
     :tag: 0.0.15
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-83
+    :tag: develop-85
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
@@ -318,7 +321,7 @@ CHECKOUT OPTIONS:
     :tag: add-external-signer-1
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-130
+    :tag: develop-132
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.6.2
@@ -350,6 +353,7 @@ SPEC CHECKSUMS:
   HDWalletKit: 5f03c82ab8ac7972951feae247780d39823f04ea
   KeychainSwift: a06190cf933ad46b1e0abc3d77d29c06331715c7
   Kingfisher: 8b783c3d7be73a99b2172a743a5bc0a4dd331d79
+  Mobile-Buy-SDK: 18ee3b74f99a1a5fa42ad3c997af3d0774928438
   Moya: 138f0573e53411fb3dc17016add0b748dfbd78ee
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   ObjcExceptionBridging: c30e00eb3700467e695faeea30e26e18bd445001
@@ -371,6 +375,6 @@ SPEC CHECKSUMS:
   web3swift: 93f68f5430c11a78bba2351c139d2d22f2c04b5e
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: ca5c9c2e319527d460dfbf19eaa5648ad364c8fb
+PODFILE CHECKSUM: ebadede75339c58c5e01d6c8df17e0621c433174
 
 COCOAPODS: 1.11.2
