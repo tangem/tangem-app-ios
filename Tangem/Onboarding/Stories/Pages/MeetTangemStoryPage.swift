@@ -45,6 +45,10 @@ struct MeetTangemStoryPage: View {
             }
 
             VStack(spacing: 0) {
+                StoriesTangemLogo()
+                    .padding()
+                    .modifier(FadeModifier(progress: progress, start: wordListDisplayDuration, end: .infinity))
+    
                 Text("story_meet_title")
                     .font(.system(size: 60, weight: .semibold))
                     .multilineTextAlignment(.center)
