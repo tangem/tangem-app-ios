@@ -36,12 +36,12 @@ class StoriesViewModel: ObservableObject {
         }
     }
     
-    func didDrag(_ point: CGPoint) {
+    func didDrag(_ current: CGPoint) {
         if longTapDetected {
             return
         }
 
-        currentDragLocation = point
+        currentDragLocation = current
         pauseTimer()
         
         longTapTimerSubscription = Timer.publish(every: longTapDuration, on: RunLoop.main, in: .default)
@@ -53,9 +53,9 @@ class StoriesViewModel: ObservableObject {
             }
     }
     
-    func didEndDrag(_ point: CGPoint, destination: CGPoint, viewWidth: CGFloat) {
+    func didEndDrag(_ current: CGPoint, destination: CGPoint, viewWidth: CGFloat) {
         if let currentDragLocation = currentDragLocation {
-            let distance = (destination.x - point.x)
+            let distance = (destination.x - current.x)
             
             let moveForward: Bool
             if abs(distance) < minimumSwipeDistance {
