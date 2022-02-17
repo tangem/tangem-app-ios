@@ -58,11 +58,7 @@ struct MeetTangemStoryPage: View {
                     .foregroundColor(.white)
                     .padding()
                     .padding(.top, StoriesConstants.titleExtraTopPadding)
-                    .modifier(FadeModifier(
-                        progress: progress,
-                        start: titleProgressStart,
-                        end: .infinity
-                    ))
+                    .modifier(FadeModifier(progress: progress, start: titleProgressStart, end: .infinity))
                     .offset(x: 0, y: 40 * pow(2, -15 * normalizeTextProgress(progress)))
 
                 Spacer(minLength: 0)
@@ -127,8 +123,11 @@ fileprivate struct FadeModifier: AnimatableModifier {
     }
 
     func body(content: Content) -> some View {
-        content
-            .opacity((start <= progress && progress < end) ? 1 : 0)
+        if start <= progress && progress < end {
+            content
+        } else {
+            EmptyView()
+        }
     }
 }
 
