@@ -23,6 +23,7 @@ class StoriesViewModel: ObservableObject {
     private let storyDuration: Double
     private let restartAutomatically = true
     private let longTapDuration = 0.5
+    private let minimumSwipeDistance = 50.0
     
     init(numberOfViews: Int, storyDuration: Double) {
         self.numberOfViews = numberOfViews
@@ -52,9 +53,17 @@ class StoriesViewModel: ObservableObject {
             }
     }
     
-    func didEndDrag(_ point: CGPoint, viewWidth: CGFloat) {
+    func didEndDrag(_ point: CGPoint, destination: CGPoint, viewWidth: CGFloat) {
         if let currentDragLocation = currentDragLocation {
-            let moveForward = currentDragLocation.x > viewWidth / 2
+            let distance = (destination.x - point.x)
+            
+            let moveForward: Bool
+            if abs(distance) < minimumSwipeDistance {
+                moveForward = currentDragLocation.x > viewWidth / 2
+            } else {
+                moveForward = distance > 0
+            }
+
             move(forward: moveForward)
         } else {
             resumeTimer()
