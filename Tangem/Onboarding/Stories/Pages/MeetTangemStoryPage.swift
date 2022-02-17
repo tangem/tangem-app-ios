@@ -10,6 +10,7 @@ import SwiftUI
 
 struct MeetTangemStoryPage: View {
     @Binding var progress: Double
+    var immediatelyShowButtons: Bool
     var scanCard: (() -> Void)
     var orderCard: (() -> Void)
     
@@ -91,7 +92,11 @@ struct MeetTangemStoryPage: View {
                 }
             }
             .padding(.horizontal)
-            .modifier(FadeModifier(progress: progress, start: wordListDisplayDuration, end: .infinity))
+            .modifier(FadeModifier(
+                progress: progress,
+                start: immediatelyShowButtons ? 0 : wordListDisplayDuration,
+                end: .infinity
+            ))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color("tangem_dark_story_background").edgesIgnoringSafeArea(.all))
@@ -134,6 +139,6 @@ fileprivate struct FadeModifier: AnimatableModifier {
 
 struct MeetTangemStoryPage_Previews: PreviewProvider {
     static var previews: some View {
-        MeetTangemStoryPage(progress: .constant(0.8)) { } orderCard: { }
+        MeetTangemStoryPage(progress: .constant(0.8), immediatelyShowButtons: false) { } orderCard: { }
     }
 }
