@@ -21,9 +21,10 @@ struct MeetTangemStoryPage: View {
         "story_meet_send",
         "story_meet_pay",
         "story_meet_exchange",
-        "story_meet_lend",
         "story_meet_borrow",
-        "story_meet_borrow", // Duplicate the last word to make it last longer
+        "story_meet_lend",
+        "story_meet_lend",
+        // Duplicate the last word to make it last longer
 //        "story_meet_stake", // no stake for now
         "",
     ]
