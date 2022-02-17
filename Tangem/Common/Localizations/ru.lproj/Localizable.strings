@@ -440,3 +440,15 @@ URL: %@";
 "feedback_preface_support" = "Привет, команда поддержки,";
 "feedback_preface_tx_push_failed" = "Пожалуйста, расскажите нам больше о вашей проблеме. Каждая деталь может быть полезной";
 "feedback_data_collection_message" = "Информация ниже не является обязательной. Вы можете стереть её, если хотите.";
+
+"shop_one_wallet" = "Один Кошелек";
+"shop_3_cards" = "3 карты";
+"shop_2_cards" = "2 карты";
+"shop_shipping" = "Доставка";
+"shop_free" = "Бесплатно";
+"shop_i_have_a_promo_code" = "У меня есть промо-код...";
+"shop_total" = "Итого";
+"shop_other_payment_methods" = "Другие способы оплаты";
+"shop_buy_now" = "Купить сейчас";
+"shop_placing_order" = "Оформление вашего заказа";
+"shop_web_checkout_title" = "Ваш заказ";
