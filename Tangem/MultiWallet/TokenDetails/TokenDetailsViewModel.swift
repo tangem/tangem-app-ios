@@ -48,7 +48,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         if let wallet = wallet {
             
             if blockchain.isTestnet {
-                return URL(string: blockchain.testnetBuyCryptoLink ?? "")
+                return blockchain.testnetFaucetURL
             }
             
             let address = wallet.address
