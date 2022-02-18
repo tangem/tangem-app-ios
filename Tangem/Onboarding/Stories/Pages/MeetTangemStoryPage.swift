@@ -69,7 +69,8 @@ struct MeetTangemStoryPage: View {
                     .background(
                         Image("hand_with_card")
                             .resizable()
-                            .aspectRatio(contentMode: .fill)
+                            .aspectRatio(contentMode: .fit)
+                            .fixedSize(horizontal: false, vertical: true)
                             .edgesIgnoringSafeArea(.bottom)
                             .scaleEffect((1 + pow(2, -25 * normalizeSecondPartProgress(progress))))
                             .modifier(FadeModifier(progress: progress, start: wordListDisplayDuration, end: 1))
