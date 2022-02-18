@@ -19,9 +19,9 @@ struct CurrenciesStoryPage: View {
             
             Text("story_currencies_title")
                 .font(.system(size: 36, weight: .semibold))
+                .minimumScaleFactor(0.5)
                 .multilineTextAlignment(.center)
                 .padding()
-                .padding(.top, StoriesConstants.titleExtraTopPadding)
             
             Text("story_currencies_description")
                 .font(.system(size: 22))
