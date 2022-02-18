@@ -31,15 +31,11 @@ class StoriesViewModel: ObservableObject {
     }
     
     func onAppear() {
-        DispatchQueue.main.async {
-            self.restartTimer()
-        }
+        restartTimer()
     }
     
     func onDisappear() {
-        DispatchQueue.main.async {
-            self.pauseTimer()
-        }
+        pauseTimer()
     }
     
     func didDrag(_ current: CGPoint) {
