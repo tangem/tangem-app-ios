@@ -9,7 +9,10 @@ import Foundation
 import Combine
 import SwiftUI
 
-class StoriesViewModel: ObservableObject {
+class StoriesViewModel: ViewModel, ObservableObject {
+    var assembly: Assembly!
+    var navigation: NavigationCoordinator!
+    
     @Published var selection = 0
     @Published var currentProgress = 0.0
     let numberOfViews: Int
