@@ -41,6 +41,9 @@ struct MeetTangemStoryPage: View {
                 Text(words[index])
                     .foregroundColor(.white)
                     .font(.system(size: 60, weight: .semibold))
+                    .minimumScaleFactor(0.5)
+                    .lineLimit(1)
+                    .padding(.horizontal)
                     .modifier(FadeModifier(
                         progress: progress,
                         start: Double(index) / Double(words.count) * wordListDisplayDuration,
