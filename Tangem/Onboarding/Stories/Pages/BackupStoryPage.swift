@@ -9,8 +9,8 @@
 import SwiftUI
 
 struct BackupStoryPage: View {
-    var scanCard: (() -> Void)
-    var orderCard: (() -> Void)
+    let scanCard: (() -> Void)
+    let orderCard: (() -> Void)
     
     var body: some View {
         VStack {
@@ -42,23 +42,9 @@ struct BackupStoryPage: View {
             
             Spacer()
             
-            HStack {
-                Button {
-                    scanCard()
-                } label: {
-                    Text("home_button_scan")
-                }
-                .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt, layout: .flexibleWidth))
-                
-                Button {
-                    orderCard()
-                } label: {
-                    Text("home_button_order")
-                }
-                .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
-            }
-            .padding(.horizontal)
-            .padding(.bottom)
+            StoriesBottomButtons(scanColorStyle: .grayAlt, orderColorStyle: .black, scanCard: scanCard, orderCard: orderCard)
+                .padding(.horizontal)
+                .padding(.bottom)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
