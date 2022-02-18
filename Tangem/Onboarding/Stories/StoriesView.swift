@@ -20,7 +20,7 @@ struct StoriesView<Content: View>: View {
         GeometryReader { geo in
             ZStack(alignment: .top) {
                 content()
-                    .simultaneousGesture(
+                    .gesture(
                         DragGesture(minimumDistance: 0)
                             .onChanged {
                                 viewModel.didDrag($0.location)
