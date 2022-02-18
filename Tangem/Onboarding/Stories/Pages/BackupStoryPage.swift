@@ -28,6 +28,7 @@ struct BackupStoryPage: View {
                 .multilineTextAlignment(.center)
                 .foregroundColor(.gray)
                 .padding(.horizontal)
+          
             Spacer()
             
             Color.clear
