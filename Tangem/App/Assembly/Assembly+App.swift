@@ -155,6 +155,14 @@ extension Assembly {
         return vm
     }
     
+    func welcomeStoriesModel() -> StoriesViewModel {
+        return StoriesViewModel(
+            numberOfViews: WelcomeStoryPage.allCases.count,
+            highFpsViews: [WelcomeStoryPage.meetTangem.rawValue],
+            storyDuration: 8
+        )
+    }
+
     
     //    func makeReadViewModel() -> ReadViewModel {
     //        if let restored: ReadViewModel = get() {
