@@ -43,6 +43,19 @@ extension Card {
         issuer.name.lowercased() == "start2coin"
     }
     
+    var isDemoCard: Bool {
+        switch cardId {
+        case "FB01000000000148": //Note BTC / AB01
+            fallthrough
+        case "FF02000000000139": //Note ETH / Batch AB02
+            fallthrough
+        case "FF03000000000153": //Wallet  / Batch AC01
+            return true
+        default:
+            return false
+        }
+    }
+    
     var isPermanentLegacyWallet: Bool {
         if firmwareVersion < .multiwalletAvailable {
             return wallets.first?.settings.isPermanent ?? false
