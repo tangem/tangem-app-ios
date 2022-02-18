@@ -74,5 +74,6 @@ struct CurrenciesStoryPage: View {
 struct CurrenciesStoryPage_Previews: PreviewProvider {
     static var previews: some View {
         CurrenciesStoryPage { } orderCard: { }
+        .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
     }
 }
