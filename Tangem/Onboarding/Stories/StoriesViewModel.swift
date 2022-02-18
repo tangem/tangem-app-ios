@@ -46,6 +46,10 @@ class StoriesViewModel: ObservableObject {
         if longTapDetected {
             return
         }
+        
+        if let currentDragLocation = currentDragLocation, currentDragLocation.distance(to: current) < minimumSwipeDistance {
+            return
+        }
 
         currentDragLocation = current
         pauseTimer()
@@ -111,5 +115,12 @@ class StoriesViewModel: ObservableObject {
                     self.currentProgress += 1 / fps / self.storyDuration
                 }
             }
+    }
+}
+
+
+fileprivate extension CGPoint {
+    func distance(to other: CGPoint) -> CGFloat {
+        return sqrt(pow(self.x - other.x, 2) + pow(self.y - other.y, 2))
     }
 }
