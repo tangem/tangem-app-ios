@@ -132,5 +132,6 @@ struct MeetTangemStoryPage_Previews: PreviewProvider {
     static var previews: some View {
         MeetTangemStoryPage(progress: .constant(0.8), immediatelyShowButtons: false) { } orderCard: { }
         .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
+        .environment(\.colorScheme, .dark)
     }
 }
