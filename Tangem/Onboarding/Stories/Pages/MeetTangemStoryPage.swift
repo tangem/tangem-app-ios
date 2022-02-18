@@ -92,6 +92,7 @@ struct MeetTangemStoryPage: View {
                 }
             }
             .padding(.horizontal)
+            .padding(.bottom)
             .modifier(FadeModifier(
                 progress: progress,
                 start: immediatelyShowButtons ? 0 : wordListDisplayDuration,
