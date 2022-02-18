@@ -41,6 +41,7 @@ struct WelcomeOnboardingView: View {
                     EmptyView()
                 }
             }
+            .statusBar(hidden: true)
             .environment(\.colorScheme, [2,3,4].contains(storiesModel.selection) ? .light : .dark)
             .actionSheet(item: $viewModel.discardAlert, content: { $0.sheet })
             
