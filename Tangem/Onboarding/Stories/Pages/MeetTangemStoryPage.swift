@@ -58,10 +58,10 @@ struct MeetTangemStoryPage: View {
     
                 Text("story_meet_title")
                     .font(.system(size: 60, weight: .semibold))
+                    .minimumScaleFactor(0.5)
                     .multilineTextAlignment(.center)
                     .foregroundColor(.white)
                     .padding()
-                    .padding(.top, StoriesConstants.titleExtraTopPadding)
                     .modifier(FadeModifier(progress: progress, start: titleProgressStart, end: .infinity))
                     .offset(x: 0, y: 40 * pow(2, -15 * normalizeTitleProgress(progress)))
 
