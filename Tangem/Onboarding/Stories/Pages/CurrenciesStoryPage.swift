@@ -65,6 +65,7 @@ struct CurrenciesStoryPage: View {
                 .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
             }
             .padding(.horizontal)
+            .padding(.bottom)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
