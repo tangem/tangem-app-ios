@@ -30,7 +30,7 @@ struct MeetTangemStoryPage: View {
         "",
     ]
     
-    private let wordListDisplayDuration = 0.6
+    private let wordListProgressEnd = 0.6
     
     private let titleProgressStart = 0.7
     private let titleProgressEnd = 0.9
@@ -46,15 +46,15 @@ struct MeetTangemStoryPage: View {
                     .padding(.horizontal)
                     .modifier(FadeModifier(
                         progress: progress,
-                        start: Double(index) / Double(words.count) * wordListDisplayDuration,
-                        end: Double(index+1) / Double(words.count) * wordListDisplayDuration
+                        start: Double(index) / Double(words.count) * wordListProgressEnd,
+                        end: Double(index+1) / Double(words.count) * wordListProgressEnd
                     ))
             }
 
             VStack(spacing: 0) {
                 StoriesTangemLogo()
                     .padding()
-                    .modifier(FadeModifier(progress: progress, start: wordListDisplayDuration, end: .infinity))
+                    .modifier(FadeModifier(progress: progress, start: wordListProgressEnd, end: .infinity))
     
                 Text("story_meet_title")
                     .font(.system(size: 60, weight: .semibold))
@@ -63,7 +63,7 @@ struct MeetTangemStoryPage: View {
                     .padding()
                     .padding(.top, StoriesConstants.titleExtraTopPadding)
                     .modifier(FadeModifier(progress: progress, start: titleProgressStart, end: .infinity))
-                    .offset(x: 0, y: 40 * pow(2, -15 * normalizeTextProgress(progress)))
+                    .offset(x: 0, y: 40 * pow(2, -15 * normalizeTitleProgress(progress)))
 
                 Color.clear
                     .background(
@@ -72,8 +72,8 @@ struct MeetTangemStoryPage: View {
                             .aspectRatio(contentMode: .fit)
                             .fixedSize(horizontal: false, vertical: true)
                             .edgesIgnoringSafeArea(.bottom)
-                            .scaleEffect((1 + pow(2, -25 * normalizeSecondPartProgress(progress))))
-                            .modifier(FadeModifier(progress: progress, start: wordListDisplayDuration, end: 1))
+                            .scaleEffect((1 + pow(2, -25 * normalizeCardHandProgress(progress))))
+                            .modifier(FadeModifier(progress: progress, start: wordListProgressEnd, end: 1))
                         ,
                         alignment: .top
                     )
@@ -102,7 +102,7 @@ struct MeetTangemStoryPage: View {
             .padding(.bottom)
             .modifier(FadeModifier(
                 progress: progress,
-                start: immediatelyShowButtons ? 0 : wordListDisplayDuration,
+                start: immediatelyShowButtons ? 0 : wordListProgressEnd,
                 end: .infinity
             ))
         }
@@ -110,11 +110,11 @@ struct MeetTangemStoryPage: View {
         .background(Color("tangem_dark_story_background").edgesIgnoringSafeArea(.all))
     }
     
-    private func normalizeSecondPartProgress(_ progress: Double) -> Double {
-        normalizeProgress(progress: progress, start: wordListDisplayDuration, end: 1)
+    private func normalizeCardHandProgress(_ progress: Double) -> Double {
+        normalizeProgress(progress: progress, start: wordListProgressEnd, end: 1)
     }
     
-    private func normalizeTextProgress(_ progress: Double) -> Double {
+    private func normalizeTitleProgress(_ progress: Double) -> Double {
         normalizeProgress(progress: progress, start: titleProgressStart, end: titleProgressEnd)
     }
     
