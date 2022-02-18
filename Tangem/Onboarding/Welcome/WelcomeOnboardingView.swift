@@ -108,7 +108,7 @@ struct WelcomeOnboardingView_Previews: PreviewProvider {
     static let assembly: Assembly = .previewAssembly
     
     static var previews: some View {
-        WelcomeOnboardingView(viewModel: assembly.getLetsStartOnboardingViewModel(with: { _ in }), storiesModel: assembly.welcomeStoriesModel())
+        WelcomeOnboardingView(viewModel: assembly.getLetsStartOnboardingViewModel(with: { _ in }), storiesModel: assembly.makeWelcomeStoriesModel())
             .environmentObject(assembly.services.navigationCoordinator)
     }
 }
