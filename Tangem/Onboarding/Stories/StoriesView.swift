@@ -42,7 +42,7 @@ struct StoriesView<Content: View>: View {
 
 struct StoriesView_Previews: PreviewProvider {
     static var previews: some View {
-        StoriesView(viewModel: StoriesViewModel(numberOfViews: 4, storyDuration: 2)) {
+        StoriesView(viewModel: StoriesViewModel(numberOfViews: 4, highFpsViews: [], storyDuration: 2)) {
             Group {
                 Color.red.tag(0)
                 Color.blue.tag(1)
