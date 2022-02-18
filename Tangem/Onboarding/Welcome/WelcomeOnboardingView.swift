@@ -11,16 +11,12 @@ import SwiftUI
 struct WelcomeOnboardingView: View {
     
     @ObservedObject var viewModel: WelcomeOnboardingViewModel
+    @ObservedObject var storiesModel: StoriesViewModel
     @EnvironmentObject var navigation: NavigationCoordinator
-    @StateObject var storiesModel = StoriesViewModel(
-        numberOfViews: WelcomeOnboardingViewModel.StoryPage.allCases.count,
-        highFpsViews: [WelcomeOnboardingViewModel.StoryPage.meetTangem.rawValue],
-        storyDuration: 8
-    )
     
     var currentStep: WelcomeStep { .welcome }
     
-    private let lightStories: [WelcomeOnboardingViewModel.StoryPage] = [
+    private let lightStories: [WelcomeStoryPage] = [
         .backup,
         .currencies,
         .web3,
@@ -30,22 +26,22 @@ struct WelcomeOnboardingView: View {
         ZStack {
             StoriesView(viewModel: storiesModel) {
                 switch storiesModel.selection {
-                case WelcomeOnboardingViewModel.StoryPage.meetTangem.rawValue:
+                case WelcomeStoryPage.meetTangem.rawValue:
                     MeetTangemStoryPage(
                         progress: $storiesModel.currentProgress,
                         immediatelyShowButtons: !viewModel.isSeeingStoriesFirstTime,
                         scanCard: scanCard,
                         orderCard: orderCard
                     )
-                case WelcomeOnboardingViewModel.StoryPage.awe.rawValue:
+                case WelcomeStoryPage.awe.rawValue:
                     AweStoryPage(scanCard: scanCard, orderCard: orderCard)
-                case WelcomeOnboardingViewModel.StoryPage.backup.rawValue:
+                case WelcomeStoryPage.backup.rawValue:
                     BackupStoryPage(scanCard: scanCard, orderCard: orderCard)
-                case WelcomeOnboardingViewModel.StoryPage.currencies.rawValue:
+                case WelcomeStoryPage.currencies.rawValue:
                     CurrenciesStoryPage(scanCard: scanCard, orderCard: orderCard)
-                case WelcomeOnboardingViewModel.StoryPage.web3.rawValue:
+                case WelcomeStoryPage.web3.rawValue:
                     Web3StoryPage(scanCard: scanCard, orderCard: orderCard)
-                case WelcomeOnboardingViewModel.StoryPage.finish.rawValue:
+                case WelcomeStoryPage.finish.rawValue:
                     FinishStoryPage(scanCard: scanCard, orderCard: orderCard)
                 default:
                     EmptyView()
@@ -112,7 +108,7 @@ struct WelcomeOnboardingView_Previews: PreviewProvider {
     static let assembly: Assembly = .previewAssembly
     
     static var previews: some View {
-        WelcomeOnboardingView(viewModel: assembly.getLetsStartOnboardingViewModel(with: { _ in }))
+        WelcomeOnboardingView(viewModel: assembly.getLetsStartOnboardingViewModel(with: { _ in }), storiesModel: assembly.welcomeStoriesModel())
             .environmentObject(assembly.services.navigationCoordinator)
     }
 }
