@@ -3745,12 +3745,12 @@
 		DAC53CEF27BE63830027147D /* Pages */ = {
 			isa = PBXGroup;
 			children = (
-				DAC53CF027BE63830027147D /* CurrenciesStoryPage.swift */,
+				DAC53CF327BE63830027147D /* MeetTangemStoryPage.swift */,
 				DAC53CF127BE63830027147D /* AweStoryPage.swift */,
 				DAC53CF227BE63830027147D /* BackupStoryPage.swift */,
-				DAC53CF327BE63830027147D /* MeetTangemStoryPage.swift */,
-				DAC53CF427BE63830027147D /* FinishStoryPage.swift */,
+				DAC53CF027BE63830027147D /* CurrenciesStoryPage.swift */,
 				DAC53CF527BE63830027147D /* Web3StoryPage.swift */,
+				DAC53CF427BE63830027147D /* FinishStoryPage.swift */,
 			);
 			path = Pages;
 			sourceTree = "<group>";
