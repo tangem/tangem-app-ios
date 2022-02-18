@@ -16,6 +16,12 @@ struct WelcomeOnboardingView: View {
     
     var currentStep: WelcomeStep { .welcome }
     
+    private let lightStories: [WelcomeOnboardingViewModel.StoryPage] = [
+        .backup,
+        .currencies,
+        .web3,
+    ]
+    
     var body: some View {
         ZStack {
             StoriesView(viewModel: storiesModel) {
@@ -42,7 +48,7 @@ struct WelcomeOnboardingView: View {
                 }
             }
             .statusBar(hidden: true)
-            .environment(\.colorScheme, [2,3,4].contains(storiesModel.selection) ? .light : .dark)
+            .environment(\.colorScheme, lightStories.map { $0.rawValue }.contains(storiesModel.selection) ? .light : .dark)
             .actionSheet(item: $viewModel.discardAlert, content: { $0.sheet })
             
             ScanTroubleshootingView(isPresented: $navigation.readToTroubleshootingScan) {
