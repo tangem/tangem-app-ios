@@ -32,7 +32,6 @@ struct FinishStoryPage: View {
             
             Spacer()
             
-            
             Image("amazement")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
