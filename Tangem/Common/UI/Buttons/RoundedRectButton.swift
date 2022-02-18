@@ -30,7 +30,7 @@ struct RoundedRectButton: View {
                 if let imageName = systemImageName {
                     Image(systemName: isVerify ? "checkmark" : imageName )
                 }
-                Text(title)
+                Text(title).fixedSize()
             }
             .padding(.horizontal, 8)
             .frame(height: 28)
