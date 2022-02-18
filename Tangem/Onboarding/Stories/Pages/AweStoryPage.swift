@@ -9,8 +9,8 @@
 import SwiftUI
 
 struct AweStoryPage: View {
-    var scanCard: (() -> Void)
-    var orderCard: (() -> Void)
+    let scanCard: (() -> Void)
+    let orderCard: (() -> Void)
     
     var body: some View {
         VStack {
@@ -36,23 +36,9 @@ struct AweStoryPage: View {
                 .resizable()
                 .aspectRatio(contentMode: .fit)
             
-            HStack {
-                Button {
-                    scanCard()
-                } label: {
-                    Text("home_button_scan")
-                }
-                .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
-                
-                Button {
-                    orderCard()
-                } label: {
-                    Text("home_button_order")
-                }
-                .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt, layout: .flexibleWidth))
-            }
-            .padding(.horizontal)
-            .padding(.bottom)
+            StoriesBottomButtons(scanColorStyle: .black, orderColorStyle: .grayAlt, scanCard: scanCard, orderCard: orderCard)
+                .padding(.horizontal)
+                .padding(.bottom)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color("tangem_dark_story_background").edgesIgnoringSafeArea(.all))
