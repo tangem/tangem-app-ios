@@ -13,20 +13,24 @@ class StoriesViewModel: ObservableObject {
     @Published var selection = 0
     @Published var currentProgress = 0.0
     let numberOfViews: Int
+    let highFpsViews: [Int]
     
     private var timerSubscription: AnyCancellable?
     private var longTapTimerSubscription: AnyCancellable?
     private var longTapDetected = false
     private var currentDragLocation: CGPoint?
     
-    private let fps: Double = 30
+    private let highFps: Double = 60
+    private let lowFps: Double = 12
+    
     private let storyDuration: Double
     private let restartAutomatically = true
     private let longTapDuration = 0.5
     private let minimumSwipeDistance = 50.0
     
-    init(numberOfViews: Int, storyDuration: Double) {
+    init(numberOfViews: Int, highFpsViews: [Int], storyDuration: Double) {
         self.numberOfViews = numberOfViews
+        self.highFpsViews = highFpsViews
         self.storyDuration = storyDuration
     }
     
@@ -97,13 +101,14 @@ class StoriesViewModel: ObservableObject {
     }
     
     private func resumeTimer() {
+        let fps = highFpsViews.contains(selection) ? highFps : lowFps
         timerSubscription = Timer.publish(every: 1 / fps, on: .main, in: .default)
             .autoconnect()
             .sink { [unowned self] _ in
                 if self.currentProgress >= 1 {
                     self.move(forward: true)
                 } else {
-                    self.currentProgress += 1 / self.fps / self.storyDuration
+                    self.currentProgress += 1 / fps / self.storyDuration
                 }
             }
     }
