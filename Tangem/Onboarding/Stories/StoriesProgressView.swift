@@ -12,18 +12,22 @@ struct StoriesProgressView: View {
     @Binding var currentPage: Int
     @Binding var progress: Double
     
+    private let barHeight: Double = 2
+    private let barSpacing: Double = 5
+    private let barBackgroundOpacity: Double = 0.2
+    
     var body: some View {
-        HStack(spacing: 5) {
+        HStack(spacing: barSpacing) {
             ForEach(0..<numberOfPages) { index in
                 GeometryReader { geo in
                     Rectangle()
-                        .fill(Color.primary.opacity(0.2))
+                        .fill(Color.primary.opacity(barBackgroundOpacity))
                         .overlay(overlay(index, width: geo.size.width), alignment: .leading)
                         .clipShape(Capsule())
                 }
             }
         }
-        .frame(maxHeight: 2)
+        .frame(maxHeight: barHeight)
     }
     
     @ViewBuilder
