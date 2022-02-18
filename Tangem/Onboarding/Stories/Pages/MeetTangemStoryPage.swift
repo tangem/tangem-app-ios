@@ -65,14 +65,17 @@ struct MeetTangemStoryPage: View {
                     .modifier(FadeModifier(progress: progress, start: titleProgressStart, end: .infinity))
                     .offset(x: 0, y: 40 * pow(2, -15 * normalizeTextProgress(progress)))
 
-                Spacer(minLength: 0)
-
-                Image("hand_with_card")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .edgesIgnoringSafeArea(.bottom)
-                    .scaleEffect((1 + pow(2, -25 * normalizeSecondPartProgress(progress))))
-                    .modifier(FadeModifier(progress: progress, start: wordListDisplayDuration, end: 1))
+                Color.clear
+                    .background(
+                        Image("hand_with_card")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .edgesIgnoringSafeArea(.bottom)
+                            .scaleEffect((1 + pow(2, -25 * normalizeSecondPartProgress(progress))))
+                            .modifier(FadeModifier(progress: progress, start: wordListDisplayDuration, end: 1))
+                        ,
+                        alignment: .top
+                    )
             }
             
             VStack {
