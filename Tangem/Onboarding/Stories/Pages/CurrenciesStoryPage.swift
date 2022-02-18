@@ -35,6 +35,7 @@ struct CurrenciesStoryPage: View {
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .fixedSize(horizontal: false, vertical: true)
+                        .offset(x: 0, y: -40) // to combat the padding embedded into the image
                     ,
                     alignment: .top
                 )
