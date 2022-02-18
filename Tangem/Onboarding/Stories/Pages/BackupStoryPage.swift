@@ -30,10 +30,14 @@ struct BackupStoryPage: View {
                 .padding(.horizontal)
             Spacer()
             
-
-            Image("cards_flying")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
+            Color.clear
+                .background(
+                    Image("cards_flying")
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                    ,
+                    alignment: .top
+                )
             
             Spacer()
             
