@@ -461,7 +461,7 @@ URL: %@";
 "story_meet_pay" = "Расплачивайтесь";
 "story_meet_exchange" = "Обменивайте";
 "story_meet_lend" = "Одалживайте";
-"story_meet_borrow" = "Borrow";
+"story_meet_borrow" = "Занимайте";
 "story_meet_stake" = "Stake";
 "story_awe_title" = "Revolutionary Hardware Wallet";
 "story_awe_description" = "To buy, store, send, pay, exchange, lend and borrow crypto";
