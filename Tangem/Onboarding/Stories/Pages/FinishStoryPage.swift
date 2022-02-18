@@ -55,6 +55,7 @@ struct FinishStoryPage: View {
                 .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt, layout: .flexibleWidth))
             }
             .padding(.horizontal)
+            .padding(.bottom)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color("tangem_dark_story_background").edgesIgnoringSafeArea(.all))
