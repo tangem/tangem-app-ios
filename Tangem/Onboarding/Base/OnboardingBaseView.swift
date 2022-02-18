@@ -40,7 +40,7 @@ struct OnboardingBaseView: View {
             } else {
                 WelcomeOnboardingView(
                     viewModel: viewModel.assembly.getLetsStartOnboardingViewModel(with: viewModel.processScannedCard(with:)),
-                    storiesModel: viewModel.assembly.welcomeStoriesModel()
+                    storiesModel: viewModel.assembly.makeWelcomeStoriesModel()
                 )
                     .transition(.withoutOpacity)
             }
