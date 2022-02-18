@@ -25,8 +25,8 @@ class StoriesViewModel: ObservableObject {
     
     private let storyDuration: Double
     private let restartAutomatically = true
-    private let longTapDuration = 0.5
-    private let minimumSwipeDistance = 50.0
+    private let longTapDuration = 0.25
+    private let minimumSwipeDistance = 100.0
     
     init(numberOfViews: Int, highFpsViews: [Int], storyDuration: Double) {
         self.numberOfViews = numberOfViews
