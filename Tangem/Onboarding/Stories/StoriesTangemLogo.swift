@@ -18,6 +18,7 @@ struct StoriesTangemLogo: View {
                 .frame(height: 19)
             Spacer()
         }
+        .padding(.top)
     }
 }
 
