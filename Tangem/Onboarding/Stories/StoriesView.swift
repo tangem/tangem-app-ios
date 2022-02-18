@@ -32,6 +32,7 @@ struct StoriesView<Content: View>: View {
                 
                 StoriesProgressView(numberOfPages: viewModel.numberOfViews, currentPage: $viewModel.selection, progress: $viewModel.currentProgress)
                     .padding(.horizontal)
+                    .padding(.top)
             }
         }
         .onAppear(perform: viewModel.onAppear)
