@@ -369,13 +369,13 @@ struct MainView: View {
                                 with: Amount(with: blockchain, value: sellRequest.amount),
                                 destination: sellRequest.targetAddress,
                                 blockchain: blockchain,
-                                card: viewModel.state.cardModel!), onSuccess: {})
+                                card: viewModel.state.cardModel!))
                         .environmentObject(navigation)
                 } else {
                     SendView(viewModel: viewModel.assembly.makeSendViewModel(
                                 with: viewModel.amountToSend!,
                                 blockchain: viewModel.wallets!.first!.blockchain,
-                                card: viewModel.state.cardModel!), onSuccess: {})
+                                card: viewModel.state.cardModel!))
                         .environmentObject(navigation) // Fix for crash (Fatal error: No ObservableObject of type NavigationCoordinator found.) which appearse time to time. May be some bug with environment object O_o
                 }
             }
@@ -392,19 +392,14 @@ struct MainView: View {
     var exchangeCryptoButton: some View {
         if viewModel.canSellCrypto {
             TangemButton.vertical(title: "wallet_button_trade",
-                                  systemImage: "arrow.up.down.wide") {
-                navigation.mainToTradeSheet = true
-            }
+                                  systemImage: "arrow.up.down.wide",
+                                  action: viewModel.tradeCryptoAction)
             .buttonStyle(TangemButtonStyle(layout: .flexibleWidth))
             .actionSheet(isPresented: $navigation.mainToTradeSheet, content: {
                 ActionSheet(title: Text("action_sheet_trade_hint"),
                             buttons: [
-                                .default(Text("wallet_button_topup"), action: {
-                                    viewModel.buyCryptoAction()
-                                }),
-                                .default(Text("wallet_button_sell_crypto"), action: {
-                                    viewModel.sellCryptoAction()
-                                }),
+                                .default(Text("wallet_button_topup"), action: viewModel.buyCryptoAction),
+                                .default(Text("wallet_button_sell_crypto"), action: viewModel.sellCryptoAction),
                                 .cancel()
                             ])
             })
