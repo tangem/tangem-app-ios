@@ -28,14 +28,29 @@ struct Web3StoryPage: View {
                 .multilineTextAlignment(.center)
                 .foregroundColor(.gray)
                 .padding(.horizontal)
+          
             Spacer()
             
-
-            Image("dapps")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-            
-            Spacer()
+            Color.clear
+                .background(
+                    Image("dapps")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .fixedSize(horizontal: false, vertical: true)
+                    ,
+                    alignment: .top
+                    
+                )
+                .clipped()
+                .overlay(
+                    GeometryReader { geometry in
+                        VStack {
+                            Spacer()
+                            LinearGradient(colors: [.white.opacity(0), .white], startPoint: .top, endPoint: .bottom)
+                                .frame(height: geometry.size.height / 4)
+                        }
+                    }
+                )
             
             HStack {
                 Button {
