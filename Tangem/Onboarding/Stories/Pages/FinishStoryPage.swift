@@ -65,5 +65,6 @@ struct FinishStoryPage: View {
 struct FinishStoryPage_Previews: PreviewProvider {
     static var previews: some View {
         FinishStoryPage { } orderCard: { }
+        .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
     }
 }
