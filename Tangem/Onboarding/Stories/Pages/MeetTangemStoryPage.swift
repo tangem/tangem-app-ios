@@ -11,8 +11,8 @@ import SwiftUI
 struct MeetTangemStoryPage: View {
     @Binding var progress: Double
     var immediatelyShowButtons: Bool
-    var scanCard: (() -> Void)
-    var orderCard: (() -> Void)
+    let scanCard: (() -> Void)
+    let orderCard: (() -> Void)
     
     private let words: [LocalizedStringKey] = [
         "",
@@ -82,21 +82,7 @@ struct MeetTangemStoryPage: View {
             VStack {
                 Spacer()
             
-                HStack {
-                    Button {
-                        scanCard()
-                    } label: {
-                        Text("home_button_scan")
-                    }
-                    .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
-
-                    Button {
-                        orderCard()
-                    } label: {
-                        Text("home_button_order")
-                    }
-                    .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt, layout: .flexibleWidth))
-                }
+                StoriesBottomButtons(scanColorStyle: .black, orderColorStyle: .grayAlt, scanCard: scanCard, orderCard: orderCard)
             }
             .padding(.horizontal)
             .padding(.bottom)
