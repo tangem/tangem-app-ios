@@ -62,5 +62,6 @@ struct BackupStoryPage: View {
 struct BackupStoryPage_Previews: PreviewProvider {
     static var previews: some View {
         BackupStoryPage { } orderCard: { }
+        .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
     }
 }
