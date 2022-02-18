@@ -132,11 +132,8 @@ fileprivate struct FadeModifier: AnimatableModifier {
     }
 
     func body(content: Content) -> some View {
-        if start <= progress && progress < end {
-            content
-        } else {
-            EmptyView()
-        }
+        content
+            .opacity((start <= progress && progress < end) ? 1 : 0)
     }
 }
 
