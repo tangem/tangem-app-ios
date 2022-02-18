@@ -155,7 +155,7 @@ extension Assembly {
         return vm
     }
     
-    func welcomeStoriesModel() -> StoriesViewModel {
+    func makeWelcomeStoriesModel() -> StoriesViewModel {
         return StoriesViewModel(
             numberOfViews: WelcomeStoryPage.allCases.count,
             highFpsViews: [WelcomeStoryPage.meetTangem.rawValue],
