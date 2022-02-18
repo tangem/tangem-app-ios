@@ -29,9 +29,9 @@ struct AweStoryPage: View {
                 .multilineTextAlignment(.center)
                 .foregroundColor(.gray)
                 .padding(.horizontal)
+            
             Spacer()
             
-
             Image("coin_shower")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
