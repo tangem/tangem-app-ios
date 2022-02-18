@@ -17,7 +17,6 @@ struct SendView: View {
     @ObservedObject var viewModel: SendViewModel
     @Environment(\.presentationMode) var presentationMode
     @EnvironmentObject var navigation: NavigationCoordinator
-    let onSuccess: () -> Void
     
     private var addressHint: String {
         viewModel.isPayIdSupported ?
@@ -246,13 +245,7 @@ struct SendView: View {
                     TangemButton(title: "wallet_button_send",
                                  systemImage: "arrow.right") {
                         self.viewModel.send() {
-                            DispatchQueue.main.async {
-                                let alert = AlertBuilder.makeSuccessAlert(message: "send_transaction_success".localized) {
-                                    presentationMode.wrappedValue.dismiss()
-                                    onSuccess()
-                                }
-                                self.viewModel.sendError = AlertBinder(alert: alert, error: nil)
-                            }
+                            presentationMode.wrappedValue.dismiss()
                         }
                     }
                                  .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
@@ -302,16 +295,14 @@ struct ExtractView_Previews: PreviewProvider {
                                                                                   value: 0.0),
                                                                      destination: "Target",
                                                                      blockchain: assembly.previewBlockchain,
-                                                                     card: assembly.previewCardViewModel),
-                     onSuccess: {})
+                                                                     card: assembly.previewCardViewModel))
                 .environmentObject(assembly.services.navigationCoordinator)
                 .previewLayout(.iphone7Zoomed)
             SendView(viewModel: assembly.makeSendViewModel(with: Amount(with: assembly.previewBlockchain,
                                                                         type: .token(value: Token(symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18, blockchain: .ethereum(testnet: false))),
                                                                         value: 0.0),
                                                            blockchain: assembly.previewBlockchain,
-                                                           card: assembly.previewCardViewModel),
-                     onSuccess: {})
+                                                           card: assembly.previewCardViewModel))
                 .environmentObject(assembly.services.navigationCoordinator)
                 .previewLayout(.iphone7Zoomed)
         }
