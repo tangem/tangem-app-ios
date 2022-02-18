@@ -11,8 +11,12 @@ import SwiftUI
 struct WelcomeOnboardingView: View {
     
     @ObservedObject var viewModel: WelcomeOnboardingViewModel
-    @StateObject var storiesModel = StoriesViewModel(numberOfViews: WelcomeOnboardingViewModel.StoryPage.allCases.count, storyDuration: 8)
     @EnvironmentObject var navigation: NavigationCoordinator
+    @StateObject var storiesModel = StoriesViewModel(
+        numberOfViews: WelcomeOnboardingViewModel.StoryPage.allCases.count,
+        highFpsViews: [WelcomeOnboardingViewModel.StoryPage.meetTangem.rawValue],
+        storyDuration: 8
+    )
     
     var currentStep: WelcomeStep { .welcome }
     
