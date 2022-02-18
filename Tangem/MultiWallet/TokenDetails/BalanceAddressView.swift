@@ -117,15 +117,16 @@ struct BalanceAddressView: View {
                 PickerView(contents: walletModel.addressNames, selection: $selectedAddressIndex)
                     .padding(.vertical, 16)
             }
+                
             
             GeometryReader { geometry in
                 VStack {
-                    HStack(alignment: .top, spacing: 0) {
+                    HStack(alignment: .top, spacing: 8) {
                         Image(uiImage: QrCodeGenerator.generateQRCode(from: walletModel.shareAddressString(for: selectedAddressIndex)))
                             .resizable()
                             .scaledToFit()
-                            .frame(width: geometry.size.width * 0.3)
-                        
+                            .background(Color.red)
+
                         VStack(alignment: .leading, spacing: 8) {
                             Text(walletModel.displayAddress(for: selectedAddressIndex))
                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
@@ -133,43 +134,30 @@ struct BalanceAddressView: View {
                                 .truncationMode(.middle)
                                 .foregroundColor(Color.tangemGrayDark)
                                 .fixedSize(horizontal: false, vertical: true)
-                            Button(action: {
-                                if let url = walletModel.exploreURL(for: selectedAddressIndex) {
-                                    showExplorerURL = url
-                                }}) {
-                                    HStack {
-                                        Text("wallet_address_button_explore")
-                                            .multilineTextAlignment(.leading)
-                                            .lineLimit(1)
-                                        Image (systemName: "chevron.right")
-                                    }
-                                    .font(Font.system(size: 14.0, weight: .bold, design: .default))
-                                    .foregroundColor(Color.tangemGrayDark6)
-                                }
-                                .padding(.bottom, 8)
+                            
+                            ExploreButton(url: walletModel.exploreURL(for: selectedAddressIndex),
+                                          urlBinding: $showExplorerURL)
+    
                         }
-                        .padding(.leading, 8)
                         .frame(width: geometry.size.width * 0.7)
                     }
                     
-                    HStack {
-                        RoundedRectButton(action: {
-                            UIPasteboard.general.string = walletModel.displayAddress(for: selectedAddressIndex) },
-                                          systemImageName: "doc.on.clipboard",
-                                          title: "common_copy".localized,
-                                          withVerification: true)
-                            .accessibility(label: Text("voice_over_copy_address"))
-                        
-                        RoundedRectButton(action: { showShareSheet() },
-                                          systemImageName: "square.and.arrow.up",
-                                          title: "common_share".localized)
-                            .accessibility(label: Text("voice_over_share_address"))
-                    }
-                    
                 }
-            }.frame(height: 114)
+            }.frame(height: 86)
             
-            
+            HStack {
+                RoundedRectButton(action: { UIPasteboard.general.string = walletModel.displayAddress(for: selectedAddressIndex) },
+                                  systemImageName: "doc.on.clipboard",
+                                  title: "common_copy".localized,
+                                  withVerification: true)
+                    .accessibility(label: Text("voice_over_copy_address"))
+                
+                RoundedRectButton(action: { showShareSheet() },
+                                  systemImageName: "square.and.arrow.up",
+                                  title: "common_share".localized)
+                    .accessibility(label: Text("voice_over_share_address"))
+            }
+            .padding(.vertical, 1) //fix weird issue of missing paddings
             
             Text(walletModel.getQRReceiveMessage(for: amountType))
                 .font(.system(size: 16, weight: .regular))
@@ -190,7 +178,7 @@ struct BalanceAddressView: View {
 }
 
 struct BalanceAddressView_Previews: PreviewProvider {
-    static let assembly = Assembly.previewAssembly(for: .ethereum)
+    static let assembly = Assembly.previewAssembly(for: .stellar)
     
     @State static var cardViewModel = assembly.previewCardViewModel
     
