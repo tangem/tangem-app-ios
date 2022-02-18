@@ -62,5 +62,6 @@ struct AweStoryPage: View {
 struct AweStoryPage_Previews: PreviewProvider {
     static var previews: some View {
         AweStoryPage { } orderCard: { }
+        .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
     }
 }
