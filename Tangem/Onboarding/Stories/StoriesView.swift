@@ -30,7 +30,7 @@ struct StoriesView<Content: View>: View {
                             }
                     )
                 
-                StoriesProgressView(numberOfPages: viewModel.numberOfViews, currentPage: $viewModel.selection, progress: $viewModel.currentProgress)
+                StoriesProgressView(pages: WelcomeStoryPage.allCases, currentPage: $viewModel.currentPage, progress: $viewModel.currentProgress)
                     .padding(.horizontal)
                     .padding(.top)
             }
@@ -42,7 +42,7 @@ struct StoriesView<Content: View>: View {
 
 struct StoriesView_Previews: PreviewProvider {
     static var previews: some View {
-        StoriesView(viewModel: StoriesViewModel(numberOfViews: 4, highFpsViews: [], storyDuration: 2)) {
+        StoriesView(viewModel: StoriesViewModel()) {
             Group {
                 Color.red.tag(0)
                 Color.blue.tag(1)
