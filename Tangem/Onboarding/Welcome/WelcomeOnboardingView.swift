@@ -30,19 +30,19 @@ struct WelcomeOnboardingView: View {
                     MeetTangemStoryPage(
                         progress: $storiesModel.currentProgress,
                         immediatelyShowButtons: viewModel.didDisplayMainScreenStories,
-                        scanCard: scanCard,
-                        orderCard: orderCard
+                        scanCard: viewModel.scanCard,
+                        orderCard: viewModel.orderCard
                     )
                 case WelcomeStoryPage.awe.rawValue:
-                    AweStoryPage(scanCard: scanCard, orderCard: orderCard)
+                    AweStoryPage(scanCard: viewModel.scanCard, orderCard: viewModel.orderCard)
                 case WelcomeStoryPage.backup.rawValue:
-                    BackupStoryPage(scanCard: scanCard, orderCard: orderCard)
+                    BackupStoryPage(scanCard: viewModel.scanCard, orderCard: viewModel.orderCard)
                 case WelcomeStoryPage.currencies.rawValue:
-                    CurrenciesStoryPage(scanCard: scanCard, orderCard: orderCard)
+                    CurrenciesStoryPage(scanCard: viewModel.scanCard, orderCard: viewModel.orderCard)
                 case WelcomeStoryPage.web3.rawValue:
-                    Web3StoryPage(scanCard: scanCard, orderCard: orderCard)
+                    Web3StoryPage(scanCard: viewModel.scanCard, orderCard: viewModel.orderCard)
                 case WelcomeStoryPage.finish.rawValue:
-                    FinishStoryPage(scanCard: scanCard, orderCard: orderCard)
+                    FinishStoryPage(scanCard: viewModel.scanCard, orderCard: viewModel.orderCard)
                 default:
                     EmptyView()
                 }
@@ -91,15 +91,6 @@ struct WelcomeOnboardingView: View {
         }
         .alert(item: $viewModel.error, content: { $0.alert })
         .onAppear(perform: viewModel.onAppear)
-    }
-    
-    private func scanCard() {
-        viewModel.scanCard()
-    }
-    
-    private func orderCard() {
-        navigation.readToShop = true
-        Analytics.log(.getACard, params: [.source: .welcome])
     }
 }
 
