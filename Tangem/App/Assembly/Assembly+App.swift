@@ -160,11 +160,7 @@ extension Assembly {
             return restored
         }
         
-        let vm = StoriesViewModel(
-            numberOfViews: WelcomeStoryPage.allCases.count,
-            highFpsViews: [WelcomeStoryPage.meetTangem.rawValue],
-            storyDuration: 8
-        )
+        let vm = StoriesViewModel()
         initialize(vm, isResetable: false)
         return vm
     }
