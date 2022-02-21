@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import SwiftUI
+import AVFoundation
 
 class WalletConnectViewModel: ViewModel, ObservableObject {
     weak var assembly: Assembly!
@@ -51,7 +52,8 @@ class WalletConnectViewModel: ViewModel, ObservableObject {
                 .store(in: &bag)
         }
     }
-    
+    @Published var isActionSheetVisible: Bool = false
+    @Published var showCameraDeniedAlert: Bool = false
     @Published var alert: AlertBinder?
     @Published var code: String = ""
     @Published var isServiceBusy: Bool = true
@@ -62,7 +64,7 @@ class WalletConnectViewModel: ViewModel, ObservableObject {
             && (cardModel.wallets?.contains(where: { $0.blockchain == .ethereum(testnet: false) || $0.blockchain == .ethereum(testnet: true) }) ?? false)
     }
     
-    var hasWCInPasteboard: Bool {
+   private  var hasWCInPasteboard: Bool {
         guard let copiedValue = UIPasteboard.general.string else {
             return false
         }
@@ -90,7 +92,11 @@ class WalletConnectViewModel: ViewModel, ObservableObject {
     }
     
     func scanQrCode() {
-        navigation.walletConnectToQR = true
+        if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
+            showCameraDeniedAlert = true
+        } else {
+            navigation.walletConnectToQR = true
+        }
     }
     
     func pasteFromClipboard() {
@@ -98,5 +104,18 @@ class WalletConnectViewModel: ViewModel, ObservableObject {
         
         code = value
         copiedValue = nil
+    }
+    
+    func openSession() {
+        if cardModel.cardInfo.card.isDemoCard {
+            alert = AlertBuilder.makeDemoAlert()
+            return
+        }
+        
+        if hasWCInPasteboard {
+            isActionSheetVisible = true
+        } else {
+            scanQrCode()
+        }
     }
 }
