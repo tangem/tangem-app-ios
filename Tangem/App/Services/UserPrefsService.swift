@@ -42,8 +42,8 @@ class UserPrefsService {
     @Storage(type: StorageType.cardsStartedActivation, defaultValue: [])
     var cardsStartedActivation: [String]
     
-    @Storage(type: StorageType.isSeeingStoriesFirstTime, defaultValue: true)
-    var isSeeingStoriesFirstTime: Bool
+    @Storage(type: StorageType.didDisplayMainScreenStories, defaultValue: false)
+    var didDisplayMainScreenStories: Bool
     
     deinit {
         print("UserPrefsService deinit")

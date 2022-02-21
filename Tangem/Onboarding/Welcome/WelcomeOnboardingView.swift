@@ -29,7 +29,7 @@ struct WelcomeOnboardingView: View {
                 case WelcomeStoryPage.meetTangem.rawValue:
                     MeetTangemStoryPage(
                         progress: $storiesModel.currentProgress,
-                        immediatelyShowButtons: !viewModel.isSeeingStoriesFirstTime,
+                        immediatelyShowButtons: viewModel.didDisplayMainScreenStories,
                         scanCard: scanCard,
                         orderCard: orderCard
                     )
