@@ -17,20 +17,11 @@ struct StoriesBottomButtons: View {
 
     var body: some View {
         HStack {
-            Button {
-                scanCard()
-            } label: {
-                Text("home_button_scan")
-            }
-            .buttonStyle(TangemButtonStyle(colorStyle: scanColorStyle, layout: .flexibleWidth))
+            TangemButton(title: "home_button_scan", action: scanCard)
+                .buttonStyle(TangemButtonStyle(colorStyle: scanColorStyle, layout: .flexibleWidth))
 
-            Button {
-                orderCard()
-            } label: {
-                Text("home_button_order")
-                    .multilineTextAlignment(.center)
-            }
-            .buttonStyle(TangemButtonStyle(colorStyle: orderColorStyle, layout: .flexibleWidth))
+            TangemButton(title: "home_button_order", action: orderCard)
+                .buttonStyle(TangemButtonStyle(colorStyle: orderColorStyle, layout: .flexibleWidth))
         }
     }
 }
