@@ -25,30 +25,28 @@ struct WelcomeOnboardingView: View {
     var body: some View {
         ZStack {
             StoriesView(viewModel: storiesModel) {
-                switch storiesModel.selection {
-                case WelcomeStoryPage.meetTangem.rawValue:
+                switch storiesModel.currentPage {
+                case WelcomeStoryPage.meetTangem:
                     MeetTangemStoryPage(
                         progress: $storiesModel.currentProgress,
                         immediatelyShowButtons: viewModel.didDisplayMainScreenStories,
                         scanCard: viewModel.scanCard,
                         orderCard: viewModel.orderCard
                     )
-                case WelcomeStoryPage.awe.rawValue:
+                case WelcomeStoryPage.awe:
                     AweStoryPage(scanCard: viewModel.scanCard, orderCard: viewModel.orderCard)
-                case WelcomeStoryPage.backup.rawValue:
+                case WelcomeStoryPage.backup:
                     BackupStoryPage(scanCard: viewModel.scanCard, orderCard: viewModel.orderCard)
-                case WelcomeStoryPage.currencies.rawValue:
+                case WelcomeStoryPage.currencies:
                     CurrenciesStoryPage(scanCard: viewModel.scanCard, orderCard: viewModel.orderCard)
-                case WelcomeStoryPage.web3.rawValue:
+                case WelcomeStoryPage.web3:
                     Web3StoryPage(scanCard: viewModel.scanCard, orderCard: viewModel.orderCard)
-                case WelcomeStoryPage.finish.rawValue:
+                case WelcomeStoryPage.finish:
                     FinishStoryPage(scanCard: viewModel.scanCard, orderCard: viewModel.orderCard)
-                default:
-                    EmptyView()
                 }
             }
             .statusBar(hidden: true)
-            .environment(\.colorScheme, lightStories.map { $0.rawValue }.contains(storiesModel.selection) ? .light : .dark)
+            .environment(\.colorScheme, storiesModel.currentPage.colorScheme)
             .actionSheet(item: $viewModel.discardAlert, content: { $0.sheet })
             
             ScanTroubleshootingView(isPresented: $navigation.readToTroubleshootingScan) {
