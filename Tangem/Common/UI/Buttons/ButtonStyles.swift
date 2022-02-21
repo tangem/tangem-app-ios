@@ -183,6 +183,7 @@ struct TangemButtonStyle: ButtonStyle {
             .overlay(disabledOverlay)
             .cornerRadius(14)
             .allowsHitTesting(!isDisabled && !isLoading)
+            .multilineTextAlignment(.center)
     }
 }
 
