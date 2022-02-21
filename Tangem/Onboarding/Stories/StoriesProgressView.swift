@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct StoriesProgressView: View {
-    let numberOfPages: Int
-    @Binding var currentPage: Int
+    let pages: [WelcomeStoryPage]
+    @Binding var currentPage: WelcomeStoryPage
     @Binding var progress: Double
     
     private let barHeight: Double = 2
@@ -18,7 +18,7 @@ struct StoriesProgressView: View {
     
     var body: some View {
         HStack(spacing: barSpacing) {
-            ForEach(0..<numberOfPages) { index in
+            ForEach(0..<pages.count) { index in
                 GeometryReader { geo in
                     Rectangle()
                         .fill(Color.primary.opacity(barBackgroundOpacity))
@@ -32,9 +32,9 @@ struct StoriesProgressView: View {
     
     @ViewBuilder
     func overlay(_ index: Int, width: CGFloat) -> some View {
-        if index < currentPage {
+        if index < currentPage.rawValue {
             Color.primary
-        } else if index > currentPage {
+        } else if index > currentPage.rawValue {
             EmptyView()
         } else {
             Color.primary.frame(width: progress * width)
@@ -46,7 +46,7 @@ struct StoriesProgressView_Previews: PreviewProvider {
     static var previews: some View {
         ZStack(alignment: .center) {
             Color.purple
-            StoriesProgressView(numberOfPages: 4, currentPage: .constant(2), progress: .constant(0.3))
+            StoriesProgressView(pages: WelcomeStoryPage.allCases, currentPage: .constant(.meetTangem), progress: .constant(0.3))
                 .padding()
                 .preferredColorScheme(.dark)
         }
