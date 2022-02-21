@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 enum WelcomeStoryPage: Int, Identifiable, CaseIterable {
     var id: Int {
@@ -19,4 +20,26 @@ enum WelcomeStoryPage: Int, Identifiable, CaseIterable {
     case currencies
     case web3
     case finish
+    
+    var colorScheme: ColorScheme {
+        switch self {
+        case .meetTangem, .awe, .finish:
+            return .dark
+        default:
+            return .light
+        }
+    }
+    
+    var duration: Double {
+        return 8
+    }
+    
+    var fps: Double {
+        switch self {
+        case .meetTangem:
+            return 60
+        default:
+            return 12
+        }
+    }
 }
