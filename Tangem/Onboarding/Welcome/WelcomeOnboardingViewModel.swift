@@ -103,6 +103,11 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
         subscription?.store(in: &bag)
     }
     
+    func orderCard() {
+        navigation.readToShop = true
+        Analytics.log(.getACard, params: [.source: .welcome])
+    }
+    
     func acceptDisclaimer() {
         userPrefsService.isTermsOfServiceAccepted = true
         navigation.onboardingToDisclaimer = false
