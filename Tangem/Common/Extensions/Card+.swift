@@ -44,16 +44,13 @@ extension Card {
     }
     
     var isDemoCard: Bool {
-        switch cardId {
-        case "FB01000000000148": //Note BTC / AB01
-            fallthrough
-        case "FF02000000000139": //Note ETH / Batch AB02
-            fallthrough
-        case "FF03000000000153": //Wallet  / Batch AC01
-            return true
-        default:
-            return false
-        }
+        let demoCards: [String] = [
+            "FB01000000000148", //Note BTC / AB01
+            "FF02000000000139", //Note ETH / AB02
+            "FF03000000000153", //Wallet / AC01
+        ]
+        
+        return demoCards.contains(cardId)
     }
     
     var isPermanentLegacyWallet: Bool {
