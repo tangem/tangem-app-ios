@@ -129,16 +129,15 @@ final class AppScanTask: CardSessionRunnable {
         // self.runAttestation(session, completion)
         // return
         
+        func exit() {
+            self.noteWalletData = nil
+            self.deriveKeysIfNeeded(session, completion)
+        }
+        
         let readFileCommand = ReadFilesTask(fileName: "blockchainInfo", walletPublicKey: nil)
         readFileCommand.run(in: session) { (result) in
             switch result {
             case .success(let response):
-                
-                func exit() {
-                    self.noteWalletData = nil
-                    self.appendWalletsIfNeeded(session: session, completion: completion)
-                }
-                
                 guard let file = response.first,
                       let namedFile = try? NamedFile(tlvData: file.data),
                       let tlv = Tlv.deserialize(namedFile.payload),
@@ -165,8 +164,7 @@ final class AppScanTask: CardSessionRunnable {
             case .failure(let error):
                 switch error {
                 case .fileNotFound, .insNotSupported:
-                    self.noteWalletData = nil
-                    self.appendWalletsIfNeeded(session: session, completion: completion)
+                  exit()
                 default:
                     completion(.failure(error))
                 }
@@ -241,8 +239,15 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
         
+        if let card = session.environment.card, card.isDemoCard { //Force add blockchains for demo cards
+            let demoBlockchains = SupportedTokenItems().predefinedDemoBlockchains.keys
+            let tokenItems = demoBlockchains.map { TokenItem.blockchain($0) }
+            tokenItemsRepository.append(tokenItems, for: card.cardId)
+        }
+        
         var savedBlockchains = tokenItemsRepository.getItems(for: session.environment.card!.cardId).map { $0.blockchain }
         mandatoryBlockchain.map { savedBlockchains.append($0) }
+        
         let uniqueBlockchains = Set(savedBlockchains)
         let derivations: [Data: [DerivationPath]] = uniqueBlockchains.reduce(into: [:]) { partialResult, blockchain in
             if let wallet = session.environment.card?.wallets.first(where: { $0.curve == blockchain.curve }),
@@ -282,7 +287,7 @@ final class AppScanTask: CardSessionRunnable {
     private func complete(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
         let card = session.environment.card!
         let isNote = noteWalletData != nil
-        let isWallet = card.firmwareVersion.doubleValue >= 4.39 && !isNote
+        let isWallet = card.firmwareVersion.doubleValue >= 4.39 && !isNote && card.settings.maxWalletsCount > 1
         
         completion(.success(AppScanTaskResponse(card: session.environment.card!,
                                                 walletData: noteWalletData ?? session.environment.walletData,
