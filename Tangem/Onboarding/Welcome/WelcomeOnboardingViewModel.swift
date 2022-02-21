@@ -18,8 +18,8 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     weak var stepsSetupService: OnboardingStepsSetupService!
     weak var userPrefsService: UserPrefsService! {
         didSet {
-            self.isSeeingStoriesFirstTime = userPrefsService.isSeeingStoriesFirstTime
-            userPrefsService.isSeeingStoriesFirstTime = false
+            self.didDisplayMainScreenStories = userPrefsService.didDisplayMainScreenStories
+            userPrefsService.didDisplayMainScreenStories = true
         }
     }
     weak var backupService: BackupService!
@@ -31,7 +31,7 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     @Published var discardAlert: ActionSheetBinder?
     @Published var darkCardSettings: AnimatedViewSettings = .zero
     @Published var lightCardSettings: AnimatedViewSettings = .zero
-    @Published var isSeeingStoriesFirstTime = true
+    @Published var didDisplayMainScreenStories = true
     
     var currentStep: WelcomeStep {
         .welcome
