@@ -14,6 +14,8 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     weak var navigation: NavigationCoordinator!
     weak var exchangeService: ExchangeService!
     
+    @Published var alert: AlertBinder? = nil
+    
     var card: CardViewModel! {
         didSet {
             bind()
@@ -174,6 +176,11 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     }
     
     func buyCryptoAction() {
+        if card.cardInfo.card.isDemoCard {
+            alert = AlertBuilder.makeDemoAlert()
+            return
+        }
+        
         guard
             card.isTestnet,
             let token = amountType.token,
@@ -191,6 +198,11 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     }
     
     func sellCryptoAction() {
+        if card.cardInfo.card.isDemoCard {
+            alert = AlertBuilder.makeDemoAlert()
+            return
+        }
+        
         navigation.detailsToSellCrypto = true
     }
     
