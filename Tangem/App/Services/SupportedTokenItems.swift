@@ -21,6 +21,15 @@ class SupportedTokenItems {
         ]
     }()
     
+    lazy var predefinedDemoBlockchains: [Blockchain: Decimal] = {
+        [
+            .bitcoin(testnet: false): 0.005,
+            .ethereum(testnet: false): 0.12,
+            .dogecoin: 45,
+            .solana(testnet: false): 3.246,
+        ]
+    }()
+    
     private let sources: [Blockchain: String] = [
         .ethereum(testnet: false) : "ethereum",
         .ethereum(testnet: true) : "ethereumTestnet",
