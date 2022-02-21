@@ -58,6 +58,7 @@ struct MeetTangemStoryPage: View {
     
                 Text("story_meet_title")
                     .font(.system(size: 60, weight: .semibold))
+                    .lineLimit(2)
                     .minimumScaleFactor(0.5)
                     .multilineTextAlignment(.center)
                     .foregroundColor(.white)
