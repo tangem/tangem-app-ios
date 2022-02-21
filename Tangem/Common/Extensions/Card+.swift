@@ -43,6 +43,16 @@ extension Card {
         issuer.name.lowercased() == "start2coin"
     }
     
+    var isDemoCard: Bool {
+        let demoCards: [String] = [
+            "FB01000000000148", //Note BTC / AB01
+            "FF02000000000139", //Note ETH / AB02
+            "FF03000000000153", //Wallet / AC01
+        ]
+        
+        return demoCards.contains(cardId)
+    }
+    
     var isPermanentLegacyWallet: Bool {
         if firmwareVersion < .multiwalletAvailable {
             return wallets.first?.settings.isPermanent ?? false
