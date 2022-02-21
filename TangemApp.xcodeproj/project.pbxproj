@@ -57,6 +57,9 @@
 		5D3F77DD24BF56DC00E8695B /* TangemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F77DC24BF56DC00E8695B /* TangemTests.swift */; };
 		5D3F77E824BF56DC00E8695B /* TangemUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F77E724BF56DC00E8695B /* TangemUITests.swift */; };
 		5D43E2D72514D5B700697E5B /* CardOperationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D43E2D62514D5B700697E5B /* CardOperationView.swift */; };
+		5D49034F27BE84B20072C642 /* ExploreButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D49034E27BE84B20072C642 /* ExploreButton.swift */; };
+		5D49035027BE8AAE0072C642 /* ExploreButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D49034E27BE84B20072C642 /* ExploreButton.swift */; };
+		5D49035227BE9D550072C642 /* Data+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D49035127BE9D550072C642 /* Data+.swift */; };
 		5D5332B125F9091900D32CA5 /* TokenItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D5332B025F9091900D32CA5 /* TokenItem.swift */; };
 		5D5468E3279AC5C700C5FC71 /* avalancheTestnet.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D5468E1279AC5C700C5FC71 /* avalancheTestnet.json */; };
 		5D5468E4279AC5C700C5FC71 /* polygon.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D5468E2279AC5C700C5FC71 /* polygon.json */; };
@@ -897,6 +900,8 @@
 		5D3F77E724BF56DC00E8695B /* TangemUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemUITests.swift; sourceTree = "<group>"; };
 		5D3F77E924BF56DC00E8695B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5D43E2D62514D5B700697E5B /* CardOperationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardOperationView.swift; sourceTree = "<group>"; };
+		5D49034E27BE84B20072C642 /* ExploreButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreButton.swift; sourceTree = "<group>"; };
+		5D49035127BE9D550072C642 /* Data+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+.swift"; sourceTree = "<group>"; };
 		5D5332B025F9091900D32CA5 /* TokenItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItem.swift; sourceTree = "<group>"; };
 		5D5468E1279AC5C700C5FC71 /* avalancheTestnet.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = avalancheTestnet.json; sourceTree = "<group>"; };
 		5D5468E2279AC5C700C5FC71 /* polygon.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = polygon.json; sourceTree = "<group>"; };
@@ -1950,6 +1955,7 @@
 				5D74F718262722FF00B03897 /* Publisher+.swift */,
 				5DA5067C27A2FF56000A8901 /* URL+.swift */,
 				5D62446027A7CAB60069DEC2 /* Bool+.swift */,
+				5D49035127BE9D550072C642 /* Data+.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -3297,6 +3303,7 @@
 				B09BB856259A075500B92000 /* ButtonStyles.swift */,
 				5D09380E25E6BDB00049B8F0 /* RoundedRectButton.swift */,
 				5D09381325E6CB2D0049B8F0 /* HorizontalButtonStack.swift */,
+				5D49034E27BE84B20072C642 /* ExploreButton.swift */,
 			);
 			path = Buttons;
 			sourceTree = "<group>";
@@ -4235,7 +4242,9 @@
 				5D119E85256BF1E50046CAD2 /* Option.swift in Sources */,
 				5DF2522D24F95E390015B429 /* UIScreen+.swift in Sources */,
 				B0BA7BCB26C5684E00D7066F /* AddressQrBottomSheetView.swift in Sources */,
+				5D49034F27BE84B20072C642 /* ExploreButton.swift in Sources */,
 				5D6C128725E144DF0010A0C5 /* AddTokensView.swift in Sources */,
+				5D49035227BE9D550072C642 /* Data+.swift in Sources */,
 				B09BB862259A075600B92000 /* NavigationButton.swift in Sources */,
 				B0BA7BC726C4F9A300D7066F /* OnboardingCircleButton.swift in Sources */,
 				B04BA23126F07ECE0036784C /* OnboardingTextButtonView.swift in Sources */,
@@ -4581,6 +4590,7 @@
 				B066B5BF262DADBD00EB85A5 /* SegWitBech32.swift in Sources */,
 				B00BC589260B179200F0647D /* CircleActionButton.swift in Sources */,
 				B066B1E4262D6B1100EB85A5 /* WalletManagerFactory.swift in Sources */,
+				5D49035027BE8AAE0072C642 /* ExploreButton.swift in Sources */,
 				B066B467262D6EFA00EB85A5 /* AccountBalanceResponse.swift in Sources */,
 				B0D3600625F26C7400929564 /* SceneDelegate.swift in Sources */,
 				B066B12B262D6B1100EB85A5 /* XRPTransaction.swift in Sources */,
