@@ -326,7 +326,6 @@ extension Assembly {
         let vm: SendViewModel = SendViewModel(amountToSend: amount,
                                               blockchain: blockchain,
                                               cardViewModel: card,
-                                              signer: services.signer,
                                               warningsManager: services.warningsService)
         
         if services.featuresService.isPayIdEnabled, let payIdService = PayIDService.make(from: blockchain) {
@@ -346,7 +345,6 @@ extension Assembly {
                                destination: destination,
                                blockchain: blockchain,
                                cardViewModel: card,
-                               signer: services.signer,
                                warningsManager: services.warningsService)
         prepareSendViewModel(vm)
         return vm
@@ -388,7 +386,7 @@ extension Assembly {
         let assembly = WalletManagerAssembly(factory: walletManagerFactory,
                                              tokenItemsRepository: services.tokenItemsRepository)
         let walletManagers = assembly.makeAllWalletManagers(for: cardInfo)
-        return makeWalletModels(walletManagers: walletManagers, cardToken: cardInfo.defaultToken, cardBlockchain: cardInfo.defaultBlockchain)
+        return makeWalletModels(walletManagers: walletManagers, cardInfo: cardInfo)
     }
     
     func makeWalletModels(from cardInfo: CardInfo, blockchains: [Blockchain]) -> [WalletModel] {
@@ -396,7 +394,7 @@ extension Assembly {
         let assembly = WalletManagerAssembly(factory: walletManagerFactory,
                                              tokenItemsRepository: services.tokenItemsRepository)
         let walletManagers = assembly.makeWalletManagers(from: cardInfo, blockchains: blockchains)
-        return makeWalletModels(walletManagers: walletManagers, cardToken: cardInfo.defaultToken, cardBlockchain: cardInfo.defaultBlockchain)
+        return makeWalletModels(walletManagers: walletManagers, cardInfo: cardInfo)
     }
     
     func makeWalletModels(from cardDto: SavedCard, blockchains: [Blockchain]) -> [WalletModel] {
@@ -404,13 +402,23 @@ extension Assembly {
         let assembly = WalletManagerAssembly(factory: walletManagerFactory,
                                              tokenItemsRepository: services.tokenItemsRepository)
         let walletManagers = assembly.makeWalletManagers(from: cardDto, blockchains: blockchains)
-        return makeWalletModels(walletManagers: walletManagers, cardToken: nil, cardBlockchain: nil)
+        return makeWalletModels(walletManagers: walletManagers, cardInfo: nil)
     }
     
     //Make walletModel from walletManager
-    private func makeWalletModels(walletManagers: [WalletManager], cardToken: BlockchainSdk.Token?, cardBlockchain: BlockchainSdk.Blockchain?) -> [WalletModel] {
+    private func makeWalletModels(walletManagers: [WalletManager], cardInfo: CardInfo?) -> [WalletModel] {
         return walletManagers.map { manager -> WalletModel in
-            let model = WalletModel(walletManager: manager, defaultToken: cardToken, defaultBlockchain: cardBlockchain)
+            var demoBalance: Decimal? = nil
+            if let card = cardInfo?.card, card.isDemoCard,
+               let balance = SupportedTokenItems().predefinedDemoBlockchains[manager.wallet.blockchain] {
+                demoBalance = balance
+            }
+            
+            let model = WalletModel(walletManager: manager,
+                                    signer: services.signer,
+                                    defaultToken: cardInfo?.defaultToken,
+                                    defaultBlockchain: cardInfo?.defaultBlockchain,
+                                    demoBalance: demoBalance)
             model.tokenItemsRepository = services.tokenItemsRepository
             model.ratesService = services.ratesService
             return model
