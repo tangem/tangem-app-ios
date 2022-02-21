@@ -31,7 +31,7 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     @Published var discardAlert: ActionSheetBinder?
     @Published var darkCardSettings: AnimatedViewSettings = .zero
     @Published var lightCardSettings: AnimatedViewSettings = .zero
-    @Published var didDisplayMainScreenStories = true
+    @Published var didDisplayMainScreenStories = false
     
     var currentStep: WelcomeStep {
         .welcome
@@ -98,6 +98,7 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
                 }
                 
                 self?.processScannedCard(cardModel, isWithAnimation: true)
+                self?.didDisplayMainScreenStories = true
             }
         
         subscription?.store(in: &bag)
