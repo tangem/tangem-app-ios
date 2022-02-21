@@ -89,6 +89,12 @@ struct TangemButton_Previews: PreviewProvider {
             TangemButton(title: "wallet_button_scan", image: "scan") {}
                 .buttonStyle(TangemButtonStyle(colorStyle: .black,
                                                layout: .big))
+            
+            TangemButton(title: "wallet_address_button_explore",
+                         systemImage: "chevron.right",
+                         iconPosition: .trailing) {}
+            .buttonStyle(TangemButtonStyle(colorStyle: .transparentWhite,
+                                           layout: .wide))
  
             HStack {
                 TangemButton(title: "wallet_button_send",
@@ -98,7 +104,7 @@ struct TangemButton_Previews: PreviewProvider {
                 
                 TangemButton.vertical(title: "wallet_button_topup",
                                       systemImage: "arrow.up") {}
-                    .buttonStyle(TangemButtonStyle(layout: .smallVertical))
+                                      .buttonStyle(TangemButtonStyle(layout: .smallVertical))
                 
             
                 TangemButton.vertical(title: "wallet_button_scan",
