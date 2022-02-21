@@ -13,10 +13,9 @@ class StoriesViewModel: ViewModel, ObservableObject {
     var assembly: Assembly!
     var navigation: NavigationCoordinator!
     
-    @Published var selection = 0
+    @Published var currentPage: WelcomeStoryPage = WelcomeStoryPage.allCases.first!
     @Published var currentProgress = 0.0
-    let numberOfViews: Int
-    let highFpsViews: [Int]
+    let pages = WelcomeStoryPage.allCases
     
     private var timerSubscription: AnyCancellable?
     private var longTapTimerSubscription: AnyCancellable?
@@ -24,19 +23,10 @@ class StoriesViewModel: ViewModel, ObservableObject {
     private var currentDragLocation: CGPoint?
     private var bag: Set<AnyCancellable> = []
     
-    private let highFps: Double = 60
-    private let lowFps: Double = 12
-    
-    private let storyDuration: Double
-    private let restartAutomatically = true
     private let longTapDuration = 0.25
     private let minimumSwipeDistance = 100.0
     
-    init(numberOfViews: Int, highFpsViews: [Int], storyDuration: Double) {
-        self.numberOfViews = numberOfViews
-        self.highFpsViews = highFpsViews
-        self.storyDuration = storyDuration
-        
+    init() {
         NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)
             .sink { [weak self] _ in
                 self?.pauseTimer()
@@ -101,14 +91,8 @@ class StoriesViewModel: ViewModel, ObservableObject {
     }
     
     private func move(forward: Bool) {
-        let newIndex = max(0, selection + (forward ? 1 : -1))
-        if newIndex < numberOfViews {
-            selection = newIndex
-            restartTimer()
-        } else if restartAutomatically {
-            selection = 0
-            restartTimer()
-        }
+        currentPage = WelcomeStoryPage(rawValue: currentPage.rawValue + (forward ? 1 : -1)) ?? pages.first!
+        restartTimer()
     }
     
     private func restartTimer() {
@@ -121,14 +105,15 @@ class StoriesViewModel: ViewModel, ObservableObject {
     }
     
     private func resumeTimer() {
-        let fps = highFpsViews.contains(selection) ? highFps : lowFps
+        let fps = currentPage.fps
+        let storyDuration = currentPage.duration
         timerSubscription = Timer.publish(every: 1 / fps, on: .main, in: .default)
             .autoconnect()
             .sink { [unowned self] _ in
                 if self.currentProgress >= 1 {
                     self.move(forward: true)
                 } else {
-                    self.currentProgress += 1 / fps / self.storyDuration
+                    self.currentProgress += 1 / fps / storyDuration
                 }
             }
     }
