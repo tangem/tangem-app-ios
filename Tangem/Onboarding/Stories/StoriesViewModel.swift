@@ -22,6 +22,7 @@ class StoriesViewModel: ViewModel, ObservableObject {
     private var longTapTimerSubscription: AnyCancellable?
     private var longTapDetected = false
     private var currentDragLocation: CGPoint?
+    private var bag: Set<AnyCancellable> = []
     
     private let highFps: Double = 60
     private let lowFps: Double = 12
@@ -35,6 +36,18 @@ class StoriesViewModel: ViewModel, ObservableObject {
         self.numberOfViews = numberOfViews
         self.highFpsViews = highFpsViews
         self.storyDuration = storyDuration
+        
+        NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)
+            .sink { [weak self] _ in
+                self?.pauseTimer()
+            }
+            .store(in: &bag)
+        
+        NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
+            .sink { [weak self] _ in
+                self?.resumeTimer()
+            }
+            .store(in: &bag)
     }
     
     func onAppear() {
