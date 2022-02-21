@@ -473,3 +473,6 @@ URL: %@";
 "story_web3_description" = "Exchange, buy NFT’s, make loans and deposits in more than 100 different decentralized applications with help of Wallet Connect";
 "story_finish_title" = "The wallet for everyone";
 "story_finish_description" = "Use it on the go, anywhere, anytime. No wires or batteries. Just tap the card to your phone when you need your crypto.";
+"alert_demo_message" = "Приложение работает в демонстрационном режиме. Средства на всех счетах ненастоящие.";
+"alert_demo_feature_disabled" = "Эта функция недоступна в демонстрационном режиме";
+"alert_demo_tx_send" = "Транзакция успешно подписана, но не отправлена в блокчейн, потому что активирован демонстрационный режим.";
