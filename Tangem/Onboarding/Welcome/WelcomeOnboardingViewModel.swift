@@ -16,12 +16,7 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     weak var navigation: NavigationCoordinator!
     weak var cardsRepository: CardsRepository!
     weak var stepsSetupService: OnboardingStepsSetupService!
-    weak var userPrefsService: UserPrefsService! {
-        didSet {
-            self.didDisplayMainScreenStories = userPrefsService.didDisplayMainScreenStories
-            userPrefsService.didDisplayMainScreenStories = true
-        }
-    }
+    weak var userPrefsService: UserPrefsService!
     weak var backupService: BackupService!
     weak var failedCardScanTracker: FailedCardScanTracker!
     
@@ -31,7 +26,6 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     @Published var discardAlert: ActionSheetBinder?
     @Published var darkCardSettings: AnimatedViewSettings = .zero
     @Published var lightCardSettings: AnimatedViewSettings = .zero
-    @Published var didDisplayMainScreenStories = false
     
     var currentStep: WelcomeStep {
         .welcome
@@ -98,7 +92,6 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
                 }
                 
                 self?.processScannedCard(cardModel, isWithAnimation: true)
-                self?.didDisplayMainScreenStories = true
             }
         
         subscription?.store(in: &bag)
