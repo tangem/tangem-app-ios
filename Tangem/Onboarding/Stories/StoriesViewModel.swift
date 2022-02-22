@@ -34,8 +34,9 @@ class StoriesViewModel: ViewModel, ObservableObject {
     private let longTapDuration = 0.25
     private let minimumSwipeDistance = 100.0
     
-    init() {
+    func onAppear() {
         NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)
+            .dropFirst()
             .sink { [weak self] _ in
                 self?.pauseTimer()
             }
@@ -47,9 +48,7 @@ class StoriesViewModel: ViewModel, ObservableObject {
                 self?.resumeTimer()
             }
             .store(in: &bag)
-    }
-    
-    func onAppear() {
+        
         DispatchQueue.main.async {
             self.restartTimer()
         }
@@ -57,6 +56,7 @@ class StoriesViewModel: ViewModel, ObservableObject {
     
     func onDisappear() {
         pauseTimer()
+        bag = []
     }
     
     @ViewBuilder
