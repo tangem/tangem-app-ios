@@ -11,71 +11,18 @@ import SwiftUI
 struct WelcomeOnboardingView: View {
     
     @ObservedObject var viewModel: WelcomeOnboardingViewModel
+    @ObservedObject var storiesModel: StoriesViewModel
     @EnvironmentObject var navigation: NavigationCoordinator
-    
-    @State var containerSize: CGSize = .zero
     
     var currentStep: WelcomeStep { .welcome }
     
     var body: some View {
         ZStack {
-            VStack(spacing: 0) {
-                ZStack {
-                    let bgSize = containerSize * 1.5
-                    
-                    WelcomeBackgroundView()
-                        .frame(size: bgSize)
-                        .offset(x: bgSize.width/3,
-                                y: (containerSize.height - bgSize.height) * 0.2)
-                    
-                    AnimatedView(settings: viewModel.$lightCardSettings) {
-                        OnboardingCardView(placeholderCardType: .light,
-                                           cardImage: nil,
-                                           cardScanned: false)
-                    }
-                    
-                    AnimatedView(settings: viewModel.$darkCardSettings) {
-                        OnboardingCardView(placeholderCardType: .dark,
-                                           cardImage: nil,
-                                           cardScanned: false)
-                    }
-                }
-                .position(x: containerSize.width / 2, y: containerSize.height / 2)
-                .readSize { size in
-                    containerSize = size
-                    viewModel.setupContainer(size)
-                }
-                
-                OnboardingTextButtonView(
-                    title: currentStep.title,
-                    subtitle: currentStep.subtitle,
-                    buttonsSettings:
-                        .init(main: TangemButtonSettings(
-                            title: currentStep.mainButtonTitle,
-                            size: .wide,
-                            action: {
-                                viewModel.scanCard()
-                            },
-                            isBusy: viewModel.isScanningCard,
-                            isEnabled: true,
-                            isVisible: true
-                        ),
-                        supplement: TangemButtonSettings(
-                            title: currentStep.supplementButtonTitle,
-                            size: .wide,
-                            action: {
-                                navigation.readToShop = true
-                                Analytics.log(.getACard, params: [.source: .welcome])
-                            },
-                            isBusy: false,
-                            isEnabled: true,
-                            isVisible: true,
-                            color: .transparentWhite))
-                ) {
-                    
-                }
-                .padding(.horizontal, 32)
+            StoriesView(viewModel: storiesModel) {
+                storiesModel.currentStoryPage(scanCard: viewModel.scanCard, orderCard: viewModel.orderCard)
             }
+            .statusBar(hidden: true)
+            .environment(\.colorScheme, storiesModel.currentPage.colorScheme)
             .actionSheet(item: $viewModel.discardAlert, content: { $0.sheet })
             
             ScanTroubleshootingView(isPresented: $navigation.readToTroubleshootingScan) {
@@ -126,7 +73,7 @@ struct WelcomeOnboardingView_Previews: PreviewProvider {
     static let assembly: Assembly = .previewAssembly
     
     static var previews: some View {
-        WelcomeOnboardingView(viewModel: assembly.getLetsStartOnboardingViewModel(with: { _ in }))
+        WelcomeOnboardingView(viewModel: assembly.getLetsStartOnboardingViewModel(with: { _ in }), storiesModel: assembly.makeWelcomeStoriesModel())
             .environmentObject(assembly.services.navigationCoordinator)
     }
 }
