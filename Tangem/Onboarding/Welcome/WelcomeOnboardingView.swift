@@ -25,25 +25,7 @@ struct WelcomeOnboardingView: View {
     var body: some View {
         ZStack {
             StoriesView(viewModel: storiesModel) {
-                switch storiesModel.currentPage {
-                case WelcomeStoryPage.meetTangem:
-                    MeetTangemStoryPage(
-                        progress: $storiesModel.currentProgress,
-                        immediatelyShowButtons: viewModel.didDisplayMainScreenStories,
-                        scanCard: viewModel.scanCard,
-                        orderCard: viewModel.orderCard
-                    )
-                case WelcomeStoryPage.awe:
-                    AweStoryPage(scanCard: viewModel.scanCard, orderCard: viewModel.orderCard)
-                case WelcomeStoryPage.backup:
-                    BackupStoryPage(scanCard: viewModel.scanCard, orderCard: viewModel.orderCard)
-                case WelcomeStoryPage.currencies:
-                    CurrenciesStoryPage(scanCard: viewModel.scanCard, orderCard: viewModel.orderCard)
-                case WelcomeStoryPage.web3:
-                    Web3StoryPage(scanCard: viewModel.scanCard, orderCard: viewModel.orderCard)
-                case WelcomeStoryPage.finish:
-                    FinishStoryPage(scanCard: viewModel.scanCard, orderCard: viewModel.orderCard)
-                }
+                storiesModel.currentStoryPage(scanCard: viewModel.scanCard, orderCard: viewModel.orderCard)
             }
             .statusBar(hidden: true)
             .environment(\.colorScheme, storiesModel.currentPage.colorScheme)
