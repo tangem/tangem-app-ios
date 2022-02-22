@@ -162,6 +162,7 @@ extension Assembly {
         
         let vm = StoriesViewModel()
         initialize(vm, isResetable: false)
+        vm.userPrefsService = services.userPrefsService
         return vm
     }
 

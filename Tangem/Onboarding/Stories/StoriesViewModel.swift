@@ -12,6 +12,12 @@ import SwiftUI
 class StoriesViewModel: ViewModel, ObservableObject {
     var assembly: Assembly!
     var navigation: NavigationCoordinator!
+    weak var userPrefsService: UserPrefsService! {
+        didSet {
+            self.didDisplayMainScreenStories = userPrefsService.didDisplayMainScreenStories
+            userPrefsService.didDisplayMainScreenStories = true
+        }
+    }
     
     @Published var currentPage: WelcomeStoryPage = WelcomeStoryPage.allCases.first!
     @Published var currentProgress = 0.0
@@ -22,6 +28,7 @@ class StoriesViewModel: ViewModel, ObservableObject {
     private var longTapTimerSubscription: AnyCancellable?
     private var longTapDetected = false
     private var currentDragLocation: CGPoint?
+    private var didDisplayMainScreenStories = false
     private var bag: Set<AnyCancellable> = []
     
     private let longTapDuration = 0.25
@@ -52,6 +59,35 @@ class StoriesViewModel: ViewModel, ObservableObject {
         pauseTimer()
     }
     
+    @ViewBuilder
+    func currentStoryPage(scanCard: @escaping () -> Void, orderCard: @escaping () -> Void) -> some View {
+        switch currentPage {
+        case WelcomeStoryPage.meetTangem:
+            let progressBinding = Binding<Double> { [weak self] in
+                self?.currentProgress ?? 0
+            } set: { [weak self] in
+                self?.currentProgress = $0
+            }
+
+            MeetTangemStoryPage(
+                progress: progressBinding,
+                immediatelyShowButtons: didDisplayMainScreenStories,
+                scanCard: scanCard,
+                orderCard: orderCard
+            )
+        case WelcomeStoryPage.awe:
+            AweStoryPage(scanCard: scanCard, orderCard: orderCard)
+        case WelcomeStoryPage.backup:
+            BackupStoryPage(scanCard: scanCard, orderCard: orderCard)
+        case WelcomeStoryPage.currencies:
+            CurrenciesStoryPage(scanCard: scanCard, orderCard: orderCard)
+        case WelcomeStoryPage.web3:
+            Web3StoryPage(scanCard: scanCard, orderCard: orderCard)
+        case WelcomeStoryPage.finish:
+            FinishStoryPage(scanCard: scanCard, orderCard: orderCard)
+        }
+    }
+
     func didDrag(_ current: CGPoint) {
         if longTapDetected {
             return
@@ -97,6 +133,9 @@ class StoriesViewModel: ViewModel, ObservableObject {
     private func move(forward: Bool) {
         currentPage = WelcomeStoryPage(rawValue: currentPage.rawValue + (forward ? 1 : -1)) ?? pages.first!
         restartTimer()
+        if currentPage != pages.first {
+            didDisplayMainScreenStories = true
+        }
     }
     
     private func restartTimer() {
