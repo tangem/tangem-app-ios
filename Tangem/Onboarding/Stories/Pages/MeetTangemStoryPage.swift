@@ -44,7 +44,7 @@ struct MeetTangemStoryPage: View {
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
                     .padding(.horizontal)
-                    .modifier(FadeModifier(
+                    .modifier(VisibilityModifier(
                         progress: progress,
                         start: Double(index) / Double(words.count) * wordListProgressEnd,
                         end: Double(index+1) / Double(words.count) * wordListProgressEnd
@@ -54,7 +54,7 @@ struct MeetTangemStoryPage: View {
             VStack(spacing: 0) {
                 StoriesTangemLogo()
                     .padding()
-                    .modifier(FadeModifier(
+                    .modifier(VisibilityModifier(
                         progress: progress,
                         start: wordListProgressEnd,
                         end: .infinity
@@ -72,7 +72,7 @@ struct MeetTangemStoryPage: View {
                         start: titleProgressStart,
                         end: titleProgressEnd
                     ))
-                    .modifier(FadeModifier(
+                    .modifier(VisibilityModifier(
                         progress: progress,
                         start: titleProgressStart,
                         end: .infinity
@@ -90,7 +90,7 @@ struct MeetTangemStoryPage: View {
                                 start: wordListProgressEnd,
                                 end: 1
                             ))
-                            .modifier(FadeModifier(
+                            .modifier(VisibilityModifier(
                                 progress: progress,
                                 start: wordListProgressEnd,
                                 end: 1
@@ -107,7 +107,7 @@ struct MeetTangemStoryPage: View {
             }
             .padding(.horizontal)
             .padding(.bottom)
-            .modifier(FadeModifier(
+            .modifier(VisibilityModifier(
                 progress: progress,
                 start: immediatelyShowButtons ? 0 : wordListProgressEnd,
                 end: .infinity
@@ -126,7 +126,7 @@ fileprivate func normalizeProgress(progress: Double, start: Double, end: Double)
     return max(0, min(value, 1))
 }
 
-fileprivate struct FadeModifier: AnimatableModifier {
+fileprivate struct VisibilityModifier: AnimatableModifier {
     var progress: Double
     let start: Double
     let end: Double
