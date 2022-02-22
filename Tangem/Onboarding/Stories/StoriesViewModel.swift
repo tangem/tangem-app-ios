@@ -18,6 +18,7 @@ class StoriesViewModel: ViewModel, ObservableObject {
     let pages = WelcomeStoryPage.allCases
     
     private var timerSubscription: AnyCancellable?
+    private var timerStartDate: Date?
     private var longTapTimerSubscription: AnyCancellable?
     private var longTapDetected = false
     private var currentDragLocation: CGPoint?
@@ -34,6 +35,7 @@ class StoriesViewModel: ViewModel, ObservableObject {
             .store(in: &bag)
         
         NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
+            .dropFirst()
             .sink { [weak self] _ in
                 self?.resumeTimer()
             }
@@ -41,7 +43,9 @@ class StoriesViewModel: ViewModel, ObservableObject {
     }
     
     func onAppear() {
-        restartTimer()
+        DispatchQueue.main.async {
+            self.restartTimer()
+        }
     }
     
     func onDisappear() {
@@ -101,20 +105,39 @@ class StoriesViewModel: ViewModel, ObservableObject {
     }
     
     private func pauseTimer() {
+        let now = Date()
+        
+        let elapsedTime: TimeInterval
+        if let timerStartDate = timerStartDate {
+            elapsedTime = now.timeIntervalSince(timerStartDate)
+        } else {
+            elapsedTime = 0
+        }
+        
+        let progress = elapsedTime / currentPage.duration
+        
         timerSubscription = nil
+        withAnimation(.linear(duration: 0)) {
+            self.currentProgress = progress
+        }
     }
     
     private func resumeTimer() {
-        let fps = currentPage.fps
-        let storyDuration = currentPage.duration
-        timerSubscription = Timer.publish(every: 1 / fps, on: .main, in: .default)
+        let remainingProgress = 1 - currentProgress
+        let remainingStoryDuration = currentPage.duration * remainingProgress
+        let currentStoryTime = currentPage.duration * currentProgress
+        
+        timerStartDate = Date() - TimeInterval(currentStoryTime)
+        
+        withAnimation(.linear(duration: remainingStoryDuration)) {
+            self.currentProgress = 1
+        }
+        
+        timerSubscription = Timer.publish(every: remainingStoryDuration, on: .main, in: .default)
             .autoconnect()
             .sink { [unowned self] _ in
-                if self.currentProgress >= 1 {
-                    self.move(forward: true)
-                } else {
-                    self.currentProgress += 1 / fps / storyDuration
-                }
+                self.timerSubscription = nil
+                self.move(forward: true)
             }
     }
 }
