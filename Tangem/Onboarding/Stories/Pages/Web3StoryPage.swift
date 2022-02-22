@@ -28,18 +28,14 @@ struct Web3StoryPage: View {
                 .multilineTextAlignment(.center)
                 .foregroundColor(.gray)
                 .padding(.horizontal)
-          
-            Spacer()
             
             Color.clear
                 .background(
                     Image("dapps")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .fixedSize(horizontal: false, vertical: true)
+                        .scaleEffect(0.9, anchor: .top)
+                        .offset(x: 50, y: 0)
                     ,
                     alignment: .top
-                    
                 )
                 .clipped()
                 .overlay(
