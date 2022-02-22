@@ -7,24 +7,18 @@
 //
 
 import SwiftUI
-import AVFoundation
 
 struct WalletConnectView: View {
     @ObservedObject var viewModel: WalletConnectViewModel
     @EnvironmentObject var navigation: NavigationCoordinator
     
-    @State private var isActionSheetVisible: Bool = false
-    @State private var showCameraDeniedAlert: Bool = false
-    
     @ViewBuilder
     var navBarButton: some View {
-        NavigationBusyButton(isBusy: viewModel.isServiceBusy, color: .tangemBlue, systemImageName: "plus", action: {
-            if viewModel.hasWCInPasteboard {
-                isActionSheetVisible = true
-            } else {
-                scanQrCode()
-            }
-        }).accessibility(label: Text("voice_over_open_new_wallet_connect_session"))
+        NavigationBusyButton(isBusy: viewModel.isServiceBusy,
+                             color: .tangemBlue,
+                             systemImageName: "plus",
+                             action: viewModel.openSession)
+            .accessibility(label: Text("voice_over_open_new_wallet_connect_session"))
     }
     
     var body: some View {
@@ -53,14 +47,10 @@ struct WalletConnectView: View {
             }
             
             Color.clear.frame(width: 0.5, height: 0.5)
-                .actionSheet(isPresented: $isActionSheetVisible, content: {
+                .actionSheet(isPresented: $viewModel.isActionSheetVisible, content: {
                     ActionSheet(title: Text("common_select_action"), message: Text("wallet_connect_clipboard_alert"), buttons: [
-                        .default(Text("wallet_connect_paste_from_clipboard"), action: {
-                            viewModel.pasteFromClipboard()
-                        }),
-                        .default(Text("wallet_connect_scan_new_code"), action: {
-                            scanQrCode()
-                        }),
+                        .default(Text("wallet_connect_paste_from_clipboard"), action: viewModel.pasteFromClipboard),
+                        .default(Text("wallet_connect_scan_new_code"), action: viewModel.scanQrCode),
                         .cancel()
                     ])
                 })
@@ -72,7 +62,7 @@ struct WalletConnectView: View {
                 }
                
             Color.clear .frame(width: 0.5, height: 0.5)
-                .cameraAccessDeniedAlert($showCameraDeniedAlert)
+                .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
             
             Color.clear .frame(width: 0.5, height: 0.5)
                 .alert(item: $viewModel.alert) { $0.alert }
@@ -82,14 +72,6 @@ struct WalletConnectView: View {
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle(Text("wallet_connect_sessions_title"))
         .navigationBarItems(trailing: navBarButton)
-    }
-    
-    private func scanQrCode() {
-        if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
-            showCameraDeniedAlert = true
-        } else {
-            viewModel.scanQrCode()
-        }
     }
 }
 

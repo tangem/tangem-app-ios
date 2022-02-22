@@ -268,7 +268,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
     override func backButtonAction() {
         switch currentStep {
         case .second, .third:
-            alert = AlertBinder(alert: AlertBuilder.makeOkGotItAlert(message: "onboarding_twin_exit_warning".localized))
+            alert = AlertBuilder.makeOkGotItAlert(message: "onboarding_twin_exit_warning".localized)
         default:
             back()
         }
