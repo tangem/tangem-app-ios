@@ -67,7 +67,7 @@ struct MeetTangemStoryPage: View {
                     .multilineTextAlignment(.center)
                     .foregroundColor(.white)
                     .padding()
-                    .modifier(OffsetModifier(
+                    .modifier(TitleOffsetModifier(
                         progress: progress,
                         start: titleProgressStart,
                         end: titleProgressEnd
@@ -85,7 +85,7 @@ struct MeetTangemStoryPage: View {
                             .aspectRatio(contentMode: .fit)
                             .fixedSize(horizontal: false, vertical: true)
                             .edgesIgnoringSafeArea(.bottom)
-                            .modifier(ScaleModifier(
+                            .modifier(CardHandScaleModifier(
                                 progress: progress,
                                 start: wordListProgressEnd,
                                 end: 1
@@ -121,7 +121,7 @@ struct MeetTangemStoryPage: View {
 
 // MARK: - Modifiers
 
-fileprivate func normalizeProgress(progress: Double, start: Double, end: Double) -> Double {
+fileprivate func normalize(progress: Double, start: Double, end: Double) -> Double {
     let value = (progress - start) / (end - start)
     return max(0, min(value, 1))
 }
@@ -143,7 +143,7 @@ fileprivate struct VisibilityModifier: AnimatableModifier {
 }
 
 
-fileprivate struct ScaleModifier: AnimatableModifier {
+fileprivate struct CardHandScaleModifier: AnimatableModifier {
     var progress: Double
     let start: Double
     let end: Double
@@ -159,12 +159,12 @@ fileprivate struct ScaleModifier: AnimatableModifier {
     }
     
     private func normalizeCardHandProgress(_ progress: Double) -> Double {
-        normalizeProgress(progress: progress, start: start, end: end)
+        normalize(progress: progress, start: start, end: end)
     }
 }
 
 
-fileprivate struct OffsetModifier: AnimatableModifier {
+fileprivate struct TitleOffsetModifier: AnimatableModifier {
     var progress: Double
     let start: Double
     let end: Double
@@ -180,7 +180,7 @@ fileprivate struct OffsetModifier: AnimatableModifier {
     }
     
     private func normalizeTitleProgress(_ progress: Double) -> Double {
-        normalizeProgress(progress: progress, start: start, end: end)
+        normalize(progress: progress, start: start, end: end)
     }
 }
 
