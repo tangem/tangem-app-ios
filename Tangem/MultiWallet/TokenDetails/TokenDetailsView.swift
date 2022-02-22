@@ -156,13 +156,13 @@ struct TokenDetailsView: View {
                                     with: Amount(with: viewModel.blockchain, value: sellCryptoRequest.amount),
                                     destination: sellCryptoRequest.targetAddress,
                                     blockchain: viewModel.blockchain,
-                                    card: viewModel.card), onSuccess: {})
+                                    card: viewModel.card))
                             .environmentObject(navigation)
                     } else if let amountToSend = viewModel.amountToSend {
                         SendView(viewModel: viewModel.assembly.makeSendViewModel(
                                     with: amountToSend,
                                     blockchain: viewModel.blockchain,
-                                    card: viewModel.card), onSuccess: {})
+                                    card: viewModel.card))
                             .environmentObject(navigation)
                     }
                 }
@@ -192,6 +192,7 @@ struct TokenDetailsView: View {
                     .receive(on: DispatchQueue.main)) { _ in
             viewModel.walletModel?.update(silent: true)
         }
+        .alert(item: $viewModel.alert) { $0.alert }
     }
 }
 
