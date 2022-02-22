@@ -155,6 +155,17 @@ extension Assembly {
         return vm
     }
     
+    func makeWelcomeStoriesModel() -> StoriesViewModel {
+        if let restored: StoriesViewModel = get() {
+            return restored
+        }
+        
+        let vm = StoriesViewModel()
+        initialize(vm, isResetable: false)
+        vm.userPrefsService = services.userPrefsService
+        return vm
+    }
+
     
     //    func makeReadViewModel() -> ReadViewModel {
     //        if let restored: ReadViewModel = get() {
