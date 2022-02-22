@@ -163,7 +163,8 @@ Unless otherwise required by law, in no event shall the owners of, or contributo
  
 This disclaimer was amended for the last time on October 1st, 2020.";
 "disclaimer_title" = "Условия использования";
-"home_button_scan" = "Сканировать карту";
+"home_button_scan" = "Сканировать";
+"home_button_order" = "Заказать карту";
 "home_button_shop" = "Магазин";
 "home_button_tapin" = "Прислонить";
 "home_button_yes" = "Да! Отсканировать.";
@@ -452,3 +453,26 @@ URL: %@";
 "shop_buy_now" = "Купить сейчас";
 "shop_placing_order" = "Оформление вашего заказа";
 "shop_web_checkout_title" = "Ваш заказ";
+
+"story_meet_title" = "Встречайте\nTangem";
+"story_meet_buy" = "Покупайте";
+"story_meet_store" = "Храните";
+"story_meet_send" = "Отправляйте";
+"story_meet_pay" = "Расплачивайтесь";
+"story_meet_exchange" = "Обменивайте";
+"story_meet_lend" = "Одалживайте";
+"story_meet_borrow" = "Занимайте";
+"story_meet_stake" = "Вкладывайте";
+"story_awe_title" = "Революционный аппаратный кошелек";
+"story_awe_description" = "Держите свои криптосбережения в безопасности - приватные ключи надежно хранятся на карте";
+"story_backup_title" = "Ультрабезопасная резервная копия";
+"story_backup_description" = "До трех карт с одним кошельком";
+"story_currencies_title" = "Тысячи криптовалют";
+"story_currencies_description" = "Аппаратный кошелек для ваших биткоинов, эфира и многих других валют одновременно — все в одной карте";
+"story_web3_title" = "Поддерживает Web3";
+"story_web3_description" = "Обменивайте, покупайте NFT, получайте займы и вклады в более чем 100 различных децентрализованных сервисах";
+"story_finish_title" = "Кошелек для каждого";
+"story_finish_description" = "Используйте его на ходу, в любом месте, в любое время. Без проводов и аккумуляторов. Как только понадобится крипта, просто приложите карту к телефону.";
+"alert_demo_message" = "Приложение работает в демонстрационном режиме. Средства на всех счетах ненастоящие.";
+"alert_demo_feature_disabled" = "Эта функция недоступна в демонстрационном режиме";
+"alert_demo_tx_send" = "Транзакция успешно подписана, но не отправлена в блокчейн, потому что активирован демонстрационный режим.";
