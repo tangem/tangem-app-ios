@@ -156,7 +156,7 @@ struct PushTxView: View {
                                         presentationMode.wrappedValue.dismiss()
                                         onSuccess()
                                     }
-                                    self.viewModel.sendError = AlertBinder(alert: alert, error: nil)
+                                    self.viewModel.sendError = alert
                                 })
                             }
                         }.buttonStyle(TangemButtonStyle(layout: .big,
