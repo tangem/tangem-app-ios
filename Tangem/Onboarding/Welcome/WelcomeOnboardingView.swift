@@ -16,12 +16,6 @@ struct WelcomeOnboardingView: View {
     
     var currentStep: WelcomeStep { .welcome }
     
-    private let lightStories: [WelcomeStoryPage] = [
-        .backup,
-        .currencies,
-        .web3,
-    ]
-    
     var body: some View {
         ZStack {
             StoriesView(viewModel: storiesModel) {
