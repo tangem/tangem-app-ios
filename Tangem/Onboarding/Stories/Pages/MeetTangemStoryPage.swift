@@ -159,9 +159,7 @@ fileprivate struct ScaleModifier: AnimatableModifier {
     }
     
     private func normalizeCardHandProgress(_ progress: Double) -> Double {
-        let x = normalizeProgress(progress: progress, start: start, end: end)
-        print(progress, x)
-        return x
+        normalizeProgress(progress: progress, start: start, end: end)
     }
 }
 
