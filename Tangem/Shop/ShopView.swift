@@ -25,6 +25,9 @@ struct ShopView: View {
             GeometryReader { geometry in
                 ScrollView {
                     VStack {
+                        Spacer()
+                            .frame(maxHeight: .infinity)
+                        
                         cardStack
                             .layoutPriority(1)
                         
@@ -117,7 +120,9 @@ struct ShopView: View {
                 .disableAutocorrection(true)
                 .keyboardType(.alphabet)
                 
-                ActivityIndicatorView(isAnimating: viewModel.checkingDiscountCode, color: .tangemGrayDark)
+                if viewModel.checkingDiscountCode {
+                    ActivityIndicatorView(isAnimating: true, color: .tangemGrayDark)
+                }
             }
             .padding(.horizontal)
             .padding(.vertical, sectionRowVerticalPadding)
@@ -144,7 +149,7 @@ struct ShopView: View {
                 .font(.system(size: 22, weight: .bold))
                 
                 if viewModel.loadingProducts {
-                    ActivityIndicatorView(isAnimating: viewModel.loadingProducts, color: .tangemGrayDark)
+                    ActivityIndicatorView(isAnimating: true, color: .tangemGrayDark)
                 }
             }
             .padding(.horizontal)
