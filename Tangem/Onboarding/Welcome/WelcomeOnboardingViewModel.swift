@@ -184,7 +184,7 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
                 let input = OnboardingInput(steps: steps,
                                             cardInput: .cardModel(cardModel),
                                             cardsPosition: (darkCardSettings, lightCardSettings),
-                                            welcomeStep: .welcome,
+                                            welcomeStep: nil,
                                             currentStepIndex: 0,
                                             successCallback: nil)
                 
