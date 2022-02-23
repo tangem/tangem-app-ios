@@ -702,7 +702,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
     
     private func addTokens(for cardId: String) {
-        let blockchains = SupportedTokenItems().predefinedBlockchains
+        let isDemo = input.cardInput.cardModel?.cardInfo.card.isDemoCard ?? false
+        let blockchains = SupportedTokenItems().predefinedBlockchains(isDemo: isDemo)
         let tokenItems = blockchains.map { TokenItem.blockchain($0) }
         self.tokensRepo.append(tokenItems, for: cardId)
     }
