@@ -45,9 +45,12 @@ extension Card {
     
     var isDemoCard: Bool {
         let demoCards: [String] = [
-            "FB01000000000148", //Note BTC / AB01
-            "FF02000000000139", //Note ETH / AB02
-            "FF03000000000153", //Wallet / AC01
+            "FB10000000000196", //Note BTC
+            "FB20000000000186", //Note ETH
+            "FB30000000000176", //Wallet
+            "AB01000000045060", // Note BTC
+            "AB02000000045028", // Note ETH
+            "AC79000000000004", // Wallet 4.46
         ]
         
         return demoCards.contains(cardId)
