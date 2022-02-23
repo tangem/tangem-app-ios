@@ -64,8 +64,8 @@ class SupportedTokenItems {
             .polygon(testnet: false),
             .avalanche(testnet: false),
             .solana(testnet: false),
-            .polkadot(testnet: false),
-            .kusama,
+//            .polkadot(testnet: false),
+//            .kusama,
             .fantom(testnet: false),
         ]
     }()
@@ -81,7 +81,7 @@ class SupportedTokenItems {
             .avalanche(testnet: true),
             .solana(testnet: true),
             .fantom(testnet: true),
-            .polkadot(testnet: true),
+           // .polkadot(testnet: true),
         ]
     }()
     
