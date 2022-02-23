@@ -14,14 +14,7 @@ import enum BlockchainSdk.Blockchain
 import TangemSdk
 
 class SupportedTokenItems {
-    lazy var predefinedBlockchains: Set<Blockchain> = {
-        [
-            .ethereum(testnet: false),
-            .bitcoin(testnet: false),
-        ]
-    }()
-    
-    lazy var predefinedDemoBlockchains: [Blockchain: Decimal] = {
+    lazy var predefinedDemoBalances: [Blockchain: Decimal] = {
         [
             .bitcoin(testnet: false): 0.005,
             .ethereum(testnet: false): 0.12,
@@ -64,8 +57,8 @@ class SupportedTokenItems {
             .polygon(testnet: false),
             .avalanche(testnet: false),
             .solana(testnet: false),
-            .polkadot(testnet: false),
-            .kusama,
+//            .polkadot(testnet: false),
+//            .kusama,
             .fantom(testnet: false),
         ]
     }()
@@ -81,9 +74,17 @@ class SupportedTokenItems {
             .avalanche(testnet: true),
             .solana(testnet: true),
             .fantom(testnet: true),
-            .polkadot(testnet: true),
+           // .polkadot(testnet: true),
         ]
     }()
+    
+    func predefinedBlockchains(isDemo: Bool) -> [Blockchain] {
+        if isDemo {
+            return Array(predefinedDemoBalances.keys)
+        }
+        
+        return [.ethereum(testnet: false), .bitcoin(testnet: false)]
+    }
     
     func blockchains(for curves: [EllipticCurve], isTestnet: Bool?) -> Set<Blockchain> {
         let allBlockchains = isTestnet.map { $0 ? testnetBlockchains : blockchains }
