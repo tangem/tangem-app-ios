@@ -21,6 +21,7 @@ struct ExploreButton:  View {
                                                     layout: .flexible,
                                                     font: Font.system(size: 14.0, weight: .bold, design: .default),
                                                     paddings: 0,
+                                                    cornerRadius: 0,
                                                     isDisabled: url == nil))
     }
 }
