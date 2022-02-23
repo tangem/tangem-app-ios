@@ -240,7 +240,7 @@ final class AppScanTask: CardSessionRunnable {
         }
         
         if let card = session.environment.card, card.isDemoCard { //Force add blockchains for demo cards
-            let demoBlockchains = SupportedTokenItems().predefinedDemoBlockchains.keys
+            let demoBlockchains = SupportedTokenItems().predefinedBlockchains(isDemo: true)
             let tokenItems = demoBlockchains.map { TokenItem.blockchain($0) }
             tokenItemsRepository.append(tokenItems, for: card.cardId)
         }
