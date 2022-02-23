@@ -57,7 +57,7 @@ enum AlertBuilder {
     static func makeDemoAlert(okAction: @escaping (() -> Void) = {}) -> AlertBinder {
         .init(alert: Alert(title: Text("common_warning"),
                            message: Text("alert_demo_feature_disabled"),
-                           dismissButton: Alert.Button.default(Text(okButtonTitle), action: {})))
+                           dismissButton: Alert.Button.default(Text(okButtonTitle), action: okAction)))
     }
     
     static func makeOldDeviceAlert() -> AlertBinder {
