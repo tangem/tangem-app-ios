@@ -170,10 +170,6 @@ This disclaimer was amended for the last time on October 1st, 2020.";
 "home_button_yes" = "Да! Отсканировать.";
 "home_ready_title" = "Будьте готовы прислонить вашу
 карту к обратной стороне телефона.";
-"home_welcome" = "Добро пожаловать в Tangem.
-У вас есть одна из наших карт?";
-"home_welcome_back" = "С возвращением в Tangem.
-Отсканируйте карту чтобы начать.";
 "initial_message_change_access_code_body" = "Чтобы изменить код доступа, соедините телефон и карту в точности, как показано выше.";
 "initial_message_change_passcode_body" = "Чтобы изменить пароль, соедините телефон и карту в точности, как показано выше.";
 "initial_message_create_wallet_body" = "Чтобы создать кошелек, соедините телефон и карту в точности, как показано выше.";
