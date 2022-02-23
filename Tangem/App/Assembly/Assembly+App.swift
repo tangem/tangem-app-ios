@@ -404,10 +404,11 @@ extension Assembly {
     
     //Make walletModel from walletManager
     private func makeWalletModels(walletManagers: [WalletManager], cardInfo: CardInfo?) -> [WalletModel] {
+        let items = SupportedTokenItems()
         return walletManagers.map { manager -> WalletModel in
             var demoBalance: Decimal? = nil
             if let card = cardInfo?.card, card.isDemoCard,
-               let balance = SupportedTokenItems().predefinedDemoBlockchains[manager.wallet.blockchain] {
+               let balance = items.predefinedDemoBalances[manager.wallet.blockchain] {
                 demoBalance = balance
             }
             
