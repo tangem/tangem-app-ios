@@ -178,8 +178,6 @@
 		5DFB499824E54A340037E76F /* BalanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB499724E54A340037E76F /* BalanceView.swift */; };
 		5DFB499A24E554140037E76F /* Card+Preview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB499924E554140037E76F /* Card+Preview.swift */; };
 		5DFB499C24E6BAF10037E76F /* MessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFB499B24E6BAF10037E76F /* MessageView.swift */; };
-		5DFCCB6724C371D90014A293 /* ReadViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFCCB6624C371D90014A293 /* ReadViewModel.swift */; };
-		5DFCCB6C24C372140014A293 /* ReadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFCCB6B24C372140014A293 /* ReadView.swift */; };
 		5DFCCB6F24C3728E0014A293 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFCCB6E24C3728E0014A293 /* MainView.swift */; };
 		5DFCCB7124C372980014A293 /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFCCB7024C372980014A293 /* MainViewModel.swift */; };
 		5DFCCB7424C3819A0014A293 /* SendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFCCB7324C3819A0014A293 /* SendView.swift */; };
@@ -1006,8 +1004,6 @@
 		5DFB499724E54A340037E76F /* BalanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceView.swift; sourceTree = "<group>"; };
 		5DFB499924E554140037E76F /* Card+Preview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Card+Preview.swift"; sourceTree = "<group>"; };
 		5DFB499B24E6BAF10037E76F /* MessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageView.swift; sourceTree = "<group>"; };
-		5DFCCB6624C371D90014A293 /* ReadViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadViewModel.swift; sourceTree = "<group>"; };
-		5DFCCB6B24C372140014A293 /* ReadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadView.swift; sourceTree = "<group>"; };
 		5DFCCB6E24C3728E0014A293 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		5DFCCB7024C372980014A293 /* MainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
 		5DFCCB7324C3819A0014A293 /* SendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendView.swift; sourceTree = "<group>"; };
@@ -1810,7 +1806,6 @@
 				5D384B9224FD51B200C2C92C /* Details */,
 				5DFCCB7224C3817E0014A293 /* Send */,
 				B074BABF26779B14005D641B /* PushTx */,
-				5DFCCB6A24C372020014A293 /* Read */,
 				B07826652562913D00395918 /* Twins */,
 				DA23788E27B250D3009795A8 /* Shop */,
 				5DFCCB6324C371AC0014A293 /* Common */,
@@ -2026,15 +2021,6 @@
 				B0453671264D4B730005B23E /* Constants.swift */,
 			);
 			path = Common;
-			sourceTree = "<group>";
-		};
-		5DFCCB6A24C372020014A293 /* Read */ = {
-			isa = PBXGroup;
-			children = (
-				5DFCCB6624C371D90014A293 /* ReadViewModel.swift */,
-				5DFCCB6B24C372140014A293 /* ReadView.swift */,
-			);
-			path = Read;
 			sourceTree = "<group>";
 		};
 		5DFCCB6D24C372830014A293 /* Main */ = {
@@ -4242,7 +4228,6 @@
 				B020FFB425DE7F9300EF422C /* DataCollectors.swift in Sources */,
 				DA23787C27B24222009795A8 /* ShopifyService.swift in Sources */,
 				DAC53D0027BE63830027147D /* Web3StoryPage.swift in Sources */,
-				5DFCCB6C24C372140014A293 /* ReadView.swift in Sources */,
 				B0541DC226FB301A0043893E /* WalletOnboardingCardLayout.swift in Sources */,
 				5D958E1424F513D9006BD932 /* RefreshableScrollView.swift in Sources */,
 				B06997D02692EC5E0014A676 /* ExchangeService.swift in Sources */,
@@ -4328,7 +4313,6 @@
 				DA23788427B24222009795A8 /* Checkout.swift in Sources */,
 				DA23787F27B24222009795A8 /* CheckoutPayload.swift in Sources */,
 				DA5FAD8A27B27F7F00EE53AE /* SheetDragHandler.swift in Sources */,
-				5DFCCB6724C371D90014A293 /* ReadViewModel.swift in Sources */,
 				B0E1565226B97F8C005B33E4 /* OnboardingCardView.swift in Sources */,
 				B08B8CEB26D6276000D4BB7B /* Assembly+AppPreview.swift in Sources */,
 				B0A9E93F25921D21007B6D36 /* WarningView.swift in Sources */,
