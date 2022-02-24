@@ -310,7 +310,7 @@ extension Assembly {
             return restored
         }
         
-        let vm = TokenListViewModel(cardModel: cardModel)
+        let vm = TokenListViewModel(mode: .add(cardModel: cardModel))
         initialize(vm)
         return vm
     }
@@ -320,7 +320,7 @@ extension Assembly {
             return restored
         }
         
-        let vm = TokenListViewModel(cardModel: nil)
+        let vm = TokenListViewModel(mode: .show)
         initialize(vm)
         return vm
     }
