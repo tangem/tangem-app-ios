@@ -5,6 +5,7 @@
 "add_token_section_title_custom_tokens" = "Custom tokens";
 "add_token_section_title_tokens_format" = "%@ tokens";
 "add_tokens_title" = "Add tokens";
+"search_tokens_title" = "Search tokens";
 "address_qr_code_message_format" = "Send only %@ (%@) to this address. Sending any other currency will result in its irreversible loss.";
 "address_qr_code_message_token_format" = "Send only %@ (%@) from %@ network to this address. Sending any other currency will result in its irreversible loss.";
 "alert_app_feedback_sent_message" = "Thank you for your feedback";
@@ -165,6 +166,7 @@ Dieser Haftungsausschuss wurde am 1. Oktober 2020 zum letzten Mal geändert.";
 "disclaimer_title" = "Nutzungsbedingungen";
 "home_button_scan" = "Karte scannen";
 "home_button_order" = "Order card";
+"home_button_search_tokens" = "Search tokens";
 "home_button_shop" = "Einkaufen";
 "home_button_tapin" = "Eintippen";
 "home_button_yes" = "Ja! Bitte scannen";
