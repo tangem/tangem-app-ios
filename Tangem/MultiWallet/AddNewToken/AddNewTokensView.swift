@@ -18,7 +18,7 @@ struct AddNewTokensView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("add_tokens_title")
+                Text(viewModel.titleKey)
                     .font(Font.system(size: 36, weight: .bold, design: .default))
                     .padding(.horizontal, 16)
                     .padding(.vertical, 16)
@@ -47,13 +47,15 @@ struct AddNewTokensView: View {
                 .listStyle(PlainListStyle())
             }
             
-            TangemButton(title: "common_save_changes", action: viewModel.saveChanges)
-                .buttonStyle(TangemButtonStyle(colorStyle: .black,
-                                               layout: .flexibleWidth,
-                                               isDisabled: viewModel.pendingTokenItems.isEmpty,
-                                               isLoading: viewModel.isLoading))
-                .padding([.leading, .trailing, .top], 16)
-                .padding(.bottom, 8)
+            if viewModel.showSaveButton {
+                TangemButton(title: "common_save_changes", action: viewModel.saveChanges)
+                    .buttonStyle(TangemButtonStyle(colorStyle: .black,
+                                                   layout: .flexibleWidth,
+                                                   isDisabled: viewModel.pendingTokenItems.isEmpty,
+                                                   isLoading: viewModel.isLoading))
+                    .padding([.leading, .trailing, .top], 16)
+                    .padding(.bottom, 8)
+            }
         }
         .ignoresKeyboard()
         .onAppear { viewModel.onAppear() }
@@ -120,9 +122,13 @@ fileprivate struct TokenView: View {
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.tangemGrayDark)
             }
+            
             Spacer()
-            TangemButton(title: buttonTitle, action: token.tap)
-                .buttonStyle(buttonStyle)
+            
+            if token.canAdd {
+                TangemButton(title: buttonTitle, action: token.tap)
+                    .buttonStyle(buttonStyle)
+            }
         }
         .padding(.vertical, 8)
     }
