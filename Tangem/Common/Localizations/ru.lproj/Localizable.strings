@@ -5,6 +5,7 @@
 "add_token_section_title_custom_tokens" = "Пользовательские токены";
 "add_token_section_title_tokens_format" = "%@ токены";
 "add_tokens_title" = "Добавить токены";
+"search_tokens_title" = "Поиск токенов";
 "address_qr_code_message_format" = "Отправляйте только %@ (%@) на этот адрес. Отправка любой другой валюты приведет к ее безвозвратной утере.";
 "address_qr_code_message_token_format" = "Отправляйте только %@ (%@) из сети %@ на этот адрес. Отправка любой другой валюты приведет к ее безвозвратной утере.";
 "alert_app_feedback_sent_message" = "Спасибо за ваш отзыв";
@@ -165,6 +166,7 @@ This disclaimer was amended for the last time on October 1st, 2020.";
 "disclaimer_title" = "Условия использования";
 "home_button_scan" = "Сканировать";
 "home_button_order" = "Заказать карту";
+"home_button_search_tokens" = "Поиск токенов";
 "home_button_shop" = "Магазин";
 "home_button_tapin" = "Прислонить";
 "home_button_yes" = "Да! Отсканировать.";
