@@ -5,6 +5,7 @@
 "add_token_section_title_custom_tokens" = "Custom tokens";
 "add_token_section_title_tokens_format" = "%@ tokens";
 "add_tokens_title" = "Add tokens";
+"search_tokens_title" = "Search tokens";
 "address_qr_code_message_format" = "Send only %@ (%@) to this address. Sending any other currency will result in its irreversible loss.";
 "address_qr_code_message_token_format" = "Send only %@ (%@) from %@ network to this address. Sending any other currency will result in its irreversible loss.";
 "alert_app_feedback_sent_message" = "Thank you for your feedback";
@@ -165,6 +166,7 @@ Questa nota legale è stata modificata l'ultima volta 01.10.2020.";
 "disclaimer_title" = "Termini del servizio";
 "home_button_scan" = "Scansiona carta";
 "home_button_order" = "Order card";
+"home_button_search_tokens" = "Search tokens";
 "home_button_shop" = "Shop";
 "home_button_tapin" = "Avvicina";
 "home_button_yes" = "Si! Scansiona carta.";
