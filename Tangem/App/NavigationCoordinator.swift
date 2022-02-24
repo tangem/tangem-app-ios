@@ -18,6 +18,7 @@ class NavigationCoordinator: ObservableObject {
         }
     }
     @Published var readToShop: Bool = false
+    @Published var readToTokenList: Bool = false
     @Published var readToDisclaimer: Bool = false
     @Published var readToTwinOnboarding = false
     @Published var readToTroubleshootingScan = false
