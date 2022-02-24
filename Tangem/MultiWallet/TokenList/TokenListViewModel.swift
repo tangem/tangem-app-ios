@@ -1,5 +1,5 @@
 //
-//  AddNewTokenViewModel.swift
+//  TokenListViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -12,7 +12,7 @@ import BlockchainSdk
 import TangemSdk
 import SwiftUI
 
-class AddNewTokensViewModel: ViewModel, ObservableObject {
+class TokenListViewModel: ViewModel, ObservableObject {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
     
@@ -158,7 +158,7 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
     }
 }
 
-extension AddNewTokensViewModel {
+extension TokenListViewModel {
     enum Sections: String, CaseIterable {
         case blockchains
         case eth
