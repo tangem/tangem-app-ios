@@ -33,7 +33,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
         case .add:
             return "add_tokens_title"
         case .show:
-            return "add_tokens_title"
+            return "search_tokens_title"
         }
     }
     
