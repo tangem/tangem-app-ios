@@ -5,6 +5,7 @@
 "add_token_section_title_custom_tokens" = "Пользовательские токены";
 "add_token_section_title_tokens_format" = "%@ токены";
 "add_tokens_title" = "Добавить токены";
+"search_tokens_title" = "Поиск токенов";
 "address_qr_code_message_format" = "Отправляйте только %@ (%@) на этот адрес. Отправка любой другой валюты приведет к ее безвозвратной утере.";
 "address_qr_code_message_token_format" = "Отправляйте только %@ (%@) из сети %@ на этот адрес. Отправка любой другой валюты приведет к ее безвозвратной утере.";
 "alert_app_feedback_sent_message" = "Спасибо за ваш отзыв";
