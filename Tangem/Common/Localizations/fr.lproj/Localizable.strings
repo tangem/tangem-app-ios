@@ -165,6 +165,7 @@ Cette avertissement a été modifié, pour la dernière fois, le 1 octobre 2020.
 "disclaimer_title" = "Conditions d'utilisation";
 "home_button_scan" = "Scannez la carte";
 "home_button_order" = "Order card";
+"home_button_search_tokens" = "Search tokens";
 "home_button_shop" = "Magasin";
 "home_button_tapin" = "Appuyez";
 "home_button_yes" = "Oui ! Scannez-la .";
