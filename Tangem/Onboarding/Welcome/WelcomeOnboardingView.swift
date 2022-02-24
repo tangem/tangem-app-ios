@@ -19,7 +19,11 @@ struct WelcomeOnboardingView: View {
     var body: some View {
         ZStack {
             StoriesView(viewModel: storiesModel) {
-                storiesModel.currentStoryPage(scanCard: viewModel.scanCard, orderCard: viewModel.orderCard)
+                storiesModel.currentStoryPage(
+                    scanCard: viewModel.scanCard,
+                    orderCard: viewModel.orderCard,
+                    searchTokens: viewModel.searchTokens
+                )
             }
             .statusBar(hidden: true)
             .environment(\.colorScheme, storiesModel.currentPage.colorScheme)
@@ -62,6 +66,12 @@ struct WelcomeOnboardingView: View {
                             .environmentObject(navigation)
                     }
                 })
+            
+            Color.clear.frame(width: 1, height: 1)
+                .sheet(isPresented: $navigation.readToTokenList) {
+                    AddNewTokensView(viewModel: viewModel.assembly.makeTokenListViewModel())
+                        .environmentObject(navigation)
+                }
         }
         .alert(item: $viewModel.error, content: { $0.alert })
         .onAppear(perform: viewModel.onAppear)
