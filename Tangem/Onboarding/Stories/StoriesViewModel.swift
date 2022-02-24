@@ -49,6 +49,22 @@ class StoriesViewModel: ViewModel, ObservableObject {
             }
             .store(in: &bag)
         
+        Publishers.Merge(
+            navigation.$readToTokenList,
+            navigation.$readToShop
+        )
+            .drop { showingSheet in
+                showingSheet == false
+            }
+            .sink { [unowned self] showingSheet in
+                if showingSheet && self.timerIsRunning() {
+                    self.pauseTimer()
+                } else if !showingSheet && !self.timerIsRunning() {
+                    self.resumeTimer()
+                }
+            }
+            .store(in: &bag)
+        
         DispatchQueue.main.async {
             self.restartTimer()
         }
@@ -140,6 +156,10 @@ class StoriesViewModel: ViewModel, ObservableObject {
         if currentPage != pages.first {
             didDisplayMainScreenStories = true
         }
+    }
+    
+    private func timerIsRunning() -> Bool {
+        timerSubscription != nil
     }
     
     private func restartTimer() {
