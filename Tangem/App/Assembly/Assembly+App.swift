@@ -315,6 +315,16 @@ extension Assembly {
         return vm
     }
     
+    func makeTokenListViewModel() -> AddNewTokensViewModel {
+        if let restored: AddNewTokensViewModel = get() {
+            return restored
+        }
+        
+        let vm = AddNewTokensViewModel(cardModel: nil)
+        initialize(vm)
+        return vm
+    }
+    
     func makeSendViewModel(with amount: Amount, blockchain: Blockchain, card: CardViewModel) -> SendViewModel {
         if let restored: SendViewModel = get() {
             return restored
