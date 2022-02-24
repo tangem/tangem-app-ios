@@ -60,7 +60,11 @@ class StoriesViewModel: ViewModel, ObservableObject {
     }
     
     @ViewBuilder
-    func currentStoryPage(scanCard: @escaping () -> Void, orderCard: @escaping () -> Void) -> some View {
+    func currentStoryPage(
+        scanCard: @escaping () -> Void,
+        orderCard: @escaping () -> Void,
+        searchTokens: @escaping () -> Void
+    ) -> some View {
         switch currentPage {
         case WelcomeStoryPage.meetTangem:
             let progressBinding = Binding<Double> { [weak self] in
@@ -80,7 +84,7 @@ class StoriesViewModel: ViewModel, ObservableObject {
         case WelcomeStoryPage.backup:
             BackupStoryPage(scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.currencies:
-            CurrenciesStoryPage(scanCard: scanCard, orderCard: orderCard)
+            CurrenciesStoryPage(scanCard: scanCard, orderCard: orderCard, searchTokens: searchTokens)
         case WelcomeStoryPage.web3:
             Web3StoryPage(scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.finish:
