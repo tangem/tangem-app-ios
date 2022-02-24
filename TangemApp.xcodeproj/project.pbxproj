@@ -626,8 +626,8 @@
 		B086906E260A2D73005976CD /* ActivityIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE2038D24EE8A510044EF46 /* ActivityIndicatorView.swift */; };
 		B0869073260A2D7B005976CD /* TangemButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09BB855259A075500B92000 /* TangemButton.swift */; };
 		B0869078260A2DFF005976CD /* View+PreviewDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C8A0D32562C86A00DEEAC7 /* View+PreviewDevice.swift */; };
-		B08ACD8225D2BC3D007387BD /* AddNewTokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08ACD8125D2BC3D007387BD /* AddNewTokensView.swift */; };
-		B08ACD8A25D2BC47007387BD /* AddNewTokensViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08ACD8925D2BC47007387BD /* AddNewTokensViewModel.swift */; };
+		B08ACD8225D2BC3D007387BD /* TokenListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08ACD8125D2BC3D007387BD /* TokenListView.swift */; };
+		B08ACD8A25D2BC47007387BD /* TokenListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08ACD8925D2BC47007387BD /* TokenListViewModel.swift */; };
 		B08B8CEB26D6276000D4BB7B /* Assembly+AppPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08B8CEA26D6276000D4BB7B /* Assembly+AppPreview.swift */; };
 		B094B31026B2FC2000791AEC /* TangemNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = B094B30F26B2FC2000791AEC /* TangemNote.swift */; };
 		B094B31126B2FCD300791AEC /* TangemNote.swift in Sources */ = {isa = PBXBuildFile; fileRef = B094B30F26B2FC2000791AEC /* TangemNote.swift */; };
@@ -1452,8 +1452,8 @@
 		B082E922255A8EF000A0CEA9 /* StorageType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageType.swift; sourceTree = "<group>"; };
 		B085154C26D7797400E1A836 /* TwinsOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsOnboardingView.swift; sourceTree = "<group>"; };
 		B085154E26D77C2400E1A836 /* TwinsOnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsOnboardingViewModel.swift; sourceTree = "<group>"; };
-		B08ACD8125D2BC3D007387BD /* AddNewTokensView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNewTokensView.swift; sourceTree = "<group>"; };
-		B08ACD8925D2BC47007387BD /* AddNewTokensViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddNewTokensViewModel.swift; sourceTree = "<group>"; };
+		B08ACD8125D2BC3D007387BD /* TokenListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListView.swift; sourceTree = "<group>"; };
+		B08ACD8925D2BC47007387BD /* TokenListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListViewModel.swift; sourceTree = "<group>"; };
 		B08B8CEA26D6276000D4BB7B /* Assembly+AppPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Assembly+AppPreview.swift"; sourceTree = "<group>"; };
 		B094B30F26B2FC2000791AEC /* TangemNote.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemNote.swift; sourceTree = "<group>"; };
 		B09536FD26D3D2460040A90D /* DisclaimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisclaimerView.swift; sourceTree = "<group>"; };
@@ -1870,7 +1870,7 @@
 			children = (
 				5D5332A625F9077200D32CA5 /* WalletsList */,
 				5DA7C00A25F8FA5200B6E309 /* TokenDetails */,
-				B08ACD8025D2BC2A007387BD /* AddNewToken */,
+				B08ACD8025D2BC2A007387BD /* TokenList */,
 				B0D76D4325D4E4400073FA98 /* AddCustomToken */,
 			);
 			path = MultiWallet;
@@ -3275,13 +3275,13 @@
 			path = Twins;
 			sourceTree = "<group>";
 		};
-		B08ACD8025D2BC2A007387BD /* AddNewToken */ = {
+		B08ACD8025D2BC2A007387BD /* TokenList */ = {
 			isa = PBXGroup;
 			children = (
-				B08ACD8125D2BC3D007387BD /* AddNewTokensView.swift */,
-				B08ACD8925D2BC47007387BD /* AddNewTokensViewModel.swift */,
+				B08ACD8125D2BC3D007387BD /* TokenListView.swift */,
+				B08ACD8925D2BC47007387BD /* TokenListViewModel.swift */,
 			);
-			path = AddNewToken;
+			path = TokenList;
 			sourceTree = "<group>";
 		};
 		B099614626D5189C000E3779 /* Note */ = {
@@ -4345,7 +4345,7 @@
 				B046FC3626BC1DB600A7EECE /* OnboardingProgressIndicator.swift in Sources */,
 				B053759126CA3EFA0090FCFC /* CheckmarkSwitch.swift in Sources */,
 				5DF2522924F93C2A0015B429 /* QRCodeView.swift in Sources */,
-				B08ACD8A25D2BC47007387BD /* AddNewTokensViewModel.swift in Sources */,
+				B08ACD8A25D2BC47007387BD /* TokenListViewModel.swift in Sources */,
 				B0C6B4C826CE6B5400FA990B /* OnboardingProgressCheckmarksView.swift in Sources */,
 				B0FAD00726BA697500F45E88 /* AppServicesAssembly.swift in Sources */,
 				5D9DCADE2551744F0059799C /* ViewModel.swift in Sources */,
@@ -4367,7 +4367,7 @@
 				5D2CE0ED2755038B00CD05A1 /* Intents.intentdefinition in Sources */,
 				B037A9C92652AEF000A2D394 /* WalletConnectTransactionHandler.swift in Sources */,
 				B0B4556925E0E63000D7572F /* FailedCardScanTracker.swift in Sources */,
-				B08ACD8225D2BC3D007387BD /* AddNewTokensView.swift in Sources */,
+				B08ACD8225D2BC3D007387BD /* TokenListView.swift in Sources */,
 				B0C4F77526F08CDE0086D815 /* OnboardingProgressStateIndicatable.swift in Sources */,
 				B0C8A0CF2562A9DB00DEEAC7 /* TwinCardOnboardingView.swift in Sources */,
 				B0E1564B26B941A4005B33E4 /* SingleCardOnboardingView.swift in Sources */,
