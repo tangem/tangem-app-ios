@@ -15,6 +15,10 @@ struct Order {
     let financialStatus: String
     let statusUrl: URL
     let address: String
+    let discount: Discount?
+    let total: Decimal
+    let currencyCode: String
+    let lineItems: [CheckoutLineItem]
 }
 
 extension Order {
@@ -26,6 +30,14 @@ extension Order {
         self.financialStatus = order.financialStatus?.rawValue ?? ""
         self.statusUrl = order.statusUrl
         self.address = (order.shippingAddress?.formatted ?? []).joined(separator: ", ")
+        if let discount = order.discountApplications.edges.first.map( { Discount($0.node) } ) {
+            self.discount = discount
+        } else {
+            self.discount = nil
+        }
+        self.total = order.totalPriceV2.amount
+        self.currencyCode = order.totalPriceV2.currencyCode.rawValue
+        self.lineItems = order.lineItems.edges.map { .init($0.node) }
     }
 }
 
@@ -44,6 +56,26 @@ extension Storefront.OrderQuery {
             .fulfillmentStatus()
             .id()
             .name()
+            .discountApplications(first: 250) { $0
+                .edges { $0
+                    .node { $0
+                        .onDiscountCodeApplication { $0
+                            .discountFieldsFragment()
+                        }
+                    }
+                }
+            }
+            .totalPriceV2 { $0
+                .currencyCode()
+                .amount()
+            }
+            .lineItems(first: 250) { $0
+                .edges { $0
+                    .node { $0
+                        .lineItemFieldsFragment()
+                    }
+                }
+            }
             .orderNumber()
             .phone()
             .processedAt()
