@@ -1,5 +1,5 @@
 //
-//  AddNewTokensView.swift
+//  TokenListView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,8 +10,8 @@ import SwiftUI
 import BlockchainSdk
 import Combine
 
-struct AddNewTokensView: View {
-    @ObservedObject var viewModel: AddNewTokensViewModel
+struct TokenListView: View {
+    @ObservedObject var viewModel: TokenListViewModel
     @EnvironmentObject var navigation: NavigationCoordinator
     @Environment(\.presentationMode) var presentationMode
     
@@ -138,7 +138,7 @@ struct AddNewTokensView_Previews: PreviewProvider {
     static let assembly = Assembly.previewAssembly
     
     static var previews: some View {
-        AddNewTokensView(viewModel: assembly.makeAddTokensViewModel(for: assembly.previewCardViewModel))
+        TokenListView(viewModel: assembly.makeAddTokensViewModel(for: assembly.previewCardViewModel))
             .environmentObject(assembly.services.navigationCoordinator)
     }
 }
