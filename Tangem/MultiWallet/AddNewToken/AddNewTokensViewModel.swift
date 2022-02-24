@@ -23,6 +23,14 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
     @Published var pendingTokenItems: [TokenItem] = []
     @Published var data: [SectionModel] = []
     
+    var titleKey: LocalizedStringKey {
+        (cardModel != nil) ? "add_tokens_title" : "search_tokens_title"
+    }
+    
+    var showSaveButton: Bool {
+        return cardModel != nil
+    }
+    
     private let cardModel: CardViewModel?
     private var isTestnet: Bool { cardModel?.isTestnet ?? false }
     private var bag = Set<AnyCancellable>()
