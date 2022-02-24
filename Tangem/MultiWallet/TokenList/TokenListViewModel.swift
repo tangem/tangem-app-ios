@@ -13,6 +13,11 @@ import TangemSdk
 import SwiftUI
 
 class TokenListViewModel: ViewModel, ObservableObject {
+    enum Mode {
+        case add(cardModel: CardViewModel)
+        case show
+    }
+    
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
     
@@ -24,20 +29,38 @@ class TokenListViewModel: ViewModel, ObservableObject {
     @Published var data: [SectionModel] = []
     
     var titleKey: LocalizedStringKey {
-        (cardModel != nil) ? "add_tokens_title" : "search_tokens_title"
+        switch mode {
+        case .add:
+            return "add_tokens_title"
+        case .show:
+            return "add_tokens_title"
+        }
     }
     
     var showSaveButton: Bool {
-        return cardModel != nil
+        switch mode {
+        case .add:
+            return true
+        case .show:
+            return false
+        }
     }
     
-    private let cardModel: CardViewModel?
+    private let mode: Mode
+    private var cardModel: CardViewModel? {
+        switch mode {
+        case .add(let cardModel):
+            return cardModel
+        case .show:
+            return nil
+        }
+    }
     private var isTestnet: Bool { cardModel?.isTestnet ?? false }
     private var bag = Set<AnyCancellable>()
     private var searchCancellable: AnyCancellable? = nil
     
-    init(cardModel: CardViewModel?) {
-        self.cardModel = cardModel
+    init(mode: Mode) {
+        self.mode = mode
         
         enteredSearchText
             .sink { [unowned self] string in
