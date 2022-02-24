@@ -5,6 +5,7 @@
 "add_token_section_title_custom_tokens" = "Custom tokens";
 "add_token_section_title_tokens_format" = "%@ tokens";
 "add_tokens_title" = "Add tokens";
+"search_tokens_title" = "Search tokens";
 "address_qr_code_message_format" = "Send only %@ (%@) to this address. Sending any other currency will result in its irreversible loss.";
 "address_qr_code_message_token_format" = "Send only %@ (%@) from %@ network to this address. Sending any other currency will result in its irreversible loss.";
 "alert_app_feedback_sent_message" = "Thank you for your feedback";
