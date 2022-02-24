@@ -125,7 +125,7 @@ fileprivate struct TokenView: View {
             
             Spacer()
             
-            if token.canAdd {
+            if token.showAddButton {
                 TangemButton(title: buttonTitle, action: token.tap)
                     .buttonStyle(buttonStyle)
             }
