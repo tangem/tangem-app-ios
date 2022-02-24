@@ -113,6 +113,15 @@ class TokenListViewModel: ViewModel, ObservableObject {
         return true
     }
     
+    func showAddButton(_ tokenItem: TokenItem) -> Bool {
+        switch mode {
+        case .add:
+            return true
+        case .show:
+            return false
+        }
+    }
+    
     func onItemTap(_ sectionId: String, _ tokenItem: TokenItem) -> Void {
         if isAdded(tokenItem) {
             if pendingTokenItems.contains(tokenItem) {
@@ -175,6 +184,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
                 isTestnet: isTestnet,
                 isAdded: isAdded,
                 canAdd: canAdd,
+                showAddButton: showAddButton,
                 onTap: onItemTap
             )
         }
@@ -205,12 +215,14 @@ extension TokenListViewModel {
                           isTestnet: Bool,
                           isAdded: (TokenItem) -> Bool,
                           canAdd: (TokenItem) -> Bool,
+                          showAddButton: (TokenItem) -> Bool,
                           onTap: @escaping (String, TokenItem) -> Void) -> SectionModel? {
             let items = tokenItems(for: cardInfo, isTestnet: isTestnet)
                 .map { TokenModel(tokenItem: $0,
                                   sectionId: rawValue,
                                   isAdded: isAdded($0),
                                   canAdd: canAdd($0),
+                                  showAddButton: showAddButton($0),
                                   onTap: onTap) }
             
             guard !items.isEmpty else { return nil }
@@ -374,6 +386,7 @@ struct TokenModel: Identifiable, Hashable {
     var sectionId: String
     var isAdded: Bool
     var canAdd: Bool = true
+    let showAddButton: Bool
     
     var subtitle: String {
         var string = tokenItem.symbol
