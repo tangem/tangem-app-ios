@@ -102,6 +102,10 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
         Analytics.log(.getACard, params: [.source: .welcome])
     }
     
+    func searchTokens() {
+        navigation.readToTokenList = true
+    }
+    
     func acceptDisclaimer() {
         userPrefsService.isTermsOfServiceAccepted = true
         navigation.onboardingToDisclaimer = false
