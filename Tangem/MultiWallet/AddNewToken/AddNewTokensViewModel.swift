@@ -23,12 +23,12 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
     @Published var pendingTokenItems: [TokenItem] = []
     @Published var data: [SectionModel] = []
     
-    private let cardModel: CardViewModel
-    private var isTestnet: Bool {  cardModel.isTestnet }
+    private let cardModel: CardViewModel?
+    private var isTestnet: Bool { cardModel?.isTestnet ?? false }
     private var bag = Set<AnyCancellable>()
     private var searchCancellable: AnyCancellable? = nil
     
-    init(cardModel: CardViewModel) {
+    init(cardModel: CardViewModel?) {
         self.cardModel = cardModel
         
         enteredSearchText
@@ -67,6 +67,10 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
     }
     
     func canAdd(_ tokenItem: TokenItem) -> Bool {
+        guard let cardModel = cardModel else {
+            return false
+        }
+        
         if let walletManager = cardModel.walletModels?.first(where: { $0.wallet.blockchain == tokenItem.blockchain })?.walletManager {
             if let token = tokenItem.token {
                 return !walletManager.cardTokens.contains(token)
@@ -94,6 +98,10 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
     }
     
     func saveChanges() {
+        guard let cardModel = cardModel else {
+            return
+        }
+        
         isLoading = true
         
         cardModel.addTokenItems(pendingTokenItems) { result in
@@ -130,7 +138,15 @@ class AddNewTokensViewModel: ViewModel, ObservableObject {
     }
     
     private func getData()  {
-        self.data = Sections.allCases.compactMap { $0.sectionModel(for: cardModel.cardInfo, isAdded: isAdded, canAdd: canAdd, onTap: onItemTap) }
+        self.data = Sections.allCases.compactMap {
+            $0.sectionModel(
+                for: cardModel?.cardInfo,
+                isTestnet: isTestnet,
+                isAdded: isAdded,
+                canAdd: canAdd,
+                onTap: onItemTap
+            )
+        }
     }
 }
 
@@ -154,11 +170,12 @@ extension AddNewTokensViewModel {
             }
         }
         
-        func sectionModel(for cardInfo: CardInfo,
+        func sectionModel(for cardInfo: CardInfo?,
+                          isTestnet: Bool,
                           isAdded: (TokenItem) -> Bool,
                           canAdd: (TokenItem) -> Bool,
                           onTap: @escaping (String, TokenItem) -> Void) -> SectionModel? {
-            let items = tokenItems(for: cardInfo)
+            let items = tokenItems(for: cardInfo, isTestnet: isTestnet)
                 .map { TokenModel(tokenItem: $0,
                                   sectionId: rawValue,
                                   isAdded: isAdded($0),
@@ -168,7 +185,7 @@ extension AddNewTokensViewModel {
             guard !items.isEmpty else { return nil }
             
             return SectionModel(id: rawValue,
-                                name: sectionName(isTestnet: cardInfo.isTestnet),
+                                name: sectionName(isTestnet: isTestnet),
                                 items: items,
                                 collapsible: collapsible,
                                 expanded: true)
@@ -204,28 +221,38 @@ extension AddNewTokensViewModel {
             }
         }
         
-        private func tokenItems(for cardInfo: CardInfo) -> [TokenItem] {
+        private func tokenItems(for cardInfo: CardInfo?, isTestnet: Bool) -> [TokenItem] {
             let supportedItems = SupportedTokenItems()
             
-            switch self {
-            case .blockchains:
-                return supportedItems.blockchains(for: cardInfo.card.walletCurves, isTestnet: cardInfo.isTestnet)
+            let curves: [EllipticCurve]
+            if let cardInfo = cardInfo {
+                curves = cardInfo.card.walletCurves
+
+                switch self {
+                case .solana:
+                    if cardInfo.card.firmwareVersion.doubleValue < 4.52 { //[REDACTED_TODO_COMMENT]
+                        return []
+                    }
+                default:
+                    break
+                }
+            } else {
+                curves = EllipticCurve.allCases
+            }
+            
+            if case .blockchains = self {
+                return supportedItems.blockchains(for: curves, isTestnet: isTestnet)
                     .sorted(by: { $0.displayName < $1.displayName })
                     .map { TokenItem.blockchain($0) }
-            case .solana:
-                if cardInfo.card.firmwareVersion.doubleValue < 4.52 { //[REDACTED_TODO_COMMENT]
-                    return []
-                }
-                fallthrough
-            default:
-                let tokenBlockchain = self.tokenBlockchain(isTestnet: cardInfo.isTestnet)
-                guard cardInfo.card.walletCurves.contains(tokenBlockchain.curve) else {
-                    return []
-                }
-                
-                return supportedItems.tokens(for: tokenBlockchain)
-                    .map { TokenItem.token($0) }
             }
+
+            let tokenBlockchain = self.tokenBlockchain(isTestnet: isTestnet)
+            guard curves.contains(tokenBlockchain.curve) else {
+                return []
+            }
+            
+            return supportedItems.tokens(for: tokenBlockchain)
+                .map { TokenItem.token($0) }
         }
     }
 }
