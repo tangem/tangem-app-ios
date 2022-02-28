@@ -139,7 +139,7 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
         case .intro(let pairNumber): return "onboarding_subtitle_intro \(pairNumber)"
         case .first, .second, .third: return "onboarding_subtitle_reset_twin_warning"
         case .topup: return "onboarding_topup_subtitle"
-        case .done, .success: return "Your crypto card is activated and ready to be used"
+        case .done, .success: return "onboarding_success_subtitle"
         case .alert: return "onboarding_alert_twins_recreate_subtitle"
         }
     }
