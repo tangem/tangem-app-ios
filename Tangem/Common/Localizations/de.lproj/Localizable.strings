@@ -5,7 +5,6 @@
 "add_token_section_title_custom_tokens" = "Custom tokens";
 "add_token_section_title_tokens_format" = "%@ tokens";
 "add_tokens_title" = "Add tokens";
-"search_tokens_title" = "Search tokens";
 "address_qr_code_message_format" = "Send only %@ (%@) to this address. Sending any other currency will result in its irreversible loss.";
 "address_qr_code_message_token_format" = "Send only %@ (%@) from %@ network to this address. Sending any other currency will result in its irreversible loss.";
 "alert_app_feedback_sent_message" = "Thank you for your feedback";
@@ -109,33 +108,33 @@ Tangem is the only hardware wallet to offer signature count protection.";
 The wallet re-creation procedure consists of three steps. You must complete it to the end, otherwise you will have to start from the beginning.";
 "disclaimer_text" = "RECHTLICHER HAFTUNGSAUSSCHLUSS
  
-1.        Tangem App (Software)
+1. Tangem App (Software)
  
 Die Software ist nur für die Verwendung mit Tangem hardware Wallets (Karten) über NFC-Schnittstelle geeignet. Die Software:
  
-a)        generieret, speichert, überträgt KEINE privaten (geheimen) kryptografischen Schlüssel für Blockchain- Wallets mit digitalen Assets, einschließlich Kryptowährung, und hat KEINEN Zugriff darauf.
+a) generieret, speichert, überträgt KEINE privaten (geheimen) kryptografischen Schlüssel für Blockchain- Wallets mit digitalen Assets, einschließlich Kryptowährung, und hat KEINEN Zugriff darauf.
 
-b)        generieret, speichert, überträgt KEINE geheimen Schlüssel, Passwörter, Passphrasen, Wiederherstellungssätze, die verwendet werden können, um private (geheime) Schlüssel in Blockchain- Wallets, die digitale Assets enthalten, wiederherzustellen oder zu kopieren, einschließlich Kryptowährung, und hat KEINEN Zugriff darauf.
+b) generieret, speichert, überträgt KEINE geheimen Schlüssel, Passwörter, Passphrasen, Wiederherstellungssätze, die verwendet werden können, um private (geheime) Schlüssel in Blockchain- Wallets, die digitale Assets enthalten, wiederherzustellen oder zu kopieren, einschließlich Kryptowährung, und hat KEINEN Zugriff darauf.
 
-c)        erbringt KEINE Wechsel-, Handels- und Investitionsdienstleistungen im Auftrag der Tangem AG.
+c) erbringt KEINE Wechsel-, Handels- und Investitionsdienstleistungen im Auftrag der Tangem AG.
  
  
-2.        Risiken im Zusammenhang mit der Verwendung von Software
+2. Risiken im Zusammenhang mit der Verwendung von Software
  
 Tangem haftet nicht für Verluste, Schäden oder Ansprüche aus den Ereignissen, die in den Geltungsbereich von folgenden fünf Kategorien fallen:
  
-a)        Fehler, die der Benutzer einer kryptowährungsbezogenen Software oder eines kryptowährungsbezogenen Services macht, z.B. vergessene Passwörter, an falsche Adressen gesendete Zahlungen und zufälliges Löschen von Blockchain-Wallets auf Karten.
+a) Fehler, die der Benutzer einer kryptowährungsbezogenen Software oder eines kryptowährungsbezogenen Services macht, z.B. vergessene Passwörter, an falsche Adressen gesendete Zahlungen und zufälliges Löschen von Blockchain-Wallets auf Karten.
 
-b)        Probleme mit Software und/oder blockchain- oder kryptowährungsbezogener Software oder Services, z.B. beschädigte Dateien, falsch konstruierte Transaktionen, unsichere kryptografische Bibliotheken, Schadsoftware.
+b) Probleme mit Software und/oder blockchain- oder kryptowährungsbezogener Software oder Services, z.B. beschädigte Dateien, falsch konstruierte Transaktionen, unsichere kryptografische Bibliotheken, Schadsoftware.
 
-c)        Technische Ausfälle in der Hardware des Benutzers, einschließlich Karten, jeglicher kryptowährungsbezogener Software oder Services, z.B. Datenverlust infolge eines fehlerhaften oder beschädigten Speichers.
+c) Technische Ausfälle in der Hardware des Benutzers, einschließlich Karten, jeglicher kryptowährungsbezogener Software oder Services, z.B. Datenverlust infolge eines fehlerhaften oder beschädigten Speichers.
 
-d)        Sicherheitsprobleme, die der Benutzer einer kryptowährungsbezogenen Software oder eines kryptowährungsbezogenen Services hat, z.B. unbefugter Zugriff auf Benutzer-Wallets und/oder -Konten.
+d) Sicherheitsprobleme, die der Benutzer einer kryptowährungsbezogenen Software oder eines kryptowährungsbezogenen Services hat, z.B. unbefugter Zugriff auf Benutzer-Wallets und/oder -Konten.
 
-e)        Handlungen oder Untätigkeit Dritter und/oder Vorkommnisse bei den Dritten, z.B. Insolvenz von Dienstleistungserbringern, Informationssicherheitsattacken bei den Dienstleistungserbringern und Betrug durch Dritte.
+e) Handlungen oder Untätigkeit Dritter und/oder Vorkommnisse bei den Dritten, z.B. Insolvenz von Dienstleistungserbringern, Informationssicherheitsattacken bei den Dienstleistungserbringern und Betrug durch Dritte.
  
 
-3.  Tradings- und Investitionsrisiken
+3. Tradings- und Investitionsrisiken
  
 Bei jeder Kryptowährung oder einer anderen digitalen Assetwechsel-Transaktion besteht ein hohes Risiko. Jede Transaktion mit Währungen birgt Risiken, einschließlich, aber nicht beschränkt auf das Potenzial für sich ändernde wirtschaftliche Bedingungen, die den Preis oder die Liquidität einer Währung erheblich beeinflussen können. Investitionen in Kryptowährungsspekulationen können auch anfällig für starke Anstiege und Rückgänge sein, wenn die relevanten Marktwerte schwanken. Aus diesem Grund ist es bei Spekulationen auf solchen Märkten ratsam, nur das Risikokapital zu verwenden.
  
@@ -165,8 +164,6 @@ Sofern gesetzlich nichts anderes vorgesehen ist, haften die Eigentümer oder die
 Dieser Haftungsausschuss wurde am 1. Oktober 2020 zum letzten Mal geändert.";
 "disclaimer_title" = "Nutzungsbedingungen";
 "home_button_scan" = "Karte scannen";
-"home_button_order" = "Order card";
-"home_button_search_tokens" = "Search tokens";
 "home_button_shop" = "Einkaufen";
 "home_button_tapin" = "Eintippen";
 "home_button_yes" = "Ja! Bitte scannen";
@@ -442,7 +439,7 @@ URL: %@";
 "feedback_preface_tx_push_failed" = "Please tell us more about your issue. Every small detail can help.";
 "feedback_data_collection_message" = "Following information is optional. You can erase it if you don’t want to share it.";
 
-"shop_one_wallet" = "One Wallet";
+"shop_one_wallet" = "Tangem Wallet";
 "shop_3_cards" = "3 cards";
 "shop_2_cards" = "2 cards";
 "shop_shipping" = "Shipping";
@@ -453,7 +450,6 @@ URL: %@";
 "shop_buy_now" = "Buy now";
 "shop_placing_order" = "Placing your order";
 "shop_web_checkout_title" = "Your order";
-
 "story_meet_title" = "Meet\nTangem";
 "story_meet_buy" = "Buy";
 "story_meet_store" = "Store";
@@ -469,10 +465,12 @@ URL: %@";
 "story_backup_description" = "Up to 3 physical cards to one wallet";
 "story_currencies_title" = "Thousands of Currencies";
 "story_currencies_description" = "A hardware wallet for your Bitcoin, Ethereum and many more currencies simultaneously – all in one card";
-"story_web3_title" = "Web3 Compatible";
+"story_web3_title" = "DeFi Compatible";
 "story_web3_description" = "Exchange, buy NFT’s, make loans and deposits in more than 100 different decentralized services";
 "story_finish_title" = "The Wallet for Everyone";
 "story_finish_description" = "Use it on the go, anywhere, anytime. No wires or batteries. Just tap the card to your phone when you need your crypto.";
+"home_button_order" = "Order card";
+"home_button_search_tokens" = "Search tokens";
+"search_tokens_title" = "Search tokens";
 "alert_demo_message" = "You are currently running in Demo mode. All funds are not real.";
-"alert_demo_feature_disabled" = "This feature is disabled in Demo mode.";
-"alert_demo_tx_send" = "The transaction has been successfully signed, but not sent to the blockchain because of Demo mode. ";
+"alert_demo_feature_disabled" = "This feature is disabled in Demo mode";
