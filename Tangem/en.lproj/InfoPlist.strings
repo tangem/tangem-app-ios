@@ -1,0 +1,2 @@
+NFCReaderUsageDescription = "To Scan Smart Card";
+NSCameraUsageDescription = "To Scan QR Code";
