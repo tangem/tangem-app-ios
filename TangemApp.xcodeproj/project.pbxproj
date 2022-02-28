@@ -779,6 +779,8 @@
 		DA2D04D327BB9B07006F1E69 /* ShopOrderProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2D04D227BB9B07006F1E69 /* ShopOrderProgressView.swift */; };
 		DA5FAD8627B2791C00EE53AE /* ApplePayButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5FAD8527B2791C00EE53AE /* ApplePayButton.swift */; };
 		DA5FAD8A27B27F7F00EE53AE /* SheetDragHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5FAD8927B27F7F00EE53AE /* SheetDragHandler.swift */; };
+		DA64C36D27CCAD7E005B5E9A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = DA64C36F27CCAD7E005B5E9A /* InfoPlist.strings */; };
+		DA64C37327CCB176005B5E9A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = DA64C37527CCB176005B5E9A /* InfoPlist.strings */; };
 		DAB1E62427B4E10800C1F510 /* ShopContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB1E62327B4E10800C1F510 /* ShopContainerView.swift */; };
 		DAB1E62627B4E40D00C1F510 /* ShopOrderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB1E62527B4E40D00C1F510 /* ShopOrderView.swift */; };
 		DABA435427BFB63D00718AC6 /* WelcomeStoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DABA435327BFB63D00718AC6 /* WelcomeStoryPage.swift */; };
@@ -1597,6 +1599,10 @@
 		DA2D04D227BB9B07006F1E69 /* ShopOrderProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopOrderProgressView.swift; sourceTree = "<group>"; };
 		DA5FAD8527B2791C00EE53AE /* ApplePayButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApplePayButton.swift; sourceTree = "<group>"; };
 		DA5FAD8927B27F7F00EE53AE /* SheetDragHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetDragHandler.swift; sourceTree = "<group>"; };
+		DA64C36E27CCAD7E005B5E9A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		DA64C37027CCAD7F005B5E9A /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		DA64C37427CCB176005B5E9A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		DA64C37627CCB177005B5E9A /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		DAB1E62327B4E10800C1F510 /* ShopContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopContainerView.swift; sourceTree = "<group>"; };
 		DAB1E62527B4E40D00C1F510 /* ShopOrderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopOrderView.swift; sourceTree = "<group>"; };
 		DABA435327BFB63D00718AC6 /* WelcomeStoryPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeStoryPage.swift; sourceTree = "<group>"; };
@@ -1816,6 +1822,7 @@
 				5DBFEA4D24DD642C0080D3DC /* Tangem.entitlements */,
 				5D3F77D024BF56DC00E8695B /* LaunchScreen.storyboard */,
 				5D3F77D324BF56DC00E8695B /* Info.plist */,
+				DA64C36F27CCAD7E005B5E9A /* InfoPlist.strings */,
 				5D3F77CD24BF56DC00E8695B /* Preview Content */,
 			);
 			path = Tangem;
@@ -3559,6 +3566,7 @@
 				B0D3600925F26C7600929564 /* Assets.xcassets */,
 				B0D3600E25F26C7600929564 /* LaunchScreen.storyboard */,
 				B0D3601125F26C7600929564 /* Info.plist */,
+				DA64C37527CCB176005B5E9A /* InfoPlist.strings */,
 				B0D3601225F26C7600929564 /* TangemClip.entitlements */,
 			);
 			path = TangemClip;
@@ -3891,6 +3899,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B0A359EF2589117200E25B34 /* features_dev.json in Resources */,
+				DA64C36D27CCAD7E005B5E9A /* InfoPlist.strings in Resources */,
 				5D5468E3279AC5C700C5FC71 /* avalancheTestnet.json in Resources */,
 				5D3F77D224BF56DC00E8695B /* LaunchScreen.storyboard in Resources */,
 				5D5CE1A92625FF00009023EC /* config_prod.json in Resources */,
@@ -3939,6 +3948,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B0D3601025F26C7600929564 /* LaunchScreen.storyboard in Resources */,
+				DA64C37327CCB176005B5E9A /* InfoPlist.strings in Resources */,
 				B066AFB9262D5F3800EB85A5 /* config_dev.json in Resources */,
 				B066AFBD262D5F3800EB85A5 /* config_prod.json in Resources */,
 				B0FC4A822630245F000444D7 /* Localizable.strings in Resources */,
@@ -4938,6 +4948,24 @@
 				5D9D568727B6C80100FA7A76 /* ru */,
 			);
 			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+		DA64C36F27CCAD7E005B5E9A /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				DA64C36E27CCAD7E005B5E9A /* en */,
+				DA64C37027CCAD7F005B5E9A /* ru */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		DA64C37527CCB176005B5E9A /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				DA64C37427CCB176005B5E9A /* en */,
+				DA64C37627CCB177005B5E9A /* ru */,
+			);
+			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
