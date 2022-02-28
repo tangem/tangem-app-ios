@@ -33,7 +33,7 @@ struct CardOperationView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
                 .foregroundColor(.tangemWarning)
-                .padding(.horizontal)
+                .padding(.horizontal, 16.0)
             Text(alert)
                 .font(.system(size: 29.0, weight: .regular, design: .default))
                 .minimumScaleFactor(0.6)
@@ -70,7 +70,7 @@ struct CardOperationView: View {
                                             layout: .flexibleWidth,
                                             isLoading: self.isLoading))
                 .alert(item: self.$error) { $0.alert }
-            .padding(.horizontal)
+            .padding(.horizontal, 16.0)
             .padding(.bottom, 16.0)
         }
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
