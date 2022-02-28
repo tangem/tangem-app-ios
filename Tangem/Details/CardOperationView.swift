@@ -30,7 +30,10 @@ struct CardOperationView: View {
                 .foregroundColor(.tangemWarning)
             Text("common_warning".localized.uppercased())
                 .font(.system(size: 40.0, weight: .medium, design: .default))
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
                 .foregroundColor(.tangemWarning)
+                .padding(.horizontal)
             Text(alert)
                 .font(.system(size: 29.0, weight: .regular, design: .default))
                 .minimumScaleFactor(0.6)
@@ -67,7 +70,7 @@ struct CardOperationView: View {
                                             layout: .flexibleWidth,
                                             isLoading: self.isLoading))
                 .alert(item: self.$error) { $0.alert }
-            .padding(.horizontal, 16.0)
+            .padding(.horizontal)
             .padding(.bottom, 16.0)
         }
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
