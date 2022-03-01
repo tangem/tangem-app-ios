@@ -3,7 +3,7 @@
 "add_custom_token_title" = "Добавить пользовательский токен";
 "add_token_section_title_blockchains" = "Блокчейны";
 "add_token_section_title_custom_tokens" = "Пользовательские токены";
-"add_token_section_title_tokens_format" = "%@ токены";
+"add_token_section_title_tokens_format" = "Токены %@";
 "add_tokens_title" = "Добавить токены";
 "address_qr_code_message_format" = "Отправляйте только %@ (%@) на этот адрес. Отправка любой другой валюты приведет к ее безвозвратной утере.";
 "address_qr_code_message_token_format" = "Отправляйте только %@ (%@) из сети %@ на этот адрес. Отправка любой другой валюты приведет к ее безвозвратной утере.";
@@ -325,7 +325,7 @@ This disclaimer was amended for the last time on October 1st, 2020.";
 "wallet_button_sell_crypto" = "Продать";
 "wallet_button_send" = "Отправить";
 "wallet_button_topup" = "Купить";
-"wallet_button_trade" = "Торговать";
+"wallet_button_trade" = "Обменять";
 "wallet_choice_wallet_option_title" = "Что отправить?";
 "wallet_connect_alert_sign_message" = "Запрос на подпись сообщения
 картой %@
@@ -473,3 +473,4 @@ URL: %@";
 "search_tokens_title" = "Поиск токенов";
 "alert_demo_message" = "Приложение работает в демонстрационном режиме. Средства на всех счетах ненастоящие.";
 "alert_demo_feature_disabled" = "Эта функция недоступна в демонстрационном режиме";
+"alert_demo_tx_send" = "Транзакция успешно подписана, но не отправлена в блокчейн, потому что активирован демонстрационный режим.";
