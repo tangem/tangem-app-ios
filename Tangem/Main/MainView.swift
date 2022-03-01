@@ -392,7 +392,7 @@ struct MainView: View {
     var exchangeCryptoButton: some View {
         if viewModel.canSellCrypto {
             TangemButton.vertical(title: "wallet_button_trade",
-                                  systemImage: "arrow.up.down.wide",
+                                  systemImage: "arrow.up.arrow.down",
                                   action: viewModel.tradeCryptoAction)
             .buttonStyle(TangemButtonStyle(layout: .flexibleWidth))
             .actionSheet(isPresented: $navigation.mainToTradeSheet, content: {
