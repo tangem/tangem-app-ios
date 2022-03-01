@@ -97,6 +97,34 @@ class Analytics {
     }
     #endif
     
+#if !CLIP
+    static func logShopifyOrder(_ order: Order) {
+        var appsFlyerDiscountParams: [String: Any] = [:]
+        var firebaseDiscountParams: [String: Any] = [:]
+        
+        if let discountCode = order.discount?.code {
+            appsFlyerDiscountParams[AFEventParamCouponCode] = discountCode
+            firebaseDiscountParams[AnalyticsParameterCoupon] = discountCode
+        }
+        
+        let sku = order.lineItems.first?.sku ?? "unknown"
+        
+        AppsFlyerLib.shared().logEvent(AFEventPurchase, withValues: appsFlyerDiscountParams.merging([
+            AFEventParamContentId: sku,
+            AFEventParamRevenue: order.total,
+            AFEventParamCurrency: order.currencyCode
+        ], uniquingKeysWith: { $1 }))
+
+        FirebaseAnalytics.Analytics.logEvent(AnalyticsEventPurchase, parameters: firebaseDiscountParams.merging([
+            AnalyticsParameterItems: [
+                [AnalyticsParameterItemID: sku]
+            ],
+            AnalyticsParameterValue: order.total,
+            AnalyticsParameterCurrency: order.currencyCode
+        ], uniquingKeysWith: { $1 }))
+    }
+#endif
+    
     private static func collectCardData(_ card: Card, additionalParams: [ParameterKey: Any] = [:]) -> [ParameterKey: Any] {
         var params = additionalParams
         params[.batchId] = card.batchId
