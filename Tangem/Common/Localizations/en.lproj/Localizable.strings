@@ -326,7 +326,7 @@ Both cards can be used to extract funds from this wallet.";
 "wallet_button_sell_crypto" = "Sell";
 "wallet_button_send" = "Send";
 "wallet_button_topup" = "Buy";
-"wallet_button_trade" = "Trade";
+"wallet_button_trade" = "Exchange";
 "wallet_choice_wallet_option_title" = "Choice wallet option";
 "wallet_connect_alert_sign_message" = "Requesting to sign a message
 with card %@
@@ -474,3 +474,4 @@ URL: %@";
 "search_tokens_title" = "Search tokens";
 "alert_demo_message" = "You are currently running in Demo mode. All funds are not real.";
 "alert_demo_feature_disabled" = "This feature is disabled in Demo mode";
+"alert_demo_tx_send" = "The transaction has been successfully signed, but not sent to the blockchain because of Demo mode. ";
