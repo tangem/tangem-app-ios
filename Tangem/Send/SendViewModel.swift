@@ -638,7 +638,7 @@ class SendViewModel: ViewModel, ObservableObject {
                     }
                     
                     DispatchQueue.main.async {
-                        let alert = AlertBuilder.makeSuccessAlert(message: cardViewModel.cardInfo.card.isDemoCard ? "alert_demo_tx_send".localized
+                        let alert = AlertBuilder.makeSuccessAlert(message: cardViewModel.cardInfo.card.isDemoCard ? "alert_demo_feature_disabled".localized
                                                                   : "send_transaction_success".localized) { callback() }
                         self.sendError = alert
                     }
