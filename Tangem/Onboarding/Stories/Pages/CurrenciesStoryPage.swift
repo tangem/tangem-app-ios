@@ -11,6 +11,7 @@ import SwiftUI
 struct CurrenciesStoryPage: View {
     let scanCard: (() -> Void)
     let orderCard: (() -> Void)
+    let searchTokens: (() -> Void)
     
     var body: some View {
         VStack {
@@ -50,6 +51,10 @@ struct CurrenciesStoryPage: View {
                     }
                 )
             
+            TangemButton(title: "home_button_search_tokens", systemImage: "magnifyingglass", action: searchTokens)
+                .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt, layout: .flexibleWidth))
+                .padding(.horizontal)
+            
             StoriesBottomButtons(scanColorStyle: .grayAlt, orderColorStyle: .black, scanCard: scanCard, orderCard: orderCard)
                 .padding(.horizontal)
                 .padding(.bottom)
@@ -60,7 +65,7 @@ struct CurrenciesStoryPage: View {
 
 struct CurrenciesStoryPage_Previews: PreviewProvider {
     static var previews: some View {
-        CurrenciesStoryPage { } orderCard: { }
+        CurrenciesStoryPage { } orderCard: { } searchTokens: { }
         .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
     }
 }
