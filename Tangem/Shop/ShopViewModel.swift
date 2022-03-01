@@ -106,7 +106,9 @@ class ShopViewModel: ViewModel, ObservableObject {
                 self.pollingForOrder = false
             } receiveValue: { [unowned self] checkout in
                 print("Checkout after Apple Pay session", checkout)
-                self.order = checkout.order
+                if let order = checkout.order {
+                    self.didPlaceOrder(order)
+                }
             }
             .store(in: &bag)
     }
@@ -127,7 +129,9 @@ class ShopViewModel: ViewModel, ObservableObject {
             .sink { _ in
                 
             } receiveValue: { [unowned self] checkout in
-                self.order = checkout.order
+                if let order = checkout.order {
+                    self.didPlaceOrder(order)
+                }
                 self.showingWebCheckout = false
             }
             .store(in: &bag)
@@ -196,6 +200,11 @@ class ShopViewModel: ViewModel, ObservableObject {
             checkoutByVariantID = [:]
             createCheckouts()
         }
+    }
+    
+    private func didPlaceOrder(_ order: Order) {
+        self.order = order
+        Analytics.logShopifyOrder(order)
     }
     
     private func createCheckouts() {
