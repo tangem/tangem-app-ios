@@ -99,11 +99,7 @@ extension OnramperService: ExchangeService {
     }
     
     func canSell(_ currency: String, blockchain: Blockchain) -> Bool {
-        if currency.uppercased() == "BNB" && (blockchain == .bsc(testnet: true) || blockchain == .bsc(testnet: false)) {
-            return false
-        }
-        
-        return availableSymbols.contains(currency.uppercased()) && canSellCrypto
+        return false
     }
     
     func getBuyUrl(currencySymbol: String, blockchain: Blockchain, walletAddress: String) -> URL? {
