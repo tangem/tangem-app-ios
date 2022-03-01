@@ -36,7 +36,7 @@ fileprivate struct OnramperCryptoCurrency: Decodable {
 
 
 class OnramperService {
-	private let key: String
+    private let key: String
     
     private var availableSymbols: Set<String> = [
         "ZRX", "AAVE", "ALGO", "AXS", "BAT", "BNB", "BUSD", "BTC", "BCH", "BTT", "ADA", "CELO", "CUSD", "LINK", "CHZ", "COMP", "ATOM", "DAI", "DASH", "MANA", "DGB", "DOGE", "EGLD",
@@ -50,11 +50,11 @@ class OnramperService {
     private let canBuyCrypto = true
     private let canSellCrypto = false
     private var bag: Set<AnyCancellable> = []
-	
+    
     init(key: String) {
-		self.key = key
+        self.key = key
         setupService()
-	}
+    }
     
     deinit {
         print("OnramperService deinit")
@@ -85,7 +85,7 @@ class OnramperService {
 
 extension OnramperService: ExchangeService {
     var successCloseUrl: String { "https://success.tangem.com" }
-
+    
     var sellRequestUrl: String {
         return ""
     }
@@ -105,7 +105,7 @@ extension OnramperService: ExchangeService {
         
         return availableSymbols.contains(currency.uppercased()) && canSellCrypto
     }
-
+    
     func getBuyUrl(currencySymbol: String, blockchain: Blockchain, walletAddress: String) -> URL? {
         guard canBuy(currencySymbol, blockchain: blockchain) else {
             return nil
@@ -127,7 +127,7 @@ extension OnramperService: ExchangeService {
         if let availableGatewayIdentifiers = availableGatewayIdentifiers {
             queryItems.append(.init(key: .onlyGateways, value: availableGatewayIdentifiers.joined(separator: ",").addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         }
-
+        
         urlComponents.percentEncodedQueryItems = queryItems
         
         let url = urlComponents.url
