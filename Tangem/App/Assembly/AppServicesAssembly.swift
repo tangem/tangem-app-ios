@@ -27,7 +27,10 @@ class AppServicesAssembly: ServicesAssembly {
         BackupService(sdk: tangemSdk)
     }()
     
-    lazy var exchangeService: ExchangeService = MoonPayService(keys: keysManager.moonPayKeys)
+    lazy var exchangeService: ExchangeService = CombinedExchangeService(
+        buyService: OnramperService(key: keysManager.onramperApiKey),
+        sellService: MoonPayService(keys: keysManager.moonPayKeys)
+    )
     lazy var walletConnectService = WalletConnectService(assembly: assembly, cardScanner: walletConnectCardScanner, signer: signer, scannedCardsRepository: scannedCardsRepository)
     
     lazy var negativeFeedbackDataCollector: NegativeFeedbackDataCollector = {
