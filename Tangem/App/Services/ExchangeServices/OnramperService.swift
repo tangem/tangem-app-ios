@@ -127,7 +127,7 @@ extension OnramperService: ExchangeService {
             queryItems.append(.init(key: .language, value: languageCode))
         }
         if let availableGatewayIdentifiers = availableGatewayIdentifiers {
-            queryItems.append(.init(key: .onlyGateways, value: availableGatewayIdentifiers.joined(separator: ",")))
+            queryItems.append(.init(key: .onlyGateways, value: availableGatewayIdentifiers.joined(separator: ",").addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         }
 
         urlComponents.percentEncodedQueryItems = queryItems
