@@ -13,7 +13,7 @@
 "alert_button_request_support" = "Request support";
 "alert_button_send_feedback" = "Send feedback";
 "alert_button_try_again" = "Try again";
-"alert_card_signed_transactions" = "This card has been already topped up and signed transactions in the past. Consider immediate withdrawal of all funds if you have received this card from an untrusted source.";
+"alert_card_signed_transactions" = "This card has been already topped up and signed transactions in the past. Consider immediate withdrawal of all funds if you have received this card from an untrusted source. If it's your card, there is nothing to worry about.";
 "alert_developer_card" = "The card you scanned is a development card. Don’t accept it as a payment.";
 "alert_failed_to_send_email_message" = "Reason: %@";
 "alert_failed_to_send_email_title" = "Failed to send email";
@@ -22,7 +22,7 @@
 "alert_negative_app_rate_sent_message" = "Thank your for your feedback. We will response as soon as possible";
 "alert_negative_app_rate_sent_title" = "Your suggestions were sent";
 "alert_old_card" = "Funds from Tangem cards issued before September 2019 cannot be retrieved using an iPhone due to iOS restrictions. You must use an Android phone to retrieve funds. Cards released after September 2019 work correctly with both platforms.";
-"alert_old_device_this_card" = "You may experience NFC problems with some iPhone 7/7+ during the extraction";
+"alert_old_device_this_card" = "You may experience NFC problems with some iPhone 7/7+ during some operations";
 "alert_signed_hashes_message" = "This card is not a bearer note. We can’t currently match the signature count on the card with the information on the blockchain. This is normal but in rare cases can mean a previous holder is holding back an offline signature, which is a security concern.
 Do not accept this card as physical payment from someone you don’t trust.
 It’s perfectly safe in all other respects.
@@ -76,7 +76,7 @@ Tangem is the only hardware wallet to offer signature count protection.";
 "details_manage_security_access_code" = "Access code";
 "details_manage_security_access_code_description" = "You will have to submit the correct access code before scanning the card";
 "details_manage_security_long_tap" = "Long Tap";
-"details_manage_security_long_tap_description" = "This mechanism protects against proximity attacks on a card. It will enforce a delay between reception and execution of a command. After the first signed transaction this phone will be linked with the card and transactions will be signed immediately.";
+"details_manage_security_long_tap_description" = "This mechanism protects against proximity attacks on a card. It will enforce a delay between reception and execution of a command. ";
 "details_manage_security_passcode" = "Passcode";
 "details_manage_security_passcode_description" = "Before execution any command entailing a change of the card state, you will have to enter the passcode.";
 "details_manage_security_title" = "Manage Security";
@@ -108,7 +108,7 @@ Tangem is the only hardware wallet to offer signature count protection.";
 The wallet re-creation procedure consists of three steps. You must complete it to the end, otherwise you will have to start from the beginning.";
 "disclaimer_text" = "Legal Disclaimer
 
-1.  Tangem application (Software)
+1. Tangem application (Software)
  
 The Software is intended for usage only with Tangem hardware wallets (Cards) via NFC interface. The Software DOES NOT:
  
@@ -119,7 +119,7 @@ b) Generate, store, transmit, or have access to secret keys, passwords, passphra
 c) Provide exchange, trading, investment services on behalf of Tangem AG.
  
  
-2.  Risks related to the use of Software
+2. Risks related to the use of Software
  
 Tangem will not be responsible for any losses, damages or claims arising from events falling within the scope of the following five categories:
  
@@ -134,12 +134,12 @@ d) Security problems experienced by the user of any cryptocurrency-related softw
 e) Actions or inactions of third parties and/or events experienced by third parties, e.g., bankruptcy of service providers, information security attacks on service providers, and fraud conducted by third parties.
  
 
-3.  Trading and Investment risks
+3. Trading and Investment risks
  
 There is considerable exposure to risk in any crypto-currency or other digital asset exchange transaction. Any transaction involving currencies involves risks including, but not limited to, the potential for changing economic conditions that may substantially affect the price or liquidity of a currency. Investments in crypto-currency exchange speculation may also be susceptible to sharp rises and falls as the relevant market values fluctuate. It is for this reason that when speculating in such markets it is advisable to use only risk capital.
  
  
-4.  Electronic Trading Risks
+4. Electronic Trading Risks
  
 Before you engage in transactions using an electronic system, you should carefully review the rules and regulations of the exchanges offering the system and/or listing the instruments you intend to trade. Online trading has inherent risk due to system response and access times that may vary due to market conditions, system performance, and other factors. You should understand these and additional risks before trading.
  
@@ -149,22 +149,21 @@ Before you engage in transactions using an electronic system, you should careful
 The users of the Software are solely responsible to determinate what, if any, taxes apply to their crypto-currency transactions. The owners of, or contributors to, the Software are NOT responsible for determining the taxes that apply to crypto-currency transactions.
  
 
-6.  No warranties
+6. No warranties
 
 The Software is provided on an \"as is\" basis without any warranties of any kind regarding the Software and/or any content, data, materials and/or services provided on the Software.
  
 
-7.  Limitation of liability
+7. Limitation of liability
  
 Unless otherwise required by law, in no event shall the owners of, or contributors to, the Software be liable for any damages of any kind, including, but not limited to, loss of use, loss of profits, or loss of data arising out of or in any way connected with the use of the Software. In no way are the owners of, or contributors to, the Software responsible for the actions, decisions, or other behavior taken or not taken by you in reliance upon the Software.
  
  
-8.  Last amendment
+8. Last amendment
  
 This disclaimer was amended for the last time on October 1st, 2020.";
 "disclaimer_title" = "Terms of service";
 "home_button_scan" = "Scan card";
-"home_button_order" = "Order card";
 "home_button_shop" = "Shop";
 "home_button_tapin" = "Tap in";
 "home_button_yes" = "Yes! Scan it.";
@@ -236,6 +235,7 @@ phone.";
 "onboarding_subtitle_success_tangem_wallet_onboarding" = "Your Tangem Wallet card is configured and ready for use.";
 "onboarding_subtitle_two_backup_cards" = "Max number of cards added. Finalize the backup process.";
 "onboarding_success" = "Success!";
+"onboarding_success_subtitle" = "Your crypto card is activated and ready to be used";
 "onboarding_title_backup_card" = "Backup your wallet";
 "onboarding_title_backup_card %lld" = "Backup card #%lld";
 "onboarding_title_no_backup_cards" = "No backup cards";
@@ -439,7 +439,7 @@ URL: %@";
 "feedback_preface_tx_push_failed" = "Please tell us more about your issue. Every small detail can help.";
 "feedback_data_collection_message" = "Following information is optional. You can erase it if you don’t want to share it.";
 
-"shop_one_wallet" = "One Wallet";
+"shop_one_wallet" = "Tangem Wallet";
 "shop_3_cards" = "3 cards";
 "shop_2_cards" = "2 cards";
 "shop_shipping" = "Shipping";
@@ -450,7 +450,6 @@ URL: %@";
 "shop_buy_now" = "Buy now";
 "shop_placing_order" = "Placing your order";
 "shop_web_checkout_title" = "Your order";
-
 "story_meet_title" = "Meet\nTangem";
 "story_meet_buy" = "Buy";
 "story_meet_store" = "Store";
@@ -466,10 +465,12 @@ URL: %@";
 "story_backup_description" = "Up to 3 physical cards to one wallet";
 "story_currencies_title" = "Thousands of Currencies";
 "story_currencies_description" = "A hardware wallet for your Bitcoin, Ethereum and many more currencies simultaneously – all in one card";
-"story_web3_title" = "Web3 Compatible";
+"story_web3_title" = "DeFi Compatible";
 "story_web3_description" = "Exchange, buy NFT’s, make loans and deposits in more than 100 different decentralized services";
 "story_finish_title" = "The Wallet for Everyone";
 "story_finish_description" = "Use it on the go, anywhere, anytime. No wires or batteries. Just tap the card to your phone when you need your crypto.";
+"home_button_order" = "Order card";
+"home_button_search_tokens" = "Search tokens";
+"search_tokens_title" = "Search tokens";
 "alert_demo_message" = "You are currently running in Demo mode. All funds are not real.";
-"alert_demo_feature_disabled" = "This feature is disabled in Demo mode.";
-"alert_demo_tx_send" = "The transaction has been successfully signed, but not sent to the blockchain because of Demo mode. ";
+"alert_demo_feature_disabled" = "This feature is disabled in Demo mode";
