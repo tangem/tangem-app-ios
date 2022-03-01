@@ -80,6 +80,7 @@ class NavigationCoordinator: ObservableObject {
     @Published var detailsToBuyCrypto = false
     @Published var detailsToSend = false
     @Published var detailsToSellCrypto = false
+    @Published var detailsToTradeSheet: Bool = false
     
     // MARK: WalletConnectView
     @Published var walletConnectToQR = false
