@@ -142,8 +142,7 @@ struct DetailsView: View {
                     
                 }
                 
-                NavigationLink(destination: DisclaimerView(style: .navbar, showAccept: false)
-                                .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all)),
+                NavigationLink(destination: DisclaimerView(style: .navbar, showAccept: false),
                                tag: NavigationTag.disclaimer, selection: $selection) {
                     DetailsRowView(title: "disclaimer_title".localized,
                                    subtitle: "")
