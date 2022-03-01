@@ -175,6 +175,10 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         card.remove(amountType: amountType, blockchain: blockchain)
     }
     
+    func tradeCryptoAction() {
+        navigation.detailsToTradeSheet = true
+    }
+    
     func buyCryptoAction() {
         if card.cardInfo.card.isDemoCard {
             alert = AlertBuilder.makeDemoAlert()
