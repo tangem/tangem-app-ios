@@ -84,7 +84,6 @@ struct DisclaimerView: View {
                         .padding(.bottom, showAccept ? 150 : 0)
                         .padding(.top, style.disclaimerTextTopPadding)
                 }
-                .clipped()
             }
             if showAccept {
                 TangemButton(title: "common_accept") {
