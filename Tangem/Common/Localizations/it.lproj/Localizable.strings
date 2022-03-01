@@ -472,4 +472,3 @@ URL: %@";
 "search_tokens_title" = "Search tokens";
 "alert_demo_message" = "You are currently running in Demo mode. All funds are not real.";
 "alert_demo_feature_disabled" = "This feature is disabled in Demo mode";
-"alert_demo_tx_send" = "The transaction has been successfully signed, but not sent to the blockchain because of Demo mode. ";
