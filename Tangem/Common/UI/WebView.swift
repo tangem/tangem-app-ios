@@ -82,6 +82,8 @@ struct WebView: UIViewRepresentable {
         
         let configuration = WKWebViewConfiguration()
         configuration.preferences = preferences
+        configuration.allowsInlineMediaPlayback = true
+        configuration.mediaTypesRequiringUserActionForPlayback = []
         
         let view =  WKWebView(frame: CGRect(x: 0, y: 0, width: 100, height: 100), configuration: configuration)
         if let url = url {
