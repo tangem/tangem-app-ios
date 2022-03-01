@@ -21,6 +21,7 @@ class KeysManager {
         let coinMarketCapKey: String
         let moonPayApiKey: String
         let moonPayApiSecretKey: String
+        let onramperApiKey: String
         let blockchairApiKey: String
         let blockcypherTokens: [String]
         let infuraProjectId: String
@@ -42,6 +43,10 @@ class KeysManager {
     
     var moonPayKeys: MoonPayKeys {
         MoonPayKeys(apiKey: keys.moonPayApiKey, secretApiKey: keys.moonPayApiSecretKey)
+    }
+    
+    var onramperApiKey: String {
+        keys.onramperApiKey
     }
     
     var blockchainConfig: BlockchainSdkConfig {
