@@ -653,6 +653,8 @@ class MainViewModel: ViewModel, ObservableObject {
         if isHashesCounted { return }
         
         if card.isTwinCard { return }
+        
+        if card.isDemoCard { return }
 
         if validatedSignedHashesCards.contains(card.cardId) { return }
         
