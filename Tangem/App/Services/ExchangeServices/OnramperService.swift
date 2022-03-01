@@ -17,6 +17,7 @@ fileprivate enum QueryKey: String {
          defaultCrypto,
          defaultFiat,
          wallets,
+         onlyGateways,
          language,
          redirectURL
 }
@@ -27,6 +28,7 @@ fileprivate struct OnramperGatewaysResponse: Decodable {
 }
 
 fileprivate struct OnramperGateway: Decodable {
+    let identifier: String
     let cryptoCurrencies: [OnramperCryptoCurrency]
 }
 
@@ -44,6 +46,8 @@ class OnramperService {
         "OMG", "ONG", "ONT", "DOT", "QTUM", "RVN", "RFUEL", "KEY", "SRM", "SOL", "XLM", "STMX", "SNX", "KRT", "UST", "USDT", "XTZ", "RUNE", "SAND", "TOMO", "AVA", "TRX", "TUSD", "UNI",
         "USDC", "UTK", "VET", "WAXP", "WBTC", "XRP", "ZEC", "ZIL"
     ]
+    
+    private var availableGatewayIdentifiers: [String]?
     
     private let canBuyCrypto = true
     private let canSellCrypto = false
@@ -75,6 +79,7 @@ class OnramperService {
                 }
                 
                 self.availableSymbols = Set(availableSymbols)
+                self.availableGatewayIdentifiers = response.gateways.map { $0.identifier }
             }
             .store(in: &bag)
     }
@@ -120,6 +125,9 @@ extension OnramperService: ExchangeService {
         queryItems.append(.init(key: .defaultFiat, value: "USD".addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         if let languageCode = Locale.current.languageCode {
             queryItems.append(.init(key: .language, value: languageCode))
+        }
+        if let availableGatewayIdentifiers = availableGatewayIdentifiers {
+            queryItems.append(.init(key: .onlyGateways, value: availableGatewayIdentifiers.joined(separator: ",")))
         }
 
         urlComponents.percentEncodedQueryItems = queryItems
