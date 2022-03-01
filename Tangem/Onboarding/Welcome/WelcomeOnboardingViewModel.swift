@@ -64,8 +64,6 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
         
         subscription = cardsRepository.scanPublisher()
             .receive(on: DispatchQueue.main)
-            .combineLatest(NotificationCenter.didBecomeActivePublisher)
-            .first()
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
                     print("Failed to scan card: \(error)")
@@ -84,7 +82,7 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
                     }
                 }
                 subscription.map { _ = self?.bag.remove($0) }
-            } receiveValue: { [weak self] (result, _) in
+            } receiveValue: { [weak self] result in
                 self?.failedCardScanTracker.resetCounter()
                 
                 guard let cardModel = result.cardModel else {
@@ -100,6 +98,10 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     func orderCard() {
         navigation.readToShop = true
         Analytics.log(.getACard, params: [.source: .welcome])
+    }
+    
+    func searchTokens() {
+        navigation.readToTokenList = true
     }
     
     func acceptDisclaimer() {
