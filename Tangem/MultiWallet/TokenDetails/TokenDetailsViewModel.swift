@@ -285,8 +285,21 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
             }
             .store(in: &bag)
         
-        if let rentProvider = walletModel?.walletManager as? RentProvider {
-            Publishers.Zip(rentProvider.rentAmount(), rentProvider.minimalBalanceForRentExemption())
+        if let rentProvider = walletModel?.walletManager as? RentProvider,
+           let walletModel = walletModel,
+           amountType == .coin
+        {
+            let walletChanges = walletModel
+                .objectWillChange
+                .debounce(for: 0.5, scheduler: DispatchQueue.main)
+            
+            Just(())
+                .merge(with: walletChanges)
+                .setFailureType(to: Error.self)
+                .flatMap {
+                    return Publishers.Zip(rentProvider.rentAmount(), rentProvider.minimalBalanceForRentExemption())
+                        .eraseToAnyPublisher()
+                }
                 .receive(on: RunLoop.main)
                 .sink { _ in
 
