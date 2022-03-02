@@ -44,7 +44,6 @@ struct TokenListView: View {
                         }
                     }
                 }
-                .id(UUID())
                 .listStyle(PlainListStyle())
             }
             
