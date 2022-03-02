@@ -180,7 +180,7 @@ struct TokenDetailsView: View {
                     }
                 }
         }
-        .padding(.bottom, 16.0)
+        .edgesIgnoringSafeArea(.bottom)
         .navigationBarHidden(false)
         .navigationBarBackButtonHidden(false)
         .navigationBarItems(trailing: Button(action: {
