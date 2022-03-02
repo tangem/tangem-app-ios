@@ -107,11 +107,14 @@ struct TokenDetailsView: View {
             
             Text(viewModel.title)
                 .font(Font.system(size: 36, weight: .bold, design: .default))
+                .padding(.horizontal, 16)
+            
             if let subtitle = viewModel.tokenSubtitle {
                 Text(subtitle)
                     .font(.system(size: 14, weight: .regular, design: .default))
                     .foregroundColor(.tangemGrayDark)
                     .padding(.bottom, 8)
+                    .padding(.horizontal, 16)
             }
             
             
@@ -124,8 +127,6 @@ struct TokenDetailsView: View {
                             BalanceAddressView(walletModel: walletModel,
                                                amountType: viewModel.amountType,
                                                showExplorerURL: $viewModel.showExplorerURL)
-                                .frame(width: geometry.size.width)
-                            
                         }
                         
                         bottomButtons
@@ -140,6 +141,8 @@ struct TokenDetailsView: View {
                             AlertCardView(title: "common_warning".localized, message: solanaRentWarning)
                         }
                     }
+                    .padding(.horizontal, 16)
+                    .frame(width: geometry.size.width)
                 }
             }
             
@@ -177,7 +180,6 @@ struct TokenDetailsView: View {
                     }
                 }
         }
-        .padding(.horizontal, 16)
         .padding(.bottom, 16.0)
         .navigationBarHidden(false)
         .navigationBarBackButtonHidden(false)
