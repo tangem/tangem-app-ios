@@ -43,7 +43,7 @@ struct FinishStoryPage: View {
                 .padding(.bottom)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color("tangem_dark_story_background").edgesIgnoringSafeArea(.all))
+        .background(Color("tangem_story_background").edgesIgnoringSafeArea(.all))
     }
 }
 
