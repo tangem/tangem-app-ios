@@ -42,16 +42,17 @@ struct Web3StoryPage: View {
                     GeometryReader { geometry in
                         VStack {
                             Spacer()
-                            LinearGradient(colors: [.white.opacity(0), .white], startPoint: .top, endPoint: .bottom)
+                            LinearGradient(colors: [.white.opacity(0), Color("tangem_story_background")], startPoint: .top, endPoint: .bottom)
                                 .frame(height: geometry.size.height / 4)
                         }
                     }
                 )
             
-            StoriesBottomButtons(scanColorStyle: .grayAlt, orderColorStyle: .black, scanCard: scanCard, orderCard: orderCard)
+            StoriesBottomButtons(scanColorStyle: .grayAlt2, orderColorStyle: .black, scanCard: scanCard, orderCard: orderCard)
                 .padding(.horizontal)
                 .padding(.bottom)
         }
+        .background(Color("tangem_story_background").edgesIgnoringSafeArea(.all))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
