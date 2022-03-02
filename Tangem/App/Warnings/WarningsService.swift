@@ -137,7 +137,7 @@ class WarningsService {
     }
     
     private func addTestnetCardWarningIfNeeded(in container: WarningsContainer, for cardInfo: CardInfo) {
-        guard cardInfo.isTestnet else {
+        guard cardInfo.isTestnet, !cardInfo.card.isDemoCard else {
             return
         }
         
