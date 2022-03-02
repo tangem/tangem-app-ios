@@ -42,10 +42,11 @@ struct BackupStoryPage: View {
             
             Spacer()
             
-            StoriesBottomButtons(scanColorStyle: .grayAlt, orderColorStyle: .black, scanCard: scanCard, orderCard: orderCard)
+            StoriesBottomButtons(scanColorStyle: .grayAlt2, orderColorStyle: .black, scanCard: scanCard, orderCard: orderCard)
                 .padding(.horizontal)
                 .padding(.bottom)
         }
+        .background(Color("tangem_story_background").edgesIgnoringSafeArea(.all))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
