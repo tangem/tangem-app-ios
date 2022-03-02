@@ -326,7 +326,7 @@ Both cards can be used to extract funds from this wallet.";
 "wallet_button_sell_crypto" = "Sell";
 "wallet_button_send" = "Send";
 "wallet_button_topup" = "Buy";
-"wallet_button_trade" = "Trade";
+"wallet_button_trade" = "Exchange";
 "wallet_choice_wallet_option_title" = "Choice wallet option";
 "wallet_connect_alert_sign_message" = "Requesting to sign a message
 with card %@
