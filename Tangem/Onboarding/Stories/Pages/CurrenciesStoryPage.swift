@@ -45,20 +45,21 @@ struct CurrenciesStoryPage: View {
                     GeometryReader { geometry in
                         VStack {
                             Spacer()
-                            LinearGradient(colors: [.white.opacity(0), .white], startPoint: .top, endPoint: .bottom)
+                            LinearGradient(colors: [.white.opacity(0), Color("tangem_story_background")], startPoint: .top, endPoint: .bottom)
                                 .frame(height: geometry.size.height / 3)
                         }
                     }
                 )
             
             TangemButton(title: "home_button_search_tokens", systemImage: "magnifyingglass", action: searchTokens)
-                .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt, layout: .flexibleWidth))
+                .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt2, layout: .flexibleWidth))
                 .padding(.horizontal)
             
-            StoriesBottomButtons(scanColorStyle: .grayAlt, orderColorStyle: .black, scanCard: scanCard, orderCard: orderCard)
+            StoriesBottomButtons(scanColorStyle: .grayAlt2, orderColorStyle: .black, scanCard: scanCard, orderCard: orderCard)
                 .padding(.horizontal)
                 .padding(.bottom)
         }
+        .background(Color("tangem_story_background").edgesIgnoringSafeArea(.all))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
