@@ -353,7 +353,6 @@ class SendViewModel: ViewModel, ObservableObject {
             .combineLatest($validatedDestination,
                            $selectedFee,
                            $isFeeIncluded)
-            .debounce(for: 0.5, scheduler: RunLoop.main, options: nil)
             .map {[unowned self] amount, destination, fee, isFeeIncluded -> BlockchainSdk.Transaction? in
                 guard let amount = amount, let destination = destination, let fee = fee else {
                     return nil
