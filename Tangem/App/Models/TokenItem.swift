@@ -160,6 +160,7 @@ struct TokenIconView: View {
                 .scaleFactor(UIScreen.main.scale)
                 .resizable()
                 .scaledToFit()
+                .cornerRadius(5)
         #else
             WebImage(imagePath: url, placeholder: token.imageView.toAnyView())
         #endif
