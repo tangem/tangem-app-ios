@@ -211,7 +211,7 @@ struct TokenDetailsView: View {
 }
 
 struct TokenDetailsView_Previews: PreviewProvider {
-    static let assembly: Assembly = .previewAssembly(for: .ethereum)
+    static let assembly: Assembly = .previewAssembly(for: .cardanoNote)
     
     static var previews: some View {
         NavigationView {
