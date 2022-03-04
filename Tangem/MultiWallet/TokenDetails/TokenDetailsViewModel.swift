@@ -272,6 +272,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
             .receive(on: RunLoop.main)
             .sink {[weak self] _ in
                 print("♻️ Token wallet model loading state changed")
+                self?.updateRentWarning()
                 withAnimation {
                     self?.isRefreshing = false
                 }
@@ -284,25 +285,32 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
                 self?.objectWillChange.send()
             }
             .store(in: &bag)
-        
-        if let rentProvider = walletModel?.walletManager as? RentProvider {
-            Publishers.Zip(rentProvider.rentAmount(), rentProvider.minimalBalanceForRentExemption())
-                .receive(on: RunLoop.main)
-                .sink { _ in
-
-                } receiveValue: { [weak self] (rentAmount, minimalBalanceForRentExemption) in
-                    guard
-                        let self = self,
-                        let amount = self.walletModel?.wallet.amounts[.coin],
-                        amount < minimalBalanceForRentExemption
-                    else {
-                        self?.solanaRentWarning = nil
-                        return
-                    }
-                    self.solanaRentWarning = String(format: "solana_rent_warning".localized, rentAmount.description, minimalBalanceForRentExemption.description)
-                }
-                .store(in: &bag)
+    }
+    
+    private func updateRentWarning() {
+        guard let rentProvider = walletModel?.walletManager as? RentProvider,
+           amountType == .coin
+        else {
+            return
         }
+
+        rentProvider.rentAmount()
+            .zip(rentProvider.minimalBalanceForRentExemption())
+            .receive(on: RunLoop.main)
+            .sink { _ in
+                
+            } receiveValue: { [weak self] (rentAmount, minimalBalanceForRentExemption) in
+                guard
+                    let self = self,
+                    let amount = self.walletModel?.wallet.amounts[.coin],
+                    amount < minimalBalanceForRentExemption
+                else {
+                    self?.solanaRentWarning = nil
+                    return
+                }
+                self.solanaRentWarning = String(format: "solana_rent_warning".localized, rentAmount.description, minimalBalanceForRentExemption.description)
+            }
+            .store(in: &bag)
     }
 }
 
