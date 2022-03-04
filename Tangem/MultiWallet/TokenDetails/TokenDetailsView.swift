@@ -102,43 +102,48 @@ struct TokenDetailsView: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            navigationLinks
-            
-            Text(viewModel.title)
-                .font(Font.system(size: 36, weight: .bold, design: .default))
-            if let subtitle = viewModel.tokenSubtitle {
-                Text(subtitle)
-                    .font(.system(size: 14, weight: .regular, design: .default))
-                    .foregroundColor(.tangemGrayDark)
-                    .padding(.bottom, 8)
-            }
-            
-            
-            GeometryReader { geometry in
-                RefreshableScrollView(refreshing: self.$viewModel.isRefreshing) {
-                    VStack(spacing: 8.0) {
-                        ForEach(self.pendingTransactionViews) { $0 }
-                        
-                        if let walletModel = viewModel.walletModel {
-                            BalanceAddressView(walletModel: walletModel,
-                                               amountType: viewModel.amountType,
-                                               showExplorerURL: $viewModel.showExplorerURL)
-                                .frame(width: geometry.size.width)
+        ZStack {
+            VStack(alignment: .leading, spacing: 8) {
+                navigationLinks
+                
+                Text(viewModel.title)
+                    .font(Font.system(size: 36, weight: .bold, design: .default))
+                    .padding(.horizontal, 16)
+                
+                if let subtitle = viewModel.tokenSubtitle {
+                    Text(subtitle)
+                        .font(.system(size: 14, weight: .regular, design: .default))
+                        .foregroundColor(.tangemGrayDark)
+                        .padding(.bottom, 8)
+                        .padding(.horizontal, 16)
+                }
+                
+                
+                GeometryReader { geometry in
+                    RefreshableScrollView(refreshing: self.$viewModel.isRefreshing) {
+                        VStack(spacing: 8.0) {
+                            ForEach(self.pendingTransactionViews) { $0 }
                             
+                            if let walletModel = viewModel.walletModel {
+                                BalanceAddressView(walletModel: walletModel,
+                                                   amountType: viewModel.amountType,
+                                                   showExplorerURL: $viewModel.showExplorerURL)
+                            }
+                            
+                            bottomButtons
+                                .padding(.top, 16)
+                            
+                            
+                            if let sendBlockedReason = viewModel.sendBlockedReason {
+                                AlertCardView(title: "", message: sendBlockedReason)
+                            }
+                            
+                            if let solanaRentWarning = viewModel.solanaRentWarning {
+                                AlertCardView(title: "common_warning".localized, message: solanaRentWarning)
+                            }
                         }
-                        
-                        bottomButtons
-                            .padding(.top, 16)
-                        
-                        
-                        if let sendBlockedReason = viewModel.sendBlockedReason {
-                            AlertCardView(title: "", message: sendBlockedReason)
-                        }
-                        
-                        if let solanaRentWarning = viewModel.solanaRentWarning {
-                            AlertCardView(title: "common_warning".localized, message: solanaRentWarning)
-                        }
+                        .padding(.horizontal, 16)
+                        .frame(width: geometry.size.width)
                     }
                 }
             }
@@ -177,8 +182,7 @@ struct TokenDetailsView: View {
                     }
                 }
         }
-        .padding(.horizontal, 16)
-        .padding(.bottom, 16.0)
+        .edgesIgnoringSafeArea(.bottom)
         .navigationBarHidden(false)
         .navigationBarBackButtonHidden(false)
         .navigationBarItems(trailing: Button(action: {
@@ -207,7 +211,7 @@ struct TokenDetailsView: View {
 }
 
 struct TokenDetailsView_Previews: PreviewProvider {
-    static let assembly: Assembly = .previewAssembly(for: .ethereum)
+    static let assembly: Assembly = .previewAssembly(for: .cardanoNote)
     
     static var previews: some View {
         NavigationView {
