@@ -8,6 +8,11 @@
 
 import Foundation
 import TangemSdk
+import Combine
+
+#if !CLIP
+import BlockchainSdk
+#endif
 
 extension Assembly {
     enum PreviewCard {
@@ -22,8 +27,23 @@ extension Assembly {
                               isTangemNote: preview.isNote,
                               isTangemWallet: true)
             let vm = assembly.makeCardModel(from: ci)
+
+#if !CLIP
+            let walletModels: [WalletModel]
+            if let blockchain = preview.blockchain {
+                let factory = WalletManagerFactory(config: .init(blockchairApiKey: "", blockcypherTokens: [], infuraProjectId: ""))
+                let walletManager = try! factory.makeWalletManager(cardId: card.cardId, blockchain: blockchain, walletPublicKey: preview.publicKey)
+                walletModels = [WalletModel(walletManager: walletManager, signer: DummyTransactionSigner(), defaultToken: nil, defaultBlockchain: nil)]
+            } else {
+                walletModels = []
+            }
+            
+            vm.state = .loaded(walletModel: walletModels)
+#endif
+            
             let scanResult = ScanResult.card(model: vm)
             assembly.services.cardsRepository.cards[card.cardId] = scanResult
+            assembly.services.cardsRepository.lastScanResult = scanResult
             return scanResult
         }
         
@@ -41,6 +61,27 @@ extension Assembly {
                 return WalletData(blockchain: "ADA", token: nil)
             default:
                 return nil
+            }
+        }
+        
+        var blockchain: Blockchain? {
+            switch self {
+            case .ethereum:
+                return .bitcoin(testnet: false)
+            case .stellar:
+                return .stellar(testnet: false)
+            case .cardanoNote:
+                return .cardano(shelley: true)
+            default:
+                return nil
+            }
+        }
+        
+        var publicKey: Data {
+            // [REDACTED_TODO_COMMENT]
+            switch self {
+            default:
+                return Data(count: 32)
             }
         }
         
@@ -64,7 +105,7 @@ extension Assembly {
     static func previewAssembly(for card: PreviewCard) -> Assembly {
         let assembly = Assembly(isPreview: true)
         
-        let _ = PreviewCard.scanResult(for: .cardanoNote, assembly: assembly)
+        let _ = PreviewCard.scanResult(for: card, assembly: assembly)
         assembly.services.cardsRepository.lastScanResult = PreviewCard.scanResult(for: card, assembly: assembly)
         return assembly
     }
@@ -82,3 +123,17 @@ extension Assembly {
     }
     
 }
+
+#if !CLIP
+fileprivate class DummyTransactionSigner: TransactionSigner {
+    private let privateKey = Data(repeating: 0, count: 32)
+    
+    func sign(hashes: [Data], cardId: String, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[Data], Error> {
+        Fail(error: WalletError.failedToGetFee).eraseToAnyPublisher()
+    }
+    
+    func sign(hash: Data, cardId: String, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<Data, Error> {
+        Fail(error: WalletError.failedToGetFee).eraseToAnyPublisher()
+    }
+}
+#endif
