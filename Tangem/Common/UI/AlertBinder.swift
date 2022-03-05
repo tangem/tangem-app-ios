@@ -36,10 +36,10 @@ enum AlertBuilder {
     
     static var okButtonTitle: String { "common_ok".localized }
     
-    static func makeSuccessAlert(message: String, okAction: @escaping (() -> Void) = { }) -> Alert {
-        Alert(title: Text(successTitle),
-              message: Text(message),
-              dismissButton: Alert.Button.default(Text(okButtonTitle), action: okAction))
+    static func makeSuccessAlert(message: String, okAction: @escaping (() -> Void) = { }) -> AlertBinder {
+        .init(alert: Alert(title: Text(successTitle),
+                           message: Text(message),
+                           dismissButton: Alert.Button.default(Text(okButtonTitle), action: okAction)))
     }
     
     static func makeSuccessAlertController(message: String, okAction: (() -> Void)? = nil) -> UIAlertController {
@@ -48,9 +48,21 @@ enum AlertBuilder {
         return alert
     }
     
-    static func makeOkGotItAlert(message: String, okAction: @escaping (() -> Void) = { }) -> Alert {
-        Alert(title: Text("common_warning"),
-              message: Text(message),
-              dismissButton: .default(Text("warning_button_ok"), action: okAction))
+    static func makeOkGotItAlert(message: String, okAction: @escaping (() -> Void) = { }) -> AlertBinder {
+        .init(alert: Alert(title: Text("common_warning"),
+                           message: Text(message),
+                           dismissButton: .default(Text("warning_button_ok"), action: okAction)))
+    }
+    
+    static func makeDemoAlert(okAction: @escaping (() -> Void) = {}) -> AlertBinder {
+        .init(alert: Alert(title: Text("common_warning"),
+                           message: Text("alert_demo_feature_disabled"),
+                           dismissButton: Alert.Button.default(Text(okButtonTitle), action: okAction)))
+    }
+    
+    static func makeOldDeviceAlert() -> AlertBinder {
+        .init(alert: Alert(title: Text("common_warning"),
+                           message: Text("onboarding_alert_message_old_device"),
+                           dismissButton: .default(Text("common_ok"), action: {})))
     }
 }
