@@ -36,6 +36,7 @@ struct FinishStoryPage: View {
             Image("amazement")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
+                .modifier(AnimatableScaleModifier(progress: progress, start: 0, end: 1, curve: { 1 + 0.1 * ($0 - 1) }))
             
             Spacer()
             
