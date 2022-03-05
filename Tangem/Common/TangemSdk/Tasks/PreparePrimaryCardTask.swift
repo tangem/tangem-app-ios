@@ -10,7 +10,7 @@ import TangemSdk
 import BlockchainSdk
 
 class PreparePrimaryCardTask: CardSessionRunnable {
-    private var derivingCommand: DeriveWalletPublicKeysTask? = nil
+    private var derivingCommand: DeriveMultipleWalletPublicKeysTask? = nil
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
     
     func run(in session: CardSession, completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
@@ -59,14 +59,17 @@ class PreparePrimaryCardTask: CardSessionRunnable {
     }
     
     private func deriveKeys(_ primaryCard: PrimaryCard, in session: CardSession, completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
-        guard let wallet = session.environment.card?.wallets.first( where: { $0.curve == .secp256k1 }) else {
-            completion(.failure(.walletNotFound))
-            return
+        let isDemo = session.environment.card?.isDemoCard ?? false
+        let blockchains = SupportedTokenItems().predefinedBlockchains(isDemo: isDemo)
+
+        let derivations: [Data: [DerivationPath]] = blockchains.reduce(into: [:]) { partialResult, blockchain in
+            if let wallet = session.environment.card?.wallets.first(where: { $0.curve == blockchain.curve }),
+               let path = blockchain.derivationPath {
+                partialResult[wallet.publicKey, default: []].append(path)
+            }
         }
         
-        let paths = SupportedTokenItems().predefinedBlockchains.compactMap { $0.derivationPath }
-        
-        derivingCommand = DeriveWalletPublicKeysTask(walletPublicKey: wallet.publicKey, derivationPaths: paths)
+        derivingCommand = DeriveMultipleWalletPublicKeysTask(derivations)
         derivingCommand!.run(in: session) { result in
             switch result {
             case .success(let keys):
@@ -75,7 +78,7 @@ class PreparePrimaryCardTask: CardSessionRunnable {
                     return
                 }
                 
-                let response = PreparePrimaryCardTaskResponse(card: card, primaryCard: primaryCard, derivedKeys: [wallet.publicKey: keys])
+                let response = PreparePrimaryCardTaskResponse(card: card, primaryCard: primaryCard, derivedKeys: keys)
                 completion(.success(response))
             case .failure(let error):
                 completion(.failure(error))

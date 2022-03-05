@@ -21,10 +21,12 @@ class KeysManager {
         let coinMarketCapKey: String
         let moonPayApiKey: String
         let moonPayApiSecretKey: String
+        let onramperApiKey: String
         let blockchairApiKey: String
         let blockcypherTokens: [String]
         let infuraProjectId: String
         let appsFlyerDevKey: String
+        let shopifyShop: ShopifyShop
     }
     
     private let keysFileName = "config"
@@ -43,10 +45,18 @@ class KeysManager {
         MoonPayKeys(apiKey: keys.moonPayApiKey, secretApiKey: keys.moonPayApiSecretKey)
     }
     
+    var onramperApiKey: String {
+        keys.onramperApiKey
+    }
+    
     var blockchainConfig: BlockchainSdkConfig {
         BlockchainSdkConfig(blockchairApiKey: keys.blockchairApiKey,
                             blockcypherTokens: keys.blockcypherTokens,
                             infuraProjectId: keys.infuraProjectId)
+    }
+    
+    var shopifyShop: ShopifyShop {
+        keys.shopifyShop
     }
     
     init() throws {

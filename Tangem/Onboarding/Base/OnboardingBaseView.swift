@@ -38,7 +38,10 @@ struct OnboardingBaseView: View {
                 defaultLaunchView
                     .transition(.withoutOpacity)
             } else {
-                WelcomeOnboardingView(viewModel: viewModel.assembly.getLetsStartOnboardingViewModel(with: viewModel.processScannedCard(with:)))
+                WelcomeOnboardingView(
+                    viewModel: viewModel.assembly.getLetsStartOnboardingViewModel(with: viewModel.processScannedCard(with:)),
+                    storiesModel: viewModel.assembly.makeWelcomeStoriesModel()
+                )
                     .transition(.withoutOpacity)
             }
         case .singleCard:
