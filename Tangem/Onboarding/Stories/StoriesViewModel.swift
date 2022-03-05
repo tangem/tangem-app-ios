@@ -81,14 +81,14 @@ class StoriesViewModel: ViewModel, ObservableObject {
         orderCard: @escaping () -> Void,
         searchTokens: @escaping () -> Void
     ) -> some View {
+        let progressBinding = Binding<Double> { [weak self] in
+            self?.currentProgress ?? 0
+        } set: { [weak self] in
+            self?.currentProgress = $0
+        }
+        
         switch currentPage {
         case WelcomeStoryPage.meetTangem:
-            let progressBinding = Binding<Double> { [weak self] in
-                self?.currentProgress ?? 0
-            } set: { [weak self] in
-                self?.currentProgress = $0
-            }
-
             MeetTangemStoryPage(
                 progress: progressBinding,
                 immediatelyShowButtons: didDisplayMainScreenStories,
@@ -96,15 +96,15 @@ class StoriesViewModel: ViewModel, ObservableObject {
                 orderCard: orderCard
             )
         case WelcomeStoryPage.awe:
-            AweStoryPage(scanCard: scanCard, orderCard: orderCard)
+            AweStoryPage(progress: progressBinding, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.backup:
-            BackupStoryPage(scanCard: scanCard, orderCard: orderCard)
+            BackupStoryPage(progress: progressBinding, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.currencies:
-            CurrenciesStoryPage(scanCard: scanCard, orderCard: orderCard, searchTokens: searchTokens)
+            CurrenciesStoryPage(progress: progressBinding, scanCard: scanCard, orderCard: orderCard, searchTokens: searchTokens)
         case WelcomeStoryPage.web3:
-            Web3StoryPage(scanCard: scanCard, orderCard: orderCard)
+            Web3StoryPage(progress: progressBinding, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.finish:
-            FinishStoryPage(scanCard: scanCard, orderCard: orderCard)
+            FinishStoryPage(progress: progressBinding, scanCard: scanCard, orderCard: orderCard)
         }
     }
 
