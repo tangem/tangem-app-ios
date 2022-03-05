@@ -67,7 +67,12 @@ struct SendScreenDataCollector: EmailDataCollector {
             break
         }
         
+        let walletPublicKey = sendViewModel.walletModel.wallet.publicKey.seedKey
+        let cardWallet = cardInfo.card.wallets[walletPublicKey]
+        let signedHashesDescription = cardWallet?.totalSignedHashes?.description ?? "-"
+        
         data.append(contentsOf: [
+            EmailCollectedData(type: .wallet(.signedHashes), data: signedHashesDescription),
             EmailCollectedData(type: .wallet(.walletManagerHost), data: sendViewModel.walletModel.walletManager.currentHost),
             EmailCollectedData(type: .error, data: lastError?.localizedDescription ?? "Unknown error"),
             .separator(.dashes),
