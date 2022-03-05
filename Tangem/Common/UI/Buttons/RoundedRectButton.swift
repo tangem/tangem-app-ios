@@ -31,14 +31,11 @@ struct RoundedRectButton: View {
                     Image(systemName: isVerify ? "checkmark" : imageName )
                 }
                 Text(title)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
             }
             .padding(.horizontal, 8)
-            .frame(minWidth: 62,
-                   idealWidth: 84,
-                   maxWidth: 84,
-                   minHeight: 28,
-                   idealHeight: 28,
-                   maxHeight: 28)
+            .frame(height: 28)
             .font(Font.system(size: 13.0, weight: .medium, design: .default))
             .foregroundColor(foregroundColor)
             .background(backgroundColor)
@@ -66,7 +63,7 @@ struct RoundedRectButton: View {
 struct RoundedRectButton_Previews: PreviewProvider {
     static var previews: some View {
         VStack(spacing: 8) {
-            RoundedRectButton (systemImageName: "doc.on.clipboard", title: "Copy", withVerification: true)
+            RoundedRectButton (systemImageName: "doc.on.clipboard", title: "Копировать", withVerification: true)
         RoundedRectButton (systemImageName: "square.and.arrow.up", title: "Share")
         }
     }
