@@ -9,6 +9,7 @@
 import SwiftUI
 
 struct BackupStoryPage: View {
+    @Binding var progress: Double
     let scanCard: (() -> Void)
     let orderCard: (() -> Void)
     
@@ -53,7 +54,7 @@ struct BackupStoryPage: View {
 
 struct BackupStoryPage_Previews: PreviewProvider {
     static var previews: some View {
-        BackupStoryPage { } orderCard: { }
+        BackupStoryPage(progress: .constant(1)) { } orderCard: { }
         .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
     }
 }
