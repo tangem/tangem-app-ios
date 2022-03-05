@@ -44,7 +44,7 @@ struct MeetTangemStoryPage: View {
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
                     .padding(.horizontal)
-                    .modifier(VisibilityModifier(
+                    .modifier(AnimatableVisibilityModifier(
                         progress: progress,
                         start: Double(index) / Double(words.count) * wordListProgressEnd,
                         end: Double(index+1) / Double(words.count) * wordListProgressEnd
@@ -54,7 +54,7 @@ struct MeetTangemStoryPage: View {
             VStack(spacing: 0) {
                 StoriesTangemLogo()
                     .padding()
-                    .modifier(VisibilityModifier(
+                    .modifier(AnimatableVisibilityModifier(
                         progress: progress,
                         start: wordListProgressEnd,
                         end: .infinity
@@ -67,12 +67,17 @@ struct MeetTangemStoryPage: View {
                     .multilineTextAlignment(.center)
                     .foregroundColor(.white)
                     .padding()
-                    .modifier(TitleOffsetModifier(
+                    .modifier(AnimatableOffsetModifier(
                         progress: progress,
                         start: titleProgressStart,
-                        end: titleProgressEnd
+                        end: titleProgressEnd,
+                        curveX: { _ in
+                            0
+                        }, curveY: {
+                            40 * pow(2, -15 * $0)
+                        }
                     ))
-                    .modifier(VisibilityModifier(
+                    .modifier(AnimatableVisibilityModifier(
                         progress: progress,
                         start: titleProgressStart,
                         end: .infinity
@@ -85,12 +90,14 @@ struct MeetTangemStoryPage: View {
                             .aspectRatio(contentMode: .fit)
                             .fixedSize(horizontal: false, vertical: true)
                             .edgesIgnoringSafeArea(.bottom)
-                            .modifier(CardHandScaleModifier(
+                            .modifier(AnimatableScaleModifier(
                                 progress: progress,
                                 start: wordListProgressEnd,
-                                end: 1
-                            ))
-                            .modifier(VisibilityModifier(
+                                end: 1) {
+                                    1 + pow(2, -25 * $0)
+                                }
+                            )
+                            .modifier(AnimatableVisibilityModifier(
                                 progress: progress,
                                 start: wordListProgressEnd,
                                 end: 1
@@ -107,7 +114,7 @@ struct MeetTangemStoryPage: View {
             }
             .padding(.horizontal)
             .padding(.bottom)
-            .modifier(VisibilityModifier(
+            .modifier(AnimatableVisibilityModifier(
                 progress: progress,
                 start: immediatelyShowButtons ? 0 : wordListProgressEnd,
                 end: .infinity
@@ -118,74 +125,6 @@ struct MeetTangemStoryPage: View {
     }
 }
 
-
-// MARK: - Modifiers
-
-fileprivate func normalize(progress: Double, start: Double, end: Double) -> Double {
-    let value = (progress - start) / (end - start)
-    return max(0, min(value, 1))
-}
-
-fileprivate struct VisibilityModifier: AnimatableModifier {
-    var progress: Double
-    let start: Double
-    let end: Double
-    
-    var animatableData: CGFloat {
-        get { progress }
-        set { progress = newValue }
-    }
-    
-    func body(content: Content) -> some View {
-        content
-            .opacity((start <= progress && progress < end) ? 1 : 0)
-    }
-}
-
-
-fileprivate struct CardHandScaleModifier: AnimatableModifier {
-    var progress: Double
-    let start: Double
-    let end: Double
-    
-    var animatableData: CGFloat {
-        get { progress }
-        set { progress = newValue }
-    }
-    
-    func body(content: Content) -> some View {
-        content
-            .scaleEffect((1 + pow(2, -25 * normalizeCardHandProgress(progress))))
-    }
-    
-    private func normalizeCardHandProgress(_ progress: Double) -> Double {
-        normalize(progress: progress, start: start, end: end)
-    }
-}
-
-
-fileprivate struct TitleOffsetModifier: AnimatableModifier {
-    var progress: Double
-    let start: Double
-    let end: Double
-    
-    var animatableData: CGFloat {
-        get { progress }
-        set { progress = newValue }
-    }
-    
-    func body(content: Content) -> some View {
-        content
-            .offset(x: 0, y: 40 * pow(2, -15 * normalizeTitleProgress(progress)))
-    }
-    
-    private func normalizeTitleProgress(_ progress: Double) -> Double {
-        normalize(progress: progress, start: start, end: end)
-    }
-}
-
-
-// MARK: - Preview
 
 struct MeetTangemStoryPage_Previews: PreviewProvider {
     static var previews: some View {
