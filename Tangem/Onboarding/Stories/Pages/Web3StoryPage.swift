@@ -9,6 +9,7 @@
 import SwiftUI
 
 struct Web3StoryPage: View {
+    @Binding var progress: Double
     let scanCard: (() -> Void)
     let orderCard: (() -> Void)
     
@@ -59,7 +60,7 @@ struct Web3StoryPage: View {
 
 struct Web3StoryPage_Previews: PreviewProvider {
     static var previews: some View {
-        Web3StoryPage { } orderCard: { }
+        Web3StoryPage(progress: .constant(1)) { } orderCard: { }
         .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
     }
 }
