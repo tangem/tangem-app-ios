@@ -108,7 +108,15 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             сreateWallet()
         case .topup:
             if canBuyCrypto {
-                navigation.onboardingToBuyCrypto = true
+                if cardModel?.cardInfo.card.isDemoCard ?? false {
+                    alert = AlertBuilder.makeDemoAlert(okAction: {
+                        DispatchQueue.main.async {
+                            self.updateCardBalance()
+                        }
+                    })
+                } else {
+                    navigation.onboardingToBuyCrypto = true
+                }
             } else {
                 supplementButtonAction()
             }
@@ -180,7 +188,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         } receiveValue: { [weak self] (_, _) in
             
             if cardInfo.isMultiWallet {
-                let blockchains = SupportedTokenItems().predefinedBlockchains
+                let blockchains = SupportedTokenItems().predefinedBlockchains(isDemo: false)
                 let tokenItems = blockchains.map { TokenItem.blockchain($0) }
                 self?.tokensRepo.append(tokenItems, for: cardInfo.card.cardId)
             }

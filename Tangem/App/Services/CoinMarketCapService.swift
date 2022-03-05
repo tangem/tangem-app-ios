@@ -64,7 +64,8 @@ struct FiatCurrency: Codable, Identifiable, CustomStringConvertible {
     let symbol: String
     
     var description: String {
-        "\(name) (\(symbol)) - \(sign)"
+        let localizedName = Locale.current.localizedString(forCurrencyCode: symbol)?.capitalizingFirstLetter() ?? name
+        return "\(localizedName) (\(symbol)) - \(sign)"
     }
 }
 
