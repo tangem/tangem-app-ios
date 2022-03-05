@@ -18,6 +18,7 @@ enum ButtonLayout {
     case customWidth(CGFloat)
     case custom(size: CGSize)
     case flexibleWidth
+    case flexible
     
     var idealWidth: CGFloat? {
         switch self {
@@ -35,7 +36,7 @@ enum ButtonLayout {
             return width
         case .custom(let size):
             return size.width
-        case .flexibleWidth:
+        case .flexibleWidth, .flexible:
             return nil
         }
     }
@@ -53,6 +54,10 @@ enum ButtonLayout {
         switch self {
         case .thinHorizontal:
             return 32
+        case .custom(let size):
+            return size.height
+        case .flexible:
+            return nil
         default:
             return defaultHeight
         }
@@ -85,6 +90,7 @@ enum ButtonColorStyle {
     case gray
     case transparentWhite
     case grayAlt
+    case grayAlt2
     
     var bgColor: Color {
         switch self {
@@ -93,6 +99,7 @@ enum ButtonColorStyle {
         case .gray: return .tangemGrayLight4
         case .transparentWhite: return .clear
         case .grayAlt: return .tangemBgGray
+        case .grayAlt2: return .tangemBgGray3
         }
     }
     
@@ -100,14 +107,14 @@ enum ButtonColorStyle {
         switch self {
         case .green: return .tangemGreen1
         case .black: return .tangemGrayDark5
-        case .gray, .grayAlt: return .tangemGrayDark
+        case .gray, .grayAlt, .grayAlt2: return .tangemGrayDark
         case .transparentWhite: return .clear
         }
     }
     
     var fgColor: Color {
         switch self {
-        case .transparentWhite, .grayAlt: return .tangemGrayDark6
+        case .transparentWhite, .grayAlt, .grayAlt2: return .tangemGrayDark6
         default: return .white
         }
     }
@@ -123,7 +130,7 @@ enum ButtonColorStyle {
     
     var indicatorColor: UIColor {
         switch self {
-        case .transparentWhite, .grayAlt: return .tangemGrayDark6
+        case .transparentWhite, .grayAlt, .grayAlt2: return .tangemGrayDark6
         default: return .white
         }
     }
@@ -133,6 +140,8 @@ struct TangemButtonStyle: ButtonStyle {
     var colorStyle: ButtonColorStyle = .green
     var layout: ButtonLayout = .small
     var font: Font = .system(size: 17, weight: .semibold, design: .default)
+    var paddings: CGFloat = 8
+    var cornerRadius: CGFloat = 14
     var isDisabled: Bool = false
     var isLoading: Bool = false
 
@@ -160,12 +169,12 @@ struct TangemButtonStyle: ButtonStyle {
             VStack(alignment: .center, spacing: 0) {
                 configuration.label
             }
-            .padding(8)
+            .padding(paddings)
         } else {
             HStack(alignment: .center, spacing: 0) {
                 configuration.label
             }
-            .padding(.horizontal, 8)
+            .padding(.horizontal, paddings)
         }
     }
     
@@ -181,15 +190,15 @@ struct TangemButtonStyle: ButtonStyle {
             .background(configuration.isPressed ? colorStyle.bgPressedColor : colorStyle.bgColor)
             .overlay(loadingOverlay)
             .overlay(disabledOverlay)
-            .cornerRadius(14)
+            .cornerRadius(cornerRadius)
             .allowsHitTesting(!isDisabled && !isLoading)
+            .multilineTextAlignment(.center)
     }
 }
 
-//Wait for swift 5.5
-//extension ButtonStyle where Self == TangemButtonStyle {
-//    static var tangemStyle: TangemButtonStyle { .init() }
-//}
+extension ButtonStyle where Self == TangemButtonStyle {
+    static var tangemStyle: TangemButtonStyle { .init() }
+}
 
 
 struct ButtonStyles_Previews: PreviewProvider {

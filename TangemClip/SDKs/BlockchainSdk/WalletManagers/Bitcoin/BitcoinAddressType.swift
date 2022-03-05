@@ -15,9 +15,9 @@ public enum BitcoinAddressType: String {
     public var localizedName: String {
         switch self {
         case .legacy:
-            return "Legacy"
+            return "address_type_legacy".localized
         case .bech32:
-            return "Default"
+            return "address_type_default".localized
         }
     }
 }
