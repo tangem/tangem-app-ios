@@ -28,4 +28,5 @@ enum StorageType: String {
     case isMigratedToNewUserDefaults = "tangem_tap_migrate_to_new_defaults"
     case cardsStartedActivation = "tangem_cards_started_activation"
     case cardsFinishedActivation = "tangem_cards_finished_activation"
+    case didDisplayMainScreenStories = "tangem_tap_did_display_main_screen_stories"
 }
