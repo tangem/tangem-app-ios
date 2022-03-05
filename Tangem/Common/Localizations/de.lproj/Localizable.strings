@@ -226,7 +226,7 @@ phone bereit und scannen Sie sie.";
 "onboarding_subtitle_intro %@" = "This one that you are holding in your hands and the other one with number %@.";
 "onboarding_subtitle_no_backup_cards" = "To start the backup process add up to two backup cards.";
 "onboarding_subtitle_one_backup_card" = "You can add one more card or finalize the backup process.";
-"onboarding_subtitle_reset_twin_warning" = "If the process of re-creating the wallet gets interrupted in any way, you’ll have to start over.";
+"onboarding_subtitle_reset_twin_warning" = "If the process of creating the wallet gets interrupted in any way, you’ll have to start over.";
 "onboarding_subtitle_scan_backup_card %@" = "Prepare the backup card with number %@";
 "onboarding_subtitle_scan_origin_card %@" = "Prepare the primary card with number %@";
 "onboarding_subtitle_scan_primary" = "Scan the primary card to start the backup process.";
