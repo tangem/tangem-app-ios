@@ -15,18 +15,19 @@ class EthereumJsonRpcProvider {
     private let provider: MoyaProvider<EthereumTarget> = .init(
         plugins: [NetworkLoggerPlugin()]
     )
-    private let network: EthereumNetwork
     
-    init(network: EthereumNetwork) {
-        self.network = network
+    private let url: URL
+    
+    init(url: URL) {
+        self.url = url
     }
     
     func getBalance(for address: String) -> AnyPublisher<EthereumResponse, Error> {
-        requestPublisher(for: .balance(address: address, network: network))
+        requestPublisher(for: .balance(address: address, url: url))
     }
     
     func getTokenBalance(for address: String, contractAddress: String) -> AnyPublisher<EthereumResponse, Error> {
-        requestPublisher(for: .tokenBalance(address: address, contractAddress: contractAddress, network: network))
+        requestPublisher(for: .tokenBalance(address: address, contractAddress: contractAddress, url: url))
     }
     
     private func requestPublisher(for target: EthereumTarget) -> AnyPublisher<EthereumResponse, Error> {

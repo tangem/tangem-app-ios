@@ -133,12 +133,7 @@ public class BitcoinBech32AddressService: AddressService {
 }
 
 extension BitcoinAddressService: MultisigAddressProvider {
-    public func makeAddresses(from walletPublicKey: Data, with pairPublicKey: Data) -> [Address]? {
-        do {
-            return try make1Of2MultisigAddresses(firstPublicKey: walletPublicKey, secondPublicKey: pairPublicKey)
-        } catch {
-            print(error)
-            return nil
-        }
+    public func makeAddresses(from walletPublicKey: Data, with pairPublicKey: Data) throws -> [Address] {
+        return try make1Of2MultisigAddresses(firstPublicKey: walletPublicKey, secondPublicKey: pairPublicKey)
     }
 }
