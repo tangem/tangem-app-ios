@@ -122,8 +122,6 @@ class SendViewModel: ViewModel, ObservableObject {
     
     @Published var sendError: AlertBinder?
     
-    var signer: TransactionSigner
-    
     var cardViewModel: CardViewModel {
         didSet {
             cardViewModel
@@ -178,8 +176,7 @@ class SendViewModel: ViewModel, ObservableObject {
     
     private var blockchain: Blockchain
     
-    init(amountToSend: Amount, blockchain: Blockchain, cardViewModel: CardViewModel, signer: TransactionSigner, warningsManager: WarningsManager) {
-        self.signer = signer
+    init(amountToSend: Amount, blockchain: Blockchain, cardViewModel: CardViewModel, warningsManager: WarningsManager) {
         self.blockchain = blockchain
         self.cardViewModel = cardViewModel
         self.amountToSend = amountToSend
@@ -195,8 +192,8 @@ class SendViewModel: ViewModel, ObservableObject {
         setupWarnings()
     }
     
-    convenience init(amountToSend: Amount, destination: String, blockchain: Blockchain, cardViewModel: CardViewModel, signer: TransactionSigner, warningsManager: WarningsManager) {
-        self.init(amountToSend: amountToSend, blockchain: blockchain, cardViewModel: cardViewModel, signer: signer, warningsManager: warningsManager)
+    convenience init(amountToSend: Amount, destination: String, blockchain: Blockchain, cardViewModel: CardViewModel, warningsManager: WarningsManager) {
+        self.init(amountToSend: amountToSend, blockchain: blockchain, cardViewModel: cardViewModel, warningsManager: warningsManager)
         isSellingCrypto = true
         self.destination = destination
         canFiatCalculation = false
@@ -244,14 +241,14 @@ class SendViewModel: ViewModel, ObservableObject {
                     let totalAmount = tx.amount + tx.fee
                     var totalFiatAmount: Decimal? = nil
                     
-                    if let famount = self.walletModel.getFiat(for: tx.amount), let ffee = self.walletModel.getFiat(for: tx.fee) {
+                    if let famount = self.walletModel.getFiat(for: tx.amount, roundingMode: .plain), let ffee = self.walletModel.getFiat(for: tx.fee, roundingMode: .plain) {
                         totalFiatAmount = famount + ffee
                     }
                     
                     let totalFiatAmountFormatted = totalFiatAmount?.currencyFormatted(code: self.ratesService.selectedCurrencyCode)
                     
                     if isFiatCalculation {
-                        self.sendAmount = self.walletModel.getFiatFormatted(for: tx.amount) ?? ""
+                        self.sendAmount = self.walletModel.getFiatFormatted(for: tx.amount,  roundingMode: .plain) ?? ""
                         self.sendTotal = totalFiatAmountFormatted ?? " "
                         self.sendTotalSubtitle = tx.amount.type == tx.fee.type ?
                             String(format: "send_total_subtitle_format".localized, totalAmount.description) :
@@ -263,7 +260,7 @@ class SendViewModel: ViewModel, ObservableObject {
                         self.sendTotal =  (tx.amount + tx.fee).description
                         self.sendTotalSubtitle = totalFiatAmountFormatted == nil ? " " :  String(format: "send_total_subtitle_fiat_format".localized,
                                                                                                  totalFiatAmountFormatted!,
-                                                                                                 self.walletModel.getFiatFormatted(for: tx.fee)!)
+                                                                                                 self.walletModel.getFiatFormatted(for: tx.fee,  roundingMode: .plain)!)
                     }
                 } else {
                     self.fillTotalBlockWithDefaults()
@@ -356,7 +353,6 @@ class SendViewModel: ViewModel, ObservableObject {
             .combineLatest($validatedDestination,
                            $selectedFee,
                            $isFeeIncluded)
-            .debounce(for: 0.5, scheduler: RunLoop.main, options: nil)
             .map {[unowned self] amount, destination, fee, isFeeIncluded -> BlockchainSdk.Transaction? in
                 guard let amount = amount, let destination = destination, let fee = fee else {
                     return nil
@@ -617,8 +613,8 @@ class SendViewModel: ViewModel, ObservableObject {
         
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.addLoadingView()
-        walletModel.txSender.send(tx, signer: signer)
-            .receive(on: RunLoop.main)
+        
+        walletModel.send(tx)
             .sink(receiveCompletion: { [unowned self] completion in
                 appDelegate.removeLoadingView()
                 
@@ -626,17 +622,25 @@ class SendViewModel: ViewModel, ObservableObject {
                     if case .userCancelled = error.toTangemSdkError() {
                         return
                     }
+                    
                     Analytics.logCardSdkError(error.toTangemSdkError(), for: .sendTx, card: cardViewModel.cardInfo.card, parameters: [.blockchain: walletModel.wallet.blockchain.displayName])
+                    
                     emailDataCollector.lastError = error
                     self.sendError = error.alertBinder
                 } else {
-                    walletModel.startUpdatingTimer()
-                    if self.isSellingCrypto {
-                        Analytics.log(event: .userSoldCrypto, with: [.currencyCode: self.blockchain.currencySymbol])
-                    } else {
-                        Analytics.logTx(blockchainName: self.blockchain.displayName)
+                    if !cardViewModel.cardInfo.card.isDemoCard {
+                        if self.isSellingCrypto {
+                            Analytics.log(event: .userSoldCrypto, with: [.currencyCode: self.blockchain.currencySymbol])
+                        } else {
+                            Analytics.logTx(blockchainName: self.blockchain.displayName)
+                        }
                     }
-                    callback()
+                    
+                    DispatchQueue.main.async {
+                        let alert = AlertBuilder.makeSuccessAlert(message: cardViewModel.cardInfo.card.isDemoCard ? "alert_demo_feature_disabled".localized
+                                                                  : "send_transaction_success".localized) { callback() }
+                        self.sendError = alert
+                    }
                 }
                 
             }, receiveValue: { _ in  })

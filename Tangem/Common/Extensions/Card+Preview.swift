@@ -95,7 +95,8 @@ extension Card {
                 "isPermanent" : false
               },
               "index" : 0,
-              "hasBackup" : false
+              "hasBackup" : false,
+              "derivedKeys" : []
             },
             {
               "publicKey" : "0440C533E007D029C1F345CA70A9F6016EC7A95C775B6320AE84248F20B647FBBD90FF56A2D9C3A1984279ED2367274A49079789E130444541C2F15907D5570B49",
@@ -105,7 +106,8 @@ extension Card {
                 "isPermanent" : true
               },
               "index" : 1,
-              "hasBackup" : false
+              "hasBackup" : false,
+              "derivedKeys" : []
             },
             {
               "publicKey" : "04DDFACEF55A95EAB2CDCC8E86CE779342D2E2A53CF8F0F20BF2B248336AE3EEA6DD62D1F4C5420A71D6212073B136034CDC878DAD3AE3FDFA3360E6FE6184F470",
@@ -115,14 +117,14 @@ extension Card {
                 "isPermanent" : true
               },
               "index" : 2,
-              "hasBackup" : false
+              "hasBackup" : false,
+              "derivedKeys" : []
             }
           ],
           "isPasscodeSet" : true,
           "isAccessCodeSet" : true,
           "backupStatus" : {
-              "status" : "active",
-              "cardsCount" : 2
+              "status" : "noBackup"
           }
         }
         """

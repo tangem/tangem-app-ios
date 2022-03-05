@@ -116,9 +116,10 @@ struct OnboardingAccessCodeView: View {
             .padding(.bottom, 32)
             .padding(.top, 13)
             .multilineTextAlignment(.center)
-        CustomPasswordTextField(placeholder: "Access code", color: .tangemGrayDark6, password: state == .inputCode ? $firstEnteredCode : $secondEnteredCode, onCommit: {
-            
-        })
+        CustomPasswordTextField(placeholder: "details_manage_security_access_code",
+                                color: .tangemGrayDark6,
+                                password: state == .inputCode ? $firstEnteredCode : $secondEnteredCode,
+                                onCommit: {})
         .frame(height: 44)
     }
     
@@ -176,7 +177,7 @@ struct OnboardingAccessCodeView: View {
             .padding(.bottom, 16)
         }
         .padding(.horizontal, 40)
-        .keyboardAdaptive(animated: .constant(true))
+        .keyboardAdaptive(animated: .constant(false))
         .onDisappear {
             DispatchQueue.main.async {
                 self.error = .none
