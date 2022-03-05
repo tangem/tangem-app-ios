@@ -19,7 +19,7 @@ class StoriesViewModel: ViewModel, ObservableObject {
         }
     }
     
-    @Published var currentPage: WelcomeStoryPage = WelcomeStoryPage.allCases.first!
+    @Published var currentPage: WelcomeStoryPage = WelcomeStoryPage.allCases[0]
     @Published var currentProgress = 0.0
     let pages = WelcomeStoryPage.allCases
     
