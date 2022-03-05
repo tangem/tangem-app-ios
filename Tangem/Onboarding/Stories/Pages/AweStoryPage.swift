@@ -9,6 +9,7 @@
 import SwiftUI
 
 struct AweStoryPage: View {
+    @Binding var progress: Double
     let scanCard: (() -> Void)
     let orderCard: (() -> Void)
     
@@ -47,7 +48,7 @@ struct AweStoryPage: View {
 
 struct AweStoryPage_Previews: PreviewProvider {
     static var previews: some View {
-        AweStoryPage { } orderCard: { }
+        AweStoryPage(progress: .constant(1)) { } orderCard: { }
         .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
         .environment(\.colorScheme, .dark)
     }
