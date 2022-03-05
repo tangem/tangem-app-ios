@@ -27,7 +27,10 @@ class AppServicesAssembly: ServicesAssembly {
         BackupService(sdk: tangemSdk)
     }()
     
-    lazy var exchangeService: ExchangeService = MoonPayService(keys: keysManager.moonPayKeys)
+    lazy var exchangeService: ExchangeService = CombinedExchangeService(
+        buyService: OnramperService(key: keysManager.onramperApiKey),
+        sellService: MoonPayService(keys: keysManager.moonPayKeys)
+    )
     lazy var walletConnectService = WalletConnectService(assembly: assembly, cardScanner: walletConnectCardScanner, signer: signer, scannedCardsRepository: scannedCardsRepository)
     
     lazy var negativeFeedbackDataCollector: NegativeFeedbackDataCollector = {
@@ -76,6 +79,7 @@ class AppServicesAssembly: ServicesAssembly {
     lazy var warningsService = WarningsService(remoteWarningProvider: configManager, rateAppChecker: rateAppService)
     lazy var rateAppService: RateAppService = .init(userPrefsService: userPrefsService)
     private let configManager = try! FeaturesConfigManager()
+    lazy var shopifyService = ShopifyService(shop: keysManager.shopifyShop, testApplePayPayments: false)
     
     override func onDidScan(_ cardInfo: CardInfo) {
         featuresService.setupFeatures(for: cardInfo.card)
