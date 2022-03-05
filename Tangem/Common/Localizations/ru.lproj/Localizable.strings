@@ -1,0 +1,475 @@
+"action_sheet_trade_hint" = "Вы хотите купить или продать криптовалюту?";
+"add_custom" = "Добавить пользовательский";
+"add_custom_token_title" = "Добавить пользовательский токен";
+"add_token_section_title_blockchains" = "Блокчейны";
+"add_token_section_title_custom_tokens" = "Пользовательские токены";
+"add_token_section_title_tokens_format" = "Токены %@";
+"add_tokens_title" = "Добавить токены";
+"address_qr_code_message_format" = "Отправляйте только %@ (%@) на этот адрес. Отправка любой другой валюты приведет к ее безвозвратной утере.";
+"address_qr_code_message_token_format" = "Отправляйте только %@ (%@) из сети %@ на этот адрес. Отправка любой другой валюты приведет к ее безвозвратной утере.";
+"alert_app_feedback_sent_message" = "Спасибо за ваш отзыв";
+"alert_app_feedback_sent_title" = "Отправлено успешно";
+"alert_button_i_understand" = "Я понимаю";
+"alert_button_request_support" = "Обратиться в поддержку";
+"alert_button_send_feedback" = "Отправить отзыв";
+"alert_button_try_again" = "Попробовать снова";
+"alert_card_signed_transactions" = "Эта карта ранее пополнялась и подписывала транзакции. Выведите средства как можно быстрее, если вы получили эту карту из ненадежного источника. Если это ваша карта, то не о чем беспокоиться.";
+"alert_developer_card" = "Карта, которую вы отсканировали, является картой разработчика. Не принимайте её в качестве оплаты.";
+"alert_failed_to_send_email_message" = "Причина: %@";
+"alert_failed_to_send_email_title" = "Не удалось отправить письмо";
+"alert_failed_to_send_transaction_message" = "Причина: %@. Вы хотите обратиться в поддержку?";
+"alert_failed_to_send_transaction_title" = "Не могу отправить транзакцию";
+"alert_negative_app_rate_sent_message" = "Спасибо за ваш отзыв. Мы ответим в кратчайшие сроки.";
+"alert_negative_app_rate_sent_title" = "Ваши предложения отправлены";
+"alert_old_card" = "С карт Tangem, выпущенных до сентября 2019 года, нельзя вывести средства с помощью iPhone из-за ограничений iOS. Вы можете использовать телефон на Android. Карты, выпущенные после сентября 2019 года, корректно работают с обеими платформами.";
+"alert_old_device_this_card" = "У вас могут возникнуть проблемы с NFC на некоторых iPhone 7/7+ во время некоторых операций.";
+"alert_signed_hashes_message" = "Эта карта не является платежным средством. В настоящее время мы не можем сопоставить количество подписей на карте с информацией в блокчейне. Это нормально, но в редких случаях может означать, что предыдущий владелец удерживает подписанную транзакцию от публикации, что является поводом для беспокойства.
+Не принимайте эту карту в качестве физического платежа от кого-то, кому вы не доверяете.
+Во всех остальных отношениях эта карта совершенно безопасна.
+Tangem — единственный аппаратный кошелек, предлагающий защиту методом подсчета подписей.";
+"alert_troubleshooting_scan_card_message" = "Пожалуйста, попробуйте приложить карту в точности, как показано на анимации, или запросите поддержку.";
+"alert_troubleshooting_scan_card_title" = "У вас возникли трудности со сканированием карты?";
+"alert_unsupported_card" = "Эта карта не предназначена для работы с приложением Tangem";
+"card_label_number_format" = "Карта %d из %d";
+"card_operation_button_title_reset" = "Сбросить карту";
+"common_accept" = "Принять";
+"common_add" = "Добавить";
+"common_added" = "Добавлено";
+"common_back" = "Назад";
+"common_camera_alert_button_settings" = "Настройки";
+"common_camera_denied_alert_message" = "Вы не предоставили доступ к камере, пожалуйста, измените настройки конфиденциальности.";
+"common_camera_denied_alert_title" = "Доступ к камере запрещен";
+"common_cancel" = "Отмена";
+"common_close" = "Закрыть";
+"common_continue" = "Продолжить";
+"common_copy" = "Копировать";
+"common_disconnect" = "Отключить";
+"common_done" = "Готово";
+"common_error" = "Ошибка";
+"common_explorer_format %@" = "%@ обозреватель";
+"common_no" = "Нет";
+"common_ok" = "Ок";
+"common_origin_card" = "Основная карта";
+"common_push" = "Ускорить";
+"common_reject" = "Отклонить";
+"common_save_changes" = "Сохранить изменения";
+"common_search" = "Искать";
+"common_select_action" = "Выберите действие";
+"common_share" = "Поделиться";
+"common_sign" = "Подписать";
+"common_sign_and_send" = "Подписать и отправить";
+"common_start" = "Начать";
+"common_submit" = "Отправить";
+"common_success" = "Успешно";
+"common_warning" = "Предупреждение";
+"custom_token_contract_address_input_title" = "Адрес контракта";
+"custom_token_creation_error_empty_fields" = "Пожалуйста, заполните все поля";
+"custom_token_creation_error_wrong_decimals" = "Введенное текст не является допустимым десятичным числом";
+"custom_token_decimals_input_title" = "Знаков после запятой";
+"custom_token_name_input_placeholder" = "Например, USD Coin";
+"custom_token_name_input_title" = "Название токена";
+"custom_token_token_symbol_input_placeholder" = "Например, USDC";
+"custom_token_token_symbol_input_title" = "Символ токена";
+"details_backup_status_format_active" = "Резервная копия создана. Количество резервных карт: %d";
+"details_backup_status_format_linked" = "Карты связаны. Количество резервных карт: %d";
+"details_backup_status_no_backup" = "Нет резервной копии";
+"details_manage_security_access_code" = "Код доступа";
+"details_manage_security_access_code_description" = "Перед сканированием карты вам нужно будет ввести правильный код доступа.";
+"details_manage_security_long_tap" = "Задержка сканирования";
+"details_manage_security_long_tap_description" = "Этот механизм защищает карту от бесконтактных атак. Между сканированием карты и выполнением команды будет добавлена задержка.";
+"details_manage_security_passcode" = "Пароль";
+"details_manage_security_passcode_description" = "Перед выполнением любой команды, влекущей за собой изменение состояния карты, вам необходимо будет ввести пароль.";
+"details_manage_security_title" = "Безопасность";
+"details_notification_erase_wallet_not_possible" = "На этом кошельке имеется ненулевой остаток или неподтвержденные транзакции. Сброс до заводских настроек невозможен.";
+"details_row_subtitle_signed_hashes_format" = "%@ хэшей";
+"details_row_title_card_tou" = "Условия использования карты";
+"details_row_title_cid" = "Номер карты";
+"details_row_title_create_backup" = "Создать резервную копию";
+"details_row_title_currency" = "Валюта приложения";
+"details_row_title_issuer" = "Эмитент";
+"details_row_title_manage_security" = "Управление безопасностью";
+"details_row_title_reset_factory_settings" = "Сброс до заводских настроек";
+"details_row_title_reset_factory_settings_warning" = "Это действие необратимо. Если после сброса карты кто-то отправит на нее средства, то вы не сможете их вывести.";
+"details_row_title_send_feedback" = "Отправить отзыв";
+"details_row_title_signed_hashes" = "Подписано";
+"details_row_title_twins_create" = "Создать кошелек";
+"details_row_title_twins_recreate" = "Пересоздать twin-кошелек";
+"details_section_title_app" = "Приложение";
+"details_section_title_card" = "Карта";
+"details_security_management_warning" = "Если вы забудете код, то потеряете возможность использовать карту. Невозможно восстановить или изменить код, если вы его потеряете.";
+"details_title" = "Подробности";
+"details_twins_create_warning" = "Процедура создания кошелька состоит из трех шагов. Вы должны пройти ее до конца, иначе карты не будут связаны и вам придется начинать сначала.";
+"details_twins_recreate_button_format" = "Прислоните карту #%d";
+"details_twins_recreate_step_format" = "Шаг %d";
+"details_twins_recreate_subtitle" = "Если процесс повторного создания кошелька каким-либо образом прервется, вам придется начинать сначала.";
+"details_twins_recreate_title_format" = "Коснитесь twin-карты #%d";
+"details_twins_recreate_toolbar" = "Пересоздать кошелек";
+"details_twins_recreate_warning" = "Это действие необратимо. У вас не будет доступа к старому кошельку.
+Процедура пересоздания кошелька состоит из трех шагов. Вы должны пройти ее до конца, иначе вам придется начинать сначала.";
+"disclaimer_text" = "Legal Disclaimer
+
+1. Tangem application (Software)
+ 
+The Software is intended for usage only with Tangem hardware wallets (Cards) via NFC interface. The Software DOES NOT:
+ 
+a) Generate, store, transmit, or have access to private (secret) cryptographic keys to blockchain wallets holding digital assets, including crypto-currency.
+
+b) Generate, store, transmit, or have access to secret keys, passwords, passphrases, recovery phrases that can be used to restore or to copy private (secret) keys to blockchain wallets holding digital assets, including crypto-currency.
+
+c) Provide exchange, trading, investment services on behalf of Tangem AG.
+ 
+ 
+2. Risks related to the use of Software
+ 
+Tangem will not be responsible for any losses, damages or claims arising from events falling within the scope of the following five categories:
+ 
+a) Mistakes made by the user of any cryptocurrency-related software or service, e.g., forgotten passwords, payments sent to wrong addresses, and accidental deletion of blockchain wallets on Cards.
+
+b) Problems of Software and/or any blockchain- or cryptocurrency- related software or service, e.g., corrupted files, incorrectly constructed transactions, unsafe cryptographic libraries, malware.
+
+c) Technical failures in the hardware of the user, including Cards, of any cryptocurrency-related software or service, e.g., data loss due to a faulty or damaged storage device.
+
+d) Security problems experienced by the user of any cryptocurrency-related software or service, e.g., unauthorized access to users' wallets and/or accounts.
+
+e) Actions or inactions of third parties and/or events experienced by third parties, e.g., bankruptcy of service providers, information security attacks on service providers, and fraud conducted by third parties.
+ 
+
+3. Trading and Investment risks
+ 
+There is considerable exposure to risk in any crypto-currency or other digital asset exchange transaction. Any transaction involving currencies involves risks including, but not limited to, the potential for changing economic conditions that may substantially affect the price or liquidity of a currency. Investments in crypto-currency exchange speculation may also be susceptible to sharp rises and falls as the relevant market values fluctuate. It is for this reason that when speculating in such markets it is advisable to use only risk capital.
+ 
+ 
+4. Electronic Trading Risks
+ 
+Before you engage in transactions using an electronic system, you should carefully review the rules and regulations of the exchanges offering the system and/or listing the instruments you intend to trade. Online trading has inherent risk due to system response and access times that may vary due to market conditions, system performance, and other factors. You should understand these and additional risks before trading.
+ 
+
+5. Compliance with tax obligations
+ 
+The users of the Software are solely responsible to determinate what, if any, taxes apply to their crypto-currency transactions. The owners of, or contributors to, the Software are NOT responsible for determining the taxes that apply to crypto-currency transactions.
+ 
+
+6. No warranties
+
+The Software is provided on an \"as is\" basis without any warranties of any kind regarding the Software and/or any content, data, materials and/or services provided on the Software.
+ 
+
+7. Limitation of liability
+ 
+Unless otherwise required by law, in no event shall the owners of, or contributors to, the Software be liable for any damages of any kind, including, but not limited to, loss of use, loss of profits, or loss of data arising out of or in any way connected with the use of the Software. In no way are the owners of, or contributors to, the Software responsible for the actions, decisions, or other behavior taken or not taken by you in reliance upon the Software.
+ 
+ 
+8. Last amendment
+ 
+This disclaimer was amended for the last time on October 1st, 2020.";
+"disclaimer_title" = "Условия использования";
+"home_button_scan" = "Сканировать";
+"home_button_shop" = "Магазин";
+"home_button_tapin" = "Прислонить";
+"home_button_yes" = "Да! Отсканировать.";
+"home_ready_title" = "Будьте готовы прислонить вашу
+карту к обратной стороне телефона.";
+"initial_message_change_access_code_body" = "Чтобы изменить код доступа, соедините телефон и карту в точности, как показано выше.";
+"initial_message_change_passcode_body" = "Чтобы изменить пароль, соедините телефон и карту в точности, как показано выше.";
+"initial_message_create_wallet_body" = "Чтобы создать кошелек, соедините телефон и карту в точности, как показано выше.";
+"initial_message_purge_wallet_body" = "Чтобы сбросить настройки до заводских, соедините телефон и карту в точности, как показано выше.";
+"initial_message_sign_body" = "Чтобы подписать транзакцию, соедините телефон и карту в точности, как показано выше.";
+"mail_error_no_accounts_body" = "Пожалуйста, настройте учетную запись для отправки электронной почты";
+"mail_error_no_accounts_title" = "Нет настроенных почтовых аккаунтов";
+"manage_security_access_code_disclaimer" = "Код доступа доступен только для карт с резервной копией.";
+"notification_twins_recreate_success" = "Twin-адрес успешно создан";
+"onboarding_access_code_feature_1_description" = "Вам необходимо установить единый код доступа для защиты всех ваших карт.";
+"onboarding_access_code_feature_1_title" = "Защита";
+"onboarding_access_code_feature_2_description" = "Позже вы сможете установить индивидуальный код доступа для каждой карты.";
+"onboarding_access_code_feature_2_title" = "Персонализация";
+"onboarding_access_code_feature_3_description" = "Код доступа можно восстановить с помощью привязанной карты. Не храните все карты в одном месте.";
+"onboarding_access_code_feature_3_title" = "Восстановление";
+"onboarding_access_code_hint" = "Выберите любое слово, фразу или число в качестве кода доступа.";
+"onboarding_access_code_intro_title" = "Создайте код доступа";
+"onboarding_access_code_repeat_code_title" = "Повторно введите код доступа";
+"onboarding_access_code_too_short" = "Код доступа должен состоять не менее чем из 4 символов.";
+"onboarding_access_codes_doesnt_match" = "Введенные коды доступа не совпадают";
+"onboarding_alert_i_understand" = "Я понимаю";
+"onboarding_alert_message_not_max_backup_cards_added" = "Вы добавили одну резервную карту. Когда процесс резервного копирования будет завершен, вы не сможете добавить дополнительные карты резервного копирования. Если у вас есть еще одна карта, добавьте ее в резервную копию, либо вы можете купить ее в магазине. Хотите продолжить процесс резервного копирования?";
+"onboarding_alert_message_old_device" = "iPhone 7/7+ не может создать резервную копию для Tangem Wallet из-за системных ограничений. Пожалуйста, используйте другой телефон для выполнения этой операции. Все остальные функции работают стабильно.";
+"onboarding_alert_twins_recreate_subtitle" = "Это действие необратимо. У вас не будет доступа к старому кошельку.";
+"onboarding_backup_exit_warning" = "Процесс резервного копирования почти завершен. Вы не можете выйти из него сейчас.";
+"onboarding_balance" = "ДОСТУПНО";
+"onboarding_button_add_backup_card" = "Добавить резервную карту";
+"onboarding_button_backup_card %lld" = "Сканировать карту #%lld";
+"onboarding_button_backup_now" = "Создать резервную копию";
+"onboarding_button_backup_origin" = "Сканировать основную карту";
+"onboarding_button_buy_crypto" = "Купить криптовалюту";
+"onboarding_button_buy_more_cards" = "Купить больше карт";
+"onboarding_button_continue_wallet" = "Перейти к моему кошельку";
+"onboarding_button_create_wallet" = "Создать кошелек";
+"onboarding_button_finalize_backup" = "Завершите процесс резервного копирования";
+"onboarding_button_how_it_works" = "Как это работает?";
+"onboarding_button_receive_crypto" = "Получить криптовалюту";
+"onboarding_button_scan_origin_card" = "Сканировать основную карту";
+"onboarding_button_shop" = "Получить новую карту";
+"onboarding_button_show_address_qr" = "Показать адрес кошелька";
+"onboarding_button_skip_backup" = "Пропустить";
+"onboarding_button_tap_first_card" = "Сканировать карту №1";
+"onboarding_button_tap_second_card" = "Сканировать карту №2";
+"onboarding_confetti_subtitle" = "Ваша карта активирована и готова к использованию";
+"onboarding_confetti_title" = "Готово!";
+"onboarding_create_subtitle" = "Давайте сгенерируем все ключи на вашей карте и создадим безопасный кошелек.";
+"onboarding_create_title" = "Создать кошелек";
+"onboarding_getting_started" = "Подготовка";
+"onboarding_navbar_activating_card" = "Активация карты";
+"onboarding_navbar_title_creating_backup" = "Резервная копия";
+"onboarding_read_subtitle" = "Самый безопасный способ покупать, использовать и хранить криптовалюту";
+"onboarding_read_title" = "Добро пожаловать в Tangem";
+"onboarding_subtitle_backup_card" = "Вы можете сделать резервную копию своих ключей на одной или двух других пустых картах Wallet.";
+"onboarding_subtitle_intro %@" = "Карта, которую вы держите в руках. %@ – это номер парной карты.";
+"onboarding_subtitle_no_backup_cards" = "Чтобы начать процесс резервного копирования, добавьте одну или две резервные карты.";
+"onboarding_subtitle_one_backup_card" = "Вы можете добавить еще одну карту или завершить процесс резервного копирования.";
+"onboarding_subtitle_reset_twin_warning" = "Если процесс повторного создания кошелька каким-либо образом прервется, вам придется начинать сначала.";
+"onboarding_subtitle_scan_backup_card %@" = "Подготовьте резервную карту с номером %@";
+"onboarding_subtitle_scan_origin_card %@" = "Подготовьте основную карту с номером %@";
+"onboarding_subtitle_scan_primary" = "Отсканируйте основную карту, чтобы начать процесс резервного копирования.";
+"onboarding_subtitle_success_backup" = "Вы создали 2 резервные карты, и теперь эти карты готовы к использованию.";
+"onboarding_subtitle_success_backup_one_card" = "Вы создали 1 резервную карту, и теперь эта карта готова к использованию.";
+"onboarding_subtitle_success_tangem_wallet_onboarding" = "Ваша карта Tangem Wallet настроена и готова к использованию.";
+"onboarding_subtitle_two_backup_cards" = "Добавлено максимальное количество карт. Завершите процесс резервного копирования.";
+"onboarding_success" = "Успешно!";
+"onboarding_success_subtitle" = "Ваша криптокарта активирована и готова к использованию";
+"onboarding_title_backup_card" = "Создайте резервную копию вашей карты";
+"onboarding_title_backup_card %lld" = "Резервная карта #%lld";
+"onboarding_title_no_backup_cards" = "Нет резервных карт";
+"onboarding_title_one_backup_card" = "Добавлена ​​одна резервная карта";
+"onboarding_title_prepare_origin" = "Основная карта";
+"onboarding_title_scan_origin_card" = "Подготовьте свою карту";
+"onboarding_title_twin_first_card" = "Отсканируйте twin-карту #1";
+"onboarding_title_twin_second_card" = "Отсканируйте twin-карту #2";
+"onboarding_title_two_backup_cards" = "Добавлены две резервные карты";
+"onboarding_topup_subtitle" = "Пополните кошелек на любую сумму, чтобы начать пользоваться картой";
+"onboarding_topup_subtitle_xrp" = "Пополните кошелек более чем на 10 XRP, чтобы начать пользоваться картой";
+"onboarding_topup_title" = "Актививация кошелька";
+"onboarding_twin_exit_warning" = "Процесс связывания карт частично завершен. Вы не можете выйти из него сейчас.";
+"onboarding_wallet_info_subtitle_first" = "Вы можете сделать резервную копию своих ключей на одной или двух других пустых картах Wallet.";
+"onboarding_wallet_info_subtitle_fourth" = "Код доступа можно восстановить с помощью одной из резервных карт.";
+"onboarding_wallet_info_subtitle_second" = "Все резервные карты являются полнофункциональными и содержат одинаковые ключи.";
+"onboarding_wallet_info_subtitle_third" = "Вы сможете установить код доступа для защиты своих кошельков.";
+"onboarding_wallet_info_title_first" = "Резервная копия карты";
+"onboarding_wallet_info_title_fourth" = "Восстановление кода доступа";
+"onboarding_wallet_info_title_second" = "Идентичные карты";
+"onboarding_wallet_info_title_third" = "Код доступа";
+"payid_service_error_loading" = "Неверный идентификатор PayString";
+"push_additional_fee" = "Дополнительная комиссия";
+"push_previous_fee" = "Предыдущая комиссия";
+"push_tx_address_hint" = "Сумма за предыдущую транзакцию, включая комиссию";
+"send_amount_label" = "Сумма";
+"send_balance_subtitle_format" = "Остаток средств: %@";
+"send_destination_hint" = "Адрес или PayString";
+"send_destination_hint_address" = "Адрес";
+"send_error_invalid_destination_tag" = "Неверный Destination Tag. Он не будет добавлен в транзакцию";
+"send_error_invalid_memo_id" = "Неверный идентификатор Memo. Он не будет добавлен в транзакцию";
+"send_extras_hint_destination_tag" = "Destination Tag";
+"send_extras_hint_memo" = "Memo";
+"send_extras_hint_memo_id" = "Memo Id";
+"send_fee_include_description" = "Включая комиссию";
+"send_fee_label" = "Комиссия";
+"send_fee_picker_low" = "Низкая";
+"send_fee_picker_normal" = "Нормальная";
+"send_fee_picker_priority" = "Приоритетная";
+"send_max_amount_label" = "Максимальная сумма";
+"send_network_fee_title" = "Сетевая комиссия";
+"send_title_currency_format %@" = "Отправка %@";
+"send_total_label" = "Всего";
+"send_total_subtitle_asset_format" = "%@ и %@ будет отправлено";
+"send_total_subtitle_fiat_format" = "≈ %@ (вкл. комиссию: %@)";
+"send_total_subtitle_format" = "%@ будет отправлено";
+"send_transaction_success" = "Транзакция успешно подписана и отправлена в блокчейн. Остаток средств будет обновлен через некоторое время";
+"send_validation_invalid_address" = "Неверный адрес";
+"solana_rent_warning" = "Сеть Solana взимает арендную плату в размере %@ каждые 2 дня. Аккаунты, которые не могут позволить себе арендную плату, удаляются из сети. Пополните свой счет более чем на %@, чтобы не платить арендную плату.";
+"testnet_address_topuped" = "Транзакция успешно подписана и отправлена ​​в тестовую сеть. Подождите некоторое время и обновите баланс";
+"testnet_error_failed_create_tx" = "Не удалось создать транзакцию пополнения для токена. Попробуйте позже";
+"testnet_error_not_enough_ether_message" = "Недостаточно средств на балансе ETH кошелька. Вам нужно сначала пополнить ETH кошелек";
+"token_details_send_blocked_fee_format" = "Недостаточно средств для комиссии на вашем %@ кошельке для отправки транзакции. Сначала пополните свой %@ кошелек.";
+"token_details_send_blocked_tx_format" = "Пожалуйста, дождитесь завершения транзакции %@, чтобы иметь возможность отправить средства";
+"twin_error_not_a_twin_card" = "Вы отсканировали не twin-карту. Для создания двойного кошелька необходимо отсканировать карту Tangem Twin.";
+"twin_error_same_card" = "Вы отсканировали ту же карту. Для создания twin-кошелька вам необходимо отсканировать карту с номером %d";
+"twin_error_wrong_twin" = "Вы отсканировали не ту twin-карту. Пожалуйста, попробуйте отсканировать другую";
+"twin_process_creating_wallet" = "Создание кошелька";
+"twin_process_preparing_card" = "Подготовка карты";
+"twins_creation_warning_message" = "Вы уже начали процесс пересоздания twin-кошелька. Если вы прервете его, вы не сможете использовать свои twin-карты, пока не запустите процесс снова и не завершите его.";
+"twins_creation_warning_title" = "Отменить создание Twin карты?";
+"twins_onboarding_description_format" = "Это карта, которую вы держите в руках. У парной карты номер %@.
+
+Обе карты можно использовать для вывода средств из этого кошелька.";
+"twins_onboarding_subtitle" = "Один кошелек. Две карты.";
+"twins_onboarding_title" = "Tangem Twin";
+"twins_scan_twin_with_number" = "Поднесите iPhone к twin-карте с номером %@.";
+"voice_over_close_network_fee_settings" = "Закрыть настройки комиссии";
+"voice_over_copy_address" = "Скопировать адрес";
+"voice_over_nothing_to_paste" = "Нечего вставить из буфера обмена";
+"voice_over_open_card_details" = "Открыть детали карты";
+"voice_over_open_network_fee_settings" = "Открыть настройки комиссии";
+"voice_over_open_new_wallet_connect_session" = "Отсканируйте QR-код, чтобы открыть новую сессию WalletConnect";
+"voice_over_paste_from_clipboard" = "Вставить адрес из буфера обмена";
+"voice_over_scan_qr_with_address" = "Сканировать QR код с адресом";
+"voice_over_share_address" = "Поделиться адресом";
+"voice_over_show_address_qr" = "Показать QR код с адресом";
+"wallet_add_tokens" = "Добавить токены";
+"wallet_address_button_create_payid" = "Создать PayString";
+"wallet_address_button_explore" = "Посмотреть адрес";
+"wallet_balance_blockchain_unreachable" = "Блокчейн недоступен";
+"wallet_balance_loading" = "Баланс загружается…";
+"wallet_balance_tx_in_progress" = "Транзакция подтверждается...";
+"wallet_balance_verified" = "Подтвержденный баланс";
+"wallet_button_create_twin_wallet" = "Создать twin-кошелек";
+"wallet_button_create_wallet" = "Создать кошелек";
+"wallet_button_scan" = "Сканировать";
+"wallet_button_sell_crypto" = "Продать";
+"wallet_button_send" = "Отправить";
+"wallet_button_topup" = "Купить";
+"wallet_button_trade" = "Обменять";
+"wallet_choice_wallet_option_title" = "Что отправить?";
+"wallet_connect_alert_sign_message" = "Запрос на подпись сообщения
+картой %@
+
+%@";
+"wallet_connect_bnb_sign_message" = "Dapp %@, запрос на
+подпись транзакции с BNB.
+Карта: %@
+
+%@";
+"wallet_connect_bnb_trade_order_message" = "Торговый ордер на %@
+Цена: %@
+Сумма к получению: %@
+Сумма к оплате: %@";
+"wallet_connect_bnb_transaction_message" = "Детали транзакции:
+От: %@
+К: %@
+Сумма: %@";
+"wallet_connect_bnb_transaction_signed" = "Транзакция с BNB успешно подписана и отправлена ​​в Dapp.";
+"wallet_connect_card_not_found" = "Не удалось найти заданную карту";
+"wallet_connect_card_number" = "Карта: %@";
+"wallet_connect_clipboard_alert" = "Буфер обмена содержит код WalletConnect. Использовать скопированное значение или отсканировать QR-код?";
+"wallet_connect_create_tx_message" = "Карта: %@
+Запрос на создание транзакции для %@
+%@
+
+Сумма: %@
+Комиссия: %@
+Всего: %@
+Остаток средств: %@";
+"wallet_connect_create_tx_not_enough_funds" = "\n\nНевозможно отправить транзакцию. Недостаточно средств.";
+"wallet_connect_error_failed_to_connect" = "Не удалось установить сессию WalletConnect.
+Пожалуйста, повторите попытку позже.";
+"wallet_connect_error_sing_failed" = "Не удалось подписать сообщение.
+Пожалуйста, попробуйте еще раз";
+"wallet_connect_error_timeout" = "Не удалось установить сессию WalletConnect за отведённое время.
+Пожалуйста, повторите попытку позже.";
+"wallet_connect_failed_to_build_tx" = "Не удалось создать транзакцию из данных Dapp. Код: %@";
+"wallet_connect_message_signed" = "Сообщение было успешно подписано и отправлено в Dapp";
+"wallet_connect_no_sessions_message" = "Нет открытых сессий WalletConnect";
+"wallet_connect_no_sessions_title" = "Упс. Нет сессий.";
+"wallet_connect_paste_from_clipboard" = "Вставить из буфера обмена";
+"wallet_connect_personal_sign_message" = "Сообщение для %@:\n";
+"wallet_connect_request_session_start" = "Запрос на открытие сессии для карты с идентификатором %@
+для
+%@
+
+URL: %@";
+"wallet_connect_scan_card_message" = "Прислоните карту, чтобы привязать ее к кошельку.";
+"wallet_connect_scan_new_code" = "Сканировать новый код";
+"wallet_connect_scanner_error_not_valid_card" = "Эту карту нельзя использовать с WalletConnect.";
+"wallet_connect_scanner_error_unsupported_network" = "Эта сеть не поддерживается";
+"wallet_connect_service_no_chain_id" = "Dapp не предоставил необходимые данные для открытия сессии WalletConnect";
+"wallet_connect_session_not_found" = "Не удалось найти сессию для обработки запроса";
+"wallet_connect_sessions_title" = "Сессии WalletConnect";
+"wallet_connect_transaction_signed" = "Транзакция успешно подписана и отправлена ​​в Dapp";
+"wallet_connect_transaction_signed_and_send" = "Транзакция успешно подписана и отправлена ​​в блокчейн";
+"wallet_connect_tx_not_found" = "Не удалось найти хэш транзакции";
+"wallet_create_payid" = "Создать PayString";
+"wallet_create_payid_button_title" = "Создать";
+"wallet_create_payid_card_format" = "Карта: %@";
+"wallet_create_payid_domain" = "$payid.tangem.com";
+"wallet_create_payid_error_already_created" = "Такой идентификатор PayString уже существует. Попробуйте другой.";
+"wallet_create_payid_error_message" = "Не удалось создать PayString";
+"wallet_create_payid_hint" = "Идентификатор PayString";
+"wallet_create_payid_info" = "Идентификатор PayString — это уникальная для вас информация, такая как номер телефона или адрес электронной почты.";
+"wallet_create_payid_success_message" = "Идентификатор PayString успешно создан и скопирован в буфер обмена";
+"wallet_error_empty_card" = "Пустая карта";
+"wallet_error_empty_card_subtitle" = "Создайте кошелек, чтобы начать пользоваться картой Tangem";
+"wallet_error_empty_twin_card" = "Создать twin-кошелек";
+"wallet_error_empty_twin_card_subtitle" = "Сгенерируйте ключи кошелька на обеих картах, чтобы начать использовать свои Twins-карты.";
+"wallet_error_no_account" = "Аккаунт не создан";
+"wallet_error_unsupported_blockchain" = "Эта карта не поддерживается";
+"wallet_error_unsupported_blockchain_subtitle" = "Ваша карта Tangem предназначена для работы с другим приложением. Пожалуйста, ознакомьтесь с инструкциями на вашей карте чтобы установить правильное приложение.";
+"wallet_pending_tx_receiving" = "Получение";
+"wallet_pending_tx_receiving_address_format" = "от %@";
+"wallet_pending_tx_sending" = "Отправка";
+"wallet_pending_tx_sending_address_format" = "к %@";
+"wallet_remove_token" = "Удалить токен";
+"wallet_title" = "Tangem";
+"warning_button_can_be_better" = "Можно лучше";
+"warning_button_learn_more" = "Узнать больше";
+"warning_button_ok" = "Понятно!";
+"warning_button_really_cool" = "Очень круто!";
+"warning_failed_to_verify_card_message" = "Эта карта может быть производственным образцом или подделкой.";
+"warning_failed_to_verify_card_title" = "Проверка подлинности не удалась";
+"warning_important_security_info" = "Важная информация о безопасности ⚠️";
+"warning_low_signatures_format" = "На этой карте осталось только %@ подписей. Вы должны вывести все свои средства.";
+"warning_rate_app_message" = "Как вам Tangem?";
+"warning_rate_app_title" = "Один вопрос";
+"warning_signed_tx_previously" = "Эта карта подписывала транзакции в прошлом";
+"warning_testnet_card_message" = "Это тестовая карта. Не принимайте её в качестве оплаты. Эта карта должна использоваться только в целях тестирования и разработки.";
+"welcome_interrupted_backup_alert_discard" = "Отказаться";
+"welcome_interrupted_backup_alert_message" = "Вы не закончили резервное копирование. Хотите продолжить?";
+"welcome_interrupted_backup_alert_resume" = "Да, возобновить";
+"welcome_interrupted_backup_discard_discard" = "Отказаться";
+"welcome_interrupted_backup_discard_message" = "Если сейчас отказаться, то придётся сбрасывать карты до заводских настроек, чтобы начать заново";
+"welcome_interrupted_backup_discard_resume" = "Возобновить резервное копирование";
+"welcome_interrupted_backup_discard_title" = "Это необратимое действие";
+"feedback_subject_rate_negative" = "Мои предложения";
+"feedback_subject_scan_failed" = "Не могу отсканировать карту";
+"feedback_subject_tx_failed" = "Не могу отправить транзакцию";
+"feedback_subject_tx_push_failed" = "Не могу протолкнуть транзакцию";
+"feedback_subject_support_tangem" = "Обращение в поддержку Tangem";
+"feedback_subject_support" = "Обращение в поддержку";
+"feedback_preface_rate_negative" = "Расскажите, каких функций вам не хватает, и мы постараемся вам помочь.";
+"feedback_preface_scan_failed" = "Скажите, пожалуйста, какая у вас карта?";
+"feedback_preface_tx_failed" = "Пожалуйста, расскажите нам больше о вашей проблеме. Каждая маленькая деталь может помочь.";
+"feedback_preface_support" = "Привет, команда поддержки,";
+"feedback_preface_tx_push_failed" = "Пожалуйста, расскажите нам больше о вашей проблеме. Каждая деталь может быть полезной";
+"feedback_data_collection_message" = "Информация ниже не является обязательной. Вы можете стереть её, если хотите.";
+
+"shop_one_wallet" = "Tangem Wallet";
+"shop_3_cards" = "3 карты";
+"shop_2_cards" = "2 карты";
+"shop_shipping" = "Доставка";
+"shop_free" = "Бесплатно";
+"shop_i_have_a_promo_code" = "У меня есть промо-код...";
+"shop_total" = "Итого";
+"shop_other_payment_methods" = "Другие способы оплаты";
+"shop_buy_now" = "Купить сейчас";
+"shop_placing_order" = "Оформление заказа";
+"shop_web_checkout_title" = "Ваш заказ";
+"story_meet_title" = "Встречайте\nTangem";
+"story_meet_buy" = "Покупайте";
+"story_meet_store" = "Храните";
+"story_meet_send" = "Отправляйте";
+"story_meet_pay" = "Расплачивайтесь";
+"story_meet_exchange" = "Обменивайте";
+"story_meet_lend" = "Вкладывайте";
+"story_meet_borrow" = "Занимайте";
+"story_meet_stake" = "Стейкайте";
+"story_awe_title" = "Революционный аппаратный кошелек";
+"story_awe_description" = "Держите свои криптосбережения в безопасности. Приватные ключи надежно хранятся на карте.";
+"story_backup_title" = "Все ключи в безопасности";
+"story_backup_description" = "До трех карт с одним кошельком";
+"story_currencies_title" = "Тысячи криптовалют";
+"story_currencies_description" = "Аппаратный кошелек для ваших биткоинов, эфира и многих других валют одновременно — все в одной карте";
+"story_web3_title" = "Поддержка DeFi";
+"story_web3_description" = "Обменивайте, покупайте NFT, получайте займы и делайте вклады в более чем 100 различных децентрализованных сервисах";
+"story_finish_title" = "Кошелек для каждого";
+"story_finish_description" = "Используйте его на ходу, в любом месте, в любое время. Без проводов и батареек. Как только понадобится крипта, просто приложите карту к телефону.";
+"home_button_order" = "Купить";
+"home_button_search_tokens" = "Поиск токенов";
+"search_tokens_title" = "Поиск токенов";
+"alert_demo_message" = "Приложение работает в демонстрационном режиме. Средства на всех счетах ненастоящие.";
+"alert_demo_feature_disabled" = "Эта функция недоступна в демонстрационном режиме";

@@ -55,11 +55,11 @@ class WarningsService {
         let container = WarningsContainer()
         
         addTestnetCardWarningIfNeeded(in: container, for: cardInfo)
-        addDevCardWarningIfNeeded(in: container, for: cardInfo.card)
+        addDevCardWarningIfNeeded(in: container, for: cardInfo)
         addLowRemainingSignaturesWarningIfNeeded(in: container, for: cardInfo.card)
         addOldCardWarning(in: container, for: cardInfo.card)
         addOldDeviceOldCardWarningIfNeeded(in: container, for: cardInfo.card)
-        
+        addDemoWarningIfNeeded(in: container, for: cardInfo)
         addAuthFailedIfNeeded(in: container, for: cardInfo)
         
         if rateAppChecker.shouldShowRateAppWarning {
@@ -103,8 +103,8 @@ class WarningsService {
         }
     }
     
-    private func addDevCardWarningIfNeeded(in container: WarningsContainer, for card: Card) {
-        guard card.firmwareVersion.type == .sdk else {
+    private func addDevCardWarningIfNeeded(in container: WarningsContainer, for cardInfo: CardInfo) {
+        guard cardInfo.card.firmwareVersion.type == .sdk, !cardInfo.isTestnet, !cardInfo.card.isDemoCard else {
             return
         }
         
@@ -137,13 +137,18 @@ class WarningsService {
     }
     
     private func addTestnetCardWarningIfNeeded(in container: WarningsContainer, for cardInfo: CardInfo) {
-        guard cardInfo.isTestnet else {
+        guard cardInfo.isTestnet, !cardInfo.card.isDemoCard else {
             return
         }
         
         container.add(WarningEvent.testnetCard.warning)
     }
     
+    private func addDemoWarningIfNeeded(in container: WarningsContainer, for cardInfo: CardInfo) {
+        if cardInfo.card.isDemoCard {
+            container.add(WarningsList.demoCard)
+        }
+    }
 }
 
 extension WarningsService: WarningsManager {
