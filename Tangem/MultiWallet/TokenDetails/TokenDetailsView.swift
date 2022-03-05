@@ -63,30 +63,40 @@ struct TokenDetailsView: View {
         }
     }
     
+    @ViewBuilder
+    var exchangeCryptoButton: some View {
+        if viewModel.canSellCrypto {
+            TangemButton.vertical(title: "wallet_button_trade",
+                                  systemImage: "arrow.up.arrow.down",
+                                  action: viewModel.tradeCryptoAction)
+            .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
+                                           isDisabled: !viewModel.canSellCrypto || !viewModel.canSend))
+            .actionSheet(isPresented: $navigation.detailsToTradeSheet, content: {
+                ActionSheet(title: Text("action_sheet_trade_hint"),
+                            buttons: [
+                                .default(Text("wallet_button_topup"), action: viewModel.buyCryptoAction),
+                                .default(Text("wallet_button_sell_crypto"), action: viewModel.sellCryptoAction),
+                                .cancel()
+                            ])
+            })
+        } else {
+            TangemButton.vertical(title: "wallet_button_topup",
+                                  systemImage: "arrow.up",
+                                  action: viewModel.buyCryptoAction)
+                .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
+                                               isDisabled: !viewModel.canBuyCrypto))
+        }
+    }
+    
     @ViewBuilder var bottomButtons: some View {
         HStack(alignment: .center) {
             
-            TangemButton(title: "wallet_button_topup",
-                         systemImage: "arrow.up",
-                         action: viewModel.buyCryptoAction)
-                .buttonStyle(TangemButtonStyle(colorStyle: .green,
-                                               layout: .flexibleWidth,
-                                               isDisabled: !viewModel.canBuyCrypto))
-            
-            if viewModel.canSellCrypto {
-                TangemButton(title: "wallet_button_sell_crypto",
-                             systemImage: "arrow.down",
-                             action: viewModel.sellCryptoAction)
-                    .buttonStyle(TangemButtonStyle(colorStyle: .green,
-                                                   layout: .flexibleWidth,
-                                                   isDisabled: !viewModel.canSellCrypto || !viewModel.canSend))
-            }
+            exchangeCryptoButton
 
             TangemButton(title: "wallet_button_send",
                          systemImage: "arrow.right",
                          action: viewModel.sendButtonAction)
-                .buttonStyle(TangemButtonStyle(colorStyle: .green,
-                                               layout: .flexibleWidth,
+                .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
                                                isDisabled: !viewModel.canSend))
         }
     }
@@ -156,13 +166,13 @@ struct TokenDetailsView: View {
                                     with: Amount(with: viewModel.blockchain, value: sellCryptoRequest.amount),
                                     destination: sellCryptoRequest.targetAddress,
                                     blockchain: viewModel.blockchain,
-                                    card: viewModel.card), onSuccess: {})
+                                    card: viewModel.card))
                             .environmentObject(navigation)
                     } else if let amountToSend = viewModel.amountToSend {
                         SendView(viewModel: viewModel.assembly.makeSendViewModel(
                                     with: amountToSend,
                                     blockchain: viewModel.blockchain,
-                                    card: viewModel.card), onSuccess: {})
+                                    card: viewModel.card))
                             .environmentObject(navigation)
                     }
                 }
@@ -192,6 +202,7 @@ struct TokenDetailsView: View {
                     .receive(on: DispatchQueue.main)) { _ in
             viewModel.walletModel?.update(silent: true)
         }
+        .alert(item: $viewModel.alert) { $0.alert }
     }
 }
 
