@@ -71,24 +71,14 @@ struct AddressDetailView: View {
                         .lineLimit(1)
                         .truncationMode(.middle)
                         .foregroundColor(Color.tangemGrayDark)
-                    Button(action: {
-                        if let url = walletModel.exploreURL(for: selectedAddressIndex) {
-                            self.showExplorerURL = url
-                        }
-                    }) {
-                        HStack {
-                            Text("wallet_address_button_explore")
-                                .font(Font.system(size: 14.0, weight: .bold, design: .default))
-                                .foregroundColor(Color.tangemGrayDark6)
-                                .multilineTextAlignment(.leading)
-                                .lineLimit(1)
-                            Image (systemName: "chevron.right")
-                                .font(Font.system(size: 14.0, weight: .bold, design: .default))
-                                .foregroundColor(Color.tangemGrayDark6)
-                        }
-                    }
+                    
+                    ExploreButton(url: walletModel.exploreURL(for: selectedAddressIndex),
+                                  urlBinding: $showExplorerURL)
+
                 }
+                
                 Spacer()
+                
                 CircleActionButton(action: {  UIPasteboard.general.string = walletModel.displayAddress(for: selectedAddressIndex) },
                                    backgroundColor: .tangemBgGray,
                                    imageName: "square.on.square",
