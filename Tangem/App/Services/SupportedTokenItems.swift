@@ -14,10 +14,12 @@ import enum BlockchainSdk.Blockchain
 import TangemSdk
 
 class SupportedTokenItems {
-    lazy var predefinedBlockchains: Set<Blockchain> = {
+    lazy var predefinedDemoBalances: [Blockchain: Decimal] = {
         [
-            .ethereum(testnet: false),
-            .bitcoin(testnet: false),
+            .bitcoin(testnet: false): 0.005,
+            .ethereum(testnet: false): 0.12,
+            .dogecoin: 45,
+            .solana(testnet: false): 3.246,
         ]
     }()
     
@@ -29,10 +31,13 @@ class SupportedTokenItems {
         .bsc(testnet: false) : "bsc",
         .bsc(testnet: true) : "bscTestnet",
         .polygon(testnet: false) : "polygon",
+        .polygon(testnet: true) : "polygonTestnet",
         .avalanche(testnet: false) : "avalanche",
         .avalanche(testnet: true) : "avalancheTestnet",
         .solana(testnet: false): "solana",
         .solana(testnet: true): "solanaTestnet", // Solana devnet
+        .fantom(testnet: false): "fantom",
+        .fantom(testnet: true): "fantomTestnet",
     ]
     
     private lazy var blockchains: Set<Blockchain> = {
@@ -52,6 +57,9 @@ class SupportedTokenItems {
             .polygon(testnet: false),
             .avalanche(testnet: false),
             .solana(testnet: false),
+//            .polkadot(testnet: false),
+//            .kusama,
+            .fantom(testnet: false),
         ]
     }()
     
@@ -65,14 +73,25 @@ class SupportedTokenItems {
             .polygon(testnet: true),
             .avalanche(testnet: true),
             .solana(testnet: true),
+            .fantom(testnet: true),
+           // .polkadot(testnet: true),
         ]
     }()
     
-    func blockchains(for curves: [EllipticCurve], isTestnet: Bool) -> Set<Blockchain> {
-        let allBlockchains = isTestnet ? testnetBlockchains : blockchains
-        return allBlockchains.filter { curves.contains($0.curve) }
+    func predefinedBlockchains(isDemo: Bool) -> [Blockchain] {
+        if isDemo {
+            return Array(predefinedDemoBalances.keys)
+        }
+        
+        return [.ethereum(testnet: false), .bitcoin(testnet: false)]
     }
     
+    func blockchains(for curves: [EllipticCurve], isTestnet: Bool?) -> Set<Blockchain> {
+        let allBlockchains = isTestnet.map { $0 ? testnetBlockchains : blockchains }
+        ?? testnetBlockchains.union(blockchains)
+        return allBlockchains.filter { curves.contains($0.curve) }
+    }
+
     func tokens(for blockchain: Blockchain) -> [Token] {
         guard let src = sources[blockchain] else {
             return []
@@ -87,7 +106,6 @@ class SupportedTokenItems {
                       symbol: $0.symbol,
                       contractAddress: $0.contractAddress,
                       decimalCount: $0.decimalCount,
-                      customIcon: $0.customIcon,
                       customIconUrl: $0.customIconUrl,
                       blockchain: blockchain)
             }
