@@ -18,6 +18,7 @@ class NavigationCoordinator: ObservableObject {
         }
     }
     @Published var readToShop: Bool = false
+    @Published var readToTokenList: Bool = false
     @Published var readToDisclaimer: Bool = false
     @Published var readToTwinOnboarding = false
     @Published var readToTroubleshootingScan = false
@@ -79,6 +80,7 @@ class NavigationCoordinator: ObservableObject {
     @Published var detailsToBuyCrypto = false
     @Published var detailsToSend = false
     @Published var detailsToSellCrypto = false
+    @Published var detailsToTradeSheet: Bool = false
     
     // MARK: WalletConnectView
     @Published var walletConnectToQR = false
