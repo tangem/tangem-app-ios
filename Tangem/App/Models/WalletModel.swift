@@ -102,19 +102,24 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     let walletManager: WalletManager
+    let signer: TransactionSigner
     private let defaultToken: Token?
     private let defaultBlockchain: Blockchain?
     private var bag = Set<AnyCancellable>()
     private var updateTimer: AnyCancellable? = nil
+    private let demoBalance: Decimal?
+    private var isDemo: Bool { demoBalance != nil }
     
     deinit {
         print("🗑 WalletModel deinit")
     }
     
-    init(walletManager: WalletManager, defaultToken: Token?, defaultBlockchain: Blockchain?) {
+    init(walletManager: WalletManager, signer: TransactionSigner, defaultToken: Token?, defaultBlockchain: Blockchain?, demoBalance: Decimal? = nil) {
         self.defaultToken = defaultToken
         self.defaultBlockchain = defaultBlockchain
         self.walletManager = walletManager
+        self.demoBalance = demoBalance
+        self.signer = signer
         
         updateBalanceViewModel(with: walletManager.wallet, state: .idle)
         self.walletManager.$wallet
@@ -156,9 +161,12 @@ class WalletModel: ObservableObject, Identifiable {
                         self.state = .failed(error: error.detailedError)
                         Analytics.log(error: error)
                     }
-                    
                     self.updateBalanceViewModel(with: self.wallet, state: self.state)
                 } else {
+                    if let demoBalance = self.demoBalance {
+                        self.walletManager.wallet.add(coinValue: demoBalance)
+                    }
+                    
                     if !silent {
                         self.state = .idle
                     }
@@ -208,25 +216,25 @@ class WalletModel: ObservableObject, Identifiable {
         }
     }
     
-    func getFiatFormatted(for amount: Amount?) -> String? {
-        return getFiat(for: amount)?.currencyFormatted(code: ratesService.selectedCurrencyCode)
+    func getFiatFormatted(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> String? {
+        return getFiat(for: amount, roundingMode: roundingMode)?.currencyFormatted(code: ratesService.selectedCurrencyCode)
     }
     
-    func getFiat(for amount: Amount?) -> Decimal? {
+    func getFiat(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> Decimal? {
         if let amount = amount {
-            return getFiat(for: amount.value, currencySymbol: amount.currencySymbol)
+            return getFiat(for: amount.value, currencySymbol: amount.currencySymbol, roundingMode: roundingMode)
         }
         return nil
     }
     
-    func getFiat(for value: Decimal, currencySymbol: String) -> Decimal? {
+    func getFiat(for value: Decimal, currencySymbol: String, roundingMode: NSDecimalNumber.RoundingMode = .down) -> Decimal? {
         if let quotes = rates[currencySymbol],
            let rate = quotes[ratesService.selectedCurrencyCode] {
             let fiatValue = value * rate
             if fiatValue == 0 {
                 return 0
             }
-            return max(fiatValue, 0.01).rounded(scale: 2)
+            return max(fiatValue, 0.01).rounded(scale: 2, roundingMode: roundingMode)
         }
         return nil
     }
@@ -250,7 +258,11 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     func exploreURL(for index: Int) -> URL? {
-        wallet.getExploreURL(for: wallet.addresses[index].value)
+        if isDemo {
+            return nil
+        }
+        
+        return wallet.getExploreURL(for: wallet.addresses[index].value)
     }
     
     func addTokens(_ tokens: [Token]) {
@@ -322,6 +334,24 @@ class WalletModel: ObservableObject, Identifiable {
                 self?.update()
                 self?.updateTimer?.cancel()
             }
+    }
+    
+    func send(_ tx: Transaction) -> AnyPublisher<Void,Error> {
+        if isDemo {
+            return signer.sign(hash: Data.randomData(count: 32),
+                               cardId:wallet.cardId,
+                               walletPublicKey: wallet.publicKey)
+                .map { _ in () }
+                .receive(on: DispatchQueue.main)
+                .eraseToAnyPublisher()
+        }
+        
+        return txSender.send(tx, signer: signer)
+            .receive(on: RunLoop.main)
+            .handleEvents(receiveOutput: {[weak self] _ in
+                self?.startUpdatingTimer()
+            })
+            .eraseToAnyPublisher()
     }
     
     private func updateBalanceViewModel(with wallet: Wallet, state: State) {

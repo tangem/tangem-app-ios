@@ -142,7 +142,7 @@ class MainViewModel: ViewModel, ObservableObject {
         if let wallet = wallets?.first {
             let blockchain = wallet.blockchain
             if blockchain.isTestnet {
-                return URL(string: blockchain.testnetBuyCryptoLink ?? "")
+                return blockchain.testnetFaucetURL
             }
             
             return exchangeService.getBuyUrl(currencySymbol: wallet.blockchain.currencySymbol,
@@ -485,6 +485,11 @@ class MainViewModel: ViewModel, ObservableObject {
     func buyCryptoAction() {
         guard let cardInfo = cardModel?.cardInfo else { return }
         
+        if cardInfo.card.isDemoCard  {
+            error = AlertBuilder.makeDemoAlert()
+            return
+        }
+        
         guard
             cardInfo.isTestnet,
             !cardInfo.isMultiWallet,
@@ -501,7 +506,17 @@ class MainViewModel: ViewModel, ObservableObject {
         TestnetBuyCryptoService.buyCrypto(.erc20Token(walletManager: walletModel.walletManager, token: token))
     }
     
+    func tradeCryptoAction() {
+        navigation.mainToTradeSheet = true
+    }
+    
+    
     func sellCryptoAction() {
+        if cardModel?.cardInfo.card.isDemoCard ?? false {
+            error = AlertBuilder.makeDemoAlert()
+            return
+        }
+        
         navigation.mainToSellCrypto = true
     }
     
@@ -638,6 +653,8 @@ class MainViewModel: ViewModel, ObservableObject {
         if isHashesCounted { return }
         
         if card.isTwinCard { return }
+        
+        if card.isDemoCard { return }
 
         if validatedSignedHashesCards.contains(card.cardId) { return }
         
