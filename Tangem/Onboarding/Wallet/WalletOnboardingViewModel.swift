@@ -323,9 +323,13 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             readPrimaryCard()
         case .backupIntro:
             if NFCUtils.isPoorNfcQualityDevice {
-                showOldDeviceAlert()
+                self.alert = AlertBuilder.makeOldDeviceAlert()
             } else {
-                goToNextStep()
+                if input.cardInput.cardModel?.cardInfo.card.isDemoCard ?? false {
+                    self.alert = AlertBuilder.makeDemoAlert()
+                } else {
+                    goToNextStep()
+                }
             }
         case .selectBackupCards:
             addBackupCard()
@@ -427,7 +431,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                 fallthrough
             }
             
-            alert = AlertBinder(alert: AlertBuilder.makeOkGotItAlert(message: "onboarding_backup_exit_warning".localized))
+            alert = AlertBuilder.makeOkGotItAlert(message: "onboarding_backup_exit_warning".localized)
         default:
             if isFromMain {
                 input.successCallback?()
@@ -698,16 +702,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
     
     private func addTokens(for cardId: String) {
-        let blockchains = SupportedTokenItems().predefinedBlockchains
+        let isDemo = input.cardInput.cardModel?.cardInfo.card.isDemoCard ?? false
+        let blockchains = SupportedTokenItems().predefinedBlockchains(isDemo: isDemo)
         let tokenItems = blockchains.map { TokenItem.blockchain($0) }
         self.tokensRepo.append(tokenItems, for: cardId)
-    }
-    
-    private func showOldDeviceAlert() {
-        let controller = UIAlertController(title: "common_warning".localized,
-                                           message: "onboarding_alert_message_old_device".localized, preferredStyle: .alert)
-        controller.addAction(UIAlertAction(title: "common_ok".localized, style: .default, handler: nil))
-        UIApplication.topViewController?.present(controller, animated: true, completion: nil)
     }
 }
 
