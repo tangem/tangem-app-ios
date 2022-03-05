@@ -42,7 +42,7 @@ struct PendingTxView: View, Identifiable {
         if address == "unknown" {
             return "wallet_balance_tx_in_progress".localized
         } else {
-            return titlePrefixLocalized + pendingTx.transferAmount + String(format: titleFormat, AddressFormatter(address: address).truncated())
+            return titlePrefixLocalized + " " + pendingTx.transferAmount + " " + String(format: titleFormat, AddressFormatter(address: address).truncated())
         }
     }
     

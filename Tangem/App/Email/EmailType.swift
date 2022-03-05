@@ -13,28 +13,28 @@ enum EmailType {
     
     var emailSubject: String {
         switch self {
-        case .negativeRateAppFeedback: return "My suggestions"
-        case .failedToScanCard: return "Can't scan a card"
-        case .failedToSendTx: return "Can't send a transaction"
+        case .negativeRateAppFeedback: return "feedback_subject_rate_negative".localized
+        case .failedToScanCard: return "feedback_subject_scan_failed".localized
+        case .failedToSendTx: return "feedback_subject_tx_failed".localized
         case .appFeedback(let support):
             switch support {
             case .tangem:
-                return "Tangem feedback"
+                return "feedback_subject_support_tangem".localized
             case .start2coin:
-                return "Feedback"
+                return "feedback_subject_support".localized
             }
             
-        case .failedToPushTx: return  "Can't push a transaction"
+        case .failedToPushTx: return  "feedback_subject_tx_push_failed".localized
         }
     }
     
     var emailPreface: String {
         switch self {
-        case .negativeRateAppFeedback: return "Tell us what functions you are missing, and we will try to help you."
-        case .failedToScanCard: return "Please tell us what card do you have?"
-        case .failedToSendTx: return "Please tell us more about your issue. Every small detail can help."
-        case .appFeedback: return "Hi support team,"
-        case .failedToPushTx: return "Please tell us more about your issue. Every small detail can help."
+        case .negativeRateAppFeedback: return "feedback_preface_rate_negative".localized
+        case .failedToScanCard: return "feedback_preface_scan_failed".localized
+        case .failedToSendTx: return "feedback_preface_tx_failed".localized
+        case .appFeedback: return "feedback_preface_support".localized
+        case .failedToPushTx: return "feedback_preface_tx_push_failed".localized
         }
     }
     
@@ -42,7 +42,7 @@ enum EmailType {
         switch self {
         case .failedToScanCard: return ""
         default:
-            return "Following information is optional. You can erase it if you don’t want to share it."
+            return "feedback_data_collection_message".localized
         }
     }
     
