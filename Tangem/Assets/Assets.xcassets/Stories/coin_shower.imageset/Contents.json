@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "coin_shower.pdf",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

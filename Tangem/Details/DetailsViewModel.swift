@@ -32,7 +32,6 @@ class DetailsViewModel: ViewModel, ObservableObject {
         }
     }
     
-    
     @Published var cardModel: CardViewModel! {
         didSet {
             cardModel.objectWillChange
@@ -43,6 +42,7 @@ class DetailsViewModel: ViewModel, ObservableObject {
                 .store(in: &bag)
         }
     }
+    
     @Published var isTwinRecreationModel: Bool = true
     @Published var error: AlertBinder?
     

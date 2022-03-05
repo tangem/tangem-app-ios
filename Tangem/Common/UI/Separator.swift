@@ -9,9 +9,17 @@
 import SwiftUI
 
 struct Separator: View {
+    let height: Double
+    let padding: Double
+    
     var body: some View {
         Color.tangemGrayLight5
-            .frame(width: nil, height: 1.0, alignment: .center)
-            .padding(.vertical, 4.0)
+            .frame(width: nil, height: height, alignment: .center)
+            .padding(.vertical, padding)
+    }
+    
+    init(height: Double = 1.0, padding: Double = 4) {
+        self.height = height
+        self.padding = padding
     }
 }
