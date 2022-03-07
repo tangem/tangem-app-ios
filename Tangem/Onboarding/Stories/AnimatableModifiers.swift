@@ -74,3 +74,18 @@ struct AnimatableOffsetModifier: AnimatableModifier {
     }
 }
 
+struct AnimatableRotationModifier: AnimatableModifier {
+    var progress: Double
+    let axis: (Double) -> (CGFloat, CGFloat, CGFloat)
+    let curve: (Double) -> Double
+    
+    var animatableData: CGFloat {
+        get { progress }
+        set { progress = newValue }
+    }
+    
+    func body(content: Content) -> some View {
+        content
+            .rotation3DEffect(.degrees(curve(progress)), axis: axis(progress * 0), perspective: 0)
+    }
+}
