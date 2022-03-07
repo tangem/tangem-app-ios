@@ -48,7 +48,7 @@ struct BackupStoryPage: View {
                             )
                             .offset(x: 0.25 * geometry.size.width, y: 0.3 * geometry.size.width)
                             .offset(x: -30 * progress, y: -30 * progress)
-                            .scaleEffect(1 + 0.1 * progress)
+                            .scaleEffect(1 + 0.2 * progress)
                     )
                     .background(
                         // Top left
@@ -72,12 +72,12 @@ struct BackupStoryPage: View {
                             .frame(width: 0.5 * geometry.size.width)
                             .rotation3DEffect(
                                 .degrees(50 + 20 * progress),
-                                axis: (0.9 + progress/5, 0.0 + progress/5, -0.5 + progress/5),
+                                axis: (0.3 + progress/9, 0.0 + progress/9, -0.5 + progress/9),
                                 perspective: 0
                             )
                             .offset(x: 0.3 * geometry.size.width, y: -0.3 * geometry.size.width)
                             .offset(x: -10 * progress, y: -5 * progress)
-                            .scaleEffect(1 - 0.1 * progress)
+                            .scaleEffect(1 - 0.2 * progress)
                     )
             }
             
