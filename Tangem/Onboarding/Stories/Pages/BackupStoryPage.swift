@@ -41,13 +41,13 @@ struct BackupStoryPage: View {
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 0.7 * geometry.size.width)
-                            .modifier(AnimatableRotationModifier(progress: progress, axis: {
-                                (0.2 + $0/3, 0.1 + $0/3, 0.4 + $0/3)
-                            }, curve: {
-                                -40 + $0  * 10
-                            }))
+                            .rotation3DEffect(
+                                .degrees(-40 + 10 * progress),
+                                axis: (0.2 + progress/3, 0.1 + progress/3, 0.4 + progress/3),
+                                perspective: 0
+                            )
                             .offset(x: 0.25 * geometry.size.width, y: 0.3 * geometry.size.width)
-                            .modifier(AnimatableOffsetModifier(progress: progress, speed: 30, direction: CGPoint(x: -1.0, y: -1.0)))
+                            .offset(x: -30 * progress, y: -30 * progress)
                             .scaleEffect(1 + 0.1 * progress)
                     )
                     .background(
@@ -56,13 +56,13 @@ struct BackupStoryPage: View {
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 0.65 * geometry.size.width)
-                            .modifier(AnimatableRotationModifier(progress: progress, axis: {
-                                (0.15 + $0/4, 0.3 + $0/4, 0.4 + $0/4)
-                            }, curve: {
-                                50 - $0 * 15
-                            }))
+                            .rotation3DEffect(
+                                .degrees(50 - progress * 15),
+                                axis: (0.15 + progress/4, 0.3 + progress/4, 0.4 + progress/4),
+                                perspective: 0
+                            )
                             .offset(x: -0.45 * geometry.size.width, y: -0.2 * geometry.size.width)
-                            .modifier(AnimatableOffsetModifier(progress: progress, speed: 20, direction: CGPoint(x: 1.0, y: 0.5)))
+                            .offset(x: 20 * progress, y: 10 * progress)
                     )
                     .background(
                         // Top right
@@ -70,13 +70,13 @@ struct BackupStoryPage: View {
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 0.5 * geometry.size.width)
-                            .modifier(AnimatableRotationModifier(progress: progress, axis: {
-                                (0.9 + $0/5, 0.0 + $0/5, -0.5 + $0/5)
-                            }, curve: {
-                                50 + $0 * 30
-                            }))
+                            .rotation3DEffect(
+                                .degrees(50 + 20 * progress),
+                                axis: (0.9 + progress/5, 0.0 + progress/5, -0.5 + progress/5),
+                                perspective: 0
+                            )
                             .offset(x: 0.3 * geometry.size.width, y: -0.3 * geometry.size.width)
-                            .modifier(AnimatableOffsetModifier(progress: progress, speed: 10, direction: CGPoint(x: -1.0, y: -0.5)))
+                            .offset(x: -10 * progress, y: -5 * progress)
                             .scaleEffect(1 - 0.1 * progress)
                     )
                     .background(
@@ -98,20 +98,6 @@ struct BackupStoryPage: View {
         }
         .background(Color("tangem_story_background").edgesIgnoringSafeArea(.all))
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-}
-
-fileprivate extension AnimatableOffsetModifier {
-    init(progress: Double, speed: Double, direction: CGPoint) {
-        self.progress = progress
-        self.start = 0
-        self.end = 1
-        self.curveX = {
-            speed * direction.x * $0
-        }
-        self.curveY = {
-            speed * direction.y * $0
-        }
     }
 }
 
