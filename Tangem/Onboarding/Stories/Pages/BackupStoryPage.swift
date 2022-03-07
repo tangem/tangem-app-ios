@@ -41,9 +41,14 @@ struct BackupStoryPage: View {
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 0.7 * geometry.size.width)
-                            .rotation3DEffect(.degrees(-40), axis: (0.2, 0.1, 0.4), perspective: 0)
-                            .offset(x: 0.2 * geometry.size.width, y: 0.25 * geometry.size.width)
+                            .modifier(AnimatableRotationModifier(progress: progress, axis: {
+                                (0.2 + $0/3, 0.1 + $0/3, 0.4 + $0/3)
+                            }, curve: {
+                                -40 + $0  * 10
+                            }))
+                            .offset(x: 0.25 * geometry.size.width, y: 0.3 * geometry.size.width)
                             .modifier(AnimatableOffsetModifier(progress: progress, speed: 30, direction: CGPoint(x: -1.0, y: -1.0)))
+                            .scaleEffect(1 + 0.1 * progress)
                     )
                     .background(
                         // Top left
@@ -51,8 +56,12 @@ struct BackupStoryPage: View {
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 0.65 * geometry.size.width)
-                            .rotation3DEffect(.degrees(50), axis: (0.15, 0.3, 0.4), perspective: 0)
-                            .offset(x: -0.4 * geometry.size.width, y: -0.15 * geometry.size.width)
+                            .modifier(AnimatableRotationModifier(progress: progress, axis: {
+                                (0.15 + $0/4, 0.3 + $0/4, 0.4 + $0/4)
+                            }, curve: {
+                                50 - $0 * 15
+                            }))
+                            .offset(x: -0.45 * geometry.size.width, y: -0.2 * geometry.size.width)
                             .modifier(AnimatableOffsetModifier(progress: progress, speed: 20, direction: CGPoint(x: 1.0, y: 0.5)))
                     )
                     .background(
@@ -61,9 +70,14 @@ struct BackupStoryPage: View {
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 0.5 * geometry.size.width)
-                            .rotation3DEffect(.degrees(50), axis: (0.9, 0.0, -0.5), perspective: 0)
+                            .modifier(AnimatableRotationModifier(progress: progress, axis: {
+                                (0.9 + $0/5, 0.0 + $0/5, -0.5 + $0/5)
+                            }, curve: {
+                                50 + $0 * 30
+                            }))
                             .offset(x: 0.3 * geometry.size.width, y: -0.3 * geometry.size.width)
                             .modifier(AnimatableOffsetModifier(progress: progress, speed: 10, direction: CGPoint(x: -1.0, y: -0.5)))
+                            .scaleEffect(1 - 0.1 * progress)
                     )
                     .background(
                         Image("cards_flying")
