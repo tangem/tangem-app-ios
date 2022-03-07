@@ -40,7 +40,7 @@ struct CurrenciesStoryPage: View {
                                     let odd = (index % 2 == 0)
                                     Image("currency-\(index)")
                                         .offset(x: odd ? 50 : 0, y: 0)
-                                        .offset(x: (odd ? -1 : 1) * progress * 50, y: 0)
+                                        .offset(x: -15 * (5.0 - Double(index)) * progress, y: 0)
                                 }
                             }
                             .frame(height: 80)
