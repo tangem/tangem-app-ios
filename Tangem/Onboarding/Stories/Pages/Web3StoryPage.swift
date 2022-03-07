@@ -32,9 +32,18 @@ struct Web3StoryPage: View {
             
             Color.clear
                 .background(
-                    Image("dapps")
-                        .scaleEffect(0.9, anchor: .top)
-                        .offset(x: 50, y: 0)
+                    VStack {
+                        Group {
+                            ForEach(0...5) { index in
+                                let odd = (index % 2 == 0)
+                                Image("dapps-\(index % 4)")
+                                    .offset(x: odd ? 50 : 0)
+                                    .offset(x: (odd ? -1 : 1) * progress * 50, y: 0)
+                            }
+                        }
+                        .frame(height: 63)
+                    }
+                        .offset(x: 0, y: 30)
                     ,
                     alignment: .top
                 )
