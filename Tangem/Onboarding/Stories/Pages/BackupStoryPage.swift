@@ -79,15 +79,6 @@ struct BackupStoryPage: View {
                             .offset(x: -10 * progress, y: -5 * progress)
                             .scaleEffect(1 - 0.1 * progress)
                     )
-                    .background(
-                        Image("cards_flying")
-                            .resizable()
-                            .frame(width: geometry.size.width)
-                            .aspectRatio(contentMode: .fit)
-                            .opacity(0.3)
-                        ,
-                        alignment: .center
-                    )
             }
             
             Spacer()
