@@ -38,7 +38,7 @@ struct Web3StoryPage: View {
                                 let odd = (index % 2 == 0)
                                 Image("dapps-\(index % 4)")
                                     .offset(x: odd ? 50 : 0)
-                                    .offset(x: (odd ? -1 : 1) * progress * 50, y: 0)
+                                    .offset(x: -15 * (5.0 - Double(index)) * progress, y: 0)
                             }
                         }
                         .frame(height: 63)
