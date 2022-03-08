@@ -14,6 +14,9 @@ struct CurrenciesStoryPage: View {
     let orderCard: (() -> Void)
     let searchTokens: (() -> Void)
     
+    private let numberOfRows = 6
+    private let numberOfRowImages = 5
+    
     var body: some View {
         VStack {
             StoriesTangemLogo()
@@ -36,11 +39,11 @@ struct CurrenciesStoryPage: View {
                     .background(
                         VStack {
                             Group {
-                                ForEach(0...4) { index in
+                                ForEach(0..<numberOfRows) { index in
                                     let odd = (index % 2 == 0)
-                                    Image("currency-\(index)")
+                                    Image("currency-\(index % numberOfRowImages)")
                                         .offset(x: odd ? 50 : 0, y: 0)
-                                        .offset(x: -15 * (5.0 - Double(index)) * progress, y: 0)
+                                        .offset(x: -75 * Double(numberOfRows - index) / Double(numberOfRows) * progress, y: 0)
                                 }
                             }
                             .frame(height: 80)
