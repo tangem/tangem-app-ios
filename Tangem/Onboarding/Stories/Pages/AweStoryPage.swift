@@ -13,23 +13,44 @@ struct AweStoryPage: View {
     let scanCard: (() -> Void)
     let orderCard: (() -> Void)
     
+    private let personProgressEnd = 0.5
+    private let titleProgressStart = 0.15
+    private let titleProgressEnd = 0.35
+
     var body: some View {
         VStack {
             StoriesTangemLogo()
                 .padding()
             
-            Text("story_awe_title")
-                .font(.system(size: 36, weight: .semibold))
-                .minimumScaleFactor(0.5)
-                .multilineTextAlignment(.center)
-                .foregroundColor(.white)
-                .padding()
-            
-            Text("story_awe_description")
-                .font(.system(size: 24))
-                .multilineTextAlignment(.center)
-                .foregroundColor(.gray)
-                .padding(.horizontal)
+            Group {
+                Text("story_awe_title")
+                    .font(.system(size: 36, weight: .semibold))
+                    .minimumScaleFactor(0.5)
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.white)
+                    .padding()
+                
+                Text("story_awe_description")
+                    .font(.system(size: 24))
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.gray)
+                    .padding(.horizontal)
+            }
+            .modifier(AnimatableOffsetModifier(
+                progress: progress,
+                start: titleProgressStart,
+                end: titleProgressEnd,
+                curveX: { _ in
+                    0
+                }, curveY: {
+                    40 * pow(2, -15 * $0)
+                }
+            ))
+            .modifier(AnimatableVisibilityModifier(
+                progress: progress,
+                start: titleProgressStart,
+                end: .infinity
+            ))
             
             Spacer()
             
@@ -39,8 +60,8 @@ struct AweStoryPage: View {
                 .modifier(AnimatableScaleModifier(
                     progress: progress,
                     start: 0,
-                    end: 1) {
-                        1 + pow(2, -45 * $0)
+                    end: personProgressEnd) {
+                        1 + pow(2, -25 * $0)
                     }
                 )
             
