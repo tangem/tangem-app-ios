@@ -363,7 +363,7 @@ class SendViewModel: ViewModel, ObservableObject {
                 DispatchQueue.main.async {
                     self.validateWithdrawal(tx, amount)
                 }
-
+                self.amountHint = nil
                 return tx
             }
             .catch {[unowned self] error -> AnyPublisher<BlockchainSdk.Transaction?, Never> in
@@ -371,7 +371,6 @@ class SendViewModel: ViewModel, ObservableObject {
                 return Just(nil).eraseToAnyPublisher()
             }
             .sink{[unowned self] tx in
-                self.amountHint = nil
                 self.transaction = tx
             }
             .store(in: &bag)
