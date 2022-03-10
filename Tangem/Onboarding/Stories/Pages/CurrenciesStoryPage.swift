@@ -37,6 +37,7 @@ struct CurrenciesStoryPage: View {
                     .padding(.horizontal)
                     .storyTextAppearanceModifier(progress: progress, type: .description, textBlockAppearance: .almostImmediate)
             }
+            .fixedSize(horizontal: false, vertical: true)
             
             ZStack(alignment: .bottom) {
                 Color.clear
