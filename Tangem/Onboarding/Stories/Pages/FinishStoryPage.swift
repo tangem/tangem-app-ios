@@ -27,14 +27,14 @@ struct FinishStoryPage: View {
                     .multilineTextAlignment(.center)
                     .foregroundColor(.white)
                     .padding(.horizontal)
-                    .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .almostImmediate)
+                    .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .minorDelay)
                 
                 Text("story_finish_description")
                     .font(.system(size: 24))
                     .multilineTextAlignment(.center)
                     .foregroundColor(.gray)
                     .padding(.horizontal)
-                    .storyTextAppearanceModifier(progress: progress, type: .description, textBlockAppearance: .almostImmediate)
+                    .storyTextAppearanceModifier(progress: progress, type: .description, textBlockAppearance: .minorDelay)
             }
             
             Spacer()
