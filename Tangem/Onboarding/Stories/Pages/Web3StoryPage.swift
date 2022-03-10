@@ -21,19 +21,21 @@ struct Web3StoryPage: View {
             StoriesTangemLogo()
                 .padding()
 
-            Text("story_web3_title")
-                .font(.system(size: 36, weight: .semibold))
-                .minimumScaleFactor(0.5)
-                .multilineTextAlignment(.center)
-                .padding()
-                .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .almostImmediate)
-            
-            Text("story_web3_description")
-                .font(.system(size: 20))
-                .multilineTextAlignment(.center)
-                .foregroundColor(.gray)
-                .padding(.horizontal)
-                .storyTextAppearanceModifier(progress: progress, type: .description, textBlockAppearance: .almostImmediate)
+            VStack(spacing: 16) {
+                Text("story_web3_title")
+                    .font(.system(size: 36, weight: .semibold))
+                    .minimumScaleFactor(0.5)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+                    .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .almostImmediate)
+                
+                Text("story_web3_description")
+                    .font(.system(size: 20))
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.gray)
+                    .padding(.horizontal)
+                    .storyTextAppearanceModifier(progress: progress, type: .description, textBlockAppearance: .almostImmediate)
+            }
             
             Color.clear
                 .background(
