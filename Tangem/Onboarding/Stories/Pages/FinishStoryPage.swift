@@ -20,13 +20,13 @@ struct FinishStoryPage: View {
             StoriesTangemLogo()
                 .padding()
 
-            Group {
+            VStack(spacing: 18) {
                 Text("story_finish_title")
                     .font(.system(size: 36, weight: .semibold))
                     .minimumScaleFactor(0.5)
                     .multilineTextAlignment(.center)
                     .foregroundColor(.white)
-                    .padding()
+                    .padding(.horizontal)
                     .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .almostImmediate)
                 
                 Text("story_finish_description")
