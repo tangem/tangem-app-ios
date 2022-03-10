@@ -73,3 +73,31 @@ struct AnimatableOffsetModifier: AnimatableModifier {
         normalize(progress: progress, start: start, end: end)
     }
 }
+
+
+// MARK: - Extensions
+
+extension View {
+    func storyTextAppearanceModifier(
+        progress: Double,
+        type: StoriesConstants.TextType,
+        textBlockAppearance: StoriesConstants.TextBlockAppearance
+    ) -> some View {
+        self
+            .modifier(AnimatableOffsetModifier(
+                progress: progress,
+                start: textBlockAppearance.time + type.timeOffset,
+                end: textBlockAppearance.time + type.timeOffset + StoriesConstants.textAppearanceDuration,
+                curveX: { _ in
+                    0
+                }, curveY: {
+                    40 * pow(2, -15 * $0)
+                }
+            ))
+            .modifier(AnimatableVisibilityModifier(
+                progress: progress,
+                start: textBlockAppearance.time + type.timeOffset,
+                end: .infinity
+            ))
+    }
+}
