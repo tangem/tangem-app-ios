@@ -20,7 +20,7 @@ struct Web3StoryPage: View {
         VStack {
             StoriesTangemLogo()
                 .padding()
-
+            
             VStack(spacing: 16) {
                 Text("story_web3_title")
                     .font(.system(size: 36, weight: .semibold))
