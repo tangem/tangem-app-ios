@@ -27,12 +27,14 @@ struct CurrenciesStoryPage: View {
                 .minimumScaleFactor(0.5)
                 .multilineTextAlignment(.center)
                 .padding()
+                .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .almostImmediate)
             
             Text("story_currencies_description")
                 .font(.system(size: 22))
                 .multilineTextAlignment(.center)
                 .foregroundColor(.gray)
                 .padding(.horizontal)
+                .storyTextAppearanceModifier(progress: progress, type: .description, textBlockAppearance: .almostImmediate)
             
             ZStack(alignment: .bottom) {
                 Color.clear
