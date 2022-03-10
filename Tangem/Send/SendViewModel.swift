@@ -182,11 +182,6 @@ class SendViewModel: ViewModel, ObservableObject {
         self.amountToSend = amountToSend
         self.warningsManager = warningsManager
         isSellingCrypto = false
-        let feeDummyAmount = Amount(with: walletModel.wallet.blockchain,
-                                    type: .coin,
-                                    value: 0)
-        self.sendFee = getDescription(for: selectedFee ?? feeDummyAmount, isFiat: isFiatCalculation)
-        
         fillTotalBlockWithDefaults()
         bind()
         setupWarnings()
@@ -208,8 +203,12 @@ class SendViewModel: ViewModel, ObservableObject {
     }
     
     private func fillTotalBlockWithDefaults() {
-        self.sendAmount = " "
-        self.sendTotal = " "
+        let dummyAmount = Amount(with: amountToSend, value: 0)
+        let feeDummyAmount = Amount(with: walletModel.wallet.blockchain, type: .coin, value: 0)
+        
+        self.sendFee = getDescription(for: feeDummyAmount, isFiat: isFiatCalculation)
+        self.sendAmount = getDescription(for: dummyAmount, isFiat: isFiatCalculation)
+        self.sendTotal = getDescription(for: dummyAmount, isFiat: isFiatCalculation)
         self.sendTotalSubtitle = " "
     }
     
