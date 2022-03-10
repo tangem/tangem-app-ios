@@ -34,6 +34,7 @@ struct FinishStoryPage: View {
                     .padding(.horizontal)
                     .storyTextAppearanceModifier(progress: progress, type: .description, textBlockAppearance: .minorDelay)
             }
+            .fixedSize(horizontal: false, vertical: true)
             
             Spacer()
             
