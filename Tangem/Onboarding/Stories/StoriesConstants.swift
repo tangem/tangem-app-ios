@@ -32,7 +32,7 @@ enum StoriesConstants {
             case .almostImmediate:
                 return 0.05
             case .minorDelay:
-                return 0.15
+                return 0.12
             }
         }
     }
