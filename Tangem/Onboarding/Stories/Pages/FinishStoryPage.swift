@@ -12,12 +12,12 @@ struct FinishStoryPage: View {
     @Binding var progress: Double
     let scanCard: (() -> Void)
     let orderCard: (() -> Void)
-
+    
     var body: some View {
         VStack {
             StoriesTangemLogo()
                 .padding()
-
+            
             VStack(spacing: 18) {
                 Text("story_finish_title")
                     .font(.system(size: 36, weight: .semibold))
