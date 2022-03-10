@@ -33,9 +33,9 @@ struct BackupStoryPage: View {
                     .padding(.horizontal)
                     .storyTextAppearanceModifier(progress: progress, type: .description, textBlockAppearance: .almostImmediate)
             }
+            .fixedSize(horizontal: false, vertical: true)
             
             Spacer()
-            
             
             GeometryReader { geometry in
                 Color.clear
