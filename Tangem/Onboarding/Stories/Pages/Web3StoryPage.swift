@@ -14,7 +14,7 @@ struct Web3StoryPage: View {
     let orderCard: (() -> Void)
     
     private let numberOfRows = 6
-    private let numberOfRowImages = 4
+    private let numberOfRowImages = 6
     
     var body: some View {
         VStack {
