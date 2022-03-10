@@ -100,4 +100,32 @@ extension View {
                 end: .infinity
             ))
     }
+    
+    func storyImageAppearanceModifier(
+        progress: Double,
+        start: Double,
+        fastMovementStartCoefficient: Double,
+        fastMovementSpeedCoefficient: Double,
+        fastMovementEnd: Double,
+        slowMovementSpeedCoefficient: Double
+    ) -> some View {
+        self
+            .modifier(AnimatableScaleModifier(
+                progress: progress,
+                start: start,
+                end: 1) { progress in
+                    let fastMovementCurve: (Double) -> Double = {
+                        fastMovementStartCoefficient + pow(2, fastMovementSpeedCoefficient * $0)
+                    }
+                    
+                    if progress <= fastMovementEnd {
+                        return fastMovementCurve(progress)
+                    } else {
+                        return
+                            fastMovementCurve(fastMovementEnd) -
+                            slowMovementSpeedCoefficient * (progress - fastMovementEnd) / (1 - fastMovementEnd)
+                    }
+                }
+            )
+    }
 }

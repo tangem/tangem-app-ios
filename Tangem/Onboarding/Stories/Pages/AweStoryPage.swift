@@ -13,8 +13,6 @@ struct AweStoryPage: View {
     let scanCard: (() -> Void)
     let orderCard: (() -> Void)
     
-    private let personProgressEnd = 0.5
-
     var body: some View {
         VStack {
             StoriesTangemLogo()
@@ -42,12 +40,13 @@ struct AweStoryPage: View {
             Image("coin_shower")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .modifier(AnimatableScaleModifier(
+                .storyImageAppearanceModifier(
                     progress: progress,
                     start: 0,
-                    end: personProgressEnd) {
-                        1 + pow(2, -25 * $0)
-                    }
+                    fastMovementStartCoefficient: 1,
+                    fastMovementSpeedCoefficient: -45,
+                    fastMovementEnd: 0.15,
+                    slowMovementSpeedCoefficient: 0.15
                 )
             
             StoriesBottomButtons(scanColorStyle: .black, orderColorStyle: .grayAlt, scanCard: scanCard, orderCard: orderCard)
