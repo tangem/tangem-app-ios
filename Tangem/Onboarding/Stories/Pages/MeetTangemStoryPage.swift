@@ -67,6 +67,7 @@ struct MeetTangemStoryPage: View {
                     .multilineTextAlignment(.center)
                     .foregroundColor(.white)
                     .padding()
+                    .padding(.bottom, 10)
                     .modifier(AnimatableOffsetModifier(
                         progress: progress,
                         start: titleProgressStart,
@@ -90,12 +91,13 @@ struct MeetTangemStoryPage: View {
                             .aspectRatio(contentMode: .fit)
                             .fixedSize(horizontal: false, vertical: true)
                             .edgesIgnoringSafeArea(.bottom)
-                            .modifier(AnimatableScaleModifier(
+                            .storyImageAppearanceModifier(
                                 progress: progress,
                                 start: wordListProgressEnd,
-                                end: 1) {
-                                    1 + pow(2, -25 * $0)
-                                }
+                                fastMovementStartCoefficient: 1.1,
+                                fastMovementSpeedCoefficient: -25,
+                                fastMovementEnd: 0.25,
+                                slowMovementSpeedCoefficient: 0.1
                             )
                             .modifier(AnimatableVisibilityModifier(
                                 progress: progress,
