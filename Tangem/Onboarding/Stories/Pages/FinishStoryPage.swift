@@ -14,8 +14,6 @@ struct FinishStoryPage: View {
     let orderCard: (() -> Void)
 
     private let personProgressEnd = 0.5
-    private let titleProgressStart = 0.15
-    private let titleProgressEnd = 0.35
 
     var body: some View {
         VStack {
@@ -29,28 +27,15 @@ struct FinishStoryPage: View {
                     .multilineTextAlignment(.center)
                     .foregroundColor(.white)
                     .padding()
+                    .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .almostImmediate)
                 
                 Text("story_finish_description")
                     .font(.system(size: 24))
                     .multilineTextAlignment(.center)
                     .foregroundColor(.gray)
                     .padding(.horizontal)
+                    .storyTextAppearanceModifier(progress: progress, type: .description, textBlockAppearance: .almostImmediate)
             }
-            .modifier(AnimatableOffsetModifier(
-                progress: progress,
-                start: titleProgressStart,
-                end: titleProgressEnd,
-                curveX: { _ in
-                    0
-                }, curveY: {
-                    40 * pow(2, -15 * $0)
-                }
-            ))
-            .modifier(AnimatableVisibilityModifier(
-                progress: progress,
-                start: titleProgressStart,
-                end: .infinity
-            ))
             
             Spacer()
             
