@@ -12,6 +12,7 @@ import BlockchainSdk
 
 fileprivate enum QueryKey: String {
     case apiKey,
+         onlyCryptos,
          defaultCrypto,
          defaultFiat,
          wallets,
@@ -114,6 +115,7 @@ extension OnramperService: ExchangeService {
         var queryItems = [URLQueryItem]()
         queryItems.append(.init(key: .apiKey, value: key.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         queryItems.append(.init(key: .defaultCrypto, value: currencySymbol.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
+        queryItems.append(.init(key: .onlyCryptos, value: currencySymbol.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         queryItems.append(.init(key: .wallets, value: "\(blockchain.currencySymbol):\(walletAddress)".addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         queryItems.append(.init(key: .redirectURL, value: successCloseUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)))
         queryItems.append(.init(key: .defaultFiat, value: "USD".addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
