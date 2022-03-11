@@ -26,12 +26,15 @@ struct BackupStoryPage: View {
                     .padding(.horizontal)
                     .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .almostImmediate)
                 
-                Text("story_backup_description")
-                    .font(.system(size: 24))
-                    .multilineTextAlignment(.center)
-                    .foregroundColor(.gray)
-                    .padding(.horizontal)
-                    .storyTextAppearanceModifier(progress: progress, type: .description, textBlockAppearance: .almostImmediate)
+                Group {
+                    Text("story_backup_description_1") + Text(" ") +
+                    Text("story_backup_description_2_bold").bold() + Text(" ") + Text("story_backup_description_3")
+                }
+                .font(.system(size: 24))
+                .multilineTextAlignment(.center)
+                .foregroundColor(.gray)
+                .padding(.horizontal)
+                .storyTextAppearanceModifier(progress: progress, type: .description, textBlockAppearance: .almostImmediate)
             }
             .fixedSize(horizontal: false, vertical: true)
             
