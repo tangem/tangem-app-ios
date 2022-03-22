@@ -48,6 +48,7 @@ class NavigationCoordinator: ObservableObject {
     @Published var mainToQR = false
     @Published var mainToTokenDetails = false
     @Published var mainToAddTokens: Bool = false
+    @Published var mainToCustomToken: Bool = false
     @Published var mainToTroubleshootingScan = false
     @Published var mainToWalletConnectQR: Bool = false
     @Published var mainToTradeSheet: Bool = false
