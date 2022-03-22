@@ -34,6 +34,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
     var enteredSearchText = CurrentValueSubject<String, Never>("") //I can't use @Published here, because of swiftui redraw perfomance drop
     @Published var isLoading: Bool = false
     @Published var isSearching: Bool = false
+    @Published var showingCustomTokenView: Bool = false
     @Published var error: AlertBinder?
     @Published var pendingTokenItems: [TokenItem] = []
     @Published var data: [SectionModel] = []
@@ -99,6 +100,10 @@ class TokenListViewModel: ViewModel, ObservableObject {
             })
     }
     
+    func showCustomTokenView() {
+        navigation.mainToCustomToken = true
+    }
+    
     func isAdded(_ tokenItem: TokenItem) -> Bool {
         if pendingTokenItems.contains(tokenItem) {
             return true
@@ -123,7 +128,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
         return true
     }
     
-    func showAddButton(_ tokenItem: TokenItem) -> Bool {
+    func showAddButton() -> Bool {
         switch mode {
         case .add:
             return true
@@ -188,6 +193,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     private func getData()  {
+        let showAddButton = self.showAddButton()
         self.data = Sections.allCases.compactMap {
             $0.sectionModel(
                 for: cardModel?.cardInfo,
@@ -225,14 +231,14 @@ extension TokenListViewModel {
                           isTestnet: Bool,
                           isAdded: (TokenItem) -> Bool,
                           canAdd: (TokenItem) -> Bool,
-                          showAddButton: (TokenItem) -> Bool,
+                          showAddButton: Bool,
                           onTap: @escaping (String, TokenItem) -> Void) -> SectionModel? {
             let items = tokenItems(for: cardInfo, isTestnet: isTestnet)
                 .map { TokenModel(tokenItem: $0,
                                   sectionId: rawValue,
                                   isAdded: isAdded($0),
                                   canAdd: canAdd($0),
-                                  showAddButton: showAddButton($0),
+                                  showAddButton: showAddButton,
                                   onTap: onTap) }
             
             guard !items.isEmpty else { return nil }
