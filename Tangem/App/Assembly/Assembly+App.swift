@@ -314,6 +314,20 @@ extension Assembly {
         return vm
     }
     
+    func makeAddCustomTokenModel() -> AddCustomTokenViewModel {
+        let cardModel = services.cardsRepository.lastScanResult.cardModel
+
+        if let restored: AddCustomTokenViewModel = get() {
+            restored.cardModel = cardModel
+            return restored
+        }
+        
+        let vm = AddCustomTokenViewModel()
+        initialize(vm)
+        vm.cardModel = cardModel
+        return vm
+    }
+    
     func makeSendViewModel(with amount: Amount, blockchain: Blockchain, card: CardViewModel) -> SendViewModel {
         if let restored: SendViewModel = get() {
             return restored
