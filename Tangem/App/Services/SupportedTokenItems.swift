@@ -91,6 +91,10 @@ class SupportedTokenItems {
         ?? testnetBlockchains.union(blockchains)
         return allBlockchains.filter { curves.contains($0.curve) }
     }
+    
+    func hasTokens(for blockchain: Blockchain) -> Bool {
+        sources[blockchain] != nil
+    }
 
     func tokens(for blockchain: Blockchain) -> [Token] {
         guard let src = sources[blockchain] else {
