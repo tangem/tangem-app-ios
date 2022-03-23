@@ -161,7 +161,7 @@ class CoinMarketCapService {
 }
 
 private extension CoinMarketCapService {
-    struct Cache: Hashable {
+    struct Cache {
         var date: Date
         var response: [String: [String: Decimal]]
     }
