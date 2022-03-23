@@ -13,13 +13,17 @@ struct ShopContainerView: View {
     
     var body: some View {
         if let webShopUrl = viewModel.webShopUrl {
-            WebViewContainer(url: webShopUrl, title: "shop_web_page_title")
-        } else if let order = viewModel.order {
-            ShopOrderView(order: order)
-        } else if viewModel.pollingForOrder {
-            ShopOrderProgressView()
+            SafariView(url: webShopUrl)
         } else {
-            ShopView(viewModel: viewModel)
+            NavigationView {
+                if let order = viewModel.order {
+                    ShopOrderView(order: order)
+                } else if viewModel.pollingForOrder {
+                    ShopOrderProgressView()
+                } else {
+                    ShopView(viewModel: viewModel)
+                }
+            }
         }
     }
 }
