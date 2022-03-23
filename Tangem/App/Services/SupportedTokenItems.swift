@@ -77,12 +77,9 @@ class SupportedTokenItems {
 
     func tokens(for blockchain: Blockchain) -> [Token] {
         do {
-            let tokens = try loadTokens(isTestnet: blockchain.isTestnet)
-            return tokens.compactMap {
-                if let contract = $0.contracts.first(where: { $0.blockchain == blockchain }) {
-                    return Token(with: $0, contract: contract)
-                }
-                return nil
+            let currencies = try loadCurrencies(isTestnet: blockchain.isTestnet)
+            return currencies.compactMap {
+                $0.items.compactMap({ $0.token }).first(where: { $0.blockchain == blockchain })
             }
         } catch {
             Log.error(error.localizedDescription)
@@ -90,15 +87,15 @@ class SupportedTokenItems {
         }
     }
     
-    func loadTokens(isTestnet: Bool) throws -> [TangemToken] {
+    func loadCurrencies(isTestnet: Bool) throws -> [CurrencyModel] {
         let list = try readList(isTestnet: isTestnet)
         return list.tokens.map { .init(with: $0, baseImageURL: list.imageHost) }
     }
 
     
-    private func readList(isTestnet: Bool) throws -> TangemTokenList {
+    private func readList(isTestnet: Bool) throws -> CurrenciesList {
         try JsonUtils.readBundleFile(with: isTestnet ? Constants.testFilename : Constants.filename,
-                                     type: TangemTokenList.self,
+                                     type: CurrenciesList.self,
                                      shouldAddCompilationCondition: false)
     }
 }

@@ -23,7 +23,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
     @Published var pendingAdd: [TokenItem] = []
     @Published var pendingRemove: [TokenItem] = []
     @Published var filteredData: [CurrencyViewModel] = []
-
+    
     var titleKey: LocalizedStringKey {
         switch mode {
         case .add:
@@ -62,7 +62,6 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     init(mode: Mode) {
-        print("!!! init")
         self.mode = mode
         
         enteredSearchText
@@ -95,14 +94,12 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     func onAppear() {
-        print("!!! onAppear")
         DispatchQueue.main.async {
             self.getData()
         }
     }
     
     func onDissapear() {
-        print("!!! onDissapear")
         DispatchQueue.main.async {
             self.pendingAdd = []
             self.pendingRemove = []
@@ -112,7 +109,6 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     private func startSearch(with searchText: String) {
-        print("!!! startsearch")
         if searchText.isEmpty {
             filteredData = data
             return
@@ -163,7 +159,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
             return false
         }
     }
-
+    
     private func search(_ searchText: String) -> [CurrencyViewModel] {
         let filter = searchText.lowercased()
         
@@ -183,54 +179,40 @@ class TokenListViewModel: ViewModel, ObservableObject {
     
     private func getData()  { //[REDACTED_TODO_COMMENT]
         do {
-        let isTestnet = cardModel?.cardInfo.isTestnet ?? false
-        let tokens = try SupportedTokenItems().loadTokens(isTestnet: isTestnet)
-        let supportedCurves = cardModel?.cardInfo.card.walletCurves ?? EllipticCurve.allCases
+            let isTestnet = cardModel?.cardInfo.isTestnet ?? false
+            let currencies = try SupportedTokenItems().loadCurrencies(isTestnet: isTestnet)
             
-        self.data = tokens.compactMap { token in
-            if token.contracts.isEmpty { //blockchain
-                if let tokenBlockchain = token.blockchain {
-                    if !supportedCurves.contains(tokenBlockchain.curve) {
-                        return nil //unsupported curve, skipping
+            let supportedCurves = cardModel?.cardInfo.card.walletCurves ?? EllipticCurve.allCases
+            let fwVersion = cardModel?.cardInfo.card.firmwareVersion.doubleValue
+            let isSupportSolanaTokens = fwVersion.map { $0 < 4.52 } ?? true //[REDACTED_TODO_COMMENT]
+            
+            self.data = currencies.compactMap { currency in
+                
+                let filteredItems = currency.items.filter { item in
+                    if !supportedCurves.contains(item.blockchain.curve) {
+                        return false
                     }
                     
-                    let tokenItem = TokenItem.blockchain(tokenBlockchain)
-                    return .init(with: token, items: [makeCurrencyItemViewModel(tokenItem)])
-                } else {
-                    return nil //unknown blockchain, skipping
-                }
-            } else { //token
-                let fwVersion = cardModel?.cardInfo.card.firmwareVersion.doubleValue
-                let isSupportSolanaTokens = fwVersion.map { $0 < 4.52 } ?? true //[REDACTED_TODO_COMMENT]
-                //filter by curves
-                let contracts = isSupportSolanaTokens ? token.contracts
-                : token.contracts.filter { $0.blockchain != .solana(testnet: true) && $0.blockchain != .solana(testnet: false) }
-                let blockchainTokens = contracts.map { BlockchainSdk.Token(with: token, contract: $0) }
-                let filteredByCurve = blockchainTokens.filter {
-                    supportedCurves.contains($0.blockchain.curve)
-                }
-                let tokenItems: [TokenItem] = filteredByCurve.map { .token($0) }
-                let currencyItems: [CurrencyItemViewModel] = tokenItems.map { makeCurrencyItemViewModel($0) }
-                
-                if currencyItems.isEmpty {
-                    return nil //no tokens with supported curves, skipping
+                    if !isSupportSolanaTokens, let token = item.token,
+                       token.blockchain == .solana(testnet: true) ||
+                        token.blockchain == .solana(testnet: false) {
+                        return false
+                    }
+                    
+                    return true
                 }
                 
-                return .init(with: token, items: currencyItems)
+                let currencyItems = filteredItems.map { CurrencyItemViewModel(tokenItem: $0,
+                                                                              isReadOnly: isDemoMode,
+                                                                              isSelected: bindSelection($0)) }
+                
+                return .init(with: currency, items: currencyItems)
             }
-        }
+            
             self.filteredData = data
-            print("!!! getdata complete")
         } catch {
-            print("!!! error \(error)")
             print(error)
         }
-    }
-    
-    private func makeCurrencyItemViewModel(_ tokenItem: TokenItem) -> CurrencyItemViewModel {
-        .init(tokenItem: tokenItem,
-              isReadOnly: isDemoMode,
-              isSelected: bindSelection(tokenItem))
     }
     
     private func isSelected(_ tokenItem: TokenItem) -> Bool {
