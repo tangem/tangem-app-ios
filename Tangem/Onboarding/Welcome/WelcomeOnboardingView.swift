@@ -61,10 +61,8 @@ struct WelcomeOnboardingView: View {
             
             Color.clear.frame(width: 1, height: 1)
                 .sheet(isPresented: $navigation.readToShop, content: {
-                    NavigationView {
-                        ShopContainerView(viewModel: viewModel.assembly.makeShopViewModel())
-                            .environmentObject(navigation)
-                    }
+                    ShopContainerView(viewModel: viewModel.assembly.makeShopViewModel())
+                        .environmentObject(navigation)
                 })
             
             Color.clear.frame(width: 1, height: 1)
