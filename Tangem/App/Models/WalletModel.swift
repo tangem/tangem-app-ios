@@ -278,6 +278,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     func addTokens(_ tokens: [Token]) {
+        latestUpdateTime = nil
         walletManager.addTokens(tokens)
         updateTokensViewModels()
     }
@@ -335,6 +336,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     func startUpdatingTimer() {
+        latestUpdateTime = nil
         print("⏰ Starting updating timer for Wallet model")
         updateTimer = Timer.TimerPublisher(interval: 10.0,
                                            tolerance: 0.1,
