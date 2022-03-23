@@ -196,13 +196,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         }
     }
     
-    var isShopButtonVisible: Bool {
-        switch currentStep {
-        case .selectBackupCards: return true
-        default: return false
-        }
-    }
-    
     private var primaryCardStackIndex: Int {
         switch backupServiceState {
         case .finalizingBackupCard(let index):
