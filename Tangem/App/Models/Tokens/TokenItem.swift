@@ -51,6 +51,15 @@ enum TokenItem: Hashable, Identifiable {
         }
     }
     
+    var networkName: String {
+        switch self {
+        case .token(let token):
+            return token.blockchain.displayName
+        case .blockchain:
+            return "Network"
+        }
+    }
+    
     var symbol: String {
         switch self {
         case .token(let token):
@@ -87,7 +96,7 @@ enum TokenItem: Hashable, Identifiable {
         case .token(let token):
             CircleImageTextView(name: token.name, color: token.color)
         case .blockchain(let blockchain):
-            if let image = IconsUtils.getBlockchainIcon(blockchain) {
+            if let image = blockchain.iconNameFilled {
                 Image(image)
                     .resizable()
             } else {
