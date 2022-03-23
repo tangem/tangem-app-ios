@@ -71,16 +71,7 @@ struct WalletOnboardingView: View {
                                         }
                                       },
                                       rightItems: {
-                                        Button(action: {
-                                            navigation.onboardingWalletToShop = true
-                                            Analytics.log(.getACard, params: [.source: .walletOnboarding])
-                                        }) {
-                                            Text("home_button_shop")
-                                                .foregroundColor(.tangemGreen)
-                                                .padding(.horizontal, 16)
-                                        }
-                                        .frame(height: viewModel.navbarSize.height)
-                                        .opacity(viewModel.isShopButtonVisible ? 1.0 : 0.0)
+                                        EmptyView()
                                       })
                             .offset(x: 0, y: -geom.size.height / 2 + (isNavbarVisible ? viewModel.navbarSize.height / 2 + 4 : 0))
                             .opacity(isNavbarVisible ? 1.0 : 0.0)
