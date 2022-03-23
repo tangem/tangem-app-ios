@@ -310,7 +310,7 @@ extension Assembly {
         }
         
         let vm = TokenListViewModel(mode: mode)
-        initialize(vm)
+        initialize(vm, with: mode.id, isResetable: true)
         return vm
     }
     

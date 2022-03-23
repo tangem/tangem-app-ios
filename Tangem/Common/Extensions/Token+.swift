@@ -30,4 +30,13 @@ extension Token: Identifiable {
         }
         return defaultValue
     }
+    
+    init(with token: TangemToken, contract: TangemToken.Contract) {
+        self.init(name: token.name,
+                  symbol: token.symbol,
+                  contractAddress: contract.address,
+                  decimalCount: contract.decimalCount,
+                  customIconUrl: token.imageURL?.absoluteString,
+                  blockchain: contract.blockchain)
+    }
 }
