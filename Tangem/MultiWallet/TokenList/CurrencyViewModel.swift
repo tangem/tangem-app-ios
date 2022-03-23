@@ -22,10 +22,10 @@ class CurrencyViewModel: Identifiable, ObservableObject {
         self.items = items
     }
     
-    init?(with token: TangemToken, items: [CurrencyItemViewModel]) {
-        self.name = token.name
-        self.symbol = token.symbol
-        self.imageURL = token.imageURL
+    init?(with currency: CurrencyModel, items: [CurrencyItemViewModel]) {
+        self.name = currency.name
+        self.symbol = currency.symbol
+        self.imageURL = currency.imageURL
         self.items = items
     }
 }
