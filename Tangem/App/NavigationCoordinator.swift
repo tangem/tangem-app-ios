@@ -29,7 +29,6 @@ class NavigationCoordinator: ObservableObject {
     @Published var onboardingToDisclaimer: Bool = false
     @Published var onboardingToBuyCrypto: Bool = false
     @Published var onboardingToQrTopup: Bool = false
-    @Published var onboardingWalletToShop: Bool = false
     @Published var onboardingWalletToAccessCode: Bool = false
     
     // MARK: DisclaimerView
