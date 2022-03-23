@@ -96,12 +96,8 @@ enum TokenItem: Hashable, Identifiable {
         case .token(let token):
             CircleImageTextView(name: token.name, color: token.color)
         case .blockchain(let blockchain):
-            if let image = blockchain.iconNameFilled {
-                Image(image)
-                    .resizable()
-            } else {
-                CircleImageTextView(name: blockchain.displayName, color: Color.tangemGrayLight4)
-            }
+            Image(blockchain.iconNameFilled)
+                .resizable()
         }
     }
     
