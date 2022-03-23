@@ -199,7 +199,6 @@ Cette avertissement a été modifié, pour la dernière fois, le 1 octobre 2020.
 "onboarding_button_backup_now" = "Backup now";
 "onboarding_button_backup_origin" = "Scan the primary card";
 "onboarding_button_buy_crypto" = "Buy crypto";
-"onboarding_button_buy_more_cards" = "Buy more cards";
 "onboarding_button_continue_wallet" = "Continue to my wallet";
 "onboarding_button_create_wallet" = "Create wallet";
 "onboarding_button_finalize_backup" = "Finalize the backup process";
