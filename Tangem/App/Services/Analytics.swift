@@ -208,7 +208,6 @@ extension Analytics {
     
     enum ParameterValue: String {
         case welcome
-        case walletOnboardingBuyMore = "wallet_onboaring_buy_more_cards"
         case walletOnboarding = "wallet_onboarding"
     }
     
