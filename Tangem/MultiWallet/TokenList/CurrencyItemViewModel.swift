@@ -18,21 +18,11 @@ class CurrencyItemViewModel: Identifiable, ObservableObject {
     
     @Published var selectedPublisher: Bool
     
-    var imageName: String {
-        tokenItem.blockchain.iconName ?? ""
-    }
+    var imageName: String {  tokenItem.blockchain.iconName  }
+    var imageNameSelected: String { tokenItem.blockchain.iconNameFilled }
+    var networkName: String { tokenItem.networkName }
     
-    var imageNameSelected: String {
-        tokenItem.blockchain.iconNameFilled ?? ""
-    }
-    
-    var networkName: String {
-        tokenItem.networkName
-    }
-    
-    var contractName: String? {
-        tokenItem.blockchain.contractName
-    }
+    var contractName: String? { tokenItem.blockchain.contractName }
     
     private var bag = Set<AnyCancellable>()
     
