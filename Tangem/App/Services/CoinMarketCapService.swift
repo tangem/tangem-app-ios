@@ -113,6 +113,7 @@ class CoinMarketCapService {
     
     let apiKey: String
     let provider = MoyaProvider<CoinMarketCapTarget>(/*plugins: [NetworkLoggerPlugin(configuration: NetworkLoggerPlugin.Configuration.verboseConfiguration)]*/)
+    private var caches: Set<Cache> = []
     
     internal init(apiKey: String) {
         self.apiKey = apiKey
@@ -133,20 +134,40 @@ class CoinMarketCapService {
     }
     
     func loadRates(for currencies: [String: Decimal]) -> AnyPublisher<[String: [String: Decimal]], Never> {
-        currencies
+        if let cache = caches.first(where: { $0.request == currencies }),
+           cache.date.distance(to: Date()) <= 60 {
+            return Just(cache.response).eraseToAnyPublisher()
+        }
+        
+        return currencies
             .publisher
-            .flatMap { [unowned self] item in
-                return self.provider
-                    .requestPublisher(.rate(amount: item.value, symbol: item.key, convert: [self.selectedCurrencyCode], apiKey: self.apiKey))
+            .flatMap { [provider, selectedCurrencyCode, apiKey] item in
+                return provider
+                    .requestPublisher(.rate(amount: item.value, symbol: item.key, convert: [selectedCurrencyCode], apiKey: apiKey))
                     .filterSuccessfulStatusAndRedirectCodes()
                     .map(RateInfoResponse.self)
                     .map { $0.data }
                     .map { (item.key, $0.quote.mapValues {  $0.price.rounded(scale: 2, roundingMode: .plain) }) }
                     .catch { _ in Empty(completeImmediately: true) }
-        }
-        .collect()
-        .map { $0.reduce(into: [String: [String: Decimal]]()) { $0[$1.0] = $1.1 } }
-        .subscribe(on: DispatchQueue.global())
-        .eraseToAnyPublisher()
+            }
+            .collect()
+            .map { $0.reduce(into: [String: [String: Decimal]]()) { $0[$1.0] = $1.1 } }
+            .subscribe(on: DispatchQueue.global())
+            .handleEvents(receiveOutput: {[weak self] output in
+                let cached = Cache(date: Date(),
+                                   request: currencies,
+                                   response: output)
+                
+                self?.caches.insert(cached)
+            })
+            .eraseToAnyPublisher()
+    }
+}
+
+private extension CoinMarketCapService {
+    struct Cache: Hashable {
+        var date: Date
+        var request: [String: Decimal]
+        var response: [String: [String: Decimal]]
     }
 }
