@@ -150,13 +150,6 @@ struct WalletOnboardingView: View {
                     OnboardingAccessCodeView { accessCode in
                         viewModel.saveAccessCode(accessCode)
                     }})
-            
-            Color.clear.frame(width: 1, height: 1)
-                .sheet(isPresented: $navigation.onboardingWalletToShop, content: {
-                    ShopContainerView(viewModel: viewModel.assembly.makeShopViewModel())
-                        .environmentObject(navigation)
-                })
-            
         }
         .alert(item: $viewModel.alert, content: { alertBinder in
             alertBinder.alert
