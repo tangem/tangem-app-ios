@@ -8,6 +8,7 @@
 
 import SwiftUI
 
+// [REDACTED_TODO_COMMENT]
 fileprivate struct TextInputWithTitle: View {
     var title: String
     var placeholder: String
@@ -49,8 +50,8 @@ fileprivate struct PickerInputWithTitle: View {
                 .foregroundColor(Color.tangemGrayDark6)
             
             HStack {
-                Picker("Network", selection: $value) {
-                    Text("Not selected").tag("")
+                Picker("", selection: $value) {
+                    Text("custom_token_network_input_not_selected".localized).tag("")
                     ForEach(values, id: \.1) { value in
                         Text(value.0)
                             .tag(value.1)
@@ -85,37 +86,41 @@ struct AddCustomTokenView: View {
     @EnvironmentObject var navigation: NavigationCoordinator
     
     var body: some View {
-        NavigationView {
-            VStack {
-                VStack(spacing: 1) {
-                    #warning("[REDACTED_TODO_COMMENT]")
-                    PickerInputWithTitle(title: "Network", value: $viewModel.blockchainName, values: viewModel.blockchains)
-                    TextInputWithTitle(title: "custom_token_name_input_title".localized, placeholder: "custom_token_name_input_placeholder".localized, text: $viewModel.name, keyboardType: .default)
-                    TextInputWithTitle(title: "custom_token_token_symbol_input_title".localized, placeholder: "custom_token_token_symbol_input_placeholder".localized, text: $viewModel.symbol, keyboardType: .default)
-                    TextInputWithTitle(title: "custom_token_contract_address_input_title".localized, placeholder: "0x0000000000000000000000000000000000000000", text: $viewModel.contractAddress, keyboardType: .default)
-                    TextInputWithTitle(title: "custom_token_decimals_input_title".localized, placeholder: "0", text: $viewModel.decimals, keyboardType: .numberPad)
-                }
-
+        VStack {
+            HStack {
+                Text("add_custom_token_title".localized)
+                    .font(Font.system(size: 36, weight: .bold, design: .default))
+                    .padding(.vertical)
+                
                 Spacer()
-
-                TangemButton(title: "common_add", systemImage: "plus", action: viewModel.createToken)
-                    .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
             }
-            .padding()
-            .onAppear(perform: viewModel.onAppear)
-            .onDisappear(perform: viewModel.onDisappear)
-            .alert(item: $viewModel.error, content: { $0.alert })
-            .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
-            .navigationBarTitle("add_custom_token_title", displayMode: .inline)
-            .navigationBarHidden(false)
-            .navigationBarBackButtonHidden(false)
+            
+            VStack(spacing: 1) {
+                PickerInputWithTitle(title: "custom_token_network_input_title".localized, value: $viewModel.blockchainName, values: viewModel.blockchains)
+                    .cornerRadius(10, corners: [.topLeft, .topRight])
+                TextInputWithTitle(title: "custom_token_name_input_title".localized, placeholder: "custom_token_name_input_placeholder".localized, text: $viewModel.name, keyboardType: .default)
+                TextInputWithTitle(title: "custom_token_token_symbol_input_title".localized, placeholder: "custom_token_token_symbol_input_placeholder".localized, text: $viewModel.symbol, keyboardType: .default)
+                TextInputWithTitle(title: "custom_token_contract_address_input_title".localized, placeholder: "0x0000000000000000000000000000000000000000", text: $viewModel.contractAddress, keyboardType: .default)
+                TextInputWithTitle(title: "custom_token_decimals_input_title".localized, placeholder: "0", text: $viewModel.decimals, keyboardType: .numberPad)
+                    .cornerRadius(10, corners: [.bottomLeft, .bottomRight])
+            }
+            
+            Spacer()
+            
+            TangemButton(title: "common_add", systemImage: "plus", action: viewModel.createToken)
+                .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
         }
+        .padding()
+        .onAppear(perform: viewModel.onAppear)
+        .onDisappear(perform: viewModel.onDisappear)
+        .alert(item: $viewModel.error, content: { $0.alert })
+        .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
     }
 }
 
 struct AddCustomTokenView_Previews: PreviewProvider {
     static let assembly = Assembly.previewAssembly
-
+    
     static var previews: some View {
         AddCustomTokenView(viewModel: Assembly.previewAssembly.makeAddCustomTokenModel())
     }
