@@ -20,8 +20,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         var errorDescription: String? {
             switch self {
             case .blockchainNotSelected:
-                #warning("[REDACTED_TODO_COMMENT]")
-                return "Please select the network"
+                return "custom_token_creation_error_network_not_selected".localized
             case .emptyFields:
                 return "custom_token_creation_error_empty_fields".localized
             case .invalidDecimals:
