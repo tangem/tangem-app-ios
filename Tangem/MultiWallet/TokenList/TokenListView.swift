@@ -19,7 +19,7 @@ struct TokenListView: View {
         VStack(spacing: 0) {
             HStack {
                 Text(viewModel.titleKey)
-                    .font(Font.system(size: 36, weight: .bold, design: .default))
+                    .font(Font.system(size: 30, weight: .bold, design: .default))
                     .minimumScaleFactor(0.8)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 16)
