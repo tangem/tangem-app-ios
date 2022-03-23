@@ -162,10 +162,8 @@ struct WalletOnboardingView: View {
             
             Color.clear.frame(width: 1, height: 1)
                 .sheet(isPresented: $navigation.onboardingWalletToShop, content: {
-                    NavigationView {
-                        ShopContainerView(viewModel: viewModel.assembly.makeShopViewModel())
-                            .environmentObject(navigation)
-                    }
+                    ShopContainerView(viewModel: viewModel.assembly.makeShopViewModel())
+                        .environmentObject(navigation)
                 })
             
         }
