@@ -157,7 +157,7 @@ struct SendView: View {
                                         Image(systemName: self.viewModel.isNetworkFeeBlockOpen ? "chevron.up" : "chevron.down")
                                             .font(Font.system(size: 14.0, weight: .medium, design: .default))
                                             .foregroundColor(Color.tangemGrayDark6)
-                                            .padding()
+                                            .padding([.vertical, .leading])
                                     }
                                 }
                                 .accessibility(label: Text(self.viewModel.isNetworkFeeBlockOpen ? "voice_over_close_network_fee_settings" : "voice_over_open_network_fee_settings"))
