@@ -38,6 +38,11 @@ extension String {
             $0 = $0.remove($1)
         })
     }
+    
+    func trim() -> String {
+        self.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+    
 }
 
 extension StringProtocol {
