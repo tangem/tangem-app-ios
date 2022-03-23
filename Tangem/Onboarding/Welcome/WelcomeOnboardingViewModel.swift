@@ -96,7 +96,11 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     }
     
     func orderCard() {
-        navigation.readToShop = true
+        if Locale.current.regionCode == "RU" {
+            UIApplication.shared.open(URL(string: "https://mv.tangem.com/")!, options: [:])
+        } else {
+            navigation.readToShop = true
+        }
         Analytics.log(.getACard, params: [.source: .welcome])
     }
     
