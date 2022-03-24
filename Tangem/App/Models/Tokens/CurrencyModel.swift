@@ -29,6 +29,14 @@ struct CurrencyModel {
         
         if let blockchain = Blockchain(from: id) {
             items.append(.blockchain(blockchain))
+            
+            if id == "binancecoin", let bsc = Blockchain(from: "binance-smart-chain") {
+                items.append(.blockchain(bsc))
+            } else if id == "binancecoin/test", let bsc = Blockchain(from: "binance-smart-chain/test") {
+                items.append(.blockchain(bsc))
+            }
+            
+        } else {
         }
         
         let tokens: [TokenItem]? = entity.contracts?.compactMap {

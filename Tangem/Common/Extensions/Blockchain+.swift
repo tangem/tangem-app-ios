@@ -16,16 +16,21 @@ extension Blockchain: Identifiable {
     
     private static var testnetId = "/test"
     
-    var stringId: String {
+    var rawStringId: String {
         var name = "\(self)".lowercased()
         
         if let index = name.firstIndex(of: "(") {
             name = String(name.prefix(upTo: index))
         }
         
-        return isTestnet ? "\(name)\(Blockchain.testnetId)" : name
+        return name
     }
     
+    var stringId: String {
+        var name = rawStringId
+        return isTestnet ? "\(name)\(Blockchain.testnetId)" : name
+    }
+    //bitcoinCash, bsc, avalanche
     //Init blockchain from id with default params
     init?(from stringId: String) {
         let isTestnet = stringId.contains(Blockchain.testnetId)
@@ -35,17 +40,17 @@ extension Blockchain: Identifiable {
         case "stellar": self = .stellar(testnet: isTestnet)
         case "ethereum": self = .ethereum(testnet: isTestnet)
         case "litecoin": self = .litecoin
-        case "rsk": self = .rsk
-        case "bitcoinCash": self = .bitcoinCash(testnet: isTestnet)
+        case "rsk", "rootstock": self = .rsk
+        case "bitcoincash": self = .bitcoinCash(testnet: isTestnet)
         case "binance", "binancecoin": self = .binance(testnet: isTestnet)
         case "cardano": self = .cardano(shelley: true)
-        case "xrp": self = .xrp(curve: .secp256k1)
+        case "xrp", "ripple": self = .xrp(curve: .secp256k1)
         case "ducatus": self = .ducatus
         case "tezos": self = .tezos(curve: .secp256k1)
         case "dogecoin": self = .dogecoin
         case "bsc", "binance-smart-chain": self = .bsc(testnet: isTestnet)
-        case "polygon", "polygon-pos": self = .polygon(testnet: isTestnet)
-        case "avalanche": self = .avalanche(testnet: isTestnet)
+        case "polygon", "polygon-pos", "matic-network": self = .polygon(testnet: isTestnet)
+        case "avalanche", "avalanche-2": self = .avalanche(testnet: isTestnet)
         case "solana": self = .solana(testnet: isTestnet)
         case "fantom": self = .fantom(testnet: isTestnet)
         case "polkadot": self = .polkadot(testnet: isTestnet)
@@ -54,7 +59,7 @@ extension Blockchain: Identifiable {
         }
     }
     
-    var iconName: String { stringId }
+    var iconName: String { rawStringId }
     
     var iconNameFilled: String { "\(iconName).fill" }
 }
