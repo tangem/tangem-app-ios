@@ -305,12 +305,13 @@ extension Assembly {
     }
     
     func makeTokenListViewModel(mode: TokenListViewModel.Mode) -> TokenListViewModel {
-        if let restored: TokenListViewModel = get(key: mode.id) {
+        let restorationKey = mode.id
+        if let restored: TokenListViewModel = get(key: restorationKey) {
             return restored
         }
         
         let vm = TokenListViewModel(mode: mode)
-        initialize(vm)
+        initialize(vm, with: restorationKey, isResetable: false)
         return vm
     }
     
