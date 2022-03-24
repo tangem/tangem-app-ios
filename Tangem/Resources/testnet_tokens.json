@@ -1,6 +1,18 @@
 {
   "tokens" : [
     {
+      "id" : "polygon/test",
+      "symbol" : "MATIC",
+      "name" : "Polygon",
+      "contracts" : [
+        {
+          "networkId" : "polygon-pos",
+          "address" : "0x0000000000000000000000000000000000001010",
+          "decimalCount" : 18
+        }
+      ]
+    },
+    {
       "id" : "Dai Stablecoin-DAI",
       "symbol" : "DAI",
       "name" : "Dai Stablecoin",
@@ -47,18 +59,6 @@
         {
           "networkId" : "binance-smart-chain",
           "address" : "0xd66c6b4f0be8ce5b39d52e0fd1344c389929b378",
-          "decimalCount" : 18
-        }
-      ]
-    },
-    {
-      "id" : "Matic-MATIC",
-      "symbol" : "MATIC",
-      "name" : "Matic",
-      "contracts" : [
-        {
-          "networkId" : "polygon-pos",
-          "address" : "0x0000000000000000000000000000000000001010",
           "decimalCount" : 18
         }
       ]
@@ -122,6 +122,14 @@
       ]
     },
     {
+      "id" : "solana/test",
+      "symbol" : "SOL",
+      "name" : "Solana",
+      "contracts" : [
+
+      ]
+    },
+    {
       "id" : "Tangem Coin A-TCA",
       "symbol" : "TCA",
       "name" : "Tangem Coin A",
@@ -146,6 +154,14 @@
       ]
     },
     {
+      "id" : "binance/test",
+      "symbol" : "BNB",
+      "name" : "Binance",
+      "contracts" : [
+
+      ]
+    },
+    {
       "id" : "Hemster - 452-HEM",
       "symbol" : "HEM",
       "name" : "Hemster - 452",
@@ -155,6 +171,14 @@
           "address" : "HEM-452",
           "decimalCount" : 8
         }
+      ]
+    },
+    {
+      "id" : "bsc/test",
+      "symbol" : "BNB",
+      "name" : "Bsc",
+      "contracts" : [
+
       ]
     },
     {
@@ -206,6 +230,14 @@
       ]
     },
     {
+      "id" : "ethereum/test",
+      "symbol" : "ETH",
+      "name" : "Ethereum",
+      "contracts" : [
+
+      ]
+    },
+    {
       "id" : "Weenus-WEENUS",
       "symbol" : "WEENUS",
       "name" : "Weenus",
@@ -254,6 +286,14 @@
       ]
     },
     {
+      "id" : "avalanche/test",
+      "symbol" : "AVAX",
+      "name" : "Avalanche",
+      "contracts" : [
+
+      ]
+    },
+    {
       "id" : "The Fuji stablecoin-FUJISTABLE",
       "symbol" : "FUJISTABLE",
       "name" : "The Fuji stablecoin",
@@ -278,6 +318,14 @@
       ]
     },
     {
+      "id" : "fantom/test",
+      "symbol" : "FTM",
+      "name" : "Fantom",
+      "contracts" : [
+
+      ]
+    },
+    {
       "id" : "Fantom USD-FUSD",
       "symbol" : "FUSD",
       "name" : "Fantom USD",
@@ -299,6 +347,22 @@
           "address" : "0xf1277d1Ed8AD466beddF92ef448A132661956621",
           "decimalCount" : 18
         }
+      ]
+    },
+    {
+      "id" : "bitcoin/test",
+      "symbol" : "BTC",
+      "name" : "Bitcoin",
+      "contracts" : [
+
+      ]
+    },
+    {
+      "id" : "stellar/test",
+      "symbol" : "XLM",
+      "name" : "Stellar",
+      "contracts" : [
+
       ]
     }
   ]
