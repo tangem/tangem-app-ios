@@ -135,6 +135,7 @@ class CoinMarketCapService {
     
     func loadRates(for currencies: [String: Decimal]) -> AnyPublisher<[String: [String: Decimal]], Never> {
         if let cached = cache[currencies],
+           cached.currencyCode == selectedCurrencyCode,
            cached.date.distance(to: Date()) <= 60 {
             return Just(cached.response).eraseToAnyPublisher()
         }
@@ -153,8 +154,8 @@ class CoinMarketCapService {
             .collect()
             .map { $0.reduce(into: [String: [String: Decimal]]()) { $0[$1.0] = $1.1 } }
             .subscribe(on: DispatchQueue.global())
-            .handleEvents(receiveOutput: {[weak self] output in
-                self?.cache[currencies] = Cache(date: Date(), response: output)
+            .handleEvents(receiveOutput: {[selectedCurrencyCode, weak self] output in
+                self?.cache[currencies] = Cache(date: Date(), currencyCode: selectedCurrencyCode, response: output)
             })
             .eraseToAnyPublisher()
     }
@@ -163,6 +164,7 @@ class CoinMarketCapService {
 private extension CoinMarketCapService {
     struct Cache {
         var date: Date
+        var currencyCode: String
         var response: [String: [String: Decimal]]
     }
 }
