@@ -116,9 +116,11 @@ struct CurrencyView_Previews: PreviewProvider {
                                                       items: [
                                                         CurrencyItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
                                                                               isReadOnly: false,
+                                                                              isDisabled: false,
                                                                               isSelected: $0),
                                                         CurrencyItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
                                                                               isReadOnly: false,
+                                                                              isDisabled: false,
                                                                               isSelected: $0)
                                                       ]))
             }
