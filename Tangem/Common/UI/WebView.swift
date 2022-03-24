@@ -8,7 +8,6 @@
 
 import Foundation
 import SwiftUI
-import SafariServices
 import WebKit
 
 
@@ -138,43 +137,3 @@ struct WebView: UIViewRepresentable {
         return Coordinator(urlActions: urlActions, popupUrl: self.popupUrl, isLoading: self.isLoading)
     }
 }
-
-//class CustomSafariViewController: UIViewController {
-//    var url: URL!
-//    //{
-//      //  didSet {
-//            // when url changes, reset the safari child view controller
-//           // configureChildViewController()
-//   //     }
-//   // }
-//
-//    private var webView = WKWebView()
-//
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//        view.addSubview(webView)
-//       // configureChildViewController()
-//    }
-//
-//    override func viewWillAppear(_ animated: Bool) {
-//        webView.load(URLRequest(url: url))
-//    }
-//
-////    private func configureChildViewController() {
-////        // Remove the previous safari child view controller if not nil
-////        if let safariViewController = safariViewController {
-////            safariViewController.willMove(toParent: self)
-////            safariViewController.view.removeFromSuperview()
-////            safariViewController.removeFromParent()
-////            self.safariViewController = nil
-////        }
-////
-////        // Create a new safari child view controller with the url
-////        let newSafariViewController = SFSafariViewController(url: url)
-////        addChild(newSafariViewController)
-////        newSafariViewController.view.frame = view.frame
-////        view.addSubview(newSafariViewController.view)
-////        newSafariViewController.didMove(toParent: self)
-////        self.safariViewController = newSafariViewController
-////    }
-//}
