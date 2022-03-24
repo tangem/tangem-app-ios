@@ -23,7 +23,15 @@ struct TokenListView: View {
                     .minimumScaleFactor(0.8)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 16)
+                
                 Spacer()
+                
+                if !viewModel.isDemoMode {
+                    Button(action: viewModel.showCustomTokenView) {
+                        Image(systemName: "plus")
+                            .padding(16)
+                    }
+                }
             }
             
             SearchBar(text: $viewModel.enteredSearchText.value, placeholder: "common_search".localized)
@@ -54,6 +62,12 @@ struct TokenListView: View {
                     .padding(.bottom, 8)
                     .ignoresKeyboard()
             }
+            
+            Color.clear.frame(width: 1, height: 1)
+                .sheet(isPresented: $navigation.mainToCustomToken) {
+                    AddCustomTokenView(viewModel: viewModel.assembly.makeAddCustomTokenModel())
+                        .environmentObject(navigation)
+                }
         }
         .onAppear { viewModel.onAppear() }
         .onDisappear { viewModel.onDissapear() }
