@@ -19,21 +19,24 @@ struct CurrencyView: View {
             Icon(model.imageURL, name: model.name)
                 .alignmentGuide(.customTop, computeValue: { d in d[VerticalAlignment.top] - 1.5 })
             
-            VStack {
+            VStack(spacing: 26) {
                 HStack {
-                    VStack(alignment: .leading, spacing: 6) {
+                    VStack(alignment: .leading, spacing: 8) {
                         
                         HStack(spacing: 4) {
                             Text(model.name)
+                                .foregroundColor(.tangemGrayDark6)
                             Text(symbolFormatted)
-                                .foregroundColor(.tangemGrayDark)
+                                .foregroundColor(Color(hex: "#A9A9AD")!)
                         }
+                        .lineLimit(1)
+                        .fixedSize()
                         .font(.system(size: 17, weight: .medium, design: .default))
 
                         if isExpanded {
                             Text(subtitle)
                                 .font(.system(size: 13))
-                                .foregroundColor(.tangemGrayDark)
+                                .foregroundColor(Color(hex: "#A9A9AD")!)
                         } else {
                             HStack(spacing: 5) {
                                 ForEach(model.items) {
@@ -54,15 +57,16 @@ struct CurrencyView: View {
                 }
                 
                 if isExpanded {
-                    VStack(spacing: 22) {
+                    VStack(spacing: 18) {
                         ForEach(model.items) { CurrencyItemView(model: $0) }
                     }
-                } else {
-                    Color.clear.frame(width: 1, height: 1) //fix bouncing
                 }
+//                else {
+//                    Color.clear.frame(width: 1, height: 1) //fix bouncing
+//                }
             }
         }
-        .padding(.vertical)
+        .padding(.vertical, 10)
     }
     
     private var symbolFormatted: String {"(\(model.symbol))"}
@@ -72,7 +76,7 @@ struct CurrencyView: View {
         Image(systemName: "chevron.down")
             .font(.system(size: 17, weight: .medium, design: .default))
             .rotationEffect(isExpanded ? Angle(degrees: 180) : .zero)
-            .foregroundColor(.tangemGrayDark)
+            .foregroundColor(Color(hex: "#CCCCCC")!)
             .padding(.vertical, 4)
     }
 }
