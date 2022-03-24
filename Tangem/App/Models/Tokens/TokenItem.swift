@@ -17,6 +17,8 @@ enum TokenItem: Hashable, Identifiable {
     case blockchain(Blockchain)
     case token(Token)
     
+    var isBlockchain: Bool { token == nil }
+    
     var id: Int {
         switch self {
         case .token(let token):
@@ -51,12 +53,18 @@ enum TokenItem: Hashable, Identifiable {
         }
     }
     
-    var networkName: String {
+    var contractName: String? {
         switch self {
         case .token(let token):
-            return token.blockchain.displayName
+            switch token.blockchain {
+            case .binance: return "BEP2"
+            case .bsc: return "BEP20"
+            case .ethereum: return "ERC20"
+            default:
+                return nil
+            }
         case .blockchain:
-            return "Network"
+            return "MAIN"
         }
     }
     
