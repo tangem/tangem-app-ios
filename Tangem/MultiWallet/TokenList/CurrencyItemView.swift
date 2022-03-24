@@ -19,33 +19,35 @@ struct CurrencyItemView: View {
     }
     
     var body: some View {
-        HStack(spacing: 2) {
+        HStack(spacing: 0) {
             icon
-                .padding(.trailing, 2)
+                .padding(.trailing, 4)
             
-            Text(model.networkName.uppercased())
-                .font(.system(size: 14, weight: .semibold, design: .default))
-                .foregroundColor(model.networkNameForegroundColor)
-                .lineLimit(1)
-                .fixedSize()
-            
-            model.contractName.map {
-                Text($0)
-                    .font(.system(size: 14))
-                    .foregroundColor(model.contractNameForegroundColor)
-                    .padding(.leading, 2)
-                    .lineLimit(1)
-                    .fixedSize()
+            HStack(alignment: .top, spacing: 2) {
+                Text(model.networkName.uppercased())
+                    .font(.system(size: 14, weight: .semibold, design: .default))
+                    .foregroundColor(model.networkNameForegroundColor)
+                    .lineLimit(2)
+                
+                model.contractName.map {
+                    Text($0)
+                        .font(.system(size: 14))
+                        .foregroundColor(model.contractNameForegroundColor)
+                        .padding(.leading, 2)
+                        .lineLimit(1)
+                        .fixedSize()
+                }
             }
             
-            Spacer(minLength: 0)
+            Spacer()
             
             if !model.isReadOnly {
                 Toggle("", isOn: $model.selectedPublisher)
                     .labelsHidden()
+                    .disabled(model.isDisabled)
                     .toggleStyleCompat(.tangemGreen2)
-                    .scaleEffect(0.8)
                     .offset(x: 2)
+                    .scaleEffect(0.8)
             }
         }
     }
@@ -93,7 +95,7 @@ struct CurrencyItemView_Previews: PreviewProvider {
         VStack {
             StatefulPreviewWrapper(false) {
                 CurrencyItemView(model: CurrencyItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
-                                                              isReadOnly: false,
+                                                              isReadOnly: false, isDisabled: false,
                                                               isSelected: $0))
             }
             
@@ -104,7 +106,7 @@ struct CurrencyItemView_Previews: PreviewProvider {
                                                                                       decimalCount: 8,
                                                                                       customIconUrl: nil,
                                                                                       blockchain: .polygon(testnet: false))),
-                                                              isReadOnly: false,
+                                                              isReadOnly: false, isDisabled: false,
                                                               isSelected: $0))
             }
             
