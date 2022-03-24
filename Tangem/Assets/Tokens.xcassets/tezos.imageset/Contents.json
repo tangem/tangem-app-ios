@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "tezos.pdf",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
