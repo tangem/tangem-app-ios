@@ -1,82 +1,146 @@
-////
-////  AddCustomTokenViewModel.swift
-////  Tangem
-////
-////  Created by [REDACTED_AUTHOR]
-////  Copyright © 2021 Tangem AG. All rights reserved.
-////
 //
-//import Foundation
-//import Combine
-//import BlockchainSdk
+//  AddCustomTokenViewModel.swift
+//  Tangem
 //
-//class AddCustomTokenViewModel: ViewModel {
-//    
-//    weak var assembly: Assembly!
-//    weak var navigation: NavigationCoordinator!
-//    
-//    private enum TokenCreationErrors: LocalizedError {
-//        case notAllDataFulfilled, decimalsIsNan
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2021 Tangem AG. All rights reserved.
+//
+
+import Foundation
+import Combine
+import BlockchainSdk
+import TangemSdk
+
+class AddCustomTokenViewModel: ViewModel, ObservableObject {
+    private enum TokenCreationErrors: LocalizedError {
+        case blockchainNotSelected
+        case emptyFields
+        case invalidDecimals
+        case invalidContractAddress
+        
+        var errorDescription: String? {
+            switch self {
+            case .blockchainNotSelected:
+                return "custom_token_creation_error_network_not_selected".localized
+            case .emptyFields:
+                return "custom_token_creation_error_empty_fields".localized
+            case .invalidDecimals:
+                return "custom_token_creation_error_wrong_decimals".localized
+            case .invalidContractAddress:
+                return "custom_token_creation_error_invalid_contract_address".localized
+            }
+        }
+    }
+    
+    weak var assembly: Assembly!
+    weak var navigation: NavigationCoordinator!
+    weak var cardModel: CardViewModel?
+    
+    @Published var name = ""
+    @Published var symbol = ""
+    @Published var contractAddress = ""
+    @Published var decimals = ""
+    
+    @Published var blockchains: [(String, String)] = []
+    @Published var blockchainName: String = ""
+
+    @Published var error: AlertBinder?
+    
+    private var bag: Set<AnyCancellable> = []
+    private var blockchainByName: [String: Blockchain] = [:]
+    
+    init() {
+        
+    }
+    
+    func createToken() {
+        guard let cardModel = cardModel else {
+            return
+        }
+        
+        UIApplication.shared.endEditing()
+        
+        guard let blockchain = blockchainByName[blockchainName] else {
+            error = TokenCreationErrors.blockchainNotSelected.alertBinder
+            return
+        }
+        
+        guard !name.isEmpty, !symbol.isEmpty, !contractAddress.isEmpty, !decimals.isEmpty else {
+            error = TokenCreationErrors.emptyFields.alertBinder
+            return
+        }
+        
+        guard let decimals = Int(decimals) else {
+            error = TokenCreationErrors.invalidDecimals.alertBinder
+            return
+        }
+        
+        guard blockchain.validate(address: contractAddress) else {
+            error = TokenCreationErrors.invalidContractAddress.alertBinder
+            return
+        }
+        
+        let token = Token(
+            name: name,
+            symbol: symbol.uppercased(),
+            contractAddress: contractAddress,
+            decimalCount: decimals,
+            blockchain: blockchain
+        )
+
+        cardModel.manageTokenItems(add: [.token(token)], remove: []) { result in
+            switch result {
+            case .success:
+                self.navigation.mainToCustomToken = false
+                self.navigation.mainToAddTokens = false
+            case .failure(let error):
+                if case TangemSdkError.userCancelled = error {
+                    return
+                }
+                
+                self.error = error.alertBinder
+            }
+        }
+    }
+    
+    func onAppear() {
+        updateBlockchains()
+    }
+    
+    func onDisappear() {
+        blockchainName = ""
+        name = ""
+        symbol = ""
+        contractAddress = ""
+        decimals = ""
+    }
+    
+    private func updateBlockchains() {
+        let blockchainsWithTokens = self.blockchainsWithTokens()
+        
+        self.blockchains = blockchainsWithTokens.map {
+            ($0.displayName, $0.codingKey)
+        }
+        self.blockchainByName = Dictionary(uniqueKeysWithValues: blockchainsWithTokens.map {
+            ($0.codingKey, $0)
+        })
+    }
+    
+    private func blockchainsWithTokens() -> [Blockchain] {
+        guard let cardInfo = cardModel?.cardInfo else {
+            return []
+        }
+        
+        return []
+        
+//        let supportedTokenItems = SupportedTokenItems()
+//        let blockchains = supportedTokenItems.blockchains(for: cardInfo.card.walletCurves, isTestnet: cardInfo.isTestnet)
 //        
-//        var errorDescription: String? {
-//            switch self {
-//            case .notAllDataFulfilled: return "custom_token_creation_error_empty_fields".localized
-//            case .decimalsIsNan: return "custom_token_creation_error_wrong_decimals".localized
-//            }
+//        return blockchains.filter {
+//            supportedTokenItems.hasTokens(for: $0)
 //        }
-//    }
-//    
-//    [REDACTED_USERNAME] var name = ""
-//    [REDACTED_USERNAME] var symbolName = ""
-//    [REDACTED_USERNAME] var contractAddress = ""
-//    [REDACTED_USERNAME] var decimals = ""
-//    
-//    [REDACTED_USERNAME] var isSavingToken: Bool = false
-//    [REDACTED_USERNAME] var tokenSaved: Bool = false
-//    
-//    [REDACTED_USERNAME] var error: AlertBinder?
-//    
-//    private let walletModel: WalletModel
-//    private var bag: Set<AnyCancellable> = []
-//    
-//    init(walletModel: WalletModel) {
-//        self.walletModel = walletModel
-//    }
-//    
-//    func createToken() {
-//        UIApplication.shared.endEditing()
-//        guard !name.isEmpty, !symbolName.isEmpty, !contractAddress.isEmpty, !decimals.isEmpty else {
-//            error = TokenCreationErrors.notAllDataFulfilled.alertBinder
-//            return
+//        .sorted {
+//            $0.displayName < $1.displayName
 //        }
-//        
-//        guard let decim = UInt(decimals) else {
-//            error = TokenCreationErrors.decimalsIsNan.alertBinder
-//            return
-//        }
-//        
-//        isSavingToken = true
-//        let token = Token(name: name, symbol: symbolName.uppercased(), contractAddress: contractAddress, decimalCount: Int(decim))
-//        walletModel.addToken(token)?
-//            .sink(receiveCompletion: { [weak self] result in
-//                if case let .failure(error) = result {
-//                    print("Failed to receive token balance. Error:", error)
-//                }
-//                self?.isSavingToken = false
-//                self?.tokenSaved = true
-//            }, receiveValue: { [weak self] amount in
-//                self?.isSavingToken = false
-//                self?.tokenSaved = true
-//            })
-//            .store(in: &bag)
-//    }
-//    
-//    func onDisappear() {
-//        name = ""
-//        symbolName = ""
-//        contractAddress = ""
-//        decimals = ""
-//        tokenSaved = false
-//        isSavingToken = false
-//    }
-//}
+    }
+}
