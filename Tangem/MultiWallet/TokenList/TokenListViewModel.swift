@@ -207,6 +207,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
                 
                 let currencyItems = filteredItems.map { CurrencyItemViewModel(tokenItem: $0,
                                                                               isReadOnly: isDemoMode,
+                                                                              isDisabled: !canManage($0),
                                                                               isSelected: bindSelection($0)) }
                 
                 return .init(with: currency, items: currencyItems)
@@ -249,10 +250,6 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     private func bindSelection(_ tokenItem: TokenItem) -> Binding<Bool> {
-        if !canManage(tokenItem) {
-            return .constant(isDemoMode ? false : true) //already added, cannot be removed
-        }
-        
         let binding = Binding<Bool> { [weak self] in
             self?.isSelected(tokenItem) ?? false
         } set: { [weak self] isSelected in
