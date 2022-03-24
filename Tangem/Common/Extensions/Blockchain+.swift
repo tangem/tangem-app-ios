@@ -57,14 +57,4 @@ extension Blockchain: Identifiable {
     var iconName: String { stringId }
     
     var iconNameFilled: String { "\(iconName).fill" }
-    
-    var contractName: String? {
-        switch self {
-        case .binance: return "BEP2"
-        case .bsc: return "BEP20"
-        case .ethereum: return "ERC20"
-        default:
-            return nil
-        }
-    }
 }
