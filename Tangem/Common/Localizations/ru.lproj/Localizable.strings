@@ -63,9 +63,13 @@ Tangem — единственный аппаратный кошелек, пре�
 "common_success" = "Успешно";
 "common_warning" = "Предупреждение";
 "custom_token_contract_address_input_title" = "Адрес контракта";
+"custom_token_creation_error_network_not_selected" = "Пожалуйста, выберите сеть";
 "custom_token_creation_error_empty_fields" = "Пожалуйста, заполните все поля";
-"custom_token_creation_error_wrong_decimals" = "Введенное текст не является допустимым десятичным числом";
+"custom_token_creation_error_wrong_decimals" = "Количество знаков после запятой некорректно";
+"custom_token_creation_error_invalid_contract_address" = "Адрес контракта некорректен";
 "custom_token_decimals_input_title" = "Знаков после запятой";
+"custom_token_network_input_title" = "Сеть";
+"custom_token_network_input_not_selected" = "Не выбрано";
 "custom_token_name_input_placeholder" = "Например, USD Coin";
 "custom_token_name_input_title" = "Название токена";
 "custom_token_token_symbol_input_placeholder" = "Например, USDC";
