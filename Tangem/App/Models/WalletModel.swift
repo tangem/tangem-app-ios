@@ -109,6 +109,7 @@ class WalletModel: ObservableObject, Identifiable {
     private var updateTimer: AnyCancellable? = nil
     private let demoBalance: Decimal?
     private var isDemo: Bool { demoBalance != nil }
+    private var latestUpdateTime: Date? = nil
     
     deinit {
         print("🗑 WalletModel deinit")
@@ -140,6 +141,14 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     func update(silent: Bool = false) {
+        if let latestUpdateTime = self.latestUpdateTime,
+           latestUpdateTime.distance(to: Date()) <= 10 {
+            if !silent {
+                self.state = .idle
+            }
+            return
+        }
+        
         if case .loading = state {
             return
         }
@@ -163,6 +172,8 @@ class WalletModel: ObservableObject, Identifiable {
                     }
                     self.updateBalanceViewModel(with: self.wallet, state: self.state)
                 } else {
+                    self.latestUpdateTime = Date()
+                    
                     if let demoBalance = self.demoBalance {
                         self.walletManager.wallet.add(coinValue: demoBalance)
                     }
@@ -170,6 +181,7 @@ class WalletModel: ObservableObject, Identifiable {
                     if !silent {
                         self.state = .idle
                     }
+                    
                     self.loadRates()
                 }
             }
@@ -266,6 +278,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     func addTokens(_ tokens: [Token]) {
+        latestUpdateTime = nil
         walletManager.addTokens(tokens)
         updateTokensViewModels()
     }
@@ -323,6 +336,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     func startUpdatingTimer() {
+        latestUpdateTime = nil
         print("⏰ Starting updating timer for Wallet model")
         updateTimer = Timer.TimerPublisher(interval: 10.0,
                                            tolerance: 0.1,
