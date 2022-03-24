@@ -18,7 +18,7 @@ struct CurrencyView: View {
         HStack(alignment: .customTop, spacing: 14) {
             Icon(model.imageURL, name: model.name)
                 .alignmentGuide(.customTop, computeValue: { d in d[VerticalAlignment.top] - 1.5 })
-            
+               
             VStack(spacing: 26) {
                 HStack {
                     VStack(alignment: .leading, spacing: 8) {
@@ -61,12 +61,10 @@ struct CurrencyView: View {
                         ForEach(model.items) { CurrencyItemView(model: $0) }
                     }
                 }
-//                else {
-//                    Color.clear.frame(width: 1, height: 1) //fix bouncing
-//                }
             }
         }
         .padding(.vertical, 10)
+        .animation(nil) //Disable animations on scroll reuse
     }
     
     private var symbolFormatted: String {"(\(model.symbol))"}
