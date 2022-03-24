@@ -72,6 +72,9 @@ class TokenListViewModel: ViewModel, ObservableObject {
             .store(in: &bag)
     }
     
+    func showCustomTokenView() {
+        navigation.mainToCustomToken = true
+    }
     func saveChanges() {
         guard let cardModel = cardModel else {
             return
