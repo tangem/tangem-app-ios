@@ -28,8 +28,16 @@ struct TokenListView: View {
                 
                 if !viewModel.isDemoMode {
                     Button(action: viewModel.showCustomTokenView) {
-                        Image(systemName: "plus")
-                            .padding(16)
+                        ZStack {
+                            Circle().fill(Color.tangemGreen2)
+                            
+                            Image(systemName: "plus")
+                                .foregroundColor(.white)
+                                .font(.system(size: 13, weight: .bold, design: .default))
+                        }
+                        .frame(width: 26, height: 26)
+                        .padding(16)
+                       
                     }
                 }
             }
