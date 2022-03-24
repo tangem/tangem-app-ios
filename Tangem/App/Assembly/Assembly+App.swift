@@ -305,12 +305,27 @@ extension Assembly {
     }
     
     func makeTokenListViewModel(mode: TokenListViewModel.Mode) -> TokenListViewModel {
-        if let restored: TokenListViewModel = get(key: mode.id) {
+        let restorationKey = mode.id
+        if let restored: TokenListViewModel = get(key: restorationKey) {
             return restored
         }
         
         let vm = TokenListViewModel(mode: mode)
-        initialize(vm, with: mode.id, isResetable: true)
+        initialize(vm, with: restorationKey, isResetable: false)
+        return vm
+    }
+    
+    func makeAddCustomTokenModel() -> AddCustomTokenViewModel {
+        let cardModel = services.cardsRepository.lastScanResult.cardModel
+
+        if let restored: AddCustomTokenViewModel = get() {
+            restored.cardModel = cardModel
+            return restored
+        }
+        
+        let vm = AddCustomTokenViewModel()
+        initialize(vm)
+        vm.cardModel = cardModel
         return vm
     }
     
