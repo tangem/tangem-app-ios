@@ -12,12 +12,18 @@ struct ShopContainerView: View {
     @ObservedObject var viewModel: ShopViewModel
     
     var body: some View {
-        if let order = viewModel.order {
-            ShopOrderView(order: order)
-        } else if viewModel.pollingForOrder {
-            ShopOrderProgressView()
+        if let webShopUrl = viewModel.webShopUrl {
+            SafariView(url: webShopUrl)
         } else {
-            ShopView(viewModel: viewModel)
+            NavigationView {
+                if let order = viewModel.order {
+                    ShopOrderView(order: order)
+                } else if viewModel.pollingForOrder {
+                    ShopOrderProgressView()
+                } else {
+                    ShopView(viewModel: viewModel)
+                }
+            }
         }
     }
 }
