@@ -16,6 +16,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         case blockchainNotSelected
         case emptyFields
         case invalidDecimals
+        case invalidContractAddress
         
         var errorDescription: String? {
             switch self {
@@ -25,6 +26,8 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 return "custom_token_creation_error_empty_fields".localized
             case .invalidDecimals:
                 return "custom_token_creation_error_wrong_decimals".localized
+            case .invalidContractAddress:
+                return "custom_token_creation_error_invalid_contract_address".localized
             }
         }
     }
@@ -69,6 +72,11 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         
         guard let decimals = Int(decimals) else {
             error = TokenCreationErrors.invalidDecimals.alertBinder
+            return
+        }
+        
+        guard blockchain.validate(address: contractAddress) else {
+            error = TokenCreationErrors.invalidContractAddress.alertBinder
             return
         }
         
