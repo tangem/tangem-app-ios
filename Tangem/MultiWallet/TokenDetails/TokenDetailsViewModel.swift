@@ -264,7 +264,6 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         
         walletModel?
             .$state
-            .removeDuplicates()
 //            .print("🐼 TokenDetailsViewModel: Wallet model state")
             .map{ $0.isLoading }
             .filter { !$0 }
