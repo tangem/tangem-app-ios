@@ -19,9 +19,9 @@ struct CurrencyModel {
     let items: [TokenItem]
     
     init(with entity: CurrencyEntity, baseImageURL: URL?) {
-        let id = entity.id.trim()
-        let name = entity.name.trim()
-        let symbol = entity.symbol.uppercased().trim()
+        let id = entity.id.trimmed()
+        let name = entity.name.trimmed()
+        let symbol = entity.symbol.uppercased().trimmed()
         let url = baseImageURL?.appendingPathComponent("large")
             .appendingPathComponent("\(id).png")
         
@@ -45,7 +45,7 @@ struct CurrencyModel {
             
             return .token(Token(name: name,
                                 symbol: symbol,
-                                contractAddress: $0.address.trim(),
+                                contractAddress: $0.address.trimmed(),
                                 decimalCount: $0.decimalCount,
                                 customIconUrl: url?.absoluteString,
                                 blockchain: blockchain))
