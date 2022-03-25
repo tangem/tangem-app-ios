@@ -56,8 +56,6 @@
 		5D341CC827E340770028D8FC /* CurrencyItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D341CC727E340770028D8FC /* CurrencyItemView.swift */; };
 		5D341CCA27E4C5650028D8FC /* CurrencyItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D341CC927E4C5650028D8FC /* CurrencyItemViewModel.swift */; };
 		5D341CCC27E4D4170028D8FC /* CurrencyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D341CCB27E4D4170028D8FC /* CurrencyViewModel.swift */; };
-		5D341CCD27E4EBB70028D8FC /* CurrencyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D341CCB27E4D4170028D8FC /* CurrencyViewModel.swift */; };
-		5D341CCE27E4EBBA0028D8FC /* CurrencyItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D341CC927E4C5650028D8FC /* CurrencyItemViewModel.swift */; };
 		5D383E3F24D95BA600C9BFF6 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5D383E4124D95BA600C9BFF6 /* Localizable.strings */; };
 		5D384B8B24FD154C00C2C92C /* PayIDService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D384B8A24FD154C00C2C92C /* PayIDService.swift */; };
 		5D384B9124FD4E1800C2C92C /* String+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D384B9024FD4E1800C2C92C /* String+.swift */; };
@@ -78,6 +76,8 @@
 		5D49034F27BE84B20072C642 /* ExploreButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D49034E27BE84B20072C642 /* ExploreButton.swift */; };
 		5D49035027BE8AAE0072C642 /* ExploreButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D49034E27BE84B20072C642 /* ExploreButton.swift */; };
 		5D49035227BE9D550072C642 /* Data+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D49035127BE9D550072C642 /* Data+.swift */; };
+		5D4B8BB927EDB327002CE87C /* ArrowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D4B8BB827EDB327002CE87C /* ArrowView.swift */; };
+		5D4B8BBB27EDB354002CE87C /* NetworkIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D4B8BBA27EDB354002CE87C /* NetworkIcon.swift */; };
 		5D51036927C534A60025EA55 /* JSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D51036827C534A60025EA55 /* JSON.swift */; };
 		5D51036B27C534CB0025EA55 /* EIP712TypedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D51036A27C534CB0025EA55 /* EIP712TypedData.swift */; };
 		5D51036D27C535AB0025EA55 /* ABIEncoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D51036C27C535AB0025EA55 /* ABIEncoder.swift */; };
@@ -953,6 +953,8 @@
 		5D43E2D62514D5B700697E5B /* CardOperationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardOperationView.swift; sourceTree = "<group>"; };
 		5D49034E27BE84B20072C642 /* ExploreButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreButton.swift; sourceTree = "<group>"; };
 		5D49035127BE9D550072C642 /* Data+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+.swift"; sourceTree = "<group>"; };
+		5D4B8BB827EDB327002CE87C /* ArrowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrowView.swift; sourceTree = "<group>"; };
+		5D4B8BBA27EDB354002CE87C /* NetworkIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIcon.swift; sourceTree = "<group>"; };
 		5D51036827C534A60025EA55 /* JSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSON.swift; sourceTree = "<group>"; };
 		5D51036A27C534CB0025EA55 /* EIP712TypedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EIP712TypedData.swift; sourceTree = "<group>"; };
 		5D51036C27C535AB0025EA55 /* ABIEncoder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ABIEncoder.swift; sourceTree = "<group>"; };
@@ -1992,6 +1994,8 @@
 				B0E9E2FE2679DA8000269C7A /* AmountView.swift */,
 				B0BA7BC426C4F96B00D7066F /* NonDismissableModalView.swift */,
 				5D0A2CDE27E9D47900396399 /* StatefulPreviewWrapper.swift */,
+				5D4B8BB827EDB327002CE87C /* ArrowView.swift */,
+				5D4B8BBA27EDB354002CE87C /* NetworkIcon.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -4333,6 +4337,7 @@
 				B0541DC226FB301A0043893E /* WalletOnboardingCardLayout.swift in Sources */,
 				5D958E1424F513D9006BD932 /* RefreshableScrollView.swift in Sources */,
 				5D341CCC27E4D4170028D8FC /* CurrencyViewModel.swift in Sources */,
+				5D4B8BB927EDB327002CE87C /* ArrowView.swift in Sources */,
 				B06997D02692EC5E0014A676 /* ExchangeService.swift in Sources */,
 				B020FFBE25DE895E00EF422C /* Logger.swift in Sources */,
 				B026178D26FCAB7900B5107F /* FanStackCalculator.swift in Sources */,
@@ -4413,6 +4418,7 @@
 				5D15F9E8258A522500392BA5 /* PickerView.swift in Sources */,
 				B0C6B4C326CE678900FA990B /* CGSize+.swift in Sources */,
 				5D73C9862513C85D00487CA5 /* CurrencySelectView.swift in Sources */,
+				5D4B8BBB27EDB354002CE87C /* NetworkIcon.swift in Sources */,
 				5D78D113261DFB2C00F98B18 /* CreateWalletAndReadTask.swift in Sources */,
 				DAADD5B427EB5A180046DEC3 /* SafariView.swift in Sources */,
 				B0D34E6F2626CEEB00625AC5 /* WalletConnectSignHandler.swift in Sources */,
@@ -4679,7 +4685,6 @@
 				B066B49C262D6EFA00EB85A5 /* MuxedAccount.swift in Sources */,
 				B066B45C262D6EFA00EB85A5 /* PBKDF1.swift in Sources */,
 				B0FAD00026BA655300F45E88 /* Assembly+Preview.swift in Sources */,
-				5D341CCE27E4EBBA0028D8FC /* CurrencyItemViewModel.swift in Sources */,
 				B066B1AB262D6B1100EB85A5 /* OP_NUMEQUAL.swift in Sources */,
 				B066B498262D6EFA00EB85A5 /* HDCrypto.swift in Sources */,
 				B066B4A4262D6EFA00EB85A5 /* HorizonRequestError.swift in Sources */,
@@ -4964,7 +4969,6 @@
 				B066B452262D6EFA00EB85A5 /* Utils.swift in Sources */,
 				B00BC584260B178000F0647D /* PickerView.swift in Sources */,
 				B066B1E6262D6B1100EB85A5 /* Wallet.swift in Sources */,
-				5D341CCD27E4EBB70028D8FC /* CurrencyViewModel.swift in Sources */,
 				B066B1BB262D6B1100EB85A5 /* OP_2DROP.swift in Sources */,
 				B066B160262D6B1100EB85A5 /* Data+Sha.swift in Sources */,
 				B066B5D7262DB48000EB85A5 /* IScriptConverter.swift in Sources */,
