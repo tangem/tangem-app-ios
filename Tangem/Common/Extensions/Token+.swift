@@ -8,9 +8,7 @@
 
 import Foundation
 import SwiftUI
-#if !CLIP
 import BlockchainSdk
-#endif
 
 extension Token: Identifiable {
     public var id: Int { return hashValue }
