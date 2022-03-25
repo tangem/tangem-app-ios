@@ -41,6 +41,8 @@ class ShopViewModel: ViewModel, ObservableObject {
     @Published var showingWebCheckout = false
     
     // MARK: - Output
+    @Published var webShopUrl: URL?
+    
     @Published var checkingDiscountCode = false
     @Published var showingThirdCard = true
     @Published var loadingProducts = false
@@ -53,6 +55,12 @@ class ShopViewModel: ViewModel, ObservableObject {
     private var currentVariantID: GraphQL.ID = GraphQL.ID(rawValue: "")
     private var checkoutByVariantID: [GraphQL.ID: Checkout] = [:]
     private var initialized = false
+    
+    init() {
+        if Locale.current.regionCode == "RU" {
+            webShopUrl = URL(string: "https://mv.tangem.com")
+        }
+    }
     
     func didAppear() {
         showingWebCheckout = false
