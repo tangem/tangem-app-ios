@@ -56,8 +56,15 @@ struct AppScanTaskResponse {
     }
 }
 
+enum AppScanTaskError: String, Error, LocalizedError {
+    case wrongCardClip
+    
+    var errorDescription: String? {
+        "alert_wrong_card_scanned".localized
+    }
+}
+
 final class AppScanTask: CardSessionRunnable {
-    private let tokenItemsRepository: TokenItemsRepository?
     private let userPrefsService: UserPrefsService?
     
     private let targetBatch: String?
@@ -66,14 +73,23 @@ final class AppScanTask: CardSessionRunnable {
     private var primaryCard: PrimaryCard? = nil
     private var derivedKeys: [Data: [DerivationPath:ExtendedPublicKey]] = [:]
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
+#if !CLIP
     private var mandatoryBlockchain: Blockchain? //for wc
+    private let tokenItemsRepository: TokenItemsRepository?
     
-    init(tokenItemsRepository: TokenItemsRepository?, userPrefsService: UserPrefsService?, targetBatch: String? = nil, mandatoryBlockchain: Blockchain? = nil) {
+    init(tokenItemsRepository: TokenItemsRepository?, userPrefsService: UserPrefsService?,
+         targetBatch: String? = nil, mandatoryBlockchain: Blockchain? = nil) {
         self.tokenItemsRepository = tokenItemsRepository
         self.targetBatch = targetBatch
         self.userPrefsService = userPrefsService
         self.mandatoryBlockchain = mandatoryBlockchain
     }
+#else
+    init(userPrefsService: UserPrefsService?, targetBatch: String? = nil) {
+        self.targetBatch = targetBatch
+        self.userPrefsService = userPrefsService
+    }
+#endif
     
     deinit {
         print("AppScanTask deinit")
@@ -90,7 +106,7 @@ final class AppScanTask: CardSessionRunnable {
         
         if let targetBatch = self.targetBatch?.lowercased(),
            targetBatch != currentBatch {
-            completion(.failure(TangemSdkError.underlying(error: "alert_wrong_card_scanned".localized)))
+            completion(.failure(TangemSdkError.underlying(error: AppScanTaskError.wrongCardClip)))
             return
         }
         
@@ -233,6 +249,10 @@ final class AppScanTask: CardSessionRunnable {
     }
     
     private func deriveKeysIfNeeded(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
+#if CLIP
+        self.runAttestation(session, completion)
+        return
+#else
         guard let tokenItemsRepository = self.tokenItemsRepository,
         session.environment.card?.settings.isHDWalletAllowed == true else {
             self.runAttestation(session, completion)
@@ -270,6 +290,7 @@ final class AppScanTask: CardSessionRunnable {
                 completion(.failure(error))
             }
         }
+#endif
     }
     
     private func runAttestation(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
