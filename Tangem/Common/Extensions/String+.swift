@@ -39,7 +39,7 @@ extension String {
         })
     }
     
-    func trim() -> String {
+    func trimmed() -> String {
         self.trimmingCharacters(in: .whitespacesAndNewlines)
     }
     
