@@ -295,7 +295,7 @@ class WalletModel: ObservableObject, Identifiable {
             return false
         }
         
-        if let amount = wallet.amounts[amountType], !amount.isEmpty {
+        if let amount = wallet.amounts[amountType], !amount.isZero {
             return false
         }
         
