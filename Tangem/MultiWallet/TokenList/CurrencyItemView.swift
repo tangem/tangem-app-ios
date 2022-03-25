@@ -18,96 +18,69 @@ struct CurrencyItemView: View {
                     isMainIndicatorVisible: model.isMain)
     }
     
+    @State private var size: CGSize = .zero
+    
     var body: some View {
-        HStack(spacing: 0) {
-            icon
-                .padding(.trailing, 4)
+        HStack(spacing: 6) {
+            ArrowView(position: model.position, height: size.height)
             
-            HStack(alignment: .top, spacing: 2) {
-                Text(model.networkName.uppercased())
-                    .font(.system(size: 14, weight: .semibold, design: .default))
-                    .foregroundColor(model.networkNameForegroundColor)
-                    .lineLimit(2)
+            HStack(spacing: 0) {
+                icon
+                    .padding(.trailing, 4)
                 
-                model.contractName.map {
-                    Text($0)
-                        .font(.system(size: 14))
-                        .foregroundColor(model.contractNameForegroundColor)
-                        .padding(.leading, 2)
-                        .lineLimit(1)
-                        .fixedSize()
+                HStack(alignment: .top, spacing: 2) {
+                    Text(model.networkName.uppercased())
+                        .font(.system(size: 14, weight: .semibold, design: .default))
+                        .foregroundColor(model.networkNameForegroundColor)
+                        .lineLimit(2)
+                    
+                    model.contractName.map {
+                        Text($0)
+                            .font(.system(size: 14))
+                            .foregroundColor(model.contractNameForegroundColor)
+                            .padding(.leading, 2)
+                            .lineLimit(1)
+                            .fixedSize()
+                    }
+                }
+                
+                Spacer()
+                
+                if !model.isReadOnly {
+                    Toggle("", isOn: $model.selectedPublisher)
+                        .labelsHidden()
+                        .disabled(model.isDisabled)
+                        .toggleStyleCompat(.tangemGreen2)
+                        .offset(x: 2)
+                        .scaleEffect(0.8)
                 }
             }
-            
-            Spacer()
-            
-            if !model.isReadOnly {
-                Toggle("", isOn: $model.selectedPublisher)
-                    .labelsHidden()
-                    .disabled(model.isDisabled)
-                    .toggleStyleCompat(.tangemGreen2)
-                    .offset(x: 2)
-                    .scaleEffect(0.8)
-            }
+            .padding(.vertical, 9)
         }
-    }
-}
-
-fileprivate struct NetworkIcon: View {
-    let imageName: String
-    let isMainIndicatorVisible: Bool
-    let size: CGSize = .init(width: 20, height: 20)
-    let indicatorSize: CGSize = .init(width: 6.5, height: 6.5)
-    
-    var body: some View {
-        Image(imageName)
-            .resizable()
-            .frame(width: size.width, height: size.height)
-            .overlay(indicatorOverlay)
-    }
-    
-    @ViewBuilder
-    private var indicatorOverlay: some View {
-        if isMainIndicatorVisible {
-            MainNetworkIndicator()
-                .frame(width: indicatorSize.width, height: indicatorSize.height)
-                .offset(x: size.width/2 - indicatorSize.width/2,
-                        y: -size.height/2 + indicatorSize.height/2)
-        } else {
-            EmptyView()
-        }
-    }
-}
-
-fileprivate struct MainNetworkIndicator: View {
-    let borderPadding: CGFloat = 1.5
-    
-    var body: some View {
-        Circle()
-            .foregroundColor(.tangemGreen2)
-            .padding(borderPadding)
-            .background(Circle().fill(Color.white))
+        .readSize(onChange: { self.size = $0 })
     }
 }
 
 struct CurrencyItemView_Previews: PreviewProvider {
     static var previews: some View {
-        VStack {
+        VStack(spacing: 0) {
+            CurrencyItemView(model: CurrencyItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
+                                                          isReadOnly: false,
+                                                          isDisabled: false,
+                                                          isSelected: .constant(false)))
+            
+            CurrencyItemView(model: CurrencyItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
+                                                          isReadOnly: false,
+                                                          isDisabled: false,
+                                                          isSelected: .constant(true),
+                                                          position: .last))
+            
+            
             StatefulPreviewWrapper(false) {
                 CurrencyItemView(model: CurrencyItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
                                                               isReadOnly: false, isDisabled: false,
                                                               isSelected: $0))
-            }
-            
-            StatefulPreviewWrapper(true) {
-                CurrencyItemView(model: CurrencyItemViewModel(tokenItem: .token(.init(name: "Tether",
-                                                                                      symbol: "USDT",
-                                                                                      contractAddress: "",
-                                                                                      decimalCount: 8,
-                                                                                      customIconUrl: nil,
-                                                                                      blockchain: .polygon(testnet: false))),
-                                                              isReadOnly: false, isDisabled: false,
-                                                              isSelected: $0))
+                
             }
             
             Spacer()
