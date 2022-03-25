@@ -63,24 +63,12 @@ struct WalletOnboardingView: View {
                         // and cards jumps instead of smooth transition
                         NavigationBar(title: viewModel.navbarTitle,
                                       settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear),
-                                      leftItems: {
+                                      leftButtons: {
                                         BackButton(height: viewModel.navbarSize.height,
                                                    isVisible: viewModel.isBackButtonVisible,
                                                    isEnabled: viewModel.isBackButtonEnabled) {
                                             viewModel.backButtonAction()
                                         }
-                                      },
-                                      rightItems: {
-                                        Button(action: {
-                                            navigation.onboardingWalletToShop = true
-                                            Analytics.log(.getACard, params: [.source: .walletOnboarding])
-                                        }) {
-                                            Text("home_button_shop")
-                                                .foregroundColor(.tangemGreen)
-                                                .padding(.horizontal, 16)
-                                        }
-                                        .frame(height: viewModel.navbarSize.height)
-                                        .opacity(viewModel.isShopButtonVisible ? 1.0 : 0.0)
                                       })
                             .offset(x: 0, y: -geom.size.height / 2 + (isNavbarVisible ? viewModel.navbarSize.height / 2 + 4 : 0))
                             .opacity(isNavbarVisible ? 1.0 : 0.0)
@@ -159,15 +147,6 @@ struct WalletOnboardingView: View {
                     OnboardingAccessCodeView { accessCode in
                         viewModel.saveAccessCode(accessCode)
                     }})
-            
-            Color.clear.frame(width: 1, height: 1)
-                .sheet(isPresented: $navigation.onboardingWalletToShop, content: {
-                    NavigationView {
-                        ShopContainerView(viewModel: viewModel.assembly.makeShopViewModel())
-                            .environmentObject(navigation)
-                    }
-                })
-            
         }
         .alert(item: $viewModel.alert, content: { alertBinder in
             alertBinder.alert
