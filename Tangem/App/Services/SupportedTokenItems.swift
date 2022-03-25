@@ -23,23 +23,6 @@ class SupportedTokenItems {
         ]
     }()
     
-    private let sources: [Blockchain: String] = [
-        .ethereum(testnet: false) : "ethereum",
-        .ethereum(testnet: true) : "ethereumTestnet",
-        .binance(testnet: false) : "binance",
-        .binance(testnet: true) : "binanceTestnet",
-        .bsc(testnet: false) : "bsc",
-        .bsc(testnet: true) : "bscTestnet",
-        .polygon(testnet: false) : "polygon",
-        .polygon(testnet: true) : "polygonTestnet",
-        .avalanche(testnet: false) : "avalanche",
-        .avalanche(testnet: true) : "avalancheTestnet",
-        .solana(testnet: false): "solana",
-        .solana(testnet: true): "solanaTestnet", // Solana devnet
-        .fantom(testnet: false): "fantom",
-        .fantom(testnet: true): "fantomTestnet",
-    ]
-    
     private lazy var blockchains: Set<Blockchain> = {
         [
             .ethereum(testnet: false),
@@ -91,31 +74,36 @@ class SupportedTokenItems {
         ?? testnetBlockchains.union(blockchains)
         return allBlockchains.filter { curves.contains($0.curve) }
     }
-    
-    func hasTokens(for blockchain: Blockchain) -> Bool {
-        sources[blockchain] != nil
-    }
 
     func tokens(for blockchain: Blockchain) -> [Token] {
-        guard let src = sources[blockchain] else {
-            return []
-        }
-        
         do {
-            let tokens = try JsonUtils.readBundleFile(with: src,
-                                                      type: [TokenDTO].self,
-                                                      shouldAddCompilationCondition: false)
-            return tokens.map {
-                Token(name: $0.name,
-                      symbol: $0.symbol,
-                      contractAddress: $0.contractAddress,
-                      decimalCount: $0.decimalCount,
-                      customIconUrl: $0.customIconUrl,
-                      blockchain: blockchain)
+            let currencies = try loadCurrencies(isTestnet: blockchain.isTestnet)
+            return currencies.compactMap {
+                $0.items.compactMap({ $0.token }).first(where: { $0.blockchain == blockchain })
             }
         } catch {
             Log.error(error.localizedDescription)
             return []
         }
+    }
+    
+    func loadCurrencies(isTestnet: Bool) throws -> [CurrencyModel] {
+        let list = try readList(isTestnet: isTestnet)
+        return list.tokens.map { .init(with: $0, baseImageURL: list.imageHost) }
+    }
+
+    
+    private func readList(isTestnet: Bool) throws -> CurrenciesList {
+        try JsonUtils.readBundleFile(with: isTestnet ? Constants.testFilename : Constants.filename,
+                                     type: CurrenciesList.self,
+                                     shouldAddCompilationCondition: false)
+    }
+}
+
+
+fileprivate extension SupportedTokenItems {
+    enum Constants {
+        static let filename: String = "tokens"
+        static let testFilename: String = "testnet_tokens"
     }
 }
