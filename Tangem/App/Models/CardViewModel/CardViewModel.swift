@@ -630,17 +630,26 @@ class CardViewModel: Identifiable, ObservableObject {
         return newWalletModels.first
     }
     
-    func addTokenItems(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void) {
+    func manageTokenItems(add addItems: [TokenItem], remove removeItems: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void) {
         guard let walletModels = self.walletModels else {
             completion(.success(()))
             return
         }
         
-        tokenItemsRepository.append(tokenItems, for: cardInfo.card.cardId)
+        removeItems.forEach {
+            remove(amountType: $0.amountType, blockchain: $0.blockchain)
+        }
+        
+        if addItems.isEmpty {
+            completion(.success(()))
+            return
+        }
+        
+        tokenItemsRepository.append(addItems, for: cardInfo.card.cardId)
         
         let existingBlockchains = Set(walletModels.map { $0.wallet.blockchain })
-        let newBlockchains = Set(tokenItems.map { $0.blockchain })
-        let tokens = tokenItems.compactMap { $0.token }
+        let newBlockchains = Set(addItems.map { $0.blockchain })
+        let tokens = addItems.compactMap { $0.token }
         let groupedTokens = Dictionary(grouping: tokens, by: { $0.blockchain })
         let blockchainsToAdd = Array(newBlockchains.subtracting(existingBlockchains)).sorted { $0.displayName < $1.displayName }
  
@@ -705,6 +714,14 @@ class CardViewModel: Identifiable, ObservableObject {
         }
         
         return false
+    }
+    
+    func canManage(amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
+        if let walletModel = walletModels?.first(where: { $0.wallet.blockchain == blockchain }) {
+            return walletModel.canRemove(amountType: amountType)
+        }
+        
+        return true
     }
     
     func remove(amountType: Amount.AmountType, blockchain: Blockchain) {
