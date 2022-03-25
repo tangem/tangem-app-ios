@@ -170,7 +170,7 @@ extension Color {
     public init?(hex: String) {
         let r, g, b, a: Double
         
-        var hexColor = hex.stripHexPrefix().remove("#")
+        var hexColor = hex.remove("#")
         if hexColor.count == 6 {
             hexColor += "FF"
         }
