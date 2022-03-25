@@ -7,10 +7,8 @@
 //
 
 import Foundation
-#if !CLIP
 import struct BlockchainSdk.Token
 import enum BlockchainSdk.Blockchain
-#endif
 import TangemSdk
 
 class SupportedTokenItems {

@@ -8,9 +8,7 @@
 
 import Foundation
 import TangemSdk
-#if !CLIP
 import BlockchainSdk
-#endif
 
 class WalletManagerAssembly {
     let factory: WalletManagerFactory
