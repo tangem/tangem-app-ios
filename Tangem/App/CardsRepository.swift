@@ -17,139 +17,8 @@ import struct TangemSdk.PrimaryCard
 import struct TangemSdk.DerivationPath
 import class TangemSdk.TangemSdk
 import enum TangemSdk.TangemSdkError
-#if !CLIP
-import BlockchainSdk
-#endif
 
 import Intents
-
-struct CardInfo {
-    var card: Card
-    var walletData: WalletData?
-    var artwork: CardArtwork = .notLoaded
-    var twinCardInfo: TwinCardInfo?
-    var isTangemNote: Bool
-    var isTangemWallet: Bool
-    var derivedKeys: [Data:[DerivationPath:ExtendedPublicKey]] = [:]
-    var primaryCard: PrimaryCard? = nil
-    
-    var imageLoadDTO: ImageLoadDTO {
-        ImageLoadDTO(cardId: card.cardId,
-                     cardPublicKey: card.cardPublicKey,
-                     artwotkInfo: artworkInfo)
-    }
-    
-    var isTestnet: Bool {
-        if card.batchId == "99FF" { //[REDACTED_TODO_COMMENT]
-            return card.cardId.starts(with: card.batchId.reversed())
-        }
-        
-        return defaultBlockchain?.isTestnet ?? false
-    }
-    
-    var defaultBlockchain: Blockchain? {
-        guard let walletData = walletData else { return nil }
-        
-        guard let curve = isTangemNote ? EllipticCurve.secp256k1 : card.supportedCurves.first else {
-            return nil
-        }
-        
-        let blockchainName = isTangemNote ? (walletData.blockchain.lowercased() == "binance" ? "bsc": walletData.blockchain)
-            : walletData.blockchain
-        
-        return Blockchain.from(blockchainName: blockchainName, curve: curve)
-    }
-    
-    var defaultToken: Token? {
-        guard let token = walletData?.token, let blockchain = defaultBlockchain else { return nil }
-        
-        return Token(name: token.name,
-                     symbol: token.symbol,
-                     contractAddress: token.contractAddress,
-                     decimalCount: token.decimals,
-                     blockchain: blockchain)
-    }
-    
-    var artworkInfo: ArtworkInfo? {
-        switch artwork {
-        case .notLoaded, .noArtwork: return nil
-        case .artwork(let artwork): return artwork
-        }
-    }
-    
-    var isMultiWallet: Bool {
-        if isTangemNote {
-            return false
-        }
-        
-        if card.isTwinCard {
-            return false
-        }
-        
-        if card.isStart2Coin {
-            return false
-        }
-        
-        if card.firmwareVersion.major < 4,
-           !card.supportedCurves.contains(.secp256k1) {
-            return false
-        }
-        
-        return true
-    }
-}
-
-enum CardArtwork: Equatable {
-    static func == (lhs: CardArtwork, rhs: CardArtwork) -> Bool {
-        switch (lhs, rhs) {
-        case (.notLoaded, .notLoaded), (.noArtwork, .noArtwork): return true
-        case (.artwork(let lhsArt), .artwork(let rhsArt)): return lhsArt == rhsArt
-        default: return false
-        }
-    }
-    
-    case notLoaded, noArtwork, artwork(ArtworkInfo)
-}
-
-struct ImageLoadDTO: Equatable {
-    let cardId: String
-    let cardPublicKey: Data
-    let artwotkInfo: ArtworkInfo?
-}
-
-enum ScanResult: Equatable {
-    case card(model: CardViewModel)
-    case unsupported
-	case notScannedYet
-    
-    var cardModel: CardViewModel? {
-        switch self {
-        case .card(let model):
-            return model
-        default:
-            return nil
-        }
-    }
-    
-    var card: Card? {
-        switch self {
-        case .card(let model):
-            return model.cardInfo.card
-        default:
-            return nil
-        }
-    }
-
-    static func == (lhs: ScanResult, rhs: ScanResult) -> Bool {
-		switch (lhs, rhs) {
-		case (.card, .card): return true
-		case (.unsupported, .unsupported): return true
-		case (.notScannedYet, .notScannedYet): return true
-		default:
-			return false
-		}
-    }
-}
 
 protocol CardsRepositoryDelegate: AnyObject {
     func onWillScan()
@@ -184,11 +53,9 @@ class CardsRepository {
                 completion(.failure(error))
             case .success(let response):
 				Analytics.logScan(card: response.card)
-                #if !CLIP
                 let interaction = INInteraction(intent: ScanTangemCardIntent(), response: nil)
                 interaction.donate(completion: nil)
                 self.scannedCardsRepository.add(response.getCardInfo())
-                #endif
 				completion(.success(processScan(response.getCardInfo())))
             }
         }
@@ -224,10 +91,8 @@ class CardsRepository {
 
 extension CardsRepository: SignerDelegate {
     func onSign(_ card: Card) {
-        #if !CLIP
         if let cm = cards[card.cardId] {
             cm.cardModel?.onSign(card)
         }
-        #endif
     }
 }
