@@ -7,9 +7,7 @@
 //
 
 import Foundation
-#if !CLIP
 import BlockchainSdk
-#endif
 
 public enum IconsUtils {
     private static var baseUrl: String {

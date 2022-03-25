@@ -7,10 +7,8 @@
 //
 
 import Foundation
-#if !CLIP
 import BlockchainSdk
 import Kingfisher
-#endif
 import SwiftUI
 
 enum TokenItem: Hashable, Identifiable {
