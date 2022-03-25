@@ -80,8 +80,22 @@ class AppServicesAssembly: ServicesAssembly {
     lazy var rateAppService: RateAppService = .init(userPrefsService: userPrefsService)
     private let configManager = try! FeaturesConfigManager()
     lazy var shopifyService = ShopifyService(shop: keysManager.shopifyShop, testApplePayPayments: false)
+    let keysManager = try! KeysManager()
+    lazy var ratesService = CoinMarketCapService(apiKey: keysManager.coinMarketKey)
+    lazy var tokenItemsRepository = TokenItemsRepository(persistanceStorage: persistentStorage)
     
-    override func onDidScan(_ cardInfo: CardInfo) {
+    lazy var cardsRepository: CardsRepository = {
+        let crepo = CardsRepository()
+        crepo.tangemSdk = tangemSdk
+        crepo.assembly = assembly
+        crepo.delegate = self
+        crepo.scannedCardsRepository = scannedCardsRepository
+        crepo.tokenItemsRepository = tokenItemsRepository
+        crepo.userPrefsService = userPrefsService
+        return crepo
+    }()
+    
+    func onDidScan(_ cardInfo: CardInfo) {
         featuresService.setupFeatures(for: cardInfo.card)
 //        warningsService.setupWarnings(for: cardInfo)
 
@@ -92,5 +106,11 @@ class AppServicesAssembly: ServicesAssembly {
         if cardInfo.card.isTwinCard {
             tangemSdk.config.cardIdDisplayFormat = .last(4)
         }
+    }
+}
+
+extension AppServicesAssembly: CardsRepositoryDelegate {
+    func onWillScan() {
+        tangemSdk.config = defaultSdkConfig
     }
 }
