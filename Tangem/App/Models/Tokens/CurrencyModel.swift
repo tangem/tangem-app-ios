@@ -36,7 +36,6 @@ struct CurrencyModel {
                 items.append(.blockchain(bsc))
             }
             
-        } else {
         }
         
         let tokens: [TokenItem]? = entity.contracts?.compactMap {
