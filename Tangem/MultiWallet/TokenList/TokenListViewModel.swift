@@ -33,7 +33,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
         }
     }
     
-    var isDemoMode: Bool {
+    var isReadonlyMode: Bool {
         switch mode {
         case .add:
             return false
@@ -181,46 +181,42 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     private func getData()  { //[REDACTED_TODO_COMMENT]
-        do {
-            let isTestnet = cardModel?.cardInfo.isTestnet ?? false
-            let currencies = try SupportedTokenItems().loadCurrencies(isTestnet: isTestnet)
+        let isTestnet = cardModel?.cardInfo.isTestnet ?? false
+        let currencies = (try? SupportedTokenItems().loadCurrencies(isTestnet: isTestnet)) ?? []
+        
+        let supportedCurves = cardModel?.cardInfo.card.walletCurves ?? EllipticCurve.allCases
+        let fwVersion = cardModel?.cardInfo.card.firmwareVersion.doubleValue
+        let isSupportSolanaTokens = fwVersion.map { $0 < 4.52 } ?? true //[REDACTED_TODO_COMMENT]
+        
+        self.data = currencies.compactMap { currency in
             
-            let supportedCurves = cardModel?.cardInfo.card.walletCurves ?? EllipticCurve.allCases
-            let fwVersion = cardModel?.cardInfo.card.firmwareVersion.doubleValue
-            let isSupportSolanaTokens = fwVersion.map { $0 < 4.52 } ?? true //[REDACTED_TODO_COMMENT]
-            
-            self.data = currencies.compactMap { currency in
-                
-                let filteredItems = currency.items.filter { item in
-                    if !supportedCurves.contains(item.blockchain.curve) {
-                        return false
-                    }
-                    
-                    if !isSupportSolanaTokens, let token = item.token,
-                       token.blockchain == .solana(testnet: true) ||
-                        token.blockchain == .solana(testnet: false) {
-                        return false
-                    }
-                    
-                    return true
+            let filteredItems = currency.items.filter { item in
+                if !supportedCurves.contains(item.blockchain.curve) {
+                    return false
                 }
                 
-                let totalItems = filteredItems.count
-                let currencyItems: [CurrencyItemViewModel] = filteredItems.enumerated().map { (index, item) in
-                        .init(tokenItem: item,
-                              isReadOnly: isDemoMode,
-                              isDisabled: !canManage(item),
-                              isSelected: bindSelection(item),
-                              position: .init(with: index, total: totalItems))
+                if !isSupportSolanaTokens, let token = item.token,
+                   token.blockchain == .solana(testnet: true) ||
+                    token.blockchain == .solana(testnet: false) {
+                    return false
                 }
                 
-                return .init(with: currency, items: currencyItems)
+                return true
             }
             
-            self.filteredData = data
-        } catch {
-            print(error)
+            let totalItems = filteredItems.count
+            let currencyItems: [CurrencyItemViewModel] = filteredItems.enumerated().map { (index, item) in
+                    .init(tokenItem: item,
+                          isReadonly: isReadonlyMode,
+                          isDisabled: !canManage(item),
+                          isSelected: bindSelection(item),
+                          position: .init(with: index, total: totalItems))
+            }
+            
+            return .init(with: currency, items: currencyItems)
         }
+        
+        self.filteredData = data
     }
     
     private func isSelected(_ tokenItem: TokenItem) -> Bool {
@@ -236,19 +232,19 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     private func onSelect(_ selected: Bool, _ tokenItem: TokenItem) {
-        let alreadyAdded = self.isAdded(tokenItem)
+        let alreadyAdded = isAdded(tokenItem)
         
-        if selected {
-            if alreadyAdded {
-                self.pendingRemove.remove(tokenItem)
+        if alreadyAdded {
+            if selected {
+                pendingRemove.remove(tokenItem)
             } else {
-                self.pendingAdd.append(tokenItem)
+                pendingRemove.append(tokenItem)
             }
         } else {
-            if alreadyAdded {
-                self.pendingRemove.append(tokenItem)
+            if selected {
+                pendingAdd.append(tokenItem)
             } else {
-                self.pendingAdd.remove(tokenItem)
+                pendingAdd.remove(tokenItem)
             }
         }
     }
