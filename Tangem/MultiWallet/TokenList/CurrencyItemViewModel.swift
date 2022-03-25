@@ -16,6 +16,7 @@ class CurrencyItemViewModel: Identifiable, ObservableObject {
     let isReadOnly: Bool
     let isDisabled: Bool
     let isSelected: Binding<Bool>
+    let position: ItemPosition
     
     @Published var selectedPublisher: Bool
     
@@ -29,11 +30,12 @@ class CurrencyItemViewModel: Identifiable, ObservableObject {
     
     private var bag = Set<AnyCancellable>()
     
-    init(tokenItem: TokenItem, isReadOnly: Bool, isDisabled: Bool, isSelected: Binding<Bool>) {
+    init(tokenItem: TokenItem, isReadOnly: Bool, isDisabled: Bool, isSelected: Binding<Bool>, position: ItemPosition = .middle) {
         self.tokenItem = tokenItem
         self.isReadOnly = isReadOnly
         self.isDisabled = isDisabled
         self.isSelected = isSelected
+        self.position = position
         self.selectedPublisher = isSelected.wrappedValue
         
         $selectedPublisher
