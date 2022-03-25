@@ -283,6 +283,10 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     func canRemove(amountType: Amount.AmountType) -> Bool {
+        if !state.isSuccesfullyLoaded {
+            return false
+        }
+        
         if let token = amountType.token, token == defaultToken {
             return false
         }
