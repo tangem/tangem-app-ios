@@ -27,7 +27,7 @@ extension Blockchain: Identifiable {
     }
     
     var stringId: String {
-        var name = rawStringId
+        let name = rawStringId
         return isTestnet ? "\(name)\(Blockchain.testnetId)" : name
     }
     //bitcoinCash, bsc, avalanche
