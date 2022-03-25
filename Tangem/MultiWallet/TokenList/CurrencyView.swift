@@ -13,53 +13,52 @@ import Kingfisher
 struct CurrencyView: View {
     @ObservedObject var model: CurrencyViewModel
     var subtitle: LocalizedStringKey = "currency_subtitle_expanded"
-
+    
     var body: some View {
-        HStack(alignment: .customTop, spacing: 14) {
-            Icon(model.imageURL, name: model.name)
-                .alignmentGuide(.customTop, computeValue: { d in d[VerticalAlignment.top] - 1.5 })
-               
-            VStack(spacing: 26) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 8) {
-                        
-                        HStack(spacing: 4) {
-                            Text(model.name)
-                                .foregroundColor(.tangemGrayDark6)
-                            Text(symbolFormatted)
-                                .foregroundColor(Color(hex: "#A9A9AD")!)
-                        }
-                        .lineLimit(1)
-                        .fixedSize()
-                        .font(.system(size: 17, weight: .medium, design: .default))
-
-                        if isExpanded {
-                            Text(subtitle)
-                                .font(.system(size: 13))
-                                .foregroundColor(Color(hex: "#A9A9AD")!)
-                        } else {
-                            HStack(spacing: 5) {
-                                ForEach(model.items) {
-                                    CurrencyItemView(model: $0).icon
-                                }
+        VStack(spacing: 26) {
+            HStack(alignment: .customTop, spacing: 0) {
+                Icon(model.imageURL, name: model.name)
+                    .alignmentGuide(.customTop, computeValue: { d in d[VerticalAlignment.top] - 1.5 })
+                    .padding(.trailing, 14)
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    
+                    HStack(spacing: 4) {
+                        Text(model.name)
+                            .foregroundColor(.tangemGrayDark6)
+                        Text(symbolFormatted)
+                            .foregroundColor(Color(hex: "#A9A9AD")!)
+                    }
+                    .lineLimit(1)
+                    .fixedSize()
+                    .font(.system(size: 17, weight: .medium, design: .default))
+                    
+                    if isExpanded {
+                        Text(subtitle)
+                            .font(.system(size: 13))
+                            .foregroundColor(Color(hex: "#A9A9AD")!)
+                    } else {
+                        HStack(spacing: 5) {
+                            ForEach(model.items) {
+                                CurrencyItemView(model: $0).icon
                             }
                         }
                     }
-                    
-                    Spacer()
-                    
-                    Button {
-                        isExpanded.toggle()
-                    } label: {
-                        chevronView
-                    }
-                    .buttonStyle(PlainButtonStyle())
                 }
                 
-                if isExpanded {
-                    VStack(spacing: 18) {
-                        ForEach(model.items) { CurrencyItemView(model: $0) }
-                    }
+                Spacer()
+                
+                Button {
+                    isExpanded.toggle()
+                } label: {
+                    chevronView
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+            
+            if isExpanded {
+                VStack(spacing: 0) {
+                    ForEach(model.items) { CurrencyItemView(model: $0) }
                 }
             }
         }
@@ -115,11 +114,18 @@ struct CurrencyView_Previews: PreviewProvider {
                                                         CurrencyItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
                                                                               isReadOnly: false,
                                                                               isDisabled: false,
-                                                                              isSelected: $0),
+                                                                              isSelected: $0,
+                                                                              position: .first),
                                                         CurrencyItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
                                                                               isReadOnly: false,
                                                                               isDisabled: false,
-                                                                              isSelected: $0)
+                                                                              isSelected: $0,
+                                                                              position: .middle),
+                                                        CurrencyItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
+                                                                              isReadOnly: false,
+                                                                              isDisabled: false,
+                                                                              isSelected: $0,
+                                                                              position: .last)
                                                       ]))
             }
             Spacer()
