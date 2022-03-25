@@ -17,7 +17,7 @@ struct AddTokensView: View {
             Button(action: {
                 action()
             }, label: {
-                Text("add_tokens_title")
+                Text("main_manage_tokens_button")
                     .frame(width: geo.size.width, height: 56)
             })
             .foregroundColor(.black)
