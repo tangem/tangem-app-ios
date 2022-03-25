@@ -196,13 +196,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         }
     }
     
-    var isShopButtonVisible: Bool {
-        switch currentStep {
-        case .selectBackupCards: return true
-        default: return false
-        }
-    }
-    
     private var primaryCardStackIndex: Int {
         switch backupServiceState {
         case .finalizingBackupCard(let index):
@@ -357,12 +350,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                 controller.addAction(UIAlertAction(title: "common_continue".localized, style: .default, handler: { [weak self] _ in
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                         self?.navigation.onboardingWalletToAccessCode = true
-                    }
-                }))
-                controller.addAction(UIAlertAction(title: "onboarding_button_buy_more_cards".localized, style: .default, handler: { [weak self] _ in
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        self?.navigation.onboardingWalletToShop = true
-                        Analytics.log(.getACard, params: [.source: .walletOnboardingBuyMore])
                     }
                 }))
                 controller.addAction(UIAlertAction(title: "common_cancel".localized, style: .cancel, handler: { _ in }))
