@@ -31,6 +31,10 @@ class Analytics {
     
     static func logScan(card: Card) {
         log(event: .cardIsScanned, with: collectCardData(card))
+        
+        if card.isDemoCard {
+            log(event: .demoActivated, with: [.cardId : card.cardId])
+        }
     }
     
     static func logTx(blockchainName: String?, isPushed: Bool = false) {
@@ -161,6 +165,7 @@ extension Analytics {
         case userBoughtCrypto = "user_bought_crypto"
         case userSoldCrypto = "user_sold_crypto"
         case getACard = "get_card"
+        case demoActivated = "demo_mode_activated"
         
         fileprivate static var nfcError: String {
             "nfc_error"
@@ -198,11 +203,11 @@ extension Analytics {
         case walletConnectDappUrl = "wallet_connect_dapp_url"
         case currencyCode = "currency_code"
         case source = "source"
+        case cardId = "cardId"
     }
     
     enum ParameterValue: String {
         case welcome
-        case walletOnboardingBuyMore = "wallet_onboaring_buy_more_cards"
         case walletOnboarding = "wallet_onboarding"
     }
     
