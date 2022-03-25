@@ -34,8 +34,8 @@ struct CurrencyItemView: View {
                         .foregroundColor(model.networkNameForegroundColor)
                         .lineLimit(2)
                     
-                    model.contractName.map {
-                        Text($0)
+                    if let contractName = model.contractName {
+                        Text(contractName)
                             .font(.system(size: 14))
                             .foregroundColor(model.contractNameForegroundColor)
                             .padding(.leading, 2)
@@ -46,7 +46,7 @@ struct CurrencyItemView: View {
                 
                 Spacer()
                 
-                if !model.isReadOnly {
+                if !model.isReadonly {
                     Toggle("", isOn: $model.selectedPublisher)
                         .labelsHidden()
                         .disabled(model.isDisabled)
@@ -65,12 +65,12 @@ struct CurrencyItemView_Previews: PreviewProvider {
     static var previews: some View {
         VStack(spacing: 0) {
             CurrencyItemView(model: CurrencyItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
-                                                          isReadOnly: false,
+                                                          isReadonly: false,
                                                           isDisabled: false,
                                                           isSelected: .constant(false)))
             
             CurrencyItemView(model: CurrencyItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
-                                                          isReadOnly: false,
+                                                          isReadonly: false,
                                                           isDisabled: false,
                                                           isSelected: .constant(true),
                                                           position: .last))
@@ -78,7 +78,8 @@ struct CurrencyItemView_Previews: PreviewProvider {
             
             StatefulPreviewWrapper(false) {
                 CurrencyItemView(model: CurrencyItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
-                                                              isReadOnly: false, isDisabled: false,
+                                                              isReadonly: false,
+                                                              isDisabled: false,
                                                               isSelected: $0))
                 
             }
