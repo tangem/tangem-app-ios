@@ -116,7 +116,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     private func updateBlockchains() {
-        let blockchainsWithTokens = self.blockchainsWithTokens()
+        let blockchainsWithTokens = getblockchains()
         
         self.blockchains = blockchainsWithTokens.map {
             ($0.displayName, $0.codingKey)
@@ -126,21 +126,16 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         })
     }
     
-    private func blockchainsWithTokens() -> [Blockchain] {
+    private func getblockchains() -> [Blockchain] {
         guard let cardInfo = cardModel?.cardInfo else {
             return []
         }
         
-        return []
+        let supportedTokenItems = SupportedTokenItems()
+        let blockchains = supportedTokenItems.blockchains(for: cardInfo.card.walletCurves, isTestnet: cardInfo.isTestnet)
         
-//        let supportedTokenItems = SupportedTokenItems()
-//        let blockchains = supportedTokenItems.blockchains(for: cardInfo.card.walletCurves, isTestnet: cardInfo.isTestnet)
-//        
-//        return blockchains.filter {
-//            supportedTokenItems.hasTokens(for: $0)
-//        }
-//        .sorted {
-//            $0.displayName < $1.displayName
-//        }
+        return blockchains.sorted {
+            $0.displayName < $1.displayName
+        }
     }
 }
