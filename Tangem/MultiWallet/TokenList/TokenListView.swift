@@ -26,7 +26,7 @@ struct TokenListView: View {
                 
                 Spacer()
                 
-                if !viewModel.isDemoMode {
+                if !viewModel.isReadonlyMode {
                     Button(action: viewModel.showCustomTokenView) {
                         ZStack {
                             Circle().fill(Color.tangemGreen2)
@@ -60,7 +60,7 @@ struct TokenListView: View {
                 .listStyle(PlainListStyle())
             }
             
-            if !viewModel.isDemoMode {
+            if !viewModel.isReadonlyMode {
                 TangemButton(title: "common_save_changes", action: viewModel.saveChanges)
                     .buttonStyle(TangemButtonStyle(colorStyle: .black,
                                                    layout: .flexibleWidth,
