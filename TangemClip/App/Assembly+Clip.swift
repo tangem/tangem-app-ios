@@ -13,7 +13,10 @@ import Combine
 extension Assembly {
     func getMainViewModel() -> MainViewModel {
         guard let model: MainViewModel = get() else {
-            let mainModel = MainViewModel(cardsRepository: services.cardsRepository, imageLoaderService: services.imageLoaderService)
+            let mainModel = MainViewModel(sdk: services.tangemSdk,
+                                          imageLoaderService: services.imageLoaderService,
+                                          userPrefsService: services.userPrefsService,
+                                          assembly: services.assembly)
             store(mainModel, isResetable: true)
             return mainModel
         }
@@ -28,19 +31,6 @@ extension Assembly {
         vm.tangemSdk = services.tangemSdk
         //vm.updateState()
         return vm
-    }
-    
-    // MARK: Wallets
-    func makeWalletModels(from info: CardInfo) -> [WalletModel] {
-        let walletManagerAssembly = WalletManagerAssembly(factory: WalletManagerFactory(config: services.keysManager.blockchainConfig),
-                                                   tokenItemsRepository: services.tokenItemsRepository)
-        
-        let managers = walletManagerAssembly.makeAllWalletManagers(for: info)
-        return managers.map {
-            let model = WalletModel(walletManager: $0)
-            model.ratesService = self.services.ratesService
-            return model
-        }
     }
     
     func updateAppClipCard(with batch: String?, fullLink: String) {
