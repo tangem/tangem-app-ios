@@ -7,9 +7,7 @@
 //
 
 import Foundation
-#if !CLIP
 import BlockchainSdk
-#endif
 
 struct CurrencyModel {
     let id: String
