@@ -7,9 +7,7 @@
 //
 
 import Foundation
-#if !CLIP
 import BlockchainSdk
-#endif
 
 extension Blockchain: Identifiable {
     public var id: Int { return hashValue }
