@@ -13,7 +13,7 @@ import Combine
 class CurrencyItemViewModel: Identifiable, ObservableObject {
     let id: UUID = .init()
     let tokenItem: TokenItem
-    let isReadOnly: Bool
+    let isReadonly: Bool
     let isDisabled: Bool
     let isSelected: Binding<Bool>
     let position: ItemPosition
@@ -30,9 +30,9 @@ class CurrencyItemViewModel: Identifiable, ObservableObject {
     
     private var bag = Set<AnyCancellable>()
     
-    init(tokenItem: TokenItem, isReadOnly: Bool, isDisabled: Bool, isSelected: Binding<Bool>, position: ItemPosition = .middle) {
+    init(tokenItem: TokenItem, isReadonly: Bool, isDisabled: Bool, isSelected: Binding<Bool>, position: ItemPosition = .middle) {
         self.tokenItem = tokenItem
-        self.isReadOnly = isReadOnly
+        self.isReadonly = isReadonly
         self.isDisabled = isDisabled
         self.isSelected = isSelected
         self.position = position
