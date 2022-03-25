@@ -33,7 +33,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
         }
     }
     
-    var isDemoMode: Bool {
+    var isReadonlyMode: Bool {
         switch mode {
         case .add:
             return false
@@ -182,7 +182,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
     
     private func getData()  { //[REDACTED_TODO_COMMENT]
         let isTestnet = cardModel?.cardInfo.isTestnet ?? false
-        let currencies = try? SupportedTokenItems().loadCurrencies(isTestnet: isTestnet) ?? []
+        let currencies = (try? SupportedTokenItems().loadCurrencies(isTestnet: isTestnet)) ?? []
         
         let supportedCurves = cardModel?.cardInfo.card.walletCurves ?? EllipticCurve.allCases
         let fwVersion = cardModel?.cardInfo.card.firmwareVersion.doubleValue
@@ -207,7 +207,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
             let totalItems = filteredItems.count
             let currencyItems: [CurrencyItemViewModel] = filteredItems.enumerated().map { (index, item) in
                     .init(tokenItem: item,
-                          isReadOnly: isDemoMode,
+                          isReadonly: isReadonlyMode,
                           isDisabled: !canManage(item),
                           isSelected: bindSelection(item),
                           position: .init(with: index, total: totalItems))
@@ -232,19 +232,19 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     private func onSelect(_ selected: Bool, _ tokenItem: TokenItem) {
-        let alreadyAdded = self.isAdded(tokenItem)
+        let alreadyAdded = isAdded(tokenItem)
         
-        if selected {
-            if alreadyAdded {
-                self.pendingRemove.remove(tokenItem)
+        if alreadyAdded {
+            if selected {
+                pendingRemove.remove(tokenItem)
             } else {
-                self.pendingAdd.append(tokenItem)
+                pendingRemove.append(tokenItem)
             }
         } else {
-            if alreadyAdded {
-                self.pendingRemove.append(tokenItem)
+            if selected {
+                pendingAdd.append(tokenItem)
             } else {
-                self.pendingAdd.remove(tokenItem)
+                pendingAdd.remove(tokenItem)
             }
         }
     }
