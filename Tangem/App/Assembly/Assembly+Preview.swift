@@ -27,7 +27,7 @@ extension Assembly {
                               isTangemNote: preview.isNote,
                               isTangemWallet: true)
             let vm = assembly.makeCardModel(from: ci)
-
+            let scanResult = ScanResult.card(model: vm)
 #if !CLIP
             let walletModels: [WalletModel]
             if let blockchain = preview.blockchain {
@@ -39,11 +39,9 @@ extension Assembly {
             }
             
             vm.state = .loaded(walletModel: walletModels)
-#endif
-            
-            let scanResult = ScanResult.card(model: vm)
             assembly.services.cardsRepository.cards[card.cardId] = scanResult
             assembly.services.cardsRepository.lastScanResult = scanResult
+#endif
             return scanResult
         }
         
@@ -63,7 +61,8 @@ extension Assembly {
                 return nil
             }
         }
-        
+ 
+#if !CLIP
         var blockchain: Blockchain? {
             switch self {
             case .ethereum:
@@ -76,6 +75,7 @@ extension Assembly {
                 return nil
             }
         }
+#endif
         
         var publicKey: Data {
             // [REDACTED_TODO_COMMENT]
@@ -101,7 +101,8 @@ extension Assembly {
             }
         }
     }
-    
+
+#if !CLIP
     static func previewAssembly(for card: PreviewCard) -> Assembly {
         let assembly = Assembly(isPreview: true)
         
@@ -121,7 +122,7 @@ extension Assembly {
     var previewCardViewModel: CardViewModel {
         services.cardsRepository.lastScanResult.cardModel!
     }
-    
+#endif
 }
 
 #if !CLIP
