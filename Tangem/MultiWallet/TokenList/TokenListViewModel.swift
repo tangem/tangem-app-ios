@@ -205,10 +205,14 @@ class TokenListViewModel: ViewModel, ObservableObject {
                     return true
                 }
                 
-                let currencyItems = filteredItems.map { CurrencyItemViewModel(tokenItem: $0,
-                                                                              isReadOnly: isDemoMode,
-                                                                              isDisabled: !canManage($0),
-                                                                              isSelected: bindSelection($0)) }
+                let totalItems = filteredItems.count
+                let currencyItems: [CurrencyItemViewModel] = filteredItems.enumerated().map { (index, item) in
+                        .init(tokenItem: item,
+                              isReadOnly: isDemoMode,
+                              isDisabled: !canManage(item),
+                              isSelected: bindSelection(item),
+                              position: .init(with: index, total: totalItems))
+                }
                 
                 return .init(with: currency, items: currencyItems)
             }
