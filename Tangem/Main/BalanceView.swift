@@ -9,9 +9,7 @@
 import Foundation
 import SwiftUI
 import TangemSdk
-#if !CLIP
 import BlockchainSdk
-#endif
 
 struct TokenBalanceView: View {
     var tokenViewModel: TokenBalanceViewModel
