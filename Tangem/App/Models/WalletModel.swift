@@ -335,7 +335,7 @@ class WalletModel: ObservableObject, Identifiable {
             return .token(token)
         }
         
-        return .blockchain(wallet.blockchain)
+        return .blockchain(BlockchainInfo(blockchain: wallet.blockchain))
     }
     
     func startUpdatingTimer() {
