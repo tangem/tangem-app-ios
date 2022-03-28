@@ -86,31 +86,49 @@ struct AddCustomTokenView: View {
     @EnvironmentObject var navigation: NavigationCoordinator
     
     var body: some View {
-        VStack {
-            HStack {
-                Text("add_custom_token_title".localized)
-                    .font(Font.system(size: 36, weight: .bold, design: .default))
-                    .padding(.vertical)
+        ScrollView {
+            VStack {
+                HStack {
+                    Text("add_custom_token_title".localized)
+                        .font(Font.system(size: 36, weight: .bold, design: .default))
+                        .padding(.vertical)
+                    
+                    Spacer()
+                }
+                
+                Picker("", selection: $viewModel.type) {
+                    Text("Network")
+                        .tag(AddCustomTokenViewModel.TokenType.blockchain)
+                    Text("Token")
+                        .tag(AddCustomTokenViewModel.TokenType.token)
+                }
+                .pickerStyle(.segmented)
+                
+                VStack(spacing: 1) {
+                    PickerInputWithTitle(title: "custom_token_network_input_title".localized, value: $viewModel.blockchainName, values: viewModel.blockchains)
+                        .cornerRadius(10, corners: [.topLeft, .topRight])
+                    
+                    if viewModel.type == .token {
+                        TextInputWithTitle(title: "custom_token_name_input_title".localized, placeholder: "custom_token_name_input_placeholder".localized, text: $viewModel.name, keyboardType: .default)
+                        
+                        TextInputWithTitle(title: "custom_token_token_symbol_input_title".localized, placeholder: "custom_token_token_symbol_input_placeholder".localized, text: $viewModel.symbol, keyboardType: .default)
+        
+                        TextInputWithTitle(title: "custom_token_contract_address_input_title".localized, placeholder: "0x0000000000000000000000000000000000000000", text: $viewModel.contractAddress, keyboardType: .default)
+        
+                        TextInputWithTitle(title: "custom_token_decimals_input_title".localized, placeholder: "0", text: $viewModel.decimals, keyboardType: .numberPad)
+                    }
+                    
+                    TextInputWithTitle(title: "custom_token_derivation_path_input_title".localized, placeholder: "m/44'/60'/0'/0'/0", text: $viewModel.derivationPath, keyboardType: .default)
+                        .cornerRadius(10, corners: [.bottomLeft, .bottomRight])
+                }
                 
                 Spacer()
+                
+                TangemButton(title: "common_add", systemImage: "plus", action: viewModel.createToken)
+                    .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
             }
-            
-            VStack(spacing: 1) {
-                PickerInputWithTitle(title: "custom_token_network_input_title".localized, value: $viewModel.blockchainName, values: viewModel.blockchains)
-                    .cornerRadius(10, corners: [.topLeft, .topRight])
-                TextInputWithTitle(title: "custom_token_name_input_title".localized, placeholder: "custom_token_name_input_placeholder".localized, text: $viewModel.name, keyboardType: .default)
-                TextInputWithTitle(title: "custom_token_token_symbol_input_title".localized, placeholder: "custom_token_token_symbol_input_placeholder".localized, text: $viewModel.symbol, keyboardType: .default)
-                TextInputWithTitle(title: "custom_token_contract_address_input_title".localized, placeholder: "0x0000000000000000000000000000000000000000", text: $viewModel.contractAddress, keyboardType: .default)
-                TextInputWithTitle(title: "custom_token_decimals_input_title".localized, placeholder: "0", text: $viewModel.decimals, keyboardType: .numberPad)
-                    .cornerRadius(10, corners: [.bottomLeft, .bottomRight])
-            }
-            
-            Spacer()
-            
-            TangemButton(title: "common_add", systemImage: "plus", action: viewModel.createToken)
-                .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
+            .padding()
         }
-        .padding()
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
         .alert(item: $viewModel.error, content: { $0.alert })
