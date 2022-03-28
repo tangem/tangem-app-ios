@@ -12,7 +12,7 @@ import Kingfisher
 import SwiftUI
 
 enum TokenItem: Hashable, Identifiable {
-    case blockchain(Blockchain)
+    case blockchain(BlockchainInfo)
     case token(Token)
     
     var isBlockchain: Bool { token == nil }
@@ -21,8 +21,8 @@ enum TokenItem: Hashable, Identifiable {
         switch self {
         case .token(let token):
             return token.hashValue
-        case .blockchain(let blockchain):
-            return blockchain.hashValue
+        case .blockchain(let blockchainInfo):
+            return blockchainInfo.hashValue
         }
     }
     
@@ -30,8 +30,8 @@ enum TokenItem: Hashable, Identifiable {
         switch self {
         case .token(let token):
             return token.blockchain
-        case .blockchain(let blockchain):
-            return blockchain
+        case .blockchain(let blockchainInfo):
+            return blockchainInfo.blockchain
         }
     }
     
@@ -46,8 +46,8 @@ enum TokenItem: Hashable, Identifiable {
         switch self {
         case .token(let token):
             return token.name
-        case .blockchain(let blockchain):
-            return blockchain.displayName
+        case .blockchain(let blockchainInfo):
+            return blockchainInfo.blockchain.displayName
         }
     }
     
@@ -70,8 +70,8 @@ enum TokenItem: Hashable, Identifiable {
         switch self {
         case .token(let token):
             return token.symbol
-        case .blockchain(let blockchain):
-            return blockchain.currencySymbol
+        case .blockchain(let blockchainInfo):
+            return blockchainInfo.blockchain.currencySymbol
         }
     }
     
@@ -101,16 +101,16 @@ enum TokenItem: Hashable, Identifiable {
         switch self {
         case .token(let token):
             CircleImageTextView(name: token.name, color: token.color)
-        case .blockchain(let blockchain):
-            Image(blockchain.iconNameFilled)
+        case .blockchain(let blockchainInfo):
+            Image(blockchainInfo.blockchain.iconNameFilled)
                 .resizable()
         }
     }
     
     fileprivate var imageURL: URL? {
         switch self {
-        case .blockchain(let blockchain):
-            return IconsUtils.getBlockchainIconUrl(blockchain).flatMap { URL(string: $0.absoluteString) }
+        case .blockchain(let blockchainInfo):
+            return IconsUtils.getBlockchainIconUrl(blockchainInfo.blockchain).flatMap { URL(string: $0.absoluteString) }
         case .token(let token):
             return token.customIconUrl.flatMap{ URL(string: $0) }
         }
@@ -120,11 +120,15 @@ enum TokenItem: Hashable, Identifiable {
 extension TokenItem: Codable {
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        if let blockchain = try? container.decode(Blockchain.self) {
-            self = .blockchain(blockchain)
-        } else if let token = try? container.decode(Token.self) {
+        if let token = try? container.decode(Token.self) {
             self = .token(token)
+        } else if let blockchainInfo = try? container.decode(BlockchainInfo.self) {
+            self = .blockchain(blockchainInfo)
+        } else if let blockchain = try? container.decode(Blockchain.self) {
+            // Compatibility
+            self = .blockchain(BlockchainInfo(blockchain: blockchain, derivationPath: nil))
         } else if let tokenDto = try? container.decode(TokenDTO.self) {
+            // Compatibility
             self = .token(Token(name: tokenDto.name,
                                 symbol: tokenDto.symbol,
                                 contractAddress: tokenDto.contractAddress,
@@ -139,8 +143,8 @@ extension TokenItem: Codable {
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         switch self {
-        case .blockchain(let blockhain):
-            try container.encode(blockhain)
+        case .blockchain(let blockchainInfo):
+            try container.encode(blockchainInfo)
         case .token(let token):
             try container.encode(token)
         }
