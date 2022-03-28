@@ -402,7 +402,7 @@ class MainViewModel: ViewModel, ObservableObject {
             return
         }
         
-        let hasTokenAmounts = !wallet.amounts.values.filter { $0.type.isToken && !$0.isEmpty }.isEmpty
+        let hasTokenAmounts = !wallet.amounts.values.filter { $0.type.isToken && !$0.isZero }.isEmpty
         
         if hasTokenAmounts {
             navigation.mainToSendChoise = true
