@@ -37,7 +37,7 @@ struct TokenItemViewModel: Identifiable, Equatable, Comparable {
             return .token(token)
         }
         
-        return .blockchain(blockchain)
+        return .blockchain(BlockchainInfo(blockchain: blockchain))
     }
     
     var isTestnet: Bool {
