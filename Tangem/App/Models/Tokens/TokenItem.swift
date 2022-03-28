@@ -120,13 +120,15 @@ enum TokenItem: Hashable, Identifiable {
 extension TokenItem: Codable {
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        if let blockchain = try? container.decode(Blockchain.self) {
-            self = .blockchain(BlockchainInfo(blockchain: blockchain, derivationPath: nil))
+        if let token = try? container.decode(Token.self) {
+            self = .token(token)
         } else if let blockchainInfo = try? container.decode(BlockchainInfo.self) {
             self = .blockchain(blockchainInfo)
-        } else if let token = try? container.decode(Token.self) {
-            self = .token(token)
+        } else if let blockchain = try? container.decode(Blockchain.self) {
+            // Compatibility
+            self = .blockchain(BlockchainInfo(blockchain: blockchain, derivationPath: nil))
         } else if let tokenDto = try? container.decode(TokenDTO.self) {
+            // Compatibility
             self = .token(Token(name: tokenDto.name,
                                 symbol: tokenDto.symbol,
                                 contractAddress: tokenDto.contractAddress,
