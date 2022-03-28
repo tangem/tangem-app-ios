@@ -60,7 +60,11 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     private var blockchainByName: [String: Blockchain] = [:]
     
     init() {
-        
+        $type
+            .sink {
+                self.updateBlockchains(type: $0)
+            }
+            .store(in: &bag)
     }
     
     func createToken() {
@@ -137,7 +141,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     func onAppear() {
-        updateBlockchains()
+        updateBlockchains(type: type)
     }
     
     func onDisappear() {
@@ -148,27 +152,41 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         decimals = ""
     }
     
-    private func updateBlockchains() {
-        let blockchainsWithTokens = getblockchains()
+    private func updateBlockchains(type: TokenType) {
+        let blockchains = getBlockchains(withTokenSupport: type == .token)
         
-        self.blockchains = blockchainsWithTokens.map {
+        self.blockchains = blockchains.map {
             ($0.displayName, $0.codingKey)
         }
-        self.blockchainByName = Dictionary(uniqueKeysWithValues: blockchainsWithTokens.map {
+        self.blockchainByName = Dictionary(uniqueKeysWithValues: blockchains.map {
             ($0.codingKey, $0)
         })
+        
+        if blockchainByName[blockchainName] == nil {
+            self.blockchainName = ""
+        }
     }
     
-    private func getblockchains() -> [Blockchain] {
+    private func getBlockchains(withTokenSupport: Bool) -> [Blockchain] {
         guard let cardInfo = cardModel?.cardInfo else {
             return []
         }
         
         let supportedTokenItems = SupportedTokenItems()
-        let blockchains = supportedTokenItems.blockchains(for: cardInfo.card.walletCurves, isTestnet: cardInfo.isTestnet)
+        let blockchains = supportedTokenItems
+            .blockchains(for: cardInfo.card.walletCurves, isTestnet: cardInfo.isTestnet)
+            .sorted {
+                $0.displayName < $1.displayName
+            }
         
-        return blockchains.sorted {
-            $0.displayName < $1.displayName
+        if withTokenSupport {
+            let blockchainsWithTokens = supportedTokenItems.blockchainsWithTokens(isTestnet: cardInfo.isTestnet)
+            return blockchains
+                .filter {
+                    blockchainsWithTokens.contains($0)
+                }
+        } else {
+            return blockchains
         }
     }
 }
