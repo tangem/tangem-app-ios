@@ -12,11 +12,17 @@ import BlockchainSdk
 import TangemSdk
 
 class AddCustomTokenViewModel: ViewModel, ObservableObject {
+    enum TokenType: Hashable {
+        case blockchain
+        case token
+    }
+    
     private enum TokenCreationErrors: LocalizedError {
         case blockchainNotSelected
         case emptyFields
         case invalidDecimals
         case invalidContractAddress
+        case invalidDerivationPath
         
         var errorDescription: String? {
             switch self {
@@ -28,6 +34,8 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 return "custom_token_creation_error_wrong_decimals".localized
             case .invalidContractAddress:
                 return "custom_token_creation_error_invalid_contract_address".localized
+            case .invalidDerivationPath:
+                return "custom_token_creation_error_invalid_derivation_path".localized
             }
         }
     }
@@ -36,10 +44,12 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     weak var navigation: NavigationCoordinator!
     weak var cardModel: CardViewModel?
     
+    @Published var type: TokenType = .blockchain
     @Published var name = ""
     @Published var symbol = ""
     @Published var contractAddress = ""
     @Published var decimals = ""
+    @Published var derivationPath = ""
     
     @Published var blockchains: [(String, String)] = []
     @Published var blockchainName: String = ""
@@ -65,30 +75,53 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             return
         }
         
-        guard !name.isEmpty, !symbol.isEmpty, !contractAddress.isEmpty, !decimals.isEmpty else {
-            error = TokenCreationErrors.emptyFields.alertBinder
-            return
+        
+        let derivationPath: DerivationPath?
+        if !self.derivationPath.isEmpty {
+            derivationPath = try? DerivationPath(rawPath: self.derivationPath)
+            
+            if derivationPath == nil {
+                error = TokenCreationErrors.invalidDerivationPath.alertBinder
+                return
+            }
+        } else {
+            derivationPath = nil
         }
         
-        guard let decimals = Int(decimals) else {
-            error = TokenCreationErrors.invalidDecimals.alertBinder
-            return
-        }
-        
-        guard blockchain.validate(address: contractAddress) else {
-            error = TokenCreationErrors.invalidContractAddress.alertBinder
-            return
-        }
-        
-        let token = Token(
-            name: name,
-            symbol: symbol.uppercased(),
-            contractAddress: contractAddress,
-            decimalCount: decimals,
-            blockchain: blockchain
-        )
+        var itemsToAdd: [TokenItem] = []
+        if type == .token {
+            guard !name.isEmpty, !symbol.isEmpty, !contractAddress.isEmpty, !decimals.isEmpty else {
+                error = TokenCreationErrors.emptyFields.alertBinder
+                return
+            }
 
-        cardModel.manageTokenItems(add: [.token(token)], remove: []) { result in
+            guard let decimals = Int(decimals) else {
+                error = TokenCreationErrors.invalidDecimals.alertBinder
+                return
+            }
+            
+            guard blockchain.validate(address: contractAddress) else {
+                error = TokenCreationErrors.invalidContractAddress.alertBinder
+                return
+            }
+            
+            let tokenItem = TokenItem.token(
+                Token(
+                    name: name,
+                    symbol: symbol.uppercased(),
+                    contractAddress: contractAddress,
+                    decimalCount: decimals,
+                    blockchain: blockchain
+                )
+            )
+            itemsToAdd.append(tokenItem)
+        }
+        
+        
+        let blockchainItem = TokenItem.blockchain(BlockchainInfo(blockchain: blockchain, derivationPath: derivationPath))
+        itemsToAdd.append(blockchainItem)
+
+        cardModel.manageTokenItems(add: itemsToAdd, remove: []) { result in
             switch result {
             case .success:
                 self.navigation.mainToCustomToken = false
