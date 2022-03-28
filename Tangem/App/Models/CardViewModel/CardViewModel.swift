@@ -559,7 +559,7 @@ class CardViewModel: Identifiable, ObservableObject {
             .sink(receiveValue: { [unowned self] _ in
                 let notEmptyWallets = models.filter { !$0.wallet.isEmpty }
                 if !notEmptyWallets.isEmpty {
-                    tokenItemsRepository.append(notEmptyWallets.map({TokenItem.blockchain($0.wallet.blockchain)}), for: cardInfo.card.cardId)
+                    tokenItemsRepository.append(notEmptyWallets.map({TokenItem.blockchain(BlockchainInfo(blockchain: $0.wallet.blockchain))}), for: cardInfo.card.cardId)
                     updateLoadedState(with: notEmptyWallets)
                 }
             })
@@ -605,7 +605,7 @@ class CardViewModel: Identifiable, ObservableObject {
                     self.tokenItemsRepository.append(tokenItems, for: self.cardInfo.card.cardId)
                     
                     if sholdAddWalletManager {
-                        self.tokenItemsRepository.append(.blockchain(ethWalletModel!.wallet.blockchain), for: self.cardInfo.card.cardId)
+                        self.tokenItemsRepository.append(.blockchain(BlockchainInfo(blockchain: ethWalletModel!.wallet.blockchain)), for: self.cardInfo.card.cardId)
                         self.stateUpdateQueue.sync {
                             self.state = .loaded(walletModel: self.walletModels! + [ethWalletModel!])
                         }
@@ -623,7 +623,7 @@ class CardViewModel: Identifiable, ObservableObject {
   
     @discardableResult
     func addBlockchain(_ blockchain: Blockchain) -> WalletModel? {
-        tokenItemsRepository.append(.blockchain(blockchain), for: cardInfo.card.cardId)
+        tokenItemsRepository.append(.blockchain(BlockchainInfo(blockchain: blockchain)), for: cardInfo.card.cardId)
         let newWalletModels = assembly.makeWalletModels(from: cardInfo, blockchains: [blockchain])
         newWalletModels.forEach {$0.update()}
         updateLoadedState(with: newWalletModels)
@@ -737,7 +737,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     private func removeBlockchain(_ blockchain: Blockchain) {
-        tokenItemsRepository.remove(.blockchain(blockchain), for: cardInfo.card.cardId)
+        tokenItemsRepository.remove(.blockchain(BlockchainInfo(blockchain: blockchain)), for: cardInfo.card.cardId)
         
         stateUpdateQueue.sync {
             if let walletModels = self.walletModels {

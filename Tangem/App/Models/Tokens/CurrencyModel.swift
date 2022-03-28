@@ -26,12 +26,12 @@ struct CurrencyModel {
         var items: [TokenItem] = []
         
         if let blockchain = Blockchain(from: id) {
-            items.append(.blockchain(blockchain))
+            items.append(.blockchain(BlockchainInfo(blockchain: blockchain)))
             
             if id == "binancecoin", let bsc = Blockchain(from: "binance-smart-chain") {
-                items.append(.blockchain(bsc))
+                items.append(.blockchain(BlockchainInfo(blockchain: bsc)))
             } else if id == "binancecoin/test", let bsc = Blockchain(from: "binance-smart-chain/test") {
-                items.append(.blockchain(bsc))
+                items.append(.blockchain(BlockchainInfo(blockchain: bsc)))
             }
             
         }
