@@ -81,7 +81,7 @@ class AppServicesAssembly: ServicesAssembly {
     private let configManager = try! FeaturesConfigManager()
     lazy var shopifyService = ShopifyService(shop: keysManager.shopifyShop, testApplePayPayments: false)
     let keysManager = try! KeysManager()
-    lazy var ratesService = CoinMarketCapService(apiKey: keysManager.coinMarketKey)
+    lazy var ratesService = CurrencyRateService()
     lazy var tokenItemsRepository = TokenItemsRepository(persistanceStorage: persistentStorage)
     
     lazy var cardsRepository: CardsRepository = {
