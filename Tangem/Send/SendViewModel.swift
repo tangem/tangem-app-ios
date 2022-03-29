@@ -21,7 +21,7 @@ struct TextHint {
 class SendViewModel: ViewModel, ObservableObject {
     weak var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
-    weak var ratesService: CoinMarketCapService!
+    weak var ratesService: CurrencyRateService!
     weak var featuresService: AppFeaturesService!
     var payIDService: PayIDService? = nil
     var emailDataCollector: SendScreenDataCollector!
