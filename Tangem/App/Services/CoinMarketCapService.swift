@@ -113,7 +113,6 @@ class CoinMarketCapService {
     
     let apiKey: String
     let provider = MoyaProvider<CoinMarketCapTarget>(/*plugins: [NetworkLoggerPlugin(configuration: NetworkLoggerPlugin.Configuration.verboseConfiguration)]*/)
-    private var cache: [[String: Decimal] : Cache] = [:]
     
     internal init(apiKey: String) {
         self.apiKey = apiKey
@@ -134,12 +133,6 @@ class CoinMarketCapService {
     }
     
     func loadRates(for currencies: [String: Decimal]) -> AnyPublisher<[String: [String: Decimal]], Never> {
-        if let cached = cache[currencies],
-           cached.currencyCode == selectedCurrencyCode,
-           cached.date.distance(to: Date()) <= 60 {
-            return Just(cached.response).eraseToAnyPublisher()
-        }
-        
         return currencies
             .publisher
             .flatMap { [provider, selectedCurrencyCode, apiKey] item in
@@ -154,17 +147,6 @@ class CoinMarketCapService {
             .collect()
             .map { $0.reduce(into: [String: [String: Decimal]]()) { $0[$1.0] = $1.1 } }
             .subscribe(on: DispatchQueue.global())
-            .handleEvents(receiveOutput: {[selectedCurrencyCode, weak self] output in
-                self?.cache[currencies] = Cache(date: Date(), currencyCode: selectedCurrencyCode, response: output)
-            })
             .eraseToAnyPublisher()
-    }
-}
-
-private extension CoinMarketCapService {
-    struct Cache {
-        var date: Date
-        var currencyCode: String
-        var response: [String: [String: Decimal]]
     }
 }
