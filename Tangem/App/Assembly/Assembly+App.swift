@@ -316,16 +316,13 @@ extension Assembly {
     }
     
     func makeAddCustomTokenModel() -> AddCustomTokenViewModel {
-        let cardModel = services.cardsRepository.lastScanResult.cardModel
-
         if let restored: AddCustomTokenViewModel = get() {
-            restored.cardModel = cardModel
             return restored
         }
         
         let vm = AddCustomTokenViewModel()
         initialize(vm)
-        vm.cardModel = cardModel
+        vm.cardModel = services.cardsRepository.lastScanResult.cardModel
         return vm
     }
     
