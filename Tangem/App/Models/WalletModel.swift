@@ -15,9 +15,9 @@ class WalletModel: ObservableObject, Identifiable {
     @Published var balanceViewModel: BalanceViewModel!
     @Published var tokenItemViewModels: [TokenItemViewModel] = []
     @Published var tokenViewModels: [TokenBalanceViewModel] = []
-    @Published var rates: [String: [String: Decimal]] = [:]
+    @Published var rates: [String: Decimal] = [:]
     
-    weak var ratesService: CoinMarketCapService! {
+    weak var ratesService: CurrencyRateService! {
         didSet {
             ratesService
                 .$selectedCurrencyCodePublished
@@ -189,8 +189,7 @@ class WalletModel: ObservableObject, Identifiable {
     
     func getRate(for amountType: Amount.AmountType) -> Decimal {
         if let amount = wallet.amounts[amountType],
-           let quotes = rates[amount.currencySymbol],
-           let rate = quotes[ratesService.selectedCurrencyCode] {
+           let rate = rates[amount.currencySymbol] {
             return rate
         }
         
@@ -201,8 +200,7 @@ class WalletModel: ObservableObject, Identifiable {
         var rateString = ""
 
         if let amount = wallet.amounts[amountType],
-           let quotes = rates[amount.currencySymbol],
-           let rate = quotes[ratesService.selectedCurrencyCode] {
+           let rate = rates[amount.currencySymbol] {
             rateString = rate.currencyFormatted(code: ratesService.selectedCurrencyCode)
         }
         
@@ -239,8 +237,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     func getFiat(for value: Decimal, currencySymbol: String, roundingMode: NSDecimalNumber.RoundingMode = .down) -> Decimal? {
-        if let quotes = rates[currencySymbol],
-           let rate = quotes[ratesService.selectedCurrencyCode] {
+        if let rate = rates[currencySymbol] {
             let fiatValue = value * rate
             if fiatValue == 0 {
                 return 0
@@ -253,8 +250,7 @@ class WalletModel: ObservableObject, Identifiable {
     func getCrypto(for amount: Amount?) -> Decimal? {
         guard let amount = amount else { return nil }
         
-        if let quotes = rates[amount.currencySymbol],
-           let rate = quotes[ratesService.selectedCurrencyCode] {
+        if let rate = rates[amount.currencySymbol] {
             return (amount.value / rate).rounded(scale: amount.decimals)
         }
         return nil
@@ -386,15 +382,17 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     private func loadRates() {
-        let currenciesToExchange = walletManager.wallet.amounts
-            .filter({ $0.key != .reserve }).values
-            .flatMap({ [$0.currencySymbol: Decimal(1.0)] })
-            .reduce(into: [String: Decimal](), { $0[$1.0] = $1.1 })
+        let currenciesToExchange = walletManager
+            .wallet
+            .amounts
+            .filter { $0.key != .reserve }
+            .values
+            .map { $0.currencySymbol }
         
-        loadRates(for: currenciesToExchange)
+        loadRates(for: Array(currenciesToExchange))
     }
     
-    private func loadRates(for currenciesToExchange: [String: Decimal]) {
+    private func loadRates(for currenciesToExchange: [String]) {
         ratesService
             .loadRates(for: currenciesToExchange)
             .receive(on: RunLoop.main)
