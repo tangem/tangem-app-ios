@@ -270,8 +270,8 @@ extension TokenListViewModel {
         
         var id: String {
             switch self {
-            case .add:
-                return "add"
+            case .add(let cardModel):
+                return "add" + cardModel.cardInfo.card.cardId
             case .show:
                 return "show"
             }
