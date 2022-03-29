@@ -11,7 +11,7 @@ import Combine
 
 class CurrencySelectViewModel: ViewModel, ObservableObject {
     weak var assembly: Assembly!
-    weak var ratesService: CoinMarketCapService!
+    weak var ratesService: CurrencyRateService!
     weak var navigation: NavigationCoordinator!
     
     @Published var loading: Bool = false
