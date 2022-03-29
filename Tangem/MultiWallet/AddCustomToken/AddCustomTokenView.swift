@@ -97,9 +97,9 @@ struct AddCustomTokenView: View {
                 }
                 
                 Picker("", selection: $viewModel.type) {
-                    Text("Network")
+                    Text("custom_token_type_network")
                         .tag(AddCustomTokenViewModel.TokenType.blockchain)
-                    Text("Token")
+                    Text("custom_token_type_token")
                         .tag(AddCustomTokenViewModel.TokenType.token)
                 }
                 .pickerStyle(.segmented)
