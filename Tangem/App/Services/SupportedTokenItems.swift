@@ -43,7 +43,7 @@ class SupportedTokenItems {
             .fantom(testnet: false),
         ]
     }()
-    
+
     private lazy var testnetBlockchains: Set<Blockchain> = {
         [
             .bitcoin(testnet: true),
@@ -74,23 +74,8 @@ class SupportedTokenItems {
     }
     
     func blockchainsWithTokens(isTestnet: Bool) -> Set<Blockchain> {
-        do {
-            var result: Set<Blockchain> = []
-
-            let currencies = try loadCurrencies(isTestnet: isTestnet)
-            currencies.forEach {
-                $0.items.forEach {
-                    if case let .token(token) = $0 {
-                        result.insert(token.blockchain)
-                    }
-                }
-            }
-
-            return result
-        } catch {
-            Log.error(error.localizedDescription)
-            return []
-        }
+        let blockchains = isTestnet ? testnetBlockchains : blockchains
+        return blockchains.filter { $0.hasTokens }
     }
 
     func tokens(for blockchain: Blockchain) -> [Token] {
