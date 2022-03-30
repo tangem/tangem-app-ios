@@ -394,7 +394,7 @@ class WalletModel: ObservableObject, Identifiable {
     
     private func loadRates(for currenciesToExchange: [String]) {
         ratesService
-            .loadRates(for: currenciesToExchange)
+            .rates(for: currenciesToExchange)
             .receive(on: RunLoop.main)
             .sink(receiveCompletion: { completion in
                 switch completion {
