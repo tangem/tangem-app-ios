@@ -58,6 +58,8 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     
     private var bag: Set<AnyCancellable> = []
     private var blockchainByName: [String: Blockchain] = [:]
+    private var blockchainsWithTokens: Set<Blockchain>?
+    private var cachedTokens: [Blockchain: [BlockchainSdk.Token]] = [:]
     
     init() {
         $type
@@ -185,10 +187,13 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             }
         
         if withTokenSupport {
-            let blockchainsWithTokens = supportedTokenItems.blockchainsWithTokens(isTestnet: cardInfo.isTestnet)
+            if self.blockchainsWithTokens == nil {
+                self.blockchainsWithTokens = supportedTokenItems.blockchainsWithTokens(isTestnet: cardInfo.isTestnet)
+            }
+
             return blockchains
                 .filter {
-                    blockchainsWithTokens.contains($0)
+                    self.blockchainsWithTokens?.contains($0) ?? false
                 }
         } else {
             return blockchains
@@ -196,8 +201,14 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     private func findToken(contractAddress: String, blockchain: Blockchain) -> BlockchainSdk.Token? {
-        let supportedTokenItems = SupportedTokenItems()
-        let tokens = supportedTokenItems.tokens(for: blockchain)
+        let tokens: [BlockchainSdk.Token]
+        if let cache = cachedTokens[blockchain] {
+            tokens = cache
+        } else {
+            let supportedTokenItems = SupportedTokenItems()
+            tokens = supportedTokenItems.tokens(for: blockchain)
+            cachedTokens[blockchain] = tokens
+        }
         
         return tokens.first {
             $0.contractAddress == contractAddress
