@@ -60,4 +60,14 @@ extension Blockchain: Identifiable {
     var iconName: String { rawStringId }
     
     var iconNameFilled: String { "\(iconName).fill" }
+    
+    var hasTokens: Bool { //[REDACTED_TODO_COMMENT]
+        switch self {
+        case .ethereum, .bsc, .binance, .polygon,
+                .avalanche, .solana, .fantom:
+            return true
+        default:
+            return false
+        }
+    }
 }
