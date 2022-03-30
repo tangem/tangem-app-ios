@@ -77,9 +77,9 @@ class CurrencyRateService {
         print("CurrencyRateService deinit")
     }
     
-    func loadFiatMap() -> AnyPublisher<[FiatCurrency], MoyaError> {
+    func baseCurrencies() -> AnyPublisher<[FiatCurrency], MoyaError> {
         provider
-            .requestPublisher(.fiatMap)
+            .requestPublisher(.baseCurrencies)
             .filterSuccessfulStatusCodes()
             .map(FiatResponse.self)
             .map { $0.currencies.sorted(by: { $0.name < $1.name } ) }
@@ -87,9 +87,9 @@ class CurrencyRateService {
             .eraseToAnyPublisher()
     }
     
-    func loadRates(for currencies: [String]) -> AnyPublisher<[String: Decimal], Never> {
+    func rates(for currencies: [String]) -> AnyPublisher<[String: Decimal], Never> {
         return provider
-            .requestPublisher(.rate(cryptoCurrencyCodes: currencies, fiatCurrencyCode: selectedCurrencyCode))
+            .requestPublisher(.rates(cryptoCurrencyCodes: currencies, fiatCurrencyCode: selectedCurrencyCode))
             .filterSuccessfulStatusAndRedirectCodes()
             .map(RateInfoResponse.self)
             .map { $0.prices }
