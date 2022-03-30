@@ -312,7 +312,7 @@ class WalletModel: ObservableObject, Identifiable {
             return false
         }
         
-        tokenItemsRepository.remove(.token(token), for: cardId)
+        tokenItemsRepository.remove(.init(token), for: cardId)
         walletManager.removeToken(token)
         tokenViewModels.removeAll(where: { $0.token == token })
         return true
@@ -324,14 +324,6 @@ class WalletModel: ObservableObject, Identifiable {
     
     func getFiatBalance(for type: Amount.AmountType) -> String {
         return getFiatFormatted(for: wallet.amounts[type]) ?? ""
-    }
-    
-    func getTokenItem(for type: Amount.AmountType) -> TokenItem {
-        if case let .token(token) = type {
-            return .token(token)
-        }
-        
-        return .blockchain(BlockchainInfo(blockchain: wallet.blockchain))
     }
     
     func startUpdatingTimer() {
