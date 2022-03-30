@@ -62,11 +62,6 @@ struct BalanceAddressView: View {
         walletModel.getFiatBalance(for: amountType)
     }
     
-    var tokenItem: TokenItem {
-        walletModel.getTokenItem(for: amountType)
-    }
-    
-    
     var body: some View {
         VStack {
             HStack (alignment: .top) {
@@ -108,7 +103,7 @@ struct BalanceAddressView: View {
                     }
                 }
                 Spacer()
-                tokenItem.iconView
+                TokenIconView(with: amountType, blockchain: walletModel.wallet.blockchain)
                     .saturation(walletModel.isTestnet ? 0 : 1)
                     .frame(width: 40, height: 40, alignment: .center)
             }
