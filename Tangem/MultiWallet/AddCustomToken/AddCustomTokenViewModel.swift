@@ -57,15 +57,53 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
 
     @Published var error: AlertBinder?
     
+    var warning: String?
+    
     private var bag: Set<AnyCancellable> = []
     private var blockchainByName: [String: Blockchain] = [:]
     private var blockchainsWithTokens: Set<Blockchain>?
     private var cachedTokens: [Blockchain: [Token]] = [:]
+    private var foundStandardToken: Token?
     
     init() {
         $type
             .sink {
                 self.updateBlockchains(type: $0)
+            }
+            .store(in: &bag)
+        
+        Publishers.CombineLatest3($type, $blockchainName, $contractAddress)
+            .debounce(for: 0.5, scheduler: RunLoop.main)
+            .setFailureType(to: Error.self)
+            .flatMap { (type, blockchainName, contractAddress) in
+                self.validateToken(type: type, blockchainName: blockchainName, contractAddress: contractAddress)
+                    .catch { [unowned self] error -> AnyPublisher<Token?, Error> in
+                        switch error {
+                        case CustomTokenError.failedToFindToken:
+                            
+                            
+                            #warning("l10n")
+                            
+                            
+                            self.warning = "Note that tokens can be created by anyone. Be aware of adding scam tokens, they can cost nothing."
+                        case CustomTokenError.alreadyAdded:
+                            
+
+                            #warning("l10n")
+
+
+                            self.warning = "This token/network has already been added to your list"
+                        default:
+                            break
+                        }
+                        return Just(nil).setFailureType(to: Error.self).eraseToAnyPublisher()
+                    }
+            }
+            .sink { completion in
+                print(completion)
+            } receiveValue: { [unowned self] token in
+                print(token)
+                self.foundStandardToken = token
             }
             .store(in: &bag)
     }
@@ -77,70 +115,23 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         
         UIApplication.shared.endEditing()
         
-        guard let blockchain = blockchainByName[blockchainName] else {
-            error = TokenCreationErrors.blockchainNotSelected.alertBinder
-            return
-        }
         
-        
-        let derivationPath: DerivationPath?
-        if !self.derivationPath.isEmpty {
-            derivationPath = try? DerivationPath(rawPath: self.derivationPath)
-            
-            if derivationPath == nil {
-                error = TokenCreationErrors.invalidDerivationPath.alertBinder
-                return
-            }
-        } else {
-            derivationPath = nil
-        }
-        
-        var itemsToAdd: [TokenItem] = []
-        if type == .token {
-            guard blockchain.validate(address: contractAddress) else {
-                error = TokenCreationErrors.invalidContractAddress.alertBinder
-                return
-            }
-
-            let token: Token
-            if let knownToken = findToken(contractAddress: contractAddress, blockchain: blockchain) {
-                token = knownToken
-            } else {
-                guard !name.isEmpty, !symbol.isEmpty, !decimals.isEmpty else {
-                    error = TokenCreationErrors.emptyFields.alertBinder
-                    return
+        switch enteredTokenItem() {
+        case .failure(let error):
+            self.error = error.alertBinder
+        case .success(let tokenItem):
+            cardModel.manageTokenItems(add: [tokenItem], remove: []) { result in
+                switch result {
+                case .success:
+                    self.navigation.mainToCustomToken = false
+                    self.navigation.mainToAddTokens = false
+                case .failure(let error):
+                    if case TangemSdkError.userCancelled = error {
+                        return
+                    }
+                    
+                    self.error = error.alertBinder
                 }
-                
-                guard let decimals = Int(decimals) else {
-                    error = TokenCreationErrors.invalidDecimals.alertBinder
-                    return
-                }
-
-                token = Token(
-                    name: name,
-                    symbol: symbol.uppercased(),
-                    contractAddress: contractAddress,
-                    decimalCount: decimals,
-                    blockchain: blockchain
-                )
-            }
-            
-            itemsToAdd.append(.init(token, derivationPath: derivationPath))
-        } else {
-            itemsToAdd.append(.init(blockchain, derivationPath: derivationPath))
-        }
-        
-        cardModel.manageTokenItems(add: itemsToAdd, remove: []) { result in
-            switch result {
-            case .success:
-                self.navigation.mainToCustomToken = false
-                self.navigation.mainToAddTokens = false
-            case .failure(let error):
-                if case TangemSdkError.userCancelled = error {
-                    return
-                }
-                
-                self.error = error.alertBinder
             }
         }
     }
@@ -198,7 +189,70 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         }
     }
     
-    private func findToken(contractAddress: String, blockchain: Blockchain) -> Token? {
+    private func enteredTokenItem() -> Result<TokenItem, Error> {
+        guard let blockchain = blockchainByName[blockchainName] else {
+            return .failure(TokenCreationErrors.blockchainNotSelected)
+        }
+        
+        let derivationPath: DerivationPath?
+        if !self.derivationPath.isEmpty {
+            derivationPath = try? DerivationPath(rawPath: self.derivationPath)
+            
+            if derivationPath == nil {
+                return .failure(TokenCreationErrors.invalidDerivationPath)
+            }
+        } else {
+            derivationPath = nil
+        }
+        
+        if type == .token {
+            guard blockchain.validate(address: contractAddress) else {
+                return .failure(TokenCreationErrors.invalidContractAddress)
+            }
+        
+            guard !name.isEmpty, !symbol.isEmpty, !decimals.isEmpty else {
+                return .failure(TokenCreationErrors.emptyFields)
+            }
+            
+            guard let decimals = Int(decimals) else {
+                return .failure(TokenCreationErrors.invalidDecimals)
+            }
+
+            let token = Token(
+                name: name,
+                symbol: symbol.uppercased(),
+                contractAddress: contractAddress,
+                decimalCount: decimals,
+                blockchain: blockchain
+            )
+            
+            return .success(.init(token, derivationPath: derivationPath))
+        } else {
+            return .success(.init(blockchain, derivationPath: derivationPath))
+        }
+    }
+    
+    private func validateToken(type: TokenType, blockchainName: String, contractAddress: String) -> AnyPublisher<Token?, Error> {
+        guard
+            type == .token,
+            let blockchain = blockchainByName[blockchainName]
+        else {
+            return Just(nil)
+                .setFailureType(to: Error.self)
+                .eraseToAnyPublisher()
+        }
+        
+        if case let .success(enteredTokenItem) = self.enteredTokenItem(),
+           let cardTokenItems = cardModel?.tokenItemsRepository.getItems(for: cardModel?.cardInfo.card.cardId ?? ""),
+           cardTokenItems.contains(enteredTokenItem)
+        {
+            return .anyFail(error: CustomTokenError.alreadyAdded)
+        }
+        
+        return findToken(contractAddress: contractAddress, blockchain: blockchain)
+    }
+    
+    private func findToken(contractAddress: String, blockchain: Blockchain) -> AnyPublisher<Token?, Error> {
         let tokens: [Token]
         if let cache = cachedTokens[blockchain] {
             tokens = cache
@@ -208,8 +262,15 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             cachedTokens[blockchain] = tokens
         }
         
-        return tokens.first {
-            $0.contractAddress == contractAddress
+        if let token = tokens.first(where: { $0.contractAddress == contractAddress }) {
+            return Just(token).setFailureType(to: Error.self).eraseToAnyPublisher()
+        } else {
+            return .anyFail(error: CustomTokenError.failedToFindToken)
         }
+    }
+    
+    private enum CustomTokenError: Error {
+        case alreadyAdded
+        case failedToFindToken
     }
 }
