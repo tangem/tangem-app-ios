@@ -10,51 +10,48 @@ import Foundation
 import BlockchainSdk
 import Kingfisher
 import SwiftUI
+import struct TangemSdk.DerivationPath
 
-enum TokenItem: Hashable, Identifiable {
-    case blockchain(BlockchainInfo)
-    case token(Token)
+struct TokenItem: Hashable {
+    var id: String?
+    var isCustom: Bool
+    let item: RawItem
     
     var isBlockchain: Bool { token == nil }
     
-    var id: Int {
-        switch self {
+    var blockchain: Blockchain {
+        switch item {
         case .token(let token):
-            return token.hashValue
-        case .blockchain(let blockchainInfo):
-            return blockchainInfo.hashValue
+            return token.blockchain
+        case .blockchain(let blockchain):
+            return blockchain
         }
     }
     
-    var blockchain: Blockchain {
-        switch self {
-        case .token(let token):
-            return token.blockchain
-        case .blockchain(let blockchainInfo):
-            return blockchainInfo.blockchain
-        }
+    var derivationPath: DerivationPath? {
+        _derivationPath ?? blockchain.derivationPath
     }
     
     var token: Token? {
-        if case let .token(token) = self {
+        if case let .token(token) = item {
             return token
         }
         return nil
     }
     
     var name: String {
-        switch self {
+        switch item {
         case .token(let token):
             return token.name
-        case .blockchain(let blockchainInfo):
-            return blockchainInfo.blockchain.displayName
+        case .blockchain(let blockchain):
+            return blockchain.displayName
         }
     }
     
     var contractName: String? {
-        switch self {
-        case .token(let token):
-            switch token.blockchain {
+        switch item {
+        case .token:
+            switch blockchain {
             case .binance: return "BEP2"
             case .bsc: return "BEP20"
             case .ethereum: return "ERC20"
@@ -67,25 +64,20 @@ enum TokenItem: Hashable, Identifiable {
     }
     
     var symbol: String {
-        switch self {
+        switch item {
         case .token(let token):
             return token.symbol
-        case .blockchain(let blockchainInfo):
-            return blockchainInfo.blockchain.currencySymbol
+        case .blockchain(let blockchain):
+            return blockchain.currencySymbol
         }
     }
     
     var contractAddress: String? {
-        switch self {
-        case .token(let token):
-            return token.contractAddress
-        case .blockchain:
-            return nil
-        }
+        token?.contractAddress
     }
     
     var amountType: Amount.AmountType {
-        switch self {
+        switch item {
         case .token(let token):
             return .token(value: token)
         case .blockchain:
@@ -98,56 +90,84 @@ enum TokenItem: Hashable, Identifiable {
     }
     
     @ViewBuilder fileprivate var imageView: some View {
-        switch self {
+        switch item {
         case .token(let token):
             CircleImageTextView(name: token.name, color: token.color)
-        case .blockchain(let blockchainInfo):
-            Image(blockchainInfo.blockchain.iconNameFilled)
+        case .blockchain(let blockchain):
+            Image(blockchain.iconNameFilled)
                 .resizable()
         }
     }
     
     fileprivate var imageURL: URL? {
-        switch self {
-        case .blockchain(let blockchainInfo):
-            return IconsUtils.getBlockchainIconUrl(blockchainInfo.blockchain).flatMap { URL(string: $0.absoluteString) }
+        switch item {
+        case .blockchain(let blockchain):
+            return IconsUtils.getBlockchainIconUrl(blockchain).flatMap { URL(string: $0.absoluteString) }
         case .token(let token):
             return token.customIconUrl.flatMap{ URL(string: $0) }
         }
     }
+    
+    private let _derivationPath: DerivationPath?
+    
+    init(_ blockchain: Blockchain, id: String? = nil, derivationPath: DerivationPath? = nil, isCustom: Bool = false) {
+        self.init(item: .blockchain(blockchain), id: id, derivationPath: derivationPath, isCustom: isCustom)
+    }
+    
+    init(_ token: Token, id: String? = nil, derivationPath: DerivationPath? = nil, isCustom: Bool = false) {
+        self.init(item: .token(token), id: id, derivationPath: derivationPath, isCustom: isCustom)
+    }
+    
+    private init(item: TokenItem.RawItem, id: String?, derivationPath: DerivationPath?, isCustom: Bool) {
+        self.id = id
+        self.item = item
+        self._derivationPath = derivationPath
+        self.isCustom = isCustom
+    }
 }
 
 extension TokenItem: Codable {
-    init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        if let token = try? container.decode(Token.self) {
-            self = .token(token)
-        } else if let blockchainInfo = try? container.decode(BlockchainInfo.self) {
-            self = .blockchain(blockchainInfo)
-        } else if let blockchain = try? container.decode(Blockchain.self) {
-            // Compatibility
-            self = .blockchain(BlockchainInfo(blockchain: blockchain, derivationPath: nil))
-        } else if let tokenDto = try? container.decode(TokenDTO.self) {
-            // Compatibility
-            self = .token(Token(name: tokenDto.name,
-                                symbol: tokenDto.symbol,
-                                contractAddress: tokenDto.contractAddress,
-                                decimalCount: tokenDto.decimalCount,
-                                customIconUrl: tokenDto.customIconUrl,
-                                blockchain: .ethereum(testnet: false)))
-        } else {
-            throw BlockchainSdkError.decodingFailed
-        }
+    enum CodingKeys: String, CodingKey {
+        case id
+        case item
+        case _derivationPath = "derivationPath"
+        case isCustom
     }
     
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        switch self {
-        case .blockchain(let blockchainInfo):
-            try container.encode(blockchainInfo)
-        case .token(let token):
-            try container.encode(token)
+    init(from decoder: Decoder) throws {
+        if let itemContainer = try? decoder.container(keyedBy: CodingKeys.self),
+           let id = try? itemContainer.decode(String.self, forKey: CodingKeys.id),
+           let item = try? itemContainer.decode(TokenItem.RawItem.self, forKey: CodingKeys.item),
+           let isCustom = try? itemContainer.decode(Bool.self, forKey: CodingKeys.isCustom) {
+            let derivationPath = try? itemContainer.decode(DerivationPath.self, forKey: CodingKeys._derivationPath)
+            self = .init(item: item, id: id, derivationPath: derivationPath, isCustom: isCustom)
+            return
+        } else {
+            let container = try decoder.singleValueContainer()
+            
+            if let token = try? container.decode(Token.self) {
+                self = .init(token)
+                return
+            }
+            
+            if let blockchain = try? container.decode(Blockchain.self) {
+                self = .init(blockchain)
+                return
+            }
+            
+            if let tokenDto = try? container.decode(TokenDTO.self) {
+                let token = Token(name: tokenDto.name,
+                                  symbol: tokenDto.symbol,
+                                  contractAddress: tokenDto.contractAddress,
+                                  decimalCount: tokenDto.decimalCount,
+                                  customIconUrl: tokenDto.customIconUrl,
+                                  blockchain: .ethereum(testnet: false))
+                self = .init(token)
+                return
+            }
         }
+        
+        throw BlockchainSdkError.decodingFailed
     }
 }
 
@@ -159,7 +179,6 @@ struct TokenDTO: Decodable {
     let customIcon: String?
     let customIconUrl: String?
 }
-
 
 struct TokenIconView: View {
     var token: TokenItem
@@ -182,5 +201,22 @@ struct TokenIconView: View {
         } else {
             token.imageView
         }
+    }
+}
+
+extension TokenIconView {
+    init(with type: Amount.AmountType, blockchain: Blockchain) {
+        if case let .token(token) = type {
+            self.token = .init(token)
+        }
+        
+        self.token = .init(blockchain)
+    }
+}
+
+extension TokenItem {
+    enum RawItem: Codable, Hashable {
+        case blockchain(Blockchain)
+        case token(Token)
     }
 }
