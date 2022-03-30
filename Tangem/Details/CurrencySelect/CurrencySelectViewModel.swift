@@ -23,7 +23,7 @@ class CurrencySelectViewModel: ViewModel, ObservableObject {
     func onAppear() {
         loading = true
         ratesService
-            .loadFiatMap()
+            .baseCurrencies()
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: {[weak self] completion in
                 if case let .failure(error) = completion {
