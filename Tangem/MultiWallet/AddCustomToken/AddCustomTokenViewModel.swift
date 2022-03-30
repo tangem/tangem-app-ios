@@ -94,30 +94,35 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         
         var itemsToAdd: [TokenItem] = []
         if type == .token {
-            guard !name.isEmpty, !symbol.isEmpty, !contractAddress.isEmpty, !decimals.isEmpty else {
-                error = TokenCreationErrors.emptyFields.alertBinder
-                return
-            }
-
-            guard let decimals = Int(decimals) else {
-                error = TokenCreationErrors.invalidDecimals.alertBinder
-                return
-            }
-            
             guard blockchain.validate(address: contractAddress) else {
                 error = TokenCreationErrors.invalidContractAddress.alertBinder
                 return
             }
-            
-            let tokenItem = TokenItem.token(
-                Token(
+
+            let token: BlockchainSdk.Token
+            if let knownToken = findToken(contractAddress: contractAddress, blockchain: blockchain) {
+                token = knownToken
+            } else {
+                guard !name.isEmpty, !symbol.isEmpty, !decimals.isEmpty else {
+                    error = TokenCreationErrors.emptyFields.alertBinder
+                    return
+                }
+                
+                guard let decimals = Int(decimals) else {
+                    error = TokenCreationErrors.invalidDecimals.alertBinder
+                    return
+                }
+
+                token = Token(
                     name: name,
                     symbol: symbol.uppercased(),
                     contractAddress: contractAddress,
                     decimalCount: decimals,
                     blockchain: blockchain
                 )
-            )
+            }
+            
+            let tokenItem = TokenItem.token(token)
             itemsToAdd.append(tokenItem)
         }
         
@@ -187,6 +192,15 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 }
         } else {
             return blockchains
+        }
+    }
+    
+    private func findToken(contractAddress: String, blockchain: Blockchain) -> BlockchainSdk.Token? {
+        let supportedTokenItems = SupportedTokenItems()
+        let tokens = supportedTokenItems.tokens(for: blockchain)
+        
+        return tokens.first {
+            $0.contractAddress == contractAddress
         }
     }
 }
