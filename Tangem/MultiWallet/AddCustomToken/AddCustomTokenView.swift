@@ -122,6 +122,10 @@ struct AddCustomTokenView: View {
                         .cornerRadius(10, corners: [.bottomLeft, .bottomRight])
                 }
                 
+                if let warning = viewModel.warning {
+                    Text(warning)
+                }
+                
                 Spacer()
                 
                 TangemButton(title: "common_add", systemImage: "plus", action: viewModel.createToken)
