@@ -26,12 +26,12 @@ struct CurrencyModel {
         var items: [TokenItem] = []
         
         if let blockchain = Blockchain(from: id) {
-            items.append(.blockchain(BlockchainInfo(blockchain: blockchain)))
+            items.append(.init(blockchain))
             
             if id == "binancecoin", let bsc = Blockchain(from: "binance-smart-chain") {
-                items.append(.blockchain(BlockchainInfo(blockchain: bsc)))
+                items.append(.init(bsc))
             } else if id == "binancecoin/test", let bsc = Blockchain(from: "binance-smart-chain/test") {
-                items.append(.blockchain(BlockchainInfo(blockchain: bsc)))
+                items.append(.init(bsc))
             }
             
         }
@@ -41,16 +41,16 @@ struct CurrencyModel {
                 return nil
             }
             
-            return .token(Token(name: name,
-                                symbol: symbol,
-                                contractAddress: $0.address.trimmed(),
-                                decimalCount: $0.decimalCount,
-                                customIconUrl: url?.absoluteString,
-                                blockchain: blockchain))
+            return .init(Token(name: name,
+                               symbol: symbol,
+                               contractAddress: $0.address.trimmed(),
+                               decimalCount: $0.decimalCount,
+                               customIconUrl: url?.absoluteString,
+                               blockchain: blockchain))
         }
         
         tokens.map { items.append(contentsOf: $0) }
-
+        
         self.id = id
         self.name = name
         self.symbol = symbol
