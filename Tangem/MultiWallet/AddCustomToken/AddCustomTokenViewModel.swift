@@ -9,7 +9,8 @@
 import Foundation
 import Combine
 import BlockchainSdk
-import TangemSdk
+import struct TangemSdk.DerivationPath
+import enum TangemSdk.TangemSdkError
 
 class AddCustomTokenViewModel: ViewModel, ObservableObject {
     enum TokenType: Hashable {
@@ -59,7 +60,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     private var bag: Set<AnyCancellable> = []
     private var blockchainByName: [String: Blockchain] = [:]
     private var blockchainsWithTokens: Set<Blockchain>?
-    private var cachedTokens: [Blockchain: [BlockchainSdk.Token]] = [:]
+    private var cachedTokens: [Blockchain: [Token]] = [:]
     
     init() {
         $type
@@ -101,7 +102,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 return
             }
 
-            let token: BlockchainSdk.Token
+            let token: Token
             if let knownToken = findToken(contractAddress: contractAddress, blockchain: blockchain) {
                 token = knownToken
             } else {
@@ -200,8 +201,8 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         }
     }
     
-    private func findToken(contractAddress: String, blockchain: Blockchain) -> BlockchainSdk.Token? {
-        let tokens: [BlockchainSdk.Token]
+    private func findToken(contractAddress: String, blockchain: Blockchain) -> Token? {
+        let tokens: [Token]
         if let cache = cachedTokens[blockchain] {
             tokens = cache
         } else {
