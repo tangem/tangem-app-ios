@@ -9,16 +9,16 @@
 import Moya
 
 enum TangemApiTarget: TargetType {
-    case rate(cryptoCurrencyCodes: [String], fiatCurrencyCode: String)
-    case fiatMap
+    case rates(cryptoCurrencyCodes: [String], fiatCurrencyCode: String)
+    case baseCurrencies
     
     var baseURL: URL {URL(string: "https://api.tangem-tech.com")!}
     
     var path: String {
         switch self {
-        case .rate:
+        case .rates:
             return "/coins/prices"
-        case .fiatMap:
+        case .baseCurrencies:
             return "/coins/currencies"
         }
     }
@@ -27,16 +27,17 @@ enum TangemApiTarget: TargetType {
     
     var task: Task {
         switch self {
-        case .rate(let cryptoCurrencyCodes, let fiatCurrencyCode):
+        case .rates(let cryptoCurrencyCodes, let fiatCurrencyCode):
             return .requestParameters(parameters: ["ids": cryptoCurrencyCodes.map { CurrencyCoinGeckoIdConverter.map($0) }.joined(separator: ","),
                                                    "currency": fiatCurrencyCode.lowercased()],
                                       encoding: URLEncoding.default)
-        case .fiatMap:
+        case .baseCurrencies:
            return .requestPlain
         }
     }
     
     var headers: [String : String]? {
+        // [REDACTED_TODO_COMMENT]
         return nil
     }
 }
