@@ -93,7 +93,7 @@ class WalletConnectCardScanner {
             if let targetWallet = findWallet(in: assembly.makeAllWalletModels(from: cardInfo).map { $0.wallet }) {
                 wallet = targetWallet
             } else {
-                tokenItemsRepository.append(.blockchain(BlockchainInfo(blockchain: blockchain)), for: cardInfo.card.cardId)
+                tokenItemsRepository.append(.init(blockchain), for: cardInfo.card.cardId)
                 wallet = assembly.makeWalletModels(from: cardInfo, blockchains: [blockchain]).first?.wallet
             }
         }
