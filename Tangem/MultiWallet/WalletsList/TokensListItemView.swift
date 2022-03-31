@@ -42,7 +42,7 @@ struct TokensListItemView: View {
     
     var body: some View {
         HStack(alignment: .center) {
-            item.tokenItem.iconView
+            TokenIconView(with: item.amountType, blockchain: item.blockchain)
                 .saturation(item.isTestnet ? 0.0 : 1.0)
                 .frame(width: 40, height: 40, alignment: .center)
                 .id(UUID())

@@ -582,8 +582,6 @@ class CardViewModel: Identifiable, ObservableObject {
             ethWalletModel = assembly.makeWalletModels(from: cardInfo, blockchains: [ethBlockchain]).first
         }
         
-        let knownTokens = SupportedTokenItems().tokens(for: ethBlockchain)
-        
         guard let tokenFinder = ethWalletModel?.walletManager as? TokenFinder else {
             self.userPrefsService.searchedCards.append(self.cardInfo.card.cardId)
             self.searchBlockchains()
@@ -591,7 +589,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
         
         
-        tokenFinder.findErc20Tokens(knownTokens: knownTokens) {[weak self] result in
+        tokenFinder.findErc20Tokens(knownTokens: []) {[weak self] result in
             guard let self = self else { return }
             
             switch result {
@@ -619,15 +617,6 @@ class CardViewModel: Identifiable, ObservableObject {
             self.userPrefsService.searchedCards.append(self.cardInfo.card.cardId)
             self.searchBlockchains()
         }
-    }
-  
-    @discardableResult
-    func addBlockchain(_ blockchain: Blockchain) -> WalletModel? {
-        tokenItemsRepository.append(.init(blockchain), for: cardInfo.card.cardId)
-        let newWalletModels = assembly.makeWalletModels(from: cardInfo, blockchains: [blockchain])
-        newWalletModels.forEach {$0.update()}
-        updateLoadedState(with: newWalletModels)
-        return newWalletModels.first
     }
     
     func manageTokenItems(add addItems: [TokenItem], remove removeItems: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void) {
@@ -708,23 +697,25 @@ class CardViewModel: Identifiable, ObservableObject {
         completion(.success(()))
     }
     
-    func canRemove(amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
-        if let walletModel = walletModels?.first(where: { $0.wallet.blockchain == blockchain }) {
-            return walletModel.canRemove(amountType: amountType)
-        }
-        
-        return false
-    }
-    
+//    func canRemove(amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
+//        if let walletModel = walletModels?.first(where: { $0.wallet.blockchain == blockchain }) {
+//            return walletModel.canRemove(amountType: amountType)
+//        }
+//
+//        return false
+//    }
+//
     func canManage(amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
-        if let walletModel = walletModels?.first(where: { $0.wallet.blockchain == blockchain }) {
+        if let walletModel = walletModels?
+            .filter({$0.isDefaultDerivation(for: cardInfo.card.batchId)})
+            .first(where: { $0.wallet.blockchain == blockchain }) {
             return walletModel.canRemove(amountType: amountType)
         }
         
         return true
     }
     
-    func remove(amountType: Amount.AmountType, blockchain: Blockchain) {
+    func remove(amountType: Amount.AmountType, blockchain: Blockchain, derivationPath: DerivationPath?) {
         guard canRemove(amountType: amountType, blockchain: blockchain) else {
             return
         }
