@@ -490,13 +490,10 @@ class MainViewModel: ViewModel, ObservableObject {
             return
         }
         
-        guard
-            cardInfo.isTestnet,
-            !cardInfo.isMultiWallet,
+        guard cardInfo.isTestnet, !cardInfo.isMultiWallet,
             let walletModel = cardModel?.walletModels?.first,
-            let token = walletModel.tokenItemViewModels.first?.amountType.token,
-            case .ethereum(testnet: true) = token.blockchain
-        else {
+            walletModel.wallet.blockchain == .ethereum(testnet: true),
+            let token = walletModel.tokenItemViewModels.first?.amountType.token else {
             if buyCryptoURL != nil {
                 navigation.mainToBuyCrypto = true
             }
