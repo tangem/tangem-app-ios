@@ -128,6 +128,7 @@ struct AddCustomTokenView: View {
                 
                 TangemButton(title: "common_add", systemImage: "plus", action: viewModel.createToken)
                     .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
+                    .disabled(viewModel.addButtonDisabled)
             }
             .padding()
         }
