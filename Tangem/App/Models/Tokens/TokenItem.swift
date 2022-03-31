@@ -136,9 +136,10 @@ extension TokenItem: Codable {
     
     init(from decoder: Decoder) throws {
         if let itemContainer = try? decoder.container(keyedBy: CodingKeys.self),
-           let id = try? itemContainer.decode(String.self, forKey: CodingKeys.id),
            let item = try? itemContainer.decode(TokenItem.RawItem.self, forKey: CodingKeys.item),
-           let isCustom = try? itemContainer.decode(Bool.self, forKey: CodingKeys.isCustom) {
+           let isCustom = try? itemContainer.decode(Bool.self, forKey: CodingKeys.isCustom)
+        {
+            let id = try? itemContainer.decode(String.self, forKey: CodingKeys.id)
             let derivationPath = try? itemContainer.decode(DerivationPath.self, forKey: CodingKeys._derivationPath)
             self = .init(item: item, id: id, derivationPath: derivationPath, isCustom: isCustom)
             return
