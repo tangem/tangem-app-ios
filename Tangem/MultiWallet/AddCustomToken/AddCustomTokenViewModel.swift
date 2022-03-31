@@ -121,8 +121,8 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                         return Empty(completeImmediately: false).setFailureType(to: Error.self).eraseToAnyPublisher()
                     }
             }
-            .sink { completion in
-                print(completion)
+            .sink { _ in
+                
             } receiveValue: { [unowned self] token in
                 self.warning = nil
                 self.addButtonDisabled = false
