@@ -180,7 +180,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
         })
     }
     
-    private func getData()  { //[REDACTED_TODO_COMMENT]
+    private func getData()  {
         let isTestnet = cardModel?.cardInfo.isTestnet ?? false
         let currencies = (try? SupportedTokenItems().loadCurrencies(isTestnet: isTestnet)) ?? []
         
@@ -194,9 +194,9 @@ class TokenListViewModel: ViewModel, ObservableObject {
                     return false
                 }
                 
-                if !isSupportSolanaTokens, let token = item.token,
-                   token.blockchain == .solana(testnet: true) ||
-                    token.blockchain == .solana(testnet: false) {
+                if !isSupportSolanaTokens, item.isToken,
+                   item.blockchain == .solana(testnet: true) ||
+                    item.blockchain == .solana(testnet: false) {
                     return false
                 }
                 
