@@ -41,9 +41,37 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         }
     }
     
-    private enum CustomTokenError: Error {
+    private enum TokenSearchError: LocalizedError {
         case alreadyAdded
         case failedToFindToken
+        
+        var preventsFromAdding: Bool {
+            switch self {
+            case .alreadyAdded:
+                return true
+            case .failedToFindToken:
+                return false
+            }
+        }
+        
+        var errorDescription: String? {
+            switch self {
+            case .failedToFindToken:
+                
+                
+                #warning("l10n")
+                
+                
+                return "Note that tokens can be created by anyone. Be aware of adding scam tokens, they can cost nothing."
+            case .alreadyAdded:
+                
+
+                #warning("l10n")
+
+
+                return "This token/network has already been added to your list"
+            }
+        }
     }
     
     weak var assembly: Assembly!
@@ -64,6 +92,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     @Published var error: AlertBinder?
     
     @Published var warning: String?
+    @Published var addButtonDisabled = true
     
     private var bag: Set<AnyCancellable> = []
     private var blockchainByName: [String: Blockchain] = [:]
@@ -84,25 +113,11 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             .flatMap { (type, blockchainName, contractAddress, derivationPath) in
                 self.validateToken(type: type, blockchainName: blockchainName, contractAddress: contractAddress, derivationPath: derivationPath)
                     .catch { [unowned self] error -> AnyPublisher<Token?, Error> in
-                        switch error {
-                        case CustomTokenError.failedToFindToken:
-                            
-                            
-                            #warning("l10n")
-                            
-                            
-                            self.warning = "Note that tokens can be created by anyone. Be aware of adding scam tokens, they can cost nothing."
-                        case CustomTokenError.alreadyAdded:
-                            
-
-                            #warning("l10n")
-
-
-                            self.warning = "This token/network has already been added to your list"
-                        default:
-                            break
+                        if let tokenSearchError = error as? TokenSearchError {
+                            self.addButtonDisabled = tokenSearchError.preventsFromAdding
+                            self.warning = tokenSearchError.errorDescription
                         }
-
+                        
                         return Empty(completeImmediately: false).setFailureType(to: Error.self).eraseToAnyPublisher()
                     }
             }
@@ -110,6 +125,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 print(completion)
             } receiveValue: { [unowned self] token in
                 self.warning = nil
+                self.addButtonDisabled = false
                 self.foundStandardToken = token
             }
             .store(in: &bag)
@@ -258,7 +274,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             $0.derivationPath == derivationPath
         })
         {
-            return .anyFail(error: CustomTokenError.alreadyAdded)
+            return .anyFail(error: TokenSearchError.alreadyAdded)
         }
         
         switch type {
@@ -276,7 +292,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             .checkContractAddress(contractAddress: contractAddress, networkId: blockchain.networkId)
             .tryMap { token in
                 guard let token = token else {
-                    throw CustomTokenError.failedToFindToken
+                    throw TokenSearchError.failedToFindToken
                 }
                 return token
             }
