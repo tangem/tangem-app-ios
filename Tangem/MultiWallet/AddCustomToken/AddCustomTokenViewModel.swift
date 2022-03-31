@@ -41,9 +41,15 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         }
     }
     
+    private enum CustomTokenError: Error {
+        case alreadyAdded
+        case failedToFindToken
+    }
+    
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
     weak var cardModel: CardViewModel?
+    weak var tokenListService: TokenListService!
     
     @Published var type: TokenType = .blockchain
     @Published var name = ""
@@ -57,7 +63,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
 
     @Published var error: AlertBinder?
     
-    var warning: String?
+    @Published var warning: String?
     
     private var bag: Set<AnyCancellable> = []
     private var blockchainByName: [String: Blockchain] = [:]
@@ -253,24 +259,47 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     private func findToken(contractAddress: String, blockchain: Blockchain) -> AnyPublisher<Token?, Error> {
-        let tokens: [Token]
-        if let cache = cachedTokens[blockchain] {
-            tokens = cache
-        } else {
-            let supportedTokenItems = SupportedTokenItems()
-            tokens = supportedTokenItems.tokens(for: blockchain)
-            cachedTokens[blockchain] = tokens
-        }
-        
-        if let token = tokens.first(where: { $0.contractAddress == contractAddress }) {
-            return Just(token).setFailureType(to: Error.self).eraseToAnyPublisher()
-        } else {
-            return .anyFail(error: CustomTokenError.failedToFindToken)
-        }
+        return tokenListService
+            .checkContractAddress(contractAddress: contractAddress, networkId: blockchain.networkId)
+            .tryMap { token in
+                guard let token = token else {
+                    throw CustomTokenError.failedToFindToken
+                }
+                return token
+            }
+            .eraseToAnyPublisher()
     }
-    
-    private enum CustomTokenError: Error {
-        case alreadyAdded
-        case failedToFindToken
+}
+
+
+#warning("[REDACTED_TODO_COMMENT]")
+#warning("[REDACTED_TODO_COMMENT]")
+#warning("[REDACTED_TODO_COMMENT]")
+#warning("[REDACTED_TODO_COMMENT]")
+#warning("[REDACTED_TODO_COMMENT]")
+
+fileprivate extension Blockchain {
+    var networkId: String {
+           switch self {
+           case .bitcoin: return "bitcoin"
+           case .stellar: return "stellar"
+           case .ethereum: return "ethereum"
+           case .litecoin: return "litecoin"
+           case .rsk: return "rootstock"
+           case .bitcoinCash: return "bitcoincash"
+           case .binance: return "binancecoin"
+           case .cardano: return "cardano"
+           case .xrp: return "ripple"
+           case .ducatus: return "ducatus"
+           case .tezos: return "tezos"
+           case .dogecoin: return "dogecoin"
+           case .bsc: return "binance-smart-chain"
+           case .polygon: return "matic-network"
+           case .avalanche: return "avalanche-2"
+           case .solana: return "solana"
+           case .fantom: return "fantom"
+           case .polkadot: return "polkadot"
+           case .kusama: return "kusama"
+       }
     }
 }
