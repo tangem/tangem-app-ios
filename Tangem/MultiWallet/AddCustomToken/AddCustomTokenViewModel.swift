@@ -112,8 +112,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             let token = Token(name: name,
                               symbol: symbol.uppercased(),
                               contractAddress: contractAddress,
-                              decimalCount: decimals,
-                              blockchain: blockchain)
+                              decimalCount: decimals)
             itemsToAdd.append(.init(token, derivationPath: derivationPath))
         } else {
             itemsToAdd.append(.init(blockchain, derivationPath: derivationPath))
