@@ -78,11 +78,11 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             }
             .store(in: &bag)
         
-        Publishers.CombineLatest3($type, $blockchainName, $contractAddress)
+        Publishers.CombineLatest4($type, $blockchainName, $contractAddress, $derivationPath)
             .debounce(for: 0.5, scheduler: RunLoop.main)
             .setFailureType(to: Error.self)
-            .flatMap { (type, blockchainName, contractAddress) in
-                self.validateToken(type: type, blockchainName: blockchainName, contractAddress: contractAddress)
+            .flatMap { (type, blockchainName, contractAddress, derivationPath) in
+                self.validateToken(type: type, blockchainName: blockchainName, contractAddress: contractAddress, derivationPath: derivationPath)
                     .catch { [unowned self] error -> AnyPublisher<Token?, Error> in
                         switch error {
                         case CustomTokenError.failedToFindToken:
@@ -102,13 +102,14 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                         default:
                             break
                         }
-                        return Just(nil).setFailureType(to: Error.self).eraseToAnyPublisher()
+
+                        return Empty(completeImmediately: false).setFailureType(to: Error.self).eraseToAnyPublisher()
                     }
             }
             .sink { completion in
                 print(completion)
             } receiveValue: { [unowned self] token in
-                print(token)
+                self.warning = nil
                 self.foundStandardToken = token
             }
             .store(in: &bag)
@@ -238,9 +239,8 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         }
     }
     
-    private func validateToken(type: TokenType, blockchainName: String, contractAddress: String) -> AnyPublisher<Token?, Error> {
+    private func validateToken(type: TokenType, blockchainName: String, contractAddress: String, derivationPath: String) -> AnyPublisher<Token?, Error> {
         guard
-            type == .token,
             let blockchain = blockchainByName[blockchainName]
         else {
             return Just(nil)
@@ -248,14 +248,27 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 .eraseToAnyPublisher()
         }
         
-        if case let .success(enteredTokenItem) = self.enteredTokenItem(),
-           let cardTokenItems = cardModel?.tokenItemsRepository.getItems(for: cardModel?.cardInfo.card.cardId ?? ""),
-           cardTokenItems.contains(enteredTokenItem)
+        let cardTokenItems = cardModel?.tokenItemsRepository.getItems(for: cardModel?.cardInfo.card.cardId ?? "") ?? []
+        let checkingContractAddress = (type == .token)
+        let derivationPath = (try? DerivationPath(rawPath: derivationPath)) ?? blockchain.derivationPath
+        
+        if cardTokenItems.contains(where: {
+            ($0.contractAddress == contractAddress || !checkingContractAddress) &&
+            $0.blockchain == blockchain &&
+            $0.derivationPath == derivationPath
+        })
         {
             return .anyFail(error: CustomTokenError.alreadyAdded)
         }
         
-        return findToken(contractAddress: contractAddress, blockchain: blockchain)
+        switch type {
+        case .blockchain:
+            return Just(nil)
+                .setFailureType(to: Error.self)
+                .eraseToAnyPublisher()
+        case .token:
+            return findToken(contractAddress: contractAddress, blockchain: blockchain)
+        }
     }
     
     private func findToken(contractAddress: String, blockchain: Blockchain) -> AnyPublisher<Token?, Error> {
