@@ -87,7 +87,7 @@ struct AddCustomTokenView: View {
     
     var body: some View {
         ScrollView {
-            VStack {
+            VStack(spacing: 10) {
                 HStack {
                     Text("add_custom_token_title".localized)
                         .font(Font.system(size: 36, weight: .bold, design: .default))
@@ -125,8 +125,6 @@ struct AddCustomTokenView: View {
                 if let warning = viewModel.warning {
                     Text(warning)
                 }
-                
-                Spacer()
                 
                 TangemButton(title: "common_add", systemImage: "plus", action: viewModel.createToken)
                     .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
