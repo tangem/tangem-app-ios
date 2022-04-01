@@ -319,9 +319,9 @@ class WalletModel: ObservableObject, Identifiable {
         guard canRemove(amountType: .token(value: token)) else {
             return false
         }
-        
+        walletManager.removeToken(token)
         tokenItemsRepository.remove(token, blockchainNetwork: blockchainNetwork, for: cardId)
-        tokenViewModels.removeAll(where: { $0.token == token })
+        updateTokensViewModels() 
         return true
     }
     
@@ -366,12 +366,12 @@ class WalletModel: ObservableObject, Identifiable {
             .eraseToAnyPublisher()
     }
     
-    func isDefaultDerivation(for batchId: String) -> Bool {
+    func isDefaultDerivation(for style: DerivationStyle) -> Bool {
         guard let currentDerivation = self.blockchainNetwork.derivationPath else {
             return true //cards without hd wallets
         }
         
-        let defaultDerivation = wallet.blockchain.derivationPath(for: .init(with: batchId))
+        let defaultDerivation = wallet.blockchain.derivationPath(for: style)
         return defaultDerivation == currentDerivation
     }
     
