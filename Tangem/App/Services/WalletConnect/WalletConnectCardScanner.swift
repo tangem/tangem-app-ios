@@ -74,7 +74,7 @@ class WalletConnectCardScanner {
         
         let walletModels = getWalletModels(for: cardInfo)
         let wallet = walletModels
-            .filter { $0.isDefaultDerivation(for: cardInfo.card.batchId) }
+            .filter { $0.isDefaultDerivation(for: cardInfo.card.derivationStyle) }
             .first(where: { $0.wallet.blockchain == blockchain })
             .map { $0.wallet }
         
