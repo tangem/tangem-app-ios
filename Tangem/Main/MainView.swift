@@ -170,7 +170,7 @@ struct MainView: View {
                                     })
                                     .padding(.horizontal, 16)
                                     
-                                    if !viewModel.cardModel!.isMultiWallet {
+                                    if !viewModel.cardModel!.cardInfo.isMultiWallet {
                                         ForEach(pendingTransactionViews) { $0 }
                                             .padding(.horizontal, 16.0)
                                             .sheet(item: $viewModel.txIndexToPush) { index in
@@ -193,7 +193,7 @@ struct MainView: View {
                                             type: .error
                                         )
                                     } else {
-                                        if viewModel.cardModel!.isMultiWallet {
+                                        if viewModel.cardModel!.cardInfo.isMultiWallet {
                                             ForEach(viewModel.tokenItemViewModels) { item in
                                                 TokensListItemView(item: item)
                                                     .onTapGesture {
@@ -421,11 +421,11 @@ struct MainView: View {
                 
                 if !viewModel.canCreateWallet
                     && viewModel.canBuyCrypto
-                    && !(viewModel.cardModel?.isMultiWallet ?? true)  {
+                    && !(viewModel.cardModel?.cardInfo.isMultiWallet ?? true)  {
                     exchangeCryptoButton
                 }
                 
-                if let cardModel = viewModel.cardModel, !cardModel.isMultiWallet,
+                if let cardModel = viewModel.cardModel, !cardModel.cardInfo.isMultiWallet,
                    (!viewModel.canCreateWallet || (cardModel.isTwinCard && cardModel.hasBalance)) {
                     sendButton
                 }
