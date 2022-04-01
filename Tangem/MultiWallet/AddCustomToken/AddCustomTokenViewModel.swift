@@ -115,7 +115,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 self.isLoading = false
                 
                 let currencyModelBlockchains = currencyModel?.items.map { $0.blockchain }
-                let blockchains = currencyModelBlockchains ?? getBlockchains(withTokenSupport: true)
+                let blockchains = currencyModelBlockchains ?? getBlockchains(withTokenSupport: false)
                 self.updateBlockchains(blockchains)
                 
                 let firstTokenItem = currencyModel?.items.first
@@ -172,7 +172,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     func onAppear() {
-        updateBlockchains(getBlockchains(withTokenSupport: true))
+        updateBlockchains(getBlockchains(withTokenSupport: false))
         updateDerivationPaths()
     }
     
