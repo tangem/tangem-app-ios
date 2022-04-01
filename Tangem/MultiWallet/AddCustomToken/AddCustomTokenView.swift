@@ -95,28 +95,19 @@ struct AddCustomTokenView: View {
                     
                     Spacer()
                 }
-                
-                Picker("", selection: $viewModel.type) {
-                    Text("custom_token_type_network")
-                        .tag(AddCustomTokenViewModel.TokenType.blockchain)
-                    Text("custom_token_type_token")
-                        .tag(AddCustomTokenViewModel.TokenType.token)
-                }
-                .pickerStyle(.segmented)
-                
+
                 VStack(spacing: 1) {
-                    PickerInputWithTitle(title: "custom_token_network_input_title".localized, value: $viewModel.blockchainName, values: viewModel.blockchains)
+                    TextInputWithTitle(title: "custom_token_contract_address_input_title".localized, placeholder: "0x0000000000000000000000000000000000000000", text: $viewModel.contractAddress, keyboardType: .default)
                         .cornerRadius(10, corners: [.topLeft, .topRight])
-                    
-                    if viewModel.type == .token {
-                        TextInputWithTitle(title: "custom_token_contract_address_input_title".localized, placeholder: "0x0000000000000000000000000000000000000000", text: $viewModel.contractAddress, keyboardType: .default)
-    
-                        TextInputWithTitle(title: "custom_token_name_input_title".localized, placeholder: "custom_token_name_input_placeholder".localized, text: $viewModel.name, keyboardType: .default)
+
+                    PickerInputWithTitle(title: "custom_token_network_input_title".localized, value: $viewModel.blockchainName, values: viewModel.blockchains)
+
+                    TextInputWithTitle(title: "custom_token_name_input_title".localized, placeholder: "custom_token_name_input_placeholder".localized, text: $viewModel.name, keyboardType: .default)
                         
-                        TextInputWithTitle(title: "custom_token_token_symbol_input_title".localized, placeholder: "custom_token_token_symbol_input_placeholder".localized, text: $viewModel.symbol, keyboardType: .default)
-        
-                        TextInputWithTitle(title: "custom_token_decimals_input_title".localized, placeholder: "0", text: $viewModel.decimals, keyboardType: .numberPad)
-                    }
+                    
+                    TextInputWithTitle(title: "custom_token_token_symbol_input_title".localized, placeholder: "custom_token_token_symbol_input_placeholder".localized, text: $viewModel.symbol, keyboardType: .default)
+    
+                    TextInputWithTitle(title: "custom_token_decimals_input_title".localized, placeholder: "0", text: $viewModel.decimals, keyboardType: .numberPad)
                     
                     TextInputWithTitle(title: "custom_token_derivation_path_input_title".localized, placeholder: "m/44'/60'/0'/0'/0", text: $viewModel.derivationPath, keyboardType: .default)
                         .cornerRadius(10, corners: [.bottomLeft, .bottomRight])
