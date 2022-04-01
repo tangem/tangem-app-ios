@@ -75,6 +75,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
     func showCustomTokenView() {
         navigation.mainToCustomToken = true
     }
+    
     func saveChanges() {
         guard let cardModel = cardModel else {
             return
@@ -82,7 +83,19 @@ class TokenListViewModel: ViewModel, ObservableObject {
         
         isSaving = true
         
-        cardModel.manageTokenItems(add: pendingAdd, remove: pendingRemove) {[weak self] result in
+        let cardDerivationStyle = cardModel.cardInfo.card.derivationStyle
+        let itemsToRemove = pendingRemove.map {
+            ($0.amountType, $0.getDefaultBlockchainNetwork(for: cardDerivationStyle))
+        }
+        
+        cardModel.remove(items: itemsToRemove)
+        
+        let itemsToAdd = pendingAdd.map {
+            ($0.amountType, $0.getDefaultBlockchainNetwork(for: cardDerivationStyle))
+        }
+        
+        
+        cardModel.add(items: itemsToAdd) {[weak self] result in
             self?.isSaving = false
             
             switch result {
@@ -135,7 +148,8 @@ class TokenListViewModel: ViewModel, ObservableObject {
             return false
         }
         
-        if let walletManager = cardModel.walletModels?.first(where: { $0.wallet.blockchain == tokenItem.blockchain })?.walletManager {
+        let network = tokenItem.getDefaultBlockchainNetwork(for: cardModel.cardInfo.card.derivationStyle)
+        if let walletManager = cardModel.walletModels?.first(where: { $0.blockchainNetwork == network })?.walletManager {
             if let token = tokenItem.token {
                 return walletManager.cardTokens.contains(token)
             }
@@ -151,7 +165,8 @@ class TokenListViewModel: ViewModel, ObservableObject {
             return false
         }
         
-        return cardModel.canManage(amountType: tokenItem.amountType, blockchain: tokenItem.blockchain)
+        let network = tokenItem.getDefaultBlockchainNetwork(for: cardModel.cardInfo.card.derivationStyle)
+        return cardModel.canRemove(amountType: tokenItem.amountType, blockchainNetwork: network)
     }
     
     private func showAddButton(_ tokenItem: TokenItem) -> Bool {

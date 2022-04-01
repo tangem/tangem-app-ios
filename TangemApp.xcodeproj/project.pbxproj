@@ -68,6 +68,7 @@
 		5D3F77E824BF56DC00E8695B /* TangemUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F77E724BF56DC00E8695B /* TangemUITests.swift */; };
 		5D3FA5AC27E8E8BB00A80221 /* TapSwitchTogglColoredToggleStyleeStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D69E0E225016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift */; };
 		5D43E2D72514D5B700697E5B /* CardOperationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D43E2D62514D5B700697E5B /* CardOperationView.swift */; };
+		5D44AB8A27F75C1A00464FD9 /* Card+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FB98A42598D24300B769A3 /* Card+.swift */; };
 		5D49034F27BE84B20072C642 /* ExploreButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D49034E27BE84B20072C642 /* ExploreButton.swift */; };
 		5D49035027BE8AAE0072C642 /* ExploreButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D49034E27BE84B20072C642 /* ExploreButton.swift */; };
 		5D49035227BE9D550072C642 /* Data+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D49035127BE9D550072C642 /* Data+.swift */; };
@@ -139,7 +140,6 @@
 		5DBBAB0D24D8547F00E78F1C /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0C24D8547F00E78F1C /* Colors.xcassets */; };
 		5DBBAB0F24D8617C00E78F1C /* CardRectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0E24D8617C00E78F1C /* CardRectView.swift */; };
 		5DCC20BD2500FC58007B467E /* QRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DCC20BC2500FC58007B467E /* QRScannerView.swift */; };
-		5DD1244727F491A1000425D3 /* DerivationStyle+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD1244627F491A1000425D3 /* DerivationStyle+.swift */; };
 		5DD24B41274FAC2400BF80BE /* WalletManagerAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD24B40274FAC2400BF80BE /* WalletManagerAssembly.swift */; };
 		5DD4CB4E24FAAB1A008F23CC /* KeyboardAdaptive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD4CB4B24FAAB1A008F23CC /* KeyboardAdaptive.swift */; };
 		5DD4CB5024FAAB1A008F23CC /* KeyboardHeightPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD4CB4D24FAAB1A008F23CC /* KeyboardHeightPublisher.swift */; };
@@ -164,7 +164,6 @@
 		5DE7DD1F2695C06200472205 /* PersistentStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D09383B25EAE7FD0049B8F0 /* PersistentStorage.swift */; };
 		5DE7DD202695C09E00472205 /* DefaultSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DB862B7252396CD00566AA0 /* DefaultSigner.swift */; };
 		5DE7DD212695C0A800472205 /* Analytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D225CB82524B721001564A3 /* Analytics.swift */; };
-		5DE7DD222695C17800472205 /* Card+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FB98A42598D24300B769A3 /* Card+.swift */; };
 		5DE7DD232695C27E00472205 /* UserPrefsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCB05255193C30059799C /* UserPrefsService.swift */; };
 		5DE7DD262695C57B00472205 /* SavedCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F79C72268A2E98008C9B30 /* SavedCard.swift */; };
 		5DE7DD2B2695CFF800472205 /* CreateMultiWalletTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D78D11C261E084700F98B18 /* CreateMultiWalletTask.swift */; };
@@ -647,7 +646,6 @@
 		5DBBAB0E24D8617C00E78F1C /* CardRectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardRectView.swift; sourceTree = "<group>"; };
 		5DBFEA4D24DD642C0080D3DC /* Tangem.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Tangem.entitlements; sourceTree = "<group>"; };
 		5DCC20BC2500FC58007B467E /* QRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerView.swift; sourceTree = "<group>"; };
-		5DD1244627F491A1000425D3 /* DerivationStyle+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DerivationStyle+.swift"; sourceTree = "<group>"; };
 		5DD1D62E25558975007910EF /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
 		5DD24B40274FAC2400BF80BE /* WalletManagerAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletManagerAssembly.swift; sourceTree = "<group>"; };
 		5DD4CB4B24FAAB1A008F23CC /* KeyboardAdaptive.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardAdaptive.swift; sourceTree = "<group>"; };
@@ -1332,7 +1330,6 @@
 				5DA5067C27A2FF56000A8901 /* URL+.swift */,
 				5D62446027A7CAB60069DEC2 /* Bool+.swift */,
 				5D49035127BE9D550072C642 /* Data+.swift */,
-				5DD1244627F491A1000425D3 /* DerivationStyle+.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -2639,7 +2636,6 @@
 				B051A1B826219D0700809FD2 /* NavigationBusyButton.swift in Sources */,
 				5DBBAB0824D850EA00E78F1C /* CircleView.swift in Sources */,
 				5D242A5F273C1F24008F79B5 /* Publisher+.swift in Sources */,
-				5DD1244727F491A1000425D3 /* DerivationStyle+.swift in Sources */,
 				5D24A12A24FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift in Sources */,
 				5DBBAB0F24D8617C00E78F1C /* CardRectView.swift in Sources */,
 				B0606E122684A946004004ED /* BlinkingModifier.swift in Sources */,
@@ -2817,7 +2813,6 @@
 				B01416AC2632A92B00D82A9C /* ImageLoader.swift in Sources */,
 				5DE7DD4C269627EF00472205 /* MainView.swift in Sources */,
 				B01416A72632A92300D82A9C /* WebImage.swift in Sources */,
-				5DE7DD222695C17800472205 /* Card+.swift in Sources */,
 				B0FAD00026BA655300F45E88 /* Assembly+Preview.swift in Sources */,
 				B0869073260A2D7B005976CD /* TangemButton.swift in Sources */,
 				B0F735AE25F7932200DD348F /* Storage.swift in Sources */,
@@ -2828,6 +2823,7 @@
 				B0F735B825F7943A00DD348F /* StorageType.swift in Sources */,
 				5DE7DD1B2695C04F00472205 /* CardImageLoaderService.swift in Sources */,
 				B0F7361D25F7B03900DD348F /* TwinCardsUtils.swift in Sources */,
+				5D44AB8A27F75C1A00464FD9 /* Card+.swift in Sources */,
 				5DA2473C2799B0AC00DB4E4F /* AddressFormatter.swift in Sources */,
 				B01416B12632A93800D82A9C /* ImageCache.swift in Sources */,
 				B0CA5AC225F785FA0078F42F /* VerticalAlignment+.swift in Sources */,
