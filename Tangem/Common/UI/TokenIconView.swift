@@ -12,25 +12,34 @@ import BlockchainSdk
 import SwiftUI
 
 struct TokenIconView: View {
-    var token: TokenItem
-    var size: CGSize = .init(width: 80, height: 80)
+    let tokenItem: TokenItem
+    var size: CGSize = .init(width: 40, height: 40)
     
     var body: some View {
-        if let url = token.imageURL {
-        #if !CLIP
-            KFImage(url)
-                .placeholder { token.imageView }
-                .setProcessor(DownsamplingImageProcessor(size: size))
-                .cacheOriginalImage()
-                .scaleFactor(UIScreen.main.scale)
-                .resizable()
-                .scaledToFit()
-                .cornerRadius(5)
-        #else
-            WebImage(imagePath: url, placeholder: token.imageView.toAnyView())
-        #endif
-        } else {
-            token.imageView
+#if !CLIP
+        KFImage(tokenItem.imageURL)
+            .setProcessor(DownsamplingImageProcessor(size: size))
+            .placeholder { placeholder }
+            .fade(duration: 0.3)
+            .forceTransition()
+            .cacheOriginalImage()
+            .scaleFactor(UIScreen.main.scale)
+            .resizable()
+            .scaledToFit()
+            .cornerRadius(5)
+            .frame(size: size)
+#else
+        WebImage(imagePath: url, placeholder: token.imageView.toAnyView())
+#endif
+    }
+    
+    @ViewBuilder
+    private var placeholder: some View {
+        switch tokenItem {
+        case .token:
+            CircleImageTextView(name: tokenItem.name, color: .tangemGrayLight4)
+        case .blockchain:
+            NetworkIcon(imageName: tokenItem.blockchain.iconNameFilled, isMainIndicatorVisible: true, size: self.size)
         }
     }
 }
@@ -38,32 +47,19 @@ struct TokenIconView: View {
 extension TokenIconView {
     init(with type: Amount.AmountType, blockchain: Blockchain) {
         if case let .token(token) = type {
-            self.token = .token(token, blockchain)
+            self.tokenItem = .token(token, blockchain)
+            return
         }
         
-        self.token = .blockchain(blockchain)
+        self.tokenItem = .blockchain(blockchain)
     }
 }
 
 extension TokenItem {
-    var iconView: TokenIconView {
-        TokenIconView(token: self)
-    }
-    
-    @ViewBuilder fileprivate var imageView: some View {
-        switch self {
-        case .token(let token, _):
-            CircleImageTextView(name: token.name, color: token.color)
-        case .blockchain(let blockchain):
-            Image(blockchain.iconNameFilled)
-                .resizable()
-        }
-    }
-    
     fileprivate var imageURL: URL? {
         switch self {
-        case .blockchain(let blockchain):
-            return IconsUtils.getBlockchainIconUrl(blockchain).flatMap { URL(string: $0.absoluteString) }
+        case .blockchain:
+            return nil
         case .token(let token, _):
             return token.customIconUrl.flatMap{ URL(string: $0) }
         }
