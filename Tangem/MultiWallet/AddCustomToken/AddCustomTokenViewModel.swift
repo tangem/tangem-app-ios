@@ -298,13 +298,6 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     private func validateToken(blockchainName: String, contractAddress: String, derivationPath: String) -> AnyPublisher<CurrencyModel?, Error> {
-        guard !contractAddress.isEmpty else {
-            return Just(nil)
-                .setFailureType(to: Error.self)
-                .eraseToAnyPublisher()
-        }
-        
-        
         let blockchain = blockchainByName[blockchainName]
         
         let cardTokenItems = cardModel?.tokenItemsRepository.getItems(for: cardModel?.cardInfo.card.cardId ?? "") ?? []
@@ -320,6 +313,12 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             return .anyFail(error: TokenSearchError.alreadyAdded)
         }
         
+        guard !contractAddress.isEmpty else {
+            return Just(nil)
+                .setFailureType(to: Error.self)
+                .eraseToAnyPublisher()
+        }
+      
         return findToken(contractAddress: contractAddress, blockchain: blockchain, derivationPath: derivationPath)
     }
     
