@@ -29,15 +29,20 @@ class TokenListService {
             .map(CurrenciesList.self)
             .map { currencyList -> CurrencyModel? in
                 guard
-                    let currencyEntity = currencyList.tokens.first,
-                    let currencyEntityIsActive = currencyEntity.active,
-                    let contractIsActive = currencyEntity.contracts?.first?.active,
-                    currencyEntityIsActive && contractIsActive
+                    let currencyEntity = currencyList.tokens.first(where: { $0.active == true })
                 else {
                     return nil
                 }
                 
-                return CurrencyModel(with: currencyEntity, baseImageURL: currencyList.imageHost)
+                let filteredCurrencyEntity = CurrencyEntity(
+                    id: currencyEntity.id,
+                    name: currencyEntity.name,
+                    symbol: currencyEntity.symbol,
+                    active: currencyEntity.active,
+                    contracts: currencyEntity.contracts?.filter { $0.active == true }
+                )
+                
+                return CurrencyModel(with: filteredCurrencyEntity, baseImageURL: currencyList.imageHost)
             }
             .subscribe(on: DispatchQueue.global())
             .eraseToAnyPublisher()
