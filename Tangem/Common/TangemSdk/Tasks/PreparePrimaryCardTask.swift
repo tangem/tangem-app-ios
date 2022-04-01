@@ -63,11 +63,12 @@ class PreparePrimaryCardTask: CardSessionRunnable {
             completion(.failure(.missingPreflightRead))
             return
         }
+        
         let blockchains = SupportedTokenItems().predefinedBlockchains(isDemo: card.isDemoCard)
         
         let derivations: [Data: [DerivationPath]] = blockchains.reduce(into: [:]) { partialResult, blockchain in
             if let wallet = session.environment.card?.wallets.first(where: { $0.curve == blockchain.curve }),
-               let path = blockchain.derivationPath(for: .init(with: card.batchId)) {
+               let path = blockchain.derivationPath(for: card.derivationStyle) {
                 partialResult[wallet.publicKey, default: []].append(path)
             }
         }
