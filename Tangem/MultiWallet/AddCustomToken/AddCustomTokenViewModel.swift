@@ -78,10 +78,12 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     @Published var symbol = ""
     @Published var contractAddress = ""
     @Published var decimals = ""
-    @Published var derivationPath = ""
     
     @Published var blockchains: [(String, String)] = []
     @Published var blockchainName: String = ""
+    
+    @Published var derivationPath = ""
+    @Published var derivationPaths: [(String, String)] = []
     
     @Published var error: AlertBinder?
     
@@ -181,6 +183,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     
     func onAppear() {
         updateBlockchains(getBlockchains(withTokenSupport: true))
+        updateDerivationPaths()
     }
     
     func onDisappear() {
@@ -193,7 +196,8 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     private func updateBlockchains(_ blockchains: [Blockchain]) {
-        self.blockchains = blockchains.map {
+        let defaultItem = ("custom_token_network_input_not_selected".localized, "")
+        self.blockchains = [defaultItem] + blockchains.map {
             ($0.displayName, $0.codingKey)
         }
         self.blockchainByName = Dictionary(uniqueKeysWithValues: blockchains.map {
@@ -237,6 +241,17 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         } else {
             return blockchains
         }
+    }
+    
+    private func updateDerivationPaths() {
+        #warning("l10n")
+        let defaultItem = ("Default", "")
+        self.derivationPaths = [defaultItem] + getBlockchains(withTokenSupport: false)
+            .map {
+                let derivationPath = $0.derivationPath?.rawPath ?? ""
+                let description = "\($0.displayName) (\(derivationPath))"
+                return (description, derivationPath)
+            }
     }
     
     private func enteredTokenItem() -> Result<TokenItem, Error> {
