@@ -98,7 +98,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     private var blockchainByName: [String: Blockchain] = [:]
     private var blockchainsWithTokens: Set<Blockchain>?
     private var cachedTokens: [Blockchain: [Token]] = [:]
-    private var foundStandardToken: Token?
+    private var foundStandardToken: TokenItem?
     
     init() {
         $type
@@ -112,7 +112,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             .setFailureType(to: Error.self)
             .flatMap { (type, blockchainName, contractAddress, derivationPath) in
                 self.validateToken(type: type, blockchainName: blockchainName, contractAddress: contractAddress, derivationPath: derivationPath)
-                    .catch { [unowned self] error -> AnyPublisher<Token?, Error> in
+                    .catch { [unowned self] error -> AnyPublisher<TokenItem, Error> in
                         if let tokenSearchError = error as? TokenSearchError {
                             self.addButtonDisabled = tokenSearchError.preventsFromAdding
                             self.warning = tokenSearchError.errorDescription
@@ -127,6 +127,12 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 self.warning = nil
                 self.addButtonDisabled = false
                 self.foundStandardToken = token
+                
+                if let token = foundStandardToken?.token {
+                    self.decimals = "\(token.decimalCount)"
+                    self.symbol = token.symbol
+                    self.name = token.name
+                }
             }
             .store(in: &bag)
     }
@@ -138,23 +144,31 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         
         UIApplication.shared.endEditing()
         
+        let tokenItem: TokenItem
+        if let foundStandardToken = self.foundStandardToken {
+            tokenItem = foundStandardToken
+        } else {
+            switch enteredTokenItem() {
+            case .failure(let error):
+                self.error = error.alertBinder
+                return
+            case .success(let enteredTokenItem):
+                tokenItem = enteredTokenItem
+                
+            }
+        }
         
-        switch enteredTokenItem() {
-        case .failure(let error):
-            self.error = error.alertBinder
-        case .success(let tokenItem):
-            cardModel.manageTokenItems(add: [tokenItem], remove: []) { result in
-                switch result {
-                case .success:
-                    self.navigation.mainToCustomToken = false
-                    self.navigation.mainToAddTokens = false
-                case .failure(let error):
-                    if case TangemSdkError.userCancelled = error {
-                        return
-                    }
-                    
-                    self.error = error.alertBinder
+        cardModel.manageTokenItems(add: [tokenItem], remove: []) { result in
+            switch result {
+            case .success:
+                self.navigation.mainToCustomToken = false
+                self.navigation.mainToAddTokens = false
+            case .failure(let error):
+                if case TangemSdkError.userCancelled = error {
+                    return
                 }
+                
+                self.error = error.alertBinder
             }
         }
     }
@@ -249,19 +263,17 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 blockchain: blockchain
             )
             
-            return .success(.init(token, derivationPath: derivationPath))
+            return .success(.init(token, derivationPath: derivationPath, isCustom: true))
         } else {
             return .success(.init(blockchain, derivationPath: derivationPath))
         }
     }
     
-    private func validateToken(type: TokenType, blockchainName: String, contractAddress: String, derivationPath: String) -> AnyPublisher<Token?, Error> {
+    private func validateToken(type: TokenType, blockchainName: String, contractAddress: String, derivationPath: String) -> AnyPublisher<TokenItem, Error> {
         guard
             let blockchain = blockchainByName[blockchainName]
         else {
-            return Just(nil)
-                .setFailureType(to: Error.self)
-                .eraseToAnyPublisher()
+            return .anyFail(error: TokenCreationErrors.blockchainNotSelected)
         }
         
         let cardTokenItems = cardModel?.tokenItemsRepository.getItems(for: cardModel?.cardInfo.card.cardId ?? "") ?? []
@@ -279,22 +291,26 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         
         switch type {
         case .blockchain:
-            return Just(nil)
+            return Just(TokenItem(blockchain, derivationPath: derivationPath, isCustom: false))
                 .setFailureType(to: Error.self)
                 .eraseToAnyPublisher()
         case .token:
-            return findToken(contractAddress: contractAddress, blockchain: blockchain)
+            return findToken(contractAddress: contractAddress, blockchain: blockchain, derivationPath: derivationPath)
         }
     }
     
-    private func findToken(contractAddress: String, blockchain: Blockchain) -> AnyPublisher<Token?, Error> {
+    private func findToken(contractAddress: String, blockchain: Blockchain, derivationPath: DerivationPath?) -> AnyPublisher<TokenItem, Error> {
         return tokenListService
             .checkContractAddress(contractAddress: contractAddress, networkId: blockchain.networkId)
-            .tryMap { token in
-                guard let token = token else {
+            .tryMap { tokenItem in
+                guard
+                    let tokenItem = tokenItem,
+                    let token = tokenItem.token
+                else {
                     throw TokenSearchError.failedToFindToken
                 }
-                return token
+                
+                return TokenItem(token, id: tokenItem.id, derivationPath: derivationPath, isCustom: false)
             }
             .eraseToAnyPublisher()
     }
