@@ -19,6 +19,7 @@ struct CustomTextField: UIViewRepresentable {
         let placeholder: String
         var decimalCount: Int?
         let defaultStringToClear: String?
+        var isEnabled = true
         
         init(text: Binding<String>, placeholder: String, decimalCount: Int?, defaultStringToClear: String?,
              isResponder : Binding<Bool?>, actionButtonTapped: Binding<Bool>) {
@@ -28,6 +29,10 @@ struct CustomTextField: UIViewRepresentable {
             self.placeholder = placeholder
             self.decimalCount = decimalCount
             self.defaultStringToClear = defaultStringToClear
+        }
+        
+        func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+            return isEnabled
         }
         
         func textFieldDidChangeSelection(_ textField: UITextField) {
@@ -119,6 +124,7 @@ struct CustomTextField: UIViewRepresentable {
     let placeholder: String
     let toolbarItems: [UIBarButtonItem]? = nil
     var decimalCount: Int? = nil
+    var isEnabled = true
 
     func makeUIView(context: UIViewRepresentableContext<CustomTextField>) -> UITextField {
         let textField = UITextField(frame: .zero)
@@ -177,7 +183,10 @@ struct CustomTextField: UIViewRepresentable {
     
     func updateUIView(_ uiView: UITextField, context: UIViewRepresentableContext<CustomTextField>) {
         uiView.text = text
+        uiView.textColor = textColor
         context.coordinator.decimalCount = decimalCount
+        context.coordinator.isEnabled = isEnabled
+        
         if isResponder ?? false {
             DispatchQueue.main.async {
                 uiView.becomeFirstResponder()
