@@ -11,7 +11,7 @@ import Moya
 
 #warning("[REDACTED_TODO_COMMENT]")
 enum TangemApiTarget2: TargetType {
-    case checkContractAddress(contractAddress: String, networkId: String)
+    case checkContractAddress(contractAddress: String, networkId: String?)
     
     var baseURL: URL {URL(string: "https://api.tangem-tech.com")!}
     
@@ -27,8 +27,11 @@ enum TangemApiTarget2: TargetType {
     var task: Task {
         switch self {
         case .checkContractAddress(let contractAddress, let networkId):
-            return .requestParameters(parameters: ["contractAddress": contractAddress,
-                                                   "networkId": networkId],
+            var parameters: [String: Any] = ["contractAddress": contractAddress]
+            if let networkId = networkId {
+                parameters["networkId"] = networkId
+            }
+            return .requestParameters(parameters: parameters,
                                       encoding: URLEncoding.default)
         }
     }
