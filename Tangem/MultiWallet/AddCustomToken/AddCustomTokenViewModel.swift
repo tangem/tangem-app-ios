@@ -92,7 +92,8 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     @Published var error: AlertBinder?
     
     @Published var warning: String?
-    @Published var addButtonDisabled = true
+    @Published var addButtonDisabled = false
+    @Published var isLoading = false
     
     private var bag: Set<AnyCancellable> = []
     private var blockchainByName: [String: Blockchain] = [:]
@@ -110,9 +111,13 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         Publishers.CombineLatest4($type, $blockchainName, $contractAddress, $derivationPath)
             .debounce(for: 0.5, scheduler: RunLoop.main)
             .setFailureType(to: Error.self)
-            .flatMap { (type, blockchainName, contractAddress, derivationPath) in
-                self.validateToken(type: type, blockchainName: blockchainName, contractAddress: contractAddress, derivationPath: derivationPath)
+            .flatMap { (type, blockchainName, contractAddress, derivationPath) -> AnyPublisher<TokenItem, Error> in
+                self.isLoading = true
+                
+                return self.validateToken(type: type, blockchainName: blockchainName, contractAddress: contractAddress, derivationPath: derivationPath)
                     .catch { [unowned self] error -> AnyPublisher<TokenItem, Error> in
+                        self.isLoading = false
+                        
                         if let tokenSearchError = error as? TokenSearchError {
                             self.addButtonDisabled = tokenSearchError.preventsFromAdding
                             self.warning = tokenSearchError.errorDescription
@@ -120,12 +125,14 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                         
                         return Empty(completeImmediately: false).setFailureType(to: Error.self).eraseToAnyPublisher()
                     }
+                    .eraseToAnyPublisher()
             }
             .sink { _ in
                 
             } receiveValue: { [unowned self] token in
                 self.warning = nil
                 self.addButtonDisabled = false
+                self.isLoading = false
                 self.foundStandardToken = token
                 
                 if let token = foundStandardToken?.token {
@@ -270,10 +277,12 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     private func validateToken(type: TokenType, blockchainName: String, contractAddress: String, derivationPath: String) -> AnyPublisher<TokenItem, Error> {
-        guard
-            let blockchain = blockchainByName[blockchainName]
-        else {
+        guard let blockchain = blockchainByName[blockchainName] else {
             return .anyFail(error: TokenCreationErrors.blockchainNotSelected)
+        }
+        
+        guard !contractAddress.isEmpty else {
+            return .anyFail(error: TokenCreationErrors.invalidContractAddress)
         }
         
         let cardTokenItems = cardModel?.tokenItemsRepository.getItems(for: cardModel?.cardInfo.card.cardId ?? "") ?? []
