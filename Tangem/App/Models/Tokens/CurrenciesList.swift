@@ -17,6 +17,7 @@ struct CurrencyEntity: Codable {
     public let id: String
     public let name: String
     public let symbol: String
+    public let active: Bool?
     public let contracts: [ContractEntity]?
 }
 
