@@ -13,11 +13,6 @@ import struct TangemSdk.DerivationPath
 import enum TangemSdk.TangemSdkError
 
 class AddCustomTokenViewModel: ViewModel, ObservableObject {
-    enum TokenType: Hashable {
-        case blockchain
-        case token
-    }
-    
     private enum TokenCreationErrors: LocalizedError {
         case blockchainNotSelected
         case emptyFields
@@ -59,16 +54,16 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             case .failedToFindToken:
                 
                 
-                #warning("l10n")
+#warning("l10n")
                 
                 
                 return "Note that tokens can be created by anyone. Be aware of adding scam tokens, they can cost nothing."
             case .alreadyAdded:
                 
-
-                #warning("l10n")
-
-
+                
+#warning("l10n")
+                
+                
                 return "This token/network has already been added to your list"
             }
         }
@@ -79,7 +74,6 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     weak var cardModel: CardViewModel?
     weak var tokenListService: TokenListService!
     
-    @Published var type: TokenType = .blockchain
     @Published var name = ""
     @Published var symbol = ""
     @Published var contractAddress = ""
@@ -88,7 +82,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     
     @Published var blockchains: [(String, String)] = []
     @Published var blockchainName: String = ""
-
+    
     @Published var error: AlertBinder?
     
     @Published var warning: String?
@@ -102,20 +96,14 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     private var foundStandardToken: TokenItem?
     
     init() {
-        $type
-            .sink {
-                self.updateBlockchains(type: $0)
-            }
-            .store(in: &bag)
-        
-        Publishers.CombineLatest4($type, $blockchainName, $contractAddress, $derivationPath)
+        Publishers.CombineLatest3($blockchainName, $contractAddress, $derivationPath)
             .debounce(for: 0.5, scheduler: RunLoop.main)
             .setFailureType(to: Error.self)
-            .flatMap { (type, blockchainName, contractAddress, derivationPath) -> AnyPublisher<TokenItem, Error> in
+            .flatMap { (blockchainName, contractAddress, derivationPath) -> AnyPublisher<CurrencyModel?, Error> in
                 self.isLoading = true
                 
-                return self.validateToken(type: type, blockchainName: blockchainName, contractAddress: contractAddress, derivationPath: derivationPath)
-                    .catch { [unowned self] error -> AnyPublisher<TokenItem, Error> in
+                return self.validateToken(blockchainName: blockchainName, contractAddress: contractAddress, derivationPath: derivationPath)
+                    .catch { [unowned self] error -> AnyPublisher<CurrencyModel?, Error> in
                         self.isLoading = false
                         self.foundStandardToken = nil
                         
@@ -129,13 +117,24 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             }
             .sink { _ in
                 
-            } receiveValue: { [unowned self] token in
+            } receiveValue: { [unowned self] currencyModel in
                 self.warning = nil
                 self.addButtonDisabled = false
                 self.isLoading = false
-                self.foundStandardToken = token
                 
-                if let token = foundStandardToken?.token {
+                let currencyModelBlockchains = currencyModel?.items.map { $0.blockchain }
+                let blockchains = currencyModelBlockchains ?? getBlockchains(withTokenSupport: true)
+                self.updateBlockchains(blockchains)
+                
+                let firstTokenItem = currencyModel?.items.first
+                
+                if currencyModel?.items.count == 1 {
+                    self.foundStandardToken = firstTokenItem
+                } else {
+                    self.foundStandardToken = nil
+                }
+                
+                if let token = firstTokenItem?.token {
                     self.decimals = "\(token.decimalCount)"
                     self.symbol = token.symbol
                     self.name = token.name
@@ -181,7 +180,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     func onAppear() {
-        updateBlockchains(type: type)
+        updateBlockchains(getBlockchains(withTokenSupport: true))
     }
     
     func onDisappear() {
@@ -193,9 +192,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         derivationPath = ""
     }
     
-    private func updateBlockchains(type: TokenType) {
-        let blockchains = getBlockchains(withTokenSupport: type == .token)
-        
+    private func updateBlockchains(_ blockchains: [Blockchain]) {
         self.blockchains = blockchains.map {
             ($0.displayName, $0.codingKey)
         }
@@ -203,8 +200,16 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             ($0.codingKey, $0)
         })
         
+        
+        let newBlockchainName: String?
         if blockchainByName[blockchainName] == nil {
-            self.blockchainName = ""
+            newBlockchainName = ""
+        } else {
+            newBlockchainName = nil
+        }
+        
+        if let newBlockchainName = newBlockchainName, newBlockchainName != self.blockchainName {
+            self.blockchainName = newBlockchainName
         }
     }
     
@@ -224,7 +229,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             if self.blockchainsWithTokens == nil {
                 self.blockchainsWithTokens = supportedTokenItems.blockchainsWithTokens(isTestnet: cardInfo.isTestnet)
             }
-
+            
             return blockchains
                 .filter {
                     self.blockchainsWithTokens?.contains($0) ?? false
@@ -250,11 +255,13 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             derivationPath = nil
         }
         
-        if type == .token {
+        if contractAddress.isEmpty && name.isEmpty && symbol.isEmpty && decimals.isEmpty {
+            return .success(.init(blockchain, derivationPath: derivationPath))
+        } else {
             guard blockchain.validate(address: contractAddress) else {
                 return .failure(TokenCreationErrors.invalidContractAddress)
             }
-        
+            
             guard !name.isEmpty, !symbol.isEmpty, !decimals.isEmpty else {
                 return .failure(TokenCreationErrors.emptyFields)
             }
@@ -262,7 +269,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             guard let decimals = Int(decimals) else {
                 return .failure(TokenCreationErrors.invalidDecimals)
             }
-
+            
             let token = Token(
                 name: name,
                 symbol: symbol.uppercased(),
@@ -272,23 +279,22 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             )
             
             return .success(.init(token, derivationPath: derivationPath, isCustom: true))
-        } else {
-            return .success(.init(blockchain, derivationPath: derivationPath))
         }
     }
     
-    private func validateToken(type: TokenType, blockchainName: String, contractAddress: String, derivationPath: String) -> AnyPublisher<TokenItem, Error> {
-        guard let blockchain = blockchainByName[blockchainName] else {
-            return .anyFail(error: TokenCreationErrors.blockchainNotSelected)
+    private func validateToken(blockchainName: String, contractAddress: String, derivationPath: String) -> AnyPublisher<CurrencyModel?, Error> {
+        guard !contractAddress.isEmpty else {
+            return Just(nil)
+                .setFailureType(to: Error.self)
+                .eraseToAnyPublisher()
         }
         
-        guard !contractAddress.isEmpty else {
-            return .anyFail(error: TokenCreationErrors.invalidContractAddress)
-        }
+        
+        let blockchain = blockchainByName[blockchainName]
         
         let cardTokenItems = cardModel?.tokenItemsRepository.getItems(for: cardModel?.cardInfo.card.cardId ?? "") ?? []
-        let checkingContractAddress = (type == .token)
-        let derivationPath = (try? DerivationPath(rawPath: derivationPath)) ?? blockchain.derivationPath
+        let checkingContractAddress = !contractAddress.isEmpty
+        let derivationPath = (try? DerivationPath(rawPath: derivationPath)) ?? blockchain?.derivationPath
         
         if cardTokenItems.contains(where: {
             ($0.contractAddress == contractAddress || !checkingContractAddress) &&
@@ -299,29 +305,21 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             return .anyFail(error: TokenSearchError.alreadyAdded)
         }
         
-        switch type {
-        case .blockchain:
-            return Just(TokenItem(blockchain, derivationPath: derivationPath, isCustom: false))
-                .setFailureType(to: Error.self)
-                .eraseToAnyPublisher()
-        case .token:
-            return findToken(contractAddress: contractAddress, blockchain: blockchain, derivationPath: derivationPath)
-        }
+        return findToken(contractAddress: contractAddress, blockchain: blockchain, derivationPath: derivationPath)
     }
     
-    private func findToken(contractAddress: String, blockchain: Blockchain, derivationPath: DerivationPath?) -> AnyPublisher<TokenItem, Error> {
+    private func findToken(contractAddress: String, blockchain: Blockchain?, derivationPath: DerivationPath?) -> AnyPublisher<CurrencyModel?, Error> {
         return tokenListService
-            .checkContractAddress(contractAddress: contractAddress, networkId: blockchain.networkId)
-            .tryMap { tokenItem in
+            .checkContractAddress(contractAddress: contractAddress, networkId: blockchain?.networkId)
+            .tryMap { currencyModel in
                 guard
-                    let tokenItem = tokenItem,
-                    let token = tokenItem.token
+                    let currencyModel = currencyModel,
+                    !currencyModel.items.isEmpty
                 else {
                     throw TokenSearchError.failedToFindToken
                 }
                 
-                let isCustom = derivationPath == token.blockchain.derivationPath
-                return TokenItem(token, id: tokenItem.id, derivationPath: derivationPath, isCustom: isCustom)
+                return currencyModel
             }
             .eraseToAnyPublisher()
     }
@@ -336,26 +334,26 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
 
 fileprivate extension Blockchain {
     var networkId: String {
-           switch self {
-           case .bitcoin: return "bitcoin"
-           case .stellar: return "stellar"
-           case .ethereum: return "ethereum"
-           case .litecoin: return "litecoin"
-           case .rsk: return "rootstock"
-           case .bitcoinCash: return "bitcoincash"
-           case .binance: return "binancecoin"
-           case .cardano: return "cardano"
-           case .xrp: return "ripple"
-           case .ducatus: return "ducatus"
-           case .tezos: return "tezos"
-           case .dogecoin: return "dogecoin"
-           case .bsc: return "binance-smart-chain"
-           case .polygon: return "matic-network"
-           case .avalanche: return "avalanche-2"
-           case .solana: return "solana"
-           case .fantom: return "fantom"
-           case .polkadot: return "polkadot"
-           case .kusama: return "kusama"
-       }
+        switch self {
+        case .bitcoin: return "bitcoin"
+        case .stellar: return "stellar"
+        case .ethereum: return "ethereum"
+        case .litecoin: return "litecoin"
+        case .rsk: return "rootstock"
+        case .bitcoinCash: return "bitcoincash"
+        case .binance: return "binancecoin"
+        case .cardano: return "cardano"
+        case .xrp: return "ripple"
+        case .ducatus: return "ducatus"
+        case .tezos: return "tezos"
+        case .dogecoin: return "dogecoin"
+        case .bsc: return "binance-smart-chain"
+        case .polygon: return "matic-network"
+        case .avalanche: return "avalanche-2"
+        case .solana: return "solana"
+        case .fantom: return "fantom"
+        case .polkadot: return "polkadot"
+        case .kusama: return "kusama"
+        }
     }
 }
