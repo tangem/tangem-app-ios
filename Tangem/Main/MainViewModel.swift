@@ -655,7 +655,7 @@ class MainViewModel: ViewModel, ObservableObject {
 
         if validatedSignedHashesCards.contains(card.cardId) { return }
         
-        if cardModel?.isMultiWallet ?? false {
+        if cardModel?.cardInfo.isMultiWallet ?? false {
             if cardModel?.cardInfo.card.wallets.filter({ $0.totalSignedHashes ?? 0 > 0 }).count ?? 0 > 0 {
                 withAnimation {
                     warningsManager.appendWarning(for: .multiWalletSignedHashes)
