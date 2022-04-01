@@ -117,11 +117,11 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 return self.validateToken(type: type, blockchainName: blockchainName, contractAddress: contractAddress, derivationPath: derivationPath)
                     .catch { [unowned self] error -> AnyPublisher<TokenItem, Error> in
                         self.isLoading = false
+                        self.foundStandardToken = nil
                         
-                        if let tokenSearchError = error as? TokenSearchError {
-                            self.addButtonDisabled = tokenSearchError.preventsFromAdding
-                            self.warning = tokenSearchError.errorDescription
-                        }
+                        let tokenSearchError = error as? TokenSearchError
+                        self.addButtonDisabled = tokenSearchError?.preventsFromAdding ?? false
+                        self.warning = tokenSearchError?.errorDescription
                         
                         return Empty(completeImmediately: false).setFailureType(to: Error.self).eraseToAnyPublisher()
                     }
@@ -319,7 +319,8 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                     throw TokenSearchError.failedToFindToken
                 }
                 
-                return TokenItem(token, id: tokenItem.id, derivationPath: derivationPath, isCustom: false)
+                let isCustom = derivationPath == token.blockchain.derivationPath
+                return TokenItem(token, id: tokenItem.id, derivationPath: derivationPath, isCustom: isCustom)
             }
             .eraseToAnyPublisher()
     }
