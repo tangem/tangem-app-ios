@@ -22,12 +22,12 @@ class TokenListService {
         print("TokenListService deinit")
     }
     
-    func checkContractAddress(contractAddress: String, networkId: String) -> AnyPublisher<TokenItem?, MoyaError> {
+    func checkContractAddress(contractAddress: String, networkId: String?) -> AnyPublisher<CurrencyModel?, MoyaError> {
         provider
             .requestPublisher(.checkContractAddress(contractAddress: contractAddress, networkId: networkId))
             .filterSuccessfulStatusCodes()
             .map(CurrenciesList.self)
-            .map { currencyList -> TokenItem? in
+            .map { currencyList -> CurrencyModel? in
                 guard
                     let currencyEntity = currencyList.tokens.first,
                     let currencyEntityIsActive = currencyEntity.active,
@@ -37,8 +37,7 @@ class TokenListService {
                     return nil
                 }
                 
-                let currencyModel = CurrencyModel(with: currencyEntity, baseImageURL: currencyList.imageHost)
-                return currencyModel.items.first
+                return CurrencyModel(with: currencyEntity, baseImageURL: currencyList.imageHost)
             }
             .subscribe(on: DispatchQueue.global())
             .eraseToAnyPublisher()
