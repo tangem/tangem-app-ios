@@ -81,11 +81,12 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     @Published var addButtonDisabled = false
     @Published var isLoading = false
     
+    @Published private(set) var foundStandardToken: TokenItem?
+
     private var bag: Set<AnyCancellable> = []
     private var blockchainByName: [String: Blockchain] = [:]
     private var blockchainsWithTokens: Set<Blockchain>?
     private var cachedTokens: [Blockchain: [Token]] = [:]
-    private var foundStandardToken: TokenItem?
     
     init() {
         Publishers.CombineLatest3($blockchainName, $contractAddress, $derivationPath)
