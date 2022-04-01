@@ -46,7 +46,8 @@ struct CurrencyModel {
                                contractAddress: $0.address.trimmed(),
                                decimalCount: $0.decimalCount,
                                customIconUrl: url?.absoluteString,
-                               blockchain: blockchain))
+                               blockchain: blockchain),
+                         id: id)
         }
         
         tokens.map { items.append(contentsOf: $0) }
