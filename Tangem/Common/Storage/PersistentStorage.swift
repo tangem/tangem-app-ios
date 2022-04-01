@@ -74,7 +74,8 @@ class PersistentStorage {
             contents.forEach {
                 if $0.contains("wallets_") {
                     let cardId = $0.remove("wallets_").remove(".json")
-                    let documentPath = self.documentPath(for: $0)
+                    let key: PersistentStorageKey = .wallets(cid: cardId)
+                    let documentPath = self.documentPath(for: key.path)
                     if let data = try? Data(contentsOf: documentPath),
                        let decryptedData = try? encryptionUtility.decryptData(data),
                        let decodedData = try? JSONDecoder().decode(T.self, from: decryptedData){
