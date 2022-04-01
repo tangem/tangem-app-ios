@@ -113,7 +113,10 @@ struct AddCustomTokenView: View {
                 }
                 
                 if let warning = viewModel.warning {
-                    Text(warning)
+                    HStack {
+                        Text(warning)
+                        Spacer()
+                    }
                 }
                 
                 TangemButton(title: "common_add", systemImage: "plus", action: viewModel.createToken)
