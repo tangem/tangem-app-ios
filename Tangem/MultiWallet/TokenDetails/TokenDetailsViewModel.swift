@@ -162,7 +162,9 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     }
     
     func onRemove() {
-        card.remove(amountType: amountType, blockchain: blockchain, derivationPath: walletModel?.currentDerivationPath)
+        if let wm = walletModel {
+            card.remove(amountType: amountType, blockchainNetwork: wm.blockchainNetwork)
+        }
     }
     
     func tradeCryptoAction() {
