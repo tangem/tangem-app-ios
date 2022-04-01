@@ -52,19 +52,9 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         var errorDescription: String? {
             switch self {
             case .failedToFindToken:
-                
-                
-#warning("l10n")
-                
-                
-                return "Note that tokens can be created by anyone. Be aware of adding scam tokens, they can cost nothing."
+                return "custom_token_validation_error_not_found".localized
             case .alreadyAdded:
-                
-                
-#warning("l10n")
-                
-                
-                return "This token/network has already been added to your list"
+                return "custom_token_validation_error_already_added".localized
             }
         }
     }
@@ -244,8 +234,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     private func updateDerivationPaths() {
-        #warning("l10n")
-        let defaultItem = ("Default", "")
+        let defaultItem = ("custom_token_derivation_path_default".localized, "")
         self.derivationPaths = [defaultItem] + getBlockchains(withTokenSupport: false)
             .map {
                 let derivationPath = $0.derivationPath?.rawPath ?? ""
