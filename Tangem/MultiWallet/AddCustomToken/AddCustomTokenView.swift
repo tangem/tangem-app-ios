@@ -51,7 +51,6 @@ fileprivate struct PickerInputWithTitle: View {
             
             HStack {
                 Picker("", selection: $value) {
-                    Text("custom_token_network_input_not_selected".localized).tag("")
                     ForEach(values, id: \.1) { value in
                         Text(value.0)
                             .tag(value.1)
@@ -109,7 +108,7 @@ struct AddCustomTokenView: View {
     
                     TextInputWithTitle(title: "custom_token_decimals_input_title".localized, placeholder: "0", text: $viewModel.decimals, keyboardType: .numberPad)
                     
-                    TextInputWithTitle(title: "custom_token_derivation_path_input_title".localized, placeholder: "m/44'/60'/0'/0'/0", text: $viewModel.derivationPath, keyboardType: .default)
+                    PickerInputWithTitle(title: "custom_token_derivation_path_input_title".localized, value: $viewModel.derivationPath, values: viewModel.derivationPaths)
                         .cornerRadius(10, corners: [.bottomLeft, .bottomRight])
                 }
                 
