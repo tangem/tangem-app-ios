@@ -190,6 +190,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         symbol = ""
         contractAddress = ""
         decimals = ""
+        derivationPath = ""
     }
     
     private func updateBlockchains(type: TokenType) {
