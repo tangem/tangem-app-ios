@@ -154,6 +154,10 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         return blockchain.tokenDisplayName
     }
     
+    var contractAddress: String? {
+        return amountType.token?.contractAddress
+    }
+    
     @Published var isRefreshing = false
     @Published var txIndexToPush: Int? = nil
     @Published var solanaRentWarning: String? = nil
