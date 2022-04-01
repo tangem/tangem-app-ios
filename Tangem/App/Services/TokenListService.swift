@@ -30,8 +30,9 @@ class TokenListService {
             .map { currencyList -> TokenItem? in
                 guard
                     let currencyEntity = currencyList.tokens.first,
-                    let active = currencyEntity.contracts?.first?.active,
-                    active == true
+                    let currencyEntityIsActive = currencyEntity.active,
+                    let contractIsActive = currencyEntity.contracts?.first?.active,
+                    currencyEntityIsActive && contractIsActive
                 else {
                     return nil
                 }
