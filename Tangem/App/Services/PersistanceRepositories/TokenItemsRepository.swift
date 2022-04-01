@@ -26,12 +26,29 @@ class TokenItemsRepository {
         print("TokenItemsRepository deinit")
     }
     
-    func append(_ blockchains: [Blockchain], for cardId: String, batchId: String) {
+    func append(_ blockchains: [Blockchain], for cardId: String, style: DerivationStyle) {
         let networks = blockchains.map {
-            BlockchainNetwork($0, derivationPath: $0.derivationPath(for: .init(with: batchId)))
+            BlockchainNetwork($0, derivationPath: $0.derivationPath(for: style))
         }
         
         append(networks, for: cardId)
+    }
+    
+    func append(_ entries: [StorageEntry], for cardId: String) {
+        lockQueue.sync {
+            var items = fetch(for: cardId)
+            var hasAppended: Bool = false
+            
+            entries.forEach {
+                if items.tryAppend(entry: $0) {
+                    hasAppended = true
+                }
+            }
+            
+            if hasAppended {
+                save(items, for: cardId)
+            }
+        }
     }
     
     func append(_ blockchainNetworks: [BlockchainNetwork], for cardId: String) {
@@ -155,6 +172,26 @@ class TokenItemsRepository {
 }
 
 fileprivate extension Array where Element == StorageEntry {
+    mutating func tryAppend(entry: Element) -> Bool {
+        if let existingIndex = firstIndex(where: { $0.blockchainNetwork == entry.blockchainNetwork }) {
+            var appended: Bool = false
+            
+            entry.tokens.forEach {
+                if !self[existingIndex].tokens.contains($0) {
+                    self[existingIndex].tokens.append($0)
+                    appended = true
+                }
+            }
+            
+            return appended
+        } else {
+            //add new entry
+            append(entry)
+        }
+        
+        return true
+    }
+    
     mutating func tryAppend(token: Token, blockchainNetwork: BlockchainNetwork) -> Bool {
         if let existingIndex = firstIndex(where: { $0.blockchainNetwork == blockchainNetwork }) {
             if self[existingIndex].tokens.contains(token) {
@@ -203,20 +240,9 @@ fileprivate extension Array where Element == StorageEntry {
     }
 }
 
-struct StorageEntry: Codable {
+struct StorageEntry: Codable, Equatable {
     let blockchainNetwork: BlockchainNetwork
     var tokens: [BlockchainSdk.Token]
-    
-    func getTokenItems() -> [TokenItem] {
-        var items: [TokenItem] = []
-        items.append(.blockchain(blockchainNetwork.blockchain))
-        
-        tokens.forEach {
-            items.append(.token($0, blockchainNetwork.blockchain))
-        }
-        
-        return items
-    }
 }
 
 //MARK: - Legacy storage
