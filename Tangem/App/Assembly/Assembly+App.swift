@@ -397,19 +397,19 @@ extension Assembly {
         return makeWalletModels(walletManagers: walletManagers, cardInfo: cardInfo)
     }
     
-    func makeWalletModels(from cardInfo: CardInfo, blockchains: [Blockchain]) -> [WalletModel] {
+    func makeWalletModels(from cardInfo: CardInfo, entries: [StorageEntry]) -> [WalletModel] {
         let walletManagerFactory = WalletManagerFactory(config: services.keysManager.blockchainConfig)
         let assembly = WalletManagerAssembly(factory: walletManagerFactory,
                                              tokenItemsRepository: services.tokenItemsRepository)
-        let walletManagers = assembly.makeWalletManagers(from: cardInfo, blockchains: blockchains)
+        let walletManagers = assembly.makeWalletManagers(from: cardInfo, entries: entries)
         return makeWalletModels(walletManagers: walletManagers, cardInfo: cardInfo)
     }
     
-    func makeWalletModels(from cardDto: SavedCard, blockchains: [Blockchain]) -> [WalletModel] {
+    func makeWalletModels(from cardDto: SavedCard, blockchainNetworks: [BlockchainNetwork]) -> [WalletModel] {
         let walletManagerFactory = WalletManagerFactory(config: services.keysManager.blockchainConfig)
         let assembly = WalletManagerAssembly(factory: walletManagerFactory,
                                              tokenItemsRepository: services.tokenItemsRepository)
-        let walletManagers = assembly.makeWalletManagers(from: cardDto, blockchains: blockchains)
+        let walletManagers = assembly.makeWalletManagers(from: cardDto, blockchainNetworks: blockchainNetworks)
         return makeWalletModels(walletManagers: walletManagers, cardInfo: nil)
     }
     
