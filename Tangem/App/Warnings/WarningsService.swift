@@ -41,10 +41,12 @@ class WarningsService {
     
     private let remoteWarningProvider: RemoteWarningProvider
     private let rateAppChecker: RateAppChecker
+    private let userPrefsService: UserPrefsService
     
-    init(remoteWarningProvider: RemoteWarningProvider, rateAppChecker: RateAppChecker) {
+    init(remoteWarningProvider: RemoteWarningProvider, rateAppChecker: RateAppChecker, userPrefsService: UserPrefsService) {
         self.remoteWarningProvider = remoteWarningProvider
         self.rateAppChecker = rateAppChecker
+        self.userPrefsService = userPrefsService
     }
     
     deinit {
@@ -62,6 +64,7 @@ class WarningsService {
         addDemoWarningIfNeeded(in: container, for: cardInfo)
         addAuthFailedIfNeeded(in: container, for: cardInfo)
         
+        
         if rateAppChecker.shouldShowRateAppWarning {
             Analytics.log(event: .displayRateAppWarning)
             container.add(WarningEvent.rateApp.warning)
@@ -69,6 +72,10 @@ class WarningsService {
         
         let remoteWarnings = self.remoteWarnings(for: cardInfo, location: .main)
         container.add(remoteWarnings)
+        
+        if !userPrefsService.isFundsRestorationShown {
+            container.add(WarningEvent.fundsRestoration.warning)
+        }
         
         return container
     }
