@@ -15,7 +15,7 @@ struct CurrencyView: View {
     var subtitle: LocalizedStringKey = "currency_subtitle_expanded"
     
     var body: some View {
-        VStack(spacing: 26) {
+        VStack(spacing: 10) {
             HStack(alignment: .customTop, spacing: 0) {
                 Icon(model.imageURL, name: model.name)
                     .alignmentGuide(.customTop, computeValue: { d in d[VerticalAlignment.top] - 1.5 })
