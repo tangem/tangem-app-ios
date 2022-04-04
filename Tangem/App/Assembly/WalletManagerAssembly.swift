@@ -78,8 +78,8 @@ class WalletManagerAssembly {
                                                walletPublicKey: wallet.publicKey,
                                                blockchainNetwork: entry.blockchainNetwork,
                                                isHDWalletAllowed: cardInfo.card.settings.isHDWalletAllowed,
-                                               derivedKeys: cardInfo.derivedKeys[wallet.publicKey] ?? [:]) {
-                
+                                               derivedKeys: cardInfo.derivedKeys[wallet.publicKey] ?? [:])
+            {
                 manager.addTokens(entry.tokens)
                 return manager
             }
