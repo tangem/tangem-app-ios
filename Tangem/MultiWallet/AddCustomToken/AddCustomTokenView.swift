@@ -114,7 +114,7 @@ struct AddCustomTokenView: View {
                 
                 WarningListView(warnings: viewModel.warningContainer, warningButtonAction: { _,_,_ in })
                 
-                TangemButton(title: "common_add", systemImage: "plus", action: viewModel.createToken)
+                TangemButton(title: "custom_token_add_token", systemImage: "plus", action: viewModel.createToken)
                     .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth, isDisabled: viewModel.addButtonDisabled, isLoading: viewModel.isLoading))
             }
             .padding()
