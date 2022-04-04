@@ -22,27 +22,36 @@ class TokenListService {
         print("TokenListService deinit")
     }
     
-    func checkContractAddress(contractAddress: String, networkId: String?) -> AnyPublisher<CurrencyModel?, MoyaError> {
+    func checkContractAddress(contractAddress: String, networkId: String?) -> AnyPublisher<[CurrencyModel], MoyaError> {
         provider
             .requestPublisher(.checkContractAddress(contractAddress: contractAddress, networkId: networkId))
             .filterSuccessfulStatusCodes()
             .map(CurrenciesList.self)
-            .map { currencyList -> CurrencyModel? in
-                guard
-                    let currencyEntity = currencyList.tokens.first(where: { $0.active == true })
-                else {
-                    return nil
-                }
-                
-                let filteredCurrencyEntity = CurrencyEntity(
-                    id: currencyEntity.id,
-                    name: currencyEntity.name,
-                    symbol: currencyEntity.symbol,
-                    active: currencyEntity.active,
-                    contracts: currencyEntity.contracts?.filter { $0.active == true }
-                )
-                
-                return CurrencyModel(with: filteredCurrencyEntity, baseImageURL: currencyList.imageHost)
+            .map { currencyList -> [CurrencyModel] in
+                return currencyList
+                    .tokens
+                    .filter {
+                        $0.active == true
+                    }
+                    .compactMap { currencyEntity in
+                        let activeContracts = currencyEntity.contracts?.filter {
+                            $0.active == true && $0.address == contractAddress
+                        }
+                        
+                        guard activeContracts?.isEmpty == false else {
+                            return nil
+                        }
+                        
+                        let filteredCurrencyEntity = CurrencyEntity(
+                            id: currencyEntity.id,
+                            name: currencyEntity.name,
+                            symbol: currencyEntity.symbol,
+                            active: currencyEntity.active,
+                            contracts: activeContracts
+                        )
+                        
+                        return CurrencyModel(with: filteredCurrencyEntity, baseImageURL: currencyList.imageHost)
+                    }
             }
             .subscribe(on: DispatchQueue.global())
             .eraseToAnyPublisher()
