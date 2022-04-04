@@ -20,7 +20,7 @@ class DetailsViewModel: ViewModel, ObservableObject {
     
     @Published var isCheckingPin = false
     
-    weak var ratesService: CoinMarketCapService! {
+    weak var ratesService: CurrencyRateService! {
         didSet {
             ratesService
                 .$selectedCurrencyCodePublished
