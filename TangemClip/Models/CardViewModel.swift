@@ -25,10 +25,6 @@ class CardViewModel: ObservableObject {
         }
     }
 
-    var isMultiWallet: Bool {
-        cardInfo.isMultiWallet
-    }
-
     var isCardEmpty: Bool {
         cardInfo.card.wallets.isEmpty
     }
