@@ -10,8 +10,8 @@ import Foundation
 import SwiftUI
 import BlockchainSdk
 
-extension Token: Identifiable {
-    public var id: Int { return hashValue }
+extension Token {
+    var isCustom: Bool { id == nil }
     
     var color: Color {
         let defaultValue = Color.tangemGrayLight4
