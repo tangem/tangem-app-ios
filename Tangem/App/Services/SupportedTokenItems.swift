@@ -75,19 +75,7 @@ class SupportedTokenItems {
     
     func blockchainsWithTokens(isTestnet: Bool) -> Set<Blockchain> {
         let blockchains = isTestnet ? testnetBlockchains : blockchains
-        return blockchains.filter { $0.hasTokens }
-    }
-
-    func tokens(for blockchain: Blockchain) -> [Token] {
-        do {
-            let currencies = try loadCurrencies(isTestnet: blockchain.isTestnet)
-            return currencies.compactMap {
-                $0.items.compactMap({ $0.token }).first(where: { $0.blockchain == blockchain })
-            }
-        } catch {
-            Log.error(error.localizedDescription)
-            return []
-        }
+        return blockchains.filter { $0.canHandleTokens }
     }
     
     func loadCurrencies(isTestnet: Bool) throws -> [CurrencyModel] {
