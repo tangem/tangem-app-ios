@@ -191,9 +191,19 @@ class WalletModel: ObservableObject, Identifiable {
         }
     }
     
+    func currencyId(for amount: Amount) -> String? {
+        switch amount.type {
+        case .coin, .reserve:
+            return walletManager.wallet.blockchain.id
+        case .token(let token):
+            return token.id
+        }
+    }
+    
     func getRate(for amountType: Amount.AmountType) -> Decimal {
         if let amount = wallet.amounts[amountType],
-           let rate = rates[amount.currencySymbol] {
+           let currencyId = self.currencyId(for: amount),
+           let rate = rates[currencyId] {
             return rate
         }
         
@@ -204,7 +214,8 @@ class WalletModel: ObservableObject, Identifiable {
         var rateString = ""
 
         if let amount = wallet.amounts[amountType],
-           let rate = rates[amount.currencySymbol] {
+           let currencyId = self.currencyId(for: amount),
+           let rate = rates[currencyId] {
             rateString = rate.currencyFormatted(code: ratesService.selectedCurrencyCode)
         }
         
@@ -235,13 +246,15 @@ class WalletModel: ObservableObject, Identifiable {
     
     func getFiat(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> Decimal? {
         if let amount = amount {
-            return getFiat(for: amount.value, currencySymbol: amount.currencySymbol, roundingMode: roundingMode)
+            return getFiat(for: amount.value, currencyId: currencyId(for: amount), roundingMode: roundingMode)
         }
         return nil
     }
     
-    func getFiat(for value: Decimal, currencySymbol: String, roundingMode: NSDecimalNumber.RoundingMode = .down) -> Decimal? {
-        if let rate = rates[currencySymbol] {
+    func getFiat(for value: Decimal, currencyId: String?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> Decimal? {
+        if let currencyId = currencyId,
+           let rate = rates[currencyId]
+        {
             let fiatValue = value * rate
             if fiatValue == 0 {
                 return 0
@@ -252,9 +265,14 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     func getCrypto(for amount: Amount?) -> Decimal? {
-        guard let amount = amount else { return nil }
+        guard
+            let amount = amount,
+            let currencyId = self.currencyId(for: amount)
+        else {
+            return nil
+        }
         
-        if let rate = rates[amount.currencySymbol] {
+        if let rate = rates[currencyId] {
             return (amount.value / rate).rounded(scale: amount.decimals)
         }
         return nil
@@ -386,12 +404,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     private func loadRates() {
-        let currenciesToExchange = walletManager
-            .wallet
-            .amounts
-            .filter { $0.key != .reserve }
-            .values
-            .map { $0.currencySymbol }
+        let currenciesToExchange = [walletManager.wallet.blockchain.id] + walletManager.cardTokens.compactMap { $0.id }
         
         loadRates(for: Array(currenciesToExchange))
     }
