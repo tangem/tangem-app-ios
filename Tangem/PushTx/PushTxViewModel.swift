@@ -14,7 +14,7 @@ class PushTxViewModel: ViewModel, ObservableObject {
     
     weak var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
-    weak var ratesService: CoinMarketCapService!
+    weak var ratesService: CurrencyRateService!
     
     var destination: String { transaction.destinationAddress }
     
@@ -95,7 +95,7 @@ class PushTxViewModel: ViewModel, ObservableObject {
     
     @Published private var newTransaction: BlockchainSdk.Transaction?
     
-    init(transaction: BlockchainSdk.Transaction, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel, signer: TransactionSigner, ratesService: CoinMarketCapService) {
+    init(transaction: BlockchainSdk.Transaction, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel, signer: TransactionSigner, ratesService: CurrencyRateService) {
         self.blockchainNetwork = blockchainNetwork
         self.cardViewModel = cardViewModel
         self.signer = signer
