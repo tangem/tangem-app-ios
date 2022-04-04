@@ -104,6 +104,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                     .catch { [unowned self] error -> AnyPublisher<[CurrencyModel], Error> in
                         self.isLoading = false
                         self.foundStandardToken = nil
+                        self.updateBlockchains(self.getBlockchains(withTokenSupport: true))
                         
                         let tokenSearchError = error as? TokenSearchError
                         self.addButtonDisabled = tokenSearchError?.preventsFromAdding ?? false
@@ -131,7 +132,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 if !currencyModelBlockchains.isEmpty {
                     blockchains = currencyModelBlockchains
                 } else {
-                    blockchains = getBlockchains(withTokenSupport: false)
+                    blockchains = getBlockchains(withTokenSupport: true)
                 }
                 self.updateBlockchains(blockchains)
                 
@@ -189,7 +190,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     func onAppear() {
-        updateBlockchains(getBlockchains(withTokenSupport: false))
+        updateBlockchains(getBlockchains(withTokenSupport: true))
         updateDerivationPaths()
     }
     
