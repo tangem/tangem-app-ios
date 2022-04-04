@@ -10,29 +10,6 @@ import Foundation
 import Moya
 import Combine
 
-
-struct CurrencyCoinGeckoIdConverter {
-    static func map(_ currencyCode: String) -> String {
-        switch currencyCode {
-        case "SOL": return "solana"
-        case "BTC": return "bitcoin"
-        case "ETH": return "ethereum"
-        case "USDC": return "usd-coin"
-        default: return ""
-        }
-    }
-    
-    static func map2(_ id: String) -> String {
-        switch id {
-        case "solana": return "SOL"
-        case "bitcoin": return "BTC"
-        case "ethereum": return "ETH"
-        case "usd-coin": return "USDC"
-        default: return ""
-        }
-    }
-}
-
 struct FiatResponse: Codable {
     let currencies: [FiatCurrency]
 }
@@ -87,15 +64,15 @@ class CurrencyRateService {
             .eraseToAnyPublisher()
     }
     
-    func rates(for currencies: [String]) -> AnyPublisher<[String: Decimal], Never> {
+    func rates(for cryptoCurrencyIds: [String]) -> AnyPublisher<[String: Decimal], Never> {
         return provider
-            .requestPublisher(.rates(cryptoCurrencyCodes: currencies, fiatCurrencyCode: selectedCurrencyCode))
+            .requestPublisher(.rates(cryptoCurrencyIds: cryptoCurrencyIds, fiatCurrencyCode: selectedCurrencyCode))
             .filterSuccessfulStatusAndRedirectCodes()
             .map(RateInfoResponse.self)
             .map { $0.prices }
             .tryMap { dictionary in
                 Dictionary(uniqueKeysWithValues: dictionary.map {
-                    (CurrencyCoinGeckoIdConverter.map2($0.key), $0.value.rounded(scale: 2, roundingMode: .plain))
+                    ($0.key, $0.value.rounded(scale: 2, roundingMode: .plain))
                 })
             }
             .catch { _ in Empty(completeImmediately: true) }
