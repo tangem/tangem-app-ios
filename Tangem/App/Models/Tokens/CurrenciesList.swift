@@ -24,6 +24,6 @@ struct CurrencyEntity: Codable {
 struct ContractEntity: Codable {
     public let networkId: String
     public let address: String
-    public let decimalCount: Int
+    public let decimalCount: Int?
     public let active: Bool?
 }
