@@ -19,6 +19,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
     var enteredSearchText = CurrentValueSubject<String, Never>("") //I can't use @Published here, because of swiftui redraw perfomance drop
     
     @Published var isSaving: Bool = false
+    @Published var isLoading: Bool = true
     @Published var error: AlertBinder?
     @Published var pendingAdd: [TokenItem] = []
     @Published var pendingRemove: [TokenItem] = []
@@ -131,6 +132,8 @@ class TokenListViewModel: ViewModel, ObservableObject {
             return
         }
         
+        isLoading = true
+        
         filteredData = []
         searchCancellable =
         Just(searchText)
@@ -141,6 +144,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
             .receive(on: DispatchQueue.main, options: nil)
             .sink(receiveValue: {[unowned self] results in
                 self.filteredData = results
+                self.isLoading = false
             })
     }
     
@@ -197,6 +201,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     private func getData()  {
+        isLoading = true
         let isTestnet = cardModel?.cardInfo.isTestnet ?? false
         let currencies = (try? SupportedTokenItems().loadCurrencies(isTestnet: isTestnet)) ?? []
         
@@ -236,6 +241,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
         }
         
         self.filteredData = data
+        self.isLoading = false
     }
     
     private func isSelected(_ tokenItem: TokenItem) -> Bool {
