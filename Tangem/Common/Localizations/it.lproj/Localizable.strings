@@ -485,3 +485,4 @@ URL: %@";
 "alert_demo_feature_disabled" = "This feature is disabled in Demo mode";
 "token_details_send_blocked_fee_format" = "Not enough funds for fee on your %@ wallet to send a transaction. Top up your %@ wallet first.";
 "currency_subtitle_expanded" = "Available networks";
+"wallet_connect_network_not_found_format" = "%@ network not found. Please, add it first and try again.";
