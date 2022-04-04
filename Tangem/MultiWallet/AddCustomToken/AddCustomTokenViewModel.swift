@@ -157,17 +157,17 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         UIApplication.shared.endEditing()
         
         let tokenItem: TokenItem
-        if let foundStandardToken = self.foundStandardToken {
-            tokenItem = foundStandardToken
-        } else {
-            switch enteredTokenItem() {
-            case .failure(let error):
-                self.error = error.alertBinder
-                return
-            case .success(let enteredTokenItem):
-                tokenItem = enteredTokenItem
-                
+        let derivationPath: DerivationPath?
+        do {
+            if let foundStandardToken = self.foundStandardToken {
+                tokenItem = foundStandardToken
+            } else {
+                tokenItem = try enteredTokenItem()
             }
+            derivationPath = try enteredDerivationPath()
+        } catch {
+            self.error = error.alertBinder
+            return
         }
 
         let amountType: Amount.AmountType
@@ -176,8 +176,10 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         } else {
             amountType = .coin
         }
-        let blockchainNetwork = BlockchainNetwork(tokenItem.blockchain, derivationPath: nil)
-        #warning("[REDACTED_TODO_COMMENT]")
+        
+        let derivationStyle = cardModel.cardInfo.card.derivationStyle
+        let blockchain = tokenItem.blockchain
+        let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath ?? blockchain.derivationPath(for: derivationStyle))
 
         cardModel.add(items: [(amountType, blockchainNetwork)]) { result in
             switch result {
@@ -270,35 +272,24 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             }
     }
     
-    private func enteredTokenItem() -> Result<TokenItem, Error> {
+    private func enteredTokenItem() throws -> TokenItem {
         guard let blockchain = blockchainByName[blockchainName] else {
-            return .failure(TokenCreationErrors.blockchainNotSelected)
-        }
-        
-        let derivationPath: DerivationPath?
-        if !self.derivationPath.isEmpty {
-            derivationPath = try? DerivationPath(rawPath: self.derivationPath)
-            
-            if derivationPath == nil {
-                return .failure(TokenCreationErrors.invalidDerivationPath)
-            }
-        } else {
-            derivationPath = nil
+            throw TokenCreationErrors.blockchainNotSelected
         }
         
         if contractAddress.isEmpty && name.isEmpty && symbol.isEmpty && decimals.isEmpty {
-            return .success(.blockchain(blockchain))
+            return .blockchain(blockchain)
         } else {
             guard blockchain.validate(address: contractAddress) else {
-                return .failure(TokenCreationErrors.invalidContractAddress)
+                throw TokenCreationErrors.invalidContractAddress
             }
             
             guard !name.isEmpty, !symbol.isEmpty, !decimals.isEmpty else {
-                return .failure(TokenCreationErrors.emptyFields)
+                throw TokenCreationErrors.emptyFields
             }
             
             guard let decimals = Int(decimals) else {
-                return .failure(TokenCreationErrors.invalidDecimals)
+                throw TokenCreationErrors.invalidDecimals
             }
             
             let token = Token(
@@ -308,7 +299,21 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 decimalCount: decimals
             )
             
-            return .success(.token(token, blockchain))
+            return .token(token, blockchain)
+        }
+    }
+    
+    private func enteredDerivationPath() throws -> DerivationPath? {
+        if !self.derivationPath.isEmpty {
+            let derivationPath = try? DerivationPath(rawPath: self.derivationPath)
+            
+            if derivationPath == nil {
+                throw TokenCreationErrors.invalidDerivationPath
+            }
+            
+            return derivationPath
+        } else {
+            return nil
         }
     }
     
