@@ -74,7 +74,7 @@ class TokenItemsRepository {
             var hasAppended: Bool = false
             
             tokens.forEach {
-                if items.tryAppend(token: $0, blockchainNetwork: blockchainNetwork) {
+                if items.tryAppend(token: $0, in: blockchainNetwork) {
                     hasAppended = true
                 }
             }
@@ -116,7 +116,7 @@ class TokenItemsRepository {
             var hasRemoved: Bool = false
             
             tokens.forEach {
-                if items.tryRemove(token: $0, blockchainNetwork: blockchainNetwork) {
+                if items.tryRemove(token: $0, in: blockchainNetwork) {
                     hasRemoved = true
                 }
             }
@@ -192,7 +192,7 @@ fileprivate extension Array where Element == StorageEntry {
         return true
     }
     
-    mutating func tryAppend(token: Token, blockchainNetwork: BlockchainNetwork) -> Bool {
+    mutating func tryAppend(token: Token, in blockchainNetwork: BlockchainNetwork) -> Bool {
         if let existingIndex = firstIndex(where: { $0.blockchainNetwork == blockchainNetwork }) {
             if self[existingIndex].tokens.contains(token) {
                 return false //already contains
@@ -219,7 +219,7 @@ fileprivate extension Array where Element == StorageEntry {
         }
     }
     
-    mutating func tryRemove(token: Token, blockchainNetwork: BlockchainNetwork) -> Bool {
+    mutating func tryRemove(token: Token, in blockchainNetwork: BlockchainNetwork) -> Bool {
         if let existingIndex = firstIndex(where: { $0.blockchainNetwork == blockchainNetwork }) {
             if let tokenIndex = self[existingIndex].tokens.firstIndex(where: { $0 == token }) {
                 self[existingIndex].tokens.remove(at: tokenIndex)
