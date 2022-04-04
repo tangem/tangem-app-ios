@@ -21,6 +21,8 @@ extension WarningEvent {
             return WarningsList.multiWalletSignedHashes
         case .testnetCard:
             return WarningsList.testnetCard
+        case .fundsRestoration:
+            return WarningsList.fundsRestoration
         }
     }
 }
