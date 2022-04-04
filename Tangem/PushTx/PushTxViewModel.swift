@@ -41,7 +41,7 @@ class PushTxViewModel: ViewModel, ObservableObject {
     }
     
     var walletModel: WalletModel {
-        cardViewModel.walletModels!.first(where: { $0.wallet.blockchain ==  blockchain })!
+        cardViewModel.walletModels!.first(where: { $0.blockchainNetwork ==  blockchainNetwork })!
     }
         
     var previousFeeAmount: Amount { transaction.fee }
@@ -76,7 +76,7 @@ class PushTxViewModel: ViewModel, ObservableObject {
     @Published var shouldAmountBlink: Bool = false
     
     let cardViewModel: CardViewModel
-    let blockchain: Blockchain
+    let blockchainNetwork: BlockchainNetwork
     
     var emailDataCollector: PushScreenDataCollector!
     var transaction: BlockchainSdk.Transaction
@@ -88,15 +88,15 @@ class PushTxViewModel: ViewModel, ObservableObject {
     private var signer: TransactionSigner
     
     private var emptyValue: String {
-        getDescription(for: Amount.zeroCoin(for: blockchain), isFiat: isFiatCalculation)
+        getDescription(for: Amount.zeroCoin(for: blockchainNetwork.blockchain), isFiat: isFiatCalculation)
     }
     
     private var bag: Set<AnyCancellable> = []
     
     @Published private var newTransaction: BlockchainSdk.Transaction?
     
-    init(transaction: BlockchainSdk.Transaction, blockchain: Blockchain, cardViewModel: CardViewModel, signer: TransactionSigner, ratesService: CoinMarketCapService) {
-        self.blockchain = blockchain
+    init(transaction: BlockchainSdk.Transaction, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel, signer: TransactionSigner, ratesService: CoinMarketCapService) {
+        self.blockchainNetwork = blockchainNetwork
         self.cardViewModel = cardViewModel
         self.signer = signer
         self.ratesService = ratesService
@@ -137,7 +137,7 @@ class PushTxViewModel: ViewModel, ObservableObject {
                     self.sendError = error.alertBinder
                 } else {
                     walletModel.startUpdatingTimer()
-                    Analytics.logTx(blockchainName: blockchain.displayName)
+                    Analytics.logTx(blockchainName: blockchainNetwork.blockchain.displayName)
                     callback()
                 }
                 
@@ -283,7 +283,7 @@ class PushTxViewModel: ViewModel, ObservableObject {
         if let fee = fee {
             additionalFee = getDescription(for: fee - previousFeeAmount, isFiat: isFiat)
         } else {
-            additionalFee = getDescription(for: Amount.zeroCoin(for: blockchain), isFiat: isFiat)
+            additionalFee = getDescription(for: Amount.zeroCoin(for: blockchainNetwork.blockchain), isFiat: isFiat)
         }
     }
     
