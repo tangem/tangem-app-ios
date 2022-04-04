@@ -35,7 +35,7 @@ struct RateInfoResponse: Codable {
 
 
 class CurrencyRateService {
-	@Storage(type: StorageType.selectedCurrencyCode, defaultValue: "USD")
+    @Storage(type: StorageType.selectedCurrencyCode, defaultValue: "USD")
     var selectedCurrencyCode: String {
         didSet {
             selectedCurrencyCodePublished = selectedCurrencyCode
