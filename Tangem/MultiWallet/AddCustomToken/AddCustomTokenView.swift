@@ -112,12 +112,7 @@ struct AddCustomTokenView: View {
                         .cornerRadius(10, corners: [.bottomLeft, .bottomRight])
                 }
                 
-                if let warning = viewModel.warning {
-                    HStack {
-                        Text(warning)
-                        Spacer()
-                    }
-                }
+                WarningListView(warnings: viewModel.warningContainer, warningButtonAction: { _,_,_ in })
                 
                 TangemButton(title: "common_add", systemImage: "plus", action: viewModel.createToken)
                     .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth, isDisabled: viewModel.addButtonDisabled, isLoading: viewModel.isLoading))
