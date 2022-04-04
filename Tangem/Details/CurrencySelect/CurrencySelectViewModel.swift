@@ -32,6 +32,9 @@ class CurrencySelectViewModel: ViewModel, ObservableObject {
                 self?.loading = false
             }, receiveValue: {[weak self] currencies in
                 self?.currencies = currencies
+                    .sorted {
+                        $0.description < $1.description
+                    }
             })
             .store(in: &self.bag)
     }
