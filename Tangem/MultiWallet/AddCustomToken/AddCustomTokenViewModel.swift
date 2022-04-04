@@ -57,6 +57,10 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 return "custom_token_validation_error_already_added".localized
             }
         }
+        
+        var appWarning: AppWarning {
+            return AppWarning(title: "common_warning".localized, message: errorDescription ?? "", priority: .warning)
+        }
     }
     
     weak var assembly: Assembly!
@@ -77,7 +81,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     
     @Published var error: AlertBinder?
     
-    @Published var warning: String?
+    @Published var warningContainer = WarningsContainer()
     @Published var addButtonDisabled = false
     @Published var isLoading = false
     
@@ -102,7 +106,10 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                         
                         let tokenSearchError = error as? TokenSearchError
                         self.addButtonDisabled = tokenSearchError?.preventsFromAdding ?? false
-                        self.warning = tokenSearchError?.errorDescription
+                        self.warningContainer.removeAll()
+                        if let tokenSearchError = tokenSearchError {
+                            self.warningContainer.add(tokenSearchError.appWarning)
+                        }
                         
                         return Empty(completeImmediately: false).setFailureType(to: Error.self).eraseToAnyPublisher()
                     }
@@ -111,7 +118,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             .sink { _ in
                 
             } receiveValue: { [unowned self] currencyModels in
-                self.warning = nil
+                self.warningContainer.removeAll()
                 self.addButtonDisabled = false
                 self.isLoading = false
                 
