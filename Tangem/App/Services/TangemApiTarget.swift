@@ -9,7 +9,7 @@
 import Moya
 
 enum TangemApiTarget: TargetType {
-    case rates(cryptoCurrencyCodes: [String], fiatCurrencyCode: String)
+    case rates(cryptoCurrencyIds: [String], fiatCurrencyCode: String)
     case baseCurrencies
     
     var baseURL: URL {URL(string: "https://api.tangem-tech.com")!}
@@ -27,8 +27,8 @@ enum TangemApiTarget: TargetType {
     
     var task: Task {
         switch self {
-        case .rates(let cryptoCurrencyCodes, let fiatCurrencyCode):
-            return .requestParameters(parameters: ["ids": cryptoCurrencyCodes.map { CurrencyCoinGeckoIdConverter.map($0) }.joined(separator: ","),
+        case .rates(let cryptoCurrencyIds, let fiatCurrencyCode):
+            return .requestParameters(parameters: ["ids": cryptoCurrencyIds.joined(separator: ","),
                                                    "currency": fiatCurrencyCode.lowercased()],
                                       encoding: URLEncoding.default)
         case .baseCurrencies:
