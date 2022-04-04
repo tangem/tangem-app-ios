@@ -34,6 +34,7 @@ class MainViewModel: ViewModel, ObservableObject {
     @Published var image: UIImage? = nil
     @Published var selectedAddressIndex: Int = 0
     @Published var showExplorerURL: URL? = nil
+    @Published var showExternalURL: URL? = nil
     @Published var state: ScanResult = .unsupported {
         willSet {
             print("⚠️ Reset bag")
@@ -444,6 +445,8 @@ class MainViewModel: ViewModel, ObservableObject {
             validatedSignedHashesCards.append(cardId)
         }
         
+        var hideWarning = true
+        //[REDACTED_TODO_COMMENT]
         switch button {
         case .okGotIt:
             if warning.event == .numberOfSignedHashesIncorrect {
@@ -455,6 +458,11 @@ class MainViewModel: ViewModel, ObservableObject {
         case .dismiss:
             Analytics.log(event: .dismissRateAppWarning)
             rateAppController.dismissRateAppWarning()
+            
+            if warning.event == .fundsRestoration {
+                userPrefsService.isFundsRestorationShown = true
+            }
+            
         case .reportProblem:
             Analytics.log(event: .negativeRateAppFeedback)
             rateAppController.userReactToRateAppWarning(isPositive: false)
@@ -471,9 +479,15 @@ class MainViewModel: ViewModel, ObservableObject {
                                                     }
                                                  }))
                 return
+            } else if warning.event == .fundsRestoration {
+                hideWarning = false
+                showExternalURL = URL(string: "https://google.com")//[REDACTED_TODO_COMMENT]
             }
         }
-        warningsManager.hideWarning(warning)
+        
+        if hideWarning {
+            warningsManager.hideWarning(warning)
+        }
     }
     
     func onWalletTap(_ tokenItem: TokenItemViewModel) {
