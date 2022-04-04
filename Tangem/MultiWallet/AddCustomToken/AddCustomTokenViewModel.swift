@@ -92,7 +92,9 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             derivationPath = nil
         }
         
-        var itemsToAdd: [TokenItem] = []
+        var amountType: Amount.AmountType
+        let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath)
+        
         if type == .token {
             guard !name.isEmpty, !symbol.isEmpty, !contractAddress.isEmpty, !decimals.isEmpty else {
                 error = TokenCreationErrors.emptyFields.alertBinder
@@ -112,14 +114,14 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             let token = Token(name: name,
                               symbol: symbol.uppercased(),
                               contractAddress: contractAddress,
-                              decimalCount: decimals,
-                              blockchain: blockchain)
-            itemsToAdd.append(.init(token, derivationPath: derivationPath))
+                              decimalCount: decimals)
+            
+            amountType = .token(value: token)
         } else {
-            itemsToAdd.append(.init(blockchain, derivationPath: derivationPath))
+            amountType = .coin
         }
         
-        cardModel.manageTokenItems(add: itemsToAdd, remove: []) { result in
+        cardModel.add(items: [(amountType, blockchainNetwork)]) { result in
             switch result {
             case .success:
                 self.navigation.mainToCustomToken = false
