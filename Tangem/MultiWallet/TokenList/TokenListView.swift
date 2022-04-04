@@ -37,7 +37,6 @@ struct TokenListView: View {
                         }
                         .frame(width: 26, height: 26)
                         .padding(16)
-                       
                     }
                 }
             }
@@ -52,6 +51,18 @@ struct TokenListView: View {
                 Spacer()
             } else {
                 List {
+                    
+                    if viewModel.shouldShowAlert {
+                        Text("alert_manage_tokens_addresses_message")
+                            .font(.system(size: 13, weight: .medium, design: .default))
+                            .multilineTextAlignment(.center)
+                           // .padding(8)
+                           // .background(Color(hex: "#F2F2F2"))
+                            .foregroundColor(Color(hex: "#848488"))
+                            .cornerRadius(10)
+                            .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
+                    }
+                    
                     ForEach(viewModel.filteredData) {
                         CurrencyView(model: $0)
                             .buttonStyle(PlainButtonStyle()) //fix ios13 list item selection
