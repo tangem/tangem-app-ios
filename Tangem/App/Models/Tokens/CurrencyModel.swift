@@ -26,28 +26,28 @@ struct CurrencyModel {
         var items: [TokenItem] = []
         
         if let blockchain = Blockchain(from: id) {
-            items.append(.init(blockchain))
+            items.append(.blockchain(blockchain))
             
             if id == "binancecoin", let bsc = Blockchain(from: "binance-smart-chain") {
-                items.append(.init(bsc))
+                items.append(.blockchain(bsc))
             } else if id == "binancecoin/test", let bsc = Blockchain(from: "binance-smart-chain/test") {
-                items.append(.init(bsc))
+                items.append(.blockchain(bsc))
             }
             
         }
         
         let tokens: [TokenItem]? = entity.contracts?.compactMap {
-            guard let blockchain = Blockchain(from: $0.networkId) else {
-                return nil
+            if let blockchain = Blockchain(from: $0.networkId) {
+                return .token(Token(name: name,
+                                    symbol: symbol,
+                                    contractAddress: $0.address.trimmed(),
+                                    decimalCount: $0.decimalCount,
+                                    id: entity.id,
+                                    customIconUrl: url?.absoluteString),
+                              blockchain)
             }
             
-            return .init(Token(name: name,
-                               symbol: symbol,
-                               contractAddress: $0.address.trimmed(),
-                               decimalCount: $0.decimalCount ?? 0,
-                               customIconUrl: url?.absoluteString,
-                               blockchain: blockchain),
-                         id: id)
+            return nil
         }
         
         tokens.map { items.append(contentsOf: $0) }
