@@ -75,6 +75,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     
     @Published var blockchains: [(String, String)] = []
     @Published var blockchainName: String = ""
+    @Published var blockchainEnabled: Bool = true
     
     @Published var derivationPath = ""
     @Published var derivationPaths: [(String, String)] = []
@@ -211,6 +212,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         self.blockchainByName = Dictionary(uniqueKeysWithValues: blockchains.map {
             ($0.codingKey, $0)
         })
+        self.blockchainEnabled = blockchains.count > 1
         
         
         let newBlockchainName: String?
