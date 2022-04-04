@@ -259,11 +259,14 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         let derivationStyle = cardModel.cardInfo.card.derivationStyle
         
         let defaultItem = ("custom_token_derivation_path_default".localized, "")
-        self.derivationPaths = [defaultItem] + getBlockchains(withTokenSupport: false)
+        self.derivationPaths = [defaultItem] + getBlockchains(withTokenSupport: true)
             .map {
                 let derivationPath = $0.derivationPath(for: derivationStyle)?.rawPath ?? ""
                 let description = "\($0.displayName) (\(derivationPath))"
                 return (description, derivationPath)
+            }
+            .sorted {
+                $0.0 < $1.0
             }
     }
     
