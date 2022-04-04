@@ -10,13 +10,16 @@ import Foundation
 import TangemSdk
 import Combine
 import BlockchainSdk
+import WalletConnectSwift
 
 enum WalletConnectCardScannerError: LocalizedError {
     case notValidCard
+    case networkNotFound(name: String)
     
     var errorDescription: String? {
         switch self {
         case .notValidCard: return "wallet_connect_scanner_error_not_valid_card".localized
+        case .networkNotFound(let name): return "wallet_connect_network_not_found_format".localized(name)
         }
     }
 }
@@ -37,8 +40,7 @@ class WalletConnectCardScanner {
                     let network = try self.parseNetwork(wcNetwork)
                     
                     self.tangemSdk.startSession(with: AppScanTask(tokenItemsRepository: self.tokenItemsRepository,
-                                                                  userPrefsService: nil,
-                                                                  mandatoryBlockchain: network.blockchain),
+                                                                  userPrefsService: nil),
                                                 initialMessage: Message(header: "wallet_connect_scan_card_message".localized)) {[weak self] result in
                         guard let self = self else { return }
                         
@@ -46,8 +48,8 @@ class WalletConnectCardScanner {
                         case .success(let card):
                             do {
                                 promise(.success(try self.walletInfo(for: card.getCardInfo(),
-                                                                        blockchain: network.blockchain,
-                                                                        chainId: network.chainId)))
+                                                                     blockchain: network.blockchain,
+                                                                     chainId: network.chainId)))
                             } catch {
                                 print("Failed to receive wallet info for with id: \(card.card.cardId)")
                                 promise(.failure(error))
@@ -67,39 +69,17 @@ class WalletConnectCardScanner {
     private func walletInfo(for cardInfo: CardInfo, blockchain: Blockchain, chainId: Int?) throws -> WalletInfo {
         guard cardInfo.isMultiWallet,
               cardInfo.card.wallets.contains(where: { $0.curve == .secp256k1 }) else {
-                  throw WalletConnectCardScannerError.notValidCard
-              }
-        
-        func findWallet(in wallets: [Wallet]) -> Wallet? {
-            wallets.first(where: { $0.blockchain == blockchain })
+            throw WalletConnectCardScannerError.notValidCard
         }
         
-        var wallet: Wallet? = nil
-        
-        if let existingCardModel = cardsRepository.lastScanResult.cardModel,
-           existingCardModel.cardInfo.card.cardId == cardInfo.card.cardId {
-            if let targetWallet = findWallet(in: existingCardModel.wallets ?? []) {
-                wallet = targetWallet
-            } else {
-                let newDerivations = cardInfo.derivedKeys
-                if !newDerivations.isEmpty {
-                    existingCardModel.updateDerivations(with: newDerivations)
-                }
-                
-                existingCardModel.addBlockchain(blockchain)
-                wallet = existingCardModel.wallets?.first(where: { $0.blockchain == blockchain })
-            }
-        } else {
-            if let targetWallet = findWallet(in: assembly.makeAllWalletModels(from: cardInfo).map { $0.wallet }) {
-                wallet = targetWallet
-            } else {
-                tokenItemsRepository.append(.init(blockchain), for: cardInfo.card.cardId)
-                wallet = assembly.makeWalletModels(from: cardInfo, blockchains: [blockchain]).first?.wallet
-            }
-        }
+        let walletModels = getWalletModels(for: cardInfo)
+        let wallet = walletModels
+            .filter { $0.isDefaultDerivation(for: cardInfo.card.derivationStyle) }
+            .first(where: { $0.wallet.blockchain == blockchain })
+            .map { $0.wallet }
         
         guard let wallet = wallet else {
-            throw WalletConnectCardScannerError.notValidCard
+            throw WalletConnectCardScannerError.networkNotFound(name: blockchain.displayName)
         }
         
         scannedCardsRepository.add(cardInfo)
@@ -120,5 +100,14 @@ class WalletConnectCardScanner {
         }
         
         return (blockchain, wcNetwork.chainId)
+    }
+    
+    private func getWalletModels(for cardInfo: CardInfo) -> [WalletModel] {
+        if let existingCardModel = cardsRepository.lastScanResult.cardModel,
+           existingCardModel.cardInfo.card.cardId == cardInfo.card.cardId {
+            return existingCardModel.walletModels ?? []
+        } else {
+            return assembly.makeAllWalletModels(from: cardInfo)
+        }
     }
 }

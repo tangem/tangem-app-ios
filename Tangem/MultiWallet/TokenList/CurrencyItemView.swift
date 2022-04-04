@@ -64,12 +64,12 @@ struct CurrencyItemView: View {
 struct CurrencyItemView_Previews: PreviewProvider {
     static var previews: some View {
         VStack(spacing: 0) {
-            CurrencyItemView(model: CurrencyItemViewModel(tokenItem: .init(.ethereum(testnet: false)),
+            CurrencyItemView(model: CurrencyItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
                                                           isReadonly: false,
                                                           isDisabled: false,
                                                           isSelected: .constant(false)))
             
-            CurrencyItemView(model: CurrencyItemViewModel(tokenItem: .init(.ethereum(testnet: false)),
+            CurrencyItemView(model: CurrencyItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
                                                           isReadonly: false,
                                                           isDisabled: false,
                                                           isSelected: .constant(true),
@@ -77,7 +77,7 @@ struct CurrencyItemView_Previews: PreviewProvider {
             
             
             StatefulPreviewWrapper(false) {
-                CurrencyItemView(model: CurrencyItemViewModel(tokenItem: .init(.ethereum(testnet: false)),
+                CurrencyItemView(model: CurrencyItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
                                                               isReadonly: false,
                                                               isDisabled: false,
                                                               isSelected: $0))
