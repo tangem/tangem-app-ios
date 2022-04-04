@@ -57,8 +57,6 @@ struct TokenListView: View {
                         Text("alert_manage_tokens_addresses_message")
                             .font(.system(size: 13, weight: .medium, design: .default))
                             .multilineTextAlignment(.center)
-                           // .padding(8)
-                           // .background(Color(hex: "#F2F2F2"))
                             .foregroundColor(Color(hex: "#848488"))
                             .cornerRadius(10)
                             .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
