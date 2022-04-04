@@ -490,13 +490,10 @@ class MainViewModel: ViewModel, ObservableObject {
             return
         }
         
-        guard
-            cardInfo.isTestnet,
-            !cardInfo.isMultiWallet,
+        guard cardInfo.isTestnet, !cardInfo.isMultiWallet,
             let walletModel = cardModel?.walletModels?.first,
-            let token = walletModel.tokenItemViewModels.first?.amountType.token,
-            case .ethereum(testnet: true) = token.blockchain
-        else {
+            walletModel.wallet.blockchain == .ethereum(testnet: true),
+            let token = walletModel.tokenItemViewModels.first?.amountType.token else {
             if buyCryptoURL != nil {
                 navigation.mainToBuyCrypto = true
             }
@@ -658,7 +655,7 @@ class MainViewModel: ViewModel, ObservableObject {
 
         if validatedSignedHashesCards.contains(card.cardId) { return }
         
-        if cardModel?.isMultiWallet ?? false {
+        if cardModel?.cardInfo.isMultiWallet ?? false {
             if cardModel?.cardInfo.card.wallets.filter({ $0.totalSignedHashes ?? 0 > 0 }).count ?? 0 > 0 {
                 withAnimation {
                     warningsManager.appendWarning(for: .multiWalletSignedHashes)
