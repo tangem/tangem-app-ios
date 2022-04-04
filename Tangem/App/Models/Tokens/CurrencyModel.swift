@@ -41,7 +41,7 @@ struct CurrencyModel {
                 return .token(Token(name: name,
                                     symbol: symbol,
                                     contractAddress: $0.address.trimmed(),
-                                    decimalCount: $0.decimalCount,
+                                    decimalCount: $0.decimalCount ?? 0,
                                     id: entity.id,
                                     customIconUrl: url?.absoluteString),
                               blockchain)
