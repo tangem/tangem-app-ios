@@ -65,7 +65,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
-    weak var cardModel: CardViewModel?
+    weak var cardModel: CardViewModel!
     weak var tokenListService: TokenListService!
     
     @Published var name = ""
@@ -154,10 +154,6 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     func createToken() {
-        guard let cardModel = cardModel else {
-            return
-        }
-        
         UIApplication.shared.endEditing()
         
         let tokenItem: TokenItem
@@ -173,8 +169,17 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 
             }
         }
-        
-        cardModel.manageTokenItems(add: [tokenItem], remove: []) { result in
+
+        let amountType: Amount.AmountType
+        if let token = tokenItem.token {
+            amountType = .token(value: token)
+        } else {
+            amountType = .coin
+        }
+        let blockchainNetwork = BlockchainNetwork(tokenItem.blockchain, derivationPath: nil)
+        #warning("[REDACTED_TODO_COMMENT]")
+
+        cardModel.add(items: [(amountType, blockchainNetwork)]) { result in
             switch result {
             case .success:
                 self.navigation.mainToCustomToken = false
@@ -183,7 +188,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 if case TangemSdkError.userCancelled = error {
                     return
                 }
-                
+
                 self.error = error.alertBinder
             }
         }
@@ -231,9 +236,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     private func getBlockchains(withTokenSupport: Bool) -> Set<Blockchain> {
-        guard let cardInfo = cardModel?.cardInfo else {
-            return []
-        }
+        let cardInfo = cardModel.cardInfo
         
         let supportedTokenItems = SupportedTokenItems()
         let blockchains = supportedTokenItems.blockchains(for: cardInfo.card.walletCurves, isTestnet: cardInfo.isTestnet)
@@ -253,10 +256,12 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     private func updateDerivationPaths() {
+        let derivationStyle = cardModel.cardInfo.card.derivationStyle
+        
         let defaultItem = ("custom_token_derivation_path_default".localized, "")
         self.derivationPaths = [defaultItem] + getBlockchains(withTokenSupport: false)
             .map {
-                let derivationPath = $0.derivationPath?.rawPath ?? ""
+                let derivationPath = $0.derivationPath(for: derivationStyle)?.rawPath ?? ""
                 let description = "\($0.displayName) (\(derivationPath))"
                 return (description, derivationPath)
             }
@@ -279,7 +284,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         }
         
         if contractAddress.isEmpty && name.isEmpty && symbol.isEmpty && decimals.isEmpty {
-            return .success(.init(blockchain, derivationPath: derivationPath))
+            return .success(.blockchain(blockchain))
         } else {
             guard blockchain.validate(address: contractAddress) else {
                 return .failure(TokenCreationErrors.invalidContractAddress)
@@ -297,28 +302,35 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 name: name,
                 symbol: symbol.uppercased(),
                 contractAddress: contractAddress,
-                decimalCount: decimals,
-                blockchain: blockchain
+                decimalCount: decimals
             )
             
-            return .success(.init(token, derivationPath: derivationPath, isCustom: true))
+            return .success(.token(token, blockchain))
         }
     }
     
     private func validateToken(blockchainName: String, contractAddress: String, derivationPath: String) -> AnyPublisher<[CurrencyModel], Error> {
+        let derivationStyle = cardModel.cardInfo.card.derivationStyle
+        let cardId = cardModel.cardInfo.card.cardId
+        
         let blockchain = blockchainByName[blockchainName]
         
-        let cardTokenItems = cardModel?.tokenItemsRepository.getItems(for: cardModel?.cardInfo.card.cardId ?? "") ?? []
+        let cardTokenItems = cardModel.tokenItemsRepository.getItems(for: cardId)
         let checkingContractAddress = !contractAddress.isEmpty
-        let derivationPath = (try? DerivationPath(rawPath: derivationPath)) ?? blockchain?.derivationPath
+        let derivationPath = (try? DerivationPath(rawPath: derivationPath)) ?? blockchain?.derivationPath(for: derivationStyle)
         
-        if cardTokenItems.contains(where: {
-            ($0.contractAddress == contractAddress || !checkingContractAddress) &&
-            $0.blockchain == blockchain &&
-            $0.derivationPath == derivationPath
-        })
-        {
-            return .anyFail(error: TokenSearchError.alreadyAdded)
+        if let blockchain = blockchain {
+            let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath)
+            
+            if let networkItem = cardTokenItems.first(where: { $0.blockchainNetwork == blockchainNetwork }) {
+                if !checkingContractAddress {
+                    return .anyFail(error: TokenSearchError.alreadyAdded)
+                }
+                
+                if networkItem.tokens.contains(where: { $0.contractAddress == contractAddress }) {
+                    return .anyFail(error: TokenSearchError.alreadyAdded)
+                }
+            }
         }
         
         guard !contractAddress.isEmpty else {
