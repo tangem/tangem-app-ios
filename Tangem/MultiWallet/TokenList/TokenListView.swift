@@ -46,7 +46,7 @@ struct TokenListView: View {
                 .background(Color.white)
                 .padding(.horizontal, 8)
             
-            if viewModel.filteredData.isEmpty {
+            if viewModel.isLoading {
                 Spacer()
                 ActivityIndicatorView(color: .gray)
                 Spacer()
