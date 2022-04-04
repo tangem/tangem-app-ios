@@ -100,17 +100,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     }
     
     var canDelete: Bool {
-        return card.canRemove(amountType: amountType, blockchain: blockchain)
-//        let canRemoveAmountType = walletModel.canRemove(amountType: amountType)
-//        if case .noAccount = walletModel.state, canRemoveAmountType {
-//            return true
-//        }
-//
-//        if amountType == .coin {
-//            return card.canRemoveBlockchain(walletModel.wallet.blockchain)
-//        } else {
-//            return canRemoveAmountType
-//        }
+        return walletModel?.canRemove(amountType: amountType) ?? false
     }
     
     var sendBlockedReason: String? {
@@ -172,7 +162,9 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     }
     
     func onRemove() {
-        card.remove(amountType: amountType, blockchain: blockchain)
+        if let wm = walletModel {
+            card.remove(amountType: amountType, blockchainNetwork: wm.blockchainNetwork)
+        }
     }
     
     func tradeCryptoAction() {
@@ -188,7 +180,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         guard
             card.isTestnet,
             let token = amountType.token,
-            case .ethereum(testnet: true) = token.blockchain
+            case .ethereum(testnet: true) = blockchain
         else {
             if buyCryptoUrl != nil {
                 navigation.detailsToBuyCrypto = true
