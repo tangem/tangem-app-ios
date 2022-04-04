@@ -100,6 +100,10 @@ class WalletModel: ObservableObject, Identifiable {
         wallet.isEmpty && incomingPendingTransactions.count == 0
     }
     
+    var blockchainNetwork: BlockchainNetwork {
+        .init(wallet.blockchain, derivationPath: wallet.publicKey.derivationPath)
+    }
+    
     let walletManager: WalletManager
     let signer: TransactionSigner
     private let defaultToken: Token?
@@ -217,7 +221,7 @@ class WalletModel: ObservableObject, Identifiable {
             return String(format: "address_qr_code_message_token_format".localized,
                           token.name,
                           symbol,
-                          token.blockchain.displayName)
+                          wallet.blockchain.displayName)
         } else {
             return String(format: "address_qr_code_message_format".localized,
                           wallet.blockchain.displayName,
@@ -311,10 +315,9 @@ class WalletModel: ObservableObject, Identifiable {
         guard canRemove(amountType: .token(value: token)) else {
             return false
         }
-        
-        tokenItemsRepository.remove(.init(token), for: cardId)
         walletManager.removeToken(token)
-        tokenViewModels.removeAll(where: { $0.token == token })
+        tokenItemsRepository.remove(token, blockchainNetwork: blockchainNetwork, for: cardId)
+        updateTokensViewModels() 
         return true
     }
     
@@ -357,6 +360,15 @@ class WalletModel: ObservableObject, Identifiable {
                 self?.startUpdatingTimer()
             })
             .eraseToAnyPublisher()
+    }
+    
+    func isDefaultDerivation(for style: DerivationStyle) -> Bool {
+        guard let currentDerivation = self.blockchainNetwork.derivationPath else {
+            return true //cards without hd wallets
+        }
+        
+        let defaultDerivation = wallet.blockchain.derivationPath(for: style)
+        return defaultDerivation == currentDerivation
     }
     
     private func updateBalanceViewModel(with wallet: Wallet, state: State) {

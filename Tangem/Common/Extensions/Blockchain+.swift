@@ -9,8 +9,30 @@
 import Foundation
 import BlockchainSdk
 
-extension Blockchain: Identifiable {
-    public var id: Int { return hashValue }
+extension Blockchain {
+    var id: String {
+        switch self {
+        case .binance: return "binancecoin"
+        case .bitcoin: return "bitcoin"
+        case .bitcoinCash: return "bitcoinCash"
+        case .cardano: return "cardano"
+        case .ducatus: return "ducatus"
+        case .ethereum: return "ethereum"
+        case .litecoin: return "litecoin"
+        case .rsk: return "rootstock"
+        case .stellar: return "stellar"
+        case .tezos: return "tezos"
+        case .xrp: return "ripple"
+        case .dogecoin: return "dogecoin"
+        case .bsc: return "binance-smart-chain"
+        case .polygon: return "matic-network" //[REDACTED_TODO_COMMENT]
+        case .avalanche: return "avalanche-2"
+        case .solana: return "solana"
+        case .fantom: return "fantom"
+        case .polkadot: return "polkadot"
+        case .kusama: return "kusama"
+        }
+    }
     
     private static var testnetId = "/test"
     
@@ -60,14 +82,4 @@ extension Blockchain: Identifiable {
     var iconName: String { rawStringId }
     
     var iconNameFilled: String { "\(iconName).fill" }
-    
-    var hasTokens: Bool { //[REDACTED_TODO_COMMENT]
-        switch self {
-        case .ethereum, .bsc, .binance, .polygon,
-                .avalanche, .solana, .fantom:
-            return true
-        default:
-            return false
-        }
-    }
 }
