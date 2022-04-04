@@ -43,6 +43,16 @@ class TokenListViewModel: ViewModel, ObservableObject {
         }
     }
     
+    var shouldShowAlert: Bool {
+        return true
+        
+        guard let cardModel = self.cardModel else {
+            return false
+        }
+        
+        return cardModel.cardInfo.card.derivationStyle == .legacy
+    }
+    
     var isSaveDisabled: Bool {
         pendingAdd.isEmpty && pendingRemove.isEmpty
     }
@@ -123,6 +133,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
             self.pendingRemove = []
             self.data = []
             self.enteredSearchText.value = ""
+            self.isLoading = true
         }
     }
     
