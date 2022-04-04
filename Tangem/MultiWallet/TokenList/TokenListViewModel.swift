@@ -24,6 +24,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
     @Published var pendingAdd: [TokenItem] = []
     @Published var pendingRemove: [TokenItem] = []
     @Published var filteredData: [CurrencyViewModel] = []
+    @Published var showToast: Bool = false
     
     var titleKey: LocalizedStringKey {
         switch mode {
@@ -44,8 +45,6 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     var shouldShowAlert: Bool {
-        return true
-        
         guard let cardModel = self.cardModel else {
             return false
         }
@@ -245,6 +244,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
                           isReadonly: isReadonlyMode,
                           isDisabled: !canManage(item),
                           isSelected: bindSelection(item),
+                          isCopied: bindCopy(),
                           position: .init(with: index, total: totalItems))
             }
             
@@ -290,6 +290,16 @@ class TokenListViewModel: ViewModel, ObservableObject {
             self?.isSelected(tokenItem) ?? false
         } set: { [weak self] isSelected in
             self?.onSelect(isSelected, tokenItem)
+        }
+        
+        return binding
+    }
+    
+    private func bindCopy() -> Binding<Bool> {
+        let binding = Binding<Bool> { [weak self] in
+            self?.showToast ?? false
+        } set: { [weak self] isSelected in
+            self?.showToast = isSelected
         }
         
         return binding
