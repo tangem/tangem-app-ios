@@ -27,7 +27,6 @@ class MainViewModel: ObservableObject {
         didSet {}
     }
     
-    var isMultiWallet: Bool { cardModel?.isMultiWallet ?? false }
     var cardModel: CardViewModel? {
         state.cardModel
     }
