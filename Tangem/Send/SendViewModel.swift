@@ -276,7 +276,9 @@ class SendViewModel: ViewModel, ObservableObject {
                    return
                 }
                 
-                if let converted = value ? self.walletModel.getFiat(for: decimals, currencySymbol: self.amountToSend.currencySymbol)
+                let currencyId = self.walletModel.currencyId(for: self.amountToSend)
+                
+                if let converted = value ? self.walletModel.getFiat(for: decimals, currencyId: currencyId)
                     : self.walletModel.getCrypto(for: Amount(with: self.amountToSend, value: decimals)) {
                     self.amountText = converted.description
                 } else {
