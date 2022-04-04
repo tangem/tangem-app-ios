@@ -29,4 +29,5 @@ enum StorageType: String {
     case cardsStartedActivation = "tangem_cards_started_activation"
     case cardsFinishedActivation = "tangem_cards_finished_activation"
     case didDisplayMainScreenStories = "tangem_tap_did_display_main_screen_stories"
+    case fundsRestorationAlert = "tangem_funds_restoration_alert"
 }
