@@ -280,6 +280,10 @@ struct MainView: View {
                     return WebViewContainer(url: url, title: "common_explorer_format \(blockchainName)", withCloseButton: true)
                 }
             
+            Color.clear
+                .frame(width: 0.5, height: 0.5)
+                .sheet(item: $viewModel.showExternalURL) { SafariView(url: $0) }
+            
             BottomSheetView(isPresented: navigation.$mainToQR,
                             hideBottomSheetCallback: {
                                 navigation.mainToQR = false
