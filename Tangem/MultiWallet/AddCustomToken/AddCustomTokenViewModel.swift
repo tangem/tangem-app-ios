@@ -92,11 +92,11 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         Publishers.CombineLatest3($blockchainName, $contractAddress, $derivationPath)
             .debounce(for: 0.5, scheduler: RunLoop.main)
             .setFailureType(to: Error.self)
-            .flatMap { (blockchainName, contractAddress, derivationPath) -> AnyPublisher<CurrencyModel?, Error> in
+            .flatMap { (blockchainName, contractAddress, derivationPath) -> AnyPublisher<[CurrencyModel], Error> in
                 self.isLoading = true
                 
                 return self.validateToken(blockchainName: blockchainName, contractAddress: contractAddress, derivationPath: derivationPath)
-                    .catch { [unowned self] error -> AnyPublisher<CurrencyModel?, Error> in
+                    .catch { [unowned self] error -> AnyPublisher<[CurrencyModel], Error> in
                         self.isLoading = false
                         self.foundStandardToken = nil
                         
@@ -110,18 +110,26 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             }
             .sink { _ in
                 
-            } receiveValue: { [unowned self] currencyModel in
+            } receiveValue: { [unowned self] currencyModels in
                 self.warning = nil
                 self.addButtonDisabled = false
                 self.isLoading = false
                 
-                let currencyModelBlockchains = currencyModel?.items.map { $0.blockchain }
-                let blockchains = currencyModelBlockchains ?? getBlockchains(withTokenSupport: false)
+                let currencyModelBlockchains = currencyModels.reduce(Set<Blockchain>()) { partialResult, currencyModel in
+                    partialResult.union(currencyModel.items.map { $0.blockchain })
+                }
+
+                let blockchains: Set<Blockchain>
+                if !currencyModelBlockchains.isEmpty {
+                    blockchains = currencyModelBlockchains
+                } else {
+                    blockchains = getBlockchains(withTokenSupport: false)
+                }
                 self.updateBlockchains(blockchains)
                 
-                let firstTokenItem = currencyModel?.items.first
+                let firstTokenItem = currencyModels.first?.items.first
                 
-                if currencyModel?.items.count == 1 {
+                if currencyModels.count == 1 {
                     self.foundStandardToken = firstTokenItem
                 } else {
                     self.foundStandardToken = nil
@@ -186,9 +194,11 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         derivationPath = ""
     }
     
-    private func updateBlockchains(_ blockchains: [Blockchain]) {
+    private func updateBlockchains(_ blockchains: Set<Blockchain>) {
         let defaultItem = ("custom_token_network_input_not_selected".localized, "")
-        self.blockchains = [defaultItem] + blockchains.map {
+        self.blockchains = [defaultItem] + blockchains.sorted {
+            $0.displayName < $1.displayName
+        }.map {
             ($0.displayName, $0.codingKey)
         }
         self.blockchainByName = Dictionary(uniqueKeysWithValues: blockchains.map {
@@ -197,7 +207,9 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         
         
         let newBlockchainName: String?
-        if blockchainByName[blockchainName] == nil {
+        if blockchains.count == 1, let firstBlockchain = blockchains.first {
+            newBlockchainName = firstBlockchain.codingKey
+        } else if blockchainByName[blockchainName] == nil {
             newBlockchainName = ""
         } else {
             newBlockchainName = nil
@@ -208,17 +220,13 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         }
     }
     
-    private func getBlockchains(withTokenSupport: Bool) -> [Blockchain] {
+    private func getBlockchains(withTokenSupport: Bool) -> Set<Blockchain> {
         guard let cardInfo = cardModel?.cardInfo else {
             return []
         }
         
         let supportedTokenItems = SupportedTokenItems()
-        let blockchains = supportedTokenItems
-            .blockchains(for: cardInfo.card.walletCurves, isTestnet: cardInfo.isTestnet)
-            .sorted {
-                $0.displayName < $1.displayName
-            }
+        let blockchains = supportedTokenItems.blockchains(for: cardInfo.card.walletCurves, isTestnet: cardInfo.isTestnet)
         
         if withTokenSupport {
             if self.blockchainsWithTokens == nil {
@@ -287,7 +295,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         }
     }
     
-    private func validateToken(blockchainName: String, contractAddress: String, derivationPath: String) -> AnyPublisher<CurrencyModel?, Error> {
+    private func validateToken(blockchainName: String, contractAddress: String, derivationPath: String) -> AnyPublisher<[CurrencyModel], Error> {
         let blockchain = blockchainByName[blockchainName]
         
         let cardTokenItems = cardModel?.tokenItemsRepository.getItems(for: cardModel?.cardInfo.card.cardId ?? "") ?? []
@@ -304,7 +312,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         }
         
         guard !contractAddress.isEmpty else {
-            return Just(nil)
+            return Just([])
                 .setFailureType(to: Error.self)
                 .eraseToAnyPublisher()
         }
@@ -312,18 +320,17 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         return findToken(contractAddress: contractAddress, blockchain: blockchain, derivationPath: derivationPath)
     }
     
-    private func findToken(contractAddress: String, blockchain: Blockchain?, derivationPath: DerivationPath?) -> AnyPublisher<CurrencyModel?, Error> {
+    private func findToken(contractAddress: String, blockchain: Blockchain?, derivationPath: DerivationPath?) -> AnyPublisher<[CurrencyModel], Error> {
         return tokenListService
-            .checkContractAddress(contractAddress: contractAddress, networkId: blockchain?.networkId)
-            .tryMap { currencyModel in
+            .checkContractAddress(contractAddress: contractAddress, networkId: nil)
+            .tryMap { currencyModels in
                 guard
-                    let currencyModel = currencyModel,
-                    !currencyModel.items.isEmpty
+                    !currencyModels.isEmpty
                 else {
                     throw TokenSearchError.failedToFindToken
                 }
                 
-                return currencyModel
+                return currencyModels
             }
             .eraseToAnyPublisher()
     }
