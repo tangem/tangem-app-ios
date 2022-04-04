@@ -310,21 +310,21 @@ struct MainView: View {
         }
         .navigationBarHidden(isNavBarHidden)
         .ignoresKeyboard()
-        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
-                    .filter {_ in !navigation.mainToSettings
-                        && !navigation.mainToSend
-                        && !navigation.mainToCreatePayID
-                        && !navigation.mainToSendChoise
-                        && !navigation.mainToBuyCrypto
-                        && !navigation.mainToAddTokens
-                        && !navigation.mainToTokenDetails
-                        && !navigation.mainToSellCrypto
-                        && !navigation.mainToCardOnboarding
-                    }
-                    .delay(for: 0.5, scheduler: DispatchQueue.global())
-                    .receive(on: DispatchQueue.main)) { _ in
-            viewModel.state.cardModel?.update()
-        }
+//        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
+//                    .filter {_ in !navigation.mainToSettings
+//                        && !navigation.mainToSend
+//                        && !navigation.mainToCreatePayID
+//                        && !navigation.mainToSendChoise
+//                        && !navigation.mainToBuyCrypto
+//                        && !navigation.mainToAddTokens
+//                        && !navigation.mainToTokenDetails
+//                        && !navigation.mainToSellCrypto
+//                        && !navigation.mainToCardOnboarding
+//                    }
+//                    .delay(for: 0.5, scheduler: DispatchQueue.global())
+//                    .receive(on: DispatchQueue.main)) { _ in
+//            viewModel.state.cardModel?.update()
+//        }
         .alert(item: $viewModel.error) { $0.alert }
     }
     
