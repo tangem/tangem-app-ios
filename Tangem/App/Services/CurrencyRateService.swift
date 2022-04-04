@@ -16,16 +16,13 @@ struct FiatResponse: Codable {
 
 struct FiatCurrency: Codable, Identifiable, CustomStringConvertible {
     let id: String
+    let code: String
     let name: String
     let unit: String
     
-    var symbol: String {
-        id.uppercased()
-    }
-    
     var description: String {
-        let localizedName = Locale.current.localizedString(forCurrencyCode: symbol)?.capitalizingFirstLetter() ?? name
-        return "\(localizedName) (\(symbol)) - \(unit)"
+        let localizedName = Locale.current.localizedString(forCurrencyCode: code)?.capitalizingFirstLetter() ?? name
+        return "\(localizedName) (\(code)) — \(unit)"
     }
 }
 
