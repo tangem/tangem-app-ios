@@ -48,12 +48,11 @@ struct CurrencyView: View {
                 
                 Spacer()
                 
-                Button {
-                    isExpanded.toggle()
-                } label: {
-                    chevronView
-                }
-                .buttonStyle(PlainButtonStyle())
+                chevronView
+            }
+            .contentShape(Rectangle())
+            .onTapGesture {
+                isExpanded.toggle()
             }
             
             if isExpanded {
