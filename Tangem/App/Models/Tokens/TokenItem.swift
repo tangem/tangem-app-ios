@@ -38,7 +38,7 @@ enum TokenItem: Hashable {
     
     func getDefaultBlockchainNetwork(for style: DerivationStyle) -> BlockchainNetwork {
         let path = blockchain.derivationPath(for: style)
-        return .init(blockchain, derivationPath: try! DerivationPath(rawPath: "m/0'/0/1/0"))
+        return .init(blockchain, derivationPath: path)
     }
     
     var token: Token? {
