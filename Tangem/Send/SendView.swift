@@ -291,7 +291,7 @@ struct ExtractView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             SendView(viewModel: assembly.makeSellCryptoSendViewModel(with: Amount(with: assembly.previewBlockchain,
-                                                                                  type: .token(value: Token(symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18, blockchain: .ethereum(testnet: false))),
+                                                                                  type: .token(value: Token(name: "DAI", symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18)),
                                                                                   value: 0.0),
                                                                      destination: "Target",
                                                                      blockchain: assembly.previewBlockchain,
@@ -299,7 +299,7 @@ struct ExtractView_Previews: PreviewProvider {
                 .environmentObject(assembly.services.navigationCoordinator)
                 .previewLayout(.iphone7Zoomed)
             SendView(viewModel: assembly.makeSendViewModel(with: Amount(with: assembly.previewBlockchain,
-                                                                        type: .token(value: Token(symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18, blockchain: .ethereum(testnet: false))),
+                                                                        type: .token(value: Token(name: "DAI", symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18)),
                                                                         value: 0.0),
                                                            blockchain: assembly.previewBlockchain,
                                                            card: assembly.previewCardViewModel))
