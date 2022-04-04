@@ -12,8 +12,7 @@ import SwiftUI
 struct NetworkIcon: View {
     let imageName: String
     let isMainIndicatorVisible: Bool
-    let size: CGSize = .init(width: 20, height: 20)
-    let indicatorSize: CGSize = .init(width: 6.5, height: 6.5)
+    var size: CGSize = .init(width: 20, height: 20)
     
     var body: some View {
         Image(imageName)
@@ -25,6 +24,7 @@ struct NetworkIcon: View {
     @ViewBuilder
     private var indicatorOverlay: some View {
         if isMainIndicatorVisible {
+            let indicatorSize: CGSize = .init(width: size.width/3, height: size.height/3)
             MainNetworkIndicator()
                 .frame(width: indicatorSize.width, height: indicatorSize.height)
                 .offset(x: size.width/2 - indicatorSize.width/2,

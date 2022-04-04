@@ -52,13 +52,12 @@ struct CardInfo {
     }
     
     var defaultToken: BlockchainSdk.Token? {
-        guard let token = walletData?.token, let blockchain = defaultBlockchain else { return nil }
+        guard let token = walletData?.token, defaultBlockchain != nil else { return nil }
         
         return Token(name: token.name,
                      symbol: token.symbol,
                      contractAddress: token.contractAddress,
-                     decimalCount: token.decimals,
-                     blockchain: blockchain)
+                     decimalCount: token.decimals)
     }
 #endif
     
