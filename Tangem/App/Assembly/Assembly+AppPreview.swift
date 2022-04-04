@@ -43,4 +43,8 @@ extension Assembly {
     var previewBlockchain: Blockchain {
         previewCardViewModel.wallets!.first!.blockchain
     }
+    
+    var previewBlockchainNetwork: BlockchainNetwork {
+        .init(previewBlockchain)
+    }
 }

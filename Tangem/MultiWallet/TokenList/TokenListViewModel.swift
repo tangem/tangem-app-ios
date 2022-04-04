@@ -95,6 +95,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
         }
         
         
+        
         cardModel.add(items: itemsToAdd) {[weak self] result in
             self?.isSaving = false
             
@@ -166,7 +167,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
         }
         
         let network = tokenItem.getDefaultBlockchainNetwork(for: cardModel.cardInfo.card.derivationStyle)
-        return cardModel.canRemove(amountType: tokenItem.amountType, blockchainNetwork: network)
+        return cardModel.canManage(amountType: tokenItem.amountType, blockchainNetwork: network)
     }
     
     private func showAddButton(_ tokenItem: TokenItem) -> Bool {
