@@ -9,6 +9,7 @@
 import SwiftUI
 import BlockchainSdk
 import Combine
+import AlertToast
 
 struct TokenListView: View {
     @ObservedObject var viewModel: TokenListViewModel
@@ -92,6 +93,9 @@ struct TokenListView: View {
         .onDisappear { viewModel.onDissapear() }
         .alert(item: $viewModel.error, content: { $0.alert })
         .background(Color.clear)
+        .toast(isPresenting: $viewModel.showToast) {
+            AlertToast(type: .complete(Color.tangemGreen), title: "contract_address_copied_message".localized)
+        }
     }
 }
 
