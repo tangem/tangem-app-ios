@@ -62,7 +62,7 @@ Tangem — единственный аппаратный кошелек, пре�
 "common_start" = "Начать";
 "common_submit" = "Отправить";
 "common_success" = "Успешно";
-"common_warning" = "Уведомление";
+"common_warning" = "Предупреждение";
 "custom_token_contract_address_input_title" = "Адрес контракта";
 "custom_token_creation_error_network_not_selected" = "Пожалуйста, выберите сеть";
 "custom_token_creation_error_empty_fields" = "Пожалуйста, заполните все поля";
