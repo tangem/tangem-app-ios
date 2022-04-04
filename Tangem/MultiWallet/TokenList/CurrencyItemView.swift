@@ -55,7 +55,7 @@ struct CurrencyItemView: View {
                         .scaleEffect(0.8)
                 }
             }
-            .padding(.vertical, 9)
+            .padding(.vertical, 8)
         }
         .readSize(onChange: { self.size = $0 })
     }
