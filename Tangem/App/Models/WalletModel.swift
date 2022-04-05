@@ -111,6 +111,7 @@ class WalletModel: ObservableObject, Identifiable {
     private var bag = Set<AnyCancellable>()
     private var updateTimer: AnyCancellable? = nil
     private let demoBalance: Decimal?
+    private let cardInfo: CardInfo?
     private var isDemo: Bool { demoBalance != nil }
     private var latestUpdateTime: Date? = nil
     
@@ -118,11 +119,12 @@ class WalletModel: ObservableObject, Identifiable {
         print("🗑 WalletModel deinit")
     }
     
-    init(walletManager: WalletManager, signer: TransactionSigner, defaultToken: Token?, defaultBlockchain: Blockchain?, demoBalance: Decimal? = nil) {
+    init(walletManager: WalletManager, signer: TransactionSigner, defaultToken: Token?, defaultBlockchain: Blockchain?, demoBalance: Decimal? = nil, cardInfo: CardInfo?) {
         self.defaultToken = defaultToken
         self.defaultBlockchain = defaultBlockchain
         self.walletManager = walletManager
         self.demoBalance = demoBalance
+        self.cardInfo = cardInfo
         self.signer = signer
         
         updateBalanceViewModel(with: walletManager.wallet, state: .idle)
@@ -442,12 +444,34 @@ class WalletModel: ObservableObject, Identifiable {
         }
     }
     
+    private func isCustom(_ amountType: Amount.AmountType) -> Bool {
+        guard let derivationStyle = cardInfo?.card.derivationStyle else {
+            return false
+        }
+        
+        let defaultDerivation = blockchainNetwork.blockchain.derivationPath(for: derivationStyle)
+        let derivation = blockchainNetwork.derivationPath ?? defaultDerivation
+        
+        if derivation != defaultDerivation {
+            return true
+        }
+        
+        switch amountType {
+        case .coin, .reserve:
+            return false
+        case .token(let token):
+            return token.id == nil
+        }
+    }
+    
     private func updateTokenItemViewModels() {
+        let blockchainAmountType = Amount.AmountType.coin
         let blockchainItem = TokenItemViewModel(from: balanceViewModel,
-                                                rate: getRateFormatted(for: .coin),
-                                                fiatValue: getFiat(for: wallet.amounts[.coin]) ?? 0,
+                                                rate: getRateFormatted(for: blockchainAmountType),
+                                                fiatValue: getFiat(for: wallet.amounts[blockchainAmountType]) ?? 0,
                                                 blockchainNetwork: blockchainNetwork,
-                                                hasTransactionInProgress: wallet.hasPendingTx(for: .coin))
+                                                hasTransactionInProgress: wallet.hasPendingTx(for: blockchainAmountType),
+                                                isCustom: isCustom(blockchainAmountType))
         
         let items: [TokenItemViewModel] = tokenViewModels.map {
             let amountType = Amount.AmountType.token(value: $0.token)
@@ -456,7 +480,8 @@ class WalletModel: ObservableObject, Identifiable {
                                       rate: getRateFormatted(for: amountType),
                                       fiatValue:  getFiat(for: wallet.amounts[amountType]) ?? 0,
                                       blockchainNetwork: blockchainNetwork,
-                                      hasTransactionInProgress: wallet.hasPendingTx(for: amountType))
+                                      hasTransactionInProgress: wallet.hasPendingTx(for: amountType),
+                                      isCustom: isCustom(amountType))
         }
         
         tokenItemViewModels = [blockchainItem] + items
