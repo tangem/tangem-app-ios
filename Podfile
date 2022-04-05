@@ -48,7 +48,8 @@ target 'Tangem' do
   # pod 'Solana.Swift', :path => '../Solana.Swift'
   pod 'ScaleCodec'
   pod 'Mobile-Buy-SDK' # Shopify
-
+  pod 'AlertToast'
+  
   target 'TangemTests' do
     inherit! :search_paths
     # Pods for testing
