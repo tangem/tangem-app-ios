@@ -9,6 +9,7 @@
 import SwiftUI
 import BlockchainSdk
 import Combine
+import AlertToast
 
 struct TokenListView: View {
     @ObservedObject var viewModel: TokenListViewModel
@@ -19,126 +20,89 @@ struct TokenListView: View {
         VStack(spacing: 0) {
             HStack {
                 Text(viewModel.titleKey)
-                    .font(Font.system(size: 36, weight: .bold, design: .default))
+                    .font(Font.system(size: 30, weight: .bold, design: .default))
+                    .minimumScaleFactor(0.8)
                     .padding(.horizontal, 16)
                     .padding(.vertical, 16)
+                
                 Spacer()
+                
+                if !viewModel.isReadonlyMode {
+                    Button(action: viewModel.showCustomTokenView) {
+                        ZStack {
+                            Circle().fill(Color.tangemGreen2)
+                            
+                            Image(systemName: "plus")
+                                .foregroundColor(.white)
+                                .font(.system(size: 13, weight: .bold, design: .default))
+                        }
+                        .frame(width: 26, height: 26)
+                        .padding(16)
+                    }
+                }
             }
             
             SearchBar(text: $viewModel.enteredSearchText.value, placeholder: "common_search".localized)
                 .background(Color.white)
                 .padding(.horizontal, 8)
             
-            if viewModel.isSearching {
+            if viewModel.isLoading {
                 Spacer()
                 ActivityIndicatorView(color: .gray)
                 Spacer()
             } else {
                 List {
-                    ForEach(viewModel.data) { section in
-                        Section(header: HeaderView(text: section.name,
-                                                   collapsible: section.collapsible,
-                                                   isExpanded: section.expanded)
-                                    .onTapGesture(perform: { viewModel.onCollapse(section) })) {
-                            ForEach(section.items) { TokenView(token: $0) }
-                        }
+                    
+                    if viewModel.shouldShowAlert {
+                        Text("alert_manage_tokens_addresses_message")
+                            .font(.system(size: 13, weight: .medium, design: .default))
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(Color(hex: "#848488"))
+                            .cornerRadius(10)
+                            .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
+                    }
+                    
+                    ForEach(viewModel.filteredData) {
+                        CurrencyView(model: $0)
+                            .buttonStyle(PlainButtonStyle()) //fix ios13 list item selection
                     }
                 }
                 .listStyle(PlainListStyle())
             }
             
-            if viewModel.showSaveButton {
+            if !viewModel.isReadonlyMode {
                 TangemButton(title: "common_save_changes", action: viewModel.saveChanges)
                     .buttonStyle(TangemButtonStyle(colorStyle: .black,
                                                    layout: .flexibleWidth,
-                                                   isDisabled: viewModel.pendingTokenItems.isEmpty,
-                                                   isLoading: viewModel.isLoading))
+                                                   isDisabled: viewModel.isSaveDisabled,
+                                                   isLoading: viewModel.isSaving))
                     .padding([.leading, .trailing, .top], 16)
                     .padding(.bottom, 8)
+                    .ignoresKeyboard()
             }
+            
+            Color.clear.frame(width: 1, height: 1)
+                .sheet(isPresented: $navigation.mainToCustomToken) {
+                    AddCustomTokenView(viewModel: viewModel.assembly.makeAddCustomTokenModel())
+                        .environmentObject(navigation)
+                }
         }
-        .ignoresKeyboard()
         .onAppear { viewModel.onAppear() }
         .onDisappear { viewModel.onDissapear() }
         .alert(item: $viewModel.error, content: { $0.alert })
-        .background(Color.white)
+        .background(Color.clear)
+        .toast(isPresenting: $viewModel.showToast) {
+            AlertToast(type: .complete(Color.tangemGreen), title: "contract_address_copied_message".localized)
+        }
     }
 }
 
-fileprivate struct HeaderView: View {
-    var text: String
-    var additionalTopPadding: CGFloat = 0
-    var collapsible: Bool
-    var isExpanded: Bool = true
-    
-    var body: some View {
-        HStack {
-            Text(text.uppercased())
-                .font(.system(size: 14, weight: .medium))
-                .foregroundColor(.tangemGrayDark)
-                .padding(.leading, 16)
-            
-            Spacer()
-            if collapsible {
-                Image(systemName: "chevron.down")
-                    .rotationEffect(isExpanded ? .zero : Angle(degrees: -90))
-                    .padding(.trailing, 16)
-                    .foregroundColor(.tangemGrayDark)
-                    .animation(.default.speed(2), value: isExpanded)
-            }
-        }
-        .padding(.top, .iOS13 ?  16 : 8)
-        .padding(.bottom, .iOS13 ?  8 : 4)
-        .padding(.top, additionalTopPadding)
-        .background(Color.white)
-        .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-    }
-}
-
-fileprivate struct TokenView: View {
-    let token: TokenModel
-    
-    private var buttonTitle: LocalizedStringKey {
-        token.isAdded ? "common_added" : "common_add"
-    }
-    
-    private var buttonStyle: TangemButtonStyle {
-        TangemButtonStyle(colorStyle: token.isAdded || !token.canAdd ? .gray : .green,
-                          layout: .thinHorizontal,
-                          isDisabled: !token.canAdd )
-    }
-    
-    var body: some View {
-        HStack {
-            token.tokenItem.iconView
-                .saturation(token.tokenItem.blockchain.isTestnet ? 0 : 1.0)
-                .frame(width: 40, height: 40, alignment: .center)
-            
-            VStack(alignment: .leading, spacing: 6) {
-                Text(token.tokenItem.name)
-                    .font(.system(size: 17, weight: .medium))
-                    .foregroundColor(.tangemGrayDark6)
-                Text(token.subtitle)
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(.tangemGrayDark)
-            }
-            
-            Spacer()
-            
-            if token.showAddButton {
-                TangemButton(title: buttonTitle, action: token.tap)
-                    .buttonStyle(buttonStyle)
-            }
-        }
-        .padding(.vertical, 8)
-    }
-}
 
 struct AddNewTokensView_Previews: PreviewProvider {
     static let assembly = Assembly.previewAssembly
     
     static var previews: some View {
-        TokenListView(viewModel: assembly.makeAddTokensViewModel(for: assembly.previewCardViewModel))
+        TokenListView(viewModel: assembly.makeTokenListViewModel(mode: .add(cardModel: assembly.previewCardViewModel)))
             .environmentObject(assembly.services.navigationCoordinator)
     }
 }
