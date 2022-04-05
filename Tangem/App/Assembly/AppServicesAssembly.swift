@@ -76,12 +76,12 @@ class AppServicesAssembly: ServicesAssembly {
     
     lazy var navigationCoordinator = NavigationCoordinator()
     lazy var featuresService = AppFeaturesService(configProvider: configManager)
-    lazy var warningsService = WarningsService(remoteWarningProvider: configManager, rateAppChecker: rateAppService)
+    lazy var warningsService = WarningsService(remoteWarningProvider: configManager, rateAppChecker: rateAppService, userPrefsService: userPrefsService)
     lazy var rateAppService: RateAppService = .init(userPrefsService: userPrefsService)
     private let configManager = try! FeaturesConfigManager()
     lazy var shopifyService = ShopifyService(shop: keysManager.shopifyShop, testApplePayPayments: false)
     let keysManager = try! KeysManager()
-    lazy var ratesService = CoinMarketCapService(apiKey: keysManager.coinMarketKey)
+    lazy var ratesService = CurrencyRateService()
     lazy var tokenItemsRepository = TokenItemsRepository(persistanceStorage: persistentStorage)
     lazy var tokenListService = TokenListService()
     
