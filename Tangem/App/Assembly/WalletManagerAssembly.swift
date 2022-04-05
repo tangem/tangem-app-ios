@@ -55,7 +55,9 @@ class WalletManagerAssembly {
             
             //Try found default card wallet
             if let nativeWalletManager = makeNativeWalletManager(from: cardInfo),
-               !walletManagers.contains(where: { $0.wallet.blockchain == nativeWalletManager.wallet.blockchain }) {
+               !walletManagers.contains(where: { $0.wallet.blockchain == nativeWalletManager.wallet.blockchain &&
+                   $0.wallet.publicKey.derivationPath == nativeWalletManager.wallet.publicKey.derivationPath
+               }) {
                 walletManagers.append(nativeWalletManager)
             }
             
