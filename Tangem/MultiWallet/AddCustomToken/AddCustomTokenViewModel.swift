@@ -365,36 +365,3 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             .eraseToAnyPublisher()
     }
 }
-
-
-#warning("[REDACTED_TODO_COMMENT]")
-#warning("[REDACTED_TODO_COMMENT]")
-#warning("[REDACTED_TODO_COMMENT]")
-#warning("[REDACTED_TODO_COMMENT]")
-#warning("[REDACTED_TODO_COMMENT]")
-
-fileprivate extension Blockchain {
-    var networkId: String {
-        switch self {
-        case .bitcoin: return "bitcoin"
-        case .stellar: return "stellar"
-        case .ethereum: return "ethereum"
-        case .litecoin: return "litecoin"
-        case .rsk: return "rootstock"
-        case .bitcoinCash: return "bitcoincash"
-        case .binance: return "binancecoin"
-        case .cardano: return "cardano"
-        case .xrp: return "ripple"
-        case .ducatus: return "ducatus"
-        case .tezos: return "tezos"
-        case .dogecoin: return "dogecoin"
-        case .bsc: return "binance-smart-chain"
-        case .polygon: return "matic-network"
-        case .avalanche: return "avalanche-2"
-        case .solana: return "solana"
-        case .fantom: return "fantom"
-        case .polkadot: return "polkadot"
-        case .kusama: return "kusama"
-        }
-    }
-}
