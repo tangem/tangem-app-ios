@@ -11,6 +11,7 @@ import Moya
 enum TangemApiTarget: TargetType {
     case rates(cryptoCurrencyIds: [String], fiatCurrencyCode: String)
     case baseCurrencies
+    case checkContractAddress(contractAddress: String, networkId: String?)
     
     var baseURL: URL {URL(string: "https://api.tangem-tech.com")!}
     
@@ -20,6 +21,8 @@ enum TangemApiTarget: TargetType {
             return "/coins/prices"
         case .baseCurrencies:
             return "/coins/currencies"
+        case .checkContractAddress:
+            return "/coins/check-address"
         }
     }
     
@@ -32,7 +35,14 @@ enum TangemApiTarget: TargetType {
                                                    "currency": fiatCurrencyCode.lowercased()],
                                       encoding: URLEncoding.default)
         case .baseCurrencies:
-           return .requestPlain
+            return .requestPlain
+        case .checkContractAddress(let contractAddress, let networkId):
+            var parameters: [String: Any] = ["contractAddress": contractAddress]
+            if let networkId = networkId {
+                parameters["networkId"] = networkId
+            }
+            return .requestParameters(parameters: parameters,
+                                      encoding: URLEncoding.default)
         }
     }
     
