@@ -214,7 +214,7 @@ DEPENDENCIES:
   - BigInt
   - BinanceChain (from `https://github.com/lazutkin-andrey/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/lazutkin-andrey/bitcoincore.git`, tag `0.0.16`)
-  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-97`)
+  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-98`)
   - DeviceGuru
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -231,7 +231,7 @@ DEPENDENCIES:
   - stellar-ios-mac-sdk
   - SwiftCBOR
   - SwiftyJSON
-  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-138`)
+  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-139`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.6.2`)
   - web3swift (from `https://github.com/lazutkin-andrey/web3swift.git`, tag `2.2.8`)
 
@@ -283,7 +283,7 @@ EXTERNAL SOURCES:
     :tag: 0.0.16
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-97
+    :tag: develop-98
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
@@ -295,7 +295,7 @@ EXTERNAL SOURCES:
     :tag: add-external-signer-1
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-138
+    :tag: develop-139
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.6.2
@@ -312,7 +312,7 @@ CHECKOUT OPTIONS:
     :tag: 0.0.16
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-97
+    :tag: develop-98
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
@@ -324,7 +324,7 @@ CHECKOUT OPTIONS:
     :tag: add-external-signer-1
   TangemSdk:
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: develop-138
+    :tag: develop-139
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.6.2
@@ -379,6 +379,6 @@ SPEC CHECKSUMS:
   web3swift: 93f68f5430c11a78bba2351c139d2d22f2c04b5e
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 62f3b48eb0152c3bd69e8f7a50bd969eb9f0467b
+PODFILE CHECKSUM: e460af1e860fd9fc8b73ff8f26f8f624d72efd5c
 
-COCOAPODS: 1.11.2
+COCOAPODS: 1.11.3
