@@ -424,6 +424,7 @@
 		DA4C84CE27DA2D6D00B76F91 /* StoriesConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4C84CC27DA2D6D00B76F91 /* StoriesConstants.swift */; };
 		DA5970EA27FC1C0E0050387C /* CurrencyRateService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5970E927FC1C0E0050387C /* CurrencyRateService.swift */; };
 		DA5970EC27FC1C1B0050387C /* TangemApiTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5970EB27FC1C1B0050387C /* TangemApiTarget.swift */; };
+		DA5970F027FC502E0050387C /* CustomTokenBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5970EF27FC502E0050387C /* CustomTokenBadge.swift */; };
 		DA5FAD8627B2791C00EE53AE /* ApplePayButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5FAD8527B2791C00EE53AE /* ApplePayButton.swift */; };
 		DA5FAD8A27B27F7F00EE53AE /* SheetDragHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5FAD8927B27F7F00EE53AE /* SheetDragHandler.swift */; };
 		DA64C36D27CCAD7E005B5E9A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = DA64C36F27CCAD7E005B5E9A /* InfoPlist.strings */; };
@@ -891,6 +892,7 @@
 		DA4C84CC27DA2D6D00B76F91 /* StoriesConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoriesConstants.swift; sourceTree = "<group>"; };
 		DA5970E927FC1C0E0050387C /* CurrencyRateService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CurrencyRateService.swift; sourceTree = "<group>"; };
 		DA5970EB27FC1C1B0050387C /* TangemApiTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TangemApiTarget.swift; sourceTree = "<group>"; };
+		DA5970EF27FC502E0050387C /* CustomTokenBadge.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomTokenBadge.swift; sourceTree = "<group>"; };
 		DA5FAD8527B2791C00EE53AE /* ApplePayButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApplePayButton.swift; sourceTree = "<group>"; };
 		DA5FAD8927B27F7F00EE53AE /* SheetDragHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetDragHandler.swift; sourceTree = "<group>"; };
 		DA64C36E27CCAD7E005B5E9A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -1251,6 +1253,7 @@
 				5D4B8BB827EDB327002CE87C /* ArrowView.swift */,
 				5D4B8BBA27EDB354002CE87C /* NetworkIcon.swift */,
 				5D96BD2927F60B0D000AA797 /* TokenIconView.swift */,
+				DA5970EF27FC502E0050387C /* CustomTokenBadge.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -2649,6 +2652,7 @@
 				DA4C84CD27DA2D6D00B76F91 /* AnimatableModifiers.swift in Sources */,
 				5D6C128725E144DF0010A0C5 /* AddTokensView.swift in Sources */,
 				5D49035227BE9D550072C642 /* Data+.swift in Sources */,
+				DA5970F027FC502E0050387C /* CustomTokenBadge.swift in Sources */,
 				B09BB862259A075600B92000 /* NavigationButton.swift in Sources */,
 				DAC53CFE27BE63830027147D /* MeetTangemStoryPage.swift in Sources */,
 				B0BA7BC726C4F9A300D7066F /* OnboardingCircleButton.swift in Sources */,
