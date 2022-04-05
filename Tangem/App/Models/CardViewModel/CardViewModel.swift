@@ -519,7 +519,7 @@ class CardViewModel: Identifiable, ObservableObject {
             if let existingWalletModels = self.walletModels {
                 var itemsToAdd: [WalletModel] = []
                 for model in newWalletModels {
-                    if !existingWalletModels.contains(where: { $0.wallet.blockchain == model.wallet.blockchain }) {
+                    if !existingWalletModels.contains(where: { $0.blockchainNetwork == model.blockchainNetwork }) {
                         itemsToAdd.append(model)
                     }
                 }
@@ -573,7 +573,7 @@ class CardViewModel: Identifiable, ObservableObject {
         var shouldAddWalletManager = false
         let ethBlockchain = Blockchain.ethereum(testnet: isTestnet)
         let network = BlockchainNetwork(ethBlockchain, derivationPath: nil)
-        var ethWalletModel = walletModels?.first(where: { $0.wallet.blockchain == ethBlockchain })
+        var ethWalletModel = walletModels?.first(where: { $0.blockchainNetwork == network })
         
         if ethWalletModel == nil {
             shouldAddWalletManager = true
@@ -680,6 +680,14 @@ class CardViewModel: Identifiable, ObservableObject {
         
         updateLoadedState(with: newWalletModels)
         completion(.success(()))
+    }
+    
+    func canManage(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool {
+        if let walletModel = walletModels?.first(where: { $0.blockchainNetwork == blockchainNetwork }) {
+            return walletModel.canRemove(amountType: amountType)
+        }
+        
+        return true
     }
     
     func canRemove(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool {
