@@ -86,7 +86,7 @@ class WalletModel: ObservableObject, Identifiable {
         //let txPusher = walletManager as? TransactionPusher
         
         return wallet.pendingOutgoingTransactions.map {
-           // let isTxStuckByTime = Date().timeIntervalSince($0.date ?? Date()) > Constants.bitcoinTxStuckTimeSec
+            // let isTxStuckByTime = Date().timeIntervalSince($0.date ?? Date()) > Constants.bitcoinTxStuckTimeSec
             
             return PendingTransaction(amountType: $0.amount.type,
                                       destination: $0.destinationAddress,
@@ -132,13 +132,13 @@ class WalletModel: ObservableObject, Identifiable {
             .sink(receiveValue: {[unowned self] wallet in
                 print("💳 Wallet model received update")
                 self.updateBalanceViewModel(with: wallet, state: self.state)
-//                if wallet.hasPendingTx {
-//                    if self.updateTimer == nil {
-//                        self.startUpdatingTimer()
-//                    }
-//                } else {
-//                    self.updateTimer = nil
-//                }
+                //                if wallet.hasPendingTx {
+                //                    if self.updateTimer == nil {
+                //                        self.startUpdatingTimer()
+                //                    }
+                //                } else {
+                //                    self.updateTimer = nil
+                //                }
             })
             .store(in: &bag)
     }
@@ -212,7 +212,7 @@ class WalletModel: ObservableObject, Identifiable {
     
     func getRateFormatted(for amountType: Amount.AmountType) -> String {
         var rateString = ""
-
+        
         if let amount = wallet.amounts[amountType],
            let currencyId = self.currencyId(for: amount),
            let rate = rates[currencyId] {
@@ -227,7 +227,7 @@ class WalletModel: ObservableObject, Identifiable {
         let type: Amount.AmountType = amountType ?? wallet.amounts.keys.first(where: { $0.isToken }) ?? .coin
         //todo: handle default token
         let symbol = wallet.amounts[type]?.currencySymbol ?? wallet.blockchain.currencySymbol
-       
+        
         if case let .token(token) = amountType {
             return String(format: "address_qr_code_message_token_format".localized,
                           token.name,
@@ -320,11 +320,11 @@ class WalletModel: ObservableObject, Identifiable {
         if wallet.hasPendingTx(for: amountType) {
             return false
         }
-    
+        
         if amountType == .coin && (!wallet.isEmpty || walletManager.cardTokens.count != 0) {
             return false
         }
-
+        
         return true
     }
     
@@ -335,7 +335,7 @@ class WalletModel: ObservableObject, Identifiable {
         }
         walletManager.removeToken(token)
         tokenItemsRepository.remove(token, blockchainNetwork: blockchainNetwork, for: cardId)
-        updateTokensViewModels() 
+        updateTokensViewModels()
         return true
     }
     
@@ -354,12 +354,12 @@ class WalletModel: ObservableObject, Identifiable {
                                            tolerance: 0.1,
                                            runLoop: .main,
                                            mode: .common)
-            .autoconnect()
-            .sink() {[weak self] _ in
-                print("⏰ Updating timer alarm ‼️ Wallet model will be updated")
-                self?.update()
-                self?.updateTimer?.cancel()
-            }
+        .autoconnect()
+        .sink() {[weak self] _ in
+            print("⏰ Updating timer alarm ‼️ Wallet model will be updated")
+            self?.update()
+            self?.updateTimer?.cancel()
+        }
     }
     
     func send(_ tx: Transaction) -> AnyPublisher<Void,Error> {
@@ -367,9 +367,9 @@ class WalletModel: ObservableObject, Identifiable {
             return signer.sign(hash: Data.randomData(count: 32),
                                cardId:wallet.cardId,
                                walletPublicKey: wallet.publicKey)
-                .map { _ in () }
-                .receive(on: DispatchQueue.main)
-                .eraseToAnyPublisher()
+            .map { _ in () }
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
         }
         
         return walletManager.send(tx, signer: signer)
@@ -446,17 +446,17 @@ class WalletModel: ObservableObject, Identifiable {
         let blockchainItem = TokenItemViewModel(from: balanceViewModel,
                                                 rate: getRateFormatted(for: .coin),
                                                 fiatValue: getFiat(for: wallet.amounts[.coin]) ?? 0,
-                                             blockchain: wallet.blockchain,
-                                             hasTransactionInProgress: wallet.hasPendingTx(for: .coin))
+                                                blockchainNetwork: blockchainNetwork,
+                                                hasTransactionInProgress: wallet.hasPendingTx(for: .coin))
         
         let items: [TokenItemViewModel] = tokenViewModels.map {
             let amountType = Amount.AmountType.token(value: $0.token)
             return TokenItemViewModel(from: balanceViewModel,
-                                tokenBalanceViewModel: $0,
-                                rate: getRateFormatted(for: amountType),
-                                fiatValue:  getFiat(for: wallet.amounts[amountType]) ?? 0,
-                                blockchain: wallet.blockchain,
-                                hasTransactionInProgress: wallet.hasPendingTx(for: amountType))
+                                      tokenBalanceViewModel: $0,
+                                      rate: getRateFormatted(for: amountType),
+                                      fiatValue:  getFiat(for: wallet.amounts[amountType]) ?? 0,
+                                      blockchainNetwork: blockchainNetwork,
+                                      hasTransactionInProgress: wallet.hasPendingTx(for: amountType))
         }
         
         tokenItemViewModels = [blockchainItem] + items
@@ -468,10 +468,10 @@ extension WalletModel {
         static func == (lhs: WalletModel.State, rhs: WalletModel.State) -> Bool {
             switch (lhs, rhs) {
             case (.noAccount, noAccount),
-                 (.created, .created),
-                 (.idle, .idle),
-                 (.loading, .loading),
-                 (.failed, .failed): return true
+                (.created, .created),
+                (.idle, .idle),
+                (.loading, .loading),
+                (.failed, .failed): return true
             default:
                 return false
             }

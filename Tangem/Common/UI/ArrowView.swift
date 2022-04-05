@@ -30,7 +30,7 @@ enum ItemPosition: Equatable {
     fileprivate var startOffset: CGFloat {
         switch self {
         case .single, .first:
-            return 20
+            return 10
         default:
             return 0
         }
