@@ -9,8 +9,7 @@
 import TangemSdk
 
 #if !CLIP
-import struct BlockchainSdk.Token
-import enum BlockchainSdk.Blockchain
+import BlockchainSdk
 #endif
 
 extension Card {
@@ -32,7 +31,6 @@ extension Card {
     var isTwinCard: Bool {
         TwinCardSeries.series(for: cardId) != nil
     }
-    
     
     var twinNumber: Int {
         TwinCardSeries.series(for: cardId)?.number ?? 0
@@ -104,7 +102,19 @@ extension Card {
         wallets.compactMap { $0.totalSignedHashes }.reduce(0, +)
     }
     
-    public var walletCurves: [EllipticCurve] {
+    var walletCurves: [EllipticCurve] {
         wallets.compactMap { $0.curve }
     }
+    
+#if !CLIP
+    var derivationStyle: DerivationStyle {
+        let batchId = batchId.uppercased()
+        
+        if batchId == "AC01" || batchId == "AC02" {
+            return .legacy
+        }
+        
+        return .new
+    }
+#endif
 }
