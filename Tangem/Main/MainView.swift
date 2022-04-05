@@ -280,6 +280,10 @@ struct MainView: View {
                     return WebViewContainer(url: url, title: "common_explorer_format \(blockchainName)", withCloseButton: true)
                 }
             
+            Color.clear
+                .frame(width: 0.5, height: 0.5)
+                .sheet(item: $viewModel.showExternalURL) { SafariView(url: $0) }
+            
             BottomSheetView(isPresented: navigation.$mainToQR,
                             hideBottomSheetCallback: {
                                 navigation.mainToQR = false
@@ -310,21 +314,21 @@ struct MainView: View {
         }
         .navigationBarHidden(isNavBarHidden)
         .ignoresKeyboard()
-        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
-                    .filter {_ in !navigation.mainToSettings
-                        && !navigation.mainToSend
-                        && !navigation.mainToCreatePayID
-                        && !navigation.mainToSendChoise
-                        && !navigation.mainToBuyCrypto
-                        && !navigation.mainToAddTokens
-                        && !navigation.mainToTokenDetails
-                        && !navigation.mainToSellCrypto
-                        && !navigation.mainToCardOnboarding
-                    }
-                    .delay(for: 0.5, scheduler: DispatchQueue.global())
-                    .receive(on: DispatchQueue.main)) { _ in
-            viewModel.state.cardModel?.update()
-        }
+//        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
+//                    .filter {_ in !navigation.mainToSettings
+//                        && !navigation.mainToSend
+//                        && !navigation.mainToCreatePayID
+//                        && !navigation.mainToSendChoise
+//                        && !navigation.mainToBuyCrypto
+//                        && !navigation.mainToAddTokens
+//                        && !navigation.mainToTokenDetails
+//                        && !navigation.mainToSellCrypto
+//                        && !navigation.mainToCardOnboarding
+//                    }
+//                    .delay(for: 0.5, scheduler: DispatchQueue.global())
+//                    .receive(on: DispatchQueue.main)) { _ in
+//            viewModel.state.cardModel?.update()
+//        }
         .alert(item: $viewModel.error) { $0.alert }
     }
     
