@@ -203,15 +203,15 @@ extension Assembly {
         return vm
     }
     
-    func makeTokenDetailsViewModel( blockchain: Blockchain, amountType: Amount.AmountType = .coin) -> TokenDetailsViewModel {
+    func makeTokenDetailsViewModel(blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType = .coin) -> TokenDetailsViewModel {
         if let restored: TokenDetailsViewModel = get() {
-            if let cardModel = services.cardsRepository.lastScanResult.cardModel {
-                //   restored.card = cardModel
-            }
+//            if let cardModel = services.cardsRepository.lastScanResult.cardModel {
+//                   restored.card = cardModel
+//            }
             return restored
         }
         
-        let vm =  TokenDetailsViewModel(blockchain: blockchain, amountType: amountType)
+        let vm =  TokenDetailsViewModel(blockchainNetwork: blockchainNetwork, amountType: amountType)
         initialize(vm)
         if let cardModel = services.cardsRepository.lastScanResult.cardModel {
             vm.card = cardModel
@@ -304,38 +304,40 @@ extension Assembly {
         return vm
     }
     
-    
-    func makeAddTokensViewModel(for cardModel: CardViewModel) -> TokenListViewModel {
-        if let restored: TokenListViewModel = get() {
+    func makeTokenListViewModel(mode: TokenListViewModel.Mode) -> TokenListViewModel {
+        let restorationKey = "\(TokenListViewModel.self).\(mode.id)"
+        if let restored: TokenListViewModel = get(key: restorationKey) {
             return restored
         }
         
-        let vm = TokenListViewModel(mode: .add(cardModel: cardModel))
-        initialize(vm)
+        let vm = TokenListViewModel(mode: mode)
+        initialize(vm, with: restorationKey, isResetable: true)
         return vm
     }
     
-    func makeTokenListViewModel() -> TokenListViewModel {
-        if let restored: TokenListViewModel = get() {
+    func makeAddCustomTokenModel() -> AddCustomTokenViewModel {
+        if let restored: AddCustomTokenViewModel = get() {
             return restored
         }
         
-        let vm = TokenListViewModel(mode: .show)
+        let vm = AddCustomTokenViewModel()
         initialize(vm)
+        vm.cardModel = services.cardsRepository.lastScanResult.cardModel
+        vm.tokenListService = services.tokenListService
         return vm
     }
     
-    func makeSendViewModel(with amount: Amount, blockchain: Blockchain, card: CardViewModel) -> SendViewModel {
+    func makeSendViewModel(with amount: Amount, blockchainNetwork: BlockchainNetwork, card: CardViewModel) -> SendViewModel {
         if let restored: SendViewModel = get() {
             return restored
         }
         
         let vm: SendViewModel = SendViewModel(amountToSend: amount,
-                                              blockchain: blockchain,
+                                              blockchainNetwork: blockchainNetwork,
                                               cardViewModel: card,
                                               warningsManager: services.warningsService)
         
-        if services.featuresService.isPayIdEnabled, let payIdService = PayIDService.make(from: blockchain) {
+        if services.featuresService.isPayIdEnabled, let payIdService = PayIDService.make(from: blockchainNetwork.blockchain) {
             vm.payIDService = payIdService
         }
         
@@ -343,27 +345,27 @@ extension Assembly {
         return vm
     }
     
-    func makeSellCryptoSendViewModel(with amount: Amount, destination: String, blockchain: Blockchain, card: CardViewModel) -> SendViewModel {
+    func makeSellCryptoSendViewModel(with amount: Amount, destination: String, blockchainNetwork: BlockchainNetwork, card: CardViewModel) -> SendViewModel {
         if let restored: SendViewModel = get() {
             return restored
         }
         
         let vm = SendViewModel(amountToSend: amount,
                                destination: destination,
-                               blockchain: blockchain,
+                               blockchainNetwork: blockchainNetwork,
                                cardViewModel: card,
                                warningsManager: services.warningsService)
         prepareSendViewModel(vm)
         return vm
     }
     
-    func makePushViewModel(for tx: BlockchainSdk.Transaction, blockchain: Blockchain, card: CardViewModel) -> PushTxViewModel {
+    func makePushViewModel(for tx: BlockchainSdk.Transaction, blockchainNetwork: BlockchainNetwork, card: CardViewModel) -> PushTxViewModel {
         if let restored: PushTxViewModel = get() {
             restored.transaction = tx
             return restored
         }
         
-        let vm = PushTxViewModel(transaction: tx, blockchain: blockchain, cardViewModel: card, signer: services.signer, ratesService: services.ratesService)
+        let vm = PushTxViewModel(transaction: tx, blockchainNetwork: blockchainNetwork, cardViewModel: card, signer: services.signer, ratesService: services.ratesService)
         initialize(vm)
         vm.emailDataCollector = PushScreenDataCollector(pushTxViewModel: vm)
         return vm
@@ -396,19 +398,19 @@ extension Assembly {
         return makeWalletModels(walletManagers: walletManagers, cardInfo: cardInfo)
     }
     
-    func makeWalletModels(from cardInfo: CardInfo, blockchains: [Blockchain]) -> [WalletModel] {
+    func makeWalletModels(from cardInfo: CardInfo, entries: [StorageEntry]) -> [WalletModel] {
         let walletManagerFactory = WalletManagerFactory(config: services.keysManager.blockchainConfig)
         let assembly = WalletManagerAssembly(factory: walletManagerFactory,
                                              tokenItemsRepository: services.tokenItemsRepository)
-        let walletManagers = assembly.makeWalletManagers(from: cardInfo, blockchains: blockchains)
+        let walletManagers = assembly.makeWalletManagers(from: cardInfo, entries: entries)
         return makeWalletModels(walletManagers: walletManagers, cardInfo: cardInfo)
     }
     
-    func makeWalletModels(from cardDto: SavedCard, blockchains: [Blockchain]) -> [WalletModel] {
+    func makeWalletModels(from cardDto: SavedCard, blockchainNetworks: [BlockchainNetwork]) -> [WalletModel] {
         let walletManagerFactory = WalletManagerFactory(config: services.keysManager.blockchainConfig)
         let assembly = WalletManagerAssembly(factory: walletManagerFactory,
                                              tokenItemsRepository: services.tokenItemsRepository)
-        let walletManagers = assembly.makeWalletManagers(from: cardDto, blockchains: blockchains)
+        let walletManagers = assembly.makeWalletManagers(from: cardDto, blockchainNetworks: blockchainNetworks)
         return makeWalletModels(walletManagers: walletManagers, cardInfo: nil)
     }
     
@@ -426,7 +428,8 @@ extension Assembly {
                                     signer: services.signer,
                                     defaultToken: cardInfo?.defaultToken,
                                     defaultBlockchain: cardInfo?.defaultBlockchain,
-                                    demoBalance: demoBalance)
+                                    demoBalance: demoBalance,
+                                    cardInfo: cardInfo)
             model.tokenItemsRepository = services.tokenItemsRepository
             model.ratesService = services.ratesService
             return model
