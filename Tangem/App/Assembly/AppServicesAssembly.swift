@@ -83,6 +83,7 @@ class AppServicesAssembly: ServicesAssembly {
     let keysManager = try! KeysManager()
     lazy var ratesService = CurrencyRateService()
     lazy var tokenItemsRepository = TokenItemsRepository(persistanceStorage: persistentStorage)
+    lazy var tokenListService = TokenListService()
     
     lazy var cardsRepository: CardsRepository = {
         let crepo = CardsRepository()
