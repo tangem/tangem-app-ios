@@ -116,31 +116,25 @@ class WalletConnectService: ObservableObject {
         server.register(handler: SignTypedDataHandler(signer: signer, delegate: self, dataSource: self))
     }
     
-    func disconnect(from session: Session) {
-        do {
-            if let session = sessions.first(where: { $0.session == session }) {
-                try server.disconnect(from: session.session)
-            }
-        } catch {
-            handle(WalletConnectServiceError.other(error))
-        }
-    }
-    
     func restore() {
-        updateQueue.sync {
+        updateQueue.async { [weak self] in
+            guard let self = self else { return }
+            
             let decoder = JSONDecoder()
             if let oldSessionsObject = UserDefaults.standard.object(forKey: self.sessionsKey) as? Data {
-                DispatchQueue.main.async {
-                    self.sessions = (try? decoder.decode([WalletConnectSession].self, from: oldSessionsObject)) ?? []
-                    self.sessions.forEach {
-                        do {
-                            try self.server.reconnect(to: $0.session)
-                        } catch {
-                            self.handle(WalletConnectServiceError.other(error))
-                        }
+                let decodedSessions = (try? decoder.decode([WalletConnectSession].self, from: oldSessionsObject)) ?? []
+                
+                decodedSessions.forEach {
+                    do {
+                        try self.server.reconnect(to: $0.session)
+                    } catch {
+                        self.handle(WalletConnectServiceError.other(error))
                     }
                 }
                 
+                DispatchQueue.main.async {
+                    self.sessions = decodedSessions
+                }
             }
         }
     }
@@ -158,11 +152,9 @@ class WalletConnectService: ObservableObject {
     }
     
     private func save() {
-        updateQueue.sync {
-            let encoder = JSONEncoder()
-            if let sessionsData = try? encoder.encode(self.sessions) {
-                UserDefaults.standard.set(sessionsData, forKey: self.sessionsKey)
-            }
+        let encoder = JSONEncoder()
+        if let sessionsData = try? encoder.encode(self.sessions) {
+            UserDefaults.standard.set(sessionsData, forKey: self.sessionsKey)
         }
     }
     
@@ -242,18 +234,23 @@ extension WalletConnectService: WalletConnectChecker {
 
 extension WalletConnectService: WalletConnectSessionController {
     func disconnectSession(at index: Int) {
-        guard index < sessions.count else { return }
-        
-        let session = sessions[index]
-        do {
-            try server.disconnect(from: session.session)
-        } catch {
-            print(error)
+        updateQueue.async { [weak self] in
+            guard let self = self else { return }
+            
+            guard index < self.sessions.count else { return }
+            
+            let session = self.sessions[index]
+            
+            do {
+                try self.server.disconnect(from: session.session)
+            } catch {
+                print(error)
+            }
+            
+            self.sessions.remove(at: index)
+            self.save()
+            Analytics.logWcEvent(.session(.disconnect, session.session.dAppInfo.peerMeta.url))
         }
-        
-        sessions.remove(at: index)
-        save()
-        Analytics.logWcEvent(.session(.disconnect, session.session.dAppInfo.peerMeta.url))
     }
     
     func canHandle(url: String) -> Bool {
@@ -343,22 +340,31 @@ extension WalletConnectService: ServerDelegate {
     }
     
     func server(_ server: Server, didConnect session: Session) {
-        if let sessionIndex = sessions.firstIndex(where: { $0.session == session }) { //reconnect
-            sessions[sessionIndex].status = .connected
-        } else {
-            if let wallet = self.wallet { //new session only if wallet exists
-                sessions.append(WalletConnectSession(wallet: wallet, session: session, status: .connected))
-                save()
-                Analytics.logWcEvent(.session(.connect, session.dAppInfo.peerMeta.url))
+        updateQueue.async { [weak self] in
+            guard let self = self else { return }
+            
+            if let sessionIndex = self.sessions.firstIndex(where: { $0.session == session }) { //reconnect
+                self.sessions[sessionIndex].status = .connected
+            } else {
+                if let wallet = self.wallet { //new session only if wallet exists
+                    self.sessions.append(WalletConnectSession(wallet: wallet, session: session, status: .connected))
+                    self.save()
+                    Analytics.logWcEvent(.session(.connect, session.dAppInfo.peerMeta.url))
+                }
             }
+            
+            self.isServiceBusy.send(false)
         }
-        isServiceBusy.send(false)
     }
     
     func server(_ server: Server, didDisconnect session: Session) {
-        if let index = sessions.firstIndex(where: { $0.session == session }) {
-            sessions.remove(at: index)
-            save()
+        updateQueue.async { [weak self] in
+            guard let self = self else { return }
+            
+            if let index = self.sessions.firstIndex(where: { $0.session == session }) {
+                self.sessions.remove(at: index)
+                self.save()
+            }
         }
     }
     
