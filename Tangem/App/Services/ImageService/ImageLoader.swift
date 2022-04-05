@@ -17,7 +17,14 @@ struct DownloadedImage: Equatable {
 }
 
 class ImageLoader {
-
+    enum ImageLoaderError: String, Error, LocalizedError {
+        case failed = "Failed to parse image from response"
+        
+        var errorDescription: String? {
+            self.rawValue
+        }
+    }
+    
     static let service: ImageLoader = {
         ImageLoader()
     }()
@@ -46,7 +53,7 @@ class ImageLoader {
                     return DownloadedImage(path: url, image: image)
                 }
 
-                throw "Failed to parse image from response"
+                throw ImageLoaderError.failed
             }
             .handleEvents(receiveOutput: { (image) in
                 guard let image = image.image else { return }

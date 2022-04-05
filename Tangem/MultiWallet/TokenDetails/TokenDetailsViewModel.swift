@@ -27,7 +27,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     }
     
     var walletModel: WalletModel? {
-        return card.walletModels?.first(where: { $0.wallet.blockchain == blockchain })
+        return card.walletModels?.first(where: { $0.blockchainNetwork == blockchainNetwork })
     }
     
     var incomingTransactions: [PendingTransaction] {
@@ -49,16 +49,16 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     var buyCryptoUrl: URL? {
         if let wallet = wallet {
             
-            if blockchain.isTestnet {
-                return blockchain.testnetFaucetURL
+            if blockchainNetwork.blockchain.isTestnet {
+                return blockchainNetwork.blockchain.testnetFaucetURL
             }
             
             let address = wallet.address
             switch amountType {
             case .coin:
-                return exchangeService.getBuyUrl(currencySymbol: blockchain.currencySymbol, blockchain: blockchain, walletAddress: address)
+                return exchangeService.getBuyUrl(currencySymbol: blockchainNetwork.blockchain.currencySymbol, blockchain: blockchainNetwork.blockchain, walletAddress: address)
             case .token(let token):
-                return exchangeService.getBuyUrl(currencySymbol: token.symbol, blockchain: blockchain, walletAddress: address)
+                return exchangeService.getBuyUrl(currencySymbol: token.symbol, blockchain: blockchainNetwork.blockchain, walletAddress: address)
             case .reserve:
                 break
             }
@@ -80,9 +80,9 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
             let address = wallet.address
             switch amountType {
             case .coin:
-                return exchangeService.getSellUrl(currencySymbol: blockchain.currencySymbol, blockchain: blockchain, walletAddress: address)
+                return exchangeService.getSellUrl(currencySymbol: blockchainNetwork.blockchain.currencySymbol, blockchain: blockchainNetwork.blockchain, walletAddress: address)
             case .token(let token):
-                return exchangeService.getSellUrl(currencySymbol: token.symbol, blockchain: blockchain, walletAddress: address)
+                return exchangeService.getSellUrl(currencySymbol: token.symbol, blockchain: blockchainNetwork.blockchain, walletAddress: address)
             case .reserve:
                 break
             }
@@ -100,17 +100,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     }
     
     var canDelete: Bool {
-        return card.canRemove(amountType: amountType, blockchain: blockchain)
-//        let canRemoveAmountType = walletModel.canRemove(amountType: amountType)
-//        if case .noAccount = walletModel.state, canRemoveAmountType {
-//            return true
-//        }
-//
-//        if amountType == .coin {
-//            return card.canRemoveBlockchain(walletModel.wallet.blockchain)
-//        } else {
-//            return canRemoveAmountType
-//        }
+        return walletModel?.canRemove(amountType: amountType) ?? false
     }
     
     var sendBlockedReason: String? {
@@ -121,7 +111,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
             return String(format: "token_details_send_blocked_tx_format".localized, wallet.amounts[.coin]?.currencySymbol ?? "")
         }
         
-        if !wallet.hasPendingTx && !canSend && !currentAmount.isEmpty { //no fee
+        if !wallet.hasPendingTx && !canSend && !currentAmount.isZero { //no fee
             return String(format: "token_details_send_blocked_fee_format".localized, wallet.blockchain.displayName, wallet.blockchain.displayName)
         }
         
@@ -151,7 +141,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
             return nil
         }
         
-        return blockchain.tokenDisplayName
+        return blockchainNetwork.blockchain.tokenDisplayName
     }
     
     @Published var isRefreshing = false
@@ -160,19 +150,21 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     @Published var showExplorerURL: URL? = nil
     
     let amountType: Amount.AmountType
-    let blockchain: Blockchain
+    let blockchainNetwork: BlockchainNetwork
     
     var sellCryptoRequest: SellCryptoRequest? = nil
     
     private var bag = Set<AnyCancellable>()
     
-    init(blockchain: Blockchain, amountType: Amount.AmountType) {
-        self.blockchain = blockchain
+    init(blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType) {
+        self.blockchainNetwork = blockchainNetwork
         self.amountType = amountType
     }
     
     func onRemove() {
-        card.remove(amountType: amountType, blockchain: blockchain)
+        if let wm = walletModel {
+            card.remove(amountType: amountType, blockchainNetwork: wm.blockchainNetwork)
+        }
     }
     
     func tradeCryptoAction() {
@@ -188,7 +180,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         guard
             card.isTestnet,
             let token = amountType.token,
-            case .ethereum(testnet: true) = token.blockchain
+            case .ethereum(testnet: true) = blockchainNetwork.blockchain
         else {
             if buyCryptoUrl != nil {
                 navigation.detailsToBuyCrypto = true
@@ -234,7 +226,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     func sendAnalyticsEvent(_ event: Analytics.Event) {
         switch event {
         case .userBoughtCrypto:
-            Analytics.log(event: event, with: [.currencyCode: blockchain.currencySymbol])
+            Analytics.log(event: event, with: [.currencyCode: blockchainNetwork.blockchain.currencySymbol])
         default:
             break
         }
@@ -256,7 +248,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         $isRefreshing
             .removeDuplicates()
             .filter { $0 }
-            .delay(for: 1, scheduler: DispatchQueue.main)
+            .delay(for: 0.5, scheduler: DispatchQueue.main)
             .sink{ [weak self] _ in
                 self?.walletModel?.update()
             }
@@ -271,6 +263,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
             .receive(on: RunLoop.main)
             .sink {[weak self] _ in
                 print("♻️ Token wallet model loading state changed")
+                self?.updateRentWarning()
                 withAnimation {
                     self?.isRefreshing = false
                 }
@@ -283,25 +276,32 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
                 self?.objectWillChange.send()
             }
             .store(in: &bag)
-        
-        if let rentProvider = walletModel?.walletManager as? RentProvider {
-            Publishers.Zip(rentProvider.rentAmount(), rentProvider.minimalBalanceForRentExemption())
-                .receive(on: RunLoop.main)
-                .sink { _ in
-
-                } receiveValue: { [weak self] (rentAmount, minimalBalanceForRentExemption) in
-                    guard
-                        let self = self,
-                        let amount = self.walletModel?.wallet.amounts[.coin],
-                        amount < minimalBalanceForRentExemption
-                    else {
-                        self?.solanaRentWarning = nil
-                        return
-                    }
-                    self.solanaRentWarning = String(format: "solana_rent_warning".localized, rentAmount.description, minimalBalanceForRentExemption.description)
-                }
-                .store(in: &bag)
+    }
+    
+    private func updateRentWarning() {
+        guard let rentProvider = walletModel?.walletManager as? RentProvider,
+           amountType == .coin
+        else {
+            return
         }
+
+        rentProvider.rentAmount()
+            .zip(rentProvider.minimalBalanceForRentExemption())
+            .receive(on: RunLoop.main)
+            .sink { _ in
+                
+            } receiveValue: { [weak self] (rentAmount, minimalBalanceForRentExemption) in
+                guard
+                    let self = self,
+                    let amount = self.walletModel?.wallet.amounts[.coin],
+                    amount < minimalBalanceForRentExemption
+                else {
+                    self?.solanaRentWarning = nil
+                    return
+                }
+                self.solanaRentWarning = String(format: "solana_rent_warning".localized, rentAmount.description, minimalBalanceForRentExemption.description)
+            }
+            .store(in: &bag)
     }
 }
 

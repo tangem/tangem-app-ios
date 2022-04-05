@@ -157,7 +157,7 @@ struct SendView: View {
                                         Image(systemName: self.viewModel.isNetworkFeeBlockOpen ? "chevron.up" : "chevron.down")
                                             .font(Font.system(size: 14.0, weight: .medium, design: .default))
                                             .foregroundColor(Color.tangemGrayDark6)
-                                            .padding()
+                                            .padding([.vertical, .leading])
                                     }
                                 }
                                 .accessibility(label: Text(self.viewModel.isNetworkFeeBlockOpen ? "voice_over_close_network_fee_settings" : "voice_over_open_network_fee_settings"))
@@ -291,17 +291,17 @@ struct ExtractView_Previews: PreviewProvider {
     static var previews: some View {
         Group {
             SendView(viewModel: assembly.makeSellCryptoSendViewModel(with: Amount(with: assembly.previewBlockchain,
-                                                                                  type: .token(value: Token(symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18, blockchain: .ethereum(testnet: false))),
+                                                                                  type: .token(value: Token(name: "DAI", symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18)),
                                                                                   value: 0.0),
                                                                      destination: "Target",
-                                                                     blockchain: assembly.previewBlockchain,
+                                                                     blockchainNetwork: assembly.previewBlockchainNetwork,
                                                                      card: assembly.previewCardViewModel))
                 .environmentObject(assembly.services.navigationCoordinator)
                 .previewLayout(.iphone7Zoomed)
             SendView(viewModel: assembly.makeSendViewModel(with: Amount(with: assembly.previewBlockchain,
-                                                                        type: .token(value: Token(symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18, blockchain: .ethereum(testnet: false))),
+                                                                        type: .token(value: Token(name: "DAI", symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18)),
                                                                         value: 0.0),
-                                                           blockchain: assembly.previewBlockchain,
+                                                           blockchainNetwork: assembly.previewBlockchainNetwork,
                                                            card: assembly.previewCardViewModel))
                 .environmentObject(assembly.services.navigationCoordinator)
                 .previewLayout(.iphone7Zoomed)
