@@ -9,6 +9,8 @@
 import SwiftUI
 
 struct FinishStoryPage: View {
+    @Binding var progress: Double
+    let isScanning: Bool
     let scanCard: (() -> Void)
     let orderCard: (() -> Void)
     
@@ -16,29 +18,42 @@ struct FinishStoryPage: View {
         VStack {
             StoriesTangemLogo()
                 .padding()
-
-            Text("story_finish_title")
-                .font(.system(size: 36, weight: .semibold))
-                .minimumScaleFactor(0.5)
-                .multilineTextAlignment(.center)
-                .foregroundColor(.white)
-                .padding()
             
-            Text("story_finish_description")
-                .font(.system(size: 24))
-                .multilineTextAlignment(.center)
-                .foregroundColor(.gray)
-                .padding(.horizontal)
+            VStack(spacing: 18) {
+                Text("story_finish_title")
+                    .font(.system(size: 36, weight: .semibold))
+                    .minimumScaleFactor(0.5)
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.white)
+                    .padding(.horizontal)
+                    .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .minorDelay)
+                
+                Text("story_finish_description")
+                    .font(.system(size: 24))
+                    .multilineTextAlignment(.center)
+                    .foregroundColor(.gray)
+                    .padding(.horizontal)
+                    .storyTextAppearanceModifier(progress: progress, type: .description, textBlockAppearance: .minorDelay)
+            }
+            .fixedSize(horizontal: false, vertical: true)
             
             Spacer()
             
             Image("amazement")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
+                .storyImageAppearanceModifier(
+                    progress: progress,
+                    start: 0,
+                    fastMovementStartCoefficient: 1,
+                    fastMovementSpeedCoefficient: -45,
+                    fastMovementEnd: 0.15,
+                    slowMovementSpeedCoefficient: 0.15
+                )
             
             Spacer()
             
-            StoriesBottomButtons(scanColorStyle: .black, orderColorStyle: .grayAlt, scanCard: scanCard, orderCard: orderCard)
+            StoriesBottomButtons(scanColorStyle: .black, orderColorStyle: .grayAlt, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
                 .padding(.horizontal)
                 .padding(.bottom)
         }
@@ -49,7 +64,7 @@ struct FinishStoryPage: View {
 
 struct FinishStoryPage_Previews: PreviewProvider {
     static var previews: some View {
-        FinishStoryPage { } orderCard: { }
+        FinishStoryPage(progress: .constant(1), isScanning: false) { } orderCard: { }
         .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
         .environment(\.colorScheme, .dark)
     }
