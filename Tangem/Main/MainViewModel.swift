@@ -34,6 +34,7 @@ class MainViewModel: ViewModel, ObservableObject {
     @Published var image: UIImage? = nil
     @Published var selectedAddressIndex: Int = 0
     @Published var showExplorerURL: URL? = nil
+    @Published var showExternalURL: URL? = nil
     @Published var state: ScanResult = .unsupported {
         willSet {
             print("⚠️ Reset bag")
@@ -402,7 +403,7 @@ class MainViewModel: ViewModel, ObservableObject {
             return
         }
         
-        let hasTokenAmounts = !wallet.amounts.values.filter { $0.type.isToken && !$0.isEmpty }.isEmpty
+        let hasTokenAmounts = !wallet.amounts.values.filter { $0.type.isToken && !$0.isZero }.isEmpty
         
         if hasTokenAmounts {
             navigation.mainToSendChoise = true
@@ -444,6 +445,8 @@ class MainViewModel: ViewModel, ObservableObject {
             validatedSignedHashesCards.append(cardId)
         }
         
+        var hideWarning = true
+        //[REDACTED_TODO_COMMENT]
         switch button {
         case .okGotIt:
             if warning.event == .numberOfSignedHashesIncorrect {
@@ -455,6 +458,11 @@ class MainViewModel: ViewModel, ObservableObject {
         case .dismiss:
             Analytics.log(event: .dismissRateAppWarning)
             rateAppController.dismissRateAppWarning()
+            
+            if warning.event == .fundsRestoration {
+                userPrefsService.isFundsRestorationShown = true
+            }
+            
         case .reportProblem:
             Analytics.log(event: .negativeRateAppFeedback)
             rateAppController.userReactToRateAppWarning(isPositive: false)
@@ -471,9 +479,15 @@ class MainViewModel: ViewModel, ObservableObject {
                                                     }
                                                  }))
                 return
+            } else if warning.event == .fundsRestoration {
+                hideWarning = false
+                showExternalURL = URL(string: "https://google.com")//[REDACTED_TODO_COMMENT]
             }
         }
-        warningsManager.hideWarning(warning)
+        
+        if hideWarning {
+            warningsManager.hideWarning(warning)
+        }
     }
     
     func onWalletTap(_ tokenItem: TokenItemViewModel) {
@@ -490,13 +504,10 @@ class MainViewModel: ViewModel, ObservableObject {
             return
         }
         
-        guard
-            cardInfo.isTestnet,
-            !cardInfo.isMultiWallet,
+        guard cardInfo.isTestnet, !cardInfo.isMultiWallet,
             let walletModel = cardModel?.walletModels?.first,
-            let token = walletModel.tokenItemViewModels.first?.amountType.token,
-            case .ethereum(testnet: true) = token.blockchain
-        else {
+            walletModel.wallet.blockchain == .ethereum(testnet: true),
+            let token = walletModel.tokenItemViewModels.first?.amountType.token else {
             if buyCryptoURL != nil {
                 navigation.mainToBuyCrypto = true
             }
@@ -658,7 +669,7 @@ class MainViewModel: ViewModel, ObservableObject {
 
         if validatedSignedHashesCards.contains(card.cardId) { return }
         
-        if cardModel?.isMultiWallet ?? false {
+        if cardModel?.cardInfo.isMultiWallet ?? false {
             if cardModel?.cardInfo.card.wallets.filter({ $0.totalSignedHashes ?? 0 > 0 }).count ?? 0 > 0 {
                 withAnimation {
                     warningsManager.appendWarning(for: .multiWalletSignedHashes)
