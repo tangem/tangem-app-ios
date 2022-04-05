@@ -31,4 +31,14 @@ extension View {
             self
         }
     }
+    
+    @ViewBuilder func toggleStyleCompat(_ color: Color) -> some View {
+        if #available(iOS 15.0, *) {
+            self.tint(color)
+        } else if #available(iOS 14.0, *) {
+            self.toggleStyle(SwitchToggleStyle(tint: color))
+        } else {
+            self
+        }
+    }
 }

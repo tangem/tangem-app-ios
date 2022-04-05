@@ -21,7 +21,7 @@ struct TextHint {
 class SendViewModel: ViewModel, ObservableObject {
     weak var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
-    weak var ratesService: CoinMarketCapService!
+    weak var ratesService: CurrencyRateService!
     weak var featuresService: AppFeaturesService!
     var payIDService: PayIDService? = nil
     var emailDataCollector: SendScreenDataCollector!
@@ -57,7 +57,7 @@ class SendViewModel: ViewModel, ObservableObject {
     
     // MARK: UI
     var shoudShowFeeSelector: Bool {
-        walletModel.txSender.allowsFeeSelection
+        walletModel.walletManager.allowsFeeSelection
     }
     
     var shoudShowFeeIncludeSelector: Bool {
@@ -77,11 +77,11 @@ class SendViewModel: ViewModel, ObservableObject {
     }
     
     var additionalInputFields: SendAdditionalFields {
-        .fields(for: blockchain)
+        .fields(for: blockchainNetwork.blockchain)
     }
     
     var memoPlaceholder: String {
-        switch blockchain {
+        switch blockchainNetwork.blockchain {
         case .xrp, .stellar:
             return "send_extras_hint_memo_id".localized
         case .binance:
@@ -143,7 +143,7 @@ class SendViewModel: ViewModel, ObservableObject {
     }
     
     var walletModel: WalletModel {
-        return cardViewModel.walletModels!.first(where: { $0.wallet.blockchain == blockchain })!
+        return cardViewModel.walletModels!.first(where: { $0.blockchainNetwork == blockchainNetwork })!
     }
     
     var bag = Set<AnyCancellable>()
@@ -174,26 +174,21 @@ class SendViewModel: ViewModel, ObservableObject {
     
     @Published private var validatedXrpDestinationTag: UInt32? = nil
     
-    private var blockchain: Blockchain
+    private var blockchainNetwork: BlockchainNetwork
     
-    init(amountToSend: Amount, blockchain: Blockchain, cardViewModel: CardViewModel, warningsManager: WarningsManager) {
-        self.blockchain = blockchain
+    init(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel, warningsManager: WarningsManager) {
+        self.blockchainNetwork = blockchainNetwork
         self.cardViewModel = cardViewModel
         self.amountToSend = amountToSend
         self.warningsManager = warningsManager
         isSellingCrypto = false
-        let feeDummyAmount = Amount(with: walletModel.wallet.blockchain,
-                                    type: .coin,
-                                    value: 0)
-        self.sendFee = getDescription(for: selectedFee ?? feeDummyAmount, isFiat: isFiatCalculation)
-        
         fillTotalBlockWithDefaults()
         bind()
         setupWarnings()
     }
     
-    convenience init(amountToSend: Amount, destination: String, blockchain: Blockchain, cardViewModel: CardViewModel, warningsManager: WarningsManager) {
-        self.init(amountToSend: amountToSend, blockchain: blockchain, cardViewModel: cardViewModel, warningsManager: warningsManager)
+    convenience init(amountToSend: Amount, destination: String, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel, warningsManager: WarningsManager) {
+        self.init(amountToSend: amountToSend, blockchainNetwork: blockchainNetwork, cardViewModel: cardViewModel, warningsManager: warningsManager)
         isSellingCrypto = true
         self.destination = destination
         canFiatCalculation = false
@@ -208,8 +203,12 @@ class SendViewModel: ViewModel, ObservableObject {
     }
     
     private func fillTotalBlockWithDefaults() {
-        self.sendAmount = " "
-        self.sendTotal = " "
+        let dummyAmount = Amount(with: amountToSend, value: 0)
+        let feeDummyAmount = Amount(with: walletModel.wallet.blockchain, type: .coin, value: 0)
+        
+        self.sendFee = getDescription(for: feeDummyAmount, isFiat: isFiatCalculation)
+        self.sendAmount = getDescription(for: dummyAmount, isFiat: isFiatCalculation)
+        self.sendTotal = getDescription(for: dummyAmount, isFiat: isFiatCalculation)
         self.sendTotalSubtitle = " "
     }
     
@@ -277,7 +276,9 @@ class SendViewModel: ViewModel, ObservableObject {
                    return
                 }
                 
-                if let converted = value ? self.walletModel.getFiat(for: decimals, currencySymbol: self.amountToSend.currencySymbol)
+                let currencyId = self.walletModel.currencyId(for: self.amountToSend)
+                
+                if let converted = value ? self.walletModel.getFiat(for: decimals, currencyId: currencyId)
                     : self.walletModel.getCrypto(for: Amount(with: self.amountToSend, value: decimals)) {
                     self.amountText = converted.description
                 } else {
@@ -332,7 +333,7 @@ class SendViewModel: ViewModel, ObservableObject {
             .combineLatest($validatedDestination.compactMap { $0 })
             .flatMap { [unowned self] amount, dest -> AnyPublisher<[Amount], Never> in
                 self.isFeeLoading = true
-                return self.walletModel.txSender.getFee(amount: amount, destination: dest)
+                return self.walletModel.walletManager.getFee(amount: amount, destination: dest)
                     .catch { error -> Just<[Amount]> in
                         print(error)
                         Analytics.log(error: error)
@@ -353,26 +354,25 @@ class SendViewModel: ViewModel, ObservableObject {
             .combineLatest($validatedDestination,
                            $selectedFee,
                            $isFeeIncluded)
-            .map {[unowned self] amount, destination, fee, isFeeIncluded -> BlockchainSdk.Transaction? in
+            .tryMap {[unowned self] amount, destination, fee, isFeeIncluded -> BlockchainSdk.Transaction? in
                 guard let amount = amount, let destination = destination, let fee = fee else {
                     return nil
                 }
              
-                let result = self.walletModel.walletManager.createTransaction(amount: isFeeIncluded ? amount - fee : amount,
+                let tx = try self.walletModel.walletManager.createTransaction(amount: isFeeIncluded ? amount - fee : amount,
                                                                               fee: fee,
                                                                               destinationAddress: destination)
-                switch result {
-                case .success(let tx):
-                    DispatchQueue.main.async {
-                        self.validateWithdrawal(tx, amount)
-                    }
-                    self.amountHint = nil
-                    return tx
-                case .failure(let error):
-                    self.amountHint = TextHint(isError: true, message: error.errors.first!.localizedDescription)
-                    return nil
+                DispatchQueue.main.async {
+                    self.validateWithdrawal(tx, amount)
                 }
-            }.sink{[unowned self] tx in
+                self.amountHint = nil
+                return tx
+            }
+            .catch {[unowned self] error -> AnyPublisher<BlockchainSdk.Transaction?, Never> in
+                self.amountHint = TextHint(isError: true, message: error.localizedDescription)
+                return Just(nil).eraseToAnyPublisher()
+            }
+            .sink{[unowned self] tx in
                 self.transaction = tx
             }
             .store(in: &bag)
@@ -426,7 +426,7 @@ class SendViewModel: ViewModel, ObservableObject {
         $memo
             .uiPublisher
             .sink(receiveValue: { [unowned self] memo in
-                switch blockchain {
+                switch blockchainNetwork.blockchain {
                 case .binance:
                     self.validatedMemo = memo
                 case .xrp, .stellar:
@@ -630,14 +630,14 @@ class SendViewModel: ViewModel, ObservableObject {
                 } else {
                     if !cardViewModel.cardInfo.card.isDemoCard {
                         if self.isSellingCrypto {
-                            Analytics.log(event: .userSoldCrypto, with: [.currencyCode: self.blockchain.currencySymbol])
+                            Analytics.log(event: .userSoldCrypto, with: [.currencyCode: self.blockchainNetwork.blockchain.currencySymbol])
                         } else {
-                            Analytics.logTx(blockchainName: self.blockchain.displayName)
+                            Analytics.logTx(blockchainName: self.blockchainNetwork.blockchain.displayName)
                         }
                     }
                     
                     DispatchQueue.main.async {
-                        let alert = AlertBuilder.makeSuccessAlert(message: cardViewModel.cardInfo.card.isDemoCard ? "alert_demo_feature_disabled".localized
+                        let alert = AlertBuilder.makeSuccessAlert(message: self.cardViewModel.cardInfo.card.isDemoCard ? "alert_demo_feature_disabled".localized
                                                                   : "send_transaction_success".localized) { callback() }
                         self.sendError = alert
                     }
