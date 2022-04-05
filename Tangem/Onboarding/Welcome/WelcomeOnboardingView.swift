@@ -20,6 +20,7 @@ struct WelcomeOnboardingView: View {
         ZStack {
             StoriesView(viewModel: storiesModel) {
                 storiesModel.currentStoryPage(
+                    isScanning: viewModel.isScanningCard,
                     scanCard: viewModel.scanCard,
                     orderCard: viewModel.orderCard,
                     searchTokens: viewModel.searchTokens
