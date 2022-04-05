@@ -20,12 +20,12 @@ struct TokenItemViewModel: Identifiable, Equatable, Comparable {
     let balance: String
     let rate: String
     let amountType: Amount.AmountType
-    let blockchain: Blockchain
+    let blockchainNetwork: BlockchainNetwork
     let fiatValue: Decimal
     
     var currencySymbol: String {
         if amountType == .coin {
-            return blockchain.currencySymbol
+            return blockchainNetwork.blockchain.currencySymbol
         } else if let token = amountType.token {
             return token.symbol
         }
@@ -33,10 +33,10 @@ struct TokenItemViewModel: Identifiable, Equatable, Comparable {
     }
     
     var isTestnet: Bool {
-        blockchain.isTestnet
+        blockchainNetwork.blockchain.isTestnet
     }
     
-    static let `default` = TokenItemViewModel(state: .created, hasTransactionInProgress: false, name: "", fiatBalance: "", balance: "", rate: "", amountType: .coin, blockchain: .bitcoin(testnet: false), fiatValue: 0)
+    static let `default` = TokenItemViewModel(state: .created, hasTransactionInProgress: false, name: "", fiatBalance: "", balance: "", rate: "", amountType: .coin, blockchainNetwork: .init(.bitcoin(testnet: false)), fiatValue: 0)
     
     static func < (lhs: TokenItemViewModel, rhs: TokenItemViewModel) -> Bool {
         if lhs.fiatValue == 0 && rhs.fiatValue == 0 {
@@ -52,7 +52,7 @@ struct TokenItemViewModel: Identifiable, Equatable, Comparable {
 }
 
 extension TokenItemViewModel {
-    init(from balanceViewModel: BalanceViewModel, rate: String, fiatValue: Decimal, blockchain: Blockchain,
+    init(from balanceViewModel: BalanceViewModel, rate: String, fiatValue: Decimal, blockchainNetwork: BlockchainNetwork,
          hasTransactionInProgress: Bool) {
         self.hasTransactionInProgress = hasTransactionInProgress
         state = balanceViewModel.state
@@ -63,7 +63,7 @@ extension TokenItemViewModel {
         balance = balanceViewModel.balance
         fiatBalance = balanceViewModel.fiatBalance
         self.rate = rate
-        self.blockchain = blockchain
+        self.blockchainNetwork = blockchainNetwork
         self.amountType = .coin
         self.fiatValue = fiatValue
     }
@@ -72,7 +72,7 @@ extension TokenItemViewModel {
          tokenBalanceViewModel: TokenBalanceViewModel,
          rate: String,
          fiatValue: Decimal,
-         blockchain: Blockchain,
+         blockchainNetwork: BlockchainNetwork,
          hasTransactionInProgress: Bool) {
         self.hasTransactionInProgress = hasTransactionInProgress
         state = balanceViewModel.state
@@ -80,7 +80,7 @@ extension TokenItemViewModel {
         balance = tokenBalanceViewModel.balance
         fiatBalance = tokenBalanceViewModel.fiatBalance
         self.rate = rate
-        self.blockchain = blockchain
+        self.blockchainNetwork = blockchainNetwork
         self.amountType = .token(value: tokenBalanceViewModel.token)
         self.fiatValue = fiatValue
     }
