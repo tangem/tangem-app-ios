@@ -19,10 +19,12 @@ class TokenListViewModel: ViewModel, ObservableObject {
     var enteredSearchText = CurrentValueSubject<String, Never>("") //I can't use @Published here, because of swiftui redraw perfomance drop
     
     @Published var isSaving: Bool = false
+    @Published var isLoading: Bool = true
     @Published var error: AlertBinder?
     @Published var pendingAdd: [TokenItem] = []
     @Published var pendingRemove: [TokenItem] = []
     @Published var filteredData: [CurrencyViewModel] = []
+    @Published var showToast: Bool = false
     
     var titleKey: LocalizedStringKey {
         switch mode {
@@ -40,6 +42,14 @@ class TokenListViewModel: ViewModel, ObservableObject {
         case .show:
             return true
         }
+    }
+    
+    var shouldShowAlert: Bool {
+        guard let cardModel = self.cardModel else {
+            return false
+        }
+        
+        return cardModel.cardInfo.card.derivationStyle == .legacy
     }
     
     var isSaveDisabled: Bool {
@@ -95,6 +105,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
         }
         
         
+        
         cardModel.add(items: itemsToAdd) {[weak self] result in
             self?.isSaving = false
             
@@ -121,6 +132,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
             self.pendingRemove = []
             self.data = []
             self.enteredSearchText.value = ""
+            self.isLoading = true
         }
     }
     
@@ -129,6 +141,8 @@ class TokenListViewModel: ViewModel, ObservableObject {
             filteredData = data
             return
         }
+        
+        isLoading = true
         
         filteredData = []
         searchCancellable =
@@ -140,6 +154,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
             .receive(on: DispatchQueue.main, options: nil)
             .sink(receiveValue: {[unowned self] results in
                 self.filteredData = results
+                self.isLoading = false
             })
     }
     
@@ -166,7 +181,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
         }
         
         let network = tokenItem.getDefaultBlockchainNetwork(for: cardModel.cardInfo.card.derivationStyle)
-        return cardModel.canRemove(amountType: tokenItem.amountType, blockchainNetwork: network)
+        return cardModel.canManage(amountType: tokenItem.amountType, blockchainNetwork: network)
     }
     
     private func showAddButton(_ tokenItem: TokenItem) -> Bool {
@@ -196,6 +211,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     private func getData()  {
+        isLoading = true
         let isTestnet = cardModel?.cardInfo.isTestnet ?? false
         let currencies = (try? SupportedTokenItems().loadCurrencies(isTestnet: isTestnet)) ?? []
         
@@ -228,6 +244,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
                           isReadonly: isReadonlyMode,
                           isDisabled: !canManage(item),
                           isSelected: bindSelection(item),
+                          isCopied: bindCopy(),
                           position: .init(with: index, total: totalItems))
             }
             
@@ -235,6 +252,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
         }
         
         self.filteredData = data
+        self.isLoading = false
     }
     
     private func isSelected(_ tokenItem: TokenItem) -> Bool {
@@ -272,6 +290,16 @@ class TokenListViewModel: ViewModel, ObservableObject {
             self?.isSelected(tokenItem) ?? false
         } set: { [weak self] isSelected in
             self?.onSelect(isSelected, tokenItem)
+        }
+        
+        return binding
+    }
+    
+    private func bindCopy() -> Binding<Bool> {
+        let binding = Binding<Bool> { [weak self] in
+            self?.showToast ?? false
+        } set: { [weak self] isSelected in
+            self?.showToast = isSelected
         }
         
         return binding
