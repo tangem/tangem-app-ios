@@ -27,7 +27,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     }
     
     var walletModel: WalletModel? {
-        return card.walletModels?.first(where: { $0.wallet.blockchain == blockchain })
+        return card.walletModels?.first(where: { $0.blockchainNetwork == blockchainNetwork })
     }
     
     var incomingTransactions: [PendingTransaction] {
@@ -49,16 +49,16 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     var buyCryptoUrl: URL? {
         if let wallet = wallet {
             
-            if blockchain.isTestnet {
-                return blockchain.testnetFaucetURL
+            if blockchainNetwork.blockchain.isTestnet {
+                return blockchainNetwork.blockchain.testnetFaucetURL
             }
             
             let address = wallet.address
             switch amountType {
             case .coin:
-                return exchangeService.getBuyUrl(currencySymbol: blockchain.currencySymbol, blockchain: blockchain, walletAddress: address)
+                return exchangeService.getBuyUrl(currencySymbol: blockchainNetwork.blockchain.currencySymbol, blockchain: blockchainNetwork.blockchain, walletAddress: address)
             case .token(let token):
-                return exchangeService.getBuyUrl(currencySymbol: token.symbol, blockchain: blockchain, walletAddress: address)
+                return exchangeService.getBuyUrl(currencySymbol: token.symbol, blockchain: blockchainNetwork.blockchain, walletAddress: address)
             case .reserve:
                 break
             }
@@ -80,9 +80,9 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
             let address = wallet.address
             switch amountType {
             case .coin:
-                return exchangeService.getSellUrl(currencySymbol: blockchain.currencySymbol, blockchain: blockchain, walletAddress: address)
+                return exchangeService.getSellUrl(currencySymbol: blockchainNetwork.blockchain.currencySymbol, blockchain: blockchainNetwork.blockchain, walletAddress: address)
             case .token(let token):
-                return exchangeService.getSellUrl(currencySymbol: token.symbol, blockchain: blockchain, walletAddress: address)
+                return exchangeService.getSellUrl(currencySymbol: token.symbol, blockchain: blockchainNetwork.blockchain, walletAddress: address)
             case .reserve:
                 break
             }
@@ -141,7 +141,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
             return nil
         }
         
-        return blockchain.tokenDisplayName
+        return blockchainNetwork.blockchain.tokenDisplayName
     }
     
     var contractAddress: String? {
@@ -154,14 +154,14 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     @Published var showExplorerURL: URL? = nil
     
     let amountType: Amount.AmountType
-    let blockchain: Blockchain
+    let blockchainNetwork: BlockchainNetwork
     
     var sellCryptoRequest: SellCryptoRequest? = nil
     
     private var bag = Set<AnyCancellable>()
     
-    init(blockchain: Blockchain, amountType: Amount.AmountType) {
-        self.blockchain = blockchain
+    init(blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType) {
+        self.blockchainNetwork = blockchainNetwork
         self.amountType = amountType
     }
     
@@ -184,7 +184,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         guard
             card.isTestnet,
             let token = amountType.token,
-            case .ethereum(testnet: true) = blockchain
+            case .ethereum(testnet: true) = blockchainNetwork.blockchain
         else {
             if buyCryptoUrl != nil {
                 navigation.detailsToBuyCrypto = true
@@ -230,7 +230,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     func sendAnalyticsEvent(_ event: Analytics.Event) {
         switch event {
         case .userBoughtCrypto:
-            Analytics.log(event: event, with: [.currencyCode: blockchain.currencySymbol])
+            Analytics.log(event: event, with: [.currencyCode: blockchainNetwork.blockchain.currencySymbol])
         default:
             break
         }
