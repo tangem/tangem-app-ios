@@ -10,6 +10,7 @@ import SwiftUI
 
 struct BackupStoryPage: View {
     @Binding var progress: Double
+    let isScanning: Bool
     let scanCard: (() -> Void)
     let orderCard: (() -> Void)
     
@@ -90,7 +91,7 @@ struct BackupStoryPage: View {
             
             Spacer()
             
-            StoriesBottomButtons(scanColorStyle: .grayAlt2, orderColorStyle: .black, scanCard: scanCard, orderCard: orderCard)
+            StoriesBottomButtons(scanColorStyle: .grayAlt2, orderColorStyle: .black, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
                 .padding(.horizontal)
                 .padding(.bottom)
         }
@@ -101,7 +102,7 @@ struct BackupStoryPage: View {
 
 struct BackupStoryPage_Previews: PreviewProvider {
     static var previews: some View {
-        BackupStoryPage(progress: .constant(1)) { } orderCard: { }
+        BackupStoryPage(progress: .constant(1), isScanning: false) { } orderCard: { }
         .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
     }
 }
