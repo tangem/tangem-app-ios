@@ -33,7 +33,7 @@ extension Assembly {
             if let blockchain = preview.blockchain {
                 let factory = WalletManagerFactory(config: .init(blockchairApiKey: "", blockcypherTokens: [], infuraProjectId: ""))
                 let walletManager = try! factory.makeWalletManager(cardId: card.cardId, blockchain: blockchain, walletPublicKey: preview.publicKey)
-                walletModels = [WalletModel(walletManager: walletManager, signer: DummyTransactionSigner(), defaultToken: nil, defaultBlockchain: nil)]
+                walletModels = [WalletModel(walletManager: walletManager, signer: DummyTransactionSigner(), defaultToken: nil, defaultBlockchain: nil, cardInfo: nil)]
             } else {
                 walletModels = []
             }
