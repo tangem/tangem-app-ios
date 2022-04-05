@@ -37,11 +37,12 @@ struct CurrencyModel {
         }
         
         let tokens: [TokenItem]? = entity.contracts?.compactMap {
-            if let blockchain = Blockchain(from: $0.networkId) {
+            if let blockchain = Blockchain(from: $0.networkId),
+               let decimalCount = $0.decimalCount {
                 return .token(Token(name: name,
                                     symbol: symbol,
                                     contractAddress: $0.address.trimmed(),
-                                    decimalCount: $0.decimalCount ?? 0,
+                                    decimalCount: decimalCount,
                                     id: entity.id,
                                     customIconUrl: url?.absoluteString),
                               blockchain)
