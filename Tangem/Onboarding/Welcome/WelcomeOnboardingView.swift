@@ -20,6 +20,7 @@ struct WelcomeOnboardingView: View {
         ZStack {
             StoriesView(viewModel: storiesModel) {
                 storiesModel.currentStoryPage(
+                    isScanning: viewModel.isScanningCard,
                     scanCard: viewModel.scanCard,
                     orderCard: viewModel.orderCard,
                     searchTokens: viewModel.searchTokens
@@ -67,7 +68,7 @@ struct WelcomeOnboardingView: View {
             
             Color.clear.frame(width: 1, height: 1)
                 .sheet(isPresented: $navigation.readToTokenList) {
-                    TokenListView(viewModel: viewModel.assembly.makeTokenListViewModel())
+                    TokenListView(viewModel: viewModel.assembly.makeTokenListViewModel(mode: .show))
                         .environmentObject(navigation)
                 }
         }
