@@ -12,7 +12,7 @@ import Moya
 import BlockchainSdk
 
 class TokenListService {
-    let provider = MoyaProvider<TangemApiTarget2>()
+    let provider = MoyaProvider<TangemApiTarget>()
     
     init() {
         
