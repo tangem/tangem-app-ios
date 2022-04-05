@@ -55,8 +55,11 @@ struct CurrencyItemView: View {
                         .scaleEffect(0.8)
                 }
             }
-            .padding(.vertical, 9)
+            .padding(.vertical, 8)
         }
+        .contentShape(Rectangle())
+        .onTapGesture {  } //fix scroll/longpress conflict
+        .onLongPressGesture(perform: model.onCopy)
         .readSize(onChange: { self.size = $0 })
     }
 }
