@@ -17,6 +17,7 @@ class CurrencyItemViewModel: Identifiable, ObservableObject {
     let isDisabled: Bool
     let isSelected: Binding<Bool>
     let position: ItemPosition
+    let isCopied: Binding<Bool>
     
     @Published var selectedPublisher: Bool
     
@@ -27,14 +28,16 @@ class CurrencyItemViewModel: Identifiable, ObservableObject {
     var contractName: String? { tokenItem.contractName }
     var networkNameForegroundColor: Color { selectedPublisher ? .tangemGrayDark6 : Color(hex: "#848488")! }
     var contractNameForegroundColor: Color { tokenItem.isBlockchain ? .tangemGreen2 : Color(hex: "#AAAAAD")! }
+    var hasContextMenu: Bool { tokenItem.isToken }
     
     private var bag = Set<AnyCancellable>()
     
-    init(tokenItem: TokenItem, isReadonly: Bool, isDisabled: Bool, isSelected: Binding<Bool>, position: ItemPosition = .middle) {
+    init(tokenItem: TokenItem, isReadonly: Bool, isDisabled: Bool, isSelected: Binding<Bool>, isCopied: Binding<Bool> = .constant(false), position: ItemPosition = .middle) {
         self.tokenItem = tokenItem
         self.isReadonly = isReadonly
         self.isDisabled = isDisabled
         self.isSelected = isSelected
+        self.isCopied = isCopied
         self.position = position
         self.selectedPublisher = isSelected.wrappedValue
         
@@ -43,5 +46,14 @@ class CurrencyItemViewModel: Identifiable, ObservableObject {
                 self.isSelected.wrappedValue = value
             })
             .store(in: &bag)
+    }
+    
+    func onCopy() {
+        if let contractAddress = tokenItem.contractAddress {
+            UIPasteboard.general.string = contractAddress
+            let generator = UINotificationFeedbackGenerator()
+            generator.notificationOccurred(.success)
+            isCopied.wrappedValue = true
+        }
     }
 }
