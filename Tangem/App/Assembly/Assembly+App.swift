@@ -323,6 +323,7 @@ extension Assembly {
         let vm = AddCustomTokenViewModel()
         initialize(vm)
         vm.cardModel = services.cardsRepository.lastScanResult.cardModel
+        vm.tokenListService = services.tokenListService
         return vm
     }
     
