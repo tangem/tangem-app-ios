@@ -40,15 +40,10 @@ struct MainView: View {
                             if viewModel.isCardEmpty {
                                 MessageView(title: "main_error_empty_card_title".localized, subtitle: "main_error_empty_card_subtitle".localized, type: .error)
                             } else {
-                                if cardModel.loadingBalancesCounter == 0 && viewModel.tokenItemViewModels.isEmpty {
+                                if cardModel.loadingBalancesCounter == 0 {
                                     MessageView(title: "main_error_empty_wallets_title".localized, subtitle: "main_error_empty_wallets_subtitle".localized, type: .message)
                                         .animation(.easeInOut)
                                 } else {
-                                    ForEach(viewModel.tokenItemViewModels) { item in
-                                        TokensListItemView(item: item)
-                                            .onTapGesture { }
-                                    }
-                                    .padding(.horizontal, 16)
                                     ActivityIndicatorView(isAnimating: cardModel.loadingBalancesCounter != 0, style: .medium, color: .tangemGrayDark6)
                                         .padding(.vertical, 10)
                                         .opacity(cardModel.loadingBalancesCounter > 0 ? 1 : 0)
@@ -84,8 +79,8 @@ struct MainView: View {
     
 }
 
-struct MainView_Previews: PreviewProvider {
-    static var previews: some View {
-        MainView(viewModel: Assembly.previewAssembly.getMainViewModel())
-    }
-}
+//struct MainView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        MainView(viewModel: Assembly.previewAssembly.getMainViewModel())
+//    }
+//}

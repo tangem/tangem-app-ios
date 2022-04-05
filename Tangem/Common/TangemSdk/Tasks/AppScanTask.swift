@@ -56,8 +56,15 @@ struct AppScanTaskResponse {
     }
 }
 
+enum AppScanTaskError: String, Error, LocalizedError {
+    case wrongCardClip
+    
+    var errorDescription: String? {
+        "alert_wrong_card_scanned".localized
+    }
+}
+
 final class AppScanTask: CardSessionRunnable {
-    private let tokenItemsRepository: TokenItemsRepository?
     private let userPrefsService: UserPrefsService?
     
     private let targetBatch: String?
@@ -66,14 +73,21 @@ final class AppScanTask: CardSessionRunnable {
     private var primaryCard: PrimaryCard? = nil
     private var derivedKeys: [Data: [DerivationPath:ExtendedPublicKey]] = [:]
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
-    private var mandatoryBlockchain: Blockchain? //for wc
+#if !CLIP
+    private let tokenItemsRepository: TokenItemsRepository?
     
-    init(tokenItemsRepository: TokenItemsRepository?, userPrefsService: UserPrefsService?, targetBatch: String? = nil, mandatoryBlockchain: Blockchain? = nil) {
+    init(tokenItemsRepository: TokenItemsRepository?, userPrefsService: UserPrefsService?,
+         targetBatch: String? = nil) {
         self.tokenItemsRepository = tokenItemsRepository
         self.targetBatch = targetBatch
         self.userPrefsService = userPrefsService
-        self.mandatoryBlockchain = mandatoryBlockchain
     }
+#else
+    init(userPrefsService: UserPrefsService?, targetBatch: String? = nil) {
+        self.targetBatch = targetBatch
+        self.userPrefsService = userPrefsService
+    }
+#endif
     
     deinit {
         print("AppScanTask deinit")
@@ -90,7 +104,7 @@ final class AppScanTask: CardSessionRunnable {
         
         if let targetBatch = self.targetBatch?.lowercased(),
            targetBatch != currentBatch {
-            completion(.failure(TangemSdkError.underlying(error: "alert_wrong_card_scanned".localized)))
+            completion(.failure(TangemSdkError.underlying(error: AppScanTaskError.wrongCardClip)))
             return
         }
         
@@ -233,26 +247,34 @@ final class AppScanTask: CardSessionRunnable {
     }
     
     private func deriveKeysIfNeeded(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
+#if CLIP
+        self.runAttestation(session, completion)
+        return
+#else
         guard let tokenItemsRepository = self.tokenItemsRepository,
         session.environment.card?.settings.isHDWalletAllowed == true else {
             self.runAttestation(session, completion)
             return
         }
         
-        if let card = session.environment.card, card.isDemoCard { //Force add blockchains for demo cards
-            let demoBlockchains = SupportedTokenItems().predefinedBlockchains(isDemo: true)
-            let tokenItems = demoBlockchains.map { TokenItem.blockchain($0) }
-            tokenItemsRepository.append(tokenItems, for: card.cardId)
+        
+        guard let card = session.environment.card else {
+            completion(.failure(.missingPreflightRead))
+            return
         }
         
-        var savedBlockchains = tokenItemsRepository.getItems(for: session.environment.card!.cardId).map { $0.blockchain }
-        mandatoryBlockchain.map { savedBlockchains.append($0) }
+        if card.isDemoCard { //Force add blockchains for demo cards
+            let demoBlockchains = SupportedTokenItems().predefinedBlockchains(isDemo: true)
+            tokenItemsRepository.append(demoBlockchains, for: card.cardId, style: card.derivationStyle)
+        }
         
-        let uniqueBlockchains = Set(savedBlockchains)
-        let derivations: [Data: [DerivationPath]] = uniqueBlockchains.reduce(into: [:]) { partialResult, blockchain in
-            if let wallet = session.environment.card?.wallets.first(where: { $0.curve == blockchain.curve }),
-               let path = blockchain.derivationPath {
-                partialResult[wallet.publicKey, default: []].append(path)
+        let savedItems = tokenItemsRepository.getItems(for: card.cardId)
+        
+        var derivations: [Data : Set<DerivationPath>] = [:]
+        savedItems.forEach { item in
+            if let wallet = card.wallets.first(where: { $0.curve == item.blockchainNetwork.blockchain.curve }),
+               let path = item.blockchainNetwork.derivationPath {
+                derivations[wallet.publicKey, default: []].insert(path)
             }
         }
         
@@ -261,7 +283,8 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
         
-        DeriveMultipleWalletPublicKeysTask(derivations).run(in: session) { result in
+        DeriveMultipleWalletPublicKeysTask(derivations.mapValues{Array($0)})
+            .run(in: session) { result in
             switch result {
             case .success(let derivedKeys):
                 self.derivedKeys = derivedKeys
@@ -270,6 +293,7 @@ final class AppScanTask: CardSessionRunnable {
                 completion(.failure(error))
             }
         }
+#endif
     }
     
     private func runAttestation(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {

@@ -189,8 +189,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             
             if cardInfo.isMultiWallet {
                 let blockchains = SupportedTokenItems().predefinedBlockchains(isDemo: false)
-                let tokenItems = blockchains.map { TokenItem.blockchain($0) }
-                self?.tokensRepo.append(tokenItems, for: cardInfo.card.cardId)
+                self?.tokensRepo.append(blockchains, for: cardInfo.card.cardId, style: cardInfo.card.derivationStyle)
             }
             
             if cardInfo.isTangemNote {

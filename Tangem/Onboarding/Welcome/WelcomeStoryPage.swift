@@ -31,15 +31,11 @@ enum WelcomeStoryPage: Int, Identifiable, CaseIterable {
     }
     
     var duration: Double {
-        return 8
-    }
-    
-    var fps: Double {
         switch self {
         case .meetTangem:
-            return 60
+            return 8
         default:
-            return 12
+            return 6
         }
     }
 }
