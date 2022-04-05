@@ -16,7 +16,6 @@ struct MoonPayKeys {
 class KeysManager {
     
     struct Keys: Decodable {
-        let coinMarketCapKey: String
         let moonPayApiKey: String
         let moonPayApiSecretKey: String
         let onramperApiKey: String
@@ -30,10 +29,6 @@ class KeysManager {
     private let keysFileName = "config"
     
     private let keys: Keys
-    
-    var coinMarketKey: String {
-        keys.coinMarketCapKey
-    }
     
     var appsFlyerDevKey: String {
         keys.appsFlyerDevKey
