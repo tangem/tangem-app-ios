@@ -1,5 +1,6 @@
 PODS:
   - Alamofire (5.5.0)
+  - AlertToast (1.3.7)
   - AnyCodable-FlightSchool (0.6.2)
   - AppsFlyerFramework (6.5.1):
     - AppsFlyerFramework/Main (= 6.5.1)
@@ -207,6 +208,7 @@ PODS:
 
 DEPENDENCIES:
   - Alamofire
+  - AlertToast
   - AnyCodable-FlightSchool
   - AppsFlyerFramework
   - BigInt
@@ -236,6 +238,7 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - Alamofire
+    - AlertToast
     - AnyCodable-FlightSchool
     - AppsFlyerFramework
     - BigInt
@@ -331,6 +334,7 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   Alamofire: 1c4fb5369c3fe93d2857c780d8bbe09f06f97e7c
+  AlertToast: 8c9d5efb2df6ea728b32b62bce99d876ec3e5393
   AnyCodable-FlightSchool: ac75ed9bae659e16a41ebfa6c71a663d6f2c111c
   AppsFlyerFramework: 78311a699dd031f8a74648326ebc704752764694
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
@@ -375,6 +379,6 @@ SPEC CHECKSUMS:
   web3swift: 93f68f5430c11a78bba2351c139d2d22f2c04b5e
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 84ec737d6c9d491d6538b119634cb2e751d6945b
+PODFILE CHECKSUM: 62f3b48eb0152c3bd69e8f7a50bd969eb9f0467b
 
 COCOAPODS: 1.11.2
