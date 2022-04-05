@@ -87,7 +87,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     @Published var isLoading = false
     
     @Published private(set) var foundStandardToken: TokenItem?
-
+    
     private var bag: Set<AnyCancellable> = []
     private var blockchainByName: [String: Blockchain] = [:]
     private var blockchainsWithTokens: Set<Blockchain>?
@@ -105,14 +105,13 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                         .setFailureType(to: Error.self)
                         .eraseToAnyPublisher()
                 }
-              
+                
                 return self.findToken(contractAddress: contractAddress)
             }
             .sink { _ in
                 
             } receiveValue: { [unowned self] currencyModels in
                 self.didFinishTokenSearch(currencyModels)
-                
             }
             .store(in: &bag)
     }
@@ -135,7 +134,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             self.error = error.alertBinder
             return
         }
-
+        
         let amountType: Amount.AmountType
         if let token = tokenItem.token {
             amountType = .token(value: token)
@@ -145,7 +144,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         
         let derivationStyle = cardModel.cardInfo.card.derivationStyle
         let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath ?? blockchain.derivationPath(for: derivationStyle))
-
+        
         cardModel.add(items: [(amountType, blockchainNetwork)]) { result in
             switch result {
             case .success:
@@ -155,7 +154,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 if case TangemSdkError.userCancelled = error {
                     return
                 }
-
+                
                 self.error = error.alertBinder
             }
         }
@@ -291,7 +290,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     private func checkLocalStorage() throws {
         let derivationStyle = cardModel.cardInfo.card.derivationStyle
         let cardId = cardModel.cardInfo.card.cardId
-
+        
         guard let blockchain = blockchainByName[blockchainName] else {
             return
         }
@@ -301,12 +300,12 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         let derivationPath = (try? DerivationPath(rawPath: derivationPath)) ?? blockchain.derivationPath(for: derivationStyle)
         
         let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath)
-
+        
         if let networkItem = cardTokenItems.first(where: { $0.blockchainNetwork == blockchainNetwork }) {
             if !checkingContractAddress {
                 throw TokenSearchError.alreadyAdded
             }
-
+            
             if networkItem.tokens.contains(where: { $0.contractAddress == contractAddress }) {
                 throw TokenSearchError.alreadyAdded
             }
@@ -328,7 +327,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         let currencyModelBlockchains = currencyModels.reduce(Set<Blockchain>()) { partialResult, currencyModel in
             partialResult.union(currencyModel.items.map { $0.blockchain })
         }
-
+        
         let blockchains: Set<Blockchain>
         if !currencyModelBlockchains.isEmpty {
             blockchains = currencyModelBlockchains
