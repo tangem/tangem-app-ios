@@ -77,11 +77,11 @@ class SendViewModel: ViewModel, ObservableObject {
     }
     
     var additionalInputFields: SendAdditionalFields {
-        .fields(for: blockchain)
+        .fields(for: blockchainNetwork.blockchain)
     }
     
     var memoPlaceholder: String {
-        switch blockchain {
+        switch blockchainNetwork.blockchain {
         case .xrp, .stellar:
             return "send_extras_hint_memo_id".localized
         case .binance:
@@ -143,7 +143,7 @@ class SendViewModel: ViewModel, ObservableObject {
     }
     
     var walletModel: WalletModel {
-        return cardViewModel.walletModels!.first(where: { $0.wallet.blockchain == blockchain })!
+        return cardViewModel.walletModels!.first(where: { $0.blockchainNetwork == blockchainNetwork })!
     }
     
     var bag = Set<AnyCancellable>()
@@ -174,10 +174,10 @@ class SendViewModel: ViewModel, ObservableObject {
     
     @Published private var validatedXrpDestinationTag: UInt32? = nil
     
-    private var blockchain: Blockchain
+    private var blockchainNetwork: BlockchainNetwork
     
-    init(amountToSend: Amount, blockchain: Blockchain, cardViewModel: CardViewModel, warningsManager: WarningsManager) {
-        self.blockchain = blockchain
+    init(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel, warningsManager: WarningsManager) {
+        self.blockchainNetwork = blockchainNetwork
         self.cardViewModel = cardViewModel
         self.amountToSend = amountToSend
         self.warningsManager = warningsManager
@@ -187,8 +187,8 @@ class SendViewModel: ViewModel, ObservableObject {
         setupWarnings()
     }
     
-    convenience init(amountToSend: Amount, destination: String, blockchain: Blockchain, cardViewModel: CardViewModel, warningsManager: WarningsManager) {
-        self.init(amountToSend: amountToSend, blockchain: blockchain, cardViewModel: cardViewModel, warningsManager: warningsManager)
+    convenience init(amountToSend: Amount, destination: String, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel, warningsManager: WarningsManager) {
+        self.init(amountToSend: amountToSend, blockchainNetwork: blockchainNetwork, cardViewModel: cardViewModel, warningsManager: warningsManager)
         isSellingCrypto = true
         self.destination = destination
         canFiatCalculation = false
@@ -426,7 +426,7 @@ class SendViewModel: ViewModel, ObservableObject {
         $memo
             .uiPublisher
             .sink(receiveValue: { [unowned self] memo in
-                switch blockchain {
+                switch blockchainNetwork.blockchain {
                 case .binance:
                     self.validatedMemo = memo
                 case .xrp, .stellar:
@@ -630,9 +630,9 @@ class SendViewModel: ViewModel, ObservableObject {
                 } else {
                     if !cardViewModel.cardInfo.card.isDemoCard {
                         if self.isSellingCrypto {
-                            Analytics.log(event: .userSoldCrypto, with: [.currencyCode: self.blockchain.currencySymbol])
+                            Analytics.log(event: .userSoldCrypto, with: [.currencyCode: self.blockchainNetwork.blockchain.currencySymbol])
                         } else {
-                            Analytics.logTx(blockchainName: self.blockchain.displayName)
+                            Analytics.logTx(blockchainName: self.blockchainNetwork.blockchain.displayName)
                         }
                     }
                     
