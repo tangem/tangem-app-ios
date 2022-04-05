@@ -118,19 +118,6 @@ struct TokenDetailsView: View {
                         .padding(.horizontal, 16)
                 }
                 
-                if let contractAddress = viewModel.contractAddress {
-                    #warning("l10n")
-                    HStack {
-                        Text("Contract address:")
-                        Text(contractAddress)
-                            .truncationMode(.middle)
-                    }
-                    .font(.system(size: 14, weight: .regular, design: .default))
-                    .foregroundColor(.tangemGrayDark)
-                    .padding(.bottom, 8)
-                    .padding(.horizontal, 16)
-                    .lineLimit(1)
-                }
                 
                 GeometryReader { geometry in
                     RefreshableScrollView(refreshing: self.$viewModel.isRefreshing) {
