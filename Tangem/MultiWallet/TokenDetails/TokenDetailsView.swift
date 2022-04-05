@@ -31,7 +31,7 @@ struct TokenDetailsView: View {
     var navigationLinks: some View {
         Group {
             NavigationLink(destination: WebViewContainer(url: viewModel.buyCryptoUrl,
-//                                                         closeUrl: viewModel.topupCloseUrl,
+                                                         //                                                         closeUrl: viewModel.topupCloseUrl,
                                                          title: "wallet_button_topup",
                                                          addLoadingIndicator: true,
                                                          urlActions: [
@@ -83,8 +83,8 @@ struct TokenDetailsView: View {
             TangemButton.vertical(title: "wallet_button_topup",
                                   systemImage: "arrow.up",
                                   action: viewModel.buyCryptoAction)
-                .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
-                                               isDisabled: !viewModel.canBuyCrypto))
+            .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
+                                           isDisabled: !viewModel.canBuyCrypto))
         }
     }
     
@@ -92,12 +92,12 @@ struct TokenDetailsView: View {
         HStack(alignment: .center) {
             
             exchangeCryptoButton
-
+            
             TangemButton(title: "wallet_button_send",
                          systemImage: "arrow.right",
                          action: viewModel.sendButtonAction)
-                .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
-                                               isDisabled: !viewModel.canSend))
+            .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
+                                           isDisabled: !viewModel.canSend))
         }
     }
     
@@ -163,17 +163,17 @@ struct TokenDetailsView: View {
             
             Color.clear.frame(width: 0.5, height: 0.5)
                 .sheet(item: $viewModel.showExplorerURL) {
-                    WebViewContainer(url: $0, title: "common_explorer_format \(viewModel.blockchain.displayName)", withCloseButton: true)
+                    WebViewContainer(url: $0, title: "common_explorer_format \(viewModel.blockchainNetwork.blockchain.displayName)", withCloseButton: true)
                 }
             
             Color.clear.frame(width: 0.5, height: 0.5)
                 .sheet(item: $viewModel.txIndexToPush) { index in
                     if let tx = viewModel.transactionToPush {
                         PushTxView(viewModel: viewModel.assembly.makePushViewModel(for: tx,
-                                                                                   blockchain: viewModel.blockchain,
+                                                                                   blockchainNetwork: viewModel.blockchainNetwork,
                                                                                    card: viewModel.card),
                                    onSuccess: {})
-                            .environmentObject(navigation)
+                        .environmentObject(navigation)
                     }
                 }
             
@@ -181,17 +181,17 @@ struct TokenDetailsView: View {
                 .sheet(isPresented: $navigation.detailsToSend) {
                     if let sellCryptoRequest = viewModel.sellCryptoRequest {
                         SendView(viewModel: viewModel.assembly.makeSellCryptoSendViewModel(
-                                    with: Amount(with: viewModel.blockchain, value: sellCryptoRequest.amount),
-                                    destination: sellCryptoRequest.targetAddress,
-                                    blockchain: viewModel.blockchain,
-                                    card: viewModel.card))
-                            .environmentObject(navigation)
+                            with: Amount(with: viewModel.blockchainNetwork.blockchain, value: sellCryptoRequest.amount),
+                            destination: sellCryptoRequest.targetAddress,
+                            blockchainNetwork: viewModel.blockchainNetwork,
+                            card: viewModel.card))
+                        .environmentObject(navigation)
                     } else if let amountToSend = viewModel.amountToSend {
                         SendView(viewModel: viewModel.assembly.makeSendViewModel(
-                                    with: amountToSend,
-                                    blockchain: viewModel.blockchain,
-                                    card: viewModel.card))
-                            .environmentObject(navigation)
+                            with: amountToSend,
+                            blockchainNetwork: viewModel.blockchainNetwork,
+                            card: viewModel.card))
+                        .environmentObject(navigation)
                     }
                 }
         }
@@ -205,21 +205,21 @@ struct TokenDetailsView: View {
             }
             
         }, label: { Text("wallet_remove_token")
-            .foregroundColor(viewModel.canDelete ? Color.tangemGrayDark6 : Color.tangemGrayLight5)
+                .foregroundColor(viewModel.canDelete ? Color.tangemGrayDark6 : Color.tangemGrayLight5)
         })
-        .disabled(!viewModel.canDelete)
+            .disabled(!viewModel.canDelete)
         )
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
         .ignoresKeyboard()
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
-                    .filter {_ in !navigation.detailsToSend
-                        && !navigation.detailsToBuyCrypto && !navigation.detailsToSellCrypto
-                    }
-                    .delay(for: 0.5, scheduler: DispatchQueue.global())
-                    .receive(on: DispatchQueue.main)) { _ in
-            viewModel.walletModel?.update(silent: true)
-        }
-        .alert(item: $viewModel.alert) { $0.alert }
+            .filter {_ in !navigation.detailsToSend
+                && !navigation.detailsToBuyCrypto && !navigation.detailsToSellCrypto
+            }
+            .delay(for: 0.5, scheduler: DispatchQueue.global())
+            .receive(on: DispatchQueue.main)) { _ in
+                viewModel.walletModel?.update(silent: true)
+            }
+            .alert(item: $viewModel.alert) { $0.alert }
     }
 }
 
@@ -228,7 +228,7 @@ struct TokenDetailsView_Previews: PreviewProvider {
     
     static var previews: some View {
         NavigationView {
-            TokenDetailsView(viewModel: assembly.makeTokenDetailsViewModel(blockchain: assembly.previewBlockchain))
+            TokenDetailsView(viewModel: assembly.makeTokenDetailsViewModel(blockchainNetwork: assembly.previewBlockchainNetwork))
                 .environmentObject(assembly.services.navigationCoordinator)
         }
         .deviceForPreviewZoomed(.iPhone7)
