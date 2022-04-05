@@ -77,6 +77,7 @@ class StoriesViewModel: ViewModel, ObservableObject {
     
     @ViewBuilder
     func currentStoryPage(
+        isScanning: Bool,
         scanCard: @escaping () -> Void,
         orderCard: @escaping () -> Void,
         searchTokens: @escaping () -> Void
@@ -89,22 +90,17 @@ class StoriesViewModel: ViewModel, ObservableObject {
         
         switch currentPage {
         case WelcomeStoryPage.meetTangem:
-            MeetTangemStoryPage(
-                progress: progressBinding,
-                immediatelyShowButtons: didDisplayMainScreenStories,
-                scanCard: scanCard,
-                orderCard: orderCard
-            )
+            MeetTangemStoryPage(progress: progressBinding, immediatelyShowButtons: didDisplayMainScreenStories, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.awe:
-            AweStoryPage(progress: progressBinding, scanCard: scanCard, orderCard: orderCard)
+            AweStoryPage(progress: progressBinding, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.backup:
-            BackupStoryPage(progress: progressBinding, scanCard: scanCard, orderCard: orderCard)
+            BackupStoryPage(progress: progressBinding, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.currencies:
-            CurrenciesStoryPage(progress: progressBinding, scanCard: scanCard, orderCard: orderCard, searchTokens: searchTokens)
+            CurrenciesStoryPage(progress: progressBinding, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard, searchTokens: searchTokens)
         case WelcomeStoryPage.web3:
-            Web3StoryPage(progress: progressBinding, scanCard: scanCard, orderCard: orderCard)
+            Web3StoryPage(progress: progressBinding, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.finish:
-            FinishStoryPage(progress: progressBinding, scanCard: scanCard, orderCard: orderCard)
+            FinishStoryPage(progress: progressBinding, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
         }
     }
 
