@@ -396,8 +396,6 @@
 		B0FAD00326BA67AF00F45E88 /* Assembly+Clip.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FAD00126BA671D00F45E88 /* Assembly+Clip.swift */; };
 		B0FAD00526BA67C000F45E88 /* Assembly+App.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FAD00426BA67C000F45E88 /* Assembly+App.swift */; };
 		B0FAD00726BA697500F45E88 /* AppServicesAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FAD00626BA697500F45E88 /* AppServicesAssembly.swift */; };
-		B0FAD00A26BA78FE00F45E88 /* TangemWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FAD00926BA78FE00F45E88 /* TangemWallet.swift */; };
-		B0FAD00B26BA796600F45E88 /* TangemWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FAD00926BA78FE00F45E88 /* TangemWallet.swift */; };
 		B0FAD00E26BAC51F00F45E88 /* CircledCheckmarkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FAD00D26BAC51F00F45E88 /* CircledCheckmarkView.swift */; };
 		B0FAD01026BAF19E00F45E88 /* OnboardingStepIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FAD00F26BAF19E00F45E88 /* OnboardingStepIconView.swift */; };
 		B0FAD01226BAF35C00F45E88 /* FrameSizeModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FAD01126BAF35C00F45E88 /* FrameSizeModifier.swift */; };
@@ -860,7 +858,6 @@
 		B0FAD00126BA671D00F45E88 /* Assembly+Clip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Assembly+Clip.swift"; sourceTree = "<group>"; };
 		B0FAD00426BA67C000F45E88 /* Assembly+App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Assembly+App.swift"; sourceTree = "<group>"; };
 		B0FAD00626BA697500F45E88 /* AppServicesAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppServicesAssembly.swift; sourceTree = "<group>"; };
-		B0FAD00926BA78FE00F45E88 /* TangemWallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemWallet.swift; sourceTree = "<group>"; };
 		B0FAD00D26BAC51F00F45E88 /* CircledCheckmarkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircledCheckmarkView.swift; sourceTree = "<group>"; };
 		B0FAD00F26BAF19E00F45E88 /* OnboardingStepIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingStepIconView.swift; sourceTree = "<group>"; };
 		B0FAD01126BAF35C00F45E88 /* FrameSizeModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameSizeModifier.swift; sourceTree = "<group>"; };
@@ -1997,7 +1994,6 @@
 			isa = PBXGroup;
 			children = (
 				B094B30F26B2FC2000791AEC /* TangemNote.swift */,
-				B0FAD00926BA78FE00F45E88 /* TangemWallet.swift */,
 				B0C87B472566492000F861DE /* TwinCardInfo.swift */,
 			);
 			path = CardTypes;
@@ -2559,7 +2555,6 @@
 				5D39515925597DA5002CC452 /* WalletModel.swift in Sources */,
 				B0CBE9FE26260D3F00072191 /* ScannedCardsRepository.swift in Sources */,
 				5D78D11D261E084700F98B18 /* CreateMultiWalletTask.swift in Sources */,
-				B0FAD00A26BA78FE00F45E88 /* TangemWallet.swift in Sources */,
 				B07AE16C25DD548A0045179A /* RateAppService.swift in Sources */,
 				B0F79C73268A2E98008C9B30 /* SavedCard.swift in Sources */,
 				5DFCCB7424C3819A0014A293 /* SendView.swift in Sources */,
@@ -2840,7 +2835,6 @@
 				B0D3600625F26C7400929564 /* SceneDelegate.swift in Sources */,
 				5DE7DD2B2695CFF800472205 /* CreateMultiWalletTask.swift in Sources */,
 				5DE7DD122695BEE900472205 /* UrlHandler.swift in Sources */,
-				B0FAD00B26BA796600F45E88 /* TangemWallet.swift in Sources */,
 				5DE7DD202695C09E00472205 /* DefaultSigner.swift in Sources */,
 				5D4B8BBD27EDD2EA002CE87C /* MainViewModel.swift in Sources */,
 				B0FACFFD26BA654F00F45E88 /* ServicesAssembly.swift in Sources */,
