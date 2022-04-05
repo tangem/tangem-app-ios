@@ -103,9 +103,10 @@ struct TokenDetailsView: View {
     
     var body: some View {
         ZStack {
+            navigationLinks
+            
             VStack(alignment: .leading, spacing: 8) {
-                navigationLinks
-                
+
                 Text(viewModel.title)
                     .font(Font.system(size: 36, weight: .bold, design: .default))
                     .padding(.horizontal, 16)
@@ -184,6 +185,7 @@ struct TokenDetailsView: View {
         }
         .edgesIgnoringSafeArea(.bottom)
         .navigationBarHidden(false)
+        .navigationBarTitle("", displayMode: .inline)
         .navigationBarBackButtonHidden(false)
         .navigationBarItems(trailing: Button(action: {
             presentationMode.wrappedValue.dismiss()
