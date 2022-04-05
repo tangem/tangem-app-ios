@@ -58,13 +58,14 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
     
     func buildTx(in session: WalletConnectSession, _ transaction: WalletConnectEthTransaction) -> AnyPublisher<(WalletModel, Transaction), Error> {
         let wallet = session.wallet
+        let blockchain = wallet.blockchain
         
         guard let card = scannedCardsRepo.cards[wallet.cid] else {
             return .anyFail(error: WalletConnectServiceError.cardNotFound)
         }
         
-        let blockchain = wallet.blockchain
-        let walletModels = assembly.makeWalletModels(from: card, blockchains: [blockchain])
+        let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: wallet.derivationPath)
+        let walletModels = assembly.makeWalletModels(from: card, blockchainNetworks: [blockchainNetwork])
         
         guard let walletModel = walletModels.first(where: { $0.wallet.address.lowercased() == transaction.from.lowercased() }) else {
             let error = WalletConnectServiceError.failedToBuildTx(code: .wrongAddress)
