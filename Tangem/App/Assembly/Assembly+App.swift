@@ -203,7 +203,7 @@ extension Assembly {
         return vm
     }
     
-    func makeTokenDetailsViewModel( blockchain: Blockchain, amountType: Amount.AmountType = .coin) -> TokenDetailsViewModel {
+    func makeTokenDetailsViewModel(blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType = .coin) -> TokenDetailsViewModel {
         if let restored: TokenDetailsViewModel = get() {
 //            if let cardModel = services.cardsRepository.lastScanResult.cardModel {
 //                   restored.card = cardModel
@@ -211,7 +211,7 @@ extension Assembly {
             return restored
         }
         
-        let vm =  TokenDetailsViewModel(blockchain: blockchain, amountType: amountType)
+        let vm =  TokenDetailsViewModel(blockchainNetwork: blockchainNetwork, amountType: amountType)
         initialize(vm)
         if let cardModel = services.cardsRepository.lastScanResult.cardModel {
             vm.card = cardModel
@@ -327,17 +327,17 @@ extension Assembly {
         return vm
     }
     
-    func makeSendViewModel(with amount: Amount, blockchain: Blockchain, card: CardViewModel) -> SendViewModel {
+    func makeSendViewModel(with amount: Amount, blockchainNetwork: BlockchainNetwork, card: CardViewModel) -> SendViewModel {
         if let restored: SendViewModel = get() {
             return restored
         }
         
         let vm: SendViewModel = SendViewModel(amountToSend: amount,
-                                              blockchain: blockchain,
+                                              blockchainNetwork: blockchainNetwork,
                                               cardViewModel: card,
                                               warningsManager: services.warningsService)
         
-        if services.featuresService.isPayIdEnabled, let payIdService = PayIDService.make(from: blockchain) {
+        if services.featuresService.isPayIdEnabled, let payIdService = PayIDService.make(from: blockchainNetwork.blockchain) {
             vm.payIDService = payIdService
         }
         
@@ -345,27 +345,27 @@ extension Assembly {
         return vm
     }
     
-    func makeSellCryptoSendViewModel(with amount: Amount, destination: String, blockchain: Blockchain, card: CardViewModel) -> SendViewModel {
+    func makeSellCryptoSendViewModel(with amount: Amount, destination: String, blockchainNetwork: BlockchainNetwork, card: CardViewModel) -> SendViewModel {
         if let restored: SendViewModel = get() {
             return restored
         }
         
         let vm = SendViewModel(amountToSend: amount,
                                destination: destination,
-                               blockchain: blockchain,
+                               blockchainNetwork: blockchainNetwork,
                                cardViewModel: card,
                                warningsManager: services.warningsService)
         prepareSendViewModel(vm)
         return vm
     }
     
-    func makePushViewModel(for tx: BlockchainSdk.Transaction, blockchain: Blockchain, card: CardViewModel) -> PushTxViewModel {
+    func makePushViewModel(for tx: BlockchainSdk.Transaction, blockchainNetwork: BlockchainNetwork, card: CardViewModel) -> PushTxViewModel {
         if let restored: PushTxViewModel = get() {
             restored.transaction = tx
             return restored
         }
         
-        let vm = PushTxViewModel(transaction: tx, blockchain: blockchain, cardViewModel: card, signer: services.signer, ratesService: services.ratesService)
+        let vm = PushTxViewModel(transaction: tx, blockchainNetwork: blockchainNetwork, cardViewModel: card, signer: services.signer, ratesService: services.ratesService)
         initialize(vm)
         vm.emailDataCollector = PushScreenDataCollector(pushTxViewModel: vm)
         return vm
