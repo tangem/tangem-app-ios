@@ -166,7 +166,9 @@ struct BalanceView: View {
 struct BalanceView_Previews: PreviewProvider {
     
     static let tokens = [
-        TokenBalanceViewModel(token: Token(name: "SushiSwap", symbol: "SUSHI", contractAddress: "", decimalCount: 18, blockchain: .ethereum(testnet: false)), balance: "163.7425436", fiatBalance: "$ 2241.31")
+        TokenBalanceViewModel(token: Token(name: "SushiSwap", symbol: "SUSHI", contractAddress: "", decimalCount: 18),
+                              balance: "163.7425436",
+                              fiatBalance: "$ 2241.31")
     ]
     
     static var previews: some View {
