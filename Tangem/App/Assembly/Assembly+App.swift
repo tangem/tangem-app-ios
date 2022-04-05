@@ -427,7 +427,8 @@ extension Assembly {
                                     signer: services.signer,
                                     defaultToken: cardInfo?.defaultToken,
                                     defaultBlockchain: cardInfo?.defaultBlockchain,
-                                    demoBalance: demoBalance)
+                                    demoBalance: demoBalance,
+                                    cardInfo: cardInfo)
             model.tokenItemsRepository = services.tokenItemsRepository
             model.ratesService = services.ratesService
             return model
