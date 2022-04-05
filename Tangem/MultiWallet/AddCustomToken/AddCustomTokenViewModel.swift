@@ -95,60 +95,25 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     
     init() {
         Publishers.CombineLatest3($blockchainName, $contractAddress, $derivationPath)
+            .dropFirst()
             .debounce(for: 0.5, scheduler: RunLoop.main)
             .setFailureType(to: Error.self)
             .flatMap { (blockchainName, contractAddress, derivationPath) -> AnyPublisher<[CurrencyModel], Error> in
                 self.isLoading = true
                 
-                return self.validateToken(blockchainName: blockchainName, contractAddress: contractAddress, derivationPath: derivationPath)
-                    .catch { [unowned self] error -> AnyPublisher<[CurrencyModel], Error> in
-                        self.isLoading = false
-                        self.foundStandardToken = nil
-                        self.updateBlockchains(self.getBlockchains(withTokenSupport: true))
-                        
-                        let tokenSearchError = error as? TokenSearchError
-                        self.addButtonDisabled = tokenSearchError?.preventsFromAdding ?? false
-                        self.warningContainer.removeAll()
-                        if let tokenSearchError = tokenSearchError {
-                            self.warningContainer.add(tokenSearchError.appWarning)
-                        }
-                        
-                        return Empty(completeImmediately: false).setFailureType(to: Error.self).eraseToAnyPublisher()
-                    }
-                    .eraseToAnyPublisher()
+                guard !contractAddress.isEmpty else {
+                    return Just([])
+                        .setFailureType(to: Error.self)
+                        .eraseToAnyPublisher()
+                }
+              
+                return self.findToken(contractAddress: contractAddress)
             }
             .sink { _ in
                 
             } receiveValue: { [unowned self] currencyModels in
-                self.warningContainer.removeAll()
-                self.addButtonDisabled = false
-                self.isLoading = false
+                self.didFinishTokenSearch(currencyModels)
                 
-                let currencyModelBlockchains = currencyModels.reduce(Set<Blockchain>()) { partialResult, currencyModel in
-                    partialResult.union(currencyModel.items.map { $0.blockchain })
-                }
-
-                let blockchains: Set<Blockchain>
-                if !currencyModelBlockchains.isEmpty {
-                    blockchains = currencyModelBlockchains
-                } else {
-                    blockchains = getBlockchains(withTokenSupport: true)
-                }
-                self.updateBlockchains(blockchains)
-                
-                let firstTokenItem = currencyModels.first?.items.first
-                
-                if currencyModels.count == 1 {
-                    self.foundStandardToken = firstTokenItem
-                } else {
-                    self.foundStandardToken = nil
-                }
-                
-                if let token = firstTokenItem?.token {
-                    self.decimals = "\(token.decimalCount)"
-                    self.symbol = token.symbol
-                    self.name = token.name
-                }
             }
             .store(in: &bag)
     }
@@ -317,51 +282,87 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         }
     }
     
-    private func validateToken(blockchainName: String, contractAddress: String, derivationPath: String) -> AnyPublisher<[CurrencyModel], Error> {
+    private func checkLocalStorage() throws {
         let derivationStyle = cardModel.cardInfo.card.derivationStyle
         let cardId = cardModel.cardInfo.card.cardId
-        
-        let blockchain = blockchainByName[blockchainName]
+
+        guard let blockchain = blockchainByName[blockchainName] else {
+            return
+        }
         
         let cardTokenItems = cardModel.tokenItemsRepository.getItems(for: cardId)
         let checkingContractAddress = !contractAddress.isEmpty
-        let derivationPath = (try? DerivationPath(rawPath: derivationPath)) ?? blockchain?.derivationPath(for: derivationStyle)
+        let derivationPath = (try? DerivationPath(rawPath: derivationPath)) ?? blockchain.derivationPath(for: derivationStyle)
         
-        if let blockchain = blockchain {
-            let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath)
-            
-            if let networkItem = cardTokenItems.first(where: { $0.blockchainNetwork == blockchainNetwork }) {
-                if !checkingContractAddress {
-                    return .anyFail(error: TokenSearchError.alreadyAdded)
-                }
-                
-                if networkItem.tokens.contains(where: { $0.contractAddress == contractAddress }) {
-                    return .anyFail(error: TokenSearchError.alreadyAdded)
-                }
+        let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath)
+
+        if let networkItem = cardTokenItems.first(where: { $0.blockchainNetwork == blockchainNetwork }) {
+            if !checkingContractAddress {
+                throw TokenSearchError.alreadyAdded
+            }
+
+            if networkItem.tokens.contains(where: { $0.contractAddress == contractAddress }) {
+                throw TokenSearchError.alreadyAdded
             }
         }
-        
-        guard !contractAddress.isEmpty else {
-            return Just([])
-                .setFailureType(to: Error.self)
-                .eraseToAnyPublisher()
-        }
-      
-        return findToken(contractAddress: contractAddress, blockchain: blockchain, derivationPath: derivationPath)
     }
     
-    private func findToken(contractAddress: String, blockchain: Blockchain?, derivationPath: DerivationPath?) -> AnyPublisher<[CurrencyModel], Error> {
+    private func findToken(contractAddress: String) -> AnyPublisher<[CurrencyModel], Error> {
         return tokenListService
             .checkContractAddress(contractAddress: contractAddress, networkId: nil)
-            .tryMap { currencyModels in
-                guard
-                    !currencyModels.isEmpty
-                else {
-                    throw TokenSearchError.failedToFindToken
-                }
-                
-                return currencyModels
-            }
+            .eraseError()
             .eraseToAnyPublisher()
+    }
+    
+    private func didFinishTokenSearch(_ currencyModels: [CurrencyModel]) {
+        warningContainer.removeAll()
+        addButtonDisabled = false
+        isLoading = false
+        
+        let currencyModelBlockchains = currencyModels.reduce(Set<Blockchain>()) { partialResult, currencyModel in
+            partialResult.union(currencyModel.items.map { $0.blockchain })
+        }
+
+        let blockchains: Set<Blockchain>
+        if !currencyModelBlockchains.isEmpty {
+            blockchains = currencyModelBlockchains
+        } else {
+            blockchains = getBlockchains(withTokenSupport: true)
+        }
+        updateBlockchains(blockchains)
+        
+        let firstTokenItem = currencyModels.first?.items.first
+        
+        if currencyModels.count == 1 {
+            foundStandardToken = firstTokenItem
+        } else {
+            foundStandardToken = nil
+        }
+        
+        if let token = firstTokenItem?.token {
+            decimals = "\(token.decimalCount)"
+            symbol = token.symbol
+            name = token.name
+        } else {
+            decimals = ""
+            symbol = ""
+            name = ""
+        }
+        
+        do {
+            if currencyModels.isEmpty && !contractAddress.isEmpty {
+                throw TokenSearchError.failedToFindToken
+            }
+            
+            try checkLocalStorage()
+        } catch {
+            let tokenSearchError = error as? TokenSearchError
+            addButtonDisabled = tokenSearchError?.preventsFromAdding ?? false
+            warningContainer.removeAll()
+            
+            if let tokenSearchError = tokenSearchError {
+                warningContainer.add(tokenSearchError.appWarning)
+            }
+        }
     }
 }
