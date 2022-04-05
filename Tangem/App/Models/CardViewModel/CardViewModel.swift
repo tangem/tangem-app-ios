@@ -60,10 +60,6 @@ class CardViewModel: Identifiable, ObservableObject {
         return walletModels?.map { $0.wallet }
     }
     
-    var isMultiWallet: Bool {
-        return cardInfo.isMultiWallet
-    }
-    
     var emailSupport: EmailSupport {
         isStart2CoinCard ? .start2coin : .tangem
     }
@@ -523,12 +519,12 @@ class CardViewModel: Identifiable, ObservableObject {
             if let existingWalletModels = self.walletModels {
                 var itemsToAdd: [WalletModel] = []
                 for model in newWalletModels {
-                    if !existingWalletModels.contains(where: { $0.wallet.blockchain == model.wallet.blockchain }) {
+                    if !existingWalletModels.contains(where: { $0.blockchainNetwork == model.blockchainNetwork }) {
                         itemsToAdd.append(model)
                     }
                 }
                 if !itemsToAdd.isEmpty {
-                    state = .loaded(walletModel: (existingWalletModels + itemsToAdd).sorted{ $0.wallet.blockchain.displayName < $1.wallet.blockchain.displayName})
+                    state = .loaded(walletModel: (existingWalletModels + itemsToAdd)/*.sorted{ $0.wallet.blockchain.displayName < $1.wallet.blockchain.displayName}*/)
                 }
             }
         }
@@ -546,9 +542,9 @@ class CardViewModel: Identifiable, ObservableObject {
         }
         
         let supportedItems = SupportedTokenItems()
-        let unusedBlockhains = supportedItems.blockchains(for: cardInfo.card.walletCurves,
-                                                             isTestnet: cardInfo.isTestnet).subtracting(currentBlockhains).map { $0 }
-        let models = assembly.makeWalletModels(from: cardInfo, blockchains: unusedBlockhains)
+        let unused: [StorageEntry] = supportedItems.blockchains(for: cardInfo.card.walletCurves, isTestnet: cardInfo.isTestnet)
+            .subtracting(currentBlockhains).map { StorageEntry(blockchainNetwork: .init($0, derivationPath: nil), tokens: []) }
+        let models = assembly.makeWalletModels(from: cardInfo, entries: unused)
         if models.isEmpty {
             return
         }
@@ -559,7 +555,8 @@ class CardViewModel: Identifiable, ObservableObject {
             .sink(receiveValue: { [unowned self] _ in
                 let notEmptyWallets = models.filter { !$0.wallet.isEmpty }
                 if !notEmptyWallets.isEmpty {
-                    tokenItemsRepository.append(notEmptyWallets.map({TokenItem.blockchain($0.wallet.blockchain)}), for: cardInfo.card.cardId)
+                    let itemsToAdd = notEmptyWallets.map { $0.blockchainNetwork }
+                    tokenItemsRepository.append(itemsToAdd, for: cardInfo.card.cardId)
                     updateLoadedState(with: notEmptyWallets)
                 }
             })
@@ -568,21 +565,21 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     private func searchTokens() {
-        guard cardInfo.isMultiWallet,
+        guard cardInfo.isMultiWallet, !cardInfo.isTangemWallet,
             !userPrefsService.searchedCards.contains(cardInfo.card.cardId) else {
             return
         }
         
-        var sholdAddWalletManager = false
+        var shouldAddWalletManager = false
         let ethBlockchain = Blockchain.ethereum(testnet: isTestnet)
-        var ethWalletModel = walletModels?.first(where: { $0.wallet.blockchain == ethBlockchain })
+        let network = BlockchainNetwork(ethBlockchain, derivationPath: nil)
+        var ethWalletModel = walletModels?.first(where: { $0.blockchainNetwork == network })
         
         if ethWalletModel == nil {
-            sholdAddWalletManager = true
-            ethWalletModel = assembly.makeWalletModels(from: cardInfo, blockchains: [ethBlockchain]).first
+            shouldAddWalletManager = true
+            let entry = StorageEntry(blockchainNetwork: network, tokens: [])
+            ethWalletModel = assembly.makeWalletModels(from: cardInfo, entries: [entry]).first
         }
-        
-        let knownTokens = SupportedTokenItems().tokens(for: ethBlockchain)
         
         guard let tokenFinder = ethWalletModel?.walletManager as? TokenFinder else {
             self.userPrefsService.searchedCards.append(self.cardInfo.card.cardId)
@@ -591,7 +588,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
         
         
-        tokenFinder.findErc20Tokens(knownTokens: knownTokens) {[weak self] result in
+        tokenFinder.findErc20Tokens(knownTokens: []) {[weak self] result in
             guard let self = self else { return }
             
             switch result {
@@ -601,11 +598,10 @@ class CardViewModel: Identifiable, ObservableObject {
                     if let defaultToken = self.cardInfo.defaultToken {
                         tokens = tokens.filter { $0 != defaultToken }
                     }
-                    let tokenItems = tokens.map { TokenItem.token($0) }
-                    self.tokenItemsRepository.append(tokenItems, for: self.cardInfo.card.cardId)
                     
-                    if sholdAddWalletManager {
-                        self.tokenItemsRepository.append(.blockchain(ethWalletModel!.wallet.blockchain), for: self.cardInfo.card.cardId)
+                    self.tokenItemsRepository.append(tokens, blockchainNetwork: network, for: self.cardInfo.card.cardId)
+                    
+                    if shouldAddWalletManager {
                         self.stateUpdateQueue.sync {
                             self.state = .loaded(walletModel: self.walletModels! + [ethWalletModel!])
                         }
@@ -620,117 +616,118 @@ class CardViewModel: Identifiable, ObservableObject {
             self.searchBlockchains()
         }
     }
-  
-    @discardableResult
-    func addBlockchain(_ blockchain: Blockchain) -> WalletModel? {
-        tokenItemsRepository.append(.blockchain(blockchain), for: cardInfo.card.cardId)
-        let newWalletModels = assembly.makeWalletModels(from: cardInfo, blockchains: [blockchain])
-        newWalletModels.forEach {$0.update()}
-        updateLoadedState(with: newWalletModels)
-        return newWalletModels.first
-    }
     
-    func addTokenItems(_ tokenItems: [TokenItem], completion: @escaping (Result<Void, Error>) -> Void) {
-        guard let walletModels = self.walletModels else {
-            completion(.success(()))
-            return
+    func add(items: [(Amount.AmountType, BlockchainNetwork)], completion: @escaping (Result<Void, Error>) -> Void) {
+        var entries: [StorageEntry] = []
+        
+        items.forEach { item in
+            if let index = entries.firstIndex(where: { $0.blockchainNetwork == item.1 }) {
+                if let token = item.0.token, !entries[index].tokens.contains(token) {
+                    entries[index].tokens.append(token)
+                }
+            } else {
+                let tokens = item.0.token.map { [$0] } ?? []
+                entries.append(StorageEntry(blockchainNetwork: item.1, tokens: tokens))
+            }
         }
         
-        tokenItemsRepository.append(tokenItems, for: cardInfo.card.cardId)
+        tokenItemsRepository.append(entries, for: cardInfo.card.cardId)
         
-        let existingBlockchains = Set(walletModels.map { $0.wallet.blockchain })
-        let newBlockchains = Set(tokenItems.map { $0.blockchain })
-        let tokens = tokenItems.compactMap { $0.token }
-        let groupedTokens = Dictionary(grouping: tokens, by: { $0.blockchain })
-        let blockchainsToAdd = Array(newBlockchains.subtracting(existingBlockchains)).sorted { $0.displayName < $1.displayName }
- 
         if cardInfo.card.settings.isHDWalletAllowed {
             var newDerivationPaths: [Data: [DerivationPath]] = [:]
-
-            for blockchain in blockchainsToAdd {
-                if let path = blockchain.derivationPath,
-                   let publicKey = cardInfo.card.wallets.first(where: { $0.curve == blockchain.curve })?.publicKey {
-                    if cardInfo.derivedKeys[publicKey]?[path] == nil {
-                        newDerivationPaths[publicKey, default: []].append(path)
-                    }
+            
+            entries.forEach { entry in
+                if let path = entry.blockchainNetwork.derivationPath,
+                   let publicKey = cardInfo.card.wallets.first(where: { $0.curve == entry.blockchainNetwork.blockchain.curve })?.publicKey,
+                   cardInfo.derivedKeys[publicKey]?[path] == nil {
+                    newDerivationPaths[publicKey, default: []].append(path)
                 }
             }
-           
+
             if newDerivationPaths.isEmpty {
-                finishAddingTokens(blockchainsToAdd, groupedTokens, completion: completion)
+                finishAddingTokens(entries, completion: completion)
                 return
             }
             
             deriveKeys(derivationPaths: newDerivationPaths) { result in
                 switch result {
                 case .success:
-                    self.finishAddingTokens(blockchainsToAdd, groupedTokens, completion: completion)
+                    self.finishAddingTokens(entries, completion: completion)
                 case .failure(let error):
                     completion(.failure(error))
                 }
             }
         } else {
-            finishAddingTokens(blockchainsToAdd, groupedTokens, completion: completion)
+            finishAddingTokens(entries, completion: completion)
         }
     }
     
-    private func finishAddingTokens(_ newBlockchains: [Blockchain], _ groupedTokens: [Blockchain : [BlockchainSdk.Token]],
-                                    completion: @escaping (Result<Void, Error>) -> Void) {
+    private func finishAddingTokens(_ entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
         guard let walletModels = self.walletModels else {
             completion(.success(()))
             return
         }
         
-        let newWalletModels = assembly.makeWalletModels(from: cardInfo, blockchains: newBlockchains)
+        let newWalletModels = assembly.makeWalletModels(from: cardInfo, entries: entries)
+        newWalletModels.forEach { $0.update() }
         
-        for item in groupedTokens {
-            if let existingWalletModel = walletModels.first(where: { $0.wallet.blockchain == item.key }) {
-                existingWalletModel.addTokens(item.value)
+        entries.forEach { entry in
+            if let existingWalletModel = walletModels.first(where: { $0.blockchainNetwork == entry.blockchainNetwork }) {
+                existingWalletModel.addTokens(entry.tokens)
                 existingWalletModel.update()
             }
-            
-            if let newWalletModel = newWalletModels.first(where: { $0.wallet.blockchain == item.key }) {
-                newWalletModel.addTokens(item.value)
-            }
         }
-    
-        newWalletModels.forEach { $0.update() }
+        
         updateLoadedState(with: newWalletModels)
         completion(.success(()))
     }
     
-    func canRemove(amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
-        if let walletModel = walletModels?.first(where: { $0.wallet.blockchain == blockchain }) {
+    func canManage(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool {
+        if let walletModel = walletModels?.first(where: { $0.blockchainNetwork == blockchainNetwork }) {
             return walletModel.canRemove(amountType: amountType)
         }
         
+        return true
+    }
+    
+    func canRemove(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool {
+        if let walletModel = walletModels?.first(where: { $0.blockchainNetwork == blockchainNetwork }) {
+            return walletModel.canRemove(amountType: amountType)
+        }
+
         return false
     }
     
-    func remove(amountType: Amount.AmountType, blockchain: Blockchain) {
-        guard canRemove(amountType: amountType, blockchain: blockchain) else {
+    func remove(items: [(Amount.AmountType, BlockchainNetwork)]) {
+        items.forEach {
+            remove(amountType: $0.0, blockchainNetwork: $0.1)
+        }
+    }
+    
+    func remove(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) {
+        guard canRemove(amountType: amountType, blockchainNetwork: blockchainNetwork) else {
             return
         }
         
         if amountType == .coin {
-            removeBlockchain(blockchain)
+            removeBlockchain(blockchainNetwork)
         } else if case let .token(token) = amountType {
-            removeToken(token, blockchain: blockchain)
+            removeToken(token, blockchainNetwork: blockchainNetwork)
         }
     }
     
-    private func removeBlockchain(_ blockchain: Blockchain) {
-        tokenItemsRepository.remove(.blockchain(blockchain), for: cardInfo.card.cardId)
+    private func removeBlockchain(_ blockchainNetwork: BlockchainNetwork) {
+        tokenItemsRepository.remove([blockchainNetwork], for: cardInfo.card.cardId)
         
         stateUpdateQueue.sync {
             if let walletModels = self.walletModels {
-                state = .loaded(walletModel: walletModels.filter { $0.wallet.blockchain != blockchain })
+                state = .loaded(walletModel: walletModels.filter { $0.blockchainNetwork != blockchainNetwork })
             }
         }
     }
     
-    private func removeToken(_ token: BlockchainSdk.Token, blockchain: Blockchain) {
-        if let walletModel = walletModels?.first(where: { $0.wallet.blockchain == blockchain}) {
+    private func removeToken(_ token: BlockchainSdk.Token, blockchainNetwork: BlockchainNetwork) {
+        if let walletModel = walletModels?.first(where: { $0.blockchainNetwork == blockchainNetwork}) {
             let isRemoved = walletModel.removeToken(token, for: cardInfo.card.cardId)
             
             if isRemoved {
