@@ -32,14 +32,6 @@ struct TokenItemViewModel: Identifiable, Equatable, Comparable {
         return ""
     }
     
-    var tokenItem: TokenItem {
-        if case let .token(token) = amountType {
-            return .init(token)
-        }
-        
-        return .init(blockchain)
-    }
-    
     var isTestnet: Bool {
         blockchain.isTestnet
     }

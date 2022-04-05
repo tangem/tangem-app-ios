@@ -24,4 +24,5 @@ struct WarningsList {
         let message = String(format: "warning_low_signatures_format".localized, "\(count)")
         return AppWarning(title: warningTitle, message: message, priority: .critical, type: .permanent)
     }
+    static let fundsRestoration = AppWarning(title: "common_notice", message: "alert_funds_restoration_message".localized, priority: .info, type: .temporary, location: [.main], event: .fundsRestoration)
 }

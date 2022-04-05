@@ -11,7 +11,7 @@ import Combine
 
 class CurrencySelectViewModel: ViewModel, ObservableObject {
     weak var assembly: Assembly!
-    weak var ratesService: CoinMarketCapService!
+    weak var ratesService: CurrencyRateService!
     weak var navigation: NavigationCoordinator!
     
     @Published var loading: Bool = false
@@ -23,7 +23,7 @@ class CurrencySelectViewModel: ViewModel, ObservableObject {
     func onAppear() {
         loading = true
         ratesService
-            .loadFiatMap()
+            .baseCurrencies()
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: {[weak self] completion in
                 if case let .failure(error) = completion {
@@ -32,6 +32,9 @@ class CurrencySelectViewModel: ViewModel, ObservableObject {
                 self?.loading = false
             }, receiveValue: {[weak self] currencies in
                 self?.currencies = currencies
+                    .sorted {
+                        $0.description < $1.description
+                    }
             })
             .store(in: &self.bag)
     }
