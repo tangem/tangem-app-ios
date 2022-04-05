@@ -70,9 +70,13 @@ struct TokensListItemView: View {
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 10.0, height: 10.0)
                     }
-                    Text(secondaryText)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .lineLimit(1)
+                    if item.isCustom {
+                        CustomTokenBadge()
+                    } else {
+                        Text(secondaryText)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .lineLimit(1)
+                    }
                     Spacer()
                     Text(item.fiatBalance)
                         .fixedSize(horizontal: false, vertical: true)
@@ -104,7 +108,19 @@ struct WalletsViewItem_Previews: PreviewProvider {
                                                             rate: "1.5 USD",
                                                             amountType: .coin,
                                                             blockchainNetwork: .init(.ethereum(testnet: false)),
-                                                            fiatValue: 0))
+                                                            fiatValue: 0,
+                                                            isCustom: false))
+                    .padding(.horizontal, 16)
+                
+                TokensListItemView(item: TokenItemViewModel(state: .idle, hasTransactionInProgress: false,
+                                                            name: "Ethereum ",
+                                                            fiatBalance: "$3.45",
+                                                            balance: "0.00000348501 BTC",
+                                                            rate: "1.5 USD",
+                                                            amountType: .coin,
+                                                            blockchainNetwork: .init(.ethereum(testnet: false)),
+                                                            fiatValue: 0,
+                                                            isCustom: true))
                     .padding(.horizontal, 16)
                 
                 TokensListItemView(item: TokenItemViewModel(state: .idle, hasTransactionInProgress: false,
@@ -114,7 +130,8 @@ struct WalletsViewItem_Previews: PreviewProvider {
                                                             rate: "",
                                                             amountType: .coin,
                                                             blockchainNetwork: .init(.ethereum(testnet: false)),
-                                                            fiatValue: 0))
+                                                            fiatValue: 0,
+                                                            isCustom: false))
                     .padding(.horizontal, 16)
                 
                 TokensListItemView(item: TokenItemViewModel(
@@ -125,7 +142,8 @@ struct WalletsViewItem_Previews: PreviewProvider {
                                     rate: "1.5 USD",
                                     amountType: .coin,
                                     blockchainNetwork: .init(.ethereum(testnet: false)),
-                                    fiatValue: 0))
+                                    fiatValue: 0,
+                                    isCustom: false))
                     .padding(.horizontal, 16)
                 
                 TokensListItemView(item: TokenItemViewModel(
@@ -136,7 +154,8 @@ struct WalletsViewItem_Previews: PreviewProvider {
                                     rate: "1.5 USD",
                                     amountType: .coin,
                                     blockchainNetwork: .init(.ethereum(testnet: false)),
-                                    fiatValue: 0))
+                                    fiatValue: 0,
+                                    isCustom: false))
                     .padding(.horizontal, 16)
                 
                 TokensListItemView(item: TokenItemViewModel(
@@ -147,7 +166,8 @@ struct WalletsViewItem_Previews: PreviewProvider {
                                     rate: "1.5 USD",
                                     amountType: .coin,
                                     blockchainNetwork: .init(.ethereum(testnet: false)),
-                                    fiatValue: 0))
+                                    fiatValue: 0,
+                                    isCustom: false))
                     .padding(.horizontal, 16)
             }
         }
