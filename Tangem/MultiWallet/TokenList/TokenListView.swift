@@ -9,6 +9,7 @@
 import SwiftUI
 import BlockchainSdk
 import Combine
+import AlertToast
 
 struct TokenListView: View {
     @ObservedObject var viewModel: TokenListViewModel
@@ -37,7 +38,6 @@ struct TokenListView: View {
                         }
                         .frame(width: 26, height: 26)
                         .padding(16)
-                       
                     }
                 }
             }
@@ -46,12 +46,22 @@ struct TokenListView: View {
                 .background(Color.white)
                 .padding(.horizontal, 8)
             
-            if viewModel.filteredData.isEmpty {
+            if viewModel.isLoading {
                 Spacer()
                 ActivityIndicatorView(color: .gray)
                 Spacer()
             } else {
                 List {
+                    
+                    if viewModel.shouldShowAlert {
+                        Text("alert_manage_tokens_addresses_message")
+                            .font(.system(size: 13, weight: .medium, design: .default))
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(Color(hex: "#848488"))
+                            .cornerRadius(10)
+                            .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
+                    }
+                    
                     ForEach(viewModel.filteredData) {
                         CurrencyView(model: $0)
                             .buttonStyle(PlainButtonStyle()) //fix ios13 list item selection
@@ -81,6 +91,9 @@ struct TokenListView: View {
         .onDisappear { viewModel.onDissapear() }
         .alert(item: $viewModel.error, content: { $0.alert })
         .background(Color.clear)
+        .toast(isPresenting: $viewModel.showToast) {
+            AlertToast(type: .complete(Color.tangemGreen), title: "contract_address_copied_message".localized)
+        }
     }
 }
 
