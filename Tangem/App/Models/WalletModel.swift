@@ -15,9 +15,9 @@ class WalletModel: ObservableObject, Identifiable {
     @Published var balanceViewModel: BalanceViewModel!
     @Published var tokenItemViewModels: [TokenItemViewModel] = []
     @Published var tokenViewModels: [TokenBalanceViewModel] = []
-    @Published var rates: [String: [String: Decimal]] = [:]
+    @Published var rates: [String: Decimal] = [:]
     
-    weak var ratesService: CoinMarketCapService! {
+    weak var ratesService: CurrencyRateService! {
         didSet {
             ratesService
                 .$selectedCurrencyCodePublished
@@ -98,6 +98,10 @@ class WalletModel: ObservableObject, Identifiable {
     
     var isEmptyIncludingPendingIncomingTxs: Bool {
         wallet.isEmpty && incomingPendingTransactions.count == 0
+    }
+    
+    var blockchainNetwork: BlockchainNetwork {
+        .init(wallet.blockchain, derivationPath: wallet.publicKey.derivationPath)
     }
     
     let walletManager: WalletManager
@@ -187,10 +191,19 @@ class WalletModel: ObservableObject, Identifiable {
         }
     }
     
+    func currencyId(for amount: Amount) -> String? {
+        switch amount.type {
+        case .coin, .reserve:
+            return walletManager.wallet.blockchain.id
+        case .token(let token):
+            return token.id
+        }
+    }
+    
     func getRate(for amountType: Amount.AmountType) -> Decimal {
         if let amount = wallet.amounts[amountType],
-           let quotes = rates[amount.currencySymbol],
-           let rate = quotes[ratesService.selectedCurrencyCode] {
+           let currencyId = self.currencyId(for: amount),
+           let rate = rates[currencyId] {
             return rate
         }
         
@@ -201,8 +214,8 @@ class WalletModel: ObservableObject, Identifiable {
         var rateString = ""
 
         if let amount = wallet.amounts[amountType],
-           let quotes = rates[amount.currencySymbol],
-           let rate = quotes[ratesService.selectedCurrencyCode] {
+           let currencyId = self.currencyId(for: amount),
+           let rate = rates[currencyId] {
             rateString = rate.currencyFormatted(code: ratesService.selectedCurrencyCode)
         }
         
@@ -219,7 +232,7 @@ class WalletModel: ObservableObject, Identifiable {
             return String(format: "address_qr_code_message_token_format".localized,
                           token.name,
                           symbol,
-                          token.blockchain.displayName)
+                          wallet.blockchain.displayName)
         } else {
             return String(format: "address_qr_code_message_format".localized,
                           wallet.blockchain.displayName,
@@ -233,14 +246,15 @@ class WalletModel: ObservableObject, Identifiable {
     
     func getFiat(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> Decimal? {
         if let amount = amount {
-            return getFiat(for: amount.value, currencySymbol: amount.currencySymbol, roundingMode: roundingMode)
+            return getFiat(for: amount.value, currencyId: currencyId(for: amount), roundingMode: roundingMode)
         }
         return nil
     }
     
-    func getFiat(for value: Decimal, currencySymbol: String, roundingMode: NSDecimalNumber.RoundingMode = .down) -> Decimal? {
-        if let quotes = rates[currencySymbol],
-           let rate = quotes[ratesService.selectedCurrencyCode] {
+    func getFiat(for value: Decimal, currencyId: String?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> Decimal? {
+        if let currencyId = currencyId,
+           let rate = rates[currencyId]
+        {
             let fiatValue = value * rate
             if fiatValue == 0 {
                 return 0
@@ -251,10 +265,14 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     func getCrypto(for amount: Amount?) -> Decimal? {
-        guard let amount = amount else { return nil }
+        guard
+            let amount = amount,
+            let currencyId = self.currencyId(for: amount)
+        else {
+            return nil
+        }
         
-        if let quotes = rates[amount.currencySymbol],
-           let rate = quotes[ratesService.selectedCurrencyCode] {
+        if let rate = rates[currencyId] {
             return (amount.value / rate).rounded(scale: amount.decimals)
         }
         return nil
@@ -315,10 +333,9 @@ class WalletModel: ObservableObject, Identifiable {
         guard canRemove(amountType: .token(value: token)) else {
             return false
         }
-        
-        tokenItemsRepository.remove(.init(token), for: cardId)
         walletManager.removeToken(token)
-        tokenViewModels.removeAll(where: { $0.token == token })
+        tokenItemsRepository.remove(token, blockchainNetwork: blockchainNetwork, for: cardId)
+        updateTokensViewModels() 
         return true
     }
     
@@ -363,6 +380,15 @@ class WalletModel: ObservableObject, Identifiable {
             .eraseToAnyPublisher()
     }
     
+    func isDefaultDerivation(for style: DerivationStyle) -> Bool {
+        guard let currentDerivation = self.blockchainNetwork.derivationPath else {
+            return true //cards without hd wallets
+        }
+        
+        let defaultDerivation = wallet.blockchain.derivationPath(for: style)
+        return defaultDerivation == currentDerivation
+    }
+    
     private func updateBalanceViewModel(with wallet: Wallet, state: State) {
         balanceViewModel = BalanceViewModel(isToken: false,
                                             hasTransactionInProgress: wallet.hasPendingTx,
@@ -378,17 +404,14 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     private func loadRates() {
-        let currenciesToExchange = walletManager.wallet.amounts
-            .filter({ $0.key != .reserve }).values
-            .flatMap({ [$0.currencySymbol: Decimal(1.0)] })
-            .reduce(into: [String: Decimal](), { $0[$1.0] = $1.1 })
+        let currenciesToExchange = [walletManager.wallet.blockchain.id] + walletManager.cardTokens.compactMap { $0.id }
         
-        loadRates(for: currenciesToExchange)
+        loadRates(for: Array(currenciesToExchange))
     }
     
-    private func loadRates(for currenciesToExchange: [String: Decimal]) {
+    private func loadRates(for currenciesToExchange: [String]) {
         ratesService
-            .loadRates(for: currenciesToExchange)
+            .rates(for: currenciesToExchange)
             .receive(on: RunLoop.main)
             .sink(receiveCompletion: { completion in
                 switch completion {

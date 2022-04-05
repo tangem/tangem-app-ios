@@ -482,3 +482,4 @@ URL: %@";
 "alert_demo_feature_disabled" = "Эта функция недоступна в демонстрационном режиме";
 "token_details_send_blocked_fee_format" = "Недостаточно средств для комиссии на вашем %@ кошельке для отправки транзакции. Сначала пополните свой %@ кошелек.";
 "currency_subtitle_expanded" = "Доступные сети";
+"wallet_connect_network_not_found_format" = "Сеть %@ не найдена. Пожалуйста, добавьте её и попробуйте заново.";
