@@ -12,6 +12,7 @@ import SwiftUI
 struct CustomTokenBadge: View {
     var body: some View {
         Text("common_custom".localized)
+            .font(.system(size: 12))
             .foregroundColor(.tangemGrayDark)
             .padding(.horizontal, 7)
             .padding(.vertical, 4)
