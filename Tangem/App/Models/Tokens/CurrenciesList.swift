@@ -17,11 +17,13 @@ struct CurrencyEntity: Codable {
     public let id: String
     public let name: String
     public let symbol: String
+    public let active: Bool?
     public let contracts: [ContractEntity]?
 }
 
 struct ContractEntity: Codable {
     public let networkId: String
     public let address: String
-    public let decimalCount: Int
+    public let decimalCount: Int?
+    public let active: Bool?
 }
