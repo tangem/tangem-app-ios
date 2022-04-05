@@ -105,7 +105,6 @@ struct BalanceAddressView: View {
                 Spacer()
                 TokenIconView(with: amountType, blockchain: walletModel.wallet.blockchain)
                     .saturation(walletModel.isTestnet ? 0 : 1)
-                    .frame(width: 40, height: 40, alignment: .center)
             }
             
             if showAddressSelector {
