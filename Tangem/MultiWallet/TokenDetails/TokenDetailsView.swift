@@ -110,6 +110,7 @@ struct TokenDetailsView: View {
                 Text(viewModel.title)
                     .font(Font.system(size: 36, weight: .bold, design: .default))
                     .padding(.horizontal, 16)
+                    .animation(nil)
                 
                 if let subtitle = viewModel.tokenSubtitle {
                     Text(subtitle)
@@ -117,8 +118,8 @@ struct TokenDetailsView: View {
                         .foregroundColor(.tangemGrayDark)
                         .padding(.bottom, 8)
                         .padding(.horizontal, 16)
+                        .animation(nil)
                 }
-                
                 
                 GeometryReader { geometry in
                     RefreshableScrollView(refreshing: self.$viewModel.isRefreshing) {
@@ -200,14 +201,14 @@ struct TokenDetailsView: View {
         )
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
         .ignoresKeyboard()
-        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
-            .filter {_ in !navigation.detailsToSend
-                && !navigation.detailsToBuyCrypto && !navigation.detailsToSellCrypto
-            }
-            .delay(for: 0.5, scheduler: DispatchQueue.global())
-            .receive(on: DispatchQueue.main)) { _ in
-                viewModel.walletModel?.update(silent: true)
-            }
+//        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
+//            .filter {_ in !navigation.detailsToSend
+//                && !navigation.detailsToBuyCrypto && !navigation.detailsToSellCrypto
+//            }
+//            .delay(for: 0.5, scheduler: DispatchQueue.global())
+//            .receive(on: DispatchQueue.main)) { _ in
+//                viewModel.walletModel?.update(silent: true)
+//            }
             .alert(item: $viewModel.alert) { $0.alert }
     }
 }
