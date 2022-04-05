@@ -91,7 +91,6 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     private var bag: Set<AnyCancellable> = []
     private var blockchainByName: [String: Blockchain] = [:]
     private var blockchainsWithTokens: Set<Blockchain>?
-    private var cachedTokens: [Blockchain: [Token]] = [:]
     
     init() {
         Publishers.CombineLatest3($blockchainName, $contractAddress, $derivationPath)
