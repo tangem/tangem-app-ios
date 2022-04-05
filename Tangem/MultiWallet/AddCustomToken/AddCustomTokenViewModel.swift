@@ -122,6 +122,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         UIApplication.shared.endEditing()
         
         let tokenItem: TokenItem
+        let blockchain: Blockchain
         let derivationPath: DerivationPath?
         do {
             if let foundStandardToken = self.foundStandardToken {
@@ -129,6 +130,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             } else {
                 tokenItem = try enteredTokenItem()
             }
+            blockchain = try enteredBlockchain()
             derivationPath = try enteredDerivationPath()
         } catch {
             self.error = error.alertBinder
@@ -143,7 +145,6 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         }
         
         let derivationStyle = cardModel.cardInfo.card.derivationStyle
-        let blockchain = tokenItem.blockchain
         let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath ?? blockchain.derivationPath(for: derivationStyle))
 
         cardModel.add(items: [(amountType, blockchainNetwork)]) { result in
@@ -238,9 +239,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     private func enteredTokenItem() throws -> TokenItem {
-        guard let blockchain = blockchainByName[blockchainName] else {
-            throw TokenCreationErrors.blockchainNotSelected
-        }
+        let blockchain = try enteredBlockchain()
         
         if contractAddress.isEmpty && name.isEmpty && symbol.isEmpty && decimals.isEmpty {
             return .blockchain(blockchain)
@@ -266,6 +265,14 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             
             return .token(token, blockchain)
         }
+    }
+    
+    private func enteredBlockchain() throws -> Blockchain {
+        guard let blockchain = blockchainByName[blockchainName] else {
+            throw TokenCreationErrors.blockchainNotSelected
+        }
+        
+        return blockchain
     }
     
     private func enteredDerivationPath() throws -> DerivationPath? {
