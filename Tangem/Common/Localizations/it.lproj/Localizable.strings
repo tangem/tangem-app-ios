@@ -481,4 +481,7 @@ URL: %@";
 "alert_demo_feature_disabled" = "This feature is disabled in Demo mode";
 "token_details_send_blocked_fee_format" = "Not enough funds for fee on your %@ wallet to send a transaction. Top up your %@ wallet first.";
 "currency_subtitle_expanded" = "Available networks";
-"wallet_connect_network_not_found_format" = "%@ network not found. Please, add it first and try again.";
+"wallet_connect_network_not_found_format" = "%@ network not found. Please, add it first and try again.";"alert_funds_restoration_message" = "Funds restoration instuction";
+"common_notice" = "Notice";
+"alert_manage_tokens_addresses_message" = "Note that tokens on different networks have different addresses. Double check that your address matches the network when you transfer funds.";
+"contract_address_copied_message" = "Contract address copied!";
