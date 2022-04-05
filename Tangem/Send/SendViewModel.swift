@@ -21,7 +21,7 @@ struct TextHint {
 class SendViewModel: ViewModel, ObservableObject {
     weak var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
-    weak var ratesService: CoinMarketCapService!
+    weak var ratesService: CurrencyRateService!
     weak var featuresService: AppFeaturesService!
     var payIDService: PayIDService? = nil
     var emailDataCollector: SendScreenDataCollector!
@@ -276,7 +276,9 @@ class SendViewModel: ViewModel, ObservableObject {
                    return
                 }
                 
-                if let converted = value ? self.walletModel.getFiat(for: decimals, currencySymbol: self.amountToSend.currencySymbol)
+                let currencyId = self.walletModel.currencyId(for: self.amountToSend)
+                
+                if let converted = value ? self.walletModel.getFiat(for: decimals, currencyId: currencyId)
                     : self.walletModel.getCrypto(for: Amount(with: self.amountToSend, value: decimals)) {
                     self.amountText = converted.description
                 } else {
@@ -635,7 +637,7 @@ class SendViewModel: ViewModel, ObservableObject {
                     }
                     
                     DispatchQueue.main.async {
-                        let alert = AlertBuilder.makeSuccessAlert(message: cardViewModel.cardInfo.card.isDemoCard ? "alert_demo_feature_disabled".localized
+                        let alert = AlertBuilder.makeSuccessAlert(message: self.cardViewModel.cardInfo.card.isDemoCard ? "alert_demo_feature_disabled".localized
                                                                   : "send_transaction_success".localized) { callback() }
                         self.sendError = alert
                     }
