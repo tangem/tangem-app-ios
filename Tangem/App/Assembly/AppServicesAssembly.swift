@@ -107,6 +107,9 @@ class AppServicesAssembly: ServicesAssembly {
         if cardInfo.card.isTwinCard {
             tangemSdk.config.cardIdDisplayFormat = .last(4)
         }
+        
+        ratesService.card = cardInfo.card
+        tokenListService.card = cardInfo.card
     }
 }
 
