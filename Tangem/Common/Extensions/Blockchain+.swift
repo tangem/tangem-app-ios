@@ -79,7 +79,15 @@ extension Blockchain {
         }
     }
     
-    var iconName: String { rawStringId }
+    var iconName: String {
+        let rawId = rawStringId
+        
+        if rawId == "binance" {
+            return "bsc"
+        }
+        
+        return rawId
+    }
     
     var iconNameFilled: String { "\(iconName).fill" }
 }
