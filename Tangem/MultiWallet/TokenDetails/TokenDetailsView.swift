@@ -201,6 +201,7 @@ struct TokenDetailsView: View {
         )
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
         .ignoresKeyboard()
+        .onAppear(perform: viewModel.onAppear)
 //        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
 //            .filter {_ in !navigation.detailsToSend
 //                && !navigation.detailsToBuyCrypto && !navigation.detailsToSellCrypto
