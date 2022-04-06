@@ -28,6 +28,7 @@ class CardViewModel: Identifiable, ObservableObject {
     weak var tokenItemsRepository: TokenItemsRepository!
     weak var userPrefsService: UserPrefsService!
     weak var imageLoaderService: CardImageLoaderService!
+    weak var tokenListService: TokenListService!
     
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
@@ -307,9 +308,13 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
         
-        //loadPayIDInfo()
-        state.walletModels?.forEach { $0.update() }
-        searchTokens()
+        tryMigrateTokens() { [weak self] upgraded in
+            if !upgraded {
+                self?.state.walletModels?.forEach { $0.update() }
+            }
+            
+            self?.searchTokens()
+        }
     }
     
     func onSign(_ card: Card) {
@@ -502,7 +507,7 @@ class CardViewModel: Identifiable, ObservableObject {
             print("⁉️ Recreating all wallet models for Card view model state")
             self.state = .loaded(walletModel: self.assembly.makeAllWalletModels(from: cardInfo))
             
-            if !userPrefsService.cardsStartedActivation.contains(cardInfo.card.cardId)  || cardInfo.isTangemWallet {
+            if !userPrefsService.cardsStartedActivation.contains(cardInfo.card.cardId) || cardInfo.isTangemWallet {
                 update()
             }
         }
@@ -738,6 +743,40 @@ class CardViewModel: Identifiable, ObservableObject {
                 }
             }
         }
+    }
+    
+    private func tryMigrateTokens(completion: @escaping (Bool) -> Void) {
+        let cardId = cardInfo.card.cardId
+        let items = tokenItemsRepository.getItems(for: cardId)
+        let itemsWithCustomTokens = items.filter { item in
+            return item.tokens.contains(where: { $0.isCustom })
+        }
+        
+        if itemsWithCustomTokens.isEmpty {
+            completion(false)
+            return
+        }
+        
+        let publishers = itemsWithCustomTokens.flatMap { item in
+            item.tokens.map { token in
+                tokenListService.checkContractAddress(contractAddress: token.contractAddress, networkId: item.blockchainNetwork.blockchain.id)
+                    .replaceError(with: [])
+                    .map { [unowned self] models in
+                        if let updatedTokem = models.first?.items.compactMap({$0.token}).first {
+                            self.tokenItemsRepository.append([updatedTokem], blockchainNetwork: item.blockchainNetwork, for: cardId)
+                        }
+                    }
+                    .eraseToAnyPublisher()
+            }
+        }
+        
+        Publishers.MergeMany(publishers)
+            .collect(publishers.count)
+            .sink {[unowned self] _ in
+                self.updateState()
+                completion(true)
+            } receiveValue: { _ in }
+            .store(in: &bag)
     }
     
     func updateCardPinSettings() {
