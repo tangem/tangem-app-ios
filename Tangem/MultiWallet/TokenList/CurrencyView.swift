@@ -16,9 +16,8 @@ struct CurrencyView: View {
     
     var body: some View {
         VStack(spacing: 10) {
-            HStack(alignment: .customTop, spacing: 0) {
+            HStack(spacing: 0) {
                 Icon(model.imageURL, name: model.name)
-                    .alignmentGuide(.customTop, computeValue: { d in d[VerticalAlignment.top] - 1.5 })
                     .padding(.trailing, 14)
                 
                 VStack(alignment: .leading, spacing: 8) {
@@ -33,17 +32,19 @@ struct CurrencyView: View {
                     .fixedSize()
                     .font(.system(size: 17, weight: .medium, design: .default))
                     
-                    if isExpanded {
-                        Text(subtitle)
-                            .font(.system(size: 13))
-                            .foregroundColor(Color(hex: "#A9A9AD")!)
-                    } else {
-                        HStack(spacing: 5) {
-                            ForEach(model.items) {
-                                CurrencyItemView(model: $0).icon
+                    VStack {
+                        if isExpanded {
+                            Text(subtitle)
+                                .font(.system(size: 13))
+                                .foregroundColor(Color(hex: "#A9A9AD")!)
+                        } else {
+                            HStack(spacing: 5) {
+                                ForEach(model.items) {
+                                    CurrencyItemView(model: $0).icon
+                                }
                             }
                         }
-                    }
+                    }.frame(height: 20)
                 }
                 
                 Spacer()
