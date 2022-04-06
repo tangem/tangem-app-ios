@@ -298,6 +298,13 @@ class WalletModel: ObservableObject, Identifiable {
     
     func addTokens(_ tokens: [Token]) {
         latestUpdateTime = nil
+        
+        tokens.forEach {
+            if walletManager.cardTokens.contains($0) {
+                walletManager.removeToken($0)
+            }
+        }
+        
         walletManager.addTokens(tokens)
         updateTokensViewModels()
     }
