@@ -79,6 +79,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     
     @Published var derivationPath = ""
     @Published var derivationPaths: [(String, String)] = []
+    @Published var customDerivationsAllowed: Bool = true
     
     @Published var error: AlertBinder?
     
@@ -224,15 +225,25 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         let derivationStyle = cardModel.cardInfo.card.derivationStyle
         
         let defaultItem = ("custom_token_derivation_path_default".localized, "")
-        self.derivationPaths = [defaultItem] + getBlockchains(withTokenSupport: true)
-            .map {
-                let derivationPath = $0.derivationPath(for: derivationStyle)?.rawPath ?? ""
-                let description = "\($0.displayName) (\(derivationPath))"
-                return (description, derivationPath)
+        
+        let evmBlockchains = getBlockchains(withTokenSupport: false).filter { $0.isEvm }
+        let evmDerivationPaths: [(String, String)] = evmBlockchains
+            .compactMap {
+                guard let derivationPath = $0.derivationPath(for: derivationStyle) else {
+                    return nil
+                }
+                let derivationPathFormatted = derivationPath.rawPath
+                let description = "\($0.displayName) (\(derivationPathFormatted))"
+                return (description, derivationPathFormatted)
             }
             .sorted {
                 $0.0 < $1.0
             }
+        
+        let uniqueDerivations = Set(evmDerivationPaths.map(\.1))
+        
+        self.derivationPaths = [defaultItem] + evmDerivationPaths
+        self.customDerivationsAllowed = uniqueDerivations.count > 1
     }
     
     private func enteredTokenItem() throws -> TokenItem {
