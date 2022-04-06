@@ -369,6 +369,10 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             decimals = "\(token.decimalCount)"
             symbol = token.symbol
             name = token.name
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                UIApplication.shared.endEditing()
+            }
         } else {
             decimals = ""
             symbol = ""
