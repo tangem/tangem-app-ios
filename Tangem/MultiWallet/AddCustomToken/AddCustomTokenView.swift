@@ -110,8 +110,10 @@ struct AddCustomTokenView: View {
                     
                     TextInputWithTitle(title: "custom_token_decimals_input_title".localized, placeholder: "0", text: $viewModel.decimals, keyboardType: .numberPad, isEnabled: viewModel.foundStandardToken == nil)
                     
-                    PickerInputWithTitle(title: "custom_token_derivation_path_input_title".localized, value: $viewModel.derivationPath, values: viewModel.derivationPaths, isEnabled: true)
-                        .cornerRadius(10, corners: [.bottomLeft, .bottomRight])
+                    if viewModel.customDerivationsAllowed {
+                        PickerInputWithTitle(title: "custom_token_derivation_path_input_title".localized, value: $viewModel.derivationPath, values: viewModel.derivationPaths, isEnabled: true)
+                            .cornerRadius(10, corners: [.bottomLeft, .bottomRight])
+                    }
                 }
                 
                 WarningListView(warnings: viewModel.warningContainer, warningButtonAction: { _,_,_ in })
