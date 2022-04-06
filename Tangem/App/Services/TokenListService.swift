@@ -9,10 +9,12 @@
 import Foundation
 import Combine
 import Moya
-import BlockchainSdk
+import TangemSdk
 
 class TokenListService {
     let provider = MoyaProvider<TangemApiTarget>()
+    
+    var card: Card?
     
     init() {
         
@@ -24,7 +26,7 @@ class TokenListService {
     
     func checkContractAddress(contractAddress: String, networkId: String?) -> AnyPublisher<[CurrencyModel], MoyaError> {
         provider
-            .requestPublisher(.checkContractAddress(contractAddress: contractAddress, networkId: networkId))
+            .requestPublisher(TangemApiTarget(type: .checkContractAddress(contractAddress: contractAddress, networkId: networkId), card: card))
             .filterSuccessfulStatusCodes()
             .map(CurrenciesList.self)
             .map { currencyList -> [CurrencyModel] in
