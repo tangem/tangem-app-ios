@@ -194,11 +194,16 @@ fileprivate extension Array where Element == StorageEntry {
     
     mutating func tryAppend(token: Token, in blockchainNetwork: BlockchainNetwork) -> Bool {
         if let existingIndex = firstIndex(where: { $0.blockchainNetwork == blockchainNetwork }) {
-            if self[existingIndex].tokens.contains(token) {
-                return false //already contains
+            if let existingTokenIndex = self[existingIndex].tokens.firstIndex(of: token) {
+                if self[existingIndex].tokens[existingTokenIndex].id == nil,
+                   token.id != nil {
+                    self[existingIndex].tokens[existingTokenIndex] = token //upgrade custom token
+                } else {
+                    return false //already contains
+                }
+            } else {
+                self[existingIndex].tokens.append(token) //append new token
             }
-            
-            self[existingIndex].tokens.append(token)
         } else {
             //create new entry
             let entry = StorageEntry(blockchainNetwork: blockchainNetwork, tokens: [token])
