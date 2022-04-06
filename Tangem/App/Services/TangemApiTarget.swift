@@ -59,7 +59,7 @@ struct TangemApiTarget: TargetType {
 
         return [
             "card_id": card.cardId,
-            "card_public_key": card.cardPublicKey.base64EncodedString(),
+            "card_public_key": card.cardPublicKey.hexString,
         ]
     }
 }
