@@ -166,6 +166,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     func onDisappear() {
+        navigation.mainToCustomToken = false
         blockchainName = ""
         name = ""
         symbol = ""
