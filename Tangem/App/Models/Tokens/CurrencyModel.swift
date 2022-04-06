@@ -43,8 +43,7 @@ struct CurrencyModel {
                                     symbol: symbol,
                                     contractAddress: $0.address.trimmed(),
                                     decimalCount: decimalCount,
-                                    id: entity.id,
-                                    customIconUrl: url?.absoluteString),
+                                    id: entity.id),
                               blockchain)
             }
             
