@@ -119,12 +119,15 @@ struct AddCustomTokenView: View {
                 TangemButton(title: "custom_token_add_token", systemImage: "plus", action: viewModel.createToken)
                     .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth, isDisabled: viewModel.addButtonDisabled, isLoading: viewModel.isLoading))
             }
-            .padding()
+            .padding([.horizontal, .bottom])
         }
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
         .alert(item: $viewModel.error, content: { $0.alert })
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
+        .navigationBarHidden(false)
+        .navigationBarTitle("", displayMode: .inline)
+        .navigationBarBackButtonHidden(false)
     }
 }
 
