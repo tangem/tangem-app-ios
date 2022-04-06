@@ -94,7 +94,11 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     private var blockchainsWithTokens: Set<Blockchain>?
     
     init() {
-        Publishers.CombineLatest3($blockchainName, $contractAddress, $derivationPath)
+        Publishers.CombineLatest3(
+            $blockchainName.removeDuplicates(),
+            $contractAddress.removeDuplicates(),
+            $derivationPath.removeDuplicates()
+        )
             .dropFirst()
             .debounce(for: 0.5, scheduler: RunLoop.main)
             .setFailureType(to: Error.self)
