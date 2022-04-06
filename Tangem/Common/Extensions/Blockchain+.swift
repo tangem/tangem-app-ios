@@ -25,8 +25,8 @@ extension Blockchain {
         case .xrp: return "ripple"
         case .dogecoin: return "dogecoin"
         case .bsc: return "binance-smart-chain"
-        case .polygon: return "polygon-pos"
-        case .avalanche: return "avalanche"
+        case .polygon: return "matic-network"
+        case .avalanche: return "avalanche-2"
         case .solana: return "solana"
         case .fantom: return "fantom"
         case .polkadot: return "polkadot"
@@ -69,8 +69,8 @@ extension Blockchain {
         case "tezos": self = .tezos(curve: .secp256k1)
         case "dogecoin": self = .dogecoin
         case "binance-smart-chain": self = .bsc(testnet: isTestnet)
-        case "polygon-pos": self = .polygon(testnet: isTestnet)
-        case "avalanche": self = .avalanche(testnet: isTestnet)
+        case "polygon-pos", "matic-network": self = .polygon(testnet: isTestnet)
+        case "avalanche", "avalanche-2": self = .avalanche(testnet: isTestnet)
         case "solana": self = .solana(testnet: isTestnet)
         case "fantom": self = .fantom(testnet: isTestnet)
         case "polkadot": self = .polkadot(testnet: isTestnet)
@@ -79,7 +79,15 @@ extension Blockchain {
         }
     }
     
-    var iconName: String { rawStringId }
+    var iconName: String {
+        let rawId = rawStringId
+        
+        if rawId == "binance" {
+            return "bsc"
+        }
+        
+        return rawId
+    }
     
     var iconNameFilled: String { "\(iconName).fill" }
 }
