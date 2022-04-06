@@ -16,10 +16,9 @@ struct TokenIconView: View {
     var size: CGSize = .init(width: 40, height: 40)
     
     var body: some View {
-#if !CLIP
         KFImage(tokenItem.imageURL)
             .setProcessor(DownsamplingImageProcessor(size: size))
-            .placeholder { placeholder }
+            .placeholder {placeholder }
             .fade(duration: 0.3)
             .forceTransition()
             .cacheOriginalImage()
@@ -27,20 +26,11 @@ struct TokenIconView: View {
             .resizable()
             .scaledToFit()
             .cornerRadius(5)
-            .frame(size: size)
-#else
-        WebImage(imagePath: url, placeholder: token.imageView.toAnyView())
-#endif
-    }
+            .frame(size: size)    }
     
-    @ViewBuilder
-    private var placeholder: some View {
-        switch tokenItem {
-        case .token:
-            CircleImageTextView(name: tokenItem.name, color: .tangemGrayLight4)
-        case .blockchain:
-            NetworkIcon(imageName: tokenItem.blockchain.iconNameFilled, isMainIndicatorVisible: true, size: self.size)
-        }
+    
+    @ViewBuilder private var placeholder: some View {
+        CircleImageTextView(name: tokenItem.name, color: .tangemGrayLight4)
     }
 }
 
@@ -57,11 +47,15 @@ extension TokenIconView {
 
 extension TokenItem {
     fileprivate var imageURL: URL? {
-        switch self {
-        case .blockchain:
-            return nil
-        case .token(let token, _):
-            return token.customIconUrl.flatMap{ URL(string: $0) }
+        if let id = self.id {
+            let imagePath = id == "binance-smart-chain" ? "networks" : "coins"
+            
+            return CurrenciesList.baseURL
+                .appendingPathComponent(imagePath)
+                .appendingPathComponent("large")
+                .appendingPathComponent("\(id).png")
         }
+        
+        return nil
     }
 }
