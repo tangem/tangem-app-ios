@@ -9,6 +9,7 @@
 import Foundation
 import Moya
 import Combine
+import TangemSdk
 
 struct FiatResponse: Codable {
     let currencies: [FiatCurrency]
@@ -41,6 +42,8 @@ class CurrencyRateService {
     
     @Published var selectedCurrencyCodePublished: String = ""
     
+    var card: Card?
+    
     let provider = MoyaProvider<TangemApiTarget>()
     
     internal init() {
@@ -53,7 +56,7 @@ class CurrencyRateService {
     
     func baseCurrencies() -> AnyPublisher<[FiatCurrency], MoyaError> {
         provider
-            .requestPublisher(.baseCurrencies)
+            .requestPublisher(TangemApiTarget(type: .baseCurrencies, card: card))
             .filterSuccessfulStatusCodes()
             .map(FiatResponse.self)
             .map { $0.currencies.sorted(by: { $0.name < $1.name } ) }
@@ -63,7 +66,7 @@ class CurrencyRateService {
     
     func rates(for cryptoCurrencyIds: [String]) -> AnyPublisher<[String: Decimal], Never> {
         return provider
-            .requestPublisher(.rates(cryptoCurrencyIds: cryptoCurrencyIds, fiatCurrencyCode: selectedCurrencyCode))
+            .requestPublisher(TangemApiTarget(type: .rates(cryptoCurrencyIds: cryptoCurrencyIds, fiatCurrencyCode: selectedCurrencyCode), card: card))
             .filterSuccessfulStatusAndRedirectCodes()
             .map(RateInfoResponse.self)
             .map { $0.prices }
