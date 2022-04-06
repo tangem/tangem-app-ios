@@ -17,6 +17,7 @@ fileprivate struct TextInputWithTitle: View {
     var height: CGFloat = 60
     var backgroundColor: Color = .white
     let isEnabled: Bool
+    let isLoading: Bool
     
     @State var isResponder: Bool? = nil
     @State var buttonTapped: Bool = false
@@ -26,7 +27,14 @@ fileprivate struct TextInputWithTitle: View {
             Text(title)
                 .font(.system(size: 13, weight: .regular))
                 .foregroundColor(Color.tangemGrayDark6)
-            CustomTextField(text: text, isResponder: $isResponder, actionButtonTapped: $buttonTapped, handleKeyboard: true, keyboard: keyboardType, textColor: isEnabled ? UIColor.tangemGrayDark4 : .lightGray, font: UIFont.systemFont(ofSize: 17, weight: .regular), placeholder: placeholder, isEnabled: isEnabled)
+            
+            HStack {
+                CustomTextField(text: text, isResponder: $isResponder, actionButtonTapped: $buttonTapped, handleKeyboard: true, keyboard: keyboardType, textColor: isEnabled ? UIColor.tangemGrayDark4 : .lightGray, font: UIFont.systemFont(ofSize: 17, weight: .regular), placeholder: placeholder, isEnabled: isEnabled)
+                
+                if isLoading {
+                    ActivityIndicatorView(isAnimating: true, color: .tangemGrayDark)
+                }
+            }
         }
         .onTapGesture {
             isResponder = true
@@ -99,19 +107,21 @@ struct AddCustomTokenView: View {
                 }
                 
                 VStack(spacing: 1) {
-                    TextInputWithTitle(title: "custom_token_contract_address_input_title".localized, placeholder: "0x0000000000000000000000000000000000000000", text: $viewModel.contractAddress, keyboardType: .default, isEnabled: true)
+                    TextInputWithTitle(title: "custom_token_contract_address_input_title".localized, placeholder: "0x0000000000000000000000000000000000000000", text: $viewModel.contractAddress, keyboardType: .default, isEnabled: true, isLoading: viewModel.isLoading)
                         .cornerRadius(10, corners: [.topLeft, .topRight])
                     
                     PickerInputWithTitle(title: "custom_token_network_input_title".localized, value: $viewModel.blockchainName, values: viewModel.blockchains, isEnabled: viewModel.blockchainEnabled)
                     
-                    TextInputWithTitle(title: "custom_token_name_input_title".localized, placeholder: "custom_token_name_input_placeholder".localized, text: $viewModel.name, keyboardType: .default, isEnabled: viewModel.foundStandardToken == nil)
+                    TextInputWithTitle(title: "custom_token_name_input_title".localized, placeholder: "custom_token_name_input_placeholder".localized, text: $viewModel.name, keyboardType: .default, isEnabled: viewModel.foundStandardToken == nil, isLoading: false)
                     
-                    TextInputWithTitle(title: "custom_token_token_symbol_input_title".localized, placeholder: "custom_token_token_symbol_input_placeholder".localized, text: $viewModel.symbol, keyboardType: .default, isEnabled: viewModel.foundStandardToken == nil)
+                    TextInputWithTitle(title: "custom_token_token_symbol_input_title".localized, placeholder: "custom_token_token_symbol_input_placeholder".localized, text: $viewModel.symbol, keyboardType: .default, isEnabled: viewModel.foundStandardToken == nil, isLoading: false)
                     
-                    TextInputWithTitle(title: "custom_token_decimals_input_title".localized, placeholder: "0", text: $viewModel.decimals, keyboardType: .numberPad, isEnabled: viewModel.foundStandardToken == nil)
+                    TextInputWithTitle(title: "custom_token_decimals_input_title".localized, placeholder: "0", text: $viewModel.decimals, keyboardType: .numberPad, isEnabled: viewModel.foundStandardToken == nil, isLoading: false)
                     
-                    PickerInputWithTitle(title: "custom_token_derivation_path_input_title".localized, value: $viewModel.derivationPath, values: viewModel.derivationPaths, isEnabled: true)
-                        .cornerRadius(10, corners: [.bottomLeft, .bottomRight])
+                    if viewModel.customDerivationsAllowed {
+                        PickerInputWithTitle(title: "custom_token_derivation_path_input_title".localized, value: $viewModel.derivationPath, values: viewModel.derivationPaths, isEnabled: true)
+                            .cornerRadius(10, corners: [.bottomLeft, .bottomRight])
+                    }
                 }
                 
                 WarningListView(warnings: viewModel.warningContainer, warningButtonAction: { _,_,_ in })
@@ -119,12 +129,15 @@ struct AddCustomTokenView: View {
                 TangemButton(title: "custom_token_add_token", systemImage: "plus", action: viewModel.createToken)
                     .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth, isDisabled: viewModel.addButtonDisabled, isLoading: viewModel.isLoading))
             }
-            .padding()
+            .padding([.horizontal, .bottom])
         }
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
         .alert(item: $viewModel.error, content: { $0.alert })
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
+        .navigationBarHidden(false)
+        .navigationBarTitle("", displayMode: .inline)
+        .navigationBarBackButtonHidden(false)
     }
 }
 
