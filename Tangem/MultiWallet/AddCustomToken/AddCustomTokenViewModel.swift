@@ -148,7 +148,6 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         cardModel.add(items: [(amountType, blockchainNetwork)]) { result in
             switch result {
             case .success:
-                self.navigation.mainToCustomToken = false
                 self.navigation.mainToAddTokens = false
             case .failure(let error):
                 if case TangemSdkError.userCancelled = error {
