@@ -7,16 +7,22 @@
 //
 
 import Moya
+import TangemSdk
 
-enum TangemApiTarget: TargetType {
-    case rates(cryptoCurrencyIds: [String], fiatCurrencyCode: String)
-    case baseCurrencies
-    case checkContractAddress(contractAddress: String, networkId: String?)
+struct TangemApiTarget: TargetType {
+    enum TangemApiTargetType {
+        case rates(cryptoCurrencyIds: [String], fiatCurrencyCode: String)
+        case baseCurrencies
+        case checkContractAddress(contractAddress: String, networkId: String?)
+    }
+    
+    let type: TangemApiTargetType
+    let card: Card?
     
     var baseURL: URL {URL(string: "https://api.tangem-tech.com")!}
     
     var path: String {
-        switch self {
+        switch type {
         case .rates:
             return "/coins/prices"
         case .baseCurrencies:
@@ -29,7 +35,7 @@ enum TangemApiTarget: TargetType {
     var method: Moya.Method { .get }
     
     var task: Task {
-        switch self {
+        switch type {
         case .rates(let cryptoCurrencyIds, let fiatCurrencyCode):
             return .requestParameters(parameters: ["ids": cryptoCurrencyIds.joined(separator: ","),
                                                    "currency": fiatCurrencyCode.lowercased()],
@@ -47,7 +53,13 @@ enum TangemApiTarget: TargetType {
     }
     
     var headers: [String : String]? {
-        // [REDACTED_TODO_COMMENT]
-        return nil
+        guard let card = card else {
+            return nil
+        }
+
+        return [
+            "card_id": card.cardId,
+            "card_public_key": card.cardPublicKey.base64EncodedString(),
+        ]
     }
 }
