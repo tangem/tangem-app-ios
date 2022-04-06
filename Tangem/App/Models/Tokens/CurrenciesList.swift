@@ -11,6 +11,8 @@ import Foundation
 struct CurrenciesList: Codable {
     let imageHost: URL?
     let tokens: [CurrencyEntity]
+    
+    static let baseURL: URL = .init(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/")!
 }
 
 struct CurrencyEntity: Codable {
