@@ -231,6 +231,7 @@ extension Assembly {
         vm.tokenItemsRepository = services.tokenItemsRepository
         vm.userPrefsService = services.userPrefsService
         vm.imageLoaderService = services.imageLoaderService
+        vm.tokenListService = services.tokenListService
         vm.updateState()
         return vm
     }
