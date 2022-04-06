@@ -155,10 +155,21 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     var sellCryptoRequest: SellCryptoRequest? = nil
     
     private var bag = Set<AnyCancellable>()
+    private var rentWarningSubscription: AnyCancellable?
     
     init(blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType) {
         self.blockchainNetwork = blockchainNetwork
         self.amountType = amountType
+    }
+    
+    func onAppear() {
+        rentWarningSubscription = walletModel?
+            .$state
+            .filter { !$0.isLoading }
+            .receive(on: RunLoop.main)
+            .sink {[weak self] _ in
+                self?.updateRentWarning()
+            }
     }
     
     func onRemove() {
@@ -263,7 +274,6 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
             .receive(on: RunLoop.main)
             .sink {[weak self] _ in
                 print("♻️ Token wallet model loading state changed")
-                self?.updateRentWarning()
                 withAnimation {
                     self?.isRefreshing = false
                 }
