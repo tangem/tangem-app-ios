@@ -61,6 +61,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
     private var isTestnet: Bool { cardModel?.isTestnet ?? false }
     private var bag = Set<AnyCancellable>()
     private var searchCancellable: AnyCancellable? = nil
+    private var loadCancellable: AnyCancellable? = nil
     
     private var cardModel: CardViewModel? {
         switch mode {
@@ -73,13 +74,6 @@ class TokenListViewModel: ViewModel, ObservableObject {
     
     init(mode: Mode) {
         self.mode = mode
-        
-        enteredSearchText
-            .dropFirst()
-            .sink { [unowned self] string in
-                self.startSearch(with: string)
-            }
-            .store(in: &bag)
     }
     
     func showCustomTokenView() {
@@ -104,8 +98,6 @@ class TokenListViewModel: ViewModel, ObservableObject {
             ($0.amountType, $0.getDefaultBlockchainNetwork(for: cardDerivationStyle))
         }
         
-        
-        
         cardModel.add(items: itemsToAdd) {[weak self] result in
             self?.isSaving = false
             
@@ -121,24 +113,27 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     func onAppear() {
-        DispatchQueue.main.async {
-            self.getData()
-        }
+        bind()
+        self.getData()
     }
     
     func onDissapear() {
+        loadCancellable?.cancel()
+        searchCancellable?.cancel()
+        bag.removeAll()
+        
         DispatchQueue.main.async {
             self.pendingAdd = []
             self.pendingRemove = []
-            self.data = []
             self.enteredSearchText.value = ""
-            self.isLoading = true
+            self.filteredData = []
         }
     }
     
     private func startSearch(with searchText: String) {
         if searchText.isEmpty {
             filteredData = data
+            isLoading = false
             return
         }
         
@@ -212,47 +207,65 @@ class TokenListViewModel: ViewModel, ObservableObject {
     
     private func getData()  {
         isLoading = true
+        
+        if !data.isEmpty {
+            loadCancellable = Just(data)
+                .delay(for: 0.1, scheduler: DispatchQueue.main)
+                .sink(receiveValue: { [unowned self] items in
+                    self.filteredData = self.data
+                    self.isLoading = false
+                })
+            return
+        }
+        
         let isTestnet = cardModel?.cardInfo.isTestnet ?? false
-        let currencies = (try? SupportedTokenItems().loadCurrencies(isTestnet: isTestnet)) ?? []
+        let itemsRepo = SupportedTokenItems()
         
         let supportedCurves = cardModel?.cardInfo.card.walletCurves ?? EllipticCurve.allCases
         let fwVersion = cardModel?.cardInfo.card.firmwareVersion.doubleValue
         let isSupportSolanaTokens = fwVersion.map { $0 >= 4.52 } ?? true //[REDACTED_TODO_COMMENT]
         
-        self.data = currencies.compactMap { currency in
-            let filteredItems = currency.items.filter { item in
-                if !supportedCurves.contains(item.blockchain.curve) {
-                    return false
+        loadCancellable = itemsRepo.loadCurrencies(isTestnet: isTestnet)
+            .map {[unowned self] currencies -> [CurrencyViewModel] in
+                currencies.compactMap { currency -> CurrencyViewModel? in
+                    let filteredItems = currency.items.filter { item in
+                        if !supportedCurves.contains(item.blockchain.curve) {
+                            return false
+                        }
+                        
+                        if !isSupportSolanaTokens, item.isToken,
+                           item.blockchain == .solana(testnet: true) ||
+                            item.blockchain == .solana(testnet: false) {
+                            return false
+                        }
+                        
+                        return true
+                    }
+                    
+                    let totalItems = filteredItems.count
+                    guard totalItems > 0 else {
+                        return nil
+                    }
+                    
+                    let currencyItems: [CurrencyItemViewModel] = filteredItems.enumerated().map { (index, item) in
+                            .init(tokenItem: item,
+                                  isReadonly: self.isReadonlyMode,
+                                  isDisabled: !self.canManage(item),
+                                  isSelected: self.bindSelection(item),
+                                  isCopied: self.bindCopy(),
+                                  position: .init(with: index, total: totalItems))
+                    }
+                    
+                    return CurrencyViewModel(with: currency, items: currencyItems)
                 }
-                
-                if !isSupportSolanaTokens, item.isToken,
-                   item.blockchain == .solana(testnet: true) ||
-                    item.blockchain == .solana(testnet: false) {
-                    return false
-                }
-                
-                return true
             }
-            
-            let totalItems = filteredItems.count
-            guard totalItems > 0 else {
-                return nil
+            .replaceError(with: [])
+            .receive(on: DispatchQueue.main)
+            .sink {[unowned self] items in
+                self.data = items
+                self.filteredData = items
+                self.isLoading = false
             }
-            
-            let currencyItems: [CurrencyItemViewModel] = filteredItems.enumerated().map { (index, item) in
-                    .init(tokenItem: item,
-                          isReadonly: isReadonlyMode,
-                          isDisabled: !canManage(item),
-                          isSelected: bindSelection(item),
-                          isCopied: bindCopy(),
-                          position: .init(with: index, total: totalItems))
-            }
-            
-            return .init(with: currency, items: currencyItems)
-        }
-        
-        self.filteredData = data
-        self.isLoading = false
     }
     
     private func isSelected(_ tokenItem: TokenItem) -> Bool {
@@ -303,6 +316,15 @@ class TokenListViewModel: ViewModel, ObservableObject {
         }
         
         return binding
+    }
+    
+    private func bind() {
+        enteredSearchText
+            .dropFirst()
+            .sink { [unowned self] string in
+                self.startSearch(with: string)
+            }
+            .store(in: &bag)
     }
 }
 
