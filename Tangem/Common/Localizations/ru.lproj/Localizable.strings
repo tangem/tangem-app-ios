@@ -1,6 +1,6 @@
 "action_sheet_trade_hint" = "Вы хотите купить или продать криптовалюту?";
 "add_custom" = "Добавить пользовательский";
-"add_custom_token_title" = "Добавить пользовательский токен";
+"add_custom_token_title" = "Добавить токен";
 "add_token_section_title_blockchains" = "Блокчейны";
 "add_token_section_title_custom_tokens" = "Пользовательские токены";
 "add_token_section_title_tokens_format" = "Токены %@";
