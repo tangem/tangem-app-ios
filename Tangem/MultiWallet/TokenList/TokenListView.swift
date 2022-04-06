@@ -18,6 +18,8 @@ struct TokenListView: View {
     
     var body: some View {
         VStack(spacing: 0) {
+            navigationLinks
+            
             HStack {
                 Text(viewModel.titleKey)
                     .font(Font.system(size: 30, weight: .bold, design: .default))
@@ -80,20 +82,26 @@ struct TokenListView: View {
                     .padding(.bottom, 8)
                     .ignoresKeyboard()
             }
-            
-            Color.clear.frame(width: 1, height: 1)
-                .sheet(isPresented: $navigation.mainToCustomToken) {
-                    AddCustomTokenView(viewModel: viewModel.assembly.makeAddCustomTokenModel())
-                        .environmentObject(navigation)
-                }
         }
         .onAppear { viewModel.onAppear() }
         .onDisappear { viewModel.onDissapear() }
         .alert(item: $viewModel.error, content: { $0.alert })
         .background(Color.clear)
+        .navigationBarHidden(true)
+        .navigationBarTitle("")
         .toast(isPresenting: $viewModel.showToast) {
             AlertToast(type: .complete(Color.tangemGreen), title: "contract_address_copied_message".localized)
         }
+    }
+    
+    private var navigationLinks: some View {
+        NavigationLink(isActive: $navigation.mainToCustomToken) {
+            AddCustomTokenView(viewModel: viewModel.assembly.makeAddCustomTokenModel())
+                .environmentObject(navigation)
+        } label: {
+            EmptyView()
+        }
+        .hidden()
     }
 }
 
