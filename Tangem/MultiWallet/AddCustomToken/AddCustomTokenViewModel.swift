@@ -257,9 +257,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         if contractAddress.isEmpty && name.isEmpty && symbol.isEmpty && decimals.isEmpty {
             return .blockchain(blockchain)
         } else {
-            guard blockchain.validate(address: contractAddress) else {
-                throw TokenCreationErrors.invalidContractAddress
-            }
+            let enteredContractAddress = try self.enteredContractAddress(in: blockchain)
             
             guard !name.isEmpty, !symbol.isEmpty, !decimals.isEmpty else {
                 throw TokenCreationErrors.emptyFields
@@ -272,7 +270,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             let token = Token(
                 name: name,
                 symbol: symbol.uppercased(),
-                contractAddress: contractAddress,
+                contractAddress: enteredContractAddress,
                 decimalCount: decimals
             )
             
@@ -286,6 +284,14 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         }
         
         return blockchain
+    }
+    
+    private func enteredContractAddress(in blockchain: Blockchain) throws -> String {
+        guard blockchain.validate(address: contractAddress) else {
+            throw TokenCreationErrors.invalidContractAddress
+        }
+    
+        return contractAddress
     }
     
     private func enteredDerivationPath() throws -> DerivationPath? {
@@ -370,7 +376,10 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         }
         
         do {
-            if currencyModels.isEmpty && !contractAddress.isEmpty {
+            if currencyModels.isEmpty,
+               let blockchain = try? enteredBlockchain(),
+               let _ = try? enteredContractAddress(in: blockchain)
+            {
                 throw TokenSearchError.failedToFindToken
             }
             
