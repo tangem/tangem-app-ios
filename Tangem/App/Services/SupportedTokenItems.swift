@@ -10,6 +10,7 @@ import Foundation
 import struct BlockchainSdk.Token
 import enum BlockchainSdk.Blockchain
 import TangemSdk
+import Combine
 
 class SupportedTokenItems {
     lazy var predefinedDemoBalances: [Blockchain: Decimal] = {
@@ -78,16 +79,23 @@ class SupportedTokenItems {
         return blockchains.filter { $0.canHandleTokens }
     }
     
-    func loadCurrencies(isTestnet: Bool) throws -> [CurrencyModel] {
-        let list = try readList(isTestnet: isTestnet)
-        return list.tokens.map { .init(with: $0, baseImageURL: list.imageHost) }
+    func loadCurrencies(isTestnet: Bool) -> AnyPublisher<[CurrencyModel], Error> {
+        readList(isTestnet: isTestnet)
+            .map { list in
+                list.tokens.map { .init(with: $0, baseImageURL: list.imageHost) }
+            }
+            .eraseToAnyPublisher()
     }
-
     
-    private func readList(isTestnet: Bool) throws -> CurrenciesList {
-        try JsonUtils.readBundleFile(with: isTestnet ? Constants.testFilename : Constants.filename,
-                                     type: CurrenciesList.self,
-                                     shouldAddCompilationCondition: false)
+    private func readList(isTestnet: Bool) -> AnyPublisher<CurrenciesList, Error> {
+        Just(isTestnet)
+            .receive(on: DispatchQueue.global())
+            .tryMap { testnet in
+                try JsonUtils.readBundleFile(with: testnet ? Constants.testFilename : Constants.filename,
+                                             type: CurrenciesList.self,
+                                             shouldAddCompilationCondition: false)
+            }
+            .eraseToAnyPublisher()
     }
 }
 
