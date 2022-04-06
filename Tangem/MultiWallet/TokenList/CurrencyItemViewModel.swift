@@ -42,6 +42,7 @@ class CurrencyItemViewModel: Identifiable, ObservableObject {
         self.selectedPublisher = isSelected.wrappedValue
         
         $selectedPublisher
+            .dropFirst()
             .sink(receiveValue: {[unowned self] value in
                 self.isSelected.wrappedValue = value
             })
