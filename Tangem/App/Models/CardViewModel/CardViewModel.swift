@@ -308,9 +308,11 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
         
-        tryMigrateTokens() { [weak self] in
-            //loadPayIDInfo()
-            self?.state.walletModels?.forEach { $0.update() }
+        tryMigrateTokens() { [weak self] upgraded in
+            if !upgraded {
+                self?.state.walletModels?.forEach { $0.update() }
+            }
+            
             self?.searchTokens()
         }
     }
@@ -505,7 +507,7 @@ class CardViewModel: Identifiable, ObservableObject {
             print("⁉️ Recreating all wallet models for Card view model state")
             self.state = .loaded(walletModel: self.assembly.makeAllWalletModels(from: cardInfo))
             
-            if !userPrefsService.cardsStartedActivation.contains(cardInfo.card.cardId)  || cardInfo.isTangemWallet {
+            if !userPrefsService.cardsStartedActivation.contains(cardInfo.card.cardId) || cardInfo.isTangemWallet {
                 update()
             }
         }
@@ -743,7 +745,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
     
-    private func tryMigrateTokens(completion: @escaping () -> Void) {
+    private func tryMigrateTokens(completion: @escaping (Bool) -> Void) {
         let cardId = cardInfo.card.cardId
         let items = tokenItemsRepository.getItems(for: cardId)
         let itemsWithCustomTokens = items.filter { item in
@@ -751,7 +753,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
         
         if itemsWithCustomTokens.isEmpty {
-            completion()
+            completion(false)
             return
         }
         
@@ -770,7 +772,10 @@ class CardViewModel: Identifiable, ObservableObject {
         
         Publishers.MergeMany(publishers)
             .collect(publishers.count)
-            .sink { _ in completion() } receiveValue: { _ in }
+            .sink {[unowned self] _ in
+                self.updateState()
+                completion(true)
+            } receiveValue: { _ in }
             .store(in: &bag)
     }
     
