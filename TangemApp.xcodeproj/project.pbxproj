@@ -42,6 +42,7 @@
 		5D20812627D2416400D8A970 /* rarible.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D20812527D2416400D8A970 /* rarible.json */; };
 		5D20812827D242E500D8A970 /* cryptofights.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D20812727D242E500D8A970 /* cryptofights.json */; };
 		5D20812A27D2439700D8A970 /* WCExample.json in Resources */ = {isa = PBXBuildFile; fileRef = 5D20812927D2439700D8A970 /* WCExample.json */; };
+		5D219F8B27FF1CF9005015AA /* PerfList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D219F8A27FF1CF9005015AA /* PerfList.swift */; };
 		5D225CB92524B721001564A3 /* Analytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D225CB82524B721001564A3 /* Analytics.swift */; };
 		5D242A5F273C1F24008F79B5 /* Publisher+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D74F718262722FF00B03897 /* Publisher+.swift */; };
 		5D24A12A24FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D24A12924FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift */; };
@@ -545,6 +546,7 @@
 		5D20812527D2416400D8A970 /* rarible.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = rarible.json; sourceTree = "<group>"; };
 		5D20812727D242E500D8A970 /* cryptofights.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = cryptofights.json; sourceTree = "<group>"; };
 		5D20812927D2439700D8A970 /* WCExample.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = WCExample.json; sourceTree = "<group>"; };
+		5D219F8A27FF1CF9005015AA /* PerfList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerfList.swift; sourceTree = "<group>"; };
 		5D225CB82524B721001564A3 /* Analytics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Analytics.swift; sourceTree = "<group>"; };
 		5D24A12924FF98F1002A3BCA /* NetworkLoggerConfiguration+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NetworkLoggerConfiguration+.swift"; sourceTree = "<group>"; };
 		5D24A12B24FF9E3A002A3BCA /* Decimal+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Decimal+.swift"; sourceTree = "<group>"; };
@@ -1254,6 +1256,7 @@
 				5D4B8BBA27EDB354002CE87C /* NetworkIcon.swift */,
 				5D96BD2927F60B0D000AA797 /* TokenIconView.swift */,
 				DA5970EF27FC502E0050387C /* CustomTokenBadge.swift */,
+				5D219F8A27FF1CF9005015AA /* PerfList.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -2767,6 +2770,7 @@
 				B0A0A19125822EFF005FC94D /* Storage.swift in Sources */,
 				B0F62C5025DE4EC9005C8BA0 /* MailView.swift in Sources */,
 				DA23788027B24222009795A8 /* CheckoutUserError.swift in Sources */,
+				5D219F8B27FF1CF9005015AA /* PerfList.swift in Sources */,
 				B068A7E725678A8800D28CD2 /* TwinCardsUtils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
