@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import Moya
+import BlockchainSdk
 import TangemSdk
 
 class TokenListService {
@@ -37,7 +38,15 @@ class TokenListService {
                     }
                     .compactMap { currencyEntity in
                         let activeContracts = currencyEntity.contracts?.filter {
-                            $0.active == true && $0.address == contractAddress
+                            if let blockchain = Blockchain(from: $0.networkId),
+                               case .solana = blockchain,
+                               let card = self.card,
+                               !card.canSupportSolanaTokens
+                            {
+                                return false
+                            }
+                            
+                            return $0.active == true && $0.address == contractAddress
                         }
                         
                         guard activeContracts?.isEmpty == false else {
