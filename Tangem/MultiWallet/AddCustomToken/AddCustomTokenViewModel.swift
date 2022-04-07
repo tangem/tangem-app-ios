@@ -100,21 +100,17 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         )
             .dropFirst()
             .debounce(for: 0.5, scheduler: RunLoop.main)
-            .setFailureType(to: Error.self)
-            .flatMap { (blockchainName, contractAddress, derivationPath) -> AnyPublisher<[CurrencyModel], Error> in
+            .flatMap { (blockchainName, contractAddress, derivationPath) -> AnyPublisher<[CurrencyModel], Never> in
                 self.isLoading = true
                 
                 guard !contractAddress.isEmpty else {
                     return Just([])
-                        .setFailureType(to: Error.self)
                         .eraseToAnyPublisher()
                 }
                 
                 return self.findToken(contractAddress: contractAddress)
             }
-            .sink { _ in
-                
-            } receiveValue: { [unowned self] currencyModels in
+            .sink { currencyModels in
                 self.didFinishTokenSearch(currencyModels)
             }
             .store(in: &bag)
@@ -334,10 +330,10 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         }
     }
     
-    private func findToken(contractAddress: String) -> AnyPublisher<[CurrencyModel], Error> {
+    private func findToken(contractAddress: String) -> AnyPublisher<[CurrencyModel], Never> {
         return tokenListService
             .checkContractAddress(contractAddress: contractAddress, networkId: nil)
-            .eraseError()
+            .replaceError(with: [])
             .eraseToAnyPublisher()
     }
     
