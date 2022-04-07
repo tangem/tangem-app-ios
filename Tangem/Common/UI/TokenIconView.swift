@@ -18,9 +18,8 @@ struct TokenIconView: View {
     var body: some View {
         KFImage(tokenItem.imageURL)
             .setProcessor(DownsamplingImageProcessor(size: size))
-            .placeholder {placeholder }
+            .placeholder { placeholder }
             .fade(duration: 0.3)
-            .forceTransition()
             .cacheOriginalImage()
             .scaleFactor(UIScreen.main.scale)
             .resizable()
