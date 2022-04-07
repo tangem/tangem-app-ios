@@ -50,7 +50,7 @@ extension CurrencySelectViewModel {
         var errorDescription: String? {
             switch self {
             case .failedToLoad:
-                return "currency_select_failed_to_load".localized
+                return "common_failed_to_load_data".localized
             }
         }
     }
