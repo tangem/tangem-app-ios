@@ -73,7 +73,7 @@ class WarningsService {
         let remoteWarnings = self.remoteWarnings(for: cardInfo, location: .main)
         container.add(remoteWarnings)
         
-        if !userPrefsService.isFundsRestorationShown {
+        if !userPrefsService.isFundsRestorationShown && cardInfo.card.settings.isHDWalletAllowed {
             container.add(WarningEvent.fundsRestoration.warning)
         }
         
