@@ -26,7 +26,8 @@ struct TokenIconView: View {
             .resizable()
             .scaledToFit()
             .cornerRadius(5)
-            .frame(size: size)    }
+            .frame(size: size)
+    }
     
     
     @ViewBuilder private var placeholder: some View {
