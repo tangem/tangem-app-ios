@@ -452,6 +452,10 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     private func isCustom(_ amountType: Amount.AmountType) -> Bool {
+        if state.isLoading {
+            return false
+        }
+        
         guard let derivationStyle = cardInfo?.card.derivationStyle else {
             return false
         }
