@@ -523,15 +523,7 @@ class CardViewModel: Identifiable, ObservableObject {
     private func updateLoadedState(with newWalletModels: [WalletModel]) {
         stateUpdateQueue.sync {
             if let existingWalletModels = self.walletModels {
-                var itemsToAdd: [WalletModel] = []
-                for model in newWalletModels {
-                    if !existingWalletModels.contains(where: { $0.blockchainNetwork == model.blockchainNetwork }) {
-                        itemsToAdd.append(model)
-                    }
-                }
-                if !itemsToAdd.isEmpty {
-                    state = .loaded(walletModel: (existingWalletModels + itemsToAdd)/*.sorted{ $0.wallet.blockchain.displayName < $1.wallet.blockchain.displayName}*/)
-                }
+                state = .loaded(walletModel: (existingWalletModels + newWalletModels))
             }
         }
     }
@@ -674,16 +666,19 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
         
-        let newWalletModels = assembly.makeWalletModels(from: cardInfo, entries: entries)
-        newWalletModels.forEach { $0.update() }
+        var newWalletModels: [WalletModel] = []
         
         entries.forEach { entry in
             if let existingWalletModel = walletModels.first(where: { $0.blockchainNetwork == entry.blockchainNetwork }) {
                 existingWalletModel.addTokens(entry.tokens)
                 existingWalletModel.update()
+            } else {
+                let wm = assembly.makeWalletModels(from: cardInfo, entries: [entry])
+                newWalletModels.append(contentsOf: wm)
             }
         }
         
+        newWalletModels.forEach { $0.update() }
         updateLoadedState(with: newWalletModels)
         completion(.success(()))
     }
