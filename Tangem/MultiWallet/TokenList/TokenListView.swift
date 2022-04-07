@@ -53,8 +53,7 @@ struct TokenListView: View {
                 ActivityIndicatorView(color: .gray)
                 Spacer()
             } else {
-                List {
-                    
+                PerfList {
                     if viewModel.shouldShowAlert {
                         Text("alert_manage_tokens_addresses_message")
                             .font(.system(size: 13, weight: .medium, design: .default))
@@ -62,14 +61,18 @@ struct TokenListView: View {
                             .foregroundColor(Color(hex: "#848488"))
                             .cornerRadius(10)
                             .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
+                            .perfListPadding()
                     }
+                    
+                    PerfListDivider()
                     
                     ForEach(viewModel.filteredData) {
                         CurrencyView(model: $0)
                             .buttonStyle(PlainButtonStyle()) //fix ios13 list item selection
+                            .perfListPadding()
+                        PerfListDivider()
                     }
                 }
-                .listStyle(PlainListStyle())
             }
             
             if !viewModel.isReadonlyMode {
