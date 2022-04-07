@@ -18,15 +18,15 @@ struct TokenIconView: View {
     var body: some View {
         KFImage(tokenItem.imageURL)
             .setProcessor(DownsamplingImageProcessor(size: size))
-            .placeholder {placeholder }
+            .placeholder { placeholder }
             .fade(duration: 0.3)
-            .forceTransition()
             .cacheOriginalImage()
             .scaleFactor(UIScreen.main.scale)
             .resizable()
             .scaledToFit()
             .cornerRadius(5)
-            .frame(size: size)    }
+            .frame(size: size)
+    }
     
     
     @ViewBuilder private var placeholder: some View {
