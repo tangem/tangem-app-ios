@@ -222,8 +222,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
         let itemsRepo = SupportedTokenItems()
         
         let supportedCurves = cardModel?.cardInfo.card.walletCurves ?? EllipticCurve.allCases
-        let fwVersion = cardModel?.cardInfo.card.firmwareVersion.doubleValue
-        let isSupportSolanaTokens = fwVersion.map { $0 >= 4.52 } ?? true //[REDACTED_TODO_COMMENT]
+        let isSupportSolanaTokens = cardModel?.cardInfo.card.canSupportSolanaTokens ?? true
         
         loadCancellable = itemsRepo.loadCurrencies(isTestnet: isTestnet)
             .map {[unowned self] currencies -> [CurrencyViewModel] in
