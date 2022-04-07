@@ -91,7 +91,6 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     
     private var bag: Set<AnyCancellable> = []
     private var blockchainByName: [String: Blockchain] = [:]
-    private var blockchainsWithTokens: Set<Blockchain>?
     
     init() {
         Publishers.CombineLatest3(
@@ -213,13 +212,15 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         let blockchains = supportedTokenItems.blockchains(for: cardInfo.card.walletCurves, isTestnet: cardInfo.isTestnet)
         
         if withTokenSupport {
-            if self.blockchainsWithTokens == nil {
-                self.blockchainsWithTokens = supportedTokenItems.blockchainsWithTokens(isTestnet: cardInfo.isTestnet)
-            }
+            let blockchainsWithTokens = supportedTokenItems.blockchainsWithTokens(isTestnet: cardInfo.isTestnet)
             
             return blockchains
                 .filter {
-                    self.blockchainsWithTokens?.contains($0) ?? false
+                    if case .solana = $0, !cardInfo.card.canSupportSolanaTokens {
+                        return false
+                    }
+                    
+                    return blockchainsWithTokens.contains($0)
                 }
         } else {
             return blockchains
