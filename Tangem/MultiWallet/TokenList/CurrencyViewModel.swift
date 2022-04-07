@@ -29,3 +29,13 @@ class CurrencyViewModel: Identifiable, ObservableObject {
         self.items = items
     }
 }
+
+extension CurrencyViewModel: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    static func == (lhs: CurrencyViewModel, rhs: CurrencyViewModel) -> Bool {
+        lhs.id == rhs.id
+    }
+}
