@@ -22,10 +22,10 @@ struct CurrencyView: View {
                 
                 VStack(alignment: .leading, spacing: 8) {
                     
-                    HStack(spacing: 4) {
+                    Group {
                         Text(model.name)
                             .foregroundColor(.tangemGrayDark6)
-                        Text(symbolFormatted)
+                        + Text(symbolFormatted)
                             .foregroundColor(Color(hex: "#A9A9AD")!)
                     }
                     .lineLimit(1)
@@ -46,7 +46,7 @@ struct CurrencyView: View {
                     }.frame(height: 20)
                 }
                 
-                Spacer()
+                Spacer(minLength: 0)
                 
                 chevronView
             }
@@ -65,7 +65,7 @@ struct CurrencyView: View {
         .animation(nil) //Disable animations on scroll reuse
     }
     
-    private var symbolFormatted: String {"(\(model.symbol))"}
+    private var symbolFormatted: String {" (\(model.symbol))"}
     @State private var isExpanded = false
     
     private var chevronView: some View {
