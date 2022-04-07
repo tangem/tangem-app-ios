@@ -38,6 +38,7 @@ class CardViewModel: Identifiable, ObservableObject {
     private var cardPinSettings: CardPinSettings = CardPinSettings()
     
     private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
+    private var migrated = false
     
     var availableSecOptions: [SecurityManagementOption] {
         var options = [SecurityManagementOption.longTap]
@@ -746,6 +747,11 @@ class CardViewModel: Identifiable, ObservableObject {
     }
     
     private func tryMigrateTokens(completion: @escaping (Bool) -> Void) {
+        if migrated {
+            completion(false)
+            return
+        }
+        
         let cardId = cardInfo.card.cardId
         let items = tokenItemsRepository.getItems(for: cardId)
         let itemsWithCustomTokens = items.filter { item in
