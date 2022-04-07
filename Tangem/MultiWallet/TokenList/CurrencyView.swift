@@ -29,7 +29,6 @@ struct CurrencyView: View {
                             .foregroundColor(Color(hex: "#A9A9AD")!)
                     }
                     .lineLimit(1)
-                    .fixedSize()
                     .font(.system(size: 17, weight: .medium, design: .default))
                     
                     VStack {
@@ -128,7 +127,34 @@ struct CurrencyView_Previews: PreviewProvider {
                                                                               position: .last)
                                                       ]))
             }
+            
+            StatefulPreviewWrapper(false) {
+                CurrencyView(model: CurrencyViewModel(imageURL: nil,
+                                                      name: "Very Long Name of The Token",
+                                                      symbol: "VLNOFT",
+                                                      items: [
+                                                        CurrencyItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
+                                                                              isReadonly: false,
+                                                                              isDisabled: false,
+                                                                              isSelected: $0,
+                                                                              position: .first),
+                                                        CurrencyItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
+                                                                              isReadonly: false,
+                                                                              isDisabled: false,
+                                                                              isSelected: $0,
+                                                                              position: .middle),
+                                                        CurrencyItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
+                                                                              isReadonly: false,
+                                                                              isDisabled: false,
+                                                                              isSelected: $0,
+                                                                              position: .last)
+                                                      ]))
+            }
+            
+            
+            
             Spacer()
         }
+        .padding()
     }
 }
