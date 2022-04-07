@@ -151,8 +151,6 @@ struct CurrencyView_Previews: PreviewProvider {
                                                       ]))
             }
             
-            
-            
             Spacer()
         }
         .padding()
