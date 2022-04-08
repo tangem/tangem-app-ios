@@ -87,7 +87,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     @Published var addButtonDisabled = false
     @Published var isLoading = false
     
-    @Published private(set) var foundStandardToken: TokenItem?
+    @Published private(set) var foundStandardToken: CurrencyModel?
     
     private var bag: Set<AnyCancellable> = []
     private var blockchainByName: [String: Blockchain] = [:]
@@ -123,8 +123,8 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         let blockchain: Blockchain
         let derivationPath: DerivationPath?
         do {
-            if let foundStandardToken = self.foundStandardToken {
-                tokenItem = foundStandardToken
+            if let foundStandardTokenItem = self.foundStandardToken?.items.first {
+                tokenItem = foundStandardTokenItem
             } else {
                 tokenItem = try enteredTokenItem()
             }
@@ -331,6 +331,14 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     private func findToken(contractAddress: String) -> AnyPublisher<[CurrencyModel], Never> {
+        if let currentCurrencyModel = foundStandardToken,
+           let token = currentCurrencyModel.items.first?.token,
+           token.contractAddress.caseInsensitiveCompare(contractAddress) == .orderedSame
+        {
+            return Just([currentCurrencyModel])
+                .eraseToAnyPublisher()
+        }
+        
         return tokenListService
             .checkContractAddress(contractAddress: contractAddress, networkId: nil)
             .replaceError(with: [])
@@ -357,7 +365,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         let firstTokenItem = currencyModels.first?.items.first
         
         if currencyModels.count == 1 {
-            foundStandardToken = firstTokenItem
+            foundStandardToken = currencyModels.first
         } else {
             foundStandardToken = nil
         }
