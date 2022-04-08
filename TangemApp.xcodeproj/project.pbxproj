@@ -159,13 +159,11 @@
 		5DE7DD122695BEE900472205 /* UrlHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DDE22E92608DC94008657C6 /* UrlHandler.swift */; };
 		5DE7DD152695BF8D00472205 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B020FFBD25DE895E00EF422C /* Logger.swift */; };
 		5DE7DD162695BF9700472205 /* FileEncryptionUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F79C692689AC56008C9B30 /* FileEncryptionUtility.swift */; };
-		5DE7DD182695C03C00472205 /* ScannedCardsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CBE9FD26260D3F00072191 /* ScannedCardsRepository.swift */; };
 		5DE7DD1B2695C04F00472205 /* CardImageLoaderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D79D3142555ABE700650DD7 /* CardImageLoaderService.swift */; };
 		5DE7DD1F2695C06200472205 /* PersistentStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D09383B25EAE7FD0049B8F0 /* PersistentStorage.swift */; };
 		5DE7DD202695C09E00472205 /* DefaultSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DB862B7252396CD00566AA0 /* DefaultSigner.swift */; };
 		5DE7DD212695C0A800472205 /* Analytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D225CB82524B721001564A3 /* Analytics.swift */; };
 		5DE7DD232695C27E00472205 /* UserPrefsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCB05255193C30059799C /* UserPrefsService.swift */; };
-		5DE7DD262695C57B00472205 /* SavedCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F79C72268A2E98008C9B30 /* SavedCard.swift */; };
 		5DE7DD2B2695CFF800472205 /* CreateMultiWalletTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D78D11C261E084700F98B18 /* CreateMultiWalletTask.swift */; };
 		5DE7DD2C2695CFFE00472205 /* SignerUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0323F2B258C041D005C7CD5 /* SignerUtils.swift */; };
 		5DE7DD332696236500472205 /* CardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F7360825F7AF9E00DD348F /* CardViewModel.swift */; };
@@ -2823,7 +2821,6 @@
 				5D4B8BC027EDD5B9002CE87C /* ScanResult.swift in Sources */,
 				5DE7DD212695C0A800472205 /* Analytics.swift in Sources */,
 				B0869078260A2DFF005976CD /* View+PreviewDevice.swift in Sources */,
-				5DE7DD182695C03C00472205 /* ScannedCardsRepository.swift in Sources */,
 				B0F7361325F7AFFB00DD348F /* TwinCardInfo.swift in Sources */,
 				B01416AC2632A92B00D82A9C /* ImageLoader.swift in Sources */,
 				5DE7DD4C269627EF00472205 /* MainView.swift in Sources */,
@@ -2854,7 +2851,6 @@
 				5DE7DD1F2695C06200472205 /* PersistentStorage.swift in Sources */,
 				B0CA5A8625F7797B0078F42F /* RefreshableScrollView.swift in Sources */,
 				5DE7DD332696236500472205 /* CardViewModel.swift in Sources */,
-				5DE7DD262695C57B00472205 /* SavedCard.swift in Sources */,
 				B0869069260A2D55005976CD /* ButtonStyles.swift in Sources */,
 				B00BC58E260B19D100F0647D /* CircleImageTextView.swift in Sources */,
 				B082944A260C6D3800014A18 /* Decimal+.swift in Sources */,
