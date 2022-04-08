@@ -20,7 +20,7 @@ struct CurrencyView: View {
                 Icon(model.imageURL, name: model.name)
                     .padding(.trailing, 14)
                 
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 6) {
                     
                     Group {
                         Text(model.name)
@@ -36,6 +36,8 @@ struct CurrencyView: View {
                             Text(subtitle)
                                 .font(.system(size: 13))
                                 .foregroundColor(Color(hex: "#A9A9AD")!)
+                            
+                            Spacer()
                         } else {
                             HStack(spacing: 5) {
                                 ForEach(model.items) {
