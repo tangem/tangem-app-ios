@@ -96,6 +96,8 @@ class AppServicesAssembly: ServicesAssembly {
         return crepo
     }()
     
+    lazy var scannedCardsRepository: ScannedCardsRepository = ScannedCardsRepository(storage: persistentStorage)
+    
     func onDidScan(_ cardInfo: CardInfo) {
         featuresService.setupFeatures(for: cardInfo.card)
 //        warningsService.setupWarnings(for: cardInfo)
