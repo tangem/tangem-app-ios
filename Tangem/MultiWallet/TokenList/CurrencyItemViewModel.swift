@@ -50,6 +50,8 @@ class CurrencyItemViewModel: Identifiable, ObservableObject {
     }
     
     func onCopy() {
+        if isReadonly { return }
+        
         if let contractAddress = tokenItem.contractAddress {
             UIPasteboard.general.string = contractAddress
             let generator = UINotificationFeedbackGenerator()
