@@ -114,13 +114,22 @@ extension Card {
     
 #if !CLIP
     var derivationStyle: DerivationStyle {
+        Card.getDerivationStyle(for: batchId, isHdWalletAllowed: settings.isHDWalletAllowed)
+    }
+    
+    static func getDerivationStyle(for batchId: String, isHdWalletAllowed: Bool) -> DerivationStyle {
+        guard isHdWalletAllowed else {
+            return .legacy
+        }
+        
         let batchId = batchId.uppercased()
         
-        if batchId == "AC01" || batchId == "AC02" {
+        if BatchId.isDetached(cardInfo.card) {
             return .legacy
         }
         
         return .new
     }
+    
 #endif
 }
