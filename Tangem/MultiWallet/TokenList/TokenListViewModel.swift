@@ -123,10 +123,9 @@ class TokenListViewModel: ViewModel, ObservableObject {
         bag.removeAll()
         
         DispatchQueue.main.async {
-            self.pendingAdd = []
-            self.pendingRemove = []
             self.enteredSearchText.value = ""
             self.filteredData = []
+            self.clearSelection()
         }
     }
     
@@ -194,6 +193,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
         return data.filter {
             $0.name.lowercased().contains(filter)
             || $0.symbol.lowercased().contains(filter)
+            || $0.hasContractAddress(searchText)
         }
         .sorted(by: { lhs, rhs in
             if lhs.name.lowercased() == filter
@@ -265,6 +265,20 @@ class TokenListViewModel: ViewModel, ObservableObject {
                 self.filteredData = items
                 self.isLoading = false
             }
+    }
+    
+    private func clearSelection() {
+        let activeItems = self.pendingAdd + self.pendingRemove
+        self.pendingAdd = []
+        self.pendingRemove = []
+        
+        activeItems.forEach { addItem in
+            data.forEach { item in
+                if let index = item.items.firstIndex(where: {$0.tokenItem == addItem }) {
+                    item.items[index].updateSelection(with: bindSelection(addItem))
+                }
+            }
+        }
     }
     
     private func isSelected(_ tokenItem: TokenItem) -> Bool {
