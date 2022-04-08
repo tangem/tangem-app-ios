@@ -124,7 +124,7 @@ extension Card {
         
         let batchId = batchId.uppercased()
         
-        if batchId == "AC01" || batchId == "AC02" || batchId == "CB95" {
+        if BatchId.isDetached(cardInfo.card) {
             return .legacy
         }
         
