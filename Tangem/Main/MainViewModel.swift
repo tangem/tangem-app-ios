@@ -485,9 +485,9 @@ class MainViewModel: ViewModel, ObservableObject {
                 let fundRestorationUrl: URL
                 switch Locale.current.languageCode {
                 case "ru":
-                    fundRestorationUrl = URL(string: "https://tangem.com/notionru")!
+                    fundRestorationUrl = URL(string: "https://tangem.com/ru/notion")!
                 default:
-                    fundRestorationUrl = URL(string: "https://tangem.com/notionen")!
+                    fundRestorationUrl = URL(string: "https://tangem.com/en/notion")!
                 }
                 showExternalURL = fundRestorationUrl
             }
