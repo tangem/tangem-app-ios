@@ -101,7 +101,11 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     var blockchainNetwork: BlockchainNetwork {
-        .init(wallet.blockchain, derivationPath: wallet.publicKey.derivationPath)
+        if wallet.publicKey.derivationPath == nil { //cards without hd wallet
+            return .init(wallet.blockchain, derivationPath: wallet.blockchain.derivationPath(for: .legacy))
+        }
+        
+        return .init(wallet.blockchain, derivationPath: wallet.publicKey.derivationPath)
     }
     
     let walletManager: WalletManager
@@ -111,7 +115,7 @@ class WalletModel: ObservableObject, Identifiable {
     private var bag = Set<AnyCancellable>()
     private var updateTimer: AnyCancellable? = nil
     private let demoBalance: Decimal?
-    private let cardInfo: CardInfo?
+    private let derivationStyle: DerivationStyle
     private var isDemo: Bool { demoBalance != nil }
     private var latestUpdateTime: Date? = nil
     
@@ -119,12 +123,12 @@ class WalletModel: ObservableObject, Identifiable {
         print("🗑 WalletModel deinit")
     }
     
-    init(walletManager: WalletManager, signer: TransactionSigner, defaultToken: Token?, defaultBlockchain: Blockchain?, demoBalance: Decimal? = nil, cardInfo: CardInfo?) {
+    init(walletManager: WalletManager, signer: TransactionSigner, derivationStyle: DerivationStyle, defaultToken: Token?, defaultBlockchain: Blockchain?, demoBalance: Decimal? = nil) {
         self.defaultToken = defaultToken
         self.defaultBlockchain = defaultBlockchain
         self.walletManager = walletManager
         self.demoBalance = demoBalance
-        self.cardInfo = cardInfo
+        self.derivationStyle = derivationStyle
         self.signer = signer
         
         updateBalanceViewModel(with: walletManager.wallet, state: .idle)
@@ -389,13 +393,24 @@ class WalletModel: ObservableObject, Identifiable {
             .eraseToAnyPublisher()
     }
     
-    func isDefaultDerivation(for style: DerivationStyle) -> Bool {
-        guard let currentDerivation = self.blockchainNetwork.derivationPath else {
-            return true //cards without hd wallets
+    func isCustom(_ amountType: Amount.AmountType) -> Bool {
+        if state.isLoading {
+            return false
         }
         
-        let defaultDerivation = wallet.blockchain.derivationPath(for: style)
-        return defaultDerivation == currentDerivation
+        let defaultDerivation = wallet.blockchain.derivationPath(for: derivationStyle)
+        let currentDerivation = blockchainNetwork.derivationPath
+        
+        if currentDerivation != defaultDerivation {
+            return true
+        }
+        
+        switch amountType {
+        case .coin, .reserve:
+            return false
+        case .token(let token):
+            return token.id == nil
+        }
     }
     
     private func updateBalanceViewModel(with wallet: Wallet, state: State) {
@@ -448,30 +463,6 @@ class WalletModel: ObservableObject, Identifiable {
         tokenViewModels = walletManager.cardTokens.map {
             let type = Amount.AmountType.token(value: $0)
             return TokenBalanceViewModel(token: $0, balance: getBalance(for: type), fiatBalance: getFiatBalance(for: type))
-        }
-    }
-    
-    private func isCustom(_ amountType: Amount.AmountType) -> Bool {
-        if state.isLoading {
-            return false
-        }
-        
-        guard let derivationStyle = cardInfo?.card.derivationStyle else {
-            return false
-        }
-        
-        let defaultDerivation = blockchainNetwork.blockchain.derivationPath(for: derivationStyle)
-        let derivation = blockchainNetwork.derivationPath ?? defaultDerivation
-        
-        if derivation != defaultDerivation {
-            return true
-        }
-        
-        switch amountType {
-        case .coin, .reserve:
-            return false
-        case .token(let token):
-            return token.id == nil
         }
     }
     
