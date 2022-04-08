@@ -25,32 +25,34 @@ struct CurrencyModel {
         
         var items: [TokenItem] = []
         
-        if let blockchain = Blockchain(from: id) {
-            items.append(.blockchain(blockchain))
-            
-            if id == "binancecoin", let bsc = Blockchain(from: "binance-smart-chain") {
-                items.append(.blockchain(bsc))
-            } else if id == "binancecoin/test", let bsc = Blockchain(from: "binance-smart-chain/test") {
-                items.append(.blockchain(bsc))
+        
+        if id == "binancecoin" {
+            items.append(.blockchain(.binance(testnet: false)))
+            items.append(.blockchain(.bsc(testnet: false)))
+        } else if id == "binancecoin/test" {
+            items.append(.blockchain(.binance(testnet: true)))
+            items.append(.blockchain(.bsc(testnet: true)))
+        } else {
+            if let blockchain = Blockchain(from: id) {
+                items.append(.blockchain(blockchain))
             }
             
-        }
-        
-        let tokens: [TokenItem]? = entity.contracts?.compactMap {
-            if let blockchain = Blockchain(from: $0.networkId),
-               let decimalCount = $0.decimalCount {
-                return .token(Token(name: name,
-                                    symbol: symbol,
-                                    contractAddress: $0.address.trimmed(),
-                                    decimalCount: decimalCount,
-                                    id: entity.id),
-                              blockchain)
+            let tokens: [TokenItem]? = entity.contracts?.compactMap {
+                if let blockchain = Blockchain(from: $0.networkId),
+                   let decimalCount = $0.decimalCount {
+                    return .token(Token(name: name,
+                                        symbol: symbol,
+                                        contractAddress: $0.address.trimmed(),
+                                        decimalCount: decimalCount,
+                                        id: entity.id),
+                                  blockchain)
+                }
+                
+                return nil
             }
             
-            return nil
+            tokens.map { items.append(contentsOf: $0) }
         }
-        
-        tokens.map { items.append(contentsOf: $0) }
         
         self.id = id
         self.name = name
