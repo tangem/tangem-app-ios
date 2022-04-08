@@ -229,18 +229,23 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         let defaultItem = ("custom_token_derivation_path_default".localized, "")
         
         let evmBlockchains = getBlockchains(withTokenSupport: false).filter { $0.isEvm }
-        let evmDerivationPaths: [(String, String)] = evmBlockchains
-            .compactMap {
-                guard let derivationPath = $0.derivationPath(for: derivationStyle) else {
-                    return nil
+        let evmDerivationPaths: [(String, String)]
+        if !cardModel.cardInfo.card.settings.isHDWalletAllowed {
+            evmDerivationPaths = []
+        } else {
+            evmDerivationPaths = evmBlockchains
+                .compactMap {
+                    guard let derivationPath = $0.derivationPath(for: derivationStyle) else {
+                        return nil
+                    }
+                    let derivationPathFormatted = derivationPath.rawPath
+                    let description = "\($0.displayName) (\(derivationPathFormatted))"
+                    return (description, derivationPathFormatted)
                 }
-                let derivationPathFormatted = derivationPath.rawPath
-                let description = "\($0.displayName) (\(derivationPathFormatted))"
-                return (description, derivationPathFormatted)
-            }
-            .sorted {
-                $0.0 < $1.0
-            }
+                .sorted {
+                    $0.0 < $1.0
+                }
+        }
         
         let uniqueDerivations = Set(evmDerivationPaths.map(\.1))
         

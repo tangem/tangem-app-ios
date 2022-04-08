@@ -51,6 +51,8 @@ class ShopViewModel: ViewModel, ObservableObject {
     @Published var pollingForOrder = false
     @Published var order: Order?
     
+    @Published var error: AlertBinder?
+    
     private var shopifyProductVariants: [ProductVariant] = []
     private var currentVariantID: GraphQL.ID = GraphQL.ID(rawValue: "")
     private var checkoutByVariantID: [GraphQL.ID: Checkout] = [:]
@@ -64,6 +66,8 @@ class ShopViewModel: ViewModel, ObservableObject {
     
     func didAppear() {
         showingWebCheckout = false
+        
+        fetchProduct()
         
         guard !initialized else {
             return
@@ -88,8 +92,6 @@ class ShopViewModel: ViewModel, ObservableObject {
                 }
             }
             .store(in: &bag)
-        
-        fetchProduct()
     }
     
     func didEnterDiscountCode() {
@@ -146,12 +148,19 @@ class ShopViewModel: ViewModel, ObservableObject {
     }
     
     private func fetchProduct() {
+        guard shopifyProductVariants.isEmpty else {
+            return
+        }
+        
         loadingProducts = true
+        
         shopifyService
             .products(collectionTitleFilter: nil)
             .sink { completion in
                 
             } receiveValue: { [unowned self] collections in
+                self.loadingProducts = false
+                
                 // There can be multiple variants with the same SKU and the same ID along multiple products.
                 let allVariants: [ProductVariant] = collections.reduce([]) { partialResult, collection in
                     let products = collection.products
@@ -169,10 +178,10 @@ class ShopViewModel: ViewModel, ObservableObject {
                 }
                 
                 guard variants.count == skusToDisplay.count else {
+                    self.error = AppError.serverUnavailable.alertBinder
                     return
                 }
 
-                self.loadingProducts = false
                 self.shopifyProductVariants = variants
                 self.didSelectBundle(self.selectedBundle)
             }
