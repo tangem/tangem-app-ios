@@ -15,7 +15,7 @@ class CurrencyItemViewModel: Identifiable, ObservableObject {
     let tokenItem: TokenItem
     let isReadonly: Bool
     let isDisabled: Bool
-    let isSelected: Binding<Bool>
+    var isSelected: Binding<Bool>
     let position: ItemPosition
     let isCopied: Binding<Bool>
     
@@ -47,6 +47,11 @@ class CurrencyItemViewModel: Identifiable, ObservableObject {
                 self.isSelected.wrappedValue = value
             })
             .store(in: &bag)
+    }
+    
+    func updateSelection(with isSelected: Binding<Bool>) {
+        self.isSelected = isSelected
+        self.selectedPublisher = isSelected.wrappedValue
     }
     
     func onCopy() {
