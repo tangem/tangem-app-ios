@@ -355,6 +355,8 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         addButtonDisabled = false
         isLoading = false
         
+        let previouslyFoundStandardToken = foundStandardToken
+        
         let currencyModelBlockchains = currencyModels.reduce(Set<Blockchain>()) { partialResult, currencyModel in
             partialResult.union(currencyModel.items.map { $0.blockchain })
         }
@@ -383,7 +385,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 UIApplication.shared.endEditing()
             }
-        } else {
+        } else if previouslyFoundStandardToken != nil {
             decimals = ""
             symbol = ""
             name = ""
