@@ -35,7 +35,7 @@ class CurrencyViewModel: Identifiable, ObservableObject {
                 return false
             }
             
-            return tokenContractAddress == contractAddress
+            return tokenContractAddress.caseInsensitiveCompare(contractAddress) == .orderedSame
         }
     }
 }
