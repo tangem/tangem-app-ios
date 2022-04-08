@@ -84,6 +84,9 @@ struct SendScreenDataCollector: EmailDataCollector {
             data.append(EmailCollectedData(type: .error, data: errorDescription))
         }
         
+        let derivationPath = sendViewModel.walletModel.walletManager.wallet.publicKey.derivationPath
+        data.append(EmailCollectedData(type: .wallet(.derivationPath), data: derivationPath?.rawPath ?? "[default]"))
+        
         data.append(.separator(.dashes))
         
         data.append(contentsOf: [
@@ -161,12 +164,20 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
                 dataToFormat.append(.separator(.dashes))
                 dataToFormat.append(EmailCollectedData(type: .card(.blockchain), data: walletModel.wallet.blockchain.displayName))
                 
+                let derivationPath = walletModel.wallet.publicKey.derivationPath
+                dataToFormat.append(EmailCollectedData(type: .wallet(.derivationPath), data: derivationPath?.rawPath ?? "[default]"))
+                
+                if let outputsDescription = walletModel.walletManager.outputsCount?.description {
+                    dataToFormat.append(EmailCollectedData(type: .wallet(.outputsCount), data: outputsDescription))
+                }
+
                 let tokens = walletModel.wallet.amounts.keys.compactMap ({ $0.token })
                 if !tokens.isEmpty {
                     dataToFormat.append(EmailCollectedData(type: .token(.tokens), data: ""))
                 }
                 
                 for token in tokens {
+                    dataToFormat.append(EmailCollectedData(type: .token(.id), data: token.id ?? "[custom token]"))
                     dataToFormat.append(EmailCollectedData(type: .token(.name), data: token.name))
                     dataToFormat.append(EmailCollectedData(type: .token(.contractAddress), data: token.contractAddress))
                 }
