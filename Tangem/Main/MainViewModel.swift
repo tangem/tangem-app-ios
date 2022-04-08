@@ -481,7 +481,15 @@ class MainViewModel: ViewModel, ObservableObject {
                 return
             } else if warning.event == .fundsRestoration {
                 hideWarning = false
-                showExternalURL = URL(string: "https://google.com")//[REDACTED_TODO_COMMENT]
+                
+                let fundRestorationUrl: URL
+                switch Locale.current.languageCode {
+                case "ru":
+                    fundRestorationUrl = URL(string: "https://tangem.com/notionru")!
+                default:
+                    fundRestorationUrl = URL(string: "https://tangem.com/notionen")!
+                }
+                showExternalURL = fundRestorationUrl
             }
         }
         
