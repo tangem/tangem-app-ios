@@ -47,15 +47,9 @@ extension TokenIconView {
 
 extension TokenItem {
     fileprivate var imageURL: URL? {
-        if var id = self.id {
-            if id == "binancecoin" {
-                id = "binance-smart-chain"
-            }
-            
-            let imagePath = id == "binance-smart-chain" ? "networks" : "coins"
-            
+        if let id = self.id {
             return CurrenciesList.baseURL
-                .appendingPathComponent(imagePath)
+                .appendingPathComponent("coins")
                 .appendingPathComponent("large")
                 .appendingPathComponent("\(id).png")
         }
