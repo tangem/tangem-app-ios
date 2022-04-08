@@ -194,6 +194,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
         return data.filter {
             $0.name.lowercased().contains(filter)
             || $0.symbol.lowercased().contains(filter)
+            || $0.hasContractAddress(searchText)
         }
         .sorted(by: { lhs, rhs in
             if lhs.name.lowercased() == filter
