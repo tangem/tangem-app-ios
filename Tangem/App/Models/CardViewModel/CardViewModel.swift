@@ -38,6 +38,7 @@ class CardViewModel: Identifiable, ObservableObject {
     private var cardPinSettings: CardPinSettings = CardPinSettings()
     
     private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
+    private var migrated = false
     
     var availableSecOptions: [SecurityManagementOption] {
         var options = [SecurityManagementOption.longTap]
@@ -308,11 +309,8 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
         
-        tryMigrateTokens() { [weak self] upgraded in
-            if !upgraded {
-                self?.state.walletModels?.forEach { $0.update() }
-            }
-            
+        tryMigrateTokens() { [weak self] in
+            self?.state.walletModels?.forEach { $0.update() }
             self?.searchTokens()
         }
     }
@@ -522,15 +520,7 @@ class CardViewModel: Identifiable, ObservableObject {
     private func updateLoadedState(with newWalletModels: [WalletModel]) {
         stateUpdateQueue.sync {
             if let existingWalletModels = self.walletModels {
-                var itemsToAdd: [WalletModel] = []
-                for model in newWalletModels {
-                    if !existingWalletModels.contains(where: { $0.blockchainNetwork == model.blockchainNetwork }) {
-                        itemsToAdd.append(model)
-                    }
-                }
-                if !itemsToAdd.isEmpty {
-                    state = .loaded(walletModel: (existingWalletModels + itemsToAdd)/*.sorted{ $0.wallet.blockchain.displayName < $1.wallet.blockchain.displayName}*/)
-                }
+                state = .loaded(walletModel: (existingWalletModels + newWalletModels))
             }
         }
     }
@@ -673,16 +663,19 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
         
-        let newWalletModels = assembly.makeWalletModels(from: cardInfo, entries: entries)
-        newWalletModels.forEach { $0.update() }
+        var newWalletModels: [WalletModel] = []
         
         entries.forEach { entry in
             if let existingWalletModel = walletModels.first(where: { $0.blockchainNetwork == entry.blockchainNetwork }) {
                 existingWalletModel.addTokens(entry.tokens)
                 existingWalletModel.update()
+            } else {
+                let wm = assembly.makeWalletModels(from: cardInfo, entries: [entry])
+                newWalletModels.append(contentsOf: wm)
             }
         }
         
+        newWalletModels.forEach { $0.update() }
         updateLoadedState(with: newWalletModels)
         completion(.success(()))
     }
@@ -745,7 +738,13 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
     
-    private func tryMigrateTokens(completion: @escaping (Bool) -> Void) {
+    private func tryMigrateTokens(completion: @escaping () -> Void) {
+        if migrated {
+            completion()
+            return
+        }
+        
+        migrated = true
         let cardId = cardInfo.card.cardId
         let items = tokenItemsRepository.getItems(for: cardId)
         let itemsWithCustomTokens = items.filter { item in
@@ -753,13 +752,13 @@ class CardViewModel: Identifiable, ObservableObject {
         }
         
         if itemsWithCustomTokens.isEmpty {
-            completion(false)
+            completion()
             return
         }
         
         let publishers = itemsWithCustomTokens.flatMap { item in
             item.tokens.map { token in
-                tokenListService.checkContractAddress(contractAddress: token.contractAddress, networkId: item.blockchainNetwork.blockchain.id)
+                tokenListService.checkContractAddress(contractAddress: token.contractAddress, networkId: item.blockchainNetwork.blockchain.networkId)
                     .replaceError(with: [])
                     .map { [unowned self] models in
                         if let updatedTokem = models.first?.items.compactMap({$0.token}).first {
@@ -773,8 +772,8 @@ class CardViewModel: Identifiable, ObservableObject {
         Publishers.MergeMany(publishers)
             .collect(publishers.count)
             .sink {[unowned self] _ in
-                self.updateState()
-                completion(true)
+                self.updateLoadedState(with: [])
+                completion()
             } receiveValue: { _ in }
             .store(in: &bag)
     }
