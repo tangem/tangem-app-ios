@@ -87,7 +87,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     @Published var addButtonDisabled = false
     @Published var isLoading = false
     
-    @Published private(set) var foundStandardToken: TokenItem?
+    @Published private(set) var foundStandardToken: CurrencyModel?
     
     private var bag: Set<AnyCancellable> = []
     private var blockchainByName: [String: Blockchain] = [:]
@@ -123,8 +123,8 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         let blockchain: Blockchain
         let derivationPath: DerivationPath?
         do {
-            if let foundStandardToken = self.foundStandardToken {
-                tokenItem = foundStandardToken
+            if let foundStandardTokenItem = self.foundStandardToken?.items.first {
+                tokenItem = foundStandardTokenItem
             } else {
                 tokenItem = try enteredTokenItem()
             }
@@ -229,18 +229,23 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         let defaultItem = ("custom_token_derivation_path_default".localized, "")
         
         let evmBlockchains = getBlockchains(withTokenSupport: false).filter { $0.isEvm }
-        let evmDerivationPaths: [(String, String)] = evmBlockchains
-            .compactMap {
-                guard let derivationPath = $0.derivationPath(for: derivationStyle) else {
-                    return nil
+        let evmDerivationPaths: [(String, String)]
+        if !cardModel.cardInfo.card.settings.isHDWalletAllowed {
+            evmDerivationPaths = []
+        } else {
+            evmDerivationPaths = evmBlockchains
+                .compactMap {
+                    guard let derivationPath = $0.derivationPath(for: derivationStyle) else {
+                        return nil
+                    }
+                    let derivationPathFormatted = derivationPath.rawPath
+                    let description = "\($0.displayName) (\(derivationPathFormatted))"
+                    return (description, derivationPathFormatted)
                 }
-                let derivationPathFormatted = derivationPath.rawPath
-                let description = "\($0.displayName) (\(derivationPathFormatted))"
-                return (description, derivationPathFormatted)
-            }
-            .sorted {
-                $0.0 < $1.0
-            }
+                .sorted {
+                    $0.0 < $1.0
+                }
+        }
         
         let uniqueDerivations = Set(evmDerivationPaths.map(\.1))
         
@@ -331,6 +336,14 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     private func findToken(contractAddress: String) -> AnyPublisher<[CurrencyModel], Never> {
+        if let currentCurrencyModel = foundStandardToken,
+           let token = currentCurrencyModel.items.first?.token,
+           token.contractAddress.caseInsensitiveCompare(contractAddress) == .orderedSame
+        {
+            return Just([currentCurrencyModel])
+                .eraseToAnyPublisher()
+        }
+        
         return tokenListService
             .checkContractAddress(contractAddress: contractAddress, networkId: nil)
             .replaceError(with: [])
@@ -341,6 +354,8 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         warningContainer.removeAll()
         addButtonDisabled = false
         isLoading = false
+        
+        let previouslyFoundStandardToken = foundStandardToken
         
         let currencyModelBlockchains = currencyModels.reduce(Set<Blockchain>()) { partialResult, currencyModel in
             partialResult.union(currencyModel.items.map { $0.blockchain })
@@ -357,7 +372,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         let firstTokenItem = currencyModels.first?.items.first
         
         if currencyModels.count == 1 {
-            foundStandardToken = firstTokenItem
+            foundStandardToken = currencyModels.first
         } else {
             foundStandardToken = nil
         }
@@ -370,7 +385,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 UIApplication.shared.endEditing()
             }
-        } else {
+        } else if previouslyFoundStandardToken != nil {
             decimals = ""
             symbol = ""
             name = ""
