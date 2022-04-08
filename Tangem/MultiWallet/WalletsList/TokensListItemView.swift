@@ -72,6 +72,7 @@ struct TokensListItemView: View {
                     }
                     if item.isCustom {
                         CustomTokenBadge()
+                            .layoutPriority(-1)
                     } else {
                         Text(secondaryText)
                             .fixedSize(horizontal: false, vertical: true)
@@ -114,7 +115,7 @@ struct WalletsViewItem_Previews: PreviewProvider {
                 
                 TokensListItemView(item: TokenItemViewModel(state: .idle, hasTransactionInProgress: false,
                                                             name: "Ethereum ",
-                                                            fiatBalance: "$3.45",
+                                                            fiatBalance: "$100500222.33",
                                                             balance: "0.00000348501 BTC",
                                                             rate: "1.5 USD",
                                                             amountType: .coin,
