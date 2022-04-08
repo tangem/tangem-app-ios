@@ -37,8 +37,6 @@ class ServicesAssembly {
    
     lazy var tangemSdk: TangemSdk = .init()
     
-    lazy var scannedCardsRepository: ScannedCardsRepository = ScannedCardsRepository(storage: persistentStorage)
-    
     lazy var defaultSdkConfig: Config = {
         var config = Config()
         config.filter.allowedCardTypes = [.release, .sdk]
