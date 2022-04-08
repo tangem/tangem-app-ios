@@ -9,6 +9,7 @@
 import Foundation
 import TangemSdk
 import Combine
+import BlockchainSdk
 
 protocol WarningsConfigurator: AnyObject {
     func setupWarnings(for cardInfo: CardInfo)
@@ -73,7 +74,8 @@ class WarningsService {
         let remoteWarnings = self.remoteWarnings(for: cardInfo, location: .main)
         container.add(remoteWarnings)
         
-        if !userPrefsService.isFundsRestorationShown && cardInfo.card.settings.isHDWalletAllowed {
+        if !userPrefsService.isFundsRestorationShown && cardInfo.card.settings.isHDWalletAllowed
+            && cardInfo.card.derivationStyle == .legacy {
             container.add(WarningEvent.fundsRestoration.warning)
         }
         
