@@ -396,7 +396,11 @@ extension Assembly {
         let assembly = WalletManagerAssembly(factory: walletManagerFactory,
                                              tokenItemsRepository: services.tokenItemsRepository)
         let walletManagers = assembly.makeAllWalletManagers(for: cardInfo)
-        return makeWalletModels(walletManagers: walletManagers, cardInfo: cardInfo)
+        return makeWalletModels(walletManagers: walletManagers,
+                                derivationStyle: cardInfo.card.derivationStyle,
+                                isDemoCard: cardInfo.card.isDemoCard,
+                                defaultToken: cardInfo.defaultToken,
+                                defaultBlockchain: cardInfo.defaultBlockchain)
     }
     
     func makeWalletModels(from cardInfo: CardInfo, entries: [StorageEntry]) -> [WalletModel] {
@@ -404,7 +408,11 @@ extension Assembly {
         let assembly = WalletManagerAssembly(factory: walletManagerFactory,
                                              tokenItemsRepository: services.tokenItemsRepository)
         let walletManagers = assembly.makeWalletManagers(from: cardInfo, entries: entries)
-        return makeWalletModels(walletManagers: walletManagers, cardInfo: cardInfo)
+        return makeWalletModels(walletManagers: walletManagers,
+                                derivationStyle: cardInfo.card.derivationStyle,
+                                isDemoCard: cardInfo.card.isDemoCard,
+                                defaultToken: cardInfo.defaultToken,
+                                defaultBlockchain: cardInfo.defaultBlockchain)
     }
     
     func makeWalletModels(from cardDto: SavedCard, blockchainNetworks: [BlockchainNetwork]) -> [WalletModel] {
@@ -412,25 +420,30 @@ extension Assembly {
         let assembly = WalletManagerAssembly(factory: walletManagerFactory,
                                              tokenItemsRepository: services.tokenItemsRepository)
         let walletManagers = assembly.makeWalletManagers(from: cardDto, blockchainNetworks: blockchainNetworks)
-        return makeWalletModels(walletManagers: walletManagers, cardInfo: nil)
+        return makeWalletModels(walletManagers: walletManagers,
+                                derivationStyle: cardDto.derivationStyle,
+                                isDemoCard: false)
     }
     
     //Make walletModel from walletManager
-    private func makeWalletModels(walletManagers: [WalletManager], cardInfo: CardInfo?) -> [WalletModel] {
+    private func makeWalletModels(walletManagers: [WalletManager],
+                                  derivationStyle: DerivationStyle,
+                                  isDemoCard: Bool,
+                                  defaultToken: BlockchainSdk.Token? = nil,
+                                  defaultBlockchain: Blockchain? = nil) -> [WalletModel] {
         let items = SupportedTokenItems()
         return walletManagers.map { manager -> WalletModel in
             var demoBalance: Decimal? = nil
-            if let card = cardInfo?.card, card.isDemoCard,
-               let balance = items.predefinedDemoBalances[manager.wallet.blockchain] {
+            if isDemoCard, let balance = items.predefinedDemoBalances[manager.wallet.blockchain] {
                 demoBalance = balance
             }
             
             let model = WalletModel(walletManager: manager,
                                     signer: services.signer,
-                                    defaultToken: cardInfo?.defaultToken,
-                                    defaultBlockchain: cardInfo?.defaultBlockchain,
-                                    demoBalance: demoBalance,
-                                    cardInfo: cardInfo)
+                                    derivationStyle: derivationStyle,
+                                    defaultToken: defaultToken,
+                                    defaultBlockchain: defaultBlockchain,
+                                    demoBalance: demoBalance)
             model.tokenItemsRepository = services.tokenItemsRepository
             model.ratesService = services.ratesService
             return model
