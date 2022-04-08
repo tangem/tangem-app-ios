@@ -26,7 +26,7 @@ class CurrencySelectViewModel: ViewModel, ObservableObject {
             .baseCurrencies()
             .receive(on: DispatchQueue.main)
             .mapError { _ in
-                CurrencySelectorError.failedToLoad
+                AppError.serverUnavailable
             }
             .sink(receiveCompletion: {[weak self] completion in
                 if case let .failure(error) = completion {
@@ -40,18 +40,5 @@ class CurrencySelectViewModel: ViewModel, ObservableObject {
                     }
             })
             .store(in: &self.bag)
-    }
-}
-
-extension CurrencySelectViewModel {
-    enum CurrencySelectorError: Error, LocalizedError {
-        case failedToLoad
-        
-        var errorDescription: String? {
-            switch self {
-            case .failedToLoad:
-                return "common_failed_to_load_data".localized
-            }
-        }
     }
 }
