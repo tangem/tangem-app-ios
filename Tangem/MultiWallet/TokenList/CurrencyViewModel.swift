@@ -28,6 +28,16 @@ class CurrencyViewModel: Identifiable, ObservableObject {
         self.imageURL = currency.imageURL
         self.items = items
     }
+    
+    func hasContractAddress(_ contractAddress: String) -> Bool {
+        items.contains { item in
+            guard let tokenContractAddress = item.tokenItem.contractAddress else {
+                return false
+            }
+            
+            return tokenContractAddress == contractAddress
+        }
+    }
 }
 
 extension CurrencyViewModel: Hashable {
