@@ -167,6 +167,10 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
                 let derivationPath = walletModel.wallet.publicKey.derivationPath
                 dataToFormat.append(EmailCollectedData(type: .wallet(.derivationPath), data: derivationPath?.rawPath ?? "[default]"))
                 
+                if let outputsDescription = walletModel.walletManager.outputsCount?.description {
+                    dataToFormat.append(EmailCollectedData(type: .wallet(.outputsCount), data: outputsDescription))
+                }
+
                 let tokens = walletModel.wallet.amounts.keys.compactMap ({ $0.token })
                 if !tokens.isEmpty {
                     dataToFormat.append(EmailCollectedData(type: .token(.tokens), data: ""))
