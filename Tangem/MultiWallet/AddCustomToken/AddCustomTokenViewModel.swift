@@ -392,14 +392,14 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         }
         
         do {
+            try checkLocalStorage()
+
             if currencyModels.isEmpty,
                let blockchain = try? enteredBlockchain(),
                let _ = try? enteredContractAddress(in: blockchain)
             {
                 throw TokenSearchError.failedToFindToken
             }
-            
-            try checkLocalStorage()
         } catch {
             let tokenSearchError = error as? TokenSearchError
             addButtonDisabled = tokenSearchError?.preventsFromAdding ?? false
