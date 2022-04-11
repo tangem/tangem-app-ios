@@ -80,7 +80,7 @@ fileprivate struct PickerInputWithTitle: View {
 
 fileprivate struct PickerStyleModifier: ViewModifier {
     func body(content: Content) -> some View {
-        if #available(iOS 14, *) {
+        if #available(iOS 15, *) {
             content
                 .pickerStyle(.menu)
         } else {
