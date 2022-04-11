@@ -98,14 +98,6 @@ struct AddCustomTokenView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 10) {
-                HStack {
-                    Text("add_custom_token_title".localized)
-                        .font(Font.system(size: 36, weight: .bold, design: .default))
-                        .padding(.vertical)
-                    
-                    Spacer()
-                }
-                
                 VStack(spacing: 1) {
                     TextInputWithTitle(title: "custom_token_contract_address_input_title".localized, placeholder: "0x0000000000000000000000000000000000000000", text: $viewModel.contractAddress, keyboardType: .default, isEnabled: true, isLoading: viewModel.isLoading)
                         .cornerRadius(10, corners: [.topLeft, .topRight])
@@ -136,7 +128,7 @@ struct AddCustomTokenView: View {
         .alert(item: $viewModel.error, content: { $0.alert })
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarHidden(false)
-        .navigationBarTitle("", displayMode: .inline)
+        .navigationBarTitle("add_custom_token_title".localized)
         .navigationBarBackButtonHidden(false)
     }
 }
