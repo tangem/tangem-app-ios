@@ -45,11 +45,11 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     var shouldShowAlert: Bool {
-        guard let cardModel = self.cardModel else {
+        guard let card = self.cardModel?.cardInfo.card else {
             return false
         }
         
-        return cardModel.cardInfo.card.derivationStyle == .legacy
+        return card.settings.isHDWalletAllowed && card.derivationStyle == .legacy
     }
     
     var isSaveDisabled: Bool {
