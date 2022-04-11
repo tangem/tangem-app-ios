@@ -125,7 +125,6 @@ class TokenListViewModel: ViewModel, ObservableObject {
         DispatchQueue.main.async {
             self.enteredSearchText.value = ""
             self.filteredData = []
-            self.clearSelection()
         }
     }
     
@@ -214,6 +213,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
                 .sink(receiveValue: { [unowned self] items in
                     self.filteredData = self.data
                     self.isLoading = false
+                    self.updateSelection()
                 })
             return
         }
@@ -267,16 +267,13 @@ class TokenListViewModel: ViewModel, ObservableObject {
             }
     }
     
-    private func clearSelection() {
-        let activeItems = self.pendingAdd + self.pendingRemove
+    private func updateSelection() {
         self.pendingAdd = []
         self.pendingRemove = []
-        
-        activeItems.forEach { addItem in
-            data.forEach { item in
-                if let index = item.items.firstIndex(where: {$0.tokenItem == addItem }) {
-                    item.items[index].updateSelection(with: bindSelection(addItem))
-                }
+
+        data.forEach { currency in
+            currency.items.forEach { currencyItem in
+                currencyItem.updateSelection(with: bindSelection(currencyItem.tokenItem))
             }
         }
     }
