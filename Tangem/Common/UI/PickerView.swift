@@ -15,7 +15,7 @@ struct PickerView: View {
     
     var body: some View {
         Picker("", selection: $selection) {
-            ForEach(0..<contents.count) {
+            ForEach(0..<contents.count, id:\.self) {
                 Text(contents[$0]).tag($0)
             }
         }
