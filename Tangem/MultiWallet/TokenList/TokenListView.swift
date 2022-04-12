@@ -18,62 +18,63 @@ struct TokenListView: View {
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 0) {
+            ZStack {
                 navigationLinks
-
-                SearchBar(text: $viewModel.enteredSearchText.value, placeholder: "common_search".localized)
-                    .padding(.horizontal, 8)
-
-                if viewModel.isLoading {
-                    Spacer()
-                    ActivityIndicatorView(color: .gray)
-                    Spacer()
-                } else {
-                    PerfList {
-                        if viewModel.shouldShowAlert {
-                            Text("alert_manage_tokens_addresses_message")
-                                .font(.system(size: 13, weight: .medium, design: .default))
-                                .multilineTextAlignment(.center)
-                                .foregroundColor(Color(hex: "#848488"))
-                                .cornerRadius(10)
-                                .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
-                                .perfListPadding()
+                
+                    if viewModel.isLoading {
+                        VStack {
+                            Spacer()
+                            ActivityIndicatorView(color: .gray)
+                                .padding(.bottom, 32)
+                            Spacer()
                         }
-                        
-                        PerfListDivider()
-                        
-                        ForEach(viewModel.filteredData) {
-                            CurrencyView(model: $0)
-                                .buttonStyle(PlainButtonStyle()) //fix ios13 list item selection
-                                .perfListPadding()
+                    } else {
+                        PerfList {
+                            
+                            let horizontlInset: CGFloat = UIDevice.isIOS13 ? 8 : 16
+                            SearchBar(text: $viewModel.enteredSearchText.value, placeholder: "common_search".localized)
+                                .padding(.horizontal, UIDevice.isIOS13 ? 0 : 8)
+                                .listRowInsets(.init(top: 8, leading: horizontlInset, bottom: 8, trailing: horizontlInset))
+                            
+                            if viewModel.shouldShowAlert {
+                                Text("alert_manage_tokens_addresses_message")
+                                    .font(.system(size: 13, weight: .medium, design: .default))
+                                    .multilineTextAlignment(.center)
+                                    .foregroundColor(Color(hex: "#848488"))
+                                    .cornerRadius(10)
+                                    .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
+                                    .perfListPadding()
+                            }
+                            
                             PerfListDivider()
+                            
+                            ForEach(viewModel.filteredData) {
+                                CurrencyView(model: $0)
+                                    .buttonStyle(PlainButtonStyle()) //fix ios13 list item selection
+                                    .perfListPadding()
+                                PerfListDivider()
+                            }
+                            
+                            if !viewModel.isReadonlyMode {
+                                Color.clear.frame(width: 10, height: 58, alignment: .center)
+                            }
                         }
                     }
-                }
                 
-                if !viewModel.isReadonlyMode {
-                    TangemButton(title: "common_save_changes", action: viewModel.saveChanges)
-                        .buttonStyle(TangemButtonStyle(colorStyle: .black,
-                                                       layout: .flexibleWidth,
-                                                       isDisabled: viewModel.isSaveDisabled,
-                                                       isLoading: viewModel.isSaving))
-                        .padding([.leading, .trailing, .top], 16)
-                        .padding(.bottom, 8)
-                        .ignoresKeyboard()
-                }
+                overlay
             }
-            .background(Color.clear)
             .navigationBarBackButtonHidden(true)
-            .navigationBarTitle("", displayMode: .inline)
-            .navigationBarItems(leading: titleView, trailing: addCustomView)
+            .navigationBarTitle(viewModel.titleKey)
+            .navigationBarItems(trailing: addCustomView)
+            .alert(item: $viewModel.error, content: { $0.alert })
+            .toast(isPresenting: $viewModel.showToast) {
+                AlertToast(type: .complete(Color.tangemGreen), title: "contract_address_copied_message".localized)
+            }
         }
-        .navigationViewStyle(StackNavigationViewStyle())
+        .background(Color.clear.edgesIgnoringSafeArea(.all))
+        .navigationViewStyle(.stack)
         .onAppear { viewModel.onAppear() }
         .onDisappear { viewModel.onDissapear() }
-        .alert(item: $viewModel.error, content: { $0.alert })
-        .toast(isPresenting: $viewModel.showToast) {
-            AlertToast(type: .complete(Color.tangemGreen), title: "contract_address_copied_message".localized)
-        }
     }
     
     @ViewBuilder private var addCustomView: some View {
@@ -97,6 +98,27 @@ struct TokenListView: View {
         Text(viewModel.titleKey)
             .font(Font.system(size: 30, weight: .bold, design: .default))
             .minimumScaleFactor(0.8)
+    }
+    
+    @ViewBuilder private var overlay: some View {
+        if !viewModel.isReadonlyMode {
+            VStack {
+                Spacer()
+                
+                TangemButton(title: "common_save_changes", action: viewModel.saveChanges)
+                    .buttonStyle(TangemButtonStyle(colorStyle: .black,
+                                                   layout: .flexibleWidth,
+                                                   isDisabled: viewModel.isSaveDisabled,
+                                                   isLoading: viewModel.isSaving))
+                    .padding([.horizontal, .top], 16)
+                    .padding(.bottom, 8)
+                    .keyboardAdaptive()
+                    .background(LinearGradient(colors: [.white, .white, .white.opacity(0)],
+                                               startPoint: .bottom,
+                                               endPoint: .top)
+                        .edgesIgnoringSafeArea(.bottom))
+            }
+        }
     }
     
     private var navigationLinks: some View {
