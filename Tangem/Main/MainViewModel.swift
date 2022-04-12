@@ -90,7 +90,7 @@ class MainViewModel: ViewModel, ObservableObject {
         return true
     }
     
-    public var hasMultimpleButtons: Bool {
+    public var hasMultipleButtons: Bool {
         if canCreateWallet {
           return true
         }
