@@ -757,13 +757,16 @@ class CardViewModel: Identifiable, ObservableObject {
         }
         
         let publishers = itemsWithCustomTokens.flatMap { item in
-            item.tokens.map { token in
-                tokenListService.checkContractAddress(contractAddress: token.contractAddress, networkId: item.blockchainNetwork.blockchain.networkId)
+            item.tokens.filter { $0.isCustom }.map { token in
+                tokenListService
+                    .checkContractAddress(contractAddress: token.contractAddress, networkId: item.blockchainNetwork.blockchain.networkId)
                     .replaceError(with: [])
-                    .map { [unowned self] models in
+                    .map { [unowned self] models -> Bool in
                         if let updatedTokem = models.first?.items.compactMap({$0.token}).first {
                             self.tokenItemsRepository.append([updatedTokem], blockchainNetwork: item.blockchainNetwork, for: cardId)
+                            return true
                         }
+                        return false
                     }
                     .eraseToAnyPublisher()
             }
@@ -771,10 +774,12 @@ class CardViewModel: Identifiable, ObservableObject {
         
         Publishers.MergeMany(publishers)
             .collect(publishers.count)
-            .sink {[unowned self] _ in
-                self.updateLoadedState(with: [])
+            .sink { [unowned self] migrationResults in
+                if migrationResults.contains(true) {
+                    self.state = .loaded(walletModel: self.assembly.makeAllWalletModels(from: self.cardInfo))
+                }
                 completion()
-            } receiveValue: { _ in }
+            }
             .store(in: &bag)
     }
     
