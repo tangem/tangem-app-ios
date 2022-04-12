@@ -124,7 +124,6 @@ struct AddCustomTokenView: View {
             }
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
-          //  .background(Color.tangemBgGray.edgesIgnoringSafeArea(.bottom))
         }
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
