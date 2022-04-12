@@ -45,11 +45,11 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     var shouldShowAlert: Bool {
-        guard let cardModel = self.cardModel else {
+        guard let card = self.cardModel?.cardInfo.card else {
             return false
         }
         
-        return cardModel.cardInfo.card.derivationStyle == .legacy
+        return card.settings.isHDWalletAllowed && card.derivationStyle == .legacy
     }
     
     var isSaveDisabled: Bool {
@@ -125,7 +125,6 @@ class TokenListViewModel: ViewModel, ObservableObject {
         DispatchQueue.main.async {
             self.enteredSearchText.value = ""
             self.filteredData = []
-            self.clearSelection()
         }
     }
     
@@ -142,13 +141,13 @@ class TokenListViewModel: ViewModel, ObservableObject {
         searchCancellable =
         Just(searchText)
             .receive(on: DispatchQueue.global(), options: nil)
-            .map {[unowned self] string in
-                return self.search(string)
+            .map {[weak self] string in
+                return self?.search(string) ?? []
             }
             .receive(on: DispatchQueue.main, options: nil)
-            .sink(receiveValue: {[unowned self] results in
-                self.filteredData = results
-                self.isLoading = false
+            .sink(receiveValue: {[weak self] results in
+                self?.filteredData = results
+                self?.isLoading = false
             })
     }
     
@@ -211,9 +210,12 @@ class TokenListViewModel: ViewModel, ObservableObject {
         if !data.isEmpty {
             loadCancellable = Just(data)
                 .delay(for: 0.1, scheduler: DispatchQueue.main)
-                .sink(receiveValue: { [unowned self] items in
+                .sink(receiveValue: { [weak self] items in
+                    guard let self = self else { return }
+                    
                     self.filteredData = self.data
                     self.isLoading = false
+                    self.updateSelection()
                 })
             return
         }
@@ -225,8 +227,10 @@ class TokenListViewModel: ViewModel, ObservableObject {
         let isSupportSolanaTokens = cardModel?.cardInfo.card.canSupportSolanaTokens ?? true
         
         loadCancellable = itemsRepo.loadCurrencies(isTestnet: isTestnet)
-            .map {[unowned self] currencies -> [CurrencyViewModel] in
-                currencies.compactMap { currency -> CurrencyViewModel? in
+            .map {[weak self] currencies -> [CurrencyViewModel] in
+                guard let self = self else { return [] }
+                
+                 return currencies.compactMap { currency -> CurrencyViewModel? in
                     let filteredItems = currency.items.filter { item in
                         if !supportedCurves.contains(item.blockchain.curve) {
                             return false
@@ -260,23 +264,22 @@ class TokenListViewModel: ViewModel, ObservableObject {
             }
             .replaceError(with: [])
             .receive(on: DispatchQueue.main)
-            .sink {[unowned self] items in
+            .sink {[weak self] items in
+                guard let self = self else { return }
+                
                 self.data = items
                 self.filteredData = items
                 self.isLoading = false
             }
     }
     
-    private func clearSelection() {
-        let activeItems = self.pendingAdd + self.pendingRemove
+    private func updateSelection() {
         self.pendingAdd = []
         self.pendingRemove = []
-        
-        activeItems.forEach { addItem in
-            data.forEach { item in
-                if let index = item.items.firstIndex(where: {$0.tokenItem == addItem }) {
-                    item.items[index].updateSelection(with: bindSelection(addItem))
-                }
+
+        data.forEach { currency in
+            currency.items.forEach { currencyItem in
+                currencyItem.updateSelection(with: bindSelection(currencyItem.tokenItem))
             }
         }
     }
@@ -334,8 +337,8 @@ class TokenListViewModel: ViewModel, ObservableObject {
     private func bind() {
         enteredSearchText
             .dropFirst()
-            .sink { [unowned self] string in
-                self.startSearch(with: string)
+            .sink { [weak self] string in
+                self?.startSearch(with: string)
             }
             .store(in: &bag)
     }

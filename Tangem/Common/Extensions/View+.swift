@@ -10,16 +10,6 @@ import Foundation
 import SwiftUI
 
 extension View {
-    @ViewBuilder func ignoresKeyboard() -> some View {
-        if #available(iOS 14.0, *) {
-            self.ignoresSafeArea(.keyboard)
-        } else {
-            self
-        }
-    }
-}
-
-extension View {
 	func toAnyView() -> AnyView {
 		AnyView(self)
 	}
@@ -39,6 +29,22 @@ extension View {
             self.toggleStyle(SwitchToggleStyle(tint: color))
         } else {
             self
+        }
+    }
+    
+    @ViewBuilder func ignoresKeyboard() -> some View {
+        if #available(iOS 14.0, *) {
+            self.ignoresSafeArea(.keyboard)
+        } else {
+            self
+        }
+    }
+    
+    @ViewBuilder func ignoresBottomArea() -> some View {
+        if #available(iOS 14.0, *) {
+            self.ignoresSafeArea(.container, edges: .bottom)
+        } else {
+            self.edgesIgnoringSafeArea(.bottom)
         }
     }
 }
