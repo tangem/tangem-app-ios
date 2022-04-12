@@ -90,6 +90,26 @@ class MainViewModel: ViewModel, ObservableObject {
         return true
     }
     
+    public var hasMultimpleButtons: Bool {
+        if canCreateWallet {
+          return true
+        }
+        
+        if !canCreateWallet
+            && canBuyCrypto
+            && !(cardModel?.cardInfo.isMultiWallet ?? true)  {
+           return true
+        }
+        
+        if let cardModel = self.cardModel, !cardModel.cardInfo.isMultiWallet,
+           (!canCreateWallet || (cardModel.isTwinCard && cardModel.hasBalance)) {
+           return true
+        }
+        
+        return false
+    }
+    
+    
     public var canCreateWallet: Bool {
         if isTwinCard {
             return cardModel?.canCreateTwinCard ?? false
