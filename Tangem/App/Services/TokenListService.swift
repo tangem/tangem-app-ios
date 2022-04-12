@@ -46,7 +46,7 @@ class TokenListService {
                                 return false
                             }
                             
-                            return $0.active == true && $0.address == contractAddress
+                            return $0.active == true && $0.address.caseInsensitiveCompare(contractAddress) == .orderedSame
                         }
                         
                         guard activeContracts?.isEmpty == false else {
