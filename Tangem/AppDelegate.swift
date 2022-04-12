@@ -39,18 +39,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UISwitch.appearance().onTintColor = .tangemBlue
         UITableView.appearance().backgroundColor = .clear
         UIScrollView.appearance().keyboardDismissMode = .onDrag
-        if #available(iOS 15.0, *) {
-            let appearance = UINavigationBarAppearance()
-            appearance.backgroundColor = UIColor.tangemBgGray.withAlphaComponent(0.85)
-            appearance.shadowColor = .clear
-            UINavigationBar.appearance().standardAppearance = appearance
-            UINavigationBar.appearance().scrollEdgeAppearance = appearance
-        } else {
-            UINavigationBar.appearance().barTintColor = UIColor.tangemBgGray
-            UINavigationBar.appearance().tintColor = UIColor.tangemGrayDark6
-            UINavigationBar.appearance().shadowImage = UIImage()
-        }
-        
+
         if #available(iOS 14.0, *) {
             // iOS 14 doesn't have extra separators below the list by default.
         } else {
