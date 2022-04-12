@@ -153,8 +153,8 @@ struct MainView: View {
         ZStack {
             navigationLinks
             GeometryReader { geometry in
-                VStack {
-                    RefreshableScrollView(refreshing: $viewModel.isRefreshing) {
+                ZStack {
+                    RefreshableScrollView(onRefresh: { viewModel.onRefresh($0) }) {
                         VStack(spacing: 8.0) {
                             CardView(image: viewModel.image,
                                      width: geometry.size.width - 32,
@@ -208,10 +208,8 @@ struct MainView: View {
                                         .padding(.horizontal, 16)
                                         .padding(.bottom, 8)
                                         .sheet(isPresented: $navigation.mainToAddTokens, content: {
-                                            NavigationView {
                                                 TokenListView(viewModel: viewModel.assembly.makeTokenListViewModel(mode: .add(cardModel: viewModel.cardModel!)))
                                                     .environmentObject(navigation)
-                                            }
                                         })
                                         
                                     } else {
@@ -242,22 +240,15 @@ struct MainView: View {
                                                                   payID: viewModel.cardModel!.payId)
                                             }
                                         }
-                                        
-                                        //                                Color.clear.frame(width: 1, height: 1, alignment: .center)
-                                        //                                    .sheet(isPresented: $navigation.mainToCreatePayID, content: {
-                                        //                                        CreatePayIdView(cardId: viewModel.state.cardModel!.cardInfo.card.cardId ?? "",
-                                        //                                                        cardViewModel: viewModel.state.cardModel!)
-                                        //                                    })
                                     }
                                 }
                             }
+                            
+                            Color.clear.frame(width: 10, height: viewModel.hasMultipleButtons ? 116 : 58, alignment: .center)
                         }
                     }
                     
                     bottomButtons
-                        .padding(.top, 8)
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 8.0)
                         .frame(width: geometry.size.width)
                 }
             }
@@ -310,7 +301,6 @@ struct MainView: View {
             .accessibility(label: Text("voice_over_open_card_details"))
             .padding(0.0)
         )
-        .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
         .onAppear {
             viewModel.onAppear()
         }
@@ -417,27 +407,39 @@ struct MainView: View {
         }
     }
     
+ 
     var bottomButtons: some View {
         VStack {
-            HStack(alignment: .center) {
-                
-                if viewModel.canCreateWallet {
-                    createWalletButton
-                }
-                
-                if !viewModel.canCreateWallet
-                    && viewModel.canBuyCrypto
-                    && !(viewModel.cardModel?.cardInfo.isMultiWallet ?? true)  {
-                    exchangeCryptoButton
-                }
-                
-                if let cardModel = viewModel.cardModel, !cardModel.cardInfo.isMultiWallet,
-                   (!viewModel.canCreateWallet || (cardModel.isTwinCard && cardModel.hasBalance)) {
-                    sendButton
-                }
-            }
             
-            scanButton
+            Spacer()
+            
+            VStack {
+                HStack(alignment: .center) {
+                    
+                    if viewModel.canCreateWallet {
+                        createWalletButton
+                    }
+                    
+                    if !viewModel.canCreateWallet
+                        && viewModel.canBuyCrypto
+                        && !(viewModel.cardModel?.cardInfo.isMultiWallet ?? true)  {
+                        exchangeCryptoButton
+                    }
+                    
+                    if let cardModel = viewModel.cardModel, !cardModel.cardInfo.isMultiWallet,
+                       (!viewModel.canCreateWallet || (cardModel.isTwinCard && cardModel.hasBalance)) {
+                        sendButton
+                    }
+                }
+                
+                scanButton
+            }
+            .padding([.horizontal, .top], 16)
+            .padding(.bottom, 8)
+            .background(LinearGradient(colors: [.white, .white, .white.opacity(0)],
+                                       startPoint: .bottom,
+                                       endPoint: .top)
+                .edgesIgnoringSafeArea(.bottom))
         }
     }
 }
