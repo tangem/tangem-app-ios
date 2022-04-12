@@ -32,7 +32,7 @@ struct KeyboardAdaptive: ViewModifier {
 
 extension View {
     @ViewBuilder
-    func keyboardAdaptive(animated: Binding<Bool>) -> some View {
+    func keyboardAdaptive(animated: Binding<Bool> = .constant(true)) -> some View {
         if #available(iOS 14.0, *) {
             self
         } else {
