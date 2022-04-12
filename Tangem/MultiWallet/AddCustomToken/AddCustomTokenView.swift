@@ -15,7 +15,7 @@ fileprivate struct TextInputWithTitle: View {
     var text: Binding<String>
     var keyboardType: UIKeyboardType
     var height: CGFloat = 60
-    var backgroundColor: Color = .white
+    var backgroundColor: Color = Color(UIColor.systemGray6)
     let isEnabled: Bool
     let isLoading: Bool
     
@@ -48,7 +48,7 @@ fileprivate struct TextInputWithTitle: View {
 fileprivate struct PickerInputWithTitle: View {
     var title: String
     var height: CGFloat = 60
-    var backgroundColor: Color = .white
+    var backgroundColor: Color = Color(UIColor.systemGray6)
     @Binding var value: String
     let values: [(String, String)]
     let isEnabled: Bool
@@ -63,6 +63,7 @@ fileprivate struct PickerInputWithTitle: View {
                 Picker("", selection: $value) {
                     ForEach(values, id: \.1) { value in
                         Text(value.0)
+                            .minimumScaleFactor(0.7)
                             .tag(value.1)
                     }
                 }
@@ -121,15 +122,14 @@ struct AddCustomTokenView: View {
                 TangemButton(title: "custom_token_add_token", systemImage: "plus", action: viewModel.createToken)
                     .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth, isDisabled: viewModel.addButtonDisabled, isLoading: viewModel.isLoading))
             }
-            .padding([.horizontal, .bottom])
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+          //  .background(Color.tangemBgGray.edgesIgnoringSafeArea(.bottom))
         }
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
         .alert(item: $viewModel.error, content: { $0.alert })
-        .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
-        .navigationBarHidden(false)
         .navigationBarTitle("add_custom_token_title".localized)
-        .navigationBarBackButtonHidden(false)
     }
 }
 
