@@ -67,7 +67,7 @@ Tangem is the only hardware wallet to offer signature count protection.";
 "custom_token_contract_address_input_title" = "Contract address";
 "custom_token_creation_error_network_not_selected" = "Please select the network";
 "custom_token_creation_error_empty_fields" = "Please fill in all the fields";
-"custom_token_creation_error_wrong_decimals" = "Decimal number is invalid";
+"custom_token_creation_error_wrong_decimals" = "Decimal number must be a valid integer, no higher than %d";
 "custom_token_creation_error_invalid_contract_address" = "Contract address is invalid";
 "custom_token_creation_error_invalid_derivation_path" = "Derivation path is invalid";
 "custom_token_validation_error_not_found" = "Note that tokens can be created by anyone. Be aware of adding scam tokens, they can cost nothing.";
