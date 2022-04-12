@@ -16,7 +16,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     private enum TokenCreationErrors: LocalizedError {
         case blockchainNotSelected
         case emptyFields
-        case invalidDecimals
+        case invalidDecimals(precision: Int)
         case invalidContractAddress
         case invalidDerivationPath
         
@@ -26,8 +26,8 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 return "custom_token_creation_error_network_not_selected".localized
             case .emptyFields:
                 return "custom_token_creation_error_empty_fields".localized
-            case .invalidDecimals:
-                return "custom_token_creation_error_wrong_decimals".localized
+            case .invalidDecimals(let precision):
+                return "custom_token_creation_error_wrong_decimals".localized(precision)
             case .invalidContractAddress:
                 return "custom_token_creation_error_invalid_contract_address".localized
             case .invalidDerivationPath:
@@ -265,8 +265,12 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 throw TokenCreationErrors.emptyFields
             }
             
-            guard let decimals = Int(decimals) else {
-                throw TokenCreationErrors.invalidDecimals
+            let maxDecimalNumber = 30
+            guard
+                let decimals = Int(decimals),
+                0 <= decimals && decimals <= maxDecimalNumber
+            else {
+                throw TokenCreationErrors.invalidDecimals(precision: maxDecimalNumber)
             }
             
             let token = Token(
