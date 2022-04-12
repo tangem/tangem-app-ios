@@ -244,7 +244,7 @@ struct MainView: View {
                                 }
                             }
                             
-                            Color.clear.frame(width: 10, height: 58, alignment: .center)
+                            Color.clear.frame(width: 10, height: viewModel.hasMultimpleButtons ? 116 : 58, alignment: .center)
                         }
                     }
                     
@@ -407,6 +407,7 @@ struct MainView: View {
         }
     }
     
+ 
     var bottomButtons: some View {
         VStack {
             
