@@ -68,6 +68,7 @@
 		5D3F77DD24BF56DC00E8695B /* TangemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F77DC24BF56DC00E8695B /* TangemTests.swift */; };
 		5D3F77E824BF56DC00E8695B /* TangemUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F77E724BF56DC00E8695B /* TangemUITests.swift */; };
 		5D3FA5AC27E8E8BB00A80221 /* TapSwitchTogglColoredToggleStyleeStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D69E0E225016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift */; };
+		5D3FEA2228058CB7001DF0E0 /* UIDevice+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3FEA2128058CB7001DF0E0 /* UIDevice+.swift */; };
 		5D43E2D72514D5B700697E5B /* CardOperationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D43E2D62514D5B700697E5B /* CardOperationView.swift */; };
 		5D44AB8A27F75C1A00464FD9 /* Card+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FB98A42598D24300B769A3 /* Card+.swift */; };
 		5D49034F27BE84B20072C642 /* ExploreButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D49034E27BE84B20072C642 /* ExploreButton.swift */; };
@@ -577,6 +578,7 @@
 		5D3F77E324BF56DC00E8695B /* TangemUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TangemUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D3F77E724BF56DC00E8695B /* TangemUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemUITests.swift; sourceTree = "<group>"; };
 		5D3F77E924BF56DC00E8695B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		5D3FEA2128058CB7001DF0E0 /* UIDevice+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIDevice+.swift"; sourceTree = "<group>"; };
 		5D43E2D62514D5B700697E5B /* CardOperationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardOperationView.swift; sourceTree = "<group>"; };
 		5D49034E27BE84B20072C642 /* ExploreButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreButton.swift; sourceTree = "<group>"; };
 		5D49035127BE9D550072C642 /* Data+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+.swift"; sourceTree = "<group>"; };
@@ -1632,6 +1634,7 @@
 				5DDE22EE2608EFDB008657C6 /* UIViewController+.swift */,
 				B031AAB426C16A1B00015003 /* UIColor+.swift */,
 				B0C6B4C226CE678900FA990B /* CGSize+.swift */,
+				5D3FEA2128058CB7001DF0E0 /* UIDevice+.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -2722,6 +2725,7 @@
 				B0FAD00726BA697500F45E88 /* AppServicesAssembly.swift in Sources */,
 				5D9DCADE2551744F0059799C /* ViewModel.swift in Sources */,
 				B0C4A1D32671F3FC00DCB921 /* TestnetBuyCryptoService.swift in Sources */,
+				5D3FEA2228058CB7001DF0E0 /* UIDevice+.swift in Sources */,
 				B0C4F77D26F0BFF90086D815 /* OnboardingMessagesView.swift in Sources */,
 				5D96BD2A27F60B0D000AA797 /* TokenIconView.swift in Sources */,
 				5D43E2D72514D5B700697E5B /* CardOperationView.swift in Sources */,
