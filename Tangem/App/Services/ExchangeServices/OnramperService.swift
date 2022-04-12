@@ -32,21 +32,16 @@ fileprivate struct OnramperGateway: Decodable {
 }
 
 fileprivate struct OnramperCryptoCurrency: Decodable {
+    let id: String
     let code: String
+    let network: String?
 }
 
 
 class OnramperService {
     private let key: String
     
-    private var availableSymbols: Set<String> = [
-        "ZRX", "AAVE", "ALGO", "AXS", "BAT", "BNB", "BUSD", "BTC", "BCH", "BTT", "ADA", "CELO", "CUSD", "LINK", "CHZ", "COMP", "ATOM", "DAI", "DASH", "MANA", "DGB", "DOGE", "EGLD",
-        "ENJ", "EOS", "ETC", "ETH", "KETH", "RINKETH", "FIL", "HBAR", "MIOTA", "KAVA", "KLAY", "LBC", "LTC", "LUNA", "MKR", "OM", "MATIC", "NANO", "NEAR", "XEM", "NEO", "NIM", "OKB",
-        "OMG", "ONG", "ONT", "DOT", "QTUM", "RVN", "RFUEL", "KEY", "SRM", "SOL", "XLM", "STMX", "SNX", "KRT", "UST", "USDT", "XTZ", "RUNE", "SAND", "TOMO", "AVA", "TRX", "TUSD", "UNI",
-        "USDC", "UTK", "VET", "WAXP", "WBTC", "XRP", "ZEC", "ZIL"
-    ]
-    
-    private var availableGatewayIdentifiers: [String]?
+    private var availableCryptoCurrencies: [OnramperCryptoCurrency] = []
     
     private let canBuyCrypto = true
     private let canSellCrypto = false
@@ -71,16 +66,27 @@ class OnramperService {
             .sink { _ in
                 
             } receiveValue: { [unowned self] response in
-                let availableSymbols = response.gateways.reduce([]) {
+                let currencies = response.gateways.reduce([]) {
                     $0 + $1.cryptoCurrencies
-                }.reduce([]) {
-                    $0 + [$1.code]
                 }
                 
-                self.availableSymbols = Set(availableSymbols)
-                self.availableGatewayIdentifiers = response.gateways.map { $0.identifier }
+                self.availableCryptoCurrencies = currencies
             }
             .store(in: &bag)
+    }
+    
+    private func currencyId(currencySymbol: String, blockchain: Blockchain) -> String? {
+        let currencies = availableCryptoCurrencies.filter { $0.code == currencySymbol }
+        
+        let currency: OnramperCryptoCurrency?
+        if let onramperNetworkId = blockchain.onramperNetworkId {
+            let networkCurrencies = currencies.filter { $0.network == onramperNetworkId }
+            currency = networkCurrencies.first
+        } else {
+            currency = currencies.first
+        }
+        
+        return currency?.id
     }
 }
 
@@ -92,11 +98,7 @@ extension OnramperService: ExchangeService {
     }
     
     func canBuy(_ currency: String, blockchain: Blockchain) -> Bool {
-        if currency.uppercased() == "BNB" && (blockchain == .bsc(testnet: true) || blockchain == .bsc(testnet: false)) {
-            return false
-        }
-        
-        return availableSymbols.contains(currency.uppercased()) && canBuyCrypto
+        return canBuyCrypto && currencyId(currencySymbol: currency, blockchain: blockchain) != nil
     }
     
     func canSell(_ currency: String, blockchain: Blockchain) -> Bool {
@@ -104,7 +106,10 @@ extension OnramperService: ExchangeService {
     }
     
     func getBuyUrl(currencySymbol: String, blockchain: Blockchain, walletAddress: String) -> URL? {
-        guard canBuy(currencySymbol, blockchain: blockchain) else {
+        guard
+            canBuy(currencySymbol, blockchain: blockchain),
+            let currencyID = currencyId(currencySymbol: currencySymbol, blockchain: blockchain)
+        else {
             return nil
         }
         
@@ -114,8 +119,7 @@ extension OnramperService: ExchangeService {
         
         var queryItems = [URLQueryItem]()
         queryItems.append(.init(key: .apiKey, value: key.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
-        queryItems.append(.init(key: .defaultCrypto, value: currencySymbol.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
-        queryItems.append(.init(key: .onlyCryptos, value: currencySymbol.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
+        queryItems.append(.init(key: .defaultCrypto, value: currencyID.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         queryItems.append(.init(key: .wallets, value: "\(blockchain.currencySymbol):\(walletAddress)".addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         queryItems.append(.init(key: .redirectURL, value: successCloseUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)))
         queryItems.append(.init(key: .defaultFiat, value: "USD".addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
@@ -141,5 +145,18 @@ extension OnramperService: ExchangeService {
 extension URLQueryItem {
     fileprivate init(key: QueryKey, value: String?) {
         self.init(name: key.rawValue, value: value)
+    }
+}
+
+fileprivate extension Blockchain {
+    var onramperNetworkId: String? {
+        switch self {
+        case .bsc:
+            return "BEP-20"
+        case .binance:
+            return "BEP-2"
+        default:
+            return nil
+        }
     }
 }
