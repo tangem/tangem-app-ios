@@ -369,15 +369,9 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         }
         updateBlockchains(blockchains)
         
-        let firstTokenItem = currencyModels.first?.items.first
+        self.foundStandardToken = currencyModels.first
         
-        if currencyModels.count == 1 {
-            foundStandardToken = currencyModels.first
-        } else {
-            foundStandardToken = nil
-        }
-        
-        if let token = firstTokenItem?.token {
+        if let token = foundStandardToken?.items.first?.token {
             decimals = "\(token.decimalCount)"
             symbol = token.symbol
             name = token.name
