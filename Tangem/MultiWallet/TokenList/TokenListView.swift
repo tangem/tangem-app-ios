@@ -17,83 +17,107 @@ struct TokenListView: View {
     @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
-        VStack(spacing: 0) {
-            navigationLinks
-            
-            HStack {
-                Text(viewModel.titleKey)
-                    .font(Font.system(size: 30, weight: .bold, design: .default))
-                    .minimumScaleFactor(0.8)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 16)
+        NavigationView {
+            ZStack {
+                navigationLinks
                 
-                Spacer()
-                
-                if !viewModel.isReadonlyMode {
-                    Button(action: viewModel.showCustomTokenView) {
-                        ZStack {
-                            Circle().fill(Color.tangemGreen2)
-                            
-                            Image(systemName: "plus")
-                                .foregroundColor(.white)
-                                .font(.system(size: 13, weight: .bold, design: .default))
+                    if viewModel.isLoading {
+                        VStack {
+                            Spacer()
+                            ActivityIndicatorView(color: .gray)
+                                .padding(.bottom, 32)
+                            Spacer()
                         }
-                        .frame(width: 26, height: 26)
-                        .padding(16)
+                    } else {
+                        PerfList {
+                            
+                            let horizontlInset: CGFloat = UIDevice.isIOS13 ? 8 : 16
+                            SearchBar(text: $viewModel.enteredSearchText.value, placeholder: "common_search".localized)
+                                .padding(.horizontal, UIDevice.isIOS13 ? 0 : 8)
+                                .listRowInsets(.init(top: 8, leading: horizontlInset, bottom: 8, trailing: horizontlInset))
+                            
+                            if viewModel.shouldShowAlert {
+                                Text("alert_manage_tokens_addresses_message")
+                                    .font(.system(size: 13, weight: .medium, design: .default))
+                                    .multilineTextAlignment(.center)
+                                    .foregroundColor(Color(hex: "#848488"))
+                                    .cornerRadius(10)
+                                    .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
+                                    .perfListPadding()
+                            }
+                            
+                            PerfListDivider()
+                            
+                            ForEach(viewModel.filteredData) {
+                                CurrencyView(model: $0)
+                                    .buttonStyle(PlainButtonStyle()) //fix ios13 list item selection
+                                    .perfListPadding()
+                                PerfListDivider()
+                            }
+                            
+                            if !viewModel.isReadonlyMode {
+                                Color.clear.frame(width: 10, height: 58, alignment: .center)
+                            }
+                        }
                     }
-                }
+                
+                overlay
             }
-            
-            SearchBar(text: $viewModel.enteredSearchText.value, placeholder: "common_search".localized)
-                .background(Color.white)
-                .padding(.horizontal, 8)
-            
-            if viewModel.isLoading {
-                Spacer()
-                ActivityIndicatorView(color: .gray)
-                Spacer()
-            } else {
-                PerfList {
-                    if viewModel.shouldShowAlert {
-                        Text("alert_manage_tokens_addresses_message")
-                            .font(.system(size: 13, weight: .medium, design: .default))
-                            .multilineTextAlignment(.center)
-                            .foregroundColor(Color(hex: "#848488"))
-                            .cornerRadius(10)
-                            .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
-                            .perfListPadding()
-                    }
-                    
-                    PerfListDivider()
-                    
-                    ForEach(viewModel.filteredData) {
-                        CurrencyView(model: $0)
-                            .buttonStyle(PlainButtonStyle()) //fix ios13 list item selection
-                            .perfListPadding()
-                        PerfListDivider()
-                    }
-                }
+            .navigationBarBackButtonHidden(true)
+            .navigationBarTitle(viewModel.titleKey)
+            .navigationBarItems(trailing: addCustomView)
+            .alert(item: $viewModel.error, content: { $0.alert })
+            .toast(isPresenting: $viewModel.showToast) {
+                AlertToast(type: .complete(Color.tangemGreen), title: "contract_address_copied_message".localized)
             }
-            
-            if !viewModel.isReadonlyMode {
+        }
+        .background(Color.clear.edgesIgnoringSafeArea(.all))
+        .navigationViewStyle(.stack)
+        .onAppear { viewModel.onAppear() }
+        .onDisappear { viewModel.onDissapear() }
+    }
+    
+    @ViewBuilder private var addCustomView: some View {
+        if !viewModel.isReadonlyMode {
+            Button(action: viewModel.showCustomTokenView) {
+                ZStack {
+                    Circle().fill(Color.tangemGreen2)
+                    
+                    Image(systemName: "plus")
+                        .foregroundColor(.white)
+                        .font(.system(size: 13, weight: .bold, design: .default))
+                }
+                .frame(width: 26, height: 26)
+            }
+        } else {
+            EmptyView()
+        }
+    }
+    
+    @ViewBuilder private var titleView: some View {
+        Text(viewModel.titleKey)
+            .font(Font.system(size: 30, weight: .bold, design: .default))
+            .minimumScaleFactor(0.8)
+    }
+    
+    @ViewBuilder private var overlay: some View {
+        if !viewModel.isReadonlyMode {
+            VStack {
+                Spacer()
+                
                 TangemButton(title: "common_save_changes", action: viewModel.saveChanges)
                     .buttonStyle(TangemButtonStyle(colorStyle: .black,
                                                    layout: .flexibleWidth,
                                                    isDisabled: viewModel.isSaveDisabled,
                                                    isLoading: viewModel.isSaving))
-                    .padding([.leading, .trailing, .top], 16)
+                    .padding([.horizontal, .top], 16)
                     .padding(.bottom, 8)
-                    .ignoresKeyboard()
+                    .keyboardAdaptive()
+                    .background(LinearGradient(colors: [.white, .white, .white.opacity(0)],
+                                               startPoint: .bottom,
+                                               endPoint: .top)
+                        .edgesIgnoringSafeArea(.bottom))
             }
-        }
-        .onAppear { viewModel.onAppear() }
-        .onDisappear { viewModel.onDissapear() }
-        .alert(item: $viewModel.error, content: { $0.alert })
-        .background(Color.clear)
-        .navigationBarHidden(true)
-        .navigationBarTitle("")
-        .toast(isPresenting: $viewModel.showToast) {
-            AlertToast(type: .complete(Color.tangemGreen), title: "contract_address_copied_message".localized)
         }
     }
     
