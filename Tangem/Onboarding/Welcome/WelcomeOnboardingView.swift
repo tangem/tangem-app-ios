@@ -68,10 +68,8 @@ struct WelcomeOnboardingView: View {
             
             Color.clear.frame(width: 1, height: 1)
                 .sheet(isPresented: $navigation.readToTokenList) {
-                    NavigationView {
                         TokenListView(viewModel: viewModel.assembly.makeTokenListViewModel(mode: .show))
                             .environmentObject(navigation)
-                    }
                 }
         }
         .alert(item: $viewModel.error, content: { $0.alert })
