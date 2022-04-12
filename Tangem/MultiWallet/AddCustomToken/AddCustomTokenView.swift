@@ -15,7 +15,7 @@ fileprivate struct TextInputWithTitle: View {
     var text: Binding<String>
     var keyboardType: UIKeyboardType
     var height: CGFloat = 60
-    var backgroundColor: Color = .white
+    var backgroundColor: Color = Color(UIColor.systemGray6)
     let isEnabled: Bool
     let isLoading: Bool
     
@@ -48,7 +48,7 @@ fileprivate struct TextInputWithTitle: View {
 fileprivate struct PickerInputWithTitle: View {
     var title: String
     var height: CGFloat = 60
-    var backgroundColor: Color = .white
+    var backgroundColor: Color = Color(UIColor.systemGray6)
     @Binding var value: String
     let values: [(String, String)]
     let isEnabled: Bool
@@ -63,6 +63,7 @@ fileprivate struct PickerInputWithTitle: View {
                 Picker("", selection: $value) {
                     ForEach(values, id: \.1) { value in
                         Text(value.0)
+                            .minimumScaleFactor(0.7)
                             .tag(value.1)
                     }
                 }
@@ -80,7 +81,7 @@ fileprivate struct PickerInputWithTitle: View {
 
 fileprivate struct PickerStyleModifier: ViewModifier {
     func body(content: Content) -> some View {
-        if #available(iOS 14, *) {
+        if #available(iOS 15, *) {
             content
                 .pickerStyle(.menu)
         } else {
@@ -98,14 +99,6 @@ struct AddCustomTokenView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: 10) {
-                HStack {
-                    Text("add_custom_token_title".localized)
-                        .font(Font.system(size: 36, weight: .bold, design: .default))
-                        .padding(.vertical)
-                    
-                    Spacer()
-                }
-                
                 VStack(spacing: 1) {
                     TextInputWithTitle(title: "custom_token_contract_address_input_title".localized, placeholder: "0x0000000000000000000000000000000000000000", text: $viewModel.contractAddress, keyboardType: .default, isEnabled: true, isLoading: viewModel.isLoading)
                         .cornerRadius(10, corners: [.topLeft, .topRight])
@@ -129,15 +122,13 @@ struct AddCustomTokenView: View {
                 TangemButton(title: "custom_token_add_token", systemImage: "plus", action: viewModel.createToken)
                     .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth, isDisabled: viewModel.addButtonDisabled, isLoading: viewModel.isLoading))
             }
-            .padding([.horizontal, .bottom])
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
         }
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
         .alert(item: $viewModel.error, content: { $0.alert })
-        .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
-        .navigationBarHidden(false)
-        .navigationBarTitle("", displayMode: .inline)
-        .navigationBarBackButtonHidden(false)
+        .navigationBarTitle("add_custom_token_title".localized)
     }
 }
 
