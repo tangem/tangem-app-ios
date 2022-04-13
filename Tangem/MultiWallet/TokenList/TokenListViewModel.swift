@@ -77,7 +77,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     func showCustomTokenView() {
-        navigation.mainToCustomToken = true
+        navigation.tokensToCustomToken = true
     }
     
     func saveChanges() {
@@ -125,6 +125,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
         DispatchQueue.main.async {
             self.enteredSearchText.value = ""
             self.filteredData = []
+            self.navigation.tokensToCustomToken = false //ios13 bug
         }
     }
     
@@ -279,7 +280,9 @@ class TokenListViewModel: ViewModel, ObservableObject {
 
         data.forEach { currency in
             currency.items.forEach { currencyItem in
-                currencyItem.updateSelection(with: bindSelection(currencyItem.tokenItem))
+                let tokenItem = currencyItem.tokenItem
+                currencyItem.updateSelection(with: bindSelection(tokenItem))
+                currencyItem.isDisabled = !self.canManage(tokenItem)
             }
         }
     }
