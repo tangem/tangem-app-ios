@@ -76,15 +76,35 @@ class OnramperService {
     }
     
     private func currencyId(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> String? {
-        let currencies = availableCryptoCurrencies.filter { $0.code == currencySymbol }
+        var networkIds: [String?] = []
         
-        let currency: OnramperCryptoCurrency?
-        if let onramperNetworkId = blockchain.onramperNetworkId {
-            let networkCurrencies = currencies.filter { $0.network == onramperNetworkId }
-            currency = networkCurrencies.first
-        } else {
-            currency = currencies.first
+        switch amountType {
+        case .reserve:
+            return nil
+        case .coin:
+            networkIds.append(nil)
+            
+            switch blockchain {
+            case .litecoin:
+                // [REDACTED_TODO_COMMENT]
+                networkIds.append("Mainnet")
+            case .bsc, .binance, .fantom:
+                // BNB is only available under its own BEP-2 / BEP-20 network
+                // Fantom is the same way
+                if let bnbNetworkId = blockchain.onramperNetworkId {
+                    networkIds.append(bnbNetworkId)
+                }
+            default:
+                break
+            }
+        case .token:
+            if let blockchainNetworkId = blockchain.onramperNetworkId {
+                networkIds.append(blockchainNetworkId)
+            }
         }
+        
+        let currencies = availableCryptoCurrencies.filter { $0.code == currencySymbol }
+        let currency = currencies.first { networkIds.contains($0.network) }
         
         return currency?.id
     }
@@ -151,10 +171,20 @@ extension URLQueryItem {
 fileprivate extension Blockchain {
     var onramperNetworkId: String? {
         switch self {
+        case .avalanche:
+            return "Avaxcchain"
         case .bsc:
             return "BEP-20"
         case .binance:
             return "BEP-2"
+        case .ethereum:
+            return "ERC-20"
+        case .fantom:
+            return "Fantom"
+        case .polygon:
+            return "Polygon"
+        case .solana:
+            return "Solana"
         default:
             return nil
         }
