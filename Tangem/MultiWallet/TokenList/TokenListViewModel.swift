@@ -77,7 +77,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     func showCustomTokenView() {
-        navigation.mainToCustomToken = true
+        navigation.tokensToCustomToken = true
     }
     
     func saveChanges() {
