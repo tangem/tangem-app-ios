@@ -28,12 +28,12 @@ extension CombinedExchangeService: ExchangeService {
         sellService.sellRequestUrl
     }
     
-    func canBuy(_ currency: String, blockchain: Blockchain) -> Bool {
-        buyService.canBuy(currency, blockchain: blockchain)
+    func canBuy(_ currencySymbol: String, blockchain: Blockchain) -> Bool {
+        buyService.canBuy(currencySymbol, blockchain: blockchain)
     }
     
-    func canSell(_ currency: String, blockchain: Blockchain) -> Bool {
-        sellService.canSell(currency, blockchain: blockchain)
+    func canSell(_ currencySymbol: String, blockchain: Blockchain) -> Bool {
+        sellService.canSell(currencySymbol, blockchain: blockchain)
     }
     
     func getBuyUrl(currencySymbol: String, blockchain: Blockchain, walletAddress: String) -> URL? {
