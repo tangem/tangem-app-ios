@@ -543,19 +543,21 @@ class CardViewModel: Identifiable, ObservableObject {
         if models.isEmpty {
             return
         }
-        
+
         searchBlockchainsCancellable =
-            Publishers.MergeMany(models.map { $0.$state.dropFirst() })
+        Publishers.MergeMany(models.map { $0.$state.map{ $0.isLoading }.filter { !$0 } })
             .collect(models.count)
-            .sink(receiveValue: { [unowned self] _ in
+            .sink(receiveValue: { [weak self] _ in
+                guard let self = self else { return }
+
                 let notEmptyWallets = models.filter { !$0.wallet.isEmpty }
                 if !notEmptyWallets.isEmpty {
                     let itemsToAdd = notEmptyWallets.map { $0.blockchainNetwork }
-                    tokenItemsRepository.append(itemsToAdd, for: cardInfo.card.cardId)
-                    updateLoadedState(with: notEmptyWallets)
+                    self.tokenItemsRepository.append(itemsToAdd, for: self.cardInfo.card.cardId)
+                    self.updateLoadedState(with: notEmptyWallets)
                 }
             })
-        
+
         models.forEach { $0.update() }
     }
     

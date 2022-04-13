@@ -47,7 +47,6 @@ class NavigationCoordinator: ObservableObject {
     @Published var mainToQR = false
     @Published var mainToTokenDetails = false
     @Published var mainToAddTokens: Bool = false
-    @Published var mainToCustomToken: Bool = false
     @Published var mainToTroubleshootingScan = false
     @Published var mainToWalletConnectQR: Bool = false
     @Published var mainToTradeSheet: Bool = false
@@ -84,6 +83,9 @@ class NavigationCoordinator: ObservableObject {
     
     // MARK: WalletConnectView
     @Published var walletConnectToQR = false
+    
+    // MARK: TokenList
+    @Published var tokensToCustomToken: Bool = false
     
     @Published var onboardingReset = false
 
@@ -153,6 +155,9 @@ class NavigationCoordinator: ObservableObject {
         
         // MARK: WalletConnectView
         walletConnectToQR = false
+        
+        //MARK: TokensList
+        tokensToCustomToken = false
     }
     
     deinit {
