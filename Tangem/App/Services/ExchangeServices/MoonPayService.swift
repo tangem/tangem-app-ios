@@ -151,7 +151,7 @@ extension MoonPayService: ExchangeService {
         "https://sell-request.tangem.com"
     }
     
-    func canBuy(_ currencySymbol: String, blockchain: Blockchain) -> Bool {
+    func canBuy(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
         if currencySymbol.uppercased() == "BNB" && (blockchain == .bsc(testnet: true) || blockchain == .bsc(testnet: false)) {
             return false
         }
@@ -159,7 +159,7 @@ extension MoonPayService: ExchangeService {
         return availableToBuy.contains(currencySymbol.uppercased()) && canBuyCrypto
     }
     
-    func canSell(_ currencySymbol: String, blockchain: Blockchain) -> Bool {
+    func canSell(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
         if currencySymbol.uppercased() == "BNB" && (blockchain == .bsc(testnet: true) || blockchain == .bsc(testnet: false)) {
             return false
         }
@@ -167,8 +167,8 @@ extension MoonPayService: ExchangeService {
         return availableToSell.contains(currencySymbol.uppercased()) && canSellCrypto
     }
     
-    func getBuyUrl(currencySymbol: String, blockchain: Blockchain, walletAddress: String) -> URL? {
-        guard canBuy(currencySymbol, blockchain: blockchain) else {
+    func getBuyUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String) -> URL? {
+        guard canBuy(currencySymbol, amountType: amountType, blockchain: blockchain) else {
             return nil
         }
         
@@ -191,8 +191,8 @@ extension MoonPayService: ExchangeService {
         return url
     }
     
-    func getSellUrl(currencySymbol: String, blockchain: Blockchain, walletAddress: String) -> URL? {
-        guard canSell(currencySymbol, blockchain: blockchain) else {
+    func getSellUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String) -> URL? {
+        guard canSell(currencySymbol, amountType: amountType, blockchain: blockchain) else {
             return nil
         }
         
