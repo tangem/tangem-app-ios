@@ -133,7 +133,6 @@ class WalletModel: ObservableObject, Identifiable {
         
         updateBalanceViewModel(with: walletManager.wallet, state: .idle)
         self.walletManager.walletPublisher
-            .debounce(for: 0.5, scheduler: DispatchQueue.main)
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: {[unowned self] wallet in
                 print("💳 Wallet model received update")
@@ -179,7 +178,6 @@ class WalletModel: ObservableObject, Identifiable {
                         self.state = .failed(error: error.detailedError)
                         Analytics.log(error: error)
                     }
-                    self.updateBalanceViewModel(with: self.wallet, state: self.state)
                 } else {
                     self.latestUpdateTime = Date()
                     
@@ -193,6 +191,8 @@ class WalletModel: ObservableObject, Identifiable {
                     
                     self.loadRates()
                 }
+                
+                self.updateBalanceViewModel(with: self.wallet, state: self.state)
             }
         }
     }
