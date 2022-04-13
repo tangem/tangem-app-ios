@@ -75,7 +75,7 @@ class OnramperService {
             .store(in: &bag)
     }
     
-    private func currencyId(currencySymbol: String, blockchain: Blockchain) -> String? {
+    private func currencyId(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> String? {
         let currencies = availableCryptoCurrencies.filter { $0.code == currencySymbol }
         
         let currency: OnramperCryptoCurrency?
@@ -97,18 +97,18 @@ extension OnramperService: ExchangeService {
         return ""
     }
     
-    func canBuy(_ currencySymbol: String, blockchain: Blockchain) -> Bool {
-        return canBuyCrypto && currencyId(currencySymbol: currencySymbol, blockchain: blockchain) != nil
+    func canBuy(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
+        return canBuyCrypto && currencyId(currencySymbol: currencySymbol, amountType: amountType, blockchain: blockchain) != nil
     }
     
-    func canSell(_ currencySymbol: String, blockchain: Blockchain) -> Bool {
+    func canSell(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
         return false
     }
     
-    func getBuyUrl(currencySymbol: String, blockchain: Blockchain, walletAddress: String) -> URL? {
+    func getBuyUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String) -> URL? {
         guard
-            canBuy(currencySymbol, blockchain: blockchain),
-            let currencyID = currencyId(currencySymbol: currencySymbol, blockchain: blockchain)
+            canBuy(currencySymbol, amountType: amountType, blockchain: blockchain),
+            let currencyID = currencyId(currencySymbol: currencySymbol, amountType: amountType, blockchain: blockchain)
         else {
             return nil
         }
@@ -133,7 +133,7 @@ extension OnramperService: ExchangeService {
         return url
     }
     
-    func getSellUrl(currencySymbol: String, blockchain: Blockchain, walletAddress: String) -> URL? {
+    func getSellUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String) -> URL? {
         fatalError("[REDACTED_TODO_COMMENT]")
     }
     
