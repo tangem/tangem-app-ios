@@ -70,7 +70,7 @@ struct TokenDetailsView: View {
                                   systemImage: "arrow.up.arrow.down",
                                   action: viewModel.tradeCryptoAction)
             .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
-                                           isDisabled: !viewModel.canSellCrypto || !viewModel.canSend))
+                                           isDisabled: !(viewModel.canBuyCrypto || viewModel.canSellCrypto)))
             .actionSheet(isPresented: $navigation.detailsToTradeSheet, content: {
                 ActionSheet(title: Text("action_sheet_trade_hint"),
                             buttons: [
