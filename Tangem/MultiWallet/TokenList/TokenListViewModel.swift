@@ -280,7 +280,9 @@ class TokenListViewModel: ViewModel, ObservableObject {
 
         data.forEach { currency in
             currency.items.forEach { currencyItem in
-                currencyItem.updateSelection(with: bindSelection(currencyItem.tokenItem))
+                let tokenItem = currencyItem.tokenItem
+                currencyItem.updateSelection(with: bindSelection(tokenItem))
+                currencyItem.isDisabled = !self.canManage(tokenItem)
             }
         }
     }
