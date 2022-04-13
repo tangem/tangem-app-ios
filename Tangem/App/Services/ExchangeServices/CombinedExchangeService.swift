@@ -28,20 +28,20 @@ extension CombinedExchangeService: ExchangeService {
         sellService.sellRequestUrl
     }
     
-    func canBuy(_ currency: String, blockchain: Blockchain) -> Bool {
-        buyService.canBuy(currency, blockchain: blockchain)
+    func canBuy(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
+        buyService.canBuy(currencySymbol, amountType: amountType, blockchain: blockchain)
     }
     
-    func canSell(_ currency: String, blockchain: Blockchain) -> Bool {
-        sellService.canSell(currency, blockchain: blockchain)
+    func canSell(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
+        sellService.canSell(currencySymbol, amountType: amountType, blockchain: blockchain)
     }
     
-    func getBuyUrl(currencySymbol: String, blockchain: Blockchain, walletAddress: String) -> URL? {
-        buyService.getBuyUrl(currencySymbol: currencySymbol, blockchain: blockchain, walletAddress: walletAddress)
+    func getBuyUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String) -> URL? {
+        buyService.getBuyUrl(currencySymbol: currencySymbol, amountType: amountType, blockchain: blockchain, walletAddress: walletAddress)
     }
     
-    func getSellUrl(currencySymbol: String, blockchain: Blockchain, walletAddress: String) -> URL? {
-        sellService.getSellUrl(currencySymbol: currencySymbol, blockchain: blockchain, walletAddress: walletAddress)
+    func getSellUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String) -> URL? {
+        sellService.getSellUrl(currencySymbol: currencySymbol, amountType: amountType, blockchain: blockchain, walletAddress: walletAddress)
     }
     
     func extractSellCryptoRequest(from data: String) -> SellCryptoRequest? {
