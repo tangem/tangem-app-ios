@@ -77,7 +77,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     func showCustomTokenView() {
-        navigation.mainToCustomToken = true
+        navigation.tokensToCustomToken = true
     }
     
     func saveChanges() {
@@ -125,6 +125,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
         DispatchQueue.main.async {
             self.enteredSearchText.value = ""
             self.filteredData = []
+            self.navigation.tokensToCustomToken = false //ios13 bug
         }
     }
     
