@@ -97,11 +97,11 @@ extension OnramperService: ExchangeService {
         return ""
     }
     
-    func canBuy(_ currency: String, blockchain: Blockchain) -> Bool {
-        return canBuyCrypto && currencyId(currencySymbol: currency, blockchain: blockchain) != nil
+    func canBuy(_ currencySymbol: String, blockchain: Blockchain) -> Bool {
+        return canBuyCrypto && currencyId(currencySymbol: currencySymbol, blockchain: blockchain) != nil
     }
     
-    func canSell(_ currency: String, blockchain: Blockchain) -> Bool {
+    func canSell(_ currencySymbol: String, blockchain: Blockchain) -> Bool {
         return false
     }
     
