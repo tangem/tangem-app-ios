@@ -122,7 +122,7 @@ struct TokenListView: View {
     }
     
     private var navigationLinks: some View {
-        NavigationLink(isActive: $navigation.mainToCustomToken) {
+        NavigationLink(isActive: $navigation.tokensToCustomToken) {
             AddCustomTokenView(viewModel: viewModel.assembly.makeAddCustomTokenModel())
                 .environmentObject(navigation)
         } label: {
