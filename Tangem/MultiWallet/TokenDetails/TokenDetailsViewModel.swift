@@ -56,9 +56,9 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
             let address = wallet.address
             switch amountType {
             case .coin:
-                return exchangeService.getBuyUrl(currencySymbol: blockchainNetwork.blockchain.currencySymbol, blockchain: blockchainNetwork.blockchain, walletAddress: address)
+                return exchangeService.getBuyUrl(currencySymbol: blockchainNetwork.blockchain.currencySymbol, amountType: amountType, blockchain: blockchainNetwork.blockchain, walletAddress: address)
             case .token(let token):
-                return exchangeService.getBuyUrl(currencySymbol: token.symbol, blockchain: blockchainNetwork.blockchain, walletAddress: address)
+                return exchangeService.getBuyUrl(currencySymbol: token.symbol, amountType: amountType, blockchain: blockchainNetwork.blockchain, walletAddress: address)
             case .reserve:
                 break
             }
@@ -80,9 +80,9 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
             let address = wallet.address
             switch amountType {
             case .coin:
-                return exchangeService.getSellUrl(currencySymbol: blockchainNetwork.blockchain.currencySymbol, blockchain: blockchainNetwork.blockchain, walletAddress: address)
+                return exchangeService.getSellUrl(currencySymbol: blockchainNetwork.blockchain.currencySymbol, amountType: amountType, blockchain: blockchainNetwork.blockchain, walletAddress: address)
             case .token(let token):
-                return exchangeService.getSellUrl(currencySymbol: token.symbol, blockchain: blockchainNetwork.blockchain, walletAddress: address)
+                return exchangeService.getSellUrl(currencySymbol: token.symbol, amountType: amountType, blockchain: blockchainNetwork.blockchain, walletAddress: address)
             case .reserve:
                 break
             }
