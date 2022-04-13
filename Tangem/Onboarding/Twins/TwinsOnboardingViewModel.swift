@@ -109,7 +109,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
     private var twinInfo: TwinCardInfo
     private var stepUpdatesSubscription: AnyCancellable?
     
-    private var canBuy: Bool { exchangeService.canBuy("BTC", blockchain: .bitcoin(testnet: false)) }
+    private var canBuy: Bool { exchangeService.canBuy("BTC", amountType: .coin, blockchain: .bitcoin(testnet: false)) }
                                                       
     init(imageLoaderService: CardImageLoaderService, twinsService: TwinsWalletCreationService, exchangeService: ExchangeService, input: OnboardingInput) {
         self.imageLoaderService = imageLoaderService
