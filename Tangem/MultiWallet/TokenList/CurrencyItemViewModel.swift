@@ -14,7 +14,7 @@ class CurrencyItemViewModel: Identifiable, ObservableObject {
     let id: UUID = .init()
     let tokenItem: TokenItem
     let isReadonly: Bool
-    let isDisabled: Bool
+    var isDisabled: Bool
     var isSelected: Binding<Bool>
     let position: ItemPosition
     let isCopied: Binding<Bool>
