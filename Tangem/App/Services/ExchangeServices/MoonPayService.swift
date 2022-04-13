@@ -151,20 +151,20 @@ extension MoonPayService: ExchangeService {
         "https://sell-request.tangem.com"
     }
     
-    func canBuy(_ currency: String, blockchain: Blockchain) -> Bool {
-        if currency.uppercased() == "BNB" && (blockchain == .bsc(testnet: true) || blockchain == .bsc(testnet: false)) {
+    func canBuy(_ currencySymbol: String, blockchain: Blockchain) -> Bool {
+        if currencySymbol.uppercased() == "BNB" && (blockchain == .bsc(testnet: true) || blockchain == .bsc(testnet: false)) {
             return false
         }
         
-        return availableToBuy.contains(currency.uppercased()) && canBuyCrypto
+        return availableToBuy.contains(currencySymbol.uppercased()) && canBuyCrypto
     }
     
-    func canSell(_ currency: String, blockchain: Blockchain) -> Bool {
-        if currency.uppercased() == "BNB" && (blockchain == .bsc(testnet: true) || blockchain == .bsc(testnet: false)) {
+    func canSell(_ currencySymbol: String, blockchain: Blockchain) -> Bool {
+        if currencySymbol.uppercased() == "BNB" && (blockchain == .bsc(testnet: true) || blockchain == .bsc(testnet: false)) {
             return false
         }
         
-        return availableToSell.contains(currency.uppercased()) && canSellCrypto
+        return availableToSell.contains(currencySymbol.uppercased()) && canSellCrypto
     }
     
     func getBuyUrl(currencySymbol: String, blockchain: Blockchain, walletAddress: String) -> URL? {
