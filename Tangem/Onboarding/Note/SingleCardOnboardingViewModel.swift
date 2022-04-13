@@ -58,7 +58,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     
     private var canBuyCrypto: Bool {
         if let blockchain = cardModel?.wallets?.first?.blockchain,
-           exchangeService.canBuy(blockchain.currencySymbol, blockchain: blockchain) {
+           exchangeService.canBuy(blockchain.currencySymbol, amountType: .coin, blockchain: blockchain) {
             return true
         }
         
