@@ -21,21 +21,19 @@ struct TokenListView: View {
             ZStack {
                 navigationLinks
                 
+                VStack {
+                    if #available(iOS 15.0, *) {} else {
+                        SearchBar(text: $viewModel.enteredSearchText.value, placeholder: "common_search".localized)
+                            .padding(.horizontal, 8)
+                    }
+                    
                     if viewModel.isLoading {
-                        VStack {
-                            Spacer()
-                            ActivityIndicatorView(color: .gray)
-                                .padding(.bottom, 32)
-                            Spacer()
-                        }
+                        Spacer()
+                        ActivityIndicatorView(color: .gray)
+                            .padding(.bottom, 32)
+                        Spacer()
                     } else {
                         PerfList {
-                            
-                            let horizontlInset: CGFloat = UIDevice.isIOS13 ? 8 : 16
-                            SearchBar(text: $viewModel.enteredSearchText.value, placeholder: "common_search".localized)
-                                .padding(.horizontal, UIDevice.isIOS13 ? 0 : 8)
-                                .listRowInsets(.init(top: 8, leading: horizontlInset, bottom: 8, trailing: horizontlInset))
-                            
                             if viewModel.shouldShowAlert {
                                 Text("alert_manage_tokens_addresses_message")
                                     .font(.system(size: 13, weight: .medium, design: .default))
@@ -60,6 +58,8 @@ struct TokenListView: View {
                             }
                         }
                     }
+                    
+                }
                 
                 overlay
             }
@@ -71,6 +71,7 @@ struct TokenListView: View {
                 AlertToast(type: .complete(Color.tangemGreen), title: "contract_address_copied_message".localized)
             }
         }
+        .searchableCompat(text: $viewModel.enteredSearchText.value)
         .background(Color.clear.edgesIgnoringSafeArea(.all))
         .navigationViewStyle(.stack)
         .onAppear { viewModel.onAppear() }
