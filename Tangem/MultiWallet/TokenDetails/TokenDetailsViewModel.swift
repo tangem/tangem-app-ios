@@ -144,6 +144,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         return blockchainNetwork.blockchain.tokenDisplayName
     }
     
+    @Published var isRefreshing = false
     @Published var txIndexToPush: Int? = nil
     @Published var solanaRentWarning: String? = nil
     @Published var showExplorerURL: URL? = nil
@@ -155,7 +156,6 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     
     private var bag = Set<AnyCancellable>()
     private var rentWarningSubscription: AnyCancellable?
-    private var refreshCancellable: AnyCancellable? = nil
     
     init(blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType) {
         self.blockchainNetwork = blockchainNetwork
@@ -255,7 +255,31 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
                 self?.objectWillChange.send()
             }
             .store(in: &bag)
-    
+        
+        $isRefreshing
+            .removeDuplicates()
+            .filter { $0 }
+            .delay(for: 0.5, scheduler: DispatchQueue.main)
+            .sink{ [weak self] _ in
+                self?.walletModel?.update()
+            }
+            .store(in: &bag)
+        
+        walletModel?
+            .$state
+//            .print("🐼 TokenDetailsViewModel: Wallet model state")
+            .map{ $0.isLoading }
+            .filter { !$0 }
+            .delay(for: 1, scheduler: DispatchQueue.global())
+            .receive(on: RunLoop.main)
+            .sink {[weak self] _ in
+                print("♻️ Token wallet model loading state changed")
+                withAnimation {
+                    self?.isRefreshing = false
+                }
+            }
+            .store(in: &bag)
+        
         walletModel?.objectWillChange
             .receive(on: RunLoop.main)
             .sink { [weak self] in
@@ -264,25 +288,8 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
             .store(in: &bag)
     }
     
-    func onRefresh(_ done: @escaping () -> Void) {
-        refreshCancellable = walletModel?
-            .$state
-            .map{ $0.isLoading }
-            .filter { !$0 }
-            .delay(for: 1, scheduler: DispatchQueue.global())
-            .receive(on: RunLoop.main)
-            .sink { _ in
-                print("♻️ Token wallet model loading state changed")
-                done()
-            }
-        
-        walletModel?.update()
-    }
-    
     private func updateRentWarning() {
-        guard let rentProvider = walletModel?.walletManager as? RentProvider,
-           amountType == .coin
-        else {
+        guard let rentProvider = walletModel?.walletManager as? RentProvider else {
             return
         }
 
