@@ -26,7 +26,6 @@ struct SearchBar: UIViewRepresentable {
             super.init()
             cancellable = $inputText
                 .dropFirst()
-                .debounce(for: 0.5, scheduler: DispatchQueue.main, options: nil)
                 .weakAssign(to: \.text, on: self)
         }
 
