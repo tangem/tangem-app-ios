@@ -23,10 +23,10 @@ struct TokenListView: View {
                 
                 PerfList {
                     if #available(iOS 15.0, *) {} else {
-                        let horizontlInset: CGFloat = UIDevice.isIOS13 ? 8 : 16
+                        let horizontalInset: CGFloat = UIDevice.isIOS13 ? 8 : 16
                         SearchBar(text: $viewModel.enteredSearchText.value, placeholder: "common_search".localized)
                             .padding(.horizontal, UIDevice.isIOS13 ? 0 : 8)
-                            .listRowInsets(.init(top: 8, leading: horizontlInset, bottom: 8, trailing: horizontlInset))
+                            .listRowInsets(.init(top: 8, leading: horizontalInset, bottom: 8, trailing: horizontalInset))
                     }
                     
                     if viewModel.shouldShowAlert {
