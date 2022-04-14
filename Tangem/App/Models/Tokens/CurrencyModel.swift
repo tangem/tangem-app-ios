@@ -14,7 +14,7 @@ struct CurrencyModel {
     let name: String
     let symbol: String
     let imageURL: URL?
-    let items: [TokenItem]
+    var items: [TokenItem]
     
     init(with entity: CurrencyEntity, baseImageURL: URL?) {
         let id = entity.id.trimmed()
