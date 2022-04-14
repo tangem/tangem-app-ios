@@ -49,9 +49,7 @@ fileprivate struct PickerInputWithTitle: View {
     var title: String
     var height: CGFloat = 60
     var backgroundColor: Color = Color(UIColor.systemGray6)
-    @Binding var value: String
-    let values: [(String, String)]
-    let isEnabled: Bool
+    @Binding var model: PickerModel
     
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -60,15 +58,16 @@ fileprivate struct PickerInputWithTitle: View {
                 .foregroundColor(Color.tangemGrayDark6)
             
             HStack {
-                Picker("", selection: $value) {
-                    ForEach(values, id: \.1) { value in
+                Picker("", selection: $model.selection) {
+                    ForEach(model.items, id: \.1) { value in
                         Text(value.0)
                             .minimumScaleFactor(0.7)
                             .tag(value.1)
                     }
                 }
+                .id(model.id)
                 .modifier(PickerStyleModifier())
-                .disabled(!isEnabled)
+                .disabled(!model.isEnabled)
                 
                 Spacer()
             }
@@ -103,7 +102,7 @@ struct AddCustomTokenView: View {
                     TextInputWithTitle(title: "custom_token_contract_address_input_title".localized, placeholder: "0x0000000000000000000000000000000000000000", text: $viewModel.contractAddress, keyboardType: .default, isEnabled: true, isLoading: viewModel.isLoading)
                         .cornerRadius(10, corners: [.topLeft, .topRight])
                     
-                    PickerInputWithTitle(title: "custom_token_network_input_title".localized, value: $viewModel.blockchainName, values: viewModel.blockchains, isEnabled: viewModel.blockchainEnabled)
+                    PickerInputWithTitle(title: "custom_token_network_input_title".localized, model: $viewModel.blockchainsPicker)
                     
                     TextInputWithTitle(title: "custom_token_name_input_title".localized, placeholder: "custom_token_name_input_placeholder".localized, text: $viewModel.name, keyboardType: .default, isEnabled: viewModel.foundStandardToken == nil, isLoading: false)
                     
@@ -112,7 +111,7 @@ struct AddCustomTokenView: View {
                     TextInputWithTitle(title: "custom_token_decimals_input_title".localized, placeholder: "0", text: $viewModel.decimals, keyboardType: .numberPad, isEnabled: viewModel.foundStandardToken == nil, isLoading: false)
                     
                     if viewModel.customDerivationsAllowed {
-                        PickerInputWithTitle(title: "custom_token_derivation_path_input_title".localized, value: $viewModel.derivationPath, values: viewModel.derivationPaths, isEnabled: true)
+                        PickerInputWithTitle(title: "custom_token_derivation_path_input_title".localized, model: $viewModel.derivationsPicker)
                             .cornerRadius(10, corners: [.bottomLeft, .bottomRight])
                     }
                 }
