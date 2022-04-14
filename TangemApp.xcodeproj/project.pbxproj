@@ -61,6 +61,7 @@
 		5D39515925597DA5002CC452 /* WalletModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D39515825597DA5002CC452 /* WalletModel.swift */; };
 		5D39516125597DB1002CC452 /* BalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D39516025597DB1002CC452 /* BalanceViewModel.swift */; };
 		5D3951672559A87E002CC452 /* CurrencySelectViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3951662559A87E002CC452 /* CurrencySelectViewModel.swift */; };
+		5D3D6D3D28088D0400778B67 /* ListDataLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3D6D3C28088D0400778B67 /* ListDataLoader.swift */; };
 		5D3F77C624BF56D800E8695B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D3F77C524BF56D800E8695B /* AppDelegate.swift */; };
 		5D3F77CC24BF56DC00E8695B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5D3F77CB24BF56DC00E8695B /* Assets.xcassets */; };
 		5D3F77CF24BF56DC00E8695B /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5D3F77CE24BF56DC00E8695B /* Preview Assets.xcassets */; };
@@ -567,6 +568,7 @@
 		5D39515825597DA5002CC452 /* WalletModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModel.swift; sourceTree = "<group>"; };
 		5D39516025597DB1002CC452 /* BalanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceViewModel.swift; sourceTree = "<group>"; };
 		5D3951662559A87E002CC452 /* CurrencySelectViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencySelectViewModel.swift; sourceTree = "<group>"; };
+		5D3D6D3C28088D0400778B67 /* ListDataLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListDataLoader.swift; sourceTree = "<group>"; };
 		5D3F77C224BF56D800E8695B /* Tangem.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tangem.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5D3F77C524BF56D800E8695B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5D3F77CB24BF56DC00E8695B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -1669,6 +1671,7 @@
 				5D341CC727E340770028D8FC /* CurrencyItemView.swift */,
 				5D341CC927E4C5650028D8FC /* CurrencyItemViewModel.swift */,
 				5D341CCB27E4D4170028D8FC /* CurrencyViewModel.swift */,
+				5D3D6D3C28088D0400778B67 /* ListDataLoader.swift */,
 			);
 			path = TokenList;
 			sourceTree = "<group>";
@@ -2471,6 +2474,7 @@
 				5DF2522B24F9439D0015B429 /* UIImage+.swift in Sources */,
 				B0E1564F26B948B3005B33E4 /* OnboardingStepsSetupService.swift in Sources */,
 				B0F62C4825DE4ABE005C8BA0 /* EmailType.swift in Sources */,
+				5D3D6D3D28088D0400778B67 /* ListDataLoader.swift in Sources */,
 				B0C4F77F26F0C0BF0086D815 /* TransitionWithoutOpacity.swift in Sources */,
 				5D384B9124FD4E1800C2C92C /* String+.swift in Sources */,
 				5DD4CB4E24FAAB1A008F23CC /* KeyboardAdaptive.swift in Sources */,
