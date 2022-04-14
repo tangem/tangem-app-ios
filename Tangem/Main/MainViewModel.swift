@@ -27,6 +27,7 @@ class MainViewModel: ViewModel, ObservableObject {
     
     //MARK: - Published variables
     
+    @Published var isRefreshing = false
     @Published var error: AlertBinder?
     @Published var isScanning: Bool = false
     @Published var isCreatingWallet: Bool = false
@@ -73,7 +74,6 @@ class MainViewModel: ViewModel, ObservableObject {
     private var bag = Set<AnyCancellable>()
     private var isHashesCounted = false
     private var isProcessingNewCard = false
-    private var refreshCancellable: AnyCancellable? = nil
     
     public var canCreateTwinWallet: Bool {
         if isTwinCard {
@@ -296,6 +296,22 @@ class MainViewModel: ViewModel, ObservableObject {
                 }
             }
             .store(in: &bag)
+        
+        $state
+            .compactMap { $0.cardModel }
+            .flatMap { $0.$state }
+            .compactMap { $0.walletModels }
+            .flatMap { Publishers.MergeMany($0.map { $0.$state.map{ $0.isLoading }.filter { !$0 } }).collect($0.count) }
+            .delay(for: 1, scheduler: DispatchQueue.global())
+            .receive(on: RunLoop.main)
+            .sink {[unowned self] _ in
+                self.checkPositiveBalance()
+                print("♻️ Wallet model loading state changed")
+                withAnimation {
+                    self.isRefreshing = false
+                }
+            }
+            .store(in: &bag)
     
         $state
             .compactMap { $0.cardModel }
@@ -308,6 +324,24 @@ class MainViewModel: ViewModel, ObservableObject {
 //                if !self.showTwinCardOnboardingIfNeeded() {
                     self.countHashes()
 //                }
+            }
+            .store(in: &bag)
+        
+        $isRefreshing
+            .dropFirst()
+            .removeDuplicates()
+            .filter { $0 }
+            .sink{ [unowned self] value in
+                if let cardModel = self.cardModel, cardModel.state.canUpdate, cardModel.walletModels?.count ?? 0 > 0 {
+                    cardModel.update()
+                } else {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        withAnimation {
+                            self.isRefreshing = false
+                        }
+                    }
+                }
+                
             }
             .store(in: &bag)
     }
@@ -339,30 +373,6 @@ class MainViewModel: ViewModel, ObservableObject {
 //
 //        }
 //    }
-    
-    func onRefresh(_ done: @escaping () -> Void) {
-        if let cardModel = self.cardModel, cardModel.state.canUpdate, cardModel.walletModels?.count ?? 0 > 0 {
-            
-            refreshCancellable = $state
-                .compactMap { $0.cardModel }
-                .flatMap { $0.$state }
-                .compactMap { $0.walletModels }
-                .flatMap { Publishers.MergeMany($0.map { $0.$state.map{ $0.isLoading }.filter { !$0 } }).collect($0.count) }
-                .delay(for: 1, scheduler: DispatchQueue.global())
-                .receive(on: RunLoop.main)
-                .sink {[weak self] _ in
-                    self?.checkPositiveBalance()
-                    print("♻️ Wallet model loading state changed")
-                    done()
-                }
-            
-            cardModel.update()
-        } else {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                done()
-            }
-        }
-    }
 
     func createWallet() {
         guard let cardModel = cardModel else {
