@@ -7,6 +7,7 @@ struct RefreshableScrollView<Content: View>: View {
     @State private var scrollOffset: CGFloat = 0
     @State private var frozen: Bool = false
     @State private var rotation: Angle = .degrees(0)
+    @State private var alpha: Double = 0
     
     var threshold: CGFloat = 80
     @Binding var refreshing: Bool
@@ -27,7 +28,7 @@ struct RefreshableScrollView<Content: View>: View {
                     
                     VStack { self.content }.alignmentGuide(.top, computeValue: { d in (self.refreshing && self.frozen) ? -self.threshold : 0.0 })
                   //  if scrollOffset != 0 {
-                        SymbolView(height: self.threshold, loading: self.refreshing, frozen: self.frozen, rotation: self.rotation)
+                        SymbolView(height: self.threshold, loading: self.refreshing, frozen: self.frozen, rotation: self.rotation, alpha: alpha)
                   //  }
                 }
             }
@@ -47,6 +48,7 @@ struct RefreshableScrollView<Content: View>: View {
             self.scrollOffset  = movingBounds.minY - fixedBounds.minY
             
             self.rotation = self.symbolRotation(self.scrollOffset)
+            self.alpha = self.symbolAlpha(self.scrollOffset)
             
             // Crossing the threshold on the way down, we start the refresh process
             if !self.refreshing && (self.scrollOffset > self.threshold && self.previousScrollOffset <= self.threshold) {
@@ -69,19 +71,21 @@ struct RefreshableScrollView<Content: View>: View {
         }
     }
     
-    private func symbolRotation(_ scrollOffset: CGFloat) -> Angle {
-        
+    private func symbolAnimationProgress(_ scrollOffset: CGFloat) -> Double {
         // We will begin rotation, only after we have passed
         // 60% of the way of reaching the threshold.
-        if scrollOffset < self.threshold * 0.60 {
-            return .degrees(0)
-        } else {
-            // Calculate rotation, based on the amount of scroll offset
-            let h = Double(self.threshold)
-            let d = Double(scrollOffset)
-            let v = max(min(d - (h * 0.6), h * 0.4), 0)
-            return .degrees(180 * v / (h * 0.4))
-        }
+        let h = Double(self.threshold)
+        let d = Double(scrollOffset)
+        let v = max(min(d - (h * 0.6), h * 0.4), 0)
+        return v / (h * 0.4)
+    }
+    
+    private func symbolRotation(_ scrollOffset: CGFloat) -> Angle {
+        return .degrees(180 * symbolAnimationProgress(scrollOffset))
+    }
+    
+    private func symbolAlpha(_ scrollOffset: Double) -> Double {
+        return symbolAnimationProgress(scrollOffset)
     }
     
     private struct SymbolView: View {
@@ -89,6 +93,7 @@ struct RefreshableScrollView<Content: View>: View {
         var loading: Bool
         var frozen: Bool
         var rotation: Angle
+        var alpha: Double
         
         
         var body: some View {
@@ -107,6 +112,7 @@ struct RefreshableScrollView<Content: View>: View {
                         .frame(width: height * 0.25, height: height * 0.25).fixedSize()
                         .padding(height * 0.375)
                         .rotationEffect(rotation)
+                        .opacity(alpha)
                         .offset(y: -height + (loading && frozen ? +height : 0.0))
                 }
             }
