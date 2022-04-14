@@ -23,8 +23,22 @@ class TokenListViewModel: ViewModel, ObservableObject {
     @Published var error: AlertBinder?
     @Published var pendingAdd: [TokenItem] = []
     @Published var pendingRemove: [TokenItem] = []
-    @Published var filteredData: [CurrencyViewModel] = []
     @Published var showToast: Bool = false
+    
+    lazy var loader: ListDataLoader = {
+        let isTestnet = mode.cardModel?.cardInfo.isTestnet ?? false
+        let loader = ListDataLoader(isTestnet: isTestnet)
+        loader.delegate = self
+        
+        loader.objectWillChange
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [unowned self] in
+                self.objectWillChange.send()
+            })
+            .store(in: &bag)
+        
+        return loader
+    }()
     
     var titleKey: LocalizedStringKey {
         switch mode {
@@ -45,7 +59,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     var shouldShowAlert: Bool {
-        guard let card = self.cardModel?.cardInfo.card else {
+        guard let card = mode.cardModel?.cardInfo.card else {
             return false
         }
         
@@ -57,23 +71,18 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     private let mode: Mode
-    private var data: [CurrencyViewModel] = []
-    private var isTestnet: Bool { cardModel?.isTestnet ?? false }
     private var bag = Set<AnyCancellable>()
-    private var searchCancellable: AnyCancellable? = nil
-    private var loadCancellable: AnyCancellable? = nil
-    
-    private var cardModel: CardViewModel? {
-        switch mode {
-        case .add(let cardModel):
-            return cardModel
-        case .show:
-            return nil
-        }
-    }
     
     init(mode: Mode) {
         self.mode = mode
+        
+        enteredSearchText
+            .dropFirst()
+            .debounce(for: 0.5, scheduler: DispatchQueue.main)
+            .sink { [weak self] string in
+                self?.loader.fetch(string)
+            }
+            .store(in: &bag)
     }
     
     func showCustomTokenView() {
@@ -81,7 +90,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     func saveChanges() {
-        guard let cardModel = cardModel else {
+        guard let cardModel = mode.cardModel else {
             return
         }
         
@@ -112,48 +121,33 @@ class TokenListViewModel: ViewModel, ObservableObject {
         }
     }
     
-    func onAppear() {
-        bind()
-        self.getData()
-    }
-    
     func onDissapear() {
-        loadCancellable?.cancel()
-        searchCancellable?.cancel()
-        bag.removeAll()
+        pendingAdd = []
+        pendingRemove = []
         
         DispatchQueue.main.async {
             self.enteredSearchText.value = ""
-            self.filteredData = []
             self.navigation.tokensToCustomToken = false //ios13 bug
         }
     }
     
-    private func startSearch(with searchText: String) {
-        if searchText.isEmpty {
-            filteredData = data
-            isLoading = false
-            return
-        }
-        
-        isLoading = true
-        
-        filteredData = []
-        searchCancellable =
-        Just(searchText)
-            .receive(on: DispatchQueue.global(), options: nil)
-            .map {[weak self] string in
-                return self?.search(string) ?? []
-            }
-            .receive(on: DispatchQueue.main, options: nil)
-            .sink(receiveValue: {[weak self] results in
-                self?.filteredData = results
-                self?.isLoading = false
-            })
+    func fetch() {
+        loader.fetch(enteredSearchText.value)
     }
     
+    private func showAddButton(_ tokenItem: TokenItem) -> Bool {
+        switch mode {
+        case .add:
+            return true
+        case .show:
+            return false
+        }
+    }
+    
+    //MARK: - Mapping
+    
     private func isAdded(_ tokenItem: TokenItem) -> Bool {
-        guard let cardModel = self.cardModel else {
+        guard let cardModel = mode.cardModel else {
             return false
         }
         
@@ -170,121 +164,12 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     private func canManage(_ tokenItem: TokenItem) -> Bool {
-        guard let cardModel = cardModel else {
+        guard let cardModel = mode.cardModel else {
             return false
         }
         
         let network = tokenItem.getDefaultBlockchainNetwork(for: cardModel.cardInfo.card.derivationStyle)
         return cardModel.canManage(amountType: tokenItem.amountType, blockchainNetwork: network)
-    }
-    
-    private func showAddButton(_ tokenItem: TokenItem) -> Bool {
-        switch mode {
-        case .add:
-            return true
-        case .show:
-            return false
-        }
-    }
-    
-    private func search(_ searchText: String) -> [CurrencyViewModel] {
-        let filter = searchText.lowercased()
-        
-        return data.filter {
-            $0.name.lowercased().contains(filter)
-            || $0.symbol.lowercased().contains(filter)
-            || $0.hasContractAddress(searchText)
-        }
-        .sorted(by: { lhs, rhs in
-            if lhs.name.lowercased() == filter
-                || lhs.symbol.lowercased() == filter {
-                return true
-            }
-            
-            return false
-        })
-    }
-    
-    private func getData()  {
-        isLoading = true
-        
-        if !data.isEmpty {
-            loadCancellable = Just(data)
-                .delay(for: 0.1, scheduler: DispatchQueue.main)
-                .sink(receiveValue: { [weak self] items in
-                    guard let self = self else { return }
-                    
-                    self.filteredData = self.data
-                    self.isLoading = false
-                    self.updateSelection()
-                })
-            return
-        }
-        
-        let isTestnet = cardModel?.cardInfo.isTestnet ?? false
-        let itemsRepo = SupportedTokenItems()
-        
-        let supportedCurves = cardModel?.cardInfo.card.walletCurves ?? EllipticCurve.allCases
-        let isSupportSolanaTokens = cardModel?.cardInfo.card.canSupportSolanaTokens ?? true
-        
-        loadCancellable = itemsRepo.loadCurrencies(isTestnet: isTestnet)
-            .map {[weak self] currencies -> [CurrencyViewModel] in
-                guard let self = self else { return [] }
-                
-                 return currencies.compactMap { currency -> CurrencyViewModel? in
-                    let filteredItems = currency.items.filter { item in
-                        if !supportedCurves.contains(item.blockchain.curve) {
-                            return false
-                        }
-                        
-                        if !isSupportSolanaTokens, item.isToken,
-                           item.blockchain == .solana(testnet: true) ||
-                            item.blockchain == .solana(testnet: false) {
-                            return false
-                        }
-                        
-                        return true
-                    }
-                    
-                    let totalItems = filteredItems.count
-                    guard totalItems > 0 else {
-                        return nil
-                    }
-                    
-                    let currencyItems: [CurrencyItemViewModel] = filteredItems.enumerated().map { (index, item) in
-                            .init(tokenItem: item,
-                                  isReadonly: self.isReadonlyMode,
-                                  isDisabled: !self.canManage(item),
-                                  isSelected: self.bindSelection(item),
-                                  isCopied: self.bindCopy(),
-                                  position: .init(with: index, total: totalItems))
-                    }
-                    
-                    return CurrencyViewModel(with: currency, items: currencyItems)
-                }
-            }
-            .replaceError(with: [])
-            .receive(on: DispatchQueue.main)
-            .sink {[weak self] items in
-                guard let self = self else { return }
-                
-                self.data = items
-                self.filteredData = items
-                self.isLoading = false
-            }
-    }
-    
-    private func updateSelection() {
-        self.pendingAdd = []
-        self.pendingRemove = []
-
-        data.forEach { currency in
-            currency.items.forEach { currencyItem in
-                let tokenItem = currencyItem.tokenItem
-                currencyItem.updateSelection(with: bindSelection(tokenItem))
-                currencyItem.isDisabled = !self.canManage(tokenItem)
-            }
-        }
     }
     
     private func isSelected(_ tokenItem: TokenItem) -> Bool {
@@ -336,14 +221,47 @@ class TokenListViewModel: ViewModel, ObservableObject {
         
         return binding
     }
-    
-    private func bind() {
-        enteredSearchText
-            .dropFirst()
-            .sink { [weak self] string in
-                self?.startSearch(with: string)
+}
+
+extension TokenListViewModel: ListDataLoaderDelegate {
+    func filter(_ model: CurrencyModel) -> CurrencyModel? {
+        let supportedCurves = mode.cardModel?.cardInfo.card.walletCurves ?? EllipticCurve.allCases
+        let isSupportSolanaTokens = mode.cardModel?.cardInfo.card.canSupportSolanaTokens ?? true
+        
+        var model = model
+        let filteredItems = model.items.filter { item in
+            if !supportedCurves.contains(item.blockchain.curve) {
+                return false
             }
-            .store(in: &bag)
+            
+            if !isSupportSolanaTokens, item.isToken,
+               item.blockchain == .solana(testnet: true) ||
+                item.blockchain == .solana(testnet: false) {
+                return false
+            }
+            
+            return true
+        }
+        
+        if filteredItems.isEmpty {
+            return nil
+        }
+        
+        model.items = filteredItems
+        return model
+    }
+    
+    func map(_ model: CurrencyModel) -> CurrencyViewModel {
+        let currencyItems: [CurrencyItemViewModel] = model.items.enumerated().map { (index, item) in
+                .init(tokenItem: item,
+                      isReadonly: self.isReadonlyMode,
+                      isDisabled: !self.canManage(item),
+                      isSelected: self.bindSelection(item),
+                      isCopied: self.bindCopy(),
+                      position: .init(with: index, total: model.items.count))
+        }
+        
+        return CurrencyViewModel(with: model, items: currencyItems)
     }
 }
 
@@ -358,6 +276,15 @@ extension TokenListViewModel {
                 return "add"
             case .show:
                 return "show"
+            }
+        }
+        
+        var cardModel: CardViewModel? {
+            switch self {
+            case .add(let cardModel):
+                return cardModel
+            case .show:
+                return nil
             }
         }
     }
