@@ -22,7 +22,7 @@ class CurrencyViewModel: Identifiable, ObservableObject {
         self.items = items
     }
     
-    init?(with currency: CurrencyModel, items: [CurrencyItemViewModel]) {
+    init(with currency: CurrencyModel, items: [CurrencyItemViewModel]) {
         self.name = currency.name
         self.symbol = currency.symbol
         self.imageURL = currency.imageURL
