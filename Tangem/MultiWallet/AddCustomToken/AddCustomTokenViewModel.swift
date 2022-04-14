@@ -73,12 +73,9 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     @Published var contractAddress = ""
     @Published var decimals = ""
     
-    @Published var blockchains: [(String, String)] = []
-    @Published var blockchainName: String = ""
-    @Published var blockchainEnabled: Bool = true
+    @Published var blockchainsPicker: PickerModel = .empty
+    @Published var derivationsPicker: PickerModel = .empty
     
-    @Published var derivationPath = ""
-    @Published var derivationPaths: [(String, String)] = []
     @Published var customDerivationsAllowed: Bool = true
     
     @Published var error: AlertBinder?
@@ -94,9 +91,9 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     
     init() {
         Publishers.CombineLatest3(
-            $blockchainName.removeDuplicates(),
+            $blockchainsPicker.map{$0.selection}.removeDuplicates(),
             $contractAddress.removeDuplicates(),
-            $derivationPath.removeDuplicates()
+            $derivationsPicker.map{$0.selection}.removeDuplicates()
         )
             .dropFirst()
             .debounce(for: 0.5, scheduler: RunLoop.main)
@@ -165,17 +162,18 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     func onDisappear() {
-        blockchainName = ""
+        blockchainsPicker = .empty
+        derivationsPicker = .empty
         name = ""
         symbol = ""
         contractAddress = ""
         decimals = ""
-        derivationPath = ""
     }
     
     private func updateBlockchains(_ blockchains: Set<Blockchain>) {
         let defaultItem = ("custom_token_network_input_not_selected".localized, "")
-        self.blockchains = [defaultItem] + blockchains.sorted {
+        
+        let newBlockchains = [defaultItem] + blockchains.sorted {
             $0.displayName < $1.displayName
         }.map {
             ($0.displayName, $0.codingKey)
@@ -183,21 +181,15 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         self.blockchainByName = Dictionary(uniqueKeysWithValues: blockchains.map {
             ($0.codingKey, $0)
         })
-        self.blockchainEnabled = blockchains.count > 1
         
-        
-        let newBlockchainName: String?
+        var newBlockchainName = self.blockchainsPicker.selection
         if blockchains.count == 1, let firstBlockchain = blockchains.first {
             newBlockchainName = firstBlockchain.codingKey
-        } else if blockchainByName[blockchainName] == nil {
+        } else if blockchainByName[blockchainsPicker.selection] == nil {
             newBlockchainName = ""
-        } else {
-            newBlockchainName = nil
         }
         
-        if let newBlockchainName = newBlockchainName, newBlockchainName != self.blockchainName {
-            self.blockchainName = newBlockchainName
-        }
+        self.blockchainsPicker = .init(items: newBlockchains, selection: newBlockchainName, isEnabled: blockchains.count > 1)
     }
     
     private func getBlockchains(withTokenSupport: Bool) -> Set<Blockchain> {
@@ -247,9 +239,9 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         }
         
         let uniqueDerivations = Set(evmDerivationPaths.map(\.1))
-        
-        self.derivationPaths = [defaultItem] + evmDerivationPaths
         self.customDerivationsAllowed = uniqueDerivations.count > 1
+        let newDerivationSelection = self.derivationsPicker.selection
+        self.derivationsPicker = .init(items: [defaultItem] + evmDerivationPaths, selection: newDerivationSelection)
     }
     
     private func enteredTokenItem() throws -> TokenItem {
@@ -284,7 +276,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     private func enteredBlockchain() throws -> Blockchain {
-        guard let blockchain = blockchainByName[blockchainName] else {
+        guard let blockchain = blockchainByName[blockchainsPicker.selection] else {
             throw TokenCreationErrors.blockchainNotSelected
         }
         
@@ -300,8 +292,9 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     private func enteredDerivationPath() throws -> DerivationPath? {
-        if !self.derivationPath.isEmpty {
-            let derivationPath = try? DerivationPath(rawPath: self.derivationPath)
+        let rawPath = derivationsPicker.selection
+        if !rawPath.isEmpty {
+            let derivationPath = try? DerivationPath(rawPath: rawPath)
             
             if derivationPath == nil {
                 throw TokenCreationErrors.invalidDerivationPath
@@ -317,13 +310,14 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         let derivationStyle = cardModel.cardInfo.card.derivationStyle
         let cardId = cardModel.cardInfo.card.cardId
         
-        guard let blockchain = blockchainByName[blockchainName] else {
+        guard let blockchain = try? enteredBlockchain() else {
             return
         }
         
         let cardTokenItems = cardModel.tokenItemsRepository.getItems(for: cardId)
         let checkingContractAddress = !contractAddress.isEmpty
-        let derivationPath = (try? DerivationPath(rawPath: derivationPath)) ?? blockchain.derivationPath(for: derivationStyle)
+        let rawPath = derivationsPicker.selection
+        let derivationPath = (try? DerivationPath(rawPath: rawPath)) ?? blockchain.derivationPath(for: derivationStyle)
         
         let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath)
         
@@ -406,5 +400,16 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 warningContainer.add(tokenSearchError.appWarning)
             }
         }
+    }
+}
+
+struct PickerModel: Identifiable {
+    let id = UUID()
+    let items: [(String, String)]
+    var selection: String
+    var isEnabled: Bool = true
+    
+    static var empty: PickerModel {
+        .init(items: [], selection: "")
     }
 }
