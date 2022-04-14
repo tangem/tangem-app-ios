@@ -21,45 +21,48 @@ struct TokenListView: View {
             ZStack {
                 navigationLinks
                 
-                    if viewModel.isLoading {
-                        VStack {
+                PerfList {
+                    if #available(iOS 15.0, *) {} else {
+                        let horizontalInset: CGFloat = UIDevice.isIOS13 ? 8 : 16
+                        SearchBar(text: $viewModel.enteredSearchText.value, placeholder: "common_search".localized)
+                            .padding(.horizontal, UIDevice.isIOS13 ? 0 : 8)
+                            .listRowInsets(.init(top: 8, leading: horizontalInset, bottom: 8, trailing: horizontalInset))
+                    }
+                    
+                    if viewModel.shouldShowAlert {
+                        Text("alert_manage_tokens_addresses_message")
+                            .font(.system(size: 13, weight: .medium, design: .default))
+                            .multilineTextAlignment(.center)
+                            .foregroundColor(Color(hex: "#848488"))
+                            .cornerRadius(10)
+                            .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
+                            .perfListPadding()
+                    }
+                    
+                    PerfListDivider()
+                    
+                    ForEach(viewModel.loader.items) {
+                        CurrencyView(model: $0)
+                            .buttonStyle(PlainButtonStyle()) //fix ios13 list item selection
+                            .perfListPadding()
+                        PerfListDivider()
+                    }
+                    
+                    if viewModel.loader.hasItems {
+                        HStack {
                             Spacer()
                             ActivityIndicatorView(color: .gray)
-                                .padding(.bottom, 32)
+                                .onAppear {
+                                    viewModel.fetch()
+                                }
                             Spacer()
                         }
-                    } else {
-                        PerfList {
-                            
-                            let horizontlInset: CGFloat = UIDevice.isIOS13 ? 8 : 16
-                            SearchBar(text: $viewModel.enteredSearchText.value, placeholder: "common_search".localized)
-                                .padding(.horizontal, UIDevice.isIOS13 ? 0 : 8)
-                                .listRowInsets(.init(top: 8, leading: horizontlInset, bottom: 8, trailing: horizontlInset))
-                            
-                            if viewModel.shouldShowAlert {
-                                Text("alert_manage_tokens_addresses_message")
-                                    .font(.system(size: 13, weight: .medium, design: .default))
-                                    .multilineTextAlignment(.center)
-                                    .foregroundColor(Color(hex: "#848488"))
-                                    .cornerRadius(10)
-                                    .listRowInsets(.init(top: 8, leading: 16, bottom: 8, trailing: 16))
-                                    .perfListPadding()
-                            }
-                            
-                            PerfListDivider()
-                            
-                            ForEach(viewModel.filteredData) {
-                                CurrencyView(model: $0)
-                                    .buttonStyle(PlainButtonStyle()) //fix ios13 list item selection
-                                    .perfListPadding()
-                                PerfListDivider()
-                            }
-                            
-                            if !viewModel.isReadonlyMode {
-                                Color.clear.frame(width: 10, height: 58, alignment: .center)
-                            }
-                        }
                     }
+                    
+                    if !viewModel.isReadonlyMode {
+                        Color.clear.frame(width: 10, height: 58, alignment: .center)
+                    }
+                }
                 
                 overlay
             }
@@ -71,10 +74,11 @@ struct TokenListView: View {
                 AlertToast(type: .complete(Color.tangemGreen), title: "contract_address_copied_message".localized)
             }
         }
+        .searchableCompat(text: $viewModel.enteredSearchText.value)
         .background(Color.clear.edgesIgnoringSafeArea(.all))
         .navigationViewStyle(.stack)
-        .onAppear { viewModel.onAppear() }
         .onDisappear { viewModel.onDissapear() }
+        .keyboardAdaptive()
     }
     
     @ViewBuilder private var addCustomView: some View {
@@ -112,7 +116,6 @@ struct TokenListView: View {
                                                    isLoading: viewModel.isSaving))
                     .padding([.horizontal, .top], 16)
                     .padding(.bottom, 8)
-                    .keyboardAdaptive()
                     .background(LinearGradient(colors: [.white, .white, .white.opacity(0)],
                                                startPoint: .bottom,
                                                endPoint: .top)
