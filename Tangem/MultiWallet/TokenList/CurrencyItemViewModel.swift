@@ -61,9 +61,7 @@ class CurrencyItemViewModel: Identifiable, ObservableObject {
             UIPasteboard.general.string = contractAddress
             let generator = UINotificationFeedbackGenerator()
             generator.notificationOccurred(.success)
-            if !UIDevice.isIOS13 {
-                isCopied.wrappedValue = true
-            }
+            isCopied.wrappedValue = true
         }
     }
 }
