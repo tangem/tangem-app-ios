@@ -32,6 +32,14 @@ extension View {
         }
     }
     
+    @ViewBuilder func searchableCompat(text: Binding<String>) -> some View {
+        if #available(iOS 15.0, *) {
+            self.searchable(text: text, placement: .navigationBarDrawer(displayMode: .always))
+        } else {
+            self
+        }
+    }
+    
     @ViewBuilder func ignoresKeyboard() -> some View {
         if #available(iOS 14.0, *) {
             self.ignoresSafeArea(.keyboard)
