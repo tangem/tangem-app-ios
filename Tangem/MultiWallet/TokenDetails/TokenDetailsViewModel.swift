@@ -280,9 +280,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     }
     
     private func updateRentWarning() {
-        guard let rentProvider = walletModel?.walletManager as? RentProvider,
-           amountType == .coin
-        else {
+        guard let rentProvider = walletModel?.walletManager as? RentProvider else {
             return
         }
 
