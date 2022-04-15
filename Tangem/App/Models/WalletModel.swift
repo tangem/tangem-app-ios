@@ -16,6 +16,7 @@ class WalletModel: ObservableObject, Identifiable {
     @Published var tokenItemViewModels: [TokenItemViewModel] = []
     @Published var tokenViewModels: [TokenBalanceViewModel] = []
     @Published var rates: [String: Decimal] = [:]
+    @Published var updateCompletedPublisher: Bool = false
     
     weak var ratesService: CurrencyRateService! {
         didSet {
@@ -154,6 +155,7 @@ class WalletModel: ObservableObject, Identifiable {
             if !silent {
                 self.state = .idle
             }
+            updateCompletedPublisher.toggle()
             return
         }
         
@@ -193,6 +195,7 @@ class WalletModel: ObservableObject, Identifiable {
                 }
                 
                 self.updateBalanceViewModel(with: self.wallet, state: self.state)
+                self.updateCompletedPublisher.toggle()
             }
         }
     }
