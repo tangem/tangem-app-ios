@@ -270,6 +270,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
             .map{ $0.isLoading }
             .filter { !$0 }
             .delay(for: 1, scheduler: DispatchQueue.global())
+            .first()
             .receive(on: RunLoop.main)
             .sink { _ in
                 print("♻️ Token wallet model loading state changed")
