@@ -54,15 +54,19 @@ class ListDataLoader: ObservableObject {
         self.isTestnet = isTestnet
     }
     
+    func reset(_ searchText: String) {
+        self.hasItems = true
+        self.items = []
+        self.currentPage = 0
+        self.lastSearchText = searchText
+        self.cachedSearch = [:]
+    }
+    
     func fetch(_ searchText: String) {
         cancellable = nil
         
         if lastSearchText != searchText {
-            self.hasItems = true
-            self.items = []
-            self.currentPage = 0
-            self.lastSearchText = searchText
-            self.cachedSearch = [:]
+            reset(searchText)
         }
      
         cancellable = loadItems(searchText)
