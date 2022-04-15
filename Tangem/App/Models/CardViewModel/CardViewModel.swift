@@ -545,7 +545,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
 
         searchBlockchainsCancellable =
-        Publishers.MergeMany(models.map { $0.$state.map{ $0.isLoading }.filter { !$0 } })
+        Publishers.MergeMany(models.map { $0.$updateCompletedPublisher.dropFirst() })
             .collect(models.count)
             .sink(receiveValue: { [weak self] _ in
                 guard let self = self else { return }
