@@ -19,7 +19,7 @@ class ListDataLoader: ObservableObject {
     @Published var items = [CurrencyViewModel]()
     
     // Tells if all records have been loaded. (Used to hide/show activity spinner)
-    private(set) var hasItems = true
+    private(set) var canFetchMore = true
     // Tracks last page loaded. Used to load next page (current + 1)
     private(set) var currentPage = 0
     // Limit of records per page. (Only if backend supports, it usually does)
@@ -55,7 +55,7 @@ class ListDataLoader: ObservableObject {
     }
     
     func reset(_ searchText: String) {
-        self.hasItems = true
+        self.canFetchMore = true
         self.items = []
         self.currentPage = 0
         self.lastSearchText = searchText
@@ -81,7 +81,7 @@ class ListDataLoader: ObservableObject {
                 self.items.append(contentsOf: $0)
                 // If count of data received is less than perPage value then it is last page.
                 if $0.count < self.perPage {
-                    self.hasItems = false
+                    self.canFetchMore = false
                 }
         }
     }
