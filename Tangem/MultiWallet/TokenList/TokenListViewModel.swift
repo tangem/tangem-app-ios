@@ -121,6 +121,10 @@ class TokenListViewModel: ViewModel, ObservableObject {
         }
     }
     
+    func onAppear() {
+        loader.reset(enteredSearchText.value)
+    }
+    
     func onDissapear() {
         pendingAdd = []
         pendingRemove = []
