@@ -354,13 +354,17 @@ class MainViewModel: ViewModel, ObservableObject {
                 .sink {[weak self] _ in
                     self?.checkPositiveBalance()
                     print("♻️ Wallet model loading state changed")
-                    done()
+                    withAnimation {
+                        done()
+                    }
                 }
             
             cardModel.update()
         } else {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                done()
+                withAnimation {
+                    done()
+                }
             }
         }
     }
