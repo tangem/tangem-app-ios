@@ -5,7 +5,6 @@ import SwiftUI
 typealias RefreshComplete = () -> Void
 typealias OnRefresh = (@escaping RefreshComplete) -> Void
 
-
 struct RefreshableScrollView<Content: View>: View {
     @State private var previousScrollOffset: CGFloat = 0
     @State private var scrollOffset: CGFloat = 0
@@ -22,10 +21,35 @@ struct RefreshableScrollView<Content: View>: View {
         self.threshold = height
         self.onRefresh = onRefresh
         self.content = content()
-        
     }
     
     var body: some View {
+        if #available(iOS 15.0, *) {
+            refreshableList
+        } else {
+            scrollViewWithHacks
+        }
+    }
+    
+    @available(iOS 15.0, *)
+    private var refreshableList: some View {
+        List {
+            self.content
+                .listRowSeparatorTint(.clear)
+                .listRowBackground(Color.clear)
+                .listRowInsets(.init())
+        }
+        .listStyle(.plain)
+        .refreshable {
+            await withCheckedContinuation { continuation in
+                onRefresh {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+    
+    private var scrollViewWithHacks: some View {
         return VStack {
             ScrollView {
                 ZStack(alignment: .top) {

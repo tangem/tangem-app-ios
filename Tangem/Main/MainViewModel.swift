@@ -349,6 +349,7 @@ class MainViewModel: ViewModel, ObservableObject {
                 .compactMap { $0.walletModels }
                 .flatMap { Publishers.MergeMany($0.map { $0.$state.map{ $0.isLoading }.filter { !$0 } }).collect($0.count) }
                 .delay(for: 1, scheduler: DispatchQueue.global())
+                .first()
                 .receive(on: RunLoop.main)
                 .sink {[weak self] _ in
                     self?.checkPositiveBalance()
