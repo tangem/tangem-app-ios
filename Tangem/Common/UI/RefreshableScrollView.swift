@@ -2,25 +2,54 @@
 // Full article: https://swiftui-lab.com/scrollview-pull-to-refresh/
 import SwiftUI
 
+typealias RefreshComplete = () -> Void
+typealias OnRefresh = (@escaping RefreshComplete) -> Void
+
 struct RefreshableScrollView<Content: View>: View {
     @State private var previousScrollOffset: CGFloat = 0
     @State private var scrollOffset: CGFloat = 0
     @State private var frozen: Bool = false
     @State private var rotation: Angle = .degrees(0)
     @State private var alpha: Double = 0
+    @State private var refreshing: Bool = false
     
     var threshold: CGFloat = 80
-    @Binding var refreshing: Bool
+    let onRefresh: OnRefresh
     let content: Content
     
-    init(height: CGFloat = 80, refreshing: Binding<Bool>, @ViewBuilder content: () -> Content) {
+    init(height: CGFloat = 80, onRefresh: @escaping OnRefresh, @ViewBuilder content: () -> Content) {
         self.threshold = height
-        self._refreshing = refreshing
+        self.onRefresh = onRefresh
         self.content = content()
-        
     }
     
     var body: some View {
+        if #available(iOS 15.0, *) {
+            refreshableList
+        } else {
+            scrollViewWithHacks
+        }
+    }
+    
+    @available(iOS 15.0, *)
+    private var refreshableList: some View {
+        List {
+            self.content
+                .listRowSeparatorTint(.clear)
+                .listRowBackground(Color.clear)
+                .listRowInsets(.init())
+        }
+        .listStyle(.plain)
+        .refreshable {
+            await withCheckedContinuation { continuation in
+                onRefresh {
+                    continuation.resume()
+                }
+            }
+        }
+    }
+    
+    private var scrollViewWithHacks: some View {
         return VStack {
             ScrollView {
                 ZStack(alignment: .top) {
@@ -53,6 +82,10 @@ struct RefreshableScrollView<Content: View>: View {
             // Crossing the threshold on the way down, we start the refresh process
             if !self.refreshing && (self.scrollOffset > self.threshold && self.previousScrollOffset <= self.threshold) {
                 self.refreshing = true
+                
+                self.onRefresh {
+                    self.refreshing = false
+                }
             }
             
             if self.refreshing {
@@ -172,11 +205,14 @@ fileprivate struct ActivityRep: UIViewRepresentable {
 
 struct RefreshableScrollViewView_Previews: PreviewProvider {
     struct _ScrollView: View {
-        @State private var isRefreshing = false
         @State private var text = "123456"
         
         var body: some View {
-            RefreshableScrollView(refreshing: $isRefreshing) {
+            RefreshableScrollView(onRefresh: { completion in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    completion()
+                }
+            }) {
                 VStack {
                     Text("update state").onTapGesture {
                         text = "\(Date())"
@@ -185,11 +221,6 @@ struct RefreshableScrollViewView_Previews: PreviewProvider {
                     Text("dfasdfasdf")
                     Text("dfasdfasdf")
                     Text("refresh control")
-                        .onTapGesture {
-                            withAnimation {
-                                isRefreshing.toggle()
-                            }
-                        }
                 }
                 
             }
