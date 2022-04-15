@@ -341,15 +341,11 @@ class MainViewModel: ViewModel, ObservableObject {
 //    }
     
     func onRefresh(_ done: @escaping () -> Void) {
-        if let cardModel = self.cardModel, cardModel.state.canUpdate, cardModel.walletModels?.count ?? 0 > 0 {
-            
-            refreshCancellable = $state
-                .compactMap { $0.cardModel }
-                .flatMap { $0.$state }
-                .compactMap { $0.walletModels }
-                .flatMap { Publishers.MergeMany($0.map { $0.$state.map{ $0.isLoading }.filter { !$0 } }).collect($0.count) }
-                .delay(for: 1, scheduler: DispatchQueue.global())
-                .first()
+        if let cardModel = self.cardModel, cardModel.state.canUpdate,
+           let walletModels = cardModel.walletModels {
+            let publishers = walletModels.map { $0.$updateCompletedPublisher.dropFirst() }
+            refreshCancellable = Publishers.MergeMany(publishers)
+                .collect(walletModels.count)
                 .receive(on: RunLoop.main)
                 .sink {[weak self] _ in
                     self?.checkPositiveBalance()
