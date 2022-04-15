@@ -48,7 +48,7 @@ struct TokenListView: View {
                         PerfListDivider()
                     }
                     
-                    if viewModel.loader.hasItems {
+                    if viewModel.loader.canFetchMore {
                         HStack {
                             Spacer()
                             ActivityIndicatorView(color: .gray)
