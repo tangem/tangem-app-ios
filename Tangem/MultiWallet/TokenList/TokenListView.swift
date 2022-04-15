@@ -77,6 +77,7 @@ struct TokenListView: View {
         .searchableCompat(text: $viewModel.enteredSearchText.value)
         .background(Color.clear.edgesIgnoringSafeArea(.all))
         .navigationViewStyle(.stack)
+        .onAppear { viewModel.onAppear() }
         .onDisappear { viewModel.onDissapear() }
         .keyboardAdaptive()
     }
