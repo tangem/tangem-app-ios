@@ -132,12 +132,12 @@ class WalletModel: ObservableObject, Identifiable {
         self.derivationStyle = derivationStyle
         self.signer = signer
         
-        updateBalanceViewModel(with: walletManager.wallet, state: .idle)
+        updateBalanceViewModel(with: walletManager.wallet)
         self.walletManager.walletPublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: {[unowned self] wallet in
                 print("💳 Wallet model received update")
-                self.updateBalanceViewModel(with: wallet, state: self.state)
+                self.updateBalanceViewModel(with: wallet)
                 //                if wallet.hasPendingTx {
                 //                    if self.updateTimer == nil {
                 //                        self.startUpdatingTimer()
@@ -150,52 +150,54 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     func update(silent: Bool = false) {
-        if let latestUpdateTime = self.latestUpdateTime,
-           latestUpdateTime.distance(to: Date()) <= 10 {
-            if !silent {
-                self.state = .idle
-            }
-            updateCompletedPublisher.toggle()
-            return
-        }
-        
-        if case .loading = state {
-            return
-        }
-        
-        if !silent {
-            updateBalanceViewModel(with: self.wallet, state: .loading)
-            state = .loading
-        }
-        
-        print("🔄 Updating wallet model for \(wallet.blockchain)")
-        walletManager.update { result in
-            DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
-                
-                if case let .failure(error) = result {
-                    if case let .noAccount(noAccountMessage) = (error as? WalletError) {
-                        self.state = .noAccount(message: noAccountMessage)
-                    } else {
-                        self.state = .failed(error: error.detailedError)
-                        Analytics.log(error: error)
-                    }
-                } else {
-                    self.latestUpdateTime = Date()
-                    
-                    if let demoBalance = self.demoBalance {
-                        self.walletManager.wallet.add(coinValue: demoBalance)
-                    }
-                    
-                    if !silent {
-                        self.state = .idle
-                    }
-                    
-                    self.loadRates()
+        DispatchQueue.main.async {
+            if let latestUpdateTime = self.latestUpdateTime,
+               latestUpdateTime.distance(to: Date()) <= 10 {
+                if !silent {
+                    self.state = .idle
                 }
-                
-                self.updateBalanceViewModel(with: self.wallet, state: self.state)
                 self.updateCompletedPublisher.toggle()
+                return
+            }
+            
+            if case .loading = self.state {
+                return
+            }
+            
+            if !silent {
+                self.updateBalanceViewModel(with: self.wallet)
+                self.state = .loading
+            }
+            
+            print("🔄 Updating wallet model for \(self.wallet.blockchain)")
+            self.walletManager.update { result in
+                DispatchQueue.main.async { [weak self] in
+                    guard let self = self else { return }
+                    
+                    if case let .failure(error) = result {
+                        if case let .noAccount(noAccountMessage) = (error as? WalletError) {
+                            self.state = .noAccount(message: noAccountMessage)
+                        } else {
+                            self.state = .failed(error: error.detailedError)
+                            Analytics.log(error: error)
+                        }
+                    } else {
+                        self.latestUpdateTime = Date()
+                        
+                        if let demoBalance = self.demoBalance {
+                            self.walletManager.wallet.add(coinValue: demoBalance)
+                        }
+                        
+                        if !silent {
+                            self.state = .idle
+                        }
+                        
+                        self.loadRates()
+                    }
+                    
+                    self.updateBalanceViewModel(with: self.wallet)
+                    self.updateCompletedPublisher.toggle()
+                }
             }
         }
     }
@@ -416,10 +418,10 @@ class WalletModel: ObservableObject, Identifiable {
         }
     }
     
-    private func updateBalanceViewModel(with wallet: Wallet, state: State) {
+    private func updateBalanceViewModel(with wallet: Wallet) {
         balanceViewModel = BalanceViewModel(isToken: false,
                                             hasTransactionInProgress: wallet.hasPendingTx,
-                                            state: state,
+                                            state: self.state,
                                             name:  wallet.blockchain.displayName,
                                             fiatBalance: getFiatBalance(for: .coin),
                                             balance: getBalance(for: .coin),
@@ -439,7 +441,7 @@ class WalletModel: ObservableObject, Identifiable {
     private func loadRates(for currenciesToExchange: [String]) {
         ratesService
             .rates(for: currenciesToExchange)
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in
                 switch completion {
                 case .failure(let error):
@@ -456,7 +458,7 @@ class WalletModel: ObservableObject, Identifiable {
                 }
                 
                 self.rates = rates
-                self.updateBalanceViewModel(with: self.wallet, state: self.state)
+                self.updateBalanceViewModel(with: self.wallet)
                 
             }
             .store(in: &bag)
