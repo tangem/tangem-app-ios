@@ -266,11 +266,8 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     
     func onRefresh(_ done: @escaping () -> Void) {
         refreshCancellable = walletModel?
-            .$state
-            .map{ $0.isLoading }
-            .filter { !$0 }
-            .delay(for: 1, scheduler: DispatchQueue.global())
-            .first()
+            .$updateCompletedPublisher
+            .dropFirst()
             .receive(on: RunLoop.main)
             .sink { _ in
                 print("♻️ Token wallet model loading state changed")
