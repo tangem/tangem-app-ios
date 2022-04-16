@@ -122,7 +122,7 @@ struct TokenDetailsView: View {
                 }
                 
                 GeometryReader { geometry in
-                    RefreshableScrollView(refreshing: self.$viewModel.isRefreshing) {
+                    RefreshableScrollView(onRefresh: { viewModel.onRefresh($0) }) {
                         VStack(spacing: 8.0) {
                             ForEach(self.pendingTransactionViews) { $0 }
                             
