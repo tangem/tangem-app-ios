@@ -48,7 +48,7 @@ struct TokenListView: View {
                         PerfListDivider()
                     }
                     
-                    if viewModel.loader.hasItems {
+                    if viewModel.loader.canFetchMore {
                         HStack {
                             Spacer()
                             ActivityIndicatorView(color: .gray)
@@ -77,6 +77,7 @@ struct TokenListView: View {
         .searchableCompat(text: $viewModel.enteredSearchText.value)
         .background(Color.clear.edgesIgnoringSafeArea(.all))
         .navigationViewStyle(.stack)
+        .onAppear { viewModel.onAppear() }
         .onDisappear { viewModel.onDissapear() }
         .keyboardAdaptive()
     }
