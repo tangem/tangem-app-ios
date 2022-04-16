@@ -154,7 +154,7 @@ struct MainView: View {
             navigationLinks
             GeometryReader { geometry in
                 ZStack {
-                    RefreshableScrollView(refreshing: $viewModel.isRefreshing) {
+                    RefreshableScrollView(onRefresh: { viewModel.onRefresh($0) }) {
                         VStack(spacing: 8.0) {
                             CardView(image: viewModel.image,
                                      width: geometry.size.width - 32,
