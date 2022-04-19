@@ -67,7 +67,7 @@ struct TokenListView: View {
                 overlay
             }
             .navigationBarBackButtonHidden(true)
-            .navigationBarTitle(viewModel.titleKey)
+            .navigationBarTitle(viewModel.titleKey, displayMode: UIDevice.isIOS13 ? .inline : .automatic)
             .navigationBarItems(trailing: addCustomView)
             .alert(item: $viewModel.error, content: { $0.alert })
             .toast(isPresenting: $viewModel.showToast) {
@@ -115,7 +115,7 @@ struct TokenListView: View {
                                                    layout: .flexibleWidth,
                                                    isDisabled: viewModel.isSaveDisabled,
                                                    isLoading: viewModel.isSaving))
-                    .padding([.horizontal, .top], 16)
+                    .padding(.horizontal, 16)
                     .padding(.bottom, 8)
                     .background(LinearGradient(colors: [.white, .white, .white.opacity(0)],
                                                startPoint: .bottom,
