@@ -24,11 +24,11 @@ struct RefreshableScrollView<Content: View>: View {
     }
     
     var body: some View {
-        if #available(iOS 15.0, *) {
-            refreshableList
-        } else {
+//        if #available(iOS 15.0, *) {
+//            refreshableList
+//        } else {
             scrollViewWithHacks
-        }
+//        }
     }
     
     @available(iOS 15.0, *)
