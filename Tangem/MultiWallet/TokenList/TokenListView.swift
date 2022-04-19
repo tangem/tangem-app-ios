@@ -115,7 +115,7 @@ struct TokenListView: View {
                                                    layout: .flexibleWidth,
                                                    isDisabled: viewModel.isSaveDisabled,
                                                    isLoading: viewModel.isSaving))
-                    .padding([.horizontal, .top], 16)
+                    .padding(.horizontal, 16)
                     .padding(.bottom, 8)
                     .background(LinearGradient(colors: [.white, .white, .white.opacity(0)],
                                                startPoint: .bottom,
