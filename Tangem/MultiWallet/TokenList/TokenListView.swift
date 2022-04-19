@@ -67,7 +67,7 @@ struct TokenListView: View {
                 overlay
             }
             .navigationBarBackButtonHidden(true)
-            .navigationBarTitle(viewModel.titleKey)
+            .navigationBarTitle(viewModel.titleKey, displayMode: UIDevice.isIOS13 ? .inline : .automatic)
             .navigationBarItems(trailing: addCustomView)
             .alert(item: $viewModel.error, content: { $0.alert })
             .toast(isPresenting: $viewModel.showToast) {
