@@ -301,6 +301,7 @@ struct MainView: View {
             .accessibility(label: Text("voice_over_open_card_details"))
             .padding(0.0)
         )
+        .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
         .onAppear {
             viewModel.onAppear()
         }
