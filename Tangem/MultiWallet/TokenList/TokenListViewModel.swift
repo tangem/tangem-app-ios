@@ -126,10 +126,9 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     func onDissapear() {
-        pendingAdd = []
-        pendingRemove = []
-        
         DispatchQueue.main.async {
+            self.pendingAdd = []
+            self.pendingRemove = []
             self.enteredSearchText.value = ""
             self.navigation.tokensToCustomToken = false //ios13 bug
         }
