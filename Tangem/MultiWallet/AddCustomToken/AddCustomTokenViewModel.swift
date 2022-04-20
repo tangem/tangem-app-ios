@@ -284,6 +284,10 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     private func enteredContractAddress(in blockchain: Blockchain) throws -> String {
+        if blockchain == .binance(testnet: true) || blockchain == .binance(testnet: false) {
+            return contractAddress //skip validation for binance
+        }
+        
         guard blockchain.validate(address: contractAddress) else {
             throw TokenCreationErrors.invalidContractAddress
         }
