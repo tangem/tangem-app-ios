@@ -354,26 +354,26 @@ class SendViewModel: ViewModel, ObservableObject {
             .combineLatest($validatedDestination,
                            $selectedFee,
                            $isFeeIncluded)
-            .tryMap {[unowned self] amount, destination, fee, isFeeIncluded -> BlockchainSdk.Transaction? in
+            .sink {[unowned self] (amount, destination, fee, isFeeIncluded) in
                 guard let amount = amount, let destination = destination, let fee = fee else {
-                    return nil
+                    return
                 }
              
-                let tx = try self.walletModel.walletManager.createTransaction(amount: isFeeIncluded ? amount - fee : amount,
+                do {
+                    let tx = try self.walletModel.walletManager.createTransaction(amount: isFeeIncluded ? amount - fee : amount,
                                                                               fee: fee,
                                                                               destinationAddress: destination)
-                DispatchQueue.main.async {
-                    self.validateWithdrawal(tx, amount)
+                    DispatchQueue.main.async {
+                        self.validateWithdrawal(tx, amount)
+                    }
+                    
+                    self.amountHint = nil
+                    self.transaction = tx
+                    
+                } catch {
+                    self.amountHint = TextHint(isError: true, message: error.localizedDescription)
+                    self.transaction = nil
                 }
-                self.amountHint = nil
-                return tx
-            }
-            .catch {[unowned self] error -> AnyPublisher<BlockchainSdk.Transaction?, Never> in
-                self.amountHint = TextHint(isError: true, message: error.localizedDescription)
-                return Just(nil).eraseToAnyPublisher()
-            }
-            .sink{[unowned self] tx in
-                self.transaction = tx
             }
             .store(in: &bag)
         
