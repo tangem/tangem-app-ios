@@ -15,7 +15,7 @@ fileprivate struct TextInputWithTitle: View {
     var text: Binding<String>
     var keyboardType: UIKeyboardType
     var height: CGFloat = 60
-    var backgroundColor: Color = Color(UIColor.systemGray6)
+    var backgroundColor: Color =  .white
     let isEnabled: Bool
     let isLoading: Bool
     
@@ -48,7 +48,7 @@ fileprivate struct TextInputWithTitle: View {
 fileprivate struct PickerInputWithTitle: View {
     var title: String
     var height: CGFloat = 60
-    var backgroundColor: Color = Color(UIColor.systemGray6)
+    var backgroundColor: Color = .white
     @Binding var model: PickerModel
     
     var body: some View {
@@ -109,6 +109,7 @@ struct AddCustomTokenView: View {
                     TextInputWithTitle(title: "custom_token_token_symbol_input_title".localized, placeholder: "custom_token_token_symbol_input_placeholder".localized, text: $viewModel.symbol, keyboardType: .default, isEnabled: viewModel.foundStandardToken == nil, isLoading: false)
                     
                     TextInputWithTitle(title: "custom_token_decimals_input_title".localized, placeholder: "0", text: $viewModel.decimals, keyboardType: .numberPad, isEnabled: viewModel.foundStandardToken == nil, isLoading: false)
+                        .cornerRadius(viewModel.customDerivationsAllowed ? 0 : 10, corners: [.bottomLeft, .bottomRight])
                     
                     if viewModel.customDerivationsAllowed {
                         PickerInputWithTitle(title: "custom_token_derivation_path_input_title".localized, model: $viewModel.derivationsPicker)
@@ -124,10 +125,11 @@ struct AddCustomTokenView: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 8)
         }
+        .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
         .alert(item: $viewModel.error, content: { $0.alert })
-        .navigationBarTitle("add_custom_token_title".localized)
+        .navigationBarTitle("add_custom_token_title", displayMode: .inline) //fix ios14 navbar overlap
     }
 }
 
