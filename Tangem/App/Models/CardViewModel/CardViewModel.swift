@@ -311,7 +311,7 @@ class CardViewModel: Identifiable, ObservableObject {
         
         tryMigrateTokens() { [weak self] in
             self?.state.walletModels?.forEach { $0.update() }
-            self?.searchTokens()
+          //  self?.searchTokens() //tmp disable token's search
         }
     }
     
