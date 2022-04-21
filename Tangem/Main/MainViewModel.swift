@@ -498,9 +498,9 @@ class MainViewModel: ViewModel, ObservableObject {
                 let fundRestorationUrl: URL
                 switch Locale.current.languageCode {
                 case "ru":
-                    fundRestorationUrl = URL(string: "https://tangem.com/ru/notion")!
+                    fundRestorationUrl = URL(string: "https://tangem.com/ru/kak-vosstanovit-tokeny-otpravlennye-ne-na-tot-adres-v-tangem-wallet")!
                 default:
-                    fundRestorationUrl = URL(string: "https://tangem.com/en/notion")!
+                    fundRestorationUrl = URL(string: "https://tangem.com/en/how-to-recover-crypto-sent-to-the-wrong-address-in-tangem-wallet")!
                 }
                 showExternalURL = fundRestorationUrl
             }
