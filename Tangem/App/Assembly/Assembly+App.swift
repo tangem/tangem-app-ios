@@ -231,7 +231,7 @@ extension Assembly {
         vm.tokenItemsRepository = services.tokenItemsRepository
         vm.userPrefsService = services.userPrefsService
         vm.imageLoaderService = services.imageLoaderService
-        vm.tokenListService = services.tokenListService
+        vm.coinsService = services.coinsService
         vm.updateState()
         return vm
     }
@@ -324,7 +324,7 @@ extension Assembly {
         let vm = AddCustomTokenViewModel()
         initialize(vm)
         vm.cardModel = services.cardsRepository.lastScanResult.cardModel
-        vm.tokenListService = services.tokenListService
+        vm.coinsService = services.coinsService
         return vm
     }
     
