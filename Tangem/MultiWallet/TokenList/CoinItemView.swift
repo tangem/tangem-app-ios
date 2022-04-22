@@ -1,5 +1,5 @@
 //
-//  CurrencyItemView.swift
+//  CoinItemView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,8 +10,8 @@ import Foundation
 import SwiftUI
 import BlockchainSdk
 
-struct CurrencyItemView: View {
-    @ObservedObject var model: CurrencyItemViewModel
+struct CoinItemView: View {
+    @ObservedObject var model: CoinItemViewModel
     
     var icon: some View {
         NetworkIcon(imageName: model.selectedPublisher ? model.imageNameSelected : model.imageName,
@@ -67,12 +67,12 @@ struct CurrencyItemView: View {
 struct CurrencyItemView_Previews: PreviewProvider {
     static var previews: some View {
         VStack(spacing: 0) {
-            CurrencyItemView(model: CurrencyItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
+            CoinItemView(model: CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
                                                           isReadonly: false,
                                                           isDisabled: false,
                                                           isSelected: .constant(false)))
             
-            CurrencyItemView(model: CurrencyItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
+            CoinItemView(model: CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
                                                           isReadonly: false,
                                                           isDisabled: false,
                                                           isSelected: .constant(true),
@@ -80,7 +80,7 @@ struct CurrencyItemView_Previews: PreviewProvider {
             
             
             StatefulPreviewWrapper(false) {
-                CurrencyItemView(model: CurrencyItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
+                CoinItemView(model: CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
                                                               isReadonly: false,
                                                               isDisabled: false,
                                                               isSelected: $0))
