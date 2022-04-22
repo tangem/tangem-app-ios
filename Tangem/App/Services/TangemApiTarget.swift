@@ -11,7 +11,7 @@ import TangemSdk
 
 struct TangemApiTarget: TargetType {
     enum TangemApiTargetType {
-        case rates(cryptoCurrencyIds: [String], fiatCurrencyCode: String)
+        case rates(coinIds: [String], currencyId: String)
         case currencies
         case coins(contractAddress: String?, networkId: String?)
     }
@@ -36,9 +36,9 @@ struct TangemApiTarget: TargetType {
     
     var task: Task {
         switch type {
-        case .rates(let cryptoCurrencyIds, let fiatCurrencyCode):
-            return .requestParameters(parameters: ["ids": cryptoCurrencyIds.joined(separator: ","),
-                                                   "currency": fiatCurrencyCode.lowercased()],
+        case .rates(let coinIds, let currencyId):
+            return .requestParameters(parameters: ["coinIds": coinIds.joined(separator: ","),
+                                                   "currencyId": currencyId.lowercased()],
                                       encoding: URLEncoding.default)
         case .currencies:
             return .requestPlain

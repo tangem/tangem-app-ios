@@ -41,9 +41,9 @@ class CurrencyRateService {
             .eraseToAnyPublisher()
     }
     
-    func rates(for cryptoCurrencyIds: [String]) -> AnyPublisher<[String: Decimal], Never> {
+    func rates(for coinIds: [String]) -> AnyPublisher<[String: Decimal], Never> {
         return provider
-            .requestPublisher(TangemApiTarget(type: .rates(cryptoCurrencyIds: cryptoCurrencyIds, fiatCurrencyCode: selectedCurrencyCode), card: card))
+            .requestPublisher(TangemApiTarget(type: .rates(coinIds: coinIds, currencyId: selectedCurrencyCode), card: card))
             .filterSuccessfulStatusAndRedirectCodes()
             .map(RatesResponse.self)
             .map { $0.rates }
