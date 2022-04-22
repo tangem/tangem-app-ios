@@ -28,7 +28,7 @@ class CardViewModel: Identifiable, ObservableObject {
     weak var tokenItemsRepository: TokenItemsRepository!
     weak var userPrefsService: UserPrefsService!
     weak var imageLoaderService: CardImageLoaderService!
-    weak var tokenListService: TokenListService!
+    weak var coinsService: CoinsService!
     
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
@@ -760,7 +760,7 @@ class CardViewModel: Identifiable, ObservableObject {
         
         let publishers = itemsWithCustomTokens.flatMap { item in
             item.tokens.filter { $0.isCustom }.map { token in
-                tokenListService
+                coinsService
                     .checkContractAddress(contractAddress: token.contractAddress, networkId: item.blockchainNetwork.blockchain.networkId)
                     .replaceError(with: [])
                     .map { [unowned self] models -> Bool in
