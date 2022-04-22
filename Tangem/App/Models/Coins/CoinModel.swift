@@ -27,8 +27,7 @@ struct CoinModel {
             }
             
             if !isSupportSolanaTokens, item.isToken,
-               item.blockchain == .solana(testnet: true) ||
-                item.blockchain == .solana(testnet: false) {
+               case .solana = item.blockchain {
                 return false
             }
             
