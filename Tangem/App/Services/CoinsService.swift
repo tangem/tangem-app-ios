@@ -36,7 +36,7 @@ class CoinsService {
                         let model = CoinModel(with: $0, baseImageURL: list.imageHost)
                         
                         if let card = self.card {
-                            return model.makeFiltered(with: card)
+                            return model.makeFiltered(with: card, contractAddress: contractAddress)
                         }
                         
                         return model
