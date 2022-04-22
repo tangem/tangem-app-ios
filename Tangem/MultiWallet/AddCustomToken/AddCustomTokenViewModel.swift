@@ -66,7 +66,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
     weak var cardModel: CardViewModel!
-    weak var tokenListService: TokenListService!
+    weak var coinsService: CoinsService!
     
     @Published var name = ""
     @Published var symbol = ""
@@ -84,7 +84,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     @Published var addButtonDisabled = false
     @Published var isLoading = false
     
-    @Published private(set) var foundStandardToken: CurrencyModel?
+    @Published private(set) var foundStandardToken: CoinModel?
     
     private var bag: Set<AnyCancellable> = []
     private var blockchainByName: [String: Blockchain] = [:]
@@ -97,7 +97,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         )
             .dropFirst()
             .debounce(for: 0.5, scheduler: RunLoop.main)
-            .flatMap { (blockchainName, contractAddress, derivationPath) -> AnyPublisher<[CurrencyModel], Never> in
+            .flatMap { (blockchainName, contractAddress, derivationPath) -> AnyPublisher<[CoinModel], Never> in
                 self.isLoading = true
                 
                 guard !contractAddress.isEmpty else {
@@ -284,7 +284,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     private func enteredContractAddress(in blockchain: Blockchain) throws -> String {
-        if blockchain == .binance(testnet: true) || blockchain == .binance(testnet: false) {
+        if case .binance = blockchain {
             return contractAddress //skip validation for binance
         }
         
@@ -336,7 +336,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         }
     }
     
-    private func findToken(contractAddress: String) -> AnyPublisher<[CurrencyModel], Never> {
+    private func findToken(contractAddress: String) -> AnyPublisher<[CoinModel], Never> {
         if let currentCurrencyModel = foundStandardToken,
            let token = currentCurrencyModel.items.first?.token,
            token.contractAddress.caseInsensitiveCompare(contractAddress) == .orderedSame
@@ -345,13 +345,13 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 .eraseToAnyPublisher()
         }
         
-        return tokenListService
+        return coinsService
             .checkContractAddress(contractAddress: contractAddress, networkId: nil)
             .replaceError(with: [])
             .eraseToAnyPublisher()
     }
     
-    private func didFinishTokenSearch(_ currencyModels: [CurrencyModel]) {
+    private func didFinishTokenSearch(_ currencyModels: [CoinModel]) {
         warningContainer.removeAll()
         addButtonDisabled = false
         isLoading = false
