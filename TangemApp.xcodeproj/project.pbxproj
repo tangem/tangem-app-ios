@@ -155,6 +155,9 @@
 		5DDFC1FB2812A59F005976FE /* CoinsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DDFC1FA2812A59F005976FE /* CoinsResponse.swift */; };
 		5DDFC1FD2812A622005976FE /* Coin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DDFC1FC2812A622005976FE /* Coin.swift */; };
 		5DDFC1FF2812A63B005976FE /* Network.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DDFC1FE2812A63B005976FE /* Network.swift */; };
+		5DDFC2022812B716005976FE /* CurrenciesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DDFC2012812B716005976FE /* CurrenciesResponse.swift */; };
+		5DDFC2042812B72C005976FE /* Currency.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DDFC2032812B72C005976FE /* Currency.swift */; };
+		5DDFC2072812B7AB005976FE /* RatesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DDFC2062812B7AB005976FE /* RatesResponse.swift */; };
 		5DE2038E24EE8A510044EF46 /* ActivityIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE2038D24EE8A510044EF46 /* ActivityIndicatorView.swift */; };
 		5DE552EF27B2A5F400D7ADCD /* IconsUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE552EE27B2A5F300D7ADCD /* IconsUtils.swift */; };
 		5DE552F627B418B400D7ADCD /* testnet_tokens.json in Resources */ = {isa = PBXBuildFile; fileRef = 5DE552F527B418B400D7ADCD /* testnet_tokens.json */; };
@@ -403,7 +406,7 @@
 		B0FAD01226BAF35C00F45E88 /* FrameSizeModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FAD01126BAF35C00F45E88 /* FrameSizeModifier.swift */; };
 		B0FB98A52598D24300B769A3 /* Card+.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FB98A42598D24300B769A3 /* Card+.swift */; };
 		B0FC4A822630245F000444D7 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = B0FC49BF2630245E000444D7 /* Localizable.strings */; };
-		DA105C2F27F5B65E00596839 /* TokenListService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA105C2E27F5B65E00596839 /* TokenListService.swift */; };
+		DA105C2F27F5B65E00596839 /* CoinsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA105C2E27F5B65E00596839 /* CoinsService.swift */; };
 		DA23787A27B24222009795A8 /* Address.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA23786B27B24221009795A8 /* Address.swift */; };
 		DA23787B27B24222009795A8 /* ProductVariant.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA23786C27B24221009795A8 /* ProductVariant.swift */; };
 		DA23787C27B24222009795A8 /* ShopifyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA23786D27B24221009795A8 /* ShopifyService.swift */; };
@@ -668,6 +671,9 @@
 		5DDFC1FA2812A59F005976FE /* CoinsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinsResponse.swift; sourceTree = "<group>"; };
 		5DDFC1FC2812A622005976FE /* Coin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Coin.swift; sourceTree = "<group>"; };
 		5DDFC1FE2812A63B005976FE /* Network.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Network.swift; sourceTree = "<group>"; };
+		5DDFC2012812B716005976FE /* CurrenciesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrenciesResponse.swift; sourceTree = "<group>"; };
+		5DDFC2032812B72C005976FE /* Currency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Currency.swift; sourceTree = "<group>"; };
+		5DDFC2062812B7AB005976FE /* RatesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RatesResponse.swift; sourceTree = "<group>"; };
 		5DE2038D24EE8A510044EF46 /* ActivityIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityIndicatorView.swift; sourceTree = "<group>"; };
 		5DE552EE27B2A5F300D7ADCD /* IconsUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IconsUtils.swift; sourceTree = "<group>"; };
 		5DE552F527B418B400D7ADCD /* testnet_tokens.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = testnet_tokens.json; sourceTree = "<group>"; };
@@ -879,7 +885,7 @@
 		BD6C9959F53AF1BAC643BEDD /* Pods-Tangem Tap-Tangem TapUITests.firebase.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap-Tangem TapUITests.firebase.xcconfig"; path = "Target Support Files/Pods-Tangem Tap-Tangem TapUITests/Pods-Tangem Tap-Tangem TapUITests.firebase.xcconfig"; sourceTree = "<group>"; };
 		D513FF545D1945A2BACAA25F /* Pods_Tangem_TangemUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tangem_TangemUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9B0B0F1869C2BD108CE901A /* Pods-Tangem-TangemUITests.firebase.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.firebase.xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.firebase.xcconfig"; sourceTree = "<group>"; };
-		DA105C2E27F5B65E00596839 /* TokenListService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListService.swift; sourceTree = "<group>"; };
+		DA105C2E27F5B65E00596839 /* CoinsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinsService.swift; sourceTree = "<group>"; };
 		DA23786B27B24221009795A8 /* Address.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Address.swift; sourceTree = "<group>"; };
 		DA23786C27B24221009795A8 /* ProductVariant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProductVariant.swift; sourceTree = "<group>"; };
 		DA23786D27B24221009795A8 /* ShopifyService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShopifyService.swift; sourceTree = "<group>"; };
@@ -1051,7 +1057,7 @@
 				5D17FB8825ED766500C98A7F /* ValidatedCardsService.swift */,
 				5D384B8A24FD154C00C2C92C /* PayIDService.swift */,
 				DA5970EB27FC1C1B0050387C /* TangemApiTarget.swift */,
-				DA105C2E27F5B65E00596839 /* TokenListService.swift */,
+				DA105C2E27F5B65E00596839 /* CoinsService.swift */,
 				DA5970E927FC1C0E0050387C /* CurrencyRateService.swift */,
 				5D225CB82524B721001564A3 /* Analytics.swift */,
 				5D9DCB05255193C30059799C /* UserPrefsService.swift */,
@@ -1385,6 +1391,7 @@
 		5DDFC1F728129E0C005976FE /* Currencies */ = {
 			isa = PBXGroup;
 			children = (
+				5DDFC2002812B6FE005976FE /* Entities */,
 			);
 			path = Currencies;
 			sourceTree = "<group>";
@@ -1392,6 +1399,7 @@
 		5DDFC1F828129E1F005976FE /* Rates */ = {
 			isa = PBXGroup;
 			children = (
+				5DDFC2052812B79D005976FE /* Entities */,
 			);
 			path = Rates;
 			sourceTree = "<group>";
@@ -1402,6 +1410,23 @@
 				5DDFC1FA2812A59F005976FE /* CoinsResponse.swift */,
 				5DDFC1FC2812A622005976FE /* Coin.swift */,
 				5DDFC1FE2812A63B005976FE /* Network.swift */,
+			);
+			path = Entities;
+			sourceTree = "<group>";
+		};
+		5DDFC2002812B6FE005976FE /* Entities */ = {
+			isa = PBXGroup;
+			children = (
+				5DDFC2012812B716005976FE /* CurrenciesResponse.swift */,
+				5DDFC2032812B72C005976FE /* Currency.swift */,
+			);
+			path = Entities;
+			sourceTree = "<group>";
+		};
+		5DDFC2052812B79D005976FE /* Entities */ = {
+			isa = PBXGroup;
+			children = (
+				5DDFC2062812B7AB005976FE /* RatesResponse.swift */,
 			);
 			path = Entities;
 			sourceTree = "<group>";
@@ -2483,6 +2508,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5DDFC2042812B72C005976FE /* Currency.swift in Sources */,
 				5D09382825E7A2D80049B8F0 /* TokenDetailsView.swift in Sources */,
 				B0C4F77B26F0A05C0086D815 /* BlankCard.swift in Sources */,
 				B0FAD00526BA67C000F45E88 /* Assembly+App.swift in Sources */,
@@ -2604,6 +2630,7 @@
 				5D24A12C24FF9E3A002A3BCA /* Decimal+.swift in Sources */,
 				5D5D013C25CC1F3900DA8616 /* TransparentModal.swift in Sources */,
 				5DFCE54C274BDEE200C1B1A0 /* ResetToFactorySettingsTask.swift in Sources */,
+				5DDFC2072812B7AB005976FE /* RatesResponse.swift in Sources */,
 				B0D76D4525D4E4560073FA98 /* AddCustomTokenView.swift in Sources */,
 				5D6784C325EB8EF000149995 /* TokenItemsRepository.swift in Sources */,
 				B0C4F76F26F08AB40086D815 /* TwinsOnboardingStep.swift in Sources */,
@@ -2645,7 +2672,7 @@
 				5DFCCB6F24C3728E0014A293 /* MainView.swift in Sources */,
 				B0C87B482566492000F861DE /* TwinCardInfo.swift in Sources */,
 				5D00FCC72617387E004626DE /* PersonalSignHandler.swift in Sources */,
-				DA105C2F27F5B65E00596839 /* TokenListService.swift in Sources */,
+				DA105C2F27F5B65E00596839 /* CoinsService.swift in Sources */,
 				5D384B8B24FD154C00C2C92C /* PayIDService.swift in Sources */,
 				B0FAD00E26BAC51F00F45E88 /* CircledCheckmarkView.swift in Sources */,
 				5D12D21325B60AA4006060A1 /* SearchBar.swift in Sources */,
@@ -2727,6 +2754,7 @@
 				5D78D118261DFEBA00F98B18 /* PurgeWalletsAndReadResponse.swift in Sources */,
 				B0AA865226DC90E600287F80 /* WelcomeOnboardingView.swift in Sources */,
 				5D225CB92524B721001564A3 /* Analytics.swift in Sources */,
+				5DDFC2022812B716005976FE /* CurrenciesResponse.swift in Sources */,
 				5D51036F27C535D10025EA55 /* ABIValue.swift in Sources */,
 				B0C04BB92563F591008A3B51 /* TwinCardOnboardingViewModel.swift in Sources */,
 				B0E1564D26B941AF005B33E4 /* SingleCardOnboardingViewModel.swift in Sources */,
