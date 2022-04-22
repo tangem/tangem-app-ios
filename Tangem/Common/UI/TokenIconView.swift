@@ -48,7 +48,7 @@ extension TokenIconView {
 extension TokenItem {
     fileprivate var imageURL: URL? {
         if let id = self.id {
-            return CurrenciesList.baseURL
+            return CoinsResponse.baseURL
                 .appendingPathComponent("coins")
                 .appendingPathComponent("large")
                 .appendingPathComponent("\(id).png")
