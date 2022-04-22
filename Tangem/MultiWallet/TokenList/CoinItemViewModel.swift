@@ -1,5 +1,5 @@
 //
-//  CurrencyItemViewModel.swift
+//  CoinItemViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 import Combine
 
-class CurrencyItemViewModel: Identifiable, ObservableObject {
+class CoinItemViewModel: Identifiable, ObservableObject {
     let id: UUID = .init()
     let tokenItem: TokenItem
     let isReadonly: Bool
@@ -66,12 +66,12 @@ class CurrencyItemViewModel: Identifiable, ObservableObject {
     }
 }
 
-extension CurrencyItemViewModel: Hashable {
+extension CoinItemViewModel: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
     
-    static func == (lhs: CurrencyItemViewModel, rhs: CurrencyItemViewModel) -> Bool {
+    static func == (lhs: CoinItemViewModel, rhs: CoinItemViewModel) -> Bool {
         lhs.id == rhs.id
     }
 }
