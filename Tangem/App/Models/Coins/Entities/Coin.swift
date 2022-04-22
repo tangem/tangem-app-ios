@@ -13,7 +13,6 @@ extension CoinsResponse {
         public let id: String
         public let name: String
         public let symbol: String
-        public let active: Bool
         public let networks: [CoinsResponse.Network]
     }
 }
