@@ -11,12 +11,12 @@ import SwiftUI
 import Combine
 
 protocol ListDataLoaderDelegate: AnyObject {
-    func map(_ model: CurrencyModel) -> CurrencyViewModel
-    func filter(_ model: CurrencyModel) -> CurrencyModel?
+    func map(_ model: CoinModel) -> CoinViewModel
+    func filter(_ model: CoinModel) -> CoinModel?
 }
 
 class ListDataLoader: ObservableObject {
-    @Published var items = [CurrencyViewModel]()
+    @Published var items = [CoinViewModel]()
     
     // Tells if all records have been loaded. (Used to hide/show activity spinner)
     private(set) var canFetchMore = true
@@ -30,13 +30,13 @@ class ListDataLoader: ObservableObject {
     weak var delegate: ListDataLoaderDelegate? = nil
     
     private var cancellable: AnyCancellable?
-    private var cached: [CurrencyModel] = []
-    private var cachedSearch: [String: [CurrencyModel]] = [:]
+    private var cached: [CoinModel] = []
+    private var cachedSearch: [String: [CoinModel]] = [:]
     private var lastSearchText = ""
     
-    private var loadPublisher: AnyPublisher<[CurrencyModel], Never> {
-        SupportedTokenItems().loadCurrencies(isTestnet: isTestnet)
-            .map{[weak self] models -> [CurrencyModel] in
+    private var loadPublisher: AnyPublisher<[CoinModel], Never> {
+        SupportedTokenItems().loadCoins(isTestnet: isTestnet)
+            .map{[weak self] models -> [CoinModel] in
                 models.compactMap { self?.delegate?.filter($0) }
             }
             .handleEvents(receiveOutput: {[weak self] output in
@@ -46,7 +46,7 @@ class ListDataLoader: ObservableObject {
             .eraseToAnyPublisher()
     }
     
-    private var cachePublisher: AnyPublisher<[CurrencyModel], Never> {
+    private var cachePublisher: AnyPublisher<[CoinModel], Never> {
         Just(cached).eraseToAnyPublisher()
     }
     
@@ -70,7 +70,7 @@ class ListDataLoader: ObservableObject {
         }
      
         cancellable = loadItems(searchText)
-            .map {[weak self] items -> [CurrencyViewModel] in
+            .map {[weak self] items -> [CoinViewModel] in
                 return items.compactMap { self?.delegate?.map($0) }
             }
             .receive(on: DispatchQueue.main)
@@ -86,12 +86,12 @@ class ListDataLoader: ObservableObject {
         }
     }
     
-    private func loadItems(_ searchText: String) -> AnyPublisher<[CurrencyModel], Never> {
+    private func loadItems(_ searchText: String) -> AnyPublisher<[CoinModel], Never> {
         let searchText = searchText.lowercased()
         let itemsPublisher = cached.isEmpty ? loadPublisher : cachePublisher
         
         return itemsPublisher
-            .map {[weak self] models -> [CurrencyModel] in
+            .map {[weak self] models -> [CoinModel] in
                 guard let self = self else { return [] }
                 
                 if searchText.isEmpty { return models }
@@ -108,13 +108,13 @@ class ListDataLoader: ObservableObject {
                 
                 return foundItems
             }
-            .map {[weak self] models -> [CurrencyModel] in
+            .map {[weak self] models -> [CoinModel] in
                 self?.getPage(for: models) ?? []
             }
             .eraseToAnyPublisher()
     }
     
-    private func getPage(for items: [CurrencyModel]) -> [CurrencyModel] {
+    private func getPage(for items: [CoinModel]) -> [CoinModel] {
         Array(items.dropFirst(currentPage*perPage).prefix(perPage))
     }
 }

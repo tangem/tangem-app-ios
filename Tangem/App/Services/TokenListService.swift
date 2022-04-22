@@ -25,46 +25,39 @@ class TokenListService {
         print("TokenListService deinit")
     }
     
-    func checkContractAddress(contractAddress: String, networkId: String?) -> AnyPublisher<[CurrencyModel], MoyaError> {
-        provider
-            .requestPublisher(TangemApiTarget(type: .checkContractAddress(contractAddress: contractAddress, networkId: networkId), card: card))
-            .filterSuccessfulStatusCodes()
-            .map(CurrenciesList.self)
-            .map { currencyList -> [CurrencyModel] in
-                return currencyList
-                    .tokens
-                    .filter {
-                        $0.active == true
-                    }
-                    .compactMap { currencyEntity in
-                        let activeContracts = currencyEntity.contracts?.filter {
-                            if let blockchain = Blockchain(from: $0.networkId),
-                               case .solana = blockchain,
-                               let card = self.card,
-                               !card.canSupportSolanaTokens
-                            {
-                                return false
-                            }
-                            
-                            return $0.active == true && $0.address.caseInsensitiveCompare(contractAddress) == .orderedSame
-                        }
-                        
-                        guard activeContracts?.isEmpty == false else {
-                            return nil
-                        }
-                        
-                        let filteredCurrencyEntity = CurrencyEntity(
-                            id: currencyEntity.id,
-                            name: currencyEntity.name,
-                            symbol: currencyEntity.symbol,
-                            active: currencyEntity.active,
-                            contracts: activeContracts
-                        )
-                        
-                        return CurrencyModel(with: filteredCurrencyEntity, baseImageURL: currencyList.imageHost)
-                    }
-            }
-            .subscribe(on: DispatchQueue.global())
+    func checkContractAddress(contractAddress: String, networkId: String?) -> AnyPublisher<[CoinModel], MoyaError> {
+        Just([]).setFailureType(to: MoyaError.self)
             .eraseToAnyPublisher()
+//        provider
+//            .requestPublisher(TangemApiTarget(type: .checkContractAddress(contractAddress: contractAddress, networkId: networkId), card: card))
+//            .filterSuccessfulStatusCodes()
+//            .map(CoinsResponse.self)
+//            .map { coinsList -> [CoinModel] in
+//                return coinsList
+//                    .coins
+//                    .filter { $0.active }
+//                    .compactMap { coin in
+//                        let activeContracts = coin.networks.filter {
+//                            if let blockchain = Blockchain(from: $0.networkId),
+//                               case .solana = blockchain,
+//                               let card = self.card,
+//                               !card.canSupportSolanaTokens {
+//                                return false
+//                            }
+//
+//                            return $0.active == true && $0.contractAddress.caseInsensitiveCompare(contractAddress) == .orderedSame
+//                        }
+//
+//                        guard !activeContracts.isEmpty else {
+//                            return nil
+//                        }
+//
+//                        let filtered = coin.makeCopy(with: activeContracts)
+//
+//                        return CoinModel(with: filtered, baseImageURL: coinsList.imageHost)
+//                    }
+//            }
+//            .subscribe(on: DispatchQueue.global())
+//            .eraseToAnyPublisher()
     }
 }
