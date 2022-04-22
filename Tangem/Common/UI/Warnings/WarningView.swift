@@ -66,6 +66,7 @@ struct WarningView: View {
         }
         .padding(.horizontal, 16)
         .background(warning.priority.backgroundColor)
+        .fixedSize(horizontal: false, vertical: true)
         .cornerRadius(6)
     }
     
@@ -111,7 +112,7 @@ struct WarningView_Previews: PreviewProvider {
         WarningEvent.rateApp.warning,
         AppWarning(title: "Warning", message: "Blockchain is currently unavailable", priority: .critical, type: .permanent),
         AppWarning(title: "Good news, everyone!", message: "New Tangem Cards available. Visit our web site to learn more", priority: .info, type: .temporary),
-        AppWarning(title: "Attention!", message: "Something huuuuuge is going to happen!", priority: .warning, type: .permanent),
+        AppWarning(title: "Attention!", message: "Something huuuuuge is going to happen! Something huuuuuge is going to happen! Something huuuuuge is going to happen! Something huuuuuge is going to happen! Something huuuuuge is going to happen! Something huuuuuge is going to happen!", priority: .warning, type: .permanent),
         WarningsList.multiWalletSignedHashes
     ]
     static var previews: some View {
