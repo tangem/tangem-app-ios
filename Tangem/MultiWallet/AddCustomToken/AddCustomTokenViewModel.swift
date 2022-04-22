@@ -66,7 +66,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
     weak var cardModel: CardViewModel!
-    weak var tokenListService: TokenListService!
+    weak var coinsService: CoinsService!
     
     @Published var name = ""
     @Published var symbol = ""
@@ -345,7 +345,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 .eraseToAnyPublisher()
         }
         
-        return tokenListService
+        return coinsService
             .checkContractAddress(contractAddress: contractAddress, networkId: nil)
             .replaceError(with: [])
             .eraseToAnyPublisher()
