@@ -8,6 +8,7 @@
 
 import Foundation
 import BlockchainSdk
+import TangemSdk
 
 struct CoinModel {
     let id: String
@@ -16,7 +17,32 @@ struct CoinModel {
     let imageURL: URL?
     let items: [TokenItem]
     
-    func makeCopy(with items: [TokenItem]) -> CoinModel {
+    func makeFiltered(with card: Card) -> CoinModel? {
+        let supportedCurves = card.walletCurves
+        let isSupportSolanaTokens = card.canSupportSolanaTokens
+        
+        let filteredItems = items.filter { item in
+            if !supportedCurves.contains(item.blockchain.curve) {
+                return false
+            }
+            
+            if !isSupportSolanaTokens, item.isToken,
+               item.blockchain == .solana(testnet: true) ||
+                item.blockchain == .solana(testnet: false) {
+                return false
+            }
+            
+            return true
+        }
+        
+        if filteredItems.isEmpty {
+            return nil
+        }
+        
+        return makeCopy(with: filteredItems)
+    }
+    
+    private func makeCopy(with items: [TokenItem]) -> CoinModel {
         .init(id: self.id, name: self.name, symbol: self.symbol, imageURL: self.imageURL, items: items)
     }
 }
