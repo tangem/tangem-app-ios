@@ -15,7 +15,7 @@ class CurrencySelectViewModel: ViewModel, ObservableObject {
     weak var navigation: NavigationCoordinator!
     
     @Published var loading: Bool = false
-    @Published var currencies: [FiatCurrency] = []
+    @Published var currencies: [CurrenciesResponse.Currency] = []
     @Published var error: AlertBinder?
     
     private var bag = Set<AnyCancellable>()
