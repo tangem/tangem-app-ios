@@ -46,7 +46,7 @@ extension Blockchain {
         case .rsk: return "rootstock"
         case .stellar: return "stellar"
         case .tezos: return "tezos"
-        case .xrp: return "ripple"
+        case .xrp: return "xrp"
         case .dogecoin: return "dogecoin"
         case .bsc: return "binance-smart-chain"
         case .polygon: return "polygon-pos"
@@ -88,7 +88,7 @@ extension Blockchain {
         case "bitcoin-cash": self = .bitcoinCash(testnet: isTestnet)
         case "binancecoin": self = .binance(testnet: isTestnet)
         case "cardano": self = .cardano(shelley: true)
-        case "ripple": self = .xrp(curve: .secp256k1)
+        case "ripple", "xrp": self = .xrp(curve: .secp256k1)
         case "ducatus": self = .ducatus
         case "tezos": self = .tezos(curve: .secp256k1)
         case "dogecoin": self = .dogecoin
