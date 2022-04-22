@@ -17,12 +17,18 @@ struct CoinModel {
     let imageURL: URL?
     let items: [TokenItem]
     
-    func makeFiltered(with card: Card) -> CoinModel? {
+    func makeFiltered(with card: Card, contractAddress: String? = nil) -> CoinModel? {
         let supportedCurves = card.walletCurves
         let isSupportSolanaTokens = card.canSupportSolanaTokens
         
         let filteredItems = items.filter { item in
             if !supportedCurves.contains(item.blockchain.curve) {
+                return false
+            }
+            
+            if let contractAddress = contractAddress,
+               item.contractAddress != contractAddress
+            {
                 return false
             }
             
