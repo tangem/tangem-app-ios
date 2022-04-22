@@ -27,7 +27,7 @@ struct CoinModel {
             }
             
             if let contractAddress = contractAddress,
-               item.contractAddress != contractAddress
+               contractAddress.caseInsensitiveCompare(item.contractAddress ?? "") != .orderedSame
             {
                 return false
             }
