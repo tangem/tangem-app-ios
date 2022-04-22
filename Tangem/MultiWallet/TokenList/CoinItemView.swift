@@ -68,22 +68,22 @@ struct CurrencyItemView_Previews: PreviewProvider {
     static var previews: some View {
         VStack(spacing: 0) {
             CoinItemView(model: CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
-                                                          isReadonly: false,
-                                                          isDisabled: false,
-                                                          isSelected: .constant(false)))
+                                                  isReadonly: false,
+                                                  isDisabled: false,
+                                                  isSelected: .constant(false)))
             
             CoinItemView(model: CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
-                                                          isReadonly: false,
-                                                          isDisabled: false,
-                                                          isSelected: .constant(true),
-                                                          position: .last))
+                                                  isReadonly: false,
+                                                  isDisabled: false,
+                                                  isSelected: .constant(true),
+                                                  position: .last))
             
             
             StatefulPreviewWrapper(false) {
                 CoinItemView(model: CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
-                                                              isReadonly: false,
-                                                              isDisabled: false,
-                                                              isSelected: $0))
+                                                      isReadonly: false,
+                                                      isDisabled: false,
+                                                      isSelected: $0))
                 
             }
             
