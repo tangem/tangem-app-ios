@@ -1,5 +1,5 @@
 //
-//  CurrencyViewModel.swift
+//  CoinViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,24 +8,24 @@
 
 import Foundation
 
-class CurrencyViewModel: Identifiable, ObservableObject {
+class CoinViewModel: Identifiable, ObservableObject {
     let id: UUID = .init()
     let imageURL: URL?
     let name: String
     let symbol: String
-    let items: [CurrencyItemViewModel]
+    let items: [CoinItemViewModel]
     
-    init(imageURL: URL?, name: String, symbol: String, items: [CurrencyItemViewModel]) {
+    init(imageURL: URL?, name: String, symbol: String, items: [CoinItemViewModel]) {
         self.imageURL = imageURL
         self.name = name
         self.symbol = symbol
         self.items = items
     }
     
-    init(with currency: CurrencyModel, items: [CurrencyItemViewModel]) {
-        self.name = currency.name
-        self.symbol = currency.symbol
-        self.imageURL = currency.imageURL
+    init(with model: CoinModel, items: [CoinItemViewModel]) {
+        self.name = model.name
+        self.symbol = model.symbol
+        self.imageURL = model.imageURL
         self.items = items
     }
     
@@ -40,12 +40,12 @@ class CurrencyViewModel: Identifiable, ObservableObject {
     }
 }
 
-extension CurrencyViewModel: Hashable {
+extension CoinViewModel: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
     
-    static func == (lhs: CurrencyViewModel, rhs: CurrencyViewModel) -> Bool {
+    static func == (lhs: CoinViewModel, rhs: CoinViewModel) -> Bool {
         lhs.id == rhs.id
     }
 }
