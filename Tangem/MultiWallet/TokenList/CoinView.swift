@@ -1,5 +1,5 @@
 //
-//  CurrencyView.swift
+//  CoinView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,8 +10,8 @@ import Foundation
 import SwiftUI
 import Kingfisher
 
-struct CurrencyView: View {
-    @ObservedObject var model: CurrencyViewModel
+struct CoinView: View {
+    @ObservedObject var model: CoinViewModel
     var subtitle: LocalizedStringKey = "currency_subtitle_expanded"
     
     var body: some View {
@@ -41,7 +41,7 @@ struct CurrencyView: View {
                         } else {
                             HStack(spacing: 5) {
                                 ForEach(model.items) {
-                                    CurrencyItemView(model: $0).icon
+                                    CoinItemView(model: $0).icon
                                 }
                             }
                         }
@@ -59,7 +59,7 @@ struct CurrencyView: View {
             
             if isExpanded {
                 VStack(spacing: 0) {
-                    ForEach(model.items) { CurrencyItemView(model: $0) }
+                    ForEach(model.items) { CoinItemView(model: $0) }
                 }
             }
         }
@@ -108,21 +108,21 @@ struct CurrencyView_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             StatefulPreviewWrapper(false) {
-                CurrencyView(model: CurrencyViewModel(imageURL: nil,
+                CoinView(model: CoinViewModel(imageURL: nil,
                                                       name: "Tether",
                                                       symbol: "USDT",
                                                       items: [
-                                                        CurrencyItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
+                                                        CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
                                                                               isReadonly: false,
                                                                               isDisabled: false,
                                                                               isSelected: $0,
                                                                               position: .first),
-                                                        CurrencyItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
+                                                        CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
                                                                               isReadonly: false,
                                                                               isDisabled: false,
                                                                               isSelected: $0,
                                                                               position: .middle),
-                                                        CurrencyItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
+                                                        CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
                                                                               isReadonly: false,
                                                                               isDisabled: false,
                                                                               isSelected: $0,
@@ -131,21 +131,21 @@ struct CurrencyView_Previews: PreviewProvider {
             }
             
             StatefulPreviewWrapper(false) {
-                CurrencyView(model: CurrencyViewModel(imageURL: nil,
+                CoinView(model: CoinViewModel(imageURL: nil,
                                                       name: "Very Long Name of The Token",
                                                       symbol: "VLNOFT",
                                                       items: [
-                                                        CurrencyItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
+                                                        CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
                                                                               isReadonly: false,
                                                                               isDisabled: false,
                                                                               isSelected: $0,
                                                                               position: .first),
-                                                        CurrencyItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
+                                                        CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
                                                                               isReadonly: false,
                                                                               isDisabled: false,
                                                                               isSelected: $0,
                                                                               position: .middle),
-                                                        CurrencyItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
+                                                        CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
                                                                               isReadonly: false,
                                                                               isDisabled: false,
                                                                               isSelected: $0,

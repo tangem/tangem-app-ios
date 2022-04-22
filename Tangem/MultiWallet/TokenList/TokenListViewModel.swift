@@ -227,11 +227,10 @@ class TokenListViewModel: ViewModel, ObservableObject {
 }
 
 extension TokenListViewModel: ListDataLoaderDelegate {
-    func filter(_ model: CurrencyModel) -> CurrencyModel? {
+    func filter(_ model: CoinModel) -> CoinModel? {
         let supportedCurves = mode.cardModel?.cardInfo.card.walletCurves ?? EllipticCurve.allCases
         let isSupportSolanaTokens = mode.cardModel?.cardInfo.card.canSupportSolanaTokens ?? true
         
-        var model = model
         let filteredItems = model.items.filter { item in
             if !supportedCurves.contains(item.blockchain.curve) {
                 return false
@@ -250,12 +249,11 @@ extension TokenListViewModel: ListDataLoaderDelegate {
             return nil
         }
         
-        model.items = filteredItems
-        return model
+        return model.makeCopy(with: filteredItems)
     }
     
-    func map(_ model: CurrencyModel) -> CurrencyViewModel {
-        let currencyItems: [CurrencyItemViewModel] = model.items.enumerated().map { (index, item) in
+    func map(_ model: CoinModel) -> CoinViewModel {
+        let currencyItems: [CoinItemViewModel] = model.items.enumerated().map { (index, item) in
                 .init(tokenItem: item,
                       isReadonly: self.isReadonlyMode,
                       isDisabled: !self.canManage(item),
@@ -264,7 +262,7 @@ extension TokenListViewModel: ListDataLoaderDelegate {
                       position: .init(with: index, total: model.items.count))
         }
         
-        return CurrencyViewModel(with: model, items: currencyItems)
+        return CoinViewModel(with: model, items: currencyItems)
     }
 }
 
