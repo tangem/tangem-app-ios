@@ -79,20 +79,20 @@ class SupportedTokenItems {
         return blockchains.filter { $0.canHandleTokens }
     }
     
-    func loadCurrencies(isTestnet: Bool) -> AnyPublisher<[CurrencyModel], Error> {
+    func loadCoins(isTestnet: Bool) -> AnyPublisher<[CoinModel], Error> {
         readList(isTestnet: isTestnet)
             .map { list in
-                list.tokens.map { .init(with: $0, baseImageURL: list.imageHost) }
+                list.coins.map { .init(with: $0, baseImageURL: list.imageHost) }
             }
             .eraseToAnyPublisher()
     }
     
-    private func readList(isTestnet: Bool) -> AnyPublisher<CurrenciesList, Error> {
+    private func readList(isTestnet: Bool) -> AnyPublisher<CoinsResponse, Error> {
         Just(isTestnet)
             .receive(on: DispatchQueue.global())
             .tryMap { testnet in
                 try JsonUtils.readBundleFile(with: testnet ? Constants.testFilename : Constants.filename,
-                                             type: CurrenciesList.self,
+                                             type: CoinsResponse.self,
                                              shouldAddCompilationCondition: false)
             }
             .eraseToAnyPublisher()
