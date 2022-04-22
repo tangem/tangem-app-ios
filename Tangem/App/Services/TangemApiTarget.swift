@@ -11,24 +11,24 @@ import TangemSdk
 
 struct TangemApiTarget: TargetType {
     enum TangemApiTargetType {
-        case rates(cryptoCurrencyIds: [String], fiatCurrencyCode: String)
-        case baseCurrencies
-        case checkContractAddress(contractAddress: String, networkId: String?)
+        case rates(coinIds: [String], currencyId: String)
+        case currencies
+        case coins(contractAddress: String?, networkId: String?)
     }
     
     let type: TangemApiTargetType
     let card: Card?
-    
-    var baseURL: URL {URL(string: "https://api.tangem-tech.com")!}
+
+    var baseURL: URL {URL(string: "https://api.tangem-tech.com/v1")!}
     
     var path: String {
         switch type {
         case .rates:
-            return "/coins/prices"
-        case .baseCurrencies:
-            return "/coins/currencies"
-        case .checkContractAddress:
-            return "/coins/check-address"
+            return "/rates"
+        case .currencies:
+            return "/currencies"
+        case .coins:
+            return "/coins"
         }
     }
     
@@ -36,19 +36,24 @@ struct TangemApiTarget: TargetType {
     
     var task: Task {
         switch type {
-        case .rates(let cryptoCurrencyIds, let fiatCurrencyCode):
-            return .requestParameters(parameters: ["ids": cryptoCurrencyIds.joined(separator: ","),
-                                                   "currency": fiatCurrencyCode.lowercased()],
+        case .rates(let coinIds, let currencyId):
+            return .requestParameters(parameters: ["coinIds": coinIds.joined(separator: ","),
+                                                   "currencyId": currencyId.lowercased()],
                                       encoding: URLEncoding.default)
-        case .baseCurrencies:
+        case .currencies:
             return .requestPlain
-        case .checkContractAddress(let contractAddress, let networkId):
-            var parameters: [String: Any] = ["contractAddress": contractAddress]
+        case .coins(let contractAddress, let networkId):
+            var parameters: [String: Any] = [:]
+            
+            if let contractAddress = contractAddress {
+                parameters["contractAddress"] = contractAddress
+            }
+
             if let networkId = networkId {
                 parameters["networkId"] = networkId
             }
-            return .requestParameters(parameters: parameters,
-                                      encoding: URLEncoding.default)
+            
+            return .requestParameters(parameters: parameters, encoding: URLEncoding.default)
         }
     }
     
