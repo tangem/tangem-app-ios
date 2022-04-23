@@ -92,7 +92,7 @@ class OnramperService {
             case .litecoin:
                 // [REDACTED_TODO_COMMENT]
                 networkIds.append("Mainnet")
-            case .bsc, .binance, .fantom:
+            case .bsc, .binance, .fantom, .avalanche:
                 // BNB is only available under its own BEP-2 / BEP-20 network
                 // Fantom is the same way
                 if let networkId = blockchain.onramperNetworkId {
