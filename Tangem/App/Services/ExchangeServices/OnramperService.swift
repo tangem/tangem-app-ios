@@ -60,7 +60,11 @@ class OnramperService {
         var request = URLRequest(url: URL(string: "https://onramper.tech/gateways")!)
         request.addValue("Basic \(key)", forHTTPHeaderField: "Authorization")
         
-        URLSession.shared.dataTaskPublisher(for: request)
+        let config = URLSessionConfiguration.default
+        config.requestCachePolicy = .reloadIgnoringLocalCacheData
+        config.urlCache = nil
+        
+        URLSession(configuration: config).dataTaskPublisher(for: request)
             .map(\.data)
             .decode(type: OnramperGatewaysResponse.self, decoder: JSONDecoder())
             .sink { _ in
@@ -91,8 +95,8 @@ class OnramperService {
             case .bsc, .binance, .fantom:
                 // BNB is only available under its own BEP-2 / BEP-20 network
                 // Fantom is the same way
-                if let bnbNetworkId = blockchain.onramperNetworkId {
-                    networkIds.append(bnbNetworkId)
+                if let networkId = blockchain.onramperNetworkId {
+                    networkIds.append(networkId)
                 }
             default:
                 break
