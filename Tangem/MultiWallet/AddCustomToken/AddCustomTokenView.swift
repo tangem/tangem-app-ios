@@ -19,9 +19,6 @@ fileprivate struct TextInputWithTitle: View {
     let isEnabled: Bool
     let isLoading: Bool
     
-    @State var isResponder: Bool? = nil
-    @State var buttonTapped: Bool = false
-    
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
@@ -29,15 +26,12 @@ fileprivate struct TextInputWithTitle: View {
                 .foregroundColor(Color.tangemGrayDark6)
             
             HStack {
-                CustomTextField(text: text, isResponder: $isResponder, actionButtonTapped: $buttonTapped, handleKeyboard: true, keyboard: keyboardType, textColor: isEnabled ? UIColor.tangemGrayDark4 : .lightGray, font: UIFont.systemFont(ofSize: 17, weight: .regular), placeholder: placeholder, isEnabled: isEnabled)
+                CustomTextField(text: text, isResponder: .constant(nil), actionButtonTapped: .constant(false), handleKeyboard: true, keyboard: keyboardType, textColor: isEnabled ? UIColor.tangemGrayDark4 : .lightGray, font: UIFont.systemFont(ofSize: 17, weight: .regular), placeholder: placeholder, isEnabled: isEnabled)
                 
                 if isLoading {
                     ActivityIndicatorView(isAnimating: true, color: .tangemGrayDark)
                 }
             }
-        }
-        .onTapGesture {
-            isResponder = true
         }
         .padding(.horizontal)
         .padding(.vertical, 8)
