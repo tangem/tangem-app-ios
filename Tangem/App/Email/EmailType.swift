@@ -83,7 +83,7 @@ enum EmailCollectedDataType {
     case logs, card(CardData), send(SendData), wallet(WalletData), error, separator(SeparatorType), token(TokenData)
     
     enum CardData: String {
-        case cardId = "Card ID", firmwareVersion = "Firmware version", cardBlockchain = "Card Blockchain", blockchain, token
+        case cardId = "Card ID", firmwareVersion = "Firmware version", cardBlockchain = "Card Blockchain", blockchain, derivationPath = "Derivation path", token
     }
     
     enum SendData: String {
@@ -91,11 +91,11 @@ enum EmailCollectedDataType {
     }
     
     enum WalletData: String {
-        case walletAddress = "Wallet address", explorerLink = "Explorer link", signedHashes = "Signed hashes", walletManagerHost = "Host"
+        case walletAddress = "Wallet address", explorerLink = "Explorer link", signedHashes = "Signed hashes", walletManagerHost = "Host", outputsCount = "Outputs count", derivationPath = "Derivation path"
     }
     
     enum TokenData: String {
-        case contractAddress = "Contract address", name = "Name", tokens = "Tokens"
+        case contractAddress = "Contract address", name = "Name", tokens = "Tokens", id = "ID"
     }
     
     enum SeparatorType: String {
