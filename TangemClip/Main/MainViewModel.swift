@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import SwiftUI
+import TangemSdk
 
 class MainViewModel: ObservableObject {
     
@@ -23,12 +24,9 @@ class MainViewModel: ObservableObject {
             }
             bag = Set<AnyCancellable>()
         }
-        didSet {
-            bind()
-        }
+        didSet {}
     }
     
-    var isMultiWallet: Bool { cardModel?.isMultiWallet ?? false }
     var cardModel: CardViewModel? {
         state.cardModel
     }
@@ -42,48 +40,40 @@ class MainViewModel: ObservableObject {
     
     private var savedBatch: String?
     
-    var tokenItemViewModels: [TokenItemViewModel] {
-        guard let cardModel = cardModel else { return [] }
-        
-        return cardModel.walletModels
-            .flatMap { $0.tokenItemViewModels }
-    }
-    
-    unowned var cardsRepository: CardsRepository
+    unowned var sdk: TangemSdk
     unowned var imageLoaderService: CardImageLoaderService
+    unowned var userPrefsService: UserPrefsService
+    unowned var assembly: Assembly
     
-    init(cardsRepository: CardsRepository, imageLoaderService: CardImageLoaderService) {
-        self.cardsRepository = cardsRepository
+    init(sdk: TangemSdk, imageLoaderService: CardImageLoaderService, userPrefsService: UserPrefsService, assembly: Assembly) {
+        self.sdk = sdk
         self.imageLoaderService = imageLoaderService
+        self.userPrefsService = userPrefsService
+        self.assembly = assembly
         updateCardBatch(nil, fullLink: "")
-    }
-    
-    func bind() {
-        $state
-            .compactMap { $0.cardModel }
-            .flatMap { $0.$state }
-            .compactMap { $0.walletModels }
-            .flatMap { Publishers.MergeMany($0.map { $0.objectWillChange}) }
-            .receive(on: RunLoop.main)
-            .sink { [unowned self] _ in
-//                print("⚠️ Wallet model will change")
-                withAnimation {
-                    self.objectWillChange.send()
-                }
-            }
-            .store(in: &bag)
     }
     
     func scanCard() {
         isScanning = true
-        cardsRepository.scan(with: savedBatch) { [unowned self] (result) in
+        
+        let task = AppScanTask(userPrefsService: userPrefsService, targetBatch: savedBatch)
+        sdk.startSession(with: task) { [weak self] (result) in
+            guard let self = self else { return }
+            
             switch result {
-            case .success(let result):
+            case .success(let response):
+                Analytics.logScan(card: response.card)
                 self.shouldShowGetFullApp = true
+                
+                let cm = self.assembly.makeCardModel(from: response.getCardInfo())
+                let result: ScanResult = .card(model: cm)
+                cm.getCardInfo()
+                
                 self.state = result
             case .failure(let error):
-                print(error)
+                Analytics.logCardSdkError(error, for: .scan)
             }
+            
             self.isScanning = false
         }
     }
@@ -118,5 +108,4 @@ class MainViewModel: ObservableObject {
                 }
             })
     }
-    
 }
