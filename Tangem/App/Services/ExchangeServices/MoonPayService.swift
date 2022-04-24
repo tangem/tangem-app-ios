@@ -88,9 +88,15 @@ class MoonPayService {
     }
     
     private func setupService() {
+        let config = URLSessionConfiguration.default
+        config.requestCachePolicy = .reloadIgnoringLocalCacheData
+        config.urlCache = nil
+        
+        let session = URLSession(configuration: config)
+        
         Publishers.Zip(
-            URLSession.shared.dataTaskPublisher(for: URL(string: ("https://api.moonpay.com/v4/ip_address?" + QueryKey.apiKey.rawValue + "=" + keys.apiKey))!),
-            URLSession.shared.dataTaskPublisher(for: URL(string: "https://api.moonpay.com/v3/currencies?" + QueryKey.apiKey.rawValue + "=" + keys.apiKey)!)
+            session.dataTaskPublisher(for: URL(string: ("https://api.moonpay.com/v4/ip_address?" + QueryKey.apiKey.rawValue + "=" + keys.apiKey))!),
+            session.dataTaskPublisher(for: URL(string: "https://api.moonpay.com/v3/currencies?" + QueryKey.apiKey.rawValue + "=" + keys.apiKey)!)
         )
         .sink(receiveCompletion: { _ in }) { [weak self] (ipOutput, currenciesOutput) in
             guard let self = self else { return }
