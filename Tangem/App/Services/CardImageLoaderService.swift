@@ -41,10 +41,6 @@ class CardImageLoaderService {
                 .eraseToAnyPublisher()
         }
         
-        if prefix == "AC01" { //wallet
-            return Just(( UIImage(named: "wallet_card")!, true)).eraseToAnyPublisher()
-        }
-           
         guard let artworkId = artworkInfo?.id else {
             return Just((defaultImage, false)).eraseToAnyPublisher()
         }

@@ -11,6 +11,7 @@ import SwiftUI
 struct MeetTangemStoryPage: View {
     @Binding var progress: Double
     var immediatelyShowButtons: Bool
+    let isScanning: Bool
     let scanCard: (() -> Void)
     let orderCard: (() -> Void)
     
@@ -44,7 +45,7 @@ struct MeetTangemStoryPage: View {
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
                     .padding(.horizontal)
-                    .modifier(VisibilityModifier(
+                    .modifier(AnimatableVisibilityModifier(
                         progress: progress,
                         start: Double(index) / Double(words.count) * wordListProgressEnd,
                         end: Double(index+1) / Double(words.count) * wordListProgressEnd
@@ -54,7 +55,7 @@ struct MeetTangemStoryPage: View {
             VStack(spacing: 0) {
                 StoriesTangemLogo()
                     .padding()
-                    .modifier(VisibilityModifier(
+                    .modifier(AnimatableVisibilityModifier(
                         progress: progress,
                         start: wordListProgressEnd,
                         end: .infinity
@@ -67,12 +68,18 @@ struct MeetTangemStoryPage: View {
                     .multilineTextAlignment(.center)
                     .foregroundColor(.white)
                     .padding()
-                    .modifier(TitleOffsetModifier(
+                    .padding(.bottom, 10)
+                    .modifier(AnimatableOffsetModifier(
                         progress: progress,
                         start: titleProgressStart,
-                        end: titleProgressEnd
+                        end: titleProgressEnd,
+                        curveX: { _ in
+                            0
+                        }, curveY: {
+                            40 * pow(2, -15 * $0)
+                        }
                     ))
-                    .modifier(VisibilityModifier(
+                    .modifier(AnimatableVisibilityModifier(
                         progress: progress,
                         start: titleProgressStart,
                         end: .infinity
@@ -85,12 +92,15 @@ struct MeetTangemStoryPage: View {
                             .aspectRatio(contentMode: .fit)
                             .fixedSize(horizontal: false, vertical: true)
                             .edgesIgnoringSafeArea(.bottom)
-                            .modifier(CardHandScaleModifier(
+                            .storyImageAppearanceModifier(
                                 progress: progress,
                                 start: wordListProgressEnd,
-                                end: 1
-                            ))
-                            .modifier(VisibilityModifier(
+                                fastMovementStartCoefficient: 1.1,
+                                fastMovementSpeedCoefficient: -25,
+                                fastMovementEnd: 0.25,
+                                slowMovementSpeedCoefficient: 0.1
+                            )
+                            .modifier(AnimatableVisibilityModifier(
                                 progress: progress,
                                 start: wordListProgressEnd,
                                 end: 1
@@ -103,11 +113,11 @@ struct MeetTangemStoryPage: View {
             VStack {
                 Spacer()
                 
-                StoriesBottomButtons(scanColorStyle: .black, orderColorStyle: .grayAlt, scanCard: scanCard, orderCard: orderCard)
+                StoriesBottomButtons(scanColorStyle: .black, orderColorStyle: .grayAlt, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
             }
             .padding(.horizontal)
             .padding(.bottom)
-            .modifier(VisibilityModifier(
+            .modifier(AnimatableVisibilityModifier(
                 progress: progress,
                 start: immediatelyShowButtons ? 0 : wordListProgressEnd,
                 end: .infinity
@@ -119,77 +129,9 @@ struct MeetTangemStoryPage: View {
 }
 
 
-// MARK: - Modifiers
-
-fileprivate func normalize(progress: Double, start: Double, end: Double) -> Double {
-    let value = (progress - start) / (end - start)
-    return max(0, min(value, 1))
-}
-
-fileprivate struct VisibilityModifier: AnimatableModifier {
-    var progress: Double
-    let start: Double
-    let end: Double
-    
-    var animatableData: CGFloat {
-        get { progress }
-        set { progress = newValue }
-    }
-    
-    func body(content: Content) -> some View {
-        content
-            .opacity((start <= progress && progress < end) ? 1 : 0)
-    }
-}
-
-
-fileprivate struct CardHandScaleModifier: AnimatableModifier {
-    var progress: Double
-    let start: Double
-    let end: Double
-    
-    var animatableData: CGFloat {
-        get { progress }
-        set { progress = newValue }
-    }
-    
-    func body(content: Content) -> some View {
-        content
-            .scaleEffect((1 + pow(2, -25 * normalizeCardHandProgress(progress))))
-    }
-    
-    private func normalizeCardHandProgress(_ progress: Double) -> Double {
-        normalize(progress: progress, start: start, end: end)
-    }
-}
-
-
-fileprivate struct TitleOffsetModifier: AnimatableModifier {
-    var progress: Double
-    let start: Double
-    let end: Double
-    
-    var animatableData: CGFloat {
-        get { progress }
-        set { progress = newValue }
-    }
-    
-    func body(content: Content) -> some View {
-        content
-            .offset(x: 0, y: 40 * pow(2, -15 * normalizeTitleProgress(progress)))
-    }
-    
-    private func normalizeTitleProgress(_ progress: Double) -> Double {
-        normalize(progress: progress, start: start, end: end)
-    }
-}
-
-
-// MARK: - Preview
-
 struct MeetTangemStoryPage_Previews: PreviewProvider {
     static var previews: some View {
-        MeetTangemStoryPage(progress: .constant(0.8), immediatelyShowButtons: false) { } orderCard: { }
+        MeetTangemStoryPage(progress: .constant(0.8), immediatelyShowButtons: false, isScanning: false) { } orderCard: { }
         .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
         .environment(\.colorScheme, .dark)
     }
