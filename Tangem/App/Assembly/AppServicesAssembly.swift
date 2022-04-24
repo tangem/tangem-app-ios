@@ -76,12 +76,29 @@ class AppServicesAssembly: ServicesAssembly {
     
     lazy var navigationCoordinator = NavigationCoordinator()
     lazy var featuresService = AppFeaturesService(configProvider: configManager)
-    lazy var warningsService = WarningsService(remoteWarningProvider: configManager, rateAppChecker: rateAppService)
+    lazy var warningsService = WarningsService(remoteWarningProvider: configManager, rateAppChecker: rateAppService, userPrefsService: userPrefsService)
     lazy var rateAppService: RateAppService = .init(userPrefsService: userPrefsService)
     private let configManager = try! FeaturesConfigManager()
     lazy var shopifyService = ShopifyService(shop: keysManager.shopifyShop, testApplePayPayments: false)
+    let keysManager = try! KeysManager()
+    lazy var ratesService = CurrencyRateService()
+    lazy var tokenItemsRepository = TokenItemsRepository(persistanceStorage: persistentStorage)
+    lazy var coinsService = CoinsService()
     
-    override func onDidScan(_ cardInfo: CardInfo) {
+    lazy var cardsRepository: CardsRepository = {
+        let crepo = CardsRepository()
+        crepo.tangemSdk = tangemSdk
+        crepo.assembly = assembly
+        crepo.delegate = self
+        crepo.scannedCardsRepository = scannedCardsRepository
+        crepo.tokenItemsRepository = tokenItemsRepository
+        crepo.userPrefsService = userPrefsService
+        return crepo
+    }()
+    
+    lazy var scannedCardsRepository: ScannedCardsRepository = ScannedCardsRepository(storage: persistentStorage)
+    
+    func onDidScan(_ cardInfo: CardInfo) {
         featuresService.setupFeatures(for: cardInfo.card)
 //        warningsService.setupWarnings(for: cardInfo)
 
@@ -92,5 +109,14 @@ class AppServicesAssembly: ServicesAssembly {
         if cardInfo.card.isTwinCard {
             tangemSdk.config.cardIdDisplayFormat = .last(4)
         }
+        
+        ratesService.card = cardInfo.card
+        coinsService.card = cardInfo.card
+    }
+}
+
+extension AppServicesAssembly: CardsRepositoryDelegate {
+    func onWillScan() {
+        tangemSdk.config = defaultSdkConfig
     }
 }

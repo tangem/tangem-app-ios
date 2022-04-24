@@ -45,6 +45,9 @@ class UserPrefsService {
     @Storage(type: StorageType.didDisplayMainScreenStories, defaultValue: false)
     var didDisplayMainScreenStories: Bool
     
+    @Storage(type: StorageType.fundsRestorationAlert, defaultValue: false)
+    var isFundsRestorationShown: Bool
+    
     deinit {
         print("UserPrefsService deinit")
     }
