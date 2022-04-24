@@ -14,7 +14,7 @@ class PushTxViewModel: ViewModel, ObservableObject {
     
     weak var navigation: NavigationCoordinator!
     weak var assembly: Assembly!
-    weak var ratesService: CoinMarketCapService!
+    weak var ratesService: CurrencyRateService!
     
     var destination: String { transaction.destinationAddress }
     
@@ -41,7 +41,7 @@ class PushTxViewModel: ViewModel, ObservableObject {
     }
     
     var walletModel: WalletModel {
-        cardViewModel.walletModels!.first(where: { $0.wallet.blockchain ==  blockchain })!
+        cardViewModel.walletModels!.first(where: { $0.blockchainNetwork ==  blockchainNetwork })!
     }
         
     var previousFeeAmount: Amount { transaction.fee }
@@ -76,7 +76,7 @@ class PushTxViewModel: ViewModel, ObservableObject {
     @Published var shouldAmountBlink: Bool = false
     
     let cardViewModel: CardViewModel
-    let blockchain: Blockchain
+    let blockchainNetwork: BlockchainNetwork
     
     var emailDataCollector: PushScreenDataCollector!
     var transaction: BlockchainSdk.Transaction
@@ -88,15 +88,15 @@ class PushTxViewModel: ViewModel, ObservableObject {
     private var signer: TransactionSigner
     
     private var emptyValue: String {
-        getDescription(for: Amount.zeroCoin(for: blockchain), isFiat: isFiatCalculation)
+        getDescription(for: Amount.zeroCoin(for: blockchainNetwork.blockchain), isFiat: isFiatCalculation)
     }
     
     private var bag: Set<AnyCancellable> = []
     
     @Published private var newTransaction: BlockchainSdk.Transaction?
     
-    init(transaction: BlockchainSdk.Transaction, blockchain: Blockchain, cardViewModel: CardViewModel, signer: TransactionSigner, ratesService: CoinMarketCapService) {
-        self.blockchain = blockchain
+    init(transaction: BlockchainSdk.Transaction, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel, signer: TransactionSigner, ratesService: CurrencyRateService) {
+        self.blockchainNetwork = blockchainNetwork
         self.cardViewModel = cardViewModel
         self.signer = signer
         self.ratesService = ratesService
@@ -137,7 +137,7 @@ class PushTxViewModel: ViewModel, ObservableObject {
                     self.sendError = error.alertBinder
                 } else {
                     walletModel.startUpdatingTimer()
-                    Analytics.logTx(blockchainName: blockchain.displayName)
+                    Analytics.logTx(blockchainName: blockchainNetwork.blockchain.displayName)
                     callback()
                 }
                 
@@ -223,19 +223,21 @@ class PushTxViewModel: ViewModel, ObservableObject {
                 }
                 
                 let newAmount = isFeeIncluded ? self.transaction.amount + self.previousFeeAmount - fee : self.transaction.amount
-                let txResult = walletModel.walletManager.createTransaction(amount: newAmount,
-                                                                           fee: fee,
-                                                                           destinationAddress: self.destination)
-                self.updateAmount(isFeeIncluded: isFeeIncluded, selectedFee: fee)
-                switch txResult {
-                case .success(let tx):
-                    return (tx, fee)
-                case .failure(let error):
-                    errorMessage = error.errors.first?.errorDescription
-                    return (nil, fee)
+              
+                var tx: BlockchainSdk.Transaction? = nil
+                
+                do {
+                    tx = try walletModel.walletManager.createTransaction(amount: newAmount,
+                                                                             fee: fee,
+                                                                             destinationAddress: self.destination)
+                } catch {
+                   errorMessage = error.localizedDescription
                 }
+                
+                self.updateAmount(isFeeIncluded: isFeeIncluded, selectedFee: fee)
+                return (tx, fee)
             }
-            .sink(receiveValue: { txFee in
+            .sink(receiveValue: {[unowned self] txFee in
                 let tx = txFee.0
                 let fee = txFee.1
                 self.newTransaction = tx
@@ -281,7 +283,7 @@ class PushTxViewModel: ViewModel, ObservableObject {
         if let fee = fee {
             additionalFee = getDescription(for: fee - previousFeeAmount, isFiat: isFiat)
         } else {
-            additionalFee = getDescription(for: Amount.zeroCoin(for: blockchain), isFiat: isFiat)
+            additionalFee = getDescription(for: Amount.zeroCoin(for: blockchainNetwork.blockchain), isFiat: isFiat)
         }
     }
     
