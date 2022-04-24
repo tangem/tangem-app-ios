@@ -10,16 +10,6 @@ import Foundation
 import SwiftUI
 
 extension View {
-    @ViewBuilder func ignoresKeyboard() -> some View {
-        if #available(iOS 14.0, *) {
-            self.ignoresSafeArea(.keyboard)
-        } else {
-            self
-        }
-    }
-}
-
-extension View {
 	func toAnyView() -> AnyView {
 		AnyView(self)
 	}
@@ -29,6 +19,40 @@ extension View {
             self.tint(color)
         } else {
             self
+        }
+    }
+    
+    @ViewBuilder func toggleStyleCompat(_ color: Color) -> some View {
+        if #available(iOS 15.0, *) {
+            self.tint(color)
+        } else if #available(iOS 14.0, *) {
+            self.toggleStyle(SwitchToggleStyle(tint: color))
+        } else {
+            self
+        }
+    }
+    
+    @ViewBuilder func searchableCompat(text: Binding<String>) -> some View {
+        if #available(iOS 15.0, *) {
+            self.searchable(text: text, placement: .navigationBarDrawer(displayMode: .always))
+        } else {
+            self
+        }
+    }
+    
+    @ViewBuilder func ignoresKeyboard() -> some View {
+        if #available(iOS 14.0, *) {
+            self.ignoresSafeArea(.keyboard)
+        } else {
+            self
+        }
+    }
+    
+    @ViewBuilder func ignoresBottomArea() -> some View {
+        if #available(iOS 14.0, *) {
+            self.ignoresSafeArea(.container, edges: .bottom)
+        } else {
+            self.edgesIgnoringSafeArea(.bottom)
         }
     }
 }

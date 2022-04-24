@@ -194,7 +194,7 @@ struct PushTxView_Previews: PreviewProvider {
         PushTxView(viewModel: assembly
                     .makePushViewModel(
                         for: .dummyTx(blockchain: .bitcoin(testnet: false), type: .coin, destinationAddress: "tb1qrvkydv7322e7fl9v58eqvn87tx2jtlpqaetz2n"),
-                        blockchain: .bitcoin(testnet: false),
+                        blockchainNetwork: assembly.previewBlockchainNetwork,
                         card: assembly.previewCardViewModel),
                    onSuccess: { })
             .environmentObject(assembly.services.navigationCoordinator)
