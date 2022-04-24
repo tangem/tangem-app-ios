@@ -19,7 +19,7 @@ class StoriesViewModel: ViewModel, ObservableObject {
         }
     }
     
-    @Published var currentPage: WelcomeStoryPage = WelcomeStoryPage.allCases.first!
+    @Published var currentPage: WelcomeStoryPage = WelcomeStoryPage.allCases[0]
     @Published var currentProgress = 0.0
     let pages = WelcomeStoryPage.allCases
     
@@ -77,34 +77,30 @@ class StoriesViewModel: ViewModel, ObservableObject {
     
     @ViewBuilder
     func currentStoryPage(
+        isScanning: Bool,
         scanCard: @escaping () -> Void,
         orderCard: @escaping () -> Void,
         searchTokens: @escaping () -> Void
     ) -> some View {
+        let progressBinding = Binding<Double> { [weak self] in
+            self?.currentProgress ?? 0
+        } set: { [weak self] in
+            self?.currentProgress = $0
+        }
+        
         switch currentPage {
         case WelcomeStoryPage.meetTangem:
-            let progressBinding = Binding<Double> { [weak self] in
-                self?.currentProgress ?? 0
-            } set: { [weak self] in
-                self?.currentProgress = $0
-            }
-
-            MeetTangemStoryPage(
-                progress: progressBinding,
-                immediatelyShowButtons: didDisplayMainScreenStories,
-                scanCard: scanCard,
-                orderCard: orderCard
-            )
+            MeetTangemStoryPage(progress: progressBinding, immediatelyShowButtons: didDisplayMainScreenStories, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.awe:
-            AweStoryPage(scanCard: scanCard, orderCard: orderCard)
+            AweStoryPage(progress: progressBinding, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.backup:
-            BackupStoryPage(scanCard: scanCard, orderCard: orderCard)
+            BackupStoryPage(progress: progressBinding, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.currencies:
-            CurrenciesStoryPage(scanCard: scanCard, orderCard: orderCard, searchTokens: searchTokens)
+            CurrenciesStoryPage(progress: progressBinding, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard, searchTokens: searchTokens)
         case WelcomeStoryPage.web3:
-            Web3StoryPage(scanCard: scanCard, orderCard: orderCard)
+            Web3StoryPage(progress: progressBinding, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.finish:
-            FinishStoryPage(scanCard: scanCard, orderCard: orderCard)
+            FinishStoryPage(progress: progressBinding, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
         }
     }
 

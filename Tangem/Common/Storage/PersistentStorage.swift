@@ -49,23 +49,7 @@ class PersistentStorage {
         transferFiles()
     }
     
-    func value<T: Codable>(for key: PersistentStorageKey) throws -> T? {
-        var data: Data?
-        let decoder = JSONDecoder()
-        
-        if let cloudFilePath = cloudContainerUrl?.appendingPathComponent(key.path).appendingPathExtension(documentType),
-           fileManager.fileExists(atPath: cloudFilePath.path) {
-            
-            data = try Data(contentsOf: cloudFilePath)
-            
-            if let unwrappedData = data {
-                let decoded = try decoder.decode(T.self, from: unwrappedData)
-                try store(value: decoded, for: key)
-                try fileManager.removeItem(at: cloudFilePath)
-                return decoded
-            }
-        }
-        
+    func value<T: Decodable>(for key: PersistentStorageKey) throws -> T? {
         let documentPath = self.documentPath(for: key.path)
         if fileManager.fileExists(atPath: documentPath.path) {
             let data = try Data(contentsOf: documentPath)
@@ -81,6 +65,27 @@ class PersistentStorage {
         createDirectory()
         let data = try JSONEncoder().encode(value)
         try encryptAndWriteToDocuments(data, at: &documentPath)
+    }
+    
+    func readAllWallets<T:Decodable>() -> [String: T] {
+        var wallets: [String: T] = [:]
+        
+        if let contents = try? fileManager.contentsOfDirectory(atPath: containerUrl.path) {
+            contents.forEach {
+                if $0.contains("wallets_") {
+                    let cardId = $0.remove("wallets_").remove(".json")
+                    let key: PersistentStorageKey = .wallets(cid: cardId)
+                    let documentPath = self.documentPath(for: key.path)
+                    if let data = try? Data(contentsOf: documentPath),
+                       let decryptedData = try? encryptionUtility.decryptData(data),
+                       let decodedData = try? JSONDecoder().decode(T.self, from: decryptedData){
+                        wallets[cardId] = decodedData
+                    }
+                }
+            }
+        }
+        
+        return wallets
     }
     
     private func transferFiles() {
