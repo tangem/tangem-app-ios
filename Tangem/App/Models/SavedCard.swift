@@ -8,11 +8,22 @@
 
 import Foundation
 import TangemSdk
+import BlockchainSdk
 
 struct SavedCard: Codable {
     let cardId: String
+    let batchId: String?
     let wallets: [SavedCardWallet]
     var derivedKeys: [Data: [SavedExtendedPublicKey]] = [:]
+    
+    public var derivationStyle: DerivationStyle {
+        guard let batchId = batchId else {
+            return .legacy
+        }
+        
+        let isHdWalletAllowed = wallets.contains(where: { $0.isHdWalletAllowed })
+        return Card.getDerivationStyle(for: batchId, isHdWalletAllowed: isHdWalletAllowed)
+    }
     
     func getDerivedKeys(for walletPublicKey: Data) -> [DerivationPath: ExtendedPublicKey] {
         guard let derived = derivedKeys[walletPublicKey] else { return [:] }
@@ -36,7 +47,7 @@ struct SavedCard: Codable {
             }
         }
         
-        return .init(cardId: cardInfo.card.cardId, wallets: wallets, derivedKeys: keys)
+        return .init(cardId: cardInfo.card.cardId, batchId: cardInfo.card.batchId, wallets: wallets, derivedKeys: keys)
     }
 }
 
