@@ -7,53 +7,85 @@
 //
 
 import Foundation
-#if !CLIP
 import BlockchainSdk
-import Kingfisher
-#endif
-import SwiftUI
+import struct TangemSdk.DerivationPath
 
-enum TokenItem: Hashable, Identifiable {
+enum TokenItem: Hashable {
     case blockchain(Blockchain)
-    case token(Token)
+    case token(Token, Blockchain)
+
+    var isBlockchain: Bool { token == nil }
     
-    var id: Int {
+    var isToken: Bool { token != nil }
+    
+    var id: String? {
         switch self {
-        case .token(let token):
-            return token.hashValue
+        case .token(let token, _):
+            return token.id
         case .blockchain(let blockchain):
-            return blockchain.hashValue
+            return blockchain.id
         }
     }
     
     var blockchain: Blockchain {
         switch self {
-        case .token(let token):
-            return token.blockchain
+        case .token(_, let blockchain):
+            return blockchain
         case .blockchain(let blockchain):
             return blockchain
         }
     }
     
-    var token: Token? {
-        if case let .token(token) = self {
-            return token
+    var amountType: Amount.AmountType {
+        switch self {
+        case .token(let token, _):
+            return .token(value: token)
+        case .blockchain:
+            return .coin
         }
-        return nil
+    }
+    
+    func getDefaultBlockchainNetwork(for style: DerivationStyle) -> BlockchainNetwork {
+        let path = blockchain.derivationPath(for: style)
+        return .init(blockchain, derivationPath: path)
+    }
+    
+    var token: Token? {
+        switch self {
+        case .token(let token, _):
+            return token
+        default:
+            return nil
+        }
     }
     
     var name: String {
         switch self {
-        case .token(let token):
+        case .token(let token, _):
             return token.name
         case .blockchain(let blockchain):
             return blockchain.displayName
         }
     }
     
+    var contractName: String? {
+        switch self {
+        case .token:
+            switch blockchain {
+            case .binance: return "BEP2"
+            case .bsc: return "BEP20"
+            case .ethereum: return "ERC20"
+            default:
+                return nil
+            }
+        case .blockchain:
+            return "MAIN"
+        }
+    }
+    
     var symbol: String {
         switch self {
-        case .token(let token):
+        case .token(let token, _):
             return token.symbol
         case .blockchain(let blockchain):
             return blockchain.currencySymbol
@@ -61,111 +93,6 @@ enum TokenItem: Hashable, Identifiable {
     }
     
     var contractAddress: String? {
-        switch self {
-        case .token(let token):
-            return token.contractAddress
-        case .blockchain:
-            return nil
-        }
-    }
-    
-    var amountType: Amount.AmountType {
-        switch self {
-        case .token(let token):
-            return .token(value: token)
-        case .blockchain:
-            return .coin
-        }
-    }
-    
-    var iconView: TokenIconView {
-        TokenIconView(token: self)
-    }
-    
-    @ViewBuilder fileprivate var imageView: some View {
-        switch self {
-        case .token(let token):
-            CircleImageTextView(name: token.name, color: token.color)
-        case .blockchain(let blockchain):
-            if let image = IconsUtils.getBlockchainIcon(blockchain) {
-                Image(image)
-                    .resizable()
-            } else {
-                CircleImageTextView(name: blockchain.displayName, color: Color.tangemGrayLight4)
-            }
-        }
-    }
-    
-    fileprivate var imageURL: URL? {
-        switch self {
-        case .blockchain(let blockchain):
-            return IconsUtils.getBlockchainIconUrl(blockchain).flatMap { URL(string: $0.absoluteString) }
-        case .token(let token):
-            return token.customIconUrl.flatMap{ URL(string: $0) }
-        }
-    }
-}
-
-extension TokenItem: Codable {
-    init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        if let blockchain = try? container.decode(Blockchain.self) {
-            self = .blockchain(blockchain)
-        } else if let token = try? container.decode(Token.self) {
-            self = .token(token)
-        } else if let tokenDto = try? container.decode(TokenDTO.self) {
-            self = .token(Token(name: tokenDto.name,
-                                symbol: tokenDto.symbol,
-                                contractAddress: tokenDto.contractAddress,
-                                decimalCount: tokenDto.decimalCount,
-                                customIconUrl: tokenDto.customIconUrl,
-                                blockchain: .ethereum(testnet: false)))
-        } else {
-            throw BlockchainSdkError.decodingFailed
-        }
-    }
-    
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        switch self {
-        case .blockchain(let blockhain):
-            try container.encode(blockhain)
-        case .token(let token):
-            try container.encode(token)
-        }
-    }
-}
-
-struct TokenDTO: Decodable {
-    let name: String
-    let symbol: String
-    let contractAddress: String
-    let decimalCount: Int
-    let customIcon: String?
-    let customIconUrl: String?
-}
-
-
-struct TokenIconView: View {
-    var token: TokenItem
-    var size: CGSize = .init(width: 80, height: 80)
-    
-    var body: some View {
-        if let url = token.imageURL {
-        #if !CLIP
-            KFImage(url)
-                .placeholder { token.imageView }
-                .setProcessor(DownsamplingImageProcessor(size: size))
-                .cacheOriginalImage()
-                .scaleFactor(UIScreen.main.scale)
-                .resizable()
-                .scaledToFit()
-                .cornerRadius(5)
-        #else
-            WebImage(imagePath: url, placeholder: token.imageView.toAnyView())
-        #endif
-        } else {
-            token.imageView
-        }
+        token?.contractAddress
     }
 }

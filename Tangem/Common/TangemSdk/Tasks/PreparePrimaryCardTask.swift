@@ -59,12 +59,16 @@ class PreparePrimaryCardTask: CardSessionRunnable {
     }
     
     private func deriveKeys(_ primaryCard: PrimaryCard, in session: CardSession, completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
-        let isDemo = session.environment.card?.isDemoCard ?? false
-        let blockchains = SupportedTokenItems().predefinedBlockchains(isDemo: isDemo)
-
+        guard let card = session.environment.card else {
+            completion(.failure(.missingPreflightRead))
+            return
+        }
+        
+        let blockchains = SupportedTokenItems().predefinedBlockchains(isDemo: card.isDemoCard)
+        
         let derivations: [Data: [DerivationPath]] = blockchains.reduce(into: [:]) { partialResult, blockchain in
             if let wallet = session.environment.card?.wallets.first(where: { $0.curve == blockchain.curve }),
-               let path = blockchain.derivationPath {
+               let path = blockchain.derivationPath(for: card.derivationStyle) {
                 partialResult[wallet.publicKey, default: []].append(path)
             }
         }

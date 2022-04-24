@@ -27,13 +27,13 @@ class MainViewModel: ViewModel, ObservableObject {
     
     //MARK: - Published variables
     
-    @Published var isRefreshing = false
     @Published var error: AlertBinder?
     @Published var isScanning: Bool = false
     @Published var isCreatingWallet: Bool = false
     @Published var image: UIImage? = nil
     @Published var selectedAddressIndex: Int = 0
     @Published var showExplorerURL: URL? = nil
+    @Published var showExternalURL: URL? = nil
     @Published var state: ScanResult = .unsupported {
         willSet {
             print("⚠️ Reset bag")
@@ -73,6 +73,7 @@ class MainViewModel: ViewModel, ObservableObject {
     private var bag = Set<AnyCancellable>()
     private var isHashesCounted = false
     private var isProcessingNewCard = false
+    private var refreshCancellable: AnyCancellable? = nil
     
     public var canCreateTwinWallet: Bool {
         if isTwinCard {
@@ -88,6 +89,26 @@ class MainViewModel: ViewModel, ObservableObject {
         
         return true
     }
+    
+    public var hasMultipleButtons: Bool {
+        if canCreateWallet {
+          return true
+        }
+        
+        if !canCreateWallet
+            && canBuyCrypto
+            && !(cardModel?.cardInfo.isMultiWallet ?? true)  {
+           return true
+        }
+        
+        if let cardModel = self.cardModel, !cardModel.cardInfo.isMultiWallet,
+           (!canCreateWallet || (cardModel.isTwinCard && cardModel.hasBalance)) {
+           return true
+        }
+        
+        return false
+    }
+    
     
     public var canCreateWallet: Bool {
         if isTwinCard {
@@ -146,6 +167,7 @@ class MainViewModel: ViewModel, ObservableObject {
             }
             
             return exchangeService.getBuyUrl(currencySymbol: wallet.blockchain.currencySymbol,
+                                             amountType: .coin,
                                              blockchain: wallet.blockchain,
                                              walletAddress: wallet.address)
         }
@@ -155,6 +177,7 @@ class MainViewModel: ViewModel, ObservableObject {
     var sellCryptoURL: URL? {
         if let wallet = wallets?.first {
             return exchangeService.getSellUrl(currencySymbol: wallet.blockchain.currencySymbol,
+                                              amountType: .coin,
                                               blockchain: wallet.blockchain,
                                               walletAddress: wallet.address)
         }
@@ -239,7 +262,7 @@ class MainViewModel: ViewModel, ObservableObject {
         $state
             .compactMap { $0.cardModel }
             .flatMap {$0.objectWillChange }
-            .receive(on: RunLoop.main)
+            .receive(on: DispatchQueue.main)
             .sink { [unowned self] in
                 print("⚠️ Card model will change")
                 self.objectWillChange.send()
@@ -250,8 +273,8 @@ class MainViewModel: ViewModel, ObservableObject {
             .compactMap { $0.cardModel }
             .flatMap { $0.$state }
             .compactMap { $0.walletModels }
-            .flatMap { Publishers.MergeMany($0.map { $0.objectWillChange.debounce(for: 0.3, scheduler: DispatchQueue.main) }).collect($0.count) }
-            .receive(on: RunLoop.main)
+            .flatMap { Publishers.MergeMany($0.map { $0.objectWillChange }).collect($0.count) }
+            .receive(on: DispatchQueue.main)
             .sink { [unowned self] _ in
                 print("⚠️ Wallet model will change")
                 self.objectWillChange.send()
@@ -273,22 +296,6 @@ class MainViewModel: ViewModel, ObservableObject {
                 }
             }
             .store(in: &bag)
-        
-        $state
-            .compactMap { $0.cardModel }
-            .flatMap { $0.$state }
-            .compactMap { $0.walletModels }
-            .flatMap { Publishers.MergeMany($0.map { $0.$state.map{ $0.isLoading }.filter { !$0 } }).collect($0.count) }
-            .delay(for: 1, scheduler: DispatchQueue.global())
-            .receive(on: RunLoop.main)
-            .sink {[unowned self] _ in
-                self.checkPositiveBalance()
-                print("♻️ Wallet model loading state changed")
-                withAnimation {
-                    self.isRefreshing = false
-                }
-            }
-            .store(in: &bag)
     
         $state
             .compactMap { $0.cardModel }
@@ -301,24 +308,6 @@ class MainViewModel: ViewModel, ObservableObject {
 //                if !self.showTwinCardOnboardingIfNeeded() {
                     self.countHashes()
 //                }
-            }
-            .store(in: &bag)
-        
-        $isRefreshing
-            .dropFirst()
-            .removeDuplicates()
-            .filter { $0 }
-            .sink{ [unowned self] value in
-                if let cardModel = self.cardModel, cardModel.state.canUpdate, cardModel.walletModels?.count ?? 0 > 0 {
-                    cardModel.update()
-                } else {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        withAnimation {
-                            self.isRefreshing = false
-                        }
-                    }
-                }
-                
             }
             .store(in: &bag)
     }
@@ -350,6 +339,31 @@ class MainViewModel: ViewModel, ObservableObject {
 //
 //        }
 //    }
+    
+    func onRefresh(_ done: @escaping () -> Void) {
+        if let cardModel = self.cardModel, cardModel.state.canUpdate,
+           let walletModels = cardModel.walletModels, !walletModels.isEmpty {
+            let publishers = walletModels.map { $0.$updateCompletedPublisher.dropFirst() }
+            refreshCancellable = Publishers.MergeMany(publishers)
+                .collect(walletModels.count)
+                .receive(on: RunLoop.main)
+                .sink {[weak self] _ in
+                    self?.checkPositiveBalance()
+                    print("♻️ Wallet model loading state changed")
+                    withAnimation {
+                        done()
+                    }
+                }
+            
+            cardModel.update()
+        } else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                withAnimation {
+                    done()
+                }
+            }
+        }
+    }
 
     func createWallet() {
         guard let cardModel = cardModel else {
@@ -402,7 +416,7 @@ class MainViewModel: ViewModel, ObservableObject {
             return
         }
         
-        let hasTokenAmounts = !wallet.amounts.values.filter { $0.type.isToken && !$0.isEmpty }.isEmpty
+        let hasTokenAmounts = !wallet.amounts.values.filter { $0.type.isToken && !$0.isZero }.isEmpty
         
         if hasTokenAmounts {
             navigation.mainToSendChoise = true
@@ -444,6 +458,8 @@ class MainViewModel: ViewModel, ObservableObject {
             validatedSignedHashesCards.append(cardId)
         }
         
+        var hideWarning = true
+        //[REDACTED_TODO_COMMENT]
         switch button {
         case .okGotIt:
             if warning.event == .numberOfSignedHashesIncorrect {
@@ -455,6 +471,11 @@ class MainViewModel: ViewModel, ObservableObject {
         case .dismiss:
             Analytics.log(event: .dismissRateAppWarning)
             rateAppController.dismissRateAppWarning()
+            
+            if warning.event == .fundsRestoration {
+                userPrefsService.isFundsRestorationShown = true
+            }
+            
         case .reportProblem:
             Analytics.log(event: .negativeRateAppFeedback)
             rateAppController.userReactToRateAppWarning(isPositive: false)
@@ -471,9 +492,23 @@ class MainViewModel: ViewModel, ObservableObject {
                                                     }
                                                  }))
                 return
+            } else if warning.event == .fundsRestoration {
+                hideWarning = false
+                
+                let fundRestorationUrl: URL
+                switch Locale.current.languageCode {
+                case "ru":
+                    fundRestorationUrl = URL(string: "https://tangem.com/ru/kak-vosstanovit-tokeny-otpravlennye-ne-na-tot-adres-v-tangem-wallet")!
+                default:
+                    fundRestorationUrl = URL(string: "https://tangem.com/en/how-to-recover-crypto-sent-to-the-wrong-address-in-tangem-wallet")!
+                }
+                showExternalURL = fundRestorationUrl
             }
         }
-        warningsManager.hideWarning(warning)
+        
+        if hideWarning {
+            warningsManager.hideWarning(warning)
+        }
     }
     
     func onWalletTap(_ tokenItem: TokenItemViewModel) {
@@ -490,13 +525,10 @@ class MainViewModel: ViewModel, ObservableObject {
             return
         }
         
-        guard
-            cardInfo.isTestnet,
-            !cardInfo.isMultiWallet,
+        guard cardInfo.isTestnet, !cardInfo.isMultiWallet,
             let walletModel = cardModel?.walletModels?.first,
-            let token = walletModel.tokenItemViewModels.first?.amountType.token,
-            case .ethereum(testnet: true) = token.blockchain
-        else {
+            walletModel.wallet.blockchain == .ethereum(testnet: true),
+            let token = walletModel.tokenItemViewModels.first?.amountType.token else {
             if buyCryptoURL != nil {
                 navigation.mainToBuyCrypto = true
             }
@@ -658,7 +690,7 @@ class MainViewModel: ViewModel, ObservableObject {
 
         if validatedSignedHashesCards.contains(card.cardId) { return }
         
-        if cardModel?.isMultiWallet ?? false {
+        if cardModel?.cardInfo.isMultiWallet ?? false {
             if cardModel?.cardInfo.card.wallets.filter({ $0.totalSignedHashes ?? 0 > 0 }).count ?? 0 > 0 {
                 withAnimation {
                     warningsManager.appendWarning(for: .multiWalletSignedHashes)
