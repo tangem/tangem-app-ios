@@ -67,19 +67,49 @@ struct SendScreenDataCollector: EmailDataCollector {
             break
         }
         
+        let walletPublicKey = sendViewModel.walletModel.wallet.publicKey.seedKey
+        let cardWallet = cardInfo.card.wallets[walletPublicKey]
+
+        if let signedHashesDescription = cardWallet?.totalSignedHashes?.description {
+            data.append(EmailCollectedData(type: .wallet(.signedHashes), data: signedHashesDescription))
+        }
+        
+        data.append(EmailCollectedData(type: .wallet(.walletManagerHost), data: sendViewModel.walletModel.walletManager.currentHost))
+        
+        if let outputsDescription = sendViewModel.walletModel.walletManager.outputsCount?.description {
+            data.append(EmailCollectedData(type: .wallet(.outputsCount), data: outputsDescription))
+        }
+        
+        if let errorDescription = self.lastError?.localizedDescription {
+            data.append(EmailCollectedData(type: .error, data: errorDescription))
+        }
+        
+        let derivationPath = sendViewModel.walletModel.walletManager.wallet.publicKey.derivationPath
+        data.append(EmailCollectedData(type: .wallet(.derivationPath), data: derivationPath?.rawPath ?? "[default]"))
+        
+        data.append(.separator(.dashes))
+        
         data.append(contentsOf: [
-            EmailCollectedData(type: .wallet(.walletManagerHost), data: sendViewModel.walletModel.walletManager.currentHost),
-            EmailCollectedData(type: .error, data: lastError?.localizedDescription ?? "Unknown error"),
-            .separator(.dashes),
             EmailCollectedData(type: .send(.sourceAddress), data: sendViewModel.walletModel.wallet.address),
             EmailCollectedData(type: .send(.destinationAddress), data: sendViewModel.destination),
             EmailCollectedData(type: .send(.amount), data: sendViewModel.amountText),
             EmailCollectedData(type: .send(.fee), data: sendViewModel.sendFee),
         ])
         
+        if let txHex = self.txHex {
+            data.append(EmailCollectedData(type: .send(.transactionHex), data: txHex))
+        }
+        
         return formatData(data)
     }
     
+    private var txHex: String? {
+        if let sendError = lastError as? SendTxError {
+            return sendError.tx
+        }
+        
+        return nil
+    }
 }
 
 struct PushScreenDataCollector: EmailDataCollector {
@@ -134,12 +164,20 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
                 dataToFormat.append(.separator(.dashes))
                 dataToFormat.append(EmailCollectedData(type: .card(.blockchain), data: walletModel.wallet.blockchain.displayName))
                 
+                let derivationPath = walletModel.wallet.publicKey.derivationPath
+                dataToFormat.append(EmailCollectedData(type: .wallet(.derivationPath), data: derivationPath?.rawPath ?? "[default]"))
+                
+                if let outputsDescription = walletModel.walletManager.outputsCount?.description {
+                    dataToFormat.append(EmailCollectedData(type: .wallet(.outputsCount), data: outputsDescription))
+                }
+
                 let tokens = walletModel.wallet.amounts.keys.compactMap ({ $0.token })
                 if !tokens.isEmpty {
                     dataToFormat.append(EmailCollectedData(type: .token(.tokens), data: ""))
                 }
                 
                 for token in tokens {
+                    dataToFormat.append(EmailCollectedData(type: .token(.id), data: token.id ?? "[custom token]"))
                     dataToFormat.append(EmailCollectedData(type: .token(.name), data: token.name))
                     dataToFormat.append(EmailCollectedData(type: .token(.contractAddress), data: token.contractAddress))
                 }
