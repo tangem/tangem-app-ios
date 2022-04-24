@@ -88,9 +88,15 @@ class MoonPayService {
     }
     
     private func setupService() {
+        let config = URLSessionConfiguration.default
+        config.requestCachePolicy = .reloadIgnoringLocalCacheData
+        config.urlCache = nil
+        
+        let session = URLSession(configuration: config)
+        
         Publishers.Zip(
-            URLSession.shared.dataTaskPublisher(for: URL(string: ("https://api.moonpay.com/v4/ip_address?" + QueryKey.apiKey.rawValue + "=" + keys.apiKey))!),
-            URLSession.shared.dataTaskPublisher(for: URL(string: "https://api.moonpay.com/v3/currencies?" + QueryKey.apiKey.rawValue + "=" + keys.apiKey)!)
+            session.dataTaskPublisher(for: URL(string: ("https://api.moonpay.com/v4/ip_address?" + QueryKey.apiKey.rawValue + "=" + keys.apiKey))!),
+            session.dataTaskPublisher(for: URL(string: "https://api.moonpay.com/v3/currencies?" + QueryKey.apiKey.rawValue + "=" + keys.apiKey)!)
         )
         .sink(receiveCompletion: { _ in }) { [weak self] (ipOutput, currenciesOutput) in
             guard let self = self else { return }
@@ -151,24 +157,24 @@ extension MoonPayService: ExchangeService {
         "https://sell-request.tangem.com"
     }
     
-    func canBuy(_ currency: String, blockchain: Blockchain) -> Bool {
-        if currency.uppercased() == "BNB" && (blockchain == .bsc(testnet: true) || blockchain == .bsc(testnet: false)) {
+    func canBuy(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
+        if currencySymbol.uppercased() == "BNB" && (blockchain == .bsc(testnet: true) || blockchain == .bsc(testnet: false)) {
             return false
         }
         
-        return availableToBuy.contains(currency.uppercased()) && canBuyCrypto
+        return availableToBuy.contains(currencySymbol.uppercased()) && canBuyCrypto
     }
     
-    func canSell(_ currency: String, blockchain: Blockchain) -> Bool {
-        if currency.uppercased() == "BNB" && (blockchain == .bsc(testnet: true) || blockchain == .bsc(testnet: false)) {
+    func canSell(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
+        if currencySymbol.uppercased() == "BNB" && (blockchain == .bsc(testnet: true) || blockchain == .bsc(testnet: false)) {
             return false
         }
         
-        return availableToSell.contains(currency.uppercased()) && canSellCrypto
+        return availableToSell.contains(currencySymbol.uppercased()) && canSellCrypto
     }
     
-    func getBuyUrl(currencySymbol: String, blockchain: Blockchain, walletAddress: String) -> URL? {
-        guard canBuy(currencySymbol, blockchain: blockchain) else {
+    func getBuyUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String) -> URL? {
+        guard canBuy(currencySymbol, amountType: amountType, blockchain: blockchain) else {
             return nil
         }
         
@@ -191,8 +197,8 @@ extension MoonPayService: ExchangeService {
         return url
     }
     
-    func getSellUrl(currencySymbol: String, blockchain: Blockchain, walletAddress: String) -> URL? {
-        guard canSell(currencySymbol, blockchain: blockchain) else {
+    func getSellUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String) -> URL? {
+        guard canSell(currencySymbol, amountType: amountType, blockchain: blockchain) else {
             return nil
         }
         
