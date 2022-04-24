@@ -58,13 +58,14 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
     
     func buildTx(in session: WalletConnectSession, _ transaction: WalletConnectEthTransaction) -> AnyPublisher<(WalletModel, Transaction), Error> {
         let wallet = session.wallet
+        let blockchain = wallet.blockchain
         
         guard let card = scannedCardsRepo.cards[wallet.cid] else {
             return .anyFail(error: WalletConnectServiceError.cardNotFound)
         }
         
-        let blockchain = wallet.blockchain
-        let walletModels = assembly.makeWalletModels(from: card, blockchains: [blockchain])
+        let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: wallet.derivationPath)
+        let walletModels = assembly.makeWalletModels(from: card, blockchainNetworks: [blockchainNetwork])
         
         guard let walletModel = walletModels.first(where: { $0.wallet.address.lowercased() == transaction.from.lowercased() }) else {
             let error = WalletConnectServiceError.failedToBuildTx(code: .wrongAddress)
@@ -136,13 +137,17 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
                         return m
                     }()
                     let alert = WalletConnectUIBuilder.makeAlert(for: .sendTx, message: message, onAcceptAction: {
-                        switch walletModel.walletManager.createTransaction(amount: valueAmount, fee: gasAmount, destinationAddress: transaction.to, sourceAddress: transaction.from) {
-                        case .success(var tx):
+                        
+                        do {
+                            var tx = try walletModel.walletManager.createTransaction(amount: valueAmount,
+                                                                                     fee: gasAmount,
+                                                                                     destinationAddress: transaction.to,
+                                                                                     sourceAddress: transaction.from)
                             let contractDataString = transaction.data.drop0xPrefix
                             let wcTxData = Data(hexString: String(contractDataString))
                             tx.params = EthereumTransactionParams(data: wcTxData, gasLimit: gasLimit, nonce: transaction.nonce?.hexToInteger)
                             promise(.success(tx))
-                        case .failure(let error):
+                        } catch {
                             promise(.failure(error))
                         }
                     }, isAcceptEnabled: (balance >= totalAmount), onReject: {

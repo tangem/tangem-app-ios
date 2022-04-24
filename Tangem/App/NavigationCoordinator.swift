@@ -84,6 +84,9 @@ class NavigationCoordinator: ObservableObject {
     // MARK: WalletConnectView
     @Published var walletConnectToQR = false
     
+    // MARK: TokenList
+    @Published var tokensToCustomToken: Bool = false
+    
     @Published var onboardingReset = false
 
     func popToRoot() {
@@ -152,6 +155,9 @@ class NavigationCoordinator: ObservableObject {
         
         // MARK: WalletConnectView
         walletConnectToQR = false
+        
+        //MARK: TokensList
+        tokensToCustomToken = false
     }
     
     deinit {
