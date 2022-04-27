@@ -331,7 +331,7 @@
             "name" : "Fantom",
             "networks" : [
                 {
-                    "networkId" : "famtom/test"
+                    "networkId" : "fantom/test"
                 }
             ]
         },
