@@ -91,6 +91,11 @@
                     "decimalCount" : 18
                 },
                 {
+                    "networkId" : "tron/test",
+                    "address" : "TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj",
+                    "decimalCount" : 6
+                },
+                {
                     "networkId" : "binance-smart-chain/test",
                     "address" : "0x7ef95a0fee0dd31b22626fa2e10ee6a223f8a684",
                     "decimalCount" : 18
@@ -363,6 +368,16 @@
                     "networkId" : "bitcoin/test"
                 }
             ]
+        },
+        {
+          "id" : "tron",
+          "symbol" : "TRX",
+          "name" : "Tron",
+          "networks" : [
+              {
+                  "networkId" : "tron/test"
+              }
+          ]
         },
         {
             "id" : "stellar",
