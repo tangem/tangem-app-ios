@@ -76,7 +76,7 @@
             ]
         },
         {
-            "id" : "Tether USD-USDT",
+            "id" : "tether",
             "symbol" : "USDT",
             "name" : "Tether USD",
             "networks" : [
