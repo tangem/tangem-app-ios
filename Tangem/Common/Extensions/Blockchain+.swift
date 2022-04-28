@@ -18,6 +18,7 @@ extension Blockchain {
         case .cardano: return "cardano"
         case .ducatus: return "ducatus"
         case .ethereum: return "ethereum"
+        case .ethereumClassic: return "ethereum-classic"
         case .litecoin: return "litecoin"
         case .rsk: return "rootstock"
         case .stellar: return "stellar"
@@ -42,6 +43,7 @@ extension Blockchain {
         case .cardano: return "cardano"
         case .ducatus: return "ducatus"
         case .ethereum: return "ethereum"
+        case .ethereumClassic: return "ethereum-classic"
         case .litecoin: return "litecoin"
         case .rsk: return "rootstock"
         case .stellar: return "stellar"
@@ -83,6 +85,7 @@ extension Blockchain {
         case "bitcoin": self = .bitcoin(testnet: isTestnet)
         case "stellar": self = .stellar(testnet: isTestnet)
         case "ethereum": self = .ethereum(testnet: isTestnet)
+        case "ethereum-classic": self = .ethereumClassic(testnet: isTestnet)
         case "litecoin": self = .litecoin
         case "rootstock": self = .rsk
         case "bitcoin-cash": self = .bitcoinCash(testnet: isTestnet)
