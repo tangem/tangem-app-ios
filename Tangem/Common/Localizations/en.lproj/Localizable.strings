@@ -1,9 +1,5 @@
 "action_sheet_trade_hint" = "Do you want to buy or sell crypto?";
-"add_custom" = "Add Custom";
 "add_custom_token_title" = "Add custom token";
-"add_token_section_title_blockchains" = "Blockchains";
-"add_token_section_title_custom_tokens" = "Custom tokens";
-"add_token_section_title_tokens_format" = "%@ tokens";
 "add_tokens_title" = "Manage tokens";
 "main_manage_tokens_button" = "Manage tokens";
 "address_qr_code_message_format" = "Send only %@ (%@) to this address. Sending any other currency will result in its irreversible loss.";
@@ -30,12 +26,9 @@ It’s perfectly safe in all other respects.
 Tangem is the only hardware wallet to offer signature count protection.";
 "alert_troubleshooting_scan_card_message" = "Please try to tap the card exactly as shown in the animation or request support.";
 "alert_troubleshooting_scan_card_title" = "Are you having difficulty scanning your card?";
-"alert_unsupported_card" = "This card it is not designed to work with Tangem";
 "card_label_number_format" = "Card %d of %d";
 "card_operation_button_title_reset" = "Reset the card";
 "common_accept" = "Accept";
-"common_add" = "Add";
-"common_added" = "Added";
 "common_back" = "Back";
 "common_camera_alert_button_settings" = "Settings";
 "common_camera_denied_alert_message" = "You have not given access to your camera, please adjust your privacy settings";
@@ -72,8 +65,6 @@ Tangem is the only hardware wallet to offer signature count protection.";
 "custom_token_creation_error_invalid_derivation_path" = "Derivation path is invalid";
 "custom_token_validation_error_not_found" = "Note that tokens can be created by anyone. Be aware of adding scam tokens, they can cost nothing.";
 "custom_token_validation_error_already_added" = "This token/network has already been added to your list";
-"custom_token_type_network" = "Network";
-"custom_token_type_token" = "Token";
 "custom_token_decimals_input_title" = "Decimals";
 "custom_token_network_input_title" = "Network";
 "custom_token_network_input_not_selected" = "Not selected";
@@ -178,12 +169,6 @@ Unless otherwise required by law, in no event shall the owners of, or contributo
 This disclaimer was amended for the last time on October 1st, 2020.";
 "disclaimer_title" = "Terms of service";
 "home_button_scan" = "Scan card";
-"home_button_shop" = "Shop";
-"home_button_tapin" = "Tap in";
-"home_button_yes" = "Yes! Scan it.";
-"home_ready_title" = "Get ready to tap your
-card to the back of the
-phone.";
 "initial_message_change_access_code_body" = "To change the access code, connect your phone and the card exactly as it shown above";
 "initial_message_change_passcode_body" = "To change the passcode, connect your phone and the card exactly as it shown above";
 "initial_message_create_wallet_body" = "To create wallet, connect your phone and the card exactly as it shown above";
@@ -211,7 +196,6 @@ phone.";
 "onboarding_backup_exit_warning" = "The backup process is partly complete. You can’t exit it now.";
 "onboarding_balance" = "BALANCE";
 "onboarding_button_add_backup_card" = "Add a backup card";
-"onboarding_button_backup_card %lld" = "Scan the card #%lld";
 "onboarding_button_backup_now" = "Backup now";
 "onboarding_button_backup_origin" = "Scan the primary card";
 "onboarding_button_buy_crypto" = "Buy crypto";
