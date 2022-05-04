@@ -196,6 +196,7 @@ This disclaimer was amended for the last time on October 1st, 2020.";
 "onboarding_backup_exit_warning" = "Процесс резервного копирования почти завершен. Вы не можете выйти из него сейчас.";
 "onboarding_balance" = "ДОСТУПНО";
 "onboarding_button_add_backup_card" = "Добавить резервную карту";
+"onboarding_button_backup_card %lld" = "Сканировать карту #%lld";
 "onboarding_button_backup_now" = "Создать резервную копию";
 "onboarding_button_backup_origin" = "Сканировать основную карту";
 "onboarding_button_buy_crypto" = "Купить криптовалюту";
