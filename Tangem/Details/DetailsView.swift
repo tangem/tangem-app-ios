@@ -162,7 +162,7 @@ struct DetailsView: View {
                     })
                 
                 if let cardTouURL = viewModel.cardTouURL {
-                    NavigationLink(destination: WebViewContainer(url: cardTouURL, title: "details_row_title_card_tou")
+                    NavigationLink(destination: WebViewContainer(url: cardTouURL, title: "details_row_title_card_tou".localized)
                                     .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all)),
                                    tag: NavigationTag.cardTermsOfUse, selection: $selection) {
                         DetailsRowView(title: "details_row_title_card_tou".localized,
