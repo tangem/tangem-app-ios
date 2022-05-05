@@ -275,7 +275,7 @@ This disclaimer was amended for the last time on October 1st, 2020.";
 "send_fee_picker_priority" = "Priority";
 "send_max_amount_label" = "Maximum amount";
 "send_network_fee_title" = "Network fee";
-"send_title_currency_format %@" = "Sending %@";
+"send_title_currency_format" = "Sending %@";
 "send_total_label" = "Total";
 "send_total_subtitle_asset_format" = "%@ and %@ will be sent";
 "send_total_subtitle_fiat_format" = "≈ %@ (inc. fee: %@)";
