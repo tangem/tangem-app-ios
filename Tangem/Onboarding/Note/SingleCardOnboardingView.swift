@@ -117,7 +117,7 @@ struct SingleCardOnboardingView: View {
             Color.clear.frame(width: 1, height: 1)
                 .sheet(isPresented: $navigation.onboardingToBuyCrypto) {
                     WebViewContainer(url: viewModel.buyCryptoURL,
-                                     title: "wallet_button_topup",
+                                     title: "wallet_button_topup".localized,
                                      addLoadingIndicator: true,
                                      withCloseButton: true,
                                      urlActions: [ viewModel.buyCryptoCloseUrl : { _ in
