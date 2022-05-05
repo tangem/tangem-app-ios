@@ -275,7 +275,7 @@ Dieser Haftungsausschuss wurde am 1. Oktober 2020 zum letzten Mal geändert.";
 "send_fee_picker_priority" = "Priorität";
 "send_max_amount_label" = "Höchstbetrag";
 "send_network_fee_title" = "Netzgebühr";
-"send_title_currency_format %@" = "Sending %@";
+"send_title_currency_format" = "Sending %@";
 "send_total_label" = "Gesamt";
 "send_total_subtitle_asset_format" = "%@ und %@ werden gesendet";
 "send_total_subtitle_fiat_format" = "≈ %@ (inkl. Gebühr: %@)";
