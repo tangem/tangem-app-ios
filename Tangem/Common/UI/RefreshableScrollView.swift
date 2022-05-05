@@ -55,10 +55,9 @@ struct RefreshableScrollView<Content: View>: View {
                 ZStack(alignment: .top) {
                     MovingView()
                     
-                    VStack { self.content }.alignmentGuide(.top, computeValue: { d in (self.refreshing && self.frozen) ? -self.threshold : 0.0 })
-                  //  if scrollOffset != 0 {
-                        SymbolView(height: self.threshold, loading: self.refreshing, frozen: self.frozen, rotation: self.rotation, alpha: alpha)
-                  //  }
+                    VStack { self.content }.alignmentGuide(.top, computeValue: { d in (self.refreshing && self.frozen) ? (-self.threshold + 15) : 0.0 })
+                    
+                    SymbolView(height: self.threshold - 15, loading: self.refreshing, frozen: self.frozen, rotation: self.rotation, alpha: alpha)
                 }
             }
             .background(FixedView())
@@ -87,12 +86,10 @@ struct RefreshableScrollView<Content: View>: View {
                     self.refreshing = false
                 }
             }
-            
             if self.refreshing {
                 // Crossing the threshold on the way up, we add a space at the top of the scrollview
-                if self.previousScrollOffset > self.threshold && self.scrollOffset <= self.threshold {
-                    self.frozen = true
-                    
+                if self.previousScrollOffset > self.threshold && self.scrollOffset < self.previousScrollOffset {
+                    frozen = true
                 }
             } else {
                 // remove the sapce at the top of the scroll view
