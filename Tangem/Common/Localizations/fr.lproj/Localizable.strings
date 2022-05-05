@@ -275,7 +275,7 @@ Cette avertissement a été modifié, pour la dernière fois, le 1 octobre 2020.
 "send_fee_picker_priority" = "Priorité";
 "send_max_amount_label" = "Somme maximale";
 "send_network_fee_title" = "Commissions du réseau";
-"send_title_currency_format %@" = "Sending %@";
+"send_title_currency_format" = "Sending %@";
 "send_total_label" = "Total";
 "send_total_subtitle_asset_format" = "Sera envoyé %@ et %@";
 "send_total_subtitle_fiat_format" = "≈ %@ (incl. les commissions : %@)";
