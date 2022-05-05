@@ -40,7 +40,7 @@ Tangem is the only hardware wallet to offer signature count protection.";
 "common_disconnect" = "Disconnect";
 "common_done" = "Done";
 "common_error" = "Error";
-"common_explorer_format %@" = "%@ explorer";
+"common_explorer_format" = "%@ explorer";
 "common_no" = "No";
 "common_ok" = "OK";
 "common_origin_card" = "Primary Card";
