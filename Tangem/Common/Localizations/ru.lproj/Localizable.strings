@@ -275,7 +275,7 @@ This disclaimer was amended for the last time on October 1st, 2020.";
 "send_fee_picker_priority" = "Приоритетная";
 "send_max_amount_label" = "Максимальная сумма";
 "send_network_fee_title" = "Сетевая комиссия";
-"send_title_currency_format %@" = "Отправка %@";
+"send_title_currency_format" = "Отправка %@";
 "send_total_label" = "Всего";
 "send_total_subtitle_asset_format" = "%@ и %@ будет отправлено";
 "send_total_subtitle_fiat_format" = "≈ %@ (вкл. комиссию: %@)";
