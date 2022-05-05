@@ -275,7 +275,7 @@ Questa nota legale è stata modificata l'ultima volta 01.10.2020.";
 "send_fee_picker_priority" = "Prioritario";
 "send_max_amount_label" = "Importo totale";
 "send_network_fee_title" = "Costi della rete";
-"send_title_currency_format %@" = "Sending %@";
+"send_title_currency_format" = "Sending %@";
 "send_total_label" = "Totale";
 "send_total_subtitle_asset_format" = "Sarà inviato %@ e %@";
 "send_total_subtitle_fiat_format" = "≈ %@ (inc. commissione: %@)";
