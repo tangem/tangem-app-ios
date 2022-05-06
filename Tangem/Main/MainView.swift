@@ -195,10 +195,12 @@ struct MainView: View {
                                 } else {
                                     if viewModel.cardModel!.cardInfo.isMultiWallet {
                                         ForEach(viewModel.tokenItemViewModels) { item in
-                                            TokensListItemView(item: item)
-                                                .onTapGesture {
-                                                    viewModel.onWalletTap(item)
-                                                }
+                                            Button {
+                                                viewModel.onWalletTap(item)
+                                            } label: {
+                                                TokensListItemView(item: item)
+                                            }
+                                            .buttonStyle(PlainButtonStyle())
                                         }
                                         .padding(.horizontal, 16)
                                         
@@ -208,8 +210,8 @@ struct MainView: View {
                                         .padding(.horizontal, 16)
                                         .padding(.bottom, 8)
                                         .sheet(isPresented: $navigation.mainToAddTokens, content: {
-                                                TokenListView(viewModel: viewModel.assembly.makeTokenListViewModel(mode: .add(cardModel: viewModel.cardModel!)))
-                                                    .environmentObject(navigation)
+                                            TokenListView(viewModel: viewModel.assembly.makeTokenListViewModel(mode: .add(cardModel: viewModel.cardModel!)))
+                                                .environmentObject(navigation)
                                         })
                                         
                                     } else {
