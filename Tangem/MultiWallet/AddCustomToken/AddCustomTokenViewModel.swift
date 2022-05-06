@@ -284,7 +284,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     private func enteredContractAddress(in blockchain: Blockchain) throws -> String {
-        if case .binance = blockchain {
+        if case .binance = blockchain, !contractAddress.trimmed().isEmpty {
             return contractAddress //skip validation for binance
         }
         
