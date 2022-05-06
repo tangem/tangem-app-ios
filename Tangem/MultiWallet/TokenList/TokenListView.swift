@@ -68,9 +68,13 @@ struct TokenListView: View {
                 
                 Color.clear.frame(width: 1, height: 1)
                     .sheet(isPresented: $navigation.detailsToSendEmail) {
-                        MailView(dataCollector: viewModel.dataCollector,
-                                 support: viewModel.cardModel.emailSupport,
-                                 emailType: .appFeedback(support: viewModel.cardModel.isStart2CoinCard ? .start2coin : .tangem))
+                        if let cardModel = viewModel.cardModel {
+                            MailView(dataCollector: viewModel.dataCollector,
+                                     support: cardModel.emailSupport,
+                                     emailType: .appFeedback(support: cardModel.isStart2CoinCard ? .start2coin : .tangem))
+                        } else {
+                            EmptyView()
+                        }
                     }
             }
             .navigationBarBackButtonHidden(true)

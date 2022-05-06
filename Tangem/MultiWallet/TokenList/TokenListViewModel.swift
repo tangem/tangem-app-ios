@@ -15,7 +15,6 @@ import SwiftUI
 class TokenListViewModel: ViewModel, ObservableObject {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
-    var cardModel: CardViewModel!
     var dataCollector: EmailDataCollector!
     
     var enteredSearchText = CurrentValueSubject<String, Never>("") //I can't use @Published here, because of swiftui redraw perfomance drop
@@ -70,6 +69,10 @@ class TokenListViewModel: ViewModel, ObservableObject {
     
     var isSaveDisabled: Bool {
         pendingAdd.isEmpty && pendingRemove.isEmpty
+    }
+    
+    var cardModel: CardViewModel? {
+        mode.cardModel
     }
     
     private let mode: Mode
