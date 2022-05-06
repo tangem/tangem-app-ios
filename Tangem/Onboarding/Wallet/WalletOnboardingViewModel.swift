@@ -48,7 +48,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         case .backupCards:
             switch backupServiceState {
             case .finalizingPrimaryCard: return "onboarding_title_prepare_origin"
-            case .finalizingBackupCard(let index): return "onboarding_title_backup_card \(index)"
+            case .finalizingBackupCard(let index): return LocalizedStringKey(stringLiteral: "onboarding_title_backup_card_number".localized(index))
             default: break
             }
         default: break
@@ -75,12 +75,14 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         case .backupCards:
             switch backupServiceState {
             case .finalizingPrimaryCard:
-                return backupService.primaryCardId.map { "onboarding_subtitle_scan_origin_card \(CardIdFormatter(style: .lastMasked(4)).string(from: $0))" }
+                return backupService.primaryCardId.map {
+                    LocalizedStringKey(stringLiteral: "onboarding_subtitle_scan_origin_card".localized(CardIdFormatter(style: .lastMasked(4)).string(from: $0)))
+                }
                 ?? super.subtitle
             case .finalizingBackupCard(let index):
                 let cardId = backupService.backupCardIds[index - 1]
                 let formattedCardId = CardIdFormatter(style: .lastMasked(4)).string(from: cardId)
-                return "onboarding_subtitle_scan_backup_card \(formattedCardId)"
+                return LocalizedStringKey(stringLiteral: "onboarding_subtitle_scan_backup_card".localized(formattedCardId))
             default: return super.subtitle
             }
         default: return super.subtitle
@@ -108,7 +110,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         case .backupCards:
             switch backupServiceState {
             case .finalizingPrimaryCard: return "onboarding_button_backup_origin"
-            case .finalizingBackupCard(let index): return "onboarding_button_backup_card \(index)"
+            case .finalizingBackupCard(let index): return LocalizedStringKey(stringLiteral: "onboarding_button_backup_card".localized(index))
             default: break
             }
         case .success:
