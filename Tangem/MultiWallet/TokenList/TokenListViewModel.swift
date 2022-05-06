@@ -188,6 +188,19 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     private func onSelect(_ selected: Bool, _ tokenItem: TokenItem) {
+        if case let .token(_, blockchain) = tokenItem,
+           case .solana = blockchain,
+           let cardModel = mode.cardModel,
+           !cardModel.cardInfo.card.canSupportSolanaTokens
+        {
+            if selected {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.loader.updateSelection(tokenItem, with: self.bindSelection(tokenItem))
+                }
+            }
+            return
+        }
+        
         let alreadyAdded = isAdded(tokenItem)
         
         if alreadyAdded {
