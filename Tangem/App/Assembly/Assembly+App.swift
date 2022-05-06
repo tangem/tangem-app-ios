@@ -313,10 +313,7 @@ extension Assembly {
         
         let vm = TokenListViewModel(mode: mode)
         initialize(vm, with: restorationKey, isResetable: true)
-        if let cardModel = services.cardsRepository.lastScanResult.cardModel {
-            vm.cardModel = cardModel
-            vm.dataCollector = services.negativeFeedbackDataCollector
-        }
+        vm.dataCollector = services.negativeFeedbackDataCollector
         return vm
     }
     
