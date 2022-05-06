@@ -188,16 +188,20 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     private func onSelect(_ selected: Bool, _ tokenItem: TokenItem) {
-        if case let .token(_, blockchain) = tokenItem,
+        if selected,
+           case let .token(_, blockchain) = tokenItem,
            case .solana = blockchain,
            let cardModel = mode.cardModel,
            !cardModel.cardInfo.card.canSupportSolanaTokens
         {
-            if selected {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    self.loader.updateSelection(tokenItem, with: self.bindSelection(tokenItem))
-                }
+            let okButton = Alert.Button.default(Text("common_ok".localized)) {
+                self.loader.updateSelection(tokenItem, with: self.bindSelection(tokenItem))
             }
+            
+            error = AlertBinder(alert: Alert(title: Text("common_attention".localized),
+                                             message: Text("alert_manage_tokens_unsupported_message".localized),
+                                             dismissButton: okButton))
+            
             return
         }
         
