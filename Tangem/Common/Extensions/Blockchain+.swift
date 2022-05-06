@@ -32,6 +32,7 @@ extension Blockchain {
         case .fantom: return "fantom"
         case .polkadot: return "polkadot"
         case .kusama: return "kusama"
+        case .tron: return "tron"
         }
     }
     
@@ -57,6 +58,7 @@ extension Blockchain {
         case .fantom: return "fantom"
         case .polkadot: return "polkadot"
         case .kusama: return "kusama"
+        case .tron: return "tron"
         }
     }
     
@@ -102,7 +104,10 @@ extension Blockchain {
         case "fantom": self = .fantom(testnet: isTestnet)
         case "polkadot": self = .polkadot(testnet: isTestnet)
         case "kusama": self = .kusama
-        default: return nil
+        case "tron": self = .tron(testnet: isTestnet)
+        default:
+            print("⚠️⚠️⚠️ Failed to map network ID \"\(stringId)\"")
+            return nil
         }
     }
     
