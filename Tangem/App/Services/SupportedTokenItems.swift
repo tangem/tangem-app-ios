@@ -25,6 +25,7 @@ class SupportedTokenItems {
     private lazy var blockchains: Set<Blockchain> = {
         [
             .ethereum(testnet: false),
+            .ethereumClassic(testnet: false),
             .litecoin,
             .bitcoin(testnet: false),
             .bitcoinCash(testnet: false),
@@ -50,6 +51,7 @@ class SupportedTokenItems {
         [
             .bitcoin(testnet: true),
             .ethereum(testnet: true),
+            .ethereumClassic(testnet: true),
             .binance(testnet: true),
             .stellar(testnet: true),
             .bsc(testnet: true),
