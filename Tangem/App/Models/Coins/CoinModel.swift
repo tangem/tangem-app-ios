@@ -19,7 +19,6 @@ struct CoinModel {
     
     func makeFiltered(with card: Card, contractAddress: String? = nil) -> CoinModel? {
         let supportedCurves = card.walletCurves
-        let isSupportSolanaTokens = card.canSupportSolanaTokens
         
         let filteredItems = items.filter { item in
             if !supportedCurves.contains(item.blockchain.curve) {
@@ -29,11 +28,6 @@ struct CoinModel {
             if let contractAddress = contractAddress,
                contractAddress.caseInsensitiveCompare(item.contractAddress ?? "") != .orderedSame
             {
-                return false
-            }
-            
-            if !isSupportSolanaTokens, item.isToken,
-               case .solana = item.blockchain {
                 return false
             }
             
