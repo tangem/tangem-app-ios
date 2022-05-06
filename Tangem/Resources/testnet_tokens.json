@@ -7,7 +7,7 @@
             "networks" : [
                 {
                     "networkId" : "polygon-pos/test",
-                    "address" : "0x0000000000000000000000000000000000001010",
+                    "contractAddress" : "0x0000000000000000000000000000000000001010",
                     "decimalCount" : 18
                 }
             ]
@@ -19,17 +19,17 @@
             "networks" : [
                 {
                     "networkId" : "polygon-pos/test",
-                    "address" : "0xcB1e72786A6eb3b44C2a2429e317c8a2462CFeb1",
+                    "contractAddress" : "0xcB1e72786A6eb3b44C2a2429e317c8a2462CFeb1",
                     "decimalCount" : 18
                 },
                 {
                     "networkId" : "binance-smart-chain/test",
-                    "address" : "0xec5dcb5dbf4b114c9d0f65bccab49ec54f6a0867",
+                    "contractAddress" : "0xec5dcb5dbf4b114c9d0f65bccab49ec54f6a0867",
                     "decimalCount" : 18
                 },
                 {
                     "networkId" : "binance-smart-chain/test",
-                    "address" : "0x8a9424745056eb399fd19a0ec26a14316684e274",
+                    "contractAddress" : "0x8a9424745056eb399fd19a0ec26a14316684e274",
                     "decimalCount" : 18
                 }
             ]
@@ -41,7 +41,7 @@
             "networks" : [
                 {
                     "networkId" : "polygon-pos/test",
-                    "address" : "0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1",
+                    "contractAddress" : "0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1",
                     "decimalCount" : 18
                 }
             ]
@@ -53,12 +53,12 @@
             "networks" : [
                 {
                     "networkId" : "polygon-pos/test",
-                    "address" : "0x714550C2C1Ea08688607D86ed8EeF4f5E4F22323",
+                    "contractAddress" : "0x714550C2C1Ea08688607D86ed8EeF4f5E4F22323",
                     "decimalCount" : 18
                 },
                 {
                     "networkId" : "binance-smart-chain/test",
-                    "address" : "0xd66c6b4f0be8ce5b39d52e0fd1344c389929b378",
+                    "contractAddress" : "0xd66c6b4f0be8ce5b39d52e0fd1344c389929b378",
                     "decimalCount" : 18
                 }
             ]
@@ -70,29 +70,34 @@
             "networks" : [
                 {
                     "networkId" : "polygon-pos/test",
-                    "address" : "0x2d7882bedcbfddce29ba99965dd3cdf7fcb10a1e",
+                    "contractAddress" : "0x2d7882bedcbfddce29ba99965dd3cdf7fcb10a1e",
                     "decimalCount" : 18
                 }
             ]
         },
         {
-            "id" : "Tether USD-USDT",
+            "id" : "tether",
             "symbol" : "USDT",
             "name" : "Tether USD",
             "networks" : [
                 {
                     "networkId" : "polygon-pos/test",
-                    "address" : "0x3813e82e6f7098b9583FC0F33a962D02018B6803",
+                    "contractAddress" : "0x3813e82e6f7098b9583FC0F33a962D02018B6803",
                     "decimalCount" : 6
                 },
                 {
                     "networkId" : "binance-smart-chain/test",
-                    "address" : "0x337610d27c682e347c9cd60bd4b3b107c9d34ddd",
+                    "contractAddress" : "0x337610d27c682e347c9cd60bd4b3b107c9d34ddd",
                     "decimalCount" : 18
                 },
                 {
+                    "networkId" : "tron/test",
+                    "contractAddress" : "TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj",
+                    "decimalCount" : 6
+                },
+                {
                     "networkId" : "binance-smart-chain/test",
-                    "address" : "0x7ef95a0fee0dd31b22626fa2e10ee6a223f8a684",
+                    "contractAddress" : "0x7ef95a0fee0dd31b22626fa2e10ee6a223f8a684",
                     "decimalCount" : 18
                 }
             ]
@@ -104,7 +109,7 @@
             "networks" : [
                 {
                     "networkId" : "polygon-pos/test",
-                    "address" : "0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa",
+                    "contractAddress" : "0xA6FA4fB5f76172d178d61B04b0ecd319C5d1C0aa",
                     "decimalCount" : 18
                 }
             ]
@@ -116,7 +121,7 @@
             "networks" : [
                 {
                     "networkId" : "polygon-pos/test",
-                    "address" : "0xd0A1E359811322d97991E03f863a0C30C2cF029C",
+                    "contractAddress" : "0xd0A1E359811322d97991E03f863a0C30C2cF029C",
                     "decimalCount" : 18
                 }
             ]
@@ -138,7 +143,7 @@
             "networks" : [
                 {
                     "networkId" : "solana/test",
-                    "address" : "22PTNbX31Zuztd6nD82fC8nQdT2hUfWv9XWXKuDkrFqR",
+                    "contractAddress" : "22PTNbX31Zuztd6nD82fC8nQdT2hUfWv9XWXKuDkrFqR",
                     "decimalCount" : 9
                 }
             ]
@@ -150,7 +155,7 @@
             "networks" : [
                 {
                     "networkId" : "solana/test",
-                    "address" : "HmSghNPg6KCk711YJA92aPejt8auyFkvmaED6jbHfUs4",
+                    "contractAddress" : "HmSghNPg6KCk711YJA92aPejt8auyFkvmaED6jbHfUs4",
                     "decimalCount" : 9
                 }
             ]
@@ -175,7 +180,7 @@
             "networks" : [
                 {
                     "networkId" : "binancecoin/test",
-                    "address" : "HEM-452",
+                    "contractAddress" : "HEM-452",
                     "decimalCount" : 8
                 }
             ]
@@ -187,7 +192,7 @@
             "networks" : [
                 {
                     "networkId" : "binance-smart-chain/test",
-                    "address" : "0x6ce8da28e2f864420840cf74474eff5fd80e65b8",
+                    "contractAddress" : "0x6ce8da28e2f864420840cf74474eff5fd80e65b8",
                     "decimalCount" : 18
                 }
             ]
@@ -199,7 +204,7 @@
             "networks" : [
                 {
                     "networkId" : "binance-smart-chain/test",
-                    "address" : "0xed24fc36d5ee211ea25a80239fb8c4cfd80f12ee",
+                    "contractAddress" : "0xed24fc36d5ee211ea25a80239fb8c4cfd80f12ee",
                     "decimalCount" : 18
                 }
             ]
@@ -211,7 +216,7 @@
             "networks" : [
                 {
                     "networkId" : "binance-smart-chain/test",
-                    "address" : "0x64544969ed7ebf5f083679233325356ebe738930",
+                    "contractAddress" : "0x64544969ed7ebf5f083679233325356ebe738930",
                     "decimalCount" : 18
                 }
             ]
@@ -223,7 +228,7 @@
             "networks" : [
                 {
                     "networkId" : "binance-smart-chain/test",
-                    "address" : "0xa83575490d7df4e2f47b7d38ef351a2722ca45b9",
+                    "contractAddress" : "0xa83575490d7df4e2f47b7d38ef351a2722ca45b9",
                     "decimalCount" : 18
                 }
             ]
@@ -255,7 +260,7 @@
             "networks" : [
                 {
                     "networkId" : "ethereum/test",
-                    "address" : "0xaFF4481D10270F50f203E0763e2597776068CBc5",
+                    "contractAddress" : "0xaFF4481D10270F50f203E0763e2597776068CBc5",
                     "decimalCount" : 18
                 }
             ]
@@ -267,7 +272,7 @@
             "networks" : [
                 {
                     "networkId" : "ethereum/test",
-                    "address" : "0x022E292b44B5a146F2e8ee36Ff44D3dd863C915c",
+                    "contractAddress" : "0x022E292b44B5a146F2e8ee36Ff44D3dd863C915c",
                     "decimalCount" : 18
                 }
             ]
@@ -279,7 +284,7 @@
             "networks" : [
                 {
                     "networkId" : "ethereum/test",
-                    "address" : "0xc6fDe3FD2Cc2b173aEC24cc3f267cb3Cd78a26B7",
+                    "contractAddress" : "0xc6fDe3FD2Cc2b173aEC24cc3f267cb3Cd78a26B7",
                     "decimalCount" : 8
                 }
             ]
@@ -291,7 +296,7 @@
             "networks" : [
                 {
                     "networkId" : "ethereum/test",
-                    "address" : "0x1f9061B953bBa0E36BF50F21876132DcF276fC6e",
+                    "contractAddress" : "0x1f9061B953bBa0E36BF50F21876132DcF276fC6e",
                     "decimalCount" : 0
                 }
             ]
@@ -313,7 +318,7 @@
             "networks" : [
                 {
                     "networkId" : "avalanche/test",
-                    "address" : "0x2058ec2791dD28b6f67DB836ddf87534F4Bbdf22",
+                    "contractAddress" : "0x2058ec2791dD28b6f67DB836ddf87534F4Bbdf22",
                     "decimalCount" : 6
                 }
             ]
@@ -325,7 +330,7 @@
             "networks" : [
                 {
                     "networkId" : "avalanche/test",
-                    "address" : "0x97132C109c6816525F7f338DCb7435E1412A7668",
+                    "contractAddress" : "0x97132C109c6816525F7f338DCb7435E1412A7668",
                     "decimalCount" : 9
                 }
             ]
@@ -336,7 +341,7 @@
             "name" : "Fantom",
             "networks" : [
                 {
-                    "networkId" : "famtom/test"
+                    "networkId" : "fantom/test"
                 }
             ]
         },
@@ -347,7 +352,7 @@
             "networks" : [
                 {
                     "networkId" : "fantom/test",
-                    "address" : "0x91ea991bd52EE3C40EdA2509701d905e1Ee54074",
+                    "contractAddress" : "0x91ea991bd52EE3C40EdA2509701d905e1Ee54074",
                     "decimalCount" : 18
                 }
             ]
@@ -359,7 +364,7 @@
             "networks" : [
                 {
                     "networkId" : "fantom/test",
-                    "address" : "0xf1277d1Ed8AD466beddF92ef448A132661956621",
+                    "contractAddress" : "0xf1277d1Ed8AD466beddF92ef448A132661956621",
                     "decimalCount" : 18
                 }
             ]
@@ -373,6 +378,16 @@
                     "networkId" : "bitcoin/test"
                 }
             ]
+        },
+        {
+          "id" : "tron",
+          "symbol" : "TRX",
+          "name" : "Tron",
+          "networks" : [
+              {
+                  "networkId" : "tron/test"
+              }
+          ]
         },
         {
             "id" : "stellar",
