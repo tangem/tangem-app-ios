@@ -15,6 +15,8 @@ import SwiftUI
 class TokenListViewModel: ViewModel, ObservableObject {
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
+    var cardModel: CardViewModel!
+    var dataCollector: EmailDataCollector!
     
     var enteredSearchText = CurrentValueSubject<String, Never>("") //I can't use @Published here, because of swiftui redraw perfomance drop
     
@@ -194,13 +196,19 @@ class TokenListViewModel: ViewModel, ObservableObject {
            let cardModel = mode.cardModel,
            !cardModel.cardInfo.card.canSupportSolanaTokens
         {
-            let okButton = Alert.Button.default(Text("common_ok".localized)) {
-                self.loader.updateSelection(tokenItem, with: self.bindSelection(tokenItem))
+            let feedbackButton = Alert.Button.default(Text("common_contact_us".localized)) {
+                self.updateSelection(tokenItem)
+                self.navigation.detailsToSendEmail = true
+            }
+
+            let cancelButton = Alert.Button.default(Text("common_cancel".localized)) {
+                self.updateSelection(tokenItem)
             }
             
             error = AlertBinder(alert: Alert(title: Text("common_attention".localized),
                                              message: Text("alert_manage_tokens_unsupported_message".localized),
-                                             dismissButton: okButton))
+                                             primaryButton: feedbackButton,
+                                             secondaryButton: cancelButton))
             
             return
         }
@@ -220,6 +228,10 @@ class TokenListViewModel: ViewModel, ObservableObject {
                 pendingAdd.remove(tokenItem)
             }
         }
+    }
+    
+    private func updateSelection(_ tokenItem: TokenItem) {
+        loader.updateSelection(tokenItem, with: bindSelection(tokenItem))
     }
     
     private func bindSelection(_ tokenItem: TokenItem) -> Binding<Bool> {
