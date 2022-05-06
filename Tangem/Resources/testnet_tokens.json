@@ -244,6 +244,16 @@
             ]
         },
         {
+            "id" : "ethereum-classic",
+            "symbol" : "ETC",
+            "name" : "Ethereum Classic",
+            "networks" : [
+                {
+                    "networkId" : "ethereum-classic/test"
+                }
+            ]
+        },
+        {
             "id" : "Weenus-WEENUS",
             "symbol" : "WEENUS",
             "name" : "Weenus",
