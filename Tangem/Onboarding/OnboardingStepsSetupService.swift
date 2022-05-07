@@ -13,9 +13,10 @@ import BlockchainSdk
 
 class OnboardingStepsSetupService {
     
-    weak var userPrefs: UserPrefsService!
     weak var assembly: Assembly!
     weak var backupService: BackupService!
+    
+    private var userPrefs = UserPrefsService()
     
     static var previewSteps: [SingleCardOnboardingStep] {
         [.createWallet, .topup, .successTopup]
