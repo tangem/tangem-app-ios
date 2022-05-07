@@ -68,7 +68,7 @@
 //	
 //    weak var navigation: NavigationCoordinator!
 //	weak var assembly: Assembly!
-//	weak var imageLoaderService: CardImageLoaderService!
+//	weak var imageLoaderService: CardImageLoader!
 //	
 //	let isRecreatingWallet: Bool
 //	

@@ -75,7 +75,7 @@
 //	
 //	weak var navigation: NavigationCoordinator!
 //	weak var assembly: Assembly!
-//	weak var imageLoader: CardImageLoaderService!
+//	weak var imageLoader: CardImageLoader!
 //	weak var userPrefsService: UserPrefsService!
 //	
 //	[REDACTED_USERNAME] var firstTwinImage: UIImage = UIImage()

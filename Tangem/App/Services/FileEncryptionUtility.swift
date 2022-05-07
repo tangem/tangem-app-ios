@@ -11,12 +11,13 @@ import CryptoKit
 import KeychainSwift
 
 class FileEncryptionUtility {
+    private lazy var keychain: KeychainSwift = {
+        let keychain = KeychainSwift()
+        keychain.synchronizable = true
+        return keychain
+    }()
     
-    private let keychain: KeychainSwift
-    
-    init(keychain: KeychainSwift) {
-        self.keychain = keychain
-    }
+    init() {}
     
     private var keychainKey: String { "tangem_files_symmetric_key" }
     
