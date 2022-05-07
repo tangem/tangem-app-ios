@@ -30,7 +30,6 @@ class CardsRepository {
     weak var assembly: Assembly!
     weak var scannedCardsRepository: ScannedCardsRepository!
     weak var tokenItemsRepository: TokenItemsRepository!
-    weak var userPrefsService: UserPrefsService!
     
     var cards = [String: ScanResult]()
 	var lastScanResult: ScanResult = .notScannedYet
@@ -45,7 +44,6 @@ class CardsRepository {
         Analytics.log(event: .readyToScan)
         delegate?.onWillScan()
         tangemSdk.startSession(with: AppScanTask(tokenItemsRepository: tokenItemsRepository,
-                                                 userPrefsService: userPrefsService,
                                                  targetBatch: batch)) {[unowned self] result in
             switch result {
             case .failure(let error):

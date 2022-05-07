@@ -10,33 +10,13 @@ import Foundation
 import TangemSdk
 
 class Assembly: ObservableObject {
-    #if !CLIP
-    public let services: AppServicesAssembly
-    #else
-    public let services: ServicesAssembly
-    #endif
-    
     let isPreview: Bool
     
     var modelsStorage = [String : Any]()
     var persistenceStorage = [String : Any]()
     
     init(isPreview: Bool = false) {
-        #if CLIP
-        services = ServicesAssembly()
-        #else
-        services = AppServicesAssembly()
-        #endif
-        
         self.isPreview = isPreview
-        
-        services.assembly = self
-        
-        #if !CLIP
-        DispatchQueue.global().asyncAfter(deadline: .now() + 1) {
-            self.services.validatedCards.clean()
-        }
-        #endif
     }
     
     deinit {
