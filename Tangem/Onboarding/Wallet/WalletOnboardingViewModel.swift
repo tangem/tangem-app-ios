@@ -12,6 +12,7 @@ import TangemSdk
 import BlockchainSdk
 
 class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, ObservableObject {
+    @Injected(\.cardImageLoader) var imageLoader: CardImageLoaderProtocol
     
     let backupService: BackupService
     
@@ -19,7 +20,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     @Published var canDisplayCardImage: Bool = false
     
     private weak var tokensRepo: TokenItemsRepository!
-    private weak var imageLoaderService: CardImageLoaderService!
     private var stackCalculator: StackCalculator = .init()
     private var fanStackCalculator: FanStackCalculator = .init()
     private var stepPublisher: AnyCancellable?
@@ -245,11 +245,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     
     private let tangemSdk: TangemSdk
     
-    init(input: OnboardingInput, backupService: BackupService, tangemSdk: TangemSdk, tokensRepo: TokenItemsRepository, imageLoaderService: CardImageLoaderService) {
+    init(input: OnboardingInput, backupService: BackupService, tangemSdk: TangemSdk, tokensRepo: TokenItemsRepository) {
         self.backupService = backupService
         self.tangemSdk = tangemSdk
         self.tokensRepo = tokensRepo
-        self.imageLoaderService = imageLoaderService
         super.init(input: input)
         
         if case let .wallet(steps) = input.steps {
@@ -268,7 +267,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
     
     private func loadImageForRestoredbackup(cardId: String, cardPublicKey: Data) {
-        imageLoaderService
+        imageLoader
             .loadImage(cid: cardId,
                        cardPublicKey: cardPublicKey,
                        artworkInfo: nil)
@@ -472,7 +471,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             return
         }
         if !input.isStandalone {
-            userPrefsService?.cardsStartedActivation.append(input.cardInput.cardId)
+            userPrefsService.cardsStartedActivation.append(input.cardInput.cardId)
         }
         stepPublisher = preparePrimaryCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
