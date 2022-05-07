@@ -16,7 +16,6 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     weak var navigation: NavigationCoordinator!
     weak var cardsRepository: CardsRepository!
     weak var stepsSetupService: OnboardingStepsSetupService!
-    weak var userPrefsService: UserPrefsService!
     weak var backupService: BackupService!
     weak var failedCardScanTracker: FailedCardScanTracker!
     
@@ -35,6 +34,7 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     private var cardImage: UIImage?
     
     private var container: CGSize = .zero
+    private var userPrefsService: UserPrefsService = .init()
     
     var successCallback: (OnboardingInput) -> Void
     
