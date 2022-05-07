@@ -46,7 +46,7 @@ class OnboardingBaseViewModel: ViewModel, ObservableObject {
     
     weak var assembly: Assembly!
     weak var navigation: NavigationCoordinator!
-    weak var userPrefsService: UserPrefsService!
+    var userPrefsService: UserPrefsService = .init()
     
     let isFromMainScreen: Bool
     

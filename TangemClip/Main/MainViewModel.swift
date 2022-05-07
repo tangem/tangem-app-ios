@@ -40,15 +40,11 @@ class MainViewModel: ObservableObject {
     
     private var savedBatch: String?
     
-    unowned var sdk: TangemSdk
-    unowned var imageLoaderService: CardImageLoaderService
-    unowned var userPrefsService: UserPrefsService
+    @Injected(\.tangemSdkProvider) var sdkProvider: TangemSdkProviding
+    @Injected(\.cardImageLoader) var imageLoader: CardImageLoaderProtocol
     unowned var assembly: Assembly
     
-    init(sdk: TangemSdk, imageLoaderService: CardImageLoaderService, userPrefsService: UserPrefsService, assembly: Assembly) {
-        self.sdk = sdk
-        self.imageLoaderService = imageLoaderService
-        self.userPrefsService = userPrefsService
+    init(assembly: Assembly) {
         self.assembly = assembly
         updateCardBatch(nil, fullLink: "")
     }
@@ -56,8 +52,8 @@ class MainViewModel: ObservableObject {
     func scanCard() {
         isScanning = true
         
-        let task = AppScanTask(userPrefsService: userPrefsService, targetBatch: savedBatch)
-        sdk.startSession(with: task) { [weak self] (result) in
+        let task = AppScanTask(targetBatch: savedBatch)
+        sdkProvider.sdk.startSession(with: task) { [weak self] (result) in
             guard let self = self else { return }
             
             switch result {
@@ -97,7 +93,7 @@ class MainViewModel: ObservableObject {
             return
         }
         
-        imageLoadingCancellable = imageLoaderService
+        imageLoadingCancellable = imageLoader
             .loadImage(byNdefLink: fullLink)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in

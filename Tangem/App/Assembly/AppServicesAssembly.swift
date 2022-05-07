@@ -10,27 +10,22 @@ import Foundation
 import BlockchainSdk
 import TangemSdk
 
-class AppServicesAssembly: ServicesAssembly {
+class AppServicesAssembly {
+    weak var assembly: Assembly!
+    lazy var navigationCoordinator = NavigationCoordinator()
+    
     lazy var urlHandlers: [URLHandler] = [
         walletConnectService
     ]
     
     lazy var onboardingStepsSetupService: OnboardingStepsSetupService = {
         let service = OnboardingStepsSetupService()
-        service.userPrefs = userPrefsService
         service.assembly = assembly
         service.backupService = backupService
         return service
     }()
     
-    lazy var backupService: BackupService = {
-        BackupService(sdk: tangemSdk)
-    }()
-    
-    lazy var exchangeService: ExchangeService = CombinedExchangeService(
-        buyService: OnramperService(key: keysManager.onramperApiKey),
-        sellService: MoonPayService(keys: keysManager.moonPayKeys)
-    )
+  
     lazy var walletConnectService = WalletConnectService(assembly: assembly, cardScanner: walletConnectCardScanner, signer: signer, scannedCardsRepository: scannedCardsRepository)
     
     lazy var negativeFeedbackDataCollector: NegativeFeedbackDataCollector = {
@@ -38,14 +33,6 @@ class AppServicesAssembly: ServicesAssembly {
         collector.cardRepository = cardsRepository
         return collector
     }()
-    
-    lazy var failedCardScanTracker: FailedCardScanTracker = {
-        let tracker = FailedCardScanTracker()
-        tracker.logger = logger
-        return tracker
-    }()
-    
-    lazy var validatedCards = ValidatedCardsService(keychain: keychain)
     
     lazy var twinsWalletCreationService = {
         TwinsWalletCreationService(tangemSdk: tangemSdk,
@@ -74,17 +61,8 @@ class AppServicesAssembly: ServicesAssembly {
         return scanner
     }()
     
-    lazy var navigationCoordinator = NavigationCoordinator()
-    lazy var featuresService = AppFeaturesService(configProvider: configManager)
-    lazy var warningsService = WarningsService(remoteWarningProvider: configManager, rateAppChecker: rateAppService, userPrefsService: userPrefsService)
-    lazy var rateAppService: RateAppService = .init(userPrefsService: userPrefsService)
-    private let configManager = try! FeaturesConfigManager()
     lazy var shopifyService = ShopifyService(shop: keysManager.shopifyShop, testApplePayPayments: false)
-    let keysManager = try! KeysManager()
-    lazy var ratesService = CurrencyRateService()
-    lazy var tokenItemsRepository = TokenItemsRepository(persistanceStorage: persistentStorage)
-    lazy var coinsService = CoinsService()
-    
+
     lazy var cardsRepository: CardsRepository = {
         let crepo = CardsRepository()
         crepo.tangemSdk = tangemSdk
@@ -92,11 +70,9 @@ class AppServicesAssembly: ServicesAssembly {
         crepo.delegate = self
         crepo.scannedCardsRepository = scannedCardsRepository
         crepo.tokenItemsRepository = tokenItemsRepository
-        crepo.userPrefsService = userPrefsService
         return crepo
     }()
-    
-    lazy var scannedCardsRepository: ScannedCardsRepository = ScannedCardsRepository(storage: persistentStorage)
+   
     
     func onDidScan(_ cardInfo: CardInfo) {
         featuresService.setupFeatures(for: cardInfo.card)
