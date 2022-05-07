@@ -13,10 +13,7 @@ import Combine
 extension Assembly {
     func getMainViewModel() -> MainViewModel {
         guard let model: MainViewModel = get() else {
-            let mainModel = MainViewModel(sdk: services.tangemSdk,
-                                          imageLoaderService: services.imageLoaderService,
-                                          userPrefsService: services.userPrefsService,
-                                          assembly: services.assembly)
+            let mainModel = MainViewModel(assembly: services.assembly)
             store(mainModel, isResetable: true)
             return mainModel
         }
