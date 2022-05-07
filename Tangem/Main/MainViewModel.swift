@@ -15,7 +15,6 @@ import TangemSdk
 class MainViewModel: ViewModel, ObservableObject {
     // MARK: Dependencies -
     weak var exchangeService: ExchangeService!
-	weak var userPrefsService: UserPrefsService!
     weak var cardsRepository: CardsRepository!
     weak var warningsManager: WarningsManager!
     weak var rateAppController: RateAppController!
@@ -69,7 +68,7 @@ class MainViewModel: ViewModel, ObservableObject {
     
 	@Storage(type: .validatedSignedHashesCards, defaultValue: [])
 	private var validatedSignedHashesCards: [String]
-    
+    private var userPrefsService: UserPrefsService = .init()
     private var bag = Set<AnyCancellable>()
     private var isHashesCounted = false
     private var isProcessingNewCard = false
