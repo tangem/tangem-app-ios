@@ -20,14 +20,13 @@ struct CardPinSettings {
 
 class CardViewModel: Identifiable, ObservableObject {
     //MARK: Services
+    @Injected(\.cardImageLoader) var imageLoader: CardImageLoaderProtocol
     weak var featuresService: AppFeaturesService!
     weak var tangemSdk: TangemSdk!
     weak var assembly: Assembly!
     weak var warningsConfigurator: WarningsConfigurator!
     weak var warningsAppendor: WarningAppendor!
     weak var tokenItemsRepository: TokenItemsRepository!
-    weak var userPrefsService: UserPrefsService!
-    weak var imageLoaderService: CardImageLoaderService!
     weak var coinsService: CoinsService!
     
     @Published var state: State = .created
@@ -36,7 +35,7 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published public var cardInfo: CardInfo
     
     private var cardPinSettings: CardPinSettings = CardPinSettings()
-    
+    private var userPrefsService: UserPrefsService = .init()
     private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
     private var migrated = false
     
@@ -225,7 +224,7 @@ class CardViewModel: Identifiable, ObservableObject {
                     return Just(UIImage()).eraseToAnyPublisher()
                 }
                 
-                return self.imageLoaderService
+                return self.imageLoader
                     .loadImage(cid: info.cardId,
                                cardPublicKey: info.cardPublicKey,
                                artworkInfo: info.artwotkInfo)
