@@ -65,7 +65,7 @@ enum AppScanTaskError: String, Error, LocalizedError {
 }
 
 final class AppScanTask: CardSessionRunnable {
-    private let userPrefsService: UserPrefsService?
+    private var userPrefsService = UserPrefsService()
     
     private let targetBatch: String?
     private var twinIssuerData: Data? = nil
@@ -76,16 +76,13 @@ final class AppScanTask: CardSessionRunnable {
 #if !CLIP
     private let tokenItemsRepository: TokenItemsRepository?
     
-    init(tokenItemsRepository: TokenItemsRepository?, userPrefsService: UserPrefsService?,
-         targetBatch: String? = nil) {
+    init(tokenItemsRepository: TokenItemsRepository?,  targetBatch: String? = nil) {
         self.tokenItemsRepository = tokenItemsRepository
         self.targetBatch = targetBatch
-        self.userPrefsService = userPrefsService
     }
 #else
-    init(userPrefsService: UserPrefsService?, targetBatch: String? = nil) {
+    init(targetBatch: String? = nil) {
         self.targetBatch = targetBatch
-        self.userPrefsService = userPrefsService
     }
 #endif
     
@@ -123,8 +120,7 @@ final class AppScanTask: CardSessionRunnable {
                 return
             }
             
-            if let userPrefsService = self.userPrefsService,
-               userPrefsService.cardsStartedActivation.contains(card.cardId),
+            if userPrefsService.cardsStartedActivation.contains(card.cardId),
                card.backupStatus == .noBackup {
                 readPrimaryCard(session, completion)
                 return
