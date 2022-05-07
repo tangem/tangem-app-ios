@@ -20,7 +20,6 @@ extension Assembly {
         
         let vm = OnboardingBaseViewModel()
         initialize(vm, with: key, isResetable: false)
-        vm.userPrefsService = services.userPrefsService
         
         return vm
     }
@@ -42,7 +41,6 @@ extension Assembly {
         initialize(vm, isResetable: false)
         vm.cardsRepository = services.cardsRepository
         vm.stepsSetupService = services.onboardingStepsSetupService
-        vm.userPrefsService = services.userPrefsService
         vm.failedCardScanTracker = services.failedCardScanTracker
         vm.backupService = services.backupService
         return vm
@@ -88,7 +86,6 @@ extension Assembly {
         initialize(vm, isResetable: false)
         vm.cardsRepository = services.cardsRepository
         vm.stepsSetupService = services.onboardingStepsSetupService
-        vm.userPrefsService = services.userPrefsService
         vm.exchangeService = services.exchangeService
         vm.tokensRepo = services.tokenItemsRepository
         return vm
@@ -104,12 +101,10 @@ extension Assembly {
     
     @discardableResult
     func makeTwinOnboardingViewModel(with input: OnboardingInput) -> TwinsOnboardingViewModel {
-        let vm = TwinsOnboardingViewModel(imageLoaderService: services.imageLoaderService,
-                                          twinsService: services.twinsWalletCreationService,
+        let vm = TwinsOnboardingViewModel(twinsService: services.twinsWalletCreationService,
                                           exchangeService: services.exchangeService,
                                           input: input)
         initialize(vm, isResetable: false)
-        vm.userPrefsService = services.userPrefsService
         
         return vm
     }
@@ -146,11 +141,9 @@ extension Assembly {
         let vm = WalletOnboardingViewModel(input: input,
                                            backupService: services.backupService,
                                            tangemSdk: sdk,
-                                           tokensRepo: services.tokenItemsRepository,
-                                           imageLoaderService: services.imageLoaderService)
+                                           tokensRepo: services.tokenItemsRepository)
         
         initialize(vm, isResetable: false)
-        vm.userPrefsService = services.userPrefsService
         
         return vm
     }
@@ -162,7 +155,6 @@ extension Assembly {
         
         let vm = StoriesViewModel()
         initialize(vm, isResetable: false)
-        vm.userPrefsService = services.userPrefsService
         return vm
     }
 
@@ -190,7 +182,6 @@ extension Assembly {
         initialize(vm, isResetable: false)
         vm.cardsRepository = services.cardsRepository
         vm.exchangeService = services.exchangeService
-        vm.userPrefsService = services.userPrefsService
         vm.warningsManager = services.warningsService
         vm.rateAppController = services.rateAppService
         vm.cardOnboardingStepSetupService = services.onboardingStepsSetupService
@@ -229,33 +220,8 @@ extension Assembly {
         vm.warningsConfigurator = services.warningsService
         vm.warningsAppendor = services.warningsService
         vm.tokenItemsRepository = services.tokenItemsRepository
-        vm.userPrefsService = services.userPrefsService
-        vm.imageLoaderService = services.imageLoaderService
         vm.coinsService = services.coinsService
         vm.updateState()
-        return vm
-    }
-    
-    func makeDisclaimerViewModel(with state: DeprecatedDisclaimerViewModel.State = .read) -> DeprecatedDisclaimerViewModel {
-        // This is needed to prevent updating state of views that already in view hierarchy. Creating new model for each state
-        // not so good solution, but this crucial when creating Navigation link without condition closures and Navigation link
-        // recreates every redraw process. If you don't want to reinstantiate Navigation link, then functionality of pop to
-        // specific View in navigation stack will be lost or push navigation animation will be disabled due to use of
-        // StackNavigationViewStyle for NavigationView. Probably this is bug in current Apple realisation of NavigationView
-        // and NavigationLinks - all navigation logic tightly coupled with View and redraw process.
-        
-        let name = String(describing: DeprecatedDisclaimerViewModel.self) + "_\(state)"
-        let isTwin = services.cardsRepository.lastScanResult.cardModel?.isTwinCard ?? false
-        if let vm: DeprecatedDisclaimerViewModel = get(key: name) {
-            vm.isTwinCard = isTwin
-            return vm
-        }
-        
-        let vm = DeprecatedDisclaimerViewModel()
-        vm.state = state
-        vm.isTwinCard = isTwin
-        vm.userPrefsService = services.userPrefsService
-        initialize(vm, with: name, isResetable: false)
         return vm
     }
     
