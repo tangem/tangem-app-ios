@@ -145,6 +145,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     }
     
     @Published var txIndexToPush: Int? = nil
+    @Published var unsupportedTokenWarning: String? = nil
     @Published var solanaRentWarning: String? = nil
     @Published var showExplorerURL: URL? = nil
     
@@ -163,6 +164,8 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     }
     
     func onAppear() {
+        updateUnsupportedTokenWarning()
+        
         rentWarningSubscription = walletModel?
             .$state
             .filter { !$0.isLoading }
@@ -275,6 +278,20 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
             }
         
         walletModel?.update()
+    }
+    
+    private func updateUnsupportedTokenWarning() {
+        let warning: String?
+        if let wallet = wallet,
+           case .solana = wallet.blockchain,
+           !card.cardInfo.card.canSupportSolanaTokens
+        {
+            warning = "warning_token_send_unsupported_message".localized
+        } else {
+            warning = nil
+        }
+        
+        self.unsupportedTokenWarning = warning
     }
     
     private func updateRentWarning() {
