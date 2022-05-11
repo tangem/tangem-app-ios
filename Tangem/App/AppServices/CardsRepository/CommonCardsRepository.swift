@@ -20,41 +20,49 @@ import enum TangemSdk.TangemSdkError
 
 import Intents
 
-protocol CardsRepositoryDelegate: AnyObject {
-    func onWillScan()
-    func onDidScan(_ cardInfo: CardInfo)
-}
-
-class CardsRepository {
-    weak var tangemSdk: TangemSdk!
-    weak var assembly: Assembly!
-    weak var scannedCardsRepository: ScannedCardsRepository!
-    weak var tokenItemsRepository: TokenItemsRepository!
+class CommonCardsRepository: CardsRepository {
+    @Injected(\.transactionSigner) private var signer: TangemSigner {
+        didSet {
+            signer.signedCardPublisher.sink {[weak self] card in
+                if let cm = self?.cards[card.cardId] {
+                    cm.cardModel?.onSign(card)
+                }
+            }
+            .store(in: &bag)
+        }
+    }
     
-    var cards = [String: ScanResult]()
-	var lastScanResult: ScanResult = .notScannedYet
+    @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
+    @Injected(\.scannedCardsRepository) private var scannedCardsRepository: ScannedCardsRepository
+    @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
+    @Injected(\.assemblyProvider) private var assemblyProvider: AssemblyProviding
     
-    weak var delegate: CardsRepositoryDelegate? = nil
-	
+    private(set) var cards = [String: ScanResult]()
+    private(set) var lastScanResult: ScanResult = .notScannedYet
+    
+    var didScanPublisher: PassthroughSubject<CardInfo, Never> = .init()
+    
+    private var bag: Set<AnyCancellable> = .init()
+    
     deinit {
         print("CardsRepository deinit")
     }
     
     func scan(with batch: String? = nil, _ completion: @escaping (Result<ScanResult, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
-        delegate?.onWillScan()
-        tangemSdk.startSession(with: AppScanTask(tokenItemsRepository: tokenItemsRepository,
-                                                 targetBatch: batch)) {[unowned self] result in
+        sdkProvider.prepareScan()
+        sdkProvider.sdk.startSession(with: AppScanTask(tokenItemsRepository: tokenItemsRepository,
+                                                       targetBatch: batch)) {[unowned self] result in
             switch result {
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .scan)
                 completion(.failure(error))
             case .success(let response):
-				Analytics.logScan(card: response.card)
+                Analytics.logScan(card: response.card)
                 let interaction = INInteraction(intent: ScanTangemCardIntent(), response: nil)
                 interaction.donate(completion: nil)
                 self.scannedCardsRepository.add(response.getCardInfo())
-				completion(.success(processScan(response.getCardInfo())))
+                completion(.success(processScan(response.getCardInfo())))
             }
         }
     }
@@ -74,23 +82,15 @@ class CardsRepository {
         }
         .eraseToAnyPublisher()
     }
-
-	private func processScan(_ cardInfo: CardInfo) -> ScanResult {
-        delegate?.onDidScan(cardInfo)
-        
-        let cm = assembly.makeCardModel(from: cardInfo)
+    
+    private func processScan(_ cardInfo: CardInfo) -> ScanResult {
+        sdkProvider.didScan(cardInfo.card)
+        didScanPublisher.send(cardInfo)
+        let cm = assemblyProvider.assembly.makeCardModel(from: cardInfo)
         let result: ScanResult = .card(model: cm)
         cards[cardInfo.card.cardId] = result
         lastScanResult = result
         cm.getCardInfo()
         return result
-	}
-}
-
-extension CardsRepository: SignerDelegate {
-    func onSign(_ card: Card) {
-        if let cm = cards[card.cardId] {
-            cm.cardModel?.onSign(card)
-        }
     }
 }
