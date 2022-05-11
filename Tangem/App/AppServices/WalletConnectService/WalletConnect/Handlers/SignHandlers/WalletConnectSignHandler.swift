@@ -13,6 +13,8 @@ import BlockchainSdk
 import Combine
 
 class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
+    @Injected(\.transactionSigner) private var signer: TangemSigner
+    
     weak var delegate: WalletConnectHandlerDelegate?
     weak var dataSource: WalletConnectHandlerDataSource?
     
@@ -20,12 +22,9 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
         fatalError("WalletConnect action not specified")
     }
     
-    let signer: TangemSigner
-    
     private var signerSubscription: AnyCancellable?
     
-    init(signer: TangemSigner, delegate: WalletConnectHandlerDelegate, dataSource: WalletConnectHandlerDataSource) {
-        self.signer = signer
+    init(delegate: WalletConnectHandlerDelegate, dataSource: WalletConnectHandlerDataSource) {
         self.delegate = delegate
         self.dataSource = dataSource
     }
