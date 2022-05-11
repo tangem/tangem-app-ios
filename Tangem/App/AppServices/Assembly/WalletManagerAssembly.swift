@@ -11,12 +11,12 @@ import TangemSdk
 import BlockchainSdk
 
 class WalletManagerAssembly {
-    let factory: WalletManagerFactory
-    let tokenItemsRepository: TokenItemsRepository
+    @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
     
-    init(factory: WalletManagerFactory, tokenItemsRepository: TokenItemsRepository) {
+    private let factory: WalletManagerFactory
+    
+    init(factory: WalletManagerFactory) {
         self.factory = factory
-        self.tokenItemsRepository = tokenItemsRepository
     }
     
     func makeAllWalletManagers(for cardInfo: CardInfo) -> [WalletManager] {
