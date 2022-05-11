@@ -12,21 +12,18 @@ import Combine
 import WalletConnectSwift
 
 class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
-    unowned var assembly: Assembly
-    unowned var scannedCardsRepo: ScannedCardsRepository
+    @Injected(\.transactionSigner) private var signer: TangemSigner
+    @Injected(\.assemblyProvider) private var assemblyProvider: AssemblyProviding
+    @Injected(\.scannedCardsRepository) private var scannedCardsRepo: ScannedCardsRepository
+ 
     unowned var delegate: WalletConnectHandlerDelegate?
     unowned var dataSource: WalletConnectHandlerDataSource?
-    
-    let signer: TangemSigner
     
     var action: WalletConnectAction { fatalError("Subclass must implement") }
     
     var bag: Set<AnyCancellable> = []
     
-    init(signer: TangemSigner, delegate: WalletConnectHandlerDelegate, dataSource: WalletConnectHandlerDataSource, assembly: Assembly, scannedCardsRepo: ScannedCardsRepository) {
-        self.assembly = assembly
-        self.scannedCardsRepo = scannedCardsRepo
-        self.signer = signer
+    init(delegate: WalletConnectHandlerDelegate, dataSource: WalletConnectHandlerDataSource) {
         self.delegate = delegate
         self.dataSource = dataSource
     }

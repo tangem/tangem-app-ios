@@ -12,28 +12,24 @@ import Combine
 import UIKit
 
 class TestnetBuyCryptoService {
-    enum CryptoToBuy {
-        case erc20Token(walletManager: WalletManager, token: Token)
-    }
+    @Injected(\.transactionSigner) private var signer: TransactionSigner
     
-    static var signer: TransactionSigner!
+    private var bag: Set<AnyCancellable> = []
     
-    private static var bag: Set<AnyCancellable> = []
-    
-    static func buyCrypto(_ target: CryptoToBuy) {
+    func buyCrypto(_ target: CryptoToBuy) {
         switch target {
         case let .erc20Token(walletManager, token):
             buyErc20Token(walletManager: walletManager, token: token)
         }
     }
     
-    private static func buyErc20Token(walletManager: WalletManager, token: Token) {
+    private func buyErc20Token(walletManager: WalletManager, token: Token) {
         let amountToSend = Amount(with: walletManager.wallet.blockchain, value: 0)
         let destinationAddress = token.contractAddress
         
         var subs: AnyCancellable!
         subs = walletManager.getFee(amount: amountToSend, destination: destinationAddress)
-            .flatMap { (fees: [Amount]) -> AnyPublisher<Void, Error> in
+            .flatMap {[unowned self] (fees: [Amount]) -> AnyPublisher<Void, Error> in
                 let fee = fees[0]
                 
                 guard fee.value <= walletManager.wallet.amounts[.coin]?.value ?? 0 else {
@@ -44,27 +40,35 @@ class TestnetBuyCryptoService {
                     return .anyFail(error: "testnet_error_failed_create_tx".localized)
                 }
                 
-                return walletManager.send(tx, signer: signer)
+                return walletManager.send(tx, signer: self.signer)
             }
-            .sink { completion in
+            .sink {[unowned self] completion in
                 if case let .failure(error) = completion {
                     print(error)
-                    presentOnMain(error.alertController)
+                    self.presentOnMain(error.alertController)
                 } else {
-                    presentOnMain(AlertBuilder.makeSuccessAlertController(message: "testnet_address_topuped".localized))
+                    self.presentOnMain(AlertBuilder.makeSuccessAlertController(message: "testnet_address_topuped".localized))
                 }
-                bag.remove(subs)
+                
+                self.bag.remove(subs)
                 subs = nil
             } receiveValue: {
                 
             }
+        
         bag.insert(subs)
     }
     
-    private static func presentOnMain(_ vc: UIViewController) {
+    private func presentOnMain(_ vc: UIViewController) {
         DispatchQueue.main.async {
             UIApplication.modalFromTop(vc)
         }
     }
     
+}
+
+extension TestnetBuyCryptoService {
+    enum CryptoToBuy {
+        case erc20Token(walletManager: WalletManager, token: Token)
+    }
 }

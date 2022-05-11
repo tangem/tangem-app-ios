@@ -25,11 +25,10 @@ enum WalletConnectCardScannerError: LocalizedError {
 }
 
 class WalletConnectCardScanner {
-    weak var assembly: Assembly!
-    weak var tangemSdk: TangemSdk!
-    weak var scannedCardsRepository: ScannedCardsRepository!
-    weak var tokenItemsRepository: TokenItemsRepository!
-    weak var cardsRepository: CardsRepository!
+    @Injected(\.assemblyProvider) var assemblyProvider: AssemblyProviding
+    @Injected(\.tangemSdkProvider) var tangemSdkProvider: TangemSdkProviding
+    @Injected(\.scannedCardsRepository) var scannedCardsRepository: ScannedCardsRepository
+    @Injected(\.cardsRepository) var cardsRepository: CardsRepository
     
     func scanCard(for wcNetwork: WalletConnectNetwork) -> AnyPublisher<WalletInfo, Error> {
         Deferred {
@@ -39,8 +38,8 @@ class WalletConnectCardScanner {
                 do {
                     let network = try self.parseNetwork(wcNetwork)
                     
-                    self.tangemSdk.startSession(with: AppScanTask(tokenItemsRepository: self.tokenItemsRepository),
-                                                initialMessage: Message(header: "wallet_connect_scan_card_message".localized)) {[weak self] result in
+                    self.tangemSdkProvider.sdk.startSession(with: AppScanTask(),
+                                                            initialMessage: Message(header: "wallet_connect_scan_card_message".localized)) {[weak self] result in
                         guard let self = self else { return }
                         
                         switch result {
@@ -106,7 +105,7 @@ class WalletConnectCardScanner {
            existingCardModel.cardInfo.card.cardId == cardInfo.card.cardId {
             return existingCardModel.walletModels ?? []
         } else {
-            return assembly.makeAllWalletModels(from: cardInfo)
+            return assemblyProvider.assembly.makeAllWalletModels(from: cardInfo)
         }
     }
 }
