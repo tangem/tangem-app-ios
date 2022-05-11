@@ -32,7 +32,7 @@ struct TokenDetailsView: View {
         Group {
             NavigationLink(destination: WebViewContainer(url: viewModel.buyCryptoUrl,
                                                          //                                                         closeUrl: viewModel.topupCloseUrl,
-                                                         title: "wallet_button_topup",
+                                                         title: "wallet_button_topup".localized,
                                                          addLoadingIndicator: true,
                                                          urlActions: [
                                                             viewModel.buyCryptoCloseUrl: { _ in
@@ -46,7 +46,7 @@ struct TokenDetailsView: View {
                            isActive: $navigation.detailsToBuyCrypto)
             
             NavigationLink(destination: WebViewContainer(url: viewModel.sellCryptoUrl,
-                                                         title: "wallet_button_sell_crypto",
+                                                         title: "wallet_button_sell_crypto".localized,
                                                          addLoadingIndicator: true,
                                                          urlActions: [
                                                             viewModel.sellCryptoRequestUrl: { response in
@@ -152,7 +152,7 @@ struct TokenDetailsView: View {
             
             Color.clear.frame(width: 0.5, height: 0.5)
                 .sheet(item: $viewModel.showExplorerURL) {
-                    WebViewContainer(url: $0, title: "common_explorer_format \(viewModel.blockchainNetwork.blockchain.displayName)", withCloseButton: true)
+                    WebViewContainer(url: $0, title: "common_explorer_format".localized(viewModel.blockchainNetwork.blockchain.displayName), withCloseButton: true)
                 }
             
             Color.clear.frame(width: 0.5, height: 0.5)
