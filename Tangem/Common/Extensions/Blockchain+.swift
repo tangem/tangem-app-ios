@@ -37,6 +37,15 @@ extension Blockchain {
         }
     }
     
+    var currencyId: String {
+        switch self {
+        case .arbitrum(let testnet):
+            return Blockchain.ethereum(testnet: testnet).id
+        default:
+            return id
+        }
+    }
+    
     var networkId: String {
         switch self {
         case .binance: return "binancecoin"
