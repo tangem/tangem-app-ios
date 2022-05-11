@@ -15,10 +15,15 @@ enum ShopifyError: Error {
     case userError(errors: [DisplayableError])
 }
 
-class ShopifyService {
-    private let client: Graph.Client
-    private let shop: ShopifyShop
+class ShopifyService: ShopifyProtocol {
+    @Injected(\.keysManager) var keysManager: KeysManager
+    
+    private lazy var client: Graph.Client = {
+        .init(shopDomain: shop.domain, apiKey: shop.storefrontApiKey, locale: Locale.current)
+    }()
+    
     private let testApplePayPayments: Bool
+    private var shop: ShopifyShop { keysManager.shopifyShop }
     
     private var paySession: PaySession?
     private var paySessionPublisher: PassthroughSubject<Checkout, Error>?
@@ -29,9 +34,7 @@ class ShopifyService {
         
     // MARK: -
     
-    init(shop: ShopifyShop, testApplePayPayments: Bool) {
-        self.client = Graph.Client(shopDomain: shop.domain, apiKey: shop.storefrontApiKey, locale: Locale.current)
-        self.shop = shop
+    init(testApplePayPayments: Bool = false) {
         self.testApplePayPayments = testApplePayPayments
     }
     

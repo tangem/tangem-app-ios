@@ -9,7 +9,7 @@
 import Foundation
 import TangemSdk
 
-class CommonScannedCardsRepository: CardsRepository {
+class CommonScannedCardsRepository: ScannedCardsRepository {
     @Injected(\.persistentStorage) var storage: PersistentStorageProtocol
     
     private(set) var cards: [String: SavedCard] = [:]
