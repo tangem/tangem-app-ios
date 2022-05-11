@@ -10,6 +10,7 @@ import Foundation
 @propertyWrapper
 struct Injected<T> {
     private let keyPath: WritableKeyPath<InjectedValues, T>
+    
     var wrappedValue: T {
         get { InjectedValues[keyPath] }
         set { InjectedValues[keyPath] = newValue }
