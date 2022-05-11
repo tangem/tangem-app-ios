@@ -12,6 +12,15 @@ import Combine
 import TangemSdk
 
 class CurrencyRateService {
+    @Injected(\.cardsRepository) var cardsRepository: CardsRepository {
+        didSet {
+            cardsRepository.didScanPublisher.sink {[weak self] cardInfo in
+                self?.card = cardInfo.card
+            }
+            .store(in: &bag)
+        }
+    }
+    
     @Storage(type: StorageType.selectedCurrencyCode, defaultValue: "USD")
     
     var selectedCurrencyCode: String {
@@ -22,9 +31,10 @@ class CurrencyRateService {
     
     @Published var selectedCurrencyCodePublished: String = ""
     
-    var card: Card?
+    private var card: Card?
     
-    let provider = MoyaProvider<TangemApiTarget>()
+    private let provider = MoyaProvider<TangemApiTarget>()
+    private var bag: Set<AnyCancellable> = .init()
     
     internal init() {}
     
