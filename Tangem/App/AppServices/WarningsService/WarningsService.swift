@@ -22,6 +22,7 @@ class WarningsService {
             warningsUpdatePublisher.send(.main)
         }
     }
+    
     private var sendWarnings: WarningsContainer = .init() {
         didSet {
             warningsUpdatePublisher.send(.send)
