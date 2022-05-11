@@ -28,12 +28,14 @@ class TangemSdkProvider: TangemSdkProviding {
         config.allowUntrustedCards = true
         return config
     }()
+    
+    func prepareScan() {
+        sdk.config = defaultSdkConfig
+    }
+    
+    func didScan(_ card: Card) {
+        if card.isTwinCard {
+            sdk.config.cardIdDisplayFormat = .last(4)
+        }
+    }
 }
-
-//extension TangemSdkProvider: CardsRepositoryDelegate {
-//    func onWillScan() {
-//        sdk.config = defaultSdkConfig
-//    }
-//    
-//    func onDidScan(_ cardInfo: CardInfo) {}
-//}

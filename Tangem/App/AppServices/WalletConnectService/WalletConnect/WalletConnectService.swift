@@ -105,15 +105,15 @@ class WalletConnectService: ObservableObject {
     private var timer: DispatchWorkItem?
     private let updateQueue = DispatchQueue(label: "ws_sessions_update_queue")
     
-    init(assembly: Assembly, cardScanner: WalletConnectCardScanner, signer: TangemSigner, scannedCardsRepository: ScannedCardsRepository) {
+    init(cardScanner: WalletConnectCardScanner) {
         self.cardScanner = cardScanner
         server = Server(delegate: self)
-        server.register(handler: PersonalSignHandler(signer: signer, delegate: self, dataSource: self))
-        server.register(handler: SignTransactionHandler(signer: signer, delegate: self, dataSource: self, assembly: assembly, scannedCardsRepo: scannedCardsRepository))
-        server.register(handler: SendTransactionHandler(signer: signer, delegate: self, dataSource: self, assembly: assembly, scannedCardsRepo: scannedCardsRepository))
-        server.register(handler: BnbSignHandler(signer: signer, delegate: self, dataSource: self))
+        server.register(handler: PersonalSignHandler(delegate: self, dataSource: self))
+        server.register(handler: SignTransactionHandler(delegate: self, dataSource: self))
+        server.register(handler: SendTransactionHandler(delegate: self, dataSource: self))
+        server.register(handler: BnbSignHandler(delegate: self, dataSource: self))
         server.register(handler: BnbSuccessHandler(delegate: self, dataSource: self))
-        server.register(handler: SignTypedDataHandler(signer: signer, delegate: self, dataSource: self))
+        server.register(handler: SignTypedDataHandler(delegate: self, dataSource: self))
     }
     
     func restore() {
@@ -374,7 +374,7 @@ extension WalletConnectService: ServerDelegate {
 }
 
 extension WalletConnectService: URLHandler {
-    func handle(url: URL) -> Bool {
+    @discardableResult func handle(url: URL) -> Bool {
         guard let extracted = extractWcUrl(from: url) else { return false }
         
         guard let wcUrl = WCURL(extracted.url) else { return false }
@@ -386,7 +386,7 @@ extension WalletConnectService: URLHandler {
         return true
     }
     
-    func handle(url: String) -> Bool {
+    @discardableResult func handle(url: String) -> Bool {
         guard let url = URL(string: url) else { return false }
         
         return handle(url: url)
