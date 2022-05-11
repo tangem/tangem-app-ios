@@ -383,7 +383,6 @@ class WalletModel: ObservableObject, Identifiable {
     func send(_ tx: Transaction) -> AnyPublisher<Void,Error> {
         if isDemo {
             return signer.sign(hash: Data.randomData(count: 32),
-                               cardId:wallet.cardId,
                                walletPublicKey: wallet.publicKey)
             .map { _ in () }
             .receive(on: DispatchQueue.main)
