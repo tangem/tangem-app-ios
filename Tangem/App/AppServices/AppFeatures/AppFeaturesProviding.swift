@@ -11,7 +11,6 @@ import Foundation
 protocol AppFeaturesProviding {
     var canSetAccessCode: Bool { get }
     var canSetPasscode: Bool { get }
-    var linkedTerminal: Bool { get }
     var canCreateTwin: Bool { get }
     var isPayIdEnabled: Bool { get }
     var canSendToPayId: Bool { get }

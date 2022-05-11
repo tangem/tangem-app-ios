@@ -74,10 +74,9 @@ final class AppScanTask: CardSessionRunnable {
     private var derivedKeys: [Data: [DerivationPath:ExtendedPublicKey]] = [:]
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
 #if !CLIP
-    private let tokenItemsRepository: TokenItemsRepository?
+    @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
     
-    init(tokenItemsRepository: TokenItemsRepository?,  targetBatch: String? = nil) {
-        self.tokenItemsRepository = tokenItemsRepository
+    init(targetBatch: String? = nil) {
         self.targetBatch = targetBatch
     }
 #else
@@ -247,8 +246,7 @@ final class AppScanTask: CardSessionRunnable {
         self.runAttestation(session, completion)
         return
 #else
-        guard let tokenItemsRepository = self.tokenItemsRepository,
-        session.environment.card?.settings.isHDWalletAllowed == true else {
+        guard session.environment.card?.settings.isHDWalletAllowed == true else {
             self.runAttestation(session, completion)
             return
         }
