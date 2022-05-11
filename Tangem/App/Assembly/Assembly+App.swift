@@ -279,6 +279,7 @@ extension Assembly {
         
         let vm = TokenListViewModel(mode: mode)
         initialize(vm, with: restorationKey, isResetable: true)
+        vm.dataCollector = services.negativeFeedbackDataCollector
         return vm
     }
     
