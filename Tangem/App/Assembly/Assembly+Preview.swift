@@ -129,11 +129,11 @@ extension Assembly {
 fileprivate class DummyTransactionSigner: TransactionSigner {
     private let privateKey = Data(repeating: 0, count: 32)
     
-    func sign(hashes: [Data], cardId: String, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[Data], Error> {
+    func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[Data], Error> {
         Fail(error: WalletError.failedToGetFee).eraseToAnyPublisher()
     }
     
-    func sign(hash: Data, cardId: String, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<Data, Error> {
+    func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<Data, Error> {
         Fail(error: WalletError.failedToGetFee).eraseToAnyPublisher()
     }
 }
