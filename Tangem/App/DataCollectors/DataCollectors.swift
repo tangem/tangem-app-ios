@@ -36,9 +36,8 @@ extension EmailDataCollector {
     }
 }
 
-class NegativeFeedbackDataCollector: EmailDataCollector {
-    
-    weak var cardRepository: CardsRepository!
+class NegativeFeedbackDataCollector: EmailDataCollector, NegativeFeedbackDataProvider {
+    @Injected(\.cardsRepository) private var cardRepository: CardsRepository
     
     var dataForEmail: String {
         guard let cardInfo = cardRepository.lastScanResult.cardModel?.cardInfo else { return "" }
@@ -46,7 +45,6 @@ class NegativeFeedbackDataCollector: EmailDataCollector {
         return formatData(collectData(from: cardInfo))
     }
 }
-
 
 struct SendScreenDataCollector: EmailDataCollector {
     

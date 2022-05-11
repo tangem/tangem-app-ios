@@ -8,11 +8,21 @@
 
 import Foundation
 import TangemSdk
+import Combine
 
 class AppFeaturesService {
     @Injected(\.remoteConfigurationProvider) var configProvider: RemoteConfigurationProviding
+    @Injected(\.cardsRepository) var cardsRepository: CardsRepository {
+        didSet {
+            cardsRepository.didScanPublisher.sink {[weak self] cardInfo in
+                self?.setupFeatures(for: cardInfo.card)
+            }
+            .store(in: &bag)
+        }
+    }
     
     private var features: Set<AppFeature> = .all
+    private var bag = Set<AnyCancellable>()
     
     init() {}
     
@@ -20,7 +30,7 @@ class AppFeaturesService {
         print("AppFeaturesService deinit")
     }
 	
-	func setupFeatures(for card: Card) {
+	private func setupFeatures(for card: Card) {
 		features = getFeatures(for: card)
 	}
     
@@ -48,11 +58,7 @@ class AppFeaturesService {
 		if !configFeatures.isTopUpEnabled {
 			features.remove(.topup)
 		}
-        
-        if !configFeatures.isTopUpEnabled {
-            features.remove(.topup)
-        }
-        
+
         features.remove(.pins)
         
         return features
@@ -64,8 +70,6 @@ extension AppFeaturesService: AppFeaturesProviding {
 	var canSetAccessCode: Bool { features.contains(.pins) }
 	
 	var canSetPasscode: Bool { features.contains(.pins) }
-	
-	var linkedTerminal: Bool { features.contains(.linkedTerminal) }
 	
 	var canCreateTwin: Bool { features.contains(.twinCreation) }
 	
