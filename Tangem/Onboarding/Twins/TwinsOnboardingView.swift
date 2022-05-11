@@ -152,7 +152,7 @@ struct TwinsOnboardingView: View {
         )
         .sheet(isPresented: $navigation.onboardingToBuyCrypto) {
             WebViewContainer(url: viewModel.buyCryptoURL,
-                             title: "wallet_button_topup",
+                             title: "wallet_button_topup".localized,
                              addLoadingIndicator: true,
                              withCloseButton: true,
                              urlActions: [ viewModel.buyCryptoCloseUrl : { _ in
