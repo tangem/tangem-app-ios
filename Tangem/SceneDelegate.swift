@@ -12,9 +12,11 @@ import TangemSdk
 import BlockchainSdk
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-
+    @Injected(\.assemblyProvider) private var assemblyProvider: AssemblyProviding
+    @Injected(\.navigationCoordinatorProvider) private var navigationCoordinatorProvider: NavigationCoordinatorProviding
+    @Injected(\.walletConnectServiceProvider) private var walletConnectServiceProvider: WalletConnectServiceProviding
+    
     var window: UIWindow?
-    let assembly = Assembly()
     
     private var deferredIntents: [NSUserActivity] = []
     private var deferredIntentWork: DispatchWorkItem?
@@ -24,9 +26,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
 
-        assembly.services.walletConnectService.restore()
-        // Create the SwiftUI view that provides the window contents.
-        assembly.services.urlHandlers.append(self)
+        walletConnectServiceProvider.service.restore()
      
 //        let vm = assembly.makeReadViewModel()
 //        let contentView = ContentView() { ReadView(viewModel: vm) }
@@ -40,12 +40,12 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             self.window = window
             window.makeKeyAndVisible()
         }
-        handleActivity(connectionOptions.userActivities)
-        handleURL(contexts: connectionOptions.urlContexts)
+        handle(activities: connectionOptions.userActivities)
+        handle(contexts: connectionOptions.urlContexts)
     }
     
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
-        handleActivity([userActivity])
+        handle(activities: [userActivity])
     }
 
     func sceneDidBecomeActive(_ scene: UIScene) {
@@ -57,7 +57,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
                 switch $0.activityType {
                 case String(describing: ScanTangemCardIntent.self):
                     //todo: test
-                    self?.assembly.getLetsStartOnboardingViewModel()?.scanCard()
+                    self?.assemblyProvider.assembly.getLetsStartOnboardingViewModel()?.scanCard()
                 default:
                     break
                 }
@@ -75,58 +75,57 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
-        handleURL(contexts: URLContexts)
+        handle(contexts: URLContexts)
     }
     
-    private func handleActivity(_ userActivity: Set<NSUserActivity>) {
-        userActivity.forEach {
+    private func handle(activities: Set<NSUserActivity>) {
+        activities.forEach {
             switch $0.activityType {
             case NSUserActivityTypeBrowsingWeb:
                 guard let url = $0.webpageURL else { return }
                 
-                handleUrl(url)
+                process(url)
             case String(describing: ScanTangemCardIntent.self):
-                assembly.services.navigationCoordinator.popToRoot()
+                navigationCoordinatorProvider.coordinator.popToRoot()
                 deferredIntents.append($0)
             default: return
             }
         }
     }
     
-    private func handleURL(contexts: Set<UIOpenURLContext>) {
+    private func handle(contexts: Set<UIOpenURLContext>) {
         if let url = contexts.first?.url {
-            handleUrl(url)
+            process(url)
         }
     }
     
-    private func handleUrl(_ url: URL) {
-        self.assembly.services.urlHandlers.forEach {
-            $0.handle(url: url)
-        }
+    private func process(_ url: URL) {
+        handle(url: url)
+        walletConnectServiceProvider.service.handle(url: url)
     }
     
     private func prepareRootController() -> UIViewController {
-        let vm = assembly.getLaunchOnboardingViewModel()
+        let vm = assemblyProvider.assembly.getLaunchOnboardingViewModel()
         let contentView = ContentView() {
             OnboardingBaseView(viewModel: vm)
         }
-            .environmentObject(assembly)
-            .environmentObject(assembly.services.navigationCoordinator)
+            .environmentObject(assemblyProvider.assembly)
+            .environmentObject(navigationCoordinatorProvider.coordinator)
         return UIHostingController(rootView: contentView)
     }
 }
 
 extension SceneDelegate: URLHandler {
-    func handle(url: String) -> Bool {
+    @discardableResult func handle(url: String) -> Bool {
         guard url.starts(with: "https://app.tangem.com")
                 || url.starts(with: Constants.tangemDomain + "/ndef")
                 || url.starts(with: Constants.tangemDomain + "/wc") else { return false }
         
-        assembly.services.navigationCoordinator.popToRoot()
+        navigationCoordinatorProvider.coordinator.popToRoot()
         return true
     }
     
-    func handle(url: URL) -> Bool {
+    @discardableResult func handle(url: URL) -> Bool {
         handle(url: url.absoluteString)
     }
 }

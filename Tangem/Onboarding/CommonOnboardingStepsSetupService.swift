@@ -11,10 +11,9 @@ import TangemSdk
 import Combine
 import BlockchainSdk
 
-class OnboardingStepsSetupService {
-    
-    weak var assembly: Assembly!
-    weak var backupService: BackupService!
+class CommonOnboardingStepsSetupService: OnboardingStepsSetupService {
+    @Injected(\.assemblyProvider) private var assemblyProvider: AssemblyProviding
+    @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     
     private var userPrefs = UserPrefsService()
     
@@ -60,7 +59,7 @@ class OnboardingStepsSetupService {
     }
     
     private func stepsForNote(_ cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
-        let walletModel = assembly.makeAllWalletModels(from: cardInfo)
+        let walletModel = assemblyProvider.assembly.makeAllWalletModels(from: cardInfo)
         var steps: [SingleCardOnboardingStep] = []
         guard walletModel.count == 1 else {
             steps.append(.createWallet)
@@ -98,7 +97,7 @@ class OnboardingStepsSetupService {
         } else {//twin with created wallet
             if twinCardInfo.pairPublicKey == nil { //is not twinned
                 //check balance because of legacy bug
-              if let walletModel = assembly.makeAllWalletModels(from: cardInfo).first {
+                if let walletModel = assemblyProvider.assembly.makeAllWalletModels(from: cardInfo).first {
                   return Future { promise in
                       walletModel.walletManager.update { result in
                           switch result {
@@ -159,12 +158,12 @@ class OnboardingStepsSetupService {
         } else {
             steps.append(.backupIntro)
             
-            if !backupService.primaryCardIsSet {
+            if !backupServiceProvider.backupService.primaryCardIsSet {
                 steps.append(.scanPrimaryCard)
             }
         }
         
-        if backupService.addedBackupCardsCount < BackupService.maxBackupCardsCount {
+        if backupServiceProvider.backupService.addedBackupCardsCount < BackupService.maxBackupCardsCount {
             steps.append(.selectBackupCards)
         }
         
