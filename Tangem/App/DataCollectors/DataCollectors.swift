@@ -47,7 +47,6 @@ class NegativeFeedbackDataCollector: EmailDataCollector, NegativeFeedbackDataPro
 }
 
 struct SendScreenDataCollector: EmailDataCollector {
-    
     unowned var sendViewModel: SendViewModel
     
     var lastError: Error? = nil
