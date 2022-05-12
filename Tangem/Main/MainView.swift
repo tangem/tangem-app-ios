@@ -170,6 +170,10 @@ struct MainView: View {
                                 })
                                 .padding(.horizontal, 16)
                                 
+                                TotalSumBalanceView(currencyRateService: viewModel.assembly.services.ratesService, tokens: viewModel.tokenItemViewModels) {
+                                    print("symbol tapped")
+                                }
+                                
                                 if !viewModel.cardModel!.cardInfo.isMultiWallet {
                                     ForEach(pendingTransactionViews) { $0 }
                                         .padding(.horizontal, 16.0)
