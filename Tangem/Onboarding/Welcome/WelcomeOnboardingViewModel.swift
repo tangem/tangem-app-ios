@@ -14,7 +14,7 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     @Injected(\.onboardingStepsSetupService) private var stepsSetupService: OnboardingStepsSetupService
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
-    @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
+    @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
     
     @Published var isScanningCard: Bool = false
     @Published var isBackupModal: Bool = false
