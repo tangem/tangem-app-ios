@@ -195,7 +195,7 @@ Cette avertissement a été modifié, pour la dernière fois, le 1 octobre 2020.
 "onboarding_alert_twins_recreate_subtitle" = "This action is irreversible. You will not have access to the old wallet.";
 "onboarding_backup_exit_warning" = "The backup process is partly complete. You can’t exit it now.";
 "onboarding_balance" = "BALANCE";
-"main_page_balance" = "Balance";
+"main_page_balance" = "TOTAL BALANCE";
 "onboarding_button_add_backup_card" = "Add a backup card";
 "onboarding_button_backup_card" = "Scan the card #%d";
 "onboarding_button_backup_now" = "Backup now";
