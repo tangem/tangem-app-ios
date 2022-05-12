@@ -199,19 +199,13 @@ class TokenListViewModel: ViewModel, ObservableObject {
            let cardModel = mode.cardModel,
            !cardModel.cardInfo.card.canSupportSolanaTokens
         {
-            let feedbackButton = Alert.Button.default(Text("common_contact_us".localized)) {
-                self.updateSelection(tokenItem)
-                self.navigation.detailsToSendEmail = true
-            }
-
-            let cancelButton = Alert.Button.default(Text("common_cancel".localized)) {
+            let okButton = Alert.Button.default(Text("common_ok".localized)) {
                 self.updateSelection(tokenItem)
             }
             
             error = AlertBinder(alert: Alert(title: Text("common_attention".localized),
                                              message: Text("alert_manage_tokens_unsupported_message".localized),
-                                             primaryButton: feedbackButton,
-                                             secondaryButton: cancelButton))
+                                             dismissButton: okButton))
             
             return
         }
