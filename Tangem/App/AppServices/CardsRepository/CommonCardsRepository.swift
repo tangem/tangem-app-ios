@@ -34,7 +34,6 @@ class CommonCardsRepository: CardsRepository {
     
     @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
     @Injected(\.scannedCardsRepository) private var scannedCardsRepository: ScannedCardsRepository
-    @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
     @Injected(\.assemblyProvider) private var assemblyProvider: AssemblyProviding
     
     private(set) var cards = [String: ScanResult]()
@@ -51,8 +50,7 @@ class CommonCardsRepository: CardsRepository {
     func scan(with batch: String? = nil, _ completion: @escaping (Result<ScanResult, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
         sdkProvider.prepareScan()
-        sdkProvider.sdk.startSession(with: AppScanTask(tokenItemsRepository: tokenItemsRepository,
-                                                       targetBatch: batch)) {[unowned self] result in
+        sdkProvider.sdk.startSession(with: AppScanTask(targetBatch: batch)) {[unowned self] result in
             switch result {
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .scan)
