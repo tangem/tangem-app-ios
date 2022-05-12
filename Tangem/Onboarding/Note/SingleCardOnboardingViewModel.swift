@@ -12,10 +12,9 @@ import TangemSdk
 import Combine
 
 class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardingStep>, ObservableObject {
-    
-    weak var cardsRepository: CardsRepository!
-    weak var tokensRepo: TokenItemsRepository!
-    weak var stepsSetupService: OnboardingStepsSetupService!
+    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
+    @Injected(\.tokenItemsRepository) private var tokensRepo: TokenItemsRepository
+    @Injected(\.onboardingStepsSetupService) private var stepsSetupService: OnboardingStepsSetupService
     
     @Published var isCardScanned: Bool = true
     
@@ -65,8 +64,8 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         return false
     }
     
-    override init(exchangeService: ExchangeService, input: OnboardingInput) {
-        super.init(exchangeService: exchangeService, input: input)
+    override init(input: OnboardingInput) {
+        super.init(input: input)
         
         if case let .singleWallet(steps) = input.steps {
             self.steps = steps

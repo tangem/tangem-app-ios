@@ -12,7 +12,7 @@ import Combine
 import UIKit
 
 class TestnetBuyCryptoService {
-    @Injected(\.transactionSigner) private var signer: TransactionSigner
+    @Injected(\.transactionSigner) private var signer: TangemSigner
     
     private var bag: Set<AnyCancellable> = []
     
