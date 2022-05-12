@@ -34,6 +34,7 @@ struct CounterBalanceView: View {
     @State var currency: String = ""
     @State var countBalance: String = ""
     @State var bag = Set<AnyCancellable>()
+    @State var shimmer = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -65,6 +66,10 @@ struct CounterBalanceView: View {
             
             HStack(spacing: 0) {
                 Text(countBalance)
+                    .redactedIfPossible(shimmer)
+                    .if(shimmer, transform: { view in
+                        view.shimmering()
+                    })
                     .font(Font.system(size: 34, weight: .bold))
                     .foregroundColor(Color.tangemGrayDark6)
                     .padding(.leading, 20)
@@ -78,6 +83,7 @@ struct CounterBalanceView: View {
         .background(Color.white)
         .cornerRadius(16)
         .onAppear {
+            shimmer = true
             currency = currencyRateService.selectedCurrencyCode
             currencyRateService
                 .baseCurrencies()
@@ -91,7 +97,16 @@ struct CounterBalanceView: View {
                         count += token.fiatValue
                     }
                     countBalance = "\(symbol.unit) \(count)"
+                    shimmerOff()
                 }.store(in: &bag)
+        }
+    }
+    
+    func shimmerOff() {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            withAnimation {
+                self.shimmer = false
+            }
         }
     }
     
