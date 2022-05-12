@@ -105,7 +105,7 @@ struct TotalSumBalanceView: View {
                 }
                 
                 HStack(spacing: 0) {
-                    Text(viewModel.countBalance)
+                    Text(viewModel.shimmer ? "wallet_balance_loading".localized : viewModel.countBalance)
                         .redactedIfPossible(viewModel.shimmer)
                         .if(viewModel.shimmer, transform: { view in
                             view.shimmering()
