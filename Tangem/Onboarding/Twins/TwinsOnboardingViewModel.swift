@@ -10,7 +10,7 @@ import SwiftUI
 import Combine
 
 class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, ObservableObject {
-    unowned var twinsService: TwinsWalletCreationService
+    @Injected(\.twinsWalletCreationServiceProvider) var twinsServiceProvider: TwinsWalletCreationServiceProviding
     @Injected(\.cardImageLoader) var imageLoader: CardImageLoaderProtocol
     
     @Published var firstTwinImage: UIImage?
@@ -108,12 +108,10 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
     private var stackCalculator: StackCalculator = .init()
     private var twinInfo: TwinCardInfo
     private var stepUpdatesSubscription: AnyCancellable?
-    
+    private var twinsService: TwinsWalletCreationService { twinsServiceProvider.service }
     private var canBuy: Bool { exchangeService.canBuy("BTC", amountType: .coin, blockchain: .bitcoin(testnet: false)) }
                                                       
-    init(twinsService: TwinsWalletCreationService, exchangeService: ExchangeService, input: OnboardingInput) {
-        self.twinsService = twinsService
-        
+    override init(input: OnboardingInput) {
         if let twinInfo = input.cardInput.cardModel?.cardInfo.twinCardInfo {
 //            pairNumber = AppTwinCardIdFormatter.format(cid: twinInfo.pairCid, cardNumber: nil)
             pairNumber = "\(twinInfo.series.pair.number)"
@@ -128,7 +126,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
             fatalError("Wrong card model passed to Twins onboarding view model")
         }
         
-        super.init(exchangeService: exchangeService, input: input)
+        super.init(input: input)
         if case let .twins(steps) = input.steps {
             self.steps = steps
             

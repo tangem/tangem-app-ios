@@ -12,12 +12,13 @@ import BlockchainSdk
 
 class WalletManagerAssembly {
     @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
+    @Injected(\.keysManager) private var keysManager: KeysManager
     
-    private let factory: WalletManagerFactory
+    private lazy var factory: WalletManagerFactory = {
+        .init(config: keysManager.blockchainConfig)
+    }()
     
-    init(factory: WalletManagerFactory) {
-        self.factory = factory
-    }
+    init() {}
     
     func makeAllWalletManagers(for cardInfo: CardInfo) -> [WalletManager] {
         //If this card is Twin, return twinWallet
