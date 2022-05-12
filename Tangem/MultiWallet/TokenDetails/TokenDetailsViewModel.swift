@@ -10,9 +10,8 @@ import BlockchainSdk
 import Combine
 
 class TokenDetailsViewModel: ViewModel, ObservableObject {
-    weak var assembly: Assembly!
-    weak var navigation: NavigationCoordinator!
-    weak var exchangeService: ExchangeService!
+    @Injected(\.exchangeService) private var exchangeService: ExchangeService
+    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     
     @Published var alert: AlertBinder? = nil
     
@@ -157,10 +156,17 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     private var bag = Set<AnyCancellable>()
     private var rentWarningSubscription: AnyCancellable?
     private var refreshCancellable: AnyCancellable? = nil
+    private lazy var testnetBuyCrypto: TestnetBuyCryptoService = .init()
     
     init(blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType) {
         self.blockchainNetwork = blockchainNetwork
         self.amountType = amountType
+    }
+    
+    func updateState() {
+        if let cardModel = cardsRepository.lastScanResult.cardModel {
+            card = cardModel
+        }
     }
     
     func onAppear() {
@@ -204,7 +210,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         
         guard let model = walletModel else { return }
         
-        TestnetBuyCryptoService.buyCrypto(.erc20Token(walletManager: model.walletManager, token: token))
+        testnetBuyCrypto.buyCrypto(.erc20Token(walletManager: model.walletManager, token: token))
     }
     
     func sellCryptoAction() {
