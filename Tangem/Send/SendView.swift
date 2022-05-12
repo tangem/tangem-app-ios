@@ -61,7 +61,7 @@ struct SendView: View {
                                 imageColor: .tangemGrayDark6
                             )
                                 .accessibility(label: Text("voice_over_scan_qr_with_address"))
-                                .sheet(isPresented: self.$viewModel.navigation.sendToQR) {
+                                .sheet(isPresented: self.$navigation.sendToQR) {
                                     QRScanView(code: self.$viewModel.scannedQRCode)
                                         .edgesIgnoringSafeArea(.all)
                                 }
@@ -287,6 +287,7 @@ struct SendView: View {
 
 struct ExtractView_Previews: PreviewProvider {
     static let assembly: Assembly = .previewAssembly(for: .ethereum)
+    static let navigation = NavigationCoordinator()
     
     static var previews: some View {
         Group {
@@ -296,14 +297,14 @@ struct ExtractView_Previews: PreviewProvider {
                                                                      destination: "Target",
                                                                      blockchainNetwork: assembly.previewBlockchainNetwork,
                                                                      card: assembly.previewCardViewModel))
-                .environmentObject(assembly.services.navigationCoordinator)
+                .environmentObject(navigation)
                 .previewLayout(.iphone7Zoomed)
             SendView(viewModel: assembly.makeSendViewModel(with: Amount(with: assembly.previewBlockchain,
                                                                         type: .token(value: Token(name: "DAI", symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18)),
                                                                         value: 0.0),
                                                            blockchainNetwork: assembly.previewBlockchainNetwork,
                                                            card: assembly.previewCardViewModel))
-                .environmentObject(assembly.services.navigationCoordinator)
+                .environmentObject(navigation)
                 .previewLayout(.iphone7Zoomed)
         }
     }
