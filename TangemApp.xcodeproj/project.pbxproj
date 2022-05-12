@@ -197,6 +197,7 @@
 		5DFCE54C274BDEE200C1B1A0 /* ResetToFactorySettingsTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFCE54B274BDEE200C1B1A0 /* ResetToFactorySettingsTask.swift */; };
 		5DFE855724EF051400194106 /* Error+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFE855624EF051400194106 /* Error+.swift */; };
 		652B0136282C0A7800F2E27A /* TotalSumBalanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652B0135282C0A7800F2E27A /* TotalSumBalanceView.swift */; };
+		652B0138282D4E5900F2E27A /* ShimmerModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652B0137282D4E5900F2E27A /* ShimmerModifier.swift */; };
 		A2D75197BEA81DB54FF6A3F6 /* Pods_Tangem_TangemUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D513FF545D1945A2BACAA25F /* Pods_Tangem_TangemUITests.framework */; };
 		B00BC584260B178000F0647D /* PickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D15F9E7258A522500392BA5 /* PickerView.swift */; };
 		B00BC589260B179200F0647D /* CircleActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09BB854259A075500B92000 /* CircleActionButton.swift */; };
@@ -698,6 +699,7 @@
 		5DFCE54B274BDEE200C1B1A0 /* ResetToFactorySettingsTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetToFactorySettingsTask.swift; sourceTree = "<group>"; };
 		5DFE855624EF051400194106 /* Error+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Error+.swift"; sourceTree = "<group>"; };
 		652B0135282C0A7800F2E27A /* TotalSumBalanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalSumBalanceView.swift; sourceTree = "<group>"; };
+		652B0137282D4E5900F2E27A /* ShimmerModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShimmerModifier.swift; sourceTree = "<group>"; };
 		660C0A4ED84D5E9C3C8E3304 /* Pods-Tangem Tap-Tangem TapUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap-Tangem TapUITests.release.xcconfig"; path = "Target Support Files/Pods-Tangem Tap-Tangem TapUITests/Pods-Tangem Tap-Tangem TapUITests.release.xcconfig"; sourceTree = "<group>"; };
 		6DAB43B88F12E203AB57FCC5 /* Pods-TangemClip.firebase.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemClip.firebase.xcconfig"; path = "Target Support Files/Pods-TangemClip/Pods-TangemClip.firebase.xcconfig"; sourceTree = "<group>"; };
 		8023B4C7AB7F8F722B1B6BAA /* Pods-Tangem TapTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem TapTests.debug.xcconfig"; path = "Target Support Files/Pods-Tangem TapTests/Pods-Tangem TapTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -1284,6 +1286,7 @@
 				DA5970EF27FC502E0050387C /* CustomTokenBadge.swift */,
 				5D219F8A27FF1CF9005015AA /* PerfList.swift */,
 				DAE6F76C2800011400411F45 /* AppError.swift */,
+				652B0137282D4E5900F2E27A /* ShimmerModifier.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -2646,6 +2649,7 @@
 				B0C4F77326F08CB50086D815 /* OnboardingCardFrameCalculator.swift in Sources */,
 				5DD24B41274FAC2400BF80BE /* WalletManagerAssembly.swift in Sources */,
 				B0AA865426DC90FF00287F80 /* WelcomeOnboardingViewModel.swift in Sources */,
+				652B0138282D4E5900F2E27A /* ShimmerModifier.swift in Sources */,
 				5D69E0E325016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift in Sources */,
 				B0FB98A52598D24300B769A3 /* Card+.swift in Sources */,
 				B0C807232620549F00F7DADE /* WalletConnectSessionItemView.swift in Sources */,
