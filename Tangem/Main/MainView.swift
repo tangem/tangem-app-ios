@@ -169,10 +169,6 @@ struct MainView: View {
                                                                                     tokens: viewModel.$tokenItems)) {
                                 viewModel.showCurrencyChangeScreen()
                             }
-//                            TotalSumBalanceView(currencyRateService: viewModel.assembly.services.ratesService,
-//                                                tokens: $viewModel.tokenItems) {
-//                                viewModel.showCurrencyChangeScreen()
-//                            }
                             
                             if isUnsupportdState {
                                 MessageView(title: "wallet_error_unsupported_blockchain".localized, subtitle: "wallet_error_unsupported_blockchain_subtitle".localized, type: .error)
