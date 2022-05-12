@@ -13,7 +13,7 @@ import BlockchainSdk
 import Combine
 
 class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
-    @Injected(\.transactionSigner) private var signer: TangemSigner
+    @Injected(\.transactionSigner) var signer: TangemSigner
     
     weak var delegate: WalletConnectHandlerDelegate?
     weak var dataSource: WalletConnectHandlerDataSource?
