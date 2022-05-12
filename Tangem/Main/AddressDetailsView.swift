@@ -151,6 +151,7 @@ struct AddressDetailView: View {
 struct AddressDetailView_Previews: PreviewProvider {
     static let assembly: Assembly = .previewAssembly(for: .v4)
     @State static var cardViewModel = assembly.previewCardViewModel
+    static let navigation = NavigationCoordinator()
     
     static var previews: some View {
         ZStack {
@@ -162,6 +163,6 @@ struct AddressDetailView_Previews: PreviewProvider {
                               walletModel: cardViewModel.walletModels!.first!,
                               payID: .notCreated)
         }
-        .environmentObject(assembly.services.navigationCoordinator)
+        .environmentObject(navigation)
     }
 }
