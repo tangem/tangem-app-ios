@@ -166,13 +166,13 @@ class SendViewModel: ViewModel, ObservableObject {
     let amountToSend: Amount
     
     private(set) var isSellingCrypto: Bool
+    lazy var emailDataCollector: SendScreenDataCollector = .init(sendViewModel: self)
     
     @Published private var validatedXrpDestinationTag: UInt32? = nil
     
     private var ratesService: CurrencyRateService { ratesServiceProvider.ratesService }
     private var blockchainNetwork: BlockchainNetwork
-    private var emailDataCollector: SendScreenDataCollector
-    
+   
     private lazy var payIDService: PayIDService? = {
         if featuresService.isPayIdEnabled, let payIdService = PayIDService.make(from: blockchainNetwork.blockchain) {
           return payIdService
@@ -185,8 +185,8 @@ class SendViewModel: ViewModel, ObservableObject {
         self.blockchainNetwork = blockchainNetwork
         self.cardViewModel = cardViewModel
         self.amountToSend = amountToSend
-        self.emailDataCollector = SendScreenDataCollector(sendViewModel: self)
         isSellingCrypto = false
+        super.init()
         fillTotalBlockWithDefaults()
         bind()
         setupWarnings()

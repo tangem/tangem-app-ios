@@ -18,7 +18,7 @@ extension Assembly {
     enum PreviewCard {
         case withoutWallet, twin, ethereum, stellar, v4, cardanoNote, cardanoNoteEmptyWallet, ethEmptyNote, tangemWalletEmpty
         
-        static func scanResult(for preview: PreviewCard, assembly: Assembly) -> ScanResult {
+        static func scanResult(for preview: PreviewCard) -> ScanResult {
             let card = Card.card
             let ci = CardInfo(card: card,
                               walletData: preview.walletData,
@@ -26,21 +26,19 @@ extension Assembly {
                               twinCardInfo: preview.twinInfo,
                               isTangemNote: preview.isNote,
                               isTangemWallet: true)
-            let vm = assembly.makeCardModel(from: ci)
+            let vm = Assembly().makeCardModel(from: ci)
             let scanResult = ScanResult.card(model: vm)
 #if !CLIP
             let walletModels: [WalletModel]
             if let blockchain = preview.blockchain {
                 let factory = WalletManagerFactory(config: .init(blockchairApiKey: "", blockcypherTokens: [], infuraProjectId: ""))
                 let walletManager = try! factory.makeWalletManager(cardId: card.cardId, blockchain: blockchain, walletPublicKey: preview.publicKey)
-                walletModels = [WalletModel(walletManager: walletManager, signer: DummyTransactionSigner(), derivationStyle: .legacy, defaultToken: nil, defaultBlockchain: nil)]
+                walletModels = [WalletModel(walletManager: walletManager, derivationStyle: .legacy, defaultToken: nil, defaultBlockchain: nil)]
             } else {
                 walletModels = []
             }
             
             vm.state = .loaded(walletModel: walletModels)
-            assembly.services.cardsRepository.cards[card.cardId] = scanResult
-            assembly.services.cardsRepository.lastScanResult = scanResult
 #endif
             return scanResult
         }

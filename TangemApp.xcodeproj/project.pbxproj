@@ -122,7 +122,6 @@
 		5D9DCADE2551744F0059799C /* ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCADD2551744F0059799C /* ViewModel.swift */; };
 		5D9DCAE325517D450059799C /* Assembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCAE225517D450059799C /* Assembly.swift */; };
 		5D9DCAEB25517FB50059799C /* CommonCardsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCAEA25517FB50059799C /* CommonCardsRepository.swift */; };
-		5D9DCB01255191380059799C /* DisclamerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCB00255191380059799C /* DisclamerViewModel.swift */; };
 		5D9DCB06255193C30059799C /* UserPrefsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCB05255193C30059799C /* UserPrefsService.swift */; };
 		5D9DCB0C255199AA0059799C /* SecurityManagementViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCB0B255199AA0059799C /* SecurityManagementViewModel.swift */; };
 		5DA2473A2799380300DB4E4F /* tokens.json in Resources */ = {isa = PBXBuildFile; fileRef = 5DA247352799380300DB4E4F /* tokens.json */; };
@@ -162,7 +161,6 @@
 		5DE7DD122695BEE900472205 /* UrlHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DDE22E92608DC94008657C6 /* UrlHandler.swift */; };
 		5DE7DD152695BF8D00472205 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B020FFBD25DE895E00EF422C /* Logger.swift */; };
 		5DE7DD162695BF9700472205 /* FileEncryptionUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F79C692689AC56008C9B30 /* FileEncryptionUtility.swift */; };
-		5DE7DD202695C09E00472205 /* DefaultSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DB862B7252396CD00566AA0 /* DefaultSigner.swift */; };
 		5DE7DD212695C0A800472205 /* Analytics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D225CB82524B721001564A3 /* Analytics.swift */; };
 		5DE7DD232695C27E00472205 /* UserPrefsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCB05255193C30059799C /* UserPrefsService.swift */; };
 		5DE7DD2B2695CFF800472205 /* CreateMultiWalletTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D78D11C261E084700F98B18 /* CreateMultiWalletTask.swift */; };
@@ -495,6 +493,8 @@
 		DC0A5847282C06A80031BECC /* NegativeFeedbackDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A5846282C06A80031BECC /* NegativeFeedbackDataProvider.swift */; };
 		DC0A584A282C07A20031BECC /* WalletConnectServiceProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A5849282C07A20031BECC /* WalletConnectServiceProviding.swift */; };
 		DC0A584C282C07B10031BECC /* WalletConnectServiceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A584B282C07B10031BECC /* WalletConnectServiceProvider.swift */; };
+		DC0A584F282D03270031BECC /* AssemblyProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A5833282BF7A80031BECC /* AssemblyProviding.swift */; };
+		DC0A5850282D03290031BECC /* AssemblyProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A5835282BF8170031BECC /* AssemblyProvider.swift */; };
 		F06BBA2FE022C3EF1F3B6513 /* Pods_Tangem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F3AA1BEE46AF490A6F95DA /* Pods_Tangem.framework */; };
 /* End PBXBuildFile section */
 
@@ -679,7 +679,6 @@
 		5D9DCADD2551744F0059799C /* ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModel.swift; sourceTree = "<group>"; };
 		5D9DCAE225517D450059799C /* Assembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Assembly.swift; sourceTree = "<group>"; };
 		5D9DCAEA25517FB50059799C /* CommonCardsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonCardsRepository.swift; sourceTree = "<group>"; };
-		5D9DCB00255191380059799C /* DisclamerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisclamerViewModel.swift; sourceTree = "<group>"; };
 		5D9DCB05255193C30059799C /* UserPrefsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserPrefsService.swift; sourceTree = "<group>"; };
 		5D9DCB0B255199AA0059799C /* SecurityManagementViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityManagementViewModel.swift; sourceTree = "<group>"; };
 		5DA247352799380300DB4E4F /* tokens.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = tokens.json; sourceTree = "<group>"; };
@@ -1080,7 +1079,6 @@
 			isa = PBXGroup;
 			children = (
 				B09536FD26D3D2460040A90D /* DisclaimerView.swift */,
-				5D9DCB00255191380059799C /* DisclamerViewModel.swift */,
 			);
 			path = Disclaimer;
 			sourceTree = "<group>";
@@ -2852,7 +2850,6 @@
 				5DFB499C24E6BAF10037E76F /* MessageView.swift in Sources */,
 				5D0A2CDF27E9D47900396399 /* StatefulPreviewWrapper.swift in Sources */,
 				DC0A57D82822A3C80031BECC /* InjectedValues.swift in Sources */,
-				5D9DCB01255191380059799C /* DisclamerViewModel.swift in Sources */,
 				B09BB87E259A095B00B92000 /* WarningsPriority+Colors.swift in Sources */,
 				B0F16D7126EF5ED800687C47 /* ProgressBar.swift in Sources */,
 				5DE552EF27B2A5F400D7ADCD /* IconsUtils.swift in Sources */,
@@ -3243,7 +3240,6 @@
 				5DE7DD2B2695CFF800472205 /* CreateMultiWalletTask.swift in Sources */,
 				DC0A57F92822C14C0031BECC /* CardImageLoader.swift in Sources */,
 				5DE7DD122695BEE900472205 /* UrlHandler.swift in Sources */,
-				5DE7DD202695C09E00472205 /* DefaultSigner.swift in Sources */,
 				5D4B8BBD27EDD2EA002CE87C /* MainViewModel.swift in Sources */,
 				B07FE4D12616F686000F0EF9 /* MessageView.swift in Sources */,
 				B0CA5A8625F7797B0078F42F /* RefreshableScrollView.swift in Sources */,
@@ -3259,12 +3255,14 @@
 				DC0A57EC2822AEF10031BECC /* PersistentStorageProtocol.swift in Sources */,
 				5DE7DD4A269625F800472205 /* AppScanTask.swift in Sources */,
 				5DE7DD462696241F00472205 /* CardView.swift in Sources */,
+				DC0A584F282D03270031BECC /* AssemblyProviding.swift in Sources */,
 				B0C34953267B19B90027CC9D /* RoundedCorner.swift in Sources */,
 				5DE7DD232695C27E00472205 /* UserPrefsService.swift in Sources */,
 				DC0A57EB2822AEEB0031BECC /* PersistentStorage.swift in Sources */,
 				B00BC5B8260B210300F0647D /* JsonUtils.swift in Sources */,
 				B00BC584260B178000F0647D /* PickerView.swift in Sources */,
 				B094B31126B2FCD300791AEC /* TangemNote.swift in Sources */,
+				DC0A5850282D03290031BECC /* AssemblyProvider.swift in Sources */,
 				DC0A57F32822B8A10031BECC /* InjectedWrapper.swift in Sources */,
 				5D17EC7526946F48002782DE /* String+.swift in Sources */,
 				5DE7DD2C2695CFFE00472205 /* SignerUtils.swift in Sources */,
