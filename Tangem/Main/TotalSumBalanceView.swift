@@ -17,12 +17,9 @@ struct TotalSumBalanceView: View {
     
     var body: some View {
         VStack {
-            TotalBalanceHeaderView(currencyRateService: currencyRateService, tapOnCurrencySymbol: tapOnCurrencySymbol)
-                .padding(.bottom, 8)
-
-            CounterBalanceView(currencyRateService: currencyRateService, tokens: tokens)
+            CounterBalanceView(currencyRateService: currencyRateService, tokens: tokens, tapOnCurrencySymbol: tapOnCurrencySymbol)
         }
-        .frame(width: UIScreen.main.bounds.width, height: 140)
+        .frame(width: UIScreen.main.bounds.width, height: 120)
         .background(Color.clear)
     }
 }
@@ -32,11 +29,40 @@ struct CounterBalanceView: View {
     var currencyRateService: CurrencyRateService
     var tokens: [TokenItemViewModel]
     
+    var tapOnCurrencySymbol: () -> ()
+    
+    @State var currency: String = ""
     @State var countBalance: String = ""
     @State var bag = Set<AnyCancellable>()
     
     var body: some View {
         VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                Text("main_page_balance".localized)
+                    .font(Font.system(size: 14, weight: .medium))
+                    .foregroundColor(Color.tangemTextGray)
+                    .padding(.leading, 20)
+                    .padding(.top, 20)
+                
+                Spacer()
+                
+                Button {
+                    tapOnCurrencySymbol()
+                } label: {
+                    HStack(spacing: 0) {
+                        Text(currency)
+                            .font(Font.system(size: 16, weight: .medium))
+                            .foregroundColor(Color.tangemBalanceCurrencyGray)
+                            .padding(.trailing, 6)
+                        Image("tangemArrowDown")
+                            .foregroundColor(Color.tangemTextGray)
+                            .padding(.trailing, 20)
+                    }
+                }
+                .buttonStyle(PlainButtonStyle())
+                .padding(.top, 22)
+            }
+            
             HStack(spacing: 0) {
                 Text(countBalance)
                     .font(Font.system(size: 34, weight: .bold))
@@ -44,23 +70,15 @@ struct CounterBalanceView: View {
                     .padding(.leading, 20)
                 Spacer()
             }
-            .padding(.top, 14)
-            
-            HStack(spacing: 0) {
-                Text("+1390.21 $ (3,2%)")
-                    .foregroundColor(Color.tangemGreen)
-                    .font(Font.system(size: 16, weight: .medium))
-                    .padding(.leading, 20)
-                    .padding(.top, 6)
-                Spacer()
-            }
+            .padding(.top, 4)
             
             Spacer()
         }
-        .frame(width: UIScreen.main.bounds.width - 32, height: 97)
+        .frame(width: UIScreen.main.bounds.width - 32, height: 101)
         .background(Color.white)
         .cornerRadius(16)
         .onAppear {
+            currency = currencyRateService.selectedCurrencyCode
             currencyRateService
                 .baseCurrencies()
                 .receive(on: RunLoop.main)
@@ -74,44 +92,6 @@ struct CounterBalanceView: View {
                     }
                     countBalance = "\(symbol.unit) \(count)"
                 }.store(in: &bag)
-
-        }
-    }
-    
-}
-
-struct TotalBalanceHeaderView: View {
-    
-    var currencyRateService: CurrencyRateService
-    var tapOnCurrencySymbol: () -> ()
-    
-    @State var currency: String = ""
-    
-    var body: some View {
-        HStack(spacing: 0) {
-            Text("main_page_balance".localized)
-                .font(Font.system(size: 24, weight: .bold))
-                .foregroundColor(Color.tangemGrayDark6)
-                .padding(.leading, 16)
-            
-            Spacer()
-            
-            Button {
-                tapOnCurrencySymbol()
-            } label: {
-                HStack(spacing: 0) {
-                    Image("tangemArrowDown")
-                        .padding(.trailing, 10)
-                    Text(currency)
-                        .font(Font.system(size: 15, weight: .medium))
-                        .foregroundColor(Color.tangemGreen)
-                        .padding(.trailing, 16)
-                }
-            }
-            .buttonStyle(PlainButtonStyle())
-        }
-        .onAppear {
-            currency = currencyRateService.selectedCurrencyCode
         }
     }
     
