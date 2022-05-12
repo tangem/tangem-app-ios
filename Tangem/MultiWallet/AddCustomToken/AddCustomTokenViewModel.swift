@@ -15,6 +15,7 @@ import enum TangemSdk.TangemSdkError
 class AddCustomTokenViewModel: ViewModel, ObservableObject {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     @Injected(\.coinsService) private var coinsService: CoinsService
+    @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
     
     weak var cardModel: CardViewModel!
     
@@ -40,6 +41,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     private var blockchainByName: [String: Blockchain] = [:]
     
     override init() {
+        super.init()
         Publishers.CombineLatest3(
             $blockchainsPicker.map{$0.selection}.removeDuplicates(),
             $contractAddress.removeDuplicates(),
@@ -64,7 +66,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     func updateState() {
-        vm.cardModel = cardsRepository.lastScanResult.cardModel
+        cardModel = cardsRepository.lastScanResult.cardModel
     }
     
     func createToken() {
@@ -272,7 +274,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             return
         }
         
-        let cardTokenItems = cardModel.tokenItemsRepository.getItems(for: cardId)
+        let cardTokenItems = tokenItemsRepository.getItems(for: cardId)
         let checkingContractAddress = !contractAddress.isEmpty
         let rawPath = derivationsPicker.selection
         let derivationPath = (try? DerivationPath(rawPath: rawPath)) ?? blockchain.derivationPath(for: derivationStyle)
