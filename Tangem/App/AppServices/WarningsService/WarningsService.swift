@@ -13,7 +13,7 @@ import BlockchainSdk
 
 class WarningsService {
     @Injected(\.remoteConfigurationProvider) var remoteWarningProvider: RemoteConfigurationProviding
-    @Injected(\.rateAppService) var rateAppChecker: RateAppProtocol
+    @Injected(\.rateAppService) var rateAppChecker: RateAppService
     
     var warningsUpdatePublisher: PassthroughSubject<WarningsLocation, Never> = PassthroughSubject()
     
