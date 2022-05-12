@@ -75,10 +75,9 @@ class PushTxViewModel: ViewModel, ObservableObject {
     
     let cardViewModel: CardViewModel
     let blockchainNetwork: BlockchainNetwork
-    
-    private var emailDataCollector: PushScreenDataCollector
     var transaction: BlockchainSdk.Transaction
     
+    lazy var emailDataCollector: PushScreenDataCollector = .init(pushTxViewModel: self)
     lazy var amountDecimal: String = { "\(walletModel.getFiat(for: amountToSend) ?? 0)" }()
     lazy var amount: String = { transaction.amount.description }()
     lazy var previousFee: String = { transaction.fee.description }()
@@ -96,7 +95,7 @@ class PushTxViewModel: ViewModel, ObservableObject {
         self.cardViewModel = cardViewModel
         self.transaction = transaction
         self.amountToSend = transaction.amount
-        self.emailDataCollector = PushScreenDataCollector(pushTxViewModel: self)
+        super.init()
         additionalFee = emptyValue
         sendTotal = emptyValue
         sendTotalSubtitle = emptyValue
