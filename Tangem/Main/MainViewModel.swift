@@ -609,6 +609,10 @@ class MainViewModel: ViewModel, ObservableObject {
         }
         .store(in: &bag)
     }
+    
+    func showCurrencyChangeScreen() {
+        navigation.currencyChangeView = true
+    }
 
     // MARK: - Private functions
     
