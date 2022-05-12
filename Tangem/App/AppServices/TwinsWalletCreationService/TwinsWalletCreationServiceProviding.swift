@@ -17,7 +17,7 @@ private struct TwinsWalletCreationServiceProviderKey: InjectionKey {
 }
 
 extension InjectedValues {
-    var coordinatorProvider: TwinsWalletCreationServiceProviding {
+    var twinsWalletCreationServiceProvider: TwinsWalletCreationServiceProviding {
         get { Self[TwinsWalletCreationServiceProviderKey.self] }
         set { Self[TwinsWalletCreationServiceProviderKey.self] = newValue }
     }
