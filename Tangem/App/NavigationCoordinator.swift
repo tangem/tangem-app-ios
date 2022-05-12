@@ -74,7 +74,6 @@ class NavigationCoordinator: ObservableObject {
     // MARK: Manage tokens
     @Published var manageTokensToAddNewTokens = false
     @Published var addNewTokensToCreateCustomToken = false
-    @Published var manageTokensToSendEmail = false
     
     // MARK: TokenDetailsView
     @Published var detailsToBuyCrypto = false
