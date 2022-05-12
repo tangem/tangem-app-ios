@@ -10,9 +10,7 @@ import Foundation
 import Combine
 
 class CurrencySelectViewModel: ViewModel, ObservableObject {
-    weak var assembly: Assembly!
-    weak var ratesService: CurrencyRateService!
-    weak var navigation: NavigationCoordinator!
+    @Injected(\.ratesServiceProvider) private var ratesServiceProvider: CurrencyRateServiceProviding
     
     @Published var loading: Bool = false
     @Published var currencies: [CurrenciesResponse.Currency] = []
@@ -22,7 +20,7 @@ class CurrencySelectViewModel: ViewModel, ObservableObject {
     
     func onAppear() {
         loading = true
-        ratesService
+        ratesServiceProvider.ratesService
             .baseCurrencies()
             .receive(on: DispatchQueue.main)
             .mapError { _ in

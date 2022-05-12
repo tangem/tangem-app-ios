@@ -8,9 +8,7 @@
 
 import Foundation
 
-protocol NegativeFeedbackDataProvider {
-    var dataForEmail: String { get }
-}
+protocol NegativeFeedbackDataProvider: EmailDataCollector {}
 
 private struct NegativeFeedbackDataProviderKey: InjectionKey {
     static var currentValue: NegativeFeedbackDataProvider = NegativeFeedbackDataCollector()

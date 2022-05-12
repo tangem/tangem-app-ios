@@ -14,15 +14,13 @@ import TangemSdk
 
 class MainViewModel: ViewModel, ObservableObject {
     // MARK: Dependencies -
-    weak var exchangeService: ExchangeService!
-    weak var cardsRepository: CardsRepository!
-    weak var warningsManager: WarningsManager!
-    weak var rateAppController: RateAppController!
-	weak var navigation: NavigationCoordinator!
-    weak var assembly: Assembly!
-    weak var negativeFeedbackDataCollector: NegativeFeedbackDataCollector!
-    weak var failedCardScanTracker: FailedCardScanTracker!
-    weak var cardOnboardingStepSetupService: OnboardingStepsSetupService!
+    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
+    @Injected(\.exchangeService) private var exchangeService: ExchangeService
+    @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
+    @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
+    @Injected(\.rateAppService) private var rateAppService: RateAppService
+    @Injected(\.onboardingStepsSetupService) private var cardOnboardingStepSetupService: OnboardingStepsSetupService
+    @Injected(\.negativeFeedbackDataProvider) var negativeFeedbackDataCollector: NegativeFeedbackDataProvider
     
     //MARK: - Published variables
     
@@ -73,6 +71,7 @@ class MainViewModel: ViewModel, ObservableObject {
     private var isHashesCounted = false
     private var isProcessingNewCard = false
     private var refreshCancellable: AnyCancellable? = nil
+    private lazy var testnetBuyCryptoService: TestnetBuyCryptoService = .init()
     
     public var canCreateTwinWallet: Bool {
         if isTwinCard {
@@ -287,11 +286,11 @@ class MainViewModel: ViewModel, ObservableObject {
             .weakAssignAnimated(to: \.image, on: self)
             .store(in: &bag)
 
-        warningsManager.warningsUpdatePublisher
+        warningsService.warningsUpdatePublisher
             .sink { [unowned self] (locationUpdate) in
                 if case .main = locationUpdate {
                     print("⚠️ Main view model fetching warnings")
-                    self.warnings = self.warningsManager.warnings(for: .main)
+                    self.warnings = self.warningsService.warnings(for: .main)
                 }
             }
             .store(in: &bag)
@@ -303,7 +302,7 @@ class MainViewModel: ViewModel, ObservableObject {
                 self.selectedAddressIndex = 0
                 self.isHashesCounted = false
                 self.assembly.reset()
-                self.assembly.services.warningsService.setupWarnings(for: model.cardInfo)
+                self.warningsService.setupWarnings(for: model.cardInfo)
 //                if !self.showTwinCardOnboardingIfNeeded() {
                     self.countHashes()
 //                }
@@ -338,6 +337,19 @@ class MainViewModel: ViewModel, ObservableObject {
 //
 //        }
 //    }
+    
+    func updateState() {
+        self.state = cardsRepository.lastScanResult
+    }
+    
+    func getDataCollector(for feedbackCase: EmailFeedbackCase) -> EmailDataCollector {
+        switch feedbackCase {
+        case .negativeFeedback:
+            return negativeFeedbackDataCollector
+        case .scanTroubleshooting:
+            return failedCardScanTracker
+        }
+    }
     
     func onRefresh(_ done: @escaping () -> Void) {
         if let cardModel = self.cardModel, cardModel.state.canUpdate,
@@ -466,10 +478,10 @@ class MainViewModel: ViewModel, ObservableObject {
             }
         case .rateApp:
             Analytics.log(event: .positiveRateAppFeedback)
-            rateAppController.userReactToRateAppWarning(isPositive: true)
+            rateAppService.userReactToRateAppWarning(isPositive: true)
         case .dismiss:
             Analytics.log(event: .dismissRateAppWarning)
-            rateAppController.dismissRateAppWarning()
+            rateAppService.dismissRateAppWarning()
             
             if warning.event == .fundsRestoration {
                 userPrefsService.isFundsRestorationShown = true
@@ -477,7 +489,7 @@ class MainViewModel: ViewModel, ObservableObject {
             
         case .reportProblem:
             Analytics.log(event: .negativeRateAppFeedback)
-            rateAppController.userReactToRateAppWarning(isPositive: false)
+            rateAppService.userReactToRateAppWarning(isPositive: false)
             emailFeedbackCase = .negativeFeedback
         case .learnMore:
             if warning.event == .multiWalletSignedHashes {
@@ -487,7 +499,7 @@ class MainViewModel: ViewModel, ObservableObject {
                                                  secondaryButton: .default(Text("alert_button_i_understand")) { [weak self] in
                                                     withAnimation {
                                                         registerValidatedSignedHashesCard()
-                                                        self?.warningsManager.hideWarning(warning)
+                                                        self?.warningsService.hideWarning(warning)
                                                     }
                                                  }))
                 return
@@ -506,7 +518,7 @@ class MainViewModel: ViewModel, ObservableObject {
         }
         
         if hideWarning {
-            warningsManager.hideWarning(warning)
+            warningsService.hideWarning(warning)
         }
     }
     
@@ -534,7 +546,7 @@ class MainViewModel: ViewModel, ObservableObject {
             return
         }
         
-        TestnetBuyCryptoService.buyCrypto(.erc20Token(walletManager: walletModel.walletManager, token: token))
+        testnetBuyCryptoService.buyCrypto(.erc20Token(walletManager: walletModel.walletManager, token: token))
     }
     
     func tradeCryptoAction() {
@@ -582,7 +594,7 @@ class MainViewModel: ViewModel, ObservableObject {
     func prepareTwinOnboarding() {
         guard let cardModel = self.cardModel else { return }
 
-        cardOnboardingStepSetupService!.twinRecreationSteps(for: cardModel.cardInfo)
+        cardOnboardingStepSetupService.twinRecreationSteps(for: cardModel.cardInfo)
             .sink { completion in
             switch completion {
             case .failure(let error):
@@ -665,11 +677,11 @@ class MainViewModel: ViewModel, ObservableObject {
 //    }
     
     private func checkPositiveBalance() {
-        guard rateAppController.shouldCheckBalanceForRateApp else { return }
+        guard rateAppService.shouldCheckBalanceForRateApp else { return }
         
         guard cardModel?.walletModels?.first(where: { !$0.wallet.isEmpty }) != nil else { return }
         
-        rateAppController.registerPositiveBalanceDate()
+        rateAppService.registerPositiveBalanceDate()
     }
 	
 	private func validateHashesCount() {
@@ -677,7 +689,7 @@ class MainViewModel: ViewModel, ObservableObject {
         
         let card = cardInfo.card
         guard cardModel?.hasWallet ?? false else {
-            cardInfo.isMultiWallet ? warningsManager.hideWarning(for: .multiWalletSignedHashes) : warningsManager.hideWarning(for: .numberOfSignedHashesIncorrect)
+            cardInfo.isMultiWallet ? warningsService.hideWarning(for: .multiWalletSignedHashes) : warningsService.hideWarning(for: .numberOfSignedHashesIncorrect)
             return
         }
         
@@ -692,7 +704,7 @@ class MainViewModel: ViewModel, ObservableObject {
         if cardModel?.cardInfo.isMultiWallet ?? false {
             if cardModel?.cardInfo.card.wallets.filter({ $0.totalSignedHashes ?? 0 > 0 }).count ?? 0 > 0 {
                 withAnimation {
-                    warningsManager.appendWarning(for: .multiWalletSignedHashes)
+                    warningsService.appendWarning(for: .multiWalletSignedHashes)
                 }
             } else {
                 validatedSignedHashesCards.append(card.cardId)
@@ -703,7 +715,7 @@ class MainViewModel: ViewModel, ObservableObject {
 		
 		func showUntrustedCardAlert() {
             withAnimation {
-                self.warningsManager.appendWarning(for: .numberOfSignedHashesIncorrect)
+                self.warningsService.appendWarning(for: .numberOfSignedHashesIncorrect)
             }
 		}
         
