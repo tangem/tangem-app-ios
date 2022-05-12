@@ -42,6 +42,7 @@ struct RoundedRectButton: View {
             .cornerRadius(8)
             .overlay(!isDisabled ? Color.clear : Color.white.opacity(0.4))
         })
+        .buttonStyle(PlainButtonStyle())
     }
     
     private func playVerifyAnimation() {
