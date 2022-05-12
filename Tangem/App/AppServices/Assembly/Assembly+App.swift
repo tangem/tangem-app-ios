@@ -23,6 +23,7 @@ extension Assembly {
         
         return vm
     }
+    
     func getLetsStartOnboardingViewModel() -> WelcomeOnboardingViewModel? {
         if let restored: WelcomeOnboardingViewModel = get() {
             return restored
@@ -39,10 +40,6 @@ extension Assembly {
         
         let vm = WelcomeOnboardingViewModel(successCallback: callback)
         initialize(vm, isResetable: false)
-        vm.cardsRepository = services.cardsRepository
-        vm.stepsSetupService = services.onboardingStepsSetupService
-        vm.failedCardScanTracker = services.failedCardScanTracker
-        vm.backupService = services.backupService
         return vm
     }
     
@@ -82,12 +79,8 @@ extension Assembly {
     
     @discardableResult
     func makeNoteOnboardingViewModel(with input: OnboardingInput) -> SingleCardOnboardingViewModel {
-        let vm = SingleCardOnboardingViewModel(exchangeService: services.exchangeService, input: input)
+        let vm = SingleCardOnboardingViewModel(input: input)
         initialize(vm, isResetable: false)
-        vm.cardsRepository = services.cardsRepository
-        vm.stepsSetupService = services.onboardingStepsSetupService
-        vm.exchangeService = services.exchangeService
-        vm.tokensRepo = services.tokenItemsRepository
         return vm
     }
     
@@ -101,9 +94,7 @@ extension Assembly {
     
     @discardableResult
     func makeTwinOnboardingViewModel(with input: OnboardingInput) -> TwinsOnboardingViewModel {
-        let vm = TwinsOnboardingViewModel(twinsService: services.twinsWalletCreationService,
-                                          exchangeService: services.exchangeService,
-                                          input: input)
+        let vm = TwinsOnboardingViewModel(input: input)
         initialize(vm, isResetable: false)
         
         return vm
@@ -137,14 +128,8 @@ extension Assembly {
     
     @discardableResult
     func makeWalletOnboardingViewModel(with input: OnboardingInput) -> WalletOnboardingViewModel {
-        let sdk = services.tangemSdk
-        let vm = WalletOnboardingViewModel(input: input,
-                                           backupService: services.backupService,
-                                           tangemSdk: sdk,
-                                           tokensRepo: services.tokenItemsRepository)
-        
+        let vm = WalletOnboardingViewModel(input: input)
         initialize(vm, isResetable: false)
-        
         return vm
     }
     
@@ -158,20 +143,6 @@ extension Assembly {
         return vm
     }
 
-    
-    //    func makeReadViewModel() -> ReadViewModel {
-    //        if let restored: ReadViewModel = get() {
-    //            return restored
-    //        }
-    //
-    //        let vm =  ReadViewModel()
-    //        initialize(vm, isResetable: false)
-    //        vm.failedCardScanTracker = services.failedCardScanTracker
-    //        vm.userPrefsService = services.userPrefsService
-    //        vm.cardsRepository = services.cardsRepository
-    //        return vm
-    //    }
-    
     // MARK: - Main view model
     func makeMainViewModel() -> MainViewModel {
         if let restored: MainViewModel = get() {
@@ -180,47 +151,24 @@ extension Assembly {
         
         let vm =  MainViewModel()
         initialize(vm, isResetable: false)
-        vm.cardsRepository = services.cardsRepository
-        vm.exchangeService = services.exchangeService
-        vm.warningsManager = services.warningsService
-        vm.rateAppController = services.rateAppService
-        vm.cardOnboardingStepSetupService = services.onboardingStepsSetupService
-        
-        vm.state = services.cardsRepository.lastScanResult
-        
-        vm.negativeFeedbackDataCollector = services.negativeFeedbackDataCollector
-        vm.failedCardScanTracker = services.failedCardScanTracker
-        
+        vm.updateState()
         return vm
     }
     
     func makeTokenDetailsViewModel(blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType = .coin) -> TokenDetailsViewModel {
         if let restored: TokenDetailsViewModel = get() {
-//            if let cardModel = services.cardsRepository.lastScanResult.cardModel {
-//                   restored.card = cardModel
-//            }
             return restored
         }
         
         let vm =  TokenDetailsViewModel(blockchainNetwork: blockchainNetwork, amountType: amountType)
         initialize(vm)
-        if let cardModel = services.cardsRepository.lastScanResult.cardModel {
-            vm.card = cardModel
-        }
-        vm.exchangeService = services.exchangeService
+        vm.updateState()
         return vm
     }
     
     // MARK: Card model
     func makeCardModel(from info: CardInfo) -> CardViewModel {
         let vm = CardViewModel(cardInfo: info)
-        vm.featuresService = services.featuresService
-        vm.assembly = self
-        vm.tangemSdk = services.tangemSdk
-        vm.warningsConfigurator = services.warningsService
-        vm.warningsAppendor = services.warningsService
-        vm.tokenItemsRepository = services.tokenItemsRepository
-        vm.coinsService = services.coinsService
         vm.updateState()
         return vm
     }
@@ -230,22 +178,14 @@ extension Assembly {
     func makeDetailsViewModel() -> DetailsViewModel {
         
         if let restored: DetailsViewModel = get() {
-            if let cardModel = services.cardsRepository.lastScanResult.cardModel {
-                restored.cardModel = cardModel
-            }
+            restored.updateState()
             return restored
         }
         
         let vm =  DetailsViewModel()
         initialize(vm)
         
-        if let cardModel = services.cardsRepository.lastScanResult.cardModel {
-            vm.cardModel = cardModel
-            vm.dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel)
-        }
-        vm.cardsRepository = services.cardsRepository
-        vm.ratesService = services.ratesService
-        vm.onboardingStepsSetupService = services.onboardingStepsSetupService
+        vm.updateState()
         return vm
     }
     
@@ -267,7 +207,6 @@ extension Assembly {
         
         let vm =  CurrencySelectViewModel()
         initialize(vm)
-        vm.ratesService = services.ratesService
         return vm
     }
     
@@ -279,7 +218,6 @@ extension Assembly {
         
         let vm = TokenListViewModel(mode: mode)
         initialize(vm, with: restorationKey, isResetable: true)
-        vm.dataCollector = services.negativeFeedbackDataCollector
         return vm
     }
     
@@ -290,8 +228,7 @@ extension Assembly {
         
         let vm = AddCustomTokenViewModel()
         initialize(vm)
-        vm.cardModel = services.cardsRepository.lastScanResult.cardModel
-        vm.coinsService = services.coinsService
+        vm.updateState()
         return vm
     }
     
@@ -302,14 +239,9 @@ extension Assembly {
         
         let vm: SendViewModel = SendViewModel(amountToSend: amount,
                                               blockchainNetwork: blockchainNetwork,
-                                              cardViewModel: card,
-                                              warningsManager: services.warningsService)
+                                              cardViewModel: card)
         
-        if services.featuresService.isPayIdEnabled, let payIdService = PayIDService.make(from: blockchainNetwork.blockchain) {
-            vm.payIDService = payIdService
-        }
-        
-        prepareSendViewModel(vm)
+        initialize(vm)
         return vm
     }
     
@@ -321,9 +253,8 @@ extension Assembly {
         let vm = SendViewModel(amountToSend: amount,
                                destination: destination,
                                blockchainNetwork: blockchainNetwork,
-                               cardViewModel: card,
-                               warningsManager: services.warningsService)
-        prepareSendViewModel(vm)
+                               cardViewModel: card)
+        initialize(vm)
         return vm
     }
     
@@ -333,9 +264,8 @@ extension Assembly {
             return restored
         }
         
-        let vm = PushTxViewModel(transaction: tx, blockchainNetwork: blockchainNetwork, cardViewModel: card, signer: services.signer, ratesService: services.ratesService)
+        let vm = PushTxViewModel(transaction: tx, blockchainNetwork: blockchainNetwork, cardViewModel: card)
         initialize(vm)
-        vm.emailDataCollector = PushScreenDataCollector(pushTxViewModel: vm)
         return vm
     }
     
@@ -343,7 +273,6 @@ extension Assembly {
     func makeWalletConnectViewModel(cardModel: CardViewModel) -> WalletConnectViewModel {
         let vm = WalletConnectViewModel(cardModel: cardModel)
         initialize(vm)
-        vm.walletConnectController = services.walletConnectService
         return vm
     }
     
@@ -354,14 +283,11 @@ extension Assembly {
         
         let vm = ShopViewModel()
         initialize(vm)
-        vm.shopifyService = services.shopifyService
         return vm
     }
     
     func makeAllWalletModels(from cardInfo: CardInfo) -> [WalletModel] {
-        let walletManagerFactory = WalletManagerFactory(config: services.keysManager.blockchainConfig)
-        let assembly = WalletManagerAssembly(factory: walletManagerFactory,
-                                             tokenItemsRepository: services.tokenItemsRepository)
+        let assembly = WalletManagerAssembly()
         let walletManagers = assembly.makeAllWalletManagers(for: cardInfo)
         return makeWalletModels(walletManagers: walletManagers,
                                 derivationStyle: cardInfo.card.derivationStyle,
@@ -371,9 +297,7 @@ extension Assembly {
     }
     
     func makeWalletModels(from cardInfo: CardInfo, entries: [StorageEntry]) -> [WalletModel] {
-        let walletManagerFactory = WalletManagerFactory(config: services.keysManager.blockchainConfig)
-        let assembly = WalletManagerAssembly(factory: walletManagerFactory,
-                                             tokenItemsRepository: services.tokenItemsRepository)
+        let assembly = WalletManagerAssembly()
         let walletManagers = assembly.makeWalletManagers(from: cardInfo, entries: entries)
         return makeWalletModels(walletManagers: walletManagers,
                                 derivationStyle: cardInfo.card.derivationStyle,
@@ -383,9 +307,7 @@ extension Assembly {
     }
     
     func makeWalletModels(from cardDto: SavedCard, blockchainNetworks: [BlockchainNetwork]) -> [WalletModel] {
-        let walletManagerFactory = WalletManagerFactory(config: services.keysManager.blockchainConfig)
-        let assembly = WalletManagerAssembly(factory: walletManagerFactory,
-                                             tokenItemsRepository: services.tokenItemsRepository)
+        let assembly = WalletManagerAssembly()
         let walletManagers = assembly.makeWalletManagers(from: cardDto, blockchainNetworks: blockchainNetworks)
         return makeWalletModels(walletManagers: walletManagers,
                                 derivationStyle: cardDto.derivationStyle,
@@ -406,32 +328,24 @@ extension Assembly {
             }
             
             let model = WalletModel(walletManager: manager,
-                                    signer: services.signer,
                                     derivationStyle: derivationStyle,
                                     defaultToken: defaultToken,
                                     defaultBlockchain: defaultBlockchain,
                                     demoBalance: demoBalance)
-            model.tokenItemsRepository = services.tokenItemsRepository
-            model.ratesService = services.ratesService
             return model
         }
     }
     
     private func initialize<V: ViewModel>(_ vm: V, isResetable: Bool = true) {
-        vm.navigation = services.navigationCoordinator
-        vm.assembly = self
         store(vm, isResetable: isResetable)
     }
     
     private func initialize<V: ViewModel>(_ vm: V, with key: String, isResetable: Bool) {
-        vm.navigation = services.navigationCoordinator
-        vm.assembly = self
         store(vm, with: key, isResetable: isResetable)
     }
     
     private func get<T>(key: String) -> T? {
-        let val = (modelsStorage[key] ?? persistenceStorage[key]) as? ViewModelNavigatable
-        val?.navigation = services.navigationCoordinator
+        let val = (modelsStorage[key] ?? persistenceStorage[key]) as? ViewModel
         return val as? T
     }
     
@@ -442,12 +356,5 @@ extension Assembly {
     
     public func reset() {
         modelsStorage.removeAll()
-    }
-    
-    private func prepareSendViewModel(_ vm: SendViewModel) {
-        initialize(vm)
-        vm.ratesService = services.ratesService
-        vm.featuresService = services.featuresService
-        vm.emailDataCollector = SendScreenDataCollector(sendViewModel: vm)
     }
 }
