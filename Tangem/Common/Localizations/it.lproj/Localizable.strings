@@ -480,6 +480,6 @@ URL: %@";
 "common_contact_us" = "Contact us";
 "alert_manage_tokens_addresses_message" = "Note that tokens on different networks have different addresses. Double check that your address matches the network when you transfer funds.";
 "warning_token_send_unsupported_message" = "Do not transfer your funds to tokens in this blockchain, otherwise it may lead to their irretrievable loss.";
-"alert_manage_tokens_unsupported_message" = "Tokens of this blockchain are not supported by your card. For more details, please contact our support team.";
+"alert_manage_tokens_unsupported_message" = "Tokens in Solana network are not supported by this card due to firmware limitation.";
 "contract_address_copied_message" = "Contract address copied!";
 "common_server_unavailable" = "The server is not available, please try again later";
