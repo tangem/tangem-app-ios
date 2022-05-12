@@ -39,4 +39,8 @@ class CurrencySelectViewModel: ViewModel, ObservableObject {
             })
             .store(in: &self.bag)
     }
+    
+    func isSelected(_ currency: CurrenciesResponse.Currency) -> Bool {
+        ratesServiceProvider.ratesService.selectedCurrencyCode == currency.code
+    }
 }
