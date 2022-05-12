@@ -11,9 +11,6 @@ import Combine
 import TangemSdk
 
 class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
-    weak var assembly: Assembly!
-    weak var navigation: NavigationCoordinator!
-    
     let navbarSize: CGSize = .init(width: UIScreen.main.bounds.width, height: 44)
     let resetAnimDuration: Double = 0.3
     
@@ -145,6 +142,7 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
             isNavBarVisible = true
         }
         
+        super.init()
         input.cardInput.cardModel.map { loadImage(for: $0) }
     }
     
