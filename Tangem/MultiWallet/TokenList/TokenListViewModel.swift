@@ -13,9 +13,7 @@ import TangemSdk
 import SwiftUI
 
 class TokenListViewModel: ViewModel, ObservableObject {
-    weak var assembly: Assembly!
-    weak var navigation: NavigationCoordinator!
-    var dataCollector: EmailDataCollector!
+    @Injected(\.negativeFeedbackDataProvider) private var dataCollector: NegativeFeedbackDataProvider
     
     var enteredSearchText = CurrentValueSubject<String, Never>("") //I can't use @Published here, because of swiftui redraw perfomance drop
     
@@ -80,7 +78,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
     
     init(mode: Mode) {
         self.mode = mode
-        
+        super.init()
         enteredSearchText
             .dropFirst()
             .debounce(for: 0.5, scheduler: DispatchQueue.main)
