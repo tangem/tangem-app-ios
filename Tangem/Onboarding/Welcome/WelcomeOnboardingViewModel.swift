@@ -11,13 +11,10 @@ import SwiftUI
 import TangemSdk
 
 class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
-    
-    weak var assembly: Assembly!
-    weak var navigation: NavigationCoordinator!
-    weak var cardsRepository: CardsRepository!
-    weak var stepsSetupService: OnboardingStepsSetupService!
-    weak var backupService: BackupService!
-    weak var failedCardScanTracker: FailedCardScanTracker!
+    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
+    @Injected(\.onboardingStepsSetupService) private var stepsSetupService: OnboardingStepsSetupService
+    @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
+    @Injected(\.failedScanTracker) private var failedCardScanTracker: FailedScanTrackable
     
     @Published var isScanningCard: Bool = false
     @Published var isBackupModal: Bool = false
@@ -32,7 +29,7 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     
     private var bag: Set<AnyCancellable> = []
     private var cardImage: UIImage?
-    
+    private var backupService: BackupService { backupServiceProvider.backupService }
     private var container: CGSize = .zero
     private var userPrefsService: UserPrefsService = .init()
     

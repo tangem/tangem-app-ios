@@ -29,3 +29,8 @@ extension InjectedValues {
     }
 }
 
+extension CardsRepository {
+    func scanPublisher(with batch: String? = nil) ->  AnyPublisher<ScanResult, Error> {
+        scanPublisher(with: batch)
+    }
+}

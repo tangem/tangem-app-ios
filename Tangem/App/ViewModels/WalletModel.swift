@@ -11,16 +11,11 @@ import Combine
 import BlockchainSdk
 
 class WalletModel: ObservableObject, Identifiable {
-    @Published var state: State = .idle
-    @Published var balanceViewModel: BalanceViewModel!
-    @Published var tokenItemViewModels: [TokenItemViewModel] = []
-    @Published var tokenViewModels: [TokenBalanceViewModel] = []
-    @Published var rates: [String: Decimal] = [:]
-    @Published var updateCompletedPublisher: Bool = false
-    
-    weak var ratesService: CurrencyRateService! {
+    @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
+    @Injected(\.transactionSigner) private var signer: TangemSigner
+    @Injected(\.ratesServiceProvider) private var ratesServiceProvider: CurrencyRateServiceProviding {
         didSet {
-            ratesService
+            ratesServiceProvider.ratesService
                 .$selectedCurrencyCodePublished
                 .dropFirst()
                 .sink {[unowned self] _ in
@@ -29,7 +24,13 @@ class WalletModel: ObservableObject, Identifiable {
                 .store(in: &bag)
         }
     }
-    weak var tokenItemsRepository: TokenItemsRepository!
+    
+    @Published var state: State = .idle
+    @Published var balanceViewModel: BalanceViewModel!
+    @Published var tokenItemViewModels: [TokenItemViewModel] = []
+    @Published var tokenViewModels: [TokenBalanceViewModel] = []
+    @Published var rates: [String: Decimal] = [:]
+    @Published var updateCompletedPublisher: Bool = false
     
     var wallet: Wallet { walletManager.wallet }
     
@@ -110,7 +111,6 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     let walletManager: WalletManager
-    let signer: TransactionSigner
     private let defaultToken: Token?
     private let defaultBlockchain: Blockchain?
     private var bag = Set<AnyCancellable>()
@@ -124,13 +124,12 @@ class WalletModel: ObservableObject, Identifiable {
         print("🗑 WalletModel deinit")
     }
     
-    init(walletManager: WalletManager, signer: TransactionSigner, derivationStyle: DerivationStyle, defaultToken: Token?, defaultBlockchain: Blockchain?, demoBalance: Decimal? = nil) {
+    init(walletManager: WalletManager, derivationStyle: DerivationStyle, defaultToken: Token?, defaultBlockchain: Blockchain?, demoBalance: Decimal? = nil) {
         self.defaultToken = defaultToken
         self.defaultBlockchain = defaultBlockchain
         self.walletManager = walletManager
         self.demoBalance = demoBalance
         self.derivationStyle = derivationStyle
-        self.signer = signer
         
         updateBalanceViewModel(with: walletManager.wallet)
         self.walletManager.walletPublisher
@@ -227,7 +226,7 @@ class WalletModel: ObservableObject, Identifiable {
         if let amount = wallet.amounts[amountType],
            let currencyId = self.currencyId(for: amount),
            let rate = rates[currencyId] {
-            rateString = rate.currencyFormatted(code: ratesService.selectedCurrencyCode)
+            rateString = rate.currencyFormatted(code: ratesServiceProvider.ratesService.selectedCurrencyCode)
         }
         
         return rateString
@@ -252,7 +251,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     func getFiatFormatted(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> String? {
-        return getFiat(for: amount, roundingMode: roundingMode)?.currencyFormatted(code: ratesService.selectedCurrencyCode)
+        return getFiat(for: amount, roundingMode: roundingMode)?.currencyFormatted(code: ratesServiceProvider.ratesService.selectedCurrencyCode)
     }
     
     func getFiat(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> Decimal? {
@@ -439,7 +438,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     private func loadRates(for currenciesToExchange: [String]) {
-        ratesService
+        ratesServiceProvider.ratesService
             .rates(for: currenciesToExchange)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in

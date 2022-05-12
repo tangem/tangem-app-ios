@@ -12,16 +12,14 @@ import SwiftUI
 import AVFoundation
 
 class WalletConnectViewModel: ViewModel, ObservableObject {
-    weak var assembly: Assembly!
-    weak var navigation: NavigationCoordinator!
-    weak var walletConnectController: WalletConnectSessionController! {
+    @Injected(\.walletConnectServiceProvider) private var walletConnectProvider: WalletConnectServiceProviding {
         didSet {
             bag.removeAll()
-            
+
             $code
                 .dropFirst()
                 .sink {[unowned self] newCode in
-                    if !self.walletConnectController.handle(url: newCode) {
+                    if !self.walletConnectProvider.service.handle(url: newCode) {
                         self.alert = WalletConnectServiceError.failedToConnect.alertBinder
                     }
                 }
@@ -35,14 +33,14 @@ class WalletConnectViewModel: ViewModel, ObservableObject {
 //                }
 //                .store(in: &bag)
             
-            walletConnectController.isServiceBusy
+            walletConnectProvider.service.isServiceBusy
                 .receive(on: DispatchQueue.main)
                 .sink { [weak self] (isServiceBusy) in
                     self?.isServiceBusy = isServiceBusy
                 }
                 .store(in: &bag)
             
-            walletConnectController.sessionsPublisher
+            walletConnectProvider.service.sessionsPublisher
                 .receive(on: DispatchQueue.main)
                 .sink(receiveValue: { [weak self] in
                     guard let self = self else { return }
@@ -69,7 +67,7 @@ class WalletConnectViewModel: ViewModel, ObservableObject {
             return false
         }
         
-        let canHandle = walletConnectController.canHandle(url: copiedValue)
+        let canHandle = walletConnectProvider.service.canHandle(url: copiedValue)
         if canHandle {
             self.copiedValue = copiedValue
         }
@@ -85,7 +83,7 @@ class WalletConnectViewModel: ViewModel, ObservableObject {
     }
     
     func disconnectSession(at index: Int) {
-        walletConnectController.disconnectSession(at: index)
+        walletConnectProvider.service.disconnectSession(at: index)
         withAnimation {
             self.objectWillChange.send()
         }
