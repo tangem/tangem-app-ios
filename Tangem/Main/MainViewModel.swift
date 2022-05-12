@@ -48,6 +48,8 @@ class MainViewModel: ViewModel, ObservableObject {
     @Published var txIndexToPush: Int? = nil
     @Published var isOnboardingModal: Bool = true
     
+    @Published var tokenItems: [TokenItemViewModel] = []
+    
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
             warnings.objectWillChange
@@ -350,6 +352,7 @@ class MainViewModel: ViewModel, ObservableObject {
                 .sink {[weak self] _ in
                     self?.checkPositiveBalance()
                     print("♻️ Wallet model loading state changed")
+                    self?.updateTotalBalanceTokenList()
                     withAnimation {
                         done()
                     }
@@ -763,6 +766,12 @@ class MainViewModel: ViewModel, ObservableObject {
     
     private func resetViewModel<T>(of typeToReset: T) {
         assembly.reset(key: String(describing: type(of: typeToReset)))
+    }
+    
+    private func updateTotalBalanceTokenList() {
+        guard let cardModel = cardModel,
+              let walletModels = cardModel.walletModels else { return }
+        tokenItems = walletModels.flatMap({ $0.tokenItemViewModels })
     }
 }
 
