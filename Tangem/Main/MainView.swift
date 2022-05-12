@@ -162,6 +162,10 @@ struct MainView: View {
                                      totalCards: viewModel.totalCards)
                             .fixedSize(horizontal: false, vertical: true)
                             
+                            TotalSumBalanceView(currencyRateService: viewModel.assembly.services.ratesService, tokens: viewModel.tokenItemViewModels) {
+                                print("symbol tapped")
+                            }
+                            
                             if isUnsupportdState {
                                 MessageView(title: "wallet_error_unsupported_blockchain".localized, subtitle: "wallet_error_unsupported_blockchain_subtitle".localized, type: .error)
                             } else {
@@ -169,10 +173,6 @@ struct MainView: View {
                                     viewModel.warningButtonAction(at: $0, priority: $1, button: $2)
                                 })
                                 .padding(.horizontal, 16)
-                                
-                                TotalSumBalanceView(currencyRateService: viewModel.assembly.services.ratesService, tokens: viewModel.tokenItemViewModels) {
-                                    print("symbol tapped")
-                                }
                                 
                                 if !viewModel.cardModel!.cardInfo.isMultiWallet {
                                     ForEach(pendingTransactionViews) { $0 }
