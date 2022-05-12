@@ -8,9 +8,7 @@
 
 import Foundation
 
-protocol FailedScanTrackable {
-    var dataForEmail: String { get }
-    var attachment: Data? { get }
+protocol FailedScanTrackable: EmailDataCollector {
     var shouldDisplayAlert: Bool { get }
     
     func resetCounter()
