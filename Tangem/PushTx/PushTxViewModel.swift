@@ -11,11 +11,9 @@ import BlockchainSdk
 import Combine
 
 class PushTxViewModel: ViewModel, ObservableObject {
-    
-    weak var navigation: NavigationCoordinator!
-    weak var assembly: Assembly!
-    weak var ratesService: CurrencyRateService!
-    
+    @Injected(\.ratesServiceProvider) private var ratesServiceProvider: CurrencyRateServiceProviding
+    @Injected(\.transactionSigner) private var signer: TangemSigner
+
     var destination: String { transaction.destinationAddress }
     
     var previousTotal: String {
@@ -25,7 +23,7 @@ class PushTxViewModel: ViewModel, ObservableObject {
     }
     
     var currency: String {
-        isFiatCalculation ? ratesService.selectedCurrencyCode : transaction.amount.currencySymbol
+        isFiatCalculation ? ratesServiceProvider.ratesService.selectedCurrencyCode : transaction.amount.currencySymbol
     }
     
     var walletTotalBalanceDecimals: String {
@@ -78,14 +76,12 @@ class PushTxViewModel: ViewModel, ObservableObject {
     let cardViewModel: CardViewModel
     let blockchainNetwork: BlockchainNetwork
     
-    var emailDataCollector: PushScreenDataCollector!
+    private var emailDataCollector: PushScreenDataCollector
     var transaction: BlockchainSdk.Transaction
     
     lazy var amountDecimal: String = { "\(walletModel.getFiat(for: amountToSend) ?? 0)" }()
     lazy var amount: String = { transaction.amount.description }()
     lazy var previousFee: String = { transaction.fee.description }()
-    
-    private var signer: TransactionSigner
     
     private var emptyValue: String {
         getDescription(for: Amount.zeroCoin(for: blockchainNetwork.blockchain), isFiat: isFiatCalculation)
@@ -95,14 +91,12 @@ class PushTxViewModel: ViewModel, ObservableObject {
     
     @Published private var newTransaction: BlockchainSdk.Transaction?
     
-    init(transaction: BlockchainSdk.Transaction, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel, signer: TransactionSigner, ratesService: CurrencyRateService) {
+    init(transaction: BlockchainSdk.Transaction, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
         self.blockchainNetwork = blockchainNetwork
         self.cardViewModel = cardViewModel
-        self.signer = signer
-        self.ratesService = ratesService
         self.transaction = transaction
         self.amountToSend = transaction.amount
-        
+        self.emailDataCollector = PushScreenDataCollector(pushTxViewModel: self)
         additionalFee = emptyValue
         sendTotal = emptyValue
         sendTotalSubtitle = emptyValue
@@ -308,7 +302,7 @@ class PushTxViewModel: ViewModel, ObservableObject {
             totalFiatAmount = fiatAmount + fiatFee
         }
         
-        let totalFiatAmountFormatted = totalFiatAmount?.currencyFormatted(code: self.ratesService.selectedCurrencyCode)
+        let totalFiatAmountFormatted = totalFiatAmount?.currencyFormatted(code: self.ratesServiceProvider.ratesService.selectedCurrencyCode)
         
         if isFiat {
             sendTotal = totalFiatAmountFormatted ?? emptyValue
