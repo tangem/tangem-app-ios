@@ -24,7 +24,7 @@ extension Assembly {
         .init(steps: .twins([.intro(pairNumber: "0128"),
                              .first, .second, .third,
                              .topup, .done]),
-              cardInput: .cardModel(.previewViewModel(for: .twin)),
+              cardInput: .cardModel(PreviewCard.twin.cardModel),
               cardsPosition: nil,
               welcomeStep: nil,
               currentStepIndex: 0,
