@@ -39,11 +39,7 @@ fileprivate struct OnramperCryptoCurrency: Decodable {
 
 
 class OnramperService {
-    @Injected(\.keysManager) var keysManager: KeysManager {
-        didSet {
-            setupService()
-        }
-    }
+    @Injected(\.keysManager) var keysManager: KeysManager
     
     private var key: String { keysManager.onramperApiKey }
     
@@ -57,29 +53,6 @@ class OnramperService {
     
     deinit {
         print("OnramperService deinit")
-    }
-    
-    private func setupService() {
-        var request = URLRequest(url: URL(string: "https://onramper.tech/gateways")!)
-        request.addValue("Basic \(key)", forHTTPHeaderField: "Authorization")
-        
-        let config = URLSessionConfiguration.default
-        config.requestCachePolicy = .reloadIgnoringLocalCacheData
-        config.urlCache = nil
-        
-        URLSession(configuration: config).dataTaskPublisher(for: request)
-            .map(\.data)
-            .decode(type: OnramperGatewaysResponse.self, decoder: JSONDecoder())
-            .sink { _ in
-                
-            } receiveValue: { [unowned self] response in
-                let currencies = response.gateways.reduce([]) {
-                    $0 + $1.cryptoCurrencies
-                }
-                
-                self.availableCryptoCurrencies = currencies
-            }
-            .store(in: &bag)
     }
     
     private func currencyId(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> String? {
@@ -166,6 +139,29 @@ extension OnramperService: ExchangeService {
     
     func extractSellCryptoRequest(from data: String) -> SellCryptoRequest? {
         return nil
+    }
+    
+    func initialize() {
+        var request = URLRequest(url: URL(string: "https://onramper.tech/gateways")!)
+        request.addValue("Basic \(key)", forHTTPHeaderField: "Authorization")
+        
+        let config = URLSessionConfiguration.default
+        config.requestCachePolicy = .reloadIgnoringLocalCacheData
+        config.urlCache = nil
+        
+        URLSession(configuration: config).dataTaskPublisher(for: request)
+            .map(\.data)
+            .decode(type: OnramperGatewaysResponse.self, decoder: JSONDecoder())
+            .sink { _ in
+                
+            } receiveValue: { [unowned self] response in
+                let currencies = response.gateways.reduce([]) {
+                    $0 + $1.cryptoCurrencies
+                }
+                
+                self.availableCryptoCurrencies = currencies
+            }
+            .store(in: &bag)
     }
 }
 
