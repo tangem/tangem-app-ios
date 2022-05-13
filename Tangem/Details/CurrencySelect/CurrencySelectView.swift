@@ -42,8 +42,7 @@ struct CurrencySelectView: View {
                             }
                             .contentShape(Rectangle())
                             .onTapGesture {
-                                self.viewModel.objectWillChange.send()
-                                self.viewModel.ratesService.selectedCurrencyCode = currency.code
+                                viewModel.onSelect(currency)
                             }
                         }
                     }
