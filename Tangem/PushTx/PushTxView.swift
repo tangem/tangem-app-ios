@@ -76,6 +76,7 @@ struct PushTxView: View {
                             }
                             }
                             .foregroundColor(.tangemBlue)
+                            .buttonStyle(PlainButtonStyle())
                             .disabled(!self.viewModel.canFiatCalculation)
                         }
                         .font(.system(size: 38, weight: .light))
