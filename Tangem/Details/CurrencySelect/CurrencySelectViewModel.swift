@@ -43,4 +43,9 @@ class CurrencySelectViewModel: ViewModel, ObservableObject {
     func isSelected(_ currency: CurrenciesResponse.Currency) -> Bool {
         ratesServiceProvider.ratesService.selectedCurrencyCode == currency.code
     }
+    
+    func onSelect(_ currency: CurrenciesResponse.Currency) {
+       objectWillChange.send()
+       ratesServiceProvider.ratesService.selectedCurrencyCode = currency.code
+    }
 }
