@@ -27,6 +27,20 @@ class CardViewModel: Identifiable, ObservableObject {
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
     @Injected(\.coinsService) private var coinsService: CoinsService
+    @Injected(\.transactionSigner) private var signer: TangemSigner {
+        didSet {
+            signer.signedCardPublisher.sink {[weak self] card in
+                guard let self = self else { return }
+                
+                if self.cardInfo.card.cardId == card.cardId {
+                    self.onSign(card)
+                }
+            }
+            .store(in: &bag)
+        }
+    }
+    
+    
     
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
