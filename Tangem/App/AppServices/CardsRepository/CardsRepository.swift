@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 protocol CardsRepository {
-    var lastScanResult: ScanResult { get }
+    var lastScanResult: ScanResult { get set }
     
     var didScanPublisher: PassthroughSubject<CardInfo, Never> { get }
     
