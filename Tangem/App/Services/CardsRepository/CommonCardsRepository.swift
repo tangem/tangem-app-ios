@@ -21,17 +21,6 @@ import enum TangemSdk.TangemSdkError
 import Intents
 
 class CommonCardsRepository: CardsRepository {
-    @Injected(\.transactionSigner) private var signer: TangemSigner {
-        didSet {
-            signer.signedCardPublisher.sink {[weak self] card in
-                if let cm = self?.cards[card.cardId] {
-                    cm.cardModel?.onSign(card)
-                }
-            }
-            .store(in: &bag)
-        }
-    }
-    
     @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
     @Injected(\.scannedCardsRepository) private var scannedCardsRepository: ScannedCardsRepository
     @Injected(\.assemblyProvider) private var assemblyProvider: AssemblyProviding
