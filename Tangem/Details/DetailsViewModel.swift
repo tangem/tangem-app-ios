@@ -15,17 +15,7 @@ import BlockchainSdk
 class DetailsViewModel: ViewModel, ObservableObject {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     @Injected(\.onboardingStepsSetupService) private var onboardingStepsSetupService: OnboardingStepsSetupService
-    @Injected(\.ratesServiceProvider) private(set) var ratesServiceProvider: CurrencyRateServiceProviding {
-        didSet {
-            ratesServiceProvider.ratesService
-                .$selectedCurrencyCodePublished
-                .receive(on: RunLoop.main)
-                .sink { [weak self] _ in
-                    self?.objectWillChange.send()
-                }
-                .store(in: &bag)
-        }
-    }
+    @Injected(\.currencyRateService) private(set) var currencyRateService: CurrencyRateService
     
     @Published var isCheckingPin = false
     
@@ -127,6 +117,16 @@ class DetailsViewModel: ViewModel, ObservableObject {
     }
     
     private var bag = Set<AnyCancellable>()
+    
+    override func initialize() {
+        currencyRateService
+            .selectedCurrencyCodePublisher
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &bag)
+    }
     
     func updateState() {
         if let cardModel = cardsRepository.lastScanResult.cardModel {
