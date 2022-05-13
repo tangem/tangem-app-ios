@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import Moya
 
-protocol CoinsService {
+protocol CoinsService: ScanListener {
     func checkContractAddress(contractAddress: String, networkId: String?) -> AnyPublisher<[CoinModel], MoyaError>
 }
 
