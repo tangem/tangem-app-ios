@@ -80,6 +80,8 @@ enum PreviewCard {
             walletModels = []
         }
         
+        walletModels.forEach { $0.initialize() }
+        
         vm.state = .loaded(walletModel: walletModels)
 #endif
         return scanResult

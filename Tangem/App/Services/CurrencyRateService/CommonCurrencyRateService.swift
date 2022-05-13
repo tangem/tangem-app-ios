@@ -1,5 +1,5 @@
 //
-//  CurrencyRateService.swift
+//  CommonCurrencyRateService.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,28 +11,19 @@ import Moya
 import Combine
 import TangemSdk
 
-class CurrencyRateService {
-    @Injected(\.cardsRepository) var cardsRepository: CardsRepository {
-        didSet {
-            cardsRepository.didScanPublisher.sink {[weak self] cardInfo in
-                self?.card = cardInfo.card
-            }
-            .store(in: &bag)
-        }
-    }
-    
+class CommonCurrencyRateService: CurrencyRateService {
     @Storage(type: StorageType.selectedCurrencyCode, defaultValue: "USD")
     
     var selectedCurrencyCode: String {
         didSet {
-            selectedCurrencyCodePublished = selectedCurrencyCode
+            selectedCode = selectedCurrencyCode
         }
     }
+       
+    var selectedCurrencyCodePublisher: Published<String>.Publisher { $selectedCode }
     
-    @Published var selectedCurrencyCodePublished: String = ""
-    
+    @Published private var selectedCode: String = ""
     private var card: Card?
-    
     private let provider = MoyaProvider<TangemApiTarget>()
     private var bag: Set<AnyCancellable> = .init()
     
@@ -40,6 +31,10 @@ class CurrencyRateService {
     
     deinit {
         print("CurrencyRateService deinit")
+    }
+    
+    func onScan(cardInfo: CardInfo) {
+        card = cardInfo.card
     }
     
     func baseCurrencies() -> AnyPublisher<[CurrenciesResponse.Currency], MoyaError> {
