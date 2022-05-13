@@ -13,15 +13,6 @@ import BlockchainSdk
 import TangemSdk
 
 class CommonCoinsService: CoinsService {
-    @Injected(\.cardsRepository) var cardsRepository: CardsRepository {
-        didSet {
-            cardsRepository.didScanPublisher.sink {[weak self] cardInfo in
-                self?.card = cardInfo.card
-            }
-            .store(in: &bag)
-        }
-    }
-    
     private let provider = MoyaProvider<TangemApiTarget>()
     private var card: Card?
     private var bag: Set<AnyCancellable> = .init()
@@ -30,6 +21,10 @@ class CommonCoinsService: CoinsService {
     
     deinit {
         print("CoinsService deinit")
+    }
+    
+    func onScan(cardInfo: CardInfo) {
+        self.card = cardInfo.card
     }
     
     func checkContractAddress(contractAddress: String, networkId: String?) -> AnyPublisher<[CoinModel], MoyaError> {
