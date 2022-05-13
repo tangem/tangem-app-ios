@@ -47,4 +47,9 @@ extension CombinedExchangeService: ExchangeService {
     func extractSellCryptoRequest(from data: String) -> SellCryptoRequest? {
         sellService.extractSellCryptoRequest(from: data)
     }
+    
+    func initialize() {
+        buyService.initialize()
+        sellService.initialize()
+    }
 }

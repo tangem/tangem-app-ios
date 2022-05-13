@@ -18,7 +18,7 @@ struct CardPinSettings {
     var isPin2Default: Bool? = nil
 }
 
-class CardViewModel: Identifiable, ObservableObject {
+class CardViewModel: Identifiable, ObservableObject, Initializable {
     //MARK: Services
     @Injected(\.cardImageLoader) var imageLoader: CardImageLoaderProtocol
     @Injected(\.assemblyProvider) private var assemblyProvider: AssemblyProviding
@@ -27,20 +27,7 @@ class CardViewModel: Identifiable, ObservableObject {
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
     @Injected(\.coinsService) private var coinsService: CoinsService
-    @Injected(\.transactionSigner) private var signer: TangemSigner {
-        didSet {
-            signer.signedCardPublisher.sink {[weak self] card in
-                guard let self = self else { return }
-                
-                if self.cardInfo.card.cardId == card.cardId {
-                    self.onSign(card)
-                }
-            }
-            .store(in: &bag)
-        }
-    }
-    
-    
+    @Injected(\.transactionSigner) private var signer: TangemSigner
     
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
@@ -265,6 +252,16 @@ class CardViewModel: Identifiable, ObservableObject {
         updateCurrentSecOption()
     }
     
+    func initialize() {
+        signer.signedCardPublisher.sink {[weak self] card in
+            guard let self = self else { return }
+            
+            if self.cardInfo.card.cardId == card.cardId {
+                self.onSign(card)
+            }
+        }
+        .store(in: &bag)
+    }
 
 //    func loadPayIDInfo () {
 //        guard featuresService?.canReceiveToPayId ?? false else {

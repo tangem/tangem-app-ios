@@ -34,3 +34,7 @@ extension CardsRepository {
         scanPublisher(with: batch)
     }
 }
+
+protocol ScanListener {
+    func onScan(cardInfo: CardInfo)
+}
