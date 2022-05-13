@@ -36,10 +36,10 @@ class CommonCardsRepository: CardsRepository {
     @Injected(\.scannedCardsRepository) private var scannedCardsRepository: ScannedCardsRepository
     @Injected(\.assemblyProvider) private var assemblyProvider: AssemblyProviding
     
-    private(set) var cards = [String: ScanResult]()
-    private(set) var lastScanResult: ScanResult = .notScannedYet
-    
+    var lastScanResult: ScanResult = .notScannedYet
     var didScanPublisher: PassthroughSubject<CardInfo, Never> = .init()
+    
+    private(set) var cards = [String: ScanResult]()
     
     private var bag: Set<AnyCancellable> = .init()
     
