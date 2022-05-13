@@ -151,7 +151,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         
         if assembly.isPreview {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                self.cardModel = Assembly.PreviewCard.scanResult(for: .cardanoNoteEmptyWallet, assembly: self.assembly).cardModel!
+                self.cardModel = PreviewCard.cardanoNoteEmptyWallet.cardModel
                 self.updateCardBalanceText(for: self.cardModel!.walletModels!.first!)
                 self.isMainButtonBusy = false
                 self.goToNextStep()
@@ -237,7 +237,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     
     private func readPreviewCard() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            let previewModel = Assembly.PreviewCard.scanResult(for: .ethEmptyNote, assembly: self.assembly).cardModel!
+            let previewModel = PreviewCard.ethEmptyNote.cardModel
             self.cardModel = previewModel
             self.stepsSetupService.steps(for: previewModel.cardInfo)
                 .sink { _ in }
