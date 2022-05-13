@@ -10,20 +10,10 @@ import Foundation
 import Combine
 import BlockchainSdk
 
-class WalletModel: ObservableObject, Identifiable {
+class WalletModel: ObservableObject, Identifiable, Initializable {
     @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
     @Injected(\.transactionSigner) private var signer: TangemSigner
-    @Injected(\.ratesServiceProvider) private var ratesServiceProvider: CurrencyRateServiceProviding {
-        didSet {
-            ratesServiceProvider.ratesService
-                .$selectedCurrencyCodePublished
-                .dropFirst()
-                .sink {[unowned self] _ in
-                    self.loadRates()
-                }
-                .store(in: &bag)
-        }
-    }
+    @Injected(\.currencyRateService) private var currencyRateService: CurrencyRateService
     
     @Published var state: State = .idle
     @Published var balanceViewModel: BalanceViewModel!
@@ -148,6 +138,16 @@ class WalletModel: ObservableObject, Identifiable {
             .store(in: &bag)
     }
     
+    func initialize() {
+        currencyRateService
+            .selectedCurrencyCodePublisher
+            .dropFirst()
+            .sink {[unowned self] _ in
+                self.loadRates()
+            }
+            .store(in: &bag)
+    }
+    
     func update(silent: Bool = false) {
         DispatchQueue.main.async {
             if let latestUpdateTime = self.latestUpdateTime,
@@ -226,7 +226,7 @@ class WalletModel: ObservableObject, Identifiable {
         if let amount = wallet.amounts[amountType],
            let currencyId = self.currencyId(for: amount),
            let rate = rates[currencyId] {
-            rateString = rate.currencyFormatted(code: ratesServiceProvider.ratesService.selectedCurrencyCode)
+            rateString = rate.currencyFormatted(code: currencyRateService.selectedCurrencyCode)
         }
         
         return rateString
@@ -251,7 +251,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     func getFiatFormatted(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> String? {
-        return getFiat(for: amount, roundingMode: roundingMode)?.currencyFormatted(code: ratesServiceProvider.ratesService.selectedCurrencyCode)
+        return getFiat(for: amount, roundingMode: roundingMode)?.currencyFormatted(code: currencyRateService.selectedCurrencyCode)
     }
     
     func getFiat(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> Decimal? {
@@ -438,7 +438,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     private func loadRates(for currenciesToExchange: [String]) {
-        ratesServiceProvider.ratesService
+        currencyRateService
             .rates(for: currenciesToExchange)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in
