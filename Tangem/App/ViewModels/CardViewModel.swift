@@ -826,10 +826,3 @@ extension CardViewModel {
         }
     }
 }
-
-
-extension CardViewModel {
-    static func previewViewModel(for card: Assembly.PreviewCard) -> CardViewModel {
-        Assembly.previewCardViewModel(for: card)
-    }
-}
