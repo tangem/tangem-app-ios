@@ -65,7 +65,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
             previewUpdates += 1
             
             if self.previewUpdates >= 3 {
-                self.cardModel = Assembly.PreviewCard.scanResult(for: .cardanoNote, assembly: assembly).cardModel!
+                self.cardModel = PreviewCard.cardanoNote.cardModel
                 self.previewUpdates = 0
             }
         }
