@@ -11,7 +11,7 @@ import BlockchainSdk
 import Combine
 
 class PushTxViewModel: ViewModel, ObservableObject {
-    @Injected(\.ratesServiceProvider) private var ratesServiceProvider: CurrencyRateServiceProviding
+    @Injected(\.currencyRateService) private var currencyRateService: CurrencyRateService
     @Injected(\.transactionSigner) private var signer: TangemSigner
 
     var destination: String { transaction.destinationAddress }
@@ -23,7 +23,7 @@ class PushTxViewModel: ViewModel, ObservableObject {
     }
     
     var currency: String {
-        isFiatCalculation ? ratesServiceProvider.ratesService.selectedCurrencyCode : transaction.amount.currencySymbol
+        isFiatCalculation ? currencyRateService.selectedCurrencyCode : transaction.amount.currencySymbol
     }
     
     var walletTotalBalanceDecimals: String {
@@ -301,7 +301,7 @@ class PushTxViewModel: ViewModel, ObservableObject {
             totalFiatAmount = fiatAmount + fiatFee
         }
         
-        let totalFiatAmountFormatted = totalFiatAmount?.currencyFormatted(code: self.ratesServiceProvider.ratesService.selectedCurrencyCode)
+        let totalFiatAmountFormatted = totalFiatAmount?.currencyFormatted(code: self.currencyRateService.selectedCurrencyCode)
         
         if isFiat {
             sendTotal = totalFiatAmountFormatted ?? emptyValue
