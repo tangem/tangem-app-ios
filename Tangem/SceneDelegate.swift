@@ -21,6 +21,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private var deferredIntents: [NSUserActivity] = []
     private var deferredIntentWork: DispatchWorkItem?
     private let servicesManager: ServicesManager = .init()
+    
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         
         servicesManager.initialize()
