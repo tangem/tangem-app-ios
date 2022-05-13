@@ -19,7 +19,7 @@ struct TextHint {
 }
 
 class SendViewModel: ViewModel, ObservableObject {
-    @Injected(\.ratesServiceProvider) private var ratesServiceProvider: CurrencyRateServiceProviding
+    @Injected(\.currencyRateService) private var ratesService: CurrencyRateService
     @Injected(\.appFeaturesService) private var featuresService: AppFeaturesProviding
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
     
@@ -170,7 +170,6 @@ class SendViewModel: ViewModel, ObservableObject {
     
     @Published private var validatedXrpDestinationTag: UInt32? = nil
     
-    private var ratesService: CurrencyRateService { ratesServiceProvider.ratesService }
     private var blockchainNetwork: BlockchainNetwork
    
     private lazy var payIDService: PayIDService? = {

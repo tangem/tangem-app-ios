@@ -12,15 +12,7 @@ import Combine
 
 class AppFeaturesService {
     @Injected(\.remoteConfigurationProvider) var configProvider: RemoteConfigurationProviding
-    @Injected(\.cardsRepository) var cardsRepository: CardsRepository {
-        didSet {
-            cardsRepository.didScanPublisher.sink {[weak self] cardInfo in
-                self?.setupFeatures(for: cardInfo.card)
-            }
-            .store(in: &bag)
-        }
-    }
-    
+
     private var features: Set<AppFeature> = .all
     private var bag = Set<AnyCancellable>()
     
@@ -30,10 +22,6 @@ class AppFeaturesService {
         print("AppFeaturesService deinit")
     }
 	
-	private func setupFeatures(for card: Card) {
-		features = getFeatures(for: card)
-	}
-    
     private func getFeatures(for card: Card) -> Set<AppFeature> {
         if card.isStart2Coin {
             return .none
@@ -80,4 +68,8 @@ extension AppFeaturesService: AppFeaturesProviding {
 	var canReceiveToPayId: Bool { features.contains(.payIDReceive) }
 	
 	var canExchangeCrypto: Bool { features.contains(.topup) }
+    
+    func onScan(cardInfo: CardInfo) {
+        features = getFeatures(for: cardInfo.card)
+    }
 }
