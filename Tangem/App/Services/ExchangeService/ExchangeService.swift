@@ -9,7 +9,7 @@
 import Foundation
 import BlockchainSdk
 
-protocol ExchangeService: AnyObject {
+protocol ExchangeService: AnyObject, Initializable {
     var successCloseUrl: String { get }
     var sellRequestUrl: String { get }
     func canBuy(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool
