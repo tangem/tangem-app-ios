@@ -65,17 +65,6 @@ struct TokenListView: View {
                 }
                 
                 overlay
-                
-                Color.clear.frame(width: 1, height: 1)
-                    .sheet(isPresented: $navigation.detailsToSendEmail) {
-                        if let cardModel = viewModel.cardModel {
-                            MailView(dataCollector: viewModel.dataCollector,
-                                     support: cardModel.emailSupport,
-                                     emailType: .appFeedback(support: cardModel.isStart2CoinCard ? .start2coin : .tangem))
-                        } else {
-                            EmptyView()
-                        }
-                    }
             }
             .navigationBarBackButtonHidden(true)
             .navigationBarTitle(viewModel.titleKey, displayMode: UIDevice.isIOS13 ? .inline : .automatic)
