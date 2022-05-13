@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 class CurrencySelectViewModel: ViewModel, ObservableObject {
-    @Injected(\.ratesServiceProvider) private var ratesServiceProvider: CurrencyRateServiceProviding
+    @Injected(\.currencyRateService) private var currencyRateService: CurrencyRateService
     
     @Published var loading: Bool = false
     @Published var currencies: [CurrenciesResponse.Currency] = []
@@ -20,7 +20,7 @@ class CurrencySelectViewModel: ViewModel, ObservableObject {
     
     func onAppear() {
         loading = true
-        ratesServiceProvider.ratesService
+        currencyRateService
             .baseCurrencies()
             .receive(on: DispatchQueue.main)
             .mapError { _ in
@@ -41,11 +41,11 @@ class CurrencySelectViewModel: ViewModel, ObservableObject {
     }
     
     func isSelected(_ currency: CurrenciesResponse.Currency) -> Bool {
-        ratesServiceProvider.ratesService.selectedCurrencyCode == currency.code
+        currencyRateService.selectedCurrencyCode == currency.code
     }
     
     func onSelect(_ currency: CurrenciesResponse.Currency) {
        objectWillChange.send()
-       ratesServiceProvider.ratesService.selectedCurrencyCode = currency.code
+        currencyRateService.selectedCurrencyCode = currency.code
     }
 }
