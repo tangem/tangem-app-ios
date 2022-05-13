@@ -138,7 +138,7 @@ struct DetailsView: View {
                 NavigationLink(destination: CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel()),
                                tag: NavigationTag.currency, selection: $selection) {
                     DetailsRowView(title: "details_row_title_currency".localized,
-                                   subtitle: viewModel.ratesServiceProvider.ratesService.selectedCurrencyCode)
+                                   subtitle: viewModel.currencyRateService.selectedCurrencyCode)
                     
                 }
                 
