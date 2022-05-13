@@ -99,7 +99,7 @@ class WalletConnectService: ObservableObject {
     fileprivate var wallet: WalletInfo? = nil
     private let sessionsKey = "wc_sessions"
     
-    private unowned var cardScanner: WalletConnectCardScanner
+    private let cardScanner: WalletConnectCardScanner
     private var bag: Set<AnyCancellable> = []
     private var isWaitingToConnect: Bool = false
     private var timer: DispatchWorkItem?
