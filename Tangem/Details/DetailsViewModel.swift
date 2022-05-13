@@ -15,7 +15,7 @@ import BlockchainSdk
 class DetailsViewModel: ViewModel, ObservableObject {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     @Injected(\.onboardingStepsSetupService) private var onboardingStepsSetupService: OnboardingStepsSetupService
-    @Injected(\.ratesServiceProvider) private var ratesServiceProvider: CurrencyRateServiceProviding {
+    @Injected(\.ratesServiceProvider) private(set) var ratesServiceProvider: CurrencyRateServiceProviding {
         didSet {
             ratesServiceProvider.ratesService
                 .$selectedCurrencyCodePublished
@@ -28,8 +28,6 @@ class DetailsViewModel: ViewModel, ObservableObject {
     }
     
     @Published var isCheckingPin = false
-    
-    weak var ratesService: CurrencyRateService!
     
     @Published var cardModel: CardViewModel! {
         didSet {
