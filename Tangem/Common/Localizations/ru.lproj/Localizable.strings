@@ -195,7 +195,7 @@ This disclaimer was amended for the last time on October 1st, 2020.";
 "onboarding_alert_twins_recreate_subtitle" = "Это действие необратимо. У вас не будет доступа к старому кошельку.";
 "onboarding_backup_exit_warning" = "Процесс резервного копирования почти завершен. Вы не можете выйти из него сейчас.";
 "onboarding_balance" = "ДОСТУПНО";
-"main_page_balance" = "БАЛАНС";
+"main_page_balance" = "Баланс";
 "onboarding_button_add_backup_card" = "Добавить резервную карту";
 "onboarding_button_backup_card" = "Сканировать карту #%d";
 "onboarding_button_backup_now" = "Создать резервную копию";
