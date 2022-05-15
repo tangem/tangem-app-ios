@@ -164,9 +164,7 @@ struct MainView: View {
                                      currentCardNumber: viewModel.cardNumber,
                                      totalCards: viewModel.totalCards)
                             .fixedSize(horizontal: false, vertical: true)
-                            
-                            TotalSumBalanceView(viewModel: TotalSumBalanceViewModel(currencyRateService: viewModel.assembly.services.ratesService,
-                                                                                    tokens: viewModel.$tokenItems)) {
+                            TotalSumBalanceView(viewModel: viewModel.assembly.makeTotalSumBalanceViewModel(tokens: viewModel.$tokenItems)) {
                                 viewModel.showCurrencyChangeScreen()
                             }
                             
