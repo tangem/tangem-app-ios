@@ -770,7 +770,10 @@ class MainViewModel: ViewModel, ObservableObject {
     
     private func updateTotalBalanceTokenList() {
         guard let cardModel = cardModel,
-              let walletModels = cardModel.walletModels else { return }
+              let walletModels = cardModel.walletModels
+        else {
+            return
+        }
         tokenItems = walletModels.flatMap({ $0.tokenItemViewModels })
     }
 }
