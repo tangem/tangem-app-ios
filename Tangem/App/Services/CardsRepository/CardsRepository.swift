@@ -38,3 +38,7 @@ extension CardsRepository {
 protocol ScanListener {
     func onScan(cardInfo: CardInfo)
 }
+
+enum CardsRepositoryError: Error {
+    case noCard
+}
