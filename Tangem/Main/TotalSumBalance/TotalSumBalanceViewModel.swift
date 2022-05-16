@@ -53,11 +53,11 @@ class TotalSumBalanceViewModel: ObservableObject {
                 
             } receiveValue: { currencies in
                 guard let currency = currencies.first(where: { $0.code == self.currencyRateService.selectedCurrencyCode }) else { return }
-                var countFiatValue: Decimal = 0.0
+                var totalFiatValue: Decimal = 0.0
                 self.tokenItems.forEach { token in
-                    countFiatValue += token.fiatValue
+                    totalFiatValue += token.fiatValue
                 }
-                self.totalFiatValueString = "\(currency.unit) \(countFiatValue)"
+                self.totalFiatValueString = "\(currency.unit) \(totalFiatValue)"
                 self.disableLoading()
             }.store(in: &bag)
     }
