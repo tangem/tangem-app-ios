@@ -7,15 +7,14 @@
 //
 
 import Foundation
-import Moya
 import Combine
 
-protocol CurrencyRateService: ScanListener {
+protocol CurrencyRateService {
     var selectedCurrencyCode: String { get set }
     var selectedCurrencyCodePublisher: Published<String>.Publisher { get }
     
     func rates(for coinIds: [String]) -> AnyPublisher<[String: Decimal], Never>
-    func baseCurrencies() -> AnyPublisher<[CurrenciesResponse.Currency], MoyaError>
+    func baseCurrencies() -> AnyPublisher<[CurrenciesResponse.Currency], Error>
 }
 
 private struct CurrencyRateServiceKey: InjectionKey {
