@@ -390,6 +390,16 @@
           ]
         },
         {
+          "id" : "arbitrum",
+          "symbol" : "ETH",
+          "name" : "Arbitrum",
+          "networks" : [
+              {
+                  "networkId" : "arbitrum/test"
+              }
+          ]
+        },
+        {
             "id" : "stellar",
             "symbol" : "XLM",
             "name" : "Stellar",
