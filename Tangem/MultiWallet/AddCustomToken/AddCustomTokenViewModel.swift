@@ -303,7 +303,6 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         
         return coinsService
             .checkContractAddress(contractAddress: contractAddress, networkId: nil)
-            .replaceError(with: [])
             .eraseToAnyPublisher()
     }
     
