@@ -55,4 +55,20 @@ extension View {
             self.edgesIgnoringSafeArea(.bottom)
         }
     }
+    
+    @ViewBuilder func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
+        if condition {
+            transform(self)
+        } else {
+            self
+        }
+    }
+    
+    @ViewBuilder func redactedIfPossible(_ condition: Bool) -> some View {
+        if #available(iOS 14, *) {
+            self.redacted(reason: condition ? .placeholder : [])
+        } else {
+            self
+        }
+    }
 }
