@@ -205,7 +205,7 @@ class WalletModel: ObservableObject, Identifiable {
     func currencyId(for amount: Amount) -> String? {
         switch amount.type {
         case .coin, .reserve:
-            return walletManager.wallet.blockchain.id
+            return walletManager.wallet.blockchain.currencyId
         case .token(let token):
             return token.id
         }
@@ -433,7 +433,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     private func loadRates() {
-        let currenciesToExchange = [walletManager.wallet.blockchain.id] + walletManager.cardTokens.compactMap { $0.id }
+        let currenciesToExchange = [walletManager.wallet.blockchain.currencyId] + walletManager.cardTokens.compactMap { $0.id }
         
         loadRates(for: Array(currenciesToExchange))
     }
