@@ -28,9 +28,7 @@ class ServicesManager {
     
     private func bind() {
         cardsRepository.didScanPublisher.sink {[weak self] cardInfo in
-            self?.appFeaturesService.onScan(cardInfo: cardInfo)
-            self?.coinsService.onScan(cardInfo: cardInfo)
-            self?.currencyRateService.onScan(cardInfo: cardInfo)
+         //subscrive to scan here
         }
         .store(in: &bag)
     }
