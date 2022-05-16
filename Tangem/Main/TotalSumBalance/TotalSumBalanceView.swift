@@ -61,7 +61,6 @@ struct TotalSumBalanceView: View {
                 Spacer()
             }
             .frame(height: 101)
-            .frame(maxWidth: .infinity)
             .background(Color.white)
             .cornerRadius(16)
             .padding([.leading, .trailing], 16)
