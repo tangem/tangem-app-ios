@@ -88,6 +88,8 @@ class NavigationCoordinator: ObservableObject {
     @Published var tokensToCustomToken: Bool = false
     
     @Published var onboardingReset = false
+    
+    @Published var currencyChangeView = false
 
     func popToRoot() {
         readToMain = false
