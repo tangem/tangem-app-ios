@@ -155,6 +155,11 @@ extension Assembly {
         return vm
     }
     
+    func makeTotalSumBalanceViewModel(tokens: Published<[TokenItemViewModel]>.Publisher) -> TotalSumBalanceViewModel {
+        let viewModel = TotalSumBalanceViewModel(currencyRateService: services.ratesService, tokens: tokens)
+        return viewModel
+    }
+    
     func makeTokenDetailsViewModel(blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType = .coin) -> TokenDetailsViewModel {
         if let restored: TokenDetailsViewModel = get() {
             return restored
