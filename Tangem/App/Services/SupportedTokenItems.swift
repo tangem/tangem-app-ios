@@ -44,6 +44,7 @@ class SupportedTokenItems {
 //            .kusama,
             .fantom(testnet: false),
             .tron(testnet: false),
+            .arbitrum(testnet: false),
         ]
     }()
 
@@ -61,6 +62,7 @@ class SupportedTokenItems {
             .fantom(testnet: true),
            // .polkadot(testnet: true),
             .tron(testnet: true),
+            .arbitrum(testnet: true),
         ]
     }()
     
