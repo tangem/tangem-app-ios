@@ -34,7 +34,7 @@ struct TotalSumBalanceView: View {
                         HStack(spacing: 0) {
                             Text(viewModel.currencyType)
                                 .font(Font.system(size: 16, weight: .medium))
-                                .foregroundColor(Color.tangemBalanceCurrencyGray)
+                                .foregroundColor(Color.tangemGrayDark)
                                 .padding(.trailing, 6)
                             Image("tangemArrowDown")
                                 .foregroundColor(Color.tangemTextGray)
