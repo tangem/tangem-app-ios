@@ -245,6 +245,8 @@ class MainViewModel: ViewModel, ObservableObject {
         guard let cardModel = cardModel,
               let walletModels = cardModel.walletModels else { return [] }
         
+        updateTotalBalanceTokenList()
+        
         return walletModels
             .flatMap ({ $0.tokenItemViewModels })
     }
@@ -363,7 +365,6 @@ class MainViewModel: ViewModel, ObservableObject {
                 .sink {[weak self] _ in
                     self?.checkPositiveBalance()
                     print("♻️ Wallet model loading state changed")
-                    self?.updateTotalBalanceTokenList()
                     withAnimation {
                         done()
                     }
@@ -785,7 +786,11 @@ class MainViewModel: ViewModel, ObservableObject {
         else {
             return
         }
-        tokenItems = walletModels.flatMap({ $0.tokenItemViewModels })
+        
+        let newTokens = walletModels.flatMap({ $0.tokenItemViewModels })
+        if tokenItems != newTokens {
+            tokenItems = newTokens
+        }
     }
 }
 
