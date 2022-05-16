@@ -57,9 +57,7 @@ class TotalSumBalanceViewModel: ObservableObject {
                     totalFiatValue += token.fiatValue
                 }
                 
-                let formatter = self.currencyValue(code: currency.code)
-                
-                self.totalFiatValueString = formatter.string(from: NSDecimalNumber(decimal: totalFiatValue)) ?? ""
+                self.totalFiatValueString = totalFiatValue.currencyFormatted(code: currency.code)
                 
                 self.disableLoading()
             }.store(in: &bag)
@@ -69,14 +67,6 @@ class TotalSumBalanceViewModel: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             self.isLoading = false
         }
-    }
-    
-    private func currencyValue(code: String) -> NumberFormatter {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.maximumFractionDigits = 2
-        formatter.currencyCode = code
-        return formatter
     }
     
 }
