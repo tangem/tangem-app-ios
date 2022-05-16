@@ -60,11 +60,13 @@ struct TotalSumBalanceView: View {
                 
                 Spacer()
             }
-            .frame(width: screenSize.width - 32, height: 101)
+            .frame(height: 101)
+            .frame(maxWidth: .infinity)
             .background(Color.white)
             .cornerRadius(16)
+            .padding([.leading, .trailing], 16)
         }
-        .frame(width: screenSize.width, height: 120)
+        .frame(height: 120)
         .background(Color.clear)
         .onDisappear {
             viewModel.disableLoading()
