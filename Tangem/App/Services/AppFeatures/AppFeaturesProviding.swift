@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol AppFeaturesProviding: ScanListener {
+protocol AppFeaturesProviding {
     var canSetAccessCode: Bool { get }
     var canSetPasscode: Bool { get }
     var canCreateTwin: Bool { get }
