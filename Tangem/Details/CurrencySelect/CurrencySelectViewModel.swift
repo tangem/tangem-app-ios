@@ -23,9 +23,6 @@ class CurrencySelectViewModel: ViewModel, ObservableObject {
         currencyRateService
             .baseCurrencies()
             .receive(on: DispatchQueue.main)
-            .mapError { _ in
-                AppError.serverUnavailable
-            }
             .sink(receiveCompletion: {[weak self] completion in
                 if case let .failure(error) = completion {
                     self?.error = error.alertBinder
