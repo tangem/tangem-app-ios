@@ -32,7 +32,9 @@ class TotalSumBalanceViewModel: ObservableObject {
                 return
             }
             self?.tokenItems = newValue
-            self?.refresh()
+            DispatchQueue.main.async {
+                self?.refresh()
+            }
         }.store(in: &bag)
     }
     
@@ -41,9 +43,7 @@ class TotalSumBalanceViewModel: ObservableObject {
         else {
             return
         }
-        withAnimation {
-            isLoading = true
-        }
+        isLoading = true
         currencyType = currencyRateService.selectedCurrencyCode
         currencyRateService
             .baseCurrencies()
@@ -56,16 +56,27 @@ class TotalSumBalanceViewModel: ObservableObject {
                 self.tokenItems.forEach { token in
                     totalFiatValue += token.fiatValue
                 }
-                self.totalFiatValueString = "\(currency.unit) \(totalFiatValue)"
+                
+                let formatter = self.currencyValue(code: currency.code)
+                
+                self.totalFiatValueString = formatter.string(from: NSDecimalNumber(decimal: totalFiatValue)) ?? ""
+                
                 self.disableLoading()
             }.store(in: &bag)
     }
     
     func disableLoading() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            withAnimation {
-                self.isLoading = false
-            }
+            self.isLoading = false
         }
     }
+    
+    private func currencyValue(code: String) -> NumberFormatter {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.maximumFractionDigits = 2
+        formatter.currencyCode = code
+        return formatter
+    }
+    
 }
