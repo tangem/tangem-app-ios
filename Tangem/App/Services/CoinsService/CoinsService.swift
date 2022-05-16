@@ -10,8 +10,8 @@ import Foundation
 import Combine
 import Moya
 
-protocol CoinsService: ScanListener {
-    func checkContractAddress(contractAddress: String, networkId: String?) -> AnyPublisher<[CoinModel], MoyaError>
+protocol CoinsService {
+    func checkContractAddress(contractAddress: String, networkId: String?) -> AnyPublisher<[CoinModel], Never>
 }
 
 private struct CoinsServiceKey: InjectionKey {
