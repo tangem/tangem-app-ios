@@ -12,7 +12,6 @@ import Combine
 struct TotalSumBalanceView: View {
     
     @ObservedObject var viewModel: TotalSumBalanceViewModel
-    @Environment(\.screenSize) var screenSize: CGRect
     
     var tapOnCurrencySymbol: () -> ()
     
@@ -44,6 +43,7 @@ struct TotalSumBalanceView: View {
                     .buttonStyle(PlainButtonStyle())
                     .padding(.top, 22)
                 }
+                .padding(.bottom, 4)
                 
                 HStack(spacing: 0) {
                     Text(viewModel.isLoading ? "wallet_balance_loading".localized : viewModel.totalFiatValueString)
@@ -56,16 +56,12 @@ struct TotalSumBalanceView: View {
                         .padding(.leading, 20)
                     Spacer()
                 }
-                .padding(.top, 4)
-                
-                Spacer()
+                .padding(.bottom, 16)
             }
-            .frame(height: 101)
             .background(Color.white)
             .cornerRadius(16)
             .padding([.leading, .trailing], 16)
         }
-        .frame(height: 120)
         .background(Color.clear)
         .onDisappear {
             viewModel.disableLoading()
