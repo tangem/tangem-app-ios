@@ -1468,6 +1468,7 @@
 		5DFCCB6D24C372830014A293 /* Main */ = {
 			isa = PBXGroup;
 			children = (
+				652B013D28322CAB00F2E27A /* TotalSumBalance */,
 				5DFCCB6E24C3728E0014A293 /* MainView.swift */,
 				5DFCCB7024C372980014A293 /* MainViewModel.swift */,
 				5DFB499724E54A340037E76F /* BalanceView.swift */,
@@ -1477,8 +1478,6 @@
 				5DF2522824F93C2A0015B429 /* QRCodeView.swift */,
 				5DD6DF20251E018A00F2693E /* AlertCardView.swift */,
 				B03ACAC82567CFFF00F5D269 /* CardView.swift */,
-				652B0135282C0A7800F2E27A /* TotalSumBalanceView.swift */,
-				652B013928319F9000F2E27A /* TotalSumBalanceViewModel.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -1492,6 +1491,15 @@
 				5DCC20BC2500FC58007B467E /* QRScannerView.swift */,
 			);
 			path = Send;
+			sourceTree = "<group>";
+		};
+		652B013D28322CAB00F2E27A /* TotalSumBalance */ = {
+			isa = PBXGroup;
+			children = (
+				652B0135282C0A7800F2E27A /* TotalSumBalanceView.swift */,
+				652B013928319F9000F2E27A /* TotalSumBalanceViewModel.swift */,
+			);
+			path = TotalSumBalance;
 			sourceTree = "<group>";
 		};
 		B018F3012591FED600D8F89A /* JsonSettings */ = {
