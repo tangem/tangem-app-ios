@@ -12,8 +12,42 @@ import Combine
 
 class AppFeaturesService {
     @Injected(\.remoteConfigurationProvider) var configProvider: RemoteConfigurationProviding
+    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
+    
+    var features: Set<AppFeature> {
+        guard let card = cardsRepository.lastScanResult.card else {
+            return .all
+        }
+        
+        if card.isStart2Coin {
+            return .none
+        }
+        
+        var features =  Set<AppFeature>.all
+        let configFeatures = configProvider.features
+        
+        if card.isTwinCard ||
+            !configFeatures.isWalletPayIdEnabled {
+            features.remove(.payIDReceive)
+        }
+        
+        if !configFeatures.isSendingToPayIdEnabled {
+            features.remove(.payIDSend)
+        }
+        
+        if !configFeatures.isCreatingTwinCardsAllowed {
+            features.remove(.twinCreation)
+        }
+        
+        if !configFeatures.isTopUpEnabled {
+            features.remove(.topup)
+        }
 
-    private var features: Set<AppFeature> = .all
+        features.remove(.pins)
+        
+        return features
+    }
+    
     private var bag = Set<AnyCancellable>()
     
     init() {}
@@ -21,37 +55,6 @@ class AppFeaturesService {
     deinit {
         print("AppFeaturesService deinit")
     }
-	
-    private func getFeatures(for card: Card) -> Set<AppFeature> {
-        if card.isStart2Coin {
-            return .none
-        }
-        
-		var features =  Set<AppFeature>.all
-        let configFeatures = configProvider.features
-		
-        if card.isTwinCard ||
-			!configFeatures.isWalletPayIdEnabled {
-			features.remove(.payIDReceive)
-        }
-		
-		if !configFeatures.isSendingToPayIdEnabled {
-			features.remove(.payIDSend)
-		}
-		
-		if !configFeatures.isCreatingTwinCardsAllowed {
-			features.remove(.twinCreation)
-		}
-		
-		if !configFeatures.isTopUpEnabled {
-			features.remove(.topup)
-		}
-
-        features.remove(.pins)
-        
-        return features
-    }
-	
 }
 
 extension AppFeaturesService: AppFeaturesProviding {    
@@ -68,8 +71,4 @@ extension AppFeaturesService: AppFeaturesProviding {
 	var canReceiveToPayId: Bool { features.contains(.payIDReceive) }
 	
 	var canExchangeCrypto: Bool { features.contains(.topup) }
-    
-    func onScan(cardInfo: CardInfo) {
-        features = getFeatures(for: cardInfo.card)
-    }
 }
