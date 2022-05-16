@@ -198,7 +198,7 @@ struct MainView: View {
                                 } else {
                                     if viewModel.cardModel!.cardInfo.isMultiWallet {
                                         
-                                        TotalSumBalanceView(viewModel: viewModel.assembly.makeTotalSumBalanceViewModel(currencyRateService: viewModel.assembly.services.ratesService, tokens: viewModel.$tokenItems)) {
+                                        TotalSumBalanceView(viewModel: viewModel.assembly.makeTotalSumBalanceViewModel(tokens: viewModel.$tokenItems)) {
                                             viewModel.showCurrencyChangeScreen()
                                         }
                                         
