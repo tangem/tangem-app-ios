@@ -12,14 +12,14 @@ import TangemSdk
 import BlockchainSdk
 
 class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, ObservableObject {
-    
-    let backupService: BackupService
+    @Injected(\.cardImageLoader) private var imageLoader: CardImageLoaderProtocol
+    @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
+    @Injected(\.tokenItemsRepository) private var tokensRepo: TokenItemsRepository
+    @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     
     @Published var thirdCardSettings: AnimatedViewSettings = .zero
     @Published var canDisplayCardImage: Bool = false
     
-    private weak var tokensRepo: TokenItemsRepository!
-    private weak var imageLoaderService: CardImageLoaderService!
     private var stackCalculator: StackCalculator = .init()
     private var fanStackCalculator: FanStackCalculator = .init()
     private var stepPublisher: AnyCancellable?
@@ -48,7 +48,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         case .backupCards:
             switch backupServiceState {
             case .finalizingPrimaryCard: return "onboarding_title_prepare_origin"
-            case .finalizingBackupCard(let index): return "onboarding_title_backup_card \(index)"
+            case .finalizingBackupCard(let index): return LocalizedStringKey(stringLiteral: "onboarding_title_backup_card_number".localized(index))
             default: break
             }
         default: break
@@ -75,12 +75,14 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         case .backupCards:
             switch backupServiceState {
             case .finalizingPrimaryCard:
-                return backupService.primaryCardId.map { "onboarding_subtitle_scan_origin_card \(CardIdFormatter(style: .lastMasked(4)).string(from: $0))" }
+                return backupService.primaryCardId.map {
+                    LocalizedStringKey(stringLiteral: "onboarding_subtitle_scan_origin_card".localized(CardIdFormatter(style: .lastMasked(4)).string(from: $0)))
+                }
                 ?? super.subtitle
             case .finalizingBackupCard(let index):
                 let cardId = backupService.backupCardIds[index - 1]
                 let formattedCardId = CardIdFormatter(style: .lastMasked(4)).string(from: cardId)
-                return "onboarding_subtitle_scan_backup_card \(formattedCardId)"
+                return LocalizedStringKey(stringLiteral: "onboarding_subtitle_scan_backup_card".localized(formattedCardId))
             default: return super.subtitle
             }
         default: return super.subtitle
@@ -108,7 +110,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         case .backupCards:
             switch backupServiceState {
             case .finalizingPrimaryCard: return "onboarding_button_backup_origin"
-            case .finalizingBackupCard(let index): return "onboarding_button_backup_card \(index)"
+            case .finalizingBackupCard(let index): return LocalizedStringKey(stringLiteral: "onboarding_button_backup_card".localized(index))
             default: break
             }
         case .success:
@@ -175,7 +177,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
     
     var backupCardsAddedCount: Int {
-        if assembly?.isPreview ?? false {
+        if assembly.isPreview {
             return previewBackupCardsAdded
         }
         
@@ -225,7 +227,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
     
     private var canAddBackupCards: Bool {
-        if assembly?.isPreview ?? false {
+        if assembly.isPreview {
             return previewBackupCardsAdded < 2
         }
         
@@ -233,7 +235,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
     
     private var backupServiceState: BackupService.State {
-        if assembly?.isPreview ?? false {
+        if assembly.isPreview {
             return previewBackupState
         }
         
@@ -243,13 +245,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     @Published private var previewBackupCardsAdded: Int = 0
     @Published private var previewBackupState: BackupService.State = .finalizingPrimaryCard
     
-    private let tangemSdk: TangemSdk
+    private var tangemSdk: TangemSdk { tangemSdkProvider.sdk }
+    private var backupService: BackupService { backupServiceProvider.backupService }
     
-    init(input: OnboardingInput, backupService: BackupService, tangemSdk: TangemSdk, tokensRepo: TokenItemsRepository, imageLoaderService: CardImageLoaderService) {
-        self.backupService = backupService
-        self.tangemSdk = tangemSdk
-        self.tokensRepo = tokensRepo
-        self.imageLoaderService = imageLoaderService
+    override init(input: OnboardingInput) {
         super.init(input: input)
         
         if case let .wallet(steps) = input.steps {
@@ -268,7 +267,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
     
     private func loadImageForRestoredbackup(cardId: String, cardPublicKey: Data) {
-        imageLoaderService
+        imageLoader
             .loadImage(cid: cardId,
                        cardPublicKey: cardPublicKey,
                        artworkInfo: nil)
@@ -472,7 +471,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             return
         }
         if !input.isStandalone {
-            userPrefsService?.cardsStartedActivation.append(input.cardInput.cardId)
+            userPrefsService.cardsStartedActivation.append(input.cardInput.cardId)
         }
         stepPublisher = preparePrimaryCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
