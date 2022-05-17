@@ -277,6 +277,7 @@ class MainViewModel: ViewModel, ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { [unowned self] _ in
                 print("⚠️ Wallet model will change")
+                self.updateTotalBalanceTokenList()
                 self.objectWillChange.send()
             }
             .store(in: &bag)
@@ -363,7 +364,6 @@ class MainViewModel: ViewModel, ObservableObject {
                 .sink {[weak self] _ in
                     self?.checkPositiveBalance()
                     print("♻️ Wallet model loading state changed")
-                    self?.updateTotalBalanceTokenList()
                     withAnimation {
                         done()
                     }
@@ -785,7 +785,11 @@ class MainViewModel: ViewModel, ObservableObject {
         else {
             return
         }
-        tokenItems = walletModels.flatMap({ $0.tokenItemViewModels })
+        
+        let newTokens = walletModels.flatMap({ $0.tokenItemViewModels })
+        if tokenItems != newTokens {
+            tokenItems = newTokens
+        }
     }
 }
 
