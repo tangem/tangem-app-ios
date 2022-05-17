@@ -138,7 +138,7 @@ struct DetailsView: View {
                 NavigationLink(destination: CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel()),
                                tag: NavigationTag.currency, selection: $selection) {
                     DetailsRowView(title: "details_row_title_currency".localized,
-                                   subtitle: viewModel.ratesService.selectedCurrencyCode)
+                                   subtitle: viewModel.currencyRateService.selectedCurrencyCode)
                     
                 }
                 
@@ -162,7 +162,7 @@ struct DetailsView: View {
                     })
                 
                 if let cardTouURL = viewModel.cardTouURL {
-                    NavigationLink(destination: WebViewContainer(url: cardTouURL, title: "details_row_title_card_tou")
+                    NavigationLink(destination: WebViewContainer(url: cardTouURL, title: "details_row_title_card_tou".localized)
                                     .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all)),
                                    tag: NavigationTag.cardTermsOfUse, selection: $selection) {
                         DetailsRowView(title: "details_row_title_card_tou".localized,
@@ -256,11 +256,12 @@ extension DetailsView {
 
 struct SettingsView_Previews: PreviewProvider {
     static let assembly = Assembly.previewAssembly(for: .ethereum)
+    static let navigation = NavigationCoordinator()
     
     static var previews: some View {
         NavigationView {
             DetailsView(viewModel: assembly.makeDetailsViewModel())
-                .environmentObject(assembly.services.navigationCoordinator)
+                .environmentObject(navigation)
                 .environmentObject(assembly)
         }
         .navigationViewStyle(StackNavigationViewStyle())
