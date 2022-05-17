@@ -20,6 +20,7 @@ struct TotalSumBalanceView: View {
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
                     Text("main_page_balance".localized.uppercased())
+                        .lineLimit(1)
                         .font(Font.system(size: 14, weight: .medium))
                         .foregroundColor(Color.tangemTextGray)
                         .padding(.leading, 20)
@@ -32,6 +33,7 @@ struct TotalSumBalanceView: View {
                     } label: {
                         HStack(spacing: 0) {
                             Text(viewModel.currencyType)
+                                .lineLimit(1)
                                 .font(Font.system(size: 16, weight: .medium))
                                 .foregroundColor(Color.tangemGrayDark)
                                 .padding(.trailing, 6)
@@ -47,6 +49,7 @@ struct TotalSumBalanceView: View {
                 
                 HStack(spacing: 0) {
                     Text(viewModel.isLoading ? "wallet_balance_loading".localized : viewModel.totalFiatValueString)
+                        .lineLimit(1)
                         .redactedIfPossible(viewModel.isLoading)
                         .if(viewModel.isLoading, transform: { view in
                             view.shimmering()
