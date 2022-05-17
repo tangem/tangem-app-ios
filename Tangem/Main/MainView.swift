@@ -164,9 +164,6 @@ struct MainView: View {
                                      currentCardNumber: viewModel.cardNumber,
                                      totalCards: viewModel.totalCards)
                             .fixedSize(horizontal: false, vertical: true)
-                            TotalSumBalanceView(viewModel: viewModel.assembly.makeTotalSumBalanceViewModel(tokens: viewModel.$tokenItems)) {
-                                viewModel.showCurrencyChangeScreen()
-                            }
                             
                             if isUnsupportdState {
                                 MessageView(title: "wallet_error_unsupported_blockchain".localized, subtitle: "wallet_error_unsupported_blockchain_subtitle".localized, type: .error)
@@ -200,6 +197,11 @@ struct MainView: View {
                                     )
                                 } else {
                                     if viewModel.cardModel!.cardInfo.isMultiWallet {
+                                        
+                                        TotalSumBalanceView(viewModel: viewModel.assembly.makeTotalSumBalanceViewModel(tokens: viewModel.$tokenItems)) {
+                                            viewModel.showCurrencyChangeScreen()
+                                        }
+                                        
                                         ForEach(viewModel.tokenItemViewModels) { item in
                                             Button {
                                                 viewModel.onWalletTap(item)
