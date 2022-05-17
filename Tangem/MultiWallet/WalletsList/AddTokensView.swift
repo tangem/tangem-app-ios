@@ -22,6 +22,7 @@ struct AddTokensView: View {
             })
             .foregroundColor(.black)
             .frame(width: geo.size.width, height: 56)
+            .buttonStyle(PlainButtonStyle())
         }
         .frame(height: 56)
         .background(Color.white)
