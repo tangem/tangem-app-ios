@@ -10,26 +10,17 @@ import Foundation
 import Combine
 import BlockchainSdk
 
-class WalletModel: ObservableObject, Identifiable {
+class WalletModel: ObservableObject, Identifiable, Initializable {
+    @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
+    @Injected(\.transactionSigner) private var signer: TangemSigner
+    @Injected(\.currencyRateService) private var currencyRateService: CurrencyRateService
+    
     @Published var state: State = .idle
     @Published var balanceViewModel: BalanceViewModel!
     @Published var tokenItemViewModels: [TokenItemViewModel] = []
     @Published var tokenViewModels: [TokenBalanceViewModel] = []
     @Published var rates: [String: Decimal] = [:]
     @Published var updateCompletedPublisher: Bool = false
-    
-    weak var ratesService: CurrencyRateService! {
-        didSet {
-            ratesService
-                .$selectedCurrencyCodePublished
-                .dropFirst()
-                .sink {[unowned self] _ in
-                    self.loadRates()
-                }
-                .store(in: &bag)
-        }
-    }
-    weak var tokenItemsRepository: TokenItemsRepository!
     
     var wallet: Wallet { walletManager.wallet }
     
@@ -110,7 +101,6 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     let walletManager: WalletManager
-    let signer: TransactionSigner
     private let defaultToken: Token?
     private let defaultBlockchain: Blockchain?
     private var bag = Set<AnyCancellable>()
@@ -124,13 +114,12 @@ class WalletModel: ObservableObject, Identifiable {
         print("🗑 WalletModel deinit")
     }
     
-    init(walletManager: WalletManager, signer: TransactionSigner, derivationStyle: DerivationStyle, defaultToken: Token?, defaultBlockchain: Blockchain?, demoBalance: Decimal? = nil) {
+    init(walletManager: WalletManager, derivationStyle: DerivationStyle, defaultToken: Token?, defaultBlockchain: Blockchain?, demoBalance: Decimal? = nil) {
         self.defaultToken = defaultToken
         self.defaultBlockchain = defaultBlockchain
         self.walletManager = walletManager
         self.demoBalance = demoBalance
         self.derivationStyle = derivationStyle
-        self.signer = signer
         
         updateBalanceViewModel(with: walletManager.wallet)
         self.walletManager.walletPublisher
@@ -146,6 +135,16 @@ class WalletModel: ObservableObject, Identifiable {
                 //                    self.updateTimer = nil
                 //                }
             })
+            .store(in: &bag)
+    }
+    
+    func initialize() {
+        currencyRateService
+            .selectedCurrencyCodePublisher
+            .dropFirst()
+            .sink {[unowned self] _ in
+                self.loadRates()
+            }
             .store(in: &bag)
     }
     
@@ -205,7 +204,7 @@ class WalletModel: ObservableObject, Identifiable {
     func currencyId(for amount: Amount) -> String? {
         switch amount.type {
         case .coin, .reserve:
-            return walletManager.wallet.blockchain.id
+            return walletManager.wallet.blockchain.currencyId
         case .token(let token):
             return token.id
         }
@@ -227,7 +226,7 @@ class WalletModel: ObservableObject, Identifiable {
         if let amount = wallet.amounts[amountType],
            let currencyId = self.currencyId(for: amount),
            let rate = rates[currencyId] {
-            rateString = rate.currencyFormatted(code: ratesService.selectedCurrencyCode)
+            rateString = rate.currencyFormatted(code: currencyRateService.selectedCurrencyCode)
         }
         
         return rateString
@@ -252,7 +251,7 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     func getFiatFormatted(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> String? {
-        return getFiat(for: amount, roundingMode: roundingMode)?.currencyFormatted(code: ratesService.selectedCurrencyCode)
+        return getFiat(for: amount, roundingMode: roundingMode)?.currencyFormatted(code: currencyRateService.selectedCurrencyCode)
     }
     
     func getFiat(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> Decimal? {
@@ -433,13 +432,13 @@ class WalletModel: ObservableObject, Identifiable {
     }
     
     private func loadRates() {
-        let currenciesToExchange = [walletManager.wallet.blockchain.id] + walletManager.cardTokens.compactMap { $0.id }
+        let currenciesToExchange = [walletManager.wallet.blockchain.currencyId] + walletManager.cardTokens.compactMap { $0.id }
         
         loadRates(for: Array(currenciesToExchange))
     }
     
     private func loadRates(for currenciesToExchange: [String]) {
-        ratesService
+        currencyRateService
             .rates(for: currenciesToExchange)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in
