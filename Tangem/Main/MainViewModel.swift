@@ -245,8 +245,6 @@ class MainViewModel: ViewModel, ObservableObject {
         guard let cardModel = cardModel,
               let walletModels = cardModel.walletModels else { return [] }
         
-        updateTotalBalanceTokenList()
-        
         return walletModels
             .flatMap ({ $0.tokenItemViewModels })
     }
@@ -279,6 +277,7 @@ class MainViewModel: ViewModel, ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { [unowned self] _ in
                 print("⚠️ Wallet model will change")
+                self.updateTotalBalanceTokenList()
                 self.objectWillChange.send()
             }
             .store(in: &bag)
