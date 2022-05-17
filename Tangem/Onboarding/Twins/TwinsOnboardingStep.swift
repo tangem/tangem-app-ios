@@ -136,7 +136,7 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
     var subtitle: LocalizedStringKey {
         switch self {
         case .welcome: return WelcomeStep.welcome.subtitle
-        case .intro(let pairNumber): return "onboarding_subtitle_intro \(pairNumber)"
+        case .intro(let pairNumber): return LocalizedStringKey(stringLiteral: "onboarding_subtitle_intro".localized(pairNumber))
         case .first, .second, .third: return "onboarding_subtitle_reset_twin_warning"
         case .topup: return "onboarding_topup_subtitle"
         case .done, .success: return "onboarding_success_subtitle"
