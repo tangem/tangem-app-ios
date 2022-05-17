@@ -86,6 +86,16 @@ class ListDataLoader: ObservableObject {
         }
     }
     
+    func updateSelection(_ tokenItem: TokenItem, with isSelected: Binding<Bool>) {
+        for item in items {
+            for itemItem in item.items {
+                if itemItem.tokenItem == tokenItem {
+                    itemItem.updateSelection(with: isSelected)
+                }
+            }
+        }
+    }
+    
     private func loadItems(_ searchText: String) -> AnyPublisher<[CoinModel], Never> {
         let searchText = searchText.lowercased()
         let itemsPublisher = cached.isEmpty ? loadPublisher : cachePublisher
