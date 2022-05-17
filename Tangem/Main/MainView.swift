@@ -104,7 +104,7 @@ struct MainView: View {
     var navigationLinks: some View {
         VStack {
             NavigationLink(destination: DetailsView(viewModel: viewModel.assembly.makeDetailsViewModel()),
-                           isActive: $viewModel.navigation.mainToSettings)
+                           isActive: $navigation.mainToSettings)
             
             NavigationLink(destination: TokenDetailsView(viewModel: viewModel.assembly.makeTokenDetailsViewModel(blockchainNetwork: viewModel.selectedWallet.blockchainNetwork,
                                                                                                                  amountType: viewModel.selectedWallet.amountType)),
@@ -133,7 +133,7 @@ struct MainView: View {
                            isActive: $navigation.mainToSellCrypto)
             
             NavigationLink(destination: CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel()),
-                           isActive: $viewModel.navigation.currencyChangeView)
+                           isActive: $navigation.currencyChangeView)
             
             //            NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(isFromMain: true)),
             //                           isActive: $navigation.mainToTwinOnboarding)
@@ -264,14 +264,9 @@ struct MainView: View {
             Color.clear
                 .frame(width: 0.5, height: 0.5)
                 .sheet(item: $viewModel.emailFeedbackCase) { emailCase -> MailView in
-                    let dataCollector: EmailDataCollector
-                    switch emailCase {
-                    case .negativeFeedback:
-                        dataCollector = viewModel.negativeFeedbackDataCollector
-                    case .scanTroubleshooting:
-                        dataCollector = viewModel.failedCardScanTracker
-                    }
-                    return MailView(dataCollector: dataCollector, support: .tangem, emailType: emailCase.emailType)
+                    return MailView(dataCollector: viewModel.getDataCollector(for: emailCase),
+                                    support: .tangem,
+                                    emailType: emailCase.emailType)
                 }
             
             Color.clear
@@ -455,11 +450,12 @@ struct MainView: View {
 
 struct MainView_Previews: PreviewProvider {
     static let assembly: Assembly = .previewAssembly(for: .stellar)
+    static let navigation = NavigationCoordinator()
     
     static var previews: some View {
         NavigationView {
             MainView(viewModel: assembly.makeMainViewModel())
-                .environmentObject(assembly.services.navigationCoordinator)
+                .environmentObject(navigation)
         }
         .previewGroup(devices: [.iPhone12ProMax])
         .navigationViewStyle(StackNavigationViewStyle())

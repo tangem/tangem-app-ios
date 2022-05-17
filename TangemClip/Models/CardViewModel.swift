@@ -12,9 +12,8 @@ import SwiftUI
 import TangemSdk
 
 class CardViewModel: ObservableObject {
-    weak var tangemSdk: TangemSdk!
-    weak var assembly: Assembly!
-
+    @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
+    
     @Published var state: State = .created
 
     @Published var cardInfo: CardInfo
@@ -45,7 +44,7 @@ class CardViewModel: ObservableObject {
             return
         }
 
-        tangemSdk.loadCardInfo(cardPublicKey: cardInfo.card.cardPublicKey, cardId: cardInfo.card.cardId) {[weak self] result in
+        tangemSdkProvider.sdk.loadCardInfo(cardPublicKey: cardInfo.card.cardPublicKey, cardId: cardInfo.card.cardId) {[weak self] result in
             switch result {
             case .success(let info):
                 guard let artwork = info.artwork else {

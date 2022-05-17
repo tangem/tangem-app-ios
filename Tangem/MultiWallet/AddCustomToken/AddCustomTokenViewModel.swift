@@ -13,60 +13,11 @@ import struct TangemSdk.DerivationPath
 import enum TangemSdk.TangemSdkError
 
 class AddCustomTokenViewModel: ViewModel, ObservableObject {
-    private enum TokenCreationErrors: LocalizedError {
-        case blockchainNotSelected
-        case emptyFields
-        case invalidDecimals(precision: Int)
-        case invalidContractAddress
-        case invalidDerivationPath
-        
-        var errorDescription: String? {
-            switch self {
-            case .blockchainNotSelected:
-                return "custom_token_creation_error_network_not_selected".localized
-            case .emptyFields:
-                return "custom_token_creation_error_empty_fields".localized
-            case .invalidDecimals(let precision):
-                return "custom_token_creation_error_wrong_decimals".localized(precision)
-            case .invalidContractAddress:
-                return "custom_token_creation_error_invalid_contract_address".localized
-            case .invalidDerivationPath:
-                return "custom_token_creation_error_invalid_derivation_path".localized
-            }
-        }
-    }
+    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
+    @Injected(\.coinsService) private var coinsService: CoinsService
+    @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
     
-    private enum TokenSearchError: LocalizedError {
-        case alreadyAdded
-        case failedToFindToken
-        
-        var preventsFromAdding: Bool {
-            switch self {
-            case .alreadyAdded:
-                return true
-            case .failedToFindToken:
-                return false
-            }
-        }
-        
-        var errorDescription: String? {
-            switch self {
-            case .failedToFindToken:
-                return "custom_token_validation_error_not_found".localized
-            case .alreadyAdded:
-                return "custom_token_validation_error_already_added".localized
-            }
-        }
-        
-        var appWarning: AppWarning {
-            return AppWarning(title: "common_warning".localized, message: errorDescription ?? "", priority: .warning)
-        }
-    }
-    
-    weak var assembly: Assembly!
-    weak var navigation: NavigationCoordinator!
     weak var cardModel: CardViewModel!
-    weak var coinsService: CoinsService!
     
     @Published var name = ""
     @Published var symbol = ""
@@ -89,7 +40,8 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     private var bag: Set<AnyCancellable> = []
     private var blockchainByName: [String: Blockchain] = [:]
     
-    init() {
+    override init() {
+        super.init()
         Publishers.CombineLatest3(
             $blockchainsPicker.map{$0.selection}.removeDuplicates(),
             $contractAddress.removeDuplicates(),
@@ -111,6 +63,10 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 self.didFinishTokenSearch(currencyModels)
             }
             .store(in: &bag)
+    }
+    
+    func updateState() {
+        cardModel = cardsRepository.lastScanResult.cardModel
     }
     
     func createToken() {
@@ -318,7 +274,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             return
         }
         
-        let cardTokenItems = cardModel.tokenItemsRepository.getItems(for: cardId)
+        let cardTokenItems = tokenItemsRepository.getItems(for: cardId)
         let checkingContractAddress = !contractAddress.isEmpty
         let rawPath = derivationsPicker.selection
         let derivationPath = (try? DerivationPath(rawPath: rawPath)) ?? blockchain.derivationPath(for: derivationStyle)
@@ -347,7 +303,6 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         
         return coinsService
             .checkContractAddress(contractAddress: contractAddress, networkId: nil)
-            .replaceError(with: [])
             .eraseToAnyPublisher()
     }
     
@@ -403,6 +358,58 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             if let tokenSearchError = tokenSearchError {
                 warningContainer.add(tokenSearchError.appWarning)
             }
+        }
+    }
+}
+
+private extension AddCustomTokenViewModel {
+    enum TokenCreationErrors: LocalizedError {
+        case blockchainNotSelected
+        case emptyFields
+        case invalidDecimals(precision: Int)
+        case invalidContractAddress
+        case invalidDerivationPath
+        
+        var errorDescription: String? {
+            switch self {
+            case .blockchainNotSelected:
+                return "custom_token_creation_error_network_not_selected".localized
+            case .emptyFields:
+                return "custom_token_creation_error_empty_fields".localized
+            case .invalidDecimals(let precision):
+                return "custom_token_creation_error_wrong_decimals".localized(precision)
+            case .invalidContractAddress:
+                return "custom_token_creation_error_invalid_contract_address".localized
+            case .invalidDerivationPath:
+                return "custom_token_creation_error_invalid_derivation_path".localized
+            }
+        }
+    }
+    
+    enum TokenSearchError: LocalizedError {
+        case alreadyAdded
+        case failedToFindToken
+        
+        var preventsFromAdding: Bool {
+            switch self {
+            case .alreadyAdded:
+                return true
+            case .failedToFindToken:
+                return false
+            }
+        }
+        
+        var errorDescription: String? {
+            switch self {
+            case .failedToFindToken:
+                return "custom_token_validation_error_not_found".localized
+            case .alreadyAdded:
+                return "custom_token_validation_error_already_added".localized
+            }
+        }
+        
+        var appWarning: AppWarning {
+            return AppWarning(title: "common_warning".localized, message: errorDescription ?? "", priority: .warning)
         }
     }
 }
