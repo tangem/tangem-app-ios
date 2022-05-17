@@ -10,10 +10,12 @@ import Foundation
 import SwiftUI
 import Combine
 
-protocol ViewModel: Identifiable, ViewModelNavigatable {
-    var assembly: Assembly! { get set }
-}
-
-protocol ViewModelNavigatable: AnyObject {
-    var navigation: NavigationCoordinator! { get set }
+class ViewModel: Identifiable, Initializable {
+    @Injected(\.assemblyProvider) private var assemblyProvider: AssemblyProviding
+    @Injected(\.navigationCoordinatorProvider) private var navigationCoordinatorProvider: NavigationCoordinatorProviding
+    
+    var assembly: Assembly { assemblyProvider.assembly }
+    var navigation: NavigationCoordinator { navigationCoordinatorProvider.coordinator }
+    
+    func initialize() {}
 }
