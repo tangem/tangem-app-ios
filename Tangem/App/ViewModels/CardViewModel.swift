@@ -18,17 +18,16 @@ struct CardPinSettings {
     var isPin2Default: Bool? = nil
 }
 
-class CardViewModel: Identifiable, ObservableObject {
+class CardViewModel: Identifiable, ObservableObject, Initializable {
     //MARK: Services
-    weak var featuresService: AppFeaturesService!
-    weak var tangemSdk: TangemSdk!
-    weak var assembly: Assembly!
-    weak var warningsConfigurator: WarningsConfigurator!
-    weak var warningsAppendor: WarningAppendor!
-    weak var tokenItemsRepository: TokenItemsRepository!
-    weak var userPrefsService: UserPrefsService!
-    weak var imageLoaderService: CardImageLoaderService!
-    weak var coinsService: CoinsService!
+    @Injected(\.cardImageLoader) var imageLoader: CardImageLoaderProtocol
+    @Injected(\.assemblyProvider) private var assemblyProvider: AssemblyProviding
+    @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
+    @Injected(\.appFeaturesService) private var featuresService: AppFeaturesProviding
+    @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
+    @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
+    @Injected(\.coinsService) private var coinsService: CoinsService
+    @Injected(\.transactionSigner) private var signer: TangemSigner
     
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
@@ -36,9 +35,11 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published public var cardInfo: CardInfo
     
     private var cardPinSettings: CardPinSettings = CardPinSettings()
-    
+    private var userPrefsService: UserPrefsService = .init()
     private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
     private var migrated = false
+    private var assembly: Assembly { assemblyProvider.assembly }
+    private var tangemSdk: TangemSdk { tangemSdkProvider.sdk }
     
     var availableSecOptions: [SecurityManagementOption] {
         var options = [SecurityManagementOption.longTap]
@@ -225,7 +226,7 @@ class CardViewModel: Identifiable, ObservableObject {
                     return Just(UIImage()).eraseToAnyPublisher()
                 }
                 
-                return self.imageLoaderService
+                return self.imageLoader
                     .loadImage(cid: info.cardId,
                                cardPublicKey: info.cardPublicKey,
                                artworkInfo: info.artwotkInfo)
@@ -251,6 +252,16 @@ class CardViewModel: Identifiable, ObservableObject {
         updateCurrentSecOption()
     }
     
+    func initialize() {
+        signer.signedCardPublisher.sink {[weak self] card in
+            guard let self = self else { return }
+            
+            if self.cardInfo.card.cardId == card.cardId {
+                self.onSign(card)
+            }
+        }
+        .store(in: &bag)
+    }
 
 //    func loadPayIDInfo () {
 //        guard featuresService?.canReceiveToPayId ?? false else {
@@ -317,7 +328,7 @@ class CardViewModel: Identifiable, ObservableObject {
     
     func onSign(_ card: Card) {
         cardInfo.card = card
-        warningsConfigurator.setupWarnings(for: cardInfo)
+        warningsService.setupWarnings(for: cardInfo)
     }
     
     // MARK: - Security
@@ -470,7 +481,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 self.cardInfo.artwork = .artwork(artwork)
             case .failure:
                 self.cardInfo.artwork = .noArtwork
-                self.warningsConfigurator.setupWarnings(for: self.cardInfo)
+                self.warningsService.setupWarnings(for: self.cardInfo)
             }
         }
     }
@@ -513,7 +524,7 @@ class CardViewModel: Identifiable, ObservableObject {
     
     private func updateModel() {
         print("🔶 Updating Card view model")
-        warningsConfigurator.setupWarnings(for: cardInfo)
+        warningsService.setupWarnings(for: cardInfo)
         updateState()
     }
     
@@ -762,7 +773,6 @@ class CardViewModel: Identifiable, ObservableObject {
             item.tokens.filter { $0.isCustom }.map { token in
                 coinsService
                     .checkContractAddress(contractAddress: token.contractAddress, networkId: item.blockchainNetwork.blockchain.networkId)
-                    .replaceError(with: [])
                     .map { [unowned self] models -> Bool in
                         if let updatedTokem = models.first?.items.compactMap({$0.token}).first {
                             self.tokenItemsRepository.append([updatedTokem], blockchainNetwork: item.blockchainNetwork, for: cardId)
@@ -824,12 +834,5 @@ extension CardViewModel {
                 return false
             }
         }
-    }
-}
-
-
-extension CardViewModel {
-    static func previewViewModel(for card: Assembly.PreviewCard) -> CardViewModel {
-        Assembly.previewCardViewModel(for: card)
     }
 }
