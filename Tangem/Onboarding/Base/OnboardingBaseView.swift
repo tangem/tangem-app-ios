@@ -82,12 +82,13 @@ struct OnboardingBaseView: View {
 struct CardOnboardingView_Previews: PreviewProvider {
     
     static let assembly = Assembly.previewAssembly
+    static let navigation = NavigationCoordinator()
     
     static var previews: some View {
         OnboardingBaseView(
 //            viewModel: assembly.makeCardOnboardingViewModel(with: assembly.previewTwinOnboardingInput)
             viewModel: assembly.getLaunchOnboardingViewModel()
         )
-        .environmentObject(assembly.services.navigationCoordinator)
+        .environmentObject(navigation)
     }
 }
