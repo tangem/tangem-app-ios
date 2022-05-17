@@ -12,6 +12,9 @@ import SwiftUI
 import TangemSdk
 
 class MainViewModel: ObservableObject {
+    @Injected(\.assemblyProvider) private var assemblyProvider: AssemblyProviding
+    @Injected(\.tangemSdkProvider) var sdkProvider: TangemSdkProviding
+    @Injected(\.cardImageLoader) var imageLoader: CardImageLoaderProtocol
     
     @Published var isScanning: Bool = false
     @Published var image: UIImage? = nil
@@ -37,27 +40,17 @@ class MainViewModel: ObservableObject {
     
     private var imageLoadingCancellable: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
-    
     private var savedBatch: String?
-    
-    unowned var sdk: TangemSdk
-    unowned var imageLoaderService: CardImageLoaderService
-    unowned var userPrefsService: UserPrefsService
-    unowned var assembly: Assembly
-    
-    init(sdk: TangemSdk, imageLoaderService: CardImageLoaderService, userPrefsService: UserPrefsService, assembly: Assembly) {
-        self.sdk = sdk
-        self.imageLoaderService = imageLoaderService
-        self.userPrefsService = userPrefsService
-        self.assembly = assembly
+
+    init() {
         updateCardBatch(nil, fullLink: "")
     }
     
     func scanCard() {
         isScanning = true
         
-        let task = AppScanTask(userPrefsService: userPrefsService, targetBatch: savedBatch)
-        sdk.startSession(with: task) { [weak self] (result) in
+        let task = AppScanTask(targetBatch: savedBatch)
+        sdkProvider.sdk.startSession(with: task) { [weak self] (result) in
             guard let self = self else { return }
             
             switch result {
@@ -65,7 +58,7 @@ class MainViewModel: ObservableObject {
                 Analytics.logScan(card: response.card)
                 self.shouldShowGetFullApp = true
                 
-                let cm = self.assembly.makeCardModel(from: response.getCardInfo())
+                let cm = self.assemblyProvider.assembly.makeCardModel(from: response.getCardInfo())
                 let result: ScanResult = .card(model: cm)
                 cm.getCardInfo()
                 
@@ -97,7 +90,7 @@ class MainViewModel: ObservableObject {
             return
         }
         
-        imageLoadingCancellable = imageLoaderService
+        imageLoadingCancellable = imageLoader
             .loadImage(byNdefLink: fullLink)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { completion in
