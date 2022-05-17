@@ -390,12 +390,12 @@
           ]
         },
         {
-          "id" : "arbitrum",
+          "id" : "arbitrum-one",
           "symbol" : "ETH",
           "name" : "Arbitrum",
           "networks" : [
               {
-                  "networkId" : "arbitrum/test"
+                  "networkId" : "arbitrum-one/test"
               }
           ]
         },
