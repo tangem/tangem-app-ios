@@ -148,16 +148,15 @@ final class AppScanTask: CardSessionRunnable {
             switch result {
             case .success(let response):
                 guard let file = response.first,
-                      let namedFile = try? NamedFile(tlvData: file.data),
-                      let tlv = Tlv.deserialize(namedFile.payload),
-                      let fileSignature = namedFile.signature,
-                      let fileCounter = namedFile.counter,
+                      let tlv = Tlv.deserialize(file.data),
+                      let fileSignature = file.signature,
+                      let fileCounter = file.counter,
                       let walletData = try? WalletDataDeserializer().deserialize(decoder: TlvDecoder(tlv: tlv)) else {
                     exit()
                     return
                 }
                 
-                let dataToVerify = Data(hexString: card.cardId) + namedFile.payload + fileCounter.bytes4
+                let dataToVerify = Data(hexString: card.cardId) + file.data + fileCounter.bytes4
                 let isVerified: Bool = (try? CryptoUtils.verify(curve: .secp256k1,
                                                                 publicKey: card.issuer.publicKey,
                                                                 message: dataToVerify,
