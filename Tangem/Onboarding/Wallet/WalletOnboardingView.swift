@@ -171,9 +171,11 @@ struct WalletOnboardingView_Previews: PreviewProvider {
     }()
     
     static var previews: some View {
+        let navigation = NavigationCoordinator()
+        
         NavigationView {
             WalletOnboardingView(viewModel: assembly.getWalletOnboardingViewModel())
-                .environmentObject(assembly.services.navigationCoordinator)
+                .environmentObject(navigation)
                 .navigationBarHidden(true)
         }
     }
