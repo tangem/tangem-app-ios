@@ -1191,7 +1191,6 @@
 		5D3F77C424BF56D800E8695B /* Tangem */ = {
 			isa = PBXGroup;
 			children = (
-				DC0A584E282C13310031BECC /* Screens */,
 				5D9DCADC255174140059799C /* App */,
 				B0E1564926B9417E005B33E4 /* Onboarding */,
 				5D011A222530776A00758010 /* Disclaimer */,
@@ -2408,13 +2407,6 @@
 				5D6784CD25EB92F300149995 /* SupportedTokenItems.swift */,
 			);
 			path = Common;
-			sourceTree = "<group>";
-		};
-		DC0A584E282C13310031BECC /* Screens */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Screens;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
