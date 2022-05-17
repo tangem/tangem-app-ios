@@ -10,6 +10,7 @@ import SwiftUI
 import Combine
 
 class TotalSumBalanceViewModel: ObservableObject {
+    @Injected(\.currencyRateService) private var currencyRateService: CurrencyRateService
     
     var tokens: Published<[TokenItemViewModel]>.Publisher
     @Published var isLoading: Bool = false
@@ -17,12 +18,10 @@ class TotalSumBalanceViewModel: ObservableObject {
     @Published var totalFiatValueString: String = ""
     
     private var bag = Set<AnyCancellable>()
-    private var currencyRateService: CurrencyRateService
     private var tokenItems: [TokenItemViewModel] = []
     
-    init(currencyRateService: CurrencyRateService, tokens: Published<[TokenItemViewModel]>.Publisher) {
+    init(tokens: Published<[TokenItemViewModel]>.Publisher) {
         self.tokens = tokens
-        self.currencyRateService = currencyRateService
         bind()
     }
     
