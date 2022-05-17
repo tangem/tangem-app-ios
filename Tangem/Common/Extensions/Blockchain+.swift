@@ -18,6 +18,7 @@ extension Blockchain {
         case .cardano: return "cardano"
         case .ducatus: return "ducatus"
         case .ethereum: return "ethereum"
+        case .ethereumClassic: return "ethereum-classic"
         case .litecoin: return "litecoin"
         case .rsk: return "rootstock"
         case .stellar: return "stellar"
@@ -31,6 +32,17 @@ extension Blockchain {
         case .fantom: return "fantom"
         case .polkadot: return "polkadot"
         case .kusama: return "kusama"
+        case .tron: return "tron"
+        case .arbitrum: return "arbitrum"
+        }
+    }
+    
+    var currencyId: String {
+        switch self {
+        case .arbitrum(let testnet):
+            return Blockchain.ethereum(testnet: testnet).id
+        default:
+            return id
         }
     }
     
@@ -42,6 +54,7 @@ extension Blockchain {
         case .cardano: return "cardano"
         case .ducatus: return "ducatus"
         case .ethereum: return "ethereum"
+        case .ethereumClassic: return "ethereum-classic"
         case .litecoin: return "litecoin"
         case .rsk: return "rootstock"
         case .stellar: return "stellar"
@@ -55,6 +68,8 @@ extension Blockchain {
         case .fantom: return "fantom"
         case .polkadot: return "polkadot"
         case .kusama: return "kusama"
+        case .tron: return "tron"
+        case .arbitrum: return "arbitrum-one"
         }
     }
     
@@ -83,6 +98,7 @@ extension Blockchain {
         case "bitcoin": self = .bitcoin(testnet: isTestnet)
         case "stellar": self = .stellar(testnet: isTestnet)
         case "ethereum": self = .ethereum(testnet: isTestnet)
+        case "ethereum-classic": self = .ethereumClassic(testnet: isTestnet)
         case "litecoin": self = .litecoin
         case "rootstock": self = .rsk
         case "bitcoin-cash": self = .bitcoinCash(testnet: isTestnet)
@@ -99,7 +115,11 @@ extension Blockchain {
         case "fantom": self = .fantom(testnet: isTestnet)
         case "polkadot": self = .polkadot(testnet: isTestnet)
         case "kusama": self = .kusama
-        default: return nil
+        case "tron": self = .tron(testnet: isTestnet)
+        case "arbitrum", "arbitrum-one": self = .arbitrum(testnet: isTestnet)
+        default:
+            print("⚠️⚠️⚠️ Failed to map network ID \"\(stringId)\"")
+            return nil
         }
     }
     
