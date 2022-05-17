@@ -47,7 +47,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             UITableView.appearance().tableFooterView = UIView()
         }
         
-        AppsFlyerLib.shared().appsFlyerDevKey = try! KeysManager().appsFlyerDevKey
+        AppsFlyerLib.shared().appsFlyerDevKey = CommonKeysManager().appsFlyerDevKey
         AppsFlyerLib.shared().appleAppID = "1354868448"
         NotificationCenter.default.addObserver(self, selector: NSSelectorFromString("sendLaunch"),
                                                name: UIApplication.didBecomeActiveNotification, object: nil)
