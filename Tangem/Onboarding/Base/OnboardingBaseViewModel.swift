@@ -10,6 +10,7 @@ import Combine
 import SwiftUI
 
 class OnboardingBaseViewModel: ViewModel, ObservableObject {
+    @Injected(\.cardsRepository) var cardsRepository: CardsRepository
     
     enum Content {
         case notScanned, singleCard, twin, wallet
@@ -44,9 +45,7 @@ class OnboardingBaseViewModel: ViewModel, ObservableObject {
         }
     }
     
-    weak var assembly: Assembly!
-    weak var navigation: NavigationCoordinator!
-    weak var userPrefsService: UserPrefsService!
+    var userPrefsService: UserPrefsService = .init()
     
     let isFromMainScreen: Bool
     
@@ -57,7 +56,7 @@ class OnboardingBaseViewModel: ViewModel, ObservableObject {
     
     private var resetSubscription: AnyCancellable?
     
-    init() {
+    override init() {
         self.isFromMainScreen = false
         self.content = .notScanned
     }
@@ -121,7 +120,7 @@ class OnboardingBaseViewModel: ViewModel, ObservableObject {
     
     private func processToMain() {
         let mainModel = assembly.makeMainViewModel()
-        mainModel.state = assembly.services.cardsRepository.lastScanResult
+        mainModel.state = cardsRepository.lastScanResult
         
         if isFromMainScreen {
             navigation.mainToCardOnboarding = false
