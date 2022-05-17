@@ -13,8 +13,7 @@ import TangemSdk
 import SwiftUI
 
 class TokenListViewModel: ViewModel, ObservableObject {
-    weak var assembly: Assembly!
-    weak var navigation: NavigationCoordinator!
+    @Injected(\.negativeFeedbackDataProvider) var dataCollector: NegativeFeedbackDataProvider
     
     var enteredSearchText = CurrentValueSubject<String, Never>("") //I can't use @Published here, because of swiftui redraw perfomance drop
     
@@ -70,12 +69,16 @@ class TokenListViewModel: ViewModel, ObservableObject {
         pendingAdd.isEmpty && pendingRemove.isEmpty
     }
     
+    var cardModel: CardViewModel? {
+        mode.cardModel
+    }
+    
     private let mode: Mode
     private var bag = Set<AnyCancellable>()
     
     init(mode: Mode) {
         self.mode = mode
-        
+        super.init()
         enteredSearchText
             .dropFirst()
             .debounce(for: 0.5, scheduler: DispatchQueue.main)
@@ -188,6 +191,23 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     private func onSelect(_ selected: Bool, _ tokenItem: TokenItem) {
+        if selected,
+           case let .token(_, blockchain) = tokenItem,
+           case .solana = blockchain,
+           let cardModel = mode.cardModel,
+           !cardModel.cardInfo.card.canSupportSolanaTokens
+        {
+            let okButton = Alert.Button.default(Text("common_ok".localized)) {
+                self.updateSelection(tokenItem)
+            }
+            
+            error = AlertBinder(alert: Alert(title: Text("common_attention".localized),
+                                             message: Text("alert_manage_tokens_unsupported_message".localized),
+                                             dismissButton: okButton))
+            
+            return
+        }
+        
         let alreadyAdded = isAdded(tokenItem)
         
         if alreadyAdded {
@@ -203,6 +223,10 @@ class TokenListViewModel: ViewModel, ObservableObject {
                 pendingAdd.remove(tokenItem)
             }
         }
+    }
+    
+    private func updateSelection(_ tokenItem: TokenItem) {
+        loader.updateSelection(tokenItem, with: bindSelection(tokenItem))
     }
     
     private func bindSelection(_ tokenItem: TokenItem) -> Binding<Bool> {
