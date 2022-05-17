@@ -117,7 +117,7 @@ struct SingleCardOnboardingView: View {
             Color.clear.frame(width: 1, height: 1)
                 .sheet(isPresented: $navigation.onboardingToBuyCrypto) {
                     WebViewContainer(url: viewModel.buyCryptoURL,
-                                     title: "wallet_button_topup",
+                                     title: "wallet_button_topup".localized,
                                      addLoadingIndicator: true,
                                      withCloseButton: true,
                                      urlActions: [ viewModel.buyCryptoCloseUrl : { _ in
@@ -136,6 +136,7 @@ struct SingleCardOnboardingView: View {
 }
 
 struct OnboardingView_Previews: PreviewProvider {
+    static let navigation = NavigationCoordinator()
     
     static var assembly: Assembly = {
         let assembly = Assembly.previewAssembly
@@ -148,7 +149,7 @@ struct OnboardingView_Previews: PreviewProvider {
         ContentView() {
             SingleCardOnboardingView(viewModel: assembly.getOnboardingViewModel())
                 .environmentObject(assembly)
-                .environmentObject(assembly.services.navigationCoordinator)
+                .environmentObject(navigation)
         }
         //        .previewGroup(devices: [.iPhoneX], withZoomed: false)
         //        .previewGroup()
