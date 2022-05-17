@@ -10,9 +10,8 @@ import BlockchainSdk
 import Combine
 
 class TokenDetailsViewModel: ViewModel, ObservableObject {
-    weak var assembly: Assembly!
-    weak var navigation: NavigationCoordinator!
-    weak var exchangeService: ExchangeService!
+    @Injected(\.exchangeService) private var exchangeService: ExchangeService
+    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     
     @Published var alert: AlertBinder? = nil
     
@@ -145,6 +144,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     }
     
     @Published var txIndexToPush: Int? = nil
+    @Published var unsupportedTokenWarning: String? = nil
     @Published var solanaRentWarning: String? = nil
     @Published var showExplorerURL: URL? = nil
     
@@ -156,13 +156,22 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     private var bag = Set<AnyCancellable>()
     private var rentWarningSubscription: AnyCancellable?
     private var refreshCancellable: AnyCancellable? = nil
+    private lazy var testnetBuyCrypto: TestnetBuyCryptoService = .init()
     
     init(blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType) {
         self.blockchainNetwork = blockchainNetwork
         self.amountType = amountType
     }
     
+    func updateState() {
+        if let cardModel = cardsRepository.lastScanResult.cardModel {
+            card = cardModel
+        }
+    }
+    
     func onAppear() {
+        updateUnsupportedTokenWarning()
+        
         rentWarningSubscription = walletModel?
             .$state
             .filter { !$0.isLoading }
@@ -201,7 +210,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         
         guard let model = walletModel else { return }
         
-        TestnetBuyCryptoService.buyCrypto(.erc20Token(walletManager: model.walletManager, token: token))
+        testnetBuyCrypto.buyCrypto(.erc20Token(walletManager: model.walletManager, token: token))
     }
     
     func sellCryptoAction() {
@@ -275,6 +284,20 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
             }
         
         walletModel?.update()
+    }
+    
+    private func updateUnsupportedTokenWarning() {
+        let warning: String?
+        if let wallet = wallet,
+           case .solana = wallet.blockchain,
+           !card.cardInfo.card.canSupportSolanaTokens
+        {
+            warning = "warning_token_send_unsupported_message".localized
+        } else {
+            warning = nil
+        }
+        
+        self.unsupportedTokenWarning = warning
     }
     
     private func updateRentWarning() {
