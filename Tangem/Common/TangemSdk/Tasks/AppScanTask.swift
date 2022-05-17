@@ -65,7 +65,7 @@ enum AppScanTaskError: String, Error, LocalizedError {
 }
 
 final class AppScanTask: CardSessionRunnable {
-    private let userPrefsService: UserPrefsService?
+    private var userPrefsService = UserPrefsService()
     
     private let targetBatch: String?
     private var twinIssuerData: Data? = nil
@@ -74,18 +74,14 @@ final class AppScanTask: CardSessionRunnable {
     private var derivedKeys: [Data: [DerivationPath:ExtendedPublicKey]] = [:]
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
 #if !CLIP
-    private let tokenItemsRepository: TokenItemsRepository?
+    @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
     
-    init(tokenItemsRepository: TokenItemsRepository?, userPrefsService: UserPrefsService?,
-         targetBatch: String? = nil) {
-        self.tokenItemsRepository = tokenItemsRepository
+    init(targetBatch: String? = nil) {
         self.targetBatch = targetBatch
-        self.userPrefsService = userPrefsService
     }
 #else
-    init(userPrefsService: UserPrefsService?, targetBatch: String? = nil) {
+    init(targetBatch: String? = nil) {
         self.targetBatch = targetBatch
-        self.userPrefsService = userPrefsService
     }
 #endif
     
@@ -123,8 +119,7 @@ final class AppScanTask: CardSessionRunnable {
                 return
             }
             
-            if let userPrefsService = self.userPrefsService,
-               userPrefsService.cardsStartedActivation.contains(card.cardId),
+            if userPrefsService.cardsStartedActivation.contains(card.cardId),
                card.backupStatus == .noBackup {
                 readPrimaryCard(session, completion)
                 return
@@ -251,8 +246,7 @@ final class AppScanTask: CardSessionRunnable {
         self.runAttestation(session, completion)
         return
 #else
-        guard let tokenItemsRepository = self.tokenItemsRepository,
-        session.environment.card?.settings.isHDWalletAllowed == true else {
+        guard session.environment.card?.settings.isHDWalletAllowed == true else {
             self.runAttestation(session, completion)
             return
         }
