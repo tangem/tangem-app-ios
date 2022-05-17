@@ -49,6 +49,7 @@ struct WarningView: View {
                             .foregroundColor(.tangemGrayDark)
                             .frame(width: 26, height: 26)
                     })
+                    .buttonStyle(PlainButtonStyle())
                     .offset(x: 6)
                 }
             }
