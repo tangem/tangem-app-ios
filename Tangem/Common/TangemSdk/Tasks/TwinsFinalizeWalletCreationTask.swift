@@ -50,7 +50,7 @@ class TwinsFinalizeWalletCreationTask: CardSessionRunnable {
 	}
 	
 	func readCard(in session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        scanCommand = AppScanTask(tokenItemsRepository: nil, userPrefsService: nil)
+        scanCommand = AppScanTask()
         scanCommand!.run(in: session, completion: completion)
 	}
 	
