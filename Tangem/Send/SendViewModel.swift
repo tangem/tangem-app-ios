@@ -19,14 +19,9 @@ struct TextHint {
 }
 
 class SendViewModel: ViewModel, ObservableObject {
-    weak var navigation: NavigationCoordinator!
-    weak var assembly: Assembly!
-    weak var ratesService: CurrencyRateService!
-    weak var featuresService: AppFeaturesService!
-    var payIDService: PayIDService? = nil
-    var emailDataCollector: SendScreenDataCollector!
-    
-    private unowned let warningsManager: WarningsManager
+    @Injected(\.currencyRateService) private var ratesService: CurrencyRateService
+    @Injected(\.appFeaturesService) private var featuresService: AppFeaturesProviding
+    @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
     
     @Published var showCameraDeniedAlert = false
     
@@ -171,30 +166,38 @@ class SendViewModel: ViewModel, ObservableObject {
     let amountToSend: Amount
     
     private(set) var isSellingCrypto: Bool
+    lazy var emailDataCollector: SendScreenDataCollector = .init(sendViewModel: self)
     
     @Published private var validatedXrpDestinationTag: UInt32? = nil
     
     private var blockchainNetwork: BlockchainNetwork
+   
+    private lazy var payIDService: PayIDService? = {
+        if featuresService.isPayIdEnabled, let payIdService = PayIDService.make(from: blockchainNetwork.blockchain) {
+          return payIdService
+        }
+        
+        return nil
+    }()
     
-    init(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel, warningsManager: WarningsManager) {
+    init(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
         self.blockchainNetwork = blockchainNetwork
         self.cardViewModel = cardViewModel
         self.amountToSend = amountToSend
-        self.warningsManager = warningsManager
         isSellingCrypto = false
+        super.init()
         fillTotalBlockWithDefaults()
         bind()
         setupWarnings()
     }
     
-    convenience init(amountToSend: Amount, destination: String, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel, warningsManager: WarningsManager) {
-        self.init(amountToSend: amountToSend, blockchainNetwork: blockchainNetwork, cardViewModel: cardViewModel, warningsManager: warningsManager)
+    convenience init(amountToSend: Amount, destination: String, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
+        self.init(amountToSend: amountToSend, blockchainNetwork: blockchainNetwork, cardViewModel: cardViewModel)
         isSellingCrypto = true
         self.destination = destination
         canFiatCalculation = false
         sendAmount = amountToSend.value.description
         amountText = sendAmount
-        
     }
     
     private func getDescription(for amount: Amount?, isFiat: Bool) -> String {
@@ -650,7 +653,7 @@ class SendViewModel: ViewModel, ObservableObject {
     func warningButtonAction(at index: Int, priority: WarningPriority, button: WarningButton) {
         guard let warning = warnings.warning(at: index, with: priority) else { return }
         
-        warningsManager.hideWarning(warning)
+        warningsService.hideWarning(warning)
     }
     
     func openSystemSettings() {
@@ -658,6 +661,6 @@ class SendViewModel: ViewModel, ObservableObject {
     }
     
     private func setupWarnings() {
-        warnings = warningsManager.warnings(for: .send)
+        warnings = warningsService.warnings(for: .send)
     }
 }
