@@ -15,18 +15,20 @@ class TotalSumBalanceViewModel: ObservableObject {
     var tokens: Published<[TokenItemViewModel]>.Publisher
     @Published var isLoading: Bool = false
     @Published var currencyType: String = ""
-    @Published var totalFiatValueString: String = ""
+    @Published var totalFiatValueString: String = "0,00"
     
     private var bag = Set<AnyCancellable>()
     private var tokenItems: [TokenItemViewModel] = []
     
     init(tokens: Published<[TokenItemViewModel]>.Publisher) {
         self.tokens = tokens
+        currencyType = currencyRateService.selectedCurrencyCode
         bind()
     }
     
     func bind() {
-        tokens.sink { [weak self] newValue in
+        tokens
+            .sink { [weak self] newValue in
             guard let tokenItem = self?.tokenItems else { return }
             if newValue == tokenItem && !tokenItem.isEmpty {
                 return
@@ -64,9 +66,19 @@ class TotalSumBalanceViewModel: ObservableObject {
     }
     
     func disableLoading() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+        withAnimation(Animation.linear.delay(0.5)) {
             self.isLoading = false
         }
     }
     
+}
+
+extension Publisher where Self.Output : Equatable {
+    public func distinct() -> AnyPublisher<Self.Output, Self.Failure> {
+        self.scan(([], nil)) {
+            $0.0.contains($1) ? ($0.0, nil) : ($0.0 + [$1], $1)
+        }
+        .compactMap { $0.1 }
+        .eraseToAnyPublisher()
+    }
 }
