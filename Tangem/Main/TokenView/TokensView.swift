@@ -18,7 +18,7 @@ struct TokensView: View {
         VStack(spacing: 0) {
             VStack(spacing: 0) {
                 HStack(spacing: 0) {
-                    Text("Token")
+                    Text("tokens".localized)
                         .font(.system(size: 13, weight: .medium))
                         .foregroundColor(Color.tangemTextGray)
                         .padding(.leading, 16)
