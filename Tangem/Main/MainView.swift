@@ -101,6 +101,28 @@ struct MainView: View {
         return nil
     }
     
+    var scanNavigationButton: some View {
+        Button(action: {
+            viewModel.onScan()
+        }, label: {
+            Image("scanCardIcon")
+                .foregroundColor(Color.black)
+                .frame(width: 44, height: 44)
+        })
+        .buttonStyle(PlainButtonStyle())
+        .sheet(isPresented: $navigation.mainToCardOnboarding, content: {
+            let model = viewModel.assembly.getCardOnboardingViewModel()
+            OnboardingBaseView(viewModel: model)
+                .presentation(modal: viewModel.isOnboardingModal,
+                              onDismissalAttempt: {},
+                              onDismissed: viewModel.onboardingDismissed)
+                .environmentObject(navigation)
+                .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
+                    viewModel.isOnboardingModal = value
+                })
+        })
+    }
+    
     var navigationLinks: some View {
         VStack {
             NavigationLink(destination: DetailsView(viewModel: viewModel.assembly.makeDetailsViewModel()),
@@ -202,15 +224,9 @@ struct MainView: View {
                                             viewModel.showCurrencyChangeScreen()
                                         }
                                         
-                                        ForEach(viewModel.tokenItemViewModels) { item in
-                                            Button {
-                                                viewModel.onWalletTap(item)
-                                            } label: {
-                                                TokensListItemView(item: item)
-                                            }
-                                            .buttonStyle(PlainButtonStyle())
+                                        TokensView(items: viewModel.tokenItemViewModels) { item in
+                                            viewModel.onWalletTap(item)
                                         }
-                                        .padding(.horizontal, 16)
                                         
                                         AddTokensView(action: {
                                             navigation.mainToAddTokens = true
@@ -294,7 +310,8 @@ struct MainView: View {
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarTitle(navigation.mainToSettings || navigation.mainToBuyCrypto || navigation.mainToTokenDetails ? "" : "wallet_title", displayMode: .inline)
-        .navigationBarItems(trailing: Button(action: {
+        .navigationBarItems(leading: scanNavigationButton,
+        trailing: Button(action: {
             if viewModel.state.cardModel != nil {
                 viewModel.navigation.mainToSettings.toggle()
             }
@@ -336,26 +353,6 @@ struct MainView: View {
             .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
                                            isDisabled: !viewModel.canCreateWallet || !viewModel.canCreateTwinWallet,
                                            isLoading: viewModel.isCreatingWallet))
-    }
-    
-    var scanButton: some View {
-        TangemButton(title: "wallet_button_scan",
-                     image: "scan",
-                     action: viewModel.onScan)
-        .buttonStyle(TangemButtonStyle(colorStyle: .black,
-                                       layout: .flexibleWidth,
-                                       isLoading: viewModel.isScanning))
-        .sheet(isPresented: $navigation.mainToCardOnboarding, content: {
-            let model = viewModel.assembly.getCardOnboardingViewModel()
-            OnboardingBaseView(viewModel: model)
-                .presentation(modal: viewModel.isOnboardingModal,
-                              onDismissalAttempt: {},
-                              onDismissed: viewModel.onboardingDismissed)
-                .environmentObject(navigation)
-                .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
-                    viewModel.isOnboardingModal = value
-                })
-        })
     }
     
     var sendButton: some View {
@@ -437,15 +434,9 @@ struct MainView: View {
                         sendButton
                     }
                 }
-                
-                scanButton
             }
             .padding([.horizontal, .top], 16)
             .padding(.bottom, 8)
-            .background(LinearGradient(colors: [.white, .white, .white.opacity(0)],
-                                       startPoint: .bottom,
-                                       endPoint: .top)
-                .edgesIgnoringSafeArea(.bottom))
         }
     }
 }
