@@ -23,7 +23,7 @@ struct TotalSumBalanceView: View {
                         .lineLimit(1)
                         .font(Font.system(size: 14, weight: .medium))
                         .foregroundColor(Color.tangemTextGray)
-                        .padding(.leading, 20)
+                        .padding(.leading, 16)
                         .padding(.top, 20)
                     
                     Spacer()
@@ -56,10 +56,23 @@ struct TotalSumBalanceView: View {
                         })
                         .font(Font.system(size: 28, weight: .semibold))
                         .foregroundColor(Color.tangemGrayDark6)
-                        .padding(.leading, 20)
+                        .padding(.leading, 16)
                     Spacer()
                 }
-                .padding(.bottom, 16)
+                .padding(.bottom, viewModel.isFailed ? 0 : 16)
+                
+                HStack(spacing: 0) {
+                    if viewModel.isFailed {
+                        Text(viewModel.isFailed ? "processing_full_amount".localized : "")
+                            .foregroundColor(Color.tangemWarning)
+                            .font(.system(size: 13, weight: .regular))
+                            .padding(.top, 2)
+                            .padding([.bottom, .leading], 16)
+                    } else {
+                        EmptyView()
+                    }
+                    Spacer()
+                }
             }
             .background(Color.white)
             .cornerRadius(16)
