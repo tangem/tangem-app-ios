@@ -104,6 +104,7 @@ struct MainView: View {
     var scanNavigationButton: some View {
         Button(action: {
             viewModel.onScan()
+            Impack.play(.light)
         }, label: {
             Image("scanCardIcon")
                 .foregroundColor(Color.black)
