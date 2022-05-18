@@ -27,7 +27,7 @@ struct TokensView: View {
                 }
                 ForEach(items) { item in
                         Button {
-                            action()
+                            action(item)
                         } label: {
                             VStack(spacing: 0) {
                                 TokenItemView(item: item)
@@ -148,6 +148,6 @@ fileprivate struct TokenSeparatorView: View {
 
 struct TokensView_Previews: PreviewProvider {
     static var previews: some View {
-        TokensView(items: [])
+        TokensView(items: [], action: { _ in })
     }
 }
