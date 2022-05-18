@@ -54,7 +54,7 @@ struct TotalSumBalanceView: View {
                         .if(viewModel.isLoading, transform: { view in
                             view.shimmering()
                         })
-                        .font(Font.system(size: 34, weight: .bold))
+                        .font(Font.system(size: 28, weight: .semibold))
                         .foregroundColor(Color.tangemGrayDark6)
                         .padding(.leading, 20)
                     Spacer()
