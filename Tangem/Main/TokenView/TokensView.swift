@@ -27,6 +27,7 @@ struct TokensView: View {
                 }
                 ForEach(items) { item in
                         Button {
+                            Impack.play(.light)
                             action(item)
                         } label: {
                             VStack(spacing: 0) {
