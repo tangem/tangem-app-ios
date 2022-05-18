@@ -29,6 +29,7 @@ struct TotalSumBalanceView: View {
                     Spacer()
                     
                     Button {
+                        Impack.play(.light)
                         tapOnCurrencySymbol()
                     } label: {
                         HStack(spacing: 0) {
