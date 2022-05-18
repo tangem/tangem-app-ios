@@ -15,6 +15,7 @@ struct AddTokensView: View {
     var body: some View {
         VStack(spacing: 0) {
             Button {
+                Impack.play(.light)
                 action()
             } label: {
                 Text("main_manage_tokens_button")
