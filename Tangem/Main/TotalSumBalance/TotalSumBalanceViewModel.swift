@@ -16,6 +16,7 @@ class TotalSumBalanceViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var currencyType: String = ""
     @Published var totalFiatValueString: String = "0,00"
+    @Published var isFailed: Bool = false
     
     private var bag = Set<AnyCancellable>()
     private var tokenItems: [TokenItemViewModel] = []
@@ -45,6 +46,7 @@ class TotalSumBalanceViewModel: ObservableObject {
         else {
             return
         }
+        isFailed = false
         isLoading = true
         currencyType = currencyRateService.selectedCurrencyCode
         currencyRateService
@@ -56,7 +58,11 @@ class TotalSumBalanceViewModel: ObservableObject {
                 guard let currency = currencies.first(where: { $0.code == self.currencyRateService.selectedCurrencyCode }) else { return }
                 var totalFiatValue: Decimal = 0.0
                 self.tokenItems.forEach { token in
-                    totalFiatValue += token.fiatValue
+                    if token.state.isSuccesfullyLoaded {
+                        totalFiatValue += token.fiatValue
+                    } else {
+                        self.isFailed = true
+                    }
                 }
                 
                 self.totalFiatValueString = totalFiatValue.currencyFormatted(code: currency.code)
@@ -71,14 +77,4 @@ class TotalSumBalanceViewModel: ObservableObject {
         }
     }
     
-}
-
-extension Publisher where Self.Output : Equatable {
-    public func distinct() -> AnyPublisher<Self.Output, Self.Failure> {
-        self.scan(([], nil)) {
-            $0.0.contains($1) ? ($0.0, nil) : ($0.0 + [$1], $1)
-        }
-        .compactMap { $0.1 }
-        .eraseToAnyPublisher()
-    }
 }
