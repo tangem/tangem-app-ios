@@ -484,3 +484,4 @@ URL: %@";
 "contract_address_copied_message" = "Адрес контракта скопирован!";
 "common_server_unavailable" = "Сервер недоступен, повторите попытку позднее";
 "processing_full_amount" = "Processing full amount...";
+"tokens" = "Токены";
