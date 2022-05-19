@@ -63,12 +63,5 @@ extension View {
             self
         }
     }
-    
-    @ViewBuilder func redactedIfPossible(_ condition: Bool) -> some View {
-        if #available(iOS 14, *) {
-            self.redacted(reason: condition ? .placeholder : [])
-        } else {
-            self
-        }
-    }
+
 }
