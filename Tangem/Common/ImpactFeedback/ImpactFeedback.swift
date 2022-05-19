@@ -8,7 +8,7 @@
 
 import UIKit
 
-enum ImpackFeedback {
+enum ImpactFeedback {
     case error
     case success
     case warning
@@ -17,10 +17,9 @@ enum ImpackFeedback {
     case heavy
 }
 
-class Impack {
-    
-    static func play(_ impackType: ImpackFeedback) {
-        switch impackType {
+class ImpactGenerator {
+    static func generate(_ impactType: ImpactFeedback) {
+        switch impactType {
         case .error:
             let generator = UINotificationFeedbackGenerator()
             generator.notificationOccurred(.error)
@@ -41,5 +40,4 @@ class Impack {
             generator.impactOccurred()
         }
     }
-    
 }
