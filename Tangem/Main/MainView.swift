@@ -213,6 +213,7 @@ struct MainView: View {
                                             TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel) {
                                                 viewModel.showCurrencyChangeScreen()
                                             }
+                                            .padding(.bottom, 16)
                                         }
                                         
                                         TokensView(items: viewModel.tokenItemViewModels) { item in
