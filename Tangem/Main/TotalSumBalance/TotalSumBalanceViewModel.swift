@@ -30,10 +30,6 @@ class TotalSumBalanceViewModel: ObservableObject {
     func bind() {
         tokens
             .sink { [weak self] newValue in
-            guard let tokenItem = self?.tokenItems else { return }
-            if newValue == tokenItem && !tokenItem.isEmpty {
-                return
-            }
             self?.tokenItems = newValue
             DispatchQueue.main.async {
                 self?.refresh()
@@ -72,9 +68,13 @@ class TotalSumBalanceViewModel: ObservableObject {
     }
     
     func disableLoading() {
-        withAnimation(Animation.linear.delay(0.5)) {
+        withAnimation(Animation.spring().delay(0.5)) {
             self.isLoading = false
         }
+    }
+    
+    deinit {
+        print("")
     }
     
 }
