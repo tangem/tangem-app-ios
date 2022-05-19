@@ -10,7 +10,6 @@ import SwiftUI
 import BlockchainSdk
 
 struct TokensView: View {
-    
     var items: [TokenItemViewModel]
     
     var action: (TokenItemViewModel) -> ()
@@ -46,7 +45,8 @@ struct TokensView: View {
                             .buttonStyle(PlainButtonStyle())
                             
                             if items.firstIndex(of: item) != items.count - 1 {
-                                TokenSeparatorView()
+                                Separator(height: 1, padding: 0, separatorColor: Color.tangemBgGray2)
+                                    .padding(.leading, 16)
                             }
                         }
                     }
@@ -63,7 +63,6 @@ struct TokensView: View {
 }
 
 struct TokenItemView: View {
-    
     let item: TokenItemViewModel
     
     var secondaryText: String {
@@ -148,18 +147,6 @@ struct TokenItemView: View {
             }
         }
     }
-    
-}
-
-fileprivate struct TokenSeparatorView: View {
-    
-    var body: some View {
-        Rectangle()
-            .foregroundColor(Color.tangemBgGray2)
-            .frame(height: 1)
-            .padding(.leading, 16)
-    }
-    
 }
 
 struct TokensView_Previews: PreviewProvider {
