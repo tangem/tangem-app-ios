@@ -483,5 +483,5 @@ URL: %@";
 "alert_manage_tokens_unsupported_message" = "Tokens in Solana network are not supported by this card due to firmware limitation.";
 "contract_address_copied_message" = "Contract address copied!";
 "common_server_unavailable" = "The server is not available, please try again later";
-"processing_full_amount" = "Processing full amount...";
-"tokens" = "Tokens";
+"main_processing_full_amount" = "Processing full amount...";
+"main_tokens" = "Tokens";
