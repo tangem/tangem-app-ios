@@ -422,6 +422,7 @@ class MainViewModel: ViewModel, ObservableObject {
     
     func onScan() {
         DispatchQueue.main.async {
+            ImpactGenerator.generate(.light)
             self.assembly.getLetsStartOnboardingViewModel()?.reset()
             self.assembly.getLaunchOnboardingViewModel().reset()
             self.navigation.popToRoot()
@@ -631,6 +632,7 @@ class MainViewModel: ViewModel, ObservableObject {
     }
     
     func showCurrencyChangeScreen() {
+        ImpactGenerator.generate(.light)
         navigation.currencyChangeView = true
     }
 
