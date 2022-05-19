@@ -49,11 +49,18 @@ struct TotalSumBalanceView: View {
                 .padding(.bottom, 4)
                 
                 HStack(spacing: 0) {
-                    Text(viewModel.totalFiatValueString)
-                        .lineLimit(1)
-                        .font(Font.system(size: 28, weight: .semibold))
-                        .foregroundColor(Color.tangemGrayDark6)
-                        .padding(.leading, 16)
+                    if viewModel.isLoading {
+                        ActivityIndicatorView(isAnimating: true, style: .medium, color: .gray)
+                            .padding(.leading, 16)
+                            .frame(height: 33)
+                    } else {
+                        Text(viewModel.totalFiatValueString)
+                            .lineLimit(1)
+                            .font(Font.system(size: 28, weight: .semibold))
+                            .foregroundColor(Color.tangemGrayDark6)
+                            .padding(.leading, 16)
+                            .frame(height: 33)
+                    }
                     Spacer()
                 }
                 .padding(.bottom, viewModel.isFailed ? 0 : 16)
