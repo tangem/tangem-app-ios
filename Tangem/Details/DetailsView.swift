@@ -135,7 +135,6 @@ struct DetailsView: View {
             }
             
             Section(header: HeaderView(text: "details_section_title_app".localized), footer: FooterView()) {
-                
                 NavigationLink(destination: DisclaimerView(style: .navbar, showAccept: false),
                                tag: NavigationTag.disclaimer, selection: $selection) {
                     DetailsRowView(title: "disclaimer_title".localized,
