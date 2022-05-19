@@ -20,16 +20,13 @@ struct TokensView: View {
                 EmptyView()
             } else {
                 VStack(spacing: 0) {
-                    VStack(spacing: 0) {
-                        HStack(spacing: 0) {
-                            Text("main_tokens".localized)
-                                .font(.system(size: 13, weight: .medium))
-                                .foregroundColor(Color.tangemTextGray)
-                                .padding(.leading, 16)
-                                .padding(.top, 14)
-                            
-                            Spacer()
-                        }
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text("main_tokens".localized)
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundColor(Color.tangemTextGray)
+                            .padding(.leading, 16)
+                            .padding(.top, 14)
+                        
                         ForEach(items) { item in
                             Button {
                                 ImpactGenerator.generate(.light)
@@ -155,23 +152,23 @@ struct TokensView_Previews: PreviewProvider {
             Color.tangemBgGray
             TokensView(items: [
                 TokenItemViewModel(state: .idle, hasTransactionInProgress: false,
-                                    name: "Ethereum ",
-                                    fiatBalance: "$3.45",
-                                    balance: "0.00000348501 BTC",
-                                    rate: "1.5 USD",
-                                    amountType: .coin,
-                                    blockchainNetwork: .init(.ethereum(testnet: false)),
-                                    fiatValue: 0,
-                                    isCustom: false),
+                                   name: "Ethereum ",
+                                   fiatBalance: "$3.45",
+                                   balance: "0.00000348501 BTC",
+                                   rate: "1.5 USD",
+                                   amountType: .coin,
+                                   blockchainNetwork: .init(.ethereum(testnet: false)),
+                                   fiatValue: 0,
+                                   isCustom: false),
                 TokenItemViewModel(state: .idle, hasTransactionInProgress: false,
-                                    name: "Ethereum ",
-                                    fiatBalance: "$100500222.33",
-                                    balance: "0.00000348501 BTC",
-                                    rate: "1.5 USD",
-                                    amountType: .coin,
-                                    blockchainNetwork: .init(.ethereum(testnet: false)),
-                                    fiatValue: 0,
-                                    isCustom: true),
+                                   name: "Ethereum ",
+                                   fiatBalance: "$100500222.33",
+                                   balance: "0.00000348501 BTC",
+                                   rate: "1.5 USD",
+                                   amountType: .coin,
+                                   blockchainNetwork: .init(.ethereum(testnet: false)),
+                                   fiatValue: 0,
+                                   isCustom: true),
                 TokenItemViewModel(state: .loading, hasTransactionInProgress: false,
                                    name: "Ethereum smart contract token",
                                    fiatBalance: "$3.45",
