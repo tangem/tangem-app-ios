@@ -267,6 +267,10 @@ class MainViewModel: ViewModel, ObservableObject {
             .sink { [unowned self] in
                 print("⚠️ Card model will change")
                 self.objectWillChange.send()
+                guard let walletModels = self.cardModel?.walletModels else { return }
+                if walletModels.isEmpty {
+                    self.tokenItems = []
+                }
             }
             .store(in: &bag)
         
@@ -373,6 +377,7 @@ class MainViewModel: ViewModel, ObservableObject {
             cardModel.update()
         } else {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.tokenItems = []
                 withAnimation {
                     done()
                 }
