@@ -38,6 +38,7 @@ struct TokensView: View {
                                     TokenSeparatorView()
                                 }
                             }
+                            .contentShape(Rectangle())
                         }
                         .buttonStyle(PlainButtonStyle())
                 }
