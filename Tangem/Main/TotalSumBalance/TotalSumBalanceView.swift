@@ -29,7 +29,6 @@ struct TotalSumBalanceView: View {
                     Spacer()
                     
                     Button {
-                        Impack.play(.light)
                         tapOnCurrencySymbol()
                     } label: {
                         HStack(spacing: 0) {
@@ -67,14 +66,13 @@ struct TotalSumBalanceView: View {
                 
                 HStack(spacing: 0) {
                     if viewModel.isFailed {
-                        Text(viewModel.isFailed ? "processing_full_amount".localized : "")
+                        Text(viewModel.isFailed ? "main_processing_full_amount".localized : "")
                             .foregroundColor(Color.tangemWarning)
                             .font(.system(size: 13, weight: .regular))
                             .padding(.top, 2)
                             .padding([.bottom, .leading], 16)
-                    } else {
-                        EmptyView()
                     }
+                    
                     Spacer()
                 }
             }
