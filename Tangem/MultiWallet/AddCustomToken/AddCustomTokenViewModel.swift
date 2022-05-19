@@ -156,15 +156,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         
         if withTokenSupport {
             let blockchainsWithTokens = supportedTokenItems.blockchainsWithTokens(isTestnet: cardInfo.isTestnet)
-            
-            return blockchains
-                .filter {
-                    if case .solana = $0, !cardInfo.card.canSupportSolanaTokens {
-                        return false
-                    }
-                    
-                    return blockchainsWithTokens.contains($0)
-                }
+            return blockchains.filter { blockchainsWithTokens.contains($0) }
         } else {
             return blockchains
         }
@@ -207,6 +199,10 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             return .blockchain(blockchain)
         } else {
             let enteredContractAddress = try self.enteredContractAddress(in: blockchain)
+            
+            if case .solana = blockchain, !cardModel.cardInfo.card.canSupportSolanaTokens {
+                throw TokenCreationErrors.tokensNotSupported
+            }
             
             guard !name.isEmpty, !symbol.isEmpty, !decimals.isEmpty else {
                 throw TokenCreationErrors.emptyFields
@@ -366,6 +362,7 @@ private extension AddCustomTokenViewModel {
     enum TokenCreationErrors: LocalizedError {
         case blockchainNotSelected
         case emptyFields
+        case tokensNotSupported
         case invalidDecimals(precision: Int)
         case invalidContractAddress
         case invalidDerivationPath
@@ -376,6 +373,8 @@ private extension AddCustomTokenViewModel {
                 return "custom_token_creation_error_network_not_selected".localized
             case .emptyFields:
                 return "custom_token_creation_error_empty_fields".localized
+            case .tokensNotSupported:
+                return "alert_manage_tokens_unsupported_message".localized
             case .invalidDecimals(let precision):
                 return "custom_token_creation_error_wrong_decimals".localized(precision)
             case .invalidContractAddress:
