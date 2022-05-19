@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import BlockchainSdk
 
 struct TokensView: View {
     
@@ -22,34 +23,37 @@ struct TokensView: View {
                 VStack(spacing: 0) {
                     VStack(spacing: 0) {
                         HStack(spacing: 0) {
-                            Text("tokens".localized)
+                            Text("main_tokens".localized)
                                 .font(.system(size: 13, weight: .medium))
                                 .foregroundColor(Color.tangemTextGray)
                                 .padding(.leading, 16)
                                 .padding(.top, 14)
+                            
                             Spacer()
                         }
                         ForEach(items) { item in
-                                Button {
-                                    Impack.play(.light)
-                                    action(item)
-                                } label: {
-                                    VStack(spacing: 0) {
-                                        TokenItemView(item: item)
-                                            .padding(.horizontal, 16)
-                                            .padding([.top, .bottom], 15)
-                                        if items.firstIndex(of: item) != items.count - 1 {
-                                            TokenSeparatorView()
-                                        }
-                                    }
-                                    .contentShape(Rectangle())
+                            Button {
+                                ImpactGenerator.generate(.light)
+                                action(item)
+                            } label: {
+                                VStack(spacing: 0) {
+                                    TokenItemView(item: item)
+                                        .padding(.horizontal, 16)
+                                        .padding([.top, .bottom], 15)
                                 }
-                                .buttonStyle(PlainButtonStyle())
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            
+                            if items.firstIndex(of: item) != items.count - 1 {
+                                TokenSeparatorView()
+                            }
                         }
                     }
                     .background(Color.white)
                     .cornerRadius(14)
                     .padding([.leading, .trailing], 16)
+                    
                     Spacer()
                 }
                 .background(Color.clear)
@@ -101,7 +105,9 @@ struct TokenItemView: View {
                     Text(item.name)
                         .layoutPriority(2)
                         .fixedSize(horizontal: false, vertical: true)
+                    
                     Spacer()
+                    
                     Text(item.balance)
                         .multilineTextAlignment(.trailing)
                         .truncationMode(.middle)
@@ -115,7 +121,7 @@ struct TokenItemView: View {
                 
                 HStack(alignment: .firstTextBaseline, spacing: 5.0) {
                     if item.state.errorDescription != nil  || item.hasTransactionInProgress {
-                        Image(systemName: "exclamationmark.circle" )
+                        Image(systemName: "exclamationmark.circle")
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 10.0, height: 10.0)
@@ -128,7 +134,9 @@ struct TokenItemView: View {
                             .fixedSize(horizontal: false, vertical: true)
                             .lineLimit(1)
                     }
+                    
                     Spacer()
+                    
                     Text(item.fiatBalance)
                         .fixedSize(horizontal: false, vertical: true)
                         .lineLimit(1)
@@ -156,6 +164,38 @@ fileprivate struct TokenSeparatorView: View {
 
 struct TokensView_Previews: PreviewProvider {
     static var previews: some View {
-        TokensView(items: [], action: { _ in })
+        ZStack {
+            Color.tangemBgGray
+            TokensView(items: [
+                TokenItemViewModel(state: .idle, hasTransactionInProgress: false,
+                                   name: "Ethereum",
+                                   fiatBalance: "",
+                                   balance: "",
+                                   rate: "",
+                                   amountType: .coin,
+                                   blockchainNetwork: .init(.ethereum(testnet: false)),
+                                   fiatValue: 0,
+                                   isCustom: false),
+                TokenItemViewModel(state: .idle, hasTransactionInProgress: false,
+                                   name: "BNB",
+                                   fiatBalance: "",
+                                   balance: "",
+                                   rate: "",
+                                   amountType: .coin,
+                                   blockchainNetwork: .init(.binance(testnet: false)),
+                                   fiatValue: 0,
+                                   isCustom: false),
+                TokenItemViewModel(state: .idle, hasTransactionInProgress: false,
+                                   name: "AVAX",
+                                   fiatBalance: "",
+                                   balance: "",
+                                   rate: "",
+                                   amountType: .coin,
+                                   blockchainNetwork: .init(.avalanche(testnet: false)),
+                                   fiatValue: 0,
+                                   isCustom: false)
+                
+            ], action: { _ in })
+        }
     }
 }
