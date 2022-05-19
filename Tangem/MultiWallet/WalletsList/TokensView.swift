@@ -19,41 +19,36 @@ struct TokensView: View {
             if items.isEmpty {
                 EmptyView()
             } else {
-                VStack(spacing: 0) {
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text("main_tokens".localized)
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(Color.tangemTextGray)
-                            .padding(.leading, 16)
-                            .padding(.top, 14)
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("main_tokens".localized)
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(Color.tangemTextGray)
+                        .padding(.leading, 16)
+                        .padding(.top, 14)
+                    
+                    ForEach(items) { item in
+                        Button {
+                            ImpactGenerator.generate(.light)
+                            action(item)
+                        } label: {
+                            VStack(spacing: 0) {
+                                TokenItemView(item: item)
+                                    .padding(.horizontal, 16)
+                                    .padding([.top, .bottom], 15)
+                            }
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(PlainButtonStyle())
                         
-                        ForEach(items) { item in
-                            Button {
-                                ImpactGenerator.generate(.light)
-                                action(item)
-                            } label: {
-                                VStack(spacing: 0) {
-                                    TokenItemView(item: item)
-                                        .padding(.horizontal, 16)
-                                        .padding([.top, .bottom], 15)
-                                }
-                                .contentShape(Rectangle())
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            
-                            if items.firstIndex(of: item) != items.count - 1 {
-                                Separator(height: 1, padding: 0, separatorColor: Color.tangemBgGray2)
-                                    .padding(.leading, 16)
-                            }
+                        if items.firstIndex(of: item) != items.count - 1 {
+                            Separator(height: 1, padding: 0, separatorColor: Color.tangemBgGray2)
+                                .padding(.leading, 16)
                         }
                     }
-                    .background(Color.white)
-                    .cornerRadius(14)
-                    .padding([.leading, .trailing], 16)
-                    
-                    Spacer()
                 }
-                .background(Color.clear)
+                .background(Color.white)
+                .cornerRadius(14)
+                .padding([.leading, .trailing], 16)
             }
         }
     }
