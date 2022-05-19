@@ -1493,7 +1493,6 @@
 		5DFCCB6D24C372830014A293 /* Main */ = {
 			isa = PBXGroup;
 			children = (
-				65A191082833EA480023355D /* TokenView */,
 				652B013D28322CAB00F2E27A /* TotalSumBalance */,
 				5DFCCB6E24C3728E0014A293 /* MainView.swift */,
 				5DFCCB7024C372980014A293 /* MainViewModel.swift */,
@@ -1526,13 +1525,6 @@
 				652B013928319F9000F2E27A /* TotalSumBalanceViewModel.swift */,
 			);
 			path = TotalSumBalance;
-			sourceTree = "<group>";
-		};
-		65A191082833EA480023355D /* TokenView */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = TokenView;
 			sourceTree = "<group>";
 		};
 		65A1910B283531520023355D /* ImpactFeedback */ = {
