@@ -10,7 +10,6 @@ import SwiftUI
 import Combine
 
 struct TotalSumBalanceView: View {
-    
     @ObservedObject var viewModel: TotalSumBalanceViewModel
     
     var tapOnCurrencySymbol: () -> ()
