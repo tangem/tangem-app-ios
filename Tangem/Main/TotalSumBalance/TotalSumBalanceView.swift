@@ -49,12 +49,8 @@ struct TotalSumBalanceView: View {
                 .padding(.bottom, 4)
                 
                 HStack(spacing: 0) {
-                    Text(viewModel.isLoading ? "wallet_balance_loading".localized : viewModel.totalFiatValueString)
+                    Text(viewModel.totalFiatValueString)
                         .lineLimit(1)
-                        .redactedIfPossible(viewModel.isLoading)
-                        .if(viewModel.isLoading, transform: { view in
-                            view.shimmering()
-                        })
                         .font(Font.system(size: 28, weight: .semibold))
                         .foregroundColor(Color.tangemGrayDark6)
                         .padding(.leading, 16)
