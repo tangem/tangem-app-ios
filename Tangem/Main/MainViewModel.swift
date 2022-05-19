@@ -65,6 +65,7 @@ class MainViewModel: ViewModel, ObservableObject {
     var amountToSend: Amount? = nil
     var selectedWallet: TokenItemViewModel = .default
     var sellCryptoRequest: SellCryptoRequest? = nil
+    lazy var totalSumBalanceViewModel: TotalSumBalanceViewModel = assembly.makeTotalSumBalanceViewModel(tokens: $tokenItems)
     
 	@Storage(type: .validatedSignedHashesCards, defaultValue: [])
 	private var validatedSignedHashesCards: [String]
@@ -787,9 +788,7 @@ class MainViewModel: ViewModel, ObservableObject {
         }
         
         let newTokens = walletModels.flatMap({ $0.tokenItemViewModels })
-        if tokenItems != newTokens {
-            tokenItems = newTokens
-        }
+        tokenItems = newTokens
     }
 }
 
