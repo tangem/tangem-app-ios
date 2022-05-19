@@ -15,7 +15,7 @@ class TotalSumBalanceViewModel: ObservableObject {
     var tokens: Published<[TokenItemViewModel]>.Publisher
     @Published var isLoading: Bool = false
     @Published var currencyType: String = ""
-    @Published var totalFiatValueString: String = "0,00"
+    @Published var totalFiatValueString: String = ""
     @Published var isFailed: Bool = false
     
     private var bag = Set<AnyCancellable>()
@@ -30,10 +30,10 @@ class TotalSumBalanceViewModel: ObservableObject {
     func bind() {
         tokens
             .sink { [weak self] newValue in
-            self?.tokenItems = newValue
-            DispatchQueue.main.async {
-                self?.refresh()
-            }
+                self?.tokenItems = newValue
+                DispatchQueue.main.async {
+                    self?.refresh()
+                }
         }.store(in: &bag)
     }
     
@@ -71,10 +71,6 @@ class TotalSumBalanceViewModel: ObservableObject {
         withAnimation(Animation.spring().delay(0.5)) {
             self.isLoading = false
         }
-    }
-    
-    deinit {
-        print("")
     }
     
 }
