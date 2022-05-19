@@ -15,40 +15,46 @@ struct TokensView: View {
     var action: (TokenItemViewModel) -> ()
     
     var body: some View {
-        VStack(spacing: 0) {
-            VStack(spacing: 0) {
-                HStack(spacing: 0) {
-                    Text("tokens".localized)
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(Color.tangemTextGray)
-                        .padding(.leading, 16)
-                        .padding(.top, 14)
+        Group {
+            if items.isEmpty {
+                EmptyView()
+            } else {
+                VStack(spacing: 0) {
+                    VStack(spacing: 0) {
+                        HStack(spacing: 0) {
+                            Text("tokens".localized)
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundColor(Color.tangemTextGray)
+                                .padding(.leading, 16)
+                                .padding(.top, 14)
+                            Spacer()
+                        }
+                        ForEach(items) { item in
+                                Button {
+                                    Impack.play(.light)
+                                    action(item)
+                                } label: {
+                                    VStack(spacing: 0) {
+                                        TokenItemView(item: item)
+                                            .padding(.horizontal, 16)
+                                            .padding([.top, .bottom], 15)
+                                        if items.firstIndex(of: item) != items.count - 1 {
+                                            TokenSeparatorView()
+                                        }
+                                    }
+                                    .contentShape(Rectangle())
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                        }
+                    }
+                    .background(Color.white)
+                    .cornerRadius(14)
+                    .padding([.leading, .trailing], 16)
                     Spacer()
                 }
-                ForEach(items) { item in
-                        Button {
-                            Impack.play(.light)
-                            action(item)
-                        } label: {
-                            VStack(spacing: 0) {
-                                TokenItemView(item: item)
-                                    .padding(.horizontal, 16)
-                                    .padding([.top, .bottom], 15)
-                                if items.firstIndex(of: item) != items.count - 1 {
-                                    TokenSeparatorView()
-                                }
-                            }
-                            .contentShape(Rectangle())
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                }
+                .background(Color.clear)
             }
-            .background(Color.white)
-            .cornerRadius(14)
-            .padding([.leading, .trailing], 16)
-            Spacer()
         }
-        .background(Color.clear)
     }
 }
 
