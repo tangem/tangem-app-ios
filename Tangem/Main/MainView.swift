@@ -104,24 +104,12 @@ struct MainView: View {
     var scanNavigationButton: some View {
         Button(action: {
             viewModel.onScan()
-            Impack.play(.light)
         }, label: {
             Image("scanCardIcon")
                 .foregroundColor(Color.black)
                 .frame(width: 44, height: 44)
         })
         .buttonStyle(PlainButtonStyle())
-        .sheet(isPresented: $navigation.mainToCardOnboarding, content: {
-            let model = viewModel.assembly.getCardOnboardingViewModel()
-            OnboardingBaseView(viewModel: model)
-                .presentation(modal: viewModel.isOnboardingModal,
-                              onDismissalAttempt: {},
-                              onDismissed: viewModel.onboardingDismissed)
-                .environmentObject(navigation)
-                .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
-                    viewModel.isOnboardingModal = value
-                })
-        })
     }
     
     var navigationLinks: some View {
@@ -300,6 +288,20 @@ struct MainView: View {
             Color.clear
                 .frame(width: 0.5, height: 0.5)
                 .sheet(item: $viewModel.showExternalURL) { SafariView(url: $0) }
+            
+            Color.clear
+                .frame(width: 0.5, height: 0.5)
+                .sheet(isPresented: $navigation.mainToCardOnboarding, content: {
+                    let model = viewModel.assembly.getCardOnboardingViewModel()
+                    OnboardingBaseView(viewModel: model)
+                        .presentation(modal: viewModel.isOnboardingModal,
+                                      onDismissalAttempt: {},
+                                      onDismissed: viewModel.onboardingDismissed)
+                        .environmentObject(navigation)
+                        .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
+                            viewModel.isOnboardingModal = value
+                        })
+                })
             
             BottomSheetView(isPresented: navigation.$mainToQR,
                             hideBottomSheetCallback: {
