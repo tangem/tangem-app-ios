@@ -72,5 +72,4 @@ class TotalSumBalanceViewModel: ObservableObject {
             self.isLoading = false
         }
     }
-    
 }
