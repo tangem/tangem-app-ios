@@ -209,7 +209,7 @@ struct MainView: View {
                                 } else {
                                     if viewModel.cardModel!.cardInfo.isMultiWallet {
                                         
-                                        if !viewModel.tokenItems.isEmpty {
+                                        if !viewModel.tokenItemViewModels.isEmpty {
                                             TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel) {
                                                 viewModel.showCurrencyChangeScreen()
                                             }
