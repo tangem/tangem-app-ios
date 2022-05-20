@@ -48,26 +48,23 @@ struct TotalSumBalanceView: View {
             VStack(alignment: .leading, spacing: 0) {
                 if viewModel.isLoading {
                     ActivityIndicatorView(isAnimating: true, style: .medium, color: .gray)
-                        .padding(.leading, 16)
                         .frame(height: 33)
                 } else {
                     Text(viewModel.totalFiatValueString)
                         .lineLimit(1)
                         .font(Font.system(size: 28, weight: .semibold))
                         .foregroundColor(Color.tangemGrayDark6)
-                        .padding(.leading, 16)
                         .frame(height: 33)
                 }
                 
                 if viewModel.isFailed {
-                    Text(viewModel.isFailed ? "main_processing_full_amount".localized : "")
+                    Text("main_processing_full_amount".localized)
                         .foregroundColor(Color.tangemWarning)
                         .font(.system(size: 13, weight: .regular))
                         .padding(.top, 2)
-                        .padding(.leading, 16)
                 }
             }
-            .padding(.bottom, 16)
+            .padding([.bottom, .leading], 16)
         }
         .background(Color.white)
         .cornerRadius(16)
