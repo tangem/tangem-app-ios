@@ -45,8 +45,6 @@ class MainViewModel: ViewModel, ObservableObject {
     @Published var txIndexToPush: Int? = nil
     @Published var isOnboardingModal: Bool = true
     
-    @Published var tokenItems: [TokenItemViewModel] = []
-    
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
             warnings.objectWillChange
@@ -65,7 +63,7 @@ class MainViewModel: ViewModel, ObservableObject {
     var amountToSend: Amount? = nil
     var selectedWallet: TokenItemViewModel = .default
     var sellCryptoRequest: SellCryptoRequest? = nil
-    lazy var totalSumBalanceViewModel: TotalSumBalanceViewModel = assembly.makeTotalSumBalanceViewModel(tokens: $tokenItems)
+    lazy var totalSumBalanceViewModel: TotalSumBalanceViewModel = assembly.makeTotalSumBalanceViewModel()
     
 	@Storage(type: .validatedSignedHashesCards, defaultValue: [])
 	private var validatedSignedHashesCards: [String]
@@ -269,7 +267,7 @@ class MainViewModel: ViewModel, ObservableObject {
                 self.objectWillChange.send()
                 guard let walletModels = self.cardModel?.walletModels else { return }
                 if walletModels.isEmpty {
-                    self.tokenItems = []
+                    self.totalSumBalanceViewModel.update(with: [])
                 }
             }
             .store(in: &bag)
@@ -377,7 +375,7 @@ class MainViewModel: ViewModel, ObservableObject {
             cardModel.update()
         } else {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.tokenItems = []
+                self.totalSumBalanceViewModel.update(with: [])
                 withAnimation {
                     done()
                 }
@@ -796,7 +794,7 @@ class MainViewModel: ViewModel, ObservableObject {
         }
         
         let newTokens = walletModels.flatMap({ $0.tokenItemViewModels })
-        tokenItems = newTokens
+        totalSumBalanceViewModel.update(with: newTokens)
     }
 }
 
