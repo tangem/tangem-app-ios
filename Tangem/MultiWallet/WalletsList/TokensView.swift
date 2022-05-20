@@ -15,41 +15,36 @@ struct TokensView: View {
     var action: (TokenItemViewModel) -> ()
     
     var body: some View {
-        Group {
-            if items.isEmpty {
-                EmptyView()
-            } else {
-                VStack(alignment: .leading, spacing: 0) {
-                    Text("main_tokens".localized)
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(Color.tangemTextGray)
-                        .padding(.leading, 16)
-                        .padding(.top, 14)
-                    
-                    ForEach(items) { item in
-                        Button {
-                            ImpactGenerator.generate(.light)
-                            action(item)
-                        } label: {
-                            VStack(spacing: 0) {
-                                TokenItemView(item: item)
-                                    .padding(.horizontal, 16)
-                                    .padding([.top, .bottom], 15)
-                            }
+        if items.isEmpty {
+            EmptyView()
+        } else {
+            VStack(alignment: .leading, spacing: 0) {
+                Text("main_tokens".localized)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(Color.tangemTextGray)
+                    .padding(.leading, 16)
+                    .padding(.top, 14)
+                
+                ForEach(items) { item in
+                    Button {
+                        action(item)
+                    } label: {
+                        TokenItemView(item: item)
+                            .padding(.horizontal, 16)
+                            .padding([.top, .bottom], 15)
                             .contentShape(Rectangle())
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        
-                        if items.firstIndex(of: item) != items.count - 1 {
-                            Separator(height: 1, padding: 0, separatorColor: Color.tangemBgGray2)
-                                .padding(.leading, 16)
-                        }
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    
+                    if items.firstIndex(of: item) != items.count - 1 {
+                        Separator(height: 1, padding: 0, color: Color.tangemBgGray2)
+                            .padding(.leading, 16)
                     }
                 }
-                .background(Color.white)
-                .cornerRadius(14)
-                .padding([.leading, .trailing], 16)
             }
+            .background(Color.white)
+            .cornerRadius(14)
+            .padding([.horizontal], 16)
         }
     }
 }
