@@ -533,6 +533,7 @@ class MainViewModel: ViewModel, ObservableObject {
     }
     
     func onWalletTap(_ tokenItem: TokenItemViewModel) {
+        ImpactGenerator.generate(.light)
         selectedWallet = tokenItem
         assembly.reset()
         navigation.mainToTokenDetails = true
