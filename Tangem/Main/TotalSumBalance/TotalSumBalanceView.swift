@@ -21,26 +21,22 @@ struct TotalSumBalanceView: View {
                     .lineLimit(1)
                     .font(Font.system(size: 14, weight: .medium))
                     .foregroundColor(Color.tangemTextGray)
-                    .padding(.top, 20)
                 
                 Spacer()
                 
                 Button {
                     tapOnCurrencySymbol()
                 } label: {
-                    HStack(spacing: 0) {
+                    HStack(spacing: 6) {
                         Text(viewModel.currencyType)
                             .lineLimit(1)
                             .font(Font.system(size: 16, weight: .medium))
                             .foregroundColor(Color.tangemGrayDark)
-                            .padding(.trailing, 6)
                         Image("tangemArrowDown")
                             .foregroundColor(Color.tangemTextGray)
-                            .padding(.trailing, 20)
                     }
                 }
                 .buttonStyle(PlainButtonStyle())
-                .padding(.top, 22)
             }
             .padding(.bottom, 4)
             
@@ -62,7 +58,7 @@ struct TotalSumBalanceView: View {
                     .padding(.top, 2)
             }
         }
-        .padding([.leading, .bottom], 16)
+        .padding(16)
         .background(Color.white)
         .onDisappear {
             viewModel.disableLoading()
