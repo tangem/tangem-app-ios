@@ -45,8 +45,6 @@ class MainViewModel: ViewModel, ObservableObject {
     @Published var txIndexToPush: Int? = nil
     @Published var isOnboardingModal: Bool = true
     
-    @Published var tokenItems: [TokenItemViewModel] = []
-    
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
             warnings.objectWillChange
@@ -65,6 +63,7 @@ class MainViewModel: ViewModel, ObservableObject {
     var amountToSend: Amount? = nil
     var selectedWallet: TokenItemViewModel = .default
     var sellCryptoRequest: SellCryptoRequest? = nil
+    lazy var totalSumBalanceViewModel: TotalSumBalanceViewModel = assembly.makeTotalSumBalanceViewModel()
     
 	@Storage(type: .validatedSignedHashesCards, defaultValue: [])
 	private var validatedSignedHashesCards: [String]
@@ -266,6 +265,10 @@ class MainViewModel: ViewModel, ObservableObject {
             .sink { [unowned self] in
                 print("⚠️ Card model will change")
                 self.objectWillChange.send()
+                guard let walletModels = self.cardModel?.walletModels else { return }
+                if walletModels.isEmpty {
+                    self.totalSumBalanceViewModel.update(with: [])
+                }
             }
             .store(in: &bag)
         
@@ -372,6 +375,7 @@ class MainViewModel: ViewModel, ObservableObject {
             cardModel.update()
         } else {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.totalSumBalanceViewModel.update(with: [])
                 withAnimation {
                     done()
                 }
@@ -416,8 +420,10 @@ class MainViewModel: ViewModel, ObservableObject {
     
     func onScan() {
         DispatchQueue.main.async {
+            ImpactGenerator.generate(.light)
             self.assembly.getLetsStartOnboardingViewModel()?.reset()
             self.assembly.getLaunchOnboardingViewModel().reset()
+            self.totalSumBalanceViewModel.update(with: [])
             self.navigation.popToRoot()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 self.assembly.getLetsStartOnboardingViewModel()?.scanCard()
@@ -526,6 +532,7 @@ class MainViewModel: ViewModel, ObservableObject {
     }
     
     func onWalletTap(_ tokenItem: TokenItemViewModel) {
+        ImpactGenerator.generate(.light)
         selectedWallet = tokenItem
         assembly.reset()
         navigation.mainToTokenDetails = true
@@ -625,6 +632,7 @@ class MainViewModel: ViewModel, ObservableObject {
     }
     
     func showCurrencyChangeScreen() {
+        ImpactGenerator.generate(.light)
         navigation.currencyChangeView = true
     }
 
@@ -787,9 +795,7 @@ class MainViewModel: ViewModel, ObservableObject {
         }
         
         let newTokens = walletModels.flatMap({ $0.tokenItemViewModels })
-        if tokenItems != newTokens {
-            tokenItems = newTokens
-        }
+        totalSumBalanceViewModel.update(with: newTokens)
     }
 }
 
