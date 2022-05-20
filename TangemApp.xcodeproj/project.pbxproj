@@ -99,7 +99,6 @@
 		5D6784D925EBA1D800149995 /* TokenItems+Array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6784D825EBA1D800149995 /* TokenItems+Array.swift */; };
 		5D6784E425EBC94B00149995 /* Blockchain+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6784E325EBC94B00149995 /* Blockchain+.swift */; };
 		5D69E0E325016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D69E0E225016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift */; };
-		5D6C128225E13DE10010A0C5 /* TokensListItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6C128125E13DE10010A0C5 /* TokensListItemView.swift */; };
 		5D6C128725E144DF0010A0C5 /* AddTokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D6C128625E144DF0010A0C5 /* AddTokensView.swift */; };
 		5D73C9862513C85D00487CA5 /* CurrencySelectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D73C9852513C85D00487CA5 /* CurrencySelectView.swift */; };
 		5D78D113261DFB2C00F98B18 /* CreateWalletAndReadTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D78D112261DFB2C00F98B18 /* CreateWalletAndReadTask.swift */; };
@@ -188,8 +187,10 @@
 		5DFCE54C274BDEE200C1B1A0 /* ResetToFactorySettingsTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFCE54B274BDEE200C1B1A0 /* ResetToFactorySettingsTask.swift */; };
 		5DFE855724EF051400194106 /* Error+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFE855624EF051400194106 /* Error+.swift */; };
 		652B0136282C0A7800F2E27A /* TotalSumBalanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652B0135282C0A7800F2E27A /* TotalSumBalanceView.swift */; };
-		652B0138282D4E5900F2E27A /* ShimmerModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652B0137282D4E5900F2E27A /* ShimmerModifier.swift */; };
 		652B013A28319F9000F2E27A /* TotalSumBalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652B013928319F9000F2E27A /* TotalSumBalanceViewModel.swift */; };
+		659768172837B61000F9F04A /* TokenItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659768162837B61000F9F04A /* TokenItemView.swift */; };
+		65A1910A2833EA900023355D /* TokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A191092833EA900023355D /* TokensView.swift */; };
+		65A1910D2835316E0023355D /* ImpactFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A1910C2835316E0023355D /* ImpactFeedback.swift */; };
 		A2D75197BEA81DB54FF6A3F6 /* Pods_Tangem_TangemUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D513FF545D1945A2BACAA25F /* Pods_Tangem_TangemUITests.framework */; };
 		B00BC584260B178000F0647D /* PickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D15F9E7258A522500392BA5 /* PickerView.swift */; };
 		B00BC589260B179200F0647D /* CircleActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09BB854259A075500B92000 /* CircleActionButton.swift */; };
@@ -651,7 +652,6 @@
 		5D6784E325EBC94B00149995 /* Blockchain+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Blockchain+.swift"; sourceTree = "<group>"; };
 		5D69E0E225016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TapSwitchTogglColoredToggleStyleeStyle.swift; sourceTree = "<group>"; };
 		5D6A4B7527BA61BE00943F14 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Intents.strings; sourceTree = "<group>"; };
-		5D6C128125E13DE10010A0C5 /* TokensListItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokensListItemView.swift; sourceTree = "<group>"; };
 		5D6C128625E144DF0010A0C5 /* AddTokensView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddTokensView.swift; sourceTree = "<group>"; };
 		5D73C9852513C85D00487CA5 /* CurrencySelectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencySelectView.swift; sourceTree = "<group>"; };
 		5D74F718262722FF00B03897 /* Publisher+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Publisher+.swift"; sourceTree = "<group>"; };
@@ -732,8 +732,10 @@
 		5DFCE54B274BDEE200C1B1A0 /* ResetToFactorySettingsTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetToFactorySettingsTask.swift; sourceTree = "<group>"; };
 		5DFE855624EF051400194106 /* Error+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Error+.swift"; sourceTree = "<group>"; };
 		652B0135282C0A7800F2E27A /* TotalSumBalanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalSumBalanceView.swift; sourceTree = "<group>"; };
-		652B0137282D4E5900F2E27A /* ShimmerModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShimmerModifier.swift; sourceTree = "<group>"; };
 		652B013928319F9000F2E27A /* TotalSumBalanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalSumBalanceViewModel.swift; sourceTree = "<group>"; };
+		659768162837B61000F9F04A /* TokenItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItemView.swift; sourceTree = "<group>"; };
+		65A191092833EA900023355D /* TokensView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokensView.swift; sourceTree = "<group>"; };
+		65A1910C2835316E0023355D /* ImpactFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImpactFeedback.swift; sourceTree = "<group>"; };
 		660C0A4ED84D5E9C3C8E3304 /* Pods-Tangem Tap-Tangem TapUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap-Tangem TapUITests.release.xcconfig"; path = "Target Support Files/Pods-Tangem Tap-Tangem TapUITests/Pods-Tangem Tap-Tangem TapUITests.release.xcconfig"; sourceTree = "<group>"; };
 		6DAB43B88F12E203AB57FCC5 /* Pods-TangemClip.firebase.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemClip.firebase.xcconfig"; path = "Target Support Files/Pods-TangemClip/Pods-TangemClip.firebase.xcconfig"; sourceTree = "<group>"; };
 		8023B4C7AB7F8F722B1B6BAA /* Pods-Tangem TapTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem TapTests.debug.xcconfig"; path = "Target Support Files/Pods-Tangem TapTests/Pods-Tangem TapTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -1260,7 +1262,8 @@
 		5D5332A625F9077200D32CA5 /* WalletsList */ = {
 			isa = PBXGroup;
 			children = (
-				5D6C128125E13DE10010A0C5 /* TokensListItemView.swift */,
+				65A191092833EA900023355D /* TokensView.swift */,
+				659768162837B61000F9F04A /* TokenItemView.swift */,
 				5D6C128625E144DF0010A0C5 /* AddTokensView.swift */,
 			);
 			path = WalletsList;
@@ -1324,7 +1327,6 @@
 				DA5970EF27FC502E0050387C /* CustomTokenBadge.swift */,
 				5D219F8A27FF1CF9005015AA /* PerfList.swift */,
 				DAE6F76C2800011400411F45 /* AppError.swift */,
-				652B0137282D4E5900F2E27A /* ShimmerModifier.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -1478,6 +1480,7 @@
 		5DFCCB6324C371AC0014A293 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				65A1910B283531520023355D /* ImpactFeedback */,
 				5D5332CD25F90DA900D32CA5 /* Formatters */,
 				5DF2522524F914C90015B429 /* TangemSdk */,
 				5D958E1224F513C1006BD932 /* UI */,
@@ -1525,6 +1528,14 @@
 				652B013928319F9000F2E27A /* TotalSumBalanceViewModel.swift */,
 			);
 			path = TotalSumBalance;
+			sourceTree = "<group>";
+		};
+		65A1910B283531520023355D /* ImpactFeedback */ = {
+			isa = PBXGroup;
+			children = (
+				65A1910C2835316E0023355D /* ImpactFeedback.swift */,
+			);
+			path = ImpactFeedback;
 			sourceTree = "<group>";
 		};
 		B018F3012591FED600D8F89A /* JsonSettings */ = {
@@ -2841,7 +2852,6 @@
 				DAB1E62627B4E40D00C1F510 /* ShopOrderView.swift in Sources */,
 				B0A0910E26D362A600F46DF5 /* OnboardingProgressCircle.swift in Sources */,
 				5DF612A424E6E3E2001BF301 /* AddressDetailsView.swift in Sources */,
-				5D6C128225E13DE10010A0C5 /* TokensListItemView.swift in Sources */,
 				B020A51926F1DDA700D38596 /* OnboardingViewModel.swift in Sources */,
 				B0C4F78126F0CCF70086D815 /* OnboardingStep.swift in Sources */,
 				5D17EC7826947ED9002782DE /* SignAndReadTask.swift in Sources */,
@@ -2903,7 +2913,6 @@
 				DC0A581B282527FC0031BECC /* AppFeaturesModel.swift in Sources */,
 				5DD24B41274FAC2400BF80BE /* WalletManagerAssembly.swift in Sources */,
 				B0AA865426DC90FF00287F80 /* WelcomeOnboardingViewModel.swift in Sources */,
-				652B0138282D4E5900F2E27A /* ShimmerModifier.swift in Sources */,
 				5D69E0E325016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift in Sources */,
 				B0FB98A52598D24300B769A3 /* Card+.swift in Sources */,
 				B0C807232620549F00F7DADE /* WalletConnectSessionItemView.swift in Sources */,
@@ -2948,6 +2957,7 @@
 				B0D1271E26AEF341008DC75C /* WalletConnectNetworkParserUtility.swift in Sources */,
 				B0A943602565010900A7958E /* TwinsWalletCreationService.swift in Sources */,
 				DA23788727B24222009795A8 /* Order.swift in Sources */,
+				65A1910D2835316E0023355D /* ImpactFeedback.swift in Sources */,
 				B09BB864259A075600B92000 /* CustomTextField.swift in Sources */,
 				B03ACAC92567CFFF00F5D269 /* CardView.swift in Sources */,
 				B09BB86D259A080900B92000 /* SendAdditionalFields.swift in Sources */,
@@ -3081,6 +3091,7 @@
 				5DDE22E32608C2E2008657C6 /* WalletConnectService.swift in Sources */,
 				5DDFC1FF2812A63B005976FE /* Network.swift in Sources */,
 				5DFB499824E54A340037E76F /* BalanceView.swift in Sources */,
+				659768172837B61000F9F04A /* TokenItemView.swift in Sources */,
 				DC0A582628252D140031BECC /* FailedScanTrackable.swift in Sources */,
 				5DDE22FA2609023B008657C6 /* WalletConnectViewModel.swift in Sources */,
 				5D2CE0ED2755038B00CD05A1 /* Intents.intentdefinition in Sources */,
@@ -3097,6 +3108,7 @@
 				B0C4F77126F08C4D0086D815 /* TwinsOnboardingCardLayout.swift in Sources */,
 				5D1BCFB8259CDCCA00EDA274 /* ContentView.swift in Sources */,
 				5D51037127C5360E0025EA55 /* ABIType.swift in Sources */,
+				65A1910A2833EA900023355D /* TokensView.swift in Sources */,
 				5D9DCAEB25517FB50059799C /* CommonCardsRepository.swift in Sources */,
 				B05A645625E0F57B00F154B7 /* ScanTroublehootingView.swift in Sources */,
 				5D51036D27C535AB0025EA55 /* ABIEncoder.swift in Sources */,
