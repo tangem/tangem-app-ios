@@ -12,7 +12,6 @@ import Combine
 class TotalSumBalanceViewModel: ObservableObject {
     @Injected(\.currencyRateService) private var currencyRateService: CurrencyRateService
     
-    var tokens: Published<[TokenItemViewModel]>.Publisher
     @Published var isLoading: Bool = false
     @Published var currencyType: String = ""
     @Published var totalFiatValueString: String = ""
@@ -21,27 +20,16 @@ class TotalSumBalanceViewModel: ObservableObject {
     private var bag = Set<AnyCancellable>()
     private var tokenItems: [TokenItemViewModel] = []
     
-    init(tokens: Published<[TokenItemViewModel]>.Publisher) {
-        self.tokens = tokens
+    init() {
         currencyType = currencyRateService.selectedCurrencyCode
-        bind()
     }
     
-    func bind() {
-        tokens
-            .sink { [weak self] newValue in
-                self?.tokenItems = newValue
-                DispatchQueue.main.async {
-                    self?.refresh()
-                }
-        }.store(in: &bag)
+    func update(with tokens: [TokenItemViewModel]) {
+        self.tokenItems = tokens
+        refresh()
     }
     
     func refresh() {
-        guard !isLoading
-        else {
-            return
-        }
         isFailed = false
         isLoading = true
         currencyType = currencyRateService.selectedCurrencyCode
@@ -68,7 +56,7 @@ class TotalSumBalanceViewModel: ObservableObject {
     }
     
     func disableLoading() {
-        withAnimation(Animation.spring()) {
+        withAnimation(Animation.spring().delay(0.5)) {
             self.isLoading = false
         }
     }
