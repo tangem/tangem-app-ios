@@ -135,13 +135,6 @@ struct DetailsView: View {
             }
             
             Section(header: HeaderView(text: "details_section_title_app".localized), footer: FooterView()) {
-                NavigationLink(destination: CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel()),
-                               tag: NavigationTag.currency, selection: $selection) {
-                    DetailsRowView(title: "details_row_title_currency".localized,
-                                   subtitle: viewModel.currencyRateService.selectedCurrencyCode)
-                    
-                }
-                
                 NavigationLink(destination: DisclaimerView(style: .navbar, showAccept: false),
                                tag: NavigationTag.disclaimer, selection: $selection) {
                     DetailsRowView(title: "disclaimer_title".localized,
