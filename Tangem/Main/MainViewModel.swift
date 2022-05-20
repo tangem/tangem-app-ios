@@ -423,6 +423,7 @@ class MainViewModel: ViewModel, ObservableObject {
             ImpactGenerator.generate(.light)
             self.assembly.getLetsStartOnboardingViewModel()?.reset()
             self.assembly.getLaunchOnboardingViewModel().reset()
+            self.totalSumBalanceViewModel.update(with: [])
             self.navigation.popToRoot()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 self.assembly.getLetsStartOnboardingViewModel()?.scanCard()
