@@ -83,6 +83,10 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             }
             blockchain = try enteredBlockchain()
             derivationPath = try enteredDerivationPath()
+            
+            if case .solana = blockchain, !cardModel.cardInfo.card.canSupportSolanaTokens {
+                throw TokenCreationErrors.tokensNotSupported
+            }
         } catch {
             self.error = error.alertBinder
             return
@@ -199,10 +203,6 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             return .blockchain(blockchain)
         } else {
             let enteredContractAddress = try self.enteredContractAddress(in: blockchain)
-            
-            if case .solana = blockchain, !cardModel.cardInfo.card.canSupportSolanaTokens {
-                throw TokenCreationErrors.tokensNotSupported
-            }
             
             guard !name.isEmpty, !symbol.isEmpty, !decimals.isEmpty else {
                 throw TokenCreationErrors.emptyFields
