@@ -67,8 +67,6 @@ struct TotalSumBalanceView: View {
             .padding([.bottom, .leading], 16)
         }
         .background(Color.white)
-        .cornerRadius(16)
-        .padding(.horizontal, 16)
         .onDisappear {
             viewModel.disableLoading()
         }
