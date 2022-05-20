@@ -264,6 +264,8 @@ class SendViewModel: ViewModel, ObservableObject {
                                                                                                  totalFiatAmountFormatted!,
                                                                                                  self.walletModel.getFiatFormatted(for: tx.fee,  roundingMode: .plain)!)
                     }
+                    
+                    self.sendFee = self.getDescription(for: tx.fee, isFiat: isFiatCalculation)
                 } else {
                     self.fillTotalBlockWithDefaults()
                     self.isSendEnabled = false
