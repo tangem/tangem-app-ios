@@ -188,6 +188,7 @@
 		5DFE855724EF051400194106 /* Error+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DFE855624EF051400194106 /* Error+.swift */; };
 		652B0136282C0A7800F2E27A /* TotalSumBalanceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652B0135282C0A7800F2E27A /* TotalSumBalanceView.swift */; };
 		652B013A28319F9000F2E27A /* TotalSumBalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652B013928319F9000F2E27A /* TotalSumBalanceViewModel.swift */; };
+		659768172837B61000F9F04A /* TokenItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659768162837B61000F9F04A /* TokenItemView.swift */; };
 		65A1910A2833EA900023355D /* TokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A191092833EA900023355D /* TokensView.swift */; };
 		65A1910D2835316E0023355D /* ImpactFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A1910C2835316E0023355D /* ImpactFeedback.swift */; };
 		A2D75197BEA81DB54FF6A3F6 /* Pods_Tangem_TangemUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D513FF545D1945A2BACAA25F /* Pods_Tangem_TangemUITests.framework */; };
@@ -732,6 +733,7 @@
 		5DFE855624EF051400194106 /* Error+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Error+.swift"; sourceTree = "<group>"; };
 		652B0135282C0A7800F2E27A /* TotalSumBalanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalSumBalanceView.swift; sourceTree = "<group>"; };
 		652B013928319F9000F2E27A /* TotalSumBalanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalSumBalanceViewModel.swift; sourceTree = "<group>"; };
+		659768162837B61000F9F04A /* TokenItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItemView.swift; sourceTree = "<group>"; };
 		65A191092833EA900023355D /* TokensView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokensView.swift; sourceTree = "<group>"; };
 		65A1910C2835316E0023355D /* ImpactFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImpactFeedback.swift; sourceTree = "<group>"; };
 		660C0A4ED84D5E9C3C8E3304 /* Pods-Tangem Tap-Tangem TapUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap-Tangem TapUITests.release.xcconfig"; path = "Target Support Files/Pods-Tangem Tap-Tangem TapUITests/Pods-Tangem Tap-Tangem TapUITests.release.xcconfig"; sourceTree = "<group>"; };
@@ -1261,6 +1263,7 @@
 			isa = PBXGroup;
 			children = (
 				65A191092833EA900023355D /* TokensView.swift */,
+				659768162837B61000F9F04A /* TokenItemView.swift */,
 				5D6C128625E144DF0010A0C5 /* AddTokensView.swift */,
 			);
 			path = WalletsList;
@@ -3088,6 +3091,7 @@
 				5DDE22E32608C2E2008657C6 /* WalletConnectService.swift in Sources */,
 				5DDFC1FF2812A63B005976FE /* Network.swift in Sources */,
 				5DFB499824E54A340037E76F /* BalanceView.swift in Sources */,
+				659768172837B61000F9F04A /* TokenItemView.swift in Sources */,
 				DC0A582628252D140031BECC /* FailedScanTrackable.swift in Sources */,
 				5DDE22FA2609023B008657C6 /* WalletConnectViewModel.swift in Sources */,
 				5D2CE0ED2755038B00CD05A1 /* Intents.intentdefinition in Sources */,
