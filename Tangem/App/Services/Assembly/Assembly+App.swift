@@ -155,8 +155,8 @@ extension Assembly {
         return vm
     }
     
-    func makeTotalSumBalanceViewModel(tokens: Published<[TokenItemViewModel]>.Publisher) -> TotalSumBalanceViewModel {
-        let viewModel = TotalSumBalanceViewModel(tokens: tokens)
+    func makeTotalSumBalanceViewModel() -> TotalSumBalanceViewModel {
+        let viewModel = TotalSumBalanceViewModel()
         return viewModel
     }
     
