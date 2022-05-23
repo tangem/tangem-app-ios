@@ -24,14 +24,38 @@ class TotalSumBalanceViewModel: ObservableObject {
         currencyType = currencyRateService.selectedCurrencyCode
     }
     
+    func beginUpdates() {
+        isLoading = true
+    }
+    
     func update(with tokens: [TokenItemViewModel]) {
-        self.tokenItems = tokens
+        tokenItems = tokens
         refresh()
     }
     
-    func refresh() {
+    func updateCurrencyRate() {
+        if currencyType == currencyRateService.selectedCurrencyCode {
+            return
+        }
+        self.refresh()
+    }
+    
+    func updateIfNeeded(with tokens: [TokenItemViewModel]) {
+        if tokenItems == tokens {
+            return
+        }
+        tokenItems = tokens
+        refresh()
+    }
+    
+    func disableLoading() {
+        withAnimation(Animation.spring().delay(0.5)) {
+            self.isLoading = false
+        }
+    }
+    
+    private func refresh() {
         isFailed = false
-        isLoading = true
         currencyType = currencyRateService.selectedCurrencyCode
         currencyRateService
             .baseCurrencies()
@@ -53,11 +77,5 @@ class TotalSumBalanceViewModel: ObservableObject {
                 
                 self.disableLoading()
             }.store(in: &bag)
-    }
-    
-    func disableLoading() {
-        withAnimation(Animation.spring().delay(0.5)) {
-            self.isLoading = false
-        }
     }
 }
