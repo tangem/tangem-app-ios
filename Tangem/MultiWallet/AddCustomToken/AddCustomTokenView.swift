@@ -108,6 +108,7 @@ struct AddCustomTokenView: View {
                     if viewModel.customDerivationsAllowed {
                         PickerInputWithTitle(title: "custom_token_derivation_path_input_title".localized, model: $viewModel.derivationsPicker)
                             .cornerRadius(10, corners: [.bottomLeft, .bottomRight])
+                            .disabled(viewModel.customDerivationsDisabled)
                     }
                 }
                 
