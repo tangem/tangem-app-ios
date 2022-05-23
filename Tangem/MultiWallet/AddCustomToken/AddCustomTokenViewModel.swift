@@ -27,7 +27,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     @Published var blockchainsPicker: PickerModel = .empty
     @Published var derivationsPicker: PickerModel = .empty
     
-    @Published var customDerivationsAllowed: Bool = true
+    @Published var customDerivationsVisible: Bool = true
     @Published var customDerivationsDisabled: Bool = false
     
     @Published var error: AlertBinder?
@@ -201,7 +201,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         }
         
         let uniqueDerivations = Set(evmDerivationPaths.map(\.1))
-        self.customDerivationsAllowed = uniqueDerivations.count > 1
+        self.customDerivationsVisible = uniqueDerivations.count > 1
         let newDerivationSelection = self.derivationsPicker.selection
         self.derivationsPicker = .init(items: [defaultItem] + evmDerivationPaths, selection: newDerivationSelection)
     }
