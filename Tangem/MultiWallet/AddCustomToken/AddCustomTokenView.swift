@@ -103,9 +103,9 @@ struct AddCustomTokenView: View {
                     TextInputWithTitle(title: "custom_token_token_symbol_input_title".localized, placeholder: "custom_token_token_symbol_input_placeholder".localized, text: $viewModel.symbol, keyboardType: .default, isEnabled: viewModel.foundStandardToken == nil, isLoading: false)
                     
                     TextInputWithTitle(title: "custom_token_decimals_input_title".localized, placeholder: "0", text: $viewModel.decimals, keyboardType: .numberPad, isEnabled: viewModel.foundStandardToken == nil, isLoading: false)
-                        .cornerRadius(viewModel.customDerivationsAllowed ? 0 : 10, corners: [.bottomLeft, .bottomRight])
+                        .cornerRadius(viewModel.customDerivationsVisible ? 0 : 10, corners: [.bottomLeft, .bottomRight])
                     
-                    if viewModel.customDerivationsAllowed {
+                    if viewModel.customDerivationsVisible {
                         PickerInputWithTitle(title: "custom_token_derivation_path_input_title".localized, model: $viewModel.derivationsPicker)
                             .cornerRadius(10, corners: [.bottomLeft, .bottomRight])
                             .disabled(viewModel.customDerivationsDisabled)
