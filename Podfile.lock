@@ -1,6 +1,9 @@
 PODS:
   - Alamofire (5.5.0)
   - AlertToast (1.3.7)
+  - Amplitude (8.8.0):
+    - AnalyticsConnector (~> 1.0.0)
+  - AnalyticsConnector (1.0.0)
   - AnyCodable-FlightSchool (0.6.3)
   - AppsFlyerFramework (6.5.4):
     - AppsFlyerFramework/Main (= 6.5.4)
@@ -220,6 +223,7 @@ PODS:
 DEPENDENCIES:
   - Alamofire
   - AlertToast (from `https://github.com/tangem/AlertToast`)
+  - Amplitude (~> 8.8.0)
   - AnyCodable-FlightSchool
   - AppsFlyerFramework
   - BigInt
@@ -252,6 +256,8 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - Alamofire
+    - Amplitude
+    - AnalyticsConnector
     - AnyCodable-FlightSchool
     - AppsFlyerFramework
     - BigInt
@@ -362,6 +368,8 @@ CHECKOUT OPTIONS:
 SPEC CHECKSUMS:
   Alamofire: 1c4fb5369c3fe93d2857c780d8bbe09f06f97e7c
   AlertToast: 8c9d5efb2df6ea728b32b62bce99d876ec3e5393
+  Amplitude: 710116f3539c225e86fb70a8abdcd20015683132
+  AnalyticsConnector: 4c386d5972ac9da86e22d668564dbbac97558754
   AnyCodable-FlightSchool: 1c9890be5884140c60da5fde1b66380dec4c244a
   AppsFlyerFramework: e309a6cab366296bf891dc68b175de1e9a44f86c
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
