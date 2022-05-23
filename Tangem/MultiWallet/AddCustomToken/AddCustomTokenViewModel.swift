@@ -50,7 +50,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         )
             .dropFirst()
             .debounce(for: 0.5, scheduler: RunLoop.main)
-            .flatMap { (blockchainName, contractAddress, derivationPath) -> AnyPublisher<[CoinModel], Never> in
+            .flatMap { [unowned self] (blockchainName, contractAddress, derivationPath) -> AnyPublisher<[CoinModel], Never> in
                 self.isLoading = true
                 
                 guard !contractAddress.isEmpty else {
@@ -60,13 +60,13 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 
                 return self.findToken(contractAddress: contractAddress)
             }
-            .sink { currencyModels in
+            .sink { [unowned self] currencyModels in
                 self.didFinishTokenSearch(currencyModels)
             }
             .store(in: &bag)
         
         $blockchainsPicker.map{ $0.selection }
-            .sink { newBlockchainName in
+            .sink { [unowned self] newBlockchainName in
                 self.didChangeBlockchain(newBlockchainName)
             }
             .store(in: &bag)
