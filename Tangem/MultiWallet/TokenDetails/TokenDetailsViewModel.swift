@@ -277,6 +277,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         refreshCancellable = walletModel?
             .$updateCompletedPublisher
             .dropFirst()
+            .first()
             .receive(on: RunLoop.main)
             .sink { _ in
                 print("♻️ Token wallet model loading state changed")
