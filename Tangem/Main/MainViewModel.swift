@@ -360,7 +360,7 @@ class MainViewModel: ViewModel, ObservableObject {
     func onRefresh(_ done: @escaping () -> Void) {
         if let cardModel = self.cardModel, cardModel.state.canUpdate,
            let walletModels = cardModel.walletModels, !walletModels.isEmpty {
-            let publishers = walletModels.map { $0.$updateCompletedPublisher.dropFirst() }
+            let publishers = walletModels.map { $0.$updateCompletedPublisher.dropFirst().first() }
             refreshCancellable = Publishers.MergeMany(publishers)
                 .collect(walletModels.count)
                 .receive(on: RunLoop.main)
