@@ -84,7 +84,10 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             blockchain = try enteredBlockchain()
             derivationPath = try enteredDerivationPath()
             
-            if case .solana = blockchain, !cardModel.cardInfo.card.canSupportSolanaTokens {
+            if case let .token(_, blockchain) = tokenItem,
+               case .solana = blockchain,
+               !cardModel.cardInfo.card.canSupportSolanaTokens
+            {
                 throw TokenCreationErrors.tokensNotSupported
             }
         } catch {
