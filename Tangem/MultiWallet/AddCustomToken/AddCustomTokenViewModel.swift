@@ -28,6 +28,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     @Published var derivationsPicker: PickerModel = .empty
     
     @Published var customDerivationsAllowed: Bool = true
+    @Published var customDerivationsDisabled: Bool = false
     
     @Published var error: AlertBinder?
     
@@ -61,6 +62,12 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             }
             .sink { currencyModels in
                 self.didFinishTokenSearch(currencyModels)
+            }
+            .store(in: &bag)
+        
+        $blockchainsPicker.map{ $0.selection }
+            .sink { newBlockchainName in
+                self.didChangeBlockchain(newBlockchainName)
             }
             .store(in: &bag)
     }
@@ -251,6 +258,12 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     private func enteredDerivationPath() throws -> DerivationPath? {
+        if let blockchain = try? enteredBlockchain(),
+           !blockchain.isEvm
+        {
+            return nil
+        }
+        
         let rawPath = derivationsPicker.selection
         if !rawPath.isEmpty {
             let derivationPath = try? DerivationPath(rawPath: rawPath)
@@ -275,8 +288,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         
         let cardTokenItems = tokenItemsRepository.getItems(for: cardId)
         let checkingContractAddress = !contractAddress.isEmpty
-        let rawPath = derivationsPicker.selection
-        let derivationPath = (try? DerivationPath(rawPath: rawPath)) ?? blockchain.derivationPath(for: derivationStyle)
+        let derivationPath = try? enteredDerivationPath() ?? blockchain.derivationPath(for: derivationStyle)
         
         let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath)
         
@@ -358,6 +370,19 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 warningContainer.add(tokenSearchError.appWarning)
             }
         }
+    }
+    
+    private func didChangeBlockchain(_ newBlockchainName: String) {
+        let newBlockchain = blockchainByName[newBlockchainName]
+       
+        let derivationDisabled: Bool
+        if let newBlockchain = newBlockchain {
+            derivationDisabled = !newBlockchain.isEvm
+        } else {
+            derivationDisabled = false
+        }
+      
+        customDerivationsDisabled = derivationDisabled
     }
 }
 
