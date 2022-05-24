@@ -485,3 +485,4 @@ URL: %@";
 "common_server_unavailable" = "Сервер недоступен, повторите попытку позднее";
 "main_processing_full_amount" = "Обработка полной суммы...";
 "main_tokens" = "Токены";
+"token_item_no_rate" = "Нет цены";
