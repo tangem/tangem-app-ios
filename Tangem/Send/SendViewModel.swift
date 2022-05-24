@@ -105,9 +105,7 @@ class SendViewModel: ViewModel, ObservableObject {
         let haveDestinationErrorHint = destinationHint?.isError ?? false
         let haveAmountErrorHint = amountHint?.isError ?? false
         
-        return [haveDestinationErrorHint,
-                haveAmountErrorHint,
-                transaction == nil].allSatisfy { !$0 }
+        return !haveDestinationErrorHint && !haveAmountErrorHint && transaction != nil
     }
     
     // MARK: Additional input
