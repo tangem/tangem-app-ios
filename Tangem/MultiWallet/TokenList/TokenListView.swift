@@ -45,6 +45,7 @@ struct TokenListView: View {
                         CoinView(model: $0)
                             .buttonStyle(PlainButtonStyle()) //fix ios13 list item selection
                             .perfListPadding()
+                        
                         PerfListDivider()
                     }
                     
