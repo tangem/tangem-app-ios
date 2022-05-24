@@ -12,7 +12,7 @@ import Moya
 
 protocol CoinsService {
     func checkContractAddress(contractAddress: String, networkId: String?) -> AnyPublisher<[CoinModel], Never>
-    func loadTokens(pageModel: PageModel) -> AnyPublisher<[CoinModel], Error>
+    func loadCoins(requestModel: CoinsListRequestModel) -> AnyPublisher<[CoinModel], Error>
 }
 
 private struct CoinsServiceKey: InjectionKey {
