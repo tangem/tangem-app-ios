@@ -41,15 +41,21 @@ class TotalSumBalanceViewModel: ObservableObject {
         refresh(with: false)
     }
     
-    func disableLoading() {
-        withAnimation(Animation.spring().delay(0.5)) {
-            self.isLoading = false
+    func disableLoading(with failed: Bool = false) {
+        if failed {
+            isFailed = true
+            isLoading = false
+        } else {
+            withAnimation(Animation.spring().delay(0.5)) {
+                self.isLoading = false
+            }
         }
     }
     
     private func refresh(with loadingAnimation: Bool = true) {
         isFailed = false
         currencyType = currencyRateService.selectedCurrencyCode
+        var hasBlockchainError = false
         currencyRateService
             .baseCurrencies()
             .receive(on: RunLoop.main)
@@ -61,14 +67,20 @@ class TotalSumBalanceViewModel: ObservableObject {
                     if token.state.isSuccesfullyLoaded {
                         totalFiatValue += token.fiatValue
                     } else {
-                        self.isFailed = true
+                        hasBlockchainError = true
                     }
                 }
                 
-                self.totalFiatValueString = totalFiatValue.currencyFormatted(code: currency.code)
+                if hasBlockchainError {
+                    self.totalFiatValueString = ""
+                } else {
+                    self.totalFiatValueString = totalFiatValue.currencyFormatted(code: currency.code)
+                }
                 
                 if loadingAnimation {
-                    self.disableLoading()
+                    self.disableLoading(with: hasBlockchainError)
+                } else {
+                    self.isFailed = hasBlockchainError
                 }
             }.store(in: &bag)
     }
