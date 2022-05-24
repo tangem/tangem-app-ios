@@ -45,15 +45,17 @@ struct TokenItemView: View {
                 .saturation(item.isTestnet ? 0.0 : 1.0)
                 .id(UUID())
             
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .firstTextBaseline) {
                     Text(item.name)
+                        .font(.system(size: 15, weight: .medium))
                         .layoutPriority(2)
                         .fixedSize(horizontal: false, vertical: true)
                     
                     Spacer()
                     
-                    Text(item.balance)
+                    Text(item.fiatBalance)
+                        .font(.system(size: 13, weight: .regular))
                         .multilineTextAlignment(.trailing)
                         .truncationMode(.middle)
                         .fixedSize(horizontal: false, vertical: true)
@@ -61,7 +63,6 @@ struct TokenItemView: View {
                 .lineLimit(2)
                 .minimumScaleFactor(0.8)
                 .foregroundColor(Color.tangemGrayDark6)
-                .font(Font.system(size: 17.0, weight: .medium, design: .default))
                 
                 
                 HStack(alignment: .firstTextBaseline, spacing: 5.0) {
@@ -82,15 +83,22 @@ struct TokenItemView: View {
                     
                     Spacer()
                     
-                    Text(item.fiatBalance)
+                    Text(item.balance)
                         .fixedSize(horizontal: false, vertical: true)
                         .lineLimit(1)
                         .foregroundColor(Color.tangemGrayDark)
                 }
+                .font(.system(size: 13, weight: .regular))
                 .frame(minHeight: 20)
-                .font(Font.system(size: 14.0, weight: .medium, design: .default))
                 .foregroundColor(accentColor)
             }
         }
     }
 }
+
+/*
+ item.balance -> 1,00 SOL
+ item.fiatBalance -> 49,64 US$
+ item.name -> Solana
+ secondaryText -> 49,64 US$
+ */
