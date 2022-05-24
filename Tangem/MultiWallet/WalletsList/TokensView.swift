@@ -24,6 +24,7 @@ struct TokensView: View {
                     .foregroundColor(Color.tangemTextGray)
                     .padding(.leading, 16)
                     .padding(.top, 14)
+                    .padding(.bottom, 6)
                 
                 ForEach(items) { item in
                     Button {
