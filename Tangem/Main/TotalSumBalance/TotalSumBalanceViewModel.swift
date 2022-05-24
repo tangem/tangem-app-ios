@@ -25,7 +25,7 @@ class TotalSumBalanceViewModel: ObservableObject {
     }
     
     func beginUpdates() {
-        isLoading = true
+        self.isLoading = true
     }
     
     func update(with tokens: [TokenItemViewModel]) {
@@ -33,19 +33,12 @@ class TotalSumBalanceViewModel: ObservableObject {
         refresh()
     }
     
-    func updateCurrencyRate() {
-        if currencyType == currencyRateService.selectedCurrencyCode {
-            return
-        }
-        self.refresh()
-    }
-    
     func updateIfNeeded(with tokens: [TokenItemViewModel]) {
-        if tokenItems == tokens {
+        if tokenItems == tokens || isLoading {
             return
         }
         tokenItems = tokens
-        refresh()
+        refresh(with: false)
     }
     
     func disableLoading() {
@@ -54,14 +47,13 @@ class TotalSumBalanceViewModel: ObservableObject {
         }
     }
     
-    private func refresh() {
+    private func refresh(with loadingAnimation: Bool = true) {
         isFailed = false
         currencyType = currencyRateService.selectedCurrencyCode
         currencyRateService
             .baseCurrencies()
             .receive(on: RunLoop.main)
             .sink { _ in
-                
             } receiveValue: { currencies in
                 guard let currency = currencies.first(where: { $0.code == self.currencyRateService.selectedCurrencyCode }) else { return }
                 var totalFiatValue: Decimal = 0.0
@@ -75,7 +67,9 @@ class TotalSumBalanceViewModel: ObservableObject {
                 
                 self.totalFiatValueString = totalFiatValue.currencyFormatted(code: currency.code)
                 
-                self.disableLoading()
+                if loadingAnimation {
+                    self.disableLoading()
+                }
             }.store(in: &bag)
     }
 }
