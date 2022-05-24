@@ -14,6 +14,7 @@ struct TangemApiTarget: TargetType {
         case rates(coinIds: [String], currencyId: String)
         case currencies
         case coins(contractAddress: String?, networkId: String?)
+        case tokens(pageModel: PageModel)
     }
     
     let type: TangemApiTargetType
@@ -27,7 +28,7 @@ struct TangemApiTarget: TargetType {
             return "/rates"
         case .currencies:
             return "/currencies"
-        case .coins:
+        case .coins, .tokens:
             return "/coins"
         }
     }
@@ -42,6 +43,7 @@ struct TangemApiTarget: TargetType {
                                       encoding: URLEncoding.default)
         case .currencies:
             return .requestPlain
+
         case .coins(let contractAddress, let networkId):
             var parameters: [String: Any] = [:]
             
@@ -54,6 +56,9 @@ struct TangemApiTarget: TargetType {
             }
             
             return .requestParameters(parameters: parameters, encoding: URLEncoding.default)
+            
+        case let .tokens(pageModel):
+            return .requestURLEncodable(pageModel)
         }
     }
     
