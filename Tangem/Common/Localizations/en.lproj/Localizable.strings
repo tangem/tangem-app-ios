@@ -1,7 +1,7 @@
 "action_sheet_trade_hint" = "Do you want to buy or sell crypto?";
 "add_custom_token_title" = "Add custom token";
 "add_tokens_title" = "Manage tokens";
-"main_manage_tokens_button" = "Manage tokens";
+"main_manage_tokens" = "Manage tokens";
 "address_qr_code_message_format" = "Send only %@ (%@) to this address. Sending any other currency will result in its irreversible loss.";
 "address_qr_code_message_token_format" = "Send only %@ (%@) from %@ network to this address. Sending any other currency will result in its irreversible loss.";
 "alert_app_feedback_sent_message" = "Thank you for your feedback";
@@ -313,7 +313,7 @@ Both cards can be used to extract funds from this wallet.";
 "voice_over_show_address_qr" = "Show address, QR, code";
 "wallet_address_button_create_payid" = "Create PayString";
 "wallet_address_button_explore" = "Explore address";
-"wallet_balance_blockchain_unreachable" = "Blockchain is unreachable";
+"wallet_balance_blockchain_unreachable" = "Network is unreachable";
 "wallet_balance_loading" = "Balance is loading…";
 "wallet_balance_tx_in_progress" = "Transaction is in progress...";
 "wallet_balance_verified" = "Verified Balance";
