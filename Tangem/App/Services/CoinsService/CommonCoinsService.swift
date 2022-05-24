@@ -33,8 +33,10 @@ extension CommonCoinsService: CoinsService {
             return Just([]).eraseToAnyPublisher()
         }
         
+        let requestModel = CoinsListRequestModel(contractAddress: contractAddress, networkId: networkId)
+
         return provider
-            .requestPublisher(TangemApiTarget(type: .coins(contractAddress: contractAddress, networkId: networkId), card: card))
+            .requestPublisher(TangemApiTarget(type: .coins(requestModel), card: card))
             .filterSuccessfulStatusCodes()
             .map(CoinsResponse.self)
             .map { list -> [CoinModel] in
@@ -48,8 +50,8 @@ extension CommonCoinsService: CoinsService {
             .eraseToAnyPublisher()
     }
     
-    func loadTokens(pageModel: PageModel) -> AnyPublisher<[CoinModel], Error> {
-        let target = TangemApiTarget(type: .tokens(pageModel: pageModel), card: nil)
+    func loadCoins(requestModel: CoinsListRequestModel) -> AnyPublisher<[CoinModel], Error> {
+        let target = TangemApiTarget(type: .coins(requestModel), card: nil)
         
         return provider
             .requestPublisher(target)
