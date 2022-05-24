@@ -14,8 +14,11 @@ import SwiftUI
 
 class TokenListViewModel: ViewModel, ObservableObject {
     @Injected(\.negativeFeedbackDataProvider) var dataCollector: NegativeFeedbackDataProvider
+    @Injected(\.coinsService) var coinsService: CoinsService
     
     var enteredSearchText = CurrentValueSubject<String, Never>("") //I can't use @Published here, because of swiftui redraw perfomance drop
+    
+    @Published var coinViewModels: [CoinViewModel] = []
     
     @Published var isSaving: Bool = false
     @Published var isLoading: Bool = true
@@ -23,21 +26,6 @@ class TokenListViewModel: ViewModel, ObservableObject {
     @Published var pendingAdd: [TokenItem] = []
     @Published var pendingRemove: [TokenItem] = []
     @Published var showToast: Bool = false
-    
-    lazy var loader: ListDataLoader = {
-        let isTestnet = mode.cardModel?.cardInfo.isTestnet ?? false
-        let loader = ListDataLoader(isTestnet: isTestnet)
-        loader.delegate = self
-        
-        loader.objectWillChange
-            .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [unowned self] in
-                self.objectWillChange.send()
-            })
-            .store(in: &bag)
-        
-        return loader
-    }()
     
     var titleKey: LocalizedStringKey {
         switch mode {
@@ -58,7 +46,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     var shouldShowAlert: Bool {
-        guard let card = mode.cardModel?.cardInfo.card else {
+        guard let card = cardModel?.cardInfo.card else {
             return false
         }
         
@@ -73,19 +61,45 @@ class TokenListViewModel: ViewModel, ObservableObject {
         mode.cardModel
     }
     
+    var haveNextPage: Bool {
+        loader.canFetchMore
+    }
+    
+    private lazy var loader = setupListDataLoader()
     private let mode: Mode
     private var bag = Set<AnyCancellable>()
     
     init(mode: Mode) {
         self.mode = mode
+        
         super.init()
+        
+        bind()
+    }
+    
+    func bind() {
         enteredSearchText
             .dropFirst()
             .debounce(for: 0.5, scheduler: DispatchQueue.main)
+            .removeDuplicates()
             .sink { [weak self] string in
                 self?.loader.fetch(string)
             }
             .store(in: &bag)
+    }
+    
+    func setupListDataLoader() -> ListDataLoader {
+        let isTestnet = cardModel?.cardInfo.isTestnet ?? false
+        let loader = ListDataLoader(isTestnet: isTestnet, coinsService: coinsService)
+        loader.delegate = self
+        
+        loader.$items.map { [unowned self] items -> [CoinViewModel] in
+            items.compactMap { self.mapToCoinViewModel(coinModel: $0) }
+        }
+        .weakAssign(to: \.coinViewModels, on: self)
+        .store(in: &bag)
+
+        return loader
     }
     
     func showCustomTokenView() {
@@ -93,7 +107,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     func saveChanges() {
-        guard let cardModel = mode.cardModel else {
+        guard let cardModel = cardModel else {
             return
         }
         
@@ -128,7 +142,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
         loader.reset(enteredSearchText.value)
     }
     
-    func onDissapear() {
+    func onDisappear() {
         DispatchQueue.main.async {
             self.pendingAdd = []
             self.pendingRemove = []
@@ -153,7 +167,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
     //MARK: - Mapping
     
     private func isAdded(_ tokenItem: TokenItem) -> Bool {
-        guard let cardModel = mode.cardModel else {
+        guard let cardModel = cardModel else {
             return false
         }
         
@@ -170,7 +184,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     private func canManage(_ tokenItem: TokenItem) -> Bool {
-        guard let cardModel = mode.cardModel else {
+        guard let cardModel = cardModel else {
             return false
         }
         
@@ -194,7 +208,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
         if selected,
            case let .token(_, blockchain) = tokenItem,
            case .solana = blockchain,
-           let cardModel = mode.cardModel,
+           let cardModel = cardModel,
            !cardModel.cardInfo.card.canSupportSolanaTokens
         {
             let okButton = Alert.Button.default(Text("common_ok".localized)) {
@@ -226,7 +240,13 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     private func updateSelection(_ tokenItem: TokenItem) {
-        loader.updateSelection(tokenItem, with: bindSelection(tokenItem))
+        for item in coinViewModels {
+            for itemItem in item.items {
+                if itemItem.tokenItem == tokenItem {
+                    itemItem.updateSelection(with: bindSelection(tokenItem))
+                }
+            }
+        }
     }
     
     private func bindSelection(_ tokenItem: TokenItem) -> Binding<Bool> {
@@ -248,28 +268,30 @@ class TokenListViewModel: ViewModel, ObservableObject {
         
         return binding
     }
+    
+    private func mapToCoinViewModel(coinModel: CoinModel) -> CoinViewModel {
+        let currencyItems = coinModel.items.enumerated().map { (index, item) in
+            CoinItemViewModel(tokenItem: item,
+                              isReadonly: isReadonlyMode,
+                              isDisabled: !canManage(item),
+                              isSelected: bindSelection(item),
+                              isCopied: bindCopy(),
+                              position: .init(with: index, total: coinModel.items.count))
+        }
+        
+        return CoinViewModel(with: coinModel, items: currencyItems)
+    }
 }
+
+// MARK: - ListDataLoaderDelegate
 
 extension TokenListViewModel: ListDataLoaderDelegate {
     func filter(_ model: CoinModel) -> CoinModel? {
-        if let card = mode.cardModel?.cardInfo.card {
+        if let card = cardModel?.cardInfo.card {
             return model.makeFiltered(with: card)
         }
         
         return model
-    }
-    
-    func map(_ model: CoinModel) -> CoinViewModel {
-        let currencyItems: [CoinItemViewModel] = model.items.enumerated().map { (index, item) in
-                .init(tokenItem: item,
-                      isReadonly: self.isReadonlyMode,
-                      isDisabled: !self.canManage(item),
-                      isSelected: self.bindSelection(item),
-                      isCopied: self.bindCopy(),
-                      position: .init(with: index, total: model.items.count))
-        }
-        
-        return CoinViewModel(with: model, items: currencyItems)
     }
 }
 
