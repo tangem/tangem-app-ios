@@ -28,12 +28,12 @@ class CommonCoinsService {
 // MARK: - CoinsService
 
 extension CommonCoinsService: CoinsService {
-    func checkContractAddress(contractAddress: String, networkId: String?) -> AnyPublisher<[CoinModel], Never> {
+    func checkContractAddress(contractAddress: String, networkIds: [String]) -> AnyPublisher<[CoinModel], Never> {
         guard let card = cardsRepository.lastScanResult.card else {
             return Just([]).eraseToAnyPublisher()
         }
         
-        let requestModel = CoinsListRequestModel(contractAddress: contractAddress, networkId: networkId)
+        let requestModel = CoinsListRequestModel(contractAddress: contractAddress, networkIds: networkIds)
 
         return provider
             .requestPublisher(TangemApiTarget(type: .coins(requestModel), card: card))
