@@ -297,8 +297,9 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 .eraseToAnyPublisher()
         }
         
+        let networkIds = getBlockchains(withTokenSupport: true).map { $0.networkId }
         return coinsService
-            .checkContractAddress(contractAddress: contractAddress, networkId: nil)
+            .checkContractAddress(contractAddress: contractAddress, networkIds: networkIds)
             .eraseToAnyPublisher()
     }
     
