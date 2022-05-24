@@ -228,7 +228,8 @@ struct MainView: View {
                                                 viewModel.showCurrencyChangeScreen()
                                             }
                                             .cornerRadius(16)
-                                            .padding([.bottom, .horizontal], 16)
+                                            .padding([.horizontal], 16)
+                                            .padding(.bottom, 10)
                                         }
                                         
                                         TokensView(items: viewModel.tokenItemViewModels) { item in
