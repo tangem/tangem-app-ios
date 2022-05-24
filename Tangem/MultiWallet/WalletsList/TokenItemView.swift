@@ -13,7 +13,7 @@ struct TokenItemView: View {
     
     private var secondaryText: String {
         if item.state.isNoAccount {
-            return "wallet_error_no_account".localized
+            return item.rate.isEmpty ? "token_item_no_rate".localized : item.rate
         }
         if item.state.isBlockchainUnreachable {
             return "wallet_balance_blockchain_unreachable".localized
@@ -28,6 +28,10 @@ struct TokenItemView: View {
         }
         
         return item.rate
+    }
+    
+    private var balance: String {
+        return item.balance.isEmpty ? Decimal(0).currencyFormatted(code: item.currencySymbol) : item.balance
     }
     
     private var accentColor: Color {
@@ -54,11 +58,17 @@ struct TokenItemView: View {
                     
                     Spacer()
                     
-                    Text(item.fiatBalance)
-                        .font(.system(size: 13, weight: .regular))
-                        .multilineTextAlignment(.trailing)
-                        .truncationMode(.middle)
-                        .fixedSize(horizontal: false, vertical: true)
+                    if item.state.errorDescription != nil {
+                        Rectangle()
+                            .frame(width: 10, height: 1)
+                            .padding(.bottom, 4)
+                    } else {
+                        Text(item.fiatBalance)
+                            .font(.system(size: 13, weight: .regular))
+                            .multilineTextAlignment(.trailing)
+                            .truncationMode(.middle)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                 }
                 .lineLimit(2)
                 .minimumScaleFactor(0.8)
@@ -66,7 +76,7 @@ struct TokenItemView: View {
                 
                 
                 HStack(alignment: .firstTextBaseline, spacing: 5.0) {
-                    if item.state.errorDescription != nil  || item.hasTransactionInProgress {
+                    if item.state.mainPageErrorDescription != nil  || item.hasTransactionInProgress {
                         Image(systemName: "exclamationmark.circle")
                             .resizable()
                             .aspectRatio(contentMode: .fit)
@@ -82,15 +92,19 @@ struct TokenItemView: View {
                     }
                     
                     Spacer()
-                    
-                    Text(item.balance)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .lineLimit(1)
-                        .foregroundColor(Color.tangemGrayDark)
+                    if item.state.mainPageErrorDescription != nil {
+                        Rectangle()
+                            .frame(width: 10, height: 1)
+                            .padding(.bottom, 4)
+                    } else {
+                        Text(balance)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .lineLimit(1)
+                    }
                 }
                 .font(.system(size: 13, weight: .regular))
                 .frame(minHeight: 20)
-                .foregroundColor(accentColor)
+                .foregroundColor(.tangemTextGray)
             }
         }
     }
@@ -101,4 +115,4 @@ struct TokenItemView: View {
  item.fiatBalance -> 49,64 US$
  item.name -> Solana
  secondaryText -> 49,64 US$
- */
+*/
