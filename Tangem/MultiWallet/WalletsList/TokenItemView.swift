@@ -76,12 +76,6 @@ struct TokenItemView: View {
                 
                 
                 HStack(alignment: .firstTextBaseline, spacing: 5.0) {
-                    if item.state.mainPageErrorDescription != nil  || item.hasTransactionInProgress {
-                        Image(systemName: "exclamationmark.circle")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 10.0, height: 10.0)
-                    }
                     if item.isCustom {
                         CustomTokenBadge()
                             .layoutPriority(-1)
