@@ -17,7 +17,7 @@ struct TotalSumBalanceView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 0) {
-                Text("main_page_balance".localized.uppercased())
+                Text("main_page_balance".localized)
                     .lineLimit(1)
                     .font(Font.system(size: 14, weight: .medium))
                     .foregroundColor(Color.tangemTextGray)
@@ -44,11 +44,18 @@ struct TotalSumBalanceView: View {
                 ActivityIndicatorView(isAnimating: true, style: .medium, color: .gray)
                     .frame(height: 33)
             } else {
-                Text(viewModel.totalFiatValueString)
-                    .lineLimit(1)
-                    .font(Font.system(size: 28, weight: .semibold))
-                    .foregroundColor(Color.tangemGrayDark6)
-                    .frame(height: 33)
+                if viewModel.isFailed {
+                    Rectangle()
+                        .foregroundColor(Color.tangemGrayDark6)
+                        .frame(width: 15, height: 1)
+                        .padding(.vertical, 16)
+                } else {
+                    Text(viewModel.totalFiatValueString)
+                        .lineLimit(1)
+                        .font(Font.system(size: 28, weight: .semibold))
+                        .foregroundColor(Color.tangemGrayDark6)
+                        .frame(height: 33)
+                }
             }
             
             if viewModel.isFailed {
