@@ -13,11 +13,6 @@ import BlockchainSdk
 import TangemSdk
 import stellarsdk
 
-struct TextHint {
-    let isError: Bool
-    let message: String
-}
-
 class SendViewModel: ViewModel, ObservableObject {
     @Injected(\.currencyRateService) private var ratesService: CurrencyRateService
     @Injected(\.appFeaturesService) private var featuresService: AppFeaturesProviding
@@ -99,12 +94,19 @@ class SendViewModel: ViewModel, ObservableObject {
     @Published var sendTotal: String = " "
     @Published var sendFee: String = " "
     @Published var sendTotalSubtitle: String = " "
-    @Published var isSendEnabled: Bool = false
+
     @Published var selectedFee: Amount? = nil
     @Published var transaction: BlockchainSdk.Transaction? = nil
     @Published var canFiatCalculation: Bool = true
     @Published var oldCardAlert: AlertBinder?
     @Published var isFeeLoading: Bool = false
+    
+    var isSendEnabled: Bool {
+        let haveDestinationErrorHint = destinationHint?.isError ?? false
+        let haveAmountErrorHint = amountHint?.isError ?? false
+        
+        return !haveDestinationErrorHint && !haveAmountErrorHint && transaction != nil
+    }
     
     // MARK: Additional input
     @Published var isAdditionalInputEnabled: Bool = false
@@ -239,7 +241,6 @@ class SendViewModel: ViewModel, ObservableObject {
             .combineLatest($isFiatCalculation.uiPublisherWithFirst)
             .sink { [unowned self] tx, isFiatCalculation in
                 if let tx = tx {
-                    self.isSendEnabled = true
                     let totalAmount = tx.amount + tx.fee
                     var totalFiatAmount: Decimal? = nil
                     
@@ -268,7 +269,6 @@ class SendViewModel: ViewModel, ObservableObject {
                     self.sendFee = self.getDescription(for: tx.fee, isFiat: isFiatCalculation)
                 } else {
                     self.fillTotalBlockWithDefaults()
-                    self.isSendEnabled = false
                 }
             }
             .store(in: &bag)
@@ -389,7 +389,8 @@ class SendViewModel: ViewModel, ObservableObject {
                 withAnimation {
                     self.isFeeIncluded = true
                     self.isNetworkFeeBlockOpen = true
-                }        }
+                }
+            }
             .store(in: &bag)
         
         // MARK: Fee
@@ -599,6 +600,7 @@ class SendViewModel: ViewModel, ObservableObject {
     }
     
     // MARK: - Send
+
     func send(_ callback: @escaping () -> Void) {
         guard var tx = self.transaction else {
             return
