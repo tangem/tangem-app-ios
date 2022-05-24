@@ -184,7 +184,9 @@ struct SendView: View {
                             }
                         }
                     }
+                    
                     Spacer()
+                    
                     VStack (spacing: 8.0) {
                         HStack{
                             Text("send_amount_label")
@@ -242,32 +244,10 @@ struct SendView: View {
                     })
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.vertical, 16)
-                    TangemButton(title: "wallet_button_send",
-                                 systemImage: "arrow.right") {
-                        self.viewModel.send() {
-                            presentationMode.wrappedValue.dismiss()
-                        }
-                    }
-                                 .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
-                                                                isDisabled: !self.viewModel.isSendEnabled))
-                                 .padding(.top, 16.0)
-                                 .sheet(isPresented: $navigation.sendToSendEmail, content: {
-                                     MailView(dataCollector: viewModel.emailDataCollector, support: .tangem, emailType: .failedToSendTx)
-                                 })
-                                 .alert(item: self.$viewModel.sendError) { binder in
-                                     if binder.error == nil {
-                                         return binder.alert
-                                     }
-                                     return Alert(title: Text("alert_failed_to_send_transaction_title"),
-                                                  message: Text(String(format: "alert_failed_to_send_transaction_message".localized, binder.error?.localizedDescription ?? "Unknown error")),
-                                                  primaryButton: .default(Text("alert_button_request_support"), action: {
-                                         navigation.sendToSendEmail = true
-                                     }),
-                                                  secondaryButton: .default(Text("common_no")))
-                                 }
                     
+                    sendButton
                 }
-                .padding()
+                .padding(16)
                 .frame(minWidth: geometry.size.width,
                        maxWidth: geometry.size.width,
                        minHeight: geometry.size.height,
@@ -278,12 +258,37 @@ struct SendView: View {
             self.viewModel.onAppear()
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
-                    .receive(on: DispatchQueue.main)) { _ in
-            viewModel.onEnterForeground()
+            .receive(on: DispatchQueue.main)) { _ in
+                viewModel.onEnterForeground()
+            }
+    }
+    
+    @ViewBuilder private var sendButton: some View {
+        TangemButton(title: "wallet_button_send", systemImage: "arrow.right") {
+            self.viewModel.send() {
+                presentationMode.wrappedValue.dismiss()
+            }
+        }
+        .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
+                                       isDisabled: !self.viewModel.isSendEnabled))
+        .padding(.top, 16.0)
+        .sheet(isPresented: $navigation.sendToSendEmail, content: {
+            MailView(dataCollector: viewModel.emailDataCollector, support: .tangem, emailType: .failedToSendTx)
+        })
+        .alert(item: self.$viewModel.sendError) { binder in
+            if binder.error == nil {
+                return binder.alert
+            }
+
+            return Alert(title: Text("alert_failed_to_send_transaction_title"),
+                         message: Text(String(format: "alert_failed_to_send_transaction_message".localized, binder.error?.localizedDescription ?? "Unknown error")),
+                         primaryButton: .default(Text("alert_button_request_support"), action: {
+                navigation.sendToSendEmail = true
+            }),
+            secondaryButton: .default(Text("common_no")))
         }
     }
 }
-
 
 struct ExtractView_Previews: PreviewProvider {
     static let assembly: Assembly = .previewAssembly(for: .ethereum)
