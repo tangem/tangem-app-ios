@@ -14,8 +14,9 @@ protocol ListDataLoaderDelegate: AnyObject {
     func filter(_ model: CoinModel) -> CoinModel?
 }
 
-class ListDataLoader: ObservableObject {
+class ListDataLoader {
     // MARK: Output
+    
     @Published var items: [CoinModel] = []
     
     // Tells if all records have been loaded. (Used to hide/show activity spinner)
@@ -34,7 +35,7 @@ class ListDataLoader: ObservableObject {
     private var currentPage = 0
     
     // Limit of records per page. (Only if backend supports, it usually does)
-    private let perPage = 20
+    private let perPage = 50
     
     private var cancellable: AnyCancellable?
     private var currentRequests: [String: AnyCancellable?] = [:]
@@ -42,22 +43,6 @@ class ListDataLoader: ObservableObject {
     private var cached: [CoinModel] = []
     private var cachedSearch: [String: [CoinModel]] = [:]
     private var lastSearchText = ""
-    
-    private var loadFromLocalPublisher: AnyPublisher<[CoinModel], Never> {
-        SupportedTokenItems().loadCoins(isTestnet: isTestnet)
-            .map { [weak self] models -> [CoinModel] in
-                models.compactMap { self?.delegate?.filter($0) }
-            }
-            .handleEvents(receiveOutput: { [weak self] output in
-                self?.cached = output
-            })
-            .replaceError(with: [])
-            .eraseToAnyPublisher()
-    }
-    
-    private var cacheFromLocalPublisher: AnyPublisher<[CoinModel], Never> {
-        Just(cached).eraseToAnyPublisher()
-    }
     
     init(isTestnet: Bool, coinsService: CoinsService) {
         self.isTestnet = isTestnet
@@ -98,20 +83,23 @@ class ListDataLoader: ObservableObject {
 
 private extension ListDataLoader {
     func loadItems(_ searchText: String) -> AnyPublisher<[CoinModel], Never> {
-        if isTestnet || !searchText.isEmpty {
+        // If testnet then use local coins from testnet_tokens.json file
+        if isTestnet {
             return loadTestnetItems(searchText)
         }
-        
-        let pageModel = PageModel(limit: perPage, offset: items.count)
-        
-        return coinsService.loadTokens(pageModel: pageModel)
-            .replaceError(with: [])
-            .eraseToAnyPublisher()
+    
+        return loadCoinsItems(searchText)
     }
     
     func loadTestnetItems(_ searchText: String) -> AnyPublisher<[CoinModel], Never> {
         let searchText = searchText.lowercased()
-        let itemsPublisher = cached.isEmpty ? loadFromLocalPublisher : cacheFromLocalPublisher
+        let itemsPublisher: AnyPublisher<[CoinModel], Never>
+        
+        if cached.isEmpty {
+            itemsPublisher = loadCoinsFromLocalJsonPublisher()
+        } else {
+            itemsPublisher = Just(cached).eraseToAnyPublisher()
+        }
         
         return itemsPublisher
             .map { [weak self] models -> [CoinModel] in
@@ -134,6 +122,33 @@ private extension ListDataLoader {
             .map { [weak self] models -> [CoinModel] in
                 self?.getPage(for: models) ?? []
             }
+            .eraseToAnyPublisher()
+    }
+    
+    func loadCoinsItems(_ searchText: String) -> AnyPublisher<[CoinModel], Never> {
+        let requestModel = CoinsListRequestModel(
+            searchText: searchText,
+            limit: perPage,
+            offset: items.count
+        )
+        
+        return coinsService.loadCoins(requestModel: requestModel)
+            .map { [weak self] models -> [CoinModel] in
+                models.compactMap { self?.delegate?.filter($0) }
+            }
+            .replaceError(with: [])
+            .eraseToAnyPublisher()
+    }
+    
+    func loadCoinsFromLocalJsonPublisher() -> AnyPublisher<[CoinModel], Never> {
+        SupportedTokenItems().loadCoins()
+            .map { [weak self] models -> [CoinModel] in
+                models.compactMap { self?.delegate?.filter($0) }
+            }
+            .handleEvents(receiveOutput: { [weak self] output in
+                self?.cached = output
+            })
+            .replaceError(with: [])
             .eraseToAnyPublisher()
     }
     
