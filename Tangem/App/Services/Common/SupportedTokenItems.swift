@@ -85,19 +85,18 @@ class SupportedTokenItems {
         return blockchains.filter { $0.canHandleTokens }
     }
     
-    func loadCoins(isTestnet: Bool) -> AnyPublisher<[CoinModel], Error> {
-        readList(isTestnet: isTestnet)
-            .map { list in
-                list.coins.map { .init(with: $0, baseImageURL: list.imageHost) }
-            }
-            .eraseToAnyPublisher()
+    func loadCoins() -> AnyPublisher<[CoinModel], Error> {
+        readList().map { list in
+            list.coins.map { .init(with: $0, baseImageURL: list.imageHost) }
+        }
+        .eraseToAnyPublisher()
     }
     
-    private func readList(isTestnet: Bool) -> AnyPublisher<CoinsResponse, Error> {
-        Just(isTestnet)
+    private func readList() -> AnyPublisher<CoinsResponse, Error> {
+        Just(())
             .receive(on: DispatchQueue.global())
             .tryMap { testnet in
-                try JsonUtils.readBundleFile(with: testnet ? Constants.testFilename : Constants.filename,
+                try JsonUtils.readBundleFile(with: Constants.testFilename,
                                              type: CoinsResponse.self,
                                              shouldAddCompilationCondition: false)
             }
@@ -108,7 +107,6 @@ class SupportedTokenItems {
 
 fileprivate extension SupportedTokenItems {
     enum Constants {
-        static let filename: String = "tokens"
         static let testFilename: String = "testnet_tokens"
     }
 }
