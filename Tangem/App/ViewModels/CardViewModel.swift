@@ -772,7 +772,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
         let publishers = itemsWithCustomTokens.flatMap { item in
             item.tokens.filter { $0.isCustom }.map { token in
                 coinsService
-                    .checkContractAddress(contractAddress: token.contractAddress, networkId: item.blockchainNetwork.blockchain.networkId)
+                    .checkContractAddress(contractAddress: token.contractAddress, networkIds: [item.blockchainNetwork.blockchain.networkId])
                     .map { [unowned self] models -> Bool in
                         if let updatedTokem = models.first?.items.compactMap({$0.token}).first {
                             self.tokenItemsRepository.append([updatedTokem], blockchainNetwork: item.blockchainNetwork, for: cardId)
