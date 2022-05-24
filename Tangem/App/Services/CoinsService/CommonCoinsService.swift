@@ -24,13 +24,13 @@ class CommonCoinsService: CoinsService {
         print("CoinsService deinit")
     }
     
-    func checkContractAddress(contractAddress: String, networkId: String?) -> AnyPublisher<[CoinModel], Never> {
+    func checkContractAddress(contractAddress: String, networkIds: [String]) -> AnyPublisher<[CoinModel], Never> {
         guard let card = cardsRepository.lastScanResult.card else {
             return Just([]).eraseToAnyPublisher()
         }
         
         return provider
-            .requestPublisher(TangemApiTarget(type: .coins(contractAddress: contractAddress, networkId: networkId), card: card))
+            .requestPublisher(TangemApiTarget(type: .coins(contractAddress: contractAddress, networkIds: networkIds), card: card))
             .filterSuccessfulStatusCodes()
             .map(CoinsResponse.self)
             .map {list -> [CoinModel] in
