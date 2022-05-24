@@ -11,47 +11,57 @@ import SwiftUI
 import Combine
 
 protocol ListDataLoaderDelegate: AnyObject {
-    func map(_ model: CoinModel) -> CoinViewModel
     func filter(_ model: CoinModel) -> CoinModel?
 }
 
 class ListDataLoader: ObservableObject {
-    @Published var items = [CoinViewModel]()
+    // MARK: Output
+    @Published var items: [CoinModel] = []
     
     // Tells if all records have been loaded. (Used to hide/show activity spinner)
     private(set) var canFetchMore = true
-    // Tracks last page loaded. Used to load next page (current + 1)
-    private(set) var currentPage = 0
-    // Limit of records per page. (Only if backend supports, it usually does)
-    let perPage = 20
-    
-    let isTestnet: Bool
     
     weak var delegate: ListDataLoaderDelegate? = nil
     
+    // MARK: Input
+
+    private let isTestnet: Bool
+    private let coinsService: CoinsService
+    
+    // MARK: Private
+    
+    // Tracks last page loaded. Used to load next page (current + 1)
+    private var currentPage = 0
+    
+    // Limit of records per page. (Only if backend supports, it usually does)
+    private let perPage = 20
+    
     private var cancellable: AnyCancellable?
+    private var currentRequests: [String: AnyCancellable?] = [:]
+    
     private var cached: [CoinModel] = []
     private var cachedSearch: [String: [CoinModel]] = [:]
     private var lastSearchText = ""
     
-    private var loadPublisher: AnyPublisher<[CoinModel], Never> {
+    private var loadFromLocalPublisher: AnyPublisher<[CoinModel], Never> {
         SupportedTokenItems().loadCoins(isTestnet: isTestnet)
-            .map{[weak self] models -> [CoinModel] in
+            .map { [weak self] models -> [CoinModel] in
                 models.compactMap { self?.delegate?.filter($0) }
             }
-            .handleEvents(receiveOutput: {[weak self] output in
+            .handleEvents(receiveOutput: { [weak self] output in
                 self?.cached = output
             })
             .replaceError(with: [])
             .eraseToAnyPublisher()
     }
     
-    private var cachePublisher: AnyPublisher<[CoinModel], Never> {
+    private var cacheFromLocalPublisher: AnyPublisher<[CoinModel], Never> {
         Just(cached).eraseToAnyPublisher()
     }
     
-    init(isTestnet: Bool) {
+    init(isTestnet: Bool, coinsService: CoinsService) {
         self.isTestnet = isTestnet
+        self.coinsService = coinsService
     }
     
     func reset(_ searchText: String) {
@@ -70,38 +80,41 @@ class ListDataLoader: ObservableObject {
         }
      
         cancellable = loadItems(searchText)
-            .map {[weak self] items -> [CoinViewModel] in
-                return items.compactMap { self?.delegate?.map($0) }
-            }
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] in
+            .sink { [weak self] items in
                 guard let self = self else { return }
                 
                 self.currentPage += 1
-                self.items.append(contentsOf: $0)
+                self.items.append(contentsOf: items)
                 // If count of data received is less than perPage value then it is last page.
-                if $0.count < self.perPage {
+                if items.count < self.perPage {
                     self.canFetchMore = false
                 }
         }
     }
-    
-    func updateSelection(_ tokenItem: TokenItem, with isSelected: Binding<Bool>) {
-        for item in items {
-            for itemItem in item.items {
-                if itemItem.tokenItem == tokenItem {
-                    itemItem.updateSelection(with: isSelected)
-                }
-            }
+}
+
+// MARK: Private
+
+private extension ListDataLoader {
+    func loadItems(_ searchText: String) -> AnyPublisher<[CoinModel], Never> {
+        if isTestnet || !searchText.isEmpty {
+            return loadTestnetItems(searchText)
         }
+        
+        let pageModel = PageModel(limit: perPage, offset: items.count)
+        
+        return coinsService.loadTokens(pageModel: pageModel)
+            .replaceError(with: [])
+            .eraseToAnyPublisher()
     }
     
-    private func loadItems(_ searchText: String) -> AnyPublisher<[CoinModel], Never> {
+    func loadTestnetItems(_ searchText: String) -> AnyPublisher<[CoinModel], Never> {
         let searchText = searchText.lowercased()
-        let itemsPublisher = cached.isEmpty ? loadPublisher : cachePublisher
+        let itemsPublisher = cached.isEmpty ? loadFromLocalPublisher : cacheFromLocalPublisher
         
         return itemsPublisher
-            .map {[weak self] models -> [CoinModel] in
+            .map { [weak self] models -> [CoinModel] in
                 guard let self = self else { return [] }
                 
                 if searchText.isEmpty { return models }
@@ -118,15 +131,13 @@ class ListDataLoader: ObservableObject {
                 
                 return foundItems
             }
-            .map {[weak self] models -> [CoinModel] in
+            .map { [weak self] models -> [CoinModel] in
                 self?.getPage(for: models) ?? []
             }
             .eraseToAnyPublisher()
     }
     
-    private func getPage(for items: [CoinModel]) -> [CoinModel] {
-        Array(items.dropFirst(currentPage*perPage).prefix(perPage))
+    func getPage(for items: [CoinModel]) -> [CoinModel] {
+        Array(items.dropFirst(currentPage * perPage).prefix(perPage))
     }
 }
-
-
