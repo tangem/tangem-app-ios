@@ -13,7 +13,7 @@ struct TangemApiTarget: TargetType {
     enum TangemApiTargetType {
         case rates(coinIds: [String], currencyId: String)
         case currencies
-        case coins(contractAddress: String?, networkId: String?)
+        case coins(contractAddress: String?, networkIds: [String])
     }
     
     let type: TangemApiTargetType
@@ -42,15 +42,15 @@ struct TangemApiTarget: TargetType {
                                       encoding: URLEncoding.default)
         case .currencies:
             return .requestPlain
-        case .coins(let contractAddress, let networkId):
+        case .coins(let contractAddress, let networkIds):
             var parameters: [String: Any] = [:]
             
             if let contractAddress = contractAddress {
                 parameters["contractAddress"] = contractAddress
             }
 
-            if let networkId = networkId {
-                parameters["networkId"] = networkId
+            if !networkIds.isEmpty {
+                parameters["networkIds"] = networkIds.joined(separator: ",")
             }
             
             return .requestParameters(parameters: parameters, encoding: URLEncoding.default)
