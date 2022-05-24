@@ -491,6 +491,7 @@
 		DC0A5853282E3AB60031BECC /* CardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D4B8BC227EDD601002CE87C /* CardInfo.swift */; };
 		DC0A5854282E3ACD0031BECC /* ScanResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D4B8BBE27EDD5B5002CE87C /* ScanResult.swift */; };
 		DC0A5856282E3E220031BECC /* ServicesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A5855282E3E220031BECC /* ServicesManager.swift */; };
+		EFB4C1322837C51700E991C1 /* TextHint.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB4C1312837C51700E991C1 /* TextHint.swift */; };
 		F06BBA2FE022C3EF1F3B6513 /* Pods_Tangem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F3AA1BEE46AF490A6F95DA /* Pods_Tangem.framework */; };
 /* End PBXBuildFile section */
 
@@ -999,6 +1000,7 @@
 		DC0A584B282C07B10031BECC /* WalletConnectServiceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectServiceProvider.swift; sourceTree = "<group>"; };
 		DC0A5855282E3E220031BECC /* ServicesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicesManager.swift; sourceTree = "<group>"; };
 		E53081CA3060D2785F9D22F0 /* Pods-Tangem-TangemUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release.xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release.xcconfig"; sourceTree = "<group>"; };
+		EFB4C1312837C51700E991C1 /* TextHint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextHint.swift; sourceTree = "<group>"; };
 		F3B96D298A039D2A8811CEF0 /* Pods-Tangem Tap.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap.release.xcconfig"; path = "Target Support Files/Pods-Tangem Tap/Pods-Tangem Tap.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -1290,6 +1292,7 @@
 		5D958E1224F513C1006BD932 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				EFB4C1302837C50C00E991C1 /* Types */,
 				B0B8670126DF5ABC008DAA67 /* PreferenceKeys */,
 				B0E92C9526D38A56004F0855 /* BottomSheets */,
 				B09BB853259A075500B92000 /* Buttons */,
@@ -2409,6 +2412,14 @@
 			path = Common;
 			sourceTree = "<group>";
 		};
+		EFB4C1302837C50C00E991C1 /* Types */ = {
+			isa = PBXGroup;
+			children = (
+				EFB4C1312837C51700E991C1 /* TextHint.swift */,
+			);
+			path = Types;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -2788,6 +2799,7 @@
 				5D06E040250A5D54004218D0 /* NSRegualrExpression+.swift in Sources */,
 				5D84DBED270E26B90013A813 /* WelcomeBackgroundView.swift in Sources */,
 				B0C171CE264C173400E4BA5C /* CameraAccessDeniedModifier.swift in Sources */,
+				EFB4C1322837C51700E991C1 /* TextHint.swift in Sources */,
 				DAC53CFD27BE63830027147D /* BackupStoryPage.swift in Sources */,
 				B069F36F2631AD3C00ACFD19 /* ImageLoader.swift in Sources */,
 				B0608CBE2587478D006CE2A9 /* FirebaseJsonConfigFetcher.swift in Sources */,
