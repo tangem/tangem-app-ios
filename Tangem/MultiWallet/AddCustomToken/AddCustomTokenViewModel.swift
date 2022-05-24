@@ -65,7 +65,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             }
             .store(in: &bag)
         
-        $blockchainsPicker.map{ $0.selection }
+        $blockchainsPicker.map { $0.selection }
             .sink { [unowned self] newBlockchainName in
                 self.didChangeBlockchain(newBlockchainName)
             }
