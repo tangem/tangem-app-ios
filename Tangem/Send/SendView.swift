@@ -185,7 +185,7 @@ struct SendView: View {
                         }
                     }
                     
-                    Spacer().frame(height: 8)
+                    Spacer()
                     
                     VStack (spacing: 8.0) {
                         HStack{
