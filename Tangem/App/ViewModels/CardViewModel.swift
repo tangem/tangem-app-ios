@@ -33,7 +33,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
     @Published var payId: PayIdStatus = .notSupported
     @Published private(set) var currentSecOption: SecurityManagementOption = .longTap
     @Published public var cardInfo: CardInfo
-    @Published var walletsBalanceState: WalletsBalanceState = .balancesWasLoad
+    @Published var walletsBalanceState: WalletsBalanceState = .balancesLoaded
     
     private var walletBalanceBag: AnyCancellable? = nil
     private var cardPinSettings: CardPinSettings = CardPinSettings()
@@ -338,14 +338,14 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
             return
         }
         
-        self.walletsBalanceState = .balancesIsLoading
+        self.walletsBalanceState = .balancesInProgress
         
         let publishers = walletModels.map({ $0.$updateCompletedPublisher.dropFirst() })
         walletBalanceBag = Publishers.MergeMany(publishers)
             .collect(walletModels.count)
             .receive(on: RunLoop.main)
             .sink { [unowned self] _ in
-                self.walletsBalanceState = .balancesWasLoad
+                self.walletsBalanceState = .balancesLoaded
             }
     }
     
@@ -882,7 +882,7 @@ extension CardViewModel {
 
 extension CardViewModel {
     enum WalletsBalanceState {
-        case balancesIsLoading
-        case balancesWasLoad
+        case balancesInProgress
+        case balancesLoaded
     }
 }
