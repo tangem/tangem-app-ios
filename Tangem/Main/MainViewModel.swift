@@ -420,7 +420,6 @@ class MainViewModel: ViewModel, ObservableObject {
     
     func onScan() {
         DispatchQueue.main.async {
-            ImpactGenerator.generate(.light)
             self.assembly.getLetsStartOnboardingViewModel()?.reset()
             self.assembly.getLaunchOnboardingViewModel().reset()
             self.totalSumBalanceViewModel.update(with: [])
@@ -532,7 +531,6 @@ class MainViewModel: ViewModel, ObservableObject {
     }
     
     func onWalletTap(_ tokenItem: TokenItemViewModel) {
-        ImpactGenerator.generate(.light)
         selectedWallet = tokenItem
         assembly.reset()
         navigation.mainToTokenDetails = true
@@ -632,7 +630,6 @@ class MainViewModel: ViewModel, ObservableObject {
     }
     
     func showCurrencyChangeScreen() {
-        ImpactGenerator.generate(.light)
         navigation.currencyChangeView = true
     }
 
