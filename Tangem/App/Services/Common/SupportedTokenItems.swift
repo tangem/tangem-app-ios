@@ -85,10 +85,13 @@ class SupportedTokenItems {
         return blockchains.filter { $0.canHandleTokens }
     }
     
-    func loadTestnetCoins() -> AnyPublisher<[CoinModel], Error> {
+    func loadTestnetCoins(supportedCurves: [EllipticCurve]) -> AnyPublisher<[CoinModel], Error> {
         readTestnetList()
             .map { list in
-                list.coins.map { .init(with: $0, baseImageURL: list.imageHost) }
+                list.coins.compactMap {
+                    CoinModel(with: $0, baseImageURL: list.imageHost)
+                        .withFiltered(supportedCurves: supportedCurves)
+                }
             }
             .eraseToAnyPublisher()
     }
@@ -109,5 +112,24 @@ class SupportedTokenItems {
 fileprivate extension SupportedTokenItems {
     enum Constants {
         static let testFilename: String = "testnet_tokens"
+    }
+}
+
+private extension CoinModel {
+    // Local filter for testnet coins
+    func withFiltered(supportedCurves: [EllipticCurve]) -> CoinModel? {
+        let filteredItems = items.filter { item in
+            supportedCurves.contains(item.blockchain.curve)
+        }
+        
+        if filteredItems.isEmpty {
+            return nil
+        }
+        
+        return makeCopy(with: filteredItems)
+    }
+    
+    private func makeCopy(with items: [TokenItem]) -> CoinModel {
+        CoinModel(id: id, name: name, symbol: symbol, imageURL: imageURL, items: items)
     }
 }
