@@ -40,10 +40,7 @@ extension CommonCoinsService: CoinsService {
             .filterSuccessfulStatusCodes()
             .map(CoinsResponse.self)
             .map { list -> [CoinModel] in
-                list.coins.compactMap {
-                    let model = CoinModel(with: $0, baseImageURL: list.imageHost)
-                    return model.makeFiltered(with: card, contractAddress: contractAddress)
-                }
+                list.coins.compactMap { CoinModel(with: $0, baseImageURL: list.imageHost) }
             }
             .subscribe(on: DispatchQueue.global())
             .replaceError(with: [])
