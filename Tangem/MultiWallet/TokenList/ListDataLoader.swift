@@ -38,7 +38,6 @@ class ListDataLoader {
     private let perPage = 50
     
     private var cancellable: AnyCancellable?
-    private var currentRequests: [String: AnyCancellable?] = [:]
     
     private var cached: [CoinModel] = []
     private var cachedSearch: [String: [CoinModel]] = [:]
@@ -88,7 +87,7 @@ private extension ListDataLoader {
             return loadTestnetItems(searchText)
         }
     
-        return loadCoinsItems(searchText)
+        return loadMainnetItems(searchText)
     }
     
     func loadTestnetItems(_ searchText: String) -> AnyPublisher<[CoinModel], Never> {
@@ -125,7 +124,7 @@ private extension ListDataLoader {
             .eraseToAnyPublisher()
     }
     
-    func loadCoinsItems(_ searchText: String) -> AnyPublisher<[CoinModel], Never> {
+    func loadMainnetItems(_ searchText: String) -> AnyPublisher<[CoinModel], Never> {
         let requestModel = CoinsListRequestModel(
             searchText: searchText,
             limit: perPage,
@@ -141,7 +140,7 @@ private extension ListDataLoader {
     }
     
     func loadCoinsFromLocalJsonPublisher() -> AnyPublisher<[CoinModel], Never> {
-        SupportedTokenItems().loadCoins()
+        SupportedTokenItems().loadTestnetCoins()
             .map { [weak self] models -> [CoinModel] in
                 models.compactMap { self?.delegate?.filter($0) }
             }
