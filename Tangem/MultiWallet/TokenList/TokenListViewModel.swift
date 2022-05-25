@@ -156,10 +156,8 @@ private extension TokenListViewModel {
     }
     
     func setupListDataLoader() -> ListDataLoader {
-        let isTestnet = cardModel?.cardInfo.isTestnet ?? false
-        let loader = ListDataLoader(isTestnet: isTestnet, coinsService: coinsService)
-        loader.delegate = self
-        
+        let loader = ListDataLoader(coinsService: coinsService, cardInfo: cardModel?.cardInfo)
+
         loader.$items
             .map { [unowned self] items -> [CoinViewModel] in
                 items.compactMap { self.mapToCoinViewModel(coinModel: $0) }
@@ -284,18 +282,6 @@ private extension TokenListViewModel {
         }
         
         return CoinViewModel(with: coinModel, items: currencyItems)
-    }
-}
-
-// MARK: - ListDataLoaderDelegate
-
-extension TokenListViewModel: ListDataLoaderDelegate {
-    func filter(_ model: CoinModel) -> CoinModel? {
-        if let card = cardModel?.cardInfo.card {
-            return model.makeFiltered(with: card)
-        }
-        
-        return model
     }
 }
 
