@@ -7,7 +7,7 @@
 //
 
 import SwiftUI
-import Combine
+import SkeletonUI
 
 struct TotalSumBalanceView: View {
     @ObservedObject var viewModel: TotalSumBalanceViewModel
@@ -19,7 +19,7 @@ struct TotalSumBalanceView: View {
             HStack(spacing: 0) {
                 Text("main_page_balance".localized)
                     .lineLimit(1)
-                    .font(Font.system(size: 14, weight: .medium))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(Color.tangemTextGray)
                 
                 Spacer()
@@ -30,32 +30,28 @@ struct TotalSumBalanceView: View {
                     HStack(spacing: 6) {
                         Text(viewModel.currencyType)
                             .lineLimit(1)
-                            .font(Font.system(size: 16, weight: .medium))
-                            .foregroundColor(Color.tangemGrayDark)
+                            .font(.system(size: 13, weight: .medium))
                         Image("tangemArrowDown")
-                            .foregroundColor(Color.tangemTextGray)
                     }
+                    .foregroundColor(Color.tangemLightGray)
                 }
                 .buttonStyle(PlainButtonStyle())
             }
             .padding(.bottom, 4)
             
-            if viewModel.isLoading {
-                ActivityIndicatorView(isAnimating: true, style: .medium, color: .gray)
-                    .frame(height: 33)
+            if viewModel.isFailed {
+                Rectangle()
+                    .foregroundColor(Color.tangemGrayDark6)
+                    .frame(width: 15, height: 1)
+                    .padding(.vertical, 16)
             } else {
-                if viewModel.isFailed {
-                    Rectangle()
-                        .foregroundColor(Color.tangemGrayDark6)
-                        .frame(width: 15, height: 1)
-                        .padding(.vertical, 16)
-                } else {
-                    Text(viewModel.totalFiatValueString)
-                        .lineLimit(1)
-                        .font(Font.system(size: 28, weight: .semibold))
-                        .foregroundColor(Color.tangemGrayDark6)
-                        .frame(height: 33)
-                }
+                Text(viewModel.totalFiatValueString)
+                    .font(.system(size: 28, weight: .semibold))
+                    .skeleton(with: viewModel.isLoading, size: CGSize(width: 100, height: 25), animated: .default)
+                    .shape(type: .rounded(.radius(3, style: .circular)))
+                    .animation(type: .linear())
+                    .foregroundColor(Color.tangemGrayDark6)
+                    .frame(height: 33)
             }
             
             if viewModel.isFailed {
