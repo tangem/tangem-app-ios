@@ -10,20 +10,20 @@ import Foundation
 
 struct CoinsListRequestModel: Encodable {
     let contractAddress: String?
-    let networkIds: [String]
+    let networkIds: String
     let searchText: String?
     let limit: Int?
     let offset: Int?
     
     init(
         contractAddress: String? = nil,
-        networkIds: [String] = [],
+        networkIds: [String],
         searchText: String? = nil,
         limit: Int? = nil,
         offset: Int? = nil
     ) {
         self.contractAddress = contractAddress
-        self.networkIds = networkIds
+        self.networkIds = networkIds.joined(separator: ",")
         self.searchText = searchText == "" ? nil : searchText
         self.limit = limit
         self.offset = offset
