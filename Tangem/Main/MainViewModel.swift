@@ -44,6 +44,7 @@ class MainViewModel: ViewModel, ObservableObject {
     @Published var emailFeedbackCase: EmailFeedbackCase? = nil
     @Published var txIndexToPush: Int? = nil
     @Published var isOnboardingModal: Bool = true
+    @Published var isLoadingTokensBalance: Bool = false
     
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
@@ -320,8 +321,10 @@ class MainViewModel: ViewModel, ObservableObject {
                 switch state {
                 case .balancesWasLoad:
                     self.updateTotalBalanceTokenList()
+                    self.isLoadingTokensBalance = false
                 case .balancesIsLoading:
                     self.totalSumBalanceViewModel.beginUpdates()
+                    self.isLoadingTokensBalance = true
                 }
             }).store(in: &bag)
     }
@@ -342,6 +345,7 @@ class MainViewModel: ViewModel, ObservableObject {
     func onRefresh(_ done: @escaping () -> Void) {
         if let cardModel = self.cardModel, cardModel.state.canUpdate,
            let walletModels = cardModel.walletModels, !walletModels.isEmpty {
+            totalSumBalanceViewModel.beginUpdates()
             refreshCancellable = cardModel.update()
                 .receive(on: RunLoop.main)
                 .sink {[weak self] _ in
