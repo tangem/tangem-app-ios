@@ -61,7 +61,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
         mode.cardModel
     }
     
-    var haveNextPage: Bool {
+    var hasNextPage: Bool {
         loader.canFetchMore
     }
     
@@ -88,16 +88,17 @@ class TokenListViewModel: ViewModel, ObservableObject {
             .store(in: &bag)
     }
     
-    func setupListDataLoader() -> ListDataLoader {
+    private func setupListDataLoader() -> ListDataLoader {
         let isTestnet = cardModel?.cardInfo.isTestnet ?? false
         let loader = ListDataLoader(isTestnet: isTestnet, coinsService: coinsService)
         loader.delegate = self
         
-        loader.$items.map { [unowned self] items -> [CoinViewModel] in
-            items.compactMap { self.mapToCoinViewModel(coinModel: $0) }
-        }
-        .weakAssign(to: \.coinViewModels, on: self)
-        .store(in: &bag)
+        loader.$items
+            .map { [unowned self] items -> [CoinViewModel] in
+                items.compactMap { self.mapToCoinViewModel(coinModel: $0) }
+            }
+            .weakAssign(to: \.coinViewModels, on: self)
+            .store(in: &bag)
 
         return loader
     }
