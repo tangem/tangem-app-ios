@@ -85,14 +85,15 @@ class SupportedTokenItems {
         return blockchains.filter { $0.canHandleTokens }
     }
     
-    func loadCoins() -> AnyPublisher<[CoinModel], Error> {
-        readList().map { list in
-            list.coins.map { .init(with: $0, baseImageURL: list.imageHost) }
-        }
-        .eraseToAnyPublisher()
+    func loadTestnetCoins() -> AnyPublisher<[CoinModel], Error> {
+        readTestnetList()
+            .map { list in
+                list.coins.map { .init(with: $0, baseImageURL: list.imageHost) }
+            }
+            .eraseToAnyPublisher()
     }
     
-    private func readList() -> AnyPublisher<CoinsResponse, Error> {
+    private func readTestnetList() -> AnyPublisher<CoinsResponse, Error> {
         Just(())
             .receive(on: DispatchQueue.global())
             .tryMap { testnet in
