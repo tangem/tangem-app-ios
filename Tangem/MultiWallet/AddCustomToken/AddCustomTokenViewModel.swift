@@ -27,7 +27,8 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     @Published var blockchainsPicker: PickerModel = .empty
     @Published var derivationsPicker: PickerModel = .empty
     
-    @Published var customDerivationsAllowed: Bool = true
+    @Published var customDerivationsVisible: Bool = true
+    @Published var customDerivationsDisabled: Bool = false
     
     @Published var error: AlertBinder?
     
@@ -49,7 +50,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         )
             .dropFirst()
             .debounce(for: 0.5, scheduler: RunLoop.main)
-            .flatMap { (blockchainName, contractAddress, derivationPath) -> AnyPublisher<[CoinModel], Never> in
+            .flatMap { [unowned self] (blockchainName, contractAddress, derivationPath) -> AnyPublisher<[CoinModel], Never> in
                 self.isLoading = true
                 
                 guard !contractAddress.isEmpty else {
@@ -59,8 +60,14 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 
                 return self.findToken(contractAddress: contractAddress)
             }
-            .sink { currencyModels in
+            .sink { [unowned self] currencyModels in
                 self.didFinishTokenSearch(currencyModels)
+            }
+            .store(in: &bag)
+        
+        $blockchainsPicker.map { $0.selection }
+            .sink { [unowned self] newBlockchainName in
+                self.didChangeBlockchain(newBlockchainName)
             }
             .store(in: &bag)
     }
@@ -84,7 +91,10 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             blockchain = try enteredBlockchain()
             derivationPath = try enteredDerivationPath()
             
-            if case .solana = blockchain, !cardModel.cardInfo.card.canSupportSolanaTokens {
+            if case let .token(_, blockchain) = tokenItem,
+               case .solana = blockchain,
+               !cardModel.cardInfo.card.canSupportSolanaTokens
+            {
                 throw TokenCreationErrors.tokensNotSupported
             }
         } catch {
@@ -191,7 +201,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         }
         
         let uniqueDerivations = Set(evmDerivationPaths.map(\.1))
-        self.customDerivationsAllowed = uniqueDerivations.count > 1
+        self.customDerivationsVisible = uniqueDerivations.count > 1
         let newDerivationSelection = self.derivationsPicker.selection
         self.derivationsPicker = .init(items: [defaultItem] + evmDerivationPaths, selection: newDerivationSelection)
     }
@@ -248,6 +258,12 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     private func enteredDerivationPath() throws -> DerivationPath? {
+        if let blockchain = try? enteredBlockchain(),
+           !blockchain.isEvm
+        {
+            return nil
+        }
+        
         let rawPath = derivationsPicker.selection
         if !rawPath.isEmpty {
             let derivationPath = try? DerivationPath(rawPath: rawPath)
@@ -272,8 +288,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         
         let cardTokenItems = tokenItemsRepository.getItems(for: cardId)
         let checkingContractAddress = !contractAddress.isEmpty
-        let rawPath = derivationsPicker.selection
-        let derivationPath = (try? DerivationPath(rawPath: rawPath)) ?? blockchain.derivationPath(for: derivationStyle)
+        let derivationPath = try? enteredDerivationPath() ?? blockchain.derivationPath(for: derivationStyle)
         
         let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath)
         
@@ -297,8 +312,9 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 .eraseToAnyPublisher()
         }
         
+        let networkIds = getBlockchains(withTokenSupport: true).map { $0.networkId }
         return coinsService
-            .checkContractAddress(contractAddress: contractAddress, networkId: nil)
+            .checkContractAddress(contractAddress: contractAddress, networkIds: networkIds)
             .eraseToAnyPublisher()
     }
     
@@ -355,6 +371,19 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 warningContainer.add(tokenSearchError.appWarning)
             }
         }
+    }
+    
+    private func didChangeBlockchain(_ newBlockchainName: String) {
+        let newBlockchain = blockchainByName[newBlockchainName]
+       
+        let derivationDisabled: Bool
+        if let newBlockchain = newBlockchain {
+            derivationDisabled = !newBlockchain.isEvm
+        } else {
+            derivationDisabled = false
+        }
+      
+        customDerivationsDisabled = derivationDisabled
     }
 }
 
