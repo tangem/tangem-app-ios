@@ -33,7 +33,7 @@ struct TotalSumBalanceView: View {
                             .font(.system(size: 13, weight: .medium))
                         Image("tangemArrowDown")
                     }
-                    .foregroundColor(Color.tangemLightGray)
+                    .foregroundColor(.tangemGrayLight7)
                 }
                 .buttonStyle(PlainButtonStyle())
             }
