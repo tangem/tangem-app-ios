@@ -229,10 +229,11 @@ struct MainView: View {
                                             }
                                             .cornerRadius(16)
                                             .padding([.horizontal], 16)
-                                            .padding(.bottom, 10)
+                                            .padding(.bottom, 6)
                                         }
                                         
-                                        TokensView(items: viewModel.tokenItemViewModels) { item in
+                                        TokensView(items: viewModel.tokenItemViewModels,
+                                                   isLoading: viewModel.isLoadingTokensBalance) { item in
                                             viewModel.onWalletTap(item)
                                         }
                                         
@@ -241,7 +242,7 @@ struct MainView: View {
                                         })
                                         .padding(.horizontal, 16)
                                         .padding(.bottom, 8)
-                                        .padding(.top, 14)
+                                        .padding(.top, 6)
                                         .sheet(isPresented: $navigation.mainToAddTokens, content: {
                                             TokenListView(viewModel: viewModel.assembly.makeTokenListViewModel(mode: .add(cardModel: viewModel.cardModel!)))
                                                 .environmentObject(navigation)

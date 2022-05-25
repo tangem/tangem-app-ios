@@ -17,7 +17,7 @@ struct AddTokensView: View {
             Button {
                 action()
             } label: {
-                Text("main_manage_tokens_button")
+                Text("main_manage_tokens")
                     .font(.system(size: 15, weight: .medium))
                     .foregroundColor(Color.white)
                     .frame(maxWidth: .infinity)
