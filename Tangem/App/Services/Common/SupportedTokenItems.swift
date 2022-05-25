@@ -116,7 +116,7 @@ fileprivate extension SupportedTokenItems {
 }
 
 private extension CoinModel {
-    // Local filter for testnet coins
+    /// Filter the `tokenItems` for supportedCurves. Used only for testnet coinds from a local file
     func withFiltered(supportedCurves: [EllipticCurve]) -> CoinModel? {
         let filteredItems = items.filter { item in
             supportedCurves.contains(item.blockchain.curve)
