@@ -7,9 +7,11 @@
 //
 
 import SwiftUI
+import SkeletonUI
 
 struct TokenItemView: View {
     let item: TokenItemViewModel
+    var isLoading: Bool
     
     private var secondaryText: String {
         if item.state.isNoAccount {
@@ -55,6 +57,8 @@ struct TokenItemView: View {
                         .font(.system(size: 15, weight: .medium))
                         .layoutPriority(2)
                         .fixedSize(horizontal: false, vertical: true)
+                        .skeleton(with: isLoading, size: CGSize(width: 70, height: 11))
+                        .shape(type: .rounded(.radius(3, style: .circular)))
                     
                     Spacer()
                     
@@ -62,17 +66,21 @@ struct TokenItemView: View {
                         Rectangle()
                             .frame(width: 10, height: 1)
                             .padding(.bottom, 4)
+                            .skeleton(with: isLoading, size: CGSize(width: 50, height: 11))
+                            .shape(type: .rounded(.radius(3, style: .circular)))
                     } else {
                         Text(item.fiatBalance)
-                            .font(.system(size: 13, weight: .regular))
+                            .font(.system(size: 15, weight: .regular))
                             .multilineTextAlignment(.trailing)
                             .truncationMode(.middle)
                             .fixedSize(horizontal: false, vertical: true)
+                            .skeleton(with: isLoading, size: CGSize(width: 50, height: 11))
+                            .shape(type: .rounded(.radius(3, style: .circular)))
                     }
                 }
                 .lineLimit(2)
                 .minimumScaleFactor(0.8)
-                .foregroundColor(Color.tangemGrayDark6)
+                .foregroundColor(.tangemGrayDark6)
                 
                 
                 HStack(alignment: .firstTextBaseline, spacing: 5.0) {
@@ -83,6 +91,8 @@ struct TokenItemView: View {
                         Text(secondaryText)
                             .fixedSize(horizontal: false, vertical: true)
                             .lineLimit(1)
+                            .skeleton(with: isLoading, size: CGSize(width: 50, height: 11))
+                            .shape(type: .rounded(.radius(3, style: .circular)))
                     }
                     
                     Spacer()
@@ -90,10 +100,14 @@ struct TokenItemView: View {
                         Rectangle()
                             .frame(width: 10, height: 1)
                             .padding(.bottom, 4)
+                            .skeleton(with: isLoading, size: CGSize(width: 50, height: 11))
+                            .shape(type: .rounded(.radius(3, style: .circular)))
                     } else {
                         Text(balance)
                             .fixedSize(horizontal: false, vertical: true)
                             .lineLimit(1)
+                            .skeleton(with: isLoading, size: CGSize(width: 50, height: 11))
+                            .shape(type: .rounded(.radius(3, style: .circular)))
                     }
                 }
                 .font(.system(size: 13, weight: .regular))
@@ -103,10 +117,3 @@ struct TokenItemView: View {
         }
     }
 }
-
-/*
- item.balance -> 1,00 SOL
- item.fiatBalance -> 49,64 US$
- item.name -> Solana
- secondaryText -> 49,64 US$
-*/
