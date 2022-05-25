@@ -321,9 +321,9 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
         }
         
         return tryMigrateTokens()
-            .flatMap {
+            .flatMap { [weak self] in
                  Publishers
-                    .MergeMany(self.state.walletModels?.map { $0.update() } ?? [])
+                    .MergeMany(self?.state.walletModels?.map { $0.update() } ?? [])
                     .collect()
                     .ignoreOutput()
                     .eraseToAnyPublisher()
@@ -807,7 +807,12 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
     }
     
     private func tryMigrateTokens() -> AnyPublisher<Void, Never> {
-        Future { promise in
+        Future { [weak self] promise in
+            guard let self = self else {
+                promise(.success(()))
+                return
+            }
+            
             self.tryMigrateTokens {
                 promise(.success(()))
             }
