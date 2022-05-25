@@ -50,6 +50,8 @@ target 'Tangem' do
   pod 'Mobile-Buy-SDK' # Shopify
   pod 'AlertToast', :git => 'https://github.com/tangem/AlertToast'
   
+  pod 'SkeletonUI'
+  
   target 'TangemTests' do
     inherit! :search_paths
     # Pods for testing

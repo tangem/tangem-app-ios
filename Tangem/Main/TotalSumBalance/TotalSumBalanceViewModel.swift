@@ -25,7 +25,10 @@ class TotalSumBalanceViewModel: ObservableObject {
     }
     
     func beginUpdates() {
-        self.isLoading = true
+        DispatchQueue.main.async {
+            self.isLoading = true
+            self.isFailed = false
+        }
     }
     
     func update(with tokens: [TokenItemViewModel]) {
@@ -43,8 +46,10 @@ class TotalSumBalanceViewModel: ObservableObject {
     
     func disableLoading(with failed: Bool = false) {
         if failed {
-            isFailed = true
-            isLoading = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.isFailed = true
+                self.isLoading = false
+            }
         } else {
             withAnimation(Animation.spring().delay(0.5)) {
                 self.isLoading = false
