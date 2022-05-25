@@ -275,16 +275,14 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     
     func onRefresh(_ done: @escaping () -> Void) {
         refreshCancellable = walletModel?
-            .$updateCompletedPublisher
-            .dropFirst()
-            .first()
+            .update()
             .receive(on: RunLoop.main)
             .sink { _ in
                 print("♻️ Token wallet model loading state changed")
                 done()
+            } receiveValue: { _ in 
+                
             }
-        
-        walletModel?.update()
     }
     
     private func updateUnsupportedTokenWarning() {
