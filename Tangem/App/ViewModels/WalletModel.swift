@@ -183,6 +183,8 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
                 DispatchQueue.main.async { [weak self] in
                     guard let self = self else { return }
                     
+                    print("🔄 Finished updating wallet model for \(self.wallet.blockchain)")
+                    
                     if case let .failure(error) = result {
                         if case let .noAccount(noAccountMessage) = (error as? WalletError) {
                             self.state = .noAccount(message: noAccountMessage)
