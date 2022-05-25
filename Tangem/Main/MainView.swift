@@ -142,7 +142,7 @@ struct MainView: View {
                 navigation.mainToBuyCrypto = false
                 viewModel.sendAnalyticsEvent(.userBoughtCrypto)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    self.viewModel.state.cardModel?.update()
+                    self.viewModel.updateCardModel()
                 }
             }
                                                                      ]),
