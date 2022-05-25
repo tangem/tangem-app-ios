@@ -36,8 +36,13 @@ class ListDataLoader {
     private var cached: [CoinModel] = []
     private var cachedSearch: [String: [CoinModel]] = [:]
     private var lastSearchText = ""
-    private var walletCurves: [EllipticCurve] { cardInfo?.card.walletCurves ?? [] }
-    private var isTestnet: Bool { cardInfo?.isTestnet ?? false }
+
+    private var walletCurves: [EllipticCurve] {
+        cardInfo?.card.walletCurves ?? []
+    }
+    private var isTestnet: Bool {
+        cardInfo?.isTestnet ?? false
+    }
     
     init(coinsService: CoinsService, cardInfo: CardInfo?) {
         self.coinsService = coinsService
