@@ -190,7 +190,6 @@
 		652B013A28319F9000F2E27A /* TotalSumBalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652B013928319F9000F2E27A /* TotalSumBalanceViewModel.swift */; };
 		659768172837B61000F9F04A /* TokenItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659768162837B61000F9F04A /* TokenItemView.swift */; };
 		65A1910A2833EA900023355D /* TokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A191092833EA900023355D /* TokensView.swift */; };
-		65A1910D2835316E0023355D /* ImpactFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A1910C2835316E0023355D /* ImpactFeedback.swift */; };
 		A2D75197BEA81DB54FF6A3F6 /* Pods_Tangem_TangemUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D513FF545D1945A2BACAA25F /* Pods_Tangem_TangemUITests.framework */; };
 		B00BC584260B178000F0647D /* PickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D15F9E7258A522500392BA5 /* PickerView.swift */; };
 		B00BC589260B179200F0647D /* CircleActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09BB854259A075500B92000 /* CircleActionButton.swift */; };
@@ -492,6 +491,7 @@
 		DC0A5853282E3AB60031BECC /* CardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D4B8BC227EDD601002CE87C /* CardInfo.swift */; };
 		DC0A5854282E3ACD0031BECC /* ScanResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D4B8BBE27EDD5B5002CE87C /* ScanResult.swift */; };
 		DC0A5856282E3E220031BECC /* ServicesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A5855282E3E220031BECC /* ServicesManager.swift */; };
+		EFB4C1322837C51700E991C1 /* TextHint.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB4C1312837C51700E991C1 /* TextHint.swift */; };
 		F06BBA2FE022C3EF1F3B6513 /* Pods_Tangem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F3AA1BEE46AF490A6F95DA /* Pods_Tangem.framework */; };
 /* End PBXBuildFile section */
 
@@ -735,7 +735,6 @@
 		652B013928319F9000F2E27A /* TotalSumBalanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalSumBalanceViewModel.swift; sourceTree = "<group>"; };
 		659768162837B61000F9F04A /* TokenItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItemView.swift; sourceTree = "<group>"; };
 		65A191092833EA900023355D /* TokensView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokensView.swift; sourceTree = "<group>"; };
-		65A1910C2835316E0023355D /* ImpactFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImpactFeedback.swift; sourceTree = "<group>"; };
 		660C0A4ED84D5E9C3C8E3304 /* Pods-Tangem Tap-Tangem TapUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap-Tangem TapUITests.release.xcconfig"; path = "Target Support Files/Pods-Tangem Tap-Tangem TapUITests/Pods-Tangem Tap-Tangem TapUITests.release.xcconfig"; sourceTree = "<group>"; };
 		6DAB43B88F12E203AB57FCC5 /* Pods-TangemClip.firebase.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemClip.firebase.xcconfig"; path = "Target Support Files/Pods-TangemClip/Pods-TangemClip.firebase.xcconfig"; sourceTree = "<group>"; };
 		8023B4C7AB7F8F722B1B6BAA /* Pods-Tangem TapTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem TapTests.debug.xcconfig"; path = "Target Support Files/Pods-Tangem TapTests/Pods-Tangem TapTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -1001,6 +1000,7 @@
 		DC0A584B282C07B10031BECC /* WalletConnectServiceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectServiceProvider.swift; sourceTree = "<group>"; };
 		DC0A5855282E3E220031BECC /* ServicesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicesManager.swift; sourceTree = "<group>"; };
 		E53081CA3060D2785F9D22F0 /* Pods-Tangem-TangemUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release.xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release.xcconfig"; sourceTree = "<group>"; };
+		EFB4C1312837C51700E991C1 /* TextHint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextHint.swift; sourceTree = "<group>"; };
 		F3B96D298A039D2A8811CEF0 /* Pods-Tangem Tap.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap.release.xcconfig"; path = "Target Support Files/Pods-Tangem Tap/Pods-Tangem Tap.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -1292,6 +1292,7 @@
 		5D958E1224F513C1006BD932 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				EFB4C1302837C50C00E991C1 /* Types */,
 				B0B8670126DF5ABC008DAA67 /* PreferenceKeys */,
 				B0E92C9526D38A56004F0855 /* BottomSheets */,
 				B09BB853259A075500B92000 /* Buttons */,
@@ -1480,7 +1481,6 @@
 		5DFCCB6324C371AC0014A293 /* Common */ = {
 			isa = PBXGroup;
 			children = (
-				65A1910B283531520023355D /* ImpactFeedback */,
 				5D5332CD25F90DA900D32CA5 /* Formatters */,
 				5DF2522524F914C90015B429 /* TangemSdk */,
 				5D958E1224F513C1006BD932 /* UI */,
@@ -1528,14 +1528,6 @@
 				652B013928319F9000F2E27A /* TotalSumBalanceViewModel.swift */,
 			);
 			path = TotalSumBalance;
-			sourceTree = "<group>";
-		};
-		65A1910B283531520023355D /* ImpactFeedback */ = {
-			isa = PBXGroup;
-			children = (
-				65A1910C2835316E0023355D /* ImpactFeedback.swift */,
-			);
-			path = ImpactFeedback;
 			sourceTree = "<group>";
 		};
 		B018F3012591FED600D8F89A /* JsonSettings */ = {
@@ -2420,6 +2412,14 @@
 			path = Common;
 			sourceTree = "<group>";
 		};
+		EFB4C1302837C50C00E991C1 /* Types */ = {
+			isa = PBXGroup;
+			children = (
+				EFB4C1312837C51700E991C1 /* TextHint.swift */,
+			);
+			path = Types;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -2799,6 +2799,7 @@
 				5D06E040250A5D54004218D0 /* NSRegualrExpression+.swift in Sources */,
 				5D84DBED270E26B90013A813 /* WelcomeBackgroundView.swift in Sources */,
 				B0C171CE264C173400E4BA5C /* CameraAccessDeniedModifier.swift in Sources */,
+				EFB4C1322837C51700E991C1 /* TextHint.swift in Sources */,
 				DAC53CFD27BE63830027147D /* BackupStoryPage.swift in Sources */,
 				B069F36F2631AD3C00ACFD19 /* ImageLoader.swift in Sources */,
 				B0608CBE2587478D006CE2A9 /* FirebaseJsonConfigFetcher.swift in Sources */,
@@ -2957,7 +2958,6 @@
 				B0D1271E26AEF341008DC75C /* WalletConnectNetworkParserUtility.swift in Sources */,
 				B0A943602565010900A7958E /* TwinsWalletCreationService.swift in Sources */,
 				DA23788727B24222009795A8 /* Order.swift in Sources */,
-				65A1910D2835316E0023355D /* ImpactFeedback.swift in Sources */,
 				B09BB864259A075600B92000 /* CustomTextField.swift in Sources */,
 				B03ACAC92567CFFF00F5D269 /* CardView.swift in Sources */,
 				B09BB86D259A080900B92000 /* SendAdditionalFields.swift in Sources */,
