@@ -153,6 +153,10 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
         if let updatePublisher = updatePublisher {
             return updatePublisher.eraseToAnyPublisher()
         }
+
+        // Keep this before the async call
+        let newUpdatePublisher = PassthroughSubject<Never, Never>()
+        self.updatePublisher = newUpdatePublisher
         
         DispatchQueue.main.async {
             if let latestUpdateTime = self.latestUpdateTime,
@@ -207,8 +211,6 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
             }
         }
         
-        let newUpdatePublisher = PassthroughSubject<Never, Never>()
-        self.updatePublisher = newUpdatePublisher
         return newUpdatePublisher.eraseToAnyPublisher()
     }
     
