@@ -6,28 +6,22 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
 import Combine
-
-protocol ListDataLoaderDelegate: AnyObject {
-    func filter(_ model: CoinModel) -> CoinModel?
-}
+import TangemSdk
 
 class ListDataLoader {
     // MARK: Output
     
     @Published var items: [CoinModel] = []
     
-    // Tells if all records have been loaded. (Used to hide/show activity spinner)
+    // Tells if all items have been loaded. (Used to hide/show activity spinner)
     private(set) var canFetchMore = true
-    
-    weak var delegate: ListDataLoaderDelegate? = nil
     
     // MARK: Input
 
-    private let isTestnet: Bool
     private let coinsService: CoinsService
+    private let cardInfo: CardInfo?
     
     // MARK: Private
     
@@ -42,10 +36,12 @@ class ListDataLoader {
     private var cached: [CoinModel] = []
     private var cachedSearch: [String: [CoinModel]] = [:]
     private var lastSearchText = ""
+    private var walletCurves: [EllipticCurve] { cardInfo?.card.walletCurves ?? [] }
+    private var isTestnet: Bool { cardInfo?.isTestnet ?? false }
     
-    init(isTestnet: Bool, coinsService: CoinsService) {
-        self.isTestnet = isTestnet
+    init(coinsService: CoinsService, cardInfo: CardInfo?) {
         self.coinsService = coinsService
+        self.cardInfo = cardInfo
     }
     
     func reset(_ searchText: String) {
@@ -123,27 +119,26 @@ private extension ListDataLoader {
             }
             .eraseToAnyPublisher()
     }
-    
+
     func loadMainnetItems(_ searchText: String) -> AnyPublisher<[CoinModel], Never> {
+        let networkIds = SupportedTokenItems()
+            .blockchains(for: walletCurves, isTestnet: isTestnet)
+            .map { $0.networkId }
+
         let requestModel = CoinsListRequestModel(
+            networkIds: networkIds,
             searchText: searchText,
             limit: perPage,
             offset: items.count
         )
         
         return coinsService.loadCoins(requestModel: requestModel)
-            .map { [weak self] models -> [CoinModel] in
-                models.compactMap { self?.delegate?.filter($0) }
-            }
             .replaceError(with: [])
             .eraseToAnyPublisher()
     }
     
     func loadCoinsFromLocalJsonPublisher() -> AnyPublisher<[CoinModel], Never> {
-        SupportedTokenItems().loadTestnetCoins()
-            .map { [weak self] models -> [CoinModel] in
-                models.compactMap { self?.delegate?.filter($0) }
-            }
+        SupportedTokenItems().loadTestnetCoins(supportedCurves: walletCurves)
             .handleEvents(receiveOutput: { [weak self] output in
                 self?.cached = output
             })
