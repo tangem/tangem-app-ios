@@ -15,7 +15,6 @@ extension Task {
             let data = try encoder.encode(value)
             let json = try JSONSerialization.jsonObject(with: data) as? [String : Any]
             return .requestParameters(parameters: json ?? [:], encoding: URLEncoding.default)
-
         } catch {
             assertionFailure("Encode failed with error: \(error.localizedDescription)")
             return .requestPlain
