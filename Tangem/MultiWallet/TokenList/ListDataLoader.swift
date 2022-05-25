@@ -28,7 +28,7 @@ class ListDataLoader {
     // Tracks last page loaded. Used to load next page (current + 1)
     private var currentPage = 0
     
-    // Limit of records per page. (Only if backend supports, it usually does)
+    // Limit of records per page
     private let perPage = 50
     
     private var cancellable: AnyCancellable?
