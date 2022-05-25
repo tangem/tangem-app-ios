@@ -47,10 +47,9 @@ struct TotalSumBalanceView: View {
             } else {
                 Text(viewModel.totalFiatValueString)
                     .font(.system(size: 28, weight: .semibold))
-                    .skeleton(with: viewModel.isLoading, size: CGSize(width: 100, height: 25), animated: .default)
-                    .shape(type: .rounded(.radius(3, style: .circular)))
-                    .animation(type: .linear())
                     .foregroundColor(Color.tangemGrayDark6)
+                    .skeleton(with: viewModel.isLoading, size: CGSize(width: 100, height: 25))
+                    .shape(type: .rounded(.radius(3, style: .circular)))
                     .frame(height: 33)
             }
             
