@@ -49,7 +49,7 @@ struct TokenListView: View {
                         PerfListDivider()
                     }
                     
-                    if viewModel.haveNextPage {
+                    if viewModel.hasNextPage {
                         HStack(alignment: .center) {
                             ActivityIndicatorView(color: .gray)
                                 .onAppear(perform: viewModel.fetch)
