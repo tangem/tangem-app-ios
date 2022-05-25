@@ -95,6 +95,10 @@ extension Color {
         return Color("tangem_text_gray")
     }
     
+    @nonobjc static var tangemLightGray: Color {
+        return Color("tangem_light_gray")
+    }
+    
     //MARK: Background
     
     @nonobjc static var tangemBgGray: Color {
