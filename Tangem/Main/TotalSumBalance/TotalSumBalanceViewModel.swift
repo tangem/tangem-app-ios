@@ -77,7 +77,7 @@ class TotalSumBalanceViewModel: ObservableObject {
                 }
                 
                 if hasError {
-                    self.totalFiatValueString = ""
+                    self.totalFiatValueString = "—"
                 } else {
                     self.totalFiatValueString = totalFiatValue.currencyFormatted(code: currency.code)
                 }
