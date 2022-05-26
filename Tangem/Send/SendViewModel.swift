@@ -164,7 +164,7 @@ class SendViewModel: ViewModel, ObservableObject {
     //MARK: Private
     @Published private var validatedDestination: String? = nil
     @Published private var validatedAmount: Amount? = nil
-
+    
     let amountToSend: Amount
     
     private(set) var isSellingCrypto: Bool
@@ -690,28 +690,26 @@ private extension SendViewModel {
 
     /// If the amount will be nil then will be use dummy amount
     func updateFee(amount: Amount?) {
-        let feeDummyAmount = Amount(with: walletModel.wallet.blockchain, type: .coin, value: 0)
-        sendFee = formattedFee(amount: amount ?? feeDummyAmount)
+        sendFee = formattedFee(amount: amount ?? .zeroCoin(for: walletModel.wallet.blockchain))
     }
     
     func formattedFee(amount: Amount) -> String {
-        var formatted: String
+        let formatted: String
         
-        if isFiatCalculation,
-           let fiatFormatted = walletModel.getFiatFormatted(for: amount, roundingMode: .plain) {
-            formatted = fiatFormatted
+        if isFiatCalculation {
+            formatted = walletModel.getFiatFormatted(for: amount, roundingMode: .plain) ?? ""
         } else {
             formatted = amount.description
         }
         
-        if amount.value > 0, needToShowGreaterThanSymbol() {
+        if amount.value > 0, isFeeApproximate() {
             return "< " + formatted
         }
         
         return formatted
     }
     
-    func needToShowGreaterThanSymbol() -> Bool {
+    func isFeeApproximate() -> Bool {
         guard case .tron = blockchainNetwork.blockchain,
               case .token = amountToSend.type else {
             return false
