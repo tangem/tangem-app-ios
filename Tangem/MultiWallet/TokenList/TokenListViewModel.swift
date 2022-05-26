@@ -14,7 +14,6 @@ import SwiftUI
 
 class TokenListViewModel: ViewModel, ObservableObject {
     @Injected(\.negativeFeedbackDataProvider) var dataCollector: NegativeFeedbackDataProvider
-    @Injected(\.coinsService) var coinsService: CoinsService
     
     //I can't use @Published here, because of swiftui redraw perfomance drop
     var enteredSearchText = CurrentValueSubject<String, Never>("")
