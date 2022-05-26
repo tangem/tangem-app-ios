@@ -62,21 +62,13 @@ struct TokenItemView: View {
                     
                     Spacer()
                     
-                    if item.state.errorDescription != nil {
-                        Rectangle()
-                            .frame(width: 10, height: 1)
-                            .padding(.bottom, 4)
-                            .skeleton(with: isLoading, size: CGSize(width: 50, height: 11))
-                            .shape(type: .rounded(.radius(3, style: .circular)))
-                    } else {
-                        Text(item.fiatBalance)
-                            .font(.system(size: 15, weight: .regular))
-                            .multilineTextAlignment(.trailing)
-                            .truncationMode(.middle)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .skeleton(with: isLoading, size: CGSize(width: 50, height: 11))
-                            .shape(type: .rounded(.radius(3, style: .circular)))
-                    }
+                    Text(item.state.errorDescription != nil ? "—" : item.fiatBalance)
+                        .font(.system(size: 15, weight: .regular))
+                        .multilineTextAlignment(.trailing)
+                        .truncationMode(.middle)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .skeleton(with: isLoading, size: CGSize(width: 50, height: 11))
+                        .shape(type: .rounded(.radius(3, style: .circular)))
                 }
                 .lineLimit(2)
                 .minimumScaleFactor(0.8)
@@ -96,19 +88,12 @@ struct TokenItemView: View {
                     }
                     
                     Spacer()
-                    if item.state.failureDescription != nil {
-                        Rectangle()
-                            .frame(width: 10, height: 1)
-                            .padding(.bottom, 4)
-                            .skeleton(with: isLoading, size: CGSize(width: 50, height: 11))
-                            .shape(type: .rounded(.radius(3, style: .circular)))
-                    } else {
-                        Text(balance)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .lineLimit(1)
-                            .skeleton(with: isLoading, size: CGSize(width: 50, height: 11))
-                            .shape(type: .rounded(.radius(3, style: .circular)))
-                    }
+                    
+                    Text(item.state.failureDescription != nil ? "—" : balance)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .lineLimit(1)
+                        .skeleton(with: isLoading, size: CGSize(width: 50, height: 11))
+                        .shape(type: .rounded(.radius(3, style: .circular)))
                 }
                 .font(.system(size: 13, weight: .regular))
                 .frame(minHeight: 20)
