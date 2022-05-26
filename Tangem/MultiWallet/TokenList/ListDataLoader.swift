@@ -11,16 +11,16 @@ import Combine
 import TangemSdk
 
 class ListDataLoader {
-    // MARK: Output
+    // MARK: Dependencies
+    @Injected(\.coinsService) var coinsService: CoinsService
     
+    // MARK: Output
     @Published var items: [CoinModel] = []
     
     // Tells if all items have been loaded. (Used to hide/show activity spinner)
     private(set) var canFetchMore = true
     
     // MARK: Input
-
-    private let coinsService: CoinsService
     private let cardInfo: CardInfo?
     
     // MARK: Private
@@ -44,8 +44,7 @@ class ListDataLoader {
         cardInfo?.isTestnet ?? false
     }
     
-    init(coinsService: CoinsService, cardInfo: CardInfo?) {
-        self.coinsService = coinsService
+    init(cardInfo: CardInfo?) {
         self.cardInfo = cardInfo
     }
     
