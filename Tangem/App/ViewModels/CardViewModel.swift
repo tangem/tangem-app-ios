@@ -322,6 +322,8 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
             return Empty().eraseToAnyPublisher()
         }
         
+        observeBalanceLoading()
+        
         return tryMigrateTokens()
             .flatMap { [weak self] in
                  Publishers
@@ -340,9 +342,8 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
         
         self.walletsBalanceState = .inProgress
         
-        let publishers = walletModels.map({ $0.$updateCompletedPublisher.dropFirst() })
-        walletBalanceSubscription = Publishers.MergeMany(publishers)
-            .collect(walletModels.count)
+        walletBalanceSubscription = Publishers.MergeMany(walletModels.map({ $0.update() }))
+            .collect()
             .receive(on: RunLoop.main)
             .sink { [unowned self] _ in
                 self.walletsBalanceState = .loaded
