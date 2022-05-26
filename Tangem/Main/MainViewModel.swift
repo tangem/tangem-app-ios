@@ -319,10 +319,10 @@ class MainViewModel: ViewModel, ObservableObject {
             .receive(on: RunLoop.main)
             .sink(receiveValue: { [unowned self] state in
                 switch state {
-                case .balancesInProgress:
+                case .inProgress:
                     self.totalSumBalanceViewModel.beginUpdates()
                     self.isLoadingTokensBalance = true
-                case .balancesLoaded:
+                case .loaded:
                     self.updateTotalBalanceTokenList()
                     self.isLoadingTokensBalance = false
                 }
