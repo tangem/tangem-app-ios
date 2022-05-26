@@ -485,3 +485,4 @@ URL: %@";
 "common_server_unavailable" = "The server is not available, please try again later";
 "main_processing_full_amount" = "Processing full amount...";
 "main_tokens" = "Tokens";
+"token_details_delete_warning_message" = "You are removing a token that has funds on its balance. After removal, the funds associated with the token will not be included in your total balance calculation. Actual funds on your wallet are not changed or removed and can be made visible when you add token again.";
