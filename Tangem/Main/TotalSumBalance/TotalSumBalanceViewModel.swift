@@ -14,11 +14,11 @@ class TotalSumBalanceViewModel: ObservableObject {
     
     @Published var isLoading: Bool = false
     @Published var currencyType: String = ""
-    @Published var totalFiatValueString: String = ""
+    @Published var totalFiatValueString: String = "9999999"
     @Published var isFailed: Bool = false
     
     private var bag = Set<AnyCancellable>()
-    private var tokenItemsViewModel: [TokenItemViewModel] = []
+    private var tokenItemViewModels: [TokenItemViewModel] = []
     
     init() {
         currencyType = currencyRateService.selectedCurrencyCode
@@ -32,15 +32,15 @@ class TotalSumBalanceViewModel: ObservableObject {
     }
     
     func update(with tokens: [TokenItemViewModel]) {
-        tokenItemsViewModel = tokens
+        tokenItemViewModels = tokens
         refresh()
     }
     
     func updateIfNeeded(with tokens: [TokenItemViewModel]) {
-        if tokenItemsViewModel == tokens || isLoading {
+        if tokenItemViewModels == tokens || isLoading {
             return
         }
-        tokenItemsViewModel = tokens
+        tokenItemViewModels = tokens
         refresh(loadingAnimationEnable: false)
     }
     
@@ -68,7 +68,7 @@ class TotalSumBalanceViewModel: ObservableObject {
                 guard let currency = currencies.first(where: { $0.code == self.currencyRateService.selectedCurrencyCode }) else { return }
                 var hasError = false
                 var totalFiatValue: Decimal = 0.0
-                self.tokenItemsViewModel.forEach { token in
+                self.tokenItemViewModels.forEach { token in
                     if token.state.isSuccesfullyLoaded {
                         totalFiatValue += token.fiatValue
                     } else {
