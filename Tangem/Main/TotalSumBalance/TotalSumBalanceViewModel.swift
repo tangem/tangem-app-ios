@@ -18,7 +18,7 @@ class TotalSumBalanceViewModel: ObservableObject {
     @Published var isFailed: Bool = false
     
     private var bag = Set<AnyCancellable>()
-    private var tokenItems: [TokenItemViewModel] = []
+    private var tokenItemsViewModel: [TokenItemViewModel] = []
     
     init() {
         currencyType = currencyRateService.selectedCurrencyCode
@@ -32,20 +32,20 @@ class TotalSumBalanceViewModel: ObservableObject {
     }
     
     func update(with tokens: [TokenItemViewModel]) {
-        tokenItems = tokens
+        tokenItemsViewModel = tokens
         refresh()
     }
     
     func updateIfNeeded(with tokens: [TokenItemViewModel]) {
-        if tokenItems == tokens || isLoading {
+        if tokenItemsViewModel == tokens || isLoading {
             return
         }
-        tokenItems = tokens
-        refresh(with: false)
+        tokenItemsViewModel = tokens
+        refresh(loadingAnimationEnable: false)
     }
     
-    func disableLoading(with failed: Bool = false) {
-        if failed {
+    func disableLoading(animation: Bool = false) {
+        if animation {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.isFailed = true
                 self.isLoading = false
@@ -57,35 +57,35 @@ class TotalSumBalanceViewModel: ObservableObject {
         }
     }
     
-    private func refresh(with loadingAnimation: Bool = true) {
+    private func refresh(loadingAnimationEnable: Bool = true) {
         isFailed = false
         currencyType = currencyRateService.selectedCurrencyCode
-        var hasBlockchainError = false
         currencyRateService
             .baseCurrencies()
             .receive(on: RunLoop.main)
             .sink { _ in
             } receiveValue: { currencies in
                 guard let currency = currencies.first(where: { $0.code == self.currencyRateService.selectedCurrencyCode }) else { return }
+                var hasError = false
                 var totalFiatValue: Decimal = 0.0
-                self.tokenItems.forEach { token in
+                self.tokenItemsViewModel.forEach { token in
                     if token.state.isSuccesfullyLoaded {
                         totalFiatValue += token.fiatValue
                     } else {
-                        hasBlockchainError = true
+                        hasError = true
                     }
                 }
                 
-                if hasBlockchainError {
+                if hasError {
                     self.totalFiatValueString = ""
                 } else {
                     self.totalFiatValueString = totalFiatValue.currencyFormatted(code: currency.code)
                 }
                 
-                if loadingAnimation {
-                    self.disableLoading(with: hasBlockchainError)
+                if loadingAnimationEnable {
+                    self.disableLoading(animation: hasError)
                 } else {
-                    self.isFailed = hasBlockchainError
+                    self.isFailed = hasError
                 }
             }.store(in: &bag)
     }
