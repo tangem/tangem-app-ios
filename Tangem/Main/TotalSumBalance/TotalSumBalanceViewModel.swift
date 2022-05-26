@@ -14,7 +14,7 @@ class TotalSumBalanceViewModel: ObservableObject {
     
     @Published var isLoading: Bool = false
     @Published var currencyType: String = ""
-    @Published var totalFiatValueString: String = "9999999"
+    @Published var totalFiatValueString: String = ""
     @Published var isFailed: Bool = false
     
     private var bag = Set<AnyCancellable>()
@@ -44,16 +44,12 @@ class TotalSumBalanceViewModel: ObservableObject {
         refresh(loadingAnimationEnable: false)
     }
     
-    func disableLoading(animation: Bool = false) {
-        if animation {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+    func disableLoading(withError: Bool = false) {
+        withAnimation(Animation.spring().delay(0.5)) {
+            if withError {
                 self.isFailed = true
-                self.isLoading = false
             }
-        } else {
-            withAnimation(Animation.spring().delay(0.5)) {
-                self.isLoading = false
-            }
+            self.isLoading = false
         }
     }
     
@@ -83,7 +79,7 @@ class TotalSumBalanceViewModel: ObservableObject {
                 }
                 
                 if loadingAnimationEnable {
-                    self.disableLoading(animation: hasError)
+                    self.disableLoading(withError: hasError)
                 } else {
                     self.isFailed = hasError
                 }
