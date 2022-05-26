@@ -39,19 +39,12 @@ struct TotalSumBalanceView: View {
             }
             .padding(.bottom, 4)
             
-            if viewModel.isFailed {
-                Rectangle()
-                    .foregroundColor(Color.tangemGrayDark6)
-                    .frame(width: 15, height: 1)
-                    .padding(.vertical, 16)
-            } else {
-                Text(viewModel.totalFiatValueString)
-                    .font(.system(size: 28, weight: .semibold))
-                    .foregroundColor(Color.tangemGrayDark6)
-                    .skeleton(with: viewModel.isLoading, size: CGSize(width: 100, height: 25))
-                    .shape(type: .rounded(.radius(3, style: .circular)))
-                    .frame(height: 33)
-            }
+            Text(viewModel.totalFiatValueString)
+                .font(.system(size: 28, weight: .semibold))
+                .foregroundColor(Color.tangemGrayDark6)
+                .skeleton(with: viewModel.isLoading, size: CGSize(width: 100, height: 25))
+                .shape(type: .rounded(.radius(3, style: .circular)))
+                .frame(height: 33)
             
             if viewModel.isFailed {
                 Text("main_processing_full_amount".localized)
