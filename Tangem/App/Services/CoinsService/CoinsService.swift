@@ -11,7 +11,6 @@ import Combine
 import Moya
 
 protocol CoinsService {
-    func checkContractAddress(contractAddress: String, networkIds: [String]) -> AnyPublisher<[CoinModel], Never>
     func loadCoins(requestModel: CoinsListRequestModel) -> AnyPublisher<[CoinModel], Error>
 }
 
