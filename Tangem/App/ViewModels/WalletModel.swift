@@ -576,7 +576,7 @@ extension WalletModel {
             }
         }
         
-        var mainPageErrorDescription: String? {
+        var failureDescription: String? {
             switch self {
             case .failed(let error):
                 return error.localizedDescription
