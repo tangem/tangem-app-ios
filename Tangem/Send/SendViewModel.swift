@@ -203,13 +203,11 @@ class SendViewModel: ViewModel, ObservableObject {
     }
     
     private func getDescription(for amount: Amount?) -> String {
-        if isFiatCalculation, let fiatFormatted = walletModel.getFiatFormatted(for: amount) {
-            return fiatFormatted
-        } else if let amountDescription = amount?.description {
-            return amountDescription
+        if isFiatCalculation {
+            return walletModel.getFiatFormatted(for: amount) ?? ""
         }
 
-        return ""
+        return amount?.description ?? ""
     }
     
     private func fillTotalBlockWithDefaults() {
