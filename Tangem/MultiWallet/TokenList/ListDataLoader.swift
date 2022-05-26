@@ -128,5 +128,3 @@ class ListDataLoader: ObservableObject {
         Array(items.dropFirst(currentPage*perPage).prefix(perPage))
     }
 }
-
-
