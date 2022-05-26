@@ -164,7 +164,7 @@ class SendViewModel: ViewModel, ObservableObject {
     //MARK: Private
     @Published private var validatedDestination: String? = nil
     @Published private var validatedAmount: Amount? = nil
-        
+
     let amountToSend: Amount
     
     private(set) var isSellingCrypto: Bool
@@ -687,11 +687,7 @@ private extension SendViewModel {
 
         self.updateFee(amount: transaction.fee)
     }
-    
-    func updateViewForFiat(transaction: BlockchainSdk.Transaction) {
-        
-    }
-    
+
     /// If the amount will be nil then will be use dummy amount
     func updateFee(amount: Amount?) {
         let feeDummyAmount = Amount(with: walletModel.wallet.blockchain, type: .coin, value: 0)
