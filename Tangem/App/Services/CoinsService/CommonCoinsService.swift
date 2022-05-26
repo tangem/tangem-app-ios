@@ -12,7 +12,7 @@ import Moya
 import BlockchainSdk
 import TangemSdk
 
-class CommonCoinsService: CoinsService {
+class CommonCoinsService {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     
     private let provider = MoyaProvider<TangemApiTarget>()
@@ -23,25 +23,24 @@ class CommonCoinsService: CoinsService {
     deinit {
         print("CoinsService deinit")
     }
-    
-    func checkContractAddress(contractAddress: String, networkIds: [String]) -> AnyPublisher<[CoinModel], Never> {
-        guard let card = cardsRepository.lastScanResult.card else {
-            return Just([]).eraseToAnyPublisher()
-        }
+}
+
+// MARK: - CoinsService
+
+extension CommonCoinsService: CoinsService {
+    func loadCoins(requestModel: CoinsListRequestModel) -> AnyPublisher<[CoinModel], Error> {
+        let card = cardsRepository.lastScanResult.card
+        let target = TangemApiTarget(type: .coins(requestModel), card: card)
         
         return provider
-            .requestPublisher(TangemApiTarget(type: .coins(contractAddress: contractAddress, networkIds: networkIds), card: card))
+            .requestPublisher(target)
             .filterSuccessfulStatusCodes()
             .map(CoinsResponse.self)
-            .map {list -> [CoinModel] in
-                return list.coins
-                    .compactMap {
-                        let model = CoinModel(with: $0, baseImageURL: list.imageHost)
-                        return model.makeFiltered(with: card, contractAddress: contractAddress)
-                    }
+            .eraseError()
+            .receive(on: DispatchQueue.global())
+            .map { list -> [CoinModel] in
+                list.coins.map { CoinModel(with: $0, baseImageURL: list.imageHost) }
             }
-            .subscribe(on: DispatchQueue.global())
-            .replaceError(with: [])
             .eraseToAnyPublisher()
     }
 }

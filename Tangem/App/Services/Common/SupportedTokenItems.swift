@@ -85,19 +85,22 @@ class SupportedTokenItems {
         return blockchains.filter { $0.canHandleTokens }
     }
     
-    func loadCoins(isTestnet: Bool) -> AnyPublisher<[CoinModel], Error> {
-        readList(isTestnet: isTestnet)
+    func loadTestnetCoins(supportedCurves: [EllipticCurve]) -> AnyPublisher<[CoinModel], Error> {
+        readTestnetList()
             .map { list in
-                list.coins.map { .init(with: $0, baseImageURL: list.imageHost) }
+                list.coins.compactMap {
+                    CoinModel(with: $0, baseImageURL: list.imageHost)
+                        .withFiltered(supportedCurves: supportedCurves)
+                }
             }
             .eraseToAnyPublisher()
     }
     
-    private func readList(isTestnet: Bool) -> AnyPublisher<CoinsResponse, Error> {
-        Just(isTestnet)
+    private func readTestnetList() -> AnyPublisher<CoinsResponse, Error> {
+        Just(())
             .receive(on: DispatchQueue.global())
             .tryMap { testnet in
-                try JsonUtils.readBundleFile(with: testnet ? Constants.testFilename : Constants.filename,
+                try JsonUtils.readBundleFile(with: Constants.testFilename,
                                              type: CoinsResponse.self,
                                              shouldAddCompilationCondition: false)
             }
@@ -108,7 +111,25 @@ class SupportedTokenItems {
 
 fileprivate extension SupportedTokenItems {
     enum Constants {
-        static let filename: String = "tokens"
         static let testFilename: String = "testnet_tokens"
+    }
+}
+
+private extension CoinModel {
+    /// Filter the `tokenItems` for supportedCurves. Used only for testnet coinds from a local file
+    func withFiltered(supportedCurves: [EllipticCurve]) -> CoinModel? {
+        let filteredItems = items.filter { item in
+            supportedCurves.contains(item.blockchain.curve)
+        }
+        
+        if filteredItems.isEmpty {
+            return nil
+        }
+        
+        return makeCopy(with: filteredItems)
+    }
+    
+    private func makeCopy(with items: [TokenItem]) -> CoinModel {
+        CoinModel(id: id, name: name, symbol: symbol, imageURL: imageURL, items: items)
     }
 }
