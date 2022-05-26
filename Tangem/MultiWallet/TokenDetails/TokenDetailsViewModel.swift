@@ -14,6 +14,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     
     @Published var alert: AlertBinder? = nil
+    let didRequestDissmiss = PassthroughSubject<Void, Never>()
     
     var card: CardViewModel! {
         didSet {
@@ -98,10 +99,6 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         return wallet?.canSend(amountType: self.amountType) ?? false
     }
     
-    var canDelete: Bool {
-        return walletModel?.canRemove(amountType: amountType) ?? false
-    }
-    
     var sendBlockedReason: String? {
         guard let wallet = walletModel?.wallet,
               let currentAmount = wallet.amounts[amountType], amountType.isToken else { return nil }
@@ -158,6 +155,10 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     private var refreshCancellable: AnyCancellable? = nil
     private lazy var testnetBuyCrypto: TestnetBuyCryptoService = .init()
     
+    private var canDelete: Bool {
+        return walletModel?.canRemove(amountType: amountType) ?? false
+    }
+    
     init(blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType) {
         self.blockchainNetwork = blockchainNetwork
         self.amountType = amountType
@@ -181,9 +182,13 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
             }
     }
     
-    func onRemove() {
-        if let wm = walletModel {
-            card.remove(amountType: amountType, blockchainNetwork: wm.blockchainNetwork)
+    func tryToRemoveToken() {
+        if canDelete {
+            deleteAmount()
+        } else {
+            alert = createDeleteWarningAlert() { [weak self] in
+                self?.deleteAmount()
+            }
         }
     }
     
@@ -321,6 +326,35 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
                 self.solanaRentWarning = String(format: "solana_rent_warning".localized, rentAmount.description, minimalBalanceForRentExemption.description)
             }
             .store(in: &bag)
+    }
+    
+    private func deleteAmount() {
+        guard let walletModel = walletModel else {
+            assertionFailure("WalletModel didn't found")
+            return
+        }
+        
+        didRequestDissmiss.send(())
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.card.remove(
+                amountType: self.amountType,
+                blockchainNetwork: walletModel.blockchainNetwork
+            )
+        }
+    }
+    
+    private func createDeleteWarningAlert(delete: @escaping () -> ()) -> AlertBinder {
+        let okButton = Alert.Button.default(Text("common_ok"), action: delete)
+        
+        let alert = Alert(
+            title: Text("common_attention"),
+            message: Text("token_details_delete_warning_message"),
+            primaryButton: okButton,
+            secondaryButton: Alert.Button.cancel()
+        )
+        
+        return AlertBinder(alert: alert)
     }
 }
 
