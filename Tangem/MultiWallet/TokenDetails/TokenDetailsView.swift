@@ -192,19 +192,12 @@ struct TokenDetailsView: View {
         .navigationBarHidden(false)
         .navigationBarTitle("", displayMode: .inline)
         .navigationBarBackButtonHidden(false)
-        .navigationBarItems(trailing: Button(action: {
-            presentationMode.wrappedValue.dismiss()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                viewModel.onRemove()
-            }
-            
-        }, label: { Text("wallet_remove_token")
-                .foregroundColor(viewModel.canDelete ? Color.tangemGrayDark6 : Color.tangemGrayLight5)
-        })
-            .disabled(!viewModel.canDelete)
-        )
+        .navigationBarItems(trailing: trailingButton)
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
         .ignoresKeyboard()
+        .onReceive(viewModel.didRequestDissmiss, perform: {
+            presentationMode.wrappedValue.dismiss()
+        })
         .onAppear(perform: viewModel.onAppear)
 //        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
 //            .filter {_ in !navigation.detailsToSend
@@ -215,6 +208,16 @@ struct TokenDetailsView: View {
 //                viewModel.walletModel?.update(silent: true)
 //            }
             .alert(item: $viewModel.alert) { $0.alert }
+    }
+    
+    private var trailingButton: some View {
+        Button(action: {
+            viewModel.tryToRemoveToken()
+        }, label: {
+            Text("wallet_remove_token")
+                .foregroundColor(.tangemGrayDark6)
+                .font(.system(size: 18))
+        })
     }
 }
 
