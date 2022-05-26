@@ -96,7 +96,7 @@ struct TokenItemView: View {
                     }
                     
                     Spacer()
-                    if item.state.mainPageErrorDescription != nil {
+                    if item.state.failureDescription != nil {
                         Rectangle()
                             .frame(width: 10, height: 1)
                             .padding(.bottom, 4)
