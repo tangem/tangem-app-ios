@@ -28,27 +28,9 @@ class CommonCoinsService {
 // MARK: - CoinsService
 
 extension CommonCoinsService: CoinsService {
-    func checkContractAddress(contractAddress: String, networkIds: [String]) -> AnyPublisher<[CoinModel], Never> {
-        guard let card = cardsRepository.lastScanResult.card else {
-            return Just([]).eraseToAnyPublisher()
-        }
-        
-        let requestModel = CoinsListRequestModel(contractAddress: contractAddress, networkIds: networkIds)
-
-        return provider
-            .requestPublisher(TangemApiTarget(type: .coins(requestModel), card: card))
-            .filterSuccessfulStatusCodes()
-            .map(CoinsResponse.self)
-            .map { list -> [CoinModel] in
-                list.coins.compactMap { CoinModel(with: $0, baseImageURL: list.imageHost) }
-            }
-            .subscribe(on: DispatchQueue.global())
-            .replaceError(with: [])
-            .eraseToAnyPublisher()
-    }
-    
     func loadCoins(requestModel: CoinsListRequestModel) -> AnyPublisher<[CoinModel], Error> {
-        let target = TangemApiTarget(type: .coins(requestModel), card: nil)
+        let card = cardsRepository.lastScanResult.card
+        let target = TangemApiTarget(type: .coins(requestModel), card: card)
         
         return provider
             .requestPublisher(target)
