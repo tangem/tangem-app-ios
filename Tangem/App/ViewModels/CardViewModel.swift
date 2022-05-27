@@ -315,15 +315,20 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
 //
 //    }
     
-    func update() {
+    func update() -> AnyPublisher<Never, Never> {
         guard state.canUpdate else {
-            return
+            return Empty().eraseToAnyPublisher()
         }
         
-        tryMigrateTokens() { [weak self] in
-            self?.state.walletModels?.forEach { $0.update() }
-          //  self?.searchTokens() //tmp disable token's search
-        }
+        return tryMigrateTokens()
+            .flatMap { [weak self] in
+                 Publishers
+                    .MergeMany(self?.state.walletModels?.map { $0.update() } ?? [])
+                    .collect()
+                    .ignoreOutput()
+                    .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
     }
     
     func onSign(_ card: Card) {
@@ -518,6 +523,12 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
             
             if !userPrefsService.cardsStartedActivation.contains(cardInfo.card.cardId) || cardInfo.isTangemWallet {
                 update()
+                    .sink { _ in
+                        
+                    } receiveValue: { _ in 
+                        
+                    }
+                    .store(in: &bag)
             }
         }
     }
@@ -556,9 +567,9 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
         }
 
         searchBlockchainsCancellable =
-        Publishers.MergeMany(models.map { $0.$updateCompletedPublisher.dropFirst() })
+        Publishers.MergeMany(models.map { $0.update() })
             .collect(models.count)
-            .sink(receiveValue: { [weak self] _ in
+            .sink { [weak self] _ in
                 guard let self = self else { return }
 
                 let notEmptyWallets = models.filter { !$0.wallet.isEmpty }
@@ -567,9 +578,9 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
                     self.tokenItemsRepository.append(itemsToAdd, for: self.cardInfo.card.cardId)
                     self.updateLoadedState(with: notEmptyWallets)
                 }
-            })
-
-        models.forEach { $0.update() }
+            } receiveValue: { _ in
+                
+            }
     }
     
     private func searchTokens() {
@@ -770,9 +781,15 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
         }
         
         let publishers = itemsWithCustomTokens.flatMap { item in
-            item.tokens.filter { $0.isCustom }.map { token in
-                coinsService
-                    .checkContractAddress(contractAddress: token.contractAddress, networkIds: [item.blockchainNetwork.blockchain.networkId])
+            item.tokens.filter { $0.isCustom }.map { token -> AnyPublisher<Bool, Never> in
+                let requestModel = CoinsListRequestModel(
+                    contractAddress: token.contractAddress,
+                    networkIds: [item.blockchainNetwork.blockchain.networkId]
+                )
+                
+                return coinsService
+                    .loadCoins(requestModel: requestModel)
+                    .replaceError(with: [])
                     .map { [unowned self] models -> Bool in
                         if let updatedTokem = models.first?.items.compactMap({$0.token}).first {
                             self.tokenItemsRepository.append([updatedTokem], blockchainNetwork: item.blockchainNetwork, for: cardId)
@@ -793,6 +810,20 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
                 completion()
             }
             .store(in: &bag)
+    }
+    
+    private func tryMigrateTokens() -> AnyPublisher<Void, Never> {
+        Future { [weak self] promise in
+            guard let self = self else {
+                promise(.success(()))
+                return
+            }
+            
+            self.tryMigrateTokens {
+                promise(.success(()))
+            }
+        }
+        .eraseToAnyPublisher()
     }
     
     func updateCardPinSettings() {
