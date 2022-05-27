@@ -20,7 +20,6 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     @Published var tokenItemViewModels: [TokenItemViewModel] = []
     @Published var tokenViewModels: [TokenBalanceViewModel] = []
     @Published var rates: [String: Decimal] = [:]
-    @Published var updateCompletedPublisher: Bool = false
     
     var wallet: Wallet { walletManager.wallet }
     
@@ -109,6 +108,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     private let derivationStyle: DerivationStyle
     private var isDemo: Bool { demoBalance != nil }
     private var latestUpdateTime: Date? = nil
+    private var updatePublisher: PassthroughSubject<Never, Never>?
     
     deinit {
         print("🗑 WalletModel deinit")
@@ -148,14 +148,24 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
             .store(in: &bag)
     }
     
-    func update(silent: Bool = false) {
+    @discardableResult
+    func update(silent: Bool = false) -> AnyPublisher<Never, Never> {
+        if let updatePublisher = updatePublisher {
+            return updatePublisher.eraseToAnyPublisher()
+        }
+
+        // Keep this before the async call
+        let newUpdatePublisher = PassthroughSubject<Never, Never>()
+        self.updatePublisher = newUpdatePublisher
+        
         DispatchQueue.main.async {
             if let latestUpdateTime = self.latestUpdateTime,
                latestUpdateTime.distance(to: Date()) <= 10 {
                 if !silent {
                     self.state = .idle
                 }
-                self.updateCompletedPublisher.toggle()
+                self.updatePublisher?.send(completion: .finished)
+                self.updatePublisher = nil
                 return
             }
             
@@ -172,6 +182,8 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
             self.walletManager.update { result in
                 DispatchQueue.main.async { [weak self] in
                     guard let self = self else { return }
+                    
+                    print("🔄 Finished updating wallet model for \(self.wallet.blockchain)")
                     
                     if case let .failure(error) = result {
                         if case let .noAccount(noAccountMessage) = (error as? WalletError) {
@@ -195,10 +207,13 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
                     }
                     
                     self.updateBalanceViewModel(with: self.wallet)
-                    self.updateCompletedPublisher.toggle()
+                    self.updatePublisher?.send(completion: .finished)
+                    self.updatePublisher = nil
                 }
             }
         }
+        
+        return newUpdatePublisher.eraseToAnyPublisher()
     }
     
     func currencyId(for amount: Amount) -> String? {
