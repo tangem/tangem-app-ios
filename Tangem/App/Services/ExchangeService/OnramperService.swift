@@ -188,6 +188,8 @@ fileprivate extension Blockchain {
             return "Polygon"
         case .solana:
             return "Solana"
+        case .tron:
+            return "Tron"
         default:
             return nil
         }
