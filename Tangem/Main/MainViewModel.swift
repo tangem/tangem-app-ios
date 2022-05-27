@@ -44,6 +44,7 @@ class MainViewModel: ViewModel, ObservableObject {
     @Published var emailFeedbackCase: EmailFeedbackCase? = nil
     @Published var txIndexToPush: Int? = nil
     @Published var isOnboardingModal: Bool = true
+    @Published var isLoadingTokensBalance: Bool = false
     
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
@@ -280,7 +281,7 @@ class MainViewModel: ViewModel, ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { [unowned self] _ in
                 print("⚠️ Wallet model will change")
-                self.updateTotalBalanceTokenList()
+                self.updateTotalBalanceTokenListIfNeeded()
                 self.objectWillChange.send()
             }
             .store(in: &bag)
@@ -309,40 +310,24 @@ class MainViewModel: ViewModel, ObservableObject {
                 self.isHashesCounted = false
                 self.assembly.reset()
                 self.warningsService.setupWarnings(for: model.cardInfo)
-//                if !self.showTwinCardOnboardingIfNeeded() {
-                    self.countHashes()
-//                }
+                self.countHashes()
             }
             .store(in: &bag)
+        
+        cardModel?
+            .$walletsBalanceState
+            .receive(on: RunLoop.main)
+            .sink(receiveValue: { [unowned self] state in
+                switch state {
+                case .inProgress:
+                    self.totalSumBalanceViewModel.beginUpdates()
+                    self.isLoadingTokensBalance = true
+                case .loaded:
+                    self.updateTotalBalanceTokenList()
+                    self.isLoadingTokensBalance = false
+                }
+            }).store(in: &bag)
     }
-    
-    // MARK: - Scan
-//    func scan() {
-//        self.isScanning = true
-//        cardsRepository.scan { [weak self] scanResult in
-//			guard let self = self else { return }
-//            switch scanResult {
-//            case .success(let result):
-//                self.processScannedCard(result)
-//                self.failedCardScanTracker.resetCounter()
-//            case .failure(let error):
-//                self.failedCardScanTracker.recordFailure()
-//
-//                if self.failedCardScanTracker.shouldDisplayAlert {
-//                    self.navigation.mainToTroubleshootingScan = true
-//                } else {
-//                    switch error.toTangemSdkError() {
-//                    case .unknownError, .cardVerificationFailed:
-//                        self.setError(error.alertBinder)
-//                    default:
-//                        break
-//                    }
-//                }
-//                self.isScanning = false
-//            }
-//
-//        }
-//    }
     
     func updateState() {
         self.state = cardsRepository.lastScanResult
@@ -360,6 +345,7 @@ class MainViewModel: ViewModel, ObservableObject {
     func onRefresh(_ done: @escaping () -> Void) {
         if let cardModel = self.cardModel, cardModel.state.canUpdate,
            let walletModels = cardModel.walletModels, !walletModels.isEmpty {
+            totalSumBalanceViewModel.beginUpdates()
             refreshCancellable = cardModel.update()
                 .receive(on: RunLoop.main)
                 .sink {[weak self] _ in
@@ -373,7 +359,6 @@ class MainViewModel: ViewModel, ObservableObject {
                 }
         } else {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self.totalSumBalanceViewModel.update(with: [])
                 withAnimation {
                     done()
                 }
@@ -769,15 +754,6 @@ class MainViewModel: ViewModel, ObservableObject {
 			}, receiveValue: { _ in })
             .store(in: &bag)
 	}
-		
-//	private func showTwinCardOnboardingIfNeeded() -> Bool {
-//		guard let model = cardModel, model.isTwinCard else { return false }
-//
-//		if userPrefsService.isTwinCardOnboardingWasDisplayed { return false }
-//
-//		navigation.mainToTwinOnboarding = true
-//		return true
-//	}
     
     private func setError(_ error: AlertBinder?)  {
         if self.error != nil {
@@ -796,11 +772,23 @@ class MainViewModel: ViewModel, ObservableObject {
         guard let cardModel = cardModel,
               let walletModels = cardModel.walletModels
         else {
+            self.totalSumBalanceViewModel.update(with: [])
             return
         }
         
         let newTokens = walletModels.flatMap({ $0.tokenItemViewModels })
         totalSumBalanceViewModel.update(with: newTokens)
+    }
+    
+    private func updateTotalBalanceTokenListIfNeeded() {
+        guard let cardModel = cardModel,
+              let walletModels = cardModel.walletModels
+        else {
+            self.totalSumBalanceViewModel.update(with: [])
+            return
+        }
+        let newTokens = walletModels.flatMap({ $0.tokenItemViewModels })
+        totalSumBalanceViewModel.updateIfNeeded(with: newTokens)
     }
 }
 
