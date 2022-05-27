@@ -102,10 +102,10 @@ class SendViewModel: ViewModel, ObservableObject {
     @Published var isFeeLoading: Bool = false
     
     var isSendEnabled: Bool {
-        let haveDestinationErrorHint = destinationHint?.isError ?? false
-        let haveAmountErrorHint = amountHint?.isError ?? false
+        let hasDestinationErrorHint = destinationHint?.isError ?? false
+        let hasAmountErrorHint = amountHint?.isError ?? false
         
-        return !haveDestinationErrorHint && !haveAmountErrorHint && transaction != nil
+        return !hasDestinationErrorHint && !hasAmountErrorHint && transaction != nil
     }
     
     // MARK: Additional input
@@ -157,7 +157,7 @@ class SendViewModel: ViewModel, ObservableObject {
     
     var walletTotalBalanceFormatted: String {
         let amount = walletModel.wallet.amounts[self.amountToSend.type]
-        let value = getDescription(for: amount, isFiat: isFiatCalculation)
+        let value = getDescription(for: amount)
         return String(format: "send_balance_subtitle_format".localized, value)
     }
     
@@ -202,18 +202,20 @@ class SendViewModel: ViewModel, ObservableObject {
         amountText = sendAmount
     }
     
-    private func getDescription(for amount: Amount?, isFiat: Bool) -> String {
-        return isFiat ? walletModel.getFiatFormatted(for: amount) ?? ""
-            : amount?.description ?? ""
+    private func getDescription(for amount: Amount?) -> String {
+        if isFiatCalculation {
+            return walletModel.getFiatFormatted(for: amount) ?? ""
+        }
+
+        return amount?.description ?? ""
     }
     
     private func fillTotalBlockWithDefaults() {
         let dummyAmount = Amount(with: amountToSend, value: 0)
-        let feeDummyAmount = Amount(with: walletModel.wallet.blockchain, type: .coin, value: 0)
         
-        self.sendFee = getDescription(for: feeDummyAmount, isFiat: isFiatCalculation)
-        self.sendAmount = getDescription(for: dummyAmount, isFiat: isFiatCalculation)
-        self.sendTotal = getDescription(for: dummyAmount, isFiat: isFiatCalculation)
+        updateFee(amount: nil)
+        self.sendAmount = getDescription(for: dummyAmount)
+        self.sendTotal = getDescription(for: dummyAmount)
         self.sendTotalSubtitle = " "
     }
     
@@ -241,32 +243,7 @@ class SendViewModel: ViewModel, ObservableObject {
             .combineLatest($isFiatCalculation.uiPublisherWithFirst)
             .sink { [unowned self] tx, isFiatCalculation in
                 if let tx = tx {
-                    let totalAmount = tx.amount + tx.fee
-                    var totalFiatAmount: Decimal? = nil
-                    
-                    if let famount = self.walletModel.getFiat(for: tx.amount, roundingMode: .plain), let ffee = self.walletModel.getFiat(for: tx.fee, roundingMode: .plain) {
-                        totalFiatAmount = famount + ffee
-                    }
-                    
-                    let totalFiatAmountFormatted = totalFiatAmount?.currencyFormatted(code: self.ratesService.selectedCurrencyCode)
-                    
-                    if isFiatCalculation {
-                        self.sendAmount = self.walletModel.getFiatFormatted(for: tx.amount,  roundingMode: .plain) ?? ""
-                        self.sendTotal = totalFiatAmountFormatted ?? " "
-                        self.sendTotalSubtitle = tx.amount.type == tx.fee.type ?
-                            String(format: "send_total_subtitle_format".localized, totalAmount.description) :
-                            String(format: "send_total_subtitle_asset_format".localized,
-                                   tx.amount.description,
-                                   tx.fee.description)
-                    } else {
-                        self.sendAmount = tx.amount.description
-                        self.sendTotal =  (tx.amount + tx.fee).description
-                        self.sendTotalSubtitle = totalFiatAmountFormatted == nil ? " " :  String(format: "send_total_subtitle_fiat_format".localized,
-                                                                                                 totalFiatAmountFormatted!,
-                                                                                                 self.walletModel.getFiatFormatted(for: tx.fee,  roundingMode: .plain)!)
-                    }
-                    
-                    self.sendFee = self.getDescription(for: tx.fee, isFiat: isFiatCalculation)
+                    self.updateViewWith(transaction: tx)
                 } else {
                     self.fillTotalBlockWithDefaults()
                 }
@@ -407,10 +384,8 @@ class SendViewModel: ViewModel, ObservableObject {
         
         $selectedFee //update fee label
             .uiPublisher
-            .combineLatest($isFiatCalculation)
-            .sink{ [unowned self] newAmount, isFiat in
-                let feeDummyAmount = Amount(with: self.walletModel.wallet.blockchain, type: .coin, value: 0)
-                self.sendFee = self.getDescription(for: newAmount ?? feeDummyAmount, isFiat: isFiat)
+            .sink{ [unowned self] newAmount in
+                self.updateFee(amount: newAmount)
             }
             .store(in: &bag)
         
@@ -666,5 +641,78 @@ class SendViewModel: ViewModel, ObservableObject {
     
     private func setupWarnings() {
         warnings = warningsService.warnings(for: .send)
+    }
+}
+
+// MARK: - Private
+
+private extension SendViewModel {
+    func updateViewWith(transaction: BlockchainSdk.Transaction) {
+        let totalAmount = transaction.amount + transaction.fee
+        var totalFiatAmount: Decimal? = nil
+        
+        if let famount = self.walletModel.getFiat(for: transaction.amount, roundingMode: .plain),
+           let ffee = self.walletModel.getFiat(for: transaction.fee, roundingMode: .plain) {
+            totalFiatAmount = famount + ffee
+        }
+        
+        let totalFiatAmountFormatted = totalFiatAmount?.currencyFormatted(code: self.ratesService.selectedCurrencyCode)
+        
+        if isFiatCalculation {
+            self.sendAmount = self.walletModel.getFiatFormatted(for: transaction.amount,  roundingMode: .plain) ?? ""
+            self.sendTotal = totalFiatAmountFormatted ?? " "
+            self.sendTotalSubtitle = transaction.amount.type == transaction.fee.type ?
+                String(format: "send_total_subtitle_format".localized, totalAmount.description) :
+            String(
+                format: "send_total_subtitle_asset_format".localized,
+                transaction.amount.description,
+                formattedFee(amount: transaction.fee)
+            )
+        } else {
+            self.sendAmount = transaction.amount.description
+            self.sendTotal = (transaction.amount + transaction.fee).description
+
+            if let totalFiatAmountFormatted = totalFiatAmountFormatted {
+                self.sendTotalSubtitle = String(
+                    format: "send_total_subtitle_fiat_format".localized,
+                    totalFiatAmountFormatted,
+                    formattedFee(amount: transaction.fee)
+                )
+            } else {
+                self.sendTotalSubtitle = " "
+            }
+        }
+
+        self.updateFee(amount: transaction.fee)
+    }
+
+    /// If the amount will be nil then will be use dummy amount
+    func updateFee(amount: Amount?) {
+        sendFee = formattedFee(amount: amount ?? .zeroCoin(for: walletModel.wallet.blockchain))
+    }
+    
+    func formattedFee(amount: Amount) -> String {
+        let formatted: String
+        
+        if isFiatCalculation {
+            formatted = walletModel.getFiatFormatted(for: amount, roundingMode: .plain) ?? ""
+        } else {
+            formatted = amount.description
+        }
+        
+        if amount.value > 0, isFeeApproximate() {
+            return "< " + formatted
+        }
+        
+        return formatted
+    }
+    
+    func isFeeApproximate() -> Bool {
+        guard case .tron = blockchainNetwork.blockchain,
+              case .token = amountToSend.type else {
+            return false
+        }
+
+        return true
     }
 }
