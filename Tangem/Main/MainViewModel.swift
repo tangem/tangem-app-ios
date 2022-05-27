@@ -360,9 +360,7 @@ class MainViewModel: ViewModel, ObservableObject {
     func onRefresh(_ done: @escaping () -> Void) {
         if let cardModel = self.cardModel, cardModel.state.canUpdate,
            let walletModels = cardModel.walletModels, !walletModels.isEmpty {
-            let publishers = walletModels.map { $0.$updateCompletedPublisher.dropFirst() }
-            refreshCancellable = Publishers.MergeMany(publishers)
-                .collect(walletModels.count)
+            refreshCancellable = cardModel.update()
                 .receive(on: RunLoop.main)
                 .sink {[weak self] _ in
                     self?.checkPositiveBalance()
@@ -370,9 +368,9 @@ class MainViewModel: ViewModel, ObservableObject {
                     withAnimation {
                         done()
                     }
+                } receiveValue: { _ in
+                    
                 }
-            
-            cardModel.update()
         } else {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 self.totalSumBalanceViewModel.update(with: [])
@@ -381,6 +379,16 @@ class MainViewModel: ViewModel, ObservableObject {
                 }
             }
         }
+    }
+    
+    func updateCardModel() {
+        state.cardModel?.update()
+            .sink { _ in
+                
+            } receiveValue: { _ in
+                
+            }
+            .store(in: &bag)
     }
 
     func createWallet() {
