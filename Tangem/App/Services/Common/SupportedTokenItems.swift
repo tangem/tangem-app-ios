@@ -85,6 +85,11 @@ class SupportedTokenItems {
         return blockchains.filter { $0.canHandleTokens }
     }
     
+    func evmBlockchains(isTestnet: Bool) -> Set<Blockchain> {
+        let blockchains = isTestnet ? testnetBlockchains : blockchains
+        return blockchains.filter { $0.isEvm }
+    }
+    
     func loadTestnetCoins(supportedCurves: [EllipticCurve]) -> AnyPublisher<[CoinModel], Error> {
         readTestnetList()
             .map { list in
