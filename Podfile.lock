@@ -226,7 +226,7 @@ DEPENDENCIES:
   - Mobile-Buy-SDK
   - Moya
   - ScaleCodec
-  - SkeletonUI
+  - SkeletonUI (~> 1.0.7)
   - Sodium
   - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-1`)
   - Starscream (~> 4.0.4)
@@ -387,6 +387,6 @@ SPEC CHECKSUMS:
   web3swift: 93f68f5430c11a78bba2351c139d2d22f2c04b5e
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: f301cf2bfd794b8dc8337f2e80c46da3187a76f7
+PODFILE CHECKSUM: 8dd612cbbf17be6489872a615cda1a935c14b787
 
 COCOAPODS: 1.11.3
