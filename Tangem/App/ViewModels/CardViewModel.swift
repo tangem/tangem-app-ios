@@ -33,7 +33,9 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
     @Published var payId: PayIdStatus = .notSupported
     @Published private(set) var currentSecOption: SecurityManagementOption = .longTap
     @Published public var cardInfo: CardInfo
+    @Published var walletsBalanceState: WalletsBalanceState = .loaded
     
+    private var walletBalanceSubscription: AnyCancellable? = nil
     private var cardPinSettings: CardPinSettings = CardPinSettings()
     private var userPrefsService: UserPrefsService = .init()
     private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
@@ -320,6 +322,8 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
             return Empty().eraseToAnyPublisher()
         }
         
+        observeBalanceLoading()
+        
         return tryMigrateTokens()
             .flatMap { [weak self] in
                  Publishers
@@ -329,6 +333,21 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
                     .eraseToAnyPublisher()
             }
             .eraseToAnyPublisher()
+    }
+    
+    func observeBalanceLoading() {
+        guard let walletModels = self.state.walletModels else {
+            return
+        }
+        
+        self.walletsBalanceState = .inProgress
+        
+        walletBalanceSubscription = Publishers.MergeMany(walletModels.map({ $0.update() }))
+            .collect()
+            .receive(on: RunLoop.main)
+            .sink { [unowned self] _ in
+                self.walletsBalanceState = .loaded
+            }
     }
     
     func onSign(_ card: Card) {
@@ -865,5 +884,12 @@ extension CardViewModel {
                 return false
             }
         }
+    }
+}
+
+extension CardViewModel {
+    enum WalletsBalanceState {
+        case inProgress
+        case loaded
     }
 }
