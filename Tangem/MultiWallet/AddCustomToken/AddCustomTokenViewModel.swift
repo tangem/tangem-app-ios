@@ -357,7 +357,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 UIApplication.shared.endEditing()
             }
-        } else if previouslyFoundStandardToken != nil || !blockchainSupportsTokens {
+        } else if previouslyFoundStandardToken != nil || !selectedBlockchainSupportsTokens {
             decimals = ""
             symbol = ""
             name = ""
