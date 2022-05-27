@@ -313,8 +313,14 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         }
         
         let networkIds = getBlockchains(withTokenSupport: true).map { $0.networkId }
+        let requestModel = CoinsListRequestModel(
+            contractAddress: contractAddress,
+            networkIds: networkIds
+        )
+        
         return coinsService
-            .checkContractAddress(contractAddress: contractAddress, networkIds: networkIds)
+            .loadCoins(requestModel: requestModel)
+            .replaceError(with: [])
             .eraseToAnyPublisher()
     }
     
