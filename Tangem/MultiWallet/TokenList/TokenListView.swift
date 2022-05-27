@@ -41,21 +41,18 @@ struct TokenListView: View {
                     
                     PerfListDivider()
                     
-                    ForEach(viewModel.loader.items) {
+                    ForEach(viewModel.coinViewModels) {
                         CoinView(model: $0)
                             .buttonStyle(PlainButtonStyle()) //fix ios13 list item selection
                             .perfListPadding()
+                        
                         PerfListDivider()
                     }
                     
-                    if viewModel.loader.canFetchMore {
-                        HStack {
-                            Spacer()
+                    if viewModel.hasNextPage {
+                        HStack(alignment: .center) {
                             ActivityIndicatorView(color: .gray)
-                                .onAppear {
-                                    viewModel.fetch()
-                                }
-                            Spacer()
+                                .onAppear(perform: viewModel.fetch)
                         }
                     }
                     
@@ -78,7 +75,7 @@ struct TokenListView: View {
         .background(Color.clear.edgesIgnoringSafeArea(.all))
         .navigationViewStyle(.stack)
         .onAppear { viewModel.onAppear() }
-        .onDisappear { viewModel.onDissapear() }
+        .onDisappear { viewModel.onDisappear() }
         .keyboardAdaptive()
     }
     
