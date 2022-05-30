@@ -37,9 +37,11 @@ class ListDataLoader {
     private var cachedSearch: [String: [CoinModel]] = [:]
     private var lastSearchText = ""
 
+    /// Used to filter the loading of available coins
     private var walletCurves: [EllipticCurve] {
-        cardInfo?.card.walletCurves ?? []
+        cardInfo?.card.walletCurves ?? EllipticCurve.allCases
     }
+
     private var isTestnet: Bool {
         cardInfo?.isTestnet ?? false
     }
