@@ -78,10 +78,11 @@ class TotalSumBalanceViewModel: ObservableObject {
                     let formattedTotalFiatValue = totalFiatValue.currencyFormatted(code: currency.code)
                     
                     let attributedString = NSMutableAttributedString(string: formattedTotalFiatValue)
-                    attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 28, weight: .semibold), range: NSRange(location: 0, length: attributedString.length - 1))
+                    attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 28, weight: .semibold), range: NSRange(location: 0, length: attributedString.length))
                     
-                    let fraction = "\(formattedTotalFiatValue.split(separator: Character(totalFiatValue.decimalSeparator())).last ?? Substring(""))"
-                    attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 20, weight: .semibold), range: NSString(string: formattedTotalFiatValue).range(of: fraction))
+                    let decimalLocation = NSString(string: formattedTotalFiatValue).range(of: totalFiatValue.decimalSeparator()).location + 1
+                    let countSymbolsAfterDecimal = "\(formattedTotalFiatValue.split(separator: Character(totalFiatValue.decimalSeparator())).last ?? Substring(""))".count
+                    attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 20, weight: .semibold), range: NSRange(location: decimalLocation, length: countSymbolsAfterDecimal))
                     
                     self.totalFiatValueString = attributedString
                 }
