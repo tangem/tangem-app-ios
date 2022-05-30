@@ -56,6 +56,10 @@ class OnramperService {
     }
     
     private func currencyId(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> String? {
+        guard blockchain.supportsOnramper else {
+            return nil
+        }
+        
         var networkIds: [String?] = []
         
         switch amountType {
@@ -172,6 +176,15 @@ extension URLQueryItem {
 }
 
 fileprivate extension Blockchain {
+    var supportsOnramper: Bool {
+        switch self {
+        case .arbitrum:
+            return false
+        default:
+            return true
+        }
+    }
+    
     var onramperNetworkId: String? {
         switch self {
         case .avalanche:
@@ -188,6 +201,8 @@ fileprivate extension Blockchain {
             return "Polygon"
         case .solana:
             return "Solana"
+        case .tron:
+            return "Tron"
         default:
             return nil
         }
