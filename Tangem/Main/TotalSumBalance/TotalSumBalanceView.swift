@@ -42,6 +42,7 @@ struct TotalSumBalanceView: View {
             AttributedTextView(viewModel.totalFiatValueString)
                 .foregroundColor(Color.tangemGrayDark6)
                 .skeleton(with: viewModel.isLoading, size: CGSize(width: 100, height: 25))
+                .appearance(type: .gradient(.linear, color: .tangemSkeletonGray, background: .tangemSkeletonGray2, radius: 1, angle: .zero))
                 .shape(type: .rounded(.radius(3, style: .circular)))
                 .frame(height: 33)
             
