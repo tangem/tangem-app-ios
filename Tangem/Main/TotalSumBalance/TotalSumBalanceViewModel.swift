@@ -14,50 +14,94 @@ class TotalSumBalanceViewModel: ObservableObject {
     
     @Published var isLoading: Bool = false
     @Published var currencyType: String = ""
-    @Published var totalFiatValueString: String = ""
+    @Published var totalFiatValueString: NSAttributedString = NSAttributedString(string: "")
     @Published var isFailed: Bool = false
     
     private var bag = Set<AnyCancellable>()
-    private var tokenItems: [TokenItemViewModel] = []
+    private var tokenItemViewModels: [TokenItemViewModel] = []
     
     init() {
         currencyType = currencyRateService.selectedCurrencyCode
     }
     
+    func beginUpdates() {
+        DispatchQueue.main.async {
+            self.isLoading = true
+            self.isFailed = false
+        }
+    }
+    
     func update(with tokens: [TokenItemViewModel]) {
-        self.tokenItems = tokens
+        tokenItemViewModels = tokens
         refresh()
     }
     
-    func refresh() {
+    func updateIfNeeded(with tokens: [TokenItemViewModel]) {
+        if tokenItemViewModels == tokens || isLoading {
+            return
+        }
+        tokenItemViewModels = tokens
+        refresh(loadingAnimationEnable: false)
+    }
+    
+    func disableLoading(withError: Bool = false) {
+        withAnimation(Animation.spring().delay(0.5)) {
+            if withError {
+                self.isFailed = true
+            }
+            self.isLoading = false
+        }
+    }
+    
+    private func refresh(loadingAnimationEnable: Bool = true) {
         isFailed = false
-        isLoading = true
         currencyType = currencyRateService.selectedCurrencyCode
         currencyRateService
             .baseCurrencies()
             .receive(on: RunLoop.main)
             .sink { _ in
-                
-            } receiveValue: { currencies in
-                guard let currency = currencies.first(where: { $0.code == self.currencyRateService.selectedCurrencyCode }) else { return }
+            } receiveValue: { [weak self] currencies in
+                guard let self = self,
+                        let currency = currencies.first(where: { $0.code == self.currencyRateService.selectedCurrencyCode })
+                else {
+                    return
+                }
+                var hasError = false
                 var totalFiatValue: Decimal = 0.0
-                self.tokenItems.forEach { token in
+                self.tokenItemViewModels.forEach { token in
                     if token.state.isSuccesfullyLoaded {
                         totalFiatValue += token.fiatValue
                     } else {
-                        self.isFailed = true
+                        hasError = true
                     }
                 }
                 
-                self.totalFiatValueString = totalFiatValue.currencyFormatted(code: currency.code)
+                if hasError {
+                    self.totalFiatValueString = NSMutableAttributedString(string: "—")
+                } else {
+                    self.totalFiatValueString = self.addAttributeForBalance(totalFiatValue, withCurrencyCode: currency.code)
+                }
                 
-                self.disableLoading()
+                if loadingAnimationEnable {
+                    self.disableLoading(withError: hasError)
+                } else {
+                    self.isFailed = hasError
+                }
             }.store(in: &bag)
     }
     
-    func disableLoading() {
-        withAnimation(Animation.spring().delay(0.5)) {
-            self.isLoading = false
-        }
+    private func addAttributeForBalance(_ balance: Decimal, withCurrencyCode: String) -> NSAttributedString {
+        let formattedTotalFiatValue = balance.currencyFormatted(code: withCurrencyCode)
+        
+        let attributedString = NSMutableAttributedString(string: formattedTotalFiatValue)
+        let allStringRange = NSRange(location: 0, length: attributedString.length)
+        attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 28, weight: .semibold), range: allStringRange)
+        
+        let decimalLocation = NSString(string: formattedTotalFiatValue).range(of: balance.decimalSeparator()).location + 1
+        let symbolsAfterDecimal = formattedTotalFiatValue.count - decimalLocation
+        let rangeAfterDecimal = NSRange(location: decimalLocation, length: symbolsAfterDecimal)
+        
+        attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 20, weight: .semibold), range: rangeAfterDecimal)
+        return attributedString
     }
 }
