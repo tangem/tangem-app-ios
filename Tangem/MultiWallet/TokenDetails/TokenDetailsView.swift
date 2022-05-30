@@ -65,7 +65,7 @@ struct TokenDetailsView: View {
     
     @ViewBuilder
     var exchangeCryptoButton: some View {
-        if viewModel.canSellCrypto {
+        if viewModel.canSellCrypto && viewModel.canBuyCrypto {
             TangemButton.vertical(title: "wallet_button_trade",
                                   systemImage: "arrow.up.arrow.down",
                                   action: viewModel.tradeCryptoAction)
@@ -79,7 +79,14 @@ struct TokenDetailsView: View {
                                 .cancel()
                             ])
             })
+        } else if viewModel.canSellCrypto {
+            TangemButton.vertical(title: "wallet_button_sell_crypto",
+                                  systemImage: "arrow.down",
+                                  action: viewModel.sellCryptoAction)
+            .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
+                                           isDisabled: !viewModel.canSellCrypto))
         } else {
+            // Keep the BUY button last so that it will appear when everything is disabled
             TangemButton.vertical(title: "wallet_button_topup",
                                   systemImage: "arrow.up",
                                   action: viewModel.buyCryptoAction)
