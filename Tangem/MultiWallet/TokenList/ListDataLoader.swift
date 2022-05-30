@@ -129,6 +129,7 @@ private extension ListDataLoader {
             .blockchains(for: walletCurves, isTestnet: isTestnet)
             .map { $0.networkId }
 
+        let searchText = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         let requestModel = CoinsListRequestModel(
             networkIds: networkIds,
             searchText: searchText,
