@@ -99,6 +99,14 @@ extension Color {
         return Color("tangem_gray_light7")
     }
     
+    @nonobjc static var tangemSkeletonGray: Color {
+        return Color("tangem_skeleton_gray")
+    }
+    
+    @nonobjc static var tangemSkeletonGray2: Color {
+        return Color("tangem_skeleton_gray2")
+    }
+    
     //MARK: Background
     
     @nonobjc static var tangemBgGray: Color {
