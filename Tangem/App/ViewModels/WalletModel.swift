@@ -577,6 +577,15 @@ extension WalletModel {
             }
         }
         
+        var failureDescription: String? {
+            switch self {
+            case .failed(let error):
+                return error.localizedDescription
+            default:
+                return nil
+            }
+        }
+        
         fileprivate var canCreateOrPurgeWallet: Bool {
             switch self {
             case .failed, .loading, .created:
