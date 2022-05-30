@@ -7,13 +7,15 @@
 //
 
 import SwiftUI
+import SkeletonUI
 
 struct TokenItemView: View {
     let item: TokenItemViewModel
+    var isLoading: Bool
     
     private var secondaryText: String {
         if item.state.isNoAccount {
-            return "wallet_error_no_account".localized
+            return item.rate.isEmpty ? "token_item_no_rate".localized : item.rate
         }
         if item.state.isBlockchainUnreachable {
             return "wallet_balance_blockchain_unreachable".localized
@@ -30,13 +32,15 @@ struct TokenItemView: View {
         return item.rate
     }
     
+    private var balance: String {
+        return item.balance.isEmpty ? Decimal(0).currencyFormatted(code: item.currencySymbol) : item.balance
+    }
+    
     private var accentColor: Color {
-        if item.state.errorDescription == nil
-            && !item.hasTransactionInProgress
-            && !item.state.isLoading {
-            return .tangemGrayDark
+        if item.state.failureDescription != nil {
+            return .tangemWarning
         }
-        return .tangemWarning
+        return .tangemGrayDark
     }
     
     var body: some View {
@@ -45,32 +49,31 @@ struct TokenItemView: View {
                 .saturation(item.isTestnet ? 0.0 : 1.0)
                 .id(UUID())
             
-            VStack(alignment: .leading, spacing: 6) {
+            VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .firstTextBaseline) {
                     Text(item.name)
+                        .font(.system(size: 15, weight: .medium))
                         .layoutPriority(2)
                         .fixedSize(horizontal: false, vertical: true)
+                        .skeleton(with: isLoading, size: CGSize(width: 70, height: 11))
+                        .shape(type: .rounded(.radius(3, style: .circular)))
                     
                     Spacer()
                     
-                    Text(item.balance)
+                    Text(item.state.errorDescription != nil ? "—" : item.fiatBalance)
+                        .font(.system(size: 15, weight: .regular))
                         .multilineTextAlignment(.trailing)
                         .truncationMode(.middle)
                         .fixedSize(horizontal: false, vertical: true)
+                        .skeleton(with: isLoading, size: CGSize(width: 50, height: 11))
+                        .shape(type: .rounded(.radius(3, style: .circular)))
                 }
                 .lineLimit(2)
                 .minimumScaleFactor(0.8)
-                .foregroundColor(Color.tangemGrayDark6)
-                .font(Font.system(size: 17.0, weight: .medium, design: .default))
+                .foregroundColor(.tangemGrayDark6)
                 
                 
                 HStack(alignment: .firstTextBaseline, spacing: 5.0) {
-                    if item.state.errorDescription != nil  || item.hasTransactionInProgress {
-                        Image(systemName: "exclamationmark.circle")
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 10.0, height: 10.0)
-                    }
                     if item.isCustom {
                         CustomTokenBadge()
                             .layoutPriority(-1)
@@ -78,17 +81,20 @@ struct TokenItemView: View {
                         Text(secondaryText)
                             .fixedSize(horizontal: false, vertical: true)
                             .lineLimit(1)
+                            .skeleton(with: isLoading, size: CGSize(width: 50, height: 11))
+                            .shape(type: .rounded(.radius(3, style: .circular)))
                     }
                     
                     Spacer()
                     
-                    Text(item.fiatBalance)
+                    Text(item.state.failureDescription != nil ? "—" : balance)
                         .fixedSize(horizontal: false, vertical: true)
                         .lineLimit(1)
-                        .foregroundColor(Color.tangemGrayDark)
+                        .skeleton(with: isLoading, size: CGSize(width: 50, height: 11))
+                        .shape(type: .rounded(.radius(3, style: .circular)))
                 }
+                .font(.system(size: 13, weight: .regular))
                 .frame(minHeight: 20)
-                .font(Font.system(size: 14.0, weight: .medium, design: .default))
                 .foregroundColor(accentColor)
             }
         }
