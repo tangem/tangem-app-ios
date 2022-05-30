@@ -37,8 +37,8 @@ class ListDataLoader {
     private var cachedSearch: [String: [CoinModel]] = [:]
     private var lastSearchText = ""
 
+    /// Use to load all available coins
     private var walletCurves: [EllipticCurve] {
-        /// If we don't have the card info we will use all of elliptic curves to load all available coins
         cardInfo?.card.walletCurves ?? EllipticCurve.allCases
     }
 
