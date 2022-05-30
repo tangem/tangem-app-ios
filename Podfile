@@ -25,10 +25,10 @@ target 'Tangem' do
   pod 'HDWalletKit', :git => 'https://github.com/lazutkin-andrey/hdwallet.git', :tag => '0.3.12'
   #pod 'HDWalletKit', :path => '../HDWallet'
   
-  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'develop-116'
+  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'develop-117'
   #pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
   
-  pod 'web3swift', :git => 'https://github.com/lazutkin-andrey/web3swift.git', :tag => '2.2.8'
+  pod 'web3swift', :git => 'https://github.com/lazutkin-andrey/web3swift.git', :tag => '2.2.9'
   #pod 'web3swift', :path => '../web3swift'
   
   pod 'BitcoinCore.swift', :git => 'https://github.com/lazutkin-andrey/bitcoincore.git', :tag => '0.0.16'
@@ -49,6 +49,8 @@ target 'Tangem' do
   pod 'ScaleCodec'
   pod 'Mobile-Buy-SDK' # Shopify
   pod 'AlertToast', :git => 'https://github.com/tangem/AlertToast'
+  
+  pod 'SkeletonUI', '~> 1.0.7'
   
   target 'TangemTests' do
     inherit! :search_paths
