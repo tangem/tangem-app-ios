@@ -36,10 +36,18 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     @Published var addButtonDisabled = false
     @Published var isLoading = false
     
-    @Published private(set) var foundStandardToken: CoinModel?
+    var canEnterTokenDetails: Bool {
+        foundStandardToken == nil && selectedBlockchainSupportsTokens
+    }
+    
+    private var selectedBlockchainSupportsTokens: Bool {
+        let blockchain = try? enteredBlockchain()
+        return blockchain?.canHandleTokens ?? true
+    }
     
     private var bag: Set<AnyCancellable> = []
     private var blockchainByName: [String: Blockchain] = [:]
+    private var foundStandardToken: CoinModel?
     
     override init() {
         super.init()
@@ -170,7 +178,9 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         
         if withTokenSupport {
             let blockchainsWithTokens = supportedTokenItems.blockchainsWithTokens(isTestnet: cardInfo.isTestnet)
-            return blockchains.filter { blockchainsWithTokens.contains($0) }
+            let evmBlockchains = supportedTokenItems.evmBlockchains(isTestnet: cardInfo.isTestnet)
+            let blockchainsToDisplay = blockchainsWithTokens.union(evmBlockchains)
+            return blockchains.filter { blockchainsToDisplay.contains($0) }
         } else {
             return blockchains
         }
@@ -313,8 +323,14 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         }
         
         let networkIds = getBlockchains(withTokenSupport: true).map { $0.networkId }
+        let requestModel = CoinsListRequestModel(
+            contractAddress: contractAddress,
+            networkIds: networkIds
+        )
+        
         return coinsService
-            .checkContractAddress(contractAddress: contractAddress, networkIds: networkIds)
+            .loadCoins(requestModel: requestModel)
+            .replaceError(with: [])
             .eraseToAnyPublisher()
     }
     
@@ -347,7 +363,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 UIApplication.shared.endEditing()
             }
-        } else if previouslyFoundStandardToken != nil {
+        } else if previouslyFoundStandardToken != nil || !selectedBlockchainSupportsTokens {
             decimals = ""
             symbol = ""
             name = ""
