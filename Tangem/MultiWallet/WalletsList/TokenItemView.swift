@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import SkeletonUI
 
 struct TokenItemView: View {
     let item: TokenItemViewModel
@@ -55,8 +54,7 @@ struct TokenItemView: View {
                         .font(.system(size: 15, weight: .medium))
                         .layoutPriority(2)
                         .fixedSize(horizontal: false, vertical: true)
-                        .skeleton(with: isLoading, size: CGSize(width: 70, height: 11))
-                        .shape(type: .rounded(.radius(3, style: .circular)))
+                        .skeletonable(isShown: isLoading, size: CGSize(width: 70, height: 11))
                     
                     Spacer()
                     
@@ -65,8 +63,7 @@ struct TokenItemView: View {
                         .multilineTextAlignment(.trailing)
                         .truncationMode(.middle)
                         .fixedSize(horizontal: false, vertical: true)
-                        .skeleton(with: isLoading, size: CGSize(width: 50, height: 11))
-                        .shape(type: .rounded(.radius(3, style: .circular)))
+                        .skeletonable(isShown: isLoading, size: CGSize(width: 50, height: 11))
                 }
                 .lineLimit(2)
                 .minimumScaleFactor(0.8)
@@ -81,8 +78,7 @@ struct TokenItemView: View {
                         Text(secondaryText)
                             .fixedSize(horizontal: false, vertical: true)
                             .lineLimit(1)
-                            .skeleton(with: isLoading, size: CGSize(width: 50, height: 11))
-                            .shape(type: .rounded(.radius(3, style: .circular)))
+                            .skeletonable(isShown: isLoading, size: CGSize(width: 50, height: 11))
                     }
                     
                     Spacer()
@@ -90,8 +86,7 @@ struct TokenItemView: View {
                     Text(item.state.failureDescription != nil ? "—" : balance)
                         .fixedSize(horizontal: false, vertical: true)
                         .lineLimit(1)
-                        .skeleton(with: isLoading, size: CGSize(width: 50, height: 11))
-                        .shape(type: .rounded(.radius(3, style: .circular)))
+                        .skeletonable(isShown: isLoading, size: CGSize(width: 50, height: 11))
                 }
                 .font(.system(size: 13, weight: .regular))
                 .frame(minHeight: 20)
