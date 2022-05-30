@@ -14,7 +14,7 @@ class TotalSumBalanceViewModel: ObservableObject {
     
     @Published var isLoading: Bool = false
     @Published var currencyType: String = ""
-    @Published var totalFiatValueString: String = ""
+    @Published var totalFiatValueString: NSAttributedString = NSAttributedString(string: "")
     @Published var isFailed: Bool = false
     
     private var bag = Set<AnyCancellable>()
@@ -73,9 +73,17 @@ class TotalSumBalanceViewModel: ObservableObject {
                 }
                 
                 if hasError {
-                    self.totalFiatValueString = "—"
+                    self.totalFiatValueString = NSMutableAttributedString(string: "—")
                 } else {
-                    self.totalFiatValueString = totalFiatValue.currencyFormatted(code: currency.code)
+                    let formattedTotalFiatValue = totalFiatValue.currencyFormatted(code: currency.code)
+                    
+                    let attributedString = NSMutableAttributedString(string: formattedTotalFiatValue)
+                    attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 28, weight: .semibold), range: NSRange(location: 0, length: attributedString.length - 1))
+                    
+                    let fraction = "\(formattedTotalFiatValue.split(separator: Character(totalFiatValue.decimalSeparator())).last ?? Substring(""))"
+                    attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 20, weight: .semibold), range: NSString(string: formattedTotalFiatValue).range(of: fraction))
+                    
+                    self.totalFiatValueString = attributedString
                 }
                 
                 if loadingAnimationEnable {
