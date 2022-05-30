@@ -62,7 +62,10 @@ class TotalSumBalanceViewModel: ObservableObject {
             .sink { _ in
             } receiveValue: { [weak self] currencies in
                 guard let self = self,
-                        let currency = currencies.first(where: { $0.code == self.currencyRateService.selectedCurrencyCode }) else { return }
+                        let currency = currencies.first(where: { $0.code == self.currencyRateService.selectedCurrencyCode })
+                else {
+                    return
+                }
                 var hasError = false
                 var totalFiatValue: Decimal = 0.0
                 self.tokenItemViewModels.forEach { token in
