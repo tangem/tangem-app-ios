@@ -36,7 +36,7 @@ struct TokensView: View {
                             .padding([.top, .bottom], 15)
                             .contentShape(Rectangle())
                     }
-                    .buttonStyle(PlainButtonStyle())
+                    .buttonStyle(TangemTokenButtonStyle())
                     
                     if items.firstIndex(of: item) != items.count - 1 {
                         Separator(height: 1, padding: 0, color: Color.tangemBgGray2)
