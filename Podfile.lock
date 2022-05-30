@@ -179,6 +179,7 @@ PODS:
   - ScaleCodec (0.2.1):
     - BigInt (~> 5.2)
   - secp256k1.swift (0.1.4)
+  - SkeletonUI (1.0.7)
   - Sodium (0.9.1)
   - Solana.Swift (1.1):
     - secp256k1.swift
@@ -214,7 +215,7 @@ DEPENDENCIES:
   - BigInt
   - BinanceChain (from `https://github.com/lazutkin-andrey/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/lazutkin-andrey/bitcoincore.git`, tag `0.0.16`)
-  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-116`)
+  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-117`)
   - DeviceGuru
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -225,6 +226,7 @@ DEPENDENCIES:
   - Mobile-Buy-SDK
   - Moya
   - ScaleCodec
+  - SkeletonUI (~> 1.0.7)
   - Sodium
   - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-1`)
   - Starscream (~> 4.0.4)
@@ -233,7 +235,7 @@ DEPENDENCIES:
   - SwiftyJSON
   - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-152`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.6.2`)
-  - web3swift (from `https://github.com/lazutkin-andrey/web3swift.git`, tag `2.2.8`)
+  - web3swift (from `https://github.com/lazutkin-andrey/web3swift.git`, tag `2.2.9`)
 
 SPEC REPOS:
   trunk:
@@ -263,6 +265,7 @@ SPEC REPOS:
     - PromisesObjC
     - ScaleCodec
     - secp256k1.swift
+    - SkeletonUI
     - Sodium
     - Starscream
     - stellar-ios-mac-sdk
@@ -284,7 +287,7 @@ EXTERNAL SOURCES:
     :tag: 0.0.16
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-116
+    :tag: develop-117
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
@@ -302,7 +305,7 @@ EXTERNAL SOURCES:
     :tag: 1.6.2
   web3swift:
     :git: https://github.com/lazutkin-andrey/web3swift.git
-    :tag: 2.2.8
+    :tag: 2.2.9
 
 CHECKOUT OPTIONS:
   AlertToast:
@@ -316,7 +319,7 @@ CHECKOUT OPTIONS:
     :tag: 0.0.16
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-116
+    :tag: develop-117
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
@@ -334,7 +337,7 @@ CHECKOUT OPTIONS:
     :tag: 1.6.2
   web3swift:
     :git: https://github.com/lazutkin-andrey/web3swift.git
-    :tag: 2.2.8
+    :tag: 2.2.9
 
 SPEC CHECKSUMS:
   Alamofire: 1c4fb5369c3fe93d2857c780d8bbe09f06f97e7c
@@ -369,6 +372,7 @@ SPEC CHECKSUMS:
   PromisesObjC: 68159ce6952d93e17b2dfe273b8c40907db5ba58
   ScaleCodec: 5d7d0439940c600f49babad6ea265a09377c404b
   secp256k1.swift: a7e7a214f6db6ce5db32cc6b2b45e5c4dd633634
+  SkeletonUI: 18fbcd8698480432852d7e30a65b8d5e138266f0
   Sodium: 23d11554ecd556196d313cf6130d406dfe7ac6da
   Solana.Swift: c86f550e70aeaf1f2171435ef95dca16fc55c950
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
@@ -383,6 +387,6 @@ SPEC CHECKSUMS:
   web3swift: 93f68f5430c11a78bba2351c139d2d22f2c04b5e
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 9ba972bc8bb5b29f64c5800bd0aa140c8be27cbb
+PODFILE CHECKSUM: 532376ea0b1f790a011dfda22661687ca5bfc203
 
 COCOAPODS: 1.11.3
