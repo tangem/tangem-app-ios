@@ -75,16 +75,7 @@ class TotalSumBalanceViewModel: ObservableObject {
                 if hasError {
                     self.totalFiatValueString = NSMutableAttributedString(string: "—")
                 } else {
-                    let formattedTotalFiatValue = totalFiatValue.currencyFormatted(code: currency.code)
-                    
-                    let attributedString = NSMutableAttributedString(string: formattedTotalFiatValue)
-                    attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 28, weight: .semibold), range: NSRange(location: 0, length: attributedString.length))
-                    
-                    let decimalLocation = NSString(string: formattedTotalFiatValue).range(of: totalFiatValue.decimalSeparator()).location + 1
-                    let countSymbolsAfterDecimal = "\(formattedTotalFiatValue.split(separator: Character(totalFiatValue.decimalSeparator())).last ?? Substring(""))".count
-                    attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 20, weight: .semibold), range: NSRange(location: decimalLocation, length: countSymbolsAfterDecimal))
-                    
-                    self.totalFiatValueString = attributedString
+                    self.totalFiatValueString = self.addAttributeForBalance(totalFiatValue, withCurrencyCode: currency.code)
                 }
                 
                 if loadingAnimationEnable {
@@ -93,5 +84,20 @@ class TotalSumBalanceViewModel: ObservableObject {
                     self.isFailed = hasError
                 }
             }.store(in: &bag)
+    }
+    
+    private func addAttributeForBalance(_ balance: Decimal, withCurrencyCode: String) -> NSAttributedString {
+        let formattedTotalFiatValue = balance.currencyFormatted(code: withCurrencyCode)
+        
+        let attributedString = NSMutableAttributedString(string: formattedTotalFiatValue)
+        let allStringRange = NSRange(location: 0, length: attributedString.length)
+        attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 28, weight: .semibold), range: allStringRange)
+        
+        let decimalLocation = NSString(string: formattedTotalFiatValue).range(of: balance.decimalSeparator()).location + 1
+        let symbolsAfterDecimal = "\(formattedTotalFiatValue.split(separator: Character(balance.decimalSeparator())).last ?? Substring(""))"
+        let rangeAfterDecimal = NSRange(location: decimalLocation, length: symbolsAfterDecimal.count)
+        
+        attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 20, weight: .semibold), range: rangeAfterDecimal)
+        return attributedString
     }
 }
