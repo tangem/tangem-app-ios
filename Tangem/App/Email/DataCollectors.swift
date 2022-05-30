@@ -55,12 +55,14 @@ struct SendScreenDataCollector: EmailDataCollector {
         let cardInfo = sendViewModel.cardViewModel.cardInfo
         var data = collectData(from: cardInfo)
         data.append(.separator(.dashes))
+
+        data.append(EmailCollectedData(type: .card(.blockchain),
+                                       data: sendViewModel.walletModel.blockchainNetwork.blockchain.currencySymbol))
+        
         switch sendViewModel.amountToSend.type {
-        case .coin:
-            data.append(EmailCollectedData(type: .card(.blockchain), data: sendViewModel.amountToSend.currencySymbol))
         case .token(let token):
             data.append(EmailCollectedData(type: .card(.token), data: token.symbol))
-        default:
+        case .coin, .reserve:
             break
         }
         
