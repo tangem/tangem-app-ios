@@ -7,7 +7,7 @@
 //
 
 import SwiftUI
-import Combine
+import SkeletonUI
 
 struct TotalSumBalanceView: View {
     @ObservedObject var viewModel: TotalSumBalanceViewModel
@@ -17,9 +17,9 @@ struct TotalSumBalanceView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 0) {
-                Text("main_page_balance".localized.uppercased())
+                Text("main_page_balance".localized)
                     .lineLimit(1)
-                    .font(Font.system(size: 14, weight: .medium))
+                    .font(.system(size: 13, weight: .medium))
                     .foregroundColor(Color.tangemTextGray)
                 
                 Spacer()
@@ -30,26 +30,20 @@ struct TotalSumBalanceView: View {
                     HStack(spacing: 6) {
                         Text(viewModel.currencyType)
                             .lineLimit(1)
-                            .font(Font.system(size: 16, weight: .medium))
-                            .foregroundColor(Color.tangemGrayDark)
+                            .font(.system(size: 13, weight: .medium))
                         Image("tangemArrowDown")
-                            .foregroundColor(Color.tangemTextGray)
                     }
+                    .foregroundColor(.tangemGrayLight7)
                 }
                 .buttonStyle(PlainButtonStyle())
             }
             .padding(.bottom, 4)
             
-            if viewModel.isLoading {
-                ActivityIndicatorView(isAnimating: true, style: .medium, color: .gray)
-                    .frame(height: 33)
-            } else {
-                Text(viewModel.totalFiatValueString)
-                    .lineLimit(1)
-                    .font(Font.system(size: 28, weight: .semibold))
-                    .foregroundColor(Color.tangemGrayDark6)
-                    .frame(height: 33)
-            }
+            AttributedTextView(viewModel.totalFiatValueString)
+                .foregroundColor(Color.tangemGrayDark6)
+                .skeleton(with: viewModel.isLoading, size: CGSize(width: 100, height: 25))
+                .shape(type: .rounded(.radius(3, style: .circular)))
+                .frame(height: 33)
             
             if viewModel.isFailed {
                 Text("main_processing_full_amount".localized)
