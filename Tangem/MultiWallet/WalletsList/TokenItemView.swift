@@ -37,12 +37,10 @@ struct TokenItemView: View {
     }
     
     private var accentColor: Color {
-        if item.state.errorDescription == nil
-            && !item.hasTransactionInProgress
-            && !item.state.isLoading {
-            return .tangemGrayDark
+        if item.state.failureDescription != nil {
+            return .tangemWarning
         }
-        return .tangemWarning
+        return .tangemGrayDark
     }
     
     var body: some View {
@@ -97,7 +95,7 @@ struct TokenItemView: View {
                 }
                 .font(.system(size: 13, weight: .regular))
                 .frame(minHeight: 20)
-                .foregroundColor(.tangemTextGray)
+                .foregroundColor(accentColor)
             }
         }
     }
