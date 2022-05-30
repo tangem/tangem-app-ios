@@ -56,6 +56,7 @@ struct TokenItemView: View {
                         .layoutPriority(2)
                         .fixedSize(horizontal: false, vertical: true)
                         .skeleton(with: isLoading, size: CGSize(width: 70, height: 11))
+                        .appearance(type: .gradient(.linear, color: .tangemSkeletonGray, background: .tangemSkeletonGray2, radius: 1, angle: .zero))
                         .shape(type: .rounded(.radius(3, style: .circular)))
                     
                     Spacer()
@@ -66,6 +67,7 @@ struct TokenItemView: View {
                         .truncationMode(.middle)
                         .fixedSize(horizontal: false, vertical: true)
                         .skeleton(with: isLoading, size: CGSize(width: 50, height: 11))
+                        .appearance(type: .gradient(.linear, color: .tangemSkeletonGray, background: .tangemSkeletonGray2, radius: 1, angle: .zero))
                         .shape(type: .rounded(.radius(3, style: .circular)))
                 }
                 .lineLimit(2)
@@ -82,6 +84,7 @@ struct TokenItemView: View {
                             .fixedSize(horizontal: false, vertical: true)
                             .lineLimit(1)
                             .skeleton(with: isLoading, size: CGSize(width: 50, height: 11))
+                            .appearance(type: .gradient(.linear, color: .tangemSkeletonGray, background: .tangemSkeletonGray2, radius: 1, angle: .zero))
                             .shape(type: .rounded(.radius(3, style: .circular)))
                     }
                     
@@ -91,6 +94,7 @@ struct TokenItemView: View {
                         .fixedSize(horizontal: false, vertical: true)
                         .lineLimit(1)
                         .skeleton(with: isLoading, size: CGSize(width: 50, height: 11))
+                        .appearance(type: .gradient(.linear, color: .tangemSkeletonGray, background: .tangemSkeletonGray2, radius: 1, angle: .zero))
                         .shape(type: .rounded(.radius(3, style: .circular)))
                 }
                 .font(.system(size: 13, weight: .regular))
