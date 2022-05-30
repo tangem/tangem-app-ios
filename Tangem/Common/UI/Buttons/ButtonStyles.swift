@@ -249,3 +249,10 @@ struct ButtonStyles_Previews: PreviewProvider {
         }
     }
 }
+
+struct TangemTokenButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .background(configuration.isPressed ? Color.tangemHoverButton : Color.white)
+    }
+}
