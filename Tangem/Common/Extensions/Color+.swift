@@ -107,6 +107,10 @@ extension Color {
         return Color("tangem_skeleton_gray2")
     }
     
+    @nonobjc static var tangemHoverButton: Color {
+        return Color("tangem_btn_hover_bg")
+    }
+    
     //MARK: Background
     
     @nonobjc static var tangemBgGray: Color {
