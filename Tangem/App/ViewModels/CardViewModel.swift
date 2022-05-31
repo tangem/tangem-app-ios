@@ -747,7 +747,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
     
     func remove(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) {
         guard canRemove(amountType: amountType, blockchainNetwork: blockchainNetwork) else {
-            assertionFailure("\(blockchainNetwork.blockchain) can't remove")
+            assertionFailure("\(blockchainNetwork.blockchain) can't be remove")
             return
         }
         
