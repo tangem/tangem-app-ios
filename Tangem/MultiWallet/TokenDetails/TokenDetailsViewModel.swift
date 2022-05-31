@@ -99,6 +99,10 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         return wallet?.canSend(amountType: self.amountType) ?? false
     }
     
+    var canRemove: Bool {
+        walletModel?.removeState(amountType: amountType) != .impossible
+    }
+    
     var sendBlockedReason: String? {
         guard let wallet = walletModel?.wallet,
               let currentAmount = wallet.amounts[amountType], amountType.isToken else { return nil }
@@ -140,10 +144,6 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         return blockchainNetwork.blockchain.tokenDisplayName
     }
     
-    var canRemove: Bool {
-        walletModel?.removeState(amountType: amountType) != .impossible
-    }
-    
     @Published var txIndexToPush: Int? = nil
     @Published var unsupportedTokenWarning: String? = nil
     @Published var solanaRentWarning: String? = nil
@@ -183,12 +183,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     }
     
     func onRemove() {
-        guard let walletModel = walletModel else {
-            assertionFailure("WalletModel didn't found")
-            return
-        }
-        
-        switch walletModel.removeState(amountType: amountType) {
+        switch walletModel?.removeState(amountType: amountType) {
         case .possible:
             deleteToken()
             
@@ -201,7 +196,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
                 primaryButton: .default(Text("common_ok"))
             )
             
-        case .impossible:
+        case .none, .impossible:
             assertionFailure("Unimplemented case")
         }
     }
@@ -350,6 +345,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         
         didRequestDissmiss.send(())
         
+        /// Added the delay to display the deletion in the main screen
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             self.card.remove(
                 amountType: self.amountType,
