@@ -73,7 +73,7 @@ struct TokenItemView: View {
                 HStack(alignment: .firstTextBaseline, spacing: 5.0) {
                     if item.isCustom {
                         CustomTokenBadge()
-                            .layoutPriority(-1)
+                            .padding(.top, 4)
                     } else {
                         Text(secondaryText)
                             .fixedSize(horizontal: false, vertical: true)
