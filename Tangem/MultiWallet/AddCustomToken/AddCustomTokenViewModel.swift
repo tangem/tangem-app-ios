@@ -68,6 +68,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 
                 return self.findToken(contractAddress: contractAddress)
             }
+            .receive(on: RunLoop.main)
             .sink { [unowned self] currencyModels in
                 self.didFinishTokenSearch(currencyModels)
             }
