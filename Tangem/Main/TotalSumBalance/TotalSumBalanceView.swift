@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import SkeletonUI
 
 struct TotalSumBalanceView: View {
     @ObservedObject var viewModel: TotalSumBalanceViewModel
@@ -41,8 +40,7 @@ struct TotalSumBalanceView: View {
             
             AttributedTextView(viewModel.totalFiatValueString)
                 .foregroundColor(Color.tangemGrayDark6)
-                .skeleton(with: viewModel.isLoading, size: CGSize(width: 100, height: 25))
-                .shape(type: .rounded(.radius(3, style: .circular)))
+                .skeletonable(isShown: viewModel.isLoading, size: CGSize(width: 100, height: 25))
                 .frame(height: 33)
             
             if viewModel.isFailed {
