@@ -13,9 +13,6 @@ struct TokenItemView: View {
     var isLoading: Bool
     
     private var secondaryText: String {
-        if item.state.isNoAccount {
-            return "—"
-        }
         if item.state.isBlockchainUnreachable {
             return "wallet_balance_blockchain_unreachable".localized
         }
@@ -71,17 +68,15 @@ struct TokenItemView: View {
     
     var body: some View {
         HStack(alignment: .center) {
-            ZStack {
-                TokenIconView(with: item.amountType, blockchain: item.blockchainNetwork.blockchain)
-                    .background(Color.tangemBgGray)
-                    .clipShape(Circle())
-                    .saturation(item.isTestnet ? 0.0 : 1.0)
-                    .overlay(
-                        customTokenMark
-                            .frame(width: 40, height: 40, alignment: .topTrailing)
-                            .offset(x: 1, y: -2)
-                    )
-            }
+            TokenIconView(with: item.amountType, blockchain: item.blockchainNetwork.blockchain)
+                .background(Color.tangemBgGray)
+                .clipShape(Circle())
+                .saturation(item.isTestnet ? 0.0 : 1.0)
+                .overlay(
+                    customTokenMark
+                        .frame(width: 42, height: 42, alignment: .topTrailing)
+                        .offset(x: 1, y: -2)
+                )
             
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .firstTextBaseline) {
