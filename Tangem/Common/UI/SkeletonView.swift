@@ -19,7 +19,7 @@ public struct SkeletonView: View {
     private let primary: Color = .tangemSkeletonGray2
     private let backgroundOpacity: Double = 1
 
-    private let activeAnimation = Animation.linear(duration: 1.0).repeatForever(autoreverses: false)
+    private let activeAnimation = Animation.linear(duration: 1).repeatForever(autoreverses: false)
     private let stopAnimation = Animation.linear(duration: 0)
 
     public init() {}
@@ -73,13 +73,13 @@ public struct SkeletonView: View {
 private extension SkeletonView {
     private enum Constants {
         static let idlePoints = LinearGradientPoints(
-            start: UnitPoint.point(position: -1.0, radius: 3.0),
-            end: UnitPoint.point(position: 0.0, radius: 3.0)
+            start: UnitPoint.point(position: -1, radius: 0),
+            end: UnitPoint.point(position: 0, radius: 0)
         )
 
         static let animationPoints = LinearGradientPoints(
-            start: UnitPoint.point(position: 1.0, radius: 3.0),
-            end: UnitPoint.point(position: 2.0, radius: 2.0)
+            start: UnitPoint.point(position: 1, radius: 0),
+            end: UnitPoint.point(position: 2, radius: 2)
         )
     }
 }
