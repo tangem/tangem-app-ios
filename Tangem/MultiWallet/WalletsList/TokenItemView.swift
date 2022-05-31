@@ -84,8 +84,8 @@ struct TokenItemView: View {
                     Spacer()
                     
                     Text(item.state.failureDescription != nil ? "—" : balance)
-                        .fixedSize(horizontal: false, vertical: true)
                         .lineLimit(1)
+                        .fixedSize()
                         .skeletonable(isShown: isLoading, size: CGSize(width: 50, height: 11))
                 }
                 .font(.system(size: 13, weight: .regular))
