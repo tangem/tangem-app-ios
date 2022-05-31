@@ -332,39 +332,39 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
         updateTokensViewModels()
     }
     
-    func canRemove(amountType: Amount.AmountType) -> Bool {
+    func removeState(amountType: Amount.AmountType) -> RemoveState {
         if !state.isSuccesfullyLoaded {
-            return false
+            return .impossible
         }
         
         if let token = amountType.token, token == defaultToken {
-            return false
+            return .impossible
         }
         
         if amountType == .coin, wallet.blockchain == defaultBlockchain {
-            return false
-        }
-        
-        if let amount = wallet.amounts[amountType], !amount.isZero {
-            return false
+            return .impossible
         }
         
         if wallet.hasPendingTx(for: amountType) {
-            return false
+            return .impossible
         }
         
-        if amountType == .coin && (!wallet.isEmpty || walletManager.cardTokens.count != 0) {
-            return false
+        if amountType == .coin && !walletManager.cardTokens.isEmpty {
+            return .hasTokens
         }
         
-        return true
+        if let amount = wallet.amounts[amountType], !amount.isZero {
+            return .hasAmount
+        }
+        
+        return .possible
     }
     
-    
     func removeToken(_ token: Token, for cardId: String) -> Bool {
-//        guard canRemove(amountType: .token(value: token)) else {
-//            return false
-//        }
+        guard removeState(amountType: .token(value: token)) != .impossible else {
+            assertionFailure("Delete token isn't possible")
+            return false
+        }
 
         walletManager.removeToken(token)
         tokenItemsRepository.remove(token, blockchainNetwork: blockchainNetwork, for: cardId)
@@ -594,5 +594,11 @@ extension WalletModel {
                 return true
             }
         }
+    }
+}
+
+extension WalletModel {
+    enum RemoveState: Hashable {
+        case possible, hasTokens, hasAmount, impossible
     }
 }
