@@ -41,6 +41,30 @@ extension CommonCoinsService: CoinsService {
             .map { list -> [CoinModel] in
                 list.coins.map { CoinModel(with: $0, baseImageURL: list.imageHost) }
             }
+            .map { coinModels in
+                guard let contractAddress = requestModel.contractAddress else {
+                    return coinModels
+                }
+                
+                return coinModels.compactMap { coinModel in
+                    let items = coinModel.items.filter {
+                        let itemContractAddress = $0.contractAddress ?? ""
+                        return itemContractAddress.caseInsensitiveCompare(contractAddress) == .orderedSame
+                    }
+                    
+                    guard !items.isEmpty else {
+                        return nil
+                    }
+                    
+                    return CoinModel(
+                        id: coinModel.id,
+                        name: coinModel.name,
+                        symbol: coinModel.symbol,
+                        imageURL: coinModel.imageURL,
+                        items: items
+                    )
+                }
+            }
             .eraseToAnyPublisher()
     }
 }
