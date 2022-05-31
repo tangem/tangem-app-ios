@@ -140,6 +140,10 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         return blockchainNetwork.blockchain.tokenDisplayName
     }
     
+    var canRemove: Bool {
+        walletModel?.removeState(amountType: amountType) != .impossible
+    }
+    
     @Published var txIndexToPush: Int? = nil
     @Published var unsupportedTokenWarning: String? = nil
     @Published var solanaRentWarning: String? = nil
@@ -154,10 +158,6 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     private var rentWarningSubscription: AnyCancellable?
     private var refreshCancellable: AnyCancellable? = nil
     private lazy var testnetBuyCrypto: TestnetBuyCryptoService = .init()
-    
-    private var canDelete: Bool {
-        return walletModel?.canRemove(amountType: amountType) ?? false
-    }
     
     init(blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType) {
         self.blockchainNetwork = blockchainNetwork
@@ -182,13 +182,27 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
             }
     }
     
-    func tryToRemoveToken() {
-        if canDelete {
-            deleteAmount()
-        } else {
-            alert = createDeleteWarningAlert() { [weak self] in
-                self?.deleteAmount()
-            }
+    func onRemove() {
+        guard let walletModel = walletModel else {
+            assertionFailure("WalletModel didn't found")
+            return
+        }
+        
+        switch walletModel.removeState(amountType: amountType) {
+        case .possible:
+            deleteToken()
+            
+        case .hasAmount:
+            showHasAmountAlert()
+
+        case .hasTokens:
+            alert = warningAlert(
+                message: "token_details_delete_warning_hasTokens",
+                primaryButton: .default(Text("common_ok"))
+            )
+            
+        case .impossible:
+            assertionFailure("Unimplemented case")
         }
     }
     
@@ -328,7 +342,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
             .store(in: &bag)
     }
     
-    private func deleteAmount() {
+    private func deleteToken() {
         guard let walletModel = walletModel else {
             assertionFailure("WalletModel didn't found")
             return
@@ -344,13 +358,27 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         }
     }
     
-    private func createDeleteWarningAlert(delete: @escaping () -> ()) -> AlertBinder {
-        let okButton = Alert.Button.default(Text("common_ok"), action: delete)
+    private func showHasAmountAlert() {
+        let message: String
         
+        if amountType == .coin {
+            message = "token_details_delete_warning_coinHasAmount"
+        } else {
+            message = "token_details_delete_warning_tokenHasAmount"
+        }
+
+        let deleteButton = Alert.Button.destructive(Text("common_ok"), action: { [weak self] in
+            self?.deleteToken()
+        })
+
+        alert = warningAlert(message: message, primaryButton: deleteButton)
+    }
+
+    private func warningAlert(message: String, primaryButton: Alert.Button) -> AlertBinder {
         let alert = Alert(
             title: Text("common_attention"),
-            message: Text("token_details_delete_warning_message"),
-            primaryButton: okButton,
+            message: Text(message.localized),
+            primaryButton: primaryButton,
             secondaryButton: Alert.Button.cancel()
         )
         
