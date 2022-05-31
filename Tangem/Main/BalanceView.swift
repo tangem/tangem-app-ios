@@ -71,25 +71,20 @@ struct BalanceView: View {
             
             Color.clear.frame(height: 16)
 
-            HStack(alignment: .firstTextBaseline) {
+            HStack {
                 Text(balanceViewModel.name)
-                    .font(Font.system(size: 20.0, weight: .bold, design: .default))
-                    .foregroundColor(Color.tangemGrayDark6)
-                    .minimumScaleFactor(0.8)
-                    .lineLimit(2)
-                    .fixedSize(horizontal: false, vertical: true)
                 Spacer()
-                Text(balanceViewModel.balance)
-                    .font(Font.system(size: 20.0, weight: .bold, design: .default))
-                    .foregroundColor(Color.tangemGrayDark6)
-                    .minimumScaleFactor(0.8)
+                Text(balanceViewModel.balanceFormatted)
                     .multilineTextAlignment(.trailing)
                     .truncationMode(.middle)
-                    .lineLimit(2)
-                    .fixedSize(horizontal: false, vertical: true)
             }
+            .font(Font.system(size: 20.0, weight: .bold, design: .default))
+            .foregroundColor(Color.tangemGrayDark6)
+            .minimumScaleFactor(0.8)
+            .lineLimit(2)
             .padding(.horizontal, 24.0)
             .padding(.bottom, 8)
+            .fixedSize(horizontal: false, vertical: true)
             
             
             HStack(alignment: .firstTextBaseline, spacing: 5.0) {
