@@ -218,13 +218,12 @@ struct TokenDetailsView: View {
     }
     
     private var trailingButton: some View {
-        Button(action: {
-            viewModel.tryToRemoveToken()
-        }, label: {
+        Button(action: viewModel.onRemove) {
             Text("wallet_remove_token")
-                .foregroundColor(.tangemGrayDark6)
-                .font(.system(size: 18))
-        })
+                .foregroundColor(viewModel.canRemove ? .tangemGrayDark6 : .tangemGrayLight5)
+                .font(.system(size: 17))
+        }
+        .disabled(!viewModel.canRemove)
     }
 }
 
