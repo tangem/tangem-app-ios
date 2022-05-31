@@ -349,7 +349,7 @@ class MainViewModel: ViewModel, ObservableObject {
             totalSumBalanceViewModel.beginUpdates()
             refreshCancellable = cardModel.update()
                 .receive(on: RunLoop.main)
-                .sink {_ in
+                .sink { _ in
                     print("♻️ Wallet model loading state changed")
                     withAnimation {
                         done()
