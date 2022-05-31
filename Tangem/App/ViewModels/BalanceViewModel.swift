@@ -19,7 +19,8 @@ struct BalanceViewModel {
     let secondaryFiatBalance: String
     let secondaryName: String
     
-    var balanceFormatted: String { // .truncationMode(.middle) in iOS13 produces glitches with empty string transition
+    // .truncationMode(.middle) in iOS13 produces glitches with empty string transition
+    var balanceFormatted: String {
         balance.isEmpty ? " " : balance
     }
 }
