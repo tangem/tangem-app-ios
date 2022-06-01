@@ -346,8 +346,7 @@ class MainViewModel: ViewModel, ObservableObject {
     func onRefresh(_ done: @escaping () -> Void) {
         if let cardModel = self.cardModel, cardModel.state.canUpdate,
            let walletModels = cardModel.walletModels, !walletModels.isEmpty {
-            totalSumBalanceViewModel.beginUpdates()
-            refreshCancellable = cardModel.update()
+            refreshCancellable = cardModel.refresh()
                 .receive(on: RunLoop.main)
                 .sink { _ in
                     print("♻️ Wallet model loading state changed")
