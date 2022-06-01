@@ -27,8 +27,6 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     @Published var blockchainsPicker: PickerModel = .empty
     @Published var derivationsPicker: PickerModel = .empty
     
-    @Published var customDerivationsVisible: Bool = true
-    @Published var customDerivationsDisabled: Bool = false
     
     @Published var error: AlertBinder?
     
@@ -39,6 +37,13 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     var canEnterTokenDetails: Bool {
         foundStandardToken == nil && selectedBlockchainSupportsTokens
     }
+
+    var showDerivationPaths: Bool {
+        cardHasDifferentDerivationPaths && blockchainHasDifferentDerivationPaths
+    }
+    
+    @Published private var cardHasDifferentDerivationPaths: Bool = true
+    @Published private var blockchainHasDifferentDerivationPaths: Bool = true
     
     private var selectedBlockchainSupportsTokens: Bool {
         let blockchain = try? enteredBlockchain()
@@ -68,6 +73,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 
                 return self.findToken(contractAddress: contractAddress)
             }
+            .receive(on: RunLoop.main)
             .sink { [unowned self] currencyModels in
                 self.didFinishTokenSearch(currencyModels)
             }
@@ -211,7 +217,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         }
         
         let uniqueDerivations = Set(evmDerivationPaths.map(\.1))
-        self.customDerivationsVisible = uniqueDerivations.count > 1
+        self.cardHasDifferentDerivationPaths = uniqueDerivations.count > 1
         let newDerivationSelection = self.derivationsPicker.selection
         self.derivationsPicker = .init(items: [defaultItem] + evmDerivationPaths, selection: newDerivationSelection)
     }
@@ -392,14 +398,14 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     private func didChangeBlockchain(_ newBlockchainName: String) {
         let newBlockchain = blockchainByName[newBlockchainName]
        
-        let derivationDisabled: Bool
+        let blockchainHasDerivationPaths: Bool
         if let newBlockchain = newBlockchain {
-            derivationDisabled = !newBlockchain.isEvm
+            blockchainHasDerivationPaths = newBlockchain.isEvm
         } else {
-            derivationDisabled = false
+            blockchainHasDerivationPaths = true
         }
       
-        customDerivationsDisabled = derivationDisabled
+        blockchainHasDifferentDerivationPaths = blockchainHasDerivationPaths
     }
 }
 
