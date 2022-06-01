@@ -323,6 +323,7 @@ class MainViewModel: ViewModel, ObservableObject {
                     self.totalSumBalanceViewModel.beginUpdates()
                     self.isLoadingTokensBalance = true
                 case .loaded:
+                    self.checkPositiveBalance()
                     self.updateTotalBalanceTokenList()
                     self.isLoadingTokensBalance = false
                 }
@@ -348,8 +349,7 @@ class MainViewModel: ViewModel, ObservableObject {
             totalSumBalanceViewModel.beginUpdates()
             refreshCancellable = cardModel.update()
                 .receive(on: RunLoop.main)
-                .sink {[weak self] _ in
-                    self?.checkPositiveBalance()
+                .sink { _ in
                     print("♻️ Wallet model loading state changed")
                     withAnimation {
                         done()
