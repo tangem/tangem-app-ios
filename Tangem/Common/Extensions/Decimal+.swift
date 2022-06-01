@@ -21,4 +21,11 @@ extension Decimal {
         //formatter.roundingMode = .down
         return formatter.string(from: self as NSDecimalNumber) ?? "\(self) \(code)"
     }
+    
+    func decimalSeparator() -> String {
+        let formatter = NumberFormatter()
+        formatter.locale = Locale.current
+        formatter.numberStyle = .currency
+        return formatter.decimalSeparator
+    }
 }
