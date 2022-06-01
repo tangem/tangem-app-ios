@@ -215,7 +215,7 @@ DEPENDENCIES:
   - BigInt
   - BinanceChain (from `https://github.com/lazutkin-andrey/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/lazutkin-andrey/bitcoincore.git`, tag `0.0.16`)
-  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-116`)
+  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-119`)
   - DeviceGuru
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -235,7 +235,7 @@ DEPENDENCIES:
   - SwiftyJSON
   - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-152`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.6.2`)
-  - web3swift (from `https://github.com/lazutkin-andrey/web3swift.git`, tag `2.2.8`)
+  - web3swift (from `https://github.com/lazutkin-andrey/web3swift.git`, tag `2.2.9`)
 
 SPEC REPOS:
   trunk:
@@ -287,7 +287,7 @@ EXTERNAL SOURCES:
     :tag: 0.0.16
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-116
+    :tag: develop-119
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
@@ -305,7 +305,7 @@ EXTERNAL SOURCES:
     :tag: 1.6.2
   web3swift:
     :git: https://github.com/lazutkin-andrey/web3swift.git
-    :tag: 2.2.8
+    :tag: 2.2.9
 
 CHECKOUT OPTIONS:
   AlertToast:
@@ -319,7 +319,7 @@ CHECKOUT OPTIONS:
     :tag: 0.0.16
   BlockchainSdk:
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-116
+    :tag: develop-119
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
@@ -337,7 +337,7 @@ CHECKOUT OPTIONS:
     :tag: 1.6.2
   web3swift:
     :git: https://github.com/lazutkin-andrey/web3swift.git
-    :tag: 2.2.8
+    :tag: 2.2.9
 
 SPEC CHECKSUMS:
   Alamofire: 1c4fb5369c3fe93d2857c780d8bbe09f06f97e7c
@@ -387,6 +387,6 @@ SPEC CHECKSUMS:
   web3swift: 93f68f5430c11a78bba2351c139d2d22f2c04b5e
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: 8dd612cbbf17be6489872a615cda1a935c14b787
+PODFILE CHECKSUM: 1dd1554ee2bf4ff8b80dc20b98588ccc0d9dbe0c
 
 COCOAPODS: 1.11.3

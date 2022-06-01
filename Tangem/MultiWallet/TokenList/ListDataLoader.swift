@@ -37,9 +37,11 @@ class ListDataLoader {
     private var cachedSearch: [String: [CoinModel]] = [:]
     private var lastSearchText = ""
 
+    /// Used to filter the loading of available coins
     private var walletCurves: [EllipticCurve] {
-        cardInfo?.card.walletCurves ?? []
+        cardInfo?.card.walletCurves ?? EllipticCurve.allCases
     }
+
     private var isTestnet: Bool {
         cardInfo?.isTestnet ?? false
     }
@@ -129,6 +131,7 @@ private extension ListDataLoader {
             .blockchains(for: walletCurves, isTestnet: isTestnet)
             .map { $0.networkId }
 
+        let searchText = searchText.trimmed()
         let requestModel = CoinsListRequestModel(
             networkIds: networkIds,
             searchText: searchText,
