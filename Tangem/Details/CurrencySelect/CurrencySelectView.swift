@@ -43,6 +43,7 @@ struct CurrencySelectView: View {
                             .contentShape(Rectangle())
                             .onTapGesture {
                                 viewModel.onSelect(currency)
+                                presentationMode.wrappedValue.dismiss()
                             }
                         }
                     }
