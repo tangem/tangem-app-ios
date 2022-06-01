@@ -12,40 +12,6 @@ struct TokenItemView: View {
     let item: TokenItemViewModel
     var isLoading: Bool
     
-    private var secondaryText: String {
-        if item.state.isBlockchainUnreachable {
-            return "wallet_balance_blockchain_unreachable".localized
-        }
-        
-        if item.hasTransactionInProgress {
-            return  "wallet_balance_tx_in_progress".localized
-        }
-        
-        if item.state.isLoading {
-            return "wallet_balance_loading".localized
-        }
-        
-        if item.isCustom {
-            return "token_item_no_rate".localized
-        }
-        
-        return item.rate.isEmpty ? "token_item_no_rate".localized : item.rate
-    }
-    
-    private var balance: String {
-        if item.state.failureDescription != nil {
-            return "—"
-        }
-        return item.balance.isEmpty ? Decimal(0).currencyFormatted(code: item.currencySymbol) : item.balance
-    }
-    
-    private var fiatBalance: String {
-        if item.isCustom {
-            return "—"
-        }
-        return item.state.errorDescription != nil ? "—" : item.fiatBalance
-    }
-    
     private var accentColor: Color {
         if item.state.failureDescription != nil {
             return .tangemWarning
@@ -88,7 +54,7 @@ struct TokenItemView: View {
                     
                     Spacer()
                     
-                    Text(fiatBalance)
+                    Text(item.displayFiatBalanceText)
                         .font(.system(size: 15, weight: .regular))
                         .multilineTextAlignment(.trailing)
                         .truncationMode(.middle)
@@ -101,14 +67,14 @@ struct TokenItemView: View {
                 
                 
                 HStack(alignment: .firstTextBaseline, spacing: 5.0) {
-                    Text(secondaryText)
+                    Text(item.displayRateText)
                         .fixedSize(horizontal: false, vertical: true)
                         .lineLimit(1)
                         .skeletonable(isShown: isLoading, size: CGSize(width: 50, height: 11))
                     
                     Spacer()
                     
-                    Text(balance)
+                    Text(item.displayBalanceText)
                         .fixedSize(horizontal: false, vertical: true)
                         .lineLimit(1)
                         .fixedSize()
