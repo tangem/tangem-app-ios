@@ -46,7 +46,6 @@ struct TokenItemView: View {
         HStack(alignment: .center) {
             TokenIconView(with: item.amountType, blockchain: item.blockchainNetwork.blockchain)
                 .saturation(item.isTestnet ? 0.0 : 1.0)
-                .id(UUID())
             
             VStack(alignment: .leading, spacing: 0) {
                 HStack(alignment: .firstTextBaseline) {
