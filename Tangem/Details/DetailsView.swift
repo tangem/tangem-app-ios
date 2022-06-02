@@ -136,9 +136,12 @@ struct DetailsView: View {
             
             Section(header: HeaderView(text: "details_section_title_app".localized), footer: FooterView()) {
                 
-                if !viewModel.cardModel.cardInfo.isMultiWallet {
-                    NavigationLink(destination: CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel(), dismissAfterSelection: false),
-                                   tag: NavigationTag.currency, selection: $selection) {
+                if !viewModel.isMultiWallet {
+                    let destination = CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel(), dismissAfterSelection: false)
+                    
+                    NavigationLink(destination: destination,
+                                   tag: NavigationTag.currency,
+                                   selection: $selection) {
                         DetailsRowView(title: "details_row_title_currency".localized,
                                        subtitle: viewModel.currencyRateService.selectedCurrencyCode)
                         
