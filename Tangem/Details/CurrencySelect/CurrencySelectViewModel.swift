@@ -42,7 +42,7 @@ class CurrencySelectViewModel: ViewModel, ObservableObject {
     }
     
     func onSelect(_ currency: CurrenciesResponse.Currency) {
-       objectWillChange.send()
+        objectWillChange.send()
         currencyRateService.selectedCurrencyCode = currency.code
     }
 }
