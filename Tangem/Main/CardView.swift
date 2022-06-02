@@ -14,6 +14,10 @@ struct CardView: View {
 	var width: CGFloat
 	var currentCardNumber: Int?
     var totalCards: Int?
+    
+    var hasBackupCards: Bool {
+        return currentCardNumber != nil && totalCards != nil
+    }
 	
     var body: some View {
 		ZStack(alignment: .bottomLeading) {
@@ -23,14 +27,14 @@ struct CardView: View {
 					.aspectRatio(contentMode: .fit)
                     .transition(.opacity)
                     .frame(minWidth: width, maxWidth: width, minHeight: 190, alignment: .center)
-					.padding(.vertical, 6.0)
+					.padding(.vertical, hasBackupCards ? 16.0 : 6.0)
 			} else {
 				Color.tangemGrayLight4
                     .transition(.opacity)
 					.opacity(0.5)
 					.frame(width: width, height: 190, alignment: .center)
 					.cornerRadius(6)
-					.padding(.vertical, 6.0)
+                    .padding(.vertical, hasBackupCards ? 16.0 : 6.0)
 			}
 			if let currentCardNumber = currentCardNumber, let totalCards = totalCards  {
 				Text(String(format: "card_label_number_format".localized, currentCardNumber, totalCards))
