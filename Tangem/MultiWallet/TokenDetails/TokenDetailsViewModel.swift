@@ -194,7 +194,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
             showHasAmountAlert()
         case .hasTokens:
             alert = warningAlert(
-                message: "token_details_delete_warning_hasTokens",
+                message: "token_details_delete_warning_has_tokens",
                 primaryButton: .default(Text("common_ok"))
             )
             
@@ -360,9 +360,9 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         let message: String
         
         if amountType == .coin {
-            message = "token_details_delete_warning_coinHasAmount"
+            message = "token_details_delete_warning_coin_has_amount"
         } else {
-            message = "token_details_delete_warning_tokenHasAmount"
+            message = "token_details_delete_warning_token_has_amount"
         }
 
         let deleteButton = Alert.Button.destructive(Text("common_ok"), action: { [weak self] in
