@@ -33,7 +33,7 @@ extension Blockchain {
         case .polkadot: return "polkadot"
         case .kusama: return "kusama"
         case .tron: return "tron"
-        case .arbitrum: return "arbitrum"
+        case .arbitrum: return "arbitrum-one"
         }
     }
     
