@@ -335,12 +335,32 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
             .eraseToAnyPublisher()
     }
     
-    func observeBalanceLoading() {
+    func refresh() -> AnyPublisher<Never, Never> {
+        guard state.canUpdate else {
+            return Empty().eraseToAnyPublisher()
+        }
+        
+        observeBalanceLoading(showProgressLoading: false)
+        
+        return tryMigrateTokens()
+            .flatMap { [weak self] in
+                 Publishers
+                    .MergeMany(self?.state.walletModels?.map { $0.update() } ?? [])
+                    .collect()
+                    .ignoreOutput()
+                    .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    func observeBalanceLoading(showProgressLoading: Bool = true) {
         guard let walletModels = self.state.walletModels else {
             return
         }
         
-        self.walletsBalanceState = .inProgress
+        if showProgressLoading {
+            self.walletsBalanceState = .inProgress
+        }
         
         walletBalanceSubscription = Publishers.MergeMany(walletModels.map({ $0.update() }))
             .collect()
