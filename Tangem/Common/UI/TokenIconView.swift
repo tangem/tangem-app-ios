@@ -13,7 +13,7 @@ import SwiftUI
 
 struct TokenIconView: View {
     let tokenItem: TokenItem
-    var size: CGSize = .init(width: 42, height: 42)
+    var size: CGSize = .init(width: 40, height: 40)
     
     var body: some View {
         KFImage(tokenItem.imageURL)
