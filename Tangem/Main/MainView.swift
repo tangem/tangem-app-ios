@@ -157,7 +157,7 @@ struct MainView: View {
                                                                      ]),
                            isActive: $navigation.mainToSellCrypto)
             
-            NavigationLink(destination: CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel()),
+            NavigationLink(destination: CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel(), dismissAfterSelection: true),
                            isActive: $navigation.currencyChangeView)
             
             //            NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(isFromMain: true)),
