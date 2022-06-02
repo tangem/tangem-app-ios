@@ -23,7 +23,7 @@ struct TokenItemView: View {
         if item.isCustom {
             Circle()
                 .foregroundColor(Color.white)
-                .frame(width: 15, height: 15)
+                .frame(width: 13, height: 13)
                 .overlay(
                     Circle()
                         .foregroundColor(Color.tangemTextGray)
@@ -35,13 +35,11 @@ struct TokenItemView: View {
     var body: some View {
         HStack(alignment: .center) {
             TokenIconView(with: item.amountType, blockchain: item.blockchainNetwork.blockchain)
-                .background(Color.tangemBgGray)
-                .clipShape(Circle())
                 .saturation(item.isTestnet ? 0.0 : 1.0)
                 .overlay(
                     customTokenMark
-                        .frame(width: 42, height: 42, alignment: .topTrailing)
-                        .offset(x: 1, y: -2)
+                        .frame(width: 40, height: 40, alignment: .topTrailing)
+                        .offset(x: 1, y: -1)
                 )
             
             VStack(alignment: .leading, spacing: 0) {
@@ -75,6 +73,7 @@ struct TokenItemView: View {
                     Spacer()
                     
                     Text(item.displayBalanceText)
+                        .foregroundColor(.tangemGrayDark)
                         .fixedSize(horizontal: false, vertical: true)
                         .lineLimit(1)
                         .fixedSize()
