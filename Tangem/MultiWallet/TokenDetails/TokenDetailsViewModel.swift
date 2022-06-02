@@ -186,10 +186,8 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         switch walletModel?.removeState(amountType: amountType) {
         case .possible:
             deleteToken()
-            
         case .hasAmount:
             showHasAmountAlert()
-
         case .hasTokens:
             alert = warningAlert(
                 message: "token_details_delete_warning_hasTokens",
