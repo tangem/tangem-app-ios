@@ -45,7 +45,7 @@ struct TokenItemViewModel: Identifiable, Equatable, Comparable {
     }
     
     var displayFiatBalanceText: String {
-        if isCustom {
+        if rate.isEmpty {
             return "—"
         }
         return state.errorDescription != nil ? "—" : fiatBalance
@@ -62,10 +62,6 @@ struct TokenItemViewModel: Identifiable, Equatable, Comparable {
         
         if state.isLoading {
             return "wallet_balance_loading".localized
-        }
-        
-        if isCustom {
-            return "token_item_no_rate".localized
         }
         
         return rate.isEmpty ? "token_item_no_rate".localized : rate
