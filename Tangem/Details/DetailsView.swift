@@ -264,11 +264,12 @@ struct DetailsView: View {
                 let destination = WebViewContainer(url: cardTouURL, title: "details_row_title_card_tou".localized)
                     .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
                 
-                NavigationLink(destination: destination,
-                               tag: NavigationTag.cardTermsOfUse, selection: $selection) {
-                    DetailsRowView(title: "details_row_title_card_tou".localized,
-                                   subtitle: "")
-                    
+                NavigationLink(
+                    destination: destination,
+                    tag: NavigationTag.cardTermsOfUse,
+                    selection: $selection
+                ) {
+                    DetailsRowView(title: "details_row_title_card_tou".localized, subtitle: "")
                 }
             }
             
