@@ -15,7 +15,7 @@ class TotalSumBalanceViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var currencyType: String = ""
     @Published var totalFiatValueString: NSAttributedString = NSAttributedString(string: "")
-    @Published var isFailed: Bool = false
+    @Published var error: TotalBalanceError = .none
     
     private var bag = Set<AnyCancellable>()
     private var tokenItemViewModels: [TokenItemViewModel] = []
@@ -27,7 +27,7 @@ class TotalSumBalanceViewModel: ObservableObject {
     func beginUpdates() {
         DispatchQueue.main.async {
             self.isLoading = true
-            self.isFailed = false
+            self.error = .none
         }
     }
     
@@ -44,17 +44,15 @@ class TotalSumBalanceViewModel: ObservableObject {
         refresh(loadingAnimationEnable: false)
     }
     
-    func disableLoading(withError: Bool = false) {
+    func disableLoading(withError: TotalBalanceError = .none) {
         withAnimation(Animation.spring().delay(0.5)) {
-            if withError {
-                self.isFailed = true
-            }
+            self.error = withError
             self.isLoading = false
         }
     }
     
     private func refresh(loadingAnimationEnable: Bool = true) {
-        isFailed = false
+        error = .none
         currencyType = currencyRateService.selectedCurrencyCode
         currencyRateService
             .baseCurrencies()
@@ -66,26 +64,32 @@ class TotalSumBalanceViewModel: ObservableObject {
                 else {
                     return
                 }
-                var hasError = false
+                var hasError: TotalBalanceError = .none
                 var totalFiatValue: Decimal = 0.0
-                self.tokenItemViewModels.forEach { token in
+                for token in self.tokenItemViewModels {
                     if token.state.isSuccesfullyLoaded {
+                        if token.rate.isEmpty && !token.isCustom && !token.state.isNoAccount {
+                            hasError = .imposibleCalculateAmount
+                            break
+                        }
                         totalFiatValue += token.fiatValue
                     } else {
-                        hasError = true
+                        hasError = .someNetworkUnreachable
+                        break
                     }
                 }
                 
-                if hasError {
-                    self.totalFiatValueString = NSMutableAttributedString(string: "—")
-                } else {
+                switch hasError {
+                case .none:
                     self.totalFiatValueString = self.addAttributeForBalance(totalFiatValue, withCurrencyCode: currency.code)
+                case .someNetworkUnreachable, .imposibleCalculateAmount:
+                    self.totalFiatValueString = NSMutableAttributedString(string: "—")
                 }
                 
                 if loadingAnimationEnable {
                     self.disableLoading(withError: hasError)
                 } else {
-                    self.isFailed = hasError
+                    self.error = hasError
                 }
             }.store(in: &bag)
     }
@@ -103,5 +107,13 @@ class TotalSumBalanceViewModel: ObservableObject {
         
         attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 20, weight: .semibold), range: rangeAfterDecimal)
         return attributedString
+    }
+}
+
+extension TotalSumBalanceViewModel {
+    enum TotalBalanceError {
+        case none
+        case imposibleCalculateAmount
+        case someNetworkUnreachable
     }
 }
