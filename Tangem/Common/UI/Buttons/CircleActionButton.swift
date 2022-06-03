@@ -51,6 +51,7 @@ struct CircleActionButton: View {
 			}
             .overlay(!isDisabled ? Color.clear : Color.white.opacity(0.4))
 		})
+        .buttonStyle(PlainButtonStyle())
     }
     
     private func playVerifyAnimation() {
