@@ -48,7 +48,12 @@ struct TokenItemViewModel: Identifiable, Equatable, Comparable {
         if rate.isEmpty {
             return "—"
         }
-        return state.errorDescription != nil ? "—" : fiatBalance
+        
+        if state.isNoAccount {
+            return fiatBalance
+        }
+        
+        return state.failureDescription != nil ? "—" : fiatBalance
     }
     
     var displayRateText: String {
