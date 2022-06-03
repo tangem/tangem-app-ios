@@ -144,7 +144,6 @@ struct DetailsView: View {
                                    selection: $selection) {
                         DetailsRowView(title: "details_row_title_currency".localized,
                                        subtitle: viewModel.currencyRateService.selectedCurrencyCode)
-                        
                     }
                 }
                 
