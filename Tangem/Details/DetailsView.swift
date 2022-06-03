@@ -229,14 +229,17 @@ struct DetailsView: View {
     private var secondSection: some View {
         Section(header: HeaderView(text: "details_section_title_app".localized), footer: FooterView()) {
             if !viewModel.isMultiWallet {
-                    let destination = CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel(), dismissAfterSelection: false)
-                    
-                    NavigationLink(destination: destination,
-                                   tag: NavigationTag.currency,
-                                   selection: $selection) {
-                        DetailsRowView(title: "details_row_title_currency".localized,
-                                       subtitle: viewModel.currencyRateService.selectedCurrencyCode)
-                   }
+                let destination = CurrencySelectView(
+                    viewModel: viewModel.assembly.makeCurrencySelectViewModel(),
+                    dismissAfterSelection: false
+                )
+                
+                NavigationLink(destination: destination,
+                               tag: NavigationTag.currency,
+                               selection: $selection) {
+                    DetailsRowView(title: "details_row_title_currency".localized,
+                                   subtitle: viewModel.currencyRateService.selectedCurrencyCode)
+                }
             }
 
             NavigationLink(
