@@ -188,6 +188,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
                     if case let .failure(error) = result {
                         if case let .noAccount(noAccountMessage) = (error as? WalletError) {
                             self.state = .noAccount(message: noAccountMessage)
+                            self.loadRates()
                         } else {
                             self.state = .failed(error: error.detailedError)
                             Analytics.log(error: error)
@@ -216,8 +217,8 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
         return newUpdatePublisher.eraseToAnyPublisher()
     }
     
-    func currencyId(for amount: Amount) -> String? {
-        switch amount.type {
+    func currencyId(for amount: Amount.AmountType) -> String? {
+        switch amount {
         case .coin, .reserve:
             return walletManager.wallet.blockchain.currencyId
         case .token(let token):
@@ -226,8 +227,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     }
     
     func getRate(for amountType: Amount.AmountType) -> Decimal {
-        if let amount = wallet.amounts[amountType],
-           let currencyId = self.currencyId(for: amount),
+        if let currencyId = self.currencyId(for: amountType),
            let rate = rates[currencyId] {
             return rate
         }
@@ -238,8 +238,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     func getRateFormatted(for amountType: Amount.AmountType) -> String {
         var rateString = ""
         
-        if let amount = wallet.amounts[amountType],
-           let currencyId = self.currencyId(for: amount),
+        if let currencyId = self.currencyId(for: amountType),
            let rate = rates[currencyId] {
             rateString = rate.currencyFormatted(code: currencyRateService.selectedCurrencyCode)
         }
@@ -271,7 +270,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     
     func getFiat(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> Decimal? {
         if let amount = amount {
-            return getFiat(for: amount.value, currencyId: currencyId(for: amount), roundingMode: roundingMode)
+            return getFiat(for: amount.value, currencyId: currencyId(for: amount.type), roundingMode: roundingMode)
         }
         return nil
     }
@@ -292,7 +291,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     func getCrypto(for amount: Amount?) -> Decimal? {
         guard
             let amount = amount,
-            let currencyId = self.currencyId(for: amount)
+            let currencyId = self.currencyId(for: amount.type)
         else {
             return nil
         }
@@ -376,7 +375,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     }
     
     func getFiatBalance(for type: Amount.AmountType) -> String {
-        return getFiatFormatted(for: wallet.amounts[type]) ?? ""
+        return getFiatFormatted(for: wallet.amounts[type]) ?? Decimal(0).currencyFormatted(code: currencyRateService.selectedCurrencyCode)
     }
     
     func startUpdatingTimer() {
