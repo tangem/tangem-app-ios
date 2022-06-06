@@ -188,7 +188,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
             return
         }
         
-        switch walletModel.removeState(amountType: amountType) {
+        switch walletModel.getRemovalState(amountType: amountType) {
         case .able:
             deleteToken()
         case .unable:
