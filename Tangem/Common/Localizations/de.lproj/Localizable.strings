@@ -487,8 +487,10 @@ URL: %@";
 
 // MARK: Token details
 
-"token_details_delete_warning_has_tokens" = "You want to delete the blockchain to which the tokens are linked. To delete a blockchain, you should delete its tokens first.";
-"token_details_delete_warning_coin_has_amount" = "You are removing a blockchain that has funds on its balance. After removal, the funds associated with the blockchain will not be included in your total balance calculation. Actual funds on your wallet are not changed or removed and can be made visible when you add the blockchain again.";
-"token_details_delete_warning_token_as_mount" = "You are removing a token that has funds on its balance. After removal, the funds associated with the token will not be included in your total balance calculation. Actual funds on your wallet are not changed or removed and can be made visible when you add the token again.";
+"token_details_hide_alert_title" = "Hide %@";
+"token_details_hide_alert_hide" = "Hide";
+"token_details_hide_alert_message" = "You hide the token from the main screen, but you can add it back at any time.";
+"token_details_unable_hide_alert_title" = "Unable to hide %@";
+"token_details_unable_hide_alert_message" = "The %@ token is the main currency on the %@ network and cannot be hidden as long as you have other tokens on this network in the list.";
 
 "token_item_no_rate" = "No rate";
