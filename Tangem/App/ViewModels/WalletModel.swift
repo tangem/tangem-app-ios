@@ -333,10 +333,6 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     }
     
     func removeState(amountType: Amount.AmountType) -> RemoveState {
-        if !state.isSuccesfullyLoaded {
-            return .impossible
-        }
-        
         if let token = amountType.token, token == defaultToken {
             return .impossible
         }
@@ -345,12 +341,16 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
             return .impossible
         }
         
-        if wallet.hasPendingTx(for: amountType) {
-            return .impossible
-        }
-        
         if amountType == .coin && !walletManager.cardTokens.isEmpty {
             return .hasTokens
+        }
+        
+        if wallet.hasPendingTx(for: amountType) {
+            return .hasPendingTx
+        }
+        
+        if !state.isSuccesfullyLoaded {
+            return .notLoaded
         }
         
         if let amount = wallet.amounts[amountType], !amount.isZero {
@@ -599,6 +599,6 @@ extension WalletModel {
 
 extension WalletModel {
     enum RemoveState: Hashable {
-        case possible, hasTokens, hasAmount, impossible
+        case possible, hasTokens, hasAmount, notLoaded, hasPendingTx, impossible
     }
 }
