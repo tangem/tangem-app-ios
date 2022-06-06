@@ -352,27 +352,18 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     }
     
     private func showUnableToHideAlert() {
-        let title = String(
-            format: "token_details_unable_hide_alert_title".localized,
-            arguments: [amountToSend?.currencySymbol ?? ""]
-        )
+        let title = "token_details_unable_hide_alert_title".localized(amountToSend?.currencySymbol ?? "")
 
-        let message = String(
-            format: "token_details_unable_hide_alert_message".localized,
-            arguments: [
-                amountToSend?.currencySymbol ?? "",
-                walletModel?.blockchainNetwork.blockchain.displayName ?? ""
-            ]
+        let message = "token_details_unable_hide_alert_message".localized(
+            amountToSend?.currencySymbol ?? "",
+            walletModel?.blockchainNetwork.blockchain.displayName ?? ""
         )
 
         alert = warningAlert(title: title, message: message, primaryButton: .default(Text("common_ok")))
     }
     
     private func showWarningDeleteAlert() {
-        let title = String(
-            format: "token_details_hide_alert_title".localized,
-            arguments: [amountToSend?.currencySymbol ?? ""]
-        )
+        let title = "token_details_hide_alert_title".localized(amountToSend?.currencySymbol ?? "")
         
         alert = warningAlert(
             title: title,
