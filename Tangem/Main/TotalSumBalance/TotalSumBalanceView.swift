@@ -43,7 +43,7 @@ struct TotalSumBalanceView: View {
                 .skeletonable(isShown: viewModel.isLoading, size: CGSize(width: 100, height: 25))
                 .frame(height: 33)
             
-            if viewModel.isFailed {
+            if viewModel.error == .someNetworkUnreachable {
                 Text("main_processing_full_amount".localized)
                     .foregroundColor(Color.tangemWarning)
                     .font(.system(size: 13, weight: .regular))
