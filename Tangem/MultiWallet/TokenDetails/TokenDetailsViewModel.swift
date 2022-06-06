@@ -15,8 +15,8 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     
     @Published var alert: AlertBinder? = nil
 
-    var didRequestDissmiss: AnyPublisher<Void, Never> {
-        requestDissmiss.eraseToAnyPublisher()
+    var dismissalRequestPublisher: AnyPublisher<Void, Never> {
+        dismissalRequestSubject.eraseToAnyPublisher()
     }
     
     var card: CardViewModel! {
@@ -153,7 +153,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     
     var sellCryptoRequest: SellCryptoRequest? = nil
     
-    private let requestDissmiss = PassthroughSubject<Void, Never>()
+    private let dismissalRequestSubject = PassthroughSubject<Void, Never>()
     private var bag = Set<AnyCancellable>()
     private var rentWarningSubscription: AnyCancellable?
     private var refreshCancellable: AnyCancellable? = nil
@@ -340,7 +340,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
             return
         }
         
-        requestDissmiss.send(())
+        dismissalRequestSubject.send(())
         
         /// Added the delay to display the deletion in the main screen
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
