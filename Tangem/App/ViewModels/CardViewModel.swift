@@ -745,7 +745,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
     
     func canManage(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool {
         if let walletModel = walletModels?.first(where: { $0.blockchainNetwork == blockchainNetwork }) {
-            return walletModel.removeState(amountType: amountType) != .impossible
+            return walletModel.removeState(amountType: amountType).canRemove
         }
         
         return true
@@ -753,7 +753,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
     
     func canRemove(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool {
         if let walletModel = walletModels?.first(where: { $0.blockchainNetwork == blockchainNetwork }) {
-            return walletModel.removeState(amountType: amountType) != .impossible
+            return walletModel.removeState(amountType: amountType).canRemove
         }
 
         return false
