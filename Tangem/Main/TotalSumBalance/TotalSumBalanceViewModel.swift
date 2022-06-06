@@ -15,7 +15,7 @@ class TotalSumBalanceViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var currencyType: String = ""
     @Published var totalFiatValueString: NSAttributedString = NSAttributedString(string: "")
-    @Published var error: TotalBalanceError = .none
+    @Published var error: TotalBalanceError?
     
     private var bag = Set<AnyCancellable>()
     private var tokenItemViewModels: [TokenItemViewModel] = []
@@ -27,7 +27,7 @@ class TotalSumBalanceViewModel: ObservableObject {
     func beginUpdates() {
         DispatchQueue.main.async {
             self.isLoading = true
-            self.error = .none
+            self.error = nil
         }
     }
     
@@ -44,9 +44,9 @@ class TotalSumBalanceViewModel: ObservableObject {
         refresh(loadingAnimationEnable: false)
     }
     
-    func disableLoading(withError: TotalBalanceError = .none) {
+    func disableLoading(withError error: TotalBalanceError? = nil) {
         withAnimation(Animation.spring().delay(0.5)) {
-            self.error = withError
+            self.error = error
             self.isLoading = false
         }
     }
@@ -64,32 +64,32 @@ class TotalSumBalanceViewModel: ObservableObject {
                 else {
                     return
                 }
-                var hasError: TotalBalanceError = .none
+                var hasTotalBalanceError: TotalBalanceError? = nil
                 var totalFiatValue: Decimal = 0.0
                 for token in self.tokenItemViewModels {
                     if token.state.isSuccesfullyLoaded {
                         if token.rate.isEmpty && !token.isCustom && !token.state.isNoAccount {
-                            hasError = .imposibleCalculateAmount
+                            hasTotalBalanceError = .impossibleToCalculateAmount
                             break
                         }
                         totalFiatValue += token.fiatValue
                     } else {
-                        hasError = .someNetworkUnreachable
+                        hasTotalBalanceError = .someNetworkUnreachable
                         break
                     }
                 }
                 
-                switch hasError {
+                switch hasTotalBalanceError {
                 case .none:
                     self.totalFiatValueString = self.addAttributeForBalance(totalFiatValue, withCurrencyCode: currency.code)
-                case .someNetworkUnreachable, .imposibleCalculateAmount:
+                case .someNetworkUnreachable, .impossibleToCalculateAmount:
                     self.totalFiatValueString = NSMutableAttributedString(string: "—")
                 }
                 
                 if loadingAnimationEnable {
-                    self.disableLoading(withError: hasError)
+                    self.disableLoading(withError: hasTotalBalanceError)
                 } else {
-                    self.error = hasError
+                    self.error = hasTotalBalanceError
                 }
             }.store(in: &bag)
     }
@@ -112,8 +112,7 @@ class TotalSumBalanceViewModel: ObservableObject {
 
 extension TotalSumBalanceViewModel {
     enum TotalBalanceError {
-        case none
-        case imposibleCalculateAmount
+        case impossibleToCalculateAmount
         case someNetworkUnreachable
     }
 }
