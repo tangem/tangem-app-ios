@@ -332,7 +332,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
         updateTokensViewModels()
     }
     
-    func removeState(amountType: Amount.AmountType) -> RemoveState {
+    func getRemovalState(amountType: Amount.AmountType) -> RemovalState {
         if let token = amountType.token, token == defaultToken {
             return .ableThroughtAlert
         }
@@ -361,7 +361,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     }
     
     func removeToken(_ token: Token, for cardId: String) -> Bool {
-        guard removeState(amountType: .token(value: token)).canRemove else {
+        guard getRemovalState(amountType: .token(value: token)).isCanRemove else {
             assertionFailure("Delete token isn't possible")
             return false
         }
@@ -598,10 +598,10 @@ extension WalletModel {
 }
 
 extension WalletModel {
-    enum RemoveState: Hashable {
+    enum RemovalState: Hashable {
         case able, unable, ableThroughtAlert
         
-        var canRemove: Bool {
+        var isCanRemove: Bool {
             self != .unable
         }
     }
