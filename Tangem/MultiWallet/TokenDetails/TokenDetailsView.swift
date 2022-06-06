@@ -202,7 +202,7 @@ struct TokenDetailsView: View {
         .navigationBarItems(trailing: trailingButton)
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
         .ignoresKeyboard()
-        .onReceive(viewModel.didRequestDissmiss, perform: {
+        .onReceive(viewModel.dismissalRequestPublisher, perform: {
             presentationMode.wrappedValue.dismiss()
         })
         .onAppear(perform: viewModel.onAppear)
