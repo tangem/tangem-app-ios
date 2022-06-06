@@ -59,11 +59,6 @@ class CommonCurrencyRateService: CurrencyRateService {
             .filterSuccessfulStatusAndRedirectCodes()
             .map(RatesResponse.self)
             .map { $0.rates }
-            .tryMap { dictionary in
-                Dictionary(uniqueKeysWithValues: dictionary.map {
-                    ($0.key, $0.value.rounded(scale: 2, roundingMode: .plain))
-                })
-            }
             .catch { _ in Empty(completeImmediately: true) }
             .subscribe(on: DispatchQueue.global())
             .eraseToAnyPublisher()
