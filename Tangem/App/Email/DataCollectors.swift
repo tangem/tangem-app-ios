@@ -57,7 +57,7 @@ struct SendScreenDataCollector: EmailDataCollector {
         data.append(.separator(.dashes))
 
         data.append(EmailCollectedData(type: .card(.blockchain),
-                                       data: sendViewModel.walletModel.blockchainNetwork.blockchain.currencySymbol))
+                                       data: sendViewModel.walletModel.blockchainNetwork.blockchain.displayName))
         
         switch sendViewModel.amountToSend.type {
         case .token(let token):
