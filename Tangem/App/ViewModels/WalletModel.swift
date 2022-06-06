@@ -361,7 +361,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     }
     
     func removeToken(_ token: Token, for cardId: String) -> Bool {
-        guard getRemovalState(amountType: .token(value: token)).isCanRemove else {
+        guard getRemovalState(amountType: .token(value: token)).isRemovable else {
             assertionFailure("Delete token isn't possible")
             return false
         }
@@ -601,7 +601,7 @@ extension WalletModel {
     enum RemovalState: Hashable {
         case able, unable, ableThroughtAlert
         
-        var isCanRemove: Bool {
+        var isRemovable: Bool {
             self != .unable
         }
     }
