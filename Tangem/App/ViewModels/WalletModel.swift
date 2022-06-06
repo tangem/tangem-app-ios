@@ -334,34 +334,34 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     
     func removeState(amountType: Amount.AmountType) -> RemoveState {
         if let token = amountType.token, token == defaultToken {
-            return .impossible
+            return .ableThroughtAlert
         }
         
         if amountType == .coin, wallet.blockchain == defaultBlockchain {
-            return .impossible
+            return .ableThroughtAlert
         }
         
         if amountType == .coin && !walletManager.cardTokens.isEmpty {
-            return .hasTokens
+            return .unable
         }
         
         if wallet.hasPendingTx(for: amountType) {
-            return .hasPendingTx
+            return .ableThroughtAlert
         }
         
         if !state.isSuccesfullyLoaded {
-            return .notLoaded
+            return .ableThroughtAlert
         }
         
         if let amount = wallet.amounts[amountType], !amount.isZero {
-            return .hasAmount
+            return .ableThroughtAlert
         }
         
-        return .possible
+        return .able
     }
     
     func removeToken(_ token: Token, for cardId: String) -> Bool {
-        guard removeState(amountType: .token(value: token)) != .impossible else {
+        guard removeState(amountType: .token(value: token)).canRemove else {
             assertionFailure("Delete token isn't possible")
             return false
         }
@@ -599,6 +599,10 @@ extension WalletModel {
 
 extension WalletModel {
     enum RemoveState: Hashable {
-        case possible, hasTokens, hasAmount, notLoaded, hasPendingTx, impossible
+        case able, unable, ableThroughtAlert
+        
+        var canRemove: Bool {
+            self != .unable
+        }
     }
 }
