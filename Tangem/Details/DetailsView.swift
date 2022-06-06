@@ -10,24 +10,6 @@ import Foundation
 import SwiftUI
 import TangemSdk
 
-struct DetailsRowView: View {
-    var title: String
-    var subtitle: String
-    var body: some View {
-        HStack (alignment: .center) {
-            Text(title)
-                .font(Font.system(size: 16.0, weight: .regular, design: .default))
-                .foregroundColor(.tangemGrayDark6)
-            Spacer()
-            Text(subtitle)
-                .font(Font.system(size: 16.0, weight: .regular, design: .default))
-                .foregroundColor(.tangemGrayDark)
-        }
-        // .padding(.leading)
-        //.listRowInsets(EdgeInsets())
-    }
-}
-
 struct DetailsView: View {
     private enum NavigationTag: String {
         case currency, disclaimer, cardTermsOfUse, securityManagement, cardOperation, manageTokens, walletConnect, backup, resetToFactory
@@ -42,9 +24,9 @@ struct DetailsView: View {
     
     var body: some View {
         List {
-            firstSection
+            cardDetailsSection
             
-            secondSection
+            applicationDetailsSection
             
             Section(header: Color.tangemBgGray.listRowInsets(EdgeInsets())) {
                 EmptyView()
@@ -68,7 +50,7 @@ struct DetailsView: View {
     
     // MARK: First Section
     
-    private var firstSection: some View {
+    private var cardDetailsSection: some View {
         Section(header: HeaderView(text: "details_section_title_card".localized), footer: footerView) {
             DetailsRowView(title: "details_row_title_cid".localized,
                            subtitle: viewModel.cardCid)
@@ -226,7 +208,7 @@ struct DetailsView: View {
     
     // MARK: Second Section
     
-    private var secondSection: some View {
+    private var applicationDetailsSection: some View {
         Section(header: HeaderView(text: "details_section_title_app".localized), footer: FooterView()) {
             if !viewModel.isMultiWallet {
                 let destination = CurrencySelectView(
@@ -290,10 +272,27 @@ struct DetailsView: View {
             }
         }
     }
-    
 }
 
 extension DetailsView {
+    struct DetailsRowView: View {
+        var title: String
+        var subtitle: String
+        var body: some View {
+            HStack (alignment: .center) {
+                Text(title)
+                    .font(Font.system(size: 16.0, weight: .regular, design: .default))
+                    .foregroundColor(.tangemGrayDark6)
+                Spacer()
+                Text(subtitle)
+                    .font(Font.system(size: 16.0, weight: .regular, design: .default))
+                    .foregroundColor(.tangemGrayDark)
+            }
+            // .padding(.leading)
+            //.listRowInsets(EdgeInsets())
+        }
+    }
+    
     struct HeaderView: View {
         var text: String
         var additionalTopPadding: CGFloat = 0
