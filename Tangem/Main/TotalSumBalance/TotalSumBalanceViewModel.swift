@@ -64,22 +64,22 @@ class TotalSumBalanceViewModel: ObservableObject {
                 else {
                     return
                 }
-                var hasTotalBalanceError: TotalBalanceError? = nil
+                var totalBalanceError: TotalBalanceError? = nil
                 var totalFiatValue: Decimal = 0.0
                 for token in self.tokenItemViewModels {
                     if token.state.isSuccesfullyLoaded {
                         if token.rate.isEmpty && !token.isCustom && !token.state.isNoAccount {
-                            hasTotalBalanceError = .impossibleToCalculateAmount
+                            totalBalanceError = .impossibleToCalculateAmount
                             break
                         }
                         totalFiatValue += token.fiatValue
                     } else {
-                        hasTotalBalanceError = .someNetworkUnreachable
+                        totalBalanceError = .someNetworkUnreachable
                         break
                     }
                 }
                 
-                switch hasTotalBalanceError {
+                switch totalBalanceError {
                 case .none:
                     self.totalFiatValueString = self.addAttributeForBalance(totalFiatValue, withCurrencyCode: currency.code)
                 case .someNetworkUnreachable, .impossibleToCalculateAmount:
@@ -87,9 +87,9 @@ class TotalSumBalanceViewModel: ObservableObject {
                 }
                 
                 if loadingAnimationEnable {
-                    self.disableLoading(withError: hasTotalBalanceError)
+                    self.disableLoading(withError: totalBalanceError)
                 } else {
-                    self.error = hasTotalBalanceError
+                    self.error = totalBalanceError
                 }
             }.store(in: &bag)
     }
