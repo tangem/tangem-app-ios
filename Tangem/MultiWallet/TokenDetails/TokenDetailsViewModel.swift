@@ -102,10 +102,6 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         return wallet?.canSend(amountType: self.amountType) ?? false
     }
     
-    var canRemove: Bool {
-        walletModel?.removeState(amountType: amountType) != .impossible
-    }
-    
     var sendBlockedReason: String? {
         guard let wallet = walletModel?.wallet,
               let currentAmount = wallet.amounts[amountType], amountType.isToken else { return nil }
@@ -187,19 +183,18 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     }
     
     func onRemove() {
-        switch walletModel?.removeState(amountType: amountType) {
-        case .possible:
+        guard let walletModel = walletModel else {
+            assertionFailure("walletModel isn't found")
+            return
+        }
+        
+        switch walletModel.removeState(amountType: amountType) {
+        case .able:
             deleteToken()
-        case .hasAmount:
-            showHasAmountAlert()
-        case .hasTokens:
-            alert = warningAlert(
-                message: "token_details_delete_warning_has_tokens",
-                primaryButton: .default(Text("common_ok"))
-            )
-            
-        case .none, .impossible:
-            assertionFailure("Unimplemented case")
+        case .unable:
+            showUnableToHideAlert()
+        case .ableThroughtAlert:
+            showWarningDeleteAlert()
         }
     }
     
@@ -356,25 +351,41 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         }
     }
     
-    private func showHasAmountAlert() {
-        let message: String
+    private func showUnableToHideAlert() {
+        let title = String(
+            format: "token_details_unable_hide_alert_title".localized,
+            arguments: [amountToSend?.currencySymbol ?? ""]
+        )
+
+        let message = String(
+            format: "token_details_unable_hide_alert_message".localized,
+            arguments: [
+                amountToSend?.currencySymbol ?? "",
+                walletModel?.blockchainNetwork.blockchain.displayName ?? ""
+            ]
+        )
+
+        alert = warningAlert(title: title, message: message, primaryButton: .default(Text("common_ok")))
+    }
+    
+    private func showWarningDeleteAlert() {
+        let title = String(
+            format: "token_details_hide_alert_title".localized,
+            arguments: [amountToSend?.currencySymbol ?? ""]
+        )
         
-        if amountType == .coin {
-            message = "token_details_delete_warning_coin_has_amount"
-        } else {
-            message = "token_details_delete_warning_token_has_amount"
-        }
-
-        let deleteButton = Alert.Button.destructive(Text("common_ok"), action: { [weak self] in
-            self?.deleteToken()
-        })
-
-        alert = warningAlert(message: message, primaryButton: deleteButton)
+        alert = warningAlert(
+            title: title,
+            message: "token_details_hide_alert_message".localized,
+            primaryButton: .destructive(Text("token_details_hide_alert_hide")) { [weak self] in
+                self?.deleteToken()
+            }
+        )
     }
 
-    private func warningAlert(message: String, primaryButton: Alert.Button) -> AlertBinder {
+    private func warningAlert(title: String, message: String, primaryButton: Alert.Button) -> AlertBinder {
         let alert = Alert(
-            title: Text("common_attention"),
+            title: Text(title),
             message: Text(message.localized),
             primaryButton: primaryButton,
             secondaryButton: Alert.Button.cancel()
