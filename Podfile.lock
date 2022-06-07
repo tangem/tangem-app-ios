@@ -215,7 +215,7 @@ DEPENDENCIES:
   - BigInt
   - BinanceChain (from `https://github.com/lazutkin-andrey/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/lazutkin-andrey/bitcoincore.git`, tag `0.0.16`)
-  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-121`)
+  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, branch `IOS-1738-Add-Dash`)
   - DeviceGuru
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -286,8 +286,8 @@ EXTERNAL SOURCES:
     :git: https://github.com/lazutkin-andrey/bitcoincore.git
     :tag: 0.0.16
   BlockchainSdk:
+    :branch: IOS-1738-Add-Dash
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-121
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
@@ -318,8 +318,8 @@ CHECKOUT OPTIONS:
     :git: https://github.com/lazutkin-andrey/bitcoincore.git
     :tag: 0.0.16
   BlockchainSdk:
+    :commit: 3e7497e9647c5d5403d994f16955c4f1ae6ba8fd
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
-    :tag: develop-121
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
@@ -387,6 +387,6 @@ SPEC CHECKSUMS:
   web3swift: 93f68f5430c11a78bba2351c139d2d22f2c04b5e
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: b9feec73e8272290e85313545bd3578aee7b4c9f
+PODFILE CHECKSUM: 9fe271a039ffdc10560b2d381fddc8a35a6facaa
 
 COCOAPODS: 1.11.3
