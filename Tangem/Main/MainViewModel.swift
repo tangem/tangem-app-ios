@@ -281,11 +281,23 @@ class MainViewModel: ViewModel, ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { [unowned self] _ in
                 print("⚠️ Wallet model will change")
+                self.objectWillChange.send()
+            }
+            .store(in: &bag)
+        
+        $state
+            .compactMap { $0.cardModel }
+            .flatMap { $0.$state }
+            .compactMap { $0.walletModels }
+            .flatMap { Publishers.MergeMany($0.map { $0.objectWillChange }).collect($0.count) }
+            .debounce(for: .seconds(0.5), scheduler: RunLoop.main)
+            .receive(on: DispatchQueue.main)
+            .sink { [unowned self] _ in
+                if self.isLoadingTokensBalance { return }
                 self.updateTotalBalanceTokenListIfNeeded()
                 self.objectWillChange.send()
             }
             .store(in: &bag)
-    
         
         $state
             .compactMap { $0.cardModel }
