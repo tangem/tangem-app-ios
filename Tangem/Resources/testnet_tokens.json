@@ -420,6 +420,16 @@
                     "networkId" : "stellar/test"
                 }
             ]
+        },
+        {
+            "id" : "dash",
+            "symbol" : "DASH",
+            "name" : "Dash",
+            "networks" : [
+                {
+                    "networkId" : "dash/test"
+                }
+            ]
         }
     ],
     
