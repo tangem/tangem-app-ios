@@ -354,10 +354,10 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     private func showUnableToHideAlert() {
         let title = "token_details_unable_hide_alert_title".localized(amountToSend?.currencySymbol ?? "")
 
-        let message = "token_details_unable_hide_alert_message".localized(
+        let message = "token_details_unable_hide_alert_message".localized([
             amountToSend?.currencySymbol ?? "",
             walletModel?.blockchainNetwork.blockchain.displayName ?? ""
-        )
+        ])
 
         alert = warningAlert(title: title, message: message, primaryButton: .default(Text("common_ok")))
     }
