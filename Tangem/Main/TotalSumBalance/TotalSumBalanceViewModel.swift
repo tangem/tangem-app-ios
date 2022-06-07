@@ -17,7 +17,7 @@ class TotalSumBalanceViewModel: ObservableObject {
     @Published var totalFiatValueString: NSAttributedString = NSAttributedString(string: "")
     @Published var error: Bool = false
     
-    private var bag = Set<AnyCancellable>()
+    private var refreshSubscriptions: AnyCancellable?
     private var tokenItemViewModels: [TokenItemViewModel] = []
     
     init() {
@@ -53,7 +53,7 @@ class TotalSumBalanceViewModel: ObservableObject {
     
     private func refresh(loadingAnimationEnable: Bool = true) {
         currencyType = currencyRateService.selectedCurrencyCode
-        currencyRateService
+        refreshSubscriptions = currencyRateService
             .baseCurrencies()
             .receive(on: RunLoop.main)
             .sink { _ in
@@ -84,7 +84,7 @@ class TotalSumBalanceViewModel: ObservableObject {
                 } else {
                     self.error = hasTotalBalanceError
                 }
-            }.store(in: &bag)
+            }
     }
     
     private func addAttributeForBalance(_ balance: Decimal, withCurrencyCode: String) -> NSAttributedString {
