@@ -34,6 +34,7 @@ extension Blockchain {
         case .kusama: return "kusama"
         case .tron: return "tron"
         case .arbitrum: return "arbitrum-one"
+        case .dash: return "dash"
         }
     }
     
@@ -70,6 +71,7 @@ extension Blockchain {
         case .kusama: return "kusama"
         case .tron: return "tron"
         case .arbitrum: return "arbitrum-one"
+        case .dash: return "dash"
         }
     }
     
@@ -117,6 +119,7 @@ extension Blockchain {
         case "kusama": self = .kusama
         case "tron": self = .tron(testnet: isTestnet)
         case "arbitrum", "arbitrum-one": self = .arbitrum(testnet: isTestnet)
+        case "dash": self = .dash(testnet: isTestnet)
         default:
             print("⚠️⚠️⚠️ Failed to map network ID \"\(stringId)\"")
             return nil
