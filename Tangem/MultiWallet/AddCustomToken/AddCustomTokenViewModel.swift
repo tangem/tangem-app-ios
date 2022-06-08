@@ -13,60 +13,11 @@ import struct TangemSdk.DerivationPath
 import enum TangemSdk.TangemSdkError
 
 class AddCustomTokenViewModel: ViewModel, ObservableObject {
-    private enum TokenCreationErrors: LocalizedError {
-        case blockchainNotSelected
-        case emptyFields
-        case invalidDecimals(precision: Int)
-        case invalidContractAddress
-        case invalidDerivationPath
-        
-        var errorDescription: String? {
-            switch self {
-            case .blockchainNotSelected:
-                return "custom_token_creation_error_network_not_selected".localized
-            case .emptyFields:
-                return "custom_token_creation_error_empty_fields".localized
-            case .invalidDecimals(let precision):
-                return "custom_token_creation_error_wrong_decimals".localized(precision)
-            case .invalidContractAddress:
-                return "custom_token_creation_error_invalid_contract_address".localized
-            case .invalidDerivationPath:
-                return "custom_token_creation_error_invalid_derivation_path".localized
-            }
-        }
-    }
+    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
+    @Injected(\.coinsService) private var coinsService: CoinsService
+    @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
     
-    private enum TokenSearchError: LocalizedError {
-        case alreadyAdded
-        case failedToFindToken
-        
-        var preventsFromAdding: Bool {
-            switch self {
-            case .alreadyAdded:
-                return true
-            case .failedToFindToken:
-                return false
-            }
-        }
-        
-        var errorDescription: String? {
-            switch self {
-            case .failedToFindToken:
-                return "custom_token_validation_error_not_found".localized
-            case .alreadyAdded:
-                return "custom_token_validation_error_already_added".localized
-            }
-        }
-        
-        var appWarning: AppWarning {
-            return AppWarning(title: "common_warning".localized, message: errorDescription ?? "", priority: .warning)
-        }
-    }
-    
-    weak var assembly: Assembly!
-    weak var navigation: NavigationCoordinator!
     weak var cardModel: CardViewModel!
-    weak var coinsService: CoinsService!
     
     @Published var name = ""
     @Published var symbol = ""
@@ -76,7 +27,6 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     @Published var blockchainsPicker: PickerModel = .empty
     @Published var derivationsPicker: PickerModel = .empty
     
-    @Published var customDerivationsAllowed: Bool = true
     
     @Published var error: AlertBinder?
     
@@ -84,12 +34,28 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     @Published var addButtonDisabled = false
     @Published var isLoading = false
     
-    @Published private(set) var foundStandardToken: CoinModel?
+    var canEnterTokenDetails: Bool {
+        foundStandardToken == nil && selectedBlockchainSupportsTokens
+    }
+
+    var showDerivationPaths: Bool {
+        cardHasDifferentDerivationPaths && blockchainHasDifferentDerivationPaths
+    }
+    
+    @Published private var cardHasDifferentDerivationPaths: Bool = true
+    @Published private var blockchainHasDifferentDerivationPaths: Bool = true
+    
+    private var selectedBlockchainSupportsTokens: Bool {
+        let blockchain = try? enteredBlockchain()
+        return blockchain?.canHandleTokens ?? true
+    }
     
     private var bag: Set<AnyCancellable> = []
     private var blockchainByName: [String: Blockchain] = [:]
+    private var foundStandardToken: CoinModel?
     
-    init() {
+    override init() {
+        super.init()
         Publishers.CombineLatest3(
             $blockchainsPicker.map{$0.selection}.removeDuplicates(),
             $contractAddress.removeDuplicates(),
@@ -97,7 +63,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         )
             .dropFirst()
             .debounce(for: 0.5, scheduler: RunLoop.main)
-            .flatMap { (blockchainName, contractAddress, derivationPath) -> AnyPublisher<[CoinModel], Never> in
+            .flatMap { [unowned self] (blockchainName, contractAddress, derivationPath) -> AnyPublisher<[CoinModel], Never> in
                 self.isLoading = true
                 
                 guard !contractAddress.isEmpty else {
@@ -107,10 +73,21 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 
                 return self.findToken(contractAddress: contractAddress)
             }
-            .sink { currencyModels in
+            .receive(on: RunLoop.main)
+            .sink { [unowned self] currencyModels in
                 self.didFinishTokenSearch(currencyModels)
             }
             .store(in: &bag)
+        
+        $blockchainsPicker.map { $0.selection }
+            .sink { [unowned self] newBlockchainName in
+                self.didChangeBlockchain(newBlockchainName)
+            }
+            .store(in: &bag)
+    }
+    
+    func updateState() {
+        cardModel = cardsRepository.lastScanResult.cardModel
     }
     
     func createToken() {
@@ -127,6 +104,13 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             }
             blockchain = try enteredBlockchain()
             derivationPath = try enteredDerivationPath()
+            
+            if case let .token(_, blockchain) = tokenItem,
+               case .solana = blockchain,
+               !cardModel.cardInfo.card.canSupportSolanaTokens
+            {
+                throw TokenCreationErrors.tokensNotSupported
+            }
         } catch {
             self.error = error.alertBinder
             return
@@ -200,15 +184,9 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         
         if withTokenSupport {
             let blockchainsWithTokens = supportedTokenItems.blockchainsWithTokens(isTestnet: cardInfo.isTestnet)
-            
-            return blockchains
-                .filter {
-                    if case .solana = $0, !cardInfo.card.canSupportSolanaTokens {
-                        return false
-                    }
-                    
-                    return blockchainsWithTokens.contains($0)
-                }
+            let evmBlockchains = supportedTokenItems.evmBlockchains(isTestnet: cardInfo.isTestnet)
+            let blockchainsToDisplay = blockchainsWithTokens.union(evmBlockchains)
+            return blockchains.filter { blockchainsToDisplay.contains($0) }
         } else {
             return blockchains
         }
@@ -239,7 +217,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         }
         
         let uniqueDerivations = Set(evmDerivationPaths.map(\.1))
-        self.customDerivationsAllowed = uniqueDerivations.count > 1
+        self.cardHasDifferentDerivationPaths = uniqueDerivations.count > 1
         let newDerivationSelection = self.derivationsPicker.selection
         self.derivationsPicker = .init(items: [defaultItem] + evmDerivationPaths, selection: newDerivationSelection)
     }
@@ -296,6 +274,12 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     }
     
     private func enteredDerivationPath() throws -> DerivationPath? {
+        if let blockchain = try? enteredBlockchain(),
+           !blockchain.isEvm
+        {
+            return nil
+        }
+        
         let rawPath = derivationsPicker.selection
         if !rawPath.isEmpty {
             let derivationPath = try? DerivationPath(rawPath: rawPath)
@@ -318,10 +302,9 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             return
         }
         
-        let cardTokenItems = cardModel.tokenItemsRepository.getItems(for: cardId)
+        let cardTokenItems = tokenItemsRepository.getItems(for: cardId)
         let checkingContractAddress = !contractAddress.isEmpty
-        let rawPath = derivationsPicker.selection
-        let derivationPath = (try? DerivationPath(rawPath: rawPath)) ?? blockchain.derivationPath(for: derivationStyle)
+        let derivationPath = try? enteredDerivationPath() ?? blockchain.derivationPath(for: derivationStyle)
         
         let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath)
         
@@ -345,8 +328,14 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
                 .eraseToAnyPublisher()
         }
         
+        let networkIds = getBlockchains(withTokenSupport: true).map { $0.networkId }
+        let requestModel = CoinsListRequestModel(
+            contractAddress: contractAddress,
+            networkIds: networkIds
+        )
+        
         return coinsService
-            .checkContractAddress(contractAddress: contractAddress, networkId: nil)
+            .loadCoins(requestModel: requestModel)
             .replaceError(with: [])
             .eraseToAnyPublisher()
     }
@@ -380,7 +369,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 UIApplication.shared.endEditing()
             }
-        } else if previouslyFoundStandardToken != nil {
+        } else if previouslyFoundStandardToken != nil || !selectedBlockchainSupportsTokens {
             decimals = ""
             symbol = ""
             name = ""
@@ -403,6 +392,74 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
             if let tokenSearchError = tokenSearchError {
                 warningContainer.add(tokenSearchError.appWarning)
             }
+        }
+    }
+    
+    private func didChangeBlockchain(_ newBlockchainName: String) {
+        let newBlockchain = blockchainByName[newBlockchainName]
+       
+        let blockchainHasDerivationPaths: Bool
+        if let newBlockchain = newBlockchain {
+            blockchainHasDerivationPaths = newBlockchain.isEvm
+        } else {
+            blockchainHasDerivationPaths = true
+        }
+      
+        blockchainHasDifferentDerivationPaths = blockchainHasDerivationPaths
+    }
+}
+
+private extension AddCustomTokenViewModel {
+    enum TokenCreationErrors: LocalizedError {
+        case blockchainNotSelected
+        case emptyFields
+        case tokensNotSupported
+        case invalidDecimals(precision: Int)
+        case invalidContractAddress
+        case invalidDerivationPath
+        
+        var errorDescription: String? {
+            switch self {
+            case .blockchainNotSelected:
+                return "custom_token_creation_error_network_not_selected".localized
+            case .emptyFields:
+                return "custom_token_creation_error_empty_fields".localized
+            case .tokensNotSupported:
+                return "alert_manage_tokens_unsupported_message".localized
+            case .invalidDecimals(let precision):
+                return "custom_token_creation_error_wrong_decimals".localized(precision)
+            case .invalidContractAddress:
+                return "custom_token_creation_error_invalid_contract_address".localized
+            case .invalidDerivationPath:
+                return "custom_token_creation_error_invalid_derivation_path".localized
+            }
+        }
+    }
+    
+    enum TokenSearchError: LocalizedError {
+        case alreadyAdded
+        case failedToFindToken
+        
+        var preventsFromAdding: Bool {
+            switch self {
+            case .alreadyAdded:
+                return true
+            case .failedToFindToken:
+                return false
+            }
+        }
+        
+        var errorDescription: String? {
+            switch self {
+            case .failedToFindToken:
+                return "custom_token_validation_error_not_found".localized
+            case .alreadyAdded:
+                return "custom_token_validation_error_already_added".localized
+            }
+        }
+        
+        var appWarning: AppWarning {
+            return AppWarning(title: "common_warning".localized, message: errorDescription ?? "", priority: .warning)
         }
     }
 }
