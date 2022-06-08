@@ -16,6 +16,8 @@ struct CurrencySelectView: View {
     
     @State private var searchText: String = ""
     
+    let dismissAfterSelection: Bool
+    
     var body: some View {
         VStack {
             if viewModel.loading {
@@ -34,7 +36,7 @@ struct CurrencySelectView: View {
                                     .font(.system(size: 16, weight: .regular, design: .default))
                                     .foregroundColor(.tangemGrayDark6)
                                 Spacer()
-                                if self.viewModel.ratesService.selectedCurrencyCode == currency.code {
+                                if viewModel.isSelected(currency) {
                                     Image(systemName: "checkmark.circle")
                                         .font(.system(size: 18, weight: .regular, design: .default))
                                         .foregroundColor(Color.tangemGreen)
@@ -42,8 +44,10 @@ struct CurrencySelectView: View {
                             }
                             .contentShape(Rectangle())
                             .onTapGesture {
-                                self.viewModel.objectWillChange.send()
-                                self.viewModel.ratesService.selectedCurrencyCode = currency.code
+                                viewModel.onSelect(currency)
+                                if dismissAfterSelection {
+                                    presentationMode.wrappedValue.dismiss()
+                                }
                             }
                         }
                     }

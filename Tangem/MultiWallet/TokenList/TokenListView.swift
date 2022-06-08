@@ -41,21 +41,18 @@ struct TokenListView: View {
                     
                     PerfListDivider()
                     
-                    ForEach(viewModel.loader.items) {
+                    ForEach(viewModel.coinViewModels) {
                         CoinView(model: $0)
                             .buttonStyle(PlainButtonStyle()) //fix ios13 list item selection
                             .perfListPadding()
+                        
                         PerfListDivider()
                     }
                     
-                    if viewModel.loader.canFetchMore {
-                        HStack {
-                            Spacer()
+                    if viewModel.hasNextPage {
+                        HStack(alignment: .center) {
                             ActivityIndicatorView(color: .gray)
-                                .onAppear {
-                                    viewModel.fetch()
-                                }
-                            Spacer()
+                                .onAppear(perform: viewModel.fetch)
                         }
                     }
                     
@@ -65,17 +62,6 @@ struct TokenListView: View {
                 }
                 
                 overlay
-                
-                Color.clear.frame(width: 1, height: 1)
-                    .sheet(isPresented: $navigation.detailsToSendEmail) {
-                        if let cardModel = viewModel.cardModel {
-                            MailView(dataCollector: viewModel.dataCollector,
-                                     support: cardModel.emailSupport,
-                                     emailType: .appFeedback(support: cardModel.isStart2CoinCard ? .start2coin : .tangem))
-                        } else {
-                            EmptyView()
-                        }
-                    }
             }
             .navigationBarBackButtonHidden(true)
             .navigationBarTitle(viewModel.titleKey, displayMode: UIDevice.isIOS13 ? .inline : .automatic)
@@ -89,7 +75,7 @@ struct TokenListView: View {
         .background(Color.clear.edgesIgnoringSafeArea(.all))
         .navigationViewStyle(.stack)
         .onAppear { viewModel.onAppear() }
-        .onDisappear { viewModel.onDissapear() }
+        .onDisappear { viewModel.onDisappear() }
         .keyboardAdaptive()
     }
     
@@ -150,9 +136,10 @@ struct TokenListView: View {
 
 struct AddNewTokensView_Previews: PreviewProvider {
     static let assembly = Assembly.previewAssembly
+    static let navigation = NavigationCoordinator()
     
     static var previews: some View {
         TokenListView(viewModel: assembly.makeTokenListViewModel(mode: .add(cardModel: assembly.previewCardViewModel)))
-            .environmentObject(assembly.services.navigationCoordinator)
+            .environmentObject(navigation)
     }
 }
