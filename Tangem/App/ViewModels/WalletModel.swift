@@ -332,39 +332,40 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
         updateTokensViewModels()
     }
     
-    func canRemove(amountType: Amount.AmountType) -> Bool {
-        if !state.isSuccesfullyLoaded {
-            return false
-        }
-        
+    func getRemovalState(amountType: Amount.AmountType) -> RemovalState {
         if let token = amountType.token, token == defaultToken {
-            return false
+            return .ableThroughtAlert
         }
         
         if amountType == .coin, wallet.blockchain == defaultBlockchain {
-            return false
+            return .ableThroughtAlert
         }
         
-        if let amount = wallet.amounts[amountType], !amount.isZero {
-            return false
+        if amountType == .coin && !walletManager.cardTokens.isEmpty {
+            return .unable
         }
         
         if wallet.hasPendingTx(for: amountType) {
-            return false
+            return .ableThroughtAlert
         }
         
-        if amountType == .coin && (!wallet.isEmpty || walletManager.cardTokens.count != 0) {
-            return false
+        if !state.isSuccesfullyLoaded {
+            return .ableThroughtAlert
         }
         
-        return true
+        if let amount = wallet.amounts[amountType], !amount.isZero {
+            return .ableThroughtAlert
+        }
+        
+        return .able
     }
     
-    
     func removeToken(_ token: Token, for cardId: String) -> Bool {
-        guard canRemove(amountType: .token(value: token)) else {
+        guard getRemovalState(amountType: .token(value: token)).isRemovable else {
+            assertionFailure("Delete token isn't possible")
             return false
         }
+
         walletManager.removeToken(token)
         tokenItemsRepository.remove(token, blockchainNetwork: blockchainNetwork, for: cardId)
         updateTokensViewModels()
@@ -592,6 +593,16 @@ extension WalletModel {
             case .noAccount, .idle:
                 return true
             }
+        }
+    }
+}
+
+extension WalletModel {
+    enum RemovalState: Hashable {
+        case able, unable, ableThroughtAlert
+        
+        var isRemovable: Bool {
+            self != .unable
         }
     }
 }
