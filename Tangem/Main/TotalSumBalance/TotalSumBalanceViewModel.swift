@@ -15,9 +15,9 @@ class TotalSumBalanceViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var currencyType: String = ""
     @Published var totalFiatValueString: NSAttributedString = NSAttributedString(string: "")
-    @Published var error: Bool = false
+    @Published var hasError: Bool = false
     
-    private var refreshSubscriptions: AnyCancellable?
+    private var refreshSubscription: AnyCancellable?
     private var tokenItemViewModels: [TokenItemViewModel] = []
     
     init() {
@@ -27,7 +27,7 @@ class TotalSumBalanceViewModel: ObservableObject {
     func beginUpdates() {
         DispatchQueue.main.async {
             self.isLoading = true
-            self.error = false
+            self.hasError = false
         }
     }
     
@@ -44,16 +44,16 @@ class TotalSumBalanceViewModel: ObservableObject {
         refresh(loadingAnimationEnable: false)
     }
     
-    func disableLoading(withError error: Bool = false) {
+    func disableLoading(withError: Bool = false) {
         withAnimation(Animation.spring().delay(0.5)) {
-            self.error = error
+            self.hasError = withError
             self.isLoading = false
         }
     }
     
     private func refresh(loadingAnimationEnable: Bool = true) {
         currencyType = currencyRateService.selectedCurrencyCode
-        refreshSubscriptions = currencyRateService
+        refreshSubscription = currencyRateService
             .baseCurrencies()
             .receive(on: RunLoop.main)
             .sink { _ in
@@ -67,12 +67,10 @@ class TotalSumBalanceViewModel: ObservableObject {
                 var totalFiatValue: Decimal = 0.0
                 for token in self.tokenItemViewModels {
                     if token.state.isSuccesfullyLoaded {
-                        if token.rate.isEmpty {
-                            hasTotalBalanceError = true
-                        } else {
-                            totalFiatValue += token.fiatValue
-                        }
-                    } else {
+                        totalFiatValue += token.fiatValue
+                    }
+                    
+                    if token.rate.isEmpty || !token.state.isSuccesfullyLoaded {
                         hasTotalBalanceError = true
                     }
                 }
@@ -82,7 +80,7 @@ class TotalSumBalanceViewModel: ObservableObject {
                 if loadingAnimationEnable {
                     self.disableLoading(withError: hasTotalBalanceError)
                 } else {
-                    self.error = hasTotalBalanceError
+                    self.hasError = hasTotalBalanceError
                 }
             }
     }
