@@ -65,7 +65,7 @@ enum AppScanTaskError: String, Error, LocalizedError {
 }
 
 final class AppScanTask: CardSessionRunnable {
-    private let userPrefsService: UserPrefsService?
+    private var userPrefsService = UserPrefsService()
     
     private let targetBatch: String?
     private var twinIssuerData: Data? = nil
@@ -74,18 +74,14 @@ final class AppScanTask: CardSessionRunnable {
     private var derivedKeys: [Data: [DerivationPath:ExtendedPublicKey]] = [:]
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
 #if !CLIP
-    private let tokenItemsRepository: TokenItemsRepository?
+    @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
     
-    init(tokenItemsRepository: TokenItemsRepository?, userPrefsService: UserPrefsService?,
-         targetBatch: String? = nil) {
-        self.tokenItemsRepository = tokenItemsRepository
+    init(targetBatch: String? = nil) {
         self.targetBatch = targetBatch
-        self.userPrefsService = userPrefsService
     }
 #else
-    init(userPrefsService: UserPrefsService?, targetBatch: String? = nil) {
+    init(targetBatch: String? = nil) {
         self.targetBatch = targetBatch
-        self.userPrefsService = userPrefsService
     }
 #endif
     
@@ -123,8 +119,7 @@ final class AppScanTask: CardSessionRunnable {
                 return
             }
             
-            if let userPrefsService = self.userPrefsService,
-               userPrefsService.cardsStartedActivation.contains(card.cardId),
+            if userPrefsService.cardsStartedActivation.contains(card.cardId),
                card.backupStatus == .noBackup {
                 readPrimaryCard(session, completion)
                 return
@@ -153,16 +148,15 @@ final class AppScanTask: CardSessionRunnable {
             switch result {
             case .success(let response):
                 guard let file = response.first,
-                      let namedFile = try? NamedFile(tlvData: file.data),
-                      let tlv = Tlv.deserialize(namedFile.payload),
-                      let fileSignature = namedFile.signature,
-                      let fileCounter = namedFile.counter,
+                      let tlv = Tlv.deserialize(file.data),
+                      let fileSignature = file.signature,
+                      let fileCounter = file.counter,
                       let walletData = try? WalletDataDeserializer().deserialize(decoder: TlvDecoder(tlv: tlv)) else {
                     exit()
                     return
                 }
                 
-                let dataToVerify = Data(hexString: card.cardId) + namedFile.payload + fileCounter.bytes4
+                let dataToVerify = Data(hexString: card.cardId) + file.data + fileCounter.bytes4
                 let isVerified: Bool = (try? CryptoUtils.verify(curve: .secp256k1,
                                                                 publicKey: card.issuer.publicKey,
                                                                 message: dataToVerify,
@@ -251,8 +245,7 @@ final class AppScanTask: CardSessionRunnable {
         self.runAttestation(session, completion)
         return
 #else
-        guard let tokenItemsRepository = self.tokenItemsRepository,
-        session.environment.card?.settings.isHDWalletAllowed == true else {
+        guard session.environment.card?.settings.isHDWalletAllowed == true else {
             self.runAttestation(session, completion)
             return
         }
