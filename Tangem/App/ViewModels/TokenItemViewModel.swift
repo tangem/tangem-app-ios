@@ -65,11 +65,11 @@ struct TokenItemViewModel: Identifiable, Equatable, Comparable {
             return  "wallet_balance_tx_in_progress".localized
         }
         
-        if state.isLoading {
-            return "wallet_balance_loading".localized
-        }
-        
         return rate.isEmpty ? "token_item_no_rate".localized : rate
+    }
+    
+    var isLoading: Bool {
+        return !state.isBlockchainUnreachable && !state.isNoAccount && (balance.isEmpty || rate.isEmpty) && !isCustom
     }
     
     static let `default` = TokenItemViewModel(state: .created, hasTransactionInProgress: false, name: "", fiatBalance: "", balance: "", rate: "", amountType: .coin, blockchainNetwork: .init(.bitcoin(testnet: false)), fiatValue: 0, isCustom: false)
