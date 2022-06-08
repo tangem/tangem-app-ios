@@ -484,4 +484,13 @@ URL: %@";
 "common_server_unavailable" = "The server is not available, please try again later";
 "main_processing_full_amount" = "Some networks are unreachable";
 "main_tokens" = "Tokens";
+
+// MARK: Token details
+
+"token_details_hide_alert_title" = "Hide %@";
+"token_details_hide_alert_hide" = "Hide";
+"token_details_hide_alert_message" = "You hide the token from the main screen, but you can add it back at any time.";
+"token_details_unable_hide_alert_title" = "Unable to hide %@";
+"token_details_unable_hide_alert_message" = "The %@ token is the main currency on the %@ network and cannot be hidden as long as you have other tokens on this network in the list.";
+
 "token_item_no_rate" = "No rate";
