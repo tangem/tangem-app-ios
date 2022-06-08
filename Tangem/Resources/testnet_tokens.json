@@ -103,6 +103,18 @@
             ]
         },
         {
+            "id" : "just-gov",
+            "symbol" : "JST",
+            "name" : "JUST GOV",
+            "networks" : [
+                {
+                    "networkId" : "tron/test",
+                    "contractAddress" : "TF17BgPaZYbz8oxbjhriubPDsA7ArKoLX3",
+                    "decimalCount" : 18
+                }
+            ]
+        },
+        {
             "id" : "Wrapped Ether-WETH",
             "symbol" : "WETH",
             "name" : "Wrapped Ether",
@@ -386,6 +398,16 @@
           "networks" : [
               {
                   "networkId" : "tron/test"
+              }
+          ]
+        },
+        {
+          "id" : "arbitrum-one",
+          "symbol" : "ETH",
+          "name" : "Arbitrum",
+          "networks" : [
+              {
+                  "networkId" : "arbitrum-one/test"
               }
           ]
         },
