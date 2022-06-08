@@ -10,19 +10,11 @@ import Combine
 import SwiftUI
 
 class StoriesViewModel: ViewModel, ObservableObject {
-    var assembly: Assembly!
-    var navigation: NavigationCoordinator!
-    weak var userPrefsService: UserPrefsService! {
-        didSet {
-            self.didDisplayMainScreenStories = userPrefsService.didDisplayMainScreenStories
-            userPrefsService.didDisplayMainScreenStories = true
-        }
-    }
-    
     @Published var currentPage: WelcomeStoryPage = WelcomeStoryPage.allCases[0]
     @Published var currentProgress = 0.0
-    let pages = WelcomeStoryPage.allCases
     
+    let pages: [WelcomeStoryPage] = WelcomeStoryPage.allCases
+    private var userPrefsService: UserPrefsService = .init()
     private var timerSubscription: AnyCancellable?
     private var timerStartDate: Date?
     private var longTapTimerSubscription: AnyCancellable?
@@ -33,6 +25,11 @@ class StoriesViewModel: ViewModel, ObservableObject {
     
     private let longTapDuration = 0.25
     private let minimumSwipeDistance = 100.0
+    
+    override init() {
+        self.didDisplayMainScreenStories = userPrefsService.didDisplayMainScreenStories
+        userPrefsService.didDisplayMainScreenStories = true
+    }
     
     func onAppear() {
         NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)
