@@ -11,10 +11,6 @@ import Combine
 import TangemSdk
 
 class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
-    weak var assembly: Assembly!
-    weak var navigation: NavigationCoordinator!
-    weak var userPrefsService: UserPrefsService?
-    
     let navbarSize: CGSize = .init(width: UIScreen.main.bounds.width, height: 44)
     let resetAnimDuration: Double = 0.3
     
@@ -29,6 +25,7 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
     @Published var alert: AlertBinder?
     @Published var cardImage: UIImage?
     
+    var userPrefsService: UserPrefsService = .init()
     private var confettiFired: Bool = false
     var bag: Set<AnyCancellable> = []
     
@@ -145,6 +142,7 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
             isNavBarVisible = true
         }
         
+        super.init()
         input.cardInput.cardModel.map { loadImage(for: $0) }
     }
     
@@ -177,8 +175,6 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
     }
     
     func onOnboardingFinished(for cardId: String) {
-        guard let userPrefsService = self.userPrefsService else { return }
-        
         if let existingIndex = userPrefsService.cardsStartedActivation.firstIndex(where: { $0 == cardId }) {
             userPrefsService.cardsStartedActivation.remove(at: existingIndex)
         }
