@@ -37,6 +37,36 @@ struct TokenItemViewModel: Identifiable, Equatable, Comparable {
         blockchainNetwork.blockchain.isTestnet
     }
     
+    var displayBalanceText: String {
+        if state.failureDescription != nil {
+            return "—"
+        }
+        return balance.isEmpty ? Decimal(0).currencyFormatted(code: currencySymbol) : balance
+    }
+    
+    var displayFiatBalanceText: String {
+        if rate.isEmpty {
+            return "—"
+        }
+        return state.errorDescription != nil ? "—" : fiatBalance
+    }
+    
+    var displayRateText: String {
+        if state.isBlockchainUnreachable {
+            return "wallet_balance_blockchain_unreachable".localized
+        }
+        
+        if hasTransactionInProgress {
+            return  "wallet_balance_tx_in_progress".localized
+        }
+        
+        if state.isLoading {
+            return "wallet_balance_loading".localized
+        }
+        
+        return rate.isEmpty ? "token_item_no_rate".localized : rate
+    }
+    
     static let `default` = TokenItemViewModel(state: .created, hasTransactionInProgress: false, name: "", fiatBalance: "", balance: "", rate: "", amountType: .coin, blockchainNetwork: .init(.bitcoin(testnet: false)), fiatValue: 0, isCustom: false)
     
     static func < (lhs: TokenItemViewModel, rhs: TokenItemViewModel) -> Bool {

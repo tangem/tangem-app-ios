@@ -116,9 +116,10 @@ struct SecurityManagementView: View {
 
 struct SecurityManagementView_Previews: PreviewProvider {
     static let assembly = Assembly.previewAssembly
+    static let navigation = NavigationCoordinator()
     
     static var previews: some View {
         SecurityManagementView(viewModel: assembly.makeSecurityManagementViewModel(with: assembly.previewCardViewModel))
-            .environmentObject(assembly.services.navigationCoordinator)
+            .environmentObject(navigation)
     }
 }

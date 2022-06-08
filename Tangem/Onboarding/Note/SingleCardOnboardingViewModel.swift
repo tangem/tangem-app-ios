@@ -12,10 +12,9 @@ import TangemSdk
 import Combine
 
 class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardingStep>, ObservableObject {
-    
-    weak var cardsRepository: CardsRepository!
-    weak var tokensRepo: TokenItemsRepository!
-    weak var stepsSetupService: OnboardingStepsSetupService!
+    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
+    @Injected(\.tokenItemsRepository) private var tokensRepo: TokenItemsRepository
+    @Injected(\.onboardingStepsSetupService) private var stepsSetupService: OnboardingStepsSetupService
     
     @Published var isCardScanned: Bool = true
     
@@ -65,8 +64,8 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         return false
     }
     
-    override init(exchangeService: ExchangeService, input: OnboardingInput) {
-        super.init(exchangeService: exchangeService, input: input)
+    override init(input: OnboardingInput) {
+        super.init(input: input)
         
         if case let .singleWallet(steps) = input.steps {
             self.steps = steps
@@ -152,7 +151,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         
         if assembly.isPreview {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                self.cardModel = Assembly.PreviewCard.scanResult(for: .cardanoNoteEmptyWallet, assembly: self.assembly).cardModel!
+                self.cardModel = PreviewCard.cardanoNoteEmptyWallet.cardModel
                 self.updateCardBalanceText(for: self.cardModel!.walletModels!.first!)
                 self.isMainButtonBusy = false
                 self.goToNextStep()
@@ -193,7 +192,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             }
             
             if cardInfo.isTangemNote {
-                self?.userPrefsService?.cardsStartedActivation.append(cardInfo.card.cardId)
+                self?.userPrefsService.cardsStartedActivation.append(cardInfo.card.cardId)
             }
             
             self?.cardModel?.updateState()
@@ -238,7 +237,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     
     private func readPreviewCard() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            let previewModel = Assembly.PreviewCard.scanResult(for: .ethEmptyNote, assembly: self.assembly).cardModel!
+            let previewModel = PreviewCard.ethEmptyNote.cardModel
             self.cardModel = previewModel
             self.stepsSetupService.steps(for: previewModel.cardInfo)
                 .sink { _ in }
