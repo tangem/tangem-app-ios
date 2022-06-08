@@ -232,8 +232,7 @@ struct MainView: View {
                                             .padding(.bottom, 6)
                                         }
                                         
-                                        TokensView(items: viewModel.tokenItemViewModels,
-                                                   isLoading: viewModel.isLoadingTokensBalance) { item in
+                                        TokensView(items: viewModel.tokenItemViewModels) { item in
                                             viewModel.onWalletTap(item)
                                         }
                                         
