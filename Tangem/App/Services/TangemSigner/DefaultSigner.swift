@@ -24,7 +24,7 @@ public class DefaultSigner: TransactionSigner, TransactionSignerPublisher {
             let signCommand = SignAndReadTask(hashes: hashes,
                                               walletPublicKey: walletPublicKey.seedKey,
                                               derivationPath: walletPublicKey.derivationPath)
-            self.tangemSdk.startSession(with: signCommand, initialMessage: self.initialMessage) { signResult in
+            self.sdkProvider.sdk.startSession(with: signCommand, initialMessage: self.initialMessage) { signResult in
                 switch signResult {
                 case .success(let response):
                     self.signedCardPublisher.send(response.card)
