@@ -158,6 +158,10 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     private var rentWarningSubscription: AnyCancellable?
     private var refreshCancellable: AnyCancellable? = nil
     private lazy var testnetBuyCrypto: TestnetBuyCryptoService = .init()
+
+    private var currencySymbol: String {
+        amountType.token?.symbol ?? blockchainNetwork.blockchain.currencySymbol
+    }
     
     init(blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType) {
         self.blockchainNetwork = blockchainNetwork
@@ -352,10 +356,10 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     }
     
     private func showUnableToHideAlert() {
-        let title = "token_details_unable_hide_alert_title".localized(amountToSend?.currencySymbol ?? "")
+        let title = "token_details_unable_hide_alert_title".localized(currencySymbol)
 
         let message = "token_details_unable_hide_alert_message".localized([
-            amountToSend?.currencySymbol ?? "",
+            currencySymbol,
             walletModel?.blockchainNetwork.blockchain.displayName ?? ""
         ])
 
@@ -363,7 +367,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     }
     
     private func showWarningDeleteAlert() {
-        let title = "token_details_hide_alert_title".localized(amountToSend?.currencySymbol ?? "")
+        let title = "token_details_hide_alert_title".localized(currencySymbol)
         
         alert = warningAlert(
             title: title,
