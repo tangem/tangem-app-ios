@@ -49,6 +49,7 @@ struct WarningView: View {
                             .foregroundColor(.tangemGrayDark)
                             .frame(width: 26, height: 26)
                     })
+                    .buttonStyle(PlainButtonStyle())
                     .offset(x: 6)
                 }
             }
@@ -90,6 +91,7 @@ struct WarningView: View {
                             .font(.system(size: 14, weight: .bold))
                             .foregroundColor(.white)
                     })
+                    .buttonStyle(PlainButtonStyle())
                     .frame(height: 24)
                     if warningButtons.count > 1, item.offset < warningButtons.count - 1 {
                         Color.tangemGrayDark5
