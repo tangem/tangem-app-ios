@@ -15,9 +15,9 @@ class TotalSumBalanceViewModel: ObservableObject {
     @Published var isLoading: Bool = false
     @Published var currencyType: String = ""
     @Published var totalFiatValueString: NSAttributedString = NSAttributedString(string: "")
-    @Published var error: TotalBalanceError?
+    @Published var hasError: Bool = false
     
-    private var bag = Set<AnyCancellable>()
+    private var refreshSubscription: AnyCancellable?
     private var tokenItemViewModels: [TokenItemViewModel] = []
     
     init() {
@@ -27,7 +27,7 @@ class TotalSumBalanceViewModel: ObservableObject {
     func beginUpdates() {
         DispatchQueue.main.async {
             self.isLoading = true
-            self.error = nil
+            self.hasError = false
         }
     }
     
@@ -44,17 +44,16 @@ class TotalSumBalanceViewModel: ObservableObject {
         refresh(loadingAnimationEnable: false)
     }
     
-    func disableLoading(withError error: TotalBalanceError? = nil) {
+    func disableLoading(withError: Bool = false) {
         withAnimation(Animation.spring().delay(0.5)) {
-            self.error = error
+            self.hasError = withError
             self.isLoading = false
         }
     }
     
     private func refresh(loadingAnimationEnable: Bool = true) {
-        error = .none
         currencyType = currencyRateService.selectedCurrencyCode
-        currencyRateService
+        refreshSubscription = currencyRateService
             .baseCurrencies()
             .receive(on: RunLoop.main)
             .sink { _ in
@@ -64,34 +63,26 @@ class TotalSumBalanceViewModel: ObservableObject {
                 else {
                     return
                 }
-                var totalBalanceError: TotalBalanceError? = nil
+                var hasTotalBalanceError: Bool = false
                 var totalFiatValue: Decimal = 0.0
                 for token in self.tokenItemViewModels {
                     if token.state.isSuccesfullyLoaded {
-                        if token.rate.isEmpty && !token.isCustom && !token.state.isNoAccount {
-                            totalBalanceError = .impossibleToCalculateAmount
-                            break
-                        }
                         totalFiatValue += token.fiatValue
-                    } else {
-                        totalBalanceError = .someNetworkUnreachable
-                        break
+                    }
+                    
+                    if token.rate.isEmpty || !token.state.isSuccesfullyLoaded {
+                        hasTotalBalanceError = true
                     }
                 }
                 
-                switch totalBalanceError {
-                case .none:
-                    self.totalFiatValueString = self.addAttributeForBalance(totalFiatValue, withCurrencyCode: currency.code)
-                case .someNetworkUnreachable, .impossibleToCalculateAmount:
-                    self.totalFiatValueString = NSMutableAttributedString(string: "—")
-                }
+                self.totalFiatValueString = self.addAttributeForBalance(totalFiatValue, withCurrencyCode: currency.code)
                 
                 if loadingAnimationEnable {
-                    self.disableLoading(withError: totalBalanceError)
+                    self.disableLoading(withError: hasTotalBalanceError)
                 } else {
-                    self.error = totalBalanceError
+                    self.hasError = hasTotalBalanceError
                 }
-            }.store(in: &bag)
+            }
     }
     
     private func addAttributeForBalance(_ balance: Decimal, withCurrencyCode: String) -> NSAttributedString {
@@ -107,12 +98,5 @@ class TotalSumBalanceViewModel: ObservableObject {
         
         attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 20, weight: .semibold), range: rangeAfterDecimal)
         return attributedString
-    }
-}
-
-extension TotalSumBalanceViewModel {
-    enum TotalBalanceError {
-        case impossibleToCalculateAmount
-        case someNetworkUnreachable
     }
 }
