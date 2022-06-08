@@ -68,6 +68,7 @@ struct TokenItemViewModel: Identifiable, Equatable, Comparable {
         return rate.isEmpty ? "token_item_no_rate".localized : rate
     }
     
+//    [REDACTED_TODO_COMMENT]
     var isLoading: Bool {
         return !state.isBlockchainUnreachable && !state.isNoAccount && (balance.isEmpty || rate.isEmpty) && !isCustom
     }
