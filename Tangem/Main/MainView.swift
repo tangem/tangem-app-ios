@@ -101,10 +101,35 @@ struct MainView: View {
         return nil
     }
     
+    var scanNavigationButton: some View {
+        Button(action: {
+            viewModel.onScan()
+        }, label: {
+            Image("scanCardIcon")
+                .foregroundColor(Color.black)
+                .frame(width: 44, height: 44)
+        })
+        .buttonStyle(PlainButtonStyle())
+    }
+    
+    var settingsNavigationButton: some View {
+        Button(action: {
+            if viewModel.state.cardModel != nil {
+                viewModel.navigation.mainToSettings.toggle()
+            }
+        }, label: { Image("verticalDots")
+                .foregroundColor(Color.tangemGrayDark6)
+                .frame(width: 44.0, height: 44.0, alignment: .center)
+                .offset(x: 10.0, y: 0.0)
+        })
+        .accessibility(label: Text("voice_over_open_card_details"))
+        .padding(0.0)
+    }
+    
     var navigationLinks: some View {
         VStack {
             NavigationLink(destination: DetailsView(viewModel: viewModel.assembly.makeDetailsViewModel()),
-                           isActive: $viewModel.navigation.mainToSettings)
+                           isActive: $navigation.mainToSettings)
             
             NavigationLink(destination: TokenDetailsView(viewModel: viewModel.assembly.makeTokenDetailsViewModel(blockchainNetwork: viewModel.selectedWallet.blockchainNetwork,
                                                                                                                  amountType: viewModel.selectedWallet.amountType)),
@@ -117,7 +142,7 @@ struct MainView: View {
                 navigation.mainToBuyCrypto = false
                 viewModel.sendAnalyticsEvent(.userBoughtCrypto)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    self.viewModel.state.cardModel?.update()
+                    self.viewModel.updateCardModel()
                 }
             }
                                                                      ]),
@@ -131,6 +156,9 @@ struct MainView: View {
             }
                                                                      ]),
                            isActive: $navigation.mainToSellCrypto)
+            
+            NavigationLink(destination: CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel(), dismissAfterSelection: true),
+                           isActive: $navigation.currencyChangeView)
             
             //            NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(isFromMain: true)),
             //                           isActive: $navigation.mainToTwinOnboarding)
@@ -194,22 +222,30 @@ struct MainView: View {
                                     )
                                 } else {
                                     if viewModel.cardModel!.cardInfo.isMultiWallet {
-                                        ForEach(viewModel.tokenItemViewModels) { item in
-                                            TokensListItemView(item: item)
-                                                .onTapGesture {
-                                                    viewModel.onWalletTap(item)
-                                                }
+                                        
+                                        if !viewModel.tokenItemViewModels.isEmpty {
+                                            TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel) {
+                                                viewModel.showCurrencyChangeScreen()
+                                            }
+                                            .cornerRadius(16)
+                                            .padding(.horizontal, 16)
+                                            .padding(.bottom, 6)
                                         }
-                                        .padding(.horizontal, 16)
+                                        
+                                        TokensView(items: viewModel.tokenItemViewModels,
+                                                   isLoading: viewModel.isLoadingTokensBalance) { item in
+                                            viewModel.onWalletTap(item)
+                                        }
                                         
                                         AddTokensView(action: {
                                             navigation.mainToAddTokens = true
                                         })
                                         .padding(.horizontal, 16)
                                         .padding(.bottom, 8)
+                                        .padding(.top, 6)
                                         .sheet(isPresented: $navigation.mainToAddTokens, content: {
-                                                TokenListView(viewModel: viewModel.assembly.makeTokenListViewModel(mode: .add(cardModel: viewModel.cardModel!)))
-                                                    .environmentObject(navigation)
+                                            TokenListView(viewModel: viewModel.assembly.makeTokenListViewModel(mode: .add(cardModel: viewModel.cardModel!)))
+                                                .environmentObject(navigation)
                                         })
                                         
                                     } else {
@@ -256,14 +292,9 @@ struct MainView: View {
             Color.clear
                 .frame(width: 0.5, height: 0.5)
                 .sheet(item: $viewModel.emailFeedbackCase) { emailCase -> MailView in
-                    let dataCollector: EmailDataCollector
-                    switch emailCase {
-                    case .negativeFeedback:
-                        dataCollector = viewModel.negativeFeedbackDataCollector
-                    case .scanTroubleshooting:
-                        dataCollector = viewModel.failedCardScanTracker
-                    }
-                    return MailView(dataCollector: dataCollector, support: .tangem, emailType: emailCase.emailType)
+                    return MailView(dataCollector: viewModel.getDataCollector(for: emailCase),
+                                    support: .tangem,
+                                    emailType: emailCase.emailType)
                 }
             
             Color.clear
@@ -277,6 +308,20 @@ struct MainView: View {
                 .frame(width: 0.5, height: 0.5)
                 .sheet(item: $viewModel.showExternalURL) { SafariView(url: $0) }
             
+            Color.clear
+                .frame(width: 0.5, height: 0.5)
+                .sheet(isPresented: $navigation.mainToCardOnboarding, content: {
+                    let model = viewModel.assembly.getCardOnboardingViewModel()
+                    OnboardingBaseView(viewModel: model)
+                        .presentation(modal: viewModel.isOnboardingModal,
+                                      onDismissalAttempt: {},
+                                      onDismissed: viewModel.onboardingDismissed)
+                        .environmentObject(navigation)
+                        .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
+                            viewModel.isOnboardingModal = value
+                        })
+                })
+            
             BottomSheetView(isPresented: navigation.$mainToQR,
                             hideBottomSheetCallback: {
                 navigation.mainToQR = false
@@ -289,18 +334,8 @@ struct MainView: View {
         }
         .navigationBarBackButtonHidden(true)
         .navigationBarTitle(navigation.mainToSettings || navigation.mainToBuyCrypto || navigation.mainToTokenDetails ? "" : "wallet_title", displayMode: .inline)
-        .navigationBarItems(trailing: Button(action: {
-            if viewModel.state.cardModel != nil {
-                viewModel.navigation.mainToSettings.toggle()
-            }
-        }, label: { Image("verticalDots")
-                .foregroundColor(Color.tangemGrayDark6)
-                .frame(width: 44.0, height: 44.0, alignment: .center)
-                .offset(x: 10.0, y: 0.0)
-        })
-            .accessibility(label: Text("voice_over_open_card_details"))
-            .padding(0.0)
-        )
+        .navigationBarItems(leading: scanNavigationButton,
+                            trailing: settingsNavigationButton)
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
         .onAppear {
             viewModel.onAppear()
@@ -331,26 +366,6 @@ struct MainView: View {
             .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
                                            isDisabled: !viewModel.canCreateWallet || !viewModel.canCreateTwinWallet,
                                            isLoading: viewModel.isCreatingWallet))
-    }
-    
-    var scanButton: some View {
-        TangemButton(title: "wallet_button_scan",
-                     image: "scan",
-                     action: viewModel.onScan)
-        .buttonStyle(TangemButtonStyle(colorStyle: .black,
-                                       layout: .flexibleWidth,
-                                       isLoading: viewModel.isScanning))
-        .sheet(isPresented: $navigation.mainToCardOnboarding, content: {
-            let model = viewModel.assembly.getCardOnboardingViewModel()
-            OnboardingBaseView(viewModel: model)
-                .presentation(modal: viewModel.isOnboardingModal,
-                              onDismissalAttempt: {},
-                              onDismissed: viewModel.onboardingDismissed)
-                .environmentObject(navigation)
-                .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
-                    viewModel.isOnboardingModal = value
-                })
-        })
     }
     
     var sendButton: some View {
@@ -432,26 +447,21 @@ struct MainView: View {
                         sendButton
                     }
                 }
-                
-                scanButton
             }
             .padding([.horizontal, .top], 16)
             .padding(.bottom, 8)
-            .background(LinearGradient(colors: [.white, .white, .white.opacity(0)],
-                                       startPoint: .bottom,
-                                       endPoint: .top)
-                .edgesIgnoringSafeArea(.bottom))
         }
     }
 }
 
 struct MainView_Previews: PreviewProvider {
     static let assembly: Assembly = .previewAssembly(for: .stellar)
+    static let navigation = NavigationCoordinator()
     
     static var previews: some View {
         NavigationView {
             MainView(viewModel: assembly.makeMainViewModel())
-                .environmentObject(assembly.services.navigationCoordinator)
+                .environmentObject(navigation)
         }
         .previewGroup(devices: [.iPhone12ProMax])
         .navigationViewStyle(StackNavigationViewStyle())
