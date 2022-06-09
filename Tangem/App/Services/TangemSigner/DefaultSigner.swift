@@ -19,7 +19,7 @@ public class DefaultSigner: TransactionSigner, TransactionSignerPublisher {
     
     public init() {}
     
-    public func sign(hashes: [Data], cardId: String, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[Data], Error> {
+    public func sign(hashes: [Data], cardId: String?, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[Data], Error> {
         let future = Future<[Data], Error> {[unowned self] promise in
             let signCommand = SignAndReadTask(hashes: hashes,
                                               walletPublicKey: walletPublicKey.seedKey,
@@ -37,7 +37,7 @@ public class DefaultSigner: TransactionSigner, TransactionSignerPublisher {
         return AnyPublisher(future)
     }
     
-    public func sign(hash: Data, cardId: String, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<Data, Error> {
+    public func sign(hash: Data, cardId: String?, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<Data, Error> {
         sign(hashes: [hash], cardId: cardId, walletPublicKey: walletPublicKey)
             .map { $0[0] }
             .eraseToAnyPublisher()
