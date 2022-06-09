@@ -213,7 +213,7 @@ class SendViewModel: ViewModel, ObservableObject {
     private func fillTotalBlockWithDefaults() {
         let dummyAmount = Amount(with: amountToSend, value: 0)
         
-        updateFee(amount: nil)
+        updateFee(amount: selectedFee)
         self.sendAmount = getDescription(for: dummyAmount)
         self.sendTotal = getDescription(for: dummyAmount)
         self.sendTotalSubtitle = " "
