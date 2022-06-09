@@ -19,12 +19,12 @@ public class DefaultSigner: TransactionSigner, TransactionSignerPublisher {
     
     public init() {}
     
-    public func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[Data], Error> {
+    public func sign(hashes: [Data], cardId: String, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[Data], Error> {
         let future = Future<[Data], Error> {[unowned self] promise in
             let signCommand = SignAndReadTask(hashes: hashes,
                                               walletPublicKey: walletPublicKey.seedKey,
                                               derivationPath: walletPublicKey.derivationPath)
-            self.sdkProvider.sdk.startSession(with: signCommand, initialMessage: self.initialMessage) { signResult in
+            self.sdkProvider.sdk.startSession(with: signCommand, cardId: cardId, initialMessage: self.initialMessage) { signResult in
                 switch signResult {
                 case .success(let response):
                     self.signedCardPublisher.send(response.card)
@@ -37,8 +37,8 @@ public class DefaultSigner: TransactionSigner, TransactionSignerPublisher {
         return AnyPublisher(future)
     }
     
-    public func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<Data, Error> {
-        sign(hashes: [hash], walletPublicKey: walletPublicKey)
+    public func sign(hash: Data, cardId: String, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<Data, Error> {
+        sign(hashes: [hash], cardId: cardId, walletPublicKey: walletPublicKey)
             .map { $0[0] }
             .eraseToAnyPublisher()
     }
