@@ -37,8 +37,7 @@ class WalletManagerAssembly {
                let wallet = cardInfo.card.wallets.first,
                let bitcoinManager = try? factory.makeWalletManager(cardId: cardInfo.card.cardId,
                                                                    blockchain: .bitcoin(testnet: false),
-                                                                   walletPublicKey: wallet.publicKey,
-                                                                   canSignWithAnyCard: false) {
+                                                                   walletPublicKey: wallet.publicKey ) {
                 return [bitcoinManager]
             }
             
@@ -81,8 +80,7 @@ class WalletManagerAssembly {
                                                walletPublicKey: wallet.publicKey,
                                                blockchainNetwork: entry.blockchainNetwork,
                                                isHDWalletAllowed: cardInfo.card.settings.isHDWalletAllowed,
-                                               derivedKeys: cardInfo.derivedKeys[wallet.publicKey] ?? [:],
-                                               canSignWithAnyCard: cardInfo.isTangemWallet)
+                                               derivedKeys: cardInfo.derivedKeys[wallet.publicKey] ?? [:])
             {
                 manager.addTokens(entry.tokens)
                 return manager
@@ -98,8 +96,7 @@ class WalletManagerAssembly {
                                          walletPublicKey: wallet.publicKey,
                                          blockchainNetwork: network,
                                          isHDWalletAllowed: wallet.isHdWalletAllowed,
-                                         derivedKeys: cardDto.getDerivedKeys(for: wallet.publicKey),
-                                         canSignWithAnyCard: false)
+                                         derivedKeys: cardDto.getDerivedKeys(for: wallet.publicKey))
             }
             
             return nil
@@ -110,8 +107,7 @@ class WalletManagerAssembly {
                                    walletPublicKey: Data,
                                    blockchainNetwork: BlockchainNetwork,
                                    isHDWalletAllowed: Bool,
-                                   derivedKeys: [DerivationPath: ExtendedPublicKey],
-                                   canSignWithAnyCard: Bool) -> WalletManager? {
+                                   derivedKeys: [DerivationPath: ExtendedPublicKey]) -> WalletManager? {
         if isHDWalletAllowed, blockchainNetwork.blockchain.curve == .secp256k1 || blockchainNetwork.blockchain.curve == .ed25519  {
             guard let derivationPath = blockchainNetwork.derivationPath,
                   let derivedKey = derivedKeys[derivationPath] else { return nil }
@@ -120,13 +116,11 @@ class WalletManagerAssembly {
                                                   blockchain: blockchainNetwork.blockchain,
                                                   seedKey: walletPublicKey,
                                                   derivedKey: derivedKey,
-                                                  derivation: .custom(derivationPath),
-                                                  canSignWithAnyCard: canSignWithAnyCard)
+                                                  derivation: .custom(derivationPath))
         } else {
             return try? factory.makeWalletManager(cardId: cardId,
                                                   blockchain: blockchainNetwork.blockchain,
-                                                  walletPublicKey: walletPublicKey,
-                                                  canSignWithAnyCard: canSignWithAnyCard)
+                                                  walletPublicKey: walletPublicKey)
         }
     }
     
