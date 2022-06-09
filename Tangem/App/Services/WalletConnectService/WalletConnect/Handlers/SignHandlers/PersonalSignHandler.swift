@@ -40,10 +40,10 @@ class PersonalSignHandler: WalletConnectSignHandler {
         .signature(signature, for: request)
     }
     
-    override func sign(data: Data, cardId: String, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<String, Error> {
+    override func sign(data: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<String, Error> {
         let hash = data.sha3(.keccak256)
         
-        return signer.sign(hash: hash, cardId: cardId, walletPublicKey: walletPublicKey)
+        return signer.sign(hash: hash, walletPublicKey: walletPublicKey)
             .tryMap { response -> String in
                 if let unmarshalledSig = try? Secp256k1Signature(with: response).unmarshal(with: walletPublicKey.blockchainKey,
                                                                                            hash: hash) {
