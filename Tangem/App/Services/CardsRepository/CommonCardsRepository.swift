@@ -21,7 +21,6 @@ import enum TangemSdk.TangemSdkError
 import Intents
 
 class CommonCardsRepository: CardsRepository {
-    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
     @Injected(\.scannedCardsRepository) private var scannedCardsRepository: ScannedCardsRepository
     @Injected(\.assemblyProvider) private var assemblyProvider: AssemblyProviding
