@@ -12,6 +12,7 @@ import Combine
 
 public class DefaultSigner: TransactionSigner, TransactionSignerPublisher {
     @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
+    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     
     var signedCardPublisher = PassthroughSubject<Card, Never>()
     
@@ -20,11 +21,20 @@ public class DefaultSigner: TransactionSigner, TransactionSignerPublisher {
     public init() {}
     
     public func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[Data], Error> {
+        let requiredCardId: String?
+        
+        let cardInfo = cardsRepository.lastScanResult.cardModel?.cardInfo
+        if let cardInfo = cardInfo, cardInfo.isTangemWallet {
+            requiredCardId = nil
+        } else {
+            requiredCardId = cardInfo?.card.cardId
+        }
+        
         let future = Future<[Data], Error> {[unowned self] promise in
             let signCommand = SignAndReadTask(hashes: hashes,
                                               walletPublicKey: walletPublicKey.seedKey,
                                               derivationPath: walletPublicKey.derivationPath)
-            self.sdkProvider.sdk.startSession(with: signCommand, initialMessage: self.initialMessage) { signResult in
+            self.sdkProvider.sdk.startSession(with: signCommand, cardId: requiredCardId, initialMessage: self.initialMessage) { signResult in
                 switch signResult {
                 case .success(let response):
                     self.signedCardPublisher.send(response.card)
