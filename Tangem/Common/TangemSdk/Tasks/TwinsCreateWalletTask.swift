@@ -69,8 +69,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
                let wallet = card.wallets.first {
                 self.walletManager = try? walletManagerFactory.makeWalletManager(cardId: card.cardId,
                                                                                  blockchain: .bitcoin(testnet: false),
-                                                                                 walletPublicKey: wallet.publicKey,
-                                                                                 canSignWithAnyCard: false)
+                                                                                 walletPublicKey: wallet.publicKey)
                 
                 walletManager?.update(completion: { result in         
                     switch result {
