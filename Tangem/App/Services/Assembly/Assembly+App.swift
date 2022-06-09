@@ -297,9 +297,7 @@ extension Assembly {
         let walletManagers = assembly.makeAllWalletManagers(for: cardInfo)
         return makeWalletModels(walletManagers: walletManagers,
                                 derivationStyle: cardInfo.card.derivationStyle,
-                                isDemoCard: cardInfo.card.isDemoCard,
-                                defaultToken: cardInfo.defaultToken,
-                                defaultBlockchain: cardInfo.defaultBlockchain)
+                                isDemoCard: cardInfo.card.isDemoCard)
     }
     
     func makeWalletModels(from cardInfo: CardInfo, entries: [StorageEntry]) -> [WalletModel] {
@@ -307,9 +305,7 @@ extension Assembly {
         let walletManagers = assembly.makeWalletManagers(from: cardInfo, entries: entries)
         return makeWalletModels(walletManagers: walletManagers,
                                 derivationStyle: cardInfo.card.derivationStyle,
-                                isDemoCard: cardInfo.card.isDemoCard,
-                                defaultToken: cardInfo.defaultToken,
-                                defaultBlockchain: cardInfo.defaultBlockchain)
+                                isDemoCard: cardInfo.card.isDemoCard)
     }
     
     func makeWalletModels(from cardDto: SavedCard, blockchainNetworks: [BlockchainNetwork]) -> [WalletModel] {
@@ -323,9 +319,7 @@ extension Assembly {
     //Make walletModel from walletManager
     private func makeWalletModels(walletManagers: [WalletManager],
                                   derivationStyle: DerivationStyle,
-                                  isDemoCard: Bool,
-                                  defaultToken: BlockchainSdk.Token? = nil,
-                                  defaultBlockchain: Blockchain? = nil) -> [WalletModel] {
+                                  isDemoCard: Bool) -> [WalletModel] {
         let items = SupportedTokenItems()
         return walletManagers.map { manager -> WalletModel in
             var demoBalance: Decimal? = nil
@@ -335,8 +329,6 @@ extension Assembly {
             
             let model = WalletModel(walletManager: manager,
                                     derivationStyle: derivationStyle,
-                                    defaultToken: defaultToken,
-                                    defaultBlockchain: defaultBlockchain,
                                     demoBalance: demoBalance)
             
             model.initialize()
