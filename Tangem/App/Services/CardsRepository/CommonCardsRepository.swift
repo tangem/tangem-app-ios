@@ -105,7 +105,7 @@ fileprivate class LegacyCardMigrator {
         }
         
         //Check if we have anything to migrate. It's impossible to get default token without default blockchain
-        guard let defaultBlockchain = cardInfo.defaultBlockchain else {
+        guard let entry = cardInfo.defaultStorageEntry else {
             return
         }
         
@@ -121,10 +121,6 @@ fileprivate class LegacyCardMigrator {
             return
         }
 
-        let derivationPath = defaultBlockchain.derivationPath(for: .legacy)
-        let network = BlockchainNetwork(defaultBlockchain, derivationPath: derivationPath)
-        let tokens = cardInfo.defaultToken.map { [$0] } ?? []
-        let entry = StorageEntry(blockchainNetwork: network, tokens: tokens)
         var entries = tokenItemsRepository.getItems(for: cardId)
         entries.insert(entry, at: 0)
         
