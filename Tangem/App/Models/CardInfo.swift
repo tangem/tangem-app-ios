@@ -59,6 +59,18 @@ struct CardInfo {
                      contractAddress: token.contractAddress,
                      decimalCount: token.decimals)
     }
+    
+    var defaultStorageEntry: StorageEntry? {
+        guard let defaultBlockchain = defaultBlockchain else {
+            return nil
+        }
+
+        let derivationPath = defaultBlockchain.derivationPath(for: .legacy)
+        let network = BlockchainNetwork(defaultBlockchain, derivationPath: derivationPath)
+        let tokens = defaultToken.map { [$0] } ?? []
+        return StorageEntry(blockchainNetwork: network, tokens: tokens)
+    }
+    
 #endif
     
     var artworkInfo: ArtworkInfo? {
