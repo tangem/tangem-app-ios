@@ -74,7 +74,7 @@ enum PreviewCard {
         let walletModels: [WalletModel]
         if let blockchain = blockchain {
             let factory = WalletManagerFactory(config: .init(blockchairApiKey: "", blockcypherTokens: [], infuraProjectId: ""))
-            let walletManager = try! factory.makeWalletManager(cardId: card.cardId, blockchain: blockchain, walletPublicKey: publicKey)
+            let walletManager = try! factory.makeWalletManager(blockchain: blockchain, walletPublicKey: publicKey)
             walletModels = [WalletModel(walletManager: walletManager, derivationStyle: .legacy, defaultToken: nil, defaultBlockchain: nil)]
         } else {
             walletModels = []
