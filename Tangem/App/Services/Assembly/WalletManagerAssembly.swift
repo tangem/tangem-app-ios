@@ -25,8 +25,7 @@ class WalletManagerAssembly {
         if cardInfo.card.isTwinCard {
             if let savedPairKey = cardInfo.twinCardInfo?.pairPublicKey,
                let publicKey = cardInfo.card.wallets.first?.publicKey,
-               let twinManager = try? factory.makeTwinWalletManager(from: cardInfo.card.cardId,
-                                                                    walletPublicKey: publicKey,
+               let twinManager = try? factory.makeTwinWalletManager(walletPublicKey: publicKey,
                                                                     pairKey: savedPairKey,
                                                                     isTestnet: false) {
                 return [twinManager]
@@ -35,8 +34,7 @@ class WalletManagerAssembly {
             //temp for bugged case
             if cardInfo.twinCardInfo?.pairPublicKey == nil,
                let wallet = cardInfo.card.wallets.first,
-               let bitcoinManager = try? factory.makeWalletManager(cardId: cardInfo.card.cardId,
-                                                                   blockchain: .bitcoin(testnet: false),
+               let bitcoinManager = try? factory.makeWalletManager(blockchain: .bitcoin(testnet: false),
                                                                    walletPublicKey: wallet.publicKey ) {
                 return [bitcoinManager]
             }
@@ -76,8 +74,7 @@ class WalletManagerAssembly {
     func makeWalletManagers(from cardInfo: CardInfo, entries: [StorageEntry]) -> [WalletManager] {
         return entries.compactMap { entry in
             if let wallet = cardInfo.card.wallets.first(where: { $0.curve == entry.blockchainNetwork.blockchain.curve }),
-               let manager = makeWalletManager(cardId: cardInfo.card.cardId,
-                                               walletPublicKey: wallet.publicKey,
+               let manager = makeWalletManager(walletPublicKey: wallet.publicKey,
                                                blockchainNetwork: entry.blockchainNetwork,
                                                isHDWalletAllowed: cardInfo.card.settings.isHDWalletAllowed,
                                                derivedKeys: cardInfo.derivedKeys[wallet.publicKey] ?? [:])
@@ -92,8 +89,7 @@ class WalletManagerAssembly {
     func makeWalletManagers(from cardDto: SavedCard, blockchainNetworks: [BlockchainNetwork]) -> [WalletManager] {
         return blockchainNetworks.compactMap { network in
             if let wallet = cardDto.wallets.first(where: { $0.curve == network.blockchain.curve }) {
-                return makeWalletManager(cardId: cardDto.cardId,
-                                         walletPublicKey: wallet.publicKey,
+                return makeWalletManager(walletPublicKey: wallet.publicKey,
                                          blockchainNetwork: network,
                                          isHDWalletAllowed: wallet.isHdWalletAllowed,
                                          derivedKeys: cardDto.getDerivedKeys(for: wallet.publicKey))
@@ -103,8 +99,7 @@ class WalletManagerAssembly {
         }
     }
     
-    private func makeWalletManager(cardId: String,
-                                   walletPublicKey: Data,
+    private func makeWalletManager(walletPublicKey: Data,
                                    blockchainNetwork: BlockchainNetwork,
                                    isHDWalletAllowed: Bool,
                                    derivedKeys: [DerivationPath: ExtendedPublicKey]) -> WalletManager? {
@@ -112,14 +107,12 @@ class WalletManagerAssembly {
             guard let derivationPath = blockchainNetwork.derivationPath,
                   let derivedKey = derivedKeys[derivationPath] else { return nil }
             
-            return try? factory.makeWalletManager(cardId: cardId,
-                                                  blockchain: blockchainNetwork.blockchain,
+            return try? factory.makeWalletManager(blockchain: blockchainNetwork.blockchain,
                                                   seedKey: walletPublicKey,
                                                   derivedKey: derivedKey,
                                                   derivation: .custom(derivationPath))
         } else {
-            return try? factory.makeWalletManager(cardId: cardId,
-                                                  blockchain: blockchainNetwork.blockchain,
+            return try? factory.makeWalletManager(blockchain: blockchainNetwork.blockchain,
                                                   walletPublicKey: walletPublicKey)
         }
     }
