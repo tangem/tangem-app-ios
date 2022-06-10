@@ -14,6 +14,7 @@ import SwiftUI
 struct TokenItemViewModel: Identifiable, Equatable, Comparable {
     let id = UUID()
     let state: WalletModel.State
+    let displayState: WalletModel.DisplayState
     let hasTransactionInProgress: Bool
     let name: String
     let fiatBalance: String
@@ -48,7 +49,12 @@ struct TokenItemViewModel: Identifiable, Equatable, Comparable {
         if rate.isEmpty {
             return "—"
         }
-        return state.errorDescription != nil ? "—" : fiatBalance
+        
+        if state.isNoAccount {
+            return fiatBalance
+        }
+        
+        return state.failureDescription != nil ? "—" : fiatBalance
     }
     
     var displayRateText: String {
@@ -60,14 +66,15 @@ struct TokenItemViewModel: Identifiable, Equatable, Comparable {
             return  "wallet_balance_tx_in_progress".localized
         }
         
-        if state.isLoading {
-            return "wallet_balance_loading".localized
-        }
-        
         return rate.isEmpty ? "token_item_no_rate".localized : rate
     }
     
-    static let `default` = TokenItemViewModel(state: .created, hasTransactionInProgress: false, name: "", fiatBalance: "", balance: "", rate: "", amountType: .coin, blockchainNetwork: .init(.bitcoin(testnet: false)), fiatValue: 0, isCustom: false)
+//    [REDACTED_TODO_COMMENT]
+    var isLoading: Bool {
+        return (displayState == .busy || balance.isEmpty) && !state.isBlockchainUnreachable && !state.isNoAccount
+    }
+    
+    static let `default` = TokenItemViewModel(state: .created, displayState: .busy, hasTransactionInProgress: false, name: "", fiatBalance: "", balance: "", rate: "", amountType: .coin, blockchainNetwork: .init(.bitcoin(testnet: false)), fiatValue: 0, isCustom: false)
     
     static func < (lhs: TokenItemViewModel, rhs: TokenItemViewModel) -> Bool {
         if lhs.fiatValue == 0 && rhs.fiatValue == 0 {
@@ -84,9 +91,10 @@ struct TokenItemViewModel: Identifiable, Equatable, Comparable {
 
 extension TokenItemViewModel {
     init(from balanceViewModel: BalanceViewModel, rate: String, fiatValue: Decimal, blockchainNetwork: BlockchainNetwork,
-         hasTransactionInProgress: Bool, isCustom: Bool) {
+         hasTransactionInProgress: Bool, isCustom: Bool, displayState: WalletModel.DisplayState) {
         self.hasTransactionInProgress = hasTransactionInProgress
         state = balanceViewModel.state
+        self.displayState = displayState
         name = balanceViewModel.name
         if name == "" {
             
@@ -106,9 +114,11 @@ extension TokenItemViewModel {
          fiatValue: Decimal,
          blockchainNetwork: BlockchainNetwork,
          hasTransactionInProgress: Bool,
-         isCustom: Bool) {
+         isCustom: Bool,
+         displayState: WalletModel.DisplayState) {
         self.hasTransactionInProgress = hasTransactionInProgress
         state = balanceViewModel.state
+        self.displayState = displayState
         name = tokenBalanceViewModel.name
         balance = tokenBalanceViewModel.balance
         fiatBalance = tokenBalanceViewModel.fiatBalance
