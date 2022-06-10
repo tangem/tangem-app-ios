@@ -652,11 +652,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
             switch result {
             case .success(let tokensAdded):
                 if tokensAdded {
-                    var tokens = ethWalletModel!.walletManager.cardTokens
-                    if let defaultToken = self.cardInfo.defaultToken {
-                        tokens = tokens.filter { $0 != defaultToken }
-                    }
-                    
+                    let tokens = ethWalletModel!.walletManager.cardTokens
                     self.tokenItemsRepository.append(tokens, blockchainNetwork: network, for: self.cardInfo.card.cardId)
                     
                     if shouldAddWalletManager {
