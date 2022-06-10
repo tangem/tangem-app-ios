@@ -12,7 +12,6 @@ struct BalanceViewModel {
     let isToken: Bool
     let hasTransactionInProgress: Bool
     let state: WalletModel.State
-    let displayState: WalletModel.DisplayState
     let name: String
     let fiatBalance: String
     let balance: String
