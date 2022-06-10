@@ -20,6 +20,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     @Published var tokenItemViewModels: [TokenItemViewModel] = []
     @Published var tokenViewModels: [TokenBalanceViewModel] = []
     @Published var rates: [String: Decimal] = [:]
+    @Published var displayState: DisplayState = .busy
     
     var wallet: Wallet { walletManager.wallet }
     
@@ -176,6 +177,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
             if !silent {
                 self.updateBalanceViewModel(with: self.wallet)
                 self.state = .loading
+                self.displayState = .busy
             }
             
             print("🔄 Updating wallet model for \(self.wallet.blockchain)")
@@ -191,6 +193,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
                             self.loadRates()
                         } else {
                             self.state = .failed(error: error.detailedError)
+                            self.displayState = .readyForDisplay
                             Analytics.log(error: error)
                         }
                     } else {
@@ -455,10 +458,15 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
         currencyRateService
             .rates(for: currenciesToExchange)
             .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: { completion in
+            .sink(receiveCompletion: { [weak self] completion in
+                guard let self = self else {
+                    return
+                }
                 switch completion {
                 case .failure(let error):
                     Analytics.log(error: error)
+                    self.displayState = .readyForDisplay
+                    self.updateBalanceViewModel(with: self.wallet)
                     print(error.localizedDescription)
                 case .finished:
                     break
@@ -469,7 +477,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
                 if !self.rates.isEmpty && rates.count == 0 {
                     return
                 }
-                
+                self.displayState = .readyForDisplay
                 self.rates = rates
                 self.updateBalanceViewModel(with: self.wallet)
                 
@@ -491,7 +499,8 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
                                                 fiatValue: getFiat(for: wallet.amounts[blockchainAmountType]) ?? 0,
                                                 blockchainNetwork: blockchainNetwork,
                                                 hasTransactionInProgress: wallet.hasPendingTx(for: blockchainAmountType),
-                                                isCustom: isCustom(blockchainAmountType))
+                                                isCustom: isCustom(blockchainAmountType),
+                                                displayState: self.displayState)
         
         let items: [TokenItemViewModel] = tokenViewModels.map {
             let amountType = Amount.AmountType.token(value: $0.token)
@@ -501,7 +510,8 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
                                       fiatValue:  getFiat(for: wallet.amounts[amountType]) ?? 0,
                                       blockchainNetwork: blockchainNetwork,
                                       hasTransactionInProgress: wallet.hasPendingTx(for: amountType),
-                                      isCustom: isCustom(amountType))
+                                      isCustom: isCustom(amountType),
+                                      displayState: self.displayState)
         }
         
         tokenItemViewModels = [blockchainItem] + items
@@ -592,5 +602,10 @@ extension WalletModel {
                 return true
             }
         }
+    }
+    
+    enum DisplayState {
+        case readyForDisplay
+        case busy
     }
 }
