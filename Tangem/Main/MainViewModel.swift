@@ -333,9 +333,14 @@ class MainViewModel: ViewModel, ObservableObject {
                 switch state {
                 case .inProgress:
                     self.totalSumBalanceViewModel.beginUpdates()
+                    self.isLoadingTokensBalance = true
                 case .loaded:
-                    self.checkPositiveBalance()
-                    self.updateTotalBalanceTokenList()
+                    //Delay for hide skeleton
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        self.checkPositiveBalance()
+                        self.isLoadingTokensBalance = false
+                        self.updateTotalBalanceTokenList()
+                    }
                 }
             }).store(in: &bag)
     }
