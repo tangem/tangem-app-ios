@@ -91,10 +91,10 @@ struct TokenItemViewModel: Identifiable, Equatable, Comparable {
 
 extension TokenItemViewModel {
     init(from balanceViewModel: BalanceViewModel, rate: String, fiatValue: Decimal, blockchainNetwork: BlockchainNetwork,
-         hasTransactionInProgress: Bool, isCustom: Bool) {
+         hasTransactionInProgress: Bool, isCustom: Bool, displayState: WalletModel.DisplayState) {
         self.hasTransactionInProgress = hasTransactionInProgress
         state = balanceViewModel.state
-        displayState = balanceViewModel.displayState
+        self.displayState = displayState
         name = balanceViewModel.name
         if name == "" {
             
@@ -114,10 +114,11 @@ extension TokenItemViewModel {
          fiatValue: Decimal,
          blockchainNetwork: BlockchainNetwork,
          hasTransactionInProgress: Bool,
-         isCustom: Bool) {
+         isCustom: Bool,
+         displayState: WalletModel.DisplayState) {
         self.hasTransactionInProgress = hasTransactionInProgress
         state = balanceViewModel.state
-        displayState = balanceViewModel.displayState
+        self.displayState = displayState
         name = tokenBalanceViewModel.name
         balance = tokenBalanceViewModel.balance
         fiatBalance = tokenBalanceViewModel.fiatBalance
