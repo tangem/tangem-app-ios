@@ -184,6 +184,7 @@ struct BalanceAddressView_Previews: PreviewProvider {
         vm.balanceViewModel = BalanceViewModel(isToken: false,
                                                hasTransactionInProgress: true,
                                                state: .idle,
+                                               displayState: .busy,
                                                name: "Ethereum smart contract token",
                                                fiatBalance: "$3.45",
                                                balance: "0.67538451 BTC",
