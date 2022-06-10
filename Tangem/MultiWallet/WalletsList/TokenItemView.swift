@@ -10,7 +10,6 @@ import SwiftUI
 
 struct TokenItemView: View {
     let item: TokenItemViewModel
-    var isLoading: Bool
     
     private var accentColor: Color {
         if item.state.failureDescription != nil {
@@ -48,7 +47,7 @@ struct TokenItemView: View {
                         .font(.system(size: 15, weight: .medium))
                         .layoutPriority(2)
                         .fixedSize(horizontal: false, vertical: true)
-                        .skeletonable(isShown: isLoading, size: CGSize(width: 70, height: 11))
+                        .skeletonable(isShown: item.isLoading, size: CGSize(width: 70, height: 11))
                     
                     Spacer()
                     
@@ -57,7 +56,7 @@ struct TokenItemView: View {
                         .multilineTextAlignment(.trailing)
                         .truncationMode(.middle)
                         .fixedSize(horizontal: false, vertical: true)
-                        .skeletonable(isShown: isLoading, size: CGSize(width: 50, height: 11))
+                        .skeletonable(isShown: item.isLoading, size: CGSize(width: 50, height: 11))
                 }
                 .lineLimit(2)
                 .minimumScaleFactor(0.8)
@@ -68,7 +67,7 @@ struct TokenItemView: View {
                     Text(item.displayRateText)
                         .fixedSize(horizontal: false, vertical: true)
                         .lineLimit(1)
-                        .skeletonable(isShown: isLoading, size: CGSize(width: 50, height: 11))
+                        .skeletonable(isShown: item.isLoading, size: CGSize(width: 50, height: 11))
                     
                     Spacer()
                     
@@ -77,7 +76,7 @@ struct TokenItemView: View {
                         .fixedSize(horizontal: false, vertical: true)
                         .lineLimit(1)
                         .fixedSize()
-                        .skeletonable(isShown: isLoading, size: CGSize(width: 50, height: 11))
+                        .skeletonable(isShown: item.isLoading, size: CGSize(width: 50, height: 11))
                 }
                 .font(.system(size: 13, weight: .regular))
                 .frame(minHeight: 20)
