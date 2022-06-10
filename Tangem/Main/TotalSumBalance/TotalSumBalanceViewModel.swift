@@ -45,7 +45,7 @@ class TotalSumBalanceViewModel: ObservableObject {
     }
     
     func disableLoading(withError: Bool = false) {
-        withAnimation(Animation.spring().delay(0.5)) {
+        withAnimation(Animation.spring()) {
             self.hasError = withError
             self.isLoading = false
         }
