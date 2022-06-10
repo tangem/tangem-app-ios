@@ -100,8 +100,6 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     }
     
     let walletManager: WalletManager
-    private let defaultToken: Token?
-    private let defaultBlockchain: Blockchain?
     private var bag = Set<AnyCancellable>()
     private var updateTimer: AnyCancellable? = nil
     private let demoBalance: Decimal?
@@ -114,9 +112,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
         print("🗑 WalletModel deinit")
     }
     
-    init(walletManager: WalletManager, derivationStyle: DerivationStyle, defaultToken: Token?, defaultBlockchain: Blockchain?, demoBalance: Decimal? = nil) {
-        self.defaultToken = defaultToken
-        self.defaultBlockchain = defaultBlockchain
+    init(walletManager: WalletManager, derivationStyle: DerivationStyle, demoBalance: Decimal? = nil) {
         self.walletManager = walletManager
         self.demoBalance = demoBalance
         self.derivationStyle = derivationStyle
@@ -333,14 +329,6 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     }
     
     func getRemovalState(amountType: Amount.AmountType) -> RemovalState {
-        if let token = amountType.token, token == defaultToken {
-            return .ableThroughtAlert
-        }
-        
-        if amountType == .coin, wallet.blockchain == defaultBlockchain {
-            return .ableThroughtAlert
-        }
-        
         if amountType == .coin && !walletManager.cardTokens.isEmpty {
             return .unable
         }
