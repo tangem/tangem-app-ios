@@ -80,7 +80,7 @@ class TotalSumBalanceViewModel: ObservableObject {
                 if loadingAnimationEnable {
                     self.disableLoading(withError: hasTotalBalanceError)
                 } else {
-                    if !self.isLoading {
+                    if !self.isLoading && self.tokenItemViewModels.first(where: { $0.displayState == .busy }) == nil {
                         self.hasError = hasTotalBalanceError
                     }
                 }
