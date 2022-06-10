@@ -438,7 +438,6 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
         balanceViewModel = BalanceViewModel(isToken: false,
                                             hasTransactionInProgress: wallet.hasPendingTx,
                                             state: self.state,
-                                            displayState: self.displayState,
                                             name:  wallet.blockchain.displayName,
                                             fiatBalance: getFiatBalance(for: .coin),
                                             balance: getBalance(for: .coin),
@@ -500,7 +499,8 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
                                                 fiatValue: getFiat(for: wallet.amounts[blockchainAmountType]) ?? 0,
                                                 blockchainNetwork: blockchainNetwork,
                                                 hasTransactionInProgress: wallet.hasPendingTx(for: blockchainAmountType),
-                                                isCustom: isCustom(blockchainAmountType))
+                                                isCustom: isCustom(blockchainAmountType),
+                                                displayState: self.displayState)
         
         let items: [TokenItemViewModel] = tokenViewModels.map {
             let amountType = Amount.AmountType.token(value: $0.token)
@@ -510,7 +510,8 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
                                       fiatValue:  getFiat(for: wallet.amounts[amountType]) ?? 0,
                                       blockchainNetwork: blockchainNetwork,
                                       hasTransactionInProgress: wallet.hasPendingTx(for: amountType),
-                                      isCustom: isCustom(amountType))
+                                      isCustom: isCustom(amountType),
+                                      displayState: self.displayState)
         }
         
         tokenItemViewModels = [blockchainItem] + items
