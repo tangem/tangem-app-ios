@@ -32,6 +32,7 @@ class CommonCardsRepository: CardsRepository {
     private(set) var cards = [String: ScanResult]()
     
     private var bag: Set<AnyCancellable> = .init()
+    private let legacyCardMigrator: LegacyCardMigrator = .init()
     
     deinit {
         print("CardsRepository deinit")
@@ -47,9 +48,6 @@ class CommonCardsRepository: CardsRepository {
                 completion(.failure(error))
             case .success(let response):
                 Analytics.logScan(card: response.card)
-                let interaction = INInteraction(intent: ScanTangemCardIntent(), response: nil)
-                interaction.donate(completion: nil)
-                self.scannedCardsRepository.add(response.getCardInfo())
                 completion(.success(processScan(response.getCardInfo())))
             }
         }
@@ -72,13 +70,64 @@ class CommonCardsRepository: CardsRepository {
     }
     
     private func processScan(_ cardInfo: CardInfo) -> ScanResult {
+        let interaction = INInteraction(intent: ScanTangemCardIntent(), response: nil)
+        interaction.donate(completion: nil)
+        
+        legacyCardMigrator.migrateIfNeeded(for: cardInfo)
+        scannedCardsRepository.add(cardInfo)
         sdkProvider.didScan(cardInfo.card)
         didScanPublisher.send(cardInfo)
+        
         let cm = assemblyProvider.assembly.makeCardModel(from: cardInfo)
         let result: ScanResult = .card(model: cm)
         cards[cardInfo.card.cardId] = result
         lastScanResult = result
         cm.getCardInfo()
         return result
+    }
+}
+
+
+/// Temporary solution to migrate default tokens of old miltiwallet cards to TokenItemsRepository. Remove at Q3-Q4'22
+fileprivate class LegacyCardMigrator {
+    @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
+    @Injected(\.scannedCardsRepository) private var scannedCardsRepository: ScannedCardsRepository
+    
+    private var userPrefsService: UserPrefsService = .init()
+    
+    //Save default blockchain and token to main tokens repo.
+    func migrateIfNeeded(for cardInfo: CardInfo) {
+        let cardId = cardInfo.card.cardId
+      
+        //Migrate only multiwallet cards
+        guard cardInfo.isMultiWallet else {
+            return
+        }
+        
+        //Check if we have anything to migrate. It's impossible to get default token without default blockchain
+        guard let entry = cardInfo.defaultStorageEntry else {
+            return
+        }
+        
+        //Migrate only known cards.
+        guard scannedCardsRepository.cards.keys.contains(cardId) else {
+            // Newly scanned card. Save and forgot.
+            userPrefsService.migratedCardsWithDefaultTokens.append(cardId)
+            return
+        }
+        
+        //Migrate only once.
+        guard !userPrefsService.migratedCardsWithDefaultTokens.contains(cardId) else {
+            return
+        }
+
+        var entries = tokenItemsRepository.getItems(for: cardId)
+        entries.insert(entry, at: 0)
+        
+        //We need to preserve order of token items
+        tokenItemsRepository.removeAll(for: cardId)
+        tokenItemsRepository.append(entries, for: cardId)
+        
+        userPrefsService.migratedCardsWithDefaultTokens.append(cardId)
     }
 }
