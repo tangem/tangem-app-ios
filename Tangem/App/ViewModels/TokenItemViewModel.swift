@@ -14,6 +14,7 @@ import SwiftUI
 struct TokenItemViewModel: Identifiable, Equatable, Comparable {
     let id = UUID()
     let state: WalletModel.State
+    let displayState: WalletModel.DisplayState
     let hasTransactionInProgress: Bool
     let name: String
     let fiatBalance: String
@@ -70,10 +71,10 @@ struct TokenItemViewModel: Identifiable, Equatable, Comparable {
     
 //    [REDACTED_TODO_COMMENT]
     var isLoading: Bool {
-        return !state.isBlockchainUnreachable && !state.isNoAccount && (balance.isEmpty || rate.isEmpty) && !isCustom
+        return (displayState == .busy || balance.isEmpty) && !state.isBlockchainUnreachable && !state.isNoAccount
     }
     
-    static let `default` = TokenItemViewModel(state: .created, hasTransactionInProgress: false, name: "", fiatBalance: "", balance: "", rate: "", amountType: .coin, blockchainNetwork: .init(.bitcoin(testnet: false)), fiatValue: 0, isCustom: false)
+    static let `default` = TokenItemViewModel(state: .created, displayState: .busy, hasTransactionInProgress: false, name: "", fiatBalance: "", balance: "", rate: "", amountType: .coin, blockchainNetwork: .init(.bitcoin(testnet: false)), fiatValue: 0, isCustom: false)
     
     static func < (lhs: TokenItemViewModel, rhs: TokenItemViewModel) -> Bool {
         if lhs.fiatValue == 0 && rhs.fiatValue == 0 {
@@ -93,6 +94,7 @@ extension TokenItemViewModel {
          hasTransactionInProgress: Bool, isCustom: Bool) {
         self.hasTransactionInProgress = hasTransactionInProgress
         state = balanceViewModel.state
+        displayState = balanceViewModel.displayState
         name = balanceViewModel.name
         if name == "" {
             
@@ -115,6 +117,7 @@ extension TokenItemViewModel {
          isCustom: Bool) {
         self.hasTransactionInProgress = hasTransactionInProgress
         state = balanceViewModel.state
+        displayState = balanceViewModel.displayState
         name = tokenBalanceViewModel.name
         balance = tokenBalanceViewModel.balance
         fiatBalance = tokenBalanceViewModel.fiatBalance
