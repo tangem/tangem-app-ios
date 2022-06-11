@@ -15,10 +15,15 @@ enum ShopifyError: Error {
     case userError(errors: [DisplayableError])
 }
 
-class ShopifyService {
-    private let client: Graph.Client
-    private let shop: ShopifyShop
+class ShopifyService: ShopifyProtocol {
+    @Injected(\.keysManager) var keysManager: KeysManager
+    
+    private lazy var client: Graph.Client = {
+        .init(shopDomain: shop.domain, apiKey: shop.storefrontApiKey, locale: Locale.current)
+    }()
+    
     private let testApplePayPayments: Bool
+    private var shop: ShopifyShop { keysManager.shopifyShop }
     
     private var paySession: PaySession?
     private var paySessionPublisher: PassthroughSubject<Checkout, Error>?
@@ -29,9 +34,7 @@ class ShopifyService {
         
     // MARK: -
     
-    init(shop: ShopifyShop, testApplePayPayments: Bool) {
-        self.client = Graph.Client(shopDomain: shop.domain, apiKey: shop.storefrontApiKey, locale: Locale.current)
-        self.shop = shop
+    init(testApplePayPayments: Bool = false) {
         self.testApplePayPayments = testApplePayPayments
     }
     
@@ -180,88 +183,6 @@ class ShopifyService {
         return future.eraseToAnyPublisher()
     }
     
-    // MARK: - Updating checkout
-    
-    private func retryHandler(
-        checkShippingRates: Bool,
-        payloadProvider: @escaping (Storefront.Mutation) -> CheckoutPayload?
-    ) -> Graph.RetryHandler<Storefront.Mutation> {
-        // Return true if request needs to be retried
-        .init { response, error in
-            guard let response = response else { return true }
-            
-            let payload = payloadProvider(response)
-            let checkout = payload?.checkout
-            
-            if let userErrors = payload?.checkoutUserErrors, !userErrors.isEmpty {
-                print("User errors:", userErrors)
-                return false
-            }
-            
-            if checkShippingRates && checkout?.availableShippingRates?.ready != true {
-                print("Shipping rates not ready, continue polling")
-                return true
-            }
-
-            if let checkoutReady = checkout?.ready, !checkoutReady {
-                print("Checkout is not ready, continue polling")
-                return true
-            }
-            
-            return false
-        }
-    }
-    
-    private func runCheckoutMutation(
-        mutation: Storefront.MutationQuery,
-        description: String,
-        checkShippingRates: Bool = false,
-        payloadProvider: @escaping (Storefront.Mutation) -> CheckoutPayload?
-    ) -> AnyPublisher<Checkout, Error> {
-        Future { [weak self] promise in
-            guard let self = self else {
-                promise(.failure(ShopifyError.unknown))
-                return
-            }
-            
-            let retryHandler = self.retryHandler(checkShippingRates: checkShippingRates, payloadProvider: payloadProvider)
-            let task = self.client.mutateGraphWith(mutation, retryHandler: retryHandler) { mutation, error in
-                guard
-                    let mutation = mutation,
-                    let payload = payloadProvider(mutation)
-                else {
-                    print("No payload received")
-                    promise(.failure(ShopifyError.unknown))
-                    return
-                }
-                
-                if let checkout = payload.checkout {
-                    promise(.success(Checkout(checkout)))
-                    return
-                }
-                
-                let userErrors = payload.checkoutUserErrors
-                if !userErrors.isEmpty {
-                    print("Checkout modification failed (\(description)):", userErrors)
-                    promise(.failure(ShopifyError.userError(errors: userErrors)))
-                    return
-                }
-                
-                if let error = error {
-                    print("Checkout modification failed (\(description)):", error)
-                    promise(.failure(error))
-                    return
-                }
-                
-                print("Checkout modification failed (\(description)):")
-                promise(.failure(ShopifyError.unknown))
-            }
-            
-            self.runTask(task)
-        }
-        .eraseToAnyPublisher()
-    }
-    
     func createCheckout(checkoutID: GraphQL.ID?, lineItems: [CheckoutLineItem]) -> AnyPublisher<Checkout, Error> {
         let storefrontLineItems: [Storefront.CheckoutLineItemInput] = lineItems.map { .create(quantity: $0.quantity, variantId: $0.id) }
         if let checkoutID = checkoutID {
@@ -394,7 +315,6 @@ class ShopifyService {
     }
     
     // MARK: - Apple Pay
-    
     func canUseApplePay() -> Bool {
         PKPaymentAuthorizationController.canMakePayments()
     }
@@ -534,4 +454,87 @@ extension ShopifyService: PaySessionDelegate {
         self.paySession = nil
         self.paySessionPublisher?.send(completion: .failure(ShopifyError.applePayFailed))
     }
+    
+    // MARK: - Updating checkout
+    
+    private func retryHandler(
+        checkShippingRates: Bool,
+        payloadProvider: @escaping (Storefront.Mutation) -> CheckoutPayload?
+    ) -> Graph.RetryHandler<Storefront.Mutation> {
+        // Return true if request needs to be retried
+        .init { response, error in
+            guard let response = response else { return true }
+            
+            let payload = payloadProvider(response)
+            let checkout = payload?.checkout
+            
+            if let userErrors = payload?.checkoutUserErrors, !userErrors.isEmpty {
+                print("User errors:", userErrors)
+                return false
+            }
+            
+            if checkShippingRates && checkout?.availableShippingRates?.ready != true {
+                print("Shipping rates not ready, continue polling")
+                return true
+            }
+
+            if let checkoutReady = checkout?.ready, !checkoutReady {
+                print("Checkout is not ready, continue polling")
+                return true
+            }
+            
+            return false
+        }
+    }
+    
+    private func runCheckoutMutation(
+        mutation: Storefront.MutationQuery,
+        description: String,
+        checkShippingRates: Bool = false,
+        payloadProvider: @escaping (Storefront.Mutation) -> CheckoutPayload?
+    ) -> AnyPublisher<Checkout, Error> {
+        Future { [weak self] promise in
+            guard let self = self else {
+                promise(.failure(ShopifyError.unknown))
+                return
+            }
+            
+            let retryHandler = self.retryHandler(checkShippingRates: checkShippingRates, payloadProvider: payloadProvider)
+            let task = self.client.mutateGraphWith(mutation, retryHandler: retryHandler) { mutation, error in
+                guard
+                    let mutation = mutation,
+                    let payload = payloadProvider(mutation)
+                else {
+                    print("No payload received")
+                    promise(.failure(ShopifyError.unknown))
+                    return
+                }
+                
+                if let checkout = payload.checkout {
+                    promise(.success(Checkout(checkout)))
+                    return
+                }
+                
+                let userErrors = payload.checkoutUserErrors
+                if !userErrors.isEmpty {
+                    print("Checkout modification failed (\(description)):", userErrors)
+                    promise(.failure(ShopifyError.userError(errors: userErrors)))
+                    return
+                }
+                
+                if let error = error {
+                    print("Checkout modification failed (\(description)):", error)
+                    promise(.failure(error))
+                    return
+                }
+                
+                print("Checkout modification failed (\(description)):")
+                promise(.failure(ShopifyError.unknown))
+            }
+            
+            self.runTask(task)
+        }
+        .eraseToAnyPublisher()
+    }
+    
 }
