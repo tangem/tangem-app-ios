@@ -8,7 +8,6 @@
 "main_error_unsupported_card_subtitle" = "Can't read card wallet information.\nPlease, use full app to load info from blockchain";
 "wallet_balance_loading" = "Balance is loading…";
 "wallet_balance_blockchain_unreachable" = "Blockchain is unreachable";
-"alert_unsupported_card" = "This card is not designed to work with Tangem Clip";
 "alert_wrong_card_scanned" = "You've scanned wrong card. Try again, please.";
 "wallet_balance_tx_in_progress" = "Transaction is in progress...";
 "wallet_error_no_account" = "Account is not created";
