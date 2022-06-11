@@ -78,11 +78,11 @@ struct WelcomeOnboardingView: View {
 }
 
 struct WelcomeOnboardingView_Previews: PreviewProvider {
-    
+    static let navigation = NavigationCoordinator()
     static let assembly: Assembly = .previewAssembly
     
     static var previews: some View {
         WelcomeOnboardingView(viewModel: assembly.getLetsStartOnboardingViewModel(with: { _ in }), storiesModel: assembly.makeWelcomeStoriesModel())
-            .environmentObject(assembly.services.navigationCoordinator)
+            .environmentObject(navigation)
     }
 }
