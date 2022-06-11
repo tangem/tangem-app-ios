@@ -76,6 +76,7 @@ struct PushTxView: View {
                             }
                             }
                             .foregroundColor(.tangemBlue)
+                            .buttonStyle(PlainButtonStyle())
                             .disabled(!self.viewModel.canFiatCalculation)
                         }
                         .font(.system(size: 38, weight: .light))
@@ -190,6 +191,8 @@ struct PushTxView: View {
 
 struct PushTxView_Previews: PreviewProvider {
     static let assembly = Assembly.previewAssembly
+    static let navigation = NavigationCoordinator()
+    
     static var previews: some View {
         PushTxView(viewModel: assembly
                     .makePushViewModel(
@@ -197,6 +200,6 @@ struct PushTxView_Previews: PreviewProvider {
                         blockchainNetwork: assembly.previewBlockchainNetwork,
                         card: assembly.previewCardViewModel),
                    onSuccess: { })
-            .environmentObject(assembly.services.navigationCoordinator)
+            .environmentObject(navigation)
     }
 }
