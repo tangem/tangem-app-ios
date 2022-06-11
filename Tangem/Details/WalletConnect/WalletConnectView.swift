@@ -76,10 +76,8 @@ struct WalletConnectView: View {
 }
 
 struct WalletConnectView_Previews: PreviewProvider {
-    static let assembly = Assembly.previewAssembly
-    
     static var previews: some View {
-        WalletConnectView(viewModel: assembly.makeWalletConnectViewModel(cardModel: assembly.services.cardsRepository.lastScanResult.cardModel!))
+        WalletConnectView(viewModel: Assembly().makeWalletConnectViewModel(cardModel: PreviewCard.ethereum.cardModel))
             .environmentObject(NavigationCoordinator())
             .previewGroup(devices: [.iPhone12Pro])
     }
