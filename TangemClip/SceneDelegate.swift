@@ -10,14 +10,10 @@ import UIKit
 import SwiftUI
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-
-    var window: UIWindow?
-
-    let assembly = Assembly()
+    private var userPrefs = UserPrefsService()
     
-    var userPrefs: UserPrefsService {
-        assembly.services.userPrefsService
-    }
+    var window: UIWindow?
+    let assembly = Assembly()
     
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         let contentView = MainView(viewModel: assembly.getMainViewModel())

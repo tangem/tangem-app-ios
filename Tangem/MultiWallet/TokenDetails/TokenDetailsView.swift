@@ -32,7 +32,7 @@ struct TokenDetailsView: View {
         Group {
             NavigationLink(destination: WebViewContainer(url: viewModel.buyCryptoUrl,
                                                          //                                                         closeUrl: viewModel.topupCloseUrl,
-                                                         title: "wallet_button_topup",
+                                                         title: "wallet_button_topup".localized,
                                                          addLoadingIndicator: true,
                                                          urlActions: [
                                                             viewModel.buyCryptoCloseUrl: { _ in
@@ -46,7 +46,7 @@ struct TokenDetailsView: View {
                            isActive: $navigation.detailsToBuyCrypto)
             
             NavigationLink(destination: WebViewContainer(url: viewModel.sellCryptoUrl,
-                                                         title: "wallet_button_sell_crypto",
+                                                         title: "wallet_button_sell_crypto".localized,
                                                          addLoadingIndicator: true,
                                                          urlActions: [
                                                             viewModel.sellCryptoRequestUrl: { response in
@@ -65,7 +65,7 @@ struct TokenDetailsView: View {
     
     @ViewBuilder
     var exchangeCryptoButton: some View {
-        if viewModel.canSellCrypto {
+        if viewModel.canSellCrypto && viewModel.canBuyCrypto {
             TangemButton.vertical(title: "wallet_button_trade",
                                   systemImage: "arrow.up.arrow.down",
                                   action: viewModel.tradeCryptoAction)
@@ -79,7 +79,14 @@ struct TokenDetailsView: View {
                                 .cancel()
                             ])
             })
+        } else if viewModel.canSellCrypto {
+            TangemButton.vertical(title: "wallet_button_sell_crypto",
+                                  systemImage: "arrow.down",
+                                  action: viewModel.sellCryptoAction)
+            .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
+                                           isDisabled: !viewModel.canSellCrypto))
         } else {
+            // Keep the BUY button last so that it will appear when everything is disabled
             TangemButton.vertical(title: "wallet_button_topup",
                                   systemImage: "arrow.up",
                                   action: viewModel.buyCryptoAction)
@@ -140,6 +147,10 @@ struct TokenDetailsView: View {
                                 AlertCardView(title: "", message: sendBlockedReason)
                             }
                             
+                            if let unsupportedTokenWarning = viewModel.unsupportedTokenWarning {
+                                AlertCardView(title: "common_warning".localized, message: unsupportedTokenWarning)
+                            }
+                            
                             if let solanaRentWarning = viewModel.solanaRentWarning {
                                 AlertCardView(title: "common_warning".localized, message: solanaRentWarning)
                             }
@@ -152,7 +163,7 @@ struct TokenDetailsView: View {
             
             Color.clear.frame(width: 0.5, height: 0.5)
                 .sheet(item: $viewModel.showExplorerURL) {
-                    WebViewContainer(url: $0, title: "common_explorer_format \(viewModel.blockchainNetwork.blockchain.displayName)", withCloseButton: true)
+                    WebViewContainer(url: $0, title: "common_explorer_format".localized(viewModel.blockchainNetwork.blockchain.displayName), withCloseButton: true)
                 }
             
             Color.clear.frame(width: 0.5, height: 0.5)
@@ -216,11 +227,12 @@ struct TokenDetailsView: View {
 
 struct TokenDetailsView_Previews: PreviewProvider {
     static let assembly: Assembly = .previewAssembly(for: .cardanoNote)
+    static let navigation = NavigationCoordinator()
     
     static var previews: some View {
         NavigationView {
             TokenDetailsView(viewModel: assembly.makeTokenDetailsViewModel(blockchainNetwork: assembly.previewBlockchainNetwork))
-                .environmentObject(assembly.services.navigationCoordinator)
+                .environmentObject(navigation)
         }
         .deviceForPreviewZoomed(.iPhone7)
     }
