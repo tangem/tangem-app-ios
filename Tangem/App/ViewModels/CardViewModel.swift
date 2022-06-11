@@ -18,27 +18,30 @@ struct CardPinSettings {
     var isPin2Default: Bool? = nil
 }
 
-class CardViewModel: Identifiable, ObservableObject {
+class CardViewModel: Identifiable, ObservableObject, Initializable {
     //MARK: Services
-    weak var featuresService: AppFeaturesService!
-    weak var tangemSdk: TangemSdk!
-    weak var assembly: Assembly!
-    weak var warningsConfigurator: WarningsConfigurator!
-    weak var warningsAppendor: WarningAppendor!
-    weak var tokenItemsRepository: TokenItemsRepository!
-    weak var userPrefsService: UserPrefsService!
-    weak var imageLoaderService: CardImageLoaderService!
-    weak var coinsService: CoinsService!
+    @Injected(\.cardImageLoader) var imageLoader: CardImageLoaderProtocol
+    @Injected(\.assemblyProvider) private var assemblyProvider: AssemblyProviding
+    @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
+    @Injected(\.appFeaturesService) private var featuresService: AppFeaturesProviding
+    @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
+    @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
+    @Injected(\.coinsService) private var coinsService: CoinsService
+    @Injected(\.transactionSigner) private var signer: TangemSigner
     
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
     @Published private(set) var currentSecOption: SecurityManagementOption = .longTap
     @Published public var cardInfo: CardInfo
+    @Published var walletsBalanceState: WalletsBalanceState = .loaded
     
+    private var walletBalanceSubscription: AnyCancellable? = nil
     private var cardPinSettings: CardPinSettings = CardPinSettings()
-    
+    private var userPrefsService: UserPrefsService = .init()
     private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
     private var migrated = false
+    private var assembly: Assembly { assemblyProvider.assembly }
+    private var tangemSdk: TangemSdk { tangemSdkProvider.sdk }
     
     var availableSecOptions: [SecurityManagementOption] {
         var options = [SecurityManagementOption.longTap]
@@ -225,7 +228,7 @@ class CardViewModel: Identifiable, ObservableObject {
                     return Just(UIImage()).eraseToAnyPublisher()
                 }
                 
-                return self.imageLoaderService
+                return self.imageLoader
                     .loadImage(cid: info.cardId,
                                cardPublicKey: info.cardPublicKey,
                                artworkInfo: info.artwotkInfo)
@@ -251,6 +254,16 @@ class CardViewModel: Identifiable, ObservableObject {
         updateCurrentSecOption()
     }
     
+    func initialize() {
+        signer.signedCardPublisher.sink {[weak self] card in
+            guard let self = self else { return }
+            
+            if self.cardInfo.card.cardId == card.cardId {
+                self.onSign(card)
+            }
+        }
+        .store(in: &bag)
+    }
 
 //    func loadPayIDInfo () {
 //        guard featuresService?.canReceiveToPayId ?? false else {
@@ -304,20 +317,62 @@ class CardViewModel: Identifiable, ObservableObject {
 //
 //    }
     
-    func update() {
+    func update() -> AnyPublisher<Never, Never> {
         guard state.canUpdate else {
+            return Empty().eraseToAnyPublisher()
+        }
+        
+        observeBalanceLoading()
+        
+        return tryMigrateTokens()
+            .flatMap { [weak self] in
+                 Publishers
+                    .MergeMany(self?.state.walletModels?.map { $0.update() } ?? [])
+                    .collect()
+                    .ignoreOutput()
+                    .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    func refresh() -> AnyPublisher<Never, Never> {
+        guard state.canUpdate else {
+            return Empty().eraseToAnyPublisher()
+        }
+        
+        observeBalanceLoading(showProgressLoading: false)
+        
+        return tryMigrateTokens()
+            .flatMap { [weak self] in
+                 Publishers
+                    .MergeMany(self?.state.walletModels?.map { $0.update() } ?? [])
+                    .collect()
+                    .ignoreOutput()
+                    .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    func observeBalanceLoading(showProgressLoading: Bool = true) {
+        guard let walletModels = self.state.walletModels else {
             return
         }
         
-        tryMigrateTokens() { [weak self] in
-            self?.state.walletModels?.forEach { $0.update() }
-          //  self?.searchTokens() //tmp disable token's search
+        if showProgressLoading {
+            self.walletsBalanceState = .inProgress
         }
+        
+        walletBalanceSubscription = Publishers.MergeMany(walletModels.map({ $0.update() }))
+            .collect()
+            .receive(on: RunLoop.main)
+            .sink { [unowned self] _ in
+                self.walletsBalanceState = .loaded
+            }
     }
     
     func onSign(_ card: Card) {
         cardInfo.card = card
-        warningsConfigurator.setupWarnings(for: cardInfo)
+        warningsService.setupWarnings(for: cardInfo)
     }
     
     // MARK: - Security
@@ -470,7 +525,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 self.cardInfo.artwork = .artwork(artwork)
             case .failure:
                 self.cardInfo.artwork = .noArtwork
-                self.warningsConfigurator.setupWarnings(for: self.cardInfo)
+                self.warningsService.setupWarnings(for: self.cardInfo)
             }
         }
     }
@@ -507,13 +562,19 @@ class CardViewModel: Identifiable, ObservableObject {
             
             if !userPrefsService.cardsStartedActivation.contains(cardInfo.card.cardId) || cardInfo.isTangemWallet {
                 update()
+                    .sink { _ in
+                        
+                    } receiveValue: { _ in 
+                        
+                    }
+                    .store(in: &bag)
             }
         }
     }
     
     private func updateModel() {
         print("🔶 Updating Card view model")
-        warningsConfigurator.setupWarnings(for: cardInfo)
+        warningsService.setupWarnings(for: cardInfo)
         updateState()
     }
     
@@ -545,9 +606,9 @@ class CardViewModel: Identifiable, ObservableObject {
         }
 
         searchBlockchainsCancellable =
-        Publishers.MergeMany(models.map { $0.$updateCompletedPublisher.dropFirst() })
+        Publishers.MergeMany(models.map { $0.update() })
             .collect(models.count)
-            .sink(receiveValue: { [weak self] _ in
+            .sink { [weak self] _ in
                 guard let self = self else { return }
 
                 let notEmptyWallets = models.filter { !$0.wallet.isEmpty }
@@ -556,9 +617,9 @@ class CardViewModel: Identifiable, ObservableObject {
                     self.tokenItemsRepository.append(itemsToAdd, for: self.cardInfo.card.cardId)
                     self.updateLoadedState(with: notEmptyWallets)
                 }
-            })
-
-        models.forEach { $0.update() }
+            } receiveValue: { _ in
+                
+            }
     }
     
     private func searchTokens() {
@@ -759,9 +820,14 @@ class CardViewModel: Identifiable, ObservableObject {
         }
         
         let publishers = itemsWithCustomTokens.flatMap { item in
-            item.tokens.filter { $0.isCustom }.map { token in
-                coinsService
-                    .checkContractAddress(contractAddress: token.contractAddress, networkId: item.blockchainNetwork.blockchain.networkId)
+            item.tokens.filter { $0.isCustom }.map { token -> AnyPublisher<Bool, Never> in
+                let requestModel = CoinsListRequestModel(
+                    contractAddress: token.contractAddress,
+                    networkIds: [item.blockchainNetwork.blockchain.networkId]
+                )
+                
+                return coinsService
+                    .loadCoins(requestModel: requestModel)
                     .replaceError(with: [])
                     .map { [unowned self] models -> Bool in
                         if let updatedTokem = models.first?.items.compactMap({$0.token}).first {
@@ -783,6 +849,20 @@ class CardViewModel: Identifiable, ObservableObject {
                 completion()
             }
             .store(in: &bag)
+    }
+    
+    private func tryMigrateTokens() -> AnyPublisher<Void, Never> {
+        Future { [weak self] promise in
+            guard let self = self else {
+                promise(.success(()))
+                return
+            }
+            
+            self.tryMigrateTokens {
+                promise(.success(()))
+            }
+        }
+        .eraseToAnyPublisher()
     }
     
     func updateCardPinSettings() {
@@ -827,9 +907,9 @@ extension CardViewModel {
     }
 }
 
-
 extension CardViewModel {
-    static func previewViewModel(for card: Assembly.PreviewCard) -> CardViewModel {
-        Assembly.previewCardViewModel(for: card)
+    enum WalletsBalanceState {
+        case inProgress
+        case loaded
     }
 }
