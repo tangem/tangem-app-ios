@@ -188,7 +188,7 @@ struct ShopView: View {
     private var webCheckoutLink: some View {
         NavigationLink(isActive: $viewModel.showingWebCheckout) {
             if let webCheckoutUrl = viewModel.webCheckoutUrl {
-                WebViewContainer(url: webCheckoutUrl, title: "shop_web_checkout_title", addLoadingIndicator: true)
+                WebViewContainer(url: webCheckoutUrl, title: "shop_web_checkout_title".localized, addLoadingIndicator: true)
                     .edgesIgnoringSafeArea(.all)
             } else {
                 EmptyView()
@@ -201,11 +201,12 @@ struct ShopView: View {
 }
 
 struct ShopView_Previews: PreviewProvider {
+    static let navigation = NavigationCoordinator()
     static let assembly: Assembly = .previewAssembly
     
     static var previews: some View {
         ShopView(viewModel: assembly.makeShopViewModel())
-            .environmentObject(assembly.services.navigationCoordinator)
+            .environmentObject(navigation)
             .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
     }
 }
