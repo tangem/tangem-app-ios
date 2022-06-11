@@ -11,10 +11,6 @@ import SwiftUI
 import Combine
 
 class SecurityManagementViewModel: ViewModel, ObservableObject {
-    weak var navigation: NavigationCoordinator!
-    weak var assembly: Assembly!
-    var bag = Set<AnyCancellable>()
-    
     @Published var cardViewModel: CardViewModel! {
         didSet {
             selectedOption = cardViewModel.currentSecOption
@@ -45,6 +41,8 @@ class SecurityManagementViewModel: ViewModel, ObservableObject {
             self.cardViewModel.changeSecOption(self.selectedOption,
                                                  completion: completion) }
     }
+    
+    private var bag = Set<AnyCancellable>()
     
     func onTap() {
         switch selectedOption {
