@@ -162,7 +162,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 	}
     
     private func scanCard(session: CardSession, walletResponse: CreateWalletResponse, completion: @escaping CompletionResult<CommandResponse>) {
-        self.scanCommand =  AppScanTask(tokenItemsRepository: nil, userPrefsService: nil)
+        self.scanCommand =  AppScanTask()
         scanCommand!.run(in: session) { scanCompletion in
             switch scanCompletion {
             case .failure(let error):
