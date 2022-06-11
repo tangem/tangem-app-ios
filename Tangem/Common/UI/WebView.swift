@@ -15,7 +15,7 @@ struct WebViewContainer: View {
     var url: URL?
     @State var popupUrl: URL?
     //    var closeUrl: String? = nil
-    var title: LocalizedStringKey
+    var title: String
     var addLoadingIndicator = false
     var withCloseButton = false
     @Environment(\.presentationMode) var presentationMode
@@ -35,7 +35,7 @@ struct WebViewContainer: View {
     private var content: some View {
         ZStack {
             WebView(url: url, popupUrl: $popupUrl, urlActions: urlActions, isLoading: $isLoading)
-                .navigationBarTitle(title, displayMode: .inline)
+                .navigationBarTitle(Text(title), displayMode: .inline)
                 .background(Color.tangemBg.edgesIgnoringSafeArea(.all))
             if isLoading && addLoadingIndicator {
                 ActivityIndicatorView(color: .tangemGrayDark)

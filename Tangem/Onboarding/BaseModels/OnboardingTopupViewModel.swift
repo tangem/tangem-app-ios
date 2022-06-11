@@ -11,7 +11,7 @@ import Combine
 import BlockchainSdk
 
 class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> {
-    unowned var exchangeService: ExchangeService
+    @Injected(\.exchangeService) var exchangeService: ExchangeService
     
     @Published var isAddressQrBottomSheetPresented: Bool = false
     @Published var refreshButtonState: OnboardingCircleButton.State = .refreshButton
@@ -49,8 +49,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
     
     private var refreshButtonDispatchWork: DispatchWorkItem?
     
-    init(exchangeService: ExchangeService, input: OnboardingInput) {
-        self.exchangeService = exchangeService
+    override init(input: OnboardingInput) {
         self.cardModel = input.cardInput.cardModel
         super.init(input: input)
         
@@ -62,11 +61,11 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
     }
     
     func updateCardBalance() {
-        if assembly?.isPreview ?? false {
+        if assembly.isPreview {
             previewUpdates += 1
             
             if self.previewUpdates >= 3 {
-                self.cardModel = Assembly.PreviewCard.scanResult(for: .cardanoNote, assembly: assembly).cardModel!
+                self.cardModel = PreviewCard.cardanoNote.cardModel
                 self.previewUpdates = 0
             }
         }
