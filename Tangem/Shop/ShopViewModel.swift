@@ -12,24 +12,7 @@ import MobileBuySDK
 import SwiftUI
 
 class ShopViewModel: ViewModel, ObservableObject {
-    enum Bundle: String, CaseIterable, Identifiable {
-        case twoCards, threeCards
-
-        var id: Self { self }
-
-        var sku: String {
-            switch self {
-            case .twoCards:
-                return "TG115x2"
-            case .threeCards:
-                return "TG115x3"
-            }
-        }
-    }
-    
-    weak var navigation: NavigationCoordinator!
-    weak var assembly: Assembly!
-    weak var shopifyService: ShopifyService!
+    @Injected(\.shopifyService) private var shopifyService: ShopifyProtocol
     
     var bag = Set<AnyCancellable>()
     
@@ -58,7 +41,7 @@ class ShopViewModel: ViewModel, ObservableObject {
     private var checkoutByVariantID: [GraphQL.ID: Checkout] = [:]
     private var initialized = false
     
-    init() {
+    override init() {
         if Locale.current.regionCode == "RU" {
             webShopUrl = URL(string: "https://mv.tangem.com")
         }
@@ -312,6 +295,23 @@ class ShopViewModel: ViewModel, ObservableObject {
             self.totalAmountWithoutDiscount = formatter.string(from: NSDecimalNumber(decimal: originalAmount))
         } else {
             self.totalAmountWithoutDiscount = nil
+        }
+    }
+}
+
+extension ShopViewModel {
+    enum Bundle: String, CaseIterable, Identifiable {
+        case twoCards, threeCards
+
+        var id: Self { self }
+
+        var sku: String {
+            switch self {
+            case .twoCards:
+                return "TG115x2"
+            case .threeCards:
+                return "TG115x3"
+            }
         }
     }
 }
