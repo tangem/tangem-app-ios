@@ -94,11 +94,15 @@ class TotalSumBalanceViewModel: ObservableObject {
         let allStringRange = NSRange(location: 0, length: attributedString.length)
         attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 28, weight: .semibold), range: allStringRange)
         
-        let decimalLocation = NSString(string: formattedTotalFiatValue).range(of: balance.decimalSeparator()).location + 1
-        let symbolsAfterDecimal = formattedTotalFiatValue.count - decimalLocation
-        let rangeAfterDecimal = NSRange(location: decimalLocation, length: symbolsAfterDecimal)
+        let decimalLocation = NSString(string: formattedTotalFiatValue).range(of: balance.decimalSeparator()).location
+        if decimalLocation < (formattedTotalFiatValue.count - 1) {
+            let locationAfterDecimal = decimalLocation + 1
+            let symbolsAfterDecimal = formattedTotalFiatValue.count - locationAfterDecimal
+            let rangeAfterDecimal = NSRange(location: locationAfterDecimal, length: symbolsAfterDecimal)
+            
+            attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 20, weight: .semibold), range: rangeAfterDecimal)
+        }
         
-        attributedString.addAttribute(.font, value: UIFont.systemFont(ofSize: 20, weight: .semibold), range: rangeAfterDecimal)
         return attributedString
     }
 }
