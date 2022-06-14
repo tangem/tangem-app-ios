@@ -14,7 +14,6 @@ import BlockchainSdk
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     @Injected(\.assemblyProvider) private var assemblyProvider: AssemblyProviding
     @Injected(\.navigationCoordinatorProvider) private var navigationCoordinatorProvider: NavigationCoordinatorProviding
-    @Injected(\.walletConnectServiceProvider) private var walletConnectServiceProvider: WalletConnectServiceProviding
     
     var window: UIWindow?
     
@@ -25,7 +24,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         
         servicesManager.initialize()
-        walletConnectServiceProvider.service.restore()
         
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
