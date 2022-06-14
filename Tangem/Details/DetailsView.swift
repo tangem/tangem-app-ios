@@ -38,6 +38,7 @@ struct DetailsView: View {
         .navigationBarTitle("details_title", displayMode: .inline)
         .navigationBarBackButtonHidden(false)
         .navigationBarHidden(false)
+        .onAppear(perform: viewModel.onAppear)
         .onDisappear {
             if #available(iOS 14.5, *) { } else {
                 if #available(iOS 14.3, *) {
