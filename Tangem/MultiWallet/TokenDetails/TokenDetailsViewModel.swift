@@ -14,6 +14,10 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     
     @Published var alert: AlertBinder? = nil
+
+    var dismissalRequestPublisher: AnyPublisher<Void, Never> {
+        dismissalRequestSubject.eraseToAnyPublisher()
+    }
     
     var card: CardViewModel! {
         didSet {
@@ -98,10 +102,6 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         return wallet?.canSend(amountType: self.amountType) ?? false
     }
     
-    var canDelete: Bool {
-        return walletModel?.canRemove(amountType: amountType) ?? false
-    }
-    
     var sendBlockedReason: String? {
         guard let wallet = walletModel?.wallet,
               let currentAmount = wallet.amounts[amountType], amountType.isToken else { return nil }
@@ -153,10 +153,15 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     
     var sellCryptoRequest: SellCryptoRequest? = nil
     
+    private let dismissalRequestSubject = PassthroughSubject<Void, Never>()
     private var bag = Set<AnyCancellable>()
     private var rentWarningSubscription: AnyCancellable?
     private var refreshCancellable: AnyCancellable? = nil
     private lazy var testnetBuyCrypto: TestnetBuyCryptoService = .init()
+
+    private var currencySymbol: String {
+        amountType.token?.symbol ?? blockchainNetwork.blockchain.currencySymbol
+    }
     
     init(blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType) {
         self.blockchainNetwork = blockchainNetwork
@@ -182,8 +187,18 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     }
     
     func onRemove() {
-        if let wm = walletModel {
-            card.remove(amountType: amountType, blockchainNetwork: wm.blockchainNetwork)
+        guard let walletModel = walletModel else {
+            assertionFailure("walletModel isn't found")
+            return
+        }
+        
+        switch walletModel.getRemovalState(amountType: amountType) {
+        case .able:
+            deleteToken()
+        case .unable:
+            showUnableToHideAlert()
+        case .ableThroughtAlert:
+            showWarningDeleteAlert()
         }
     }
     
@@ -321,6 +336,57 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
                 self.solanaRentWarning = String(format: "solana_rent_warning".localized, rentAmount.description, minimalBalanceForRentExemption.description)
             }
             .store(in: &bag)
+    }
+    
+    private func deleteToken() {
+        guard let walletModel = walletModel else {
+            assertionFailure("WalletModel didn't found")
+            return
+        }
+        
+        dismissalRequestSubject.send(())
+        
+        /// Added the delay to display the deletion in the main screen
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.card.remove(
+                amountType: self.amountType,
+                blockchainNetwork: walletModel.blockchainNetwork
+            )
+        }
+    }
+    
+    private func showUnableToHideAlert() {
+        let title = "token_details_unable_hide_alert_title".localized(currencySymbol)
+
+        let message = "token_details_unable_hide_alert_message".localized([
+            currencySymbol,
+            walletModel?.blockchainNetwork.blockchain.displayName ?? ""
+        ])
+
+        alert = warningAlert(title: title, message: message, primaryButton: .default(Text("common_ok")))
+    }
+    
+    private func showWarningDeleteAlert() {
+        let title = "token_details_hide_alert_title".localized(currencySymbol)
+        
+        alert = warningAlert(
+            title: title,
+            message: "token_details_hide_alert_message".localized,
+            primaryButton: .destructive(Text("token_details_hide_alert_hide")) { [weak self] in
+                self?.deleteToken()
+            }
+        )
+    }
+
+    private func warningAlert(title: String, message: String, primaryButton: Alert.Button) -> AlertBinder {
+        let alert = Alert(
+            title: Text(title),
+            message: Text(message.localized),
+            primaryButton: primaryButton,
+            secondaryButton: Alert.Button.cancel()
+        )
+        
+        return AlertBinder(alert: alert)
     }
 }
 

@@ -11,7 +11,6 @@ import BlockchainSdk
 
 struct TokensView: View {
     var items: [TokenItemViewModel]
-    var isLoading: Bool
     
     var action: (TokenItemViewModel) -> ()
     
@@ -31,7 +30,7 @@ struct TokensView: View {
                     Button {
                         action(item)
                     } label: {
-                        TokenItemView(item: item, isLoading: isLoading)
+                        TokenItemView(item: item)
                             .padding(.horizontal, 16)
                             .padding([.top, .bottom], 15)
                             .contentShape(Rectangle())
@@ -56,7 +55,8 @@ struct TokensView_Previews: PreviewProvider {
         ZStack {
             Color.tangemBgGray
             TokensView(items: [
-                TokenItemViewModel(state: .idle, hasTransactionInProgress: false,
+                TokenItemViewModel(state: .idle, displayState: .readyForDisplay,
+                                   hasTransactionInProgress: false,
                                    name: "Ethereum ",
                                    fiatBalance: "$3.45",
                                    balance: "0.00000348501 BTC",
@@ -65,7 +65,8 @@ struct TokensView_Previews: PreviewProvider {
                                    blockchainNetwork: .init(.ethereum(testnet: false)),
                                    fiatValue: 0,
                                    isCustom: false),
-                TokenItemViewModel(state: .idle, hasTransactionInProgress: false,
+                TokenItemViewModel(state: .idle, displayState: .readyForDisplay,
+                                   hasTransactionInProgress: false,
                                    name: "Ethereum ",
                                    fiatBalance: "$100500222.33",
                                    balance: "0.00000348501 BTC",
@@ -74,7 +75,8 @@ struct TokensView_Previews: PreviewProvider {
                                    blockchainNetwork: .init(.ethereum(testnet: false)),
                                    fiatValue: 0,
                                    isCustom: true),
-                TokenItemViewModel(state: .loading, hasTransactionInProgress: false,
+                TokenItemViewModel(state: .loading, displayState: .readyForDisplay,
+                                   hasTransactionInProgress: false,
                                    name: "Ethereum smart contract token",
                                    fiatBalance: "$3.45",
                                    balance: "0.00000348573986753845001 BTC",
@@ -83,7 +85,7 @@ struct TokensView_Previews: PreviewProvider {
                                    blockchainNetwork: .init(.ethereum(testnet: false)),
                                    fiatValue: 0,
                                    isCustom: false),
-                TokenItemViewModel(state: .failed(error: "The internet connection appears to be offline. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description"), hasTransactionInProgress: false,
+                TokenItemViewModel(state: .failed(error: "The internet connection appears to be offline. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description"), displayState: .readyForDisplay, hasTransactionInProgress: false,
                                    name: "Ethereum smart contract token",
                                    fiatBalance: " ",
                                    balance: " ",
@@ -92,7 +94,8 @@ struct TokensView_Previews: PreviewProvider {
                                    blockchainNetwork: .init(.ethereum(testnet: false)),
                                    fiatValue: 0,
                                    isCustom: false),
-                TokenItemViewModel(state: .idle, hasTransactionInProgress: true,
+                TokenItemViewModel(state: .idle, displayState: .readyForDisplay,
+                                   hasTransactionInProgress: true,
                                    name: "Bitcoin token",
                                    fiatBalance: "5 USD",
                                    balance: "10 BTCA",
@@ -101,7 +104,7 @@ struct TokensView_Previews: PreviewProvider {
                                    blockchainNetwork: .init(.ethereum(testnet: false)),
                                    fiatValue: 0,
                                    isCustom: false)
-            ], isLoading: false, action: { _ in })
+            ], action: { _ in })
         }
     }
 }
