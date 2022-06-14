@@ -157,7 +157,7 @@ struct MainView: View {
                                                                      ]),
                            isActive: $navigation.mainToSellCrypto)
             
-            NavigationLink(destination: CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel()),
+            NavigationLink(destination: CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel(), dismissAfterSelection: true),
                            isActive: $navigation.currencyChangeView)
             
             //            NavigationLink(destination: TwinCardOnboardingView(viewModel: viewModel.assembly.makeTwinCardOnboardingViewModel(isFromMain: true)),
@@ -232,8 +232,7 @@ struct MainView: View {
                                             .padding(.bottom, 6)
                                         }
                                         
-                                        TokensView(items: viewModel.tokenItemViewModels,
-                                                   isLoading: viewModel.isLoadingTokensBalance) { item in
+                                        TokensView(items: viewModel.tokenItemViewModels) { item in
                                             viewModel.onWalletTap(item)
                                         }
                                         

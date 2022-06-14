@@ -213,7 +213,7 @@ class SendViewModel: ViewModel, ObservableObject {
     private func fillTotalBlockWithDefaults() {
         let dummyAmount = Amount(with: amountToSend, value: 0)
         
-        updateFee(amount: nil)
+        updateFee(amount: selectedFee)
         self.sendAmount = getDescription(for: dummyAmount)
         self.sendTotal = getDescription(for: dummyAmount)
         self.sendTotalSubtitle = " "
@@ -258,7 +258,7 @@ class SendViewModel: ViewModel, ObservableObject {
                    return
                 }
                 
-                let currencyId = self.walletModel.currencyId(for: self.amountToSend)
+                let currencyId = self.walletModel.currencyId(for: self.amountToSend.type)
                 
                 if let converted = value ? self.walletModel.getFiat(for: decimals, currencyId: currencyId)
                     : self.walletModel.getCrypto(for: Amount(with: self.amountToSend, value: decimals)) {
