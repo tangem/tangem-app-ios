@@ -140,7 +140,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         }
     }
     
-    func onAppear() {
+    override func onAppear() {
         updateBlockchains(getBlockchains(withTokenSupport: true))
         updateDerivationPaths()
     }
