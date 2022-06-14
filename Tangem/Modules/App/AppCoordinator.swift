@@ -17,6 +17,7 @@ class AppCoordinator: NSObject, ObservableObject {
    
     //MARK: - View models
     @Published private(set) var onboardingViewModel: OnboardingBaseViewModel = .init()
+    @Published private(set) var welcomeOnboardingViewModel: WelcomeOnboardingViewModel? = nil
     
     //MARK: - Private
     private let servicesManager: ServicesManager = .init()
@@ -50,7 +51,7 @@ extension AppCoordinator: UIWindowSceneDelegate {
                 switch $0.activityType {
                 case String(describing: ScanTangemCardIntent.self):
                     //todo: test
-                    self?.onboardingViewModel.invokeScan()
+                    self?.welcomeOnboardingViewModel?.scanCard()
                 default:
                     break
                 }
