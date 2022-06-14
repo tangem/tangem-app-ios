@@ -174,7 +174,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         }
     }
     
-    func onAppear() {
+    override func onAppear() {
         updateUnsupportedTokenWarning()
         
         rentWarningSubscription = walletModel?
