@@ -31,7 +31,7 @@ class StoriesViewModel: ViewModel, ObservableObject {
         userPrefsService.didDisplayMainScreenStories = true
     }
     
-    func onAppear() {
+    override func onAppear() {
         NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)
             .dropFirst()
             .sink { [weak self] _ in
