@@ -444,7 +444,7 @@ class SendViewModel: ViewModel, ObservableObject {
             .store(in: &bag)
     }
     
-    func onAppear() {
+    override func onAppear() {
         validateClipboard()
         setupWarnings()
     }
