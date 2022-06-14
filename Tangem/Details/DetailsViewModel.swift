@@ -39,6 +39,10 @@ class DetailsViewModel: ViewModel, ObservableObject {
         cardModel.hasWallet
     }
     
+    var isMultiWallet: Bool {
+        cardModel.cardInfo.isMultiWallet
+    }
+    
     var backupStatus: String? {
         guard let status = cardModel.cardInfo.card.backupStatus else {
             return nil
