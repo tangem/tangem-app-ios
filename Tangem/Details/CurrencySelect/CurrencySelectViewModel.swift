@@ -18,7 +18,7 @@ class CurrencySelectViewModel: ViewModel, ObservableObject {
     
     private var bag = Set<AnyCancellable>()
     
-    func onAppear() {
+    override func onAppear() {
         loading = true
         currencyRateService
             .baseCurrencies()

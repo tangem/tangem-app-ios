@@ -110,7 +110,7 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
         scanCard()
     }
     
-    func onAppear() {
+    override func onAppear() {
         if backupService.hasIncompletedBackup {
             let alert = Alert(title: Text("common_warning"),
                               message: Text("welcome_interrupted_backup_alert_message"),
