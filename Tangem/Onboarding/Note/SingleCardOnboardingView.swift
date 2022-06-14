@@ -146,13 +146,9 @@ struct OnboardingView_Previews: PreviewProvider {
     }()
     
     static var previews: some View {
-        ContentView() {
-            SingleCardOnboardingView(viewModel: assembly.getOnboardingViewModel())
-                .environmentObject(assembly)
-                .environmentObject(navigation)
-        }
-        //        .previewGroup(devices: [.iPhoneX], withZoomed: false)
-        //        .previewGroup()
+        SingleCardOnboardingView(viewModel: assembly.getOnboardingViewModel())
+            .environmentObject(assembly)
+            .environmentObject(navigation)
     }
 }
 
