@@ -122,7 +122,7 @@ class DetailsViewModel: ViewModel, ObservableObject {
     
     private var bag = Set<AnyCancellable>()
     
-    override func initialize() {
+    override func onAppear() {
         currencyRateService
             .selectedCurrencyCodePublisher
             .receive(on: RunLoop.main)
