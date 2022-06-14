@@ -318,7 +318,7 @@ CHECKOUT OPTIONS:
     :git: https://github.com/lazutkin-andrey/bitcoincore.git
     :tag: 0.0.16
   BlockchainSdk:
-    :commit: 3e7497e9647c5d5403d994f16955c4f1ae6ba8fd
+    :commit: a2d48a1cd9118e297ca1d2c75c16978040d02823
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
