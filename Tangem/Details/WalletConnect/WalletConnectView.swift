@@ -72,6 +72,7 @@ struct WalletConnectView: View {
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle(Text("wallet_connect_sessions_title"))
         .navigationBarItems(trailing: navBarButton)
+        .onAppear(perform: viewModel.onAppear)
     }
 }
 
