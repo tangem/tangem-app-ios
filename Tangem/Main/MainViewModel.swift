@@ -44,7 +44,6 @@ class MainViewModel: ViewModel, ObservableObject {
     @Published var emailFeedbackCase: EmailFeedbackCase? = nil
     @Published var txIndexToPush: Int? = nil
     @Published var isOnboardingModal: Bool = true
-    @Published var isLoadingTokensBalance: Bool = false
     
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
@@ -64,6 +63,7 @@ class MainViewModel: ViewModel, ObservableObject {
     var amountToSend: Amount? = nil
     var selectedWallet: TokenItemViewModel = .default
     var sellCryptoRequest: SellCryptoRequest? = nil
+    var isLoadingTokensBalance: Bool = false
     lazy var totalSumBalanceViewModel: TotalSumBalanceViewModel = assembly.makeTotalSumBalanceViewModel()
     
 	@Storage(type: .validatedSignedHashesCards, defaultValue: [])
@@ -261,7 +261,7 @@ class MainViewModel: ViewModel, ObservableObject {
     func bind() {
         $state
             .compactMap { $0.cardModel }
-            .flatMap {$0.objectWillChange }
+            .flatMap { $0.objectWillChange }
             .receive(on: DispatchQueue.main)
             .sink { [unowned self] in
                 print("⚠️ Card model will change")
@@ -281,11 +281,23 @@ class MainViewModel: ViewModel, ObservableObject {
             .receive(on: DispatchQueue.main)
             .sink { [unowned self] _ in
                 print("⚠️ Wallet model will change")
+                self.objectWillChange.send()
+            }
+            .store(in: &bag)
+        
+        $state
+            .compactMap { $0.cardModel }
+            .flatMap { $0.$state }
+            .compactMap { $0.walletModels }
+            .flatMap { Publishers.MergeMany($0.map { $0.objectWillChange }).collect($0.count) }
+            .debounce(for: .seconds(0.5), scheduler: RunLoop.main)
+            .receive(on: DispatchQueue.main)
+            .sink { [unowned self] _ in
+                if self.isLoadingTokensBalance { return }
                 self.updateTotalBalanceTokenListIfNeeded()
                 self.objectWillChange.send()
             }
             .store(in: &bag)
-    
         
         $state
             .compactMap { $0.cardModel }
@@ -323,9 +335,12 @@ class MainViewModel: ViewModel, ObservableObject {
                     self.totalSumBalanceViewModel.beginUpdates()
                     self.isLoadingTokensBalance = true
                 case .loaded:
-                    self.checkPositiveBalance()
-                    self.updateTotalBalanceTokenList()
-                    self.isLoadingTokensBalance = false
+                    //Delay for hide skeleton
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        self.checkPositiveBalance()
+                        self.isLoadingTokensBalance = false
+                        self.updateTotalBalanceTokenList()
+                    }
                 }
             }).store(in: &bag)
     }
