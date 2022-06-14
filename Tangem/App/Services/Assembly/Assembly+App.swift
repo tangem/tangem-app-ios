@@ -337,12 +337,10 @@ extension Assembly {
     }
     
     private func initialize<V: ViewModel>(_ vm: V, isResetable: Bool = true) {
-        vm.initialize()
         store(vm, isResetable: isResetable)
     }
     
     private func initialize<V: ViewModel>(_ vm: V, with key: String, isResetable: Bool) {
-        vm.initialize()
         store(vm, with: key, isResetable: isResetable)
     }
     
