@@ -468,7 +468,7 @@ class MainViewModel: ViewModel, ObservableObject {
         }
     }
     
-    func onAppear() {
+    override func onAppear() {
         assembly.reset()
     }
     
