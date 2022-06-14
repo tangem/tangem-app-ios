@@ -113,7 +113,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
         }
     }
     
-    func onAppear() {
+    override func onAppear() {
         loader.reset(enteredSearchText.value)
     }
     
