@@ -126,6 +126,29 @@ struct MainView: View {
         .padding(0.0)
     }
     
+    var backupWarningView: some View {
+        BackUpWarningView(tapAction: {
+            viewModel.prepareForBackup()
+        })
+            .cornerRadius(16)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 6)
+            .sheet(isPresented: $navigation.detailsToBackup, content: {
+                OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
+                    .presentation(
+                        modal: viewModel.isTwinRecreationModel, onDismissalAttempt: {
+                            viewModel.assembly.getWalletOnboardingViewModel()?.backButtonAction()
+                        },
+                        onDismissed: nil
+                    )
+                    .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
+                        viewModel.isTwinRecreationModel = value
+                    })
+                    .environmentObject(navigation)
+                    .navigationBarHidden(true)
+            })
+    }
+    
     var navigationLinks: some View {
         VStack {
             NavigationLink(destination: DetailsView(viewModel: viewModel.assembly.makeDetailsViewModel()),
@@ -189,6 +212,10 @@ struct MainView: View {
                                      currentCardNumber: viewModel.cardNumber,
                                      totalCards: viewModel.totalCards)
                             .fixedSize(horizontal: false, vertical: true)
+                            
+                            if viewModel.cardModel!.cardInfo.isMultiWallet && viewModel.cardModel!.cardInfo.card.backupStatus == .noBackup {
+                                backupWarningView
+                            }
                             
                             if isUnsupportdState {
                                 MessageView(title: "wallet_error_unsupported_blockchain".localized, subtitle: "wallet_error_unsupported_blockchain_subtitle".localized, type: .error)
