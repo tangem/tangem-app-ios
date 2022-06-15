@@ -11,22 +11,12 @@ import SwiftUI
 import Combine
 
 class NavigationCoordinator: ObservableObject {
-    // MARK: ReadView
-    @Published var readToMain: Bool = false {
-        didSet {
-            print("Did set read to main: \(readToMain)")
-        }
-    }
-    @Published var readToShop: Bool = false
-    @Published var readToTokenList: Bool = false
     @Published var readToDisclaimer: Bool = false
     @Published var readToTwinOnboarding = false
     @Published var readToTroubleshootingScan = false
-    @Published var readToSendEmail: Bool = false
     
     @Published var welcomeToBackup: Bool = false
     
-    @Published var onboardingToDisclaimer: Bool = false
     @Published var onboardingToBuyCrypto: Bool = false
     @Published var onboardingToQrTopup: Bool = false
     @Published var onboardingWalletToAccessCode: Bool = false
@@ -92,21 +82,16 @@ class NavigationCoordinator: ObservableObject {
     @Published var currencyChangeView = false
 
     func popToRoot() {
-        readToMain = false
         readToDisclaimer = false
-        readToShop = false
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.reset()
         }
     }
     
     func reset() {
-        readToMain = false
-        readToShop = false
         readToDisclaimer = false
         readToTwinOnboarding = false
         readToTroubleshootingScan = false
-        readToSendEmail = false
         
         // MARK: DisclaimerView
         disclaimerToMain = false
