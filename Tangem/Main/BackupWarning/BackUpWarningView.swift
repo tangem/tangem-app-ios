@@ -28,6 +28,7 @@ struct BackUpWarningView: View {
                     Text("main_no_backup_warning_subtitle".localized)
                         .fixedSize(horizontal: false, vertical: true)
                         .font(.system(size: 13, weight: .regular))
+                        .foregroundColor(Color.tangemTextGray)
                         .padding(.leading, 10)
                 }
                 
