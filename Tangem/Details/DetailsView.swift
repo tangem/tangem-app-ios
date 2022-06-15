@@ -226,7 +226,7 @@ struct DetailsView: View {
             }
 
             NavigationLink(
-                destination: DisclaimerView(style: .navbar, showAccept: false),
+                destination: DisclaimerView(viewModel: .init(style: .navbar, showAccept: false, dismissCallback: {})),
                 tag: NavigationTag.disclaimer,
                 selection: $selection
             ) {
@@ -241,9 +241,9 @@ struct DetailsView: View {
                     .foregroundColor(.tangemGrayDark6)
             })
             .sheet(isPresented: $navigation.detailsToSendEmail) {
-                MailView(dataCollector: viewModel.dataCollector,
-                         support: viewModel.cardModel.emailSupport,
-                         emailType: .appFeedback(support: viewModel.cardModel.isStart2CoinCard ? .start2coin : .tangem))
+                MailView(viewModel: .init(dataCollector: viewModel.dataCollector,
+                                          support: viewModel.cardModel.emailSupport,
+                                          emailType: .appFeedback(support: viewModel.cardModel.isStart2CoinCard ? .start2coin : .tangem)))
             }
             
             if let cardTouURL = viewModel.cardTouURL {
