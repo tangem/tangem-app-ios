@@ -1267,6 +1267,7 @@
 		5D3F77C424BF56D800E8695B /* Tangem */ = {
 			isa = PBXGroup;
 			children = (
+				6563B8B72858B912009A8A7D /* ChatSupport */,
 				5D9DCADC255174140059799C /* App */,
 				DC7DA81A2844EED800AD6DBD /* Modules */,
 				5DFCCB6324C371AC0014A293 /* Common */,
@@ -3256,6 +3257,7 @@
 				B0E1D175257DE75D00A3AB98 /* CommonKeysManager.swift in Sources */,
 				5D84DBEF270EEADA0013A813 /* TwinIntroBackgroundView.swift in Sources */,
 				5D80ED472550186A0008DEF0 /* View+.swift in Sources */,
+				6563B8B92858B92A009A8A7D /* ChatView.swift in Sources */,
 				5D51036927C534A60025EA55 /* JSON.swift in Sources */,
 				DC66BBEF2859B6C700CDF765 /* ShopCoordinatorView.swift in Sources */,
 				5DDE22E32608C2E2008657C6 /* WalletConnectService.swift in Sources */,
@@ -3304,6 +3306,7 @@
 				DA23788027B24222009795A8 /* CheckoutUserError.swift in Sources */,
 				5D219F8B27FF1CF9005015AA /* PerfList.swift in Sources */,
 				DAE6F76D2800011400411F45 /* AppError.swift in Sources */,
+				6563B8BB2859EA82009A8A7D /* ChatViewModel.swift in Sources */,
 				B068A7E725678A8800D28CD2 /* TwinCardsUtils.swift in Sources */,
 				DC66BC0A285B755800CDF765 /* PushTxRoutable.swift in Sources */,
 			);
