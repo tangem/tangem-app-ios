@@ -50,8 +50,6 @@ struct CardOperationView: View {
                                     case .success:
                                         if self.shouldPopToRoot {
                                             DispatchQueue.main.async {
-                                                self.assembly.getLetsStartOnboardingViewModel()?.reset()
-                                                self.assembly.getLaunchOnboardingViewModel().reset()
                                                 self.navigation.popToRoot()
                                             }
                                         } else {
