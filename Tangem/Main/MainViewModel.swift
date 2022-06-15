@@ -23,7 +23,7 @@ class MainViewModel: ViewModel, ObservableObject {
     @Injected(\.negativeFeedbackDataProvider) var negativeFeedbackDataCollector: NegativeFeedbackDataProvider
     
     //MARK: - Published variables
-    
+    @Published var isTwinRecreationModel: Bool = true
     @Published var error: AlertBinder?
     @Published var isScanning: Bool = false
     @Published var isCreatingWallet: Bool = false
@@ -638,6 +638,39 @@ class MainViewModel: ViewModel, ObservableObject {
     
     func showCurrencyChangeScreen() {
         navigation.currencyChangeView = true
+    }
+    
+    func prepareForBackup() {
+        guard let cardModel = cardModel else {
+            return
+        }
+        cardOnboardingStepSetupService.backupSteps(cardModel.cardInfo)
+            .sink { completion in
+            switch completion {
+            case .failure(let error):
+                Analytics.log(error: error)
+                print("Failed to load image for new card")
+                self.error = error.alertBinder
+            case .finished:
+                break
+            }
+        } receiveValue: { [weak self] steps in
+            guard let self = self else { return }
+            
+            let input = OnboardingInput(steps: steps,
+                                        cardInput: .cardModel(cardModel),
+                                        cardsPosition: nil,
+                                        welcomeStep: nil,
+                                        currentStepIndex: 0,
+                                        successCallback: { [weak self] in
+                                            self?.navigation.detailsToBackup = false
+                                        },
+                                        isStandalone: true)
+            self.assembly.makeCardOnboardingViewModel(with: input)
+            self.navigation.detailsToBackup = true
+        }
+        .store(in: &bag)
+
     }
 
     // MARK: - Private functions
