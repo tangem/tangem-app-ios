@@ -1,5 +1,5 @@
 //
-//  WelcomeOnboardingViewModel.swift
+//  WelcomeViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,48 +10,31 @@ import Combine
 import SwiftUI
 import TangemSdk
 
-class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
+class WelcomeViewModel: ObservableObject {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     @Injected(\.onboardingStepsSetupService) private var stepsSetupService: OnboardingStepsSetupService
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
     
+    @Published var showTroubleshootingView: Bool = false
     @Published var isScanningCard: Bool = false
-    @Published var isBackupModal: Bool = false
     @Published var error: AlertBinder?
     @Published var discardAlert: ActionSheetBinder?
-    @Published var darkCardSettings: AnimatedViewSettings = .zero
-    @Published var lightCardSettings: AnimatedViewSettings = .zero
-    
-    var currentStep: WelcomeStep {
-        .welcome
-    }
+    @Published var storiesModel: StoriesViewModel = .init()
     
     private var bag: Set<AnyCancellable> = []
-    private var cardImage: UIImage?
     private var backupService: BackupService { backupServiceProvider.backupService }
-    private var container: CGSize = .zero
     private var userPrefsService: UserPrefsService = .init()
     
-    var successCallback: (OnboardingInput) -> Void
+    private unowned let coordinator: WelcomeViewRoutable
     
-    init(successCallback: @escaping (OnboardingInput) -> Void) {
-        self.successCallback = successCallback
-    }
-    
-    func setupContainer(_ size: CGSize) {
-        let isInitialSetup = container == .zero
-        container = size
-        setupCards(animated: !isInitialSetup)
-    }
-    
-    func reset() {
-        setupCards(animated: false)
+    init(coordinator: WelcomeViewRoutable) {
+        self.coordinator = coordinator
     }
     
     func scanCard() {
         guard userPrefsService.isTermsOfServiceAccepted else {
-            showDisclaimer()
+           openDisclaimer()
             return
         }
             
@@ -68,7 +51,7 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
                     self?.failedCardScanTracker.recordFailure()
                     
                     if self?.failedCardScanTracker.shouldDisplayAlert ?? false {
-                        self?.navigation.readToTroubleshootingScan = true
+                        self?.showTroubleshootingView = true
                     } else {
                         switch error.toTangemSdkError() {
                         case .unknownError, .cardVerificationFailed:
@@ -92,25 +75,89 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
         subscription?.store(in: &bag)
     }
     
+    func requestSupport() {
+        failedCardScanTracker.resetCounter()
+        openMail()
+    }
+    
     func orderCard() {
-        navigation.readToShop = true
+        openShop()
         Analytics.log(.getACard, params: [.source: .welcome])
     }
     
-    func searchTokens() {
-        navigation.readToTokenList = true
+    func onAppear() {
+        showInteruptedBackupAlertIfNeeded()
     }
     
-    func acceptDisclaimer() {
+    private func processScannedCard(_ cardModel: CardViewModel, isWithAnimation: Bool) {
+        cardModel.cardInfo.primaryCard.map { backupService.setPrimaryCard($0) }
+        
+        stepsSetupService.steps(for: cardModel.cardInfo)
+            .sink { [weak self] completion in
+                if case let .failure(error) = completion {
+                    self?.error = error.alertBinder
+                }
+                self?.isScanningCard = false
+            } receiveValue: { [unowned self] steps in
+                let input = OnboardingInput(steps: steps,
+                                            cardInput: .cardModel(cardModel),
+                                            cardsPosition: (.zero, .zero),
+                                            welcomeStep: nil,
+                                            currentStepIndex: 0,
+                                            successCallback: nil)
+                
+                self.isScanningCard = false
+                if input.steps.needOnboarding {
+                    openOnboarding(with: input)
+                } else {
+                    openMain()
+                }
+            
+                self.bag.removeAll()
+            }
+            .store(in: &bag)
+    }
+    
+    private func acceptDisclaimer() {
         userPrefsService.isTermsOfServiceAccepted = true
-        navigation.onboardingToDisclaimer = false
+    }
+}
+
+//MARK: - Navigation
+extension WelcomeViewModel {
+    func openInterrupedBackup(with input: OnboardingInput) {
+        coordinator.openInterrupedBackup(with: input)
     }
     
-    func disclaimerDismissed() {
-        scanCard()
+    func openMail() {
+        coordinator.openMail(with: failedCardScanTracker)
     }
     
-    override func onAppear() {
+    func openDisclaimer() {
+        coordinator.openDisclaimer(acceptCallback: acceptDisclaimer, dismissCallback: scanCard)
+    }
+    
+    func openTokensList() {
+        coordinator.openTokensList()
+    }
+    
+    func openShop() {
+        coordinator.openShop()
+    }
+    
+    func openOnboarding(with input: OnboardingInput) {
+        coordinator.openOnboarding(with: input)
+    }
+    
+    func openMain() {
+        coordinator.openMain()
+    }
+}
+
+
+//MARK: - Resume interrupted backup
+private extension WelcomeViewModel {
+    func showInteruptedBackupAlertIfNeeded() {
         if backupService.hasIncompletedBackup {
             let alert = Alert(title: Text("common_warning"),
                               message: Text("welcome_interrupted_backup_alert_message"),
@@ -156,47 +203,22 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
                                             cardsPosition: nil,
                                             welcomeStep: nil,
                                             currentStepIndex: 0,
-                                            successCallback: { [weak self] in
-                                                self?.navigation.welcomeToBackup = false
-                                            },
+                                            successCallback: nil,
                                             isStandalone: false)
-                self.assembly.makeCardOnboardingViewModel(with: input)
-                self.navigation.welcomeToBackup = true
-            }
-            .store(in: &bag)
-    }
-    
-    private func showDisclaimer() {
-        navigation.onboardingToDisclaimer = true
-    }
-    
-    private func processScannedCard(_ cardModel: CardViewModel, isWithAnimation: Bool) {
-        cardModel.cardInfo.primaryCard.map { backupService.setPrimaryCard($0) }
-        
-        stepsSetupService.steps(for: cardModel.cardInfo)
-            .sink { [weak self] completion in
-                if case let .failure(error) = completion {
-                    self?.error = error.alertBinder
-                }
-                self?.isScanningCard = false
-            } receiveValue: { [unowned self] steps in
-                let input = OnboardingInput(steps: steps,
-                                            cardInput: .cardModel(cardModel),
-                                            cardsPosition: (darkCardSettings, lightCardSettings),
-                                            welcomeStep: nil,
-                                            currentStepIndex: 0,
-                                            successCallback: nil)
                 
-                self.isScanningCard = false
-                self.successCallback(input)
-                self.bag.removeAll()
+                self.openInterrupedBackup(with: input)
             }
             .store(in: &bag)
     }
-    
-    private func setupCards(animated: Bool) {
-        darkCardSettings = WelcomeCardLayout.main.cardSettings(at: currentStep, in: container, animated: animated)
-        lightCardSettings = WelcomeCardLayout.supplementary.cardSettings(at: currentStep, in: container, animated: animated)
+}
+
+
+extension WelcomeViewModel: WelcomeViewLifecycleListener {
+    func resignActve() {
+        storiesModel.resignActve()
     }
     
+    func becomeActive() {
+        storiesModel.becomeActive()
+    }
 }
