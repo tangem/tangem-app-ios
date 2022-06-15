@@ -14,7 +14,31 @@ struct AppCoordinatorView: CoordinatorView {
     
     var body: some View {
         NavigationView {
-            OnboardingBaseView(viewModel: coordinator.onboardingViewModel)
+            WelcomeView(viewModel: coordinator.welcomeViewModel)
+                .sheet(item: $coordinator.tokenListCoordinator) {
+                    TokenListCoordinatorView(coordinator: $0)
+                }
+                .sheet(item: $coordinator.mailViewModel) {
+                    MailView(viewModel: $0)
+                }
+                .sheet(item: $coordinator.disclaimerViewModel) {
+                    DisclaimerView(viewModel: $0)
+                        .presentation(modal: true, onDismissalAttempt: nil, onDismissed: $0.dismissCallback)
+                }
+                .sheet(item: $coordinator.shopCoordinator) {
+                    ShopCoordinatorView(coordinator: $0)
+                }
+                .navigation(item: $coordinator.pushedOnboardingCoordinator) {
+                    OnboardingCoordinatorView(coordinator: $0)
+                }
+                .sheet(item: $coordinator.modalOnboardingCoordinator) {
+                    OnboardingCoordinatorView(coordinator: $0)
+                        .presentation(modal: true, onDismissalAttempt: $0.onDismissalAttempt, onDismissed: nil)
+                        .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
+                            coordinator.modalOnboardingCoordinatorKeeper = value
+                        })
+                }
+                .navigationBarHidden(isNavigationBarHidden)
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }
