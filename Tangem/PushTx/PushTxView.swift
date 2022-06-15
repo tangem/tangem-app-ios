@@ -163,7 +163,7 @@ struct PushTxView: View {
                         }.buttonStyle(TangemButtonStyle(layout: .big,
                                                         isDisabled: !viewModel.isSendEnabled))
                         .sheet(isPresented: $navigation.pushToSendEmail, content: {
-                            MailView(dataCollector: viewModel.emailDataCollector, support: .tangem, emailType: .failedToSendTx)
+                            MailView(viewModel: .init(dataCollector: viewModel.emailDataCollector, support: .tangem, emailType: .failedToSendTx))
                         })
                         .alert(item: self.$viewModel.sendError) { binder in
                             if binder.error == nil {
