@@ -17,6 +17,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private let appCoordinator: AppCoordinator = .init()
     
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+        appCoordinator.start(with: connectionOptions)
+        
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
             let appView = AppCoordinatorView(coordinator: appCoordinator)
@@ -24,8 +26,6 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             self.window = window
             window.makeKeyAndVisible()
         }
-        
-        appCoordinator.start(with: connectionOptions)
     }
     
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
