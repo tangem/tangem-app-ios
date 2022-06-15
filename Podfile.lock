@@ -205,6 +205,19 @@ PODS:
     - XCGLogger/Core (= 7.0.1)
   - XCGLogger/Core (7.0.1):
     - ObjcExceptionBridging
+  - ZendeskCommonUISDK (6.1.4)
+  - ZendeskCoreSDK (2.7.0)
+  - ZendeskMessagingAPISDK (3.8.5):
+    - ZendeskSDKConfigurationsSDK (= 1.1.11)
+  - ZendeskMessagingSDK (3.8.5):
+    - ZendeskCommonUISDK (= 6.1.4)
+    - ZendeskMessagingAPISDK (= 3.8.5)
+  - ZendeskSDKConfigurationsSDK (1.1.11)
+  - ZendeskSupportProvidersSDK (5.5.0):
+    - ZendeskCoreSDK (= 2.7.0)
+  - ZendeskSupportSDK (5.5.0):
+    - ZendeskMessagingSDK (= 3.8.5)
+    - ZendeskSupportProvidersSDK (= 5.5.0)
 
 DEPENDENCIES:
   - Alamofire
@@ -234,6 +247,8 @@ DEPENDENCIES:
   - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-152`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.6.2`)
   - web3swift (from `https://github.com/lazutkin-andrey/web3swift.git`, tag `2.2.9`)
+  - ZendeskSupportProvidersSDK
+  - ZendeskSupportSDK (~> 5.5.0)
 
 SPEC REPOS:
   trunk:
@@ -272,6 +287,13 @@ SPEC REPOS:
     - SwiftyJSON
     - TweetNacl
     - XCGLogger
+    - ZendeskCommonUISDK
+    - ZendeskCoreSDK
+    - ZendeskMessagingAPISDK
+    - ZendeskMessagingSDK
+    - ZendeskSDKConfigurationsSDK
+    - ZendeskSupportProvidersSDK
+    - ZendeskSupportSDK
 
 EXTERNAL SOURCES:
   AlertToast:
@@ -382,7 +404,14 @@ SPEC CHECKSUMS:
   WalletConnectSwift: 046ae74e8cb69445be9c94c66ef66f9cb019b68f
   web3swift: 93f68f5430c11a78bba2351c139d2d22f2c04b5e
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
+  ZendeskCommonUISDK: ba160fe413b491af9e7bfcb9808afcd494dc83a5
+  ZendeskCoreSDK: 4236eb56f9386cf0770900df04c857b9b4d79d03
+  ZendeskMessagingAPISDK: 410f9bcf07c79fe98d6f251da102368d6b356c54
+  ZendeskMessagingSDK: 95d396c981dacfab83cc7b9736e8561d51a3052b
+  ZendeskSDKConfigurationsSDK: ebced171fd1f4eb57760e8537d8cfa6a450122be
+  ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
+  ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: c33c0fa9093c3a493cd81285b8da53aa13f83200
+PODFILE CHECKSUM: 8d9ba53d4db41738613856b47831d888876e614b
 
 COCOAPODS: 1.11.3
