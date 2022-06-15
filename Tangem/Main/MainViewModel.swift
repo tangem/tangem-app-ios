@@ -75,6 +75,8 @@ class MainViewModel: ViewModel, ObservableObject {
     private var refreshCancellable: AnyCancellable? = nil
     private lazy var testnetBuyCryptoService: TestnetBuyCryptoService = .init()
     
+    private unowned let coordinator: MainViewRoutable
+    
     public var canCreateTwinWallet: Bool {
         if isTwinCard {
             if let cm = cardModel, cm.isNotPairedTwin {
@@ -253,6 +255,10 @@ class MainViewModel: ViewModel, ObservableObject {
         return self.cardModel?.walletModels?.first?.getQRReceiveMessage() ?? ""
     }
     
+    init(coordinator: MainViewRoutable) {
+        self.coordinator = coordinator
+    }
+    
     deinit {
         print("MainViewModel deinit")
     }
@@ -427,13 +433,8 @@ class MainViewModel: ViewModel, ObservableObject {
     
     func onScan() {
         DispatchQueue.main.async {
-            self.assembly.getLetsStartOnboardingViewModel()?.reset()
-            self.assembly.getLaunchOnboardingViewModel().reset()
             self.totalSumBalanceViewModel.update(with: [])
-            self.navigation.popToRoot()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                self.assembly.getLetsStartOnboardingViewModel()?.scanCard()
-            }
+            self.coordinator.close(newScan: true)
         }
     }
     
