@@ -9,7 +9,7 @@ import Foundation
 import Combine
 import SwiftUI
 
-class StoriesViewModel: ViewModel, ObservableObject {
+class StoriesViewModel: ObservableObject {
     @Published var currentPage: WelcomeStoryPage = WelcomeStoryPage.allCases[0]
     @Published var currentProgress = 0.0
     
@@ -26,12 +26,7 @@ class StoriesViewModel: ViewModel, ObservableObject {
     private let longTapDuration = 0.25
     private let minimumSwipeDistance = 100.0
     
-    override init() {
-        self.didDisplayMainScreenStories = userPrefsService.didDisplayMainScreenStories
-        userPrefsService.didDisplayMainScreenStories = true
-    }
-    
-    override func onAppear() {
+    func onAppear() {
         NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)
             .dropFirst()
             .sink { [weak self] _ in
@@ -43,22 +38,6 @@ class StoriesViewModel: ViewModel, ObservableObject {
             .dropFirst()
             .sink { [weak self] _ in
                 self?.resumeTimer()
-            }
-            .store(in: &bag)
-        
-        Publishers.Merge(
-            navigation.$readToTokenList,
-            navigation.$readToShop
-        )
-            .drop { showingSheet in
-                showingSheet == false
-            }
-            .sink { [unowned self] showingSheet in
-                if showingSheet && self.timerIsRunning() {
-                    self.pauseTimer()
-                } else if !showingSheet && !self.timerIsRunning() {
-                    self.resumeTimer()
-                }
             }
             .store(in: &bag)
         
@@ -198,6 +177,19 @@ class StoriesViewModel: ViewModel, ObservableObject {
     }
 }
 
+extension StoriesViewModel: WelcomeViewLifecycleListener {
+    func resignActve() {
+        if timerIsRunning() {
+            pauseTimer()
+        }
+    }
+    
+    func becomeActive() {
+        if !timerIsRunning() {
+            resumeTimer()
+        }
+    }
+}
 
 fileprivate extension CGPoint {
     func distance(to other: CGPoint) -> CGFloat {

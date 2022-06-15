@@ -291,9 +291,9 @@ struct MainView: View {
             Color.clear
                 .frame(width: 0.5, height: 0.5)
                 .sheet(item: $viewModel.emailFeedbackCase) { emailCase -> MailView in
-                    return MailView(dataCollector: viewModel.getDataCollector(for: emailCase),
-                                    support: .tangem,
-                                    emailType: emailCase.emailType)
+                    return MailView(viewModel: .init(dataCollector: viewModel.getDataCollector(for: emailCase),
+                                                     support: .tangem,
+                                                     emailType: emailCase.emailType))
                 }
             
             Color.clear

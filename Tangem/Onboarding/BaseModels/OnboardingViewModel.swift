@@ -123,7 +123,6 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
     
     var isSupplementButtonVisible: Bool { currentStep.isSupplementButtonVisible }
     
-    let successCallback: (() -> Void)?
     let input: OnboardingInput
     
     var isFromMain: Bool = false
@@ -131,7 +130,6 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
     
     init(input: OnboardingInput) {
         self.input = input
-        successCallback = input.successCallback
         if let cardsSettings = input.cardsPosition {
             mainCardSettings = cardsSettings.dark
             supplementCardSettings = cardsSettings.light
@@ -192,7 +190,7 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
     func goToNextStep() {
         if isOnboardingFinished, !assembly.isPreview {
             DispatchQueue.main.async {
-                self.successCallback?()
+                self.input.successCallback?()
             }
             
             onOnboardingFinished(for: input.cardInput.cardId)
