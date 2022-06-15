@@ -9,7 +9,76 @@
 import SwiftUI
 
 struct DisclaimerView: View {
+    let viewModel: DisclaimerViewModel
     
+    @Environment(\.presentationMode) private var presentationMode
+    
+    var body: some View {
+        ZStack(alignment: .bottom) {
+            VStack(spacing: 0) {
+                if viewModel.style.withHeaderStack {
+                    HStack {
+                        Text("disclaimer_title")
+                            .font(.system(size: 30, weight: .bold, design: .default))
+                            .foregroundColor(.tangemGrayDark6)
+                        Spacer()
+                        if viewModel.style.isWithCloseButton {
+                            Button(action: { presentationMode.wrappedValue.dismiss() }, label: {
+                                Image(systemName: "xmark")
+                                    .resizable()
+                                    .foregroundColor(.tangemGrayDark4.opacity(0.6))
+                                    .frame(width: 11, height: 11)
+                            })
+                            .frame(width: 30, height: 30)
+                            .background(Color.tangemBgGray)
+                            .cornerRadius(15)
+                        }
+                    }
+                    .padding(EdgeInsets(top: 20, leading: 16, bottom: 20, trailing: 16))
+                }
+                
+                ScrollView {
+                    Text("disclaimer_text")
+                        .font(Font.system(size: 16, weight: .regular, design: .default))
+                        .foregroundColor(.tangemGrayDark5)
+                        .padding(.horizontal, 16)
+                        .padding(.bottom, viewModel.showAccept ? 150 : 0)
+                        .padding(.top, viewModel.style.disclaimerTextTopPadding)
+                }
+            }
+            
+            if viewModel.showAccept {
+                TangemButton(title: "common_accept") {
+                    if case let .sheet(acceptCallback) = viewModel.style {
+                        presentationMode.wrappedValue.dismiss()
+                        acceptCallback()
+                    }
+                }
+                .buttonStyle(TangemButtonStyle())
+                .background(
+                    LinearGradient(
+                        gradient: Gradient(stops: [
+                            .init(color: .white.opacity(0.2), location: 0.0),
+                            .init(color: .white, location: 0.5),
+                            .init(color: .white, location: 1.0)
+                        ]),
+                        startPoint: .top,
+                        endPoint: .bottom)
+                    .frame(size: CGSize(width: UIScreen.main.bounds.width, height: 135))
+                    .offset(y: -20)
+                )
+                .alignmentGuide(.bottom, computeValue: { dimension in
+                    dimension[.bottom] + 16
+                })
+            }
+        }
+        .navigationBarTitle(viewModel.style.navbarTitle)
+        .navigationBarBackButtonHidden(viewModel.style.navbarItemsHidden)
+        .navigationBarHidden(viewModel.style.navbarItemsHidden)
+    }
+}
+
+extension DisclaimerView {
     enum Style {
         case sheet(acceptCallback: () -> Void), navbar
         
@@ -48,80 +117,14 @@ struct DisclaimerView: View {
             }
         }
     }
-    
-    let style: Style
-    let showAccept: Bool
-    @Environment(\.presentationMode) private var presentationMode
-    
-    var body: some View {
-        ZStack(alignment: .bottom) {
-            VStack(spacing: 0) {
-                if style.withHeaderStack {
-                    HStack {
-                        Text("disclaimer_title")
-                            .font(.system(size: 30, weight: .bold, design: .default))
-                            .foregroundColor(.tangemGrayDark6)
-                        Spacer()
-                        if style.isWithCloseButton {
-                            Button(action: { presentationMode.wrappedValue.dismiss() }, label: {
-                                Image(systemName: "xmark")
-                                    .resizable()
-                                    .foregroundColor(.tangemGrayDark4.opacity(0.6))
-                                    .frame(width: 11, height: 11)
-                            })
-                            .frame(width: 30, height: 30)
-                            .background(Color.tangemBgGray)
-                            .cornerRadius(15)
-                        }
-                    }
-                    .padding(EdgeInsets(top: 20, leading: 16, bottom: 20, trailing: 16))
-                }
-                ScrollView {
-                    Text("disclaimer_text")
-                        .font(Font.system(size: 16, weight: .regular, design: .default))
-                        .foregroundColor(.tangemGrayDark5)
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, showAccept ? 150 : 0)
-                        .padding(.top, style.disclaimerTextTopPadding)
-                }
-            }
-            if showAccept {
-                TangemButton(title: "common_accept") {
-                    if case let .sheet(acceptCallback) = style {
-                        acceptCallback()
-                    }
-                }
-                .buttonStyle(TangemButtonStyle())
-                .background(
-                    LinearGradient(
-                        gradient: Gradient(stops: [
-                            .init(color: .white.opacity(0.2), location: 0.0),
-                            .init(color: .white, location: 0.5),
-                            .init(color: .white, location: 1.0)
-                        ]),
-                        startPoint: .top,
-                        endPoint: .bottom)
-                        .frame(size: CGSize(width: UIScreen.main.bounds.width, height: 135))
-                        .offset(y: -20)
-                )
-                .alignmentGuide(.bottom, computeValue: { dimension in
-                    dimension[.bottom] + 16
-                })
-            }
-        }
-        .navigationBarTitle(style.navbarTitle)
-        .navigationBarBackButtonHidden(style.navbarItemsHidden)
-        .navigationBarHidden(style.navbarItemsHidden)
-    }
-    
 }
 
 struct DisclaimerView_Previews: PreviewProvider {
     static var previews: some View {
-        DisclaimerView(style: .sheet(acceptCallback: {}), showAccept: true)
+        DisclaimerView(viewModel: .init(style: .sheet(acceptCallback: {}), showAccept: true))
             .previewGroup(devices: [.iPhoneX, .iPhone8Plus], withZoomed: false)
         NavigationView(content: {
-            DisclaimerView(style: .navbar, showAccept: true)
+            DisclaimerView(viewModel: .init(style: .navbar, showAccept: true))
         })
     }
 }
