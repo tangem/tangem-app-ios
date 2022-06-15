@@ -273,7 +273,7 @@ struct SendView: View {
                                        isDisabled: !self.viewModel.isSendEnabled))
         .padding(.top, 16.0)
         .sheet(isPresented: $navigation.sendToSendEmail, content: {
-            MailView(dataCollector: viewModel.emailDataCollector, support: .tangem, emailType: .failedToSendTx)
+            MailView(viewModel: .init(dataCollector: viewModel.emailDataCollector, support: .tangem, emailType: .failedToSendTx))
         })
         .alert(item: self.$viewModel.sendError) { binder in
             if binder.error == nil {
