@@ -127,10 +127,9 @@ struct MainView: View {
     }
     
     var backupWarningView: some View {
-        BackUpWarningView(tapAction: {
+        BackUpWarningButton(tapAction: {
             viewModel.prepareForBackup()
         })
-            .cornerRadius(16)
             .padding(.horizontal, 16)
             .padding(.bottom, 6)
             .sheet(isPresented: $navigation.detailsToBackup, content: {
