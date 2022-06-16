@@ -64,7 +64,7 @@ class MainViewModel: ViewModel, ObservableObject {
     var selectedWallet: TokenItemViewModel = .default
     var sellCryptoRequest: SellCryptoRequest? = nil
     var isLoadingTokensBalance: Bool = false
-    lazy var totalSumBalanceViewModel: TotalSumBalanceViewModel = assembly.makeTotalSumBalanceViewModel()
+    lazy var totalSumBalanceViewModel: TotalSumBalanceViewModel = .init()
     
 	@Storage(type: .validatedSignedHashesCards, defaultValue: [])
 	private var validatedSignedHashesCards: [String]
