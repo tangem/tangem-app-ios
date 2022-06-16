@@ -33,7 +33,7 @@ class OnboardingCoordinator: ObservableObject, Identifiable {
     }
 }
 
-extension OnboardingCoordinator: OnboardingTopupViewModelRoutable {
+extension OnboardingCoordinator: OnboardingTopupRoutable {
     func openCryptoShop(at url: URL, closeUrl: String, action: @escaping () -> Void) {
         buyCryptoModel = .init(url: url,
                                title: "wallet_button_topup".localized,
@@ -47,7 +47,7 @@ extension OnboardingCoordinator: OnboardingTopupViewModelRoutable {
     }
 }
 
-extension OnboardingCoordinator: WalletOnboardingViewRoutable {
+extension OnboardingCoordinator: WalletOnboardingRoutable {
     func openAccessCodeView(callback: @escaping (String) -> Void) {
         accessCodeModel = .init(successHandler: {[weak self] code in
             self?.accessCodeModel = nil
