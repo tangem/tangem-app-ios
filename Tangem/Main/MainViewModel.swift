@@ -241,13 +241,9 @@ class MainViewModel: ViewModel, ObservableObject {
 		cardModel?.isTwinCard ?? false
 	}
     
-    var isMultiWallet: Bool {
-        cardModel?.cardInfo.isMultiWallet ?? false
-    }
-    
-    var hasNoBackUp: Bool {
-        if let cardModel = cardModel, isMultiWallet {
-            return cardModel.cardInfo.card.backupStatus == .noBackup
+    var isBackupAllowed: Bool {
+        if let cardModel = cardModel {
+            return cardModel.cardInfo.card.settings.isBackupAllowed && cardModel.cardInfo.card.backupStatus == .noBackup
         } else {
             return false
         }
@@ -681,11 +677,11 @@ class MainViewModel: ViewModel, ObservableObject {
                                             welcomeStep: nil,
                                             currentStepIndex: 0,
                                             successCallback: { [weak self] in
-                    self?.navigation.detailsToBackup = false
+                    self?.navigation.detailsToBackupFromMain = false
                 },
                                             isStandalone: true)
                 self.assembly.makeCardOnboardingViewModel(with: input)
-                self.navigation.detailsToBackup = true
+                self.navigation.detailsToBackupFromMain = true
             }
             .store(in: &bag)
     }
