@@ -171,6 +171,8 @@ class SendViewModel: ViewModel, ObservableObject {
     
     @Published private var validatedXrpDestinationTag: UInt32? = nil
     
+    private let feeRetrySubject = CurrentValueSubject<Void, Never>(())
+    
     private var blockchainNetwork: BlockchainNetwork
    
     private lazy var payIDService: PayIDService? = {
@@ -311,13 +313,21 @@ class SendViewModel: ViewModel, ObservableObject {
         $validatedAmount//update fee
             .dropFirst()
             .compactMap { $0 }
-            .combineLatest($validatedDestination.compactMap { $0 })
-            .flatMap { [unowned self] amount, dest -> AnyPublisher<[Amount], Never> in
+            .combineLatest($validatedDestination.compactMap { $0 }, feeRetrySubject)
+            .flatMap { [unowned self] amount, dest, _ -> AnyPublisher<[Amount], Never> in
                 self.isFeeLoading = true
                 return self.walletModel.walletManager.getFee(amount: amount, destination: dest)
-                    .catch { error -> Just<[Amount]> in
+                    .catch { [unowned self] error -> Just<[Amount]> in
                         print(error)
                         Analytics.log(error: error)
+                        
+                        let ok = Alert.Button.default(Text("common_ok"))
+                        let retry = Alert.Button.default(Text("common_retry")) { [unowned self] in
+                            self.feeRetrySubject.send()
+                        }
+                        let alert = Alert(title: Text(WalletError.failedToGetFee.localizedDescription), primaryButton: retry, secondaryButton: ok)
+                        self.error = AlertBinder(alert: alert)
+
                         return Just([Amount]())
                     }.eraseToAnyPublisher()
             }
