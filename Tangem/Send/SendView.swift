@@ -296,18 +296,18 @@ struct ExtractView_Previews: PreviewProvider {
     
     static var previews: some View {
         Group {
-            SendView(viewModel: assembly.makeSellCryptoSendViewModel(with: Amount(with: assembly.previewBlockchain,
+            SendView(viewModel: assembly.makeSellCryptoSendViewModel(with: Amount(with: PreviewCard.ethereum.blockchain!,
                                                                                   type: .token(value: Token(name: "DAI", symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18)),
                                                                                   value: 0.0),
                                                                      destination: "Target",
-                                                                     blockchainNetwork: assembly.previewBlockchainNetwork,
+                                                                     blockchainNetwork: PreviewCard.ethereum.blockchainNetwotk!,
                                                                      card: assembly.previewCardViewModel))
                 .environmentObject(navigation)
                 .previewLayout(.iphone7Zoomed)
-            SendView(viewModel: assembly.makeSendViewModel(with: Amount(with: assembly.previewBlockchain,
+            SendView(viewModel: assembly.makeSendViewModel(with: Amount(with: PreviewCard.ethereum.blockchain!,
                                                                         type: .token(value: Token(name: "DAI", symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18)),
                                                                         value: 0.0),
-                                                           blockchainNetwork: assembly.previewBlockchainNetwork,
+                                                           blockchainNetwork: PreviewCard.ethereum.blockchainNetwotk!,
                                                            card: assembly.previewCardViewModel))
                 .environmentObject(navigation)
                 .previewLayout(.iphone7Zoomed)
