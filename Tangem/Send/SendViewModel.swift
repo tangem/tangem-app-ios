@@ -98,7 +98,6 @@ class SendViewModel: ViewModel, ObservableObject {
     @Published var selectedFee: Amount? = nil
     @Published var transaction: BlockchainSdk.Transaction? = nil
     @Published var canFiatCalculation: Bool = true
-    @Published var oldCardAlert: AlertBinder?
     @Published var isFeeLoading: Bool = false
     
     var isSendEnabled: Bool {
@@ -117,7 +116,7 @@ class SendViewModel: ViewModel, ObservableObject {
     @Published var destinationTagStr: String = ""
     @Published var destinationTagHint: TextHint? = nil
     
-    @Published var sendError: AlertBinder?
+    @Published var error: AlertBinder?
     
     var cardViewModel: CardViewModel {
         didSet {
@@ -523,7 +522,7 @@ class SendViewModel: ViewModel, ObservableObject {
     func validateWithdrawal(_ transaction: BlockchainSdk.Transaction, _ totalAmount: Amount) {
         if let validator = walletModel.walletManager as? WithdrawalValidator,
            let warning = validator.validate(transaction),
-           sendError == nil {
+           error == nil {
             let alert = Alert(title: Text("common_warning"),
                               message: Text(warning.warningMessage),
                               primaryButton: Alert.Button.default(Text(warning.reduceMessage),
@@ -538,7 +537,7 @@ class SendViewModel: ViewModel, ObservableObject {
                 
             }))
             UIApplication.shared.endEditing()
-            self.sendError = AlertBinder(alert: alert, error: nil)
+            self.error = AlertBinder(alert: alert, error: nil)
         }
     }
     
@@ -608,7 +607,7 @@ class SendViewModel: ViewModel, ObservableObject {
                     Analytics.logCardSdkError(error.toTangemSdkError(), for: .sendTx, card: cardViewModel.cardInfo.card, parameters: [.blockchain: walletModel.wallet.blockchain.displayName])
                     
                     emailDataCollector.lastError = error
-                    self.sendError = error.alertBinder
+                    self.error = error.alertBinder
                 } else {
                     if !cardViewModel.cardInfo.card.isDemoCard {
                         if self.isSellingCrypto {
@@ -621,7 +620,7 @@ class SendViewModel: ViewModel, ObservableObject {
                     DispatchQueue.main.async {
                         let alert = AlertBuilder.makeSuccessAlert(message: self.cardViewModel.cardInfo.card.isDemoCard ? "alert_demo_feature_disabled".localized
                                                                   : "send_transaction_success".localized) { callback() }
-                        self.sendError = alert
+                        self.error = alert
                     }
                 }
                 
