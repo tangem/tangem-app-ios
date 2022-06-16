@@ -8,7 +8,6 @@
 
 import Foundation
 import SwiftUI
-import AlertToast
 import TangemSdk
 import BlockchainSdk
 import AVFoundation
@@ -257,9 +256,6 @@ struct SendView: View {
         }
         .onAppear() {
             self.viewModel.onAppear()
-        }
-        .toast(isPresenting: $viewModel.showFeeErrorToast) {
-            AlertToast(type: .error(Color.red), title: WalletError.failedToGetFee.localizedDescription)
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
             .receive(on: DispatchQueue.main)) { _ in
