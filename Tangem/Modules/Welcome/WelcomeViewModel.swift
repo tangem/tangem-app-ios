@@ -26,9 +26,9 @@ class WelcomeViewModel: ObservableObject {
     private var backupService: BackupService { backupServiceProvider.backupService }
     private var userPrefsService: UserPrefsService = .init()
     
-    private unowned let coordinator: WelcomeViewRoutable
+    private unowned let coordinator: WelcomeRoutable
     
-    init(coordinator: WelcomeViewRoutable) {
+    init(coordinator: WelcomeRoutable) {
         self.coordinator = coordinator
     }
     
