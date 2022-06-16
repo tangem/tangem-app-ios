@@ -11,7 +11,6 @@ import SwiftUI
 struct ShopView: View {
     @ObservedObject var viewModel: ShopViewModel
     @Environment(\.presentationMode) var presentationMode
-    @EnvironmentObject var navigation: NavigationCoordinator
     
     private let sectionRowVerticalPadding = 12.0
     private let sectionCornerRadius = 18.0
@@ -201,12 +200,8 @@ struct ShopView: View {
 }
 
 struct ShopView_Previews: PreviewProvider {
-    static let navigation = NavigationCoordinator()
-    static let assembly: Assembly = .previewAssembly
-    
     static var previews: some View {
-        ShopView(viewModel: assembly.makeShopViewModel())
-            .environmentObject(navigation)
+        ShopView(viewModel: .init())
             .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
     }
 }
