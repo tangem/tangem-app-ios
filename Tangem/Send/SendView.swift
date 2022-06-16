@@ -300,14 +300,14 @@ struct ExtractView_Previews: PreviewProvider {
                                                                                   type: .token(value: Token(name: "DAI", symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18)),
                                                                                   value: 0.0),
                                                                      destination: "Target",
-                                                                     blockchainNetwork: PreviewCard.ethereum.blockchainNetwotk!,
+                                                                     blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
                                                                      card: assembly.previewCardViewModel))
                 .environmentObject(navigation)
                 .previewLayout(.iphone7Zoomed)
             SendView(viewModel: assembly.makeSendViewModel(with: Amount(with: PreviewCard.ethereum.blockchain!,
                                                                         type: .token(value: Token(name: "DAI", symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18)),
                                                                         value: 0.0),
-                                                           blockchainNetwork: PreviewCard.ethereum.blockchainNetwotk!,
+                                                           blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
                                                            card: assembly.previewCardViewModel))
                 .environmentObject(navigation)
                 .previewLayout(.iphone7Zoomed)
