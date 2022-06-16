@@ -141,6 +141,15 @@ private extension ListDataLoader {
         
         return coinsService.loadCoins(requestModel: requestModel)
             .replaceError(with: [])
+            .map { coins in
+                var coins = coins
+                let model = CoinModel(id: "dash", name: "DASH", symbol: "DASH", imageURL: nil, items: [
+                    .blockchain(.dash(testnet: false))
+                ])
+                coins.insert(model, at: 0)
+                
+                return coins
+            }
             .eraseToAnyPublisher()
     }
     
