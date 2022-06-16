@@ -75,7 +75,7 @@ class MainViewModel: ViewModel, ObservableObject {
     private var refreshCancellable: AnyCancellable? = nil
     private lazy var testnetBuyCryptoService: TestnetBuyCryptoService = .init()
     
-    private unowned let coordinator: MainViewRoutable
+    private unowned let coordinator: MainRoutable
     
     public var canCreateTwinWallet: Bool {
         if isTwinCard {
@@ -255,7 +255,7 @@ class MainViewModel: ViewModel, ObservableObject {
         return self.cardModel?.walletModels?.first?.getQRReceiveMessage() ?? ""
     }
     
-    init(coordinator: MainViewRoutable) {
+    init(coordinator: MainRoutable) {
         self.coordinator = coordinator
     }
     
