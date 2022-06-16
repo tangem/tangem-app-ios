@@ -178,19 +178,7 @@ struct TwinsOnboardingView: View {
 }
 
 struct TwinsOnboardingView_Previews: PreviewProvider {
-    static let navigation = NavigationCoordinator()
-    
-    static var assembly: Assembly = {
-        let assembly = Assembly.previewAssembly
-//        assembly.makeCardTwinOnboardingViewModel(with: nil)
-        return assembly
-    }()
-    
     static var previews: some View {
-        TwinsOnboardingView(viewModel: assembly.getTwinsOnboardingViewModel())
-            .environmentObject(navigation)
-        // don't know why, preview group doesn't display layout properly. If you want to try live preview,
-        // you should select launch device to the right of target selection
-//            .previewGroup(devices: [.iPhone7], withZoomed: true)
+        TwinsOnboardingView(viewModel: TwinsOnboardingViewModel(input: PreviewData.previewTwinOnboardingInput))
     }
 }

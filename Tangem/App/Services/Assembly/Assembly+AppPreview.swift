@@ -10,17 +10,17 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 
-extension Assembly {
-    var previewNoteCardOnboardingInput: OnboardingInput {
+struct PreviewData {
+    static var previewNoteCardOnboardingInput: OnboardingInput {
         OnboardingInput(steps: .singleWallet([.createWallet, .success]),
-                            cardInput: .cardModel(previewCardViewModel),
-                            cardsPosition: nil,
-                            welcomeStep: nil,
-                            currentStepIndex: 0,
-                            successCallback: nil)
+                        cardInput: .cardModel(PreviewCard.cardanoNote.cardModel),
+                        cardsPosition: nil,
+                        welcomeStep: nil,
+                        currentStepIndex: 0,
+                        successCallback: nil)
     }
     
-    var previewTwinOnboardingInput: OnboardingInput {
+    static var previewTwinOnboardingInput: OnboardingInput {
         .init(steps: .twins([.intro(pairNumber: "0128"),
                              .first, .second, .third,
                              .topup, .done]),
@@ -31,20 +31,12 @@ extension Assembly {
               successCallback: nil)
     }
     
-    var previewWalletOnboardingInput: OnboardingInput {
+    static var previewWalletOnboardingInput: OnboardingInput {
         .init(steps: .wallet([.createWallet, .backupIntro, .selectBackupCards, .backupCards, .success]),
-              cardInput: .cardModel(previewCardViewModel),
+              cardInput: .cardModel(PreviewCard.tangemWalletEmpty.cardModel),
               cardsPosition: nil,
               welcomeStep: nil,
               currentStepIndex: 0,
               successCallback: nil)
-    }
-    
-    var previewBlockchain: Blockchain {
-        previewCardViewModel.wallets!.first!.blockchain
-    }
-    
-    var previewBlockchainNetwork: BlockchainNetwork {
-        .init(previewBlockchain)
     }
 }
