@@ -20,6 +20,7 @@ class AppCoordinator: NSObject, ObservableObject {
     @Published var shopCoordinator: ShopCoordinator? = nil
     @Published var tokenListCoordinator: TokenListCoordinator? = nil
     @Published var sendCoordinator: SendCoordinator? = nil
+    @Published var pushTxCoordinator: PushTxCoordinator? = nil
     
     //MARK: - Child view models
     @Published var welcomeViewModel: WelcomeViewModel!
@@ -54,6 +55,7 @@ class AppCoordinator: NSObject, ObservableObject {
     private func popToRoot() {
         welcomeLifecycleSubscription = nil
         
+        pushTxCoordinator = nil
         sendCoordinator = nil
         pushedOnboardingCoordinator = nil
         modalOnboardingCoordinator = nil
@@ -208,7 +210,9 @@ extension AppCoordinator: WelcomeRoutable {
     }
     
     func openShop() {
-        self.shopCoordinator = ShopCoordinator()
+        let coordinator = ShopCoordinator()
+        coordinator.start()
+        self.shopCoordinator = coordinator
     }
 }
 
