@@ -11,20 +11,6 @@ import TangemSdk
 import BlockchainSdk
 
 extension Assembly {
-    
-   
-    // MARK: - Main view model
-    func makeMainViewModel() -> MainViewModel {
-        if let restored: MainViewModel = get() {
-            return restored
-        }
-        
-        let vm =  MainViewModel()
-        initialize(vm, isResetable: false)
-        vm.updateState()
-        return vm
-    }
-    
     func makeTotalSumBalanceViewModel() -> TotalSumBalanceViewModel {
         let viewModel = TotalSumBalanceViewModel()
         return viewModel
