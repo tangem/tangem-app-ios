@@ -163,19 +163,9 @@ struct WalletOnboardingView: View {
 }
 
 struct WalletOnboardingView_Previews: PreviewProvider {
-    
-    static let assembly: Assembly = {
-        let assembly = Assembly.previewAssembly
-        
-        return assembly
-    }()
-    
     static var previews: some View {
-        let navigation = NavigationCoordinator()
-        
         NavigationView {
-            WalletOnboardingView(viewModel: assembly.getWalletOnboardingViewModel())
-                .environmentObject(navigation)
+            WalletOnboardingView(viewModel: PreviewData.previewWalletOnboardingInput)
                 .navigationBarHidden(true)
         }
     }
