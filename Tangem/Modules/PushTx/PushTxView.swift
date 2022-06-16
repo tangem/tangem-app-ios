@@ -32,11 +32,8 @@ struct FilledInputView: View {
 
 
 struct PushTxView: View {
-    
     @ObservedObject var viewModel: PushTxViewModel
     @Environment(\.presentationMode) var presentationMode
-    @EnvironmentObject var navigation: NavigationCoordinator
-    let onSuccess: () -> Void
     
     var body: some View {
         GeometryReader { geometry in
@@ -68,11 +65,11 @@ struct PushTxView: View {
                                 Text(self.viewModel.currency)
                                     .font(Font.system(size: 38.0, weight: .light, design: .default))
                                     .foregroundColor(self.viewModel.canFiatCalculation ?
-                                                        Color.tangemBlue : Color.tangemBlue.opacity(0.5))
+                                                     Color.tangemBlue : Color.tangemBlue.opacity(0.5))
                                 Image(systemName: "arrow.up.arrow.down")
                                     .font(Font.system(size: 17.0, weight: .regular, design: .default))
                                     .foregroundColor(self.viewModel.canFiatCalculation ?
-                                                        Color.tangemBlue : Color.tangemBlue.opacity(0.5))
+                                                     Color.tangemBlue : Color.tangemBlue.opacity(0.5))
                             }
                             }
                             .foregroundColor(.tangemBlue)
@@ -101,11 +98,11 @@ struct PushTxView: View {
                                               "send_fee_picker_normal".localized,
                                               "send_fee_picker_priority".localized],
                                    selection: $viewModel.selectedFeeLevel)
-                            .padding(.vertical, 8.0)
+                        .padding(.vertical, 8.0)
                         Text(viewModel.amountHint?.message ?? " " )
                             .font(.system(size: 13.0, weight: .medium, design: .default))
                             .foregroundColor((viewModel.amountHint?.isError ?? false ) ?
-                                                Color.red : Color.tangemGrayDark)
+                                             Color.red : Color.tangemGrayDark)
                         Toggle(isOn: self.$viewModel.isFeeIncluded) {
                             Text("send_fee_include_description")
                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
@@ -121,7 +118,7 @@ struct PushTxView: View {
                         AmountView(label: "push_previous_fee",
                                    labelColor: .tangemGrayDark,
                                    amountText: viewModel.previousFee)
-                            .opacity(0.6)
+                        .opacity(0.6)
                         AmountView(label: "push_additional_fee",
                                    labelColor: .tangemGrayDark,
                                    isLoading: viewModel.isFeeLoading,
@@ -155,25 +152,20 @@ struct PushTxView: View {
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
                                     let alert = AlertBuilder.makeSuccessAlert(message: "send_transaction_success".localized) {
                                         presentationMode.wrappedValue.dismiss()
-                                        onSuccess()
+                                        viewModel.onSuccess()
                                     }
                                     self.viewModel.sendError = alert
                                 })
                             }
                         }.buttonStyle(TangemButtonStyle(layout: .big,
                                                         isDisabled: !viewModel.isSendEnabled))
-                        .sheet(isPresented: $navigation.pushToSendEmail, content: {
-                            MailView(viewModel: .init(dataCollector: viewModel.emailDataCollector, support: .tangem, emailType: .failedToSendTx))
-                        })
                         .alert(item: self.$viewModel.sendError) { binder in
                             if binder.error == nil {
                                 return binder.alert
                             }
                             return Alert(title: Text("alert_failed_to_send_transaction_title"),
                                          message: Text(String(format: "alert_failed_to_send_transaction_message".localized, binder.error?.localizedDescription ?? "Unknown error")),
-                                         primaryButton: .default(Text("alert_button_send_feedback"), action: {
-                                            navigation.pushToSendEmail = true
-                                         }),
+                                         primaryButton: .default(Text("alert_button_send_feedback"), action: viewModel.openMail),
                                          secondaryButton: .default(Text("common_no")))
                         }
                     }
@@ -190,14 +182,13 @@ struct PushTxView: View {
 }
 
 struct PushTxView_Previews: PreviewProvider {
-    static let assembly = Assembly.previewAssembly
-
     static var previews: some View {
-        PushTxView(viewModel: assembly
-                    .makePushViewModel(
-                        for: .dummyTx(blockchain: .bitcoin(testnet: false), type: .coin, destinationAddress: "tb1qrvkydv7322e7fl9v58eqvn87tx2jtlpqaetz2n"),
-                        blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
-                        card: PreviewCard.ethereum.cardModel),
-                   onSuccess: { })
+        PushTxView(viewModel: .init(transaction: .dummyTx(blockchain: .bitcoin(testnet: false),
+                                                          type: .coin,
+                                                          destinationAddress: "tb1qrvkydv7322e7fl9v58eqvn87tx2jtlpqaetz2n"),
+                                    blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
+                                    cardViewModel: PreviewCard.ethereum.cardModel,
+                                    coordinator: PushTxCoordinator(),
+                                    onSuccess: {}))
     }
 }
