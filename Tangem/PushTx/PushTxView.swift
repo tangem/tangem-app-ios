@@ -191,15 +191,13 @@ struct PushTxView: View {
 
 struct PushTxView_Previews: PreviewProvider {
     static let assembly = Assembly.previewAssembly
-    static let navigation = NavigationCoordinator()
-    
+
     static var previews: some View {
         PushTxView(viewModel: assembly
                     .makePushViewModel(
                         for: .dummyTx(blockchain: .bitcoin(testnet: false), type: .coin, destinationAddress: "tb1qrvkydv7322e7fl9v58eqvn87tx2jtlpqaetz2n"),
-                        blockchainNetwork: assembly.previewBlockchainNetwork,
-                        card: assembly.previewCardViewModel),
+                        blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
+                        card: PreviewCard.ethereum.cardModel),
                    onSuccess: { })
-            .environmentObject(navigation)
     }
 }
