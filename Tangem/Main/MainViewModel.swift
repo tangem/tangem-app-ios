@@ -241,6 +241,18 @@ class MainViewModel: ViewModel, ObservableObject {
 		cardModel?.isTwinCard ?? false
 	}
     
+    var isMultiWallet: Bool {
+        cardModel?.cardInfo.isMultiWallet ?? false
+    }
+    
+    var hasNoBackUp: Bool {
+        if let cardModel = cardModel, isMultiWallet {
+            return cardModel.cardInfo.card.backupStatus == .noBackup
+        } else {
+            return false
+        }
+    }
+    
     var tokenItemViewModels: [TokenItemViewModel] {
         guard let cardModel = cardModel,
               let walletModels = cardModel.walletModels else { return [] }
