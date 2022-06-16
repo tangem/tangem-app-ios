@@ -247,7 +247,7 @@ struct DetailsView: View {
             }
             
             if let cardTouURL = viewModel.cardTouURL {
-                let destination = WebViewContainer(url: cardTouURL, title: "details_row_title_card_tou".localized)
+                let destination = WebViewContainer(viewModel: .init(url: cardTouURL, title: "details_row_title_card_tou".localized))
                     .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
                 
                 NavigationLink(
