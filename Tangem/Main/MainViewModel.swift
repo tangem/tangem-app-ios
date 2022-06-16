@@ -644,33 +644,38 @@ class MainViewModel: ViewModel, ObservableObject {
         guard let cardModel = cardModel else {
             return
         }
-        cardOnboardingStepSetupService.backupSteps(cardModel.cardInfo)
-            .sink { completion in
-            switch completion {
-            case .failure(let error):
-                Analytics.log(error: error)
-                print("Failed to load image for new card")
-                self.error = error.alertBinder
-            case .finished:
-                break
+        cardOnboardingStepSetupService
+            .backupSteps(cardModel.cardInfo)
+            .sink { [weak self] completion in
+                guard let self = self else {
+                    return
+                }
+                switch completion {
+                case .failure(let error):
+                    Analytics.log(error: error)
+                    print("Failed to load image for new card")
+                    self.error = error.alertBinder
+                case .finished:
+                    break
+                }
+            } receiveValue: { [weak self] steps in
+                guard let self = self else {
+                    return
+                }
+                
+                let input = OnboardingInput(steps: steps,
+                                            cardInput: .cardModel(cardModel),
+                                            cardsPosition: nil,
+                                            welcomeStep: nil,
+                                            currentStepIndex: 0,
+                                            successCallback: { [weak self] in
+                    self?.navigation.detailsToBackup = false
+                },
+                                            isStandalone: true)
+                self.assembly.makeCardOnboardingViewModel(with: input)
+                self.navigation.detailsToBackup = true
             }
-        } receiveValue: { [weak self] steps in
-            guard let self = self else { return }
-            
-            let input = OnboardingInput(steps: steps,
-                                        cardInput: .cardModel(cardModel),
-                                        cardsPosition: nil,
-                                        welcomeStep: nil,
-                                        currentStepIndex: 0,
-                                        successCallback: { [weak self] in
-                                            self?.navigation.detailsToBackup = false
-                                        },
-                                        isStandalone: true)
-            self.assembly.makeCardOnboardingViewModel(with: input)
-            self.navigation.detailsToBackup = true
-        }
-        .store(in: &bag)
-
+            .store(in: &bag)
     }
 
     // MARK: - Private functions
