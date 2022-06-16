@@ -708,11 +708,17 @@ private extension SendViewModel {
     }
     
     func isFeeApproximate() -> Bool {
-        guard case .tron = blockchainNetwork.blockchain,
-              case .token = amountToSend.type else {
-            return false
+        switch blockchainNetwork.blockchain {
+        case .tron:
+            if case .token = amountToSend.type {
+                return true
+            }
+        case .arbitrum:
+            return true
+        default:
+            break
         }
 
-        return true
+        return false
     }
 }
