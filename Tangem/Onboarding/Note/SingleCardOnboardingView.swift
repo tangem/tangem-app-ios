@@ -136,19 +136,8 @@ struct SingleCardOnboardingView: View {
 }
 
 struct OnboardingView_Previews: PreviewProvider {
-    static let navigation = NavigationCoordinator()
-    
-    static var assembly: Assembly = {
-        let assembly = Assembly.previewAssembly
-        let previewModel = assembly.previewCardViewModel
-        //        assembly.makeOnboardingViewModel(with: assembly.previewNoteCardOnboardingInput)
-        return assembly
-    }()
-    
     static var previews: some View {
-        SingleCardOnboardingView(viewModel: assembly.getOnboardingViewModel())
-            .environmentObject(assembly)
-            .environmentObject(navigation)
+        SingleCardOnboardingView(viewModel: PreviewData.previewNoteCardOnboardingInput)
     }
 }
 
