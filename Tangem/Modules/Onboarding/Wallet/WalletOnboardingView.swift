@@ -9,10 +9,8 @@
 import SwiftUI
 
 struct WalletOnboardingView: View {
-    
     @ObservedObject var viewModel: WalletOnboardingViewModel
-    @EnvironmentObject var navigation: NavigationCoordinator
-    
+
     private let screenSize: CGSize = UIScreen.main.bounds.size
     private let infoPagerHeight: CGFloat = 146
     
@@ -141,12 +139,6 @@ struct WalletOnboardingView: View {
                 }
                 .padding(.horizontal, 40)
             }
-            
-            Color.clear.frame(width: 1, height: 1)
-                .sheet(isPresented: $navigation.onboardingWalletToAccessCode, content: {
-                    OnboardingAccessCodeView { accessCode in
-                        viewModel.saveAccessCode(accessCode)
-                    }})
         }
         .alert(item: $viewModel.alert, content: { alertBinder in
             alertBinder.alert
@@ -165,7 +157,7 @@ struct WalletOnboardingView: View {
 struct WalletOnboardingView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            WalletOnboardingView(viewModel: PreviewData.previewWalletOnboardingInput)
+            WalletOnboardingView(viewModel: .init(input: PreviewData.previewWalletOnboardingInput, coordinator: OnboardingCoordinator()))
                 .navigationBarHidden(true)
         }
     }
