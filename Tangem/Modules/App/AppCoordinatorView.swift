@@ -38,7 +38,7 @@ struct AppCoordinatorView: CoordinatorView {
                             coordinator.modalOnboardingCoordinatorKeeper = value
                         })
                 }
-                .navigationBarHidden(isNavigationBarHidden)
+//                .navigationBarHidden(isNavigationBarHidden)
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }
