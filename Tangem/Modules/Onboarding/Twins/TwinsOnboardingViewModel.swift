@@ -111,7 +111,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
     private var twinsService: TwinsWalletCreationService { twinsServiceProvider.service }
     private var canBuy: Bool { exchangeService.canBuy("BTC", amountType: .coin, blockchain: .bitcoin(testnet: false)) }
                                                       
-    required init(input: OnboardingInput, coordinator: OnboardingTopupViewModelRoutable) {
+    required init(input: OnboardingInput, coordinator: OnboardingTopupRoutable) {
         if let twinInfo = input.cardInput.cardModel?.cardInfo.twinCardInfo {
 //            pairNumber = AppTwinCardIdFormatter.format(cid: twinInfo.pairCid, cardNumber: nil)
             pairNumber = "\(twinInfo.series.pair.number)"
