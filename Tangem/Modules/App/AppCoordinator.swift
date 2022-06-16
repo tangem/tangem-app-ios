@@ -13,7 +13,6 @@ import Combine
 class AppCoordinator: NSObject, ObservableObject {
     //MARK: - Injected
     @Injected(\.walletConnectServiceProvider) private var walletConnectServiceProvider: WalletConnectServiceProviding
-    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     
     //MARK: - Child coordinators
     @Published var pushedOnboardingCoordinator: OnboardingCoordinator? = nil
@@ -29,6 +28,7 @@ class AppCoordinator: NSObject, ObservableObject {
     
     //MARK: - Helpers
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
+    
     //MARK: - Private
     private let servicesManager: ServicesManager = .init()
     private var deferredIntents: [NSUserActivity] = []
@@ -180,7 +180,7 @@ extension AppCoordinator: WelcomeViewRoutable {
     
     func openMain() {
         mainViewModel = MainViewModel(coordinator: self)
-        mainViewModel?.state = cardsRepository.lastScanResult // [REDACTED_TODO_COMMENT]
+        mainViewModel?.updateState() // [REDACTED_TODO_COMMENT]
     }
     
     func openMail(with dataCollector: EmailDataCollector) {
