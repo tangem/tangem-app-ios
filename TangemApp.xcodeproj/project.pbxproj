@@ -1236,14 +1236,8 @@
 		5D3F77C424BF56D800E8695B /* Tangem */ = {
 			isa = PBXGroup;
 			children = (
-				DC7DA81A2844EED800AD6DBD /* Modules */,
 				5D9DCADC255174140059799C /* App */,
-				5D011A222530776A00758010 /* Disclaimer */,
-				5D6C127025E122CE0010A0C5 /* MultiWallet */,
-				5D384B9224FD51B200C2C92C /* Details */,
-				5DFCCB7224C3817E0014A293 /* Send */,
-				B074BABF26779B14005D641B /* PushTx */,
-				DA23788E27B250D3009795A8 /* Shop */,
+				DC7DA81A2844EED800AD6DBD /* Modules */,
 				5DFCCB6324C371AC0014A293 /* Common */,
 				5D383E4224D9602700C9BFF6 /* Assets */,
 				B0CC817C25CD626A006D49B9 /* Resources */,
@@ -1318,17 +1312,6 @@
 				5DD4CB5324FAEE8B008F23CC /* AppCardIdFormatter.swift */,
 			);
 			path = Formatters;
-			sourceTree = "<group>";
-		};
-		5D6C127025E122CE0010A0C5 /* MultiWallet */ = {
-			isa = PBXGroup;
-			children = (
-				5D5332A625F9077200D32CA5 /* WalletsList */,
-				5DA7C00A25F8FA5200B6E309 /* TokenDetails */,
-				B08ACD8025D2BC2A007387BD /* TokenList */,
-				B0D76D4325D4E4400073FA98 /* AddCustomToken */,
-			);
-			path = MultiWallet;
 			sourceTree = "<group>";
 		};
 		5D958E1224F513C1006BD932 /* UI */ = {
@@ -1759,9 +1742,10 @@
 			path = Twins;
 			sourceTree = "<group>";
 		};
-		B08ACD8025D2BC2A007387BD /* TokenList */ = {
+		B08ACD8025D2BC2A007387BD /* ManageTokens */ = {
 			isa = PBXGroup;
 			children = (
+				B0D76D4325D4E4400073FA98 /* AddCustomToken */,
 				B08ACD8125D2BC3D007387BD /* TokenListView.swift */,
 				B08ACD8925D2BC47007387BD /* TokenListViewModel.swift */,
 				5D3D6D3C28088D0400778B67 /* ListDataLoader.swift */,
@@ -1772,7 +1756,7 @@
 				DC66BBF02859B77700CDF765 /* TokenListCoordinator.swift */,
 				DC66BBF22859B79600CDF765 /* TokenListCoordinatorView.swift */,
 			);
-			path = TokenList;
+			path = ManageTokens;
 			sourceTree = "<group>";
 		};
 		B099614626D5189C000E3779 /* Note */ = {
@@ -2454,6 +2438,7 @@
 				5DF2522824F93C2A0015B429 /* QRCodeView.swift */,
 				5DD6DF20251E018A00F2693E /* AlertCardView.swift */,
 				B03ACAC82567CFFF00F5D269 /* CardView.swift */,
+				5D5332A625F9077200D32CA5 /* WalletsList */,
 				652B013D28322CAB00F2E27A /* TotalSumBalance */,
 			);
 			path = Main;
@@ -2473,7 +2458,14 @@
 		DC7DA81A2844EED800AD6DBD /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				DA23788E27B250D3009795A8 /* Shop */,
+				B074BABF26779B14005D641B /* PushTx */,
+				5DFCCB7224C3817E0014A293 /* Send */,
+				5D384B9224FD51B200C2C92C /* Details */,
 				DC7DA8232844F68000AD6DBD /* App */,
+				B08ACD8025D2BC2A007387BD /* ManageTokens */,
+				5DA7C00A25F8FA5200B6E309 /* TokenDetails */,
+				5D011A222530776A00758010 /* Disclaimer */,
 				B0E1564926B9417E005B33E4 /* Onboarding */,
 				DC66BBF6285A20FE00CDF765 /* Main */,
 				DC66BBE12858DB1900CDF765 /* Welcome */,
