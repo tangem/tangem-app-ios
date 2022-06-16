@@ -24,7 +24,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
     
     override var currentStep: TwinsOnboardingStep {
         guard currentStepIndex < steps.count else {
-            return assembly.isPreview ? .intro(pairNumber: pairNumber) : .welcome
+            return .welcome
         }
         
         guard isInitialAnimPlayed else {
@@ -111,7 +111,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
     private var twinsService: TwinsWalletCreationService { twinsServiceProvider.service }
     private var canBuy: Bool { exchangeService.canBuy("BTC", amountType: .coin, blockchain: .bitcoin(testnet: false)) }
                                                       
-    override init(input: OnboardingInput) {
+    required init(input: OnboardingInput, coordinator: OnboardingTopupViewModelRoutable) {
         if let twinInfo = input.cardInput.cardModel?.cardInfo.twinCardInfo {
 //            pairNumber = AppTwinCardIdFormatter.format(cid: twinInfo.pairCid, cardNumber: nil)
             pairNumber = "\(twinInfo.series.pair.number)"
@@ -126,7 +126,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
             fatalError("Wrong card model passed to Twins onboarding view model")
         }
         
-        super.init(input: input)
+        super.init(input: input, coordinator: coordinator)
         if case let .twins(steps) = input.steps {
             self.steps = steps
             
@@ -180,9 +180,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
     override func mainButtonAction() {
         switch currentStep {
         case .welcome:
-            if assembly.isPreview {
-                goToNextStep()
-            }
+            fallthrough
         case .intro:
             fallthrough
         case .done, .success, .alert:
@@ -202,17 +200,10 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         case .third:
             isMainButtonBusy = true
             subscribeToStepUpdates()
-            if assembly.isPreview {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    self.isMainButtonBusy = false
-                    self.goToNextStep()
-                }
-                return
-            }
             twinsService.executeCurrentStep()
         case .topup:
             if canBuy {
-                navigation.onboardingToBuyCrypto = true
+                openCryptoShop()
             } else {
                 supplementButtonAction()
             }
@@ -221,13 +212,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
     
     override func goToNextStep() {
         super.goToNextStep()
-        if case .intro = currentStep, assembly.isPreview {
-            withAnimation {
-                isNavBarVisible = true
-                displayTwinImages = true
-            }
-        }
-        
+
         switch currentStep {
         case .done, .success:
             withAnimation {
