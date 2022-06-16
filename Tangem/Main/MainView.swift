@@ -291,7 +291,7 @@ struct MainView: View {
             Color.clear
                 .frame(width: 0.5, height: 0.5)
                 .sheet(item: $viewModel.emailFeedbackCase) { emailCase -> MailView in
-                    return MailView(viewModel: .init(dataCollector: viewModel.getDataCollector(for: emailCase),
+                    MailView(viewModel: .init(dataCollector: viewModel.getDataCollector(for: emailCase),
                                                      support: .tangem,
                                                      emailType: emailCase.emailType))
                 }
@@ -300,7 +300,7 @@ struct MainView: View {
                 .frame(width: 0.5, height: 0.5)
                 .sheet(item: $viewModel.showExplorerURL) { url -> WebViewContainer in
                     let blockchainName = viewModel.wallets?.first?.blockchain.displayName ?? ""
-                    return WebViewContainer(viewModel: .init(url: url, title: "common_explorer_format".localized(blockchainName), withCloseButton: true))
+                    WebViewContainer(viewModel: .init(url: url, title: "common_explorer_format".localized(blockchainName), withCloseButton: true))
                 }
             
             Color.clear
@@ -454,13 +454,9 @@ struct MainView: View {
 }
 
 struct MainView_Previews: PreviewProvider {
-    static let assembly: Assembly = .previewAssembly(for: .stellar)
-    static let navigation = NavigationCoordinator()
-    
     static var previews: some View {
         NavigationView {
-            MainView(viewModel: assembly.makeMainViewModel())
-                .environmentObject(navigation)
+            MainView(viewModel: .init(coordinator: AppCoordinator()))
         }
         .previewGroup(devices: [.iPhone12ProMax])
         .navigationViewStyle(StackNavigationViewStyle())
