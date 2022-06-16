@@ -135,26 +135,26 @@ struct MainView: View {
                                                                                                                  amountType: viewModel.selectedWallet.amountType)),
                            isActive: $navigation.mainToTokenDetails)
             
-            NavigationLink(destination: WebViewContainer(url: viewModel.buyCryptoURL,
-                                                         title: "wallet_button_topup".localized,
-                                                         addLoadingIndicator: true,
-                                                         urlActions: [ viewModel.buyCryptoCloseUrl : { _ in
+            NavigationLink(destination: WebViewContainer(viewModel: .init(url: viewModel.buyCryptoURL,
+                                                                          title: "wallet_button_topup".localized,
+                                                                          addLoadingIndicator: true,
+                                                                          urlActions: [ viewModel.buyCryptoCloseUrl : { _ in
                 navigation.mainToBuyCrypto = false
                 viewModel.sendAnalyticsEvent(.userBoughtCrypto)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                     self.viewModel.updateCardModel()
                 }
             }
-                                                                     ]),
+                                                                                      ])),
                            isActive: $navigation.mainToBuyCrypto)
             
-            NavigationLink(destination: WebViewContainer(url: viewModel.sellCryptoURL,
+            NavigationLink(destination: WebViewContainer(viewModel: .init(url: viewModel.sellCryptoURL,
                                                          title: "wallet_button_sell_crypto".localized,
                                                          addLoadingIndicator: true,
                                                          urlActions: [ viewModel.sellCryptoCloseUrl : { request in
                 viewModel.extractSellCryptoRequest(from: request)
             }
-                                                                     ]),
+                                                                     ])),
                            isActive: $navigation.mainToSellCrypto)
             
             NavigationLink(destination: CurrencySelectView(viewModel: viewModel.assembly.makeCurrencySelectViewModel(), dismissAfterSelection: true),
@@ -300,7 +300,7 @@ struct MainView: View {
                 .frame(width: 0.5, height: 0.5)
                 .sheet(item: $viewModel.showExplorerURL) { url -> WebViewContainer in
                     let blockchainName = viewModel.wallets?.first?.blockchain.displayName ?? ""
-                    return WebViewContainer(url: url, title: "common_explorer_format".localized(blockchainName), withCloseButton: true)
+                    return WebViewContainer(viewModel: .init(url: url, title: "common_explorer_format".localized(blockchainName), withCloseButton: true))
                 }
             
             Color.clear
