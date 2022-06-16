@@ -1,5 +1,5 @@
 //
-//  MainViewRoutable.swift
+//  MainRoutable.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,6 +8,6 @@
 
 import Foundation
 
-protocol MainViewRoutable: AnyObject {
+protocol MainRoutable: AnyObject {
     func close(newScan: Bool)
 }
