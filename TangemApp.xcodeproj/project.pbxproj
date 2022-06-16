@@ -161,7 +161,6 @@
 		5DE7DD2B2695CFF800472205 /* CreateMultiWalletTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D78D11C261E084700F98B18 /* CreateMultiWalletTask.swift */; };
 		5DE7DD2C2695CFFE00472205 /* SignerUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0323F2B258C041D005C7CD5 /* SignerUtils.swift */; };
 		5DE7DD332696236500472205 /* CardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F7360825F7AF9E00DD348F /* CardViewModel.swift */; };
-		5DE7DD462696241F00472205 /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03ACAC82567CFFF00F5D269 /* CardView.swift */; };
 		5DE7DD49269625D200472205 /* Assembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D9DCAE225517D450059799C /* Assembly.swift */; };
 		5DE7DD4A269625F800472205 /* AppScanTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DF2522624F914E30015B429 /* AppScanTask.swift */; };
 		5DE7DD4C269627EF00472205 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D3600725F26C7400929564 /* MainView.swift */; };
@@ -1240,7 +1239,6 @@
 				DC7DA81A2844EED800AD6DBD /* Modules */,
 				5D9DCADC255174140059799C /* App */,
 				5D011A222530776A00758010 /* Disclaimer */,
-				5DFCCB6D24C372830014A293 /* Main */,
 				5D6C127025E122CE0010A0C5 /* MultiWallet */,
 				5D384B9224FD51B200C2C92C /* Details */,
 				5DFCCB7224C3817E0014A293 /* Send */,
@@ -1536,23 +1534,6 @@
 				B0453671264D4B730005B23E /* Constants.swift */,
 			);
 			path = Common;
-			sourceTree = "<group>";
-		};
-		5DFCCB6D24C372830014A293 /* Main */ = {
-			isa = PBXGroup;
-			children = (
-				652B013D28322CAB00F2E27A /* TotalSumBalance */,
-				5DFCCB6E24C3728E0014A293 /* MainView.swift */,
-				5DFCCB7024C372980014A293 /* MainViewModel.swift */,
-				5DFB499724E54A340037E76F /* BalanceView.swift */,
-				5DF6129F24E6D6C8001BF301 /* PendingTxView.swift */,
-				5DF612A324E6E3E2001BF301 /* AddressDetailsView.swift */,
-				5D9004E624FA7DE300E90939 /* CreatePayIdView.swift */,
-				5DF2522824F93C2A0015B429 /* QRCodeView.swift */,
-				5DD6DF20251E018A00F2693E /* AlertCardView.swift */,
-				B03ACAC82567CFFF00F5D269 /* CardView.swift */,
-			);
-			path = Main;
 			sourceTree = "<group>";
 		};
 		5DFCCB7224C3817E0014A293 /* Send */ = {
@@ -2464,6 +2445,16 @@
 			isa = PBXGroup;
 			children = (
 				DC66BBF7285A211F00CDF765 /* MainRoutable.swift */,
+				5DFCCB6E24C3728E0014A293 /* MainView.swift */,
+				5DFCCB7024C372980014A293 /* MainViewModel.swift */,
+				5DFB499724E54A340037E76F /* BalanceView.swift */,
+				5DF6129F24E6D6C8001BF301 /* PendingTxView.swift */,
+				5DF612A324E6E3E2001BF301 /* AddressDetailsView.swift */,
+				5D9004E624FA7DE300E90939 /* CreatePayIdView.swift */,
+				5DF2522824F93C2A0015B429 /* QRCodeView.swift */,
+				5DD6DF20251E018A00F2693E /* AlertCardView.swift */,
+				B03ACAC82567CFFF00F5D269 /* CardView.swift */,
+				652B013D28322CAB00F2E27A /* TotalSumBalance */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -3344,7 +3335,6 @@
 				B0CA5A8B25F779C60078F42F /* View+.swift in Sources */,
 				DC0A57EC2822AEF10031BECC /* PersistentStorageProtocol.swift in Sources */,
 				5DE7DD4A269625F800472205 /* AppScanTask.swift in Sources */,
-				5DE7DD462696241F00472205 /* CardView.swift in Sources */,
 				DC0A584F282D03270031BECC /* AssemblyProviding.swift in Sources */,
 				B0C34953267B19B90027CC9D /* RoundedCorner.swift in Sources */,
 				5DE7DD232695C27E00472205 /* UserPrefsService.swift in Sources */,
