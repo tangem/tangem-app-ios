@@ -677,11 +677,11 @@ class MainViewModel: ViewModel, ObservableObject {
                                             welcomeStep: nil,
                                             currentStepIndex: 0,
                                             successCallback: { [weak self] in
-                    self?.navigation.detailsToBackupFromMain = false
+                    self?.navigation.mainToCardOnboarding = false
                 },
                                             isStandalone: true)
                 self.assembly.makeCardOnboardingViewModel(with: input)
-                self.navigation.detailsToBackupFromMain = true
+                self.navigation.mainToCardOnboarding = true
             }
             .store(in: &bag)
     }
