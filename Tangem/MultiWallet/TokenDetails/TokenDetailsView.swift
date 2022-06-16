@@ -30,7 +30,7 @@ struct TokenDetailsView: View {
     
     var navigationLinks: some View {
         Group {
-            NavigationLink(destination: WebViewContainer(url: viewModel.buyCryptoUrl,
+            NavigationLink(destination: WebViewContainer(viewModel: .init(url: viewModel.buyCryptoUrl,
                                                          //                                                         closeUrl: viewModel.topupCloseUrl,
                                                          title: "wallet_button_topup".localized,
                                                          addLoadingIndicator: true,
@@ -42,17 +42,17 @@ struct TokenDetailsView: View {
                                                                     viewModel.walletModel?.update(silent: true)
                                                                 }
                                                             }
-                                                         ]),
+                                                         ])),
                            isActive: $navigation.detailsToBuyCrypto)
             
-            NavigationLink(destination: WebViewContainer(url: viewModel.sellCryptoUrl,
+            NavigationLink(destination: WebViewContainer(viewModel: .init(url: viewModel.sellCryptoUrl,
                                                          title: "wallet_button_sell_crypto".localized,
                                                          addLoadingIndicator: true,
                                                          urlActions: [
                                                             viewModel.sellCryptoRequestUrl: { response in
                                                                 viewModel.processSellCryptoRequest(response)
                                                             }
-                                                         ]),
+                                                         ])),
                            isActive: $navigation.detailsToSellCrypto)
             
             //https://forums.swift.org/t/14-5-beta3-navigationlink-unexpected-pop/45279
@@ -163,7 +163,7 @@ struct TokenDetailsView: View {
             
             Color.clear.frame(width: 0.5, height: 0.5)
                 .sheet(item: $viewModel.showExplorerURL) {
-                    WebViewContainer(url: $0, title: "common_explorer_format".localized(viewModel.blockchainNetwork.blockchain.displayName), withCloseButton: true)
+                    WebViewContainer(viewModel: .init(url: $0, title: "common_explorer_format".localized(viewModel.blockchainNetwork.blockchain.displayName), withCloseButton: true))
                 }
             
             Color.clear.frame(width: 0.5, height: 0.5)
