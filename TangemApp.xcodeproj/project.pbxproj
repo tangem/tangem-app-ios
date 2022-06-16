@@ -1226,7 +1226,6 @@
 		5D3F77C424BF56D800E8695B /* Tangem */ = {
 			isa = PBXGroup;
 			children = (
-				B0E1564926B9417E005B33E4 /* Onboarding */,
 				DC7DA81A2844EED800AD6DBD /* Modules */,
 				5D9DCADC255174140059799C /* App */,
 				5D011A222530776A00758010 /* Disclaimer */,
@@ -2468,8 +2467,9 @@
 		DC7DA81A2844EED800AD6DBD /* Modules */ = {
 			isa = PBXGroup;
 			children = (
-				DC66BBF6285A20FE00CDF765 /* Main */,
 				DC7DA8232844F68000AD6DBD /* App */,
+				B0E1564926B9417E005B33E4 /* Onboarding */,
+				DC66BBF6285A20FE00CDF765 /* Main */,
 				DC66BBE12858DB1900CDF765 /* Welcome */,
 			);
 			path = Modules;
