@@ -212,7 +212,7 @@ struct MainView: View {
                                      totalCards: viewModel.totalCards)
                             .fixedSize(horizontal: false, vertical: true)
                             
-                            if viewModel.cardModel!.cardInfo.isMultiWallet && viewModel.cardModel!.cardInfo.card.backupStatus == .noBackup {
+                            if viewModel.isMultiWallet && viewModel.hasNoBackUp {
                                 backupWarningView
                             }
                             
