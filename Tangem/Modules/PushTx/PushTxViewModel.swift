@@ -10,7 +10,7 @@ import Foundation
 import BlockchainSdk
 import Combine
 
-class PushTxViewModel: ViewModel, ObservableObject {
+class PushTxViewModel: ObservableObject {
     @Injected(\.currencyRateService) private var currencyRateService: CurrencyRateService
     @Injected(\.transactionSigner) private var signer: TangemSigner
 
@@ -90,12 +90,20 @@ class PushTxViewModel: ViewModel, ObservableObject {
     
     @Published private var newTransaction: BlockchainSdk.Transaction?
     
-    init(transaction: BlockchainSdk.Transaction, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
+    let onSuccess: () -> Void
+    private unowned let coordinator: PushTxRoutable
+    
+    init(transaction: BlockchainSdk.Transaction,
+         blockchainNetwork: BlockchainNetwork,
+         cardViewModel: CardViewModel,
+         coordinator: PushTxRoutable,
+         onSuccess: @escaping () -> Void) {
+        self.coordinator = coordinator
+        self.onSuccess = onSuccess
         self.blockchainNetwork = blockchainNetwork
         self.cardViewModel = cardViewModel
         self.transaction = transaction
         self.amountToSend = transaction.amount
-        super.init()
         additionalFee = emptyValue
         sendTotal = emptyValue
         sendTotalSubtitle = emptyValue
@@ -318,4 +326,11 @@ class PushTxViewModel: ViewModel, ObservableObject {
         }
     }
     
+}
+
+//MARK: - Navigation
+extension PushTxViewModel {
+    func openMail() {
+        coordinator.openMail(with: emailDataCollector)
+    }
 }
