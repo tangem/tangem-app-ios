@@ -11,11 +11,6 @@ import TangemSdk
 import BlockchainSdk
 
 extension Assembly {
-    func makeTotalSumBalanceViewModel() -> TotalSumBalanceViewModel {
-        let viewModel = TotalSumBalanceViewModel()
-        return viewModel
-    }
-    
     func makeTokenDetailsViewModel(blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType = .coin) -> TokenDetailsViewModel {
         if let restored: TokenDetailsViewModel = get() {
             return restored
@@ -23,14 +18,6 @@ extension Assembly {
         
         let vm =  TokenDetailsViewModel(blockchainNetwork: blockchainNetwork, amountType: amountType)
         initialize(vm)
-        vm.updateState()
-        return vm
-    }
-    
-    // MARK: Card model
-    func makeCardModel(from info: CardInfo) -> CardViewModel {
-        let vm = CardViewModel(cardInfo: info)
-        vm.initialize()
         vm.updateState()
         return vm
     }
@@ -119,31 +106,9 @@ extension Assembly {
         initialize(vm)
         return vm
     }
-    
-    func makePushViewModel(for tx: BlockchainSdk.Transaction, blockchainNetwork: BlockchainNetwork, card: CardViewModel) -> PushTxViewModel {
-        if let restored: PushTxViewModel = get() {
-            restored.transaction = tx
-            return restored
-        }
-        
-        let vm = PushTxViewModel(transaction: tx, blockchainNetwork: blockchainNetwork, cardViewModel: card)
-        initialize(vm)
-        return vm
-    }
-    
    
     func makeWalletConnectViewModel(cardModel: CardViewModel) -> WalletConnectViewModel {
         let vm = WalletConnectViewModel(cardModel: cardModel)
-        initialize(vm)
-        return vm
-    }
-    
-    func makeShopViewModel() -> ShopViewModel {
-        if let restored: ShopViewModel = get() {
-            return restored
-        }
-        
-        let vm = ShopViewModel()
         initialize(vm)
         return vm
     }

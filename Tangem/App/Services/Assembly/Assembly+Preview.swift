@@ -68,7 +68,7 @@ enum PreviewCard {
                           twinCardInfo: twinInfo,
                           isTangemNote: isNote,
                           isTangemWallet: true)
-        let vm = Assembly().makeCardModel(from: ci)
+        let vm = CardViewModel(cardInfo: ci)
         let scanResult = ScanResult.card(model: vm)
 #if !CLIP
         let walletModels: [WalletModel]
