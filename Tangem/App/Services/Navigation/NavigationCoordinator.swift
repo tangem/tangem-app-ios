@@ -51,7 +51,8 @@ class NavigationCoordinator: ObservableObject {
     @Published var mainToWalletConnectQR: Bool = false
     @Published var mainToTradeSheet: Bool = false
     @Published var mainToSellCrypto: Bool = false
-    @Published var mainToCardOnboarding: Bool = false 
+    @Published var mainToCardOnboarding: Bool = false
+    @Published var detailsToBackupFromMain: Bool = false
     
     // MARK: SendView
     @Published var sendToQR = false
