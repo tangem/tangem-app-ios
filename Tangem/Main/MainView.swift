@@ -132,7 +132,7 @@ struct MainView: View {
         })
             .padding(.horizontal, 16)
             .padding(.bottom, 6)
-            .sheet(isPresented: $navigation.detailsToBackup, content: {
+            .sheet(isPresented: $navigation.detailsToBackupFromMain, content: {
                 OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
                     .presentation(
                         modal: viewModel.isTwinRecreationModel, onDismissalAttempt: {
@@ -212,7 +212,7 @@ struct MainView: View {
                                      totalCards: viewModel.totalCards)
                             .fixedSize(horizontal: false, vertical: true)
                             
-                            if viewModel.isMultiWallet && viewModel.hasNoBackUp {
+                            if viewModel.isBackupAllowed {
                                 backupWarningView
                             }
                             
