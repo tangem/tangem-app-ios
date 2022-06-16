@@ -177,10 +177,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
     
     var backupCardsAddedCount: Int {
-        if assembly.isPreview {
-            return previewBackupCardsAdded
-        }
-        
         return backupService.addedBackupCardsCount
     }
     
@@ -227,18 +223,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
     
     private var canAddBackupCards: Bool {
-        if assembly.isPreview {
-            return previewBackupCardsAdded < 2
-        }
-        
         return backupService.canAddBackupCards
     }
     
     private var backupServiceState: BackupService.State {
-        if assembly.isPreview {
-            return previewBackupState
-        }
-        
         return backupService.currentState
     }
     
@@ -247,8 +235,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     
     private var tangemSdk: TangemSdk { tangemSdkProvider.sdk }
     private var backupService: BackupService { backupServiceProvider.backupService }
+    private unowned var coordinator: WalletOnboardingViewRoutable!
     
-    override init(input: OnboardingInput) {
+    init(input: OnboardingInput, coordinator: WalletOnboardingViewRoutable) {
+        self.coordinator = coordinator
         super.init(input: input)
         
         if case let .wallet(steps) = input.steps {
@@ -328,11 +318,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         case .backupCards:
             backupCard()
         case .success:
-            if assembly.isPreview {
-                reset()
-                return
-            }
-            
             goToNextStep()
         }
     }
@@ -348,13 +333,13 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                 let controller = UIAlertController(title: "common_warning".localized, message: "onboarding_alert_message_not_max_backup_cards_added".localized, preferredStyle: .alert)
                 controller.addAction(UIAlertAction(title: "common_continue".localized, style: .default, handler: { [weak self] _ in
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        self?.navigation.onboardingWalletToAccessCode = true
+                        self?.openAccessCode()
                     }
                 }))
                 controller.addAction(UIAlertAction(title: "common_cancel".localized, style: .cancel, handler: { _ in }))
                 UIApplication.topViewController?.present(controller, animated: true, completion: nil)
             } else {
-                navigation.onboardingWalletToAccessCode = true
+                openAccessCode()
             }
             
         default:
@@ -429,19 +414,13 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         }
     }
     
-    func saveAccessCode(_ code: String) {
-        navigation.onboardingWalletToAccessCode = false
+    private func saveAccessCode(_ code: String) {
         do {
             try backupService.setAccessCode(code)
             stackCalculator.setupNumberOfCards(1 + backupCardsAddedCount)
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                 self.goToNextStep()
-                if self.assembly.isPreview {
-                    withAnimation {
-                        self.previewBackupState = .finalizingPrimaryCard
-                    }
-                }
             }
         } catch {
             print("Failed to set access code to backup service. Reason: \(error)")
@@ -466,10 +445,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     
     private func createWallet() {
         isMainButtonBusy = true
-        if assembly.isPreview {
-            previewGoToNextStepDelayed()
-            return
-        }
         if !input.isStandalone {
             userPrefsService.cardsStartedActivation.append(input.cardInput.cardId)
         }
@@ -490,11 +465,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     
     private func readPrimaryCard() {
         isMainButtonBusy = true
-        if assembly.isPreview {
-            previewGoToNextStepDelayed()
-            return
-        }
-        
+
         stepPublisher = readPrimaryCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
             .first()
@@ -568,17 +539,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     
     private func addBackupCard() {
         isMainButtonBusy = true
-        if assembly.isPreview {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                withAnimation {
-                    self.previewBackupCardsAdded += 1
-                    self.isMainButtonBusy = false
-                    self.updateStep()
-                }
-            }
-            return
-        }
-        
+
         stepPublisher =
             Deferred {
                 Future { [unowned self] promise in
@@ -613,33 +574,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     
     private func backupCard() {
         isMainButtonBusy = true
-        if assembly.isPreview {
-            let newPreviewState: BackupService.State
-            switch backupServiceState {
-            case .finalizingPrimaryCard:
-                newPreviewState = .finalizingBackupCard(index: 1)
-            case .finalizingBackupCard(let index):
-                switch index {
-                case 1:
-                    if backupCardsAddedCount == 2 {
-                        newPreviewState = .finalizingBackupCard(index: 2)
-                    } else {
-                        newPreviewState = .finished
-                    }
-                default:
-                    newPreviewState = .finished
-                }
-            default: newPreviewState = .finalizingPrimaryCard
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                withAnimation {
-                    self.previewBackupState = newPreviewState
-                    self.updateStep()
-                    self.isMainButtonBusy = false
-                }
-            }
-            return
-        }
         
         stepPublisher =
             Deferred {
@@ -691,6 +625,13 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         let isDemo = input.cardInput.cardModel?.cardInfo.card.isDemoCard ?? false
         let blockchains = SupportedTokenItems().predefinedBlockchains(isDemo: isDemo)
         self.tokensRepo.append(blockchains, for: cardId, style: style)
+    }
+}
+
+//MARK: - Navigation
+extension WalletOnboardingViewModel {
+    func openAccessCode() {
+        coordinator.openAccessCodeView(callback: saveAccessCode)
     }
 }
 
