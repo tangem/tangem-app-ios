@@ -487,7 +487,7 @@
 		DC0A5853282E3AB60031BECC /* CardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D4B8BC227EDD601002CE87C /* CardInfo.swift */; };
 		DC0A5854282E3ACD0031BECC /* ScanResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D4B8BBE27EDD5B5002CE87C /* ScanResult.swift */; };
 		DC0A5856282E3E220031BECC /* ServicesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A5855282E3E220031BECC /* ServicesManager.swift */; };
-		DC66BBE32858E7A600CDF765 /* WelcomeViewRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBE22858E7A600CDF765 /* WelcomeViewRoutable.swift */; };
+		DC66BBE32858E7A600CDF765 /* WelcomeRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBE22858E7A600CDF765 /* WelcomeRoutable.swift */; };
 		DC66BBE52858EB6300CDF765 /* OnboardingCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBE42858EB6300CDF765 /* OnboardingCoordinator.swift */; };
 		DC66BBE72858EBE400CDF765 /* OnboardingCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBE62858EBE400CDF765 /* OnboardingCoordinatorView.swift */; };
 		DC66BBE92859A8CC00CDF765 /* MailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBE82859A8CC00CDF765 /* MailViewModel.swift */; };
@@ -497,12 +497,15 @@
 		DC66BBF12859B77700CDF765 /* TokenListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBF02859B77700CDF765 /* TokenListCoordinator.swift */; };
 		DC66BBF32859B79600CDF765 /* TokenListCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBF22859B79600CDF765 /* TokenListCoordinatorView.swift */; };
 		DC66BBF5285A14CB00CDF765 /* WelcomeViewLifecycleListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBF4285A14CB00CDF765 /* WelcomeViewLifecycleListener.swift */; };
-		DC66BBF8285A211F00CDF765 /* MainViewRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBF7285A211F00CDF765 /* MainViewRoutable.swift */; };
+		DC66BBF8285A211F00CDF765 /* MainRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBF7285A211F00CDF765 /* MainRoutable.swift */; };
 		DC66BBFC285A389000CDF765 /* PopoverModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBF9285A389000CDF765 /* PopoverModifier.swift */; };
 		DC66BBFD285A389000CDF765 /* SheetModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBFA285A389000CDF765 /* SheetModifier.swift */; };
 		DC66BBFE285A389000CDF765 /* View+Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBFB285A389000CDF765 /* View+Navigation.swift */; };
-		DC66BC00285B3FD900CDF765 /* OnboardingTopupViewModelRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBFF285B3FD900CDF765 /* OnboardingTopupViewModelRoutable.swift */; };
-		DC66BC02285B537A00CDF765 /* WalletOnboardingViewRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC01285B537A00CDF765 /* WalletOnboardingViewRoutable.swift */; };
+		DC66BC00285B3FD900CDF765 /* OnboardingTopupRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBFF285B3FD900CDF765 /* OnboardingTopupRoutable.swift */; };
+		DC66BC02285B537A00CDF765 /* WalletOnboardingRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC01285B537A00CDF765 /* WalletOnboardingRoutable.swift */; };
+		DC66BC04285B6C5F00CDF765 /* SendCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC03285B6C5F00CDF765 /* SendCoordinator.swift */; };
+		DC66BC06285B6C7300CDF765 /* SendCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC05285B6C7300CDF765 /* SendCoordinatorView.swift */; };
+		DC66BC08285B6E6400CDF765 /* DetailsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC07285B6E6400CDF765 /* DetailsRoutable.swift */; };
 		DC7DA8192844EAFF00AD6DBD /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7DA8182844EAFF00AD6DBD /* AppCoordinator.swift */; };
 		DC7DA81E2844F27800AD6DBD /* AppCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7DA81D2844F27800AD6DBD /* AppCoordinatorView.swift */; };
 		DC7DA8202844F33D00AD6DBD /* CoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7DA81F2844F33D00AD6DBD /* CoordinatorView.swift */; };
@@ -1013,7 +1016,7 @@
 		DC0A5849282C07A20031BECC /* WalletConnectServiceProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectServiceProviding.swift; sourceTree = "<group>"; };
 		DC0A584B282C07B10031BECC /* WalletConnectServiceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectServiceProvider.swift; sourceTree = "<group>"; };
 		DC0A5855282E3E220031BECC /* ServicesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicesManager.swift; sourceTree = "<group>"; };
-		DC66BBE22858E7A600CDF765 /* WelcomeViewRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewRoutable.swift; sourceTree = "<group>"; };
+		DC66BBE22858E7A600CDF765 /* WelcomeRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeRoutable.swift; sourceTree = "<group>"; };
 		DC66BBE42858EB6300CDF765 /* OnboardingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCoordinator.swift; sourceTree = "<group>"; };
 		DC66BBE62858EBE400CDF765 /* OnboardingCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCoordinatorView.swift; sourceTree = "<group>"; };
 		DC66BBE82859A8CC00CDF765 /* MailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailViewModel.swift; sourceTree = "<group>"; };
@@ -1023,12 +1026,15 @@
 		DC66BBF02859B77700CDF765 /* TokenListCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListCoordinator.swift; sourceTree = "<group>"; };
 		DC66BBF22859B79600CDF765 /* TokenListCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListCoordinatorView.swift; sourceTree = "<group>"; };
 		DC66BBF4285A14CB00CDF765 /* WelcomeViewLifecycleListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeViewLifecycleListener.swift; sourceTree = "<group>"; };
-		DC66BBF7285A211F00CDF765 /* MainViewRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewRoutable.swift; sourceTree = "<group>"; };
+		DC66BBF7285A211F00CDF765 /* MainRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainRoutable.swift; sourceTree = "<group>"; };
 		DC66BBF9285A389000CDF765 /* PopoverModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PopoverModifier.swift; sourceTree = "<group>"; };
 		DC66BBFA285A389000CDF765 /* SheetModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SheetModifier.swift; sourceTree = "<group>"; };
 		DC66BBFB285A389000CDF765 /* View+Navigation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "View+Navigation.swift"; sourceTree = "<group>"; };
-		DC66BBFF285B3FD900CDF765 /* OnboardingTopupViewModelRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingTopupViewModelRoutable.swift; sourceTree = "<group>"; };
-		DC66BC01285B537A00CDF765 /* WalletOnboardingViewRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletOnboardingViewRoutable.swift; sourceTree = "<group>"; };
+		DC66BBFF285B3FD900CDF765 /* OnboardingTopupRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingTopupRoutable.swift; sourceTree = "<group>"; };
+		DC66BC01285B537A00CDF765 /* WalletOnboardingRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletOnboardingRoutable.swift; sourceTree = "<group>"; };
+		DC66BC03285B6C5F00CDF765 /* SendCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendCoordinator.swift; sourceTree = "<group>"; };
+		DC66BC05285B6C7300CDF765 /* SendCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendCoordinatorView.swift; sourceTree = "<group>"; };
+		DC66BC07285B6E6400CDF765 /* DetailsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsRoutable.swift; sourceTree = "<group>"; };
 		DC7DA8182844EAFF00AD6DBD /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
 		DC7DA81D2844F27800AD6DBD /* AppCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinatorView.swift; sourceTree = "<group>"; };
 		DC7DA81F2844F33D00AD6DBD /* CoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatorView.swift; sourceTree = "<group>"; };
@@ -1159,6 +1165,7 @@
 				5D384B9324FD51C000C2C92C /* DetailsViewModel.swift */,
 				5D384B9524FD51CB00C2C92C /* DetailsView.swift */,
 				5D43E2D62514D5B700697E5B /* CardOperationView.swift */,
+				DC66BC07285B6E6400CDF765 /* DetailsRoutable.swift */,
 			);
 			path = Details;
 			sourceTree = "<group>";
@@ -1555,6 +1562,8 @@
 				5DFCCB7324C3819A0014A293 /* SendView.swift */,
 				5DFCCB7524C381A70014A293 /* SendViewModel.swift */,
 				5DCC20BC2500FC58007B467E /* QRScannerView.swift */,
+				DC66BC03285B6C5F00CDF765 /* SendCoordinator.swift */,
+				DC66BC05285B6C7300CDF765 /* SendCoordinatorView.swift */,
 			);
 			path = Send;
 			sourceTree = "<group>";
@@ -1599,7 +1608,7 @@
 		B020A51526F1DD8900D38596 /* BaseModels */ = {
 			isa = PBXGroup;
 			children = (
-				DC66BBFF285B3FD900CDF765 /* OnboardingTopupViewModelRoutable.swift */,
+				DC66BBFF285B3FD900CDF765 /* OnboardingTopupRoutable.swift */,
 				B020A51826F1DDA700D38596 /* OnboardingViewModel.swift */,
 				B020A51626F1DD9E00D38596 /* OnboardingTopupViewModel.swift */,
 			);
@@ -1677,7 +1686,7 @@
 				B0541DBD26FB30060043893E /* WalletOnboardingViewModel.swift */,
 				B0541DBF26FB300F0043893E /* WalletOnboardingStep.swift */,
 				B0541DC126FB301A0043893E /* WalletOnboardingCardLayout.swift */,
-				DC66BC01285B537A00CDF765 /* WalletOnboardingViewRoutable.swift */,
+				DC66BC01285B537A00CDF765 /* WalletOnboardingRoutable.swift */,
 			);
 			path = Wallet;
 			sourceTree = "<group>";
@@ -2441,7 +2450,7 @@
 			isa = PBXGroup;
 			children = (
 				DC66BBF4285A14CB00CDF765 /* WelcomeViewLifecycleListener.swift */,
-				DC66BBE22858E7A600CDF765 /* WelcomeViewRoutable.swift */,
+				DC66BBE22858E7A600CDF765 /* WelcomeRoutable.swift */,
 				B0AA865126DC90E600287F80 /* WelcomeView.swift */,
 				B0AA865326DC90FF00287F80 /* WelcomeViewModel.swift */,
 				B0C4F77626F0924B0086D815 /* WelcomeStep.swift */,
@@ -2454,7 +2463,7 @@
 		DC66BBF6285A20FE00CDF765 /* Main */ = {
 			isa = PBXGroup;
 			children = (
-				DC66BBF7285A211F00CDF765 /* MainViewRoutable.swift */,
+				DC66BBF7285A211F00CDF765 /* MainRoutable.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -2918,7 +2927,7 @@
 				DC0A57D82822A3C80031BECC /* InjectedValues.swift in Sources */,
 				B09BB87E259A095B00B92000 /* WarningsPriority+Colors.swift in Sources */,
 				B0F16D7126EF5ED800687C47 /* ProgressBar.swift in Sources */,
-				DC66BC00285B3FD900CDF765 /* OnboardingTopupViewModelRoutable.swift in Sources */,
+				DC66BC00285B3FD900CDF765 /* OnboardingTopupRoutable.swift in Sources */,
 				5DE552EF27B2A5F400D7ADCD /* IconsUtils.swift in Sources */,
 				B04BA23426F0837C0036784C /* OnboardingTopupLayoutCalculator.swift in Sources */,
 				DA23788327B24222009795A8 /* ShippingRate.swift in Sources */,
@@ -2931,13 +2940,13 @@
 				5D51037327C5371D0025EA55 /* EthereumAddress.swift in Sources */,
 				DC0A582C282555940031BECC /* CommonScannedCardsRepository.swift in Sources */,
 				DC0A5806282501530031BECC /* KeysManager.swift in Sources */,
-				DC66BBE32858E7A600CDF765 /* WelcomeViewRoutable.swift in Sources */,
+				DC66BBE32858E7A600CDF765 /* WelcomeRoutable.swift in Sources */,
 				B09BB865259A075600B92000 /* TextInputField.swift in Sources */,
 				B037B1EE256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift in Sources */,
 				DC0A5808282501CA0031BECC /* MoonPayKeys.swift in Sources */,
 				B00D7150258A1B6C00A9442C /* JsonUtils.swift in Sources */,
 				5DFE855724EF051400194106 /* Error+.swift in Sources */,
-				DC66BC02285B537A00CDF765 /* WalletOnboardingViewRoutable.swift in Sources */,
+				DC66BC02285B537A00CDF765 /* WalletOnboardingRoutable.swift in Sources */,
 				65B436022844FDE700DEAE1B /* TangemSkeletonModifier.swift in Sources */,
 				B09BB860259A075600B92000 /* ButtonStyles.swift in Sources */,
 				DC0A57E42822A5D00031BECC /* TangemSdkProvider.swift in Sources */,
@@ -2985,6 +2994,7 @@
 				B0FAD01226BAF35C00F45E88 /* FrameSizeModifier.swift in Sources */,
 				DAFD691627CDEB7F00B36C71 /* CombinedExchangeService.swift in Sources */,
 				B0E9E2FF2679DA8000269C7A /* AmountView.swift in Sources */,
+				DC66BC04285B6C5F00CDF765 /* SendCoordinator.swift in Sources */,
 				5D00FCCC2617389E004626DE /* SignTransactionHandler.swift in Sources */,
 				5DDFC1FD2812A622005976FE /* Coin.swift in Sources */,
 				5D9004E724FA7DE300E90939 /* CreatePayIdView.swift in Sources */,
@@ -3040,6 +3050,7 @@
 				B0C4F77726F0924B0086D815 /* WelcomeStep.swift in Sources */,
 				5DF2522724F914E30015B429 /* AppScanTask.swift in Sources */,
 				5DD6DF21251E018A00F2693E /* AlertCardView.swift in Sources */,
+				DC66BC06285B6C7300CDF765 /* SendCoordinatorView.swift in Sources */,
 				B0C87B432566461600F861DE /* TwinCardsFileCoder.swift in Sources */,
 				B022034B26FDB266001DCB12 /* CardViewModel+Combine.swift in Sources */,
 				5D09383C25EAE7FD0049B8F0 /* PersistentStorage.swift in Sources */,
@@ -3186,6 +3197,7 @@
 				5D43E2D72514D5B700697E5B /* CardOperationView.swift in Sources */,
 				DAC53CFA27BE63830027147D /* StoriesView.swift in Sources */,
 				5DE2038E24EE8A510044EF46 /* ActivityIndicatorView.swift in Sources */,
+				DC66BC08285B6E6400CDF765 /* DetailsRoutable.swift in Sources */,
 				B031AAB126C1443E00015003 /* Confetti.swift in Sources */,
 				B0A2B3E925D6B5BD0001EEB4 /* TokenBalanceViewModel.swift in Sources */,
 				DAC53CFB27BE63830027147D /* CurrenciesStoryPage.swift in Sources */,
@@ -3201,7 +3213,7 @@
 				5DDE22E32608C2E2008657C6 /* WalletConnectService.swift in Sources */,
 				5DDFC1FF2812A63B005976FE /* Network.swift in Sources */,
 				5DFB499824E54A340037E76F /* BalanceView.swift in Sources */,
-				DC66BBF8285A211F00CDF765 /* MainViewRoutable.swift in Sources */,
+				DC66BBF8285A211F00CDF765 /* MainRoutable.swift in Sources */,
 				659768172837B61000F9F04A /* TokenItemView.swift in Sources */,
 				DC0A582628252D140031BECC /* FailedScanTrackable.swift in Sources */,
 				5DDE22FA2609023B008657C6 /* WalletConnectViewModel.swift in Sources */,
