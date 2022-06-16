@@ -48,9 +48,9 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
     }
     
     private var refreshButtonDispatchWork: DispatchWorkItem?
-    private unowned var coordinator: OnboardingTopupViewModelRoutable!
+    private unowned var coordinator: OnboardingTopupRoutable!
     
-    required init(input: OnboardingInput, coordinator: OnboardingTopupViewModelRoutable) {
+    required init(input: OnboardingInput, coordinator: OnboardingTopupRoutable) {
         self.cardModel = input.cardInput.cardModel
         self.coordinator = coordinator
         super.init(input: input)
