@@ -9,8 +9,6 @@
 import SwiftUI
 
 struct SingleCardOnboardingView: View {
-    
-    @EnvironmentObject var navigation: NavigationCoordinator
     @ObservedObject var viewModel: SingleCardOnboardingViewModel
     
     private let horizontalPadding: CGFloat = 16
@@ -113,20 +111,6 @@ struct SingleCardOnboardingView: View {
                                             qrNotice: viewModel.qrNoticeMessage)
             })
                 .frame(maxWidth: screenSize.width)
-            
-            Color.clear.frame(width: 1, height: 1)
-                .sheet(isPresented: $navigation.onboardingToBuyCrypto) {
-                    WebViewContainer(url: viewModel.buyCryptoURL,
-                                     title: "wallet_button_topup".localized,
-                                     addLoadingIndicator: true,
-                                     withCloseButton: true,
-                                     urlActions: [ viewModel.buyCryptoCloseUrl : { _ in
-                        DispatchQueue.main.async {
-                            self.navigation.onboardingToBuyCrypto = false
-                            self.viewModel.updateCardBalance()
-                        }
-                    }])
-                }
         }
         .alert(item: $viewModel.alert, content: { $0.alert })
         .onAppear(perform: {
@@ -137,7 +121,8 @@ struct SingleCardOnboardingView: View {
 
 struct OnboardingView_Previews: PreviewProvider {
     static var previews: some View {
-        SingleCardOnboardingView(viewModel: PreviewData.previewNoteCardOnboardingInput)
+        SingleCardOnboardingView(viewModel: .init(input: PreviewData.previewNoteCardOnboardingInput,
+                                                  coordinator: OnboardingCoordinator()))
     }
 }
 
