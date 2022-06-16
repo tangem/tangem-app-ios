@@ -108,7 +108,7 @@ enum PreviewCard {
     var blockchain: Blockchain? {
         switch self {
         case .ethereum:
-            return .bitcoin(testnet: false)
+            return .ethereum(testnet: false)
         case .stellar:
             return .stellar(testnet: false)
         case .cardanoNote:
@@ -116,6 +116,10 @@ enum PreviewCard {
         default:
             return nil
         }
+    }
+    
+    var blockchainNetwotk: BlockchainNetwork? {
+        blockchain.map { BlockchainNetwork($0) }
     }
 #endif
     
