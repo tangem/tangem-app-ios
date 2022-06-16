@@ -19,12 +19,14 @@ class AppCoordinator: NSObject, ObservableObject {
     @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
     @Published var shopCoordinator: ShopCoordinator? = nil
     @Published var tokenListCoordinator: TokenListCoordinator? = nil
+    @Published var sendCoordinator: SendCoordinator? = nil
     
-    //MARK: - Welcome view models
+    //MARK: - Child view models
     @Published var welcomeViewModel: WelcomeViewModel!
     @Published var mailViewModel: MailViewModel? = nil
     @Published var disclaimerViewModel: DisclaimerViewModel? = nil
     @Published var mainViewModel: MainViewModel? = nil
+    @Published var detailsViewModel: DetailsViewModel? = nil
     
     //MARK: - Helpers
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
@@ -33,28 +35,37 @@ class AppCoordinator: NSObject, ObservableObject {
     private let servicesManager: ServicesManager = .init()
     private var deferredIntents: [NSUserActivity] = []
     private var deferredIntentWork: DispatchWorkItem?
-    private var bag: Set<AnyCancellable> = .init()
+    private var welcomeLifecycleSubscription: AnyCancellable? = nil
     
-    func start(with options: UIScene.ConnectionOptions) {
+    override init() {
         servicesManager.initialize()
-        
-        handle(contexts: options.urlContexts)
-        handle(activities: options.userActivities)
-        
+    }
+    
+    func start(with options: UIScene.ConnectionOptions? = nil) {
         welcomeViewModel = .init(coordinator: self)
         subscribeToWelcomeLifecycle()
+        
+        if let options = options {
+            handle(contexts: options.urlContexts)
+            handle(activities: options.userActivities)
+        }
     }
     
     private func popToRoot() {
+        welcomeLifecycleSubscription = nil
+        
+        sendCoordinator = nil
         pushedOnboardingCoordinator = nil
         modalOnboardingCoordinator = nil
         shopCoordinator = nil
         tokenListCoordinator = nil
         
-        welcomeViewModel = nil
+        detailsViewModel = nil
         mailViewModel = nil
         disclaimerViewModel = nil
         mainViewModel = nil
+        
+        start()
     }
     
     private func subscribeToWelcomeLifecycle() {
@@ -63,7 +74,7 @@ class AppCoordinator: NSObject, ObservableObject {
         let p3 = $shopCoordinator.dropFirst().map { $0 == nil ? true : false }
         let p4 = $modalOnboardingCoordinator.dropFirst().map { $0 == nil ? true : false }
         
-        p1.merge(with: p2, p3, p4)
+        welcomeLifecycleSubscription = p1.merge(with: p2, p3, p4)
             .sink {[unowned self] viewDismissed in
                 if viewDismissed {
                     self.welcomeViewModel.becomeActive()
@@ -71,7 +82,6 @@ class AppCoordinator: NSObject, ObservableObject {
                     self.welcomeViewModel.resignActve()
                 }
             }
-            .store(in: &bag)
     }
 }
 
@@ -154,8 +164,8 @@ extension AppCoordinator: URLHandler {
     }
 }
 
-//MARK: - WelcomeViewRoutable
-extension AppCoordinator: WelcomeViewRoutable {
+//MARK: - WelcomeRoutable
+extension AppCoordinator: WelcomeRoutable {
     func openInterrupedBackup(with input: OnboardingInput) {
         var input = input
         input.successCallback = { [weak self] in
@@ -203,7 +213,7 @@ extension AppCoordinator: WelcomeViewRoutable {
 }
 
 
-extension AppCoordinator: MainViewRoutable {
+extension AppCoordinator: MainRoutable {
     func close(newScan: Bool) {
         popToRoot()
         
