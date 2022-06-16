@@ -10,7 +10,7 @@ import SwiftUI
 import Combine
 import TangemSdk
 
-class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
+class OnboardingViewModel<Step: OnboardingStep> {
     let navbarSize: CGSize = .init(width: UIScreen.main.bounds.width, height: 44)
     let resetAnimDuration: Double = 0.3
     
@@ -140,7 +140,6 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
             isNavBarVisible = true
         }
         
-        super.init()
         input.cardInput.cardModel.map { loadImage(for: $0) }
     }
     
@@ -188,7 +187,7 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
     }
     
     func goToNextStep() {
-        if isOnboardingFinished, !assembly.isPreview {
+        if isOnboardingFinished {
             DispatchQueue.main.async {
                 self.input.successCallback?()
             }
@@ -199,7 +198,7 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
         
         var newIndex = currentStepIndex + 1
         if newIndex >= steps.count {
-            newIndex = assembly.isPreview ? 0 : steps.count - 1
+            newIndex = steps.count - 1
         }
         
         withAnimation {
@@ -209,26 +208,26 @@ class OnboardingViewModel<Step: OnboardingStep>: ViewModel {
         }
     }
     
-    func reset(includeInResetAnim: (() -> Void)? = nil) {
-        let defaultSettings = WelcomeCardLayout.defaultSettings(in: containerSize, animated: true)
-        var newSteps = [Step.initialStep]
-        if assembly.isPreview {
-            newSteps.append(contentsOf: steps)
-        }
-        
-       // withAnimation(.easeIn(duration: resetAnimDuration)) { //disable back animation
-            mainCardSettings = defaultSettings.main
-            supplementCardSettings = defaultSettings.supplement
-            isNavBarVisible = false
-            currentStepIndex = 0
-            steps = newSteps
-            isMainButtonBusy = false
-            includeInResetAnim?()
-        //}
-        // [REDACTED_TODO_COMMENT]
-       // DispatchQueue.main.asyncAfter(deadline: .now() /* + resetAnimDuration*/) {
-            self.navigation.onboardingReset = true
-       // }
+    func reset(includeInResetAnim: (() -> Void)? = nil) { //[REDACTED_TODO_COMMENT]
+//        let defaultSettings = WelcomeCardLayout.defaultSettings(in: containerSize, animated: true)
+//        var newSteps = [Step.initialStep]
+//        if assembly.isPreview {
+//            newSteps.append(contentsOf: steps)
+//        }
+//
+//       // withAnimation(.easeIn(duration: resetAnimDuration)) { //disable back animation
+//            mainCardSettings = defaultSettings.main
+//            supplementCardSettings = defaultSettings.supplement
+//            isNavBarVisible = false
+//            currentStepIndex = 0
+//            steps = newSteps
+//            isMainButtonBusy = false
+//            includeInResetAnim?()
+//        //}
+//        // [REDACTED_TODO_COMMENT]
+//       // DispatchQueue.main.asyncAfter(deadline: .now() /* + resetAnimDuration*/) {
+//            self.navigation.onboardingReset = true
+//       // }
     }
     
     func mainButtonAction() {
