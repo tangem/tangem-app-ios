@@ -13,9 +13,18 @@ struct ShopCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: ShopCoordinator
     
     var body: some View {
-        NavigationView {
-            ShopContainerView(viewModel: coordinator.shopViewModel)
+        if let webShopUrl = coordinator.webShopUrl {
+            SafariView(url: webShopUrl)
+        } else {
+            NavigationView {
+                if let order = coordinator.shopViewModel?.order { //[REDACTED_TODO_COMMENT]
+                    ShopOrderView(order: order)
+                } else if coordinator.shopViewModel?.pollingForOrder == true {
+                    ShopOrderProgressView()
+                } else {
+                    ShopView(viewModel: coordinator.shopViewModel!)
+                }
+            }
         }
-        .navigationViewStyle(StackNavigationViewStyle())
     }
 }
