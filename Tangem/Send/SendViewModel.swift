@@ -31,6 +31,7 @@ class SendViewModel: ViewModel, ObservableObject {
     @Published var maxAmountTapped: Bool = false
     @Published var fees: [Amount] = []
     @Published var scannedQRCode: String = ""
+    @Published var showFeeErrorToast: Bool = false
     
     @ObservedObject var warnings = WarningsContainer() {
         didSet {
@@ -319,6 +320,7 @@ class SendViewModel: ViewModel, ObservableObject {
                     .catch { error -> Just<[Amount]> in
                         print(error)
                         Analytics.log(error: error)
+                        self.showFeeErrorToast = true
                         return Just([Amount]())
                     }.eraseToAnyPublisher()
             }
