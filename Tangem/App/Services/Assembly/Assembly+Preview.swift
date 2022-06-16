@@ -118,7 +118,7 @@ enum PreviewCard {
         }
     }
     
-    var blockchainNetwotk: BlockchainNetwork? {
+    var blockchainNetwork: BlockchainNetwork? {
         blockchain.map { BlockchainNetwork($0) }
     }
 #endif
