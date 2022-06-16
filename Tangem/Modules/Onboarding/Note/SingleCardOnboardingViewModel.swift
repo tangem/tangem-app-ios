@@ -20,7 +20,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     
     override var currentStep: SingleCardOnboardingStep {
         guard currentStepIndex < steps.count else {
-            return assembly.isPreview ? .createWallet : .welcome
+            return .welcome
         }
 
         return steps[currentStepIndex]
@@ -64,8 +64,8 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         return false
     }
     
-    override init(input: OnboardingInput) {
-        super.init(input: input)
+    required init(input: OnboardingInput, coordinator: OnboardingTopupViewModelRoutable) {
+        super.init(input: input, coordinator: coordinator)
         
         if case let .singleWallet(steps) = input.steps {
             self.steps = steps
@@ -81,7 +81,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     }
         
     // MARK: Functions
-
+    
     override func goToNextStep() {
         super.goToNextStep()
         stepUpdate()
@@ -96,13 +96,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     override func mainButtonAction() {
         switch currentStep {
         case .welcome:
-            if assembly.isPreview {
-                goToNextStep()
-                withAnimation {
-                    isNavBarVisible = true
-                    isCardScanned = true
-                }
-            }
+            fallthrough
         case .createWallet:
             сreateWallet()
         case .topup:
@@ -114,15 +108,12 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
                         }
                     })
                 } else {
-                    navigation.onboardingToBuyCrypto = true
+                    openCryptoShop()
                 }
             } else {
                 supplementButtonAction()
             }
         case .successTopup:
-            if assembly.isPreview {
-                reset()
-            }
             fallthrough
         case .success:
             goToNextStep()
@@ -148,17 +139,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     
     private func сreateWallet() {
         isMainButtonBusy = true
-        
-        if assembly.isPreview {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                self.cardModel = PreviewCard.cardanoNoteEmptyWallet.cardModel
-                self.updateCardBalanceText(for: self.cardModel!.walletModels!.first!)
-                self.isMainButtonBusy = false
-                self.goToNextStep()
-            }
-            return
-        }
-        
         let cardInfo = cardModel!.cardInfo
         
         var subscription: AnyCancellable? = nil

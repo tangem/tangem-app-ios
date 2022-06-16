@@ -22,7 +22,7 @@ struct OnboardingCoordinatorView: CoordinatorView {
             WalletOnboardingView(viewModel: walletViewModel)
         }
     }
-    
+
 //    var isNavigationBarHidden: Bool {
 //        if navigation.readToMain {
 //            return false
@@ -36,5 +36,11 @@ struct OnboardingCoordinatorView: CoordinatorView {
             .transition(.withoutOpacity)
             .navigationBarTitle("", displayMode: .inline)
             .navigationBarHidden(true)
+            .sheet(item: $coordinator.buyCryptoModel) {
+                WebViewContainer(viewModel: $0)
+            }
+            .sheet(item: $coordinator.accessCodeModel) {
+                OnboardingAccessCodeView(viewModel: $0)
+            }
     }
 }
