@@ -18,7 +18,6 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
     @Published var cardBalance: String = ""
     @Published var isBalanceRefresherVisible: Bool = false
     
-    var previewUpdates: Int = 0
     var walletModelUpdateCancellable: AnyCancellable?
     
     var cardModel: CardViewModel?
@@ -30,6 +29,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
                                              blockchain: wallet.blockchain,
                                              walletAddress: wallet.address)
         }
+        
         return nil
     }
     
@@ -48,28 +48,19 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
     }
     
     private var refreshButtonDispatchWork: DispatchWorkItem?
+    private unowned var coordinator: OnboardingTopupViewModelRoutable!
     
-    override init(input: OnboardingInput) {
+    required init(input: OnboardingInput, coordinator: OnboardingTopupViewModelRoutable) {
         self.cardModel = input.cardInput.cardModel
+        self.coordinator = coordinator
         super.init(input: input)
         
         if let walletModel = self.cardModel?.walletModels?.first {
             updateCardBalanceText(for: walletModel)
         }
-       // updateCardBalance()
-        
     }
     
     func updateCardBalance() {
-        if assembly.isPreview {
-            previewUpdates += 1
-            
-            if self.previewUpdates >= 3 {
-                self.cardModel = PreviewCard.cardanoNote.cardModel
-                self.previewUpdates = 0
-            }
-        }
-        
         guard
             let walletModel = cardModel?.walletModels?.first,
             walletModelUpdateCancellable == nil
@@ -124,7 +115,6 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
         walletModelUpdateCancellable = nil
         
         super.reset {
-            self.previewUpdates = 0
             self.refreshButtonState = .refreshButton
             self.isBalanceRefresherVisible = false
             includeInResetAnim?()
@@ -144,4 +134,15 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
 //        DispatchQueue.main.asyncAfter(deadline: .now() + 5, execute: refreshButtonDispatchWork!)
     }
     
+}
+
+//MARK: - Navigation
+extension OnboardingTopupViewModel {
+    func openCryptoShop() {
+        guard let url = buyCryptoURL else { return }
+        
+        coordinator.openCryptoShop(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] in
+            self?.updateCardBalance()
+        }
+    }
 }
