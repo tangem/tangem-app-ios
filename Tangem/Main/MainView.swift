@@ -132,20 +132,6 @@ struct MainView: View {
         })
             .padding(.horizontal, 16)
             .padding(.bottom, 6)
-            .sheet(isPresented: $navigation.detailsToBackupFromMain, content: {
-                OnboardingBaseView(viewModel: viewModel.assembly.getCardOnboardingViewModel())
-                    .presentation(
-                        modal: viewModel.isTwinRecreationModel, onDismissalAttempt: {
-                            viewModel.assembly.getWalletOnboardingViewModel()?.backButtonAction()
-                        },
-                        onDismissed: nil
-                    )
-                    .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
-                        viewModel.isTwinRecreationModel = value
-                    })
-                    .environmentObject(navigation)
-                    .navigationBarHidden(true)
-            })
     }
     
     var navigationLinks: some View {
@@ -339,7 +325,9 @@ struct MainView: View {
                     let model = viewModel.assembly.getCardOnboardingViewModel()
                     OnboardingBaseView(viewModel: model)
                         .presentation(modal: viewModel.isOnboardingModal,
-                                      onDismissalAttempt: {},
+                                      onDismissalAttempt: {
+                            viewModel.assembly.getWalletOnboardingViewModel()?.backButtonAction()
+                        },
                                       onDismissed: viewModel.onboardingDismissed)
                         .environmentObject(navigation)
                         .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
