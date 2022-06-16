@@ -9,10 +9,8 @@
 import SwiftUI
 
 struct TwinsOnboardingView: View {
-    
     @ObservedObject var viewModel: TwinsOnboardingViewModel
-    @EnvironmentObject var navigation: NavigationCoordinator
-    
+
     private let screenSize: CGSize = UIScreen.main.bounds.size
     
     var isNavbarVisible: Bool {
@@ -150,15 +148,6 @@ struct TwinsOnboardingView: View {
                 .offset(x: -screenSize.width/2, y: -screenSize.height/2)
                 .opacity(currentStep.isBackgroundVisible ? 1 : 0)
         )
-        .sheet(isPresented: $navigation.onboardingToBuyCrypto) {
-            WebViewContainer(url: viewModel.buyCryptoURL,
-                             title: "wallet_button_topup".localized,
-                             addLoadingIndicator: true,
-                             withCloseButton: true,
-                             urlActions: [ viewModel.buyCryptoCloseUrl : { _ in
-                navigation.onboardingToBuyCrypto = false
-            }])
-        }
         .alert(item: $viewModel.alert, content: { binder in
             binder.alert
         })
@@ -179,6 +168,7 @@ struct TwinsOnboardingView: View {
 
 struct TwinsOnboardingView_Previews: PreviewProvider {
     static var previews: some View {
-        TwinsOnboardingView(viewModel: TwinsOnboardingViewModel(input: PreviewData.previewTwinOnboardingInput))
+        TwinsOnboardingView(viewModel: TwinsOnboardingViewModel(input: PreviewData.previewTwinOnboardingInput,
+                                                                coordinator: OnboardingCoordinator()))
     }
 }
