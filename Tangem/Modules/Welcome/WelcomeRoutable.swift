@@ -1,5 +1,5 @@
 //
-//  WelcomeViewRoutable.swift
+//  WelcomeRoutable.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol WelcomeViewRoutable: AnyObject {
+protocol WelcomeRoutable: AnyObject {
     func openTokensList()
     func openInterrupedBackup(with input: OnboardingInput)
     func openMail(with dataCollector: EmailDataCollector)
