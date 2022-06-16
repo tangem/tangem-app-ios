@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct BackUpWarningView: View {
+struct BackUpWarningButton: View {
     let tapAction: () -> ()
     
     var body: some View {
@@ -21,34 +21,31 @@ struct BackUpWarningView: View {
                 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("main_no_backup_warning_title".localized)
-                        .fixedSize(horizontal: false, vertical: true)
                         .font(.system(size: 15, weight: .medium))
-                        .padding(.leading, 10)
                     
                     Text("main_no_backup_warning_subtitle".localized)
-                        .fixedSize(horizontal: false, vertical: true)
                         .font(.system(size: 13, weight: .regular))
                         .foregroundColor(Color.tangemTextGray)
-                        .padding(.leading, 10)
                 }
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.leading, 10)
                 
                 Spacer()
                 
                 Image("chevron")
-                    .padding(.trailing, 16)
-                
             }
         }
         .buttonStyle(PlainButtonStyle())
-        .padding(.leading, 16)
+        .padding(.horizontal, 16)
         .padding(.vertical, 10)
         .background(Color.white)
         .contentShape(Rectangle())
+        .cornerRadius(16)
     }
 }
 
 struct BackUpWarningView_Previews: PreviewProvider {
     static var previews: some View {
-        BackUpWarningView(tapAction: { })
+        BackUpWarningButton(tapAction: { })
     }
 }
