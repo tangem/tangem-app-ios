@@ -64,7 +64,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         return false
     }
     
-    required init(input: OnboardingInput, coordinator: OnboardingTopupViewModelRoutable) {
+    required init(input: OnboardingInput, coordinator: OnboardingTopupRoutable) {
         super.init(input: input, coordinator: coordinator)
         
         if case let .singleWallet(steps) = input.steps {
