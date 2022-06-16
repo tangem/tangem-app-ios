@@ -235,9 +235,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     
     private var tangemSdk: TangemSdk { tangemSdkProvider.sdk }
     private var backupService: BackupService { backupServiceProvider.backupService }
-    private unowned var coordinator: WalletOnboardingViewRoutable!
+    private unowned var coordinator: WalletOnboardingRoutable!
     
-    init(input: OnboardingInput, coordinator: WalletOnboardingViewRoutable) {
+    init(input: OnboardingInput, coordinator: WalletOnboardingRoutable) {
         self.coordinator = coordinator
         super.init(input: input)
         
