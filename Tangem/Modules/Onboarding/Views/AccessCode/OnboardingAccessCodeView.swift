@@ -14,61 +14,13 @@ fileprivate struct AccessCodeFeature {
     let icon: String
 }
 
-struct OnboardingAccessCodeView: View {
-    
-    enum ViewState: String {
-        case intro, inputCode, repeatCode
-        
-        var title: LocalizedStringKey {
-            switch self {
-            case .intro, .inputCode: return "onboarding_access_code_intro_title"
-            case .repeatCode: return "onboarding_access_code_repeat_code_title"
-            }
-        }
-        
-        var buttonTitle: LocalizedStringKey {
-            switch self {
-            case .intro: return "common_continue"
-            case .inputCode: return "common_continue"
-            case .repeatCode: return "common_submit"
-            }
-        }
-        
-        fileprivate static var featuresDescription: [AccessCodeFeature] {
-            [
-                .init(title: "onboarding_access_code_feature_1_title",
-                      description: "onboarding_access_code_feature_1_description",
-                      icon: "access_code_feature_1"),
-                .init(title: "onboarding_access_code_feature_2_title",
-                      description: "onboarding_access_code_feature_2_description",
-                      icon: "access_code_feature_2"),
-                .init(title: "onboarding_access_code_feature_3_title",
-                      description: "onboarding_access_code_feature_3_description",
-                      icon: "access_code_feature_3")
-            ]
-        }
-    }
-    
-    enum AccessCodeError: String {
-        case none, tooShort, dontMatch
-        
-        var description: LocalizedStringKey {
-            switch self {
-            case .none: return ""
-            case .tooShort: return "onboarding_access_code_too_short"
-            case .dontMatch: return "onboarding_access_codes_doesnt_match"
-            }
-        }
-        
-        var errorOpacity: Double {
-            switch self {
-            case .none: return 0
-            default: return 1
-            }
-        }
-    }
-    
+struct OnboardingAccessCodeViewModel: Identifiable {
+    let id: UUID = .init()
     let successHandler: (String) -> Void
+}
+
+struct OnboardingAccessCodeView: View {
+    let viewModel: OnboardingAccessCodeViewModel
     
     @State private var state: ViewState = .intro
     @State private var firstEnteredCode: String = ""
@@ -167,7 +119,7 @@ struct OnboardingAccessCodeView: View {
                         return
                     }
                     
-                    successHandler(secondEnteredCode)
+                    viewModel.successHandler(secondEnteredCode)
                     return
                 }
                 
@@ -249,8 +201,62 @@ struct CustomPasswordTextField: View {
     }
 }
 
+extension OnboardingAccessCodeView {
+    enum ViewState: String {
+        case intro, inputCode, repeatCode
+        
+        var title: LocalizedStringKey {
+            switch self {
+            case .intro, .inputCode: return "onboarding_access_code_intro_title"
+            case .repeatCode: return "onboarding_access_code_repeat_code_title"
+            }
+        }
+        
+        var buttonTitle: LocalizedStringKey {
+            switch self {
+            case .intro: return "common_continue"
+            case .inputCode: return "common_continue"
+            case .repeatCode: return "common_submit"
+            }
+        }
+        
+        fileprivate static var featuresDescription: [AccessCodeFeature] {
+            [
+                .init(title: "onboarding_access_code_feature_1_title",
+                      description: "onboarding_access_code_feature_1_description",
+                      icon: "access_code_feature_1"),
+                .init(title: "onboarding_access_code_feature_2_title",
+                      description: "onboarding_access_code_feature_2_description",
+                      icon: "access_code_feature_2"),
+                .init(title: "onboarding_access_code_feature_3_title",
+                      description: "onboarding_access_code_feature_3_description",
+                      icon: "access_code_feature_3")
+            ]
+        }
+    }
+    
+    enum AccessCodeError: String {
+        case none, tooShort, dontMatch
+        
+        var description: LocalizedStringKey {
+            switch self {
+            case .none: return ""
+            case .tooShort: return "onboarding_access_code_too_short"
+            case .dontMatch: return "onboarding_access_codes_doesnt_match"
+            }
+        }
+        
+        var errorOpacity: Double {
+            switch self {
+            case .none: return 0
+            default: return 1
+            }
+        }
+    }
+}
+
 struct OnboardingAccessCodeView_Previews: PreviewProvider {
     static var previews: some View {
-        OnboardingAccessCodeView(successHandler: { _ in })
+        OnboardingAccessCodeView(viewModel: .init(successHandler: {_ in}))
     }
 }
