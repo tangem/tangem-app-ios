@@ -48,6 +48,10 @@ class UserPrefsService {
     @Storage(type: StorageType.fundsRestorationAlert, defaultValue: false)
     var isFundsRestorationShown: Bool
     
+    //Temp migrated cards storage. Remove with LegacyCardMigrator
+    @Storage(type: StorageType.migratedCardsWithDefaultTokens, defaultValue: [])
+    var migratedCardsWithDefaultTokens: [String]
+    
     deinit {
         print("UserPrefsService deinit")
     }
