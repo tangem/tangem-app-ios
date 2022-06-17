@@ -11,17 +11,6 @@ import TangemSdk
 import BlockchainSdk
 
 extension Assembly {
-    func makeTokenDetailsViewModel(blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType = .coin) -> TokenDetailsViewModel {
-        if let restored: TokenDetailsViewModel = get() {
-            return restored
-        }
-        
-        let vm =  TokenDetailsViewModel(blockchainNetwork: blockchainNetwork, amountType: amountType)
-        initialize(vm)
-        vm.updateState()
-        return vm
-    }
-    
     // MARK: - Details
     
     func makeDetailsViewModel() -> DetailsViewModel {
