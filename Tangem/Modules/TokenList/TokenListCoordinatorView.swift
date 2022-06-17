@@ -16,6 +16,9 @@ struct TokenListCoordinatorView: CoordinatorView {
     var body: some View {
         NavigationView {
             TokenListView(viewModel: coordinator.tokenListViewModel)
+                .navigation(item: $coordinator.addCustomTokenViewModel) {
+                    AddCustomTokenView(viewModel: $0)
+                }
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }
