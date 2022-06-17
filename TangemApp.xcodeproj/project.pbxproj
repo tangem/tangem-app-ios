@@ -511,6 +511,7 @@
 		DC66BC12285C433800CDF765 /* AddCustomTokenRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC11285C433800CDF765 /* AddCustomTokenRoutable.swift */; };
 		DC66BC14285C44AD00CDF765 /* TokenListRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC13285C44AD00CDF765 /* TokenListRoutable.swift */; };
 		DC66BC16285C529600CDF765 /* SendRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC15285C529600CDF765 /* SendRoutable.swift */; };
+		DC66BC18285C65C900CDF765 /* TokenDetailsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC17285C65C900CDF765 /* TokenDetailsRoutable.swift */; };
 		DC7DA8192844EAFF00AD6DBD /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7DA8182844EAFF00AD6DBD /* AppCoordinator.swift */; };
 		DC7DA81E2844F27800AD6DBD /* AppCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7DA81D2844F27800AD6DBD /* AppCoordinatorView.swift */; };
 		DC7DA8202844F33D00AD6DBD /* CoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7DA81F2844F33D00AD6DBD /* CoordinatorView.swift */; };
@@ -1046,6 +1047,7 @@
 		DC66BC11285C433800CDF765 /* AddCustomTokenRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomTokenRoutable.swift; sourceTree = "<group>"; };
 		DC66BC13285C44AD00CDF765 /* TokenListRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListRoutable.swift; sourceTree = "<group>"; };
 		DC66BC15285C529600CDF765 /* SendRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendRoutable.swift; sourceTree = "<group>"; };
+		DC66BC17285C65C900CDF765 /* TokenDetailsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenDetailsRoutable.swift; sourceTree = "<group>"; };
 		DC7DA8182844EAFF00AD6DBD /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
 		DC7DA81D2844F27800AD6DBD /* AppCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinatorView.swift; sourceTree = "<group>"; };
 		DC7DA81F2844F33D00AD6DBD /* CoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatorView.swift; sourceTree = "<group>"; };
@@ -1402,6 +1404,7 @@
 				5D09380925E6AEB10049B8F0 /* BalanceAddressView.swift */,
 				5D09382C25E7A2EA0049B8F0 /* TokenDetailsViewModel.swift */,
 				5D09382725E7A2D80049B8F0 /* TokenDetailsView.swift */,
+				DC66BC17285C65C900CDF765 /* TokenDetailsRoutable.swift */,
 			);
 			path = TokenDetails;
 			sourceTree = "<group>";
@@ -3178,6 +3181,7 @@
 				B0D76D4D25D4E4610073FA98 /* AddCustomTokenViewModel.swift in Sources */,
 				B05209BE261F1FF3000DD204 /* RoundedCorner.swift in Sources */,
 				5D09380F25E6BDB00049B8F0 /* RoundedRectButton.swift in Sources */,
+				DC66BC18285C65C900CDF765 /* TokenDetailsRoutable.swift in Sources */,
 				B031AAB526C16A1B00015003 /* UIColor+.swift in Sources */,
 				DA5FAD8627B2791C00EE53AE /* ApplePayButton.swift in Sources */,
 				DC0A581D2825281C0031BECC /* RemoteConfigurationProviding.swift in Sources */,
