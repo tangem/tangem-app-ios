@@ -9,12 +9,13 @@ import SwiftUI
 import BlockchainSdk
 import Combine
 
-class TokenDetailsViewModel: ViewModel, ObservableObject {
+class TokenDetailsViewModel: ObservableObject {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     
     @Published var alert: AlertBinder? = nil
-
+    @Published var showTradeSheet: Bool = false
+    
     var dismissalRequestPublisher: AnyPublisher<Void, Never> {
         dismissalRequestSubject.eraseToAnyPublisher()
     }
@@ -121,12 +122,6 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         wallet?.amounts[amountType]
     }
     
-    var transactionToPush: BlockchainSdk.Transaction? {
-        guard let index = txIndexToPush else { return nil }
-        
-        return wallet?.pendingOutgoingTransactions[index]
-    }
-    
     var title: String {
         if let token = amountType.token {
             return token.name
@@ -143,7 +138,6 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         return blockchainNetwork.blockchain.tokenDisplayName
     }
     
-    @Published var txIndexToPush: Int? = nil
     @Published var unsupportedTokenWarning: String? = nil
     @Published var solanaRentWarning: String? = nil
     @Published var showExplorerURL: URL? = nil
@@ -151,30 +145,25 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     let amountType: Amount.AmountType
     let blockchainNetwork: BlockchainNetwork
     
-    var sellCryptoRequest: SellCryptoRequest? = nil
-    
     private let dismissalRequestSubject = PassthroughSubject<Void, Never>()
     private var bag = Set<AnyCancellable>()
     private var rentWarningSubscription: AnyCancellable?
     private var refreshCancellable: AnyCancellable? = nil
     private lazy var testnetBuyCrypto: TestnetBuyCryptoService = .init()
-
+    private unowned let coordinator: TokenDetailsRoutable
+    
     private var currencySymbol: String {
         amountType.token?.symbol ?? blockchainNetwork.blockchain.currencySymbol
     }
     
-    init(blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType) {
+    init(cardModel: CardViewModel, blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType, coordinator: TokenDetailsRoutable) {
+        self.card = cardModel
         self.blockchainNetwork = blockchainNetwork
         self.amountType = amountType
+        self.coordinator = coordinator
     }
     
-    func updateState() {
-        if let cardModel = cardsRepository.lastScanResult.cardModel {
-            card = cardModel
-        }
-    }
-    
-    override func onAppear() {
+     func onAppear() {
         updateUnsupportedTokenWarning()
         
         rentWarningSubscription = walletModel?
@@ -203,59 +192,13 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     }
     
     func tradeCryptoAction() {
-        navigation.detailsToTradeSheet = true
-    }
-    
-    func buyCryptoAction() {
-        if card.cardInfo.card.isDemoCard {
-            alert = AlertBuilder.makeDemoAlert()
-            return
-        }
-        
-        guard
-            card.isTestnet,
-            let token = amountType.token,
-            case .ethereum(testnet: true) = blockchainNetwork.blockchain
-        else {
-            if buyCryptoUrl != nil {
-                navigation.detailsToBuyCrypto = true
-            }
-            return
-        }
-        
-        guard let model = walletModel else { return }
-        
-        testnetBuyCrypto.buyCrypto(.erc20Token(walletManager: model.walletManager, token: token))
-    }
-    
-    func sellCryptoAction() {
-        if card.cardInfo.card.isDemoCard {
-            alert = AlertBuilder.makeDemoAlert()
-            return
-        }
-        
-        navigation.detailsToSellCrypto = true
-    }
-    
-    func pushOutgoingTx(at index: Int) {
-        resetViewModel(of: PushTxViewModel.self)
-        txIndexToPush = index
+        showTradeSheet = true
     }
     
     func processSellCryptoRequest(_ request: String) {
-        guard let request = exchangeService.extractSellCryptoRequest(from: request) else {
-            return
+       if let request = exchangeService.extractSellCryptoRequest(from: request) {
+           openSendToSell(with: request)
         }
-        
-        resetViewModel(of: SendViewModel.self)
-        sellCryptoRequest = request
-        navigation.detailsToSend = true
-    }
-    
-    func sendButtonAction() {
-        resetViewModel(of: SendViewModel.self)
-        sellCryptoRequest = nil
-        navigation.detailsToSend = true
     }
     
     func sendAnalyticsEvent(_ event: Analytics.Event) {
@@ -266,11 +209,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
             break
         }
     }
-    
-    private func resetViewModel<T>(of typeToReset: T) {
-        assembly.reset(key: String(describing: type(of: typeToReset)))
-    }
-    
+
     private func bind() {
         print("🔗 Token Details view model updates binding")
         card.objectWillChange
@@ -284,6 +223,13 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
             .receive(on: RunLoop.main)
             .sink { [weak self] in
                 self?.objectWillChange.send()
+            }
+            .store(in: &bag)
+        
+        $showExplorerURL
+            .compactMap { $0 }
+            .sink { [unowned self] url in
+                self.openExplorer(at: url)
             }
             .store(in: &bag)
     }
@@ -392,4 +338,68 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
 
 extension Int: Identifiable {
     public var id: Int { self }
+}
+
+//MARK: - Navigation
+extension TokenDetailsViewModel {
+    func openSend() {
+        guard let amountToSend = self.amountToSend else { return }
+        
+        coordinator.openSend(amountToSend: amountToSend, blockchainNetwork: blockchainNetwork, cardViewModel: card)
+    }
+    
+    func openSendToSell(with request: SellCryptoRequest) {
+        let amount = Amount(with: blockchainNetwork.blockchain, value: request.amount)
+        coordinator.openSendToSell(amountToSend: amount,
+                                   destination: request.targetAddress,
+                                   blockchainNetwork: blockchainNetwork,
+                                   cardViewModel: card)
+    }
+    
+    func openSellCrypto() {
+        if card.cardInfo.card.isDemoCard {
+            alert = AlertBuilder.makeDemoAlert()
+            return
+        }
+        
+        if let url = sellCryptoUrl {
+            coordinator.openSellCrypto(at: url, sellRequestUrl: sellCryptoRequestUrl) { [weak self] response in
+                self?.processSellCryptoRequest(response)
+            }
+        }
+    }
+    
+    func openBuyCrypto() {
+        if card.cardInfo.card.isDemoCard {
+            alert = AlertBuilder.makeDemoAlert()
+            return
+        }
+        
+        guard card.isTestnet, let token = amountType.token,
+            case .ethereum(testnet: true) = blockchainNetwork.blockchain else {
+            if let url = buyCryptoUrl {
+                coordinator.openBuyCrypto(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
+                    self?.sendAnalyticsEvent(.userBoughtCrypto)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        self?.walletModel?.update(silent: true)
+                    }
+                }
+            }
+            return
+        }
+        
+        guard let model = walletModel else { return }
+        
+        testnetBuyCrypto.buyCrypto(.erc20Token(walletManager: model.walletManager, token: token))
+    }
+    
+    func openPushTx(for index: Int) {
+        guard let tx =  wallet?.pendingOutgoingTransactions[index] else { return }
+        
+        coordinator.openPushTx(for: tx, blockchainNetwork: blockchainNetwork, card: card)
+    }
+    
+    func openExplorer(at url: URL) {
+        coordinator.openExplorer(at: url, blockchainDisplayName: blockchainNetwork.blockchain.displayName)
+    }
 }
