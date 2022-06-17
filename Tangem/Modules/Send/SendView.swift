@@ -15,8 +15,6 @@ import Moya
 
 struct SendView: View {
     @ObservedObject var viewModel: SendViewModel
-    @Environment(\.presentationMode) var presentationMode
-    @EnvironmentObject var navigation: NavigationCoordinator
     
     private var addressHint: String {
         viewModel.isPayIdSupported ?
@@ -52,7 +50,7 @@ struct SendView: View {
                                     if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
                                         self.viewModel.showCameraDeniedAlert = true
                                     } else {
-                                        self.viewModel.navigation.sendToQR = true
+                                        viewModel.scanQR()
                                     }
                                 },
                                 backgroundColor: .tangemBgGray,
@@ -61,10 +59,6 @@ struct SendView: View {
                                 imageColor: .tangemGrayDark6
                             )
                                 .accessibility(label: Text("voice_over_scan_qr_with_address"))
-                                .sheet(isPresented: self.$navigation.sendToQR) {
-                                    QRScanView(code: self.$viewModel.scannedQRCode)
-                                        .edgesIgnoringSafeArea(.all)
-                                }
                                 .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
                         }
                     },
@@ -264,17 +258,10 @@ struct SendView: View {
     }
     
     @ViewBuilder private var sendButton: some View {
-        TangemButton(title: "wallet_button_send", systemImage: "arrow.right") {
-            self.viewModel.send() {
-                presentationMode.wrappedValue.dismiss()
-            }
-        }
+        TangemButton(title: "wallet_button_send", systemImage: "arrow.right", action: viewModel.send)
         .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
                                        isDisabled: !self.viewModel.isSendEnabled))
         .padding(.top, 16.0)
-        .sheet(isPresented: $navigation.sendToSendEmail, content: {
-            MailView(viewModel: .init(dataCollector: viewModel.emailDataCollector, support: .tangem, emailType: .failedToSendTx))
-        })
         .alert(item: self.$viewModel.sendError) { binder in
             if binder.error == nil {
                 return binder.alert
@@ -282,9 +269,7 @@ struct SendView: View {
 
             return Alert(title: Text("alert_failed_to_send_transaction_title"),
                          message: Text(String(format: "alert_failed_to_send_transaction_message".localized, binder.error?.localizedDescription ?? "Unknown error")),
-                         primaryButton: .default(Text("alert_button_request_support"), action: {
-                navigation.sendToSendEmail = true
-            }),
+                         primaryButton: .default(Text("alert_button_request_support"), action: viewModel.openMail),
             secondaryButton: .default(Text("common_no")))
         }
     }
