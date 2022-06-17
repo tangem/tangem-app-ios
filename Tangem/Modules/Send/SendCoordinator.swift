@@ -24,6 +24,14 @@ class SendCoordinator: CoordinatorObject {
                                       cardViewModel: cardViewModel,
                                       coordinator: self)
     }
+    
+    func start(amountToSend: Amount, destination: String, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
+        sendViewModel = SendViewModel(amountToSend: amountToSend,
+                                      destination: destination,
+                                      blockchainNetwork: blockchainNetwork,
+                                      cardViewModel: cardViewModel,
+                                      coordinator: self)
+    }
 }
 
 extension SendCoordinator: SendRoutable {
