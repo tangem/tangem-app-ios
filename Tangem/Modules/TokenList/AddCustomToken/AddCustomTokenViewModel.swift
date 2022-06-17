@@ -55,8 +55,9 @@ class AddCustomTokenViewModel: ObservableObject {
     private var foundStandardToken: CoinModel?
     private unowned let coordinator: AddCustomTokenRoutable
     
-    init(coordinator: AddCustomTokenRoutable) {
+    init(cardModel: CardViewModel, coordinator: AddCustomTokenRoutable) {
         self.coordinator = coordinator
+        self.cardModel = cardModel
         
         Publishers.CombineLatest3(
             $blockchainsPicker.map{$0.selection}.removeDuplicates(),
@@ -86,10 +87,6 @@ class AddCustomTokenViewModel: ObservableObject {
                 self.didChangeBlockchain(newBlockchainName)
             }
             .store(in: &bag)
-    }
-    
-    func updateState() {
-        cardModel = cardsRepository.lastScanResult.cardModel
     }
     
     func createToken() {
