@@ -13,14 +13,10 @@ import AlertToast
 
 struct TokenListView: View {
     @ObservedObject var viewModel: TokenListViewModel
-    @EnvironmentObject var navigation: NavigationCoordinator
-    @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
         NavigationView {
             ZStack {
-                navigationLinks
-                
                 PerfList {
                     if #available(iOS 15.0, *) {} else {
                         let horizontalInset: CGFloat = UIDevice.isIOS13 ? 8 : 16
@@ -81,7 +77,7 @@ struct TokenListView: View {
     
     @ViewBuilder private var addCustomView: some View {
         if !viewModel.isReadonlyMode {
-            Button(action: viewModel.showCustomTokenView) {
+            Button(action: viewModel.openAddCustom) {
                 ZStack {
                     Circle().fill(Color.tangemGreen2)
                     
@@ -121,25 +117,12 @@ struct TokenListView: View {
             }
         }
     }
-    
-    private var navigationLinks: some View {
-        NavigationLink(isActive: $navigation.tokensToCustomToken) {
-            AddCustomTokenView(viewModel: viewModel.assembly.makeAddCustomTokenModel())
-                .environmentObject(navigation)
-        } label: {
-            EmptyView()
-        }
-        .hidden()
-    }
 }
 
 
 struct AddNewTokensView_Previews: PreviewProvider {
-    static let assembly = Assembly.previewAssembly
-    static let navigation = NavigationCoordinator()
-    
     static var previews: some View {
-        TokenListView(viewModel: assembly.makeTokenListViewModel(mode: .add(cardModel: assembly.previewCardViewModel)))
-            .environmentObject(navigation)
+        TokenListView(viewModel: .init(mode: .add(cardModel: PreviewCard.ethereum.cardModel),
+                                       coordinator: TokenListCoordinator()))
     }
 }
