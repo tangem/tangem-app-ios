@@ -649,41 +649,45 @@ class SendViewModel: ViewModel, ObservableObject {
 private extension SendViewModel {
     func updateViewWith(transaction: BlockchainSdk.Transaction) {
         let totalAmount = transaction.amount + transaction.fee
-        var totalFiatAmount: Decimal? = nil
-        
-        if let famount = self.walletModel.getFiat(for: transaction.amount, roundingMode: .plain),
-           let ffee = self.walletModel.getFiat(for: transaction.fee, roundingMode: .plain) {
-            totalFiatAmount = famount + ffee
-        }
-        
-        let totalFiatAmountFormatted = totalFiatAmount?.currencyFormatted(code: self.ratesService.selectedCurrencyCode)
-        
+        let totalInFiatFormatted = totalAndFeeInFiatFormatted(
+            from: transaction,
+            currencyCode: ratesService.selectedCurrencyCode
+        )
+
         if isFiatCalculation {
-            self.sendAmount = self.walletModel.getFiatFormatted(for: transaction.amount,  roundingMode: .plain) ?? ""
-            self.sendTotal = totalFiatAmountFormatted ?? " "
-            self.sendTotalSubtitle = transaction.amount.type == transaction.fee.type ?
-                String(format: "send_total_subtitle_format".localized, totalAmount.description) :
-            String(
-                format: "send_total_subtitle_asset_format".localized,
-                transaction.amount.description,
-                formattedFee(amount: transaction.fee)
-            )
-        } else {
-            self.sendAmount = transaction.amount.description
-            self.sendTotal = (transaction.amount + transaction.fee).description
-
-            if let totalFiatAmountFormatted = totalFiatAmountFormatted {
-                self.sendTotalSubtitle = String(
-                    format: "send_total_subtitle_fiat_format".localized,
-                    totalFiatAmountFormatted,
-                    formattedFee(amount: transaction.fee)
-                )
+            sendAmount = walletModel.getFiatFormatted(for: transaction.amount,  roundingMode: .plain) ?? ""
+            sendTotal = totalInFiatFormatted.total
+            
+            if transaction.amount.type == transaction.fee.type {
+                sendTotalSubtitle = "send_total_subtitle_format".localized(totalAmount.description)
             } else {
-                self.sendTotalSubtitle = " "
+                sendTotalSubtitle = "send_total_subtitle_asset_format".localized(
+                    [transaction.amount.description, transaction.fee.description]
+                )
             }
+        } else {
+            sendAmount = transaction.amount.description
+            sendTotal = (transaction.amount + transaction.fee).description
+            
+            sendTotalSubtitle = "send_total_subtitle_fiat_format".localized(
+                [totalInFiatFormatted.total, totalInFiatFormatted.fee]
+            )
         }
 
-        self.updateFee(amount: transaction.fee)
+        updateFee(amount: transaction.fee)
+    }
+    
+    func totalAndFeeInFiatFormatted(from transaction: BlockchainSdk.Transaction, currencyCode: String) -> (total: String, fee: String) {
+        guard let famount = walletModel.getFiat(for: transaction.amount, roundingMode: .plain),
+              let ffee = walletModel.getFiat(for: transaction.fee, roundingMode: .plain),
+              let feeFormatted = walletModel.getFiatFormatted(for: transaction.fee, roundingMode: .plain) else {
+            return (total: "", fee: "")
+        }
+        
+        let totalAmount = famount + ffee
+        let totalFiatFormatted = totalAmount.currencyFormatted(code: currencyCode)
+        
+        return (total: totalFiatFormatted, fee: feeFormatted)
     }
 
     /// If the amount will be nil then will be use dummy amount
