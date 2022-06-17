@@ -31,12 +31,21 @@ struct AppCoordinatorView: CoordinatorView {
                 .navigation(item: $coordinator.pushedOnboardingCoordinator) {
                     OnboardingCoordinatorView(coordinator: $0)
                 }
+                .navigation(item: $coordinator.pushedWebViewModel) {
+                    WebViewContainer(viewModel: $0)
+                }
                 .sheet(item: $coordinator.modalOnboardingCoordinator) {
                     OnboardingCoordinatorView(coordinator: $0)
                         .presentation(modal: true, onDismissalAttempt: $0.onDismissalAttempt, onDismissed: nil)
                         .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
                             coordinator.modalOnboardingCoordinatorKeeper = value
                         })
+                }
+                .sheet(item: $coordinator.sendCoordinator) {
+                    SendCoordinatorView(coordinator: $0)
+                }
+                .sheet(item: $coordinator.modalWebViewModel) {
+                    WebViewContainer(viewModel: $0)
                 }
 //                .navigationBarHidden(isNavigationBarHidden)
         }

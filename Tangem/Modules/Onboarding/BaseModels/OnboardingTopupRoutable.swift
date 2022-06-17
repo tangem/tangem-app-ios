@@ -9,5 +9,5 @@
 import Foundation
 
 protocol OnboardingTopupRoutable: AnyObject {
-    func openCryptoShop(at url: URL, closeUrl: String, action: @escaping () -> Void)
+    func openCryptoShop(at url: URL, closeUrl: String, action: @escaping (String) -> Void)
 }
