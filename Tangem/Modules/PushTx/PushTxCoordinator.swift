@@ -14,12 +14,11 @@ class PushTxCoordinator: ObservableObject, Identifiable {
     @Published private(set) var pushTxViewModel: PushTxViewModel!
     @Published var mailViewModel: MailViewModel? = nil
     
-    func start(for tx: BlockchainSdk.Transaction, blockchainNetwork: BlockchainNetwork, card: CardViewModel, callback: @escaping () -> Void) {
+    func start(for tx: BlockchainSdk.Transaction, blockchainNetwork: BlockchainNetwork, card: CardViewModel) {
         pushTxViewModel = PushTxViewModel(transaction: tx,
                                           blockchainNetwork: blockchainNetwork,
                                           cardViewModel: card,
-                                          coordinator: self,
-                                          onSuccess: callback)
+                                          coordinator: self)
     }
 }
 
