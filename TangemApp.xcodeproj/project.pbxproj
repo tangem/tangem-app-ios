@@ -510,6 +510,7 @@
 		DC66BC10285C405C00CDF765 /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC0F285C405C00CDF765 /* File.swift */; };
 		DC66BC12285C433800CDF765 /* AddCustomTokenRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC11285C433800CDF765 /* AddCustomTokenRoutable.swift */; };
 		DC66BC14285C44AD00CDF765 /* TokenListRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC13285C44AD00CDF765 /* TokenListRoutable.swift */; };
+		DC66BC16285C529600CDF765 /* SendRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC15285C529600CDF765 /* SendRoutable.swift */; };
 		DC7DA8192844EAFF00AD6DBD /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7DA8182844EAFF00AD6DBD /* AppCoordinator.swift */; };
 		DC7DA81E2844F27800AD6DBD /* AppCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7DA81D2844F27800AD6DBD /* AppCoordinatorView.swift */; };
 		DC7DA8202844F33D00AD6DBD /* CoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7DA81F2844F33D00AD6DBD /* CoordinatorView.swift */; };
@@ -1044,6 +1045,7 @@
 		DC66BC0F285C405C00CDF765 /* File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
 		DC66BC11285C433800CDF765 /* AddCustomTokenRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomTokenRoutable.swift; sourceTree = "<group>"; };
 		DC66BC13285C44AD00CDF765 /* TokenListRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListRoutable.swift; sourceTree = "<group>"; };
+		DC66BC15285C529600CDF765 /* SendRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendRoutable.swift; sourceTree = "<group>"; };
 		DC7DA8182844EAFF00AD6DBD /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
 		DC7DA81D2844F27800AD6DBD /* AppCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinatorView.swift; sourceTree = "<group>"; };
 		DC7DA81F2844F33D00AD6DBD /* CoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatorView.swift; sourceTree = "<group>"; };
@@ -1532,12 +1534,13 @@
 		5DFCCB7224C3817E0014A293 /* Send */ = {
 			isa = PBXGroup;
 			children = (
-				B09BB86C259A080900B92000 /* SendAdditionalFields.swift */,
 				5DFCCB7324C3819A0014A293 /* SendView.swift */,
 				5DFCCB7524C381A70014A293 /* SendViewModel.swift */,
 				5DCC20BC2500FC58007B467E /* QRScannerView.swift */,
 				DC66BC03285B6C5F00CDF765 /* SendCoordinator.swift */,
 				DC66BC05285B6C7300CDF765 /* SendCoordinatorView.swift */,
+				DC66BC15285C529600CDF765 /* SendRoutable.swift */,
+				B09BB86C259A080900B92000 /* SendAdditionalFields.swift */,
 			);
 			path = Send;
 			sourceTree = "<group>";
@@ -3159,6 +3162,7 @@
 				5D78D118261DFEBA00F98B18 /* PurgeWalletsAndReadResponse.swift in Sources */,
 				B0AA865226DC90E600287F80 /* WelcomeView.swift in Sources */,
 				5D225CB92524B721001564A3 /* Analytics.swift in Sources */,
+				DC66BC16285C529600CDF765 /* SendRoutable.swift in Sources */,
 				5DDFC2022812B716005976FE /* CurrenciesResponse.swift in Sources */,
 				5D51036F27C535D10025EA55 /* ABIValue.swift in Sources */,
 				DC66BC0C285B75BF00CDF765 /* PushTxCoordinator.swift in Sources */,
