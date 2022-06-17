@@ -507,6 +507,9 @@
 		DC66BC0A285B755800CDF765 /* PushTxRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC09285B755800CDF765 /* PushTxRoutable.swift */; };
 		DC66BC0C285B75BF00CDF765 /* PushTxCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC0B285B75BF00CDF765 /* PushTxCoordinator.swift */; };
 		DC66BC0E285B75C900CDF765 /* PushTxCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC0D285B75C900CDF765 /* PushTxCoordinatorView.swift */; };
+		DC66BC10285C405C00CDF765 /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC0F285C405C00CDF765 /* File.swift */; };
+		DC66BC12285C433800CDF765 /* AddCustomTokenRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC11285C433800CDF765 /* AddCustomTokenRoutable.swift */; };
+		DC66BC14285C44AD00CDF765 /* TokenListRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC13285C44AD00CDF765 /* TokenListRoutable.swift */; };
 		DC7DA8192844EAFF00AD6DBD /* AppCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7DA8182844EAFF00AD6DBD /* AppCoordinator.swift */; };
 		DC7DA81E2844F27800AD6DBD /* AppCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7DA81D2844F27800AD6DBD /* AppCoordinatorView.swift */; };
 		DC7DA8202844F33D00AD6DBD /* CoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7DA81F2844F33D00AD6DBD /* CoordinatorView.swift */; };
@@ -1038,6 +1041,9 @@
 		DC66BC09285B755800CDF765 /* PushTxRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTxRoutable.swift; sourceTree = "<group>"; };
 		DC66BC0B285B75BF00CDF765 /* PushTxCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTxCoordinator.swift; sourceTree = "<group>"; };
 		DC66BC0D285B75C900CDF765 /* PushTxCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTxCoordinatorView.swift; sourceTree = "<group>"; };
+		DC66BC0F285C405C00CDF765 /* File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
+		DC66BC11285C433800CDF765 /* AddCustomTokenRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomTokenRoutable.swift; sourceTree = "<group>"; };
+		DC66BC13285C44AD00CDF765 /* TokenListRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListRoutable.swift; sourceTree = "<group>"; };
 		DC7DA8182844EAFF00AD6DBD /* AppCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinator.swift; sourceTree = "<group>"; };
 		DC7DA81D2844F27800AD6DBD /* AppCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinatorView.swift; sourceTree = "<group>"; };
 		DC7DA81F2844F33D00AD6DBD /* CoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatorView.swift; sourceTree = "<group>"; };
@@ -1749,12 +1755,13 @@
 			path = Twins;
 			sourceTree = "<group>";
 		};
-		B08ACD8025D2BC2A007387BD /* ManageTokens */ = {
+		B08ACD8025D2BC2A007387BD /* TokenList */ = {
 			isa = PBXGroup;
 			children = (
 				B0D76D4325D4E4400073FA98 /* AddCustomToken */,
 				B08ACD8125D2BC3D007387BD /* TokenListView.swift */,
 				B08ACD8925D2BC47007387BD /* TokenListViewModel.swift */,
+				DC66BC13285C44AD00CDF765 /* TokenListRoutable.swift */,
 				5D3D6D3C28088D0400778B67 /* ListDataLoader.swift */,
 				5D341CC527E31DC00028D8FC /* CoinView.swift */,
 				5D341CCB27E4D4170028D8FC /* CoinViewModel.swift */,
@@ -1763,7 +1770,7 @@
 				DC66BBF02859B77700CDF765 /* TokenListCoordinator.swift */,
 				DC66BBF22859B79600CDF765 /* TokenListCoordinatorView.swift */,
 			);
-			path = ManageTokens;
+			path = TokenList;
 			sourceTree = "<group>";
 		};
 		B099614626D5189C000E3779 /* Note */ = {
@@ -1965,6 +1972,7 @@
 			children = (
 				B0D76D4425D4E4560073FA98 /* AddCustomTokenView.swift */,
 				B0D76D4C25D4E4610073FA98 /* AddCustomTokenViewModel.swift */,
+				DC66BC11285C433800CDF765 /* AddCustomTokenRoutable.swift */,
 			);
 			path = AddCustomToken;
 			sourceTree = "<group>";
@@ -2457,6 +2465,7 @@
 				DC66BBFA285A389000CDF765 /* SheetModifier.swift */,
 				DC66BBFB285A389000CDF765 /* View+Navigation.swift */,
 				DC7DA81F2844F33D00AD6DBD /* CoordinatorView.swift */,
+				DC66BC0F285C405C00CDF765 /* File.swift */,
 			);
 			path = Navigation;
 			sourceTree = "<group>";
@@ -2469,7 +2478,7 @@
 				B074BABF26779B14005D641B /* PushTx */,
 				5DFCCB7224C3817E0014A293 /* Send */,
 				5D384B9224FD51B200C2C92C /* Details */,
-				B08ACD8025D2BC2A007387BD /* ManageTokens */,
+				B08ACD8025D2BC2A007387BD /* TokenList */,
 				5DA7C00A25F8FA5200B6E309 /* TokenDetails */,
 				5D011A222530776A00758010 /* Disclaimer */,
 				B0E1564926B9417E005B33E4 /* Onboarding */,
@@ -2895,6 +2904,7 @@
 				5D84DBED270E26B90013A813 /* WelcomeBackgroundView.swift in Sources */,
 				B0C171CE264C173400E4BA5C /* CameraAccessDeniedModifier.swift in Sources */,
 				EFB4C1322837C51700E991C1 /* TextHint.swift in Sources */,
+				DC66BC12285C433800CDF765 /* AddCustomTokenRoutable.swift in Sources */,
 				DAC53CFD27BE63830027147D /* BackupStoryPage.swift in Sources */,
 				B069F36F2631AD3C00ACFD19 /* ImageLoader.swift in Sources */,
 				B0608CBE2587478D006CE2A9 /* FirebaseJsonConfigFetcher.swift in Sources */,
@@ -3033,6 +3043,7 @@
 				5D4B8BB927EDB327002CE87C /* ArrowView.swift in Sources */,
 				B06997D02692EC5E0014A676 /* ExchangeService.swift in Sources */,
 				EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */,
+				DC66BC10285C405C00CDF765 /* File.swift in Sources */,
 				B020FFBE25DE895E00EF422C /* Logger.swift in Sources */,
 				B026178D26FCAB7900B5107F /* FanStackCalculator.swift in Sources */,
 				5DFCCB7624C381A70014A293 /* SendViewModel.swift in Sources */,
@@ -3143,6 +3154,7 @@
 				DA5FAD8A27B27F7F00EE53AE /* SheetDragHandler.swift in Sources */,
 				B0E1565226B97F8C005B33E4 /* OnboardingCardView.swift in Sources */,
 				B08B8CEB26D6276000D4BB7B /* Assembly+AppPreview.swift in Sources */,
+				DC66BC14285C44AD00CDF765 /* TokenListRoutable.swift in Sources */,
 				B0A9E93F25921D21007B6D36 /* WarningView.swift in Sources */,
 				5D78D118261DFEBA00F98B18 /* PurgeWalletsAndReadResponse.swift in Sources */,
 				B0AA865226DC90E600287F80 /* WelcomeView.swift in Sources */,
