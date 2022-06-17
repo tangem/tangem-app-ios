@@ -12,7 +12,7 @@ import BlockchainSdk
 import TangemSdk
 import SwiftUI
 
-class TokenListViewModel: ViewModel, ObservableObject {
+class TokenListViewModel: ObservableObject {
     @Injected(\.negativeFeedbackDataProvider) var dataCollector: NegativeFeedbackDataProvider
     
     //I can't use @Published here, because of swiftui redraw perfomance drop
@@ -68,17 +68,13 @@ class TokenListViewModel: ViewModel, ObservableObject {
     private lazy var loader = setupListDataLoader()
     private let mode: Mode
     private var bag = Set<AnyCancellable>()
+    private unowned let coordinator: TokenListRoutable
     
-    init(mode: Mode) {
+    init(mode: Mode, coordinator: TokenListRoutable) {
         self.mode = mode
-        
-        super.init()
-        
+        self.coordinator = coordinator
+
         bind()
-    }
-    
-    func showCustomTokenView() {
-        navigation.tokensToCustomToken = true
     }
     
     func saveChanges() {
@@ -104,7 +100,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
             
             switch result {
             case .success:
-                self?.navigation.mainToAddTokens = false
+                self?.closeModule()
             case .failure(let error):
                 if case TangemSdkError.userCancelled = error {} else {
                     self?.error = error.alertBinder
@@ -113,7 +109,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
         }
     }
     
-    override func onAppear() {
+    func onAppear() {
         loader.reset(enteredSearchText.value)
     }
     
@@ -122,12 +118,23 @@ class TokenListViewModel: ViewModel, ObservableObject {
             self.pendingAdd = []
             self.pendingRemove = []
             self.enteredSearchText.value = ""
-            self.navigation.tokensToCustomToken = false //ios13 bug
+           // self.navigation.tokensToCustomToken = false //ios13 bug [REDACTED_TODO_COMMENT]
         }
     }
     
     func fetch() {
         loader.fetch(enteredSearchText.value)
+    }
+}
+
+// MARK: - Navigation
+extension TokenListViewModel {
+    func closeModule() {
+        coordinator.closeModule()
+    }
+    
+    func openAddCustom() {
+        coordinator.openAddCustom()
     }
 }
 
