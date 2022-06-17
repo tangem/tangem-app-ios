@@ -241,9 +241,9 @@ extension AppCoordinator: TokenDetailsRoutable {
                                                        title: "wallet_button_topup".localized,
                                                        addLoadingIndicator: true,
                                                        urlActions: [
-                                                        closeUrl: {[weak self] _ in
+                                                        closeUrl: {[weak self] response in
                                                             self?.pushedWebViewModel = nil
-                                                            action()
+                                                            action(response)
                                                         }])
     }
     
@@ -275,5 +275,6 @@ extension AppCoordinator: TokenDetailsRoutable {
     func openPushTx(for tx: BlockchainSdk.Transaction, blockchainNetwork: BlockchainNetwork, card: CardViewModel) {
         let coordinator = PushTxCoordinator()
         coordinator.start(for: tx, blockchainNetwork: blockchainNetwork, card: card)
+        self.pushTxCoordinator = coordinator
     }
 }
