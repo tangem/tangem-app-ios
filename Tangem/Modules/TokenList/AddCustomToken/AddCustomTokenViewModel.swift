@@ -12,7 +12,7 @@ import BlockchainSdk
 import struct TangemSdk.DerivationPath
 import enum TangemSdk.TangemSdkError
 
-class AddCustomTokenViewModel: ViewModel, ObservableObject {
+class AddCustomTokenViewModel: ObservableObject {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     @Injected(\.coinsService) private var coinsService: CoinsService
     @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
@@ -53,9 +53,11 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
     private var bag: Set<AnyCancellable> = []
     private var blockchainByName: [String: Blockchain] = [:]
     private var foundStandardToken: CoinModel?
+    private unowned let coordinator: AddCustomTokenRoutable
     
-    override init() {
-        super.init()
+    init(coordinator: AddCustomTokenRoutable) {
+        self.coordinator = coordinator
+        
         Publishers.CombineLatest3(
             $blockchainsPicker.map{$0.selection}.removeDuplicates(),
             $contractAddress.removeDuplicates(),
@@ -126,10 +128,12 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         let derivationStyle = cardModel.cardInfo.card.derivationStyle
         let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath ?? blockchain.derivationPath(for: derivationStyle))
         
-        cardModel.add(items: [(amountType, blockchainNetwork)]) { result in
+        cardModel.add(items: [(amountType, blockchainNetwork)]) {[weak self] result in
+            guard let self = self else { return }
+            
             switch result {
             case .success:
-                self.navigation.mainToAddTokens = false
+                self.closeModule()
             case .failure(let error):
                 if case TangemSdkError.userCancelled = error {
                     return
@@ -140,7 +144,7 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         }
     }
     
-    override func onAppear() {
+    func onAppear() {
         updateBlockchains(getBlockchains(withTokenSupport: true))
         updateDerivationPaths()
     }
@@ -406,6 +410,13 @@ class AddCustomTokenViewModel: ViewModel, ObservableObject {
         }
       
         blockchainHasDifferentDerivationPaths = blockchainHasDerivationPaths
+    }
+}
+
+//MARK: - Navigation
+extension AddCustomTokenViewModel {
+    func closeModule() {
+        coordinator.closeModule()
     }
 }
 
