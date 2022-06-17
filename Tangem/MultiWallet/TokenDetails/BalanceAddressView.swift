@@ -73,7 +73,7 @@ struct BalanceAddressView: View {
                             .foregroundColor(accentColor)
                             .fixedSize(horizontal: false, vertical: true)
                     } else {
-                        Text(balance)
+                        Text(fiatBalance)
                             .font(Font.system(size: 20.0, weight: .bold, design: .default))
                             .foregroundColor(Color.tangemGrayDark6)
                             .minimumScaleFactor(0.8)
@@ -81,7 +81,7 @@ struct BalanceAddressView: View {
                             .truncationMode(.middle)
                             .lineLimit(2)
                             .fixedSize(horizontal: false, vertical: true)
-                        Text(fiatBalance)
+                        Text(balance)
                             .font(Font.system(size: 14.0, weight: .medium, design: .default))
                             .lineLimit(1)
                             .fixedSize(horizontal: false, vertical: true)
