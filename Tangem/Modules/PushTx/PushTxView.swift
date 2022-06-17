@@ -30,7 +30,6 @@ struct FilledInputView: View {
     }
 }
 
-
 struct PushTxView: View {
     @ObservedObject var viewModel: PushTxViewModel
     @Environment(\.presentationMode) var presentationMode
@@ -152,7 +151,6 @@ struct PushTxView: View {
                                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
                                     let alert = AlertBuilder.makeSuccessAlert(message: "send_transaction_success".localized) {
                                         presentationMode.wrappedValue.dismiss()
-                                        viewModel.onSuccess()
                                     }
                                     self.viewModel.sendError = alert
                                 })
@@ -188,7 +186,6 @@ struct PushTxView_Previews: PreviewProvider {
                                                           destinationAddress: "tb1qrvkydv7322e7fl9v58eqvn87tx2jtlpqaetz2n"),
                                     blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
                                     cardViewModel: PreviewCard.ethereum.cardModel,
-                                    coordinator: PushTxCoordinator(),
-                                    onSuccess: {}))
+                                    coordinator: PushTxCoordinator()))
     }
 }
