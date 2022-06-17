@@ -59,54 +59,6 @@ extension Assembly {
         return vm
     }
     
-    func makeTokenListViewModel(mode: TokenListViewModel.Mode) -> TokenListViewModel {
-        let restorationKey = "\(TokenListViewModel.self).\(mode.id)"
-        if let restored: TokenListViewModel = get(key: restorationKey) {
-            return restored
-        }
-        
-        let vm = TokenListViewModel(mode: mode)
-        initialize(vm, with: restorationKey, isResetable: true)
-        return vm
-    }
-    
-    func makeAddCustomTokenModel() -> AddCustomTokenViewModel {
-        if let restored: AddCustomTokenViewModel = get() {
-            return restored
-        }
-        
-        let vm = AddCustomTokenViewModel()
-        initialize(vm)
-        vm.updateState()
-        return vm
-    }
-    
-    func makeSendViewModel(with amount: Amount, blockchainNetwork: BlockchainNetwork, card: CardViewModel) -> SendViewModel {
-        if let restored: SendViewModel = get() {
-            return restored
-        }
-        
-        let vm: SendViewModel = SendViewModel(amountToSend: amount,
-                                              blockchainNetwork: blockchainNetwork,
-                                              cardViewModel: card)
-        
-        initialize(vm)
-        return vm
-    }
-    
-    func makeSellCryptoSendViewModel(with amount: Amount, destination: String, blockchainNetwork: BlockchainNetwork, card: CardViewModel) -> SendViewModel {
-        if let restored: SendViewModel = get() {
-            return restored
-        }
-        
-        let vm = SendViewModel(amountToSend: amount,
-                               destination: destination,
-                               blockchainNetwork: blockchainNetwork,
-                               cardViewModel: card)
-        initialize(vm)
-        return vm
-    }
-   
     func makeWalletConnectViewModel(cardModel: CardViewModel) -> WalletConnectViewModel {
         let vm = WalletConnectViewModel(cardModel: cardModel)
         initialize(vm)
