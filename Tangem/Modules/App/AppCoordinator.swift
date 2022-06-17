@@ -205,6 +205,7 @@ extension AppCoordinator: WelcomeRoutable {
     
     func openTokensList() {
         let coordinator = TokenListCoordinator()
+        coordinator.dismissAction = { [weak self] in self?.tokenListCoordinator = nil }
         coordinator.start(with: .show)
         self.tokenListCoordinator = coordinator
     }
