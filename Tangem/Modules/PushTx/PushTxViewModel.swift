@@ -90,16 +90,13 @@ class PushTxViewModel: ObservableObject {
     
     @Published private var newTransaction: BlockchainSdk.Transaction?
     
-    let onSuccess: () -> Void
     private unowned let coordinator: PushTxRoutable
     
     init(transaction: BlockchainSdk.Transaction,
          blockchainNetwork: BlockchainNetwork,
          cardViewModel: CardViewModel,
-         coordinator: PushTxRoutable,
-         onSuccess: @escaping () -> Void) {
+         coordinator: PushTxRoutable) {
         self.coordinator = coordinator
-        self.onSuccess = onSuccess
         self.blockchainNetwork = blockchainNetwork
         self.cardViewModel = cardViewModel
         self.transaction = transaction

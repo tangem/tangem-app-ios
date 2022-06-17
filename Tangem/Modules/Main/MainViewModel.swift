@@ -12,7 +12,7 @@ import SwiftUI
 import BlockchainSdk
 import TangemSdk
 
-class MainViewModel: ViewModel, ObservableObject {
+class MainViewModel: ObservableObject {
     // MARK: Dependencies -
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
@@ -469,8 +469,7 @@ class MainViewModel: ViewModel, ObservableObject {
         }
     }
     
-    override func onAppear() {
-        assembly.reset()
+    func onAppear() {
     }
     
     // MARK: Warning action handler
@@ -643,59 +642,6 @@ class MainViewModel: ViewModel, ObservableObject {
 
     // MARK: - Private functions
     
-//    private func processScannedCard(_ result: ScanResult) {
-//        func updateState() {
-//            state = result
-//            isScanning = false
-//            navigation.mainToCardOnboarding = false
-//            isProcessingNewCard = false
-//            isOnboardingModal = false
-//        }
-//
-//        guard
-//            let cardModel = result.cardModel
-////            cardsRepository.scannedCardsRepository.cards[cardModel.cardInfo.card.cardId] == nil
-//        else {
-//            updateState()
-//            return
-//        }
-//
-//        isProcessingNewCard = true
-//
-//        cardOnboardingStepSetupService
-//            .stepsWithCardImage(for: cardModel)
-//            .sink { completion in
-//                switch completion {
-//                case .failure(let error):
-//                    Analytics.log(error: error)
-//                    print("Failed to load image for new card")
-//                    self.isScanning = false
-//                    self.error = error.alertBinder
-//                case .finished:
-//                    break
-//                }
-//            } receiveValue: { [weak self] (steps, image) in
-//                guard let self = self else { return }
-//
-//                guard steps.needOnboarding else {
-//                    updateState()
-//                    return
-//                }
-//
-//                let input = OnboardingInput(steps: steps,
-//                                                cardModel: cardModel,
-//                                                cardImage: image,
-//                                                cardsPosition: nil,
-//                                                welcomeStep: nil,
-//                                                currentStepIndex: 0,
-//                                                successCallback: updateState)
-//                self.assembly.makeCardOnboardingViewModel(with: input)
-//                self.navigation.mainToCardOnboarding = true
-//                self.isScanning = false
-//            }
-//            .store(in: &bag)
-//    }
-    
     private func checkPositiveBalance() {
         guard rateAppService.shouldCheckBalanceForRateApp else { return }
         
@@ -777,10 +723,6 @@ class MainViewModel: ViewModel, ObservableObject {
 
         self.error = error
         return
-    }
-    
-    private func resetViewModel<T>(of typeToReset: T) {
-        assembly.reset(key: String(describing: type(of: typeToReset)))
     }
     
     private func updateTotalBalanceTokenList() {
