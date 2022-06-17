@@ -134,7 +134,9 @@ extension TokenListViewModel {
     }
     
     func openAddCustom() {
-        coordinator.openAddCustom()
+        if let cardModel = self.cardModel {
+            coordinator.openAddCustom(for: cardModel)
+        }
     }
 }
 
