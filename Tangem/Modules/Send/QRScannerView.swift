@@ -11,8 +11,14 @@ import UIKit
 import AVFoundation
 import SwiftUI
 
+struct QRScanViewModel: Identifiable {
+    let id: UUID = .init()
+    let code: Binding<String>
+}
+
 struct QRScanView: View {
-    @Binding var code: String
+    let viewModel: QRScanViewModel
+    
     @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
@@ -20,16 +26,17 @@ struct QRScanView: View {
             Button("common_done") {
                 presentationMode.wrappedValue.dismiss()
             }.padding()
-            QRScannerView(code: $code)
+            QRScannerView(code: viewModel.code)
                 .edgesIgnoringSafeArea(.bottom)
         }
     }
 }
 
 struct QRScanView_Previews: PreviewProvider {
-    @State static var code: String = "asdfaf"
+    @State static var code: String = ""
+    
     static var previews: some View {
-        QRScanView(code: $code)
+        QRScanView(viewModel: .init(code: $code))
     }
 }
 
