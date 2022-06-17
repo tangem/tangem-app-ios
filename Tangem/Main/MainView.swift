@@ -126,6 +126,14 @@ struct MainView: View {
         .padding(0.0)
     }
     
+    var backupWarningView: some View {
+        BackUpWarningButton(tapAction: {
+            viewModel.prepareForBackup()
+        })
+            .padding(.horizontal, 16)
+            .padding(.bottom, 6)
+    }
+    
     var navigationLinks: some View {
         VStack {
             NavigationLink(destination: DetailsView(viewModel: viewModel.assembly.makeDetailsViewModel()),
@@ -189,6 +197,10 @@ struct MainView: View {
                                      currentCardNumber: viewModel.cardNumber,
                                      totalCards: viewModel.totalCards)
                             .fixedSize(horizontal: false, vertical: true)
+                            
+                            if viewModel.isBackupAllowed {
+                                backupWarningView
+                            }
                             
                             if isUnsupportdState {
                                 MessageView(title: "wallet_error_unsupported_blockchain".localized, subtitle: "wallet_error_unsupported_blockchain_subtitle".localized, type: .error)
@@ -313,7 +325,9 @@ struct MainView: View {
                     let model = viewModel.assembly.getCardOnboardingViewModel()
                     OnboardingBaseView(viewModel: model)
                         .presentation(modal: viewModel.isOnboardingModal,
-                                      onDismissalAttempt: {},
+                                      onDismissalAttempt: {
+                            viewModel.assembly.getWalletOnboardingViewModel()?.backButtonAction()
+                        },
                                       onDismissed: viewModel.onboardingDismissed)
                         .environmentObject(navigation)
                         .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
