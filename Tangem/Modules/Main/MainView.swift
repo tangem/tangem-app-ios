@@ -15,8 +15,7 @@ import MessageUI
 
 struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
-    @EnvironmentObject var navigation: NavigationCoordinator
-    
+  
     var sendChoiceButtons: [ActionSheet.Button] {
         let symbols = viewModel
             .wallets?
