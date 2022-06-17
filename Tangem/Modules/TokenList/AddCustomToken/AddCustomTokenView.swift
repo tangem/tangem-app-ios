@@ -126,9 +126,7 @@ fileprivate struct PickerStyleModifier: ViewModifier {
 }
 
 struct AddCustomTokenView_Previews: PreviewProvider {
-    static let assembly = Assembly.previewAssembly
-    
     static var previews: some View {
-        AddCustomTokenView(viewModel: Assembly.previewAssembly.makeAddCustomTokenModel())
+        AddCustomTokenView(viewModel: .init(coordinator: TokenListCoordinator()))
     }
 }
