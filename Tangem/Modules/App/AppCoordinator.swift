@@ -9,8 +9,9 @@
 import Foundation
 import UIKit
 import Combine
+import BlockchainSdk
 
-class AppCoordinator: NSObject, ObservableObject {
+class AppCoordinator: NSObject, CoordinatorObject {
     //MARK: - Injected
     @Injected(\.walletConnectServiceProvider) private var walletConnectServiceProvider: WalletConnectServiceProviding
     
@@ -28,9 +29,12 @@ class AppCoordinator: NSObject, ObservableObject {
     @Published var disclaimerViewModel: DisclaimerViewModel? = nil
     @Published var mainViewModel: MainViewModel? = nil
     @Published var detailsViewModel: DetailsViewModel? = nil
+    @Published var modalWebViewModel: WebViewContainerViewModel? = nil
+    @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
     
     //MARK: - Helpers
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
+    var dismissAction: () -> Void = {}
     
     //MARK: - Private
     private let servicesManager: ServicesManager = .init()
@@ -227,5 +231,49 @@ extension AppCoordinator: MainRoutable {
                 self.welcomeViewModel.scanCard()
             }
         }
+    }
+}
+
+
+extension AppCoordinator: TokenDetailsRoutable {
+    func openBuyCrypto(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
+        pushedWebViewModel = WebViewContainerViewModel(url: url,
+                                                       title: "wallet_button_topup".localized,
+                                                       addLoadingIndicator: true,
+                                                       urlActions: [
+                                                        closeUrl: {[weak self] _ in
+                                                            self?.pushedWebViewModel = nil
+                                                            action()
+                                                        }])
+    }
+    
+    func openSellCrypto(at url: URL, sellRequestUrl: String, action: @escaping (String) -> Void) {
+        pushedWebViewModel = WebViewContainerViewModel(url: url,
+                                                       title: "wallet_button_sell_crypto".localized,
+                                                       addLoadingIndicator: true,
+                                                       urlActions: [sellRequestUrl: action])
+    }
+    
+    func openExplorer(at url: URL, blockchainDisplayName: String) {
+        modalWebViewModel = WebViewContainerViewModel(url: url,
+                                                      title: "common_explorer_format".localized(blockchainDisplayName),
+                                                      withCloseButton: true)
+    }
+    
+    func openSend(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
+        let coordinator = SendCoordinator()
+        coordinator.start(amountToSend: amountToSend, blockchainNetwork: blockchainNetwork, cardViewModel: cardViewModel)
+        self.sendCoordinator = coordinator
+    }
+    
+    func openSendToSell(amountToSend: Amount, destination: String, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
+        let coordinator = SendCoordinator()
+        coordinator.start(amountToSend: amountToSend, destination: destination, blockchainNetwork: blockchainNetwork, cardViewModel: cardViewModel)
+        self.sendCoordinator = coordinator
+    }
+    
+    func openPushTx(for tx: BlockchainSdk.Transaction, blockchainNetwork: BlockchainNetwork, card: CardViewModel) {
+        let coordinator = PushTxCoordinator()
+        coordinator.start(for: tx, blockchainNetwork: blockchainNetwork, card: card)
     }
 }
