@@ -34,7 +34,7 @@ class OnboardingCoordinator: ObservableObject, Identifiable {
 }
 
 extension OnboardingCoordinator: OnboardingTopupRoutable {
-    func openCryptoShop(at url: URL, closeUrl: String, action: @escaping () -> Void) {
+    func openCryptoShop(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
         buyCryptoModel = .init(url: url,
                                title: "wallet_button_topup".localized,
                                addLoadingIndicator: true,
