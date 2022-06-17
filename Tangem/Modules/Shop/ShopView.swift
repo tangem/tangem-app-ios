@@ -10,7 +10,6 @@ import SwiftUI
 
 struct ShopView: View {
     @ObservedObject var viewModel: ShopViewModel
-    @Environment(\.presentationMode) var presentationMode
     
     private let sectionRowVerticalPadding = 12.0
     private let sectionCornerRadius = 18.0
