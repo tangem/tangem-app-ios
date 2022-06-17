@@ -23,6 +23,7 @@ class MainViewModel: ViewModel, ObservableObject {
     @Injected(\.negativeFeedbackDataProvider) var negativeFeedbackDataCollector: NegativeFeedbackDataProvider
     
     //MARK: - Published variables
+    
     @Published var error: AlertBinder?
     @Published var isScanning: Bool = false
     @Published var isCreatingWallet: Bool = false
