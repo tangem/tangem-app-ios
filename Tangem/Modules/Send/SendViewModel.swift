@@ -13,7 +13,7 @@ import BlockchainSdk
 import TangemSdk
 import stellarsdk
 
-class SendViewModel: ViewModel, ObservableObject {
+class SendViewModel: ObservableObject {
     @Injected(\.currencyRateService) private var ratesService: CurrencyRateService
     @Injected(\.appFeaturesService) private var featuresService: AppFeaturesProviding
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
@@ -30,8 +30,7 @@ class SendViewModel: ViewModel, ObservableObject {
     @Published var selectedFeeLevel: Int = 1
     @Published var maxAmountTapped: Bool = false
     @Published var fees: [Amount] = []
-    @Published var scannedQRCode: String = ""
-    
+
     @ObservedObject var warnings = WarningsContainer() {
         didSet {
             warnings.objectWillChange
@@ -169,6 +168,7 @@ class SendViewModel: ViewModel, ObservableObject {
     
     private(set) var isSellingCrypto: Bool
     lazy var emailDataCollector: SendScreenDataCollector = .init(sendViewModel: self)
+    private var scannedQRCode: CurrentValueSubject<String, Never> = .init("")
     
     @Published private var validatedXrpDestinationTag: UInt32? = nil
     
@@ -182,19 +182,31 @@ class SendViewModel: ViewModel, ObservableObject {
         return nil
     }()
     
-    init(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
+    private unowned let coordinator: SendRoutable
+    
+    init(amountToSend: Amount,
+         blockchainNetwork: BlockchainNetwork,
+         cardViewModel: CardViewModel,
+         coordinator: SendRoutable) {
         self.blockchainNetwork = blockchainNetwork
         self.cardViewModel = cardViewModel
         self.amountToSend = amountToSend
+        self.coordinator = coordinator
         isSellingCrypto = false
-        super.init()
         fillTotalBlockWithDefaults()
         bind()
         setupWarnings()
     }
     
-    convenience init(amountToSend: Amount, destination: String, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
-        self.init(amountToSend: amountToSend, blockchainNetwork: blockchainNetwork, cardViewModel: cardViewModel)
+    convenience init(amountToSend: Amount,
+                     destination: String,
+                     blockchainNetwork: BlockchainNetwork,
+                     cardViewModel: CardViewModel,
+                     coordinator: SendRoutable) {
+        self.init(amountToSend: amountToSend,
+                  blockchainNetwork: blockchainNetwork,
+                  cardViewModel: cardViewModel,
+                  coordinator: coordinator)
         isSellingCrypto = true
         self.destination = destination
         canFiatCalculation = false
@@ -425,8 +437,7 @@ class SendViewModel: ViewModel, ObservableObject {
             })
             .store(in: &bag)
         
-        $scannedQRCode
-            .dropFirst()
+        scannedQRCode
             .sink {[unowned self] qrCodeString in
                 let withoutPrefix = qrCodeString.remove(contentsOf: self.walletModel.wallet.blockchain.qrPrefixes)
                 let splitted = withoutPrefix.split(separator: "?")
@@ -444,7 +455,7 @@ class SendViewModel: ViewModel, ObservableObject {
             .store(in: &bag)
     }
     
-    override func onAppear() {
+    func onAppear() {
         validateClipboard()
         setupWarnings()
     }
@@ -576,7 +587,7 @@ class SendViewModel: ViewModel, ObservableObject {
     
     // MARK: - Send
 
-    func send(_ callback: @escaping () -> Void) {
+    func send() {
         guard var tx = self.transaction else {
             return
         }
@@ -597,7 +608,9 @@ class SendViewModel: ViewModel, ObservableObject {
         appDelegate.addLoadingView()
         
         walletModel.send(tx)
-            .sink(receiveCompletion: { [unowned self] completion in
+            .sink(receiveCompletion: { [weak self] completion in
+                guard let self = self else { return }
+                
                 appDelegate.removeLoadingView()
                 
                 if case let .failure(error) = completion {
@@ -605,12 +618,15 @@ class SendViewModel: ViewModel, ObservableObject {
                         return
                     }
                     
-                    Analytics.logCardSdkError(error.toTangemSdkError(), for: .sendTx, card: cardViewModel.cardInfo.card, parameters: [.blockchain: walletModel.wallet.blockchain.displayName])
+                    Analytics.logCardSdkError(error.toTangemSdkError(),
+                                              for: .sendTx,
+                                              card: self.cardViewModel.cardInfo.card,
+                                              parameters: [.blockchain: self.walletModel.wallet.blockchain.displayName])
                     
-                    emailDataCollector.lastError = error
+                    self.emailDataCollector.lastError = error
                     self.sendError = error.alertBinder
                 } else {
-                    if !cardViewModel.cardInfo.card.isDemoCard {
+                    if !self.cardViewModel.cardInfo.card.isDemoCard {
                         if self.isSellingCrypto {
                             Analytics.log(event: .userSoldCrypto, with: [.currencyCode: self.blockchainNetwork.blockchain.currencySymbol])
                         } else {
@@ -620,7 +636,8 @@ class SendViewModel: ViewModel, ObservableObject {
                     
                     DispatchQueue.main.async {
                         let alert = AlertBuilder.makeSuccessAlert(message: self.cardViewModel.cardInfo.card.isDemoCard ? "alert_demo_feature_disabled".localized
-                                                                  : "send_transaction_success".localized) { callback() }
+                                                                  : "send_transaction_success".localized,
+                                                                  okAction: self.close)
                         self.sendError = alert
                     }
                 }
@@ -714,5 +731,28 @@ private extension SendViewModel {
         }
 
         return true
+    }
+}
+
+// MARK: - Navigation
+extension SendViewModel {
+    func openMail() {
+        coordinator.openMail(with: emailDataCollector)
+    }
+    
+    func close() {
+        coordinator.closeModule()
+    }
+    
+    func scanQR() {
+        let binding = Binding<String>(
+            get:{ [weak self] in
+                self?.scannedQRCode.value ?? ""
+            },
+            set:{ [weak self] in
+                self?.scannedQRCode.send($0)
+            })
+        
+        coordinator.openQRScanner(with: binding)
     }
 }
