@@ -47,6 +47,9 @@ struct AppCoordinatorView: CoordinatorView {
                 .sheet(item: $coordinator.modalWebViewModel) {
                     WebViewContainer(viewModel: $0)
                 }
+                .sheet(item: $coordinator.pushTxCoordinator) {
+                  PushTxCoordinatorView(coordinator: $0)
+                }
 //                .navigationBarHidden(isNavigationBarHidden)
         }
         .navigationViewStyle(StackNavigationViewStyle())
