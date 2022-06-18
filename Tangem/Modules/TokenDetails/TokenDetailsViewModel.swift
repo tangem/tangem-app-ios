@@ -118,10 +118,6 @@ class TokenDetailsViewModel: ObservableObject {
         return nil
     }
     
-    var amountToSend: Amount? {
-        wallet?.amounts[amountType]
-    }
-    
     var title: String {
         if let token = amountType.token {
             return token.name
@@ -230,6 +226,7 @@ class TokenDetailsViewModel: ObservableObject {
             .compactMap { $0 }
             .sink { [unowned self] url in
                 self.openExplorer(at: url)
+                self.showExplorerURL = nil
             }
             .store(in: &bag)
     }
@@ -343,7 +340,7 @@ extension Int: Identifiable {
 //MARK: - Navigation
 extension TokenDetailsViewModel {
     func openSend() {
-        guard let amountToSend = self.amountToSend else { return }
+        guard let amountToSend = self.wallet?.amounts[amountType] else { return }
         
         coordinator.openSend(amountToSend: amountToSend, blockchainNetwork: blockchainNetwork, cardViewModel: card)
     }
