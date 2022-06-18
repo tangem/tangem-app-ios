@@ -12,7 +12,7 @@ import Combine
 import TangemSdk
 import BlockchainSdk
 
-class DetailsViewModel: ViewModel, ObservableObject {
+class DetailsViewModel: ObservableObject {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     @Injected(\.onboardingStepsSetupService) private var onboardingStepsSetupService: OnboardingStepsSetupService
     @Injected(\.currencyRateService) private(set) var currencyRateService: CurrencyRateService
@@ -121,8 +121,15 @@ class DetailsViewModel: ViewModel, ObservableObject {
     }
     
     private var bag = Set<AnyCancellable>()
+    private unowned let coordinator: DetailsRoutable
     
-    override func onAppear() {
+    init(cardModel: CardViewModel, coordinator: DetailsRoutable) {
+        self.cardModel = cardModel
+        self.coordinator = coordinator
+        self.dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel)
+    }
+    
+    func onAppear() {
         currencyRateService
             .selectedCurrencyCodePublisher
             .receive(on: RunLoop.main)
@@ -130,13 +137,6 @@ class DetailsViewModel: ViewModel, ObservableObject {
                 self?.objectWillChange.send()
             }
             .store(in: &bag)
-    }
-    
-    func updateState() {
-        if let cardModel = cardsRepository.lastScanResult.cardModel {
-            self.cardModel = cardModel
-            self.dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel)
-        }
     }
     
     func checkPin(_ completion: @escaping () -> Void) {
