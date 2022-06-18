@@ -31,9 +31,17 @@ class AppCoordinator: NSObject, CoordinatorObject {
     @Published var detailsViewModel: DetailsViewModel? = nil
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
+    @Published var tokenDetailsViewModel: TokenDetailsViewModel? = nil
+    @Published var currencySelectViewModel: CurrencySelectViewModel? = nil
+    @Published var addressQrBottomSheetContentViewVodel: AddressQrBottomSheetContentViewVodel? = nil
+    
+    //MARK: - Other view bindings
+    @Published var safariURL: URL? = nil
     
     //MARK: - Helpers
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
+    @Published var qrBottomSheetKeeper: Bool = false
+    
     var dismissAction: () -> Void = {}
     
     //MARK: - Private
@@ -54,6 +62,10 @@ class AppCoordinator: NSObject, CoordinatorObject {
             handle(contexts: options.urlContexts)
             handle(activities: options.userActivities)
         }
+    }
+    
+    func hideQrBottomSheet() {
+        qrBottomSheetKeeper.toggle()
     }
     
     private func popToRoot() {
@@ -172,7 +184,7 @@ extension AppCoordinator: URLHandler {
 
 //MARK: - WelcomeRoutable
 extension AppCoordinator: WelcomeRoutable {
-    func openInterrupedBackup(with input: OnboardingInput) {
+    func openOnboardingModal(with input: OnboardingInput) {
         var input = input
         input.successCallback = { [weak self] in
             self?.modalOnboardingCoordinator = nil
@@ -232,8 +244,44 @@ extension AppCoordinator: MainRoutable {
             }
         }
     }
+    
+    func openSettings(cardModel: CardViewModel) {
+        detailsViewModel = DetailsViewModel(cardModel: cardModel, coordinator: self)
+    }
+    
+    func openTokenDetails(cardModel: CardViewModel, blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType) {
+        tokenDetailsViewModel = TokenDetailsViewModel(cardModel: cardModel,
+                                                      blockchainNetwork: blockchainNetwork,
+                                                      amountType: amountType,
+                                                      coordinator: self)
+    }
+    
+    func openCurrencySelection() {
+        currencySelectViewModel = CurrencySelectViewModel()
+    }
+    
+    func openExternalURL(_ url: URL) {
+        safariURL = url
+    }
+    
+    func openTokensList(with cardModel: CardViewModel) {
+        let coordinator = TokenListCoordinator()
+        coordinator.dismissAction = { [weak self] in self?.tokenListCoordinator = nil }
+        coordinator.start(with: .add(cardModel: cardModel))
+        self.tokenListCoordinator = coordinator
+    }
+    
+    func openMail(with dataCollector: EmailDataCollector, emailType: EmailType) {
+        mailViewModel = MailViewModel(dataCollector: dataCollector, support: .tangem, emailType: emailType)
+    }
+    
+    func openQR(shareAddress: String, address: String, qrNotice: String) {
+        addressQrBottomSheetContentViewVodel = .init(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
+    }
 }
 
+extension AppCoordinator: DetailsRoutable {
+}
 
 extension AppCoordinator: TokenDetailsRoutable {
     func openBuyCrypto(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {

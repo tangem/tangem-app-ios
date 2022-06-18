@@ -25,12 +25,14 @@ class MainViewModel: ObservableObject {
     //MARK: - Published variables
     
     @Published var error: AlertBinder?
+    @Published var showTradeSheet: Bool = false
+    @Published var showSelectWalletSheet: Bool = false
     @Published var isScanning: Bool = false
     @Published var isCreatingWallet: Bool = false
     @Published var image: UIImage? = nil
     @Published var selectedAddressIndex: Int = 0
     @Published var showExplorerURL: URL? = nil
-    @Published var showExternalURL: URL? = nil
+    @Published var showQR: Bool = false
     @Published var state: ScanResult = .unsupported {
         willSet {
             print("⚠️ Reset bag")
@@ -41,8 +43,7 @@ class MainViewModel: ObservableObject {
             bind()
         }
     }
-    @Published var emailFeedbackCase: EmailFeedbackCase? = nil
-    @Published var txIndexToPush: Int? = nil
+    
     @Published var isOnboardingModal: Bool = true
     
     @ObservedObject var warnings: WarningsContainer = .init() {
@@ -59,10 +60,6 @@ class MainViewModel: ObservableObject {
     }
     
     // MARK: Variables
-    
-    var amountToSend: Amount? = nil
-    var selectedWallet: TokenItemViewModel = .default
-    var sellCryptoRequest: SellCryptoRequest? = nil
     var isLoadingTokensBalance: Bool = false
     lazy var totalSumBalanceViewModel: TotalSumBalanceViewModel = .init()
     
@@ -202,12 +199,6 @@ class MainViewModel: ObservableObject {
     var outgoingTransactions: [PendingTransaction] {
         cardModel?.walletModels?.first?.outgoingPendingTransactions ?? []
     }
-    
-    var transactionToPush: BlockchainSdk.Transaction? {
-        guard let index = txIndexToPush else { return nil }
-        
-        return cardModel?.walletModels?.first?.wallet.pendingOutgoingTransactions[index]
-    }
 	
 	var cardNumber: Int? {
         guard let cardInfo = cardModel?.cardInfo else { return nil }
@@ -249,10 +240,6 @@ class MainViewModel: ObservableObject {
         
         return walletModels
             .flatMap ({ $0.tokenItemViewModels })
-    }
-    
-    var qrMessage: String {
-        return self.cardModel?.walletModels?.first?.getQRReceiveMessage() ?? ""
     }
     
     init(coordinator: MainRoutable) {
@@ -326,7 +313,6 @@ class MainViewModel: ObservableObject {
                 print("⚠️ Receive new card model")
                 self.selectedAddressIndex = 0
                 self.isHashesCounted = false
-                self.assembly.reset()
                 self.warningsService.setupWarnings(for: model.cardInfo)
                 self.countHashes()
             }
@@ -349,6 +335,22 @@ class MainViewModel: ObservableObject {
                     }
                 }
             }).store(in: &bag)
+        
+        $showExplorerURL
+            .compactMap { $0 }
+            .sink { [unowned self] url in
+                self.openExplorer(at: url)
+                self.showExplorerURL = nil
+            }
+            .store(in: &bag)
+        
+        $showQR
+            .filter { $0 == true }
+            .sink { [unowned self] _ in
+                self.openQR()
+                self.showQR = false
+            }
+            .store(in: &bag)
     }
     
     func updateState() {
@@ -446,17 +448,10 @@ class MainViewModel: ObservableObject {
         let hasTokenAmounts = !wallet.amounts.values.filter { $0.type.isToken && !$0.isZero }.isEmpty
         
         if hasTokenAmounts {
-            navigation.mainToSendChoise = true
+            showSelectWalletSheet.toggle()
         } else {
-            amountToSend = Amount(with: wallet.amounts[.coin]!, value: 0)
-            showSendScreen() 
+           openSend(for: Amount(with: wallet.amounts[.coin]!, value: 0))
         }
-    }
-    
-    func showSendScreen() {
-        assembly.reset()
-        sellCryptoRequest = nil
-        navigation.mainToSend = true
     }
     
     func countHashes() {
@@ -469,8 +464,7 @@ class MainViewModel: ObservableObject {
         }
     }
     
-    func onAppear() {
-    }
+    func onAppear() {}
     
     // MARK: Warning action handler
     func warningButtonAction(at index: Int, priority: WarningPriority, button: WarningButton) {
@@ -505,7 +499,7 @@ class MainViewModel: ObservableObject {
         case .reportProblem:
             Analytics.log(event: .negativeRateAppFeedback)
             rateAppService.userReactToRateAppWarning(isPositive: false)
-            emailFeedbackCase = .negativeFeedback
+            openMail(with: .negativeFeedback)
         case .learnMore:
             if warning.event == .multiWalletSignedHashes {
                 error = AlertBinder(alert: Alert(title: Text(warning.title),
@@ -528,7 +522,8 @@ class MainViewModel: ObservableObject {
                 default:
                     fundRestorationUrl = URL(string: "https://tangem.com/en/how-to-recover-crypto-sent-to-the-wrong-address-in-tangem-wallet")!
                 }
-                showExternalURL = fundRestorationUrl
+                
+                openExternalURL(fundRestorationUrl)
             }
         }
         
@@ -537,62 +532,16 @@ class MainViewModel: ObservableObject {
         }
     }
     
-    func onWalletTap(_ tokenItem: TokenItemViewModel) {
-        selectedWallet = tokenItem
-        assembly.reset()
-        navigation.mainToTokenDetails = true
-    }
-    
-    func buyCryptoAction() {
-        guard let cardInfo = cardModel?.cardInfo else { return }
-        
-        if cardInfo.card.isDemoCard  {
-            error = AlertBuilder.makeDemoAlert()
-            return
-        }
-        
-        guard cardInfo.isTestnet, !cardInfo.isMultiWallet,
-            let walletModel = cardModel?.walletModels?.first,
-            walletModel.wallet.blockchain == .ethereum(testnet: true),
-            let token = walletModel.tokenItemViewModels.first?.amountType.token else {
-            if buyCryptoURL != nil {
-                navigation.mainToBuyCrypto = true
-            }
-            return
-        }
-        
-        testnetBuyCryptoService.buyCrypto(.erc20Token(walletManager: walletModel.walletManager, token: token))
-    }
-    
     func tradeCryptoAction() {
-        navigation.mainToTradeSheet = true
+        showTradeSheet.toggle()
     }
-    
-    
-    func sellCryptoAction() {
-        if cardModel?.cardInfo.card.isDemoCard ?? false {
-            error = AlertBuilder.makeDemoAlert()
-            return
-        }
-        
-        navigation.mainToSellCrypto = true
-    }
-    
+
     func extractSellCryptoRequest(from response: String) {
-        guard let request = exchangeService.extractSellCryptoRequest(from: response) else {
-            return
+        if let request = exchangeService.extractSellCryptoRequest(from: response) {
+            openSendToSell(with: request)
         }
-        
-        sellCryptoRequest = request
-        resetViewModel(of: SendViewModel.self)
-        navigation.mainToSend = true
     }
-    
-    func pushOutgoingTx(at index: Int) {
-        resetViewModel(of: PushTxViewModel.self)
-        txIndexToPush = index
-    }
-    
+
     func sendAnalyticsEvent(_ event: Analytics.Event) {
         switch event {
         case .userBoughtCrypto:
@@ -600,10 +549,6 @@ class MainViewModel: ObservableObject {
         default:
             break
         }
-    }
-    
-    func onboardingDismissed() {
-        
     }
     
     func prepareTwinOnboarding() {
@@ -627,17 +572,11 @@ class MainViewModel: ObservableObject {
                                         cardsPosition: nil,
                                         welcomeStep: nil,
                                         currentStepIndex: 0,
-                                        successCallback: { [weak self] in
-                                            self?.navigation.mainToCardOnboarding = false
-                                        })
-            self.assembly.makeCardOnboardingViewModel(with: input)
-            self.navigation.mainToCardOnboarding = true
+                                        successCallback: {})
+            
+            self.openOnboarding(with: input)
         }
         .store(in: &bag)
-    }
-    
-    func showCurrencyChangeScreen() {
-        navigation.currencyChangeView = true
     }
 
     // MARK: - Private functions
@@ -761,5 +700,126 @@ extension MainViewModel {
             case .scanTroubleshooting: return .failedToScanCard
             }
         }
+    }
+}
+
+//MARK: - Navigation
+extension MainViewModel {
+    func openSettings() {
+        if let cardModel = cardModel {
+            coordinator.openSettings(cardModel: cardModel)
+        }
+    }
+    
+    func openTokenDetails(_ tokenItem: TokenItemViewModel) {
+        if let cardModel = cardModel {
+            coordinator.openTokenDetails(cardModel: cardModel,
+                                         blockchainNetwork: tokenItem.blockchainNetwork,
+                                         amountType: tokenItem.amountType)
+        }
+    }
+    
+    func openSend(for amountToSend: Amount) {
+        guard let cardModel = self.state.cardModel,
+              let blockchainNetwork = cardModel.walletModels?.first?.blockchainNetwork else { return }
+        
+        coordinator.openSend(amountToSend: amountToSend, blockchainNetwork: blockchainNetwork, cardViewModel: cardModel)
+    }
+    
+    func openSendToSell(with request: SellCryptoRequest) {
+        guard let cardModel = self.state.cardModel,
+              let blockchainNetwork = cardModel.walletModels?.first?.blockchainNetwork else { return }
+        
+        let amount = Amount(with: blockchainNetwork.blockchain, value: request.amount)
+        coordinator.openSendToSell(amountToSend: amount,
+                                   destination: request.targetAddress,
+                                   blockchainNetwork: blockchainNetwork,
+                                   cardViewModel: cardModel)
+    }
+    
+    func openSellCrypto() {
+        if cardModel?.cardInfo.card.isDemoCard ?? false {
+            error = AlertBuilder.makeDemoAlert()
+            return
+        }
+        
+        if let url = sellCryptoURL {
+            coordinator.openSellCrypto(at: url, sellRequestUrl: sellCryptoCloseUrl) { [weak self] response in
+                self?.extractSellCryptoRequest(from: response)
+            }
+        }
+    }
+    
+    func openBuyCrypto() {
+        guard let cardInfo = cardModel?.cardInfo else { return }
+        
+        if cardInfo.card.isDemoCard  {
+            error = AlertBuilder.makeDemoAlert()
+            return
+        }
+        
+        guard cardInfo.isTestnet, !cardInfo.isMultiWallet,
+            let walletModel = cardModel?.walletModels?.first,
+            walletModel.wallet.blockchain == .ethereum(testnet: true),
+            let token = walletModel.tokenItemViewModels.first?.amountType.token else {
+            if let url = buyCryptoURL {
+                coordinator.openBuyCrypto(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
+                    self?.sendAnalyticsEvent(.userBoughtCrypto)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                        self?.updateCardModel()
+                    }
+                }
+            }
+            return
+        }
+        
+        testnetBuyCryptoService.buyCrypto(.erc20Token(walletManager: walletModel.walletManager, token: token))
+    }
+    
+    func openPushTx(for index: Int) {
+        guard let cardModel = self.cardModel,
+              let firstWalletModel = cardModel.walletModels?.first else { return }
+        
+        let tx = firstWalletModel.wallet.pendingOutgoingTransactions[index]
+        coordinator.openPushTx(for: tx, blockchainNetwork: firstWalletModel.blockchainNetwork, card: cardModel)
+    }
+    
+    func openExplorer(at url: URL) {
+        let blockchainName = wallets?.first?.blockchain.displayName ?? ""
+        coordinator.openExplorer(at: url, blockchainDisplayName: blockchainName)
+    }
+    
+    func openOnboarding(with input: OnboardingInput) {
+        coordinator.openOnboardingModal(with: input)
+    }
+    
+    func openCurrencySelection() {
+        coordinator.openCurrencySelection()
+    }
+    
+    func openExternalURL(_ url: URL) {
+        coordinator.openExternalURL(url)
+    }
+    
+    func openTokensList() {
+        if let cardModel = self.cardModel {
+            coordinator.openTokensList(with: cardModel)
+        }
+    }
+    
+    func openMail(with emailFeedbackCase: EmailFeedbackCase) {
+        let collector = getDataCollector(for: emailFeedbackCase)
+        let type = emailFeedbackCase.emailType
+        coordinator.openMail(with: collector, emailType: type)
+    }
+    
+    func openQR() {
+        guard let firstWalletModel = cardModel?.walletModels?.first  else { return }
+        
+        let shareAddress = firstWalletModel.shareAddressString(for: selectedAddressIndex)
+        let address = firstWalletModel.displayAddress(for: selectedAddressIndex)
+        let qrNotice = firstWalletModel.getQRReceiveMessage()
+        
+        coordinator.openQR(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
     }
 }
