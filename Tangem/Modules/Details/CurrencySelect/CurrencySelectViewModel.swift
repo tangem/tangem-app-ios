@@ -9,8 +9,10 @@
 import Foundation
 import Combine
 
-class CurrencySelectViewModel: ViewModel, ObservableObject {
+class CurrencySelectViewModel: ObservableObject {
     @Injected(\.currencyRateService) private var currencyRateService: CurrencyRateService
+    
+    var dismissAfterSelection: Bool = true
     
     @Published var loading: Bool = false
     @Published var currencies: [CurrenciesResponse.Currency] = []
@@ -18,7 +20,7 @@ class CurrencySelectViewModel: ViewModel, ObservableObject {
     
     private var bag = Set<AnyCancellable>()
     
-    override func onAppear() {
+    func onAppear() {
         loading = true
         currencyRateService
             .baseCurrencies()
