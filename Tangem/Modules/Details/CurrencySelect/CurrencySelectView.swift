@@ -16,8 +16,6 @@ struct CurrencySelectView: View {
     
     @State private var searchText: String = ""
     
-    let dismissAfterSelection: Bool
-    
     var body: some View {
         VStack {
             if viewModel.loading {
@@ -45,7 +43,7 @@ struct CurrencySelectView: View {
                             .contentShape(Rectangle())
                             .onTapGesture {
                                 viewModel.onSelect(currency)
-                                if dismissAfterSelection {
+                                if viewModel.dismissAfterSelection {
                                     presentationMode.wrappedValue.dismiss()
                                 }
                             }

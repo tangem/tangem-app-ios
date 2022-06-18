@@ -126,7 +126,7 @@ class WelcomeViewModel: ObservableObject {
 //MARK: - Navigation
 extension WelcomeViewModel {
     func openInterrupedBackup(with input: OnboardingInput) {
-        coordinator.openInterrupedBackup(with: input)
+        coordinator.openOnboardingModal(with: input)
     }
     
     func openMail() {
