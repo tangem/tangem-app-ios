@@ -9,23 +9,27 @@
 import SwiftUI
 import Combine
 
-struct AddressQrBottomSheetContent: View {
-    
+struct AddressQrBottomSheetContentViewVodel: Identifiable {
+    let id: UUID = .init()
     var shareAddress: String
     var address: String
     var qrNotice: String
+}
 
+struct AddressQrBottomSheetContent: View {
+    let viewModel: AddressQrBottomSheetContentViewVodel
+    
     @State private var showCheckmark = false
     
     var body: some View {
         VStack(spacing: 0) {
-            Image(uiImage: QrCodeGenerator.generateQRCode(from: shareAddress))
+            Image(uiImage: QrCodeGenerator.generateQRCode(from: viewModel.shareAddress))
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(size: .init(width: 206, height: 206))
                 .padding(.top, 49)
                 .padding(.bottom, 30)
-            Text(qrNotice)
+            Text(viewModel.qrNotice)
                 .frame(maxWidth: 225)
                 .font(.system(size: 18, weight: .regular))
                 .multilineTextAlignment(.center)
@@ -33,7 +37,7 @@ struct AddressQrBottomSheetContent: View {
             HStack(spacing: 10) {
                 Button(action: {
                         showCheckmark = true
-                    UIPasteboard.general.string = address
+                    UIPasteboard.general.string = viewModel.address
                     
                     let notificationGenerator = UINotificationFeedbackGenerator()
                     notificationGenerator.notificationOccurred(.success)
@@ -44,7 +48,7 @@ struct AddressQrBottomSheetContent: View {
                     
                 }, label: {
                     HStack{
-                        Text(address)
+                        Text(viewModel.address)
                             .lineLimit(1)
                             .truncationMode(.middle)
                             .frame(maxWidth: 100)
@@ -82,7 +86,7 @@ struct AddressQrBottomSheetContent: View {
     }
     
     private func showShareSheet() {
-        let av = UIActivityViewController(activityItems: [address], applicationActivities: nil)
+        let av = UIActivityViewController(activityItems: [viewModel.address], applicationActivities: nil)
         UIApplication.topViewController?.present(av, animated: true, completion: nil)
     }
     
@@ -106,9 +110,9 @@ struct AddressQrBottomSheetPreviewView: View {
                 hideBottomSheetCallback: {
                     model.isBottomSheetPresented = false
                 }, content: {
-                    AddressQrBottomSheetContent(shareAddress: "eth:0x01232483902f903678a098bce",
-                                                address: "0x01232483902f903678a098bce",
-                                                qrNotice: "BTC")
+                    AddressQrBottomSheetContent(viewModel: .init(shareAddress: "eth:0x01232483902f903678a098bce",
+                                                                 address: "0x01232483902f903678a098bce",
+                                                                 qrNotice: "BTC"))
                 })
         }
         
@@ -121,9 +125,9 @@ struct AddressQrBottomSheet_Previews: PreviewProvider {
         AddressQrBottomSheetPreviewView(model: BottomSheetPreviewProvider())
             .previewGroup(devices: [.iPhoneX], withZoomed: false)
         
-        AddressQrBottomSheetContent(shareAddress: "eth:0x01232483902f903678a098bce",
-                                    address: "0x01232483902f903678a098bce",
-                                    qrNotice: "BTC")
+        AddressQrBottomSheetContent(viewModel: .init(shareAddress: "eth:0x01232483902f903678a098bce",
+                                                     address: "0x01232483902f903678a098bce",
+                                                     qrNotice: "BTC"))
     }
     
 }
