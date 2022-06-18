@@ -10,7 +10,6 @@ import Foundation
 import SwiftUI
 
 struct AddressDetailView: View {
-    @Binding var showCreatePayID: Bool
     @Binding var showQr: Bool
     @Binding var selectedAddressIndex: Int
     @Binding var showExplorerURL: URL?
@@ -112,7 +111,7 @@ struct AddressDetailView: View {
                     
                     if !isPayIdCreated {
                         Button(action: {
-                            self.showCreatePayID = true
+                           // self.showCreatePayID = true //[REDACTED_TODO_COMMENT]
                         }) {
                             HStack {
                                 Text("wallet_address_button_create_payid")
@@ -156,8 +155,7 @@ struct AddressDetailView_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
             Color.tangemBgGray
-            AddressDetailView(showCreatePayID: .constant(false),
-                              showQr: .constant(false),
+            AddressDetailView(showQr: .constant(false),
                               selectedAddressIndex: .constant(0),
                               showExplorerURL: .constant(nil),
                               walletModel: cardViewModel.walletModels!.first!,
