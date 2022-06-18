@@ -7,7 +7,16 @@
 //
 
 import Foundation
+import BlockchainSdk
 
-protocol MainRoutable: AnyObject {
+protocol MainRoutable: TokenDetailsRoutable {
     func close(newScan: Bool)
+    func openSettings(cardModel: CardViewModel)
+    func openTokenDetails(cardModel: CardViewModel, blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType)
+    func openOnboardingModal(with input: OnboardingInput)
+    func openCurrencySelection()
+    func openExternalURL(_ url: URL)
+    func openTokensList(with cardModel: CardViewModel)
+    func openMail(with dataCollector: EmailDataCollector, emailType: EmailType)
+    func openQR(shareAddress: String, address: String, qrNotice: String)
 }
