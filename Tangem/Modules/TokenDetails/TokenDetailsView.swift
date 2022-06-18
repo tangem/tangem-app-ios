@@ -153,12 +153,13 @@ struct TokenDetailsView: View {
 }
 
 struct TokenDetailsView_Previews: PreviewProvider {
-    static let assembly: Assembly = .previewAssembly(for: .cardanoNote)
-    
     static var previews: some View {
         NavigationView {
-            TokenDetailsView(viewModel: assembly.makeTokenDetailsViewModel(blockchainNetwork: PreviewCard.cardanoNote.blockchainNetwork!))
+            TokenDetailsView(viewModel: TokenDetailsViewModel(cardModel: PreviewCard.cardanoNote.cardModel,
+                                                              blockchainNetwork: PreviewCard.cardanoNote.blockchainNetwork!,
+                                                              amountType: .coin,
+                                                              coordinator: AppCoordinator()))
+            .deviceForPreviewZoomed(.iPhone7)
         }
-        .deviceForPreviewZoomed(.iPhone7)
     }
 }
