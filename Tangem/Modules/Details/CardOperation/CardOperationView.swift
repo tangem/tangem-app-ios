@@ -54,6 +54,7 @@ struct CardOperationVIew_Previews: PreviewProvider {
     static var previews: some View {
         CardOperationView(viewModel: .init(title: "Manage",
                                            alert: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Et quis vitae dictumst consequat.",
-                                           actionButtonPressed:  { _ in }, coordinator: AppCoordinator())
+                                           actionButtonPressed:  { _ in },
+                                           coordinator: AppCoordinator()))
     }
 }

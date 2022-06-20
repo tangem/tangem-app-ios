@@ -12,7 +12,6 @@ import Combine
 import BlockchainSdk
 
 class CommonOnboardingStepsSetupService: OnboardingStepsSetupService {
-    @Injected(\.assemblyProvider) private var assemblyProvider: AssemblyProviding
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     
     private var userPrefs = UserPrefsService()
@@ -59,7 +58,7 @@ class CommonOnboardingStepsSetupService: OnboardingStepsSetupService {
     }
     
     private func stepsForNote(_ cardInfo: CardInfo) -> AnyPublisher<OnboardingSteps, Error> {
-        let walletModel = assemblyProvider.assembly.makeAllWalletModels(from: cardInfo)
+        let walletModel = WalletManagerAssembly.makeAllWalletModels(from: cardInfo)
         var steps: [SingleCardOnboardingStep] = []
         guard walletModel.count == 1 else {
             steps.append(.createWallet)
@@ -97,7 +96,7 @@ class CommonOnboardingStepsSetupService: OnboardingStepsSetupService {
         } else {//twin with created wallet
             if twinCardInfo.pairPublicKey == nil { //is not twinned
                 //check balance because of legacy bug
-                if let walletModel = assemblyProvider.assembly.makeAllWalletModels(from: cardInfo).first {
+                if let walletModel = WalletManagerAssembly.makeAllWalletModels(from: cardInfo).first {
                   return Future { promise in
                       walletModel.walletManager.update { result in
                           switch result {
