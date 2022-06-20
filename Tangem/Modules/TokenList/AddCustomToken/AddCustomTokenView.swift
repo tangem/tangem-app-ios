@@ -127,6 +127,6 @@ fileprivate struct PickerStyleModifier: ViewModifier {
 
 struct AddCustomTokenView_Previews: PreviewProvider {
     static var previews: some View {
-        AddCustomTokenView(viewModel: .init(coordinator: TokenListCoordinator()))
+        AddCustomTokenView(viewModel: .init(cardModel: PreviewCard.tangemWalletEmpty.cardModel, coordinator: TokenListCoordinator()))
     }
 }
