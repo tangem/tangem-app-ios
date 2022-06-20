@@ -12,6 +12,7 @@ import Combine
 import BlockchainSdk
 import TangemSdk
 import stellarsdk
+import AVFoundation
 
 class SendViewModel: ObservableObject {
     @Injected(\.currencyRateService) private var ratesService: CurrencyRateService
@@ -744,15 +745,19 @@ extension SendViewModel {
         coordinator.closeModule()
     }
     
-    func scanQR() {
-        let binding = Binding<String>(
-            get:{ [weak self] in
-                self?.scannedQRCode.value ?? ""
-            },
-            set:{ [weak self] in
-                self?.scannedQRCode.send($0)
-            })
-        
-        coordinator.openQRScanner(with: binding)
+    func openQRScanner() {
+        if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
+            self.showCameraDeniedAlert = true
+        } else {
+            let binding = Binding<String>(
+                get:{ [weak self] in
+                    self?.scannedQRCode.value ?? ""
+                },
+                set:{ [weak self] in
+                    self?.scannedQRCode.send($0)
+                })
+            
+            coordinator.openQRScanner(with: binding)
+        }
     }
 }
