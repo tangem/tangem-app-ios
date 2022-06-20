@@ -10,7 +10,6 @@ import SwiftUI
 
 struct WalletConnectView: View {
     @ObservedObject var viewModel: WalletConnectViewModel
-    @EnvironmentObject var navigation: NavigationCoordinator
     
     @ViewBuilder
     var navBarButton: some View {
@@ -50,18 +49,13 @@ struct WalletConnectView: View {
                 .actionSheet(isPresented: $viewModel.isActionSheetVisible, content: {
                     ActionSheet(title: Text("common_select_action"), message: Text("wallet_connect_clipboard_alert"), buttons: [
                         .default(Text("wallet_connect_paste_from_clipboard"), action: viewModel.pasteFromClipboard),
-                        .default(Text("wallet_connect_scan_new_code"), action: viewModel.scanQrCode),
+                        .default(Text("wallet_connect_scan_new_code"), action: viewModel.openQRScanner),
                         .cancel()
                     ])
                 })
             
-            Color.clear.frame(width: 0.5, height: 0.5)
-                .sheet(isPresented: $navigation.walletConnectToQR) {
-                    QRScanView(code: $viewModel.code)
-                        .edgesIgnoringSafeArea(.all)
-                }
                
-            Color.clear .frame(width: 0.5, height: 0.5)
+            Color.clear.frame(width: 0.5, height: 0.5)
                 .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
             
             Color.clear .frame(width: 0.5, height: 0.5)
