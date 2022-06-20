@@ -23,11 +23,11 @@ public class DefaultSigner: TransactionSigner, TransactionSignerPublisher {
     public func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[Data], Error> {
         let requiredCardId: String?
         
-        let cardInfo = cardsRepository.lastScanResult.cardModel?.cardInfo
-        if let cardInfo = cardInfo, cardInfo.isTangemWallet {
+        let card = cardsRepository.lastScanResult.cardModel?.cardInfo.card
+        if let backupStatus = card?.backupStatus, backupStatus.isActive {
             requiredCardId = nil
         } else {
-            requiredCardId = cardInfo?.card.cardId
+            requiredCardId = card?.cardId
         }
         
         let future = Future<[Data], Error> {[unowned self] promise in
