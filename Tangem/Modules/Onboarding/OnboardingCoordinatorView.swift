@@ -11,9 +11,29 @@ import SwiftUI
 
 struct OnboardingCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: OnboardingCoordinator
-
+    
+    var body: some View {
+        ZStack {
+            content
+                .transition(.withoutOpacity)
+                .navigationBarTitle("", displayMode: .inline)
+                .navigationBarHidden(true)
+                .sheet(item: $coordinator.buyCryptoModel) {
+                    WebViewContainer(viewModel: $0)
+                }
+                .sheet(item: $coordinator.accessCodeModel) {
+                    OnboardingAccessCodeView(viewModel: $0)
+                }
+            
+            BottomSheetView(isPresented: coordinator.$qrBottomSheetKeeper,
+                            hideBottomSheetCallback: coordinator.hideQrBottomSheet,
+                            content: { addressQrBottomSheetContent })
+           // .frame(maxWidth: screenSize.width) //UISCreen.main.bounds
+        }
+    }
+    
     @ViewBuilder
-    var content: some View {
+    private var content: some View {
         if let singleCardViewModel = coordinator.singleCardViewModel {
             SingleCardOnboardingView(viewModel: singleCardViewModel)
         } else if let twinsViewModel = coordinator.twinsViewModel {
@@ -22,25 +42,20 @@ struct OnboardingCoordinatorView: CoordinatorView {
             WalletOnboardingView(viewModel: walletViewModel)
         }
     }
-
-//    var isNavigationBarHidden: Bool {
-//        if navigation.readToMain {
-//            return false
-//        }
-//
-//        return true
-//    }
-//
-    var body: some View {
-        content
-            .transition(.withoutOpacity)
-            .navigationBarTitle("", displayMode: .inline)
-            .navigationBarHidden(true)
-            .sheet(item: $coordinator.buyCryptoModel) {
-                WebViewContainer(viewModel: $0)
-            }
-            .sheet(item: $coordinator.accessCodeModel) {
-                OnboardingAccessCodeView(viewModel: $0)
-            }
+    
+    //    var isNavigationBarHidden: Bool {
+    //        if navigation.readToMain {
+    //            return false
+    //        }
+    //
+    //        return true
+    //    }
+    //
+    
+    @ViewBuilder
+    private var addressQrBottomSheetContent: some View {
+        if let model = coordinator.addressQrBottomSheetContentViewVodel {
+            AddressQrBottomSheetContent(viewModel: model)
+        }
     }
 }
