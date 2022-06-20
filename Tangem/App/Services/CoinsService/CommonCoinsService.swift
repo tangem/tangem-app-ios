@@ -47,6 +47,9 @@ extension CommonCoinsService: CoinsService {
                 }
                 
                 return coinModels.compactMap { coinModel in
+                    if !coinModel.active {
+                        return nil
+                    }
                     let items = coinModel.items.filter {
                         let itemContractAddress = $0.contractAddress ?? ""
                         return itemContractAddress.caseInsensitiveCompare(contractAddress) == .orderedSame
@@ -61,7 +64,8 @@ extension CommonCoinsService: CoinsService {
                         name: coinModel.name,
                         symbol: coinModel.symbol,
                         imageURL: coinModel.imageURL,
-                        items: items
+                        items: items,
+                        active: coinModel.active
                     )
                 }
             }
