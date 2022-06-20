@@ -66,7 +66,6 @@ fileprivate class Blinker: ObservableObject {
 
 struct AmountView_Previews: PreviewProvider {
     @ObservedObject fileprivate static var blinker = Blinker()
-    static let assembly = Assembly.previewAssembly
     static var previews: some View {
         VStack {
             Button("Blink") {
