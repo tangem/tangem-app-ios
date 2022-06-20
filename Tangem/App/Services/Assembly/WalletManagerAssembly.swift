@@ -134,3 +134,50 @@ class WalletManagerAssembly {
         return nil
     }
 }
+
+//MARK: - Factory
+extension WalletManagerAssembly {
+    static func makeAllWalletModels(from cardInfo: CardInfo) -> [WalletModel] {
+        let assembly = WalletManagerAssembly()
+        let walletManagers = assembly.makeAllWalletManagers(for: cardInfo)
+        return makeWalletModels(walletManagers: walletManagers,
+                                derivationStyle: cardInfo.card.derivationStyle,
+                                isDemoCard: cardInfo.card.isDemoCard)
+    }
+    
+    static func makeWalletModels(from cardInfo: CardInfo, entries: [StorageEntry]) -> [WalletModel] {
+        let assembly = WalletManagerAssembly()
+        let walletManagers = assembly.makeWalletManagers(from: cardInfo, entries: entries)
+        return makeWalletModels(walletManagers: walletManagers,
+                                derivationStyle: cardInfo.card.derivationStyle,
+                                isDemoCard: cardInfo.card.isDemoCard)
+    }
+    
+    static func makeWalletModels(from cardDto: SavedCard, blockchainNetworks: [BlockchainNetwork]) -> [WalletModel] {
+        let assembly = WalletManagerAssembly()
+        let walletManagers = assembly.makeWalletManagers(from: cardDto, blockchainNetworks: blockchainNetworks)
+        return makeWalletModels(walletManagers: walletManagers,
+                                derivationStyle: cardDto.derivationStyle,
+                                isDemoCard: false)
+    }
+    
+    //Make walletModel from walletManager
+    static private func makeWalletModels(walletManagers: [WalletManager],
+                                         derivationStyle: DerivationStyle,
+                                         isDemoCard: Bool) -> [WalletModel] {
+        let items = SupportedTokenItems()
+        return walletManagers.map { manager -> WalletModel in
+            var demoBalance: Decimal? = nil
+            if isDemoCard, let balance = items.predefinedDemoBalances[manager.wallet.blockchain] {
+                demoBalance = balance
+            }
+            
+            let model = WalletModel(walletManager: manager,
+                                    derivationStyle: derivationStyle,
+                                    demoBalance: demoBalance)
+            
+            model.initialize()
+            return model
+        }
+    }
+}
