@@ -46,28 +46,27 @@ extension CommonCoinsService: CoinsService {
                     return coinModels
                 }
                 
-                return coinModels.compactMap { coinModel in
-                    if !coinModel.active {
-                        return nil
+                return coinModels
+                    .filter({ $0.active })
+                    .compactMap { coinModel in
+                        let items = coinModel.items.filter {
+                            let itemContractAddress = $0.contractAddress ?? ""
+                            return itemContractAddress.caseInsensitiveCompare(contractAddress) == .orderedSame
+                        }
+                        
+                        guard !items.isEmpty else {
+                            return nil
+                        }
+                        
+                        return CoinModel(
+                            id: coinModel.id,
+                            name: coinModel.name,
+                            symbol: coinModel.symbol,
+                            imageURL: coinModel.imageURL,
+                            items: items,
+                            active: coinModel.active
+                        )
                     }
-                    let items = coinModel.items.filter {
-                        let itemContractAddress = $0.contractAddress ?? ""
-                        return itemContractAddress.caseInsensitiveCompare(contractAddress) == .orderedSame
-                    }
-                    
-                    guard !items.isEmpty else {
-                        return nil
-                    }
-                    
-                    return CoinModel(
-                        id: coinModel.id,
-                        name: coinModel.name,
-                        symbol: coinModel.symbol,
-                        imageURL: coinModel.imageURL,
-                        items: items,
-                        active: coinModel.active
-                    )
-                }
             }
             .eraseToAnyPublisher()
     }
