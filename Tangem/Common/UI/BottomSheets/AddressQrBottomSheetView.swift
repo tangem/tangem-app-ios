@@ -1,5 +1,5 @@
 //
-//  BottomSheetView.swift
+//  AddressQrBottomSheetContent.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
