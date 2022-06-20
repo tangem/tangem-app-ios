@@ -23,7 +23,7 @@ struct TokensView: View {
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(Color.tangemTextGray)
                     .padding(.leading, 16)
-                    .padding(.top, 14)
+                    .padding(.top, 16)
                     .padding(.bottom, 6)
                 
                 ForEach(items) { item in
@@ -32,7 +32,7 @@ struct TokensView: View {
                     } label: {
                         TokenItemView(item: item)
                             .padding(.horizontal, 16)
-                            .padding([.top, .bottom], 15)
+                            .padding(.vertical, 15)
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(TangemTokenButtonStyle())
@@ -45,7 +45,7 @@ struct TokensView: View {
             }
             .background(Color.white)
             .cornerRadius(14)
-            .padding([.horizontal], 16)
+            .padding(.horizontal, 16)
         }
     }
 }
