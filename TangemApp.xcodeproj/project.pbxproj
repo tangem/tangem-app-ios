@@ -484,6 +484,8 @@
 		DC5118742860B62B004FB954 /* AppCoordinator+DetailsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5118732860B62B004FB954 /* AppCoordinator+DetailsRoutable.swift */; };
 		DC5118762860B641004FB954 /* AppCoordinator+MainRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5118752860B641004FB954 /* AppCoordinator+MainRoutable.swift */; };
 		DC5118782860B658004FB954 /* AppCoordinator+WelcomeRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5118772860B658004FB954 /* AppCoordinator+WelcomeRoutable.swift */; };
+		DC51187A2860B704004FB954 /* AppServiceCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5118792860B704004FB954 /* AppServiceCoordinator.swift */; };
+		DC51187C2860B728004FB954 /* AppServiceCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC51187B2860B728004FB954 /* AppServiceCoordinatorView.swift */; };
 		DC66BBE32858E7A600CDF765 /* WelcomeRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBE22858E7A600CDF765 /* WelcomeRoutable.swift */; };
 		DC66BBE52858EB6300CDF765 /* OnboardingCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBE42858EB6300CDF765 /* OnboardingCoordinator.swift */; };
 		DC66BBE72858EBE400CDF765 /* OnboardingCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBE62858EBE400CDF765 /* OnboardingCoordinatorView.swift */; };
@@ -1022,6 +1024,8 @@
 		DC5118732860B62B004FB954 /* AppCoordinator+DetailsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppCoordinator+DetailsRoutable.swift"; sourceTree = "<group>"; };
 		DC5118752860B641004FB954 /* AppCoordinator+MainRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppCoordinator+MainRoutable.swift"; sourceTree = "<group>"; };
 		DC5118772860B658004FB954 /* AppCoordinator+WelcomeRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppCoordinator+WelcomeRoutable.swift"; sourceTree = "<group>"; };
+		DC5118792860B704004FB954 /* AppServiceCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppServiceCoordinator.swift; sourceTree = "<group>"; };
+		DC51187B2860B728004FB954 /* AppServiceCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppServiceCoordinatorView.swift; sourceTree = "<group>"; };
 		DC66BBE22858E7A600CDF765 /* WelcomeRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeRoutable.swift; sourceTree = "<group>"; };
 		DC66BBE42858EB6300CDF765 /* OnboardingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCoordinator.swift; sourceTree = "<group>"; };
 		DC66BBE62858EBE400CDF765 /* OnboardingCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCoordinatorView.swift; sourceTree = "<group>"; };
@@ -1257,6 +1261,8 @@
 				B0CC817C25CD626A006D49B9 /* Resources */,
 				5D3F77C524BF56D800E8695B /* AppDelegate.swift */,
 				B046EE172578D38E00EA38A5 /* SceneDelegate.swift */,
+				DC5118792860B704004FB954 /* AppServiceCoordinator.swift */,
+				DC51187B2860B728004FB954 /* AppServiceCoordinatorView.swift */,
 				5DBFEA4D24DD642C0080D3DC /* Tangem.entitlements */,
 				5D3F77D024BF56DC00E8695B /* LaunchScreen.storyboard */,
 				5D3F77D324BF56DC00E8695B /* Info.plist */,
@@ -3185,6 +3191,7 @@
 				DC0A57D72822A3C80031BECC /* InjectionKey.swift in Sources */,
 				5D3951672559A87E002CC452 /* CurrencySelectViewModel.swift in Sources */,
 				5DCC20BD2500FC58007B467E /* QRScannerView.swift in Sources */,
+				DC51187A2860B704004FB954 /* AppServiceCoordinator.swift in Sources */,
 				DC66BBFE285A389000CDF765 /* View+Navigation.swift in Sources */,
 				5DA3A2F1251CB6CA009A8E08 /* SecurityManagementView.swift in Sources */,
 				DC0A57EA2822AD6D0031BECC /* PersistentStorageKey.swift in Sources */,
@@ -3255,6 +3262,7 @@
 				DA23789227B250F6009795A8 /* ShopView.swift in Sources */,
 				B031AAB326C169E900015003 /* ConfettiType.swift in Sources */,
 				5D341CC627E31DC00028D8FC /* CoinView.swift in Sources */,
+				DC51187C2860B728004FB954 /* AppServiceCoordinatorView.swift in Sources */,
 				DC5118722860B612004FB954 /* AppCoordinator+TokenDetailsRoutable.swift in Sources */,
 				B0A0A19125822EFF005FC94D /* Storage.swift in Sources */,
 				B0F62C5025DE4EC9005C8BA0 /* MailView.swift in Sources */,
