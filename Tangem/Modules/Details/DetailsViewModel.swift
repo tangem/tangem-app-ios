@@ -30,7 +30,6 @@ class DetailsViewModel: ObservableObject {
         }
     }
     
-    @Published var isTwinRecreationModel: Bool = true
     @Published var error: AlertBinder?
     
     var dataCollector: DetailsFeedbackDataCollector!
@@ -178,12 +177,10 @@ class DetailsViewModel: ObservableObject {
                                         cardsPosition: nil,
                                         welcomeStep: nil,
                                         currentStepIndex: 0,
-                                        successCallback: { [weak self] in
-                                            self?.navigation.detailsToTwinsRecreateWarning = false
-                                        },
+                                        successCallback: nil,
                                         isStandalone: true)
-            self.assembly.makeCardOnboardingViewModel(with: input)
-            self.navigation.detailsToTwinsRecreateWarning = true
+            
+            self.openOnboarding(with: input)
         }
         .store(in: &bag)
     }
@@ -207,12 +204,10 @@ class DetailsViewModel: ObservableObject {
                                         cardsPosition: nil,
                                         welcomeStep: nil,
                                         currentStepIndex: 0,
-                                        successCallback: { [weak self] in
-                                            self?.navigation.detailsToBackup = false
-                                        },
+                                        successCallback: nil,
                                         isStandalone: true)
-            self.assembly.makeCardOnboardingViewModel(with: input)
-            self.navigation.detailsToBackup = true
+            
+            self.openOnboarding(with: input)
         }
         .store(in: &bag)
     }
@@ -254,5 +249,46 @@ class DetailsViewModel: ObservableObject {
         default:
             return nil
         }
+    }
+}
+
+// MARK: - Navigation
+extension DetailsViewModel {
+    func openOnboarding(with input: OnboardingInput) {
+        coordinator.openOnboardingModal(with: input)
+    }
+    
+    func openMail() {
+        coordinator.openMail(with: dataCollector,
+                             support: cardModel.emailSupport,
+                             emailType: .appFeedback(support: cardModel.isStart2CoinCard ? .start2coin : .tangem))
+    }
+    
+    func openWalletConnect() {
+        coordinator.opewnWalletConnect(with: cardModel)
+    }
+    
+    func openCurrencySelection() {
+        coordinator.openCurrencySelection(autoDismiss: false)
+    }
+    
+    func openDisclaimer() {
+        coordinator.openDisclaimer()
+    }
+    
+    func openCatdTOU() {
+        if let url = cardTouURL {
+            coordinator.openCardTOU(at: url)
+        }
+    }
+    
+    func openResetToFactory() {
+        coordinator.openResetToFactory {[weak self] completion in
+            self?.cardModel.resetToFactory(completion: completion)
+        }
+    }
+    
+    func openSecManagement( {
+        coordinator.openSecManagement(with: cardModel)
     }
 }

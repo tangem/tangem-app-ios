@@ -791,7 +791,7 @@ extension MainViewModel {
     }
     
     func openCurrencySelection() {
-        coordinator.openCurrencySelection()
+        coordinator.openCurrencySelection(autoDismiss: true)
     }
     
     func openExternalURL(_ url: URL) {
