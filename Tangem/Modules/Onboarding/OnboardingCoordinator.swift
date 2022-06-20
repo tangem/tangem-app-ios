@@ -22,9 +22,13 @@ class OnboardingCoordinator: ObservableObject, Identifiable {
     func start(with input: OnboardingInput) {
         switch input.steps {
         case .singleWallet:
-            singleCardViewModel = SingleCardOnboardingViewModel(input: input, coordinator: self)
+            let model = SingleCardOnboardingViewModel(input: input, coordinator: self)
+            onDismissalAttempt = model.backButtonAction
+            singleCardViewModel = model
         case .twins:
-            twinsViewModel = TwinsOnboardingViewModel(input: input, coordinator: self)
+            let model = TwinsOnboardingViewModel(input: input, coordinator: self)
+            onDismissalAttempt = model.backButtonAction
+            twinsViewModel = model
         case .wallet:
             let model = WalletOnboardingViewModel(input: input, coordinator: self)
             onDismissalAttempt = model.backButtonAction
@@ -38,9 +42,9 @@ extension OnboardingCoordinator: OnboardingTopupRoutable {
         buyCryptoModel = .init(url: url,
                                title: "wallet_button_topup".localized,
                                addLoadingIndicator: true,
-                               withCloseButton: true, urlActions: [closeUrl : {[weak self] _ in
+                               withCloseButton: true, urlActions: [closeUrl : {[weak self] response in
             DispatchQueue.main.async {
-                action()
+                action(response)
                 self?.buyCryptoModel = nil
             }
         }])
