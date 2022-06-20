@@ -42,8 +42,8 @@ struct SendView: View {
                                                isSystemImage: true,
                                                imageColor: .tangemGrayDark6,
                                                isDisabled: self.viewModel.validatedClipboard == nil)
-                                .accessibility(label: Text(self.viewModel.validatedClipboard == nil ? "voice_over_nothing_to_paste" : "voice_over_paste_from_clipboard"))
-                                .disabled(self.viewModel.validatedClipboard == nil)
+                            .accessibility(label: Text(self.viewModel.validatedClipboard == nil ? "voice_over_nothing_to_paste" : "voice_over_paste_from_clipboard"))
+                            .disabled(self.viewModel.validatedClipboard == nil)
                             CircleActionButton(
                                 action: viewModel.openQRScanner,
                                 backgroundColor: .tangemBgGray,
@@ -51,13 +51,13 @@ struct SendView: View {
                                 isSystemImage: true,
                                 imageColor: .tangemGrayDark6
                             )
-                                .accessibility(label: Text("voice_over_scan_qr_with_address"))
-                                .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
+                            .accessibility(label: Text("voice_over_scan_qr_with_address"))
+                            .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
                         }
                     },
                                    message: self.viewModel.destinationHint?.message ?? " " ,
                                    isErrorMessage: self.viewModel.destinationHint?.isError ?? false)
-                        .disabled(viewModel.isSellingCrypto)
+                    .disabled(viewModel.isSellingCrypto)
                     
                     if viewModel.isAdditionalInputEnabled {
                         if case .memo = viewModel.additionalInputFields {
@@ -67,7 +67,7 @@ struct SendView: View {
                                            clearButtonMode: .whileEditing,
                                            message: self.viewModel.memoHint?.message ?? "",
                                            isErrorMessage: self.viewModel.memoHint?.isError ?? false)
-                                .transition(.opacity)
+                            .transition(.opacity)
                         }
                         
                         if case .destinationTag = viewModel.additionalInputFields {
@@ -77,7 +77,7 @@ struct SendView: View {
                                            clearButtonMode: .whileEditing,
                                            message: self.viewModel.destinationTagHint?.message ?? "",
                                            isErrorMessage: self.viewModel.destinationTagHint?.isError ?? false)
-                                .transition(.opacity)
+                            .transition(.opacity)
                         }
                     }
                     
@@ -94,7 +94,7 @@ struct SendView: View {
                                             font: UIFont.systemFont(ofSize: 38.0, weight: .light),
                                             placeholder: "",
                                             decimalCount: self.viewModel.inputDecimalsCount)
-                                .disabled(viewModel.isSellingCrypto)
+                            .disabled(viewModel.isSellingCrypto)
                             Button(action: {
                                 if !viewModel.isSellingCrypto {
                                     self.viewModel.isFiatCalculation.toggle()
@@ -229,8 +229,8 @@ struct SendView: View {
                     WarningListView(warnings: viewModel.warnings, warningButtonAction: {
                         self.viewModel.warningButtonAction(at: $0, priority: $1, button: $2)
                     })
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(.vertical, 16)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.vertical, 16)
                     
                     sendButton
                 }
@@ -252,43 +252,41 @@ struct SendView: View {
     
     @ViewBuilder private var sendButton: some View {
         TangemButton(title: "wallet_button_send", systemImage: "arrow.right", action: viewModel.send)
-        .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
-                                       isDisabled: !self.viewModel.isSendEnabled))
-        .padding(.top, 16.0)
-        .alert(item: self.$viewModel.sendError) { binder in
-            if binder.error == nil {
-                return binder.alert
+            .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
+                                           isDisabled: !self.viewModel.isSendEnabled))
+            .padding(.top, 16.0)
+            .alert(item: self.$viewModel.sendError) { binder in
+                if binder.error == nil {
+                    return binder.alert
+                }
+                
+                return Alert(title: Text("alert_failed_to_send_transaction_title"),
+                             message: Text(String(format: "alert_failed_to_send_transaction_message".localized, binder.error?.localizedDescription ?? "Unknown error")),
+                             primaryButton: .default(Text("alert_button_request_support"), action: viewModel.openMail),
+                             secondaryButton: .default(Text("common_no")))
             }
-
-            return Alert(title: Text("alert_failed_to_send_transaction_title"),
-                         message: Text(String(format: "alert_failed_to_send_transaction_message".localized, binder.error?.localizedDescription ?? "Unknown error")),
-                         primaryButton: .default(Text("alert_button_request_support"), action: viewModel.openMail),
-            secondaryButton: .default(Text("common_no")))
-        }
     }
 }
 
 struct ExtractView_Previews: PreviewProvider {
-    static let assembly: Assembly = .previewAssembly(for: .ethereum)
-    static let navigation = NavigationCoordinator()
-    
     static var previews: some View {
         Group {
-            SendView(viewModel: assembly.makeSellCryptoSendViewModel(with: Amount(with: PreviewCard.ethereum.blockchain!,
-                                                                                  type: .token(value: Token(name: "DAI", symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18)),
-                                                                                  value: 0.0),
-                                                                     destination: "Target",
-                                                                     blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
-                                                                     card: assembly.previewCardViewModel))
-                .environmentObject(navigation)
-                .previewLayout(.iphone7Zoomed)
-            SendView(viewModel: assembly.makeSendViewModel(with: Amount(with: PreviewCard.ethereum.blockchain!,
-                                                                        type: .token(value: Token(name: "DAI", symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18)),
-                                                                        value: 0.0),
-                                                           blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
-                                                           card: assembly.previewCardViewModel))
-                .environmentObject(navigation)
-                .previewLayout(.iphone7Zoomed)
+            SendView(viewModel: .init(amountToSend: Amount(with: PreviewCard.ethereum.blockchain!,
+                                                           type: .token(value: Token(name: "DAI", symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18)),
+                                                           value: 0.0),
+                                      destination: "Target",
+                                      blockchainNetwork: PreviewCard.ethereum.blockchainNetwork! ,
+                                      cardViewModel: PreviewCard.ethereum.cardModel,
+                                      coordinator: SendCoordinator()))
+            .previewLayout(.iphone7Zoomed)
+            
+            SendView(viewModel: .init(amountToSend: Amount(with: PreviewCard.ethereum.blockchain!,
+                                                           type: .token(value: Token(name: "DAI", symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18)),
+                                                           value: 0.0),
+                                      blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
+                                      cardViewModel: PreviewCard.ethereum.cardModel,
+                                      coordinator: SendCoordinator()))
+            .previewLayout(.iphone7Zoomed)
         }
     }
 }
