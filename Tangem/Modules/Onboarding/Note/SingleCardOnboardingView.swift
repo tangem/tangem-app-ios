@@ -102,15 +102,6 @@ struct SingleCardOnboardingView: View {
                 }
                 .padding(.horizontal, 40)
             }
-            BottomSheetView(isPresented: viewModel.$isAddressQrBottomSheetPresented,
-                            hideBottomSheetCallback: {
-                viewModel.isAddressQrBottomSheetPresented = false
-            }, content: {
-                AddressQrBottomSheetContent(shareAddress: viewModel.shareAddress,
-                                            address: viewModel.walletAddress,
-                                            qrNotice: viewModel.qrNoticeMessage)
-            })
-                .frame(maxWidth: screenSize.width)
         }
         .alert(item: $viewModel.alert, content: { $0.alert })
         .onAppear(perform: {

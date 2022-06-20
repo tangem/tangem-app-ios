@@ -234,7 +234,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         switch currentStep {
         case .topup:
             withAnimation {
-                isAddressQrBottomSheetPresented = true
+                openQR()
             }
         default:
             break
