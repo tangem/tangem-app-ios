@@ -132,15 +132,6 @@ struct TwinsOnboardingView: View {
                 )
                 .padding(.horizontal, 40)
             }
-            BottomSheetView(isPresented: viewModel.$isAddressQrBottomSheetPresented,
-                                     hideBottomSheetCallback: {
-                                        viewModel.isAddressQrBottomSheetPresented = false
-                                     }, content: {
-                                        AddressQrBottomSheetContent(shareAddress: viewModel.shareAddress,
-                                                                    address: viewModel.walletAddress,
-                                                                    qrNotice: viewModel.qrNoticeMessage)
-                                     })
-                .frame(maxWidth: screenSize.width)
         }
         .background(
             TwinIntroBackgroundView(size: CGSize(width: screenSize.height * 1.2 * 1.2,
