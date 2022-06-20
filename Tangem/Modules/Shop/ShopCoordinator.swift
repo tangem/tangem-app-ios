@@ -8,12 +8,14 @@
 
 import Foundation
 
-class ShopCoordinator: ObservableObject, Identifiable {
+class ShopCoordinator: CoordinatorObject {
     //MARK: - View models
     @Published private(set) var shopViewModel: ShopViewModel? = nil
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
     
     @Published var webShopUrl: URL? = nil
+    
+    var dismissAction: () -> Void = {}
     
     func start() {
         if Locale.current.regionCode == "RU" {
