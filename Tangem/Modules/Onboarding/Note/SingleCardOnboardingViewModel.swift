@@ -123,7 +123,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     override func supplementButtonAction() {
         switch currentStep {
         case .topup:
-            isAddressQrBottomSheetPresented = true
+            openQR()
         default:
             break
         }
