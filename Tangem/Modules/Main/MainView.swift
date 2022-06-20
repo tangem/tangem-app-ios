@@ -324,7 +324,7 @@ struct MainView: View {
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            MainView(viewModel: .init(coordinator: AppCoordinator()))
+            MainView(viewModel: .init(cardModel: PreviewCard.stellar.cardModel, coordinator: AppCoordinator()))
         }
         .previewGroup(devices: [.iPhone12ProMax])
         .navigationViewStyle(StackNavigationViewStyle())
