@@ -10,6 +10,7 @@ import Foundation
 import UIKit
 import Combine
 import BlockchainSdk
+import SwiftUI
 
 class AppCoordinator: NSObject, CoordinatorObject {
     //MARK: - Injected
@@ -34,6 +35,10 @@ class AppCoordinator: NSObject, CoordinatorObject {
     @Published var tokenDetailsViewModel: TokenDetailsViewModel? = nil
     @Published var currencySelectViewModel: CurrencySelectViewModel? = nil
     @Published var addressQrBottomSheetContentViewVodel: AddressQrBottomSheetContentViewVodel? = nil
+    @Published var walletConnectViewModel: WalletConnectViewModel? = nil
+    @Published var cardOperationViewModel: CardOperationViewModel? = nil
+    @Published var secManagementViewModel: SecurityManagementViewModel? = nil
+    @Published var qrScanViewModel: QRScanViewModel? = nil
     
     //MARK: - Other view bindings
     @Published var safariURL: URL? = nil
@@ -68,7 +73,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
         qrBottomSheetKeeper.toggle()
     }
     
-    private func popToRoot() {
+    func popToRoot() {
         welcomeLifecycleSubscription = nil
         
         pushTxCoordinator = nil
@@ -196,10 +201,10 @@ extension AppCoordinator: WelcomeRoutable {
     }
     
     func openOnboarding(with input: OnboardingInput) {
-        var input = input
-        input.successCallback = { [weak self] in
-            if let card = input.cardInput.cardModel {
-                self?.openMain(with: card)
+        if input.successCallback == nil {
+            var input = input
+            input.successCallback = { [weak self] in
+                self?.pushedOnboardingCoordinator = nil
             }
         }
         
@@ -257,8 +262,9 @@ extension AppCoordinator: MainRoutable {
                                                       coordinator: self)
     }
     
-    func openCurrencySelection() {
+    func openCurrencySelection(autoDismiss: Bool) {
         currencySelectViewModel = CurrencySelectViewModel()
+        currencySelectViewModel?.dismissAfterSelection = autoDismiss
     }
     
     func openExternalURL(_ url: URL) {
@@ -282,6 +288,34 @@ extension AppCoordinator: MainRoutable {
 }
 
 extension AppCoordinator: DetailsRoutable {
+    func openMail(with dataCollector: EmailDataCollector, support: EmailSupport, emailType: EmailType) {
+        mailViewModel = MailViewModel(dataCollector: dataCollector, support: support, emailType: emailType)
+    }
+    
+    func opewnWalletConnect(with cardModel: CardViewModel) {
+        walletConnectViewModel = WalletConnectViewModel(cardModel: cardModel, coordinator: self)
+    }
+    
+    func openDisclaimer() {
+        disclaimerViewModel = .init(style: .navbar, showAccept: false, dismissCallback: {})
+    }
+    
+    func openCardTOU(at url: URL) {
+        pushedWebViewModel = WebViewContainerViewModel(url: url, title: "details_row_title_card_tou".localized)
+    }
+    
+    func openResetToFactory(action: @escaping (_ completion: @escaping (Result<Void, Error>) -> Void) -> Void) {
+        cardOperationViewModel = CardOperationViewModel(title: "details_row_title_reset_factory_settings".localized,
+                                                        buttonTitle: "card_operation_button_title_reset",
+                                                        shouldPopToRoot: true,
+                                                        alert: "details_row_title_reset_factory_settings_warning".localized,
+                                                        actionButtonPressed: action,
+                                                        coordinator: self)
+    }
+    
+    func openSecManagement(with cardModel: CardViewModel) {
+        secManagementViewModel = SecurityManagementViewModel(cardModel: cardModel, coordinator: self)
+    }
 }
 
 extension AppCoordinator: TokenDetailsRoutable {
@@ -325,5 +359,22 @@ extension AppCoordinator: TokenDetailsRoutable {
         let coordinator = PushTxCoordinator()
         coordinator.start(for: tx, blockchainNetwork: blockchainNetwork, card: card)
         self.pushTxCoordinator = coordinator
+    }
+}
+
+extension AppCoordinator: WalletConnectRoutable {
+    func openQRScanner(with codeBinding: Binding<String>) {
+        qrScanViewModel = .init(code: codeBinding)
+    }
+}
+
+extension AppCoordinator: CardOperationRoutable {}
+
+extension AppCoordinator: SecurityManagementRoutable {
+    func openPinChange(with title: String, action: @escaping (@escaping (Result<Void, Error>) -> Void) -> Void) {
+        cardOperationViewModel = CardOperationViewModel(title: title,
+                                                        alert: "details_row_title_reset_factory_settings_warning".localized,
+                                                        actionButtonPressed: action,
+                                                        coordinator: self)
     }
 }
