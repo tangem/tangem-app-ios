@@ -11,6 +11,7 @@ import Foundation
 class ShopCoordinator: ObservableObject, Identifiable {
     //MARK: - View models
     @Published private(set) var shopViewModel: ShopViewModel? = nil
+    @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
     
     @Published var webShopUrl: URL? = nil
     
@@ -18,7 +19,19 @@ class ShopCoordinator: ObservableObject, Identifiable {
         if Locale.current.regionCode == "RU" {
             webShopUrl = URL(string: "https://mv.tangem.com")
         } else {
-            shopViewModel = ShopViewModel()
+            shopViewModel = ShopViewModel(coordinator: self)
         }
+    }
+}
+
+extension ShopCoordinator: ShopViewRoutable {
+    func openWebCheckout(at url: URL) {
+        pushedWebViewModel = WebViewContainerViewModel(url: url,
+                                                       title: "shop_web_checkout_title".localized,
+                                                       addLoadingIndicator: true)
+    }
+    
+    func closeWebCheckout() {
+        pushedWebViewModel = nil
     }
 }
