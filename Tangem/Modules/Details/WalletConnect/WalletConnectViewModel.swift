@@ -11,12 +11,11 @@ import Combine
 import SwiftUI
 import AVFoundation
 
-class WalletConnectViewModel: ViewModel, ObservableObject {
+class WalletConnectViewModel: ObservableObject {
     @Injected(\.walletConnectServiceProvider) private var walletConnectProvider: WalletConnectServiceProviding
     @Published var isActionSheetVisible: Bool = false
     @Published var showCameraDeniedAlert: Bool = false
     @Published var alert: AlertBinder?
-    @Published var code: String = ""
     @Published var isServiceBusy: Bool = true
     @Published var sessions: [WalletConnectSession] = []
     
@@ -40,12 +39,16 @@ class WalletConnectViewModel: ViewModel, ObservableObject {
     private var cardModel: CardViewModel
     private var bag = Set<AnyCancellable>()
     private var copiedValue: String?
+    private var scannedQRCode: CurrentValueSubject<String, Never> = .init("")
     
-    init(cardModel: CardViewModel) {
+    private unowned let coordinator: WalletConnectRoutable
+    
+    init(cardModel: CardViewModel, coordinator: WalletConnectRoutable) {
         self.cardModel = cardModel
+        self.coordinator = coordinator
     }
     
-    override func onAppear() {
+    func onAppear() {
         bind()
     }
     
@@ -56,18 +59,10 @@ class WalletConnectViewModel: ViewModel, ObservableObject {
         }
     }
     
-    func scanQrCode() {
-        if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
-            showCameraDeniedAlert = true
-        } else {
-            navigation.walletConnectToQR = true
-        }
-    }
-    
     func pasteFromClipboard() {
         guard let value = copiedValue else { return }
         
-        code = value
+        scannedQRCode.send(value)
         copiedValue = nil
     }
     
@@ -80,22 +75,13 @@ class WalletConnectViewModel: ViewModel, ObservableObject {
         if hasWCInPasteboard {
             isActionSheetVisible = true
         } else {
-            scanQrCode()
+            openQRScanner()
         }
     }
     
     private func bind() {
         bag.removeAll()
 
-        $code
-            .dropFirst()
-            .sink {[unowned self] newCode in
-                if !self.walletConnectProvider.service.handle(url: newCode) {
-                    self.alert = WalletConnectServiceError.failedToConnect.alertBinder
-                }
-            }
-            .store(in: &bag)
-        
 //            walletConnectController.error
 //                .receive(on: DispatchQueue.main)
 //                .debounce(for: 0.3, scheduler: DispatchQueue.main)
@@ -119,5 +105,32 @@ class WalletConnectViewModel: ViewModel, ObservableObject {
                 self.sessions = $0
             })
             .store(in: &bag)
+        
+        scannedQRCode
+            .sink {[unowned self] qrCodeString in
+                if !self.walletConnectProvider.service.handle(url: qrCodeString) {
+                    self.alert = WalletConnectServiceError.failedToConnect.alertBinder
+                }
+            }
+            .store(in: &bag)
+    }
+}
+
+//MARK: - Navigation
+extension WalletConnectViewModel {
+    func openQRScanner() {
+        if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
+            showCameraDeniedAlert = true
+        } else {
+            let binding = Binding<String>(
+                get:{ [weak self] in
+                    self?.scannedQRCode.value ?? ""
+                },
+                set:{ [weak self] in
+                    self?.scannedQRCode.send($0)
+                })
+            
+            coordinator.openQRScanner(with: binding)
+        }
     }
 }
