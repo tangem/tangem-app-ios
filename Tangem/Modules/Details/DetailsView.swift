@@ -247,14 +247,10 @@ extension DetailsView {
 }
 
 struct SettingsView_Previews: PreviewProvider {
-    static let assembly = Assembly.previewAssembly(for: .ethereum)
-    static let navigation = NavigationCoordinator()
-    
     static var previews: some View {
         NavigationView {
-            DetailsView(viewModel: assembly.makeDetailsViewModel())
-                .environmentObject(navigation)
-                .environmentObject(assembly)
+            DetailsView(viewModel: DetailsViewModel(cardModel: PreviewCard.cardanoNote.cardModel,
+                                                    coordinator: AppCoordinator()))
         }
         .navigationViewStyle(StackNavigationViewStyle())
     }
