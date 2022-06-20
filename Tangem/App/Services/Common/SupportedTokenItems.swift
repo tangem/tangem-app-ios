@@ -135,6 +135,6 @@ private extension CoinModel {
     }
     
     private func makeCopy(with items: [TokenItem]) -> CoinModel {
-        CoinModel(id: id, name: name, symbol: symbol, imageURL: imageURL, items: items)
+        CoinModel(id: id, name: name, symbol: symbol, imageURL: imageURL, items: items, active: active)
     }
 }
