@@ -288,7 +288,7 @@ extension DetailsViewModel {
         }
     }
     
-    func openSecManagement( {
+    func openSecManagement() {
         coordinator.openSecManagement(with: cardModel)
     }
 }
