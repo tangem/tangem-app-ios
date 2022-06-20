@@ -198,7 +198,9 @@ extension AppCoordinator: WelcomeRoutable {
     func openOnboarding(with input: OnboardingInput) {
         var input = input
         input.successCallback = { [weak self] in
-            self?.openMain()
+            if let card = input.cardInput.cardModel {
+                self?.openMain(with: card)
+            }
         }
         
         let coordinator = OnboardingCoordinator()
@@ -206,9 +208,8 @@ extension AppCoordinator: WelcomeRoutable {
         pushedOnboardingCoordinator = coordinator
     }
     
-    func openMain() {
-        mainViewModel = MainViewModel(coordinator: self)
-        mainViewModel?.updateState() // [REDACTED_TODO_COMMENT]
+    func openMain(with cardModel: CardViewModel) {
+        mainViewModel = MainViewModel(cardModel: cardModel, coordinator: self)
     }
     
     func openMail(with dataCollector: EmailDataCollector) {
