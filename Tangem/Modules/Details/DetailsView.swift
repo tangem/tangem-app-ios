@@ -16,8 +16,6 @@ struct DetailsView: View {
     }
     
     @ObservedObject var viewModel: DetailsViewModel
-    @EnvironmentObject var navigation: NavigationCoordinator
-    @EnvironmentObject var assembly: Assembly
     
     //fix remain highlited bug on ios14
     @State private var selection: NavigationTag? = nil
