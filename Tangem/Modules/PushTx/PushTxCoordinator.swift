@@ -9,10 +9,12 @@
 import Foundation
 import BlockchainSdk
 
-class PushTxCoordinator: ObservableObject, Identifiable {
+class PushTxCoordinator: CoordinatorObject {
     //MARK: - View models
     @Published private(set) var pushTxViewModel: PushTxViewModel!
     @Published var mailViewModel: MailViewModel? = nil
+    
+    var dismissAction: () -> Void = {}
     
     func start(for tx: BlockchainSdk.Transaction, blockchainNetwork: BlockchainNetwork, card: CardViewModel) {
         pushTxViewModel = PushTxViewModel(transaction: tx,
