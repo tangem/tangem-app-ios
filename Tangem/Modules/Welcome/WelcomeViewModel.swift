@@ -110,7 +110,7 @@ class WelcomeViewModel: ObservableObject {
                 if input.steps.needOnboarding {
                     openOnboarding(with: input)
                 } else {
-                    openMain()
+                    openMain(with: input)
                 }
             
                 self.bag.removeAll()
@@ -149,8 +149,10 @@ extension WelcomeViewModel {
         coordinator.openOnboarding(with: input)
     }
     
-    func openMain() {
-        coordinator.openMain()
+    func openMain(with input: OnboardingInput) {
+        if let card = input.cardInput.cardModel {
+            coordinator.openMain(with: card)
+        }
     }
 }
 
