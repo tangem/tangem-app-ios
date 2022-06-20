@@ -10,7 +10,6 @@ import Foundation
 import SwiftUI
 import TangemSdk
 import BlockchainSdk
-import AVFoundation
 import Moya
 
 struct SendView: View {
@@ -46,13 +45,7 @@ struct SendView: View {
                                 .accessibility(label: Text(self.viewModel.validatedClipboard == nil ? "voice_over_nothing_to_paste" : "voice_over_paste_from_clipboard"))
                                 .disabled(self.viewModel.validatedClipboard == nil)
                             CircleActionButton(
-                                action: {
-                                    if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
-                                        self.viewModel.showCameraDeniedAlert = true
-                                    } else {
-                                        viewModel.scanQR()
-                                    }
-                                },
+                                action: viewModel.openQRScanner,
                                 backgroundColor: .tangemBgGray,
                                 imageName: "qrcode.viewfinder",
                                 isSystemImage: true,
