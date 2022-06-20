@@ -13,7 +13,6 @@ import BlockchainSdk
 class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> {
     @Injected(\.exchangeService) var exchangeService: ExchangeService
     
-    @Published var isAddressQrBottomSheetPresented: Bool = false
     @Published var refreshButtonState: OnboardingCircleButton.State = .refreshButton
     @Published var cardBalance: String = ""
     @Published var isBalanceRefresherVisible: Bool = false
@@ -35,15 +34,15 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
     
     var buyCryptoCloseUrl: String { exchangeService.successCloseUrl.removeLatestSlash() }
     
-    var shareAddress: String {
+    private var shareAddress: String {
         cardModel?.walletModels?.first?.shareAddressString(for: 0) ?? ""
     }
     
-    var walletAddress: String {
+    private var walletAddress: String {
         cardModel?.walletModels?.first?.displayAddress(for: 0) ?? ""
     }
     
-    var qrNoticeMessage: String {
+    private var qrNoticeMessage: String {
         cardModel?.walletModels?.first?.getQRReceiveMessage() ?? ""
     }
     
@@ -141,8 +140,12 @@ extension OnboardingTopupViewModel {
     func openCryptoShop() {
         guard let url = buyCryptoURL else { return }
         
-        coordinator.openCryptoShop(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] in
+        coordinator.openCryptoShop(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
             self?.updateCardBalance()
         }
+    }
+    
+    func openQR() {
+        coordinator.openQR(shareAddress: shareAddress, address: walletAddress, qrNotice: qrNoticeMessage)
     }
 }
