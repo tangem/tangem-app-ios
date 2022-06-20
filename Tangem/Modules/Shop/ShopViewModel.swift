@@ -20,8 +20,6 @@ class ShopViewModel: ObservableObject {
     @Published var selectedBundle: Bundle = .threeCards
     @Published var discountCode = ""
     @Published var canUseApplePay = true
-    @Published var webCheckoutUrl: URL?
-    @Published var showingWebCheckout = false
     
     // MARK: - Output
     
@@ -39,9 +37,14 @@ class ShopViewModel: ObservableObject {
     private var currentVariantID: GraphQL.ID = GraphQL.ID(rawValue: "")
     private var checkoutByVariantID: [GraphQL.ID: Checkout] = [:]
     private var initialized = false
+    private unowned let coordinator: ShopViewRoutable
+    
+    init(coordinator: ShopViewRoutable) {
+        self.coordinator = coordinator
+    }
     
     func didAppear() {
-        showingWebCheckout = false
+        closeWebCheckout()
         
         fetchProduct()
         
@@ -56,16 +59,6 @@ class ShopViewModel: ObservableObject {
         $selectedBundle
             .sink { [unowned self] newBundle in
                 self.didSelectBundle(newBundle)
-            }
-            .store(in: &bag)
-
-        $showingWebCheckout
-            .dropFirst()
-            .removeDuplicates()
-            .sink { [unowned self] showingWebCheckout in
-                if !showingWebCheckout {
-                    self.didCloseWebCheckout()
-                }
             }
             .store(in: &bag)
     }
@@ -95,30 +88,6 @@ class ShopViewModel: ObservableObject {
                 if let order = checkout.order {
                     self.didPlaceOrder(order)
                 }
-            }
-            .store(in: &bag)
-    }
-    
-    func openWebCheckout() {
-        guard let checkoutID = checkoutByVariantID[currentVariantID]?.id else {
-            return
-        }
-        
-        // Checking order ID
-        shopifyService.checkout(pollUntilOrder: false, checkoutID: checkoutID)
-            .flatMap { [unowned self] checkout -> AnyPublisher<Checkout, Error> in
-                self.webCheckoutUrl = checkout.webUrl
-                self.showingWebCheckout = true
-                
-                return self.shopifyService.checkout(pollUntilOrder: true, checkoutID: checkoutID)
-            }
-            .sink { _ in
-                
-            } receiveValue: { [unowned self] checkout in
-                if let order = checkout.order {
-                    self.didPlaceOrder(order)
-                }
-                self.showingWebCheckout = false
             }
             .store(in: &bag)
     }
@@ -306,5 +275,37 @@ extension ShopViewModel {
                 return "TG115x3"
             }
         }
+    }
+}
+
+//MARK: - Navigation
+extension ShopViewModel {
+    func openWebCheckout() {
+        guard let checkoutID = checkoutByVariantID[currentVariantID]?.id else {
+            return
+        }
+        
+        // Checking order ID
+        shopifyService.checkout(pollUntilOrder: false, checkoutID: checkoutID)
+            .flatMap { [unowned self] checkout -> AnyPublisher<Checkout, Error> in
+                coordinator.openWebCheckout(at: checkout.webUrl)
+
+                return self.shopifyService.checkout(pollUntilOrder: true, checkoutID: checkoutID)
+            }
+            .sink { _ in
+                
+            } receiveValue: { [unowned self] checkout in
+                if let order = checkout.order {
+                    self.didPlaceOrder(order)
+                }
+                
+                self.closeWebCheckout()
+            }
+            .store(in: &bag)
+    }
+    
+    func closeWebCheckout() {
+        coordinator.closeWebCheckout()
+        didCloseWebCheckout()
     }
 }

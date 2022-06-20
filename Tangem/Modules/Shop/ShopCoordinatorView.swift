@@ -23,6 +23,10 @@ struct ShopCoordinatorView: CoordinatorView {
                     ShopOrderProgressView()
                 } else {
                     ShopView(viewModel: coordinator.shopViewModel!)
+                        .navigation(item: $coordinator.pushedWebViewModel) {
+                            WebViewContainer(viewModel: $0)
+                                .edgesIgnoringSafeArea(.all)
+                        }
                 }
             }
         }
