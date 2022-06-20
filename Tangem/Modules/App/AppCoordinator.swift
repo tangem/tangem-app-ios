@@ -292,7 +292,7 @@ extension AppCoordinator: DetailsRoutable {
         mailViewModel = MailViewModel(dataCollector: dataCollector, support: support, emailType: emailType)
     }
     
-    func opewnWalletConnect(with cardModel: CardViewModel) {
+    func openWalletConnect(with cardModel: CardViewModel) {
         walletConnectViewModel = WalletConnectViewModel(cardModel: cardModel, coordinator: self)
     }
     
