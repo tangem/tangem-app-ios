@@ -1,5 +1,5 @@
 //
-//  Assembly+AppPreview.swift
+//  PreviewData.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
