@@ -7,13 +7,9 @@
 //
 
 import Foundation
-import UIKit
 import Combine
 
-class AppCoordinator: NSObject, CoordinatorObject {
-    //MARK: - Injected
-    @Injected(\.walletConnectServiceProvider) private var walletConnectServiceProvider: WalletConnectServiceProviding
-    
+class AppCoordinator: CoordinatorObject {
     //MARK: - Child coordinators
     @Published var pushedOnboardingCoordinator: OnboardingCoordinator? = nil
     @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
@@ -48,22 +44,16 @@ class AppCoordinator: NSObject, CoordinatorObject {
     var dismissAction: () -> Void = {}
     
     //MARK: - Private
-    private let servicesManager: ServicesManager = .init()
-    private var deferredIntents: [NSUserActivity] = []
-    private var deferredIntentWork: DispatchWorkItem?
     private var welcomeLifecycleSubscription: AnyCancellable? = nil
     
-    override init() {
-        servicesManager.initialize()
-    }
+    init() {}
     
-    func start(with options: UIScene.ConnectionOptions? = nil) {
+    func start(withScan: Bool = false) {
         welcomeViewModel = .init(coordinator: self)
         subscribeToWelcomeLifecycle()
         
-        if let options = options {
-            handle(contexts: options.urlContexts)
-            handle(activities: options.userActivities)
+        if withScan {
+            welcomeViewModel.scanCard()
         }
     }
     
@@ -72,21 +62,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
     }
     
     func popToRoot() {
-        welcomeLifecycleSubscription = nil
-        
-        pushTxCoordinator = nil
-        sendCoordinator = nil
-        pushedOnboardingCoordinator = nil
-        modalOnboardingCoordinator = nil
-        shopCoordinator = nil
-        tokenListCoordinator = nil
-        
-        detailsViewModel = nil
-        mailViewModel = nil
-        disclaimerViewModel = nil
-        mainViewModel = nil
-        
-        start()
+        dismiss()
     }
     
     private func subscribeToWelcomeLifecycle() {
@@ -103,84 +79,5 @@ class AppCoordinator: NSObject, CoordinatorObject {
                     self.welcomeViewModel.resignActve()
                 }
             }
-    }
-}
-
-//MARK: - UIWindowSceneDelegate
-extension AppCoordinator: UIWindowSceneDelegate {
-    func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
-        handle(activities: [userActivity])
-    }
-    
-    func sceneDidBecomeActive(_ scene: UIScene) {
-        // Called when the scene has moved from an inactive state to an active state.
-        // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
-        
-        deferredIntentWork = DispatchWorkItem { [weak self] in
-            self?.deferredIntents.forEach {
-                switch $0.activityType {
-                case String(describing: ScanTangemCardIntent.self):
-                    //todo: test
-                    self?.welcomeViewModel?.scanCard()
-                default:
-                    break
-                }
-            }
-            self?.deferredIntents.removeAll()
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: deferredIntentWork!)
-    }
-    
-    func sceneWillResignActive(_ scene: UIScene) {
-        // Called when the scene will move from an active state to an inactive state.
-        // This may occur due to temporary interruptions (ex. an incoming phone call).
-        deferredIntentWork?.cancel()
-    }
-    
-    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
-        handle(contexts: URLContexts)
-    }
-    
-    private func handle(activities: Set<NSUserActivity>) {
-        activities.forEach {
-            switch $0.activityType {
-            case NSUserActivityTypeBrowsingWeb:
-                guard let url = $0.webpageURL else { return }
-                
-                process(url)
-            case String(describing: ScanTangemCardIntent.self):
-                popToRoot()
-                deferredIntents.append($0)
-            default: return
-            }
-        }
-    }
-    
-    private func handle(contexts: Set<UIOpenURLContext>) {
-        if let url = contexts.first?.url {
-            process(url)
-        }
-    }
-    
-    private func process(_ url: URL) {
-        handle(url: url)
-        walletConnectServiceProvider.service.handle(url: url)
-    }
-}
-
-//MARK: - URLHandler
-extension AppCoordinator: URLHandler {
-    @discardableResult func handle(url: String) -> Bool {
-        guard url.starts(with: "https://app.tangem.com")
-                || url.starts(with: Constants.tangemDomain + "/ndef")
-                || url.starts(with: Constants.tangemDomain + "/wc") else { return false }
-        
-        popToRoot()
-        return true
-    }
-    
-    @discardableResult func handle(url: URL) -> Bool {
-        handle(url: url.absoluteString)
     }
 }
