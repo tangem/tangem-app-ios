@@ -265,7 +265,7 @@ extension DetailsViewModel {
     }
     
     func openWalletConnect() {
-        coordinator.opewnWalletConnect(with: cardModel)
+        coordinator.openWalletConnect(with: cardModel)
     }
     
     func openCurrencySelection() {
