@@ -43,8 +43,6 @@ struct ShopView: View {
                         purchaseForm
                         
                         buyButtons
-                        
-                        webCheckoutLink
                     }
                     .padding(.horizontal)
                     .frame(minWidth: geometry.size.width,
@@ -182,25 +180,11 @@ struct ShopView: View {
             .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
         }
     }
-    
-    private var webCheckoutLink: some View {
-        NavigationLink(isActive: $viewModel.showingWebCheckout) {
-            if let webCheckoutUrl = viewModel.webCheckoutUrl {
-                WebViewContainer(viewModel: .init(url: webCheckoutUrl, title: "shop_web_checkout_title".localized, addLoadingIndicator: true))
-                    .edgesIgnoringSafeArea(.all)
-            } else {
-                EmptyView()
-            }
-        } label: {
-            EmptyView()
-        }
-        .hidden()
-    }
 }
 
 struct ShopView_Previews: PreviewProvider {
     static var previews: some View {
-        ShopView(viewModel: .init())
+        ShopView(viewModel: .init(coordinator: ShopCoordinator()))
             .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
     }
 }
