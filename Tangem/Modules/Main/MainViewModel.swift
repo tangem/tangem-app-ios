@@ -242,7 +242,8 @@ class MainViewModel: ObservableObject {
             .flatMap ({ $0.tokenItemViewModels })
     }
     
-    init(coordinator: MainRoutable) {
+    init(cardModel: CardViewModel, coordinator: MainRoutable) {
+        self.state = .card(model: cardModel) //[REDACTED_TODO_COMMENT]
         self.coordinator = coordinator
     }
     
@@ -351,10 +352,6 @@ class MainViewModel: ObservableObject {
                 self.showQR = false
             }
             .store(in: &bag)
-    }
-    
-    func updateState() {
-        self.state = cardsRepository.lastScanResult
     }
     
     func getDataCollector(for feedbackCase: EmailFeedbackCase) -> EmailDataCollector {
