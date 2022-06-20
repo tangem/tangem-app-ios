@@ -44,6 +44,15 @@ struct AppCoordinatorView: CoordinatorView {
                     .navigation(item: $coordinator.currencySelectViewModel) {
                         CurrencySelectView(viewModel: $0)
                     }
+                    .navigation(item: $coordinator.walletConnectViewModel) {
+                        WalletConnectView(viewModel: $0)
+                    }
+                    .navigation(item: $coordinator.cardOperationViewModel) {
+                        CardOperationView(viewModel: $0)
+                    }
+                    .navigation(item: $coordinator.secManagementViewModel) {
+                        SecurityManagementView(viewModel: $0)
+                    }
                     .sheet(item: $coordinator.modalOnboardingCoordinator) {
                         OnboardingCoordinatorView(coordinator: $0)
                             .presentation(modal: true, onDismissalAttempt: $0.onDismissalAttempt, onDismissed: nil)
@@ -62,6 +71,10 @@ struct AppCoordinatorView: CoordinatorView {
                     }
                     .sheet(item: $coordinator.safariURL) {
                         SafariView(url: $0)
+                    }
+                    .sheet(item: $coordinator.qrScanViewModel) {
+                        QRScanView(viewModel: $0)
+                            .edgesIgnoringSafeArea(.all)
                     }
                 //                .navigationBarHidden(isNavigationBarHidden)
             }
