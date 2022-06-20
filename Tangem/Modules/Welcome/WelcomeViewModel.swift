@@ -146,6 +146,11 @@ extension WelcomeViewModel {
     }
     
     func openOnboarding(with input: OnboardingInput) {
+        var input = input
+        input.successCallback = { [weak self] in
+            self?.openMain(with: input)
+        }
+        
         coordinator.openOnboarding(with: input)
     }
     
