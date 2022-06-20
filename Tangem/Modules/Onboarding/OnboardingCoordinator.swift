@@ -8,7 +8,7 @@
 
 import Foundation
 
-class OnboardingCoordinator: ObservableObject, Identifiable {    
+class OnboardingCoordinator: CoordinatorObject {    
     //MARK: - View models
     @Published var singleCardViewModel: SingleCardOnboardingViewModel? = nil
     @Published var twinsViewModel: TwinsOnboardingViewModel? = nil
@@ -19,6 +19,8 @@ class OnboardingCoordinator: ObservableObject, Identifiable {
     
     //MARK: - Helpers
     @Published var qrBottomSheetKeeper: Bool = false
+    
+    var dismissAction: () -> Void = {}
     
     //For non-dismissable presentation
     var onDismissalAttempt: () -> Void = {}
