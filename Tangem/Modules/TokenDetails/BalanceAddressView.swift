@@ -173,12 +173,8 @@ struct BalanceAddressView: View {
 }
 
 struct BalanceAddressView_Previews: PreviewProvider {
-    static let assembly = Assembly.previewAssembly(for: .stellar)
-    
-    @State static var cardViewModel = assembly.previewCardViewModel
-    
     static var walletModel: WalletModel {
-        let vm = cardViewModel.walletModels!.first!
+        let vm = PreviewCard.stellar.cardModel.walletModels!.first!
         vm.state = .failed(error: "Failed to load. Internet connection is unnreachable")
         vm.state = .idle
         vm.balanceViewModel = BalanceViewModel(isToken: false,
