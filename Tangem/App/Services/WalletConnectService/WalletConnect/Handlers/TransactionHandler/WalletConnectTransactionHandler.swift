@@ -13,7 +13,6 @@ import WalletConnectSwift
 
 class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
     @Injected(\.transactionSigner) var signer: TangemSigner
-    @Injected(\.assemblyProvider) private var assemblyProvider: AssemblyProviding
     @Injected(\.scannedCardsRepository) private var scannedCardsRepo: ScannedCardsRepository
  
     unowned var delegate: WalletConnectHandlerDelegate?
