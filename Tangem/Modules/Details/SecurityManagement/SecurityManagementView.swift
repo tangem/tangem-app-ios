@@ -14,7 +14,7 @@ struct SecurityManagementRowView: View {
     @Binding var selectedOption: SecurityManagementOption
     let option: SecurityManagementOption
     
-    @EnvironmentObject var cardViewModel: CardViewModel
+    @EnvironmentObject var cardViewModel: CardViewModel //[REDACTED_TODO_COMMENT]
     
     var isEnabled: Bool {
         switch option {
@@ -62,7 +62,6 @@ struct SecurityManagementRowView: View {
 
 struct SecurityManagementView: View {
     @ObservedObject var viewModel: SecurityManagementViewModel
-    @EnvironmentObject var navigation: NavigationCoordinator
     
     var body: some View {
         VStack {
@@ -97,16 +96,11 @@ struct SecurityManagementView: View {
                 self.viewModel.onTap()
             }.buttonStyle(TangemButtonStyle(colorStyle: .black,
                                             layout: .flexibleWidth,
-                                            isDisabled: viewModel.selectedOption == viewModel.cardViewModel.currentSecOption,
+                                            isDisabled: viewModel.isOptionDisabled,
                                             isLoading: viewModel.isLoading))
                 .alert(item: $viewModel.error) { $0.alert }
                 .padding(.horizontal, 16.0)
                 .padding(.bottom, 16.0)
-            
-            NavigationLink(destination: CardOperationView(title: viewModel.selectedOption.title,
-                                                          alert: "details_security_management_warning".localized,
-                                                          actionButtonPressed: viewModel.actionButtonPressedHandler),
-                           isActive: $navigation.securityToWarning)
         }
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("details_manage_security_title", displayMode: .inline)
@@ -115,11 +109,7 @@ struct SecurityManagementView: View {
 
 
 struct SecurityManagementView_Previews: PreviewProvider {
-    static let assembly = Assembly.previewAssembly
-    static let navigation = NavigationCoordinator()
-    
     static var previews: some View {
-        SecurityManagementView(viewModel: assembly.makeSecurityManagementViewModel(with: assembly.previewCardViewModel))
-            .environmentObject(navigation)
+        SecurityManagementView(viewModel: .init(cardModel: PreviewCard.tangemWalletEmpty.cardModel, coordinator: AppCoordinator()))
     }
 }
