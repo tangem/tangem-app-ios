@@ -72,8 +72,7 @@ struct WalletConnectView: View {
 
 struct WalletConnectView_Previews: PreviewProvider {
     static var previews: some View {
-        WalletConnectView(viewModel: Assembly().makeWalletConnectViewModel(cardModel: PreviewCard.ethereum.cardModel))
-            .environmentObject(NavigationCoordinator())
+        WalletConnectView(viewModel: .init(cardModel: PreviewCard.cardanoNote.cardModel, coordinator: AppCoordinator()))
             .previewGroup(devices: [.iPhone12Pro])
     }
 }
