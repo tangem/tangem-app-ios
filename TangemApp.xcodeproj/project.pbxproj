@@ -477,6 +477,13 @@
 		DC5118652860AA4F004FB954 /* ShopViewRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5118642860AA4F004FB954 /* ShopViewRoutable.swift */; };
 		DC5118662860AD38004FB954 /* CardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B03ACAC82567CFFF00F5D269 /* CardView.swift */; };
 		DC5118692860B3E1004FB954 /* PreviewCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5118682860B3E1004FB954 /* PreviewCard.swift */; };
+		DC51186C2860B5B7004FB954 /* AppCoordinator+SecurityManagementRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC51186B2860B5B7004FB954 /* AppCoordinator+SecurityManagementRoutable.swift */; };
+		DC51186E2860B5D7004FB954 /* AppCoordinator+CardOperationRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC51186D2860B5D7004FB954 /* AppCoordinator+CardOperationRoutable.swift */; };
+		DC5118702860B5FA004FB954 /* AppCoordinator+WalletConnectRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC51186F2860B5FA004FB954 /* AppCoordinator+WalletConnectRoutable.swift */; };
+		DC5118722860B612004FB954 /* AppCoordinator+TokenDetailsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5118712860B612004FB954 /* AppCoordinator+TokenDetailsRoutable.swift */; };
+		DC5118742860B62B004FB954 /* AppCoordinator+DetailsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5118732860B62B004FB954 /* AppCoordinator+DetailsRoutable.swift */; };
+		DC5118762860B641004FB954 /* AppCoordinator+MainRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5118752860B641004FB954 /* AppCoordinator+MainRoutable.swift */; };
+		DC5118782860B658004FB954 /* AppCoordinator+WelcomeRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5118772860B658004FB954 /* AppCoordinator+WelcomeRoutable.swift */; };
 		DC66BBE32858E7A600CDF765 /* WelcomeRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBE22858E7A600CDF765 /* WelcomeRoutable.swift */; };
 		DC66BBE52858EB6300CDF765 /* OnboardingCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBE42858EB6300CDF765 /* OnboardingCoordinator.swift */; };
 		DC66BBE72858EBE400CDF765 /* OnboardingCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBE62858EBE400CDF765 /* OnboardingCoordinatorView.swift */; };
@@ -1008,6 +1015,13 @@
 		DC5118622860A339004FB954 /* SecurityManagementRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityManagementRoutable.swift; sourceTree = "<group>"; };
 		DC5118642860AA4F004FB954 /* ShopViewRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopViewRoutable.swift; sourceTree = "<group>"; };
 		DC5118682860B3E1004FB954 /* PreviewCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewCard.swift; sourceTree = "<group>"; };
+		DC51186B2860B5B7004FB954 /* AppCoordinator+SecurityManagementRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppCoordinator+SecurityManagementRoutable.swift"; sourceTree = "<group>"; };
+		DC51186D2860B5D7004FB954 /* AppCoordinator+CardOperationRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppCoordinator+CardOperationRoutable.swift"; sourceTree = "<group>"; };
+		DC51186F2860B5FA004FB954 /* AppCoordinator+WalletConnectRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppCoordinator+WalletConnectRoutable.swift"; sourceTree = "<group>"; };
+		DC5118712860B612004FB954 /* AppCoordinator+TokenDetailsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppCoordinator+TokenDetailsRoutable.swift"; sourceTree = "<group>"; };
+		DC5118732860B62B004FB954 /* AppCoordinator+DetailsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppCoordinator+DetailsRoutable.swift"; sourceTree = "<group>"; };
+		DC5118752860B641004FB954 /* AppCoordinator+MainRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppCoordinator+MainRoutable.swift"; sourceTree = "<group>"; };
+		DC5118772860B658004FB954 /* AppCoordinator+WelcomeRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppCoordinator+WelcomeRoutable.swift"; sourceTree = "<group>"; };
 		DC66BBE22858E7A600CDF765 /* WelcomeRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeRoutable.swift; sourceTree = "<group>"; };
 		DC66BBE42858EB6300CDF765 /* OnboardingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCoordinator.swift; sourceTree = "<group>"; };
 		DC66BBE62858EBE400CDF765 /* OnboardingCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCoordinatorView.swift; sourceTree = "<group>"; };
@@ -2473,6 +2487,13 @@
 			children = (
 				DC7DA8182844EAFF00AD6DBD /* AppCoordinator.swift */,
 				DC7DA81D2844F27800AD6DBD /* AppCoordinatorView.swift */,
+				DC51186B2860B5B7004FB954 /* AppCoordinator+SecurityManagementRoutable.swift */,
+				DC51186D2860B5D7004FB954 /* AppCoordinator+CardOperationRoutable.swift */,
+				DC51186F2860B5FA004FB954 /* AppCoordinator+WalletConnectRoutable.swift */,
+				DC5118712860B612004FB954 /* AppCoordinator+TokenDetailsRoutable.swift */,
+				DC5118732860B62B004FB954 /* AppCoordinator+DetailsRoutable.swift */,
+				DC5118752860B641004FB954 /* AppCoordinator+MainRoutable.swift */,
+				DC5118772860B658004FB954 /* AppCoordinator+WelcomeRoutable.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
@@ -2946,6 +2967,7 @@
 				5D09380A25E6AEB10049B8F0 /* BalanceAddressView.swift in Sources */,
 				B09BB883259A09CE00B92000 /* WarningEvent+.swift in Sources */,
 				DAC53CF827BE63830027147D /* StoriesTangemLogo.swift in Sources */,
+				DC51186E2860B5D7004FB954 /* AppCoordinator+CardOperationRoutable.swift in Sources */,
 				DAFD691427CDE95100B36C71 /* OnramperService.swift in Sources */,
 				DC0A5801282500460031BECC /* SellCryptoRequest.swift in Sources */,
 				5D09381425E6CB2D0049B8F0 /* HorizontalButtonStack.swift in Sources */,
@@ -2993,6 +3015,7 @@
 				B0D76D4525D4E4560073FA98 /* AddCustomTokenView.swift in Sources */,
 				5D6784C325EB8EF000149995 /* CommonTokenItemsRepository.swift in Sources */,
 				B0C4F76F26F08AB40086D815 /* TwinsOnboardingStep.swift in Sources */,
+				DC51186C2860B5B7004FB954 /* AppCoordinator+SecurityManagementRoutable.swift in Sources */,
 				B018F304259204A200D8F89A /* WarningEvent.swift in Sources */,
 				5D559BCC25406BB40009E0F6 /* AppFeaturesService.swift in Sources */,
 				DC0A5847282C06A80031BECC /* NegativeFeedbackDataProvider.swift in Sources */,
@@ -3154,6 +3177,7 @@
 				5D09380F25E6BDB00049B8F0 /* RoundedRectButton.swift in Sources */,
 				DC66BC18285C65C900CDF765 /* TokenDetailsRoutable.swift in Sources */,
 				B031AAB526C16A1B00015003 /* UIColor+.swift in Sources */,
+				DC5118702860B5FA004FB954 /* AppCoordinator+WalletConnectRoutable.swift in Sources */,
 				DA5FAD8627B2791C00EE53AE /* ApplePayButton.swift in Sources */,
 				DC0A581D2825281C0031BECC /* RemoteConfigurationProviding.swift in Sources */,
 				B01EB9C426E9F18A0060E2FB /* StackCalculator.swift in Sources */,
@@ -3177,6 +3201,7 @@
 				5D43E2D72514D5B700697E5B /* CardOperationView.swift in Sources */,
 				DAC53CFA27BE63830027147D /* StoriesView.swift in Sources */,
 				5DE2038E24EE8A510044EF46 /* ActivityIndicatorView.swift in Sources */,
+				DC5118762860B641004FB954 /* AppCoordinator+MainRoutable.swift in Sources */,
 				DC66BC08285B6E6400CDF765 /* DetailsRoutable.swift in Sources */,
 				B031AAB126C1443E00015003 /* Confetti.swift in Sources */,
 				B0A2B3E925D6B5BD0001EEB4 /* TokenBalanceViewModel.swift in Sources */,
@@ -3187,6 +3212,7 @@
 				B0B2DF6026E1FD5400BC0934 /* AnimatedView.swift in Sources */,
 				B0E1D175257DE75D00A3AB98 /* CommonKeysManager.swift in Sources */,
 				5D84DBEF270EEADA0013A813 /* TwinIntroBackgroundView.swift in Sources */,
+				DC5118782860B658004FB954 /* AppCoordinator+WelcomeRoutable.swift in Sources */,
 				5D80ED472550186A0008DEF0 /* View+.swift in Sources */,
 				5D51036927C534A60025EA55 /* JSON.swift in Sources */,
 				DC66BBEF2859B6C700CDF765 /* ShopCoordinatorView.swift in Sources */,
@@ -3210,6 +3236,7 @@
 				5DEC50A525F160930022CE83 /* CircleImageTextView.swift in Sources */,
 				DC7DA8222844F53F00AD6DBD /* CommonOnboardingStepsSetupService.swift in Sources */,
 				DA23788527B24222009795A8 /* CheckoutLineItem.swift in Sources */,
+				DC5118742860B62B004FB954 /* AppCoordinator+DetailsRoutable.swift in Sources */,
 				B0C4F77126F08C4D0086D815 /* TwinsOnboardingCardLayout.swift in Sources */,
 				5D51037127C5360E0025EA55 /* ABIType.swift in Sources */,
 				65A1910A2833EA900023355D /* TokensView.swift in Sources */,
@@ -3228,6 +3255,7 @@
 				DA23789227B250F6009795A8 /* ShopView.swift in Sources */,
 				B031AAB326C169E900015003 /* ConfettiType.swift in Sources */,
 				5D341CC627E31DC00028D8FC /* CoinView.swift in Sources */,
+				DC5118722860B612004FB954 /* AppCoordinator+TokenDetailsRoutable.swift in Sources */,
 				B0A0A19125822EFF005FC94D /* Storage.swift in Sources */,
 				B0F62C5025DE4EC9005C8BA0 /* MailView.swift in Sources */,
 				DA23788027B24222009795A8 /* CheckoutUserError.swift in Sources */,
