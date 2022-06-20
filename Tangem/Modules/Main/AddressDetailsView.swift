@@ -148,19 +148,14 @@ struct AddressDetailView: View {
 }
 
 struct AddressDetailView_Previews: PreviewProvider {
-    static let assembly: Assembly = .previewAssembly(for: .v4)
-    @State static var cardViewModel = assembly.previewCardViewModel
-    static let navigation = NavigationCoordinator()
-    
     static var previews: some View {
         ZStack {
             Color.tangemBgGray
             AddressDetailView(showQr: .constant(false),
                               selectedAddressIndex: .constant(0),
                               showExplorerURL: .constant(nil),
-                              walletModel: cardViewModel.walletModels!.first!,
+                              walletModel: PreviewCard.v4.cardModel.walletModels!.first!,
                               payID: .notCreated)
         }
-        .environmentObject(navigation)
     }
 }
