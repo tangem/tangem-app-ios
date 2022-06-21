@@ -110,6 +110,7 @@ struct SecurityManagementView: View {
 
 struct SecurityManagementView_Previews: PreviewProvider {
     static var previews: some View {
-        SecurityManagementView(viewModel: .init(cardModel: PreviewCard.tangemWalletEmpty.cardModel, coordinator: AppCoordinator()))
+        SecurityManagementView(viewModel: .init(cardModel: PreviewCard.tangemWalletEmpty.cardModel,
+                                                coordinator: SecurityManagementCoordinator()))
     }
 }
