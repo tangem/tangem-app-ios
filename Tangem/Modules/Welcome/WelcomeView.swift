@@ -31,11 +31,13 @@ struct WelcomeView: View {
         }
         .alert(item: $viewModel.error, content: { $0.alert })
         .onAppear(perform: viewModel.onAppear)
+        .navigationBarTitle("")
+        .navigationBarHidden(true)
     }
 }
 
 struct WelcomeOnboardingView_Previews: PreviewProvider {
     static var previews: some View {
-        WelcomeView(viewModel: WelcomeViewModel(coordinator: AppCoordinator()))
+        WelcomeView(viewModel: WelcomeViewModel(coordinator: WelcomeCoordinator()))
     }
 }
