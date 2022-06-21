@@ -1,5 +1,5 @@
 //
-//  AppServiceCoordinator.swift
+//  SceneCoordinator.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-class AppServiceCoordinator: NSObject, CoordinatorObject {
+class SceneCoordinator: NSObject, CoordinatorObject {
     //MARK: - Injected
     @Injected(\.walletConnectServiceProvider) private var walletConnectServiceProvider: WalletConnectServiceProviding
     
@@ -45,7 +45,7 @@ class AppServiceCoordinator: NSObject, CoordinatorObject {
 
 
 //MARK: - UIWindowSceneDelegate
-extension AppServiceCoordinator: UIWindowSceneDelegate {
+extension SceneCoordinator: UIWindowSceneDelegate {
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
         handle(activities: [userActivity])
     }
@@ -109,7 +109,7 @@ extension AppServiceCoordinator: UIWindowSceneDelegate {
 }
 
 //MARK: - URLHandler
-extension AppServiceCoordinator: URLHandler {
+extension SceneCoordinator: URLHandler {
     @discardableResult func handle(url: String) -> Bool {
         guard url.starts(with: "https://app.tangem.com")
                 || url.starts(with: Constants.tangemDomain + "/ndef")
