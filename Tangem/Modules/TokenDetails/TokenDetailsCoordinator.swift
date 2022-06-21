@@ -24,6 +24,9 @@ class TokenDetailsCoordinator: CoordinatorObject {
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
     
+    //MARK: - Private helpers
+    @Published var emptyModel: Int? = nil //Fix single navigation link issue
+    
     func start(with options: TokenDetailsCoordinator.Options) {
         tokenDetailsViewModel = TokenDetailsViewModel(cardModel: options.cardModel,
                                                       blockchainNetwork: options.blockchainNetwork,
