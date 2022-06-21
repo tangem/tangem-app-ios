@@ -177,7 +177,6 @@ class DetailsViewModel: ObservableObject {
                                         cardsPosition: nil,
                                         welcomeStep: nil,
                                         currentStepIndex: 0,
-                                        successCallback: nil,
                                         isStandalone: true)
             
             self.openOnboarding(with: input)
@@ -204,7 +203,6 @@ class DetailsViewModel: ObservableObject {
                                         cardsPosition: nil,
                                         welcomeStep: nil,
                                         currentStepIndex: 0,
-                                        successCallback: nil,
                                         isStandalone: true)
             
             self.openOnboarding(with: input)

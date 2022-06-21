@@ -14,8 +14,10 @@ struct SendCoordinatorView: CoordinatorView {
     
     var body: some View {
         ZStack {
-            SendView(viewModel: coordinator.sendViewModel)
-            
+            if let model = coordinator.sendViewModel {
+                SendView(viewModel: model)
+            }
+           
             sheets
         }
     }
@@ -23,12 +25,12 @@ struct SendCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var sheets: some View {
         VStack {
-            SheetHolder()
+            NavHolder()
                 .sheet(item: $coordinator.mailViewModel) {
                     MailView(viewModel: $0)
                 }
             
-            SheetHolder()
+            NavHolder()
                 .sheet(item: $coordinator.qrScanViewModel) {
                     QRScanView(viewModel: $0)
                         .edgesIgnoringSafeArea(.all)
