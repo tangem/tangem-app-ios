@@ -28,7 +28,7 @@ extension View {
     
     func onNavigation<Tag: Hashable>(_ action: @escaping () -> Void, tag: Tag, selection: Binding<Tag?>) -> some View {
         let isActiveSelection = Binding<Tag?>(
-            get: { selection.wrappedValue },
+            get: { nil },
             set: { newValue in
                 selection.wrappedValue = newValue
                 if newValue != nil {
