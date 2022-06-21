@@ -43,7 +43,7 @@ struct CardOperationView: View {
         }
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle(viewModel.title)
-        .onReceive(viewModel.$isLoading) { _ in
+        .onReceive(viewModel.$isLoading.dropFirst()) { _ in
             presentationMode.wrappedValue.dismiss()
         }
     }
