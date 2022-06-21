@@ -41,6 +41,9 @@ struct DetailsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.cardOperationViewModel) {
                 CardOperationView(viewModel: $0)
             }
+            .navigation(item: $coordinator.disclaimerViewModel) {
+                DisclaimerView(viewModel: $0)
+            }
     }
     
     @ViewBuilder
@@ -60,9 +63,6 @@ struct DetailsCoordinatorView: CoordinatorView {
             }
         
         NavHolder()
-            .sheet(item: $coordinator.disclaimerViewModel) {
-                DisclaimerView(viewModel: $0)
-                    .presentation(modal: true, onDismissalAttempt: nil, onDismissed: $0.dismissCallback)
-            }
+           
     }
 }
