@@ -1,5 +1,5 @@
 //
-//  AppServiceCoordinatorView.swift
+//  SceneCoordinatorView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,8 +9,8 @@
 import Foundation
 import SwiftUI
 
-struct AppServiceCoordinatorView: CoordinatorView {
-    @ObservedObject var coordinator: AppServiceCoordinator
+struct SceneCoordinatorView: CoordinatorView {
+    @ObservedObject var coordinator: SceneCoordinator
     
     var body: some View {
         AppCoordinatorView(coordinator: coordinator.appCoordinator)
