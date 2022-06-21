@@ -58,14 +58,14 @@ class ListDataLoader {
         self.cachedSearch = [:]
     }
     
-    func fetch(_ searchText: String, onlyActive: Bool = false) {
+    func fetch(_ searchText: String) {
         cancellable = nil
         
         if lastSearchText != searchText {
             reset(searchText)
         }
      
-        cancellable = loadItems(searchText, onlyActive: onlyActive)
+        cancellable = loadItems(searchText)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] items in
                 guard let self = self else { return }
@@ -83,13 +83,13 @@ class ListDataLoader {
 // MARK: Private
 
 private extension ListDataLoader {
-    func loadItems(_ searchText: String, onlyActive: Bool) -> AnyPublisher<[CoinModel], Never> {
+    func loadItems(_ searchText: String) -> AnyPublisher<[CoinModel], Never> {
         // If testnet then use local coins from testnet_tokens.json file
         if isTestnet {
             return loadTestnetItems(searchText)
         }
     
-        return loadMainnetItems(searchText, onlyActive: onlyActive)
+        return loadMainnetItems(searchText)
     }
     
     func loadTestnetItems(_ searchText: String) -> AnyPublisher<[CoinModel], Never> {
@@ -126,7 +126,7 @@ private extension ListDataLoader {
             .eraseToAnyPublisher()
     }
 
-    func loadMainnetItems(_ searchText: String, onlyActive: Bool = false) -> AnyPublisher<[CoinModel], Never> {
+    func loadMainnetItems(_ searchText: String) -> AnyPublisher<[CoinModel], Never> {
         let networkIds = SupportedTokenItems()
             .blockchains(for: walletCurves, isTestnet: isTestnet)
             .map { $0.networkId }
@@ -137,7 +137,7 @@ private extension ListDataLoader {
             searchText: searchText,
             limit: perPage,
             offset: items.count,
-            active: onlyActive
+            active: true
         )
         
         return coinsService.loadCoins(requestModel: requestModel)
