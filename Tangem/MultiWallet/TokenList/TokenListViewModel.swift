@@ -127,7 +127,7 @@ class TokenListViewModel: ViewModel, ObservableObject {
     }
     
     func fetch() {
-        loader.fetch(enteredSearchText.value)
+        loader.fetch(enteredSearchText.value, onlyActive: true)
     }
 }
 
@@ -140,7 +140,7 @@ private extension TokenListViewModel {
             .debounce(for: 0.5, scheduler: DispatchQueue.main)
             .removeDuplicates()
             .sink { [weak self] string in
-                self?.loader.fetch(string)
+                self?.loader.fetch(string, onlyActive: true)
             }
             .store(in: &bag)
     }
