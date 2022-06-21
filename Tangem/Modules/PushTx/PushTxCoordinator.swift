@@ -10,20 +10,30 @@ import Foundation
 import BlockchainSdk
 
 class PushTxCoordinator: CoordinatorObject {
-    //MARK: - View models
-    @Published private(set) var pushTxViewModel: PushTxViewModel!
+    var dismissAction: () -> Void = {}
+    var popToRootAction: (PopToRootOptions) -> Void = { _ in }
+    
+    //MARK: - Main view model
+    @Published private(set) var pushTxViewModel: PushTxViewModel? = nil
+    
+    //MARK: - Child view models
     @Published var mailViewModel: MailViewModel? = nil
     
-    var dismissAction: () -> Void = {}
-    
-    func start(for tx: BlockchainSdk.Transaction, blockchainNetwork: BlockchainNetwork, card: CardViewModel) {
-        pushTxViewModel = PushTxViewModel(transaction: tx,
-                                          blockchainNetwork: blockchainNetwork,
-                                          cardViewModel: card,
+    func start(with options: PushTxCoordinator.Options) {
+        pushTxViewModel = PushTxViewModel(transaction: options.tx,
+                                          blockchainNetwork: options.blockchainNetwork,
+                                          cardViewModel: options.cardModel,
                                           coordinator: self)
     }
 }
 
+extension PushTxCoordinator {
+    struct Options {
+        let tx: BlockchainSdk.Transaction
+        let blockchainNetwork: BlockchainNetwork
+        let cardModel: CardViewModel
+    }
+}
 
 extension PushTxCoordinator: PushTxRoutable {
     func openMail(with dataCollector: EmailDataCollector) {

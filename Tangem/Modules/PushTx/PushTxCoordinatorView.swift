@@ -13,9 +13,11 @@ struct PushTxCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: PushTxCoordinator
     
     var body: some View {
-        PushTxView(viewModel: coordinator.pushTxViewModel)
-            .sheet(item: $coordinator.mailViewModel) {
-                MailView(viewModel: $0)
-            }
+        if let model = coordinator.pushTxViewModel {
+            PushTxView(viewModel: model)
+                .sheet(item: $coordinator.mailViewModel) {
+                    MailView(viewModel: $0)
+                }
+        }
     }
 }
