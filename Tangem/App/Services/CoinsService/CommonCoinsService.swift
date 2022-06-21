@@ -47,7 +47,6 @@ extension CommonCoinsService: CoinsService {
                 }
                 
                 return coinModels
-                    .filter({ $0.active })
                     .compactMap { coinModel in
                         let items = coinModel.items.filter {
                             let itemContractAddress = $0.contractAddress ?? ""
@@ -63,8 +62,7 @@ extension CommonCoinsService: CoinsService {
                             name: coinModel.name,
                             symbol: coinModel.symbol,
                             imageURL: coinModel.imageURL,
-                            items: items,
-                            active: coinModel.active
+                            items: items
                         )
                     }
             }
