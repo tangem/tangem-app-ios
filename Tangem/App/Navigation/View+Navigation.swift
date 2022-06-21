@@ -73,6 +73,9 @@ extension View {
         )
     }
 
+    func navigationLinks<Links: View>(_ links: Links) -> some View {
+        self.background(links)
+    }
 }
 
 extension NavigationLink {
