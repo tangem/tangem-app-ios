@@ -158,7 +158,7 @@ struct TokenDetailsView_Previews: PreviewProvider {
             TokenDetailsView(viewModel: TokenDetailsViewModel(cardModel: PreviewCard.cardanoNote.cardModel,
                                                               blockchainNetwork: PreviewCard.cardanoNote.blockchainNetwork!,
                                                               amountType: .coin,
-                                                              coordinator: AppCoordinator()))
+                                                              coordinator: TokenDetailsCoordinator()))
             .deviceForPreviewZoomed(.iPhone7)
         }
     }
