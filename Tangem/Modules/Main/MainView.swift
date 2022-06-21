@@ -217,7 +217,7 @@ struct MainView: View {
             }
         }
         .navigationBarBackButtonHidden(true)
-        //.navigationBarTitle(navigation.mainToSettings || navigation.mainToBuyCrypto || navigation.mainToTokenDetails ? "" : "wallet_title", displayMode: .inline) //[REDACTED_TODO_COMMENT]
+        .navigationBarTitle("wallet_title", displayMode: .inline) //[REDACTED_TODO_COMMENT]
         .navigationBarItems(leading: scanNavigationButton,
                             trailing: settingsNavigationButton)
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
@@ -324,7 +324,7 @@ struct MainView: View {
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            MainView(viewModel: .init(cardModel: PreviewCard.stellar.cardModel, coordinator: AppCoordinator()))
+            MainView(viewModel: .init(cardModel: PreviewCard.stellar.cardModel, coordinator: MainCoordinator()))
         }
         .previewGroup(devices: [.iPhone12ProMax])
         .navigationViewStyle(StackNavigationViewStyle())

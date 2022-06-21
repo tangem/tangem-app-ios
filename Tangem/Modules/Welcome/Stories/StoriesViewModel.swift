@@ -20,7 +20,6 @@ class StoriesViewModel: ObservableObject {
     private var longTapTimerSubscription: AnyCancellable?
     private var longTapDetected = false
     private var currentDragLocation: CGPoint?
-    private var didDisplayMainScreenStories = false
     private var bag: Set<AnyCancellable> = []
     
     private let longTapDuration = 0.25
@@ -66,7 +65,7 @@ class StoriesViewModel: ObservableObject {
         
         switch currentPage {
         case WelcomeStoryPage.meetTangem:
-            MeetTangemStoryPage(progress: progressBinding, immediatelyShowButtons: didDisplayMainScreenStories, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
+            MeetTangemStoryPage(progress: progressBinding, immediatelyShowButtons: userPrefsService.didDisplayMainScreenStories, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.awe:
             AweStoryPage(progress: progressBinding, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.backup:
@@ -126,7 +125,7 @@ class StoriesViewModel: ObservableObject {
         currentPage = WelcomeStoryPage(rawValue: currentPage.rawValue + (forward ? 1 : -1)) ?? pages.first!
         restartTimer()
         if currentPage != pages.first {
-            didDisplayMainScreenStories = true
+            userPrefsService.didDisplayMainScreenStories = true
         }
     }
     
