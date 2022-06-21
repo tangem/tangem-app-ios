@@ -1,5 +1,5 @@
 //
-//  SheetHolder.swift
+//  NavHolder.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import Foundation
 import SwiftUI
 
-struct SheetHolder: View {
+struct NavHolder: View {
     var body: some View {
         Color.clear
     }
