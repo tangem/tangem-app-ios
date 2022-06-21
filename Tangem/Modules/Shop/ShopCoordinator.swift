@@ -9,20 +9,32 @@
 import Foundation
 
 class ShopCoordinator: CoordinatorObject {
-    //MARK: - View models
+    var dismissAction: () -> Void = {}
+    var popToRootAction: (PopToRootOptions) -> Void = { _ in }
+    
+    //MARK: - Main view model
     @Published private(set) var shopViewModel: ShopViewModel? = nil
+    
+    //MARK: - Child view models
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
     
     @Published var webShopUrl: URL? = nil
     
-    var dismissAction: () -> Void = {}
+    //MARK: - Private helpers
+    @Published var emptyModel: Int? = nil //Fix single navigation link issue
     
-    func start() {
+    func start(with options: ShopCoordinator.Options = .init()) {
         if Locale.current.regionCode == "RU" {
             webShopUrl = URL(string: "https://mv.tangem.com")
         } else {
             shopViewModel = ShopViewModel(coordinator: self)
         }
+    }
+}
+
+extension ShopCoordinator {
+    struct Options {
+        
     }
 }
 
