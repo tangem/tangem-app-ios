@@ -14,14 +14,14 @@ import BlockchainSdk
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
     
-    private let appCoordinator: AppServiceCoordinator = .init()
+    private let appCoordinator: SceneCoordinator = .init()
     
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         appCoordinator.start(with: connectionOptions)
         
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
-            let appView = AppServiceCoordinatorView(coordinator: appCoordinator)
+            let appView = SceneCoordinatorView(coordinator: appCoordinator)
             window.rootViewController = UIHostingController(rootView: appView)
             self.window = window
             window.makeKeyAndVisible()
