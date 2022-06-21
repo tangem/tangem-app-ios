@@ -8,6 +8,6 @@
 
 import Foundation
 
-protocol WalletOnboardingRoutable: AnyObject {
+protocol WalletOnboardingRoutable: OnboardingRoutable {
     func openAccessCodeView(callback: @escaping (String) -> Void)
 }

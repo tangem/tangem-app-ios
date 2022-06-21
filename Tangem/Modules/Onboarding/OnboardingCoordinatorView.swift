@@ -18,9 +18,13 @@ struct OnboardingCoordinatorView: CoordinatorView {
                 .transition(.withoutOpacity)
                 .navigationBarTitle("", displayMode: .inline)
                 .navigationBarHidden(true)
+            
+            NavHolder()
                 .sheet(item: $coordinator.buyCryptoModel) {
                     WebViewContainer(viewModel: $0)
                 }
+            
+            NavHolder()
                 .sheet(item: $coordinator.accessCodeModel) {
                     OnboardingAccessCodeView(viewModel: $0)
                 }

@@ -8,11 +8,19 @@
 
 import Foundation
 
-class OnboardingCoordinator: CoordinatorObject {    
-    //MARK: - View models
-    @Published var singleCardViewModel: SingleCardOnboardingViewModel? = nil
-    @Published var twinsViewModel: TwinsOnboardingViewModel? = nil
-    @Published var walletViewModel: WalletOnboardingViewModel? = nil
+class OnboardingCoordinator: CoordinatorObject {
+    var dismissAction: () -> Void = {}
+    var popToRootAction: (PopToRootOptions) -> Void = { _ in }
+    
+    //MARK: - Main view models
+    @Published private(set) var singleCardViewModel: SingleCardOnboardingViewModel? = nil
+    @Published private(set) var twinsViewModel: TwinsOnboardingViewModel? = nil
+    @Published private(set) var walletViewModel: WalletOnboardingViewModel? = nil
+    
+    //MARK: - Child coordinators
+    @Published var mainCoordinator: MainCoordinator? = nil
+    
+    //MARK: - Child view models
     @Published var buyCryptoModel: WebViewContainerViewModel? = nil
     @Published var accessCodeModel: OnboardingAccessCodeViewModel? = nil
     @Published var addressQrBottomSheetContentViewVodel: AddressQrBottomSheetContentViewVodel? = nil
@@ -20,12 +28,11 @@ class OnboardingCoordinator: CoordinatorObject {
     //MARK: - Helpers
     @Published var qrBottomSheetKeeper: Bool = false
     
-    var dismissAction: () -> Void = {}
-    
     //For non-dismissable presentation
     var onDismissalAttempt: () -> Void = {}
     
-    func start(with input: OnboardingInput) {
+    func start(with options: OnboardingCoordinator.Options) {
+        let input = options.input
         switch input.steps {
         case .singleWallet:
             let model = SingleCardOnboardingViewModel(input: input, coordinator: self)
@@ -44,6 +51,12 @@ class OnboardingCoordinator: CoordinatorObject {
     
     func hideQrBottomSheet() {
         qrBottomSheetKeeper.toggle()
+    }
+}
+
+extension OnboardingCoordinator {
+    struct Options {
+        let input: OnboardingInput
     }
 }
 
@@ -71,5 +84,11 @@ extension OnboardingCoordinator: WalletOnboardingRoutable {
             self?.accessCodeModel = nil
             callback(code)
         })
+    }
+}
+
+extension OnboardingCoordinator: OnboardingRoutable {
+    func closeOnboarding() {
+        dismiss()
     }
 }
