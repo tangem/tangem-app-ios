@@ -11,15 +11,28 @@ import SwiftUI
 
 struct SendCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: SendCoordinator
-
+    
     var body: some View {
-        SendView(viewModel: coordinator.sendViewModel)
-            .sheet(item: $coordinator.mailViewModel) {
-                MailView(viewModel: $0)
-            }
-            .sheet(item: $coordinator.qrScanViewModel) {
-                QRScanView(viewModel: $0)
-                    .edgesIgnoringSafeArea(.all)
-            }
+        ZStack {
+            SendView(viewModel: coordinator.sendViewModel)
+            
+            sheets
+        }
+    }
+    
+    @ViewBuilder
+    private var sheets: some View {
+        VStack {
+            SheetHolder()
+                .sheet(item: $coordinator.mailViewModel) {
+                    MailView(viewModel: $0)
+                }
+            
+            SheetHolder()
+                .sheet(item: $coordinator.qrScanViewModel) {
+                    QRScanView(viewModel: $0)
+                        .edgesIgnoringSafeArea(.all)
+                }
+        }
     }
 }
