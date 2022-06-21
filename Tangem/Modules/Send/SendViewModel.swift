@@ -119,25 +119,7 @@ class SendViewModel: ObservableObject {
     
     @Published var sendError: AlertBinder?
     
-    var cardViewModel: CardViewModel {
-        didSet {
-            cardViewModel
-                .objectWillChange
-                .receive(on: RunLoop.main)
-                .sink { [weak self] in
-                    self?.objectWillChange.send()
-                }
-                .store(in: &bag)
-            
-            walletModel
-                .objectWillChange
-                .receive(on: RunLoop.main)
-                .sink { [weak self] in
-                    self?.objectWillChange.send()
-                }
-                .store(in: &bag)
-        }
-    }
+    let cardViewModel: CardViewModel
     
     var walletModel: WalletModel {
         return cardViewModel.walletModels!.first(where: { $0.blockchainNetwork == blockchainNetwork })!
@@ -169,7 +151,7 @@ class SendViewModel: ObservableObject {
     
     private(set) var isSellingCrypto: Bool
     lazy var emailDataCollector: SendScreenDataCollector = .init(sendViewModel: self)
-    private var scannedQRCode: CurrentValueSubject<String, Never> = .init("")
+    private var scannedQRCode: CurrentValueSubject<String?, Never> = .init(nil)
     
     @Published private var validatedXrpDestinationTag: UInt32? = nil
     
@@ -213,6 +195,7 @@ class SendViewModel: ObservableObject {
         canFiatCalculation = false
         sendAmount = amountToSend.value.description
         amountText = sendAmount
+        bind()
     }
     
     private func getDescription(for amount: Amount?) -> String {
@@ -235,6 +218,22 @@ class SendViewModel: ObservableObject {
     // MARK: - Subscriptions
     func bind() {
         bag = Set<AnyCancellable>()
+        
+        cardViewModel
+            .objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in
+                self?.objectWillChange.send()
+            }
+            .store(in: &bag)
+        
+        walletModel
+            .objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in
+                self?.objectWillChange.send()
+            }
+            .store(in: &bag)
         
         walletModel
             .$rates
@@ -439,6 +438,7 @@ class SendViewModel: ObservableObject {
             .store(in: &bag)
         
         scannedQRCode
+            .compactMap { $0 }
             .sink {[unowned self] qrCodeString in
                 let withoutPrefix = qrCodeString.remove(contentsOf: self.walletModel.wallet.blockchain.qrPrefixes)
                 let splitted = withoutPrefix.split(separator: "?")
