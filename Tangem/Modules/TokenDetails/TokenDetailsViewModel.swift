@@ -20,11 +20,7 @@ class TokenDetailsViewModel: ObservableObject {
         dismissalRequestSubject.eraseToAnyPublisher()
     }
     
-    var card: CardViewModel! {
-        didSet {
-            bind()
-        }
-    }
+    let card: CardViewModel
     
     var wallet: Wallet? {
         return walletModel?.wallet
@@ -157,6 +153,8 @@ class TokenDetailsViewModel: ObservableObject {
         self.blockchainNetwork = blockchainNetwork
         self.amountType = amountType
         self.coordinator = coordinator
+        
+        bind()
     }
     
      func onAppear() {

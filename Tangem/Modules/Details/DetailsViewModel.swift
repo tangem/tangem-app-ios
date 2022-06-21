@@ -19,16 +19,7 @@ class DetailsViewModel: ObservableObject {
     
     @Published var isCheckingPin = false
     
-    @Published var cardModel: CardViewModel! {
-        didSet {
-            cardModel.objectWillChange
-                .receive(on: RunLoop.main)
-                .sink { [weak self] in
-                    self?.objectWillChange.send()
-                }
-                .store(in: &bag)
-        }
-    }
+    @Published var cardModel: CardViewModel
     
     @Published var error: AlertBinder?
     
@@ -126,6 +117,7 @@ class DetailsViewModel: ObservableObject {
         self.cardModel = cardModel
         self.coordinator = coordinator
         self.dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel)
+        bind()
     }
     
     func onAppear() {
@@ -208,6 +200,15 @@ class DetailsViewModel: ObservableObject {
             self.openOnboarding(with: input)
         }
         .store(in: &bag)
+    }
+    
+    private func bind() {
+        cardModel.objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in
+                self?.objectWillChange.send()
+            }
+            .store(in: &bag)
     }
     
     private func filename(languageCode: String, regionCode: String) -> String {
