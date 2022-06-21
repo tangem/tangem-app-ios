@@ -16,19 +16,6 @@ struct AppCoordinatorView: CoordinatorView {
         ZStack {
             NavigationView {
                 WelcomeView(viewModel: coordinator.welcomeViewModel)
-                    .sheet(item: $coordinator.tokenListCoordinator) {
-                        TokenListCoordinatorView(coordinator: $0)
-                    }
-                    .sheet(item: $coordinator.mailViewModel) {
-                        MailView(viewModel: $0)
-                    }
-                    .sheet(item: $coordinator.disclaimerViewModel) {
-                        DisclaimerView(viewModel: $0)
-                            .presentation(modal: true, onDismissalAttempt: nil, onDismissed: $0.dismissCallback)
-                    }
-                    .sheet(item: $coordinator.shopCoordinator) {
-                        ShopCoordinatorView(coordinator: $0)
-                    }
                     .navigation(item: $coordinator.pushedOnboardingCoordinator) {
                         OnboardingCoordinatorView(coordinator: $0)
                     }
@@ -53,37 +40,78 @@ struct AppCoordinatorView: CoordinatorView {
                     .navigation(item: $coordinator.secManagementViewModel) {
                         SecurityManagementView(viewModel: $0)
                     }
-                    .sheet(item: $coordinator.modalOnboardingCoordinator) {
-                        OnboardingCoordinatorView(coordinator: $0)
-                            .presentation(modal: true, onDismissalAttempt: $0.onDismissalAttempt, onDismissed: nil)
-                            .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
-                                coordinator.modalOnboardingCoordinatorKeeper = value
-                            })
-                    }
-                    .sheet(item: $coordinator.sendCoordinator) {
-                        SendCoordinatorView(coordinator: $0)
-                    }
-                    .sheet(item: $coordinator.modalWebViewModel) {
-                        WebViewContainer(viewModel: $0)
-                    }
-                    .sheet(item: $coordinator.pushTxCoordinator) {
-                        PushTxCoordinatorView(coordinator: $0)
-                    }
-                    .sheet(item: $coordinator.safariURL) {
-                        SafariView(url: $0)
-                    }
-                    .sheet(item: $coordinator.qrScanViewModel) {
-                        QRScanView(viewModel: $0)
-                            .edgesIgnoringSafeArea(.all)
-                    }
+                
                 //                .navigationBarHidden(isNavigationBarHidden)
             }
+            
+            sheets
+        }
+        .navigationViewStyle(StackNavigationViewStyle())
+    }
+    
+    @ViewBuilder
+    private var sheets: some View {
+        VStack {
+            SheetHolder()
+                .sheet(item: $coordinator.disclaimerViewModel) {
+                    DisclaimerView(viewModel: $0)
+                        .presentation(modal: true, onDismissalAttempt: nil, onDismissed: $0.dismissCallback)
+                }
+            
+            SheetHolder()
+                .sheet(item: $coordinator.shopCoordinator) {
+                    ShopCoordinatorView(coordinator: $0)
+                }
+            
+            SheetHolder()
+                .sheet(item: $coordinator.tokenListCoordinator) {
+                    TokenListCoordinatorView(coordinator: $0)
+                }
+            
+            SheetHolder()
+                .sheet(item: $coordinator.mailViewModel) {
+                    MailView(viewModel: $0)
+                }
+            
+            SheetHolder()
+                .sheet(item: $coordinator.modalOnboardingCoordinator) {
+                    OnboardingCoordinatorView(coordinator: $0)
+                        .presentation(modal: true, onDismissalAttempt: $0.onDismissalAttempt, onDismissed: nil)
+                        .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
+                            coordinator.modalOnboardingCoordinatorKeeper = value
+                        })
+                }
+            
+            SheetHolder()
+                .sheet(item: $coordinator.sendCoordinator) {
+                    SendCoordinatorView(coordinator: $0)
+                }
+            
+            SheetHolder()
+                .sheet(item: $coordinator.modalWebViewModel) {
+                    WebViewContainer(viewModel: $0)
+                }
+            
+            SheetHolder()
+                .sheet(item: $coordinator.pushTxCoordinator) {
+                    PushTxCoordinatorView(coordinator: $0)
+                }
+            
+            SheetHolder()
+                .sheet(item: $coordinator.safariURL) {
+                    SafariView(url: $0)
+                }
+            
+            SheetHolder()
+                .sheet(item: $coordinator.qrScanViewModel) {
+                    QRScanView(viewModel: $0)
+                        .edgesIgnoringSafeArea(.all)
+                }
             
             BottomSheetView(isPresented: coordinator.$qrBottomSheetKeeper,
                             hideBottomSheetCallback: coordinator.hideQrBottomSheet,
                             content: { addressQrBottomSheetContent })
         }
-        .navigationViewStyle(StackNavigationViewStyle())
     }
     
     @ViewBuilder
