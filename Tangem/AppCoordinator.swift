@@ -1,5 +1,5 @@
 //
-//  SceneCoordinator.swift
+//  AppCoordinator.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,14 +9,15 @@
 import Foundation
 import UIKit
 
-class SceneCoordinator: NSObject, CoordinatorObject {
+class AppCoordinator: NSObject, CoordinatorObject {
+    var dismissAction: () -> Void = {}
+    var popToRootAction: (PopToRootOptions) -> Void = { _ in }
+    
     //MARK: - Injected
     @Injected(\.walletConnectServiceProvider) private var walletConnectServiceProvider: WalletConnectServiceProviding
     
     //MARK: - Child coordinators
-    @Published var appCoordinator: AppCoordinator = .init()
-    
-    var dismissAction: () -> Void = {}
+    @Published var welcomeCoordinator: WelcomeCoordinator = .init()
     
     //MARK: - Private
     private let servicesManager: ServicesManager = .init()
@@ -27,25 +28,32 @@ class SceneCoordinator: NSObject, CoordinatorObject {
         servicesManager.initialize()
     }
     
-    func start(with options: UIScene.ConnectionOptions? = nil) {
-        appCoordinator.dismissAction = { [weak self] in self?.popToRoot() }
-        appCoordinator.start()
+    func start(with options: AppCoordinator.Options = .default) {
+        welcomeCoordinator.dismissAction = { [weak self] in self?.popToRoot() }
+        welcomeCoordinator.start(with: .init(shouldScan: false))
         
-        if let options = options {
+        if let options = options.connectionOptions {
             handle(contexts: options.urlContexts)
             handle(activities: options.userActivities)
         }
     }
     
     func popToRoot() {
-        appCoordinator = .init()
-        appCoordinator.start()
+        welcomeCoordinator = .init()
+        welcomeCoordinator.start(with: .init(shouldScan: false))
     }
 }
 
+extension AppCoordinator {
+    struct Options {
+        let connectionOptions: UIScene.ConnectionOptions?
+        
+        static let `default`: Options = .init(connectionOptions: nil)
+    }
+}
 
 //MARK: - UIWindowSceneDelegate
-extension SceneCoordinator: UIWindowSceneDelegate {
+extension AppCoordinator: UIWindowSceneDelegate {
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
         handle(activities: [userActivity])
     }
@@ -58,9 +66,9 @@ extension SceneCoordinator: UIWindowSceneDelegate {
             self?.deferredIntents.forEach {
                 switch $0.activityType {
                 case String(describing: ScanTangemCardIntent.self):
-                    //todo: test
-                    self?.appCoordinator = .init()
-                    self?.appCoordinator.start()
+                    //[REDACTED_TODO_COMMENT]
+                    self?.welcomeCoordinator = .init()
+                    self?.welcomeCoordinator.start(with: .init(shouldScan: true))
                 default:
                     break
                 }
@@ -109,7 +117,7 @@ extension SceneCoordinator: UIWindowSceneDelegate {
 }
 
 //MARK: - URLHandler
-extension SceneCoordinator: URLHandler {
+extension AppCoordinator: URLHandler {
     @discardableResult func handle(url: String) -> Bool {
         guard url.starts(with: "https://app.tangem.com")
                 || url.starts(with: Constants.tangemDomain + "/ndef")
