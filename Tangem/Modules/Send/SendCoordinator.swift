@@ -12,25 +12,38 @@ import SwiftUI
 
 class SendCoordinator: CoordinatorObject {
     var dismissAction: () -> Void = {}
+    var popToRootAction: (PopToRootOptions) -> Void = { _ in }
+    
+    //MARK: - Main view model
+    @Published private(set) var sendViewModel: SendViewModel? = nil
     
     //MARK: - Child view models
-    @Published var sendViewModel: SendViewModel!
+
     @Published var mailViewModel: MailViewModel? = nil
     @Published var qrScanViewModel: QRScanViewModel? = nil
     
-    func start(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
-        sendViewModel = SendViewModel(amountToSend: amountToSend,
-                                      blockchainNetwork: blockchainNetwork,
-                                      cardViewModel: cardViewModel,
-                                      coordinator: self)
+    func start(with options: SendCoordinator.Options) {
+        if let destination = options.destination {
+            sendViewModel = SendViewModel(amountToSend: options.amountToSend,
+                                          destination: destination,
+                                          blockchainNetwork: options.blockchainNetwork,
+                                          cardViewModel: options.cardViewModel,
+                                          coordinator: self)
+        } else {
+            sendViewModel = SendViewModel(amountToSend: options.amountToSend,
+                                          blockchainNetwork: options.blockchainNetwork,
+                                          cardViewModel: options.cardViewModel,
+                                          coordinator: self)
+        }
     }
-    
-    func start(amountToSend: Amount, destination: String, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
-        sendViewModel = SendViewModel(amountToSend: amountToSend,
-                                      destination: destination,
-                                      blockchainNetwork: blockchainNetwork,
-                                      cardViewModel: cardViewModel,
-                                      coordinator: self)
+}
+
+extension SendCoordinator {
+    struct Options {
+        let amountToSend: Amount
+        let destination: String?
+        let blockchainNetwork: BlockchainNetwork
+        let cardViewModel: CardViewModel
     }
 }
 

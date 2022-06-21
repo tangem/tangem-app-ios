@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol OnboardingTopupRoutable: AnyObject {
+protocol OnboardingTopupRoutable: OnboardingRoutable {
     func openCryptoShop(at url: URL, closeUrl: String, action: @escaping (String) -> Void)
     func openQR(shareAddress: String, address: String, qrNotice: String)
 }
