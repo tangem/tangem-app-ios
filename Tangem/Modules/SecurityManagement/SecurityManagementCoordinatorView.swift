@@ -19,6 +19,9 @@ struct SecurityManagementCoordinatorView: CoordinatorView {
                 .navigation(item: $coordinator.cardOperationViewModel) {
                     CardOperationView(viewModel: $0)
                 }
+                .navigation(item: $coordinator.emptyModel) { _ in
+                    EmptyView()
+                }
         }
     }
 }
