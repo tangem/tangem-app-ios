@@ -16,7 +16,6 @@ struct CoinModel {
     let symbol: String
     let imageURL: URL?
     let items: [TokenItem]
-    let active: Bool
 }
 
 extension CoinModel {
@@ -47,6 +46,5 @@ extension CoinModel {
         self.name = name
         self.symbol = symbol
         self.imageURL = url
-        self.active = entity.active
     }
 }
