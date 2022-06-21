@@ -245,6 +245,7 @@ class MainViewModel: ObservableObject {
     init(cardModel: CardViewModel, coordinator: MainRoutable) {
         self.state = .card(model: cardModel) //[REDACTED_TODO_COMMENT]
         self.coordinator = coordinator
+        bind()
     }
     
     deinit {
@@ -568,8 +569,7 @@ class MainViewModel: ObservableObject {
                                         cardInput: .cardModel(cardModel),
                                         cardsPosition: nil,
                                         welcomeStep: nil,
-                                        currentStepIndex: 0,
-                                        successCallback: {})
+                                        currentStepIndex: 0)
             
             self.openOnboarding(with: input)
         }
