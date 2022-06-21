@@ -103,13 +103,13 @@ class WelcomeViewModel: ObservableObject {
                                             cardInput: .cardModel(cardModel),
                                             cardsPosition: (.zero, .zero),
                                             welcomeStep: nil,
-                                            currentStepIndex: 0,
-                                            successCallback: nil)
+                                            currentStepIndex: 0)
                 
                 self.isScanningCard = false
                 if input.steps.needOnboarding {
                     openOnboarding(with: input)
                 } else {
+                    cardModel.updateState()
                     openMain(with: input)
                 }
             
@@ -146,11 +146,6 @@ extension WelcomeViewModel {
     }
     
     func openOnboarding(with input: OnboardingInput) {
-        var input = input
-        input.successCallback = { [weak self] in
-            self?.openMain(with: input)
-        }
-        
         coordinator.openOnboarding(with: input)
     }
     
@@ -210,7 +205,6 @@ private extension WelcomeViewModel {
                                             cardsPosition: nil,
                                             welcomeStep: nil,
                                             currentStepIndex: 0,
-                                            successCallback: nil,
                                             isStandalone: false)
                 
                 self.openInterrupedBackup(with: input)
