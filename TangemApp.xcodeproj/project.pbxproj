@@ -470,6 +470,7 @@
 		DC0A5853282E3AB60031BECC /* CardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D4B8BC227EDD601002CE87C /* CardInfo.swift */; };
 		DC0A5854282E3ACD0031BECC /* ScanResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D4B8BBE27EDD5B5002CE87C /* ScanResult.swift */; };
 		DC0A5856282E3E220031BECC /* ServicesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A5855282E3E220031BECC /* ServicesManager.swift */; };
+		DC295B3A28615D03006CB7B6 /* SheetHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B3928615D03006CB7B6 /* SheetHolder.swift */; };
 		DC51185C2860925A004FB954 /* WalletConnectRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC51185B2860925A004FB954 /* WalletConnectRoutable.swift */; };
 		DC51185F28609F67004FB954 /* CardOperationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC51185E28609F67004FB954 /* CardOperationViewModel.swift */; };
 		DC51186128609F71004FB954 /* CardOperationRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC51186028609F71004FB954 /* CardOperationRoutable.swift */; };
@@ -484,8 +485,8 @@
 		DC5118742860B62B004FB954 /* AppCoordinator+DetailsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5118732860B62B004FB954 /* AppCoordinator+DetailsRoutable.swift */; };
 		DC5118762860B641004FB954 /* AppCoordinator+MainRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5118752860B641004FB954 /* AppCoordinator+MainRoutable.swift */; };
 		DC5118782860B658004FB954 /* AppCoordinator+WelcomeRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5118772860B658004FB954 /* AppCoordinator+WelcomeRoutable.swift */; };
-		DC51187A2860B704004FB954 /* AppServiceCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5118792860B704004FB954 /* AppServiceCoordinator.swift */; };
-		DC51187C2860B728004FB954 /* AppServiceCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC51187B2860B728004FB954 /* AppServiceCoordinatorView.swift */; };
+		DC51187A2860B704004FB954 /* SceneCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5118792860B704004FB954 /* SceneCoordinator.swift */; };
+		DC51187C2860B728004FB954 /* SceneCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC51187B2860B728004FB954 /* SceneCoordinatorView.swift */; };
 		DC66BBE32858E7A600CDF765 /* WelcomeRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBE22858E7A600CDF765 /* WelcomeRoutable.swift */; };
 		DC66BBE52858EB6300CDF765 /* OnboardingCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBE42858EB6300CDF765 /* OnboardingCoordinator.swift */; };
 		DC66BBE72858EBE400CDF765 /* OnboardingCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBE62858EBE400CDF765 /* OnboardingCoordinatorView.swift */; };
@@ -508,7 +509,7 @@
 		DC66BC0A285B755800CDF765 /* PushTxRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC09285B755800CDF765 /* PushTxRoutable.swift */; };
 		DC66BC0C285B75BF00CDF765 /* PushTxCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC0B285B75BF00CDF765 /* PushTxCoordinator.swift */; };
 		DC66BC0E285B75C900CDF765 /* PushTxCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC0D285B75C900CDF765 /* PushTxCoordinatorView.swift */; };
-		DC66BC10285C405C00CDF765 /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC0F285C405C00CDF765 /* File.swift */; };
+		DC66BC10285C405C00CDF765 /* CoordinatorObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC0F285C405C00CDF765 /* CoordinatorObject.swift */; };
 		DC66BC12285C433800CDF765 /* AddCustomTokenRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC11285C433800CDF765 /* AddCustomTokenRoutable.swift */; };
 		DC66BC14285C44AD00CDF765 /* TokenListRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC13285C44AD00CDF765 /* TokenListRoutable.swift */; };
 		DC66BC16285C529600CDF765 /* SendRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BC15285C529600CDF765 /* SendRoutable.swift */; };
@@ -1011,6 +1012,7 @@
 		DC0A5849282C07A20031BECC /* WalletConnectServiceProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectServiceProviding.swift; sourceTree = "<group>"; };
 		DC0A584B282C07B10031BECC /* WalletConnectServiceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectServiceProvider.swift; sourceTree = "<group>"; };
 		DC0A5855282E3E220031BECC /* ServicesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicesManager.swift; sourceTree = "<group>"; };
+		DC295B3928615D03006CB7B6 /* SheetHolder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetHolder.swift; sourceTree = "<group>"; };
 		DC51185B2860925A004FB954 /* WalletConnectRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectRoutable.swift; sourceTree = "<group>"; };
 		DC51185E28609F67004FB954 /* CardOperationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardOperationViewModel.swift; sourceTree = "<group>"; };
 		DC51186028609F71004FB954 /* CardOperationRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardOperationRoutable.swift; sourceTree = "<group>"; };
@@ -1024,8 +1026,8 @@
 		DC5118732860B62B004FB954 /* AppCoordinator+DetailsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppCoordinator+DetailsRoutable.swift"; sourceTree = "<group>"; };
 		DC5118752860B641004FB954 /* AppCoordinator+MainRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppCoordinator+MainRoutable.swift"; sourceTree = "<group>"; };
 		DC5118772860B658004FB954 /* AppCoordinator+WelcomeRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppCoordinator+WelcomeRoutable.swift"; sourceTree = "<group>"; };
-		DC5118792860B704004FB954 /* AppServiceCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppServiceCoordinator.swift; sourceTree = "<group>"; };
-		DC51187B2860B728004FB954 /* AppServiceCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppServiceCoordinatorView.swift; sourceTree = "<group>"; };
+		DC5118792860B704004FB954 /* SceneCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneCoordinator.swift; sourceTree = "<group>"; };
+		DC51187B2860B728004FB954 /* SceneCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneCoordinatorView.swift; sourceTree = "<group>"; };
 		DC66BBE22858E7A600CDF765 /* WelcomeRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeRoutable.swift; sourceTree = "<group>"; };
 		DC66BBE42858EB6300CDF765 /* OnboardingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCoordinator.swift; sourceTree = "<group>"; };
 		DC66BBE62858EBE400CDF765 /* OnboardingCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCoordinatorView.swift; sourceTree = "<group>"; };
@@ -1048,7 +1050,7 @@
 		DC66BC09285B755800CDF765 /* PushTxRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTxRoutable.swift; sourceTree = "<group>"; };
 		DC66BC0B285B75BF00CDF765 /* PushTxCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTxCoordinator.swift; sourceTree = "<group>"; };
 		DC66BC0D285B75C900CDF765 /* PushTxCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTxCoordinatorView.swift; sourceTree = "<group>"; };
-		DC66BC0F285C405C00CDF765 /* File.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
+		DC66BC0F285C405C00CDF765 /* CoordinatorObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatorObject.swift; sourceTree = "<group>"; };
 		DC66BC11285C433800CDF765 /* AddCustomTokenRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomTokenRoutable.swift; sourceTree = "<group>"; };
 		DC66BC13285C44AD00CDF765 /* TokenListRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenListRoutable.swift; sourceTree = "<group>"; };
 		DC66BC15285C529600CDF765 /* SendRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendRoutable.swift; sourceTree = "<group>"; };
@@ -1261,8 +1263,8 @@
 				B0CC817C25CD626A006D49B9 /* Resources */,
 				5D3F77C524BF56D800E8695B /* AppDelegate.swift */,
 				B046EE172578D38E00EA38A5 /* SceneDelegate.swift */,
-				DC5118792860B704004FB954 /* AppServiceCoordinator.swift */,
-				DC51187B2860B728004FB954 /* AppServiceCoordinatorView.swift */,
+				DC5118792860B704004FB954 /* SceneCoordinator.swift */,
+				DC51187B2860B728004FB954 /* SceneCoordinatorView.swift */,
 				5DBFEA4D24DD642C0080D3DC /* Tangem.entitlements */,
 				5D3F77D024BF56DC00E8695B /* LaunchScreen.storyboard */,
 				5D3F77D324BF56DC00E8695B /* Info.plist */,
@@ -1374,6 +1376,7 @@
 				DAE6F76C2800011400411F45 /* AppError.swift */,
 				65B436012844FDE700DEAE1B /* TangemSkeletonModifier.swift */,
 				65B435FD2844BF7100DEAE1B /* AttributedTextView.swift */,
+				DC295B3928615D03006CB7B6 /* SheetHolder.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -2465,7 +2468,7 @@
 				DC66BBFA285A389000CDF765 /* SheetModifier.swift */,
 				DC66BBFB285A389000CDF765 /* View+Navigation.swift */,
 				DC7DA81F2844F33D00AD6DBD /* CoordinatorView.swift */,
-				DC66BC0F285C405C00CDF765 /* File.swift */,
+				DC66BC0F285C405C00CDF765 /* CoordinatorObject.swift */,
 			);
 			path = Navigation;
 			sourceTree = "<group>";
@@ -2997,6 +3000,7 @@
 				5D6784CE25EB92F300149995 /* SupportedTokenItems.swift in Sources */,
 				B0FAD01226BAF35C00F45E88 /* FrameSizeModifier.swift in Sources */,
 				DAFD691627CDEB7F00B36C71 /* CombinedExchangeService.swift in Sources */,
+				DC295B3A28615D03006CB7B6 /* SheetHolder.swift in Sources */,
 				B0E9E2FF2679DA8000269C7A /* AmountView.swift in Sources */,
 				DC51185C2860925A004FB954 /* WalletConnectRoutable.swift in Sources */,
 				DC66BC04285B6C5F00CDF765 /* SendCoordinator.swift in Sources */,
@@ -3050,7 +3054,7 @@
 				5D4B8BB927EDB327002CE87C /* ArrowView.swift in Sources */,
 				B06997D02692EC5E0014A676 /* ExchangeService.swift in Sources */,
 				EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */,
-				DC66BC10285C405C00CDF765 /* File.swift in Sources */,
+				DC66BC10285C405C00CDF765 /* CoordinatorObject.swift in Sources */,
 				B020FFBE25DE895E00EF422C /* Logger.swift in Sources */,
 				B026178D26FCAB7900B5107F /* FanStackCalculator.swift in Sources */,
 				5DFCCB7624C381A70014A293 /* SendViewModel.swift in Sources */,
@@ -3191,7 +3195,7 @@
 				DC0A57D72822A3C80031BECC /* InjectionKey.swift in Sources */,
 				5D3951672559A87E002CC452 /* CurrencySelectViewModel.swift in Sources */,
 				5DCC20BD2500FC58007B467E /* QRScannerView.swift in Sources */,
-				DC51187A2860B704004FB954 /* AppServiceCoordinator.swift in Sources */,
+				DC51187A2860B704004FB954 /* SceneCoordinator.swift in Sources */,
 				DC66BBFE285A389000CDF765 /* View+Navigation.swift in Sources */,
 				5DA3A2F1251CB6CA009A8E08 /* SecurityManagementView.swift in Sources */,
 				DC0A57EA2822AD6D0031BECC /* PersistentStorageKey.swift in Sources */,
@@ -3262,7 +3266,7 @@
 				DA23789227B250F6009795A8 /* ShopView.swift in Sources */,
 				B031AAB326C169E900015003 /* ConfettiType.swift in Sources */,
 				5D341CC627E31DC00028D8FC /* CoinView.swift in Sources */,
-				DC51187C2860B728004FB954 /* AppServiceCoordinatorView.swift in Sources */,
+				DC51187C2860B728004FB954 /* SceneCoordinatorView.swift in Sources */,
 				DC5118722860B612004FB954 /* AppCoordinator+TokenDetailsRoutable.swift in Sources */,
 				B0A0A19125822EFF005FC94D /* Storage.swift in Sources */,
 				B0F62C5025DE4EC9005C8BA0 /* MailView.swift in Sources */,
