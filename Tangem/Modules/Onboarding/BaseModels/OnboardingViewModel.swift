@@ -127,9 +127,11 @@ class OnboardingViewModel<Step: OnboardingStep> {
     
     var isFromMain: Bool = false
     private(set) var containerSize: CGSize = .zero
+    unowned let onboardingCoordinator: OnboardingRoutable
     
-    init(input: OnboardingInput) {
+    init(input: OnboardingInput, onboardingCoordinator: OnboardingRoutable) {
         self.input = input
+        self.onboardingCoordinator = onboardingCoordinator
         if let cardsSettings = input.cardsPosition {
             mainCardSettings = cardsSettings.dark
             supplementCardSettings = cardsSettings.light
@@ -189,7 +191,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
     func goToNextStep() {
         if isOnboardingFinished {
             DispatchQueue.main.async {
-                self.input.successCallback?()
+                self.closeOnboarding()
             }
             
             onOnboardingFinished(for: input.cardInput.cardId)
@@ -240,5 +242,12 @@ class OnboardingViewModel<Step: OnboardingStep> {
     
     func setupCardsSettings(animated: Bool, isContainerSetup: Bool) {
         fatalError("Not implemented")
+    }
+}
+
+//MARK: - Navigation
+extension OnboardingViewModel {
+    func closeOnboarding() {
+        onboardingCoordinator.closeOnboarding()
     }
 }
