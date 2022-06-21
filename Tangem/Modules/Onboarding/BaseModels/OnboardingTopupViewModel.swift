@@ -52,7 +52,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
     required init(input: OnboardingInput, coordinator: OnboardingTopupRoutable) {
         self.cardModel = input.cardInput.cardModel
         self.coordinator = coordinator
-        super.init(input: input)
+        super.init(input: input, onboardingCoordinator: coordinator)
         
         if let walletModel = self.cardModel?.walletModels?.first {
             updateCardBalanceText(for: walletModel)

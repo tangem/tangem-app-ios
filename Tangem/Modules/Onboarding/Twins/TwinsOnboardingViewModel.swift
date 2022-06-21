@@ -258,7 +258,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
     
     private func back() {
         if isFromMain {
-            input.successCallback?()
+            closeOnboarding()
         } else {
             reset()
         }

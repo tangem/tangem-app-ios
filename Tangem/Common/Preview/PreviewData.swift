@@ -16,8 +16,7 @@ struct PreviewData {
                         cardInput: .cardModel(PreviewCard.cardanoNote.cardModel),
                         cardsPosition: nil,
                         welcomeStep: nil,
-                        currentStepIndex: 0,
-                        successCallback: nil)
+                        currentStepIndex: 0)
     }
     
     static var previewTwinOnboardingInput: OnboardingInput {
@@ -27,8 +26,7 @@ struct PreviewData {
               cardInput: .cardModel(PreviewCard.twin.cardModel),
               cardsPosition: nil,
               welcomeStep: nil,
-              currentStepIndex: 0,
-              successCallback: nil)
+              currentStepIndex: 0)
     }
     
     static var previewWalletOnboardingInput: OnboardingInput {
@@ -36,7 +34,6 @@ struct PreviewData {
               cardInput: .cardModel(PreviewCard.tangemWalletEmpty.cardModel),
               cardsPosition: nil,
               welcomeStep: nil,
-              currentStepIndex: 0,
-              successCallback: nil)
+              currentStepIndex: 0)
     }
 }

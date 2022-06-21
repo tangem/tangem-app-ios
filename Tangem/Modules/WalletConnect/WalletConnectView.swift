@@ -72,7 +72,7 @@ struct WalletConnectView: View {
 
 struct WalletConnectView_Previews: PreviewProvider {
     static var previews: some View {
-        WalletConnectView(viewModel: .init(cardModel: PreviewCard.cardanoNote.cardModel, coordinator: AppCoordinator()))
+        WalletConnectView(viewModel: .init(cardModel: PreviewCard.cardanoNote.cardModel, coordinator: WalletConnectCoordinator()))
             .previewGroup(devices: [.iPhone12Pro])
     }
 }

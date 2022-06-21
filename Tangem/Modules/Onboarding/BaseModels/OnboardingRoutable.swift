@@ -1,5 +1,5 @@
 //
-//  AppCoordinator+CardOperationRoutable.swift
+//  OnboardingRoutable.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,4 +8,6 @@
 
 import Foundation
 
-extension AppCoordinator: CardOperationRoutable {}
+protocol OnboardingRoutable: AnyObject {
+    func closeOnboarding()
+}
