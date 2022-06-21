@@ -21,10 +21,10 @@ class WalletConnectViewModel: ObservableObject {
     
     var canCreateWC: Bool {
         cardModel.cardInfo.card.wallets.contains(where: { $0.curve == .secp256k1 })
-            && (cardModel.wallets?.contains(where: { $0.blockchain == .ethereum(testnet: false) || $0.blockchain == .ethereum(testnet: true) }) ?? false)
+        && (cardModel.wallets?.contains(where: { $0.blockchain == .ethereum(testnet: false) || $0.blockchain == .ethereum(testnet: true) }) ?? false)
     }
     
-   private  var hasWCInPasteboard: Bool {
+    private var hasWCInPasteboard: Bool {
         guard let copiedValue = UIPasteboard.general.string else {
             return false
         }
@@ -39,7 +39,7 @@ class WalletConnectViewModel: ObservableObject {
     private var cardModel: CardViewModel
     private var bag = Set<AnyCancellable>()
     private var copiedValue: String?
-    private var scannedQRCode: CurrentValueSubject<String, Never> = .init("")
+    private var scannedQRCode: CurrentValueSubject<String?, Never> = .init(nil)
     
     private unowned let coordinator: WalletConnectRoutable
     
@@ -81,14 +81,14 @@ class WalletConnectViewModel: ObservableObject {
     
     private func bind() {
         bag.removeAll()
-
-//            walletConnectController.error
-//                .receive(on: DispatchQueue.main)
-//                .debounce(for: 0.3, scheduler: DispatchQueue.main)
-//                .sink { error in
-//                    self.alert = error.alertBinder
-//                }
-//                .store(in: &bag)
+        
+        //            walletConnectController.error
+        //                .receive(on: DispatchQueue.main)
+        //                .debounce(for: 0.3, scheduler: DispatchQueue.main)
+        //                .sink { error in
+        //                    self.alert = error.alertBinder
+        //                }
+        //                .store(in: &bag)
         
         walletConnectProvider.service.isServiceBusy
             .receive(on: DispatchQueue.main)
@@ -107,6 +107,7 @@ class WalletConnectViewModel: ObservableObject {
             .store(in: &bag)
         
         scannedQRCode
+            .compactMap { $0 }
             .sink {[unowned self] qrCodeString in
                 if !self.walletConnectProvider.service.handle(url: qrCodeString) {
                     self.alert = WalletConnectServiceError.failedToConnect.alertBinder
