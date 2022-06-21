@@ -239,7 +239,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     
     init(input: OnboardingInput, coordinator: WalletOnboardingRoutable) {
         self.coordinator = coordinator
-        super.init(input: input)
+        super.init(input: input, onboardingCoordinator: coordinator)
         
         if case let .wallet(steps) = input.steps {
             self.steps = steps
@@ -405,7 +405,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             alert = AlertBuilder.makeOkGotItAlert(message: "onboarding_backup_exit_warning".localized)
         default:
             if isFromMain {
-                input.successCallback?()
+                closeOnboarding()
             } else {
                 reset()
             }
