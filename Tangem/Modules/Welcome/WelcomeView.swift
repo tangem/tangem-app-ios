@@ -31,8 +31,6 @@ struct WelcomeView: View {
         }
         .alert(item: $viewModel.error, content: { $0.alert })
         .onAppear(perform: viewModel.onAppear)
-        .navigationBarTitle("")
-        .navigationBarHidden(true)
     }
 }
 
