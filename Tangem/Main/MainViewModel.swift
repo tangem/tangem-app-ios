@@ -234,6 +234,14 @@ class MainViewModel: ObservableObject {
 		cardModel?.isTwinCard ?? false
 	}
     
+    var isBackupAllowed: Bool {
+        if let cardModel = cardModel {
+            return cardModel.cardInfo.card.settings.isBackupAllowed && cardModel.cardInfo.card.backupStatus == .noBackup
+        } else {
+            return false
+        }
+    }
+    
     var tokenItemViewModels: [TokenItemViewModel] {
         guard let cardModel = cardModel,
               let walletModels = cardModel.walletModels else { return [] }
@@ -574,6 +582,41 @@ class MainViewModel: ObservableObject {
             self.openOnboarding(with: input)
         }
         .store(in: &bag)
+    }
+
+    func prepareForBackup() {
+        guard let cardModel = cardModel else {
+            return
+        }
+        cardOnboardingStepSetupService
+            .backupSteps(cardModel.cardInfo)
+            .sink { [weak self] completion in
+                guard let self = self else {
+                    return
+                }
+                switch completion {
+                case .failure(let error):
+                    Analytics.log(error: error)
+                    print("Failed to load image for new card")
+                    self.error = error.alertBinder
+                case .finished:
+                    break
+                }
+            } receiveValue: { [weak self] steps in
+                guard let self = self else {
+                    return
+                }
+                
+                let input = OnboardingInput(steps: steps,
+                                            cardInput: .cardModel(cardModel),
+                                            cardsPosition: nil,
+                                            welcomeStep: nil,
+                                            currentStepIndex: 0,
+                                            isStandalone: true)
+                
+                self.openOnboarding(with: input)
+            }
+            .store(in: &bag)
     }
 
     // MARK: - Private functions
