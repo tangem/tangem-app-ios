@@ -27,16 +27,15 @@ public struct SkeletonView: View {
     public var body: some View {
         ZStack {
             backgroundView
-                .opacity(backgroundOpacity)
 
-            gradientView
-                .opacity(0.8)
+            gradientView  
         }
     }
 
     var backgroundView: some View {
         Rectangle()
             .foregroundColor(secondary)
+            .opacity(backgroundOpacity)
     }
 
     var gradientView: some View {
@@ -45,6 +44,7 @@ public struct SkeletonView: View {
             startPoint: gradientPoints.start,
             endPoint: gradientPoints.end
         )
+        .opacity(0.8)
         .onAppear {
             guard !isAppeared else {
                 return
