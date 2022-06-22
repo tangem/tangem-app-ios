@@ -92,6 +92,13 @@ struct MeetTangemStoryPage: View {
                             .aspectRatio(contentMode: .fit)
                             .fixedSize(horizontal: false, vertical: true)
                             .edgesIgnoringSafeArea(.bottom)
+                            .overlay(
+                                LinearGradient(stops: [
+                                    Gradient.Stop(color: Color("tangem_story_background").opacity(0), location: 0.7),
+                                    Gradient.Stop(color: Color("tangem_story_background"), location: 1),
+                                ], startPoint: .top, endPoint: .bottom)
+                                .frame(minWidth: 1000)
+                            )
                             .storyImageAppearanceModifier(
                                 progress: progress,
                                 start: wordListProgressEnd,
