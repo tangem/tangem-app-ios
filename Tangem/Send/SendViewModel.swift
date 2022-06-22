@@ -174,6 +174,8 @@ class SendViewModel: ViewModel, ObservableObject {
     private let feeRetrySubject = CurrentValueSubject<Void, Never>(())
     
     private var blockchainNetwork: BlockchainNetwork
+    
+    private var lastClipboardChangeCount: Int?
    
     private lazy var payIDService: PayIDService? = {
         if featuresService.isPayIdEnabled, let payIdService = PayIDService.make(from: blockchainNetwork.blockchain) {
@@ -458,13 +460,19 @@ class SendViewModel: ViewModel, ObservableObject {
         setupWarnings()
     }
     
-    func onEnterForeground() {
+    func onBecomingActive() {
         validateClipboard()
     }
     
     // MARK: - Validation
     func validateClipboard() {
+        let clipboardChangeCount = UIPasteboard.general.changeCount
+        if clipboardChangeCount == lastClipboardChangeCount {
+            return
+        }
+        
         validatedClipboard = nil
+        lastClipboardChangeCount = clipboardChangeCount
         
         guard let input = UIPasteboard.general.string else {
             return
