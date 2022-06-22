@@ -126,14 +126,6 @@ struct MainView: View {
             .padding(.horizontal, 16)
             .padding(.bottom, 6)
     }
-    //prevent navbar glitches
-    var isNavBarHidden: Bool {
-        //        if navigation.mainToTwinsWalletWarning || navigation.mainToTwinOnboarding {
-        //            return true //hide navbar when navigate to onboarding/warning
-        //        }
-        
-        return false
-    }
     
     var body: some View {
         GeometryReader { geometry in
@@ -235,7 +227,7 @@ struct MainView: View {
         .onAppear {
             viewModel.onAppear()
         }
-        .navigationBarHidden(isNavBarHidden)
+        .navigationBarHidden(false)
         .ignoresKeyboard()
         .alert(item: $viewModel.error) { $0.alert }
     }
