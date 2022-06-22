@@ -29,6 +29,8 @@ class WelcomeCoordinator: CoordinatorObject {
     
     //MARK: - Helpers
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
+    // Fix ios13 navbar glitches
+    @Published private(set) var navBarHidden: Bool = true
     
     //MARK: - Private
     private var welcomeLifecycleSubscription: AnyCancellable? = nil
@@ -58,7 +60,6 @@ class WelcomeCoordinator: CoordinatorObject {
         
         welcomeLifecycleSubscription = p1.merge(with: p2, p3, p4, p5, p6, p7)
             .sink {[unowned self] viewDismissed in
-                print("!!! viewDismissed: \(viewDismissed)")
                 if viewDismissed {
                     self.welcomeViewModel?.becomeActive()
                 } else {
@@ -100,7 +101,9 @@ extension WelcomeCoordinator: WelcomeRoutable {
     }
     
     func openMain(with cardModel: CardViewModel) {
+        navBarHidden = false
         let popToRootAction: ParamsAction<PopToRootOptions> = {[weak self] options in
+            self?.navBarHidden = true
             self?.mainCoordinator = nil
             
             if options.newScan {
