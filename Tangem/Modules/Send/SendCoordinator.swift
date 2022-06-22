@@ -18,7 +18,6 @@ class SendCoordinator: CoordinatorObject {
     @Published private(set) var sendViewModel: SendViewModel? = nil
     
     //MARK: - Child view models
-
     @Published var mailViewModel: MailViewModel? = nil
     @Published var qrScanViewModel: QRScanViewModel? = nil
     
