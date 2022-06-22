@@ -18,9 +18,6 @@ class SecurityManagementCoordinator: CoordinatorObject {
     //MARK: - Child view models
     @Published var cardOperationViewModel: CardOperationViewModel? = nil
     
-    //MARK: - Private helpers
-    @Published var emptyModel: Int? = nil //Fix single navigation link issue
-    
     func start(with options: SecurityManagementCoordinator.Options) {
         secManagementViewModel = SecurityManagementViewModel(cardModel: options.cardModel, coordinator: self)
     }
