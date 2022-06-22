@@ -37,7 +37,7 @@ struct ShopCoordinatorView: CoordinatorView {
                 WebViewContainer(viewModel: $0)
                     .edgesIgnoringSafeArea(.all)
             }
-            .navigation(item: $coordinator.emptyModel) { _ in
+            .navigation(item: .constant(nil)) {
                 EmptyView()
             }
     }

@@ -24,7 +24,6 @@ class WelcomeCoordinator: CoordinatorObject {
     @Published var tokenListCoordinator: TokenListCoordinator? = nil
     
     //MARK: - Child view models
- 
     @Published var mailViewModel: MailViewModel? = nil
     @Published var disclaimerViewModel: DisclaimerViewModel? = nil
     
@@ -44,10 +43,10 @@ class WelcomeCoordinator: CoordinatorObject {
     }
     
     private func subscribeToWelcomeLifecycle() {
-        let p1 = $mailViewModel.dropFirst().map { $0 == nil ? true : false }
-        let p2 = $disclaimerViewModel.dropFirst().map { $0 == nil ? true : false }
-        let p3 = $shopCoordinator.dropFirst().map { $0 == nil ? true : false }
-        let p4 = $modalOnboardingCoordinator.dropFirst().map { $0 == nil ? true : false }
+        let p1 = $mailViewModel.dropFirst().map { $0 == nil }
+        let p2 = $disclaimerViewModel.dropFirst().map { $0 == nil }
+        let p3 = $shopCoordinator.dropFirst().map { $0 == nil}
+        let p4 = $modalOnboardingCoordinator.dropFirst().map { $0 == nil }
         
         welcomeLifecycleSubscription = p1.merge(with: p2, p3, p4)
             .sink {[unowned self] viewDismissed in
