@@ -497,3 +497,4 @@ URL: %@";
 "main_no_backup_warning_title" = "Your wallet has not been backed up";
 "main_no_backup_warning_subtitle" = "To protect your assets, we advise you to carry out this procedure";
 "common_retry" = "Retry";
+"details_ask_a_question" = "Задать вопрос";

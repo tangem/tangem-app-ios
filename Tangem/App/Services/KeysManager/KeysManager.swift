@@ -15,6 +15,7 @@ protocol KeysManager {
     var onramperApiKey: String { get }
     var blockchainConfig: BlockchainSdkConfig { get }
     var shopifyShop: ShopifyShop { get }
+    var zendesk: ZendeskConfig { get }
 }
 
 private struct KeysManagerKey: InjectionKey {
