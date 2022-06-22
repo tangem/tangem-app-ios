@@ -156,7 +156,6 @@ extension WelcomeViewModel {
     }
 }
 
-
 //MARK: - Resume interrupted backup
 private extension WelcomeViewModel {
     func showInteruptedBackupAlertIfNeeded() {
