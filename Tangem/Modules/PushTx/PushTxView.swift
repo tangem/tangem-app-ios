@@ -32,7 +32,6 @@ struct FilledInputView: View {
 
 struct PushTxView: View {
     @ObservedObject var viewModel: PushTxViewModel
-    @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
         GeometryReader { geometry in
@@ -146,17 +145,10 @@ struct PushTxView: View {
                     HStack(alignment: .center, spacing: 8.0) {
                         Spacer()
                         TangemButton(title: "wallet_button_send",
-                                     systemImage: "arrow.right") {
-                            viewModel.send() {
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: {
-                                    let alert = AlertBuilder.makeSuccessAlert(message: "send_transaction_success".localized) {
-                                        presentationMode.wrappedValue.dismiss()
-                                    }
-                                    self.viewModel.sendError = alert
-                                })
-                            }
-                        }.buttonStyle(TangemButtonStyle(layout: .big,
-                                                        isDisabled: !viewModel.isSendEnabled))
+                                     systemImage: "arrow.right",
+                                     action: viewModel.onSend)
+                        .buttonStyle(TangemButtonStyle(layout: .big,
+                                                       isDisabled: !viewModel.isSendEnabled))
                         .alert(item: self.$viewModel.sendError) { binder in
                             if binder.error == nil {
                                 return binder.alert
