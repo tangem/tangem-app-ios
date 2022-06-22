@@ -205,6 +205,15 @@ PODS:
     - XCGLogger/Core (= 7.0.1)
   - XCGLogger/Core (7.0.1):
     - ObjcExceptionBridging
+  - ZendeskAnswerBotProvidersSDK (2.2.0):
+    - ZendeskSupportProvidersSDK (= 5.5.0)
+  - ZendeskAnswerBotSDK (2.2.0):
+    - ZendeskAnswerBotProvidersSDK (= 2.2.0)
+    - ZendeskMessagingSDK (= 3.8.5)
+  - ZendeskChatProvidersSDK (2.12.0)
+  - ZendeskChatSDK (2.12.0):
+    - ZendeskChatProvidersSDK (= 2.12.0)
+    - ZendeskMessagingSDK (= 3.8.5)
   - ZendeskCommonUISDK (6.1.4)
   - ZendeskCoreSDK (2.7.0)
   - ZendeskMessagingAPISDK (3.8.5):
@@ -247,6 +256,8 @@ DEPENDENCIES:
   - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-152`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.6.2`)
   - web3swift (from `https://github.com/lazutkin-andrey/web3swift.git`, tag `2.2.9`)
+  - ZendeskAnswerBotSDK
+  - ZendeskChatSDK
   - ZendeskSupportProvidersSDK
   - ZendeskSupportSDK (~> 5.5.0)
 
@@ -287,6 +298,10 @@ SPEC REPOS:
     - SwiftyJSON
     - TweetNacl
     - XCGLogger
+    - ZendeskAnswerBotProvidersSDK
+    - ZendeskAnswerBotSDK
+    - ZendeskChatProvidersSDK
+    - ZendeskChatSDK
     - ZendeskCommonUISDK
     - ZendeskCoreSDK
     - ZendeskMessagingAPISDK
@@ -404,6 +419,10 @@ SPEC CHECKSUMS:
   WalletConnectSwift: 046ae74e8cb69445be9c94c66ef66f9cb019b68f
   web3swift: 93f68f5430c11a78bba2351c139d2d22f2c04b5e
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
+  ZendeskAnswerBotProvidersSDK: ec58548f5a968c31d4672dcb2493a9ac307bd2a2
+  ZendeskAnswerBotSDK: 68abbf67fd97be03aff5d9aba2e431759ce4143e
+  ZendeskChatProvidersSDK: b3f5a914ed9d518770c994f0f04683952087b00a
+  ZendeskChatSDK: 12fbe34d67b73895882786736329236e7e092b67
   ZendeskCommonUISDK: ba160fe413b491af9e7bfcb9808afcd494dc83a5
   ZendeskCoreSDK: 4236eb56f9386cf0770900df04c857b9b4d79d03
   ZendeskMessagingAPISDK: 410f9bcf07c79fe98d6f251da102368d6b356c54
@@ -412,6 +431,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: 8d9ba53d4db41738613856b47831d888876e614b
+PODFILE CHECKSUM: 9f38c558ede4cb0b32538bb667c356789001ebe3
 
 COCOAPODS: 1.11.3
