@@ -8,6 +8,7 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 class CardOperationViewModel: ObservableObject {
     @Published var error: AlertBinder? = nil
@@ -21,6 +22,7 @@ class CardOperationViewModel: ObservableObject {
     let actionButtonPressed: (_ completion: @escaping (Result<Void, Error>) -> Void) -> Void
     
     private unowned let coordinator: CardOperationRoutable
+    private var bag: Set<AnyCancellable> = []
     
     internal init(title: String,
                   buttonTitle: LocalizedStringKey = "common_save_changes",
@@ -34,8 +36,9 @@ class CardOperationViewModel: ObservableObject {
         self.alert = alert
         self.actionButtonPressed = actionButtonPressed
         self.coordinator = coordinator
+        
+        bind()
     }
-    
     
     func onTap() {
         isLoading = true
@@ -44,6 +47,14 @@ class CardOperationViewModel: ObservableObject {
                 self?.handleCompletion(result)
             }
         }
+    }
+    
+    private func bind() {
+        $isLoading.dropFirst()
+            .sink { [weak self] _ in
+                self?.dismiss()
+            }
+            .store(in: &bag)
     }
     
     private func handleCompletion(_ result: Result<Void, Error>) {
@@ -72,5 +83,9 @@ class CardOperationViewModel: ObservableObject {
 extension CardOperationViewModel {
     func popToRoot() {
         coordinator.popToRoot()
+    }
+    
+    func dismiss() {
+        coordinator.dismiss()
     }
 }

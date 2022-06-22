@@ -16,10 +16,6 @@ class TokenDetailsViewModel: ObservableObject {
     @Published var alert: AlertBinder? = nil
     @Published var showTradeSheet: Bool = false
     
-    var dismissalRequestPublisher: AnyPublisher<Void, Never> {
-        dismissalRequestSubject.eraseToAnyPublisher()
-    }
-    
     let card: CardViewModel
     
     var wallet: Wallet? {
@@ -227,6 +223,12 @@ class TokenDetailsViewModel: ObservableObject {
                 self.showExplorerURL = nil
             }
             .store(in: &bag)
+        
+        dismissalRequestSubject
+            .sink { [unowned self] _ in
+                self.dismiss()
+            }
+            .store(in: &bag)
     }
     
     func onRefresh(_ done: @escaping () -> Void) {
@@ -396,5 +398,9 @@ extension TokenDetailsViewModel {
     
     func openExplorer(at url: URL) {
         coordinator.openExplorer(at: url, blockchainDisplayName: blockchainNetwork.blockchain.displayName)
+    }
+    
+    func dismiss() {
+        coordinator.dismiss()
     }
 }
