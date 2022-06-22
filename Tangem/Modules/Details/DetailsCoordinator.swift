@@ -9,8 +9,8 @@
 import Foundation
 
 class DetailsCoordinator: CoordinatorObject {
-    var dismissAction: () -> Void = {}
-    var popToRootAction: (PopToRootOptions) -> Void = { _ in }
+    var dismissAction: Action
+    var popToRootAction: ParamsAction<PopToRootOptions>
     
     //MARK: - Main view model
     @Published private(set) var detailsViewModel: DetailsViewModel? = nil
@@ -30,6 +30,11 @@ class DetailsCoordinator: CoordinatorObject {
     //MARK: - Helpers
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
     
+    required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
+        self.dismissAction = dismissAction
+        self.popToRootAction = popToRootAction
+    }
+    
     func start(with options: DetailsCoordinator.Options) {
         detailsViewModel = DetailsViewModel(cardModel: options.cardModel, coordinator: self)
     }
@@ -48,10 +53,11 @@ extension DetailsCoordinator: DetailsRoutable {
     }
     
     func openOnboardingModal(with input: OnboardingInput) {
-        let coordinator = OnboardingCoordinator()
-        coordinator.dismissAction = { [weak self] in
+        let dismissAction: Action = { [weak self] in
             self?.modalOnboardingCoordinator = nil
         }
+        
+        let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
         let options = OnboardingCoordinator.Options(input: input)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
@@ -86,7 +92,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
     
     func openSecManagement(with cardModel: CardViewModel) {
-        let coordinator = SecurityManagementCoordinator()
+        let coordinator = SecurityManagementCoordinator(popToRootAction: self.popToRootAction)
         let options = SecurityManagementCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
         secManagementCoordinator = coordinator
