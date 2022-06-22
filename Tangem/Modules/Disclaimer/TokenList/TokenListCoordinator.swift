@@ -18,10 +18,6 @@ class TokenListCoordinator: CoordinatorObject {
     //MARK: - Child view models
     @Published var addCustomTokenViewModel: AddCustomTokenViewModel? = nil
    
-    
-    //MARK: - Private helpers
-    @Published var emptyModel: Int? = nil //Fix single navigation link issue
-    
     func start(with mode: TokenListViewModel.Mode) {
         tokenListViewModel = .init(mode: mode, coordinator: self)
     }
