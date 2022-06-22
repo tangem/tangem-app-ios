@@ -32,7 +32,7 @@ struct OnboardingCoordinatorView: CoordinatorView {
             BottomSheetView(isPresented: coordinator.$qrBottomSheetKeeper,
                             hideBottomSheetCallback: coordinator.hideQrBottomSheet,
                             content: { addressQrBottomSheetContent })
-           // .frame(maxWidth: screenSize.width) //UISCreen.main.bounds
+           // .frame(maxWidth: screenSize.width) //UISCreen.main.bounds [REDACTED_TODO_COMMENT]
         }
     }
     
@@ -46,15 +46,6 @@ struct OnboardingCoordinatorView: CoordinatorView {
             WalletOnboardingView(viewModel: walletViewModel)
         }
     }
-    
-    //    var isNavigationBarHidden: Bool {
-    //        if navigation.readToMain {
-    //            return false
-    //        }
-    //
-    //        return true
-    //    }
-    //
     
     @ViewBuilder
     private var addressQrBottomSheetContent: some View {
