@@ -23,6 +23,8 @@ class DetailsViewModel: ObservableObject {
     
     @Published var error: AlertBinder?
     
+    lazy var chatViewModel = assembly.makeChatSupportViewModel()
+    
     var dataCollector: DetailsFeedbackDataCollector!
     
     var hasWallet: Bool {
