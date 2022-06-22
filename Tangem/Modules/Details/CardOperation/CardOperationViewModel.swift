@@ -24,12 +24,12 @@ class CardOperationViewModel: ObservableObject {
     private unowned let coordinator: CardOperationRoutable
     private var bag: Set<AnyCancellable> = []
     
-    internal init(title: String,
-                  buttonTitle: LocalizedStringKey = "common_save_changes",
-                  shouldPopToRoot: Bool = false,
-                  alert: String,
-                  actionButtonPressed: @escaping (@escaping (Result<Void, Error>) -> Void) -> Void,
-                  coordinator: CardOperationRoutable) {
+    init(title: String,
+         buttonTitle: LocalizedStringKey = "common_save_changes",
+         shouldPopToRoot: Bool = false,
+         alert: String,
+         actionButtonPressed: @escaping (@escaping (Result<Void, Error>) -> Void) -> Void,
+         coordinator: CardOperationRoutable) {
         self.title = title
         self.buttonTitle = buttonTitle
         self.shouldPopToRoot = shouldPopToRoot
