@@ -40,10 +40,10 @@ class WelcomeViewModel: ObservableObject {
     
     func scanCard() {
         guard userPrefsService.isTermsOfServiceAccepted else {
-           openDisclaimer()
+            openDisclaimer()
             return
         }
-            
+        
         isScanningCard = true
         
         var subscription: AnyCancellable? = nil
@@ -118,7 +118,7 @@ class WelcomeViewModel: ObservableObject {
                     cardModel.updateState()
                     openMain(with: input)
                 }
-            
+                
                 self.bag.removeAll()
             }
             .store(in: &bag)
