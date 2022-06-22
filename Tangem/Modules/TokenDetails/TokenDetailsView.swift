@@ -11,7 +11,6 @@ import BlockchainSdk
 
 struct TokenDetailsView: View {
     @ObservedObject var viewModel: TokenDetailsViewModel
-    @Environment(\.presentationMode) var presentationMode
     
     var pendingTransactionViews: [PendingTxView] {
         let incTx = viewModel.incomingTransactions.map {
@@ -128,9 +127,6 @@ struct TokenDetailsView: View {
         .navigationBarItems(trailing: trailingButton)
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
         .ignoresKeyboard()
-        .onReceive(viewModel.dismissalRequestPublisher, perform: {
-            presentationMode.wrappedValue.dismiss()
-        })
         .onAppear(perform: viewModel.onAppear)
         //        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
         //            .filter {_ in !navigation.detailsToSend
