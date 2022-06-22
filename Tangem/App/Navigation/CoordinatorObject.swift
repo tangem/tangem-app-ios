@@ -8,6 +8,9 @@
 
 import Foundation
 
+typealias Action = () -> Void
+typealias ParamsAction<Params> = (Params) -> Void
+
 struct PopToRootOptions {
     var newScan: Bool = false
     
@@ -17,14 +20,20 @@ struct PopToRootOptions {
 protocol CoordinatorObject: ObservableObject, Identifiable {
     associatedtype Options
     
-    var dismissAction: () -> Void { get set }
-    var popToRootAction: (PopToRootOptions) -> Void { get set }
+    var dismissAction: Action { get }
+    var popToRootAction: ParamsAction<PopToRootOptions> { get }
     
-    func dismiss()
     func start(with options: Options)
+    func dismiss()
+    
+    init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>)
 }
 
 extension CoordinatorObject {
+    init(dismissAction: @escaping Action = {}, popToRootAction: @escaping ParamsAction<PopToRootOptions> = {_ in}) {
+        self.init(dismissAction: dismissAction, popToRootAction: popToRootAction)
+    }
+        
     func dismiss() {
         dismissAction()
     }
