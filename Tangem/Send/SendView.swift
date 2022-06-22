@@ -257,9 +257,9 @@ struct SendView: View {
         .onAppear() {
             self.viewModel.onAppear()
         }
-        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
             .receive(on: DispatchQueue.main)) { _ in
-                viewModel.onEnterForeground()
+                viewModel.onBecomingActive()
             }
     }
     
