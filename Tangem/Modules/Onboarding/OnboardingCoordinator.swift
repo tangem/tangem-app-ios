@@ -9,8 +9,8 @@
 import Foundation
 
 class OnboardingCoordinator: CoordinatorObject {
-    var dismissAction: () -> Void = {}
-    var popToRootAction: (PopToRootOptions) -> Void = { _ in }
+    var dismissAction: Action
+    var popToRootAction: ParamsAction<PopToRootOptions>
     
     //MARK: - Main view models
     @Published private(set) var singleCardViewModel: SingleCardOnboardingViewModel? = nil
@@ -30,6 +30,11 @@ class OnboardingCoordinator: CoordinatorObject {
     
     //For non-dismissable presentation
     var onDismissalAttempt: () -> Void = {}
+    
+    required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
+        self.dismissAction = dismissAction
+        self.popToRootAction = popToRootAction
+    }
     
     func start(with options: OnboardingCoordinator.Options) {
         let input = options.input

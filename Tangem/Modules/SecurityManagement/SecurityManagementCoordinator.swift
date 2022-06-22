@@ -9,14 +9,19 @@
 import Foundation
 
 class SecurityManagementCoordinator: CoordinatorObject {
-    var dismissAction: () -> Void = {}
-    var popToRootAction: (PopToRootOptions) -> Void = { _ in }
+    var dismissAction: Action
+    var popToRootAction: ParamsAction<PopToRootOptions>
     
     //MARK: - Main view model
     @Published private(set) var secManagementViewModel: SecurityManagementViewModel? = nil
     
     //MARK: - Child view models
     @Published var cardOperationViewModel: CardOperationViewModel? = nil
+    
+    required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
+        self.dismissAction = dismissAction
+        self.popToRootAction = popToRootAction
+    }
     
     func start(with options: SecurityManagementCoordinator.Options) {
         secManagementViewModel = SecurityManagementViewModel(cardModel: options.cardModel, coordinator: self)
