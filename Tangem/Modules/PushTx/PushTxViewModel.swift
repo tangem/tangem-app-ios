@@ -110,6 +110,18 @@ class PushTxViewModel: ObservableObject {
         loadNewFees()
     }
     
+    func onSend() {
+        send() {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+                let alert = AlertBuilder.makeSuccessAlert(message: "send_transaction_success".localized) { [weak self] in
+                    self?.dismiss()
+                }
+                
+                self?.sendError = alert
+            }
+        }
+    }
+    
     func send(_ callback: @escaping () -> Void) {
         guard
             let tx = newTransaction,
@@ -329,5 +341,9 @@ class PushTxViewModel: ObservableObject {
 extension PushTxViewModel {
     func openMail() {
         coordinator.openMail(with: emailDataCollector)
+    }
+    
+    func dismiss() {
+        coordinator.dismiss()
     }
 }
