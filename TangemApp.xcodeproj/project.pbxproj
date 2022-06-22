@@ -371,7 +371,6 @@
 		B0F79C6A2689AC56008C9B30 /* FileEncryptionUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F79C692689AC56008C9B30 /* FileEncryptionUtility.swift */; };
 		B0F79C73268A2E98008C9B30 /* SavedCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F79C72268A2E98008C9B30 /* SavedCard.swift */; };
 		B0F920CC25932DCF007C176C /* WarningListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F920CB25932DCE007C176C /* WarningListView.swift */; };
-		B0FACFFC26BA64E700F45E88 /* DummyTransactionSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FACFFB26BA64E700F45E88 /* DummyTransactionSigner.swift */; };
 		B0FAD00E26BAC51F00F45E88 /* CircledCheckmarkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FAD00D26BAC51F00F45E88 /* CircledCheckmarkView.swift */; };
 		B0FAD01026BAF19E00F45E88 /* OnboardingStepIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FAD00F26BAF19E00F45E88 /* OnboardingStepIconView.swift */; };
 		B0FAD01226BAF35C00F45E88 /* FrameSizeModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0FAD01126BAF35C00F45E88 /* FrameSizeModifier.swift */; };
@@ -925,7 +924,6 @@
 		B0F79C692689AC56008C9B30 /* FileEncryptionUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileEncryptionUtility.swift; sourceTree = "<group>"; };
 		B0F79C72268A2E98008C9B30 /* SavedCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedCard.swift; sourceTree = "<group>"; };
 		B0F920CB25932DCE007C176C /* WarningListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningListView.swift; sourceTree = "<group>"; };
-		B0FACFFB26BA64E700F45E88 /* DummyTransactionSigner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DummyTransactionSigner.swift; sourceTree = "<group>"; };
 		B0FAD00D26BAC51F00F45E88 /* CircledCheckmarkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircledCheckmarkView.swift; sourceTree = "<group>"; };
 		B0FAD00F26BAF19E00F45E88 /* OnboardingStepIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingStepIconView.swift; sourceTree = "<group>"; };
 		B0FAD01126BAF35C00F45E88 /* FrameSizeModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameSizeModifier.swift; sourceTree = "<group>"; };
@@ -2439,7 +2437,6 @@
 		DC5118672860B36C004FB954 /* Preview */ = {
 			isa = PBXGroup;
 			children = (
-				B0FACFFB26BA64E700F45E88 /* DummyTransactionSigner.swift */,
 				B08B8CEA26D6276000D4BB7B /* PreviewData.swift */,
 				DC5118682860B3E1004FB954 /* PreviewCard.swift */,
 			);
@@ -3145,7 +3142,6 @@
 				B04BA23126F07ECE0036784C /* OnboardingTextButtonView.swift in Sources */,
 				5DF612A024E6D6C8001BF301 /* PendingTxView.swift in Sources */,
 				DC0A5820282529A10031BECC /* AppFeaturesProviding.swift in Sources */,
-				B0FACFFC26BA64E700F45E88 /* DummyTransactionSigner.swift in Sources */,
 				B0C8A0D42562C86A00DEEAC7 /* View+PreviewDevice.swift in Sources */,
 				DC66BBFC285A389000CDF765 /* PopoverModifier.swift in Sources */,
 				B0B8670326DF5AE1008DAA67 /* ModalSheetPreferenceKey.swift in Sources */,
