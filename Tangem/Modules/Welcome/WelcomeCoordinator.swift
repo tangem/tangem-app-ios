@@ -10,8 +10,8 @@ import Foundation
 import Combine
 
 class WelcomeCoordinator: CoordinatorObject {
-    var dismissAction: () -> Void = {}
-    var popToRootAction: (PopToRootOptions) -> Void = { _ in }
+    var dismissAction: Action
+    var popToRootAction: ParamsAction<PopToRootOptions>
     
     //MARK: - Main view model
     @Published private(set) var welcomeViewModel: WelcomeViewModel? = nil
@@ -32,6 +32,11 @@ class WelcomeCoordinator: CoordinatorObject {
     
     //MARK: - Private
     private var welcomeLifecycleSubscription: AnyCancellable? = nil
+    
+    required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
+        self.dismissAction = dismissAction
+        self.popToRootAction = popToRootAction
+    }
     
     func start(with options: WelcomeCoordinator.Options) {
         welcomeViewModel = .init(coordinator: self)
@@ -67,30 +72,31 @@ extension WelcomeCoordinator {
 
 extension WelcomeCoordinator: WelcomeRoutable {
     func openOnboardingModal(with input: OnboardingInput) {
-        let coordinator = OnboardingCoordinator()
-        coordinator.dismissAction = { [weak self] in
+        let dismissAction: Action = {[weak self] in
             self?.modalOnboardingCoordinator = nil
         }
+        
+        let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
         let options = OnboardingCoordinator.Options(input: input)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
     }
     
     func openOnboarding(with input: OnboardingInput) {
-        let coordinator = OnboardingCoordinator()
-        coordinator.dismissAction = { [weak self] in
+        let dismissAction: Action = {[weak self] in
             if let card = input.cardInput.cardModel {
                 self?.openMain(with: card)
             }
         }
+        
+        let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
         let options = OnboardingCoordinator.Options(input: input)
         coordinator.start(with: options)
         pushedOnboardingCoordinator = coordinator
     }
     
     func openMain(with cardModel: CardViewModel) {
-        let coordinator = MainCoordinator()
-        coordinator.popToRootAction = {[weak self] options in
+        let popToRootAction: ParamsAction<PopToRootOptions> = {[weak self] options in
             self?.mainCoordinator = nil
             
             if options.newScan {
@@ -98,6 +104,7 @@ extension WelcomeCoordinator: WelcomeRoutable {
             }
         }
         
+        let coordinator = MainCoordinator(popToRootAction: popToRootAction)
         let options = MainCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
         mainCoordinator = coordinator
@@ -112,8 +119,10 @@ extension WelcomeCoordinator: WelcomeRoutable {
     }
     
     func openTokensList() {
-        let coordinator = TokenListCoordinator()
-        coordinator.dismissAction = { [weak self] in self?.tokenListCoordinator = nil }
+        let dismissAction: Action = { [weak self] in
+            self?.tokenListCoordinator = nil
+        }
+        let coordinator = TokenListCoordinator(dismissAction: dismissAction)
         coordinator.start(with: .show)
         self.tokenListCoordinator = coordinator
     }
