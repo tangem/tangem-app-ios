@@ -141,7 +141,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         }
         
         if case .alert = steps.first {
-            retwinMode = true //todo: fix it
+            retwinMode = true //[REDACTED_TODO_COMMENT]
         }
         
         twinsService.setupTwins(for: twinInfo)
