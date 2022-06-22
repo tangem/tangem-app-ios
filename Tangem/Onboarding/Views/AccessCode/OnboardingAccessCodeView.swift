@@ -223,6 +223,7 @@ struct CustomPasswordTextField: View {
                 .transition(.opacity)
         } else {
             TextField(placeholder, text: password, onEditingChanged: onEditingChanged, onCommit: onCommit)
+                .autocapitalization(.none)
                 .transition(.opacity)
         }
     }
