@@ -119,6 +119,13 @@ struct MainView: View {
         .padding(0.0)
     }
     
+    var backupWarningView: some View {
+        BackUpWarningButton(tapAction: {
+            viewModel.prepareForBackup()
+        })
+            .padding(.horizontal, 16)
+            .padding(.bottom, 6)
+    }
     //prevent navbar glitches
     var isNavBarHidden: Bool {
         //        if navigation.mainToTwinsWalletWarning || navigation.mainToTwinOnboarding {
@@ -139,6 +146,10 @@ struct MainView: View {
                                  totalCards: viewModel.totalCards)
                         .fixedSize(horizontal: false, vertical: true)
                         
+                        if viewModel.isBackupAllowed {
+                            backupWarningView
+                        }
+
                         if isUnsupportdState {
                             MessageView(title: "wallet_error_unsupported_blockchain".localized, subtitle: "wallet_error_unsupported_blockchain_subtitle".localized, type: .error)
                         } else {
