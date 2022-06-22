@@ -10,8 +10,8 @@ import Foundation
 import BlockchainSdk
 
 class TokenDetailsCoordinator: CoordinatorObject {
-    var dismissAction: () -> Void = {}
-    var popToRootAction: (PopToRootOptions) -> Void = { _ in }
+    var dismissAction: Action
+    var popToRootAction: ParamsAction<PopToRootOptions>
     
     //MARK: - Main view model
     @Published private(set) var tokenDetailsViewModel: TokenDetailsViewModel? = nil
@@ -23,6 +23,11 @@ class TokenDetailsCoordinator: CoordinatorObject {
     //MARK: - Child view models
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
+    
+    required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
+        self.dismissAction = dismissAction
+        self.popToRootAction = popToRootAction
+    }
     
     func start(with options: TokenDetailsCoordinator.Options) {
         tokenDetailsViewModel = TokenDetailsViewModel(cardModel: options.cardModel,
