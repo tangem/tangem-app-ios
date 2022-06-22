@@ -102,7 +102,7 @@ class TokenDetailsViewModel: ObservableObject {
     var sendBlockedReason: String? {
         guard let wallet = walletModel?.wallet,
               let currentAmount = wallet.amounts[amountType], amountType.isToken else { return nil }
-
+        
         if wallet.hasPendingTx && !wallet.hasPendingTx(for: amountType) { //has pending tx for fee
             return String(format: "token_details_send_blocked_tx_format".localized, wallet.amounts[.coin]?.currencySymbol ?? "")
         }
@@ -157,7 +157,7 @@ class TokenDetailsViewModel: ObservableObject {
         bind()
     }
     
-     func onAppear() {
+    func onAppear() {
         updateUnsupportedTokenWarning()
         
         rentWarningSubscription = walletModel?
@@ -190,8 +190,8 @@ class TokenDetailsViewModel: ObservableObject {
     }
     
     func processSellCryptoRequest(_ request: String) {
-       if let request = exchangeService.extractSellCryptoRequest(from: request) {
-           openSendToSell(with: request)
+        if let request = exchangeService.extractSellCryptoRequest(from: request) {
+            openSendToSell(with: request)
         }
     }
     
@@ -203,7 +203,7 @@ class TokenDetailsViewModel: ObservableObject {
             break
         }
     }
-
+    
     private func bind() {
         print("🔗 Token Details view model updates binding")
         card.objectWillChange
@@ -212,7 +212,7 @@ class TokenDetailsViewModel: ObservableObject {
                 self?.objectWillChange.send()
             }
             .store(in: &bag)
-    
+        
         walletModel?.objectWillChange
             .receive(on: RunLoop.main)
             .sink { [weak self] in
@@ -259,7 +259,7 @@ class TokenDetailsViewModel: ObservableObject {
         guard let rentProvider = walletModel?.walletManager as? RentProvider else {
             return
         }
-
+        
         rentProvider.rentAmount()
             .zip(rentProvider.minimalBalanceForRentExemption())
             .receive(on: RunLoop.main)
@@ -298,12 +298,12 @@ class TokenDetailsViewModel: ObservableObject {
     
     private func showUnableToHideAlert() {
         let title = "token_details_unable_hide_alert_title".localized(currencySymbol)
-
+        
         let message = "token_details_unable_hide_alert_message".localized([
             currencySymbol,
             walletModel?.blockchainNetwork.blockchain.displayName ?? ""
         ])
-
+        
         alert = warningAlert(title: title, message: message, primaryButton: .default(Text("common_ok")))
     }
     
@@ -318,7 +318,7 @@ class TokenDetailsViewModel: ObservableObject {
             }
         )
     }
-
+    
     private func warningAlert(title: String, message: String, primaryButton: Alert.Button) -> AlertBinder {
         let alert = Alert(
             title: Text(title),
@@ -371,7 +371,7 @@ extension TokenDetailsViewModel {
         }
         
         guard card.isTestnet, let token = amountType.token,
-            case .ethereum(testnet: true) = blockchainNetwork.blockchain else {
+              case .ethereum(testnet: true) = blockchainNetwork.blockchain else {
             if let url = buyCryptoUrl {
                 coordinator.openBuyCrypto(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
                     self?.sendAnalyticsEvent(.userBoughtCrypto)
