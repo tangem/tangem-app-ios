@@ -12,8 +12,6 @@ import SwiftUI
 struct CardOperationView: View {
     @ObservedObject var viewModel: CardOperationViewModel
     
-    @Environment(\.presentationMode) private var presentationMode
-    
     var body: some View {
         VStack(spacing: 24.0) {
             Spacer()
@@ -43,9 +41,6 @@ struct CardOperationView: View {
         }
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
         .navigationBarTitle(viewModel.title)
-        .onReceive(viewModel.$isLoading.dropFirst()) { _ in
-            presentationMode.wrappedValue.dismiss()
-        }
     }
 }
 
