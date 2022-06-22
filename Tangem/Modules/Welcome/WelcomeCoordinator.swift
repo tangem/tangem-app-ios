@@ -35,6 +35,19 @@ class WelcomeCoordinator: CoordinatorObject {
     //MARK: - Private
     private var welcomeLifecycleSubscription: AnyCancellable? = nil
     
+    private var lifecyclePublisher: AnyPublisher<Bool, Never> {
+        let p1 = $mailViewModel.dropFirst().map { $0 == nil }
+        let p2 = $disclaimerViewModel.dropFirst().map { $0 == nil }
+        let p3 = $shopCoordinator.dropFirst().map { $0 == nil}
+        let p4 = $modalOnboardingCoordinator.dropFirst().map { $0 == nil }
+        let p5 = $tokenListCoordinator.dropFirst().map { $0 == nil }
+        let p6 = $mailViewModel.dropFirst().map { $0 == nil }
+        let p7 = $disclaimerViewModel.dropFirst().map { $0 == nil }
+        
+        return p1.merge(with: p2, p3, p4, p5, p6, p7)
+            .eraseToAnyPublisher()
+    }
+    
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
@@ -50,15 +63,7 @@ class WelcomeCoordinator: CoordinatorObject {
     }
     
     private func subscribeToWelcomeLifecycle() {
-        let p1 = $mailViewModel.dropFirst().map { $0 == nil }
-        let p2 = $disclaimerViewModel.dropFirst().map { $0 == nil }
-        let p3 = $shopCoordinator.dropFirst().map { $0 == nil}
-        let p4 = $modalOnboardingCoordinator.dropFirst().map { $0 == nil }
-        let p5 = $tokenListCoordinator.dropFirst().map { $0 == nil }
-        let p6 = $mailViewModel.dropFirst().map { $0 == nil }
-        let p7 = $disclaimerViewModel.dropFirst().map { $0 == nil }
-        
-        welcomeLifecycleSubscription = p1.merge(with: p2, p3, p4, p5, p6, p7)
+        welcomeLifecycleSubscription = lifecyclePublisher
             .sink {[unowned self] viewDismissed in
                 if viewDismissed {
                     self.welcomeViewModel?.becomeActive()
