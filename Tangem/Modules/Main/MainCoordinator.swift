@@ -115,7 +115,11 @@ extension MainCoordinator: MainRoutable {
     }
     
     func openPushTx(for tx: BlockchainSdk.Transaction, blockchainNetwork: BlockchainNetwork, card: CardViewModel) {
-        let coordinator = PushTxCoordinator()
+        let dismissAction: Action = { [weak self] in
+            self?.pushTxCoordinator = nil
+        }
+        
+        let coordinator = PushTxCoordinator(dismissAction: dismissAction)
         let options = PushTxCoordinator.Options(tx: tx,
                                                 blockchainNetwork: blockchainNetwork,
                                                 cardModel: card)
@@ -128,7 +132,11 @@ extension MainCoordinator: MainRoutable {
     }
     
     func openSettings(cardModel: CardViewModel) {
-        let coordinator = DetailsCoordinator(popToRootAction: self.popToRootAction)
+        let dismissAction: Action = { [weak self] in
+            self?.detailsCoordinator = nil
+        }
+        
+        let coordinator = DetailsCoordinator(dismissAction: dismissAction, popToRootAction: self.popToRootAction)
         let options = DetailsCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
         coordinator.popToRootAction = self.popToRootAction
@@ -136,7 +144,11 @@ extension MainCoordinator: MainRoutable {
     }
     
     func openTokenDetails(cardModel: CardViewModel, blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType) {
-        let coordinator = TokenDetailsCoordinator()
+        let dismissAction: Action = { [weak self] in
+            self?.tokenDetailsCoordinator = nil
+        }
+        
+        let coordinator = TokenDetailsCoordinator(dismissAction: dismissAction)
         let options = TokenDetailsCoordinator.Options(cardModel: cardModel,
                                                       blockchainNetwork: blockchainNetwork,
                                                       amountType: amountType)
