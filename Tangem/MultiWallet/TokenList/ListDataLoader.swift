@@ -136,7 +136,8 @@ private extension ListDataLoader {
             networkIds: networkIds,
             searchText: searchText,
             limit: perPage,
-            offset: items.count
+            offset: items.count,
+            active: true
         )
         
         return coinsService.loadCoins(requestModel: requestModel)
