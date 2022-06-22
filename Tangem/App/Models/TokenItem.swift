@@ -75,6 +75,7 @@ enum TokenItem: Hashable {
             case .binance: return "BEP2"
             case .bsc: return "BEP20"
             case .ethereum: return "ERC20"
+            case .tron: return "TRC20"
             default:
                 return nil
             }
