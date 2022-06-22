@@ -22,6 +22,7 @@ class WelcomeViewModel: ObservableObject {
     @Published var discardAlert: ActionSheetBinder?
     @Published var storiesModel: StoriesViewModel = .init()
     
+    private var storiesModelSubscription: AnyCancellable? = nil
     private var bag: Set<AnyCancellable> = []
     private var backupService: BackupService { backupServiceProvider.backupService }
     private var userPrefsService: UserPrefsService = .init()
@@ -30,6 +31,11 @@ class WelcomeViewModel: ObservableObject {
     
     init(coordinator: WelcomeRoutable) {
         self.coordinator = coordinator
+        self.storiesModelSubscription = storiesModel.objectWillChange
+            .receive(on: DispatchQueue.main)
+            .sink(receiveValue: { [unowned self] in
+                self.objectWillChange.send()
+            })
     }
     
     func scanCard() {
