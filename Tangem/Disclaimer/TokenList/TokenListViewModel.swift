@@ -118,7 +118,6 @@ class TokenListViewModel: ObservableObject {
             self.pendingAdd = []
             self.pendingRemove = []
             self.enteredSearchText.value = ""
-           // self.navigation.tokensToCustomToken = false //ios13 bug [REDACTED_TODO_COMMENT]
         }
     }
     
