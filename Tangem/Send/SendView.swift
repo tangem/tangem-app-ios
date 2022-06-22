@@ -255,7 +255,7 @@ struct SendView: View {
             .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
                                            isDisabled: !self.viewModel.isSendEnabled))
             .padding(.top, 16.0)
-            .alert(item: self.$viewModel.sendError) { binder in
+            .alert(item: self.$viewModel.error) { binder in
                 if binder.error == nil {
                     return binder.alert
                 }

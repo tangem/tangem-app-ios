@@ -42,6 +42,13 @@ struct FinishStoryPage: View {
             Image("amazement")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
+                .overlay(
+                    LinearGradient(stops: [
+                        Gradient.Stop(color: Color("tangem_story_background").opacity(0), location: 0.5),
+                        Gradient.Stop(color: Color("tangem_story_background"), location: 1),
+                    ], startPoint: .top, endPoint: .bottom)
+                    .frame(minWidth: 1000)
+                )
                 .storyImageAppearanceModifier(
                     progress: progress,
                     start: 0,
