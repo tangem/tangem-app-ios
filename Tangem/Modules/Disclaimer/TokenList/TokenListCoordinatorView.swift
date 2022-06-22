@@ -29,8 +29,6 @@ struct TokenListCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.addCustomTokenViewModel) {
                 AddCustomTokenView(viewModel: $0)
             }
-            .navigation(item: $coordinator.emptyModel) { _ in
-                EmptyView()
-            }
+            .emptyNavigationLink()
     }
 }
