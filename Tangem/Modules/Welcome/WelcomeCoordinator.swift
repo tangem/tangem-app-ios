@@ -52,9 +52,13 @@ class WelcomeCoordinator: CoordinatorObject {
         let p2 = $disclaimerViewModel.dropFirst().map { $0 == nil }
         let p3 = $shopCoordinator.dropFirst().map { $0 == nil}
         let p4 = $modalOnboardingCoordinator.dropFirst().map { $0 == nil }
+        let p5 = $tokenListCoordinator.dropFirst().map { $0 == nil }
+        let p6 = $mailViewModel.dropFirst().map { $0 == nil }
+        let p7 = $disclaimerViewModel.dropFirst().map { $0 == nil }
         
-        welcomeLifecycleSubscription = p1.merge(with: p2, p3, p4)
+        welcomeLifecycleSubscription = p1.merge(with: p2, p3, p4, p5, p6, p7)
             .sink {[unowned self] viewDismissed in
+                print("!!! viewDismissed: \(viewDismissed)")
                 if viewDismissed {
                     self.welcomeViewModel?.becomeActive()
                 } else {
