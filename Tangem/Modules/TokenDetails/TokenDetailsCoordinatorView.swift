@@ -29,9 +29,7 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.pushedWebViewModel) {
                 WebViewContainer(viewModel: $0)
             }
-            .navigation(item: $coordinator.emptyModel) { _ in
-                EmptyView()
-            }
+            .emptyNavigationLink()
     }
     
     @ViewBuilder
