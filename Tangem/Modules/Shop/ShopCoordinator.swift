@@ -9,8 +9,8 @@
 import Foundation
 
 class ShopCoordinator: CoordinatorObject {
-    var dismissAction: () -> Void = {}
-    var popToRootAction: (PopToRootOptions) -> Void = { _ in }
+    var dismissAction: Action
+    var popToRootAction: ParamsAction<PopToRootOptions>
     
     //MARK: - Main view model
     @Published private(set) var shopViewModel: ShopViewModel? = nil
@@ -22,6 +22,11 @@ class ShopCoordinator: CoordinatorObject {
     
     //MARK: - Private helpers
     @Published var emptyModel: Int? = nil //Fix single navigation link issue
+    
+    required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
+        self.dismissAction = dismissAction
+        self.popToRootAction = popToRootAction
+    }
     
     func start(with options: ShopCoordinator.Options = .init()) {
         if Locale.current.regionCode == "RU" {
