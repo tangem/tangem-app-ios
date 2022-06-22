@@ -10,4 +10,5 @@ import Foundation
 
 protocol PushTxRoutable: AnyObject {
     func openMail(with dataCollector: EmailDataCollector)
+    func dismiss()
 }
