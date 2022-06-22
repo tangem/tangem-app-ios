@@ -91,7 +91,11 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
     }
     
     func openPushTx(for tx: BlockchainSdk.Transaction, blockchainNetwork: BlockchainNetwork, card: CardViewModel) {
-        let coordinator = PushTxCoordinator()
+        let dismissAction: Action = { [weak self] in
+            self?.pushTxCoordinator = nil
+        }
+        
+        let coordinator = PushTxCoordinator(dismissAction: dismissAction)
         let options = PushTxCoordinator.Options(tx: tx,
                                                 blockchainNetwork: blockchainNetwork,
                                                 cardModel: card)
