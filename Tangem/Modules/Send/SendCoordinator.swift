@@ -11,8 +11,8 @@ import BlockchainSdk
 import SwiftUI
 
 class SendCoordinator: CoordinatorObject {
-    var dismissAction: () -> Void = {}
-    var popToRootAction: (PopToRootOptions) -> Void = { _ in }
+    var dismissAction: Action
+    var popToRootAction: ParamsAction<PopToRootOptions>
     
     //MARK: - Main view model
     @Published private(set) var sendViewModel: SendViewModel? = nil
@@ -21,6 +21,11 @@ class SendCoordinator: CoordinatorObject {
 
     @Published var mailViewModel: MailViewModel? = nil
     @Published var qrScanViewModel: QRScanViewModel? = nil
+    
+    required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
+        self.dismissAction = dismissAction
+        self.popToRootAction = popToRootAction
+    }
     
     func start(with options: SendCoordinator.Options) {
         if let destination = options.destination {
