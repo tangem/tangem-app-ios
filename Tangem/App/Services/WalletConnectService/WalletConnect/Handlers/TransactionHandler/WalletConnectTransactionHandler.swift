@@ -13,7 +13,6 @@ import WalletConnectSwift
 
 class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
     @Injected(\.transactionSigner) var signer: TangemSigner
-    @Injected(\.assemblyProvider) private var assemblyProvider: AssemblyProviding
     @Injected(\.scannedCardsRepository) private var scannedCardsRepo: ScannedCardsRepository
  
     unowned var delegate: WalletConnectHandlerDelegate?
@@ -62,7 +61,7 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
         }
         
         let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: wallet.derivationPath)
-        let walletModels = assemblyProvider.assembly.makeWalletModels(from: card, blockchainNetworks: [blockchainNetwork])
+        let walletModels = WalletManagerAssembly.makeWalletModels(from: card, blockchainNetworks: [blockchainNetwork])
         
         guard let walletModel = walletModels.first(where: { $0.wallet.address.lowercased() == transaction.from.lowercased() }) else {
             let error = WalletConnectServiceError.failedToBuildTx(code: .wrongAddress)
