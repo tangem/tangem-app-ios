@@ -12,7 +12,6 @@ import SwiftUI
 import TangemSdk
 
 class MainViewModel: ObservableObject {
-    @Injected(\.assemblyProvider) private var assemblyProvider: AssemblyProviding
     @Injected(\.tangemSdkProvider) var sdkProvider: TangemSdkProviding
     @Injected(\.cardImageLoader) var imageLoader: CardImageLoaderProtocol
     
@@ -58,7 +57,7 @@ class MainViewModel: ObservableObject {
                 Analytics.logScan(card: response.card)
                 self.shouldShowGetFullApp = true
                 
-                let cm = self.assemblyProvider.assembly.makeCardModel(from: response.getCardInfo())
+                let cm = CardViewModel(cardInfo: response.getCardInfo())
                 let result: ScanResult = .card(model: cm)
                 cm.getCardInfo()
                 
