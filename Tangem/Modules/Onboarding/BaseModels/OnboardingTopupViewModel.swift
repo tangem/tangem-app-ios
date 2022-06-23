@@ -124,9 +124,9 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
 //        guard refreshButtonDispatchWork == nil else { return }
 //
 //        refreshButtonDispatchWork = DispatchWorkItem(block: {
-            withAnimation {
-                self.refreshButtonState = .refreshButton
-            }
+        withAnimation {
+            self.refreshButtonState = .refreshButton
+        }
 //            self.refreshButtonDispatchWork = nil
 //        })
 //        
@@ -135,7 +135,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
     
 }
 
-//MARK: - Navigation
+// MARK: - Navigation
 extension OnboardingTopupViewModel {
     func openCryptoShop() {
         guard let url = buyCryptoURL else { return }
