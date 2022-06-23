@@ -110,11 +110,11 @@ class WarningsService {
     }
     
     private func addOldDeviceOldCardWarningIfNeeded(in container: WarningsContainer, for card: Card) {
-        guard  card.firmwareVersion.doubleValue < 2.28 else { //old cards
+        guard  card.firmwareVersion.doubleValue < 2.28 else { // old cards
             return
         }
         
-        guard NFCUtils.isPoorNfcQualityDevice else { //old phone
+        guard NFCUtils.isPoorNfcQualityDevice else { // old phone
             return
         }
         

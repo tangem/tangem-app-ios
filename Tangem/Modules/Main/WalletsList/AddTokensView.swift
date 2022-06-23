@@ -11,7 +11,7 @@ import SwiftUI
 
 struct AddTokensView: View {
     var action: () -> Void
-    
+
     var body: some View {
         VStack(spacing: 0) {
             Button {

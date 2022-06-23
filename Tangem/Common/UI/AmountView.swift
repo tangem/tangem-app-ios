@@ -45,7 +45,7 @@ struct AmountView: View {
     }
     
     var body: some View {
-        HStack{
+        HStack {
             Text(label)
                 .font(labelFont)
                 .foregroundColor(labelColor)

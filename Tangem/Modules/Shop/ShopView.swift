@@ -111,7 +111,7 @@ struct ShopView: View {
                 Image("ticket")
                 TextField("shop_i_have_a_promo_code", text: $viewModel.discountCode) { editing in
                     if !editing {
-                       viewModel.didEnterDiscountCode()
+                        viewModel.didEnterDiscountCode()
                     }
                 }
                 .disableAutocorrection(true)

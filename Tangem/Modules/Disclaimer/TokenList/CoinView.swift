@@ -25,7 +25,7 @@ struct CoinView: View {
                     Group {
                         Text(model.name)
                             .foregroundColor(.tangemGrayDark6)
-                        + Text(symbolFormatted)
+                            + Text(symbolFormatted)
                             .foregroundColor(Color(hex: "#A9A9AD")!)
                     }
                     .lineLimit(1)
@@ -64,10 +64,10 @@ struct CoinView: View {
             }
         }
         .padding(.vertical, 10)
-        .animation(nil) //Disable animations on scroll reuse
+        .animation(nil) // Disable animations on scroll reuse
     }
     
-    private var symbolFormatted: String {" (\(model.symbol))"}
+    private var symbolFormatted: String { " (\(model.symbol))" }
     @State private var isExpanded = false
     
     private var chevronView: some View {
@@ -112,21 +112,21 @@ struct CurrencyView_Previews: PreviewProvider {
                                               name: "Tether",
                                               symbol: "USDT",
                                               items: [
-                                                CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
-                                                                  isReadonly: false,
-                                                                  isDisabled: false,
-                                                                  isSelected: $0,
-                                                                  position: .first),
-                                                CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
-                                                                  isReadonly: false,
-                                                                  isDisabled: false,
-                                                                  isSelected: $0,
-                                                                  position: .middle),
-                                                CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
-                                                                  isReadonly: false,
-                                                                  isDisabled: false,
-                                                                  isSelected: $0,
-                                                                  position: .last)
+                                                  CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
+                                                                    isReadonly: false,
+                                                                    isDisabled: false,
+                                                                    isSelected: $0,
+                                                                    position: .first),
+                                                  CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
+                                                                    isReadonly: false,
+                                                                    isDisabled: false,
+                                                                    isSelected: $0,
+                                                                    position: .middle),
+                                                  CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
+                                                                    isReadonly: false,
+                                                                    isDisabled: false,
+                                                                    isSelected: $0,
+                                                                    position: .last),
                                               ]))
             }
             
@@ -135,21 +135,21 @@ struct CurrencyView_Previews: PreviewProvider {
                                               name: "Very Long Name of The Token",
                                               symbol: "VLNOFT",
                                               items: [
-                                                CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
-                                                                  isReadonly: false,
-                                                                  isDisabled: false,
-                                                                  isSelected: $0,
-                                                                  position: .first),
-                                                CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
-                                                                  isReadonly: false,
-                                                                  isDisabled: false,
-                                                                  isSelected: $0,
-                                                                  position: .middle),
-                                                CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
-                                                                  isReadonly: false,
-                                                                  isDisabled: false,
-                                                                  isSelected: $0,
-                                                                  position: .last)
+                                                  CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
+                                                                    isReadonly: false,
+                                                                    isDisabled: false,
+                                                                    isSelected: $0,
+                                                                    position: .first),
+                                                  CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
+                                                                    isReadonly: false,
+                                                                    isDisabled: false,
+                                                                    isSelected: $0,
+                                                                    position: .middle),
+                                                  CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
+                                                                    isReadonly: false,
+                                                                    isDisabled: false,
+                                                                    isSelected: $0,
+                                                                    position: .last),
                                               ]))
             }
             
