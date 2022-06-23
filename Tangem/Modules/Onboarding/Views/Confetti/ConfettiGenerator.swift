@@ -42,7 +42,7 @@ class ConfettiGenerator {
     static let shared = ConfettiGenerator()
     
     private let defaultColors: [UIColor] = [
-        #colorLiteral(red: 1, green: 0.3615367413, blue: 0.5344620347, alpha: 1), #colorLiteral(red: 0.3234148026, green: 0.5075122118, blue: 1, alpha: 1), #colorLiteral(red: 0.9215686275, green: 0.2705882353, blue: 0.231372549, alpha: 1), #colorLiteral(red: 0.9568627451, green: 0.768627451, blue: 0.2823529412, alpha: 1), #colorLiteral(red: 0.4196078431, green: 0.7450980392, blue: 0.9764705882, alpha: 1), #colorLiteral(red: 0.537254902, green: 0.1607843137, blue: 0.9254901961, alpha: 1), #colorLiteral(red: 0.999055922, green: 0.3810364008, blue: 0.0866015926, alpha: 1)
+        #colorLiteral(red: 1, green: 0.3615367413, blue: 0.5344620347, alpha: 1), #colorLiteral(red: 0.3234148026, green: 0.5075122118, blue: 1, alpha: 1), #colorLiteral(red: 0.9215686275, green: 0.2705882353, blue: 0.231372549, alpha: 1), #colorLiteral(red: 0.9568627451, green: 0.768627451, blue: 0.2823529412, alpha: 1), #colorLiteral(red: 0.4196078431, green: 0.7450980392, blue: 0.9764705882, alpha: 1), #colorLiteral(red: 0.537254902, green: 0.1607843137, blue: 0.9254901961, alpha: 1), #colorLiteral(red: 0.999055922, green: 0.3810364008, blue: 0.0866015926, alpha: 1),
     ]
     private var confettiTypes: [ConfettiType] = []
     
@@ -55,7 +55,7 @@ class ConfettiGenerator {
         let confettiLayers = [
             foregroundConfettiLayer(emitterPosition: settings.generatorPosition.position, emitterSize: settings.generatorSize, confettiLifetime: settings.confettiLifetime),
             backgroundConfettiLayer(emitterPosition: settings.generatorPosition.position, emitterSize: settings.generatorSize, confettiLifetime: settings.confettiLifetime, scale: 0.6, opacity: 0.9, speed: 0.95),
-            backgroundConfettiLayer(emitterPosition: settings.generatorPosition.position, emitterSize: settings.generatorSize, confettiLifetime: settings.confettiLifetime, scale: 0.35, opacity: 0.8, speed: 0.9)
+            backgroundConfettiLayer(emitterPosition: settings.generatorPosition.position, emitterSize: settings.generatorSize, confettiLifetime: settings.confettiLifetime, scale: 0.35, opacity: 0.8, speed: 0.9),
         ]
         for layer in confettiLayers {
             addBehaviors(to: layer)
@@ -118,7 +118,7 @@ class ConfettiGenerator {
     private func createBehavior(type: String) -> NSObject {
         let behaviorClass = NSClassFromString("CAEmitterBehavior") as! NSObject.Type
         let behaviorWithType = behaviorClass.method(for: NSSelectorFromString("behaviorWithType:"))!
-        let castedBehaviorWithType = unsafeBitCast(behaviorWithType, to:(@convention(c)(Any?, Selector, Any?) -> NSObject).self)
+        let castedBehaviorWithType = unsafeBitCast(behaviorWithType, to: (@convention(c) (Any?, Selector, Any?) -> NSObject).self)
         return castedBehaviorWithType(behaviorClass, NSSelectorFromString("behaviorWithType:"), type)
     }
 
@@ -157,7 +157,7 @@ class ConfettiGenerator {
         layer.setValue([
             horizontalWaveBehavior(),
             verticalWaveBehavior(),
-            attractorBehavior(for: layer)
+            attractorBehavior(for: layer),
         ], forKey: "emitterBehaviors")
     }
 
@@ -234,7 +234,7 @@ class ConfettiGenerator {
         
         emitterLayer.birthRate = 0
         emitterLayer.emitterCells = createConfettiCells(confettiLifetime: confettiLifetime)
-        emitterLayer.emitterPosition = emitterPosition //CGPoint(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.minY - 150)
+        emitterLayer.emitterPosition = emitterPosition // CGPoint(x: UIScreen.main.bounds.midX, y: UIScreen.main.bounds.minY - 150)
         emitterLayer.emitterSize =  emitterSize // CGSize(width: 100, height: 120)
         emitterLayer.emitterShape = .sphere
         emitterLayer.frame = UIScreen.main.bounds
