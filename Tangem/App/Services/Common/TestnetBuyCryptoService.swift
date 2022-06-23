@@ -29,7 +29,7 @@ class TestnetBuyCryptoService {
         
         var subs: AnyCancellable!
         subs = walletManager.getFee(amount: amountToSend, destination: destinationAddress)
-            .flatMap {[unowned self] (fees: [Amount]) -> AnyPublisher<Void, Error> in
+            .flatMap { [unowned self] (fees: [Amount]) -> AnyPublisher<Void, Error> in
                 let fee = fees[0]
                 
                 guard fee.value <= walletManager.wallet.amounts[.coin]?.value ?? 0 else {
@@ -42,7 +42,7 @@ class TestnetBuyCryptoService {
                 
                 return walletManager.send(tx, signer: self.signer)
             }
-            .sink {[unowned self] completion in
+            .sink { [unowned self] completion in
                 if case let .failure(error) = completion {
                     print(error)
                     self.presentOnMain(error.alertController)
