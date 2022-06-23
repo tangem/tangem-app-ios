@@ -9,16 +9,16 @@
 import SwiftUI
 
 struct CardView: View {
-    
+
     var image: UIImage?
     var width: CGFloat
     var currentCardNumber: Int?
     var totalCards: Int?
-    
+
     var hasBackupCards: Bool {
         return currentCardNumber != nil && totalCards != nil
     }
-    
+
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             if let image = image {
@@ -44,7 +44,7 @@ struct CardView: View {
                     .background(Color.gray)
                     .cornerRadius(14)
                     .offset(x: 24)
-                
+
             }
         }
     }
@@ -52,6 +52,6 @@ struct CardView: View {
 
 struct CardView_Previews: PreviewProvider {
     static var previews: some View {
-		CardView(image: UIImage(named: "twin"), width: UIScreen.main.bounds.width, currentCardNumber: 1, totalCards: 3)
+        CardView(image: UIImage(named: "twin"), width: UIScreen.main.bounds.width, currentCardNumber: 1, totalCards: 3)
     }
 }
