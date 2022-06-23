@@ -14,10 +14,7 @@ struct OnboardingInput {
     let cardInput: CardInput
     let cardsPosition: (dark: AnimatedViewSettings, light: AnimatedViewSettings)?
     let welcomeStep: WelcomeStep?
-    
     var currentStepIndex: Int
-    var successCallback: (() -> Void)?
-    
     var isStandalone = false
 }
 
