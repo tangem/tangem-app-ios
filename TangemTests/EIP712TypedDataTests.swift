@@ -17,13 +17,13 @@ class EIP712TypedDataTests: XCTestCase {
         let jsonData = string.data(using: .utf8)!
         return jsonData
     }
-    
+
     func typedData(for fileName: String) throws -> EIP712TypedData {
         let jsonData = try jsonData(for: fileName)
         let typedData = try JSONDecoder().decode(EIP712TypedData.self, from: jsonData)
         return typedData
     }
-    
+
     func testDecode() {
         XCTAssertNoThrow(try typedData(for: "simpleDecode"))
     }
@@ -85,25 +85,25 @@ class EIP712TypedDataTests: XCTestCase {
         let data2 = typedData.encodeData(data: typedData.domain, type: "EIP712Domain")
         XCTAssertEqual(data2.sha3(.keccak256).hexString.lowercased(), result2)
     }
-    
+
     func testAnotherTypedData() throws {
         let jsonTypedData = try typedData(for: "hashEncode")
         XCTAssertEqual(jsonTypedData.signHash.hexString.lowercased(), "be609aee343fb3c4b28e1df9e632fca64fcfaede20f02e86244efddf30957bd2")
     }
-    
-    
+
+
     func testAnotherTypedData1() throws {
         let jsonTypedData = try typedData(for: "hashEncode2")
         XCTAssertEqual(jsonTypedData.signHash.hexString.lowercased(), "55eaa6ec02f3224d30873577e9ddd069a288c16d6fb407210eecbc501fa76692")
     }
-    
+
     func testV4() throws {
-       let jsonTypedData = try typedData(for: "hashEncodev4")
+        let jsonTypedData = try typedData(for: "hashEncodev4")
         XCTAssertEqual(jsonTypedData.signHash.hexString.lowercased(), "f558d08ad4a7651dbc9ec028cfcb4a8e6878a249073ef4fa694f85ee95f61c0f")
     }
-    
+
     func testNominex() throws {
-        let jsonTypedData = try typedData(for: "Nominex") //fd40e2f0923c84b55aa3017cf9fc77466d49ba136e75f7e3bc0e0257d818b617
+        let jsonTypedData = try typedData(for: "Nominex") // fd40e2f0923c84b55aa3017cf9fc77466d49ba136e75f7e3bc0e0257d818b617
         XCTAssertEqual(jsonTypedData.signHash.hexString.lowercased(), "9bfa080e4705a0beacb2ab710480fb1176f6de9c4117ddf50f5933d3be1ab6a1")
     }
 
@@ -111,12 +111,12 @@ class EIP712TypedDataTests: XCTestCase {
         let jsonTypedData = try typedData(for: "rarible")
         XCTAssertEqual(jsonTypedData.signHash.hexString.lowercased(), "df0200de55c05eb55af2597012767ea3af653d68000be49580f8e05acd91d366")
     }
-    
+
     func testCF() throws {
         let jsonTypedData = try typedData(for: "cryptofights")
         XCTAssertEqual(jsonTypedData.signHash.hexString.lowercased(), "db12328a6d193965801548e1174936c3aa7adbe1b54b3535a3c905bd4966467c")
     }
-    
+
     func testWCExample() throws {
         let jsonTypedData = try typedData(for: "WCExample")
         XCTAssertEqual(jsonTypedData.signHash.hexString.lowercased(), "abc79f527273b9e7bca1b3f1ac6ad1a8431fa6dc34ece900deabcd6969856b5e")

@@ -13,12 +13,12 @@ import BlockchainSdk
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
-    
+
     private let appCoordinator: AppCoordinator = .init()
-    
+
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         appCoordinator.start(with: .init(connectionOptions: connectionOptions))
-        
+
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
             let appView = AppCoordinatorView(coordinator: appCoordinator)
@@ -27,7 +27,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             window.makeKeyAndVisible()
         }
     }
-    
+
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
         appCoordinator.scene(scene, continue: userActivity)
     }
