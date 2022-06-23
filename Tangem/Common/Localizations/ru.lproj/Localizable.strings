@@ -496,3 +496,4 @@ URL: %@";
 "token_item_no_rate" = "Нет цены";
 "main_no_backup_warning_title" = "Бэкап кошелька не был произведен";
 "main_no_backup_warning_subtitle" = "Чтобы защитить свои активы, мы советуем вам выполнить эту процедуру";
+"common_retry" = "Повторить";
