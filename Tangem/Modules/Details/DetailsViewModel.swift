@@ -23,8 +23,6 @@ class DetailsViewModel: ObservableObject {
     
     @Published var error: AlertBinder?
     
-    lazy var chatViewModel = assembly.makeChatSupportViewModel()
-    
     var dataCollector: DetailsFeedbackDataCollector!
     
     var hasWallet: Bool {
@@ -291,5 +289,9 @@ extension DetailsViewModel {
     
     func openSecManagement() {
         coordinator.openSecManagement(with: cardModel)
+    }
+    
+    func openChat() {
+        coordinator.openSupportChat()
     }
 }
