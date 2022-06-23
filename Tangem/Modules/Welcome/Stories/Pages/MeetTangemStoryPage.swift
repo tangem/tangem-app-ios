@@ -38,7 +38,7 @@ struct MeetTangemStoryPage: View {
     
     var body: some View {
         ZStack {
-            ForEach(0..<words.count) { index in
+            ForEach(0 ..< words.count) { index in
                 Text(words[index])
                     .foregroundColor(.white)
                     .font(.system(size: 60, weight: .semibold))
@@ -48,7 +48,7 @@ struct MeetTangemStoryPage: View {
                     .modifier(AnimatableVisibilityModifier(
                         progress: progress,
                         start: Double(index) / Double(words.count) * wordListProgressEnd,
-                        end: Double(index+1) / Double(words.count) * wordListProgressEnd
+                        end: Double(index + 1) / Double(words.count) * wordListProgressEnd
                     ))
             }
             
@@ -97,7 +97,7 @@ struct MeetTangemStoryPage: View {
                                     Gradient.Stop(color: Color("tangem_story_background").opacity(0), location: 0.7),
                                     Gradient.Stop(color: Color("tangem_story_background"), location: 1),
                                 ], startPoint: .top, endPoint: .bottom)
-                                .frame(minWidth: 1000)
+                                    .frame(minWidth: 1000)
                             )
                             .storyImageAppearanceModifier(
                                 progress: progress,
@@ -139,7 +139,7 @@ struct MeetTangemStoryPage: View {
 struct MeetTangemStoryPage_Previews: PreviewProvider {
     static var previews: some View {
         MeetTangemStoryPage(progress: .constant(0.8), immediatelyShowButtons: false, isScanning: false) { } orderCard: { }
-        .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
-        .environment(\.colorScheme, .dark)
+            .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
+            .environment(\.colorScheme, .dark)
     }
 }
