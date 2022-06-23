@@ -47,7 +47,7 @@ struct AweStoryPage: View {
                         Gradient.Stop(color: Color("tangem_story_background").opacity(0), location: 0.5),
                         Gradient.Stop(color: Color("tangem_story_background"), location: 1),
                     ], startPoint: .top, endPoint: .bottom)
-                    .frame(minWidth: 1000)
+                        .frame(minWidth: 1000)
                 )
                 .storyImageAppearanceModifier(
                     progress: progress,
@@ -70,7 +70,7 @@ struct AweStoryPage: View {
 struct AweStoryPage_Previews: PreviewProvider {
     static var previews: some View {
         AweStoryPage(progress: .constant(1), isScanning: false) { } orderCard: { }
-        .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
-        .environment(\.colorScheme, .dark)
+            .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
+            .environment(\.colorScheme, .dark)
     }
 }

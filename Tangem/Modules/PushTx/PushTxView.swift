@@ -39,7 +39,7 @@ struct PushTxView: View {
                 VStack(alignment: .leading, spacing: 0.0) {
                     HStack {
                         Text("common_push")
-                            .font(Font.system(size: 30.0, weight: .bold, design: .default) )
+                            .font(Font.system(size: 30.0, weight: .bold, design: .default))
                             .foregroundColor(Color.tangemGrayDark6)
                         Spacer()
                     }
@@ -63,11 +63,11 @@ struct PushTxView: View {
                                 Text(self.viewModel.currency)
                                     .font(Font.system(size: 38.0, weight: .light, design: .default))
                                     .foregroundColor(self.viewModel.canFiatCalculation ?
-                                                     Color.tangemBlue : Color.tangemBlue.opacity(0.5))
+                                        Color.tangemBlue : Color.tangemBlue.opacity(0.5))
                                 Image(systemName: "arrow.up.arrow.down")
                                     .font(Font.system(size: 17.0, weight: .regular, design: .default))
                                     .foregroundColor(self.viewModel.canFiatCalculation ?
-                                                     Color.tangemBlue : Color.tangemBlue.opacity(0.5))
+                                        Color.tangemBlue : Color.tangemBlue.opacity(0.5))
                             }
                             }
                             .foregroundColor(.tangemBlue)
@@ -96,11 +96,11 @@ struct PushTxView: View {
                                               "send_fee_picker_normal".localized,
                                               "send_fee_picker_priority".localized],
                                    selection: $viewModel.selectedFeeLevel)
-                        .padding(.vertical, 8.0)
-                        Text(viewModel.amountHint?.message ?? " " )
+                            .padding(.vertical, 8.0)
+                        Text(viewModel.amountHint?.message ?? " ")
                             .font(.system(size: 13.0, weight: .medium, design: .default))
-                            .foregroundColor((viewModel.amountHint?.isError ?? false ) ?
-                                             Color.red : Color.tangemGrayDark)
+                            .foregroundColor((viewModel.amountHint?.isError ?? false) ?
+                                Color.red : Color.tangemGrayDark)
                         Toggle(isOn: self.$viewModel.isFeeIncluded) {
                             Text("send_fee_include_description")
                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
@@ -108,7 +108,7 @@ struct PushTxView: View {
                         }
                     }
                     Spacer()
-                    VStack (spacing: 8.0) {
+                    VStack(spacing: 8.0) {
                         AmountView(label: "send_amount_label",
                                    labelColor: .tangemGrayDark6,
                                    amountText: viewModel.amount)
@@ -116,7 +116,7 @@ struct PushTxView: View {
                         AmountView(label: "push_previous_fee",
                                    labelColor: .tangemGrayDark,
                                    amountText: viewModel.previousFee)
-                        .opacity(0.6)
+                            .opacity(0.6)
                         AmountView(label: "push_additional_fee",
                                    labelColor: .tangemGrayDark,
                                    isLoading: viewModel.isFeeLoading,
@@ -129,7 +129,7 @@ struct PushTxView: View {
                                    amountText: viewModel.sendTotal,
                                    amountScaleFactor: 0.5,
                                    amountLineLimit: 1)
-                        HStack{
+                        HStack {
                             Spacer()
                             Text(viewModel.sendTotalSubtitle)
                                 .font(Font.system(size: 14.0, weight: .bold, design: .default))
@@ -147,20 +147,20 @@ struct PushTxView: View {
                         TangemButton(title: "wallet_button_send",
                                      systemImage: "arrow.right",
                                      action: viewModel.onSend)
-                        .buttonStyle(TangemButtonStyle(layout: .big,
-                                                       isDisabled: !viewModel.isSendEnabled))
-                        .alert(item: self.$viewModel.sendError) { binder in
-                            if binder.error == nil {
-                                return binder.alert
+                            .buttonStyle(TangemButtonStyle(layout: .big,
+                                                           isDisabled: !viewModel.isSendEnabled))
+                            .alert(item: self.$viewModel.sendError) { binder in
+                                if binder.error == nil {
+                                    return binder.alert
+                                }
+                            
+                                let errorDescription = String(binder.error?.localizedDescription.dropTrailingPeriod ?? "Unknown error")
+                            
+                                return Alert(title: Text("alert_failed_to_send_transaction_title"),
+                                             message: Text(String(format: "alert_failed_to_send_transaction_message".localized, errorDescription)),
+                                             primaryButton: .default(Text("alert_button_send_feedback"), action: viewModel.openMail),
+                                             secondaryButton: .default(Text("common_no")))
                             }
-                            
-                            let errorDescription = String(binder.error?.localizedDescription.dropTrailingPeriod ?? "Unknown error")
-                            
-                            return Alert(title: Text("alert_failed_to_send_transaction_title"),
-                                         message: Text(String(format: "alert_failed_to_send_transaction_message".localized, errorDescription)),
-                                         primaryButton: .default(Text("alert_button_send_feedback"), action: viewModel.openMail),
-                                         secondaryButton: .default(Text("common_no")))
-                        }
                     }
                     .padding(.top, 16.0)
                 }
