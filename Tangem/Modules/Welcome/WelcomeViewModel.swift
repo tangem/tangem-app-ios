@@ -129,7 +129,7 @@ class WelcomeViewModel: ObservableObject {
     }
 }
 
-//MARK: - Navigation
+// MARK: - Navigation
 extension WelcomeViewModel {
     func openInterrupedBackup(with input: OnboardingInput) {
         coordinator.openOnboardingModal(with: input)
@@ -162,7 +162,7 @@ extension WelcomeViewModel {
     }
 }
 
-//MARK: - Resume interrupted backup
+// MARK: - Resume interrupted backup
 private extension WelcomeViewModel {
     func showInteruptedBackupAlertIfNeeded() {
         if backupService.hasIncompletedBackup {

@@ -27,11 +27,11 @@ enum PreviewCard {
                           isTangemWallet: true)
         let vm = CardViewModel(cardInfo: ci)
         let scanResult = ScanResult.card(model: vm)
-#if !CLIP
+        #if !CLIP
         let walletModels: [WalletModel]
         if let blockchain = blockchain {
             let factory = WalletManagerFactory(config: .init(blockchairApiKey: "", blockcypherTokens: [], infuraProjectId: ""))
-            let walletManager = try! factory.makeWalletManager(cardId: card.cardId, blockchain: blockchain, walletPublicKey: publicKey)
+            let walletManager = try! factory.makeWalletManager(blockchain: blockchain, walletPublicKey: publicKey)
             walletModels = [WalletModel(walletManager: walletManager, derivationStyle: .legacy)]
         } else {
             walletModels = []
@@ -40,7 +40,7 @@ enum PreviewCard {
         walletModels.forEach { $0.initialize() }
         
         vm.state = .loaded(walletModel: walletModels)
-#endif
+        #endif
         return scanResult
     }
     
@@ -61,7 +61,7 @@ enum PreviewCard {
         }
     }
     
-#if !CLIP
+    #if !CLIP
     var blockchain: Blockchain? {
         switch self {
         case .ethereum:
@@ -78,7 +78,7 @@ enum PreviewCard {
     var blockchainNetwork: BlockchainNetwork? {
         blockchain.map { BlockchainNetwork($0) }
     }
-#endif
+    #endif
     
     var publicKey: Data {
         // [REDACTED_TODO_COMMENT]
