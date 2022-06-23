@@ -12,12 +12,12 @@ import TangemSdk
 
 struct DetailsView: View {
     private enum NavigationTag: String {
-        case currency, disclaimer, cardTermsOfUse, securityManagement, walletConnect, resetToFactory
+        case currency, disclaimer, cardTermsOfUse, securityManagement, walletConnect, resetToFactory, chatSupport
     }
     
     @ObservedObject var viewModel: DetailsViewModel
     
-    // fix remain highlited bug on ios14
+    //fix remain highlited bug on ios14
     @State private var selection: NavigationTag? = nil
     
     var body: some View {
@@ -152,9 +152,9 @@ struct DetailsView: View {
             if !viewModel.isMultiWallet {
                 DetailsRowView(title: "details_row_title_currency".localized,
                                subtitle: viewModel.currencyRateService.selectedCurrencyCode)
-                    .onNavigation(viewModel.openCurrencySelection,
-                                  tag: NavigationTag.currency,
-                                  selection: $selection)
+                .onNavigation(viewModel.openCurrencySelection,
+                              tag: NavigationTag.currency,
+                              selection: $selection)
             }
 
             DetailsRowView(title: "disclaimer_title".localized, subtitle: "")
@@ -181,6 +181,11 @@ struct DetailsView: View {
                                   tag: NavigationTag.walletConnect,
                                   selection: $selection)
             }
+            
+            DetailsRowView(title: "details_ask_a_question".localized, subtitle: "")
+                .onNavigation(viewModel.openChat,
+                              tag: NavigationTag.chatSupport,
+                              selection: $selection)
         }
     }
 }
@@ -190,7 +195,7 @@ extension DetailsView {
         var title: String
         var subtitle: String
         var body: some View {
-            HStack(alignment: .center) {
+            HStack (alignment: .center) {
                 Text(title)
                     .font(Font.system(size: 16.0, weight: .regular, design: .default))
                     .foregroundColor(.tangemGrayDark6)
@@ -200,7 +205,7 @@ extension DetailsView {
                     .foregroundColor(.tangemGrayDark)
             }
             // .padding(.leading)
-            // .listRowInsets(EdgeInsets())
+            //.listRowInsets(EdgeInsets())
         }
     }
     
