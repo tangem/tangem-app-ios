@@ -11,7 +11,7 @@ import SwiftUI
 
 struct AppCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: AppCoordinator
-    
+
     var body: some View {
         WelcomeCoordinatorView(coordinator: coordinator.welcomeCoordinator)
     }

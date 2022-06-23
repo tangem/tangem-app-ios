@@ -9,14 +9,14 @@
 import Foundation
 
 class UserPrefsService {
-	@Storage(type: StorageType.termsOfServiceAccepted, defaultValue: false)
+    @Storage(type: StorageType.termsOfServiceAccepted, defaultValue: false)
     var isTermsOfServiceAccepted: Bool
 	
-	@Storage(type: StorageType.twinCardOnboardingDisplayed, defaultValue: false)
-	var isTwinCardOnboardingWasDisplayed: Bool
+    @Storage(type: StorageType.twinCardOnboardingDisplayed, defaultValue: false)
+    var isTwinCardOnboardingWasDisplayed: Bool
 
-	@Storage(type: StorageType.numberOfAppLaunches, defaultValue: 0)
-	var numberOfLaunches: Int
+    @Storage(type: StorageType.numberOfAppLaunches, defaultValue: 0)
+    var numberOfLaunches: Int
     
     @Storage(type: StorageType.didUserRespondToRateApp, defaultValue: false)
     var didUserRespondToRateApp: Bool
@@ -48,7 +48,7 @@ class UserPrefsService {
     @Storage(type: StorageType.fundsRestorationAlert, defaultValue: false)
     var isFundsRestorationShown: Bool
     
-    //Temp migrated cards storage. Remove with LegacyCardMigrator
+    // Temp migrated cards storage. Remove with LegacyCardMigrator
     @Storage(type: StorageType.migratedCardsWithDefaultTokens, defaultValue: [])
     var migratedCardsWithDefaultTokens: [String]
     

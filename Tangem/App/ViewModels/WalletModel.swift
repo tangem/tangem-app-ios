@@ -15,7 +15,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     @Injected(\.transactionSigner) private var signer: TangemSigner
     @Injected(\.currencyRateService) private var currencyRateService: CurrencyRateService
     
-    @Published var state: State = .idle
+    @Published var state: State = .created
     @Published var balanceViewModel: BalanceViewModel!
     @Published var tokenItemViewModels: [TokenItemViewModel] = []
     @Published var tokenViewModels: [TokenBalanceViewModel] = []
@@ -75,7 +75,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     }
     
     var outgoingPendingTransactions: [PendingTransaction] {
-        //let txPusher = walletManager as? TransactionPusher
+        // let txPusher = walletManager as? TransactionPusher
         
         return wallet.pendingOutgoingTransactions.map {
             // let isTxStuckByTime = Date().timeIntervalSince($0.date ?? Date()) > Constants.bitcoinTxStuckTimeSec
@@ -93,7 +93,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     }
     
     var blockchainNetwork: BlockchainNetwork {
-        if wallet.publicKey.derivationPath == nil { //cards without hd wallet
+        if wallet.publicKey.derivationPath == nil { // cards without hd wallet
             return .init(wallet.blockchain, derivationPath: wallet.blockchain.derivationPath(for: .legacy))
         }
         
@@ -121,7 +121,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
         updateBalanceViewModel(with: walletManager.wallet)
         self.walletManager.walletPublisher
             .receive(on: DispatchQueue.main)
-            .sink(receiveValue: {[unowned self] wallet in
+            .sink(receiveValue: { [unowned self] wallet in
                 print("💳 Wallet model received update")
                 self.updateBalanceViewModel(with: wallet)
                 //                if wallet.hasPendingTx {
@@ -139,7 +139,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
         currencyRateService
             .selectedCurrencyCodePublisher
             .dropFirst()
-            .sink {[unowned self] _ in
+            .sink { [unowned self] _ in
                 self.loadRates()
             }
             .store(in: &bag)
@@ -248,7 +248,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     
     func getQRReceiveMessage(for amountType: Amount.AmountType? = nil)  -> String {
         let type: Amount.AmountType = amountType ?? wallet.amounts.keys.first(where: { $0.isToken }) ?? .coin
-        //todo: handle default token
+        // todo: handle default token
         let symbol = wallet.amounts[type]?.currencySymbol ?? wallet.blockchain.currencySymbol
         
         if case let .token(token) = amountType {
@@ -377,27 +377,26 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
                                            tolerance: 0.1,
                                            runLoop: .main,
                                            mode: .common)
-        .autoconnect()
-        .sink() {[weak self] _ in
-            print("⏰ Updating timer alarm ‼️ Wallet model will be updated")
-            self?.update()
-            self?.updateTimer?.cancel()
-        }
+            .autoconnect()
+            .sink() { [weak self] _ in
+                print("⏰ Updating timer alarm ‼️ Wallet model will be updated")
+                self?.update()
+                self?.updateTimer?.cancel()
+            }
     }
     
-    func send(_ tx: Transaction) -> AnyPublisher<Void,Error> {
+    func send(_ tx: Transaction) -> AnyPublisher<Void, Error> {
         if isDemo {
             return signer.sign(hash: Data.randomData(count: 32),
-                               cardId:wallet.cardId,
                                walletPublicKey: wallet.publicKey)
-            .map { _ in () }
-            .receive(on: DispatchQueue.main)
-            .eraseToAnyPublisher()
+                .map { _ in () }
+                .receive(on: DispatchQueue.main)
+                .eraseToAnyPublisher()
         }
         
         return walletManager.send(tx, signer: signer)
             .receive(on: RunLoop.main)
-            .handleEvents(receiveOutput: {[weak self] _ in
+            .handleEvents(receiveOutput: { [weak self] _ in
                 self?.startUpdatingTimer()
             })
             .eraseToAnyPublisher()
@@ -512,10 +511,10 @@ extension WalletModel {
         static func == (lhs: WalletModel.State, rhs: WalletModel.State) -> Bool {
             switch (lhs, rhs) {
             case (.noAccount, noAccount),
-                (.created, .created),
-                (.idle, .idle),
-                (.loading, .loading),
-                (.failed, .failed): return true
+                 (.created, .created),
+                 (.idle, .idle),
+                 (.loading, .loading),
+                 (.failed, .failed): return true
             default:
                 return false
             }
