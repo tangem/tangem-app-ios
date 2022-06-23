@@ -38,7 +38,7 @@ struct TokenListView: View {
                 
                 ForEach(viewModel.coinViewModels) {
                     CoinView(model: $0)
-                        .buttonStyle(PlainButtonStyle()) //fix ios13 list item selection
+                        .buttonStyle(PlainButtonStyle()) // fix ios13 list item selection
                         .perfListPadding()
                     
                     PerfListDivider()
@@ -110,7 +110,7 @@ struct TokenListView: View {
                     .background(LinearGradient(colors: [.white, .white, .white.opacity(0)],
                                                startPoint: .bottom,
                                                endPoint: .top)
-                        .edgesIgnoringSafeArea(.bottom))
+                            .edgesIgnoringSafeArea(.bottom))
             }
         }
     }

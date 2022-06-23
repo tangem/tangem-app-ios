@@ -10,9 +10,9 @@ import Foundation
 import SwiftUI
 
 extension View {
-	func toAnyView() -> AnyView {
-		AnyView(self)
-	}
+    func toAnyView() -> AnyView {
+        AnyView(self)
+    }
     
     @ViewBuilder func tintCompat(_ color: Color) -> some View {
         if #available(iOS 15.0, *) {
