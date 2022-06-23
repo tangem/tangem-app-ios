@@ -120,7 +120,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
 //                                      series: twinInfo.series.pair,
 //                                      pairPublicKey: nil)
 //            } else {
-                self.twinInfo = twinInfo
+            self.twinInfo = twinInfo
 //            }
         } else {
             fatalError("Wrong card model passed to Twins onboarding view model")
@@ -141,7 +141,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         }
         
         if case .alert = steps.first {
-            retwinMode = true //[REDACTED_TODO_COMMENT]
+            retwinMode = true // [REDACTED_TODO_COMMENT]
         }
         
         twinsService.setupTwins(for: twinInfo)
@@ -171,7 +171,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
     override func onOnboardingFinished(for cardId: String) {
         super.onOnboardingFinished(for: cardId)
     
-        //remove pair cid
+        // remove pair cid
         if let pairCardId = twinsService.twinPairCardId {
             super.onOnboardingFinished(for: pairCardId)
         }
