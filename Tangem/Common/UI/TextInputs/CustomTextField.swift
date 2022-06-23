@@ -14,7 +14,7 @@ struct CustomTextField: UIViewRepresentable {
     class Coordinator: NSObject, UITextFieldDelegate {
         
         @Binding var text: String
-        @Binding var isResponder : Bool?
+        @Binding var isResponder: Bool?
         @Binding var actionButtonTapped: Bool
         let placeholder: String
         var decimalCount: Int?
@@ -22,7 +22,7 @@ struct CustomTextField: UIViewRepresentable {
         var isEnabled = true
         
         init(text: Binding<String>, placeholder: String, decimalCount: Int?, defaultStringToClear: String?,
-             isResponder : Binding<Bool?>, actionButtonTapped: Binding<Bool>) {
+             isResponder: Binding<Bool?>, actionButtonTapped: Binding<Bool>) {
             _text = text
             _isResponder = isResponder
             _actionButtonTapped = actionButtonTapped
@@ -81,7 +81,7 @@ struct CustomTextField: UIViewRepresentable {
                 currentString.replacingCharacters(in: range, with: string) as String
 
             guard Array(newString).filter({ $0 == "." || $0 == "," }).count  <= 1 else {
-                  return false
+                return false
             }
 
             var allowNew = true
@@ -109,16 +109,16 @@ struct CustomTextField: UIViewRepresentable {
     }
     
     @Binding var text: String
-    @Binding var isResponder : Bool?
+    @Binding var isResponder: Bool?
     @Binding var actionButtonTapped: Bool
     
-    var isSecured : Bool = false
+    var isSecured: Bool = false
     var clearsOnBeginEditing: Bool = false
     var defaultStringToClear: String? = nil
-    var handleKeyboard : Bool = false
-    var actionButton : String? =  nil
-    var keyboard : UIKeyboardType = .default
-	var clearButtonMode: UITextField.ViewMode = .never
+    var handleKeyboard: Bool = false
+    var actionButton: String? =  nil
+    var keyboard: UIKeyboardType = .default
+    var clearButtonMode: UITextField.ViewMode = .never
     var textColor: UIColor = UIColor.tangemGrayDark4
     var font: UIFont = UIFont.systemFont(ofSize: 16.0)
     let placeholder: String
@@ -140,16 +140,16 @@ struct CustomTextField: UIViewRepresentable {
         textField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         textField.setContentHuggingPriority(.defaultLow, for: .horizontal)
         textField.setContentHuggingPriority(.required, for: .vertical)
-		textField.clearButtonMode = clearButtonMode
+        textField.clearButtonMode = clearButtonMode
         var toolbarItems =  [UIBarButtonItem]()
         if handleKeyboard {
-        toolbarItems = [UIBarButtonItem(barButtonSystemItem: .flexibleSpace,
-                                         target: nil,
-                                         action: nil),
-                         UIBarButtonItem(image: UIImage(systemName: "keyboard.chevron.compact.down"),
-                                         style: .plain,
-                                         target: context.coordinator,
-                                         action: #selector(context.coordinator.hideKeyboard))]
+            toolbarItems = [UIBarButtonItem(barButtonSystemItem: .flexibleSpace,
+                                            target: nil,
+                                            action: nil),
+                            UIBarButtonItem(image: UIImage(systemName: "keyboard.chevron.compact.down"),
+                                            style: .plain,
+                                            target: context.coordinator,
+                                            action: #selector(context.coordinator.hideKeyboard))]
             
           
        

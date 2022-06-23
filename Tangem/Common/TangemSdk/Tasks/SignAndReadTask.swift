@@ -14,13 +14,13 @@ class SignAndReadTask: CardSessionRunnable {
     let walletPublicKey: Data
     let derivationPath: DerivationPath?
     private var signCommand: SignHashesCommand? = nil
-    
+
     init(hashes: [Data], walletPublicKey: Data, derivationPath: DerivationPath?) {
         self.hashes = hashes
         self.walletPublicKey = walletPublicKey
         self.derivationPath = derivationPath
     }
-    
+
     func run(in session: CardSession, completion: @escaping CompletionResult<SignAndReadTaskResponse>) {
         signCommand = SignHashesCommand(hashes: hashes, walletPublicKey: walletPublicKey, derivationPath: derivationPath)
         signCommand!.run(in: session) { signResult in
