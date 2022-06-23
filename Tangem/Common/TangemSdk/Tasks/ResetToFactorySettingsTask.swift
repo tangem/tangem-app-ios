@@ -33,8 +33,8 @@ class ResetToFactorySettingsTask: CardSessionRunnable {
     private func resetBackup(in session: CardSession, completion: @escaping CompletionResult<Card>) {
         guard let backupStatus = session.environment.card?.backupStatus,
               backupStatus != .noBackup else {
-                  completion(.success(session.environment.card!))
-                  return
+            completion(.success(session.environment.card!))
+            return
         }
         
         ResetBackupCommand().run(in: session) { result in
