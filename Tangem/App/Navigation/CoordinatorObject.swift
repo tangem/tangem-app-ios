@@ -30,7 +30,7 @@ protocol CoordinatorObject: ObservableObject, Identifiable {
 }
 
 extension CoordinatorObject {
-    init(dismissAction: @escaping Action = {}, popToRootAction: @escaping ParamsAction<PopToRootOptions> = {_ in}) {
+    init(dismissAction: @escaping Action = {}, popToRootAction: @escaping ParamsAction<PopToRootOptions> = { _ in }) {
         self.init(dismissAction: dismissAction, popToRootAction: popToRootAction)
     }
         
