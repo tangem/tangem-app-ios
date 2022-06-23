@@ -11,9 +11,9 @@ import BlockchainSdk
 
 struct TokensView: View {
     var items: [TokenItemViewModel]
-    
+
     var action: (TokenItemViewModel) -> ()
-    
+
     var body: some View {
         if items.isEmpty {
             EmptyView()
@@ -25,7 +25,7 @@ struct TokensView: View {
                     .padding(.leading, 16)
                     .padding(.top, 16)
                     .padding(.bottom, 6)
-                
+
                 ForEach(items) { item in
                     Button {
                         action(item)
@@ -36,7 +36,7 @@ struct TokensView: View {
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(TangemTokenButtonStyle())
-                    
+
                     if items.firstIndex(of: item) != items.count - 1 {
                         Separator(height: 1, padding: 0, color: Color.tangemBgGray2)
                             .padding(.leading, 16)
@@ -103,7 +103,7 @@ struct TokensView_Previews: PreviewProvider {
                                    amountType: .coin,
                                    blockchainNetwork: .init(.ethereum(testnet: false)),
                                    fiatValue: 0,
-                                   isCustom: false)
+                                   isCustom: false),
             ], action: { _ in })
         }
     }

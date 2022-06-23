@@ -10,7 +10,7 @@ import Foundation
 
 protocol FailedScanTrackable: EmailDataCollector {
     var shouldDisplayAlert: Bool { get }
-    
+
     func resetCounter()
     func recordFailure()
 }

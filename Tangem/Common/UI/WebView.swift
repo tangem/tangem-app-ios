@@ -16,7 +16,7 @@ struct WebViewContainerViewModel: Identifiable {
     var title: String
     var addLoadingIndicator = false
     var withCloseButton = false
-    var urlActions: [String : ((String) -> Void)] = [:]
+    var urlActions: [String: ((String) -> Void)] = [:]
 }
 
 struct WebViewContainer: View {
@@ -65,7 +65,7 @@ struct WebViewContainer: View {
 struct WebView: UIViewRepresentable {
     var url: URL?
     var popupUrl: Binding<URL?>
-    var urlActions: [String : ((String) -> Void)] = [:]
+    var urlActions: [String: ((String) -> Void)] = [:]
     var isLoading:  Binding<Bool>
     
     func makeUIView(context: Context) -> WKWebView {
@@ -95,7 +95,7 @@ struct WebView: UIViewRepresentable {
         var popupUrl: Binding<URL?>
         var isLoading:  Binding<Bool>
         
-        init(urlActions: [String : ((String) -> Void)] = [:], popupUrl: Binding<URL?>, isLoading: Binding<Bool>) {
+        init(urlActions: [String: ((String) -> Void)] = [:], popupUrl: Binding<URL?>, isLoading: Binding<Bool>) {
             self.urlActions = urlActions
             self.popupUrl = popupUrl
             self.isLoading = isLoading
