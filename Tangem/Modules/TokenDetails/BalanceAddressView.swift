@@ -37,8 +37,8 @@ struct BalanceAddressView: View {
     
     var image: String {
         walletModel.state.errorDescription == nil
-        && !walletModel.wallet.hasPendingTx(for: amountType)
-        && !walletModel.state.isLoading ? "checkmark.circle" : "exclamationmark.circle"
+            && !walletModel.wallet.hasPendingTx(for: amountType)
+            && !walletModel.state.isLoading ? "checkmark.circle" : "exclamationmark.circle"
     }
     
     var showAddressSelector: Bool {
@@ -64,8 +64,8 @@ struct BalanceAddressView: View {
     
     var body: some View {
         VStack {
-            HStack (alignment: .top) {
-                VStack (alignment: .leading, spacing: 8) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 8) {
                     if let errorDescription = walletModel.state.errorDescription {
                         Text(errorDescription)
                             .layoutPriority(1)
