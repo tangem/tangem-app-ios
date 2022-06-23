@@ -99,11 +99,11 @@ class TokenDetailsViewModel: ObservableObject {
         guard let wallet = walletModel?.wallet,
               let currentAmount = wallet.amounts[amountType], amountType.isToken else { return nil }
         
-        if wallet.hasPendingTx && !wallet.hasPendingTx(for: amountType) { //has pending tx for fee
+        if wallet.hasPendingTx && !wallet.hasPendingTx(for: amountType) { // has pending tx for fee
             return String(format: "token_details_send_blocked_tx_format".localized, wallet.amounts[.coin]?.currencySymbol ?? "")
         }
         
-        if !wallet.hasPendingTx && !canSend && !currentAmount.isZero { //no fee
+        if !wallet.hasPendingTx && !canSend && !currentAmount.isZero { // no fee
             return String(format: "token_details_send_blocked_fee_format".localized, wallet.blockchain.displayName, wallet.blockchain.displayName)
         }
         
@@ -160,7 +160,7 @@ class TokenDetailsViewModel: ObservableObject {
             .$state
             .filter { !$0.isLoading }
             .receive(on: RunLoop.main)
-            .sink {[weak self] _ in
+            .sink { [weak self] _ in
                 self?.updateRentWarning()
             }
     }
@@ -303,7 +303,7 @@ class TokenDetailsViewModel: ObservableObject {
         
         let message = "token_details_unable_hide_alert_message".localized([
             currencySymbol,
-            walletModel?.blockchainNetwork.blockchain.displayName ?? ""
+            walletModel?.blockchainNetwork.blockchain.displayName ?? "",
         ])
         
         alert = warningAlert(title: title, message: message, primaryButton: .default(Text("common_ok")))
@@ -337,7 +337,7 @@ extension Int: Identifiable {
     public var id: Int { self }
 }
 
-//MARK: - Navigation
+// MARK: - Navigation
 extension TokenDetailsViewModel {
     func openSend() {
         guard let amountToSend = self.wallet?.amounts[amountType] else { return }

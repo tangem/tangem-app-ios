@@ -41,7 +41,7 @@ struct StackCalculator {
     mutating private func populateSettings() {
         prehideAnimSettings = .zero
         cardsSettings = []
-        for i in 0..<settings.numberOfCards {
+        for i in 0 ..< settings.numberOfCards {
             cardsSettings.append(cardInStackSettings(at: i))
         }
         prehideAnimSettings = calculatePrehideSettings(for: 0)

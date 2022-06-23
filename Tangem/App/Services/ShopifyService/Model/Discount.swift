@@ -12,11 +12,11 @@ struct Discount {
         case flat(Decimal)
         case percent(Decimal)
     }
-    
+
     let code: String
-    
+
     private let value: DiscountValue
-    
+
     init?(_ discount: DiscountApplication) {
         // HACK: `code` property is not exposed through the DiscountApplication protocol
         if let discountCodeApplication = discount as? Storefront.DiscountCodeApplication {
@@ -24,7 +24,7 @@ struct Discount {
         } else {
             return nil
         }
-        
+
         switch discount.value {
         case let percentValue as Storefront.PricingPercentageValue:
             self.value = .percent(Decimal(percentValue.percentage))
@@ -49,7 +49,7 @@ extension Discount {
             return rounded
         }
     }
-    
+
     func payDiscount(itemsTotal: Decimal) -> PayDiscount {
         return PayDiscount(code: code, amount: discountAmount(itemsTotal: itemsTotal))
     }

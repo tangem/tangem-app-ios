@@ -24,8 +24,8 @@ struct ProgressIndicatorView: View {
                 .animation(
                     .easeIn(duration: animDuration)
                         .delay(filled ?
-                                Double(index) / 2 * animDuration :
-                                0
+                            Double(index) / 2 * animDuration :
+                            0
 //                                Double(maxIndex - index) / 2 * animDuration
                         )
                 )
@@ -41,7 +41,7 @@ struct ProgressIndicatorGroupView: View {
     
     var body: some View {
         HStack {
-            ForEach(1...numberOfIndicators) { index in
+            ForEach(1 ... numberOfIndicators) { index in
                 ProgressIndicatorView(index: index,
                                       maxIndex: numberOfIndicators,
                                       filled: filled,
