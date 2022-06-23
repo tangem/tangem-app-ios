@@ -10,32 +10,55 @@ import Foundation
 import SwiftUI
 
 extension View {
-    @ViewBuilder func skeletonable(isShown: Bool, size: CGSize) -> some View {
-        modifier(SkeletonModifier(isShow: isShown, size: size, radius: 3))
+    @ViewBuilder func skeletonable(isShown: Bool, size: CGSize, radius: CGFloat = 3) -> some View {
+        modifier(
+            SkeletonModifier(isShown: isShown, modificationType: .size(size: size), radius: radius)
+        )
+    }
+    
+    @ViewBuilder func skeletonable(isShown: Bool, radius: CGFloat = 3) -> some View {
+        modifier(
+            SkeletonModifier(isShown: isShown, modificationType: .overlay, radius: radius)
+        )
     }
 }
 
 // MARK: Modifier for View
 
 public struct SkeletonModifier: ViewModifier {
-    private let isShow: Bool
-    private let size: CGSize
+    private let isShown: Bool
+    private let modificationType: ModificationType
     private let radius: CGFloat
     
-    public init(isShow: Bool, size: CGSize, radius: CGFloat) {
-        self.isShow = isShow
-        self.size = size
+    public init(isShown: Bool, modificationType: ModificationType, radius: CGFloat) {
+        self.isShown = isShown
+        self.modificationType = modificationType
         self.radius = radius
     }
     
     public func body(content: Content) -> some View {
-        if isShow {
-            SkeletonView()
-                .frame(size: size)
-                .cornerRadius(radius)
+        if isShown {
+            switch modificationType {
+            case .overlay:
+                content
+                    .overlay(
+                        SkeletonView()
+                            .cornerRadius(radius)
+                    )
+            case let .size(size):
+                SkeletonView()
+                    .frame(size: size)
+                    .cornerRadius(radius)
+            }
         } else {
             content
         }
     }
 }
 
+public extension SkeletonModifier {
+    enum ModificationType {
+        case size(size: CGSize)
+        case overlay
+    }
+}
