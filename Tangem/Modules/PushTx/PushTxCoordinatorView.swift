@@ -11,7 +11,7 @@ import SwiftUI
 
 struct PushTxCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: PushTxCoordinator
-    
+
     var body: some View {
         if let model = coordinator.pushTxViewModel {
             PushTxView(viewModel: model)
