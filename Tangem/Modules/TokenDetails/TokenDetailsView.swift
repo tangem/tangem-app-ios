@@ -32,29 +32,29 @@ struct TokenDetailsView: View {
             TangemButton.vertical(title: "wallet_button_trade",
                                   systemImage: "arrow.up.arrow.down",
                                   action: viewModel.tradeCryptoAction)
-            .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
-                                           isDisabled: !(viewModel.canBuyCrypto || viewModel.canSellCrypto)))
-            .actionSheet(isPresented: $viewModel.showTradeSheet, content: {
-                ActionSheet(title: Text("action_sheet_trade_hint"),
-                            buttons: [
-                                .default(Text("wallet_button_topup"), action: viewModel.openBuyCrypto),
-                                .default(Text("wallet_button_sell_crypto"), action: viewModel.openSellCrypto),
-                                .cancel()
-                            ])
-            })
+                .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
+                                               isDisabled: !(viewModel.canBuyCrypto || viewModel.canSellCrypto)))
+                .actionSheet(isPresented: $viewModel.showTradeSheet, content: {
+                    ActionSheet(title: Text("action_sheet_trade_hint"),
+                                buttons: [
+                                    .default(Text("wallet_button_topup"), action: viewModel.openBuyCrypto),
+                                    .default(Text("wallet_button_sell_crypto"), action: viewModel.openSellCrypto),
+                                    .cancel(),
+                                ])
+                })
         } else if viewModel.canSellCrypto {
             TangemButton.vertical(title: "wallet_button_sell_crypto",
                                   systemImage: "arrow.down",
                                   action: viewModel.openSellCrypto)
-            .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
-                                           isDisabled: !viewModel.canSellCrypto))
+                .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
+                                               isDisabled: !viewModel.canSellCrypto))
         } else {
             // Keep the BUY button last so that it will appear when everything is disabled
             TangemButton.vertical(title: "wallet_button_topup",
                                   systemImage: "arrow.up",
                                   action: viewModel.openBuyCrypto)
-            .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
-                                           isDisabled: !viewModel.canBuyCrypto))
+                .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
+                                               isDisabled: !viewModel.canBuyCrypto))
         }
     }
     
@@ -66,8 +66,8 @@ struct TokenDetailsView: View {
             TangemButton(title: "wallet_button_send",
                          systemImage: "arrow.right",
                          action: viewModel.openSend)
-            .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
-                                           isDisabled: !viewModel.canSend))
+                .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
+                                               isDisabled: !viewModel.canSend))
         }
     }
     
@@ -155,7 +155,7 @@ struct TokenDetailsView_Previews: PreviewProvider {
                                                               blockchainNetwork: PreviewCard.cardanoNote.blockchainNetwork!,
                                                               amountType: .coin,
                                                               coordinator: TokenDetailsCoordinator()))
-            .deviceForPreviewZoomed(.iPhone7)
+                .deviceForPreviewZoomed(.iPhone7)
         }
     }
 }

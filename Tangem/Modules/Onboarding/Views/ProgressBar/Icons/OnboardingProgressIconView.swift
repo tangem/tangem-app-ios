@@ -17,7 +17,7 @@ struct OnboardingProgressIconView: View {
     
     var body: some View {
         HStack {
-            ForEach(0..<steps.count) { stepIndex in
+            ForEach(0 ..< steps.count) { stepIndex in
                 let step = steps[stepIndex]
                 let state = stepState(for: stepIndex)
                 HStack {

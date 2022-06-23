@@ -51,7 +51,7 @@ struct PendingTxView: View, Identifiable {
             HStack(spacing: 0) {
                 if address != "unknown" {
                     Image(systemName: self.pendingTx.direction == .incoming ?  "arrow.down" :
-                            "arrow.right")
+                        "arrow.right")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .foregroundColor(Color.tangemGrayDark6)

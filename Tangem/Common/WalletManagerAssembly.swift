@@ -21,7 +21,7 @@ class WalletManagerAssembly {
     init() {}
     
     func makeAllWalletManagers(for cardInfo: CardInfo) -> [WalletManager] {
-        //If this card is Twin, return twinWallet
+        // If this card is Twin, return twinWallet
         if cardInfo.card.isTwinCard {
             if let savedPairKey = cardInfo.twinCardInfo?.pairPublicKey,
                let publicKey = cardInfo.card.wallets.first?.publicKey,
@@ -31,31 +31,31 @@ class WalletManagerAssembly {
                 return [twinManager]
             }
             
-            //temp for bugged case
+            // temp for bugged case
             if cardInfo.twinCardInfo?.pairPublicKey == nil,
                let wallet = cardInfo.card.wallets.first,
                let bitcoinManager = try? factory.makeWalletManager(blockchain: .bitcoin(testnet: false),
-                                                                   walletPublicKey: wallet.publicKey ) {
+                                                                   walletPublicKey: wallet.publicKey) {
                 return [bitcoinManager]
             }
             
             return []
         }
         
-        //If this card supports multiwallet feature, load all saved tokens from persistent storage
+        // If this card supports multiwallet feature, load all saved tokens from persistent storage
         if cardInfo.isMultiWallet {
             var walletManagers: [WalletManager] = []
             let items = tokenItemsRepository.getItems(for: cardInfo.card.cardId)
             
             if !items.isEmpty {
-                //Load tokens if exists
+                // Load tokens if exists
                 walletManagers.append(contentsOf: makeWalletManagers(from: cardInfo, entries: items))
             }
             
             return walletManagers
         }
         
-        //Old single walled ada cards or Tangem Notes
+        // Old single walled ada cards or Tangem Notes
         if let nativeWalletManager = makeNativeWalletManager(from: cardInfo) {
             return [nativeWalletManager]
         }
@@ -63,7 +63,7 @@ class WalletManagerAssembly {
         return []
     }
     
-    ///Try to make WalletManagers for blockchains with suitable wallet
+    /// Try to make WalletManagers for blockchains with suitable wallet
     func makeWalletManagers(from cardInfo: CardInfo, entries: [StorageEntry]) -> [WalletManager] {
         return entries.compactMap { entry in
             if let wallet = cardInfo.card.wallets.first(where: { $0.curve == entry.blockchainNetwork.blockchain.curve }),
@@ -128,7 +128,7 @@ class WalletManagerAssembly {
     }
 }
 
-//MARK: - Factory
+// MARK: - Factory
 extension WalletManagerAssembly {
     static func makeAllWalletModels(from cardInfo: CardInfo) -> [WalletModel] {
         let assembly = WalletManagerAssembly()
@@ -154,7 +154,7 @@ extension WalletManagerAssembly {
                                 isDemoCard: false)
     }
     
-    //Make walletModel from walletManager
+    // Make walletModel from walletManager
     static private func makeWalletModels(walletManagers: [WalletManager],
                                          derivationStyle: DerivationStyle,
                                          isDemoCard: Bool) -> [WalletModel] {

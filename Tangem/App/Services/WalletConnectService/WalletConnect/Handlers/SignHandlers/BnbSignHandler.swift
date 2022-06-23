@@ -155,7 +155,7 @@ class BnbSignHandler: WalletConnectSignHandler {
             
             var uiMessage: String = ""
             let numberOfMessages = tradeMessage.messages.count
-            for i in 0..<numberOfMessages {
+            for i in 0 ..< numberOfMessages {
                 let message = tradeMessage.messages[i]
                 let price = Decimal(message.price) / decimalValue
                 let quantity = Decimal(message.quantity) / decimalValue

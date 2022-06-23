@@ -12,23 +12,23 @@ class OnboardingCoordinator: CoordinatorObject {
     var dismissAction: Action
     var popToRootAction: ParamsAction<PopToRootOptions>
     
-    //MARK: - Main view models
+    // MARK: - Main view models
     @Published private(set) var singleCardViewModel: SingleCardOnboardingViewModel? = nil
     @Published private(set) var twinsViewModel: TwinsOnboardingViewModel? = nil
     @Published private(set) var walletViewModel: WalletOnboardingViewModel? = nil
     
-    //MARK: - Child coordinators
+    // MARK: - Child coordinators
     @Published var mainCoordinator: MainCoordinator? = nil
     
-    //MARK: - Child view models
+    // MARK: - Child view models
     @Published var buyCryptoModel: WebViewContainerViewModel? = nil
     @Published var accessCodeModel: OnboardingAccessCodeViewModel? = nil
     @Published var addressQrBottomSheetContentViewVodel: AddressQrBottomSheetContentViewVodel? = nil
     
-    //MARK: - Helpers
+    // MARK: - Helpers
     @Published var qrBottomSheetKeeper: Bool = false
     
-    //For non-dismissable presentation
+    // For non-dismissable presentation
     var onDismissalAttempt: () -> Void = {}
     
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
@@ -70,12 +70,12 @@ extension OnboardingCoordinator: OnboardingTopupRoutable {
         buyCryptoModel = .init(url: url,
                                title: "wallet_button_topup".localized,
                                addLoadingIndicator: true,
-                               withCloseButton: true, urlActions: [closeUrl : {[weak self] response in
-            DispatchQueue.main.async {
-                action(response)
-                self?.buyCryptoModel = nil
-            }
-        }])
+                               withCloseButton: true, urlActions: [closeUrl: { [weak self] response in
+                                   DispatchQueue.main.async {
+                                       action(response)
+                                       self?.buyCryptoModel = nil
+                                   }
+                               }])
     }
     
     func openQR(shareAddress: String, address: String, qrNotice: String) {
@@ -85,7 +85,7 @@ extension OnboardingCoordinator: OnboardingTopupRoutable {
 
 extension OnboardingCoordinator: WalletOnboardingRoutable {
     func openAccessCodeView(callback: @escaping (String) -> Void) {
-        accessCodeModel = .init(successHandler: {[weak self] code in
+        accessCodeModel = .init(successHandler: { [weak self] code in
             self?.accessCodeModel = nil
             callback(code)
         })
