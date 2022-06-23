@@ -64,7 +64,7 @@ class ShopViewModel: ObservableObject {
     }
     
     func didEnterDiscountCode() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { //Fix iOS13 keyboard layout glitch
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { // Fix iOS13 keyboard layout glitch
             self.setDiscountCode(self.discountCode.isEmpty ? nil : self.discountCode)
         }
     }
@@ -154,11 +154,11 @@ class ShopViewModel: ObservableObject {
         shopifyService.cancelTasks()
         if order == nil {
             /*
-                HACK:
-                After web checkout was displayed it becomes impossible
-                to validate a partial address on the Shopify side.
-                Thus Apple Pay becomes unusable. Re-create the checkout as a workaround.
-            */
+                 HACK:
+                 After web checkout was displayed it becomes impossible
+                 to validate a partial address on the Shopify side.
+                 Thus Apple Pay becomes unusable. Re-create the checkout as a workaround.
+             */
             checkoutByVariantID = [:]
             createCheckouts()
         }
@@ -245,7 +245,7 @@ class ShopViewModel: ObservableObject {
         let totalAmount: Decimal
         if let checkout = checkoutByVariantID[currentVariantID] {
             totalAmount = checkout.total
-        } else{
+        } else {
             totalAmount = currentVariant.amount
         }
 
@@ -278,7 +278,7 @@ extension ShopViewModel {
     }
 }
 
-//MARK: - Navigation
+// MARK: - Navigation
 extension ShopViewModel {
     func openWebCheckout() {
         guard let checkoutID = checkoutByVariantID[currentVariantID]?.id else {

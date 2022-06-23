@@ -13,7 +13,7 @@ enum ScanResult: Equatable {
     case card(model: CardViewModel)
     case unsupported
     case notScannedYet
-    
+
     var cardModel: CardViewModel? {
         switch self {
         case .card(let model):
@@ -22,7 +22,7 @@ enum ScanResult: Equatable {
             return nil
         }
     }
-    
+
     var card: Card? {
         switch self {
         case .card(let model):

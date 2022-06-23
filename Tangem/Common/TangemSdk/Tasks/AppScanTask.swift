@@ -16,9 +16,9 @@ struct AppScanTaskResponse {
     let card: Card
     let walletData: WalletData?
     let twinIssuerData: Data?
-    let isTangemNote: Bool //todo refactor
+    let isTangemNote: Bool // todo refactor
     let isTangemWallet: Bool
-    let derivedKeys: [Data: [DerivationPath:ExtendedPublicKey]]
+    let derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]
     let primaryCard: PrimaryCard?
     
     func getCardInfo() -> CardInfo {
@@ -43,8 +43,8 @@ struct AppScanTaskResponse {
         var pairPublicKey: Data?
         
         if let walletPubKey = card.wallets.first?.publicKey, let fullData = twinIssuerData, fullData.count == 129 {
-            let pairPubKey = fullData[0..<65]
-            let signature = fullData[65..<fullData.count]
+            let pairPubKey = fullData[0 ..< 65]
+            let signature = fullData[65 ..< fullData.count]
             if (try? Secp256k1Signature(with: signature).verify(with: walletPubKey, message: pairPubKey)) ?? false {
                 pairPublicKey = pairPubKey
             }
@@ -71,19 +71,19 @@ final class AppScanTask: CardSessionRunnable {
     private var twinIssuerData: Data? = nil
     private var noteWalletData: WalletData? = nil
     private var primaryCard: PrimaryCard? = nil
-    private var derivedKeys: [Data: [DerivationPath:ExtendedPublicKey]] = [:]
+    private var derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]] = [:]
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
-#if !CLIP
+    #if !CLIP
     @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
     
     init(targetBatch: String? = nil) {
         self.targetBatch = targetBatch
     }
-#else
+    #else
     init(targetBatch: String? = nil) {
         self.targetBatch = targetBatch
     }
-#endif
+    #endif
     
     deinit {
         print("AppScanTask deinit")
@@ -172,7 +172,7 @@ final class AppScanTask: CardSessionRunnable {
             case .failure(let error):
                 switch error {
                 case .fileNotFound, .insNotSupported:
-                  exit()
+                    exit()
                 default:
                     completion(.failure(error))
                 }
@@ -207,7 +207,7 @@ final class AppScanTask: CardSessionRunnable {
         let missingCurves = mandatoryСurves.subtracting(existingCurves)
         
         if !existingCurves.isEmpty, // not empty card
-           !missingCurves.isEmpty //not enough curves
+           !missingCurves.isEmpty // not enough curves
         {
             appendWallets(Array(missingCurves), session: session, completion: completion)
             return
@@ -234,17 +234,17 @@ final class AppScanTask: CardSessionRunnable {
             case .success(let primaryCard):
                 self.primaryCard = primaryCard
                 self.deriveKeysIfNeeded(session, completion)
-            case .failure: //ignore any error
+            case .failure: // ignore any error
                 self.deriveKeysIfNeeded(session, completion)
             }
         }
     }
     
     private func deriveKeysIfNeeded(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
-#if CLIP
+        #if CLIP
         self.runAttestation(session, completion)
         return
-#else
+        #else
         guard session.environment.card?.settings.isHDWalletAllowed == true else {
             self.runAttestation(session, completion)
             return
@@ -256,14 +256,14 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
         
-        if card.isDemoCard { //Force add blockchains for demo cards
+        if card.isDemoCard { // Force add blockchains for demo cards
             let demoBlockchains = SupportedTokenItems().predefinedBlockchains(isDemo: true)
             tokenItemsRepository.append(demoBlockchains, for: card.cardId, style: card.derivationStyle)
         }
         
         let savedItems = tokenItemsRepository.getItems(for: card.cardId)
         
-        var derivations: [Data : Set<DerivationPath>] = [:]
+        var derivations: [Data: Set<DerivationPath>] = [:]
         savedItems.forEach { item in
             if let wallet = card.wallets.first(where: { $0.curve == item.blockchainNetwork.blockchain.curve }),
                let path = item.blockchainNetwork.derivationPath {
@@ -276,17 +276,17 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
         
-        DeriveMultipleWalletPublicKeysTask(derivations.mapValues{Array($0)})
+        DeriveMultipleWalletPublicKeysTask(derivations.mapValues { Array($0) })
             .run(in: session) { result in
-            switch result {
-            case .success(let derivedKeys):
-                self.derivedKeys = derivedKeys
-                self.runAttestation(session, completion)
-            case .failure(let error):
-                completion(.failure(error))
+                switch result {
+                case .success(let derivedKeys):
+                    self.derivedKeys = derivedKeys
+                    self.runAttestation(session, completion)
+                case .failure(let error):
+                    completion(.failure(error))
+                }
             }
-        }
-#endif
+        #endif
     }
     
     private func runAttestation(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
