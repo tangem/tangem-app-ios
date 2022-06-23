@@ -36,7 +36,7 @@ struct OnboardingAccessCodeView: View {
                 .scaleEffect(Constants.isSmallScreen ? 0.7 : 1)
             Spacer()
             VStack(alignment: .leading, spacing: 20) {
-                ForEach(0..<3) { index in
+                ForEach(0 ..< 3) { index in
                     let feature = ViewState.featuresDescription[index]
                     HStack(alignment: .customTop, spacing: 20) {
                         Image(feature.icon)
@@ -49,12 +49,12 @@ struct OnboardingAccessCodeView: View {
                                 .font(.system(size: 16, weight: .regular))
                                 .foregroundColor(.tangemGrayDark2)
                                 .fixedSize(horizontal: false, vertical: true)
-                                .alignmentGuide(.customTop) { d in d[VerticalAlignment.top]}
+                                .alignmentGuide(.customTop) { d in d[VerticalAlignment.top] }
                         }
                     }
                 }
             }
-            .padding(.horizontal, Constants.isSmallScreen ? 0 :10)
+            .padding(.horizontal, Constants.isSmallScreen ? 0 : 10)
         case .inputCode, .repeatCode:
             inputContent
         }
@@ -72,7 +72,7 @@ struct OnboardingAccessCodeView: View {
                                 color: .tangemGrayDark6,
                                 password: state == .inputCode ? $firstEnteredCode : $secondEnteredCode,
                                 onCommit: {})
-        .frame(height: 44)
+            .frame(height: 44)
     }
     
     var body: some View {
@@ -231,7 +231,7 @@ extension OnboardingAccessCodeView {
                       icon: "access_code_feature_2"),
                 .init(title: "onboarding_access_code_feature_3_title",
                       description: "onboarding_access_code_feature_3_description",
-                      icon: "access_code_feature_3")
+                      icon: "access_code_feature_3"),
             ]
         }
     }
@@ -258,6 +258,6 @@ extension OnboardingAccessCodeView {
 
 struct OnboardingAccessCodeView_Previews: PreviewProvider {
     static var previews: some View {
-        OnboardingAccessCodeView(viewModel: .init(successHandler: {_ in}))
+        OnboardingAccessCodeView(viewModel: .init(successHandler: { _ in }))
     }
 }
