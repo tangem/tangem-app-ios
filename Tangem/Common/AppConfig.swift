@@ -26,12 +26,12 @@ struct AppConfig {
     }
     
     var isEnablePayID: Bool {
-		raw[AppConfig.Keys.isEnablePayID.rawValue] as! Bool
-	}
+        raw[AppConfig.Keys.isEnablePayID.rawValue] as! Bool
+    }
 	
-	var isEnableTwinRecreation: Bool {
-		raw[AppConfig.Keys.isEnableTwinRecreation.rawValue] as! Bool
-	}
+    var isEnableTwinRecreation: Bool {
+        raw[AppConfig.Keys.isEnableTwinRecreation.rawValue] as! Bool
+    }
     
     private enum Keys: String {
         case coinMarketCapApiKey
@@ -39,7 +39,7 @@ struct AppConfig {
         case moonPaySecretApiKey
         case isEnableMoonPay
         case isEnablePayID
-		case isEnableTwinRecreation
+        case isEnableTwinRecreation
     }
     
     let raw: [String: Any]
