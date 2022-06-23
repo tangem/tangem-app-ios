@@ -97,7 +97,7 @@ struct CardAnimSettings: Equatable {
     }
 }
 
-@available (iOS 14, *)
+@available(iOS 14, *)
 struct CardStackAnimator<Card: View>: View {
     
     let cards: [Card]
@@ -114,7 +114,7 @@ struct CardStackAnimator<Card: View>: View {
     var body: some View {
         GeometryReader { geom in
             ZStack {
-                ForEach(0..<cards.count) { index in
+                ForEach(0 ..< cards.count) { index in
                     modify(cards[index], at: index)
                         .onAnimationCompleted(for: hiddenIndex) {
                             guard hiddenIndex == CGFloat(index) else { return }
@@ -211,7 +211,7 @@ class CardStackAnimatorPreviewModel: ObservableObject {
     
 }
 
-@available (iOS 14, *)
+@available(iOS 14, *)
 struct CardStackAnimatorPreview: View {
     
     @ObservedObject var viewModel: CardStackAnimatorPreviewModel = CardStackAnimatorPreviewModel(content: .backup(numberOfCards: 3))
@@ -239,14 +239,14 @@ struct CardStackAnimatorPreview: View {
                                        cardScanned: false),
                     OnboardingCardView(placeholderCardType: .light,
                                        cardImage: nil,
-                                       cardScanned: false)
+                                       cardScanned: false),
                 ], namespace: ns,
                 settings: animatorSettings,
                 currentCardIndexPublisher: viewModel.$currentCardIndex
             )
         case .backup(let numberOfCards):
             CardStackAnimator(
-                cards: (0..<numberOfCards)
+                cards: (0 ..< numberOfCards)
                     .map { index in
                         OnboardingCardView(placeholderCardType: .dark,
                                            cardImage: nil,
@@ -268,7 +268,7 @@ struct CardStackAnimatorPreview: View {
             }
             .padding(.bottom, 50)
             HStack {
-                ForEach(0...viewModel.maxIndex) { index in
+                ForEach(0 ... viewModel.maxIndex) { index in
                     Button(action: {
                         withAnimation {
                             viewModel.currentCardIndex = index
@@ -306,7 +306,7 @@ struct CardStackAnimator_Previews: PreviewProvider {
     static var previews: some View {
         CardStackAnimatorPreview(
             viewModel:
-                CardStackAnimatorPreviewModel(content: .twins)
+            CardStackAnimatorPreviewModel(content: .twins)
 //                CardStackAnimatorPreviewModel(content: .backup(numberOfCards: 3))
         )
     }
