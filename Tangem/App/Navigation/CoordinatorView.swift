@@ -11,6 +11,6 @@ import SwiftUI
 
 protocol CoordinatorView: View {
     associatedtype CoordinatorType: ObservableObject
-    
+
     var coordinator: CoordinatorType { get }
 }

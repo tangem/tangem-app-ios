@@ -60,8 +60,8 @@ struct AddressDetailView: View {
         VStack(spacing: 0.0) {
             if showAddressSelector {
                 PickerView(contents: walletModel.addressNames, selection: $selectedAddressIndex)
-                .padding(.horizontal, 24)
-                .padding(.top, 8)
+                    .padding(.horizontal, 24)
+                    .padding(.top, 8)
             }
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 8) {
@@ -103,7 +103,7 @@ struct AddressDetailView: View {
                     .padding(.horizontal, 24.0)
                     .padding(.top, 8.0)
                 HStack {
-                    Image ("payId")
+                    Image("payId")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 96.0, height: 19.0)
@@ -111,7 +111,7 @@ struct AddressDetailView: View {
                     
                     if !isPayIdCreated {
                         Button(action: {
-                           // self.showCreatePayID = true //[REDACTED_TODO_COMMENT]
+                            // self.showCreatePayID = true //[REDACTED_TODO_COMMENT]
                         }) {
                             HStack {
                                 Text("wallet_address_button_create_payid")
@@ -119,7 +119,7 @@ struct AddressDetailView: View {
                                     .multilineTextAlignment(.leading)
                                     .lineLimit(1)
                                     .foregroundColor(Color.tangemGrayDark6)
-                                Image (systemName: "chevron.right")
+                                Image(systemName: "chevron.right")
                                     .font(Font.system(size: 14.0, weight: .bold, design: .default))
                                     .foregroundColor(Color.tangemGrayDark6)
                                 
@@ -132,8 +132,8 @@ struct AddressDetailView: View {
                             .foregroundColor(Color.tangemGrayDark)
                             .onTapGesture {
                                 UIPasteboard.general.string = self.payIdText
-                                //[REDACTED_TODO_COMMENT]
-                        }
+                                // [REDACTED_TODO_COMMENT]
+                            }
                     }
                 }
                 .padding(.horizontal, 24.0)
