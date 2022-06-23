@@ -40,8 +40,8 @@ struct TotalSumBalanceView: View {
             
             AttributedTextView(viewModel.totalFiatValueString)
                 .foregroundColor(Color.tangemGrayDark6)
-                .skeletonable(isShown: viewModel.isLoading, size: CGSize(width: 100, height: 25))
                 .frame(height: 33)
+                .skeletonable(isShown: viewModel.isLoading, size: CGSize(width: 100, height: 25))
             
             if viewModel.hasError {
                 Text("main_processing_full_amount".localized)
