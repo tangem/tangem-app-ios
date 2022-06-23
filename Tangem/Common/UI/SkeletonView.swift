@@ -10,11 +10,11 @@ import SwiftUI
 
 public struct SkeletonView: View {
     @State var isAppeared = false
-    
+
     // Animatable data - https://developer.apple.com/documentation/swiftui/animatable
     @State var gradientPoints = Constants.idlePoints
     @State var oldShouldAnimateSkeleton: Bool?
-    
+
     private let secondary: Color = .tangemSkeletonGray
     private let primary: Color = .tangemSkeletonGray2
     private let backgroundOpacity: Double = 1
@@ -52,9 +52,9 @@ public struct SkeletonView: View {
 
             isAppeared = true
 
-                withAnimation(activeAnimation) {
-                    gradientPoints = Constants.animationPoints
-                }
+            withAnimation(activeAnimation) {
+                gradientPoints = Constants.animationPoints
+            }
         }
         .onDisappear {
             guard isAppeared else {
