@@ -60,7 +60,7 @@ class SupportedTokenItems {
             .avalanche(testnet: true),
             .solana(testnet: true),
             .fantom(testnet: true),
-           // .polkadot(testnet: true),
+            // .polkadot(testnet: true),
             .tron(testnet: true),
             .arbitrum(testnet: true),
         ]
@@ -76,7 +76,7 @@ class SupportedTokenItems {
     
     func blockchains(for curves: [EllipticCurve], isTestnet: Bool?) -> Set<Blockchain> {
         let allBlockchains = isTestnet.map { $0 ? testnetBlockchains : blockchains }
-        ?? testnetBlockchains.union(blockchains)
+            ?? testnetBlockchains.union(blockchains)
         return allBlockchains.filter { curves.contains($0.curve) }
     }
     

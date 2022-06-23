@@ -78,7 +78,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                 return backupService.primaryCardId.map {
                     LocalizedStringKey(stringLiteral: "onboarding_subtitle_scan_origin_card".localized(CardIdFormatter(style: .lastMasked(4)).string(from: $0)))
                 }
-                ?? super.subtitle
+                    ?? super.subtitle
             case .finalizingBackupCard(let index):
                 let cardId = backupService.backupCardIds[index - 1]
                 let formattedCardId = CardIdFormatter(style: .lastMasked(4)).string(from: cardId)
@@ -249,7 +249,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             canDisplayCardImage = true
         }
         
-        if case let .cardId(cardId) = input.cardInput { //saved backup
+        if case let .cardId(cardId) = input.cardInput { // saved backup
             DispatchQueue.main.async {
                 self.loadImageForRestoredbackup(cardId: cardId, cardPublicKey: Data())
             }
@@ -493,7 +493,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                 self.tangemSdk.startSession(with: PreparePrimaryCardTask(),
                                             cardId: cardId,
                                             initialMessage: Message(header: nil,
-                                                                    body: "initial_message_create_wallet_body".localized)) {[weak self] result in
+                                                                    body: "initial_message_create_wallet_body".localized)) { [weak self] result in
                     switch result {
                     case .success(let result):
                         self?.addTokens(for: cardId, style: result.card.derivationStyle)
@@ -585,7 +585,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                                 self.input.cardInput.cardModel?.cardInfo.card = updatedCard
                                 self.input.cardInput.cardModel?.updateCardPinSettings()
                                 self.input.cardInput.cardModel?.updateCurrentSecOption()
-                            } else { //add tokens for backup cards
+                            } else { // add tokens for backup cards
                                 self.addTokens(for: updatedCard.cardId, style: updatedCard.derivationStyle)
                             }
                             promise(.success(()))
@@ -628,7 +628,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
 }
 
-//MARK: - Navigation
+// MARK: - Navigation
 extension WalletOnboardingViewModel {
     func openAccessCode() {
         coordinator.openAccessCodeView(callback: saveAccessCode)
@@ -636,7 +636,7 @@ extension WalletOnboardingViewModel {
 }
 
 extension NotificationCenter {
-     static var didBecomeActivePublisher: AnyPublisher<Notification, Error> {
+    static var didBecomeActivePublisher: AnyPublisher<Notification, Error> {
         NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
             .setFailureType(to: Error.self)
             .eraseToAnyPublisher()
