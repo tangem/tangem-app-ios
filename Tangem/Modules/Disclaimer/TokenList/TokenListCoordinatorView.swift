@@ -12,7 +12,7 @@ import SwiftUI
 
 struct TokenListCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: TokenListCoordinator
-    
+
     var body: some View {
         NavigationView {
             if let model = coordinator.tokenListViewModel {
@@ -22,7 +22,7 @@ struct TokenListCoordinatorView: CoordinatorView {
         }
         .navigationViewStyle(.stack)
     }
-    
+
     @ViewBuilder
     private var links: some View {
         NavHolder()
