@@ -16,7 +16,7 @@ public class DefaultSigner: TransactionSigner, TransactionSignerPublisher {
     
     var signedCardPublisher = PassthroughSubject<Card, Never>()
     
-    private var initialMessage: Message { .init (header: nil, body: "initial_message_sign_body".localized) }
+    private var initialMessage: Message { .init(header: nil, body: "initial_message_sign_body".localized) }
     
     public init() {}
     
@@ -30,7 +30,7 @@ public class DefaultSigner: TransactionSigner, TransactionSignerPublisher {
             requiredCardId = card?.cardId
         }
         
-        let future = Future<[Data], Error> {[unowned self] promise in
+        let future = Future<[Data], Error> { [unowned self] promise in
             let signCommand = SignAndReadTask(hashes: hashes,
                                               walletPublicKey: walletPublicKey.seedKey,
                                               derivationPath: walletPublicKey.derivationPath)
