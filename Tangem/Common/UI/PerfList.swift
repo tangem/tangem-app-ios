@@ -11,11 +11,11 @@ import SwiftUI
 
 struct PerfList<Content: View>: View {
     let content: () -> Content
-    
-    init (@ViewBuilder _ content: @escaping () -> Content) {
+
+    init(@ViewBuilder _ content: @escaping () -> Content) {
         self.content = content
     }
-    
+
     var body: some View {
         if #available(iOS 14.0, *) {
             ScrollView {
@@ -35,10 +35,10 @@ struct PerfList<Content: View>: View {
 struct PerfListDivider: View {
     var body: some View {
         if #available(iOS 14.0, *) {
-           Divider()
+            Divider()
                 .padding([.leading])
         } else {
-           EmptyView()
+            EmptyView()
         }
     }
 }
