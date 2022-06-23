@@ -17,9 +17,9 @@ extension Publisher where Output: Equatable {
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
-    
+
     var uiPublisherWithFirst: AnyPublisher<Output, Failure> {
-            debounce(for: 0.6, scheduler: DispatchQueue.main)
+        debounce(for: 0.6, scheduler: DispatchQueue.main)
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
@@ -27,17 +27,17 @@ extension Publisher where Output: Equatable {
 
 extension Publisher where Failure == Never {
     func weakAssign<Root: AnyObject>(to keyPath: ReferenceWritableKeyPath<Root, Output>, on root: Root) -> AnyCancellable {
-       sink { [weak root] in
+        sink { [weak root] in
             root?[keyPath: keyPath] = $0
         }
     }
-    
+
     func weakAssign<Root: AnyObject>(to keyPath: ReferenceWritableKeyPath<Root, Output?>, on root: Root) -> AnyCancellable {
-       sink { [weak root] in
+        sink { [weak root] in
             root?[keyPath: keyPath] = $0
         }
     }
-    
+
     func weakAssignAnimated<Root: AnyObject>(to keyPath: ReferenceWritableKeyPath<Root, Output>, on root: Root) -> AnyCancellable {
         sink { [weak root] value in
             withAnimation {
@@ -45,7 +45,7 @@ extension Publisher where Failure == Never {
             }
         }
     }
-    
+
     func weakAssignAnimated<Root: AnyObject>(to keyPath: ReferenceWritableKeyPath<Root, Output?>, on root: Root) -> AnyCancellable {
         sink { [weak root] value in
             withAnimation {
