@@ -256,9 +256,9 @@ DEPENDENCIES:
   - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-152`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.6.2`)
   - web3swift (from `https://github.com/lazutkin-andrey/web3swift.git`, tag `2.2.9`)
-  - ZendeskAnswerBotSDK
-  - ZendeskChatSDK
-  - ZendeskSupportProvidersSDK
+  - ZendeskAnswerBotSDK (~> 2.2.0)
+  - ZendeskChatSDK (~> 2.12.0)
+  - ZendeskSupportProvidersSDK (~> 5.5.0)
   - ZendeskSupportSDK (~> 5.5.0)
 
 SPEC REPOS:
@@ -431,6 +431,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: 9f38c558ede4cb0b32538bb667c356789001ebe3
+PODFILE CHECKSUM: 7d4e55a44529eea52dab295d23330b1d337f4184
 
 COCOAPODS: 1.11.3
