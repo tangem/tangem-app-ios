@@ -52,7 +52,6 @@
 		5D384B8B24FD154C00C2C92C /* PayIDService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D384B8A24FD154C00C2C92C /* PayIDService.swift */; };
 		5D384B9124FD4E1800C2C92C /* String+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D384B9024FD4E1800C2C92C /* String+.swift */; };
 		5D384B9424FD51C000C2C92C /* DetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D384B9324FD51C000C2C92C /* DetailsViewModel.swift */; };
-		5D384B9624FD51CB00C2C92C /* DetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D384B9524FD51CB00C2C92C /* DetailsView.swift */; };
 		5D39514D2556CDDF002CC452 /* MoonPayService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D39514C2556CDDF002CC452 /* MoonPayService.swift */; };
 		5D39515925597DA5002CC452 /* WalletModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D39515825597DA5002CC452 /* WalletModel.swift */; };
 		5D39516125597DB1002CC452 /* BalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D39516025597DB1002CC452 /* BalanceViewModel.swift */; };
@@ -641,7 +640,6 @@
 		5D384B8A24FD154C00C2C92C /* PayIDService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayIDService.swift; sourceTree = "<group>"; };
 		5D384B9024FD4E1800C2C92C /* String+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+.swift"; sourceTree = "<group>"; };
 		5D384B9324FD51C000C2C92C /* DetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsViewModel.swift; sourceTree = "<group>"; };
-		5D384B9524FD51CB00C2C92C /* DetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsView.swift; sourceTree = "<group>"; };
 		5D39514C2556CDDF002CC452 /* MoonPayService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonPayService.swift; sourceTree = "<group>"; };
 		5D39515825597DA5002CC452 /* WalletModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModel.swift; sourceTree = "<group>"; };
 		5D39516025597DB1002CC452 /* BalanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceViewModel.swift; sourceTree = "<group>"; };
@@ -1201,7 +1199,6 @@
 				DC51185D28609CA5004FB954 /* CardOperation */,
 				5D3951652559A859002CC452 /* CurrencySelect */,
 				5D384B9324FD51C000C2C92C /* DetailsViewModel.swift */,
-				5D384B9524FD51CB00C2C92C /* DetailsView.swift */,
 				DC66BC07285B6E6400CDF765 /* DetailsRoutable.swift */,
 				DC295B472861C4BE006CB7B6 /* DetailsCoordinator.swift */,
 				DC295B492861C4CB006CB7B6 /* DetailsCoordinatorView.swift */,
@@ -3011,7 +3008,6 @@
 				B03A9339259877790061FB2D /* WarningsContainer.swift in Sources */,
 				B0EC1200267386FC00137059 /* PendingTransaction.swift in Sources */,
 				B09BB85E259A075600B92000 /* CircleActionButton.swift in Sources */,
-				5D384B9624FD51CB00C2C92C /* DetailsView.swift in Sources */,
 				5D341CCA27E4C5650028D8FC /* CoinItemViewModel.swift in Sources */,
 				B069F3B12631D57500ACFD19 /* ImageCache.swift in Sources */,
 				DAB1E62627B4E40D00C1F510 /* ShopOrderView.swift in Sources */,
