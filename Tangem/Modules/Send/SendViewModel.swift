@@ -127,7 +127,7 @@ class SendViewModel: ObservableObject {
     var bag = Set<AnyCancellable>()
     
     var currencyUnit: String {
-        return isFiatCalculation ? ratesService.selectedCurrencyCode: self.amountToSend.currencySymbol
+        return isFiatCalculation ? ratesService.selectedCurrencyCode : self.amountToSend.currencySymbol
     }
     
     var walletTotalBalanceDecimals: String {
@@ -142,7 +142,7 @@ class SendViewModel: ObservableObject {
         return String(format: "send_balance_subtitle_format".localized, value)
     }
     
-    //MARK: Private
+    // MARK: Private
     @Published private var validatedDestination: String? = nil
     @Published private var validatedAmount: Amount? = nil
     
@@ -160,7 +160,7 @@ class SendViewModel: ObservableObject {
    
     private lazy var payIDService: PayIDService? = {
         if featuresService.isPayIdEnabled, let payIdService = PayIDService.make(from: blockchainNetwork.blockchain) {
-          return payIdService
+            return payIdService
         }
         
         return nil
@@ -238,21 +238,21 @@ class SendViewModel: ObservableObject {
         
         walletModel
             .$rates
-            .map {[unowned self] newRates -> Bool in
+            .map { [unowned self] newRates -> Bool in
                 return newRates[self.amountToSend.currencySymbol] != nil
             }
             .weakAssign(to: \.canFiatCalculation, on: self)
             .store(in: &bag)
         
-        $destination //destination validation
+        $destination // destination validation
             .debounce(for: 1.0, scheduler: RunLoop.main, options: nil)
             .removeDuplicates()
-            .sink{ [unowned self] newText in
+            .sink { [unowned self] newText in
                 self.validateDestination(newText)
             }
             .store(in: &bag)
         
-        $transaction    //update total block
+        $transaction    // update total block
             .combineLatest($isFiatCalculation.uiPublisherWithFirst)
             .sink { [unowned self] tx, isFiatCalculation in
                 if let tx = tx {
@@ -263,12 +263,12 @@ class SendViewModel: ObservableObject {
             }
             .store(in: &bag)
         
-        $isFiatCalculation //handle conversion
+        $isFiatCalculation // handle conversion
             .uiPublisher
-            .filter {[unowned self] _ in self.amountText != "0" }
+            .filter { [unowned self] _ in self.amountText != "0" }
             .sink { [unowned self] value in
                 guard let decimals = Decimal(string: self.amountText.replacingOccurrences(of: ",", with: ".")) else {
-                   return
+                    return
                 }
                 
                 let currencyId = self.walletModel.currencyId(for: self.amountToSend.type)
@@ -301,7 +301,7 @@ class SendViewModel: ObservableObject {
 //                }
 //                return true
 //            }
-            .sink{ [unowned self] newAmountString, isFiat in
+            .sink { [unowned self] newAmountString, isFiat in
                 guard let decimals = Decimal(string: newAmountString.replacingOccurrences(of: ",", with: ".")) else {
                     self.amountHint = nil
                     self.validatedAmount = nil
@@ -322,7 +322,7 @@ class SendViewModel: ObservableObject {
             }
             .store(in: &bag)
                 
-        $validatedAmount//update fee
+        $validatedAmount // update fee
             .dropFirst()
             .compactMap { $0 }
             .combineLatest($validatedDestination.compactMap { $0 }, feeRetrySubject)
@@ -347,7 +347,7 @@ class SendViewModel: ObservableObject {
             .sink(receiveCompletion: { [unowned self] completion in
                 self.isFeeLoading = false
                 self.fees = []
-            }, receiveValue: {[unowned self] fees in
+            }, receiveValue: { [unowned self] fees in
                 self.isFeeLoading = false
                 self.fees = fees
             })
@@ -357,15 +357,15 @@ class SendViewModel: ObservableObject {
             .combineLatest($validatedDestination,
                            $selectedFee,
                            $isFeeIncluded)
-            .sink {[unowned self] (amount, destination, fee, isFeeIncluded) in
+            .sink { [unowned self] (amount, destination, fee, isFeeIncluded) in
                 guard let amount = amount, let destination = destination, let fee = fee else {
                     return
                 }
              
                 do {
                     let tx = try self.walletModel.walletManager.createTransaction(amount: isFeeIncluded ? amount - fee : amount,
-                                                                              fee: fee,
-                                                                              destinationAddress: destination)
+                                                                                  fee: fee,
+                                                                                  destinationAddress: destination)
                     DispatchQueue.main.async {
                         self.validateWithdrawal(tx, amount)
                     }
@@ -380,7 +380,7 @@ class SendViewModel: ObservableObject {
             }
             .store(in: &bag)
         
-        $maxAmountTapped //handle max amount tap
+        $maxAmountTapped // handle max amount tap
             .dropFirst()
             .sink { [unowned self] _ in
                 self.amountText = self.walletTotalBalanceDecimals
@@ -392,9 +392,9 @@ class SendViewModel: ObservableObject {
             .store(in: &bag)
         
         // MARK: Fee
-        $fees //handle fee selection
+        $fees // handle fee selection
             .combineLatest($selectedFeeLevel)
-            .sink{ [unowned self] fees, level in
+            .sink { [unowned self] fees, level in
                 if fees.isEmpty {
                     self.selectedFee = nil
                 } else {
@@ -403,9 +403,9 @@ class SendViewModel: ObservableObject {
             }
             .store(in: &bag)
         
-        $selectedFee //update fee label
+        $selectedFee // update fee label
             .uiPublisher
-            .sink{ [unowned self] newAmount in
+            .sink { [unowned self] newAmount in
                 self.updateFee(amount: newAmount)
             }
             .store(in: &bag)
@@ -448,7 +448,7 @@ class SendViewModel: ObservableObject {
         
         scannedQRCode
             .compactMap { $0 }
-            .sink {[unowned self] qrCodeString in
+            .sink { [unowned self] qrCodeString in
                 let withoutPrefix = qrCodeString.remove(contentsOf: self.walletModel.wallet.blockchain.qrPrefixes)
                 let splitted = withoutPrefix.split(separator: "?")
                 self.destination = splitted.first.map { String($0) } ?? withoutPrefix
@@ -505,7 +505,7 @@ class SendViewModel: ObservableObject {
         if isPayIdSupported,
            let payIdService = self.payIDService,
            payIdService.validate(destination) {
-            payIdService.resolve(destination) {[weak self] result in
+            payIdService.resolve(destination) { [weak self] result in
                 switch result {
                 case .success(let resolvedDetails):
                     if let address = resolvedDetails.address,
@@ -550,14 +550,14 @@ class SendViewModel: ObservableObject {
                               primaryButton: Alert.Button.default(Text(warning.reduceMessage),
                                                                   action: {
                 
-                let newAmount = totalAmount - warning.suggestedReduceAmount
-                self.amountText = self.isFiatCalculation ? self.walletModel.getFiat(for: newAmount)?.description ?? "0" :
-                newAmount.value.description
-            }),
+                                                                      let newAmount = totalAmount - warning.suggestedReduceAmount
+                                                                      self.amountText = self.isFiatCalculation ? self.walletModel.getFiat(for: newAmount)?.description ?? "0" :
+                                                                          newAmount.value.description
+                                                                  }),
                               secondaryButton: Alert.Button.cancel(Text(warning.ignoreMessage),
                                                                    action: {
                 
-            }))
+                                                                   }))
             UIApplication.shared.endEditing()
             self.error = AlertBinder(alert: alert, error: nil)
         }
@@ -646,8 +646,8 @@ class SendViewModel: ObservableObject {
                     
                     DispatchQueue.main.async {
                         let alert = AlertBuilder.makeSuccessAlert(message: self.cardViewModel.cardInfo.card.isDemoCard ? "alert_demo_feature_disabled".localized
-                                                                  : "send_transaction_success".localized,
-                                                                  okAction: self.close)
+                            : "send_transaction_success".localized,
+                            okAction: self.close)
                         self.error = alert
                     }
                 }
@@ -769,10 +769,10 @@ extension SendViewModel {
             self.showCameraDeniedAlert = true
         } else {
             let binding = Binding<String>(
-                get:{ [weak self] in
+                get: { [weak self] in
                     self?.scannedQRCode.value ?? ""
                 },
-                set:{ [weak self] in
+                set: { [weak self] in
                     self?.scannedQRCode.send($0)
                 })
             
