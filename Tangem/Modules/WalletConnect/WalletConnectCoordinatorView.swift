@@ -11,7 +11,7 @@ import SwiftUI
 
 struct WalletConnectCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: WalletConnectCoordinator
-    
+
     var body: some View {
         if let model = coordinator.walletConnectViewModel {
             WalletConnectView(viewModel: model)

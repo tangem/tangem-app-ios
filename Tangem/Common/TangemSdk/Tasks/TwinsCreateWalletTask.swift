@@ -15,29 +15,29 @@ struct TwinsCreateWalletTaskResponse: JSONStringConvertible {
 }
 
 class TwinsCreateWalletTask: CardSessionRunnable {
-	typealias CommandResponse = TwinsCreateWalletTaskResponse
+    typealias CommandResponse = TwinsCreateWalletTaskResponse
 	
     var message: Message? { Message(header: "twin_process_preparing_card".localized) }
     
-	var requiresPin2: Bool { true }
+    var requiresPin2: Bool { true }
 	
     deinit {
         print("Twins create wallet task deinited")
     }
     
-	private let firstTwinCardId: String?
-	private var fileToWrite: Data?
+    private let firstTwinCardId: String?
+    private var fileToWrite: Data?
     private let walletManagerFactory: WalletManagerFactory?
     private var walletManager: WalletManager? = nil
     private var scanCommand: AppScanTask? = nil
     
-	init(firstTwinCardId: String?, fileToWrite: Data?, walletManagerFactory: WalletManagerFactory?) {
-		self.firstTwinCardId = firstTwinCardId
-		self.fileToWrite = fileToWrite
+    init(firstTwinCardId: String?, fileToWrite: Data?, walletManagerFactory: WalletManagerFactory?) {
+        self.firstTwinCardId = firstTwinCardId
+        self.fileToWrite = fileToWrite
         self.walletManagerFactory = walletManagerFactory
-	}
+    }
 	
-	func run(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
+    func run(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
         session.viewDelegate.showAlertMessage("twin_process_preparing_card".localized)
         guard let card = session.environment.card else {
             completion(.failure(.missingPreflightRead))
@@ -64,11 +64,10 @@ class TwinsCreateWalletTask: CardSessionRunnable {
         
         if card.wallets.isEmpty {
             createWallet(in: session, completion: completion)
-		} else {
+        } else {
             if let walletManagerFactory = self.walletManagerFactory,
                let wallet = card.wallets.first {
-                self.walletManager = try? walletManagerFactory.makeWalletManager(cardId: card.cardId,
-                                                                                 blockchain: .bitcoin(testnet: false),
+                self.walletManager = try? walletManagerFactory.makeWalletManager(blockchain: .bitcoin(testnet: false),
                                                                                  walletPublicKey: wallet.publicKey)
                 
                 walletManager?.update(completion: { result in         
@@ -89,52 +88,52 @@ class TwinsCreateWalletTask: CardSessionRunnable {
             } else {
                 eraseWallet(in: session, completion: completion)
             }
-		}
-	}
+        }
+    }
 	
-//	private func deleteFile(at index: Int? = nil, in session: CardSession, completion: @escaping CompletionResult<CreateWalletResponse>) {
-//		let deleteFile = DeleteFilesTask(filesToDelete: index == nil ? nil : [index!])
-//		deleteFile.run(in: session) { (result) in
-//			switch result {
-//			case .success:
-//				self.createWallet(in: session, completion: completion)
-//			case .failure(let error):
-//				completion(.failure(error))
-//			}
-//		}
-//	}
+    //	private func deleteFile(at index: Int? = nil, in session: CardSession, completion: @escaping CompletionResult<CreateWalletResponse>) {
+    //		let deleteFile = DeleteFilesTask(filesToDelete: index == nil ? nil : [index!])
+    //		deleteFile.run(in: session) { (result) in
+    //			switch result {
+    //			case .success:
+    //				self.createWallet(in: session, completion: completion)
+    //			case .failure(let error):
+    //				completion(.failure(error))
+    //			}
+    //		}
+    //	}
 	
-	private func eraseWallet(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
+    private func eraseWallet(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
         let walletPublicKey = session.environment.card?.wallets.first?.publicKey
         let erase = PurgeWalletCommand(publicKey: walletPublicKey!)
-		erase.run(in: session) { (result) in
-			switch result {
-			case .success:
+        erase.run(in: session) { (result) in
+            switch result {
+            case .success:
                 self.createWallet(in: session, completion: completion)
-			case .failure(let error):
-				completion(.failure(error))
-			}
-		}
-	}
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
 	
-	private func createWallet(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
-        let createWalletTask = CreateWalletTask(curve: .secp256k1/*, isPermanent: false*/)
+    private func createWallet(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
+        let createWalletTask = CreateWalletTask(curve: .secp256k1 /* , isPermanent: false */ )
         createWalletTask.run(in: session) { (result) in
-			switch result {
-			case .success(let response):
-				if let fileToWrite = self.fileToWrite {
-					self.writePublicKeyFile(fileToWrite: fileToWrite, walletResponse: response, in: session, completion: completion)
-				} else {
+            switch result {
+            case .success(let response):
+                if let fileToWrite = self.fileToWrite {
+                    self.writePublicKeyFile(fileToWrite: fileToWrite, walletResponse: response, in: session, completion: completion)
+                } else {
                     self.scanCard(session: session, walletResponse: response, completion: completion)
-				}
-			case .failure(let error):
-				completion(.failure(error))
-			}
-		}
-	}
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
 	
-	private func writePublicKeyFile(fileToWrite: Data, walletResponse: CreateWalletResponse, in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
-//		let writeFileCommand = WriteFileCommand(dataToWrite: FileDataProtectedByPasscode(data: fileToWrite))
+    private func writePublicKeyFile(fileToWrite: Data, walletResponse: CreateWalletResponse, in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
+        //		let writeFileCommand = WriteFileCommand(dataToWrite: FileDataProtectedByPasscode(data: fileToWrite))
         
         guard let issuerKeys = SignerUtils.signerKeys(for: session.environment.card!.issuer.publicKey) else {
             completion(.failure(TangemSdkError.unknownError))
@@ -151,15 +150,15 @@ class TwinsCreateWalletTask: CardSessionRunnable {
                 completion(.failure(error))
             }
         }
-//		command.run(in: session) { (response) in
-//			switch response {
-//			case .success:
-//				completion(.success(walletResponse))
-//			case .failure(let error):
-//				completion(.failure(error))
-//			}
-//		}
-	}
+        //		command.run(in: session) { (response) in
+        //			switch response {
+        //			case .success:
+        //				completion(.success(walletResponse))
+        //			case .failure(let error):
+        //				completion(.failure(error))
+        //			}
+        //		}
+    }
     
     private func scanCard(session: CardSession, walletResponse: CreateWalletResponse, completion: @escaping CompletionResult<CommandResponse>) {
         self.scanCommand =  AppScanTask()

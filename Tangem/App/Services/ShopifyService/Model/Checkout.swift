@@ -42,7 +42,7 @@ struct Checkout {
         
         self.availableShippingRates = checkout.availableShippingRates?.shippingRates?.map { ShippingRate($0) } ?? []
         
-        if let discount = checkout.discountApplications.edges.first.map( { Discount($0.node) } ) {
+        if let discount = checkout.discountApplications.edges.first.map({ Discount($0.node) }) {
             self.discount = discount
         } else {
             self.discount = nil
