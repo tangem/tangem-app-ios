@@ -60,12 +60,12 @@ struct DisclaimerView: View {
                         gradient: Gradient(stops: [
                             .init(color: .white.opacity(0.2), location: 0.0),
                             .init(color: .white, location: 0.5),
-                            .init(color: .white, location: 1.0)
+                            .init(color: .white, location: 1.0),
                         ]),
                         startPoint: .top,
                         endPoint: .bottom)
-                    .frame(size: CGSize(width: UIScreen.main.bounds.width, height: 135))
-                    .offset(y: -20)
+                        .frame(size: CGSize(width: UIScreen.main.bounds.width, height: 135))
+                        .offset(y: -20)
                 )
                 .alignmentGuide(.bottom, computeValue: { dimension in
                     dimension[.bottom] + 16
