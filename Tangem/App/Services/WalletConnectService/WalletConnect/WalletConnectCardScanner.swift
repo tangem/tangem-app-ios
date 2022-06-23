@@ -25,7 +25,6 @@ enum WalletConnectCardScannerError: LocalizedError {
 }
 
 class WalletConnectCardScanner {
-    @Injected(\.assemblyProvider) var assemblyProvider: AssemblyProviding
     @Injected(\.tangemSdkProvider) var tangemSdkProvider: TangemSdkProviding
     @Injected(\.scannedCardsRepository) var scannedCardsRepository: ScannedCardsRepository
     @Injected(\.cardsRepository) var cardsRepository: CardsRepository
@@ -105,7 +104,7 @@ class WalletConnectCardScanner {
            existingCardModel.cardInfo.card.cardId == cardInfo.card.cardId {
             return existingCardModel.walletModels ?? []
         } else {
-            return assemblyProvider.assembly.makeAllWalletModels(from: cardInfo)
+            return WalletManagerAssembly.makeAllWalletModels(from: cardInfo)
         }
     }
 }
