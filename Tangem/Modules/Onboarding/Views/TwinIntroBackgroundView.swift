@@ -15,24 +15,24 @@ struct TwinIntroBackgroundView: View {
         ZStack {
             Ellipse()
                 .fill(Color(.sRGB,
-                            red: 222.0/255.0,
-                            green: 222.0/255.0,
-                            blue: 224.0/255.0,
+                            red: 222.0 / 255.0,
+                            green: 222.0 / 255.0,
+                            blue: 224.0 / 255.0,
                             opacity: 0.4))
             
             Ellipse()
                 .fill(Color(.sRGB,
-                            red: 220.0/255.0,
-                            green: 220.0/255.0,
-                            blue: 220.0/255.0,
+                            red: 220.0 / 255.0,
+                            green: 220.0 / 255.0,
+                            blue: 220.0 / 255.0,
                             opacity: 0.4))
                 .padding(inset(for: 0.6))
             
             Ellipse()
                 .fill(Color(.sRGB,
-                            red: 217.0/255.0,
-                            green: 217.0/255.0,
-                            blue: 217.0/255.0,
+                            red: 217.0 / 255.0,
+                            green: 217.0 / 255.0,
+                            blue: 217.0 / 255.0,
                             opacity: 0.4))
                 .padding(inset(for: 0.3))
         }

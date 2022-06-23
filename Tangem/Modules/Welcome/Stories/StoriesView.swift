@@ -10,12 +10,12 @@ import SwiftUI
 struct StoriesView<Content: View>: View {
     @ObservedObject var viewModel: StoriesViewModel
     @ViewBuilder private let content: () -> Content
-    
+
     init(viewModel: StoriesViewModel, @ViewBuilder content: @escaping () -> Content) {
         self.viewModel = viewModel
         self.content = content
     }
-    
+
     var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .top) {
@@ -30,7 +30,7 @@ struct StoriesView<Content: View>: View {
                                 viewModel.didEndDrag($0.location, destination: $0.predictedEndLocation, viewWidth: geo.size.width)
                             }
                     )
-                
+
                 StoriesProgressView(pages: WelcomeStoryPage.allCases, currentPage: $viewModel.currentPage, progress: $viewModel.currentProgress)
                     .padding(.horizontal)
                     .padding(.top)
