@@ -17,11 +17,11 @@ struct ShopOrderProgressView: View {
             .overlay(
                 VStack {
                     SheetDragHandler()
-                    
+
                     Spacer()
-                    
+
                     ActivityIndicatorView(isAnimating: true, style: .medium, color: .tangemGrayDark)
-                    
+
                     Spacer()
                 }
             )

@@ -43,7 +43,7 @@ struct Web3StoryPage: View {
                 .background(
                     VStack {
                         Group {
-                            ForEach(0..<numberOfRows) { index in
+                            ForEach(0 ..< numberOfRows) { index in
                                 let odd = (index % 2 == 0)
                                 Image("dapps-\(index % numberOfRowImages)")
                                     .offset(x: odd ? 50 : 0)
@@ -52,7 +52,7 @@ struct Web3StoryPage: View {
                         }
                         .frame(height: 63)
                     }
-                        .offset(x: 0, y: 30)
+                    .offset(x: 0, y: 30)
                     ,
                     alignment: .top
                 )
@@ -79,6 +79,6 @@ struct Web3StoryPage: View {
 struct Web3StoryPage_Previews: PreviewProvider {
     static var previews: some View {
         Web3StoryPage(progress: .constant(1), isScanning: false) { } orderCard: { }
-        .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
+            .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
     }
 }
