@@ -14,7 +14,7 @@ import SwiftUI
 struct TokenIconView: View {
     let tokenItem: TokenItem
     var size: CGSize = .init(width: 40, height: 40)
-    
+
     var body: some View {
         KFImage(tokenItem.imageURL)
             .setProcessor(DownsamplingImageProcessor(size: size))
@@ -27,8 +27,8 @@ struct TokenIconView: View {
             .cornerRadius(5)
             .frame(size: size)
     }
-    
-    
+
+
     @ViewBuilder private var placeholder: some View {
         CircleImageTextView(name: tokenItem.name, color: .tangemGrayLight4)
     }
@@ -40,7 +40,7 @@ extension TokenIconView {
             self.tokenItem = .token(token, blockchain)
             return
         }
-        
+
         self.tokenItem = .blockchain(blockchain)
     }
 }
@@ -53,7 +53,7 @@ extension TokenItem {
                 .appendingPathComponent("large")
                 .appendingPathComponent("\(id).png")
         }
-        
+
         return nil
     }
 }
