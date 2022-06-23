@@ -14,13 +14,13 @@ protocol TokenItemsRepository {
     func append(_ entries: [StorageEntry], for cardId: String)
     func append(_ blockchainNetworks: [BlockchainNetwork], for cardId: String)
     func append(_ tokens: [Token], blockchainNetwork: BlockchainNetwork, for cardId: String)
-    
+
     func remove(_ blockchainNetwork: BlockchainNetwork, for cardId: String)
     func remove(_ blockchainNetworks: [BlockchainNetwork], for cardId: String)
     func remove(_ token: Token, blockchainNetwork: BlockchainNetwork, for cardId: String)
     func remove(_ tokens: [Token], blockchainNetwork: BlockchainNetwork, for cardId: String)
     func removeAll(for cardId: String)
-    
+
     func getItems(for cardId: String) -> [StorageEntry]
 }
 
