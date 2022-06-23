@@ -16,14 +16,14 @@ struct ProgressBar: View {
     var progressColor: Color = .tangemGreen
     
     var body: some View {
-            Rectangle()
-                .modifier(
-                    AnimatableGradient(backgroundColor: backgroundColor,
-                                       progressColor: progressColor,
-                                       gradientStop: max(0, min(1, currentProgress)))
-                )
-                .cornerRadius(height / 2)
-                .frame(height: height)
+        Rectangle()
+            .modifier(
+                AnimatableGradient(backgroundColor: backgroundColor,
+                                   progressColor: progressColor,
+                                   gradientStop: max(0, min(1, currentProgress)))
+            )
+            .cornerRadius(height / 2)
+            .frame(height: height)
     }
 }
 

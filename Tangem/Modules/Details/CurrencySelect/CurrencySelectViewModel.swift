@@ -25,12 +25,12 @@ class CurrencySelectViewModel: ObservableObject {
         currencyRateService
             .baseCurrencies()
             .receive(on: DispatchQueue.main)
-            .sink(receiveCompletion: {[weak self] completion in
+            .sink(receiveCompletion: { [weak self] completion in
                 if case let .failure(error) = completion {
                     self?.error = error.alertBinder
                 }
                 self?.loading = false
-            }, receiveValue: {[weak self] currencies in
+            }, receiveValue: { [weak self] currencies in
                 self?.currencies = currencies
                     .sorted {
                         $0.description < $1.description
