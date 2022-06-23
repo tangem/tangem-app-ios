@@ -13,9 +13,9 @@ import Combine
 struct CurrencySelectView: View {
     @ObservedObject var viewModel: CurrencySelectViewModel
     @Environment(\.presentationMode) var presentationMode
-    
+
     @State private var searchText: String = ""
-    
+
     var body: some View {
         VStack {
             if viewModel.loading {
@@ -29,27 +29,27 @@ struct CurrencySelectView: View {
                                 searchText.isEmpty ||
                                     $0.description.localizedStandardContains(searchText)
                             }) { currency in
-                            HStack {
-                                Text(currency.description)
-                                    .font(.system(size: 16, weight: .regular, design: .default))
-                                    .foregroundColor(.tangemGrayDark6)
-                                Spacer()
-                                if viewModel.isSelected(currency) {
-                                    Image(systemName: "checkmark.circle")
-                                        .font(.system(size: 18, weight: .regular, design: .default))
-                                        .foregroundColor(Color.tangemGreen)
+                                HStack {
+                                    Text(currency.description)
+                                        .font(.system(size: 16, weight: .regular, design: .default))
+                                        .foregroundColor(.tangemGrayDark6)
+                                    Spacer()
+                                    if viewModel.isSelected(currency) {
+                                        Image(systemName: "checkmark.circle")
+                                            .font(.system(size: 18, weight: .regular, design: .default))
+                                            .foregroundColor(Color.tangemGreen)
+                                    }
+                                }
+                                .contentShape(Rectangle())
+                                .onTapGesture {
+                                    viewModel.onSelect(currency)
+                                    if viewModel.dismissAfterSelection {
+                                        presentationMode.wrappedValue.dismiss()
+                                    }
                                 }
                             }
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                viewModel.onSelect(currency)
-                                if viewModel.dismissAfterSelection {
-                                    presentationMode.wrappedValue.dismiss()
-                                }
-                            }
-                        }
                     }
-                    
+
                 }
                 .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
             }
