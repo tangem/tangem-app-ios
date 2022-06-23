@@ -13,10 +13,10 @@ class MainCoordinator: CoordinatorObject {
     var dismissAction: Action
     var popToRootAction: ParamsAction<PopToRootOptions>
     
-    //MARK: - Main view model
+    // MARK: - Main view model
     @Published private(set) var mainViewModel: MainViewModel? = nil
     
-    //MARK: - Child coordinators
+    // MARK: - Child coordinators
     @Published var sendCoordinator: SendCoordinator? = nil
     @Published var pushTxCoordinator: PushTxCoordinator? = nil
     @Published var tokenDetailsCoordinator: TokenDetailsCoordinator? = nil
@@ -24,17 +24,17 @@ class MainCoordinator: CoordinatorObject {
     @Published var tokenListCoordinator: TokenListCoordinator? = nil
     @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
     
-    //MARK: - Child view models
+    // MARK: - Child view models
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
     @Published var currencySelectViewModel: CurrencySelectViewModel? = nil
     @Published var mailViewModel: MailViewModel? = nil
     @Published var addressQrBottomSheetContentViewVodel: AddressQrBottomSheetContentViewVodel? = nil
     
-    //MARK: - Other view bindings
+    // MARK: - Other view bindings
     @Published var safariURL: URL? = nil
     
-    //MARK: - Helpers
+    // MARK: - Helpers
     @Published var qrBottomSheetKeeper: Bool = false
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
     
@@ -75,10 +75,10 @@ extension MainCoordinator: MainRoutable {
                                                        title: "wallet_button_topup".localized,
                                                        addLoadingIndicator: true,
                                                        urlActions: [
-                                                        closeUrl: {[weak self] response in
-                                                            self?.pushedWebViewModel = nil
-                                                            action(response)
-                                                        }])
+                                                           closeUrl: { [weak self] response in
+                                                               self?.pushedWebViewModel = nil
+                                                               action(response)
+                                                           }])
     }
     
     func openSellCrypto(at url: URL, sellRequestUrl: String, action: @escaping (String) -> Void) {
