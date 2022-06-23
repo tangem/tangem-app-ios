@@ -184,7 +184,6 @@
 		659768172837B61000F9F04A /* TokenItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659768162837B61000F9F04A /* TokenItemView.swift */; };
 		65A1910A2833EA900023355D /* TokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A191092833EA900023355D /* TokensView.swift */; };
 		65B435FE2844BF7200DEAE1B /* AttributedTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B435FD2844BF7100DEAE1B /* AttributedTextView.swift */; };
-		65B436022844FDE700DEAE1B /* TangemSkeletonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B436012844FDE700DEAE1B /* TangemSkeletonModifier.swift */; };
 		A2D75197BEA81DB54FF6A3F6 /* Pods_Tangem_TangemUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D513FF545D1945A2BACAA25F /* Pods_Tangem_TangemUITests.framework */; };
 		B00BC584260B178000F0647D /* PickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D15F9E7258A522500392BA5 /* PickerView.swift */; };
 		B00BC589260B179200F0647D /* CircleActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09BB854259A075500B92000 /* CircleActionButton.swift */; };
@@ -524,6 +523,8 @@
 		DC7DA8222844F53F00AD6DBD /* CommonOnboardingStepsSetupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7DA8212844F53F00AD6DBD /* CommonOnboardingStepsSetupService.swift */; };
 		EF08A0EF283D1914008BD923 /* Moya+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0EE283D1914008BD923 /* Moya+.swift */; };
 		EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0F0283D2382008BD923 /* CoinsListRequestModel.swift */; };
+		EF4B41BB2864491B003911F6 /* TangemSkeletonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B41BA2864491B003911F6 /* TangemSkeletonModifier.swift */; };
+		EF4B41BD28644982003911F6 /* SkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B41BC28644982003911F6 /* SkeletonView.swift */; };
 		EFB4C1322837C51700E991C1 /* TextHint.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB4C1312837C51700E991C1 /* TextHint.swift */; };
 		F06BBA2FE022C3EF1F3B6513 /* Pods_Tangem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F3AA1BEE46AF490A6F95DA /* Pods_Tangem.framework */; };
 /* End PBXBuildFile section */
@@ -764,7 +765,6 @@
 		659768162837B61000F9F04A /* TokenItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItemView.swift; sourceTree = "<group>"; };
 		65A191092833EA900023355D /* TokensView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokensView.swift; sourceTree = "<group>"; };
 		65B435FD2844BF7100DEAE1B /* AttributedTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttributedTextView.swift; sourceTree = "<group>"; };
-		65B436012844FDE700DEAE1B /* TangemSkeletonModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSkeletonModifier.swift; sourceTree = "<group>"; };
 		660C0A4ED84D5E9C3C8E3304 /* Pods-Tangem Tap-Tangem TapUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap-Tangem TapUITests.release.xcconfig"; path = "Target Support Files/Pods-Tangem Tap-Tangem TapUITests/Pods-Tangem Tap-Tangem TapUITests.release.xcconfig"; sourceTree = "<group>"; };
 		6DAB43B88F12E203AB57FCC5 /* Pods-TangemClip.firebase.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemClip.firebase.xcconfig"; path = "Target Support Files/Pods-TangemClip/Pods-TangemClip.firebase.xcconfig"; sourceTree = "<group>"; };
 		8023B4C7AB7F8F722B1B6BAA /* Pods-Tangem TapTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem TapTests.debug.xcconfig"; path = "Target Support Files/Pods-Tangem TapTests/Pods-Tangem TapTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -1070,6 +1070,8 @@
 		E53081CA3060D2785F9D22F0 /* Pods-Tangem-TangemUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release.xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release.xcconfig"; sourceTree = "<group>"; };
 		EF08A0EE283D1914008BD923 /* Moya+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Moya+.swift"; sourceTree = "<group>"; };
 		EF08A0F0283D2382008BD923 /* CoinsListRequestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinsListRequestModel.swift; sourceTree = "<group>"; };
+		EF4B41BA2864491B003911F6 /* TangemSkeletonModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TangemSkeletonModifier.swift; sourceTree = "<group>"; };
+		EF4B41BC28644982003911F6 /* SkeletonView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SkeletonView.swift; sourceTree = "<group>"; };
 		EFB4C1312837C51700E991C1 /* TextHint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextHint.swift; sourceTree = "<group>"; };
 		F3B96D298A039D2A8811CEF0 /* Pods-Tangem Tap.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap.release.xcconfig"; path = "Target Support Files/Pods-Tangem Tap/Pods-Tangem Tap.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1348,6 +1350,7 @@
 		5D958E1224F513C1006BD932 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				EF4B41BC28644982003911F6 /* SkeletonView.swift */,
 				EFB4C1302837C50C00E991C1 /* Types */,
 				B0B8670126DF5ABC008DAA67 /* PreferenceKeys */,
 				B0E92C9526D38A56004F0855 /* BottomSheets */,
@@ -1383,7 +1386,6 @@
 				5D96BD2927F60B0D000AA797 /* TokenIconView.swift */,
 				5D219F8A27FF1CF9005015AA /* PerfList.swift */,
 				DAE6F76C2800011400411F45 /* AppError.swift */,
-				65B436012844FDE700DEAE1B /* TangemSkeletonModifier.swift */,
 				65B435FD2844BF7100DEAE1B /* AttributedTextView.swift */,
 				DC295B3928615D03006CB7B6 /* NavHolder.swift */,
 			);
@@ -1890,6 +1892,7 @@
 		B0C171CC264C171D00E4BA5C /* Modifiers */ = {
 			isa = PBXGroup;
 			children = (
+				EF4B41BA2864491B003911F6 /* TangemSkeletonModifier.swift */,
 				B0C171CD264C173400E4BA5C /* CameraAccessDeniedModifier.swift */,
 				B0606E112684A946004004ED /* BlinkingModifier.swift */,
 				B0FAD01126BAF35C00F45E88 /* FrameSizeModifier.swift */,
@@ -2962,7 +2965,6 @@
 				B00D7150258A1B6C00A9442C /* JsonUtils.swift in Sources */,
 				5DFE855724EF051400194106 /* Error+.swift in Sources */,
 				DC66BC02285B537A00CDF765 /* WalletOnboardingRoutable.swift in Sources */,
-				65B436022844FDE700DEAE1B /* TangemSkeletonModifier.swift in Sources */,
 				B09BB860259A075600B92000 /* ButtonStyles.swift in Sources */,
 				DC0A57E42822A5D00031BECC /* TangemSdkProvider.swift in Sources */,
 				B09BB863259A075600B92000 /* NavigationConfigurator.swift in Sources */,
@@ -3063,6 +3065,7 @@
 				EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */,
 				DC295B5D2862E6DE006CB7B6 /* BackUpWarningView.swift in Sources */,
 				DC66BC10285C405C00CDF765 /* CoordinatorObject.swift in Sources */,
+				EF4B41BB2864491B003911F6 /* TangemSkeletonModifier.swift in Sources */,
 				B020FFBE25DE895E00EF422C /* Logger.swift in Sources */,
 				B026178D26FCAB7900B5107F /* FanStackCalculator.swift in Sources */,
 				5DFCCB7624C381A70014A293 /* SendViewModel.swift in Sources */,
@@ -3265,6 +3268,7 @@
 				B0541DBE26FB30060043893E /* WalletOnboardingViewModel.swift in Sources */,
 				5DFCCB7124C372980014A293 /* MainViewModel.swift in Sources */,
 				5DFCCB7824C389740014A293 /* CardViewModel.swift in Sources */,
+				EF4B41BD28644982003911F6 /* SkeletonView.swift in Sources */,
 				B05B85A92589F0CF008A4452 /* AppFeature.swift in Sources */,
 				B020A51726F1DD9E00D38596 /* OnboardingTopupViewModel.swift in Sources */,
 				5D9DCB0C255199AA0059799C /* SecurityManagementViewModel.swift in Sources */,
