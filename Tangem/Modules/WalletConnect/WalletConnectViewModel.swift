@@ -21,7 +21,7 @@ class WalletConnectViewModel: ObservableObject {
     
     var canCreateWC: Bool {
         cardModel.cardInfo.card.wallets.contains(where: { $0.curve == .secp256k1 })
-        && (cardModel.wallets?.contains(where: { $0.blockchain == .ethereum(testnet: false) || $0.blockchain == .ethereum(testnet: true) }) ?? false)
+            && (cardModel.wallets?.contains(where: { $0.blockchain == .ethereum(testnet: false) || $0.blockchain == .ethereum(testnet: true) }) ?? false)
     }
     
     private var hasWCInPasteboard: Bool {
@@ -108,7 +108,7 @@ class WalletConnectViewModel: ObservableObject {
         
         scannedQRCode
             .compactMap { $0 }
-            .sink {[unowned self] qrCodeString in
+            .sink { [unowned self] qrCodeString in
                 if !self.walletConnectProvider.service.handle(url: qrCodeString) {
                     self.alert = WalletConnectServiceError.failedToConnect.alertBinder
                 }
@@ -117,17 +117,17 @@ class WalletConnectViewModel: ObservableObject {
     }
 }
 
-//MARK: - Navigation
+// MARK: - Navigation
 extension WalletConnectViewModel {
     func openQRScanner() {
         if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
             showCameraDeniedAlert = true
         } else {
             let binding = Binding<String>(
-                get:{ [weak self] in
+                get: { [weak self] in
                     self?.scannedQRCode.value ?? ""
                 },
-                set:{ [weak self] in
+                set: { [weak self] in
                     self?.scannedQRCode.send($0)
                 })
             
