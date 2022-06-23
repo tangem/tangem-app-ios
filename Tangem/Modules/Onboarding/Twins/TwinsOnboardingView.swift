@@ -52,21 +52,21 @@ struct TwinsOnboardingView: View {
                         NavigationBar(title: "twins_onboarding_title",
                                       settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear),
                                       leftItems: {
-                                        BackButton(height: viewModel.navbarSize.height,
-                                                   isVisible: viewModel.isBackButtonVisible,
-                                                   isEnabled: viewModel.isBackButtonEnabled) {
-                                            viewModel.backButtonAction()
-                                        }
+                                          BackButton(height: viewModel.navbarSize.height,
+                                                     isVisible: viewModel.isBackButtonVisible,
+                                                     isEnabled: viewModel.isBackButtonEnabled) {
+                                              viewModel.backButtonAction()
+                                          }
                                       },
                                       rightItems: {
                                           Button("common_cancel", action: viewModel.backButtonAction)
-                                            .disabled(!viewModel.isFromMain)
-                                            .padding(.horizontal, 16)
-                                            .opacity(viewModel.isFromMain ? 1.0 : 0.0)
+                                              .disabled(!viewModel.isFromMain)
+                                              .padding(.horizontal, 16)
+                                              .opacity(viewModel.isFromMain ? 1.0 : 0.0)
 
                                       })
-                            .offset(x: 0, y: -geom.size.height / 2 + (isNavbarVisible ? viewModel.navbarSize.height / 2 : 0))
-                            .opacity(isNavbarVisible ? 1.0 : 0.0)
+                                      .offset(x: 0, y: -geom.size.height / 2 + (isNavbarVisible ? viewModel.navbarSize.height / 2 : 0))
+                                      .opacity(isNavbarVisible ? 1.0 : 0.0)
                         
                         ProgressBar(height: 5, currentProgress: viewModel.currentProgress)
                             .offset(x: 0, y: -size.height / 2 + viewModel.navbarSize.height + 10)
@@ -113,7 +113,7 @@ struct TwinsOnboardingView: View {
                     viewModel.setupContainer(with: size)
                 }
                 
-                //alert
+                // alert
                 
                 OnboardingTextButtonView(
                     title: viewModel.title,
@@ -136,7 +136,7 @@ struct TwinsOnboardingView: View {
         .background(
             TwinIntroBackgroundView(size: CGSize(width: screenSize.height * 1.2 * 1.2,
                                                  height: screenSize.height * 1.2))
-                .offset(x: -screenSize.width/2, y: -screenSize.height/2)
+                .offset(x: -screenSize.width / 2, y: -screenSize.height / 2)
                 .opacity(currentStep.isBackgroundVisible ? 1 : 0)
         )
         .alert(item: $viewModel.alert, content: { binder in
