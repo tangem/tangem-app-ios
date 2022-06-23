@@ -61,9 +61,9 @@ class DetailsViewModel: ObservableObject {
             return false
         }
         
-        //todo: respect involved cards
+        // todo: respect involved cards
         
-       return cardModel.cardInfo.card.backupStatus == .noBackup
+        return cardModel.cardInfo.card.backupStatus == .noBackup
     }
     
     var shouldShowWC: Bool {
@@ -91,7 +91,7 @@ class DetailsViewModel: ObservableObject {
     }
     
     var cardTouURL: URL? {
-        guard cardModel.isStart2CoinCard else { //is this card is S2C
+        guard cardModel.isStart2CoinCard else { // is this card is S2C
             return nil
         }
         
@@ -153,53 +153,53 @@ class DetailsViewModel: ObservableObject {
     func prepareTwinOnboarding() {
         onboardingStepsSetupService.twinRecreationSteps(for: cardModel.cardInfo)
             .sink { completion in
-            switch completion {
-            case .failure(let error):
-                Analytics.log(error: error)
-                print("Failed to load image for new card")
-                self.error = error.alertBinder
-            case .finished:
-                break
+                switch completion {
+                case .failure(let error):
+                    Analytics.log(error: error)
+                    print("Failed to load image for new card")
+                    self.error = error.alertBinder
+                case .finished:
+                    break
+                }
+            } receiveValue: { [weak self] steps in
+                guard let self = self else { return }
+            
+                let input = OnboardingInput(steps: steps,
+                                            cardInput: .cardModel(self.cardModel),
+                                            cardsPosition: nil,
+                                            welcomeStep: nil,
+                                            currentStepIndex: 0,
+                                            isStandalone: true)
+            
+                self.openOnboarding(with: input)
             }
-        } receiveValue: { [weak self] steps in
-            guard let self = self else { return }
-            
-            let input = OnboardingInput(steps: steps,
-                                        cardInput: .cardModel(self.cardModel),
-                                        cardsPosition: nil,
-                                        welcomeStep: nil,
-                                        currentStepIndex: 0,
-                                        isStandalone: true)
-            
-            self.openOnboarding(with: input)
-        }
-        .store(in: &bag)
+            .store(in: &bag)
     }
     
     func prepareBackup() {
         onboardingStepsSetupService.backupSteps(cardModel.cardInfo)
             .sink { completion in
-            switch completion {
-            case .failure(let error):
-                Analytics.log(error: error)
-                print("Failed to load image for new card")
-                self.error = error.alertBinder
-            case .finished:
-                break
+                switch completion {
+                case .failure(let error):
+                    Analytics.log(error: error)
+                    print("Failed to load image for new card")
+                    self.error = error.alertBinder
+                case .finished:
+                    break
+                }
+            } receiveValue: { [weak self] steps in
+                guard let self = self else { return }
+            
+                let input = OnboardingInput(steps: steps,
+                                            cardInput: .cardModel(self.cardModel),
+                                            cardsPosition: nil,
+                                            welcomeStep: nil,
+                                            currentStepIndex: 0,
+                                            isStandalone: true)
+            
+                self.openOnboarding(with: input)
             }
-        } receiveValue: { [weak self] steps in
-            guard let self = self else { return }
-            
-            let input = OnboardingInput(steps: steps,
-                                        cardInput: .cardModel(self.cardModel),
-                                        cardsPosition: nil,
-                                        welcomeStep: nil,
-                                        currentStepIndex: 0,
-                                        isStandalone: true)
-            
-            self.openOnboarding(with: input)
-        }
-        .store(in: &bag)
+            .store(in: &bag)
     }
     
     private func bind() {
@@ -212,7 +212,7 @@ class DetailsViewModel: ObservableObject {
     }
     
     private func filename(languageCode: String, regionCode: String) -> String {
-        switch (languageCode,regionCode) {
+        switch (languageCode, regionCode) {
         case ("fr", "ch"):
             return "Start2Coin-fr-ch-tangem.pdf"
         case ("de", "ch"):
@@ -282,7 +282,7 @@ extension DetailsViewModel {
     }
     
     func openResetToFactory() {
-        coordinator.openResetToFactory {[weak self] completion in
+        coordinator.openResetToFactory { [weak self] completion in
             self?.cardModel.resetToFactory(completion: completion)
         }
     }

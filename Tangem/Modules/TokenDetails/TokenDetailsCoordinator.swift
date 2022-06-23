@@ -13,14 +13,14 @@ class TokenDetailsCoordinator: CoordinatorObject {
     var dismissAction: Action
     var popToRootAction: ParamsAction<PopToRootOptions>
     
-    //MARK: - Main view model
+    // MARK: - Main view model
     @Published private(set) var tokenDetailsViewModel: TokenDetailsViewModel? = nil
     
-    //MARK: - Child coordinators
+    // MARK: - Child coordinators
     @Published var sendCoordinator: SendCoordinator? = nil
     @Published var pushTxCoordinator: PushTxCoordinator? = nil
     
-    //MARK: - Child view models
+    // MARK: - Child view models
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
     
@@ -51,10 +51,10 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
                                                        title: "wallet_button_topup".localized,
                                                        addLoadingIndicator: true,
                                                        urlActions: [
-                                                        closeUrl: {[weak self] response in
-                                                            self?.pushedWebViewModel = nil
-                                                            action(response)
-                                                        }])
+                                                           closeUrl: { [weak self] response in
+                                                               self?.pushedWebViewModel = nil
+                                                               action(response)
+                                                           }])
     }
     
     func openSellCrypto(at url: URL, sellRequestUrl: String, action: @escaping (String) -> Void) {

@@ -99,10 +99,10 @@ enum SecurityManagementOption: CaseIterable, Identifiable {
     }
 }
 
-//MARK: - Navigation
+// MARK: - Navigation
 extension SecurityManagementViewModel {
     func openPinChange() {
-        coordinator.openPinChange(with: selectedOption.title) {[weak self] completion in
+        coordinator.openPinChange(with: selectedOption.title) { [weak self] completion in
             guard let self = self else { return }
             
             self.cardViewModel.changeSecOption(self.selectedOption, completion: completion)

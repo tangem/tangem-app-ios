@@ -50,7 +50,7 @@ struct WalletConnectView: View {
                     ActionSheet(title: Text("common_select_action"), message: Text("wallet_connect_clipboard_alert"), buttons: [
                         .default(Text("wallet_connect_paste_from_clipboard"), action: viewModel.pasteFromClipboard),
                         .default(Text("wallet_connect_scan_new_code"), action: viewModel.openQRScanner),
-                        .cancel()
+                        .cancel(),
                     ])
                 })
             
@@ -58,7 +58,7 @@ struct WalletConnectView: View {
             Color.clear.frame(width: 0.5, height: 0.5)
                 .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
             
-            Color.clear .frame(width: 0.5, height: 0.5)
+            Color.clear.frame(width: 0.5, height: 0.5)
                 .alert(item: $viewModel.alert) { $0.alert }
             
         }
