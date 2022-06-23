@@ -10,7 +10,7 @@ import Foundation
 
 struct WalletConnectServiceProvider: WalletConnectServiceProviding {
     private(set) var service: WalletConnectService = .init(cardScanner: WalletConnectCardScanner())
-    
+
     func initialize() {
         service.restore()
     }

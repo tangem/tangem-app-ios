@@ -15,7 +15,7 @@ import SwiftUI
 class TokenListViewModel: ObservableObject {
     @Injected(\.negativeFeedbackDataProvider) var dataCollector: NegativeFeedbackDataProvider
     
-    //I can't use @Published here, because of swiftui redraw perfomance drop
+    // I can't use @Published here, because of swiftui redraw perfomance drop
     var enteredSearchText = CurrentValueSubject<String, Never>("")
     
     @Published var coinViewModels: [CoinViewModel] = []
@@ -95,7 +95,7 @@ class TokenListViewModel: ObservableObject {
             ($0.amountType, $0.getDefaultBlockchainNetwork(for: cardDerivationStyle))
         }
         
-        cardModel.add(items: itemsToAdd) {[weak self] result in
+        cardModel.add(items: itemsToAdd) { [weak self] result in
             self?.isSaving = false
             
             switch result {

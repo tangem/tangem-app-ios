@@ -13,13 +13,13 @@ class AppCoordinator: NSObject, CoordinatorObject {
     var dismissAction: () -> Void = {}
     var popToRootAction: (PopToRootOptions) -> Void = { _ in }
     
-    //MARK: - Injected
+    // MARK: - Injected
     @Injected(\.walletConnectServiceProvider) private var walletConnectServiceProvider: WalletConnectServiceProviding
     
-    //MARK: - Child coordinators
+    // MARK: - Child coordinators
     @Published var welcomeCoordinator: WelcomeCoordinator = .init()
     
-    //MARK: - Private
+    // MARK: - Private
     private let servicesManager: ServicesManager = .init()
     private var deferredIntents: [NSUserActivity] = []
     private var deferredIntentWork: DispatchWorkItem?
@@ -52,7 +52,7 @@ extension AppCoordinator {
     }
 }
 
-//MARK: - UIWindowSceneDelegate
+// MARK: - UIWindowSceneDelegate
 extension AppCoordinator: UIWindowSceneDelegate {
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
         handle(activities: [userActivity])
@@ -66,7 +66,7 @@ extension AppCoordinator: UIWindowSceneDelegate {
             self?.deferredIntents.forEach {
                 switch $0.activityType {
                 case String(describing: ScanTangemCardIntent.self):
-                    //[REDACTED_TODO_COMMENT]
+                    // [REDACTED_TODO_COMMENT]
                     self?.welcomeCoordinator = .init()
                     self?.welcomeCoordinator.start(with: .init(shouldScan: true))
                 default:
@@ -116,12 +116,12 @@ extension AppCoordinator: UIWindowSceneDelegate {
     }
 }
 
-//MARK: - URLHandler
+// MARK: - URLHandler
 extension AppCoordinator: URLHandler {
     @discardableResult func handle(url: String) -> Bool {
         guard url.starts(with: "https://app.tangem.com")
-                || url.starts(with: Constants.tangemDomain + "/ndef")
-                || url.starts(with: Constants.tangemDomain + "/wc") else { return false }
+            || url.starts(with: Constants.tangemDomain + "/ndef")
+            || url.starts(with: Constants.tangemDomain + "/wc") else { return false }
         
         popToRoot()
         return true

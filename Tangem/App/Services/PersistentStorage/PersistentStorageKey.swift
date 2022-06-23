@@ -11,7 +11,7 @@ import Foundation
 enum PersistentStorageKey {
     case cards
     case wallets(cid: String)
-    
+
     var path: String {
         switch self {
         case .cards:

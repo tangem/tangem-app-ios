@@ -11,7 +11,7 @@ import MessageUI
 
 enum EmailSupport {
     case tangem, start2coin
-    
+
     var recipients: [String] {
         switch self {
         case .tangem: return ["support@tangem.com"]
@@ -22,13 +22,13 @@ enum EmailSupport {
 
 struct MailView: UIViewControllerRepresentable {
     let viewModel: MailViewModel
-    
+
     @Environment(\.presentationMode) private var presentation
-    
+
     class Coordinator: NSObject, MFMailComposeViewControllerDelegate {
 
         @Binding var presentation: PresentationMode
-        
+
         let emailType: EmailType
 
         init(presentation: Binding<PresentationMode>, emailType: EmailType) {
@@ -67,7 +67,7 @@ struct MailView: UIViewControllerRepresentable {
         guard MFMailComposeViewController.canSendMail() else {
             return UIHostingController(rootView: MailViewPlaceholder(presentationMode: presentation))
         }
-        
+
         let vc = MFMailComposeViewController()
         vc.mailComposeDelegate = context.coordinator
         vc.setToRecipients(viewModel.support.recipients)
@@ -91,7 +91,7 @@ struct MailView: UIViewControllerRepresentable {
 
 fileprivate struct MailViewPlaceholder: View {
     @Binding var presentationMode: PresentationMode
-    
+
     var body: some View {
         VStack(spacing: 8) {
             HStack {
@@ -115,7 +115,7 @@ fileprivate struct MailViewPlaceholder: View {
 
 struct MailViewPlaceholder_Previews: PreviewProvider {
     @Environment(\.presentationMode) static var presentation
-    
+
     static var previews: some View {
         MailViewPlaceholder(presentationMode: .constant(presentation.wrappedValue))
     }

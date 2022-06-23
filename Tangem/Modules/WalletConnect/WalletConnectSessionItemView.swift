@@ -12,7 +12,7 @@ struct WalletConnectSessionItemView: View {
     var dAppName: String
     var cardId: String
     var disconnectEvent: () -> Void
-    
+
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
@@ -26,7 +26,7 @@ struct WalletConnectSessionItemView: View {
             }
             Spacer()
             TangemButton(title: "common_disconnect", action: disconnectEvent)
-            .buttonStyle(TangemButtonStyle(colorStyle: .gray, layout: .thinHorizontal))
+                .buttonStyle(TangemButtonStyle(colorStyle: .gray, layout: .thinHorizontal))
         }
         .padding(.vertical, 12)
     }

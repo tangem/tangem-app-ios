@@ -12,22 +12,22 @@ class DetailsCoordinator: CoordinatorObject {
     var dismissAction: Action
     var popToRootAction: ParamsAction<PopToRootOptions>
     
-    //MARK: - Main view model
+    // MARK: - Main view model
     @Published private(set) var detailsViewModel: DetailsViewModel? = nil
     
-    //MARK: - Child coordinators
+    // MARK: - Child coordinators
     @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
     @Published var walletConnectCoordinator: WalletConnectCoordinator? = nil
     @Published var secManagementCoordinator: SecurityManagementCoordinator? = nil
     
-    //MARK: - Child view models
+    // MARK: - Child view models
     @Published var currencySelectViewModel: CurrencySelectViewModel? = nil
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
     @Published var mailViewModel: MailViewModel? = nil
     @Published var disclaimerViewModel: DisclaimerViewModel? = nil
     @Published var cardOperationViewModel: CardOperationViewModel? = nil
     
-    //MARK: - Helpers
+    // MARK: - Helpers
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
     
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {

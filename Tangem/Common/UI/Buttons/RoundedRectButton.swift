@@ -10,7 +10,7 @@ import SwiftUI
 
 struct RoundedRectButton: View {
     var action: () -> Void = { }
-    var backgroundColor: Color = .init(red: 224.0/255.0, green: 230.0/255.0, blue: 250.0/255.0, opacity: 1)
+    var backgroundColor: Color = .init(red: 224.0 / 255.0, green: 230.0 / 255.0, blue: 250.0 / 255.0, opacity: 1)
     var systemImageName: String?
     let title: String
     var foregroundColor: Color = .tangemBlue
@@ -28,7 +28,7 @@ struct RoundedRectButton: View {
         }, label: {
             HStack(alignment: .lastTextBaseline, spacing: 6) {
                 if let imageName = systemImageName {
-                    Image(systemName: isVerify ? "checkmark" : imageName )
+                    Image(systemName: isVerify ? "checkmark" : imageName)
                 }
                 Text(title)
                     .lineLimit(1)
@@ -64,8 +64,8 @@ struct RoundedRectButton: View {
 struct RoundedRectButton_Previews: PreviewProvider {
     static var previews: some View {
         VStack(spacing: 8) {
-            RoundedRectButton (systemImageName: "doc.on.clipboard", title: "Копировать", withVerification: true)
-        RoundedRectButton (systemImageName: "square.and.arrow.up", title: "Share")
+            RoundedRectButton(systemImageName: "doc.on.clipboard", title: "Копировать", withVerification: true)
+            RoundedRectButton(systemImageName: "square.and.arrow.up", title: "Share")
         }
     }
 }

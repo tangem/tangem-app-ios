@@ -62,7 +62,7 @@ struct QRScannerView: UIViewRepresentable {
         @Binding var code: String
         @Binding var presentationMode: PresentationMode
         
-        init(code: Binding<String>, presentationMode: Binding<PresentationMode>){
+        init(code: Binding<String>, presentationMode: Binding<PresentationMode>) {
             self._code = code
             self._presentationMode = presentationMode
         }
@@ -114,7 +114,7 @@ class UIQRScannerView: UIView {
         doInitialSetup()
     }
     
-    //MARK: overriding the layerClass to return `AVCaptureVideoPreviewLayer`.
+    // MARK: overriding the layerClass to return `AVCaptureVideoPreviewLayer`.
     override class var layerClass: AnyClass  {
         return AVCaptureVideoPreviewLayer.self
     }
@@ -147,8 +147,8 @@ extension UIQRScannerView {
         if AVCaptureDevice.authorizationStatus(for: .video) == .authorized {
             initVideo()
         } else {
-            AVCaptureDevice.requestAccess(for: .video, completionHandler: {[weak self] (granted: Bool) in
-                DispatchQueue.main.async{
+            AVCaptureDevice.requestAccess(for: .video, completionHandler: { [weak self] (granted: Bool) in
+                DispatchQueue.main.async {
                     if granted {
                         self?.initVideo()
                     } else {
