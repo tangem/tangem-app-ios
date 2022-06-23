@@ -35,7 +35,7 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
         fatalError("Must be overriden by a subclass")
     }
     
-    func sign(data: Data, cardId: String, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<String, Error> {
+    func sign(data: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<String, Error> {
         fatalError("Must be overriden by a subclass")
     }
     
@@ -72,7 +72,6 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
     
     func sign(with wallet: WalletInfo, data: Data, completion: @escaping (Result<String, Error>) -> Void) {
         signerSubscription = sign(data: data,
-                                  cardId: wallet.cid,
                                   walletPublicKey: Wallet.PublicKey(seedKey: wallet.walletPublicKey,
                                                                     derivedKey: wallet.derivedPublicKey,
                                                                     derivationPath: wallet.derivationPath))
