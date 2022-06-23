@@ -43,7 +43,7 @@ class CommonCurrencyRateService: CurrencyRateService {
             .requestPublisher(TangemApiTarget(type: .currencies, card: card))
             .filterSuccessfulStatusCodes()
             .map(CurrenciesResponse.self)
-            .map { $0.currencies.sorted(by: { $0.name < $1.name } ) }
+            .map { $0.currencies.sorted(by: { $0.name < $1.name }) }
             .subscribe(on: DispatchQueue.global())
             .mapError { _ in AppError.serverUnavailable }
             .eraseToAnyPublisher()

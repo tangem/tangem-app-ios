@@ -74,7 +74,7 @@ extension CardImageLoader {
         case byNdefLink(URL)
         
         var baseUrl: String {
-           return "https://raw.githubusercontent.com/tangem/ndef-registry/main/"
+            return "https://raw.githubusercontent.com/tangem/ndef-registry/main/"
         }
         
         var path: String {
@@ -86,7 +86,7 @@ extension CardImageLoader {
             }
         }
         
-        var queryItems: [URLQueryItem]? { return nil}
+        var queryItems: [URLQueryItem]? { return nil }
         
         var method: String {
             switch self {
@@ -97,8 +97,8 @@ extension CardImageLoader {
         
         var body: Data? { nil }
         
-        var headers: [String : String] {
-           ["Content-Type" : "application/json"]
+        var headers: [String: String] {
+            ["Content-Type": "application/json"]
         }
         
         var configuration: URLSessionConfiguration? {
@@ -170,7 +170,7 @@ fileprivate enum ImageError: Error {
     case badNdef
 }
 
-//can't move it out from here due to compile error
+// can't move it out from here due to compile error
 extension Publisher where Output == String {
     func replaceEmptyString(with error: Error) -> AnyPublisher<String, Error> {
         tryMap { string -> String in
