@@ -12,18 +12,18 @@ import BlockchainSdk
 class PushTxCoordinator: CoordinatorObject {
     var dismissAction: Action
     var popToRootAction: ParamsAction<PopToRootOptions>
-    
-    //MARK: - Main view model
+
+    // MARK: - Main view model
     @Published private(set) var pushTxViewModel: PushTxViewModel? = nil
-    
-    //MARK: - Child view models
+
+    // MARK: - Child view models
     @Published var mailViewModel: MailViewModel? = nil
-    
+
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
-    
+
     func start(with options: PushTxCoordinator.Options) {
         pushTxViewModel = PushTxViewModel(transaction: options.tx,
                                           blockchainNetwork: options.blockchainNetwork,
