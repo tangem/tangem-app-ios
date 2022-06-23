@@ -63,7 +63,7 @@ struct CheckmarkSwitch: View {
                         .cornerRadius(radius)
                 }
                 Rectangle()
-                    .foregroundColor( settings.color)
+                    .foregroundColor(settings.color)
                     .cornerRadius(settings.shape.cornerRadius(in: geometry.size))
                     .scaleEffect(.init(width: isChecked.wrappedValue ? 1.0 : 0.0001,
                                        height: isChecked.wrappedValue ? 1.0 : 0.0001))
