@@ -14,10 +14,10 @@ class SendCoordinator: CoordinatorObject {
     var dismissAction: Action
     var popToRootAction: ParamsAction<PopToRootOptions>
     
-    //MARK: - Main view model
+    // MARK: - Main view model
     @Published private(set) var sendViewModel: SendViewModel? = nil
     
-    //MARK: - Child view models
+    // MARK: - Child view models
     @Published var mailViewModel: MailViewModel? = nil
     @Published var qrScanViewModel: QRScanViewModel? = nil
     

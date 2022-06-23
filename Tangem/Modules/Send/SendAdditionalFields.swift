@@ -12,7 +12,7 @@ import BlockchainSdk
 
 enum SendAdditionalFields {
     case memo, destinationTag, none
-    
+
     static func fields(for blockchain: Blockchain) -> SendAdditionalFields {
         switch blockchain {
         case .stellar, .binance:
