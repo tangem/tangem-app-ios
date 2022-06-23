@@ -15,7 +15,7 @@ extension View {
             SkeletonModifier(isShown: isShown, modificationType: .size(size: size), radius: radius)
         )
     }
-    
+
     @ViewBuilder func skeletonable(isShown: Bool, radius: CGFloat = 3) -> some View {
         modifier(
             SkeletonModifier(isShown: isShown, modificationType: .overlay, radius: radius)
@@ -29,13 +29,13 @@ public struct SkeletonModifier: ViewModifier {
     private let isShown: Bool
     private let modificationType: ModificationType
     private let radius: CGFloat
-    
+
     public init(isShown: Bool, modificationType: ModificationType, radius: CGFloat) {
         self.isShown = isShown
         self.modificationType = modificationType
         self.radius = radius
     }
-    
+
     public func body(content: Content) -> some View {
         if isShown {
             switch modificationType {
