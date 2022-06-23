@@ -19,7 +19,7 @@ struct Address {
     let firstName: String?
     let lastName: String?
     let phone: String?
-    
+
     init(_ address: Storefront.MailingAddress) {
         self.addressLine1 = address.address1
         self.addressLine2 = address.address2
@@ -32,7 +32,7 @@ struct Address {
         self.lastName     = address.lastName
         self.phone        = address.phone
     }
-    
+
     init(_ address: PayAddress) {
         self.addressLine1 = address.addressLine1
         self.addressLine2 = address.addressLine2
@@ -45,20 +45,20 @@ struct Address {
         self.lastName     = address.lastName
         self.phone        = address.phone
     }
-    
+
     init(_ address: PayPostalAddress) {
         self.city = address.city
         self.country = address.country
         self.province = address.province
         self.zip = address.zip
-        
+
         self.addressLine1 = nil
         self.addressLine2 = nil
         self.firstName = nil
         self.lastName = nil
         self.phone = nil
     }
-    
+
     init(_ address: CNPostalAddress) {
         self.country = address.country
         self.province = address.state
@@ -66,7 +66,7 @@ struct Address {
         self.addressLine1 = address.street
         self.addressLine2 = address.subLocality
         self.zip = address.postalCode
-        
+
         self.firstName = nil
         self.lastName = nil
         self.phone = nil
@@ -85,7 +85,7 @@ extension Address {
             phone: phone
         )
     }
-    
+
     var mutationInput: Storefront.MailingAddressInput {
         .create(
             address1: .init(orUndefined: addressLine1),

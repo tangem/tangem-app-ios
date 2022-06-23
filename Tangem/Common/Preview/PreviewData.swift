@@ -18,17 +18,17 @@ struct PreviewData {
                         welcomeStep: nil,
                         currentStepIndex: 0)
     }
-    
+
     static var previewTwinOnboardingInput: OnboardingInput {
         .init(steps: .twins([.intro(pairNumber: "0128"),
                              .first, .second, .third,
                              .topup, .done]),
-              cardInput: .cardModel(PreviewCard.twin.cardModel),
-              cardsPosition: nil,
-              welcomeStep: nil,
-              currentStepIndex: 0)
+        cardInput: .cardModel(PreviewCard.twin.cardModel),
+        cardsPosition: nil,
+        welcomeStep: nil,
+        currentStepIndex: 0)
     }
-    
+
     static var previewWalletOnboardingInput: OnboardingInput {
         .init(steps: .wallet([.createWallet, .backupIntro, .selectBackupCards, .backupCards, .success]),
               cardInput: .cardModel(PreviewCard.tangemWalletEmpty.cardModel),

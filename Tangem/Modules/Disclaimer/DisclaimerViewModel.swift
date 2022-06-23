@@ -10,7 +10,7 @@ import Foundation
 
 struct DisclaimerViewModel: Identifiable {
     let id: UUID = .init()
-    
+
     let style: DisclaimerView.Style
     let showAccept: Bool
     var dismissCallback: () -> Void = {}
