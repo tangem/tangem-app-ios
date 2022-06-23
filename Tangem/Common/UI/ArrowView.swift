@@ -80,7 +80,7 @@ fileprivate struct LineShape: Shape {
         path.move(to: startPoint)
         path.addLine(to: bottomPoint)
         path.move(to: startCurvePoint)
-        path.addQuadCurve(to: endCurvePoint, control: CGPoint(x: rect.midX, y:rect.midY))
+        path.addQuadCurve(to: endCurvePoint, control: CGPoint(x: rect.midX, y: rect.midY))
 
         return path.strokedPath(style)
     }
@@ -95,8 +95,8 @@ fileprivate struct TriangleShape: Shape {
         let startPoint = CGPoint(x: rect.maxX + 1, y: rect.midY)
         path.move(to: startPoint)
         
-        path.addLine(to: CGPoint(x: startPoint.x - size, y: startPoint.y - size/2))
-        path.addLine(to: CGPoint(x: startPoint.x - size, y: startPoint.y + size/2))
+        path.addLine(to: CGPoint(x: startPoint.x - size, y: startPoint.y - size / 2))
+        path.addLine(to: CGPoint(x: startPoint.x - size, y: startPoint.y + size / 2))
         path.closeSubpath()
 
         return path
