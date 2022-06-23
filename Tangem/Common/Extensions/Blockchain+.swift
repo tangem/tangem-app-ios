@@ -90,7 +90,7 @@ extension Blockchain {
         return isTestnet ? "\(name)\(Blockchain.testnetId)" : name
     }
 
-    //Init blockchain from id with default params
+    // Init blockchain from id with default params
     init?(from stringId: String) {
         let isTestnet = stringId.contains(Blockchain.testnetId)
         let rawId = stringId.remove(Blockchain.testnetId)

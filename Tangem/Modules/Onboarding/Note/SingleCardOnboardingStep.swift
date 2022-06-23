@@ -118,7 +118,7 @@ extension SingleCardOnboardingStep: OnboardingMessagesProvider {
 //        switch self {
 //        case .success: return successMessagesOffset
 //        default: return .zero
- //       }
+        //       }
     }
 }
 
