@@ -134,7 +134,7 @@ struct RefreshableScrollView<Content: View>: View {
                         ActivityRep()
                         Spacer()
                     }.frame(height: height).fixedSize()
-                    .offset(y: -height + (self.loading && self.frozen ? height : 0.0))
+                        .offset(y: -height + (self.loading && self.frozen ? height : 0.0))
                 } else {
                     Image(systemName: "arrow.down") // If not loading, show the arrow
                         .resizable()
