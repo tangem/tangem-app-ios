@@ -15,7 +15,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     @Injected(\.transactionSigner) private var signer: TangemSigner
     @Injected(\.currencyRateService) private var currencyRateService: CurrencyRateService
     
-    @Published var state: State = .idle
+    @Published var state: State = .created
     @Published var balanceViewModel: BalanceViewModel!
     @Published var tokenItemViewModels: [TokenItemViewModel] = []
     @Published var tokenViewModels: [TokenBalanceViewModel] = []
