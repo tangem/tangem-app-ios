@@ -131,25 +131,25 @@ struct OnboardingTextButtonView_Previews: PreviewProvider {
             subtitle: "Let’s generate all the keys on your card and create a secure wallet",
             textOffset: .init(width: 0, height: -100),
             buttonsSettings:
-                .init(main: TangemButtonSettings(
-                        title: "Create wallet",
-                        size: .wide,
-                        action: {},
-                        isBusy: false,
-                        isEnabled: true,
-                        isVisible: true),
-                      supplement: TangemButtonSettings(
-                        title: "What does it mean?",
-                        size: .wide,
-                        action: {},
-                        isBusy: false,
-                        isEnabled: false,
-                        isVisible: true,
-                        color: .grayAlt,
-                        systemIconName: "plus",
-                        iconPosition: .leading
-                      )
-                ),
+            .init(main: TangemButtonSettings(
+                title: "Create wallet",
+                size: .wide,
+                action: {},
+                isBusy: false,
+                isEnabled: true,
+                isVisible: true),
+            supplement: TangemButtonSettings(
+                title: "What does it mean?",
+                size: .wide,
+                action: {},
+                isBusy: false,
+                isEnabled: false,
+                isVisible: true,
+                color: .grayAlt,
+                systemIconName: "plus",
+                iconPosition: .leading
+            )
+            ),
             titleAction: { },
             checkmarkText: "I understand",
             isCheckmarkChecked: $isChecked
