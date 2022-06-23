@@ -45,7 +45,7 @@ struct CurrenciesStoryPage: View {
                     .background(
                         VStack {
                             Group {
-                                ForEach(0..<numberOfRows) { index in
+                                ForEach(0 ..< numberOfRows) { index in
                                     let odd = (index % 2 == 0)
                                     Image("currency-\(index % numberOfRowImages)")
                                         .offset(x: odd ? 50 : 0, y: 0)
@@ -54,7 +54,7 @@ struct CurrenciesStoryPage: View {
                             }
                             .frame(height: 80)
                         }
-                            .offset(x: 0, y: 30)
+                        .offset(x: 0, y: 30)
                         ,
                         alignment: .top
                     )
@@ -86,6 +86,6 @@ struct CurrenciesStoryPage: View {
 struct CurrenciesStoryPage_Previews: PreviewProvider {
     static var previews: some View {
         CurrenciesStoryPage(progress: .constant(1), isScanning: false) { } orderCard: { } searchTokens: { }
-        .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
+            .previewGroup(devices: [.iPhone7, .iPhone12ProMax], withZoomed: false)
     }
 }
