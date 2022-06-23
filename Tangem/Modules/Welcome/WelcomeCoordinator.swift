@@ -13,32 +13,32 @@ class WelcomeCoordinator: CoordinatorObject {
     var dismissAction: Action
     var popToRootAction: ParamsAction<PopToRootOptions>
     
-    //MARK: - Main view model
+    // MARK: - Main view model
     @Published private(set) var welcomeViewModel: WelcomeViewModel? = nil
     
-    //MARK: - Child coordinators
+    // MARK: - Child coordinators
     @Published var mainCoordinator: MainCoordinator? = nil
     @Published var pushedOnboardingCoordinator: OnboardingCoordinator? = nil
     @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
     @Published var shopCoordinator: ShopCoordinator? = nil
     @Published var tokenListCoordinator: TokenListCoordinator? = nil
     
-    //MARK: - Child view models
+    // MARK: - Child view models
     @Published var mailViewModel: MailViewModel? = nil
     @Published var disclaimerViewModel: DisclaimerViewModel? = nil
     
-    //MARK: - Helpers
+    // MARK: - Helpers
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
     // Fix ios13 navbar glitches
     @Published private(set) var navBarHidden: Bool = true
     
-    //MARK: - Private
+    // MARK: - Private
     private var welcomeLifecycleSubscription: AnyCancellable? = nil
     
     private var lifecyclePublisher: AnyPublisher<Bool, Never> {
         let p1 = $mailViewModel.dropFirst().map { $0 == nil }
         let p2 = $disclaimerViewModel.dropFirst().map { $0 == nil }
-        let p3 = $shopCoordinator.dropFirst().map { $0 == nil}
+        let p3 = $shopCoordinator.dropFirst().map { $0 == nil }
         let p4 = $modalOnboardingCoordinator.dropFirst().map { $0 == nil }
         let p5 = $tokenListCoordinator.dropFirst().map { $0 == nil }
         let p6 = $mailViewModel.dropFirst().map { $0 == nil }
@@ -64,7 +64,7 @@ class WelcomeCoordinator: CoordinatorObject {
     
     private func subscribeToWelcomeLifecycle() {
         welcomeLifecycleSubscription = lifecyclePublisher
-            .sink {[unowned self] viewDismissed in
+            .sink { [unowned self] viewDismissed in
                 if viewDismissed {
                     self.welcomeViewModel?.becomeActive()
                 } else {
@@ -82,7 +82,7 @@ extension WelcomeCoordinator {
 
 extension WelcomeCoordinator: WelcomeRoutable {
     func openOnboardingModal(with input: OnboardingInput) {
-        let dismissAction: Action = {[weak self] in
+        let dismissAction: Action = { [weak self] in
             self?.modalOnboardingCoordinator = nil
         }
         
@@ -93,7 +93,7 @@ extension WelcomeCoordinator: WelcomeRoutable {
     }
     
     func openOnboarding(with input: OnboardingInput) {
-        let dismissAction: Action = {[weak self] in
+        let dismissAction: Action = { [weak self] in
             if let card = input.cardInput.cardModel {
                 self?.openMain(with: card)
             }
@@ -107,7 +107,7 @@ extension WelcomeCoordinator: WelcomeRoutable {
     
     func openMain(with cardModel: CardViewModel) {
         navBarHidden = false
-        let popToRootAction: ParamsAction<PopToRootOptions> = {[weak self] options in
+        let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
             self?.navBarHidden = true
             self?.mainCoordinator = nil
             
