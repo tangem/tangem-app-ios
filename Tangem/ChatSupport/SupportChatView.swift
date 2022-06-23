@@ -16,8 +16,6 @@ import SwiftUI
 
 struct SupportChatView: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> some UIViewController {
-        let ident = Identity.createAnonymous()
-        Zendesk.instance?.setIdentity(ident)
         do {
             return try UINavigationController(rootViewController: buildUI())
         } catch {
@@ -28,6 +26,8 @@ struct SupportChatView: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) { }
     
     func buildUI() throws -> UIViewController {
+        let ident = Identity.createAnonymous()
+        Zendesk.instance?.setIdentity(ident)
         let messagingConfiguration = MessagingConfiguration()
         messagingConfiguration.name = "Tangem"
         let supportEngine = try SupportEngine.engine()
