@@ -10,7 +10,6 @@ import Foundation
 import ZendeskCoreSDK
 import SupportSDK
 import SwiftUI
-import ChatProvidersSDK
 import AnswerBotProvidersSDK
 
 class SupportChatViewModel {
@@ -21,18 +20,11 @@ class SupportChatViewModel {
                            clientId: keysManager.zendesk.zendeskClientId,
                            zendeskUrl: keysManager.zendesk.zendeskUrl)
         Support.initialize(withZendesk: Zendesk.instance)
-        AnswerBot.initialize(withZendesk: Zendesk.instance, support: Support.instance!)
-        let accountKey = Zendesk.instance?.accountDetails.accountUrl ?? ""
-        Chat.initialize(accountKey: accountKey)
-        if Chat.instance?.hasIdentity ?? false {
-            print("identity")
-        } else {
-            print("no identity")
-        }
+        Zendesk.instance!.setIdentity(Identity.createAnonymous())
     }
     
     func openChat() -> some View {
         return SupportChatView()
-            .edgesIgnoringSafeArea([.bottom, .top])
+            .edgesIgnoringSafeArea(.vertical)
     }
 }
