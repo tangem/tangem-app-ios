@@ -23,7 +23,6 @@ import Intents
 class CommonCardsRepository: CardsRepository {
     @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
     @Injected(\.scannedCardsRepository) private var scannedCardsRepository: ScannedCardsRepository
-    @Injected(\.assemblyProvider) private var assemblyProvider: AssemblyProviding
     
     var lastScanResult: ScanResult = .notScannedYet
     var didScanPublisher: PassthroughSubject<CardInfo, Never> = .init()
@@ -77,7 +76,7 @@ class CommonCardsRepository: CardsRepository {
         sdkProvider.didScan(cardInfo.card)
         didScanPublisher.send(cardInfo)
         
-        let cm = assemblyProvider.assembly.makeCardModel(from: cardInfo)
+        let cm = CardViewModel(cardInfo: cardInfo)
         let result: ScanResult = .card(model: cm)
         cards[cardInfo.card.cardId] = result
         lastScanResult = result
