@@ -88,7 +88,7 @@ struct BalanceView: View {
             
             
             HStack(alignment: .firstTextBaseline, spacing: 5.0) {
-                Image(systemName: balanceViewModel.state.errorDescription == nil && !balanceViewModel.hasTransactionInProgress ? "checkmark.circle" : "exclamationmark.circle" )
+                Image(systemName: balanceViewModel.state.errorDescription == nil && !balanceViewModel.hasTransactionInProgress ? "checkmark.circle" : "exclamationmark.circle")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .foregroundColor(accentColor)
@@ -163,7 +163,7 @@ struct BalanceView_Previews: PreviewProvider {
     static let tokens = [
         TokenBalanceViewModel(token: Token(name: "SushiSwap", symbol: "SUSHI", contractAddress: "", decimalCount: 18),
                               balance: "163.7425436",
-                              fiatBalance: "$ 2241.31")
+                              fiatBalance: "$ 2241.31"),
     ]
     
     static var previews: some View {
