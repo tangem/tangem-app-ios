@@ -328,13 +328,13 @@ extension WalletConnectService: ServerDelegate {
                 }
                 
                 self.presentOnTop(WalletConnectUIBuilder.makeAlert(for: .establishSession,
-                                                              message: message,
-                                                              onAcceptAction: onAccept,
-                                                              onReject: {
-                                                                completion(self.rejectedResponse)
-                                                                self.isServiceBusy.send(false)
-                                                              }),
-                             delay: 0.5)
+                                                                   message: message,
+                                                                   onAcceptAction: onAccept,
+                                                                   onReject: {
+                                                                       completion(self.rejectedResponse)
+                                                                       self.isServiceBusy.send(false)
+                                                                   }),
+                                  delay: 0.5)
             }
             .store(in: &bag)
     }
@@ -343,10 +343,10 @@ extension WalletConnectService: ServerDelegate {
         updateQueue.async { [weak self] in
             guard let self = self else { return }
             
-            if let sessionIndex = self.sessions.firstIndex(where: { $0.session == session }) { //reconnect
+            if let sessionIndex = self.sessions.firstIndex(where: { $0.session == session }) { // reconnect
                 self.sessions[sessionIndex].status = .connected
             } else {
-                if let wallet = self.wallet { //new session only if wallet exists
+                if let wallet = self.wallet { // new session only if wallet exists
                     self.sessions.append(WalletConnectSession(wallet: wallet, session: session, status: .connected))
                     self.save()
                     Analytics.logWcEvent(.session(.connect, session.dAppInfo.peerMeta.url))
@@ -369,7 +369,7 @@ extension WalletConnectService: ServerDelegate {
     }
     
     func server(_ server: Server, didUpdate session: Session) {
-        //todo: handle?
+        // todo: handle?
     }
 }
 
@@ -408,7 +408,7 @@ extension WalletConnectService: URLHandler {
         else { return nil }
         
         guard query.starts(with: uriPrefix + wcPrefix) ||
-                ((Bundle.main.infoDictionary?["CFBundleURLTypes"] as? [[String:Any]])?.map { $0["CFBundleURLSchemes"] as? [String] }.contains(where: { $0?.contains(scheme) ?? false }) ?? false)
+            ((Bundle.main.infoDictionary?["CFBundleURLTypes"] as? [[String: Any]])?.map { $0["CFBundleURLSchemes"] as? [String] }.contains(where: { $0?.contains(scheme) ?? false }) ?? false)
         else { return nil }
         
         query.removeFirst(uriPrefix.count)
