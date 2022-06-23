@@ -115,10 +115,10 @@ class BnbSignHandler: WalletConnectSignHandler {
         
     }
     
-    override func sign(data: Data, cardId: String, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<String, Error> {
+    override func sign(data: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<String, Error> {
         let hash = data.sha256()
         
-        return signer.sign(hash: hash, cardId: cardId, walletPublicKey: walletPublicKey)
+        return signer.sign(hash: hash, walletPublicKey: walletPublicKey)
             .tryMap { $0.hexString }
             .eraseToAnyPublisher()
     }
