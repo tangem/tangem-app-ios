@@ -28,7 +28,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     
     override var subtitle: LocalizedStringKey {
         if currentStep == .topup, cardModel!.cardInfo.walletData?.blockchain.lowercased() == "xrp" {
-             return "onboarding_topup_subtitle_xrp"
+            return "onboarding_topup_subtitle_xrp"
         } else {
             return super.subtitle
         }
@@ -213,7 +213,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             }
             fallthrough
         case .success:
-           fireConfetti()
+            fireConfetti()
         default:
             break
         }
@@ -226,11 +226,11 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             self.stepsSetupService.steps(for: previewModel.cardInfo)
                 .sink { _ in }
                     receiveValue: { [weak self] steps in
-                        if case let .singleWallet(singleSteps) = steps {
-                            self?.steps = singleSteps
-                        }
-                        self?.goToNextStep()
-                        self?.isMainButtonBusy = false
+                    if case let .singleWallet(singleSteps) = steps {
+                        self?.steps = singleSteps
+                    }
+                    self?.goToNextStep()
+                    self?.isMainButtonBusy = false
                 }
                 .store(in: &self.bag)
 
