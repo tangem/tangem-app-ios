@@ -33,7 +33,7 @@ struct AddCustomTokenView: View {
                     }
                 }
                 
-                WarningListView(warnings: viewModel.warningContainer, warningButtonAction: { _,_,_ in })
+                WarningListView(warnings: viewModel.warningContainer, warningButtonAction: { _, _, _ in })
                 
                 TangemButton(title: "custom_token_add_token", systemImage: "plus", action: viewModel.createToken)
                     .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth, isDisabled: viewModel.addButtonDisabled, isLoading: viewModel.isLoading))
@@ -45,7 +45,7 @@ struct AddCustomTokenView: View {
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDisappear)
         .alert(item: $viewModel.error, content: { $0.alert })
-        .navigationBarTitle("add_custom_token_title", displayMode: .inline) //fix ios14 navbar overlap
+        .navigationBarTitle("add_custom_token_title", displayMode: .inline) // fix ios14 navbar overlap
     }
 }
 
