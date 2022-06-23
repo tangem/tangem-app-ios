@@ -11,9 +11,9 @@ import SwiftUI
 struct StoriesBottomButtons: View {
     let scanColorStyle: ButtonColorStyle
     let orderColorStyle: ButtonColorStyle
-    
+
     let isScanning: Bool
-    
+
     let scanCard: (() -> Void)
     let orderCard: (() -> Void)
 
