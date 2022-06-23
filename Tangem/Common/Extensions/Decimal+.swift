@@ -18,10 +18,10 @@ extension Decimal {
         if code == "RUB" {
             formatter.currencySymbol = "₽"
         }
-        //formatter.roundingMode = .down
+        // formatter.roundingMode = .down
         return formatter.string(from: self as NSDecimalNumber) ?? "\(self) \(code)"
     }
-    
+
     func decimalSeparator() -> String {
         let formatter = NumberFormatter()
         formatter.locale = Locale.current

@@ -17,8 +17,8 @@ struct SendView: View {
     
     private var addressHint: String {
         viewModel.isPayIdSupported ?
-        "send_destination_hint".localized :
-        "send_destination_hint_address".localized
+            "send_destination_hint".localized :
+            "send_destination_hint_address".localized
     }
     
     var body: some View {
@@ -27,7 +27,7 @@ struct SendView: View {
                 VStack(spacing: 0.0) {
                     HStack {
                         Text("send_title_currency_format".localized(viewModel.amountToSend.currencySymbol))
-                            .font(Font.system(size: 30.0, weight: .bold, design: .default) )
+                            .font(Font.system(size: 30.0, weight: .bold, design: .default))
                             .foregroundColor(Color.tangemGrayDark6)
                         Spacer()
                     }
@@ -35,29 +35,29 @@ struct SendView: View {
                     TextInputField(placeholder: self.addressHint,
                                    text: self.$viewModel.destination,
                                    suplementView: {
-                        if !viewModel.isSellingCrypto {
-                            CircleActionButton(action: {self.viewModel.pasteClipboardTapped() },
+                                       if !viewModel.isSellingCrypto {
+                                           CircleActionButton(action: { self.viewModel.pasteClipboardTapped() },
+                                                              backgroundColor: .tangemBgGray,
+                                                              imageName: self.viewModel.validatedClipboard == nil ? "doc.on.clipboard" : "doc.on.clipboard.fill",
+                                                              isSystemImage: true,
+                                                              imageColor: .tangemGrayDark6,
+                                                              isDisabled: self.viewModel.validatedClipboard == nil)
+                                               .accessibility(label: Text(self.viewModel.validatedClipboard == nil ? "voice_over_nothing_to_paste" : "voice_over_paste_from_clipboard"))
+                                               .disabled(self.viewModel.validatedClipboard == nil)
+                                           CircleActionButton(
+                                               action: viewModel.openQRScanner,
                                                backgroundColor: .tangemBgGray,
-                                               imageName: self.viewModel.validatedClipboard == nil ? "doc.on.clipboard" : "doc.on.clipboard.fill",
+                                               imageName: "qrcode.viewfinder",
                                                isSystemImage: true,
-                                               imageColor: .tangemGrayDark6,
-                                               isDisabled: self.viewModel.validatedClipboard == nil)
-                            .accessibility(label: Text(self.viewModel.validatedClipboard == nil ? "voice_over_nothing_to_paste" : "voice_over_paste_from_clipboard"))
-                            .disabled(self.viewModel.validatedClipboard == nil)
-                            CircleActionButton(
-                                action: viewModel.openQRScanner,
-                                backgroundColor: .tangemBgGray,
-                                imageName: "qrcode.viewfinder",
-                                isSystemImage: true,
-                                imageColor: .tangemGrayDark6
-                            )
-                            .accessibility(label: Text("voice_over_scan_qr_with_address"))
-                            .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
-                        }
-                    },
-                                   message: self.viewModel.destinationHint?.message ?? " " ,
+                                               imageColor: .tangemGrayDark6
+                                           )
+                                           .accessibility(label: Text("voice_over_scan_qr_with_address"))
+                                           .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
+                                       }
+                                   },
+                                   message: self.viewModel.destinationHint?.message ?? " ",
                                    isErrorMessage: self.viewModel.destinationHint?.isError ?? false)
-                    .disabled(viewModel.isSellingCrypto)
+                        .disabled(viewModel.isSellingCrypto)
                     
                     if viewModel.isAdditionalInputEnabled {
                         if case .memo = viewModel.additionalInputFields {
@@ -67,7 +67,7 @@ struct SendView: View {
                                            clearButtonMode: .whileEditing,
                                            message: self.viewModel.memoHint?.message ?? "",
                                            isErrorMessage: self.viewModel.memoHint?.isError ?? false)
-                            .transition(.opacity)
+                                .transition(.opacity)
                         }
                         
                         if case .destinationTag = viewModel.additionalInputFields {
@@ -77,7 +77,7 @@ struct SendView: View {
                                            clearButtonMode: .whileEditing,
                                            message: self.viewModel.destinationTagHint?.message ?? "",
                                            isErrorMessage: self.viewModel.destinationTagHint?.isError ?? false)
-                            .transition(.opacity)
+                                .transition(.opacity)
                         }
                     }
                     
@@ -94,7 +94,7 @@ struct SendView: View {
                                             font: UIFont.systemFont(ofSize: 38.0, weight: .light),
                                             placeholder: "",
                                             decimalCount: self.viewModel.inputDecimalsCount)
-                            .disabled(viewModel.isSellingCrypto)
+                                .disabled(viewModel.isSellingCrypto)
                             Button(action: {
                                 if !viewModel.isSellingCrypto {
                                     self.viewModel.isFiatCalculation.toggle()
@@ -103,7 +103,7 @@ struct SendView: View {
                                 Text(self.viewModel.currencyUnit)
                                     .font(Font.system(size: 38.0, weight: .light, design: .default))
                                     .foregroundColor(!viewModel.isSellingCrypto ?
-                                                     Color.tangemBlue : Color.tangemGrayDark6.opacity(0.5))
+                                        Color.tangemBlue : Color.tangemGrayDark6.opacity(0.5))
                                 if !viewModel.isSellingCrypto {
                                     Image(systemName: "arrow.up.arrow.down")
                                         .font(Font.system(size: 17.0, weight: .regular, design: .default))
@@ -116,10 +116,10 @@ struct SendView: View {
                         .padding(.top, 25.0)
                         Separator()
                         HStack {
-                            Text(self.viewModel.amountHint?.message ?? " " )
+                            Text(self.viewModel.amountHint?.message ?? " ")
                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
-                                .foregroundColor((self.viewModel.amountHint?.isError ?? false ) ?
-                                                 Color.red : Color.tangemGrayDark)
+                                .foregroundColor((self.viewModel.amountHint?.isError ?? false) ?
+                                    Color.red : Color.tangemGrayDark)
                             Spacer()
                             Text(self.viewModel.walletTotalBalanceFormatted)
                                 .font(Font.system(size: 13.0, weight: .medium, design: .default))
@@ -174,8 +174,8 @@ struct SendView: View {
                     
                     Spacer()
                     
-                    VStack (spacing: 8.0) {
-                        HStack{
+                    VStack(spacing: 8.0) {
+                        HStack {
                             Text("send_amount_label")
                                 .font(Font.system(size: 14.0, weight: .medium, design: .default))
                                 .foregroundColor(Color.tangemGrayDark6)
@@ -185,7 +185,7 @@ struct SendView: View {
                                 .fixedSize(horizontal: false, vertical: true)
                                 .foregroundColor(Color.tangemGrayDark6)
                         }
-                        HStack{
+                        HStack {
                             Text("send_fee_label")
                                 .font(Font.system(size: 14.0, weight: .medium, design: .default))
                                 .foregroundColor(Color.tangemGrayDark)
@@ -203,7 +203,7 @@ struct SendView: View {
                         Color.tangemGrayLight5
                             .frame(width: nil, height: 1.0, alignment: .center)
                             .padding(.vertical, 8.0)
-                        HStack{
+                        HStack {
                             Text("send_total_label")
                                 .font(Font.system(size: 20.0, weight: .bold, design: .default))
                                 .foregroundColor(Color.tangemGrayDark6)
@@ -217,7 +217,7 @@ struct SendView: View {
                             
                         }
                         if !viewModel.isSellingCrypto {
-                            HStack{
+                            HStack {
                                 Spacer()
                                 Text(self.viewModel.sendTotalSubtitle)
                                     .font(Font.system(size: 14.0, weight: .bold, design: .default))
@@ -277,10 +277,10 @@ struct ExtractView_Previews: PreviewProvider {
                                                            type: .token(value: Token(name: "DAI", symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18)),
                                                            value: 0.0),
                                       destination: "Target",
-                                      blockchainNetwork: PreviewCard.ethereum.blockchainNetwork! ,
+                                      blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
                                       cardViewModel: PreviewCard.ethereum.cardModel,
                                       coordinator: SendCoordinator()))
-            .previewLayout(.iphone7Zoomed)
+                .previewLayout(.iphone7Zoomed)
             
             SendView(viewModel: .init(amountToSend: Amount(with: PreviewCard.ethereum.blockchain!,
                                                            type: .token(value: Token(name: "DAI", symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18)),
@@ -288,7 +288,7 @@ struct ExtractView_Previews: PreviewProvider {
                                       blockchainNetwork: PreviewCard.ethereum.blockchainNetwork!,
                                       cardViewModel: PreviewCard.ethereum.cardModel,
                                       coordinator: SendCoordinator()))
-            .previewLayout(.iphone7Zoomed)
+                .previewLayout(.iphone7Zoomed)
         }
     }
 }

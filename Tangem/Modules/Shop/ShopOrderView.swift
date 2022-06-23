@@ -10,7 +10,7 @@ import SwiftUI
 
 struct ShopOrderView: View {
     let order: Order
-    
+
     var body: some View {
         VStack {
             SheetDragHandler()

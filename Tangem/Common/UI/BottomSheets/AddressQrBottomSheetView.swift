@@ -36,18 +36,18 @@ struct AddressQrBottomSheetContent: View {
                 .foregroundColor(.tangemGrayDark)
             HStack(spacing: 10) {
                 Button(action: {
-                        showCheckmark = true
+                    showCheckmark = true
                     UIPasteboard.general.string = viewModel.address
                     
                     let notificationGenerator = UINotificationFeedbackGenerator()
                     notificationGenerator.notificationOccurred(.success)
                     
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                            showCheckmark = false
+                        showCheckmark = false
                     }
                     
                 }, label: {
-                    HStack{
+                    HStack {
                         Text(viewModel.address)
                             .lineLimit(1)
                             .truncationMode(.middle)
@@ -56,11 +56,11 @@ struct AddressQrBottomSheetContent: View {
                             .foregroundColor(.tangemGrayDark6)
                         
                         Group {
-                        showCheckmark ?
-                            Image(systemName: "checkmark")
-                            .id("1")
-                            : Image(systemName: "doc.on.clipboard")
-                            .id("2")
+                            showCheckmark ?
+                                Image(systemName: "checkmark")
+                                .id("1")
+                                : Image(systemName: "doc.on.clipboard")
+                                .id("2")
                         }
                         .frame(width: 18, height: 18)
                         .foregroundColor(.tangemGreen)

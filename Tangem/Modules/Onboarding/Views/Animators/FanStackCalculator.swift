@@ -52,7 +52,7 @@ struct FanStackCalculator {
     
     mutating private func populateSettings() {
         cardsSettings = []
-        for i in 0..<settings.numberOfCards {
+        for i in 0 ..< settings.numberOfCards {
             cardsSettings.append(cardInStackSettings(at: i))
         }
     }
