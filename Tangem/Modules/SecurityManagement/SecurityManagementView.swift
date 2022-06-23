@@ -14,7 +14,7 @@ struct SecurityManagementRowView: View {
     @Binding var selectedOption: SecurityManagementOption
     let option: SecurityManagementOption
     
-    @EnvironmentObject var cardViewModel: CardViewModel //[REDACTED_TODO_COMMENT]
+    @EnvironmentObject var cardViewModel: CardViewModel // [REDACTED_TODO_COMMENT]
     
     var isEnabled: Bool {
         switch option {
@@ -30,8 +30,8 @@ struct SecurityManagementRowView: View {
     var isSelected: Bool { selectedOption == option }
     
     var body: some View {
-        VStack (alignment: .leading, spacing: 0) {
-            HStack (alignment: .lastTextBaseline) {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .lastTextBaseline) {
                 Text(option.title)
                     .font(Font.system(size: 16.0, weight: .regular, design: .default))
                     .foregroundColor(.tangemGrayDark6)
