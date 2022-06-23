@@ -11,12 +11,11 @@ import SwiftUI
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private var userPrefs = UserPrefsService()
-    
+    private let mainViewModel: MainViewModel = .init()
     var window: UIWindow?
-    let assembly = Assembly()
     
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        let contentView = MainView(viewModel: assembly.getMainViewModel())
+        let contentView = MainView(viewModel: mainViewModel)
 
         handle(connectionOptions.userActivities.first, in: scene)
         // Use a UIHostingController as window root view controller.
@@ -49,7 +48,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let link = url.absoluteString
         let batch = url.lastPathComponent
-        assembly.updateAppClipCard(with: batch, fullLink: link)
+        mainViewModel.updateCardBatch(batch, fullLink: link)
         userPrefs.lastScannedNdef = link
         if !userPrefs.scannedNdefs.contains(link) {
             userPrefs.scannedNdefs.append(link)
