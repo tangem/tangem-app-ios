@@ -38,7 +38,7 @@ class WalletConnectCardScanner {
                     let network = try self.parseNetwork(wcNetwork)
                     
                     self.tangemSdkProvider.sdk.startSession(with: AppScanTask(),
-                                                            initialMessage: Message(header: "wallet_connect_scan_card_message".localized)) {[weak self] result in
+                                                            initialMessage: Message(header: "wallet_connect_scan_card_message".localized)) { [weak self] result in
                         guard let self = self else { return }
                         
                         switch result {
