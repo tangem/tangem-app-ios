@@ -52,9 +52,9 @@ target 'Tangem' do
   
   pod 'SkeletonUI', '~> 1.0.7'
   pod 'ZendeskSupportSDK', '~> 5.5.0'
-  pod 'ZendeskSupportProvidersSDK'
-  pod 'ZendeskChatSDK'
-  pod 'ZendeskAnswerBotSDK'
+  pod 'ZendeskSupportProvidersSDK', '~> 5.5.0'
+  pod 'ZendeskChatSDK', '~> 2.12.0'
+  pod 'ZendeskAnswerBotSDK', '~> 2.2.0'
   
   target 'TangemTests' do
     inherit! :search_paths
