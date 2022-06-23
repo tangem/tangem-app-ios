@@ -100,14 +100,14 @@ extension PersistentStorage: PersistentStorageProtocol {
         return nil
     }
     
-    func store<T:Encodable>(value: T, for key: PersistentStorageKey) throws {
+    func store<T: Encodable>(value: T, for key: PersistentStorageKey) throws {
         var documentPath = self.documentPath(for: key.path)
         createDirectory()
         let data = try JSONEncoder().encode(value)
         try encryptAndWriteToDocuments(data, at: &documentPath)
     }
     
-    func readAllWallets<T:Decodable>() -> [String: T] {
+    func readAllWallets<T: Decodable>() -> [String: T] {
         var wallets: [String: T] = [:]
         
         if let contents = try? fileManager.contentsOfDirectory(atPath: containerUrl.path) {
@@ -118,7 +118,7 @@ extension PersistentStorage: PersistentStorageProtocol {
                     let documentPath = self.documentPath(for: key.path)
                     if let data = try? Data(contentsOf: documentPath),
                        let decryptedData = try? encryptionUtility.decryptData(data),
-                       let decodedData = try? JSONDecoder().decode(T.self, from: decryptedData){
+                       let decodedData = try? JSONDecoder().decode(T.self, from: decryptedData) {
                         wallets[cardId] = decodedData
                     }
                 }

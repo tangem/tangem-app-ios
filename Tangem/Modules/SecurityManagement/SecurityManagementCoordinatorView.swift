@@ -12,7 +12,7 @@ import SwiftUI
 
 struct SecurityManagementCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: SecurityManagementCoordinator
-    
+
     var body: some View {
         if let model = coordinator.secManagementViewModel {
             SecurityManagementView(viewModel: model)

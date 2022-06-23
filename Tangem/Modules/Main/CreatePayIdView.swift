@@ -6,11 +6,11 @@
 ////  Copyright © 2020 Tangem AG. All rights reserved.
 ////
 //
-//import Foundation
-//import SwiftUI
-//import TangemSdk
+// import Foundation
+// import SwiftUI
+// import TangemSdk
 //
-//struct CreatePayIdView: View {
+// struct CreatePayIdView: View {
 //    var cardId: String
 //    [REDACTED_USERNAME] private var payIdText: String = ""
 //    [REDACTED_USERNAME] private var isLoading: Bool = false
@@ -108,14 +108,14 @@
 //        }
 //        .alert(item: self.$alert) { $0.alert }
 //    }
-//}
+// }
 //
 //
-//struct CreatePayIdView_Previews: PreviewProvider {
+// struct CreatePayIdView_Previews: PreviewProvider {
 //    [REDACTED_USERNAME] static var cardViewModel = CardViewModel.previewCardViewModel
 //    static var previews: some View {
 //        CreatePayIdView(cardId: "CB23 4344 5455 6544",
 //                        cardViewModel: cardViewModel)
 //            .previewLayout(.fixed(width: 320.0, height: 568))
 //    }
-//}
+// }

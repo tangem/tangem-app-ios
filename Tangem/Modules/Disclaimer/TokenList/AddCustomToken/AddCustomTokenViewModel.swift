@@ -60,27 +60,27 @@ class AddCustomTokenViewModel: ObservableObject {
         self.cardModel = cardModel
         
         Publishers.CombineLatest3(
-            $blockchainsPicker.map{$0.selection}.removeDuplicates(),
+            $blockchainsPicker.map { $0.selection }.removeDuplicates(),
             $contractAddress.removeDuplicates(),
-            $derivationsPicker.map{$0.selection}.removeDuplicates()
+            $derivationsPicker.map { $0.selection }.removeDuplicates()
         )
-            .dropFirst()
-            .debounce(for: 0.5, scheduler: RunLoop.main)
-            .flatMap { [unowned self] (blockchainName, contractAddress, derivationPath) -> AnyPublisher<[CoinModel], Never> in
-                self.isLoading = true
+        .dropFirst()
+        .debounce(for: 0.5, scheduler: RunLoop.main)
+        .flatMap { [unowned self] (blockchainName, contractAddress, derivationPath) -> AnyPublisher<[CoinModel], Never> in
+            self.isLoading = true
                 
-                guard !contractAddress.isEmpty else {
-                    return Just([])
-                        .eraseToAnyPublisher()
-                }
+            guard !contractAddress.isEmpty else {
+                return Just([])
+                    .eraseToAnyPublisher()
+            }
                 
-                return self.findToken(contractAddress: contractAddress)
-            }
-            .receive(on: RunLoop.main)
-            .sink { [unowned self] currencyModels in
-                self.didFinishTokenSearch(currencyModels)
-            }
-            .store(in: &bag)
+            return self.findToken(contractAddress: contractAddress)
+        }
+        .receive(on: RunLoop.main)
+        .sink { [unowned self] currencyModels in
+            self.didFinishTokenSearch(currencyModels)
+        }
+        .store(in: &bag)
         
         $blockchainsPicker.map { $0.selection }
             .sink { [unowned self] newBlockchainName in
@@ -125,7 +125,7 @@ class AddCustomTokenViewModel: ObservableObject {
         let derivationStyle = cardModel.cardInfo.card.derivationStyle
         let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath ?? blockchain.derivationPath(for: derivationStyle))
         
-        cardModel.add(items: [(amountType, blockchainNetwork)]) {[weak self] result in
+        cardModel.add(items: [(amountType, blockchainNetwork)]) { [weak self] result in
             guard let self = self else { return }
             
             switch result {
@@ -264,7 +264,7 @@ class AddCustomTokenViewModel: ObservableObject {
     
     private func enteredContractAddress(in blockchain: Blockchain) throws -> String {
         if case .binance = blockchain, !contractAddress.trimmed().isEmpty {
-            return contractAddress //skip validation for binance
+            return contractAddress // skip validation for binance
         }
         
         guard blockchain.validate(address: contractAddress) else {
@@ -410,7 +410,7 @@ class AddCustomTokenViewModel: ObservableObject {
     }
 }
 
-//MARK: - Navigation
+// MARK: - Navigation
 extension AddCustomTokenViewModel {
     func closeModule() {
         coordinator.closeModule()
