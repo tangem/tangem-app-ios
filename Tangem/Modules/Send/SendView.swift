@@ -260,8 +260,10 @@ struct SendView: View {
                     return binder.alert
                 }
                 
+                let errorDescription = String(binder.error?.localizedDescription.dropTrailingPeriod ?? "Unknown error")
+                
                 return Alert(title: Text("alert_failed_to_send_transaction_title"),
-                             message: Text(String(format: "alert_failed_to_send_transaction_message".localized, binder.error?.localizedDescription ?? "Unknown error")),
+                             message: Text(String(format: "alert_failed_to_send_transaction_message".localized, errorDescription)),
                              primaryButton: .default(Text("alert_button_request_support"), action: viewModel.openMail),
                              secondaryButton: .default(Text("common_no")))
             }
