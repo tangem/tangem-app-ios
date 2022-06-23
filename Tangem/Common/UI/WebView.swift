@@ -10,34 +10,28 @@ import Foundation
 import SwiftUI
 import WebKit
 
-
-struct WebViewContainer: View {
+struct WebViewContainerViewModel: Identifiable {
+    let id = UUID()
     var url: URL?
-    @State var popupUrl: URL?
-    //    var closeUrl: String? = nil
     var title: String
     var addLoadingIndicator = false
     var withCloseButton = false
-    @Environment(\.presentationMode) var presentationMode
-    @State private var isLoading: Bool = true
-    
     var urlActions: [String : ((String) -> Void)] = [:]
-    //    {
-    //        if let closeUrl = closeUrl {
-    //            return [closeUrl: {
-    //                self.presentationMode.wrappedValue.dismiss()
-    //            }]
-    //        } else {
-    //            return [:]
-    //        }
-    //    }
+}
+
+struct WebViewContainer: View {
+    let viewModel: WebViewContainerViewModel
+    
+    @State private var popupUrl: URL?
+    @Environment(\.presentationMode) private var presentationMode
+    @State private var isLoading: Bool = true
     
     private var content: some View {
         ZStack {
-            WebView(url: url, popupUrl: $popupUrl, urlActions: urlActions, isLoading: $isLoading)
-                .navigationBarTitle(Text(title), displayMode: .inline)
+            WebView(url: viewModel.url, popupUrl: $popupUrl, urlActions: viewModel.urlActions, isLoading: $isLoading)
+                .navigationBarTitle(Text(viewModel.title), displayMode: .inline)
                 .background(Color.tangemBg.edgesIgnoringSafeArea(.all))
-            if isLoading && addLoadingIndicator {
+            if isLoading && viewModel.addLoadingIndicator {
                 ActivityIndicatorView(color: .tangemGrayDark)
             }
         }
@@ -45,7 +39,7 @@ struct WebViewContainer: View {
     
     var body: some View {
         VStack {
-            if withCloseButton {
+            if viewModel.withCloseButton {
                 NavigationView {
                     content
                         .navigationBarItems(leading:
@@ -67,7 +61,6 @@ struct WebViewContainer: View {
         }
     }
 }
-
 
 struct WebView: UIViewRepresentable {
     var url: URL?
