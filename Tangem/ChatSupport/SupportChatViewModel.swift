@@ -22,7 +22,13 @@ class SupportChatViewModel {
                            zendeskUrl: keysManager.zendesk.zendeskUrl)
         Support.initialize(withZendesk: Zendesk.instance)
         AnswerBot.initialize(withZendesk: Zendesk.instance, support: Support.instance!)
-        Chat.initialize(accountKey: keysManager.zendesk.zendeskApiKey)
+        let accountKey = Zendesk.instance?.accountDetails.accountUrl ?? ""
+        Chat.initialize(accountKey: accountKey)
+        if Chat.instance?.hasIdentity ?? false {
+            print("identity")
+        } else {
+            print("no identity")
+        }
     }
     
     func openChat() -> some View {

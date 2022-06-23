@@ -22,7 +22,7 @@ class MainViewModel: ObservableObject {
     @Injected(\.onboardingStepsSetupService) private var cardOnboardingStepSetupService: OnboardingStepsSetupService
     @Injected(\.negativeFeedbackDataProvider) var negativeFeedbackDataCollector: NegativeFeedbackDataProvider
     
-    // MARK: - Published variables
+    //MARK: - Published variables
     
     @Published var error: AlertBinder?
     @Published var showTradeSheet: Bool = false
@@ -63,8 +63,8 @@ class MainViewModel: ObservableObject {
     var isLoadingTokensBalance: Bool = false
     lazy var totalSumBalanceViewModel: TotalSumBalanceViewModel = .init()
     
-    @Storage(type: .validatedSignedHashesCards, defaultValue: [])
-    private var validatedSignedHashesCards: [String]
+	@Storage(type: .validatedSignedHashesCards, defaultValue: [])
+	private var validatedSignedHashesCards: [String]
     private var userPrefsService: UserPrefsService = .init()
     private var bag = Set<AnyCancellable>()
     private var isHashesCounted = false
@@ -91,18 +91,18 @@ class MainViewModel: ObservableObject {
     
     public var hasMultipleButtons: Bool {
         if canCreateWallet {
-            return true
+          return true
         }
         
         if !canCreateWallet
             && canBuyCrypto
             && !(cardModel?.cardInfo.isMultiWallet ?? true)  {
-            return true
+           return true
         }
         
         if let cardModel = self.cardModel, !cardModel.cardInfo.isMultiWallet,
            (!canCreateWallet || (cardModel.isTwinCard && cardModel.hasBalance)) {
-            return true
+           return true
         }
         
         return false
@@ -200,7 +200,7 @@ class MainViewModel: ObservableObject {
         cardModel?.walletModels?.first?.outgoingPendingTransactions ?? []
     }
 	
-    var cardNumber: Int? {
+	var cardNumber: Int? {
         guard let cardInfo = cardModel?.cardInfo else { return nil }
         
         if let twinNumber = cardInfo.twinCardInfo?.series.number {
@@ -213,7 +213,7 @@ class MainViewModel: ObservableObject {
         }
         
         return nil
-    }
+	}
     
     var totalCards: Int? {
         guard let cardInfo = cardModel?.cardInfo else { return nil }
@@ -230,9 +230,9 @@ class MainViewModel: ObservableObject {
         return nil
     }
 	
-    var isTwinCard: Bool {
-        cardModel?.isTwinCard ?? false
-    }
+	var isTwinCard: Bool {
+		cardModel?.isTwinCard ?? false
+	}
     
     var isBackupAllowed: Bool {
         if let cardModel = cardModel {
@@ -247,11 +247,11 @@ class MainViewModel: ObservableObject {
               let walletModels = cardModel.walletModels else { return [] }
         
         return walletModels
-            .flatMap({ $0.tokenItemViewModels })
+            .flatMap ({ $0.tokenItemViewModels })
     }
     
     init(cardModel: CardViewModel, coordinator: MainRoutable) {
-        self.state = .card(model: cardModel) // [REDACTED_TODO_COMMENT]
+        self.state = .card(model: cardModel) //[REDACTED_TODO_COMMENT]
         self.coordinator = coordinator
         bind()
     }
@@ -319,7 +319,7 @@ class MainViewModel: ObservableObject {
     
         $state
             .compactMap { $0.cardModel }
-            .sink { [unowned  self] model in
+            .sink {[unowned  self] model in
                 print("⚠️ Receive new card model")
                 self.selectedAddressIndex = 0
                 self.isHashesCounted = false
@@ -337,7 +337,7 @@ class MainViewModel: ObservableObject {
                     self.totalSumBalanceViewModel.beginUpdates()
                     self.isLoadingTokensBalance = true
                 case .loaded:
-                    // Delay for hide skeleton
+                    //Delay for hide skeleton
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                         self.checkPositiveBalance()
                         self.isLoadingTokensBalance = false
@@ -409,34 +409,34 @@ class MainViewModel: ObservableObject {
             return
         }
         
-        if cardModel.isTwinCard {
+		if cardModel.isTwinCard {
             if cardModel.hasBalance {
                 error = AlertBinder(alert: Alert(title: Text("Attention!"),
                                                  message: Text("Your wallet is not empty, please withdraw your funds before creating twin wallet or they will be lost."),
                                                  primaryButton: .cancel(),
                                                  secondaryButton: .destructive(Text("I understand, continue anyway")) { [weak self] in
-                                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                                         self?.prepareTwinOnboarding()
-                                                     }
+                                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                                        self?.prepareTwinOnboarding()
+                                                    }
                                                  }))
             } else {
                 prepareTwinOnboarding()
             }
-        } else {
-            self.isCreatingWallet = true
-            cardModel.createWallet() { [weak self] result in
-                defer { self?.isCreatingWallet = false }
-                switch result {
-                case .success:
-                    break
-                case .failure(let error):
-                    if case .userCancelled = error.toTangemSdkError() {
-                        return
-                    }
-                    self?.setError(error.alertBinder)
-                }
-            }
-        }
+		} else {
+			self.isCreatingWallet = true
+			cardModel.createWallet() { [weak self] result in
+				defer { self?.isCreatingWallet = false }
+				switch result {
+				case .success:
+					break
+				case .failure(let error):
+					if case .userCancelled = error.toTangemSdkError() {
+						return
+					}
+					self?.setError(error.alertBinder)
+				}
+			}
+		}
     }
     
     func onScan() {
@@ -456,7 +456,7 @@ class MainViewModel: ObservableObject {
         if hasTokenAmounts {
             showSelectWalletSheet.toggle()
         } else {
-            openSend(for: Amount(with: wallet.amounts[.coin]!, value: 0))
+           openSend(for: Amount(with: wallet.amounts[.coin]!, value: 0))
         }
     }
     
@@ -485,7 +485,7 @@ class MainViewModel: ObservableObject {
         }
         
         var hideWarning = true
-        // [REDACTED_TODO_COMMENT]
+        //[REDACTED_TODO_COMMENT]
         switch button {
         case .okGotIt:
             if warning.event == .numberOfSignedHashesIncorrect {
@@ -512,10 +512,10 @@ class MainViewModel: ObservableObject {
                                                  message: Text("alert_signed_hashes_message"),
                                                  primaryButton: .cancel(),
                                                  secondaryButton: .default(Text("alert_button_i_understand")) { [weak self] in
-                                                     withAnimation {
-                                                         registerValidatedSignedHashesCard()
-                                                         self?.warningsService.hideWarning(warning)
-                                                     }
+                                                    withAnimation {
+                                                        registerValidatedSignedHashesCard()
+                                                        self?.warningsService.hideWarning(warning)
+                                                    }
                                                  }))
                 return
             } else if warning.event == .fundsRestoration {
@@ -562,26 +562,26 @@ class MainViewModel: ObservableObject {
 
         cardOnboardingStepSetupService.twinRecreationSteps(for: cardModel.cardInfo)
             .sink { completion in
-                switch completion {
-                case .failure(let error):
-                    Analytics.log(error: error)
-                    print("Failed to load image for new card")
-                    self.error = error.alertBinder
-                case .finished:
-                    break
-                }
-            } receiveValue: { [weak self] steps in
-                guard let self = self else { return }
-
-                let input = OnboardingInput(steps: steps,
-                                            cardInput: .cardModel(cardModel),
-                                            cardsPosition: nil,
-                                            welcomeStep: nil,
-                                            currentStepIndex: 0)
-            
-                self.openOnboarding(with: input)
+            switch completion {
+            case .failure(let error):
+                Analytics.log(error: error)
+                print("Failed to load image for new card")
+                self.error = error.alertBinder
+            case .finished:
+                break
             }
-            .store(in: &bag)
+        } receiveValue: { [weak self] steps in
+            guard let self = self else { return }
+
+            let input = OnboardingInput(steps: steps,
+                                        cardInput: .cardModel(cardModel),
+                                        cardsPosition: nil,
+                                        welcomeStep: nil,
+                                        currentStepIndex: 0)
+            
+            self.openOnboarding(with: input)
+        }
+        .store(in: &bag)
     }
 
     func prepareForBackup() {
@@ -629,7 +629,7 @@ class MainViewModel: ObservableObject {
         rateAppService.registerPositiveBalanceDate()
     }
 	
-    private func validateHashesCount() {
+	private func validateHashesCount() {
         guard let cardInfo = state.cardModel?.cardInfo else { return }
         
         let card = cardInfo.card
@@ -658,42 +658,42 @@ class MainViewModel: ObservableObject {
             return
         }
 		
-        func showUntrustedCardAlert() {
+		func showUntrustedCardAlert() {
             withAnimation {
                 self.warningsService.appendWarning(for: .numberOfSignedHashesIncorrect)
             }
-        }
+		}
         
         guard
             let numberOfSignedHashes = card.wallets.first?.totalSignedHashes,
             numberOfSignedHashes > 0
         else { return }
 		
-        guard
+		guard
             let validator = cardModel?.walletModels?.first?.walletManager as? SignatureCountValidator
-        else {
-            showUntrustedCardAlert()
-            return
-        }
+		else {
+			showUntrustedCardAlert()
+			return
+		}
         
-        validator.validateSignatureCount(signedHashes: numberOfSignedHashes)
+		validator.validateSignatureCount(signedHashes: numberOfSignedHashes)
             .subscribe(on: DispatchQueue.global())
-            .receive(on: RunLoop.main)
+			.receive(on: RunLoop.main)
             .handleEvents(receiveCancel: {
                 print("⚠️ Hash counter subscription cancelled")
             })
-            .sink(receiveCompletion: { [weak self] failure in
-                switch failure {
-                case .finished:
-                    break
-                case .failure:
-                    showUntrustedCardAlert()
-                }
+			.sink(receiveCompletion: { [weak self] failure in
+				switch failure {
+				case .finished:
+					break
+				case .failure:
+					showUntrustedCardAlert()
+				}
                 self?.isHashesCounted = true
                 print("⚠️ Hashes counted")
-            }, receiveValue: { _ in })
+			}, receiveValue: { _ in })
             .store(in: &bag)
-    }
+	}
     
     private func setError(_ error: AlertBinder?)  {
         if self.error != nil {
@@ -743,7 +743,7 @@ extension MainViewModel {
     }
 }
 
-// MARK: - Navigation
+//MARK: - Navigation
 extension MainViewModel {
     func openSettings() {
         if let cardModel = cardModel {
@@ -799,9 +799,9 @@ extension MainViewModel {
         }
         
         guard cardInfo.isTestnet, !cardInfo.isMultiWallet,
-              let walletModel = cardModel?.walletModels?.first,
-              walletModel.wallet.blockchain == .ethereum(testnet: true),
-              let token = walletModel.tokenItemViewModels.first?.amountType.token else {
+            let walletModel = cardModel?.walletModels?.first,
+            walletModel.wallet.blockchain == .ethereum(testnet: true),
+            let token = walletModel.tokenItemViewModels.first?.amountType.token else {
             if let url = buyCryptoURL {
                 coordinator.openBuyCrypto(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
                     self?.sendAnalyticsEvent(.userBoughtCrypto)
