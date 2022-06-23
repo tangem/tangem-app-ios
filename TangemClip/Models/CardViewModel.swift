@@ -13,7 +13,7 @@ import TangemSdk
 
 class CardViewModel: ObservableObject {
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
-    
+
     @Published var state: State = .created
 
     @Published var cardInfo: CardInfo
@@ -44,7 +44,7 @@ class CardViewModel: ObservableObject {
             return
         }
 
-        tangemSdkProvider.sdk.loadCardInfo(cardPublicKey: cardInfo.card.cardPublicKey, cardId: cardInfo.card.cardId) {[weak self] result in
+        tangemSdkProvider.sdk.loadCardInfo(cardPublicKey: cardInfo.card.cardPublicKey, cardId: cardInfo.card.cardId) { [weak self] result in
             switch result {
             case .success(let info):
                 guard let artwork = info.artwork else {
@@ -68,7 +68,7 @@ extension CardViewModel {
     }
 }
 
-//extension CardViewModel {
+// extension CardViewModel {
 //    static var previewCardViewModel: CardViewModel {
 //        viewModel(for: Card.testCard)
 //    }
@@ -77,4 +77,4 @@ extension CardViewModel {
 //        let assembly = Assembly.previewAssembly
 //        return assembly.services.cardsRepository.cards[card.cardId]!.cardModel!
 //    }
-//}
+// }
