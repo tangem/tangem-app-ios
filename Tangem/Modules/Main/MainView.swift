@@ -102,29 +102,29 @@ struct MainView: View {
     var scanNavigationButton: some View {
         Button(action: viewModel.onScan,
                label: {
-                   Image("scanCardIcon")
-                       .foregroundColor(Color.black)
-                       .frame(width: 44, height: 44)
-               })
-               .buttonStyle(PlainButtonStyle())
+            Image("scanCardIcon")
+                .foregroundColor(Color.black)
+                .frame(width: 44, height: 44)
+        })
+        .buttonStyle(PlainButtonStyle())
     }
     
     var settingsNavigationButton: some View {
         Button(action: viewModel.openSettings,
                label: { Image("verticalDots")
-                   .foregroundColor(Color.tangemGrayDark6)
-                   .frame(width: 44.0, height: 44.0, alignment: .center)
-                   .offset(x: 10.0, y: 0.0) })
-            .accessibility(label: Text("voice_over_open_card_details"))
-            .padding(0.0)
+                .foregroundColor(Color.tangemGrayDark6)
+                .frame(width: 44.0, height: 44.0, alignment: .center)
+            .offset(x: 10.0, y: 0.0)})
+        .accessibility(label: Text("voice_over_open_card_details"))
+        .padding(0.0)
     }
     
     var backupWarningView: some View {
         BackUpWarningButton(tapAction: {
             viewModel.prepareForBackup()
         })
-        .padding(.horizontal, 16)
-        .padding(.bottom, 6)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 6)
     }
     
     var body: some View {
@@ -136,7 +136,7 @@ struct MainView: View {
                                  width: geometry.size.width - 32,
                                  currentCardNumber: viewModel.cardNumber,
                                  totalCards: viewModel.totalCards)
-                            .fixedSize(horizontal: false, vertical: true)
+                        .fixedSize(horizontal: false, vertical: true)
                         
                         if viewModel.isBackupAllowed {
                             backupWarningView
@@ -244,14 +244,14 @@ struct MainView: View {
         TangemButton(title: "wallet_button_send",
                      systemImage: "arrow.right",
                      action: viewModel.sendTapped)
-            .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
-                                           isDisabled: !viewModel.canSend))
-            .actionSheet(isPresented: $viewModel.showSelectWalletSheet) {
-                ActionSheet(title: Text("wallet_choice_wallet_option_title"),
-                            message: nil,
-                            buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
+        .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
+                                       isDisabled: !viewModel.canSend))
+        .actionSheet(isPresented: $viewModel.showSelectWalletSheet) {
+            ActionSheet(title: Text("wallet_choice_wallet_option_title"),
+                        message: nil,
+                        buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
             
-            }
+        }
         
     }
     
@@ -261,20 +261,20 @@ struct MainView: View {
             TangemButton.vertical(title: "wallet_button_trade",
                                   systemImage: "arrow.up.arrow.down",
                                   action: viewModel.tradeCryptoAction)
-                .buttonStyle(TangemButtonStyle(layout: .flexibleWidth))
-                .actionSheet(isPresented: $viewModel.showTradeSheet, content: {
-                    ActionSheet(title: Text("action_sheet_trade_hint"),
-                                buttons: [
-                                    .default(Text("wallet_button_topup"), action: viewModel.openBuyCrypto),
-                                    .default(Text("wallet_button_sell_crypto"), action: viewModel.openSellCrypto),
-                                    .cancel(),
-                                ])
-                })
+            .buttonStyle(TangemButtonStyle(layout: .flexibleWidth))
+            .actionSheet(isPresented: $viewModel.showTradeSheet, content: {
+                ActionSheet(title: Text("action_sheet_trade_hint"),
+                            buttons: [
+                                .default(Text("wallet_button_topup"), action: viewModel.openBuyCrypto),
+                                .default(Text("wallet_button_sell_crypto"), action: viewModel.openSellCrypto),
+                                .cancel()
+                            ])
+            })
         } else {
             TangemButton.vertical(title: "wallet_button_topup",
                                   systemImage: "arrow.up",
                                   action: viewModel.openBuyCrypto)
-                .buttonStyle(TangemButtonStyle(layout: .flexibleWidth))
+            .buttonStyle(TangemButtonStyle(layout: .flexibleWidth))
         }
     }
     
