@@ -168,7 +168,7 @@ class PushTxViewModel: ObservableObject {
         
         walletModel
             .$rates
-            .map {[unowned self] newRates -> Bool in
+            .map { [unowned self] newRates -> Bool in
                 return newRates[self.amountToSend.currencySymbol] != nil
             }
             .weakAssign(to: \.canFiatCalculation, on: self)
@@ -238,16 +238,16 @@ class PushTxViewModel: ObservableObject {
                 
                 do {
                     tx = try walletModel.walletManager.createTransaction(amount: newAmount,
-                                                                             fee: fee,
-                                                                             destinationAddress: self.destination)
+                                                                         fee: fee,
+                                                                         destinationAddress: self.destination)
                 } catch {
-                   errorMessage = error.localizedDescription
+                    errorMessage = error.localizedDescription
                 }
                 
                 self.updateAmount(isFeeIncluded: isFeeIncluded, selectedFee: fee)
                 return (tx, fee)
             }
-            .sink(receiveValue: {[unowned self] txFee in
+            .sink(receiveValue: { [unowned self] txFee in
                 let tx = txFee.0
                 let fee = txFee.1
                 self.newTransaction = tx
@@ -337,7 +337,7 @@ class PushTxViewModel: ObservableObject {
     
 }
 
-//MARK: - Navigation
+// MARK: - Navigation
 extension PushTxViewModel {
     func openMail() {
         coordinator.openMail(with: emailDataCollector)

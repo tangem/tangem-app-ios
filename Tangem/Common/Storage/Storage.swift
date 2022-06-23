@@ -17,12 +17,12 @@ struct Storage<T> {
     
     private let appGroupName = "group.com.tangem.Tangem"
     
-	init(type: StorageType, defaultValue: T) {
-		key = type.rawValue
-		self.defaultValue = defaultValue
+    init(type: StorageType, defaultValue: T) {
+        key = type.rawValue
+        self.defaultValue = defaultValue
         defaults = UserDefaults(suiteName: appGroupName) ?? .standard
         migrateFromOldDefaultsIfNeeded()
-	}
+    }
 
     var wrappedValue: T {
         get {
