@@ -76,7 +76,7 @@ class ListDataLoader {
                 if items.count < self.perPage {
                     self.canFetchMore = false
                 }
-        }
+            }
     }
 }
 
