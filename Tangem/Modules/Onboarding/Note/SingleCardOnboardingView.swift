@@ -34,16 +34,16 @@ struct SingleCardOnboardingView: View {
                         NavigationBar(title: "onboarding_navbar_activating_card",
                                       settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear),
                                       leftButtons: {
-                            BackButton(height: viewModel.navbarSize.height,
-                                       isVisible: viewModel.isBackButtonVisible,
-                                       isEnabled: viewModel.isBackButtonEnabled,
-                                       hPadding: horizontalPadding) {
-                                viewModel.reset()
-                            }
-                        })
-                            .frame(size: viewModel.navbarSize)
-                            .offset(x: 0, y: -size.height / 2 + (isTopItemsVisible ? viewModel.navbarSize.height / 2 : 0))
-                            .opacity(isTopItemsVisible ? 1.0 : 0.0)
+                                          BackButton(height: viewModel.navbarSize.height,
+                                                     isVisible: viewModel.isBackButtonVisible,
+                                                     isEnabled: viewModel.isBackButtonEnabled,
+                                                     hPadding: horizontalPadding) {
+                                              viewModel.reset()
+                                          }
+                                      })
+                                      .frame(size: viewModel.navbarSize)
+                                      .offset(x: 0, y: -size.height / 2 + (isTopItemsVisible ? viewModel.navbarSize.height / 2 : 0))
+                                      .opacity(isTopItemsVisible ? 1.0 : 0.0)
                         
                         ProgressBar(height: 5, currentProgress: viewModel.currentProgress)
                             .offset(x: 0, y: -size.height / 2 + (isTopItemsVisible ? viewModel.navbarSize.height + 10 : 0))

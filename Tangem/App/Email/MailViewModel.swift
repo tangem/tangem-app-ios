@@ -10,7 +10,7 @@ import Foundation
 
 struct MailViewModel: Identifiable {
     let id: UUID = .init()
-    
+
     let dataCollector: EmailDataCollector
     let support: EmailSupport
     let emailType: EmailType

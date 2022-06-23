@@ -13,7 +13,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private var userPrefs = UserPrefsService()
     private let mainViewModel: MainViewModel = .init()
     var window: UIWindow?
-    
+
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         let contentView = MainView(viewModel: mainViewModel)
 
@@ -26,11 +26,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             window.makeKeyAndVisible()
         }
     }
-    
+
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
         handle(userActivity, in: scene)
     }
-    
+
     private func handle(_ activity: NSUserActivity?, in scene: UIScene) {
         // Get URL components from the incoming user activity
         let url: URL
@@ -45,7 +45,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         } else {
             url = URL(string: "https://tangem.com/ndef/CB79")!
         }
-        
+
         let link = url.absoluteString
         let batch = url.lastPathComponent
         mainViewModel.updateCardBatch(batch, fullLink: link)

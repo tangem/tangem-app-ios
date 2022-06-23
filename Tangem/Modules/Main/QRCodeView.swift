@@ -6,12 +6,12 @@
 ////  Copyright © 2020 Tangem AG. All rights reserved.
 ////
 //
-//import Foundation
-//import SwiftUI
-//import EFQRCode
-//import UIKit
+// import Foundation
+// import SwiftUI
+// import EFQRCode
+// import UIKit
 //
-//struct QRCodeView: View {
+// struct QRCodeView: View {
 //    let title: String
 //    let shareString: String
 //    [REDACTED_USERNAME] var userBrightness: CGFloat = 0.5
@@ -119,13 +119,13 @@
 //            return UIImage.imageWithSize(width: width, height: height, filledWithColor: UIColor.tangemBgGray )
 //        }
 //    }
-//}
+// }
 //
 //
-//struct QRCodeView_Previews: PreviewProvider {
+// struct QRCodeView_Previews: PreviewProvider {
 //    static var previews: some View {
 //        QRCodeView(title: "Bitcoin Wallet",
 //                   shareString: "asdjfhaskjfwjb5khjv3kv3lb535345435cdgdcgdgjshdgjkewk345t3")
 //            .background(Color.gray)
 //    }
-//}
+// }
