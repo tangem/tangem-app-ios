@@ -21,13 +21,10 @@ enum EmailSupport {
 }
 
 struct MailView: UIViewControllerRepresentable {
-
-    var dataCollector: EmailDataCollector
-    var support: EmailSupport
+    let viewModel: MailViewModel
     
-    @Environment(\.presentationMode) var presentation
-    let emailType: EmailType
-
+    @Environment(\.presentationMode) private var presentation
+    
     class Coordinator: NSObject, MFMailComposeViewControllerDelegate {
 
         @Binding var presentation: PresentationMode
@@ -63,7 +60,7 @@ struct MailView: UIViewControllerRepresentable {
     }
 
     func makeCoordinator() -> Coordinator {
-        return Coordinator(presentation: presentation, emailType: emailType)
+        return Coordinator(presentation: presentation, emailType: viewModel.emailType)
     }
 
     func makeUIViewController(context: UIViewControllerRepresentableContext<MailView>) -> UIViewController {
@@ -73,14 +70,14 @@ struct MailView: UIViewControllerRepresentable {
         
         let vc = MFMailComposeViewController()
         vc.mailComposeDelegate = context.coordinator
-        vc.setToRecipients(support.recipients)
-        vc.setSubject(emailType.emailSubject)
-        var messageBody = "\n" + emailType.emailPreface
+        vc.setToRecipients(viewModel.support.recipients)
+        vc.setSubject(viewModel.emailType.emailSubject)
+        var messageBody = "\n" + viewModel.emailType.emailPreface
         messageBody.append("\n\n\n")
-        messageBody.append(emailType.dataCollectionMessage + "\n")
-        messageBody.append(dataCollector.dataForEmail)
+        messageBody.append(viewModel.emailType.dataCollectionMessage + "\n")
+        messageBody.append(viewModel.dataCollector.dataForEmail)
         vc.setMessageBody(messageBody, isHTML: false)
-        if let attachment = dataCollector.attachment {
+        if let attachment = viewModel.dataCollector.attachment {
             vc.addAttachmentData(attachment, mimeType: "text/plain", fileName: "logs.txt")
         }
         return vc
