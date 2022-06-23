@@ -37,11 +37,11 @@ struct ConfettiView: UIViewRepresentable {
         let confettiLayers = ConfettiGenerator.shared
             .generateConfettiLayers(
                 with:
-                    ConfettiGeneratorSettings(generatorPosition: position,
-                                              generatorSize: CGSize(width: 100, height: 120),
-                                              confettiLifetime: confettiLifetime,
-                                              generationDuration: generationDuration)
-        )
+                ConfettiGeneratorSettings(generatorPosition: position,
+                                          generatorSize: CGSize(width: 100, height: 120),
+                                          confettiLifetime: confettiLifetime,
+                                          generationDuration: generationDuration)
+            )
         for layer in confettiLayers {
             view.layer.addSublayer(layer)
             layer.frame = view.bounds
