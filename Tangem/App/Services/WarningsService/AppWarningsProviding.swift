@@ -11,7 +11,7 @@ import Combine
 
 protocol AppWarningsProviding: AnyObject {
     var warningsUpdatePublisher: PassthroughSubject<WarningsLocation, Never> { get }
-    
+
     func setupWarnings(for cardInfo: CardInfo)
     func appendWarning(for event: WarningEvent)
     func warnings(for location: WarningsLocation) -> WarningsContainer
