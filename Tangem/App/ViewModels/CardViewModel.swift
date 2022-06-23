@@ -21,7 +21,6 @@ struct CardPinSettings {
 class CardViewModel: Identifiable, ObservableObject, Initializable {
     //MARK: Services
     @Injected(\.cardImageLoader) var imageLoader: CardImageLoaderProtocol
-    @Injected(\.assemblyProvider) private var assemblyProvider: AssemblyProviding
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
     @Injected(\.appFeaturesService) private var featuresService: AppFeaturesProviding
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
@@ -40,7 +39,6 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
     private var userPrefsService: UserPrefsService = .init()
     private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
     private var migrated = false
-    private var assembly: Assembly { assemblyProvider.assembly }
     private var tangemSdk: TangemSdk { tangemSdkProvider.sdk }
     
     var availableSecOptions: [SecurityManagementOption] {
@@ -558,7 +556,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
             self.state = .empty
         } else {
             print("⁉️ Recreating all wallet models for Card view model state")
-            self.state = .loaded(walletModel: self.assembly.makeAllWalletModels(from: cardInfo))
+            self.state = .loaded(walletModel: WalletManagerAssembly.makeAllWalletModels(from: cardInfo))
             
             if !userPrefsService.cardsStartedActivation.contains(cardInfo.card.cardId) || cardInfo.isTangemWallet {
                 update()
@@ -600,7 +598,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
         let supportedItems = SupportedTokenItems()
         let unused: [StorageEntry] = supportedItems.blockchains(for: cardInfo.card.walletCurves, isTestnet: cardInfo.isTestnet)
             .subtracting(currentBlockhains).map { StorageEntry(blockchainNetwork: .init($0, derivationPath: nil), tokens: []) }
-        let models = assembly.makeWalletModels(from: cardInfo, entries: unused)
+        let models = WalletManagerAssembly.makeWalletModels(from: cardInfo, entries: unused)
         if models.isEmpty {
             return
         }
@@ -636,7 +634,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
         if ethWalletModel == nil {
             shouldAddWalletManager = true
             let entry = StorageEntry(blockchainNetwork: network, tokens: [])
-            ethWalletModel = assembly.makeWalletModels(from: cardInfo, entries: [entry]).first
+            ethWalletModel = WalletManagerAssembly.makeWalletModels(from: cardInfo, entries: [entry]).first
         }
         
         guard let tokenFinder = ethWalletModel?.walletManager as? TokenFinder else {
@@ -729,7 +727,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
                 existingWalletModel.addTokens(entry.tokens)
                 existingWalletModel.update()
             } else {
-                let wm = assembly.makeWalletModels(from: cardInfo, entries: [entry])
+                let wm = WalletManagerAssembly.makeWalletModels(from: cardInfo, entries: [entry])
                 newWalletModels.append(contentsOf: wm)
             }
         }
@@ -841,7 +839,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
             .collect(publishers.count)
             .sink { [unowned self] migrationResults in
                 if migrationResults.contains(true) {
-                    self.state = .loaded(walletModel: self.assembly.makeAllWalletModels(from: self.cardInfo))
+                    self.state = .loaded(walletModel: WalletManagerAssembly.makeAllWalletModels(from: self.cardInfo))
                 }
                 completion()
             }
