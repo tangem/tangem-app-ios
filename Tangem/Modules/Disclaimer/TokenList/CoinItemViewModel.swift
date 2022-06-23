@@ -43,7 +43,7 @@ class CoinItemViewModel: Identifiable, ObservableObject {
         
         $selectedPublisher
             .dropFirst()
-            .sink(receiveValue: {[unowned self] value in
+            .sink(receiveValue: { [unowned self] value in
                 self.isSelected.wrappedValue = value
             })
             .store(in: &bag)

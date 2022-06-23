@@ -11,12 +11,12 @@ import Combine
 
 struct CircleActionButton: View {
 	
-	var action: () -> Void = { }
-	var diameter: CGFloat = 41
-	let backgroundColor: Color
-	let imageName: String
-	let isSystemImage: Bool
-	let imageColor: Color
+    var action: () -> Void = { }
+    var diameter: CGFloat = 41
+    let backgroundColor: Color
+    let imageName: String
+    let isSystemImage: Bool
+    let imageColor: Color
     var withVerification: Bool = false
     var isDisabled = false
 	
@@ -32,25 +32,25 @@ struct CircleActionButton: View {
         Button(action: {
             action()
             if withVerification {
-              playVerifyAnimation()
+                playVerifyAnimation()
             }
         }, label: {
-			ZStack {
-				Circle()
-					.frame(width: diameter, height: diameter, alignment: .center)
-					.foregroundColor(isVerify ? Color.tangemGreen : backgroundColor)
-				Group {
+            ZStack {
+                Circle()
+                    .frame(width: diameter, height: diameter, alignment: .center)
+                    .foregroundColor(isVerify ? Color.tangemGreen : backgroundColor)
+                Group {
                     if isVerify {
                         Image(systemName: "checkmark")
                     } else {
                         image
                     }
-				}
-				.font(Font.system(size: 17.0, weight: .light, design: .default))
+                }
+                .font(Font.system(size: 17.0, weight: .light, design: .default))
                 .foregroundColor(isVerify ? Color.white : imageColor)
-			}
+            }
             .overlay(!isDisabled ? Color.clear : Color.white.opacity(0.4))
-		})
+        })
         .buttonStyle(PlainButtonStyle())
     }
     
@@ -72,10 +72,10 @@ struct CircleActionButton: View {
 
 struct CircleActionButton_Previews: PreviewProvider {
     static var previews: some View {
-		CircleActionButton(diameter: 40,
-						   backgroundColor: .tangemBgGray,
-						   imageName: "doc.on.clipboard",
-						   isSystemImage: true,
-						   imageColor: .tangemGrayDark6)
+        CircleActionButton(diameter: 40,
+                           backgroundColor: .tangemBgGray,
+                           imageName: "doc.on.clipboard",
+                           isSystemImage: true,
+                           imageColor: .tangemGrayDark6)
     }
 }

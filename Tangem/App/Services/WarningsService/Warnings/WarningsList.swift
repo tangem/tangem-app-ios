@@ -10,7 +10,7 @@ import Foundation
 
 struct WarningsList {
     static let warningTitle = "common_warning".localized
-    
+
     static let oldCard = AppWarning(title: warningTitle, message: "alert_old_card".localized, priority: .info, type: .permanent)
     static let oldDeviceOldCard = AppWarning(title: warningTitle, message: "alert_old_device_this_card".localized, priority: .info, type: .permanent)
     static let devCard = AppWarning(title: warningTitle, message: "alert_developer_card".localized, priority: .critical, type: .permanent)

@@ -15,7 +15,7 @@ struct CoinsListRequestModel: Encodable {
     let limit: Int?
     let offset: Int?
     let active: Bool?
-    
+
     init(
         contractAddress: String? = nil,
         networkIds: [String],
