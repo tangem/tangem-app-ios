@@ -183,7 +183,6 @@
 		659768172837B61000F9F04A /* TokenItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659768162837B61000F9F04A /* TokenItemView.swift */; };
 		65A1910A2833EA900023355D /* TokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A191092833EA900023355D /* TokensView.swift */; };
 		65B435FE2844BF7200DEAE1B /* AttributedTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B435FD2844BF7100DEAE1B /* AttributedTextView.swift */; };
-		65B436022844FDE700DEAE1B /* TangemSkeletonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B436012844FDE700DEAE1B /* TangemSkeletonModifier.swift */; };
 		65C9FCAC2863103800FDE63E /* ZendeskConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCAB2863103800FDE63E /* ZendeskConfig.swift */; };
 		65C9FCAE28644F9D00FDE63E /* DetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCAD28644F9D00FDE63E /* DetailsView.swift */; };
 		65C9FCB12864507600FDE63E /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCAF2864507600FDE63E /* MainViewModel.swift */; };
@@ -768,7 +767,6 @@
 		659768162837B61000F9F04A /* TokenItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItemView.swift; sourceTree = "<group>"; };
 		65A191092833EA900023355D /* TokensView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokensView.swift; sourceTree = "<group>"; };
 		65B435FD2844BF7100DEAE1B /* AttributedTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttributedTextView.swift; sourceTree = "<group>"; };
-		65B436012844FDE700DEAE1B /* TangemSkeletonModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSkeletonModifier.swift; sourceTree = "<group>"; };
 		65C9FCAB2863103800FDE63E /* ZendeskConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZendeskConfig.swift; sourceTree = "<group>"; };
 		65C9FCAD28644F9D00FDE63E /* DetailsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailsView.swift; sourceTree = "<group>"; };
 		65C9FCAF2864507600FDE63E /* MainViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
@@ -1275,7 +1273,7 @@
 		5D3F77C424BF56D800E8695B /* Tangem */ = {
 			isa = PBXGroup;
 			children = (
-				6563B8B72858B912009A8A7D /* ChatSupport */,
+				6563B8B72858B912009A8A7D /* SupportChat */,
 				5D9DCADC255174140059799C /* App */,
 				DC7DA81A2844EED800AD6DBD /* Modules */,
 				5DFCCB6324C371AC0014A293 /* Common */,
@@ -1595,13 +1593,13 @@
 			path = TotalSumBalance;
 			sourceTree = "<group>";
 		};
-		6563B8B72858B912009A8A7D /* ChatSupport */ = {
+		6563B8B72858B912009A8A7D /* SupportChat */ = {
 			isa = PBXGroup;
 			children = (
 				6563B8B82858B92A009A8A7D /* SupportChatView.swift */,
 				6563B8BA2859EA82009A8A7D /* SupportChatViewModel.swift */,
 			);
-			path = ChatSupport;
+			path = SupportChat;
 			sourceTree = "<group>";
 		};
 		B018F3012591FED600D8F89A /* JsonSettings */ = {
