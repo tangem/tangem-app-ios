@@ -2893,7 +2893,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "mint run swiftformat .\n";
+			shellScript = "UNAME_MACHINE=\"$(/usr/bin/uname -m)\"\n\nif [[ \"${UNAME_MACHINE}\" == \"arm64\" ]]\nthen\n    # On ARM macOS, this script installs to /opt/homebrew only\n    PATH=${PATH}:/opt/homebrew/bin\nelse\n    # On Intel macOS, this script installs to /usr/local only\n    PATH=${PATH}:/usr/local/bin\nfi\n\nmint run swiftformat .\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
