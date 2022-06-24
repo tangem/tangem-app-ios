@@ -1,5 +1,5 @@
 //
-//  Beta.xcconfig
+//  Production.xcconfig
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,10 +9,12 @@
 // Configuration settings file format documentation can be found at:
 // https://help.apple.com/xcode/#/dev745c5c974
 
+ENVIRONMENT_NAME = Production
+
 // Overriding (do NOT change key name)
 // app name
-PRODUCT_NAME = Tangem Beta
+PRODUCT_NAME = Tangem
 // bundle id
-PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemBeta
+PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem
 // app icon
-ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon_Beta
+ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon_$(ENVIRONMENT_NAME)
