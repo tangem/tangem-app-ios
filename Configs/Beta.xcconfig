@@ -13,6 +13,6 @@
 // app name
 PRODUCT_NAME = Tangem Beta
 // bundle id
-PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem.beta
+PRODUCT_BUNDLE_IDENTIFIER = com.tangem.TangemBeta
 // app icon
 ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon_Beta
