@@ -45,7 +45,7 @@ struct DetailsCoordinatorView: CoordinatorView {
                 DisclaimerView(viewModel: $0)
             }
             .navigation(item: $coordinator.chatSupportViewModel) {
-                $0.openChat()
+                $0.chatView()
             }
     }
     
