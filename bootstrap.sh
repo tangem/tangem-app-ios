@@ -5,8 +5,14 @@
 # Install Homebrew -> https://brew.sh
 
 echo "==== Installing dependencies... 🔜 ===="
- brew install mint
- mint install nicklockwood/SwiftFormat
+if which -a brew > /dev/null
+then
+    brew install mint
+else
+    echo "⚠️ Homebrew wasn't installed. Try to install"
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+mint install nicklockwood/SwiftFormat
 echo "==== Dependencies succesfully installed ✅ ===="
 
 echo "==== Running swiftformat ===="
