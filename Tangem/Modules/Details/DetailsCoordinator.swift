@@ -26,7 +26,7 @@ class DetailsCoordinator: CoordinatorObject {
     @Published var mailViewModel: MailViewModel? = nil
     @Published var disclaimerViewModel: DisclaimerViewModel? = nil
     @Published var cardOperationViewModel: CardOperationViewModel? = nil
-    @Published var chatSupportViewModel: SupportChatViewModel? = nil
+    @Published var supportChatViewModel: SupportChatViewModel? = nil
     
     // MARK: - Helpers
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
@@ -100,7 +100,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
     
     func openSupportChat() {
-        chatSupportViewModel = SupportChatViewModel()
+        supportChatViewModel = SupportChatViewModel()
     }
 }
 
