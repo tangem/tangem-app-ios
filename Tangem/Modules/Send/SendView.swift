@@ -247,7 +247,7 @@ struct SendView: View {
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
             .receive(on: DispatchQueue.main)) { _ in
                 viewModel.onBecomingActive()
-            }
+        }
     }
     
     @ViewBuilder private var sendButton: some View {
