@@ -149,7 +149,6 @@
 		5DE2038E24EE8A510044EF46 /* ActivityIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE2038D24EE8A510044EF46 /* ActivityIndicatorView.swift */; };
 		5DE552EF27B2A5F400D7ADCD /* IconsUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DE552EE27B2A5F300D7ADCD /* IconsUtils.swift */; };
 		5DE552F627B418B400D7ADCD /* testnet_tokens.json in Resources */ = {isa = PBXBuildFile; fileRef = 5DE552F527B418B400D7ADCD /* testnet_tokens.json */; };
-		5DE7DD0A2694D37300472205 /* TangemClip.app in Embed App Clips */ = {isa = PBXBuildFile; fileRef = B0D3600125F26C7400929564 /* TangemClip.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		5DE7DD122695BEE900472205 /* UrlHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DDE22E92608DC94008657C6 /* UrlHandler.swift */; };
 		5DE7DD152695BF8D00472205 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B020FFBD25DE895E00EF422C /* Logger.swift */; };
 		5DE7DD162695BF9700472205 /* FileEncryptionUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F79C692689AC56008C9B30 /* FileEncryptionUtility.swift */; };
@@ -341,7 +340,7 @@
 		B0D1271E26AEF341008DC75C /* WalletConnectNetworkParserUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D1271D26AEF341008DC75C /* WalletConnectNetworkParserUtility.swift */; };
 		B0D34E6F2626CEEB00625AC5 /* WalletConnectSignHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D34E6E2626CEEB00625AC5 /* WalletConnectSignHandler.swift */; };
 		B0D34E772626DF2F00625AC5 /* WalletConnectRequestHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D34E762626DF2F00625AC5 /* WalletConnectRequestHandler.swift */; };
-		B0D34EBF2626EA4300625AC5 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5D5CE1B52625FFD8009023EC /* GoogleService-Info.plist */; };
+		B0D34EBF2626EA4300625AC5 /* GoogleService-Info-Production.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5D5CE1B52625FFD8009023EC /* GoogleService-Info-Production.plist */; };
 		B0D3600425F26C7400929564 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D3600325F26C7400929564 /* AppDelegate.swift */; };
 		B0D3600625F26C7400929564 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0D3600525F26C7400929564 /* SceneDelegate.swift */; };
 		B0D3600A25F26C7600929564 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B0D3600925F26C7600929564 /* Assets.xcassets */; };
@@ -523,6 +522,8 @@
 		DC7DA8222844F53F00AD6DBD /* CommonOnboardingStepsSetupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7DA8212844F53F00AD6DBD /* CommonOnboardingStepsSetupService.swift */; };
 		EF08A0EF283D1914008BD923 /* Moya+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0EE283D1914008BD923 /* Moya+.swift */; };
 		EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0F0283D2382008BD923 /* CoinsListRequestModel.swift */; };
+		EF0FF8712866021B00B7CEAF /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0FF8702866021B00B7CEAF /* AppEnvironment.swift */; };
+		EF0FF873286608BC00B7CEAF /* GoogleService-Info-Beta.plist in Resources */ = {isa = PBXBuildFile; fileRef = EF0FF8722866089200B7CEAF /* GoogleService-Info-Beta.plist */; };
 		EF4B41BB2864491B003911F6 /* TangemSkeletonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B41BA2864491B003911F6 /* TangemSkeletonModifier.swift */; };
 		EF4B41BD28644982003911F6 /* SkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B41BC28644982003911F6 /* SkeletonView.swift */; };
 		EFB4C1322837C51700E991C1 /* TextHint.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB4C1312837C51700E991C1 /* TextHint.swift */; };
@@ -544,7 +545,7 @@
 			remoteGlobalIDString = 5D3F77C124BF56D800E8695B;
 			remoteInfo = "Tangem Tap";
 		};
-		B0D3601325F26C7600929564 /* PBXContainerItemProxy */ = {
+		EF0FF86D2866015200B7CEAF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5D3F77BA24BF56D800E8695B /* Project object */;
 			proxyType = 1;
@@ -562,17 +563,6 @@
 			files = (
 			);
 			name = "Embed App Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B0D3601625F26C7600929564 /* Embed App Clips */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "$(CONTENTS_FOLDER_PATH)/AppClips";
-			dstSubfolderSpec = 16;
-			files = (
-				5DE7DD0A2694D37300472205 /* TangemClip.app in Embed App Clips */,
-			);
-			name = "Embed App Clips";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -687,7 +677,7 @@
 		5D5CE19E2625FEE9009023EC /* config_example.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = config_example.json; sourceTree = "<group>"; };
 		5D5CE1A62625FF00009023EC /* config_dev.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = config_dev.json; path = "tangem-app-config/config_dev.json"; sourceTree = SOURCE_ROOT; };
 		5D5CE1A72625FF00009023EC /* config_prod.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = config_prod.json; path = "tangem-app-config/config_prod.json"; sourceTree = SOURCE_ROOT; };
-		5D5CE1B52625FFD8009023EC /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		5D5CE1B52625FFD8009023EC /* GoogleService-Info-Production.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info-Production.plist"; sourceTree = "<group>"; };
 		5D5D013B25CC1F3900DA8616 /* TransparentModal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransparentModal.swift; sourceTree = "<group>"; };
 		5D62446027A7CAB60069DEC2 /* Bool+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bool+.swift"; sourceTree = "<group>"; };
 		5D6784C225EB8EF000149995 /* CommonTokenItemsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTokenItemsRepository.swift; sourceTree = "<group>"; };
@@ -1091,6 +1081,8 @@
 		E53081CA3060D2785F9D22F0 /* Pods-Tangem-TangemUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release.xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release.xcconfig"; sourceTree = "<group>"; };
 		EF08A0EE283D1914008BD923 /* Moya+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Moya+.swift"; sourceTree = "<group>"; };
 		EF08A0F0283D2382008BD923 /* CoinsListRequestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinsListRequestModel.swift; sourceTree = "<group>"; };
+		EF0FF8702866021B00B7CEAF /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
+		EF0FF8722866089200B7CEAF /* GoogleService-Info-Beta.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info-Beta.plist"; sourceTree = "<group>"; };
 		EF2EFDE12865C05D00798051 /* Production.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Production.xcconfig; sourceTree = "<group>"; };
 		EF2EFDE22865C07100798051 /* Beta.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Beta.xcconfig; sourceTree = "<group>"; };
 		EF4B41BA2864491B003911F6 /* TangemSkeletonModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TangemSkeletonModifier.swift; sourceTree = "<group>"; };
@@ -1268,9 +1260,7 @@
 			isa = PBXGroup;
 			children = (
 				5D2CE0EF2755038B00CD05A1 /* Intents.intentdefinition */,
-				5D5CE1B52625FFD8009023EC /* GoogleService-Info.plist */,
 				5D3F77C424BF56D800E8695B /* Tangem */,
-				EF2EFDE02865BFE800798051 /* Configs */,
 				5D3F77DB24BF56DC00E8695B /* TangemTests */,
 				5D3F77E624BF56DC00E8695B /* TangemUITests */,
 				B0D3600225F26C7400929564 /* TangemClip */,
@@ -1299,13 +1289,13 @@
 				5DFCCB6324C371AC0014A293 /* Common */,
 				5D383E4224D9602700C9BFF6 /* Assets */,
 				B0CC817C25CD626A006D49B9 /* Resources */,
+				EF2EFDE02865BFE800798051 /* Configurations */,
 				5D3F77C524BF56D800E8695B /* AppDelegate.swift */,
 				B046EE172578D38E00EA38A5 /* SceneDelegate.swift */,
 				DC5118792860B704004FB954 /* AppCoordinator.swift */,
 				DC51187B2860B728004FB954 /* AppCoordinatorView.swift */,
 				5DBFEA4D24DD642C0080D3DC /* Tangem.entitlements */,
 				5D3F77D024BF56DC00E8695B /* LaunchScreen.storyboard */,
-				5D3F77D324BF56DC00E8695B /* Info.plist */,
 				DA64C36F27CCAD7E005B5E9A /* InfoPlist.strings */,
 				5D3F77CD24BF56DC00E8695B /* Preview Content */,
 			);
@@ -1586,6 +1576,7 @@
 				B082E91E255A8E7800A0CEA9 /* Storage */,
 				5D119E84256BF1E50046CAD2 /* Option.swift */,
 				B0453671264D4B730005B23E /* Constants.swift */,
+				EF0FF8702866021B00B7CEAF /* AppEnvironment.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -2581,13 +2572,16 @@
 			path = Types;
 			sourceTree = "<group>";
 		};
-		EF2EFDE02865BFE800798051 /* Configs */ = {
+		EF2EFDE02865BFE800798051 /* Configurations */ = {
 			isa = PBXGroup;
 			children = (
 				EF2EFDE12865C05D00798051 /* Production.xcconfig */,
 				EF2EFDE22865C07100798051 /* Beta.xcconfig */,
+				5D3F77D324BF56DC00E8695B /* Info.plist */,
+				5D5CE1B52625FFD8009023EC /* GoogleService-Info-Production.plist */,
+				EF0FF8722866089200B7CEAF /* GoogleService-Info-Beta.plist */,
 			);
-			path = Configs;
+			path = Configurations;
 			sourceTree = "<group>";
 		};
 		EFB4C1302837C50C00E991C1 /* Types */ = {
@@ -2611,13 +2605,12 @@
 				5D3F77BF24BF56D800E8695B /* Frameworks */,
 				5D3F77C024BF56D800E8695B /* Resources */,
 				78515DF22ED176E83FF382BF /* [CP] Embed Pods Frameworks */,
-				B0D3601625F26C7600929564 /* Embed App Clips */,
 				B066823E26564ADB00CB86CF /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				B0D3601425F26C7600929564 /* PBXTargetDependency */,
+				EF0FF86E2866015200B7CEAF /* PBXTargetDependency */,
 			);
 			name = Tangem;
 			productName = "Tangem Tap";
@@ -2738,6 +2731,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EF0FF873286608BC00B7CEAF /* GoogleService-Info-Beta.plist in Resources */,
 				B0A359EF2589117200E25B34 /* features_dev.json in Resources */,
 				DA64C36D27CCAD7E005B5E9A /* InfoPlist.strings in Resources */,
 				5D3F77D224BF56DC00E8695B /* LaunchScreen.storyboard in Resources */,
@@ -2748,7 +2742,7 @@
 				5DE552F627B418B400D7ADCD /* testnet_tokens.json in Resources */,
 				B0A359ED2589117200E25B34 /* features_firebase.json in Resources */,
 				5D383E3F24D95BA600C9BFF6 /* Localizable.strings in Resources */,
-				B0D34EBF2626EA4300625AC5 /* GoogleService-Info.plist in Resources */,
+				B0D34EBF2626EA4300625AC5 /* GoogleService-Info-Production.plist in Resources */,
 				5D3F77CF24BF56DC00E8695B /* Preview Assets.xcassets in Resources */,
 				5D5CE1A82625FF00009023EC /* config_dev.json in Resources */,
 				B0A359EE2589117200E25B34 /* features_prod.json in Resources */,
@@ -3281,6 +3275,7 @@
 				B031AAB526C16A1B00015003 /* UIColor+.swift in Sources */,
 				DA5FAD8627B2791C00EE53AE /* ApplePayButton.swift in Sources */,
 				DC295B3C2861C19C006CB7B6 /* MainCoordinator.swift in Sources */,
+				EF0FF8712866021B00B7CEAF /* AppEnvironment.swift in Sources */,
 				DC0A581D2825281C0031BECC /* RemoteConfigurationProviding.swift in Sources */,
 				B01EB9C426E9F18A0060E2FB /* StackCalculator.swift in Sources */,
 				5D9004E424FA79F700E90939 /* ViewStateHandler.swift in Sources */,
@@ -3479,10 +3474,10 @@
 			target = 5D3F77C124BF56D800E8695B /* Tangem */;
 			targetProxy = 5D3F77E424BF56DC00E8695B /* PBXContainerItemProxy */;
 		};
-		B0D3601425F26C7600929564 /* PBXTargetDependency */ = {
+		EF0FF86E2866015200B7CEAF /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = B0D3600025F26C7400929564 /* TangemClip */;
-			targetProxy = B0D3601325F26C7600929564 /* PBXContainerItemProxy */;
+			targetProxy = EF0FF86D2866015200B7CEAF /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -3694,7 +3689,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Tangem/Preview Content\"";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
-				INFOPLIST_FILE = Tangem/Info.plist;
+				INFOPLIST_FILE = Tangem/Configurations/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3724,7 +3719,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Tangem/Preview Content\"";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
-				INFOPLIST_FILE = Tangem/Info.plist;
+				INFOPLIST_FILE = Tangem/Configurations/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -3859,7 +3854,6 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS -D CLIP";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem.Clip;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_INCLUDE_PATHS = "$(inherited) \"${PODS_XCFRAMEWORKS_BUILD_DIR}/Clibsodium\" $(SRCROOT)/TangemClip";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -3890,7 +3884,6 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS -D CLIP";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem.Clip;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_INCLUDE_PATHS = "$(inherited) \"${PODS_XCFRAMEWORKS_BUILD_DIR}/Clibsodium\" $(SRCROOT)/TangemClip";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -3922,7 +3915,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem.Clip;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_INCLUDE_PATHS = "$(inherited) \"${PODS_XCFRAMEWORKS_BUILD_DIR}/Clibsodium\" $(SRCROOT)/TangemClip";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -4000,7 +3992,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Tangem/Preview Content\"";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
-				INFOPLIST_FILE = Tangem/Info.plist;
+				INFOPLIST_FILE = Tangem/Configurations/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4138,7 +4130,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Tangem/Preview Content\"";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
-				INFOPLIST_FILE = Tangem/Info.plist;
+				INFOPLIST_FILE = Tangem/Configurations/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4224,7 +4216,6 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS -D CLIP";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem.Clip;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_INCLUDE_PATHS = "$(inherited) \"${PODS_XCFRAMEWORKS_BUILD_DIR}/Clibsodium\" $(SRCROOT)/TangemClip";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -4302,7 +4293,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Tangem/Preview Content\"";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
-				INFOPLIST_FILE = Tangem/Info.plist;
+				INFOPLIST_FILE = Tangem/Configurations/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4392,7 +4383,6 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS -D CLIP";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem.Clip;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_INCLUDE_PATHS = "$(inherited) \"${PODS_XCFRAMEWORKS_BUILD_DIR}/Clibsodium\" $(SRCROOT)/TangemClip";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -4470,7 +4460,7 @@
 				DEVELOPMENT_ASSET_PATHS = "\"Tangem/Preview Content\"";
 				DEVELOPMENT_TEAM = 4897UJ6D8C;
 				ENABLE_PREVIEWS = YES;
-				INFOPLIST_FILE = Tangem/Info.plist;
+				INFOPLIST_FILE = Tangem/Configurations/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -4558,7 +4548,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem.Clip;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_INCLUDE_PATHS = "$(inherited) \"${PODS_XCFRAMEWORKS_BUILD_DIR}/Clibsodium\" $(SRCROOT)/TangemClip";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
