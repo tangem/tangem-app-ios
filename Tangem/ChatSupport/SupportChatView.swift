@@ -19,9 +19,9 @@ struct SupportChatView: UIViewControllerRepresentable {
             return UIViewController(nibName: nil, bundle: nil)
         }
     }
-    
+
     func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) { }
-    
+
     func buildUI() throws -> UIViewController {
         let messagingConfiguration = MessagingConfiguration()
         messagingConfiguration.name = "Tangem"
