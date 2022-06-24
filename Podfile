@@ -40,7 +40,7 @@ target 'Tangem' do
   pod 'Firebase/Crashlytics'
   pod 'Firebase/Analytics'
 	pod 'Firebase/RemoteConfig'
-  pod 'DeviceGuru'
+  pod 'DeviceGuru', '8.0.0'
   pod 'Kingfisher', :git => 'https://github.com/onevcat/Kingfisher.git', :branch => 'version6-xcode13'
   pod 'stellar-ios-mac-sdk'
   pod 'AppsFlyerFramework'
@@ -80,14 +80,21 @@ end
 pre_install do |installer|
     # workaround for https://github.com/CocoaPods/CocoaPods/issues/3289
     Pod::Installer::Xcode::TargetValidator.send(:define_method, :verify_no_static_framework_transitive_dependencies) {}
+    
 end
 
 post_install do |installer|
+  xcode_version = %x[xcrun xcodebuild -version | head -1 | awk '{print $2}']
+  major_xcode_version = xcode_version.split(".").first
+  
 	installer.pods_project.targets.each do |target|
 		target.build_configurations.each do |config|
 			if Gem::Version.new('9.0') > Gem::Version.new(config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'])
 				config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '9.0'
 			end
+      if major_xcode_version > '13'
+        config.build_settings["DEVELOPMENT_TEAM"] = "4897UJ6D8C"
+      end
 		end
 	end
 end
