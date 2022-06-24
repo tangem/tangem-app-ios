@@ -14,16 +14,16 @@ import AnswerBotProvidersSDK
 
 class SupportChatViewModel {
     @Injected(\.keysManager) private var keysManager: KeysManager
-    
+
     init() {
         Zendesk.initialize(appId: keysManager.zendesk.zendeskAppId,
                            clientId: keysManager.zendesk.zendeskClientId,
                            zendeskUrl: keysManager.zendesk.zendeskUrl)
         Support.initialize(withZendesk: Zendesk.instance)
-        Zendesk.instance!.setIdentity(Identity.createAnonymous())
+        Zendesk.instance?.setIdentity(Identity.createAnonymous())
     }
-    
-    func openChat() -> some View {
+
+    func chatView() -> some View {
         return SupportChatView()
             .edgesIgnoringSafeArea(.vertical)
     }
