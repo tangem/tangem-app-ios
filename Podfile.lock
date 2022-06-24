@@ -215,7 +215,7 @@ DEPENDENCIES:
   - BinanceChain (from `https://github.com/lazutkin-andrey/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/lazutkin-andrey/bitcoincore.git`, tag `0.0.16`)
   - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-123`)
-  - DeviceGuru
+  - DeviceGuru (= 8.0.0)
   - Firebase/Analytics
   - Firebase/Crashlytics
   - Firebase/RemoteConfig
@@ -383,6 +383,6 @@ SPEC CHECKSUMS:
   web3swift: 93f68f5430c11a78bba2351c139d2d22f2c04b5e
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
 
-PODFILE CHECKSUM: c33c0fa9093c3a493cd81285b8da53aa13f83200
+PODFILE CHECKSUM: 39702921939ede9ba767ff9113e0dbd24f7c0cc0
 
 COCOAPODS: 1.11.3
