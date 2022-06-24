@@ -2726,9 +2726,9 @@
 			projectRoot = "";
 			targets = (
 				5D3F77C124BF56D800E8695B /* Tangem */,
+				B0D3600025F26C7400929564 /* TangemClip */,
 				5D3F77D724BF56DC00E8695B /* TangemTests */,
 				5D3F77E224BF56DC00E8695B /* TangemUITests */,
-				B0D3600025F26C7400929564 /* TangemClip */,
 			);
 		};
 /* End PBXProject section */
@@ -3686,7 +3686,7 @@
 			baseConfigurationReference = DFEC35A94293DE7EB96CEBC1 /* Pods-Tangem.debug(production).xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
 				CODE_SIGN_ENTITLEMENTS = Tangem/Tangem.entitlements;
 				CODE_SIGN_STYLE = Automatic;
@@ -3700,7 +3700,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 3.27;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(inherited)";
 				PRODUCT_NAME = "$(inherited)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -3715,7 +3715,7 @@
 			baseConfigurationReference = 6DBB055D99B4DB295C04B287 /* Pods-Tangem.release(production).xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
 				CODE_SIGN_ENTITLEMENTS = Tangem/Tangem.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -3730,7 +3730,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 3.27;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(inherited)";
 				PRODUCT_NAME = "$(inherited)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -3991,7 +3991,7 @@
 			baseConfigurationReference = C28F25047393622649695D2B /* Pods-Tangem.firebase(production).xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
 				CODE_SIGN_ENTITLEMENTS = Tangem/Tangem.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -4006,7 +4006,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 3.27;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(inherited)";
 				PRODUCT_NAME = "$(inherited)";
 				PROVISIONING_PROFILE_SPECIFIER = "Tangem App Development";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -4130,7 +4130,7 @@
 			baseConfigurationReference = 3511E74B3D7B5B94145775FC /* Pods-Tangem.debug(beta).xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
 				CODE_SIGN_ENTITLEMENTS = Tangem/Tangem.entitlements;
 				CODE_SIGN_STYLE = Automatic;
@@ -4144,7 +4144,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 3.27;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(inherited)";
 				PRODUCT_NAME = "$(inherited)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -4293,7 +4293,7 @@
 			baseConfigurationReference = D4A25DE2562F5431EFD71FAC /* Pods-Tangem.release(beta).xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
 				CODE_SIGN_ENTITLEMENTS = Tangem/Tangem.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
@@ -4308,7 +4308,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 3.27;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(inherited)";
 				PRODUCT_NAME = "$(inherited)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -4461,7 +4461,7 @@
 			baseConfigurationReference = 3D60DED42D22AAC59455404C /* Pods-Tangem.firebase(beta).xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_APPICON_NAME = "$(inherited)";
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
 				CODE_SIGN_ENTITLEMENTS = Tangem/Tangem.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -4476,7 +4476,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 3.27;
-				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(inherited)";
 				PRODUCT_NAME = "$(inherited)";
 				PROVISIONING_PROFILE_SPECIFIER = "Tangem App Development";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
