@@ -102,7 +102,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
     
     func openSupportChat() {
-        supportChatViewModel = supportChatService.chatViewModel()
+        supportChatViewModel = supportChatService.supportChatViewModel()
     }
 }
 
