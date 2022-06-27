@@ -11,11 +11,17 @@ import SupportSDK
 import MessagingSDK
 
 class SupportChatViewModel {
+    let supportChatService: SupportChatServiceProtocol
+
     private let chatBotName: String = "Tangem"
     private var messagingConfiguration: MessagingConfiguration {
         let messagingConfiguration = MessagingConfiguration()
         messagingConfiguration.name = chatBotName
         return messagingConfiguration
+    }
+
+    init(supportChatService: SupportChatServiceProtocol) {
+        self.supportChatService = supportChatService
     }
 
     func buildUI() throws -> UIViewController {
