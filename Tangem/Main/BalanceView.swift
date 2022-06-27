@@ -74,7 +74,7 @@ struct BalanceView: View {
             HStack {
                 Text(balanceViewModel.name)
                 Spacer()
-                Text(balanceViewModel.balanceFormatted)
+                Text(balanceViewModel.fiatBalance)
                     .multilineTextAlignment(.trailing)
                     .truncationMode(.middle)
             }
@@ -108,7 +108,7 @@ struct BalanceView: View {
                     }
                 }
                 Spacer()
-                Text(balanceViewModel.fiatBalance)
+                Text(balanceViewModel.balanceFormatted)
                     .font(Font.system(size: 14.0, weight: .medium, design: .default))
                     .lineLimit(1)
                     .foregroundColor(Color.tangemGrayDark)
