@@ -9,6 +9,8 @@
 import UIKit
 import Firebase
 import AppsFlyerLib
+import ZendeskCoreSDK
+import SupportSDK
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -49,6 +51,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         AppsFlyerLib.shared().appsFlyerDevKey = CommonKeysManager().appsFlyerDevKey
         AppsFlyerLib.shared().appleAppID = "1354868448"
+        
+        Zendesk.initialize(appId: CommonKeysManager().zendesk.zendeskAppId,
+                           clientId: CommonKeysManager().zendesk.zendeskClientId,
+                           zendeskUrl: CommonKeysManager().zendesk.zendeskUrl)
+        Support.initialize(withZendesk: Zendesk.instance)
+        Zendesk.instance?.setIdentity(Identity.createAnonymous())
+        
         NotificationCenter.default.addObserver(self, selector: NSSelectorFromString("sendLaunch"),
                                                name: UIApplication.didBecomeActiveNotification, object: nil)
 
