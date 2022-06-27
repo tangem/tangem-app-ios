@@ -12,7 +12,7 @@ import SupportSDK
 import MessagingSDK
 
 protocol SupportChatServiceProtocol {
-    func chatViewModel() -> SupportChatViewModel
+    func supportChatViewModel() -> SupportChatViewModel
 }
 
 class SupportChatService: SupportChatServiceProtocol {
@@ -26,7 +26,7 @@ class SupportChatService: SupportChatServiceProtocol {
         Zendesk.instance?.setIdentity(Identity.createAnonymous())
     }
 
-    func chatViewModel() -> SupportChatViewModel {
+    func supportChatViewModel() -> SupportChatViewModel {
         return SupportChatViewModel()
     }
 }
