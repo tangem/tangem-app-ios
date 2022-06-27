@@ -9,8 +9,6 @@
 import Foundation
 
 class DetailsCoordinator: CoordinatorObject {
-    @Injected(\.supportChatService) private var supportChatService: SupportChatServiceProtocol
-    
     var dismissAction: Action
     var popToRootAction: ParamsAction<PopToRootOptions>
     
@@ -102,7 +100,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
     
     func openSupportChat() {
-        supportChatViewModel = SupportChatViewModel(supportChatService: supportChatService)
+        supportChatViewModel = SupportChatViewModel() // supportChatService: supportChatService)
     }
 }
 
