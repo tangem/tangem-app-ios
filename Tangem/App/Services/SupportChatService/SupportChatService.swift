@@ -11,9 +11,7 @@ import ZendeskCoreSDK
 import SupportSDK
 import MessagingSDK
 
-protocol SupportChatServiceProtocol {
-    func supportChatViewModel() -> SupportChatViewModel
-}
+protocol SupportChatServiceProtocol { }
 
 class SupportChatService: SupportChatServiceProtocol {
     @Injected(\.keysManager) private var keysManager: KeysManager
@@ -24,10 +22,6 @@ class SupportChatService: SupportChatServiceProtocol {
                            zendeskUrl: keysManager.zendesk.zendeskUrl)
         Support.initialize(withZendesk: Zendesk.instance)
         Zendesk.instance?.setIdentity(Identity.createAnonymous())
-    }
-
-    func supportChatViewModel() -> SupportChatViewModel {
-        return SupportChatViewModel()
     }
 }
 
