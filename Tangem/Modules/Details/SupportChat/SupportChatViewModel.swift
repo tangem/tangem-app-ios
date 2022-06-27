@@ -23,5 +23,4 @@ class SupportChatViewModel {
         return try Messaging.instance.buildUI(engines: [supportEngine],
                                               configs: [messagingConfiguration])
     }
-
 }
