@@ -11,12 +11,12 @@ import ZendeskCoreSDK
 import SupportSDK
 import MessagingSDK
 
-protocol SupportChatServiceProtocol { }
+protocol SupportChatServiceProtocol: Initializable { }
 
 class SupportChatService: SupportChatServiceProtocol {
     @Injected(\.keysManager) private var keysManager: KeysManager
 
-    init() {
+    func initialize() {
         Zendesk.initialize(appId: keysManager.zendesk.zendeskAppId,
                            clientId: keysManager.zendesk.zendeskClientId,
                            zendeskUrl: keysManager.zendesk.zendeskUrl)
