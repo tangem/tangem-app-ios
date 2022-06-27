@@ -9,9 +9,13 @@
 import Foundation
 import ZendeskCoreSDK
 import SupportSDK
-import SwiftUI
+import MessagingSDK
 
-class SupportChatService {
+protocol SupportChatServiceProtocol {
+    func chatViewModel() -> SupportChatViewModel
+}
+
+class SupportChatService: SupportChatServiceProtocol {
     @Injected(\.keysManager) private var keysManager: KeysManager
 
     init() {
@@ -22,8 +26,18 @@ class SupportChatService {
         Zendesk.instance?.setIdentity(Identity.createAnonymous())
     }
 
-    func chatView() -> some View {
-        return SupportChatView()
-            .edgesIgnoringSafeArea(.vertical)
+    func chatViewModel() -> SupportChatViewModel {
+        return SupportChatViewModel()
+    }
+}
+
+private struct KeysManagerKey: InjectionKey {
+    static var currentValue: SupportChatServiceProtocol = SupportChatService()
+}
+
+extension InjectedValues {
+    var supportChatService: SupportChatServiceProtocol {
+        get { Self[KeysManagerKey.self] }
+        set { Self[KeysManagerKey.self] = newValue }
     }
 }
