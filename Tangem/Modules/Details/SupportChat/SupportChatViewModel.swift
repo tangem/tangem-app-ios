@@ -9,7 +9,6 @@
 import ZendeskCoreSDK
 import SupportSDK
 import MessagingSDK
-import SwiftUI
 
 class SupportChatViewModel {
     private let chatBotName: String = "Tangem"
