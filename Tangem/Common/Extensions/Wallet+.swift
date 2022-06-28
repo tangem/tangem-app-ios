@@ -17,11 +17,11 @@ extension Wallet {
             return false
         }
         
-        if amounts.isEmpty { //not loaded from blockchain
+        if amounts.isEmpty { // not loaded from blockchain
             return false
         }
         
-        if amounts.values.first(where: { $0.value > 0 }) == nil { //empty wallet
+        if amounts.values.first(where: { $0.value > 0 }) == nil { // empty wallet
             return false
         }
         
@@ -31,7 +31,7 @@ extension Wallet {
         }
         
         let coinAmount = amounts[.coin]?.value ?? 0
-        if coinAmount <= 0 { //not enough fee
+        if coinAmount <= 0 { // not enough fee
             return false
         }
         

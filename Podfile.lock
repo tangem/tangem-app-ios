@@ -179,7 +179,6 @@ PODS:
   - ScaleCodec (0.2.1):
     - BigInt (~> 5.2)
   - secp256k1.swift (0.1.4)
-  - SkeletonUI (1.0.7)
   - Sodium (0.9.1)
   - Solana.Swift (1.1):
     - secp256k1.swift
@@ -206,6 +205,28 @@ PODS:
     - XCGLogger/Core (= 7.0.1)
   - XCGLogger/Core (7.0.1):
     - ObjcExceptionBridging
+  - ZendeskAnswerBotProvidersSDK (2.2.0):
+    - ZendeskSupportProvidersSDK (= 5.5.0)
+  - ZendeskAnswerBotSDK (2.2.0):
+    - ZendeskAnswerBotProvidersSDK (= 2.2.0)
+    - ZendeskMessagingSDK (= 3.8.5)
+  - ZendeskChatProvidersSDK (2.12.0)
+  - ZendeskChatSDK (2.12.0):
+    - ZendeskChatProvidersSDK (= 2.12.0)
+    - ZendeskMessagingSDK (= 3.8.5)
+  - ZendeskCommonUISDK (6.1.4)
+  - ZendeskCoreSDK (2.7.0)
+  - ZendeskMessagingAPISDK (3.8.5):
+    - ZendeskSDKConfigurationsSDK (= 1.1.11)
+  - ZendeskMessagingSDK (3.8.5):
+    - ZendeskCommonUISDK (= 6.1.4)
+    - ZendeskMessagingAPISDK (= 3.8.5)
+  - ZendeskSDKConfigurationsSDK (1.1.11)
+  - ZendeskSupportProvidersSDK (5.5.0):
+    - ZendeskCoreSDK (= 2.7.0)
+  - ZendeskSupportSDK (5.5.0):
+    - ZendeskMessagingSDK (= 3.8.5)
+    - ZendeskSupportProvidersSDK (= 5.5.0)
 
 DEPENDENCIES:
   - Alamofire
@@ -215,7 +236,7 @@ DEPENDENCIES:
   - BigInt
   - BinanceChain (from `https://github.com/lazutkin-andrey/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/lazutkin-andrey/bitcoincore.git`, tag `0.0.16`)
-  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, branch `IOS-1738-Add-Dash`)
+  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-123`)
   - DeviceGuru
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -226,7 +247,6 @@ DEPENDENCIES:
   - Mobile-Buy-SDK
   - Moya
   - ScaleCodec
-  - SkeletonUI (~> 1.0.7)
   - Sodium
   - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-1`)
   - Starscream (~> 4.0.4)
@@ -236,6 +256,10 @@ DEPENDENCIES:
   - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-152`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.6.2`)
   - web3swift (from `https://github.com/lazutkin-andrey/web3swift.git`, tag `2.2.9`)
+  - ZendeskAnswerBotSDK (~> 2.2.0)
+  - ZendeskChatSDK (~> 2.12.0)
+  - ZendeskSupportProvidersSDK (~> 5.5.0)
+  - ZendeskSupportSDK (~> 5.5.0)
 
 SPEC REPOS:
   trunk:
@@ -265,7 +289,6 @@ SPEC REPOS:
     - PromisesObjC
     - ScaleCodec
     - secp256k1.swift
-    - SkeletonUI
     - Sodium
     - Starscream
     - stellar-ios-mac-sdk
@@ -275,6 +298,17 @@ SPEC REPOS:
     - SwiftyJSON
     - TweetNacl
     - XCGLogger
+    - ZendeskAnswerBotProvidersSDK
+    - ZendeskAnswerBotSDK
+    - ZendeskChatProvidersSDK
+    - ZendeskChatSDK
+    - ZendeskCommonUISDK
+    - ZendeskCoreSDK
+    - ZendeskMessagingAPISDK
+    - ZendeskMessagingSDK
+    - ZendeskSDKConfigurationsSDK
+    - ZendeskSupportProvidersSDK
+    - ZendeskSupportSDK
 
 EXTERNAL SOURCES:
   AlertToast:
@@ -288,6 +322,7 @@ EXTERNAL SOURCES:
   BlockchainSdk:
     :branch: IOS-1738-Add-Dash
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
+    :tag: develop-123
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
@@ -320,6 +355,7 @@ CHECKOUT OPTIONS:
   BlockchainSdk:
     :commit: a2d48a1cd9118e297ca1d2c75c16978040d02823
     :git: https://github.com/Tangem/blockchain-sdk-swift.git
+    :tag: develop-123
   HDWalletKit:
     :git: https://github.com/lazutkin-andrey/hdwallet.git
     :tag: 0.3.12
@@ -372,7 +408,6 @@ SPEC CHECKSUMS:
   PromisesObjC: 68159ce6952d93e17b2dfe273b8c40907db5ba58
   ScaleCodec: 5d7d0439940c600f49babad6ea265a09377c404b
   secp256k1.swift: a7e7a214f6db6ce5db32cc6b2b45e5c4dd633634
-  SkeletonUI: 18fbcd8698480432852d7e30a65b8d5e138266f0
   Sodium: 23d11554ecd556196d313cf6130d406dfe7ac6da
   Solana.Swift: c86f550e70aeaf1f2171435ef95dca16fc55c950
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
@@ -386,7 +421,18 @@ SPEC CHECKSUMS:
   WalletConnectSwift: 046ae74e8cb69445be9c94c66ef66f9cb019b68f
   web3swift: 93f68f5430c11a78bba2351c139d2d22f2c04b5e
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
+  ZendeskAnswerBotProvidersSDK: ec58548f5a968c31d4672dcb2493a9ac307bd2a2
+  ZendeskAnswerBotSDK: 68abbf67fd97be03aff5d9aba2e431759ce4143e
+  ZendeskChatProvidersSDK: b3f5a914ed9d518770c994f0f04683952087b00a
+  ZendeskChatSDK: 12fbe34d67b73895882786736329236e7e092b67
+  ZendeskCommonUISDK: ba160fe413b491af9e7bfcb9808afcd494dc83a5
+  ZendeskCoreSDK: 4236eb56f9386cf0770900df04c857b9b4d79d03
+  ZendeskMessagingAPISDK: 410f9bcf07c79fe98d6f251da102368d6b356c54
+  ZendeskMessagingSDK: 95d396c981dacfab83cc7b9736e8561d51a3052b
+  ZendeskSDKConfigurationsSDK: ebced171fd1f4eb57760e8537d8cfa6a450122be
+  ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
+  ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: 9fe271a039ffdc10560b2d381fddc8a35a6facaa
+PODFILE CHECKSUM: 0ac7b2d9a1d73cd6864d0fc151b3698f050f6c38
 
 COCOAPODS: 1.11.3
