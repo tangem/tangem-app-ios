@@ -204,7 +204,9 @@ struct CustomPasswordTextField: View {
 
 extension OnboardingAccessCodeView {
     enum ViewState: String {
-        case intro, inputCode, repeatCode
+        case intro
+        case inputCode
+        case repeatCode
         
         var title: LocalizedStringKey {
             switch self {
@@ -237,7 +239,9 @@ extension OnboardingAccessCodeView {
     }
     
     enum AccessCodeError: String {
-        case none, tooShort, dontMatch
+        case none
+        case tooShort
+        case dontMatch
         
         var description: LocalizedStringKey {
             switch self {
