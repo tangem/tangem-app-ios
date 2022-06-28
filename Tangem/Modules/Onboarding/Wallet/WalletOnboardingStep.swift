@@ -9,7 +9,13 @@
 import SwiftUI
 
 enum WalletOnboardingStep {
-    case welcome, createWallet, scanPrimaryCard, backupIntro, selectBackupCards, backupCards, success
+    case welcome
+    case createWallet
+    case scanPrimaryCard
+    case backupIntro
+    case selectBackupCards
+    case backupCards
+    case success
     
     var navbarTitle: LocalizedStringKey {
         switch self {
