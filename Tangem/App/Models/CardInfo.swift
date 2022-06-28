@@ -103,7 +103,9 @@ struct CardInfo {
 }
 
 enum CardArtwork: Equatable {
-    case notLoaded, noArtwork, artwork(ArtworkInfo)
+    case notLoaded
+    case noArtwork
+    case artwork(ArtworkInfo)
 }
 
 struct ImageLoadDTO: Equatable {
