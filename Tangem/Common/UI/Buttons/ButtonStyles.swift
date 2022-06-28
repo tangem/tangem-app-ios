@@ -212,14 +212,14 @@ struct ButtonStyles_Previews: PreviewProvider {
             TangemButton(title: "Tangem custom button", action: {})
                 .buttonStyle(TangemButtonStyle(layout: .custom(size: CGSize(width: 175,
                                                                             height: 44)),
-                                               font: .system(size: 18)))
+                    font: .system(size: 18)))
             
             TangemButton(title: "Tangem custom button", action: {})
                 .buttonStyle(TangemButtonStyle(layout: .customWidth(234),
                                                font: .system(size: 18)))
             
             
-            Button(action:{}){ Text("Tap in!") }
+            Button(action: {}) { Text("Tap in!") }
                 .buttonStyle(TangemButtonStyle())
 
             Button(action: {}) { Text("Tap in!") }
