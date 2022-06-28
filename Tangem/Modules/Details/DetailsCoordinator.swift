@@ -26,6 +26,7 @@ class DetailsCoordinator: CoordinatorObject {
     @Published var mailViewModel: MailViewModel? = nil
     @Published var disclaimerViewModel: DisclaimerViewModel? = nil
     @Published var cardOperationViewModel: CardOperationViewModel? = nil
+    @Published var supportChatViewModel: SupportChatViewModel? = nil
     
     // MARK: - Helpers
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
@@ -96,6 +97,10 @@ extension DetailsCoordinator: DetailsRoutable {
         let options = SecurityManagementCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
         secManagementCoordinator = coordinator
+    }
+    
+    func openSupportChat() {
+        supportChatViewModel = SupportChatViewModel()
     }
 }
 
