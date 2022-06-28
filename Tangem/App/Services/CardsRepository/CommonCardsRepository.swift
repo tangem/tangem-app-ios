@@ -23,7 +23,6 @@ import Intents
 class CommonCardsRepository: CardsRepository {
     @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
     @Injected(\.scannedCardsRepository) private var scannedCardsRepository: ScannedCardsRepository
-    @Injected(\.assemblyProvider) private var assemblyProvider: AssemblyProviding
     
     var lastScanResult: ScanResult = .notScannedYet
     var didScanPublisher: PassthroughSubject<CardInfo, Never> = .init()
@@ -40,7 +39,7 @@ class CommonCardsRepository: CardsRepository {
     func scan(with batch: String? = nil, _ completion: @escaping (Result<ScanResult, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
         sdkProvider.prepareScan()
-        sdkProvider.sdk.startSession(with: AppScanTask(targetBatch: batch)) {[unowned self] result in
+        sdkProvider.sdk.startSession(with: AppScanTask(targetBatch: batch)) { [unowned self] result in
             switch result {
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .scan)
@@ -77,7 +76,7 @@ class CommonCardsRepository: CardsRepository {
         sdkProvider.didScan(cardInfo.card)
         didScanPublisher.send(cardInfo)
         
-        let cm = assemblyProvider.assembly.makeCardModel(from: cardInfo)
+        let cm = CardViewModel(cardInfo: cardInfo)
         let result: ScanResult = .card(model: cm)
         cards[cardInfo.card.cardId] = result
         lastScanResult = result
@@ -94,28 +93,28 @@ fileprivate class LegacyCardMigrator {
     
     private var userPrefsService: UserPrefsService = .init()
     
-    //Save default blockchain and token to main tokens repo.
+    // Save default blockchain and token to main tokens repo.
     func migrateIfNeeded(for cardInfo: CardInfo) {
         let cardId = cardInfo.card.cardId
       
-        //Migrate only multiwallet cards
+        // Migrate only multiwallet cards
         guard cardInfo.isMultiWallet else {
             return
         }
         
-        //Check if we have anything to migrate. It's impossible to get default token without default blockchain
+        // Check if we have anything to migrate. It's impossible to get default token without default blockchain
         guard let entry = cardInfo.defaultStorageEntry else {
             return
         }
         
-        //Migrate only known cards.
+        // Migrate only known cards.
         guard scannedCardsRepository.cards.keys.contains(cardId) else {
             // Newly scanned card. Save and forgot.
             userPrefsService.migratedCardsWithDefaultTokens.append(cardId)
             return
         }
         
-        //Migrate only once.
+        // Migrate only once.
         guard !userPrefsService.migratedCardsWithDefaultTokens.contains(cardId) else {
             return
         }
@@ -123,7 +122,7 @@ fileprivate class LegacyCardMigrator {
         var entries = tokenItemsRepository.getItems(for: cardId)
         entries.insert(entry, at: 0)
         
-        //We need to preserve order of token items
+        // We need to preserve order of token items
         tokenItemsRepository.removeAll(for: cardId)
         tokenItemsRepository.append(entries, for: cardId)
         
