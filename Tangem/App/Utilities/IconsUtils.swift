@@ -14,20 +14,20 @@ public enum IconsUtils {
         "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains"
     }
     private static var logoSuffix: String { "logo.png" }
-    
+
     public static func getBlockchainIcon(_ blockchain: Blockchain) -> String? {
         switch blockchain {
         case .binance, .litecoin, .cardano, .bitcoin,
-                .bitcoinCash, .ethereum, .rsk, .tezos, .xrp, .stellar:
+             .bitcoinCash, .ethereum, .rsk, .tezos, .xrp, .stellar:
             return "\(blockchain.codingKey)".lowercased()
         default:
             return nil
         }
     }
-   
+
     public static func getBlockchainIconUrl(_ blockchain: Blockchain) -> URL? {
         guard let blockchainPath = blockchain.getPath else { return nil }
-        
+
         return URL(string: baseUrl)?
             .appendingPathComponent(blockchainPath)
             .appendingPathComponent("info")
@@ -36,7 +36,7 @@ public enum IconsUtils {
 }
 
 fileprivate extension Blockchain {
-    var getPath: String? { //from https://github.com/trustwallet/assets/tree/master/blockchains
+    var getPath: String? { // from https://github.com/trustwallet/assets/tree/master/blockchains
         switch self {
         case .rsk, .ducatus:
             return nil

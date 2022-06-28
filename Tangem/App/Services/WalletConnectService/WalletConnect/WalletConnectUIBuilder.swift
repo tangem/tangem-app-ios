@@ -11,7 +11,7 @@ import SwiftUI
 
 enum WalletConnectEvent {
     case establishSession, sign, sendTx, error, success
-    
+
     var withCancelButton: Bool {
         switch self {
         case .error, .success: return false
@@ -42,7 +42,7 @@ enum WalletConnectUIBuilder {
         vc.addAction(acceptButton)
         return vc
     }
-    
+
     static func makeErrorAlert(_ error: Error) -> UIAlertController {
         makeAlert(for: .error, message: error.localizedDescription)
     }
