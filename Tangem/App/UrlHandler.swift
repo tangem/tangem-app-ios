@@ -11,7 +11,7 @@ import Foundation
 protocol URLHandler: AnyObject {
     @discardableResult
     func handle(url: URL) -> Bool
-    
+
     @discardableResult
     func handle(url: String) -> Bool
 }
