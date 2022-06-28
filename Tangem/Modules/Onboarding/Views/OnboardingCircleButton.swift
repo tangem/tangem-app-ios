@@ -11,11 +11,17 @@ import SwiftUI
 struct OnboardingCircleButton: View {
     
     enum State {
-        case blank, refreshButton, activityIndicator, doneCheckmark
+        case blank
+        case refreshButton
+        case activityIndicator
+        case doneCheckmark
     }
     
     enum Size {
-        case `default`, huge, medium, small
+        case `default`
+        case huge
+        case medium
+        case small
         
         var buttonSize: CGSize {
             switch self {
