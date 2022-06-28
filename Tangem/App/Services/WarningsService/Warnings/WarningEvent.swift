@@ -9,7 +9,6 @@
 import Foundation
 
 enum WarningEvent: String, Decodable {
-    
     case numberOfSignedHashesIncorrect
     case multiWalletSignedHashes
     case rateApp
