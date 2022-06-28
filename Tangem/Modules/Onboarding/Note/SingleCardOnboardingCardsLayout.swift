@@ -9,7 +9,8 @@
 import SwiftUI
 
 enum SingleCardOnboardingCardsLayout: OnboardingCardFrameCalculator {
-    case main, supplementary
+    case main
+    case supplementary
     
     var cardHeightWidthRatio: CGFloat { 0.609 }
     
