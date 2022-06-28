@@ -11,15 +11,15 @@ import FirebaseRemoteConfig
 
 class FeaturesConfigManager: RemoteConfigurationProviding {
     private let featuresFileName = "features"
-    
+
     private let config: RemoteConfig
-    
+
     private(set) var features: AppFeatures
     private(set) var warnings: [AppWarning] = []
-    
+
     init() {
         config = RemoteConfig.remoteConfig()
-        
+
         let settings = RemoteConfigSettings()
         #if DEBUG
         settings.minimumFetchInterval = 0
@@ -30,11 +30,11 @@ class FeaturesConfigManager: RemoteConfigurationProviding {
         features = try! JsonUtils.readBundleFile(with: featuresFileName, type: AppFeatures.self)
         fetch()
     }
-    
+
     private func fetch() {
         config.fetchAndActivate { [weak self] (status, error) in
             guard let self = self else { return }
-            
+
 //            self.setupFeatures()
             self.setupWarnings()
         }
