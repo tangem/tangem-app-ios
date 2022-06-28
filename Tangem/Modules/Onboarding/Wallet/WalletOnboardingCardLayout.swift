@@ -9,7 +9,9 @@
 import SwiftUI
 
 enum WalletOnboardingCardLayout {
-    case origin, firstBackup, secondBackup
+    case origin
+    case firstBackup
+    case secondBackup
     
     var cardFanStackIndex: Int {
         switch self {
