@@ -290,4 +290,8 @@ extension DetailsViewModel {
     func openSecManagement() {
         coordinator.openSecManagement(with: cardModel)
     }
+    
+    func openSupportChat() {
+        coordinator.openSupportChat()
+    }
 }
