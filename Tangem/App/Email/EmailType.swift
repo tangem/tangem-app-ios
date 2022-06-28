@@ -9,7 +9,11 @@
 import Foundation
 
 enum EmailType {
-    case negativeRateAppFeedback, failedToScanCard, failedToSendTx, failedToPushTx, appFeedback(support: EmailSupport)
+    case negativeRateAppFeedback
+    case failedToScanCard
+    case failedToSendTx
+    case failedToPushTx
+    case appFeedback(support: EmailSupport)
     
     var emailSubject: String {
         switch self {
@@ -80,26 +84,52 @@ struct EmailCollectedData {
 }
 
 enum EmailCollectedDataType {
-    case logs, card(CardData), send(SendData), wallet(WalletData), error, separator(SeparatorType), token(TokenData)
+    case logs
+    case card(CardData)
+    case send(SendData)
+    case wallet(WalletData)
+    case error
+    case separator(SeparatorType)
+    case token(TokenData)
     
     enum CardData: String {
-        case cardId = "Card ID", firmwareVersion = "Firmware version", cardBlockchain = "Card Blockchain", blockchain, derivationPath = "Derivation path", token
+        case cardId = "Card ID"
+        case firmwareVersion = "Firmware version"
+        case cardBlockchain = "Card Blockchain"
+        case blockchain
+        case derivationPath = "Derivation path"
+        case token
     }
     
     enum SendData: String {
-        case sourceAddress = "Source address", destinationAddress = "Destination address", amount, fee, transactionHex = "Transaction HEX", pushingTxHash = "Pushing Transaction Hash", pushingFee = "Pushing Transaction New Fee"
+        case sourceAddress = "Source address"
+        case destinationAddress = "Destination address"
+        case amount
+        case fee
+        case transactionHex = "Transaction HEX"
+        case pushingTxHash = "Pushing Transaction Hash"
+        case pushingFee = "Pushing Transaction New Fee"
     }
     
     enum WalletData: String {
-        case walletAddress = "Wallet address", explorerLink = "Explorer link", signedHashes = "Signed hashes", walletManagerHost = "Host", outputsCount = "Outputs count", derivationPath = "Derivation path"
+        case walletAddress = "Wallet address"
+        case explorerLink = "Explorer link"
+        case signedHashes = "Signed hashes"
+        case walletManagerHost = "Host"
+        case outputsCount = "Outputs count"
+        case derivationPath = "Derivation path"
     }
     
     enum TokenData: String {
-        case contractAddress = "Contract address", name = "Name", tokens = "Tokens", id = "ID"
+        case contractAddress = "Contract address"
+        case name = "Name"
+        case tokens = "Tokens"
+        case id = "ID"
     }
     
     enum SeparatorType: String {
-        case dashes = "--------", newLine = "\n"
+        case dashes = "--------"
+        case newLine = "\n"
     }
     
     var title: String {

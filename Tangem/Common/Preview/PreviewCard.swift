@@ -12,7 +12,15 @@ import Combine
 import BlockchainSdk
 
 enum PreviewCard {
-    case withoutWallet, twin, ethereum, stellar, v4, cardanoNote, cardanoNoteEmptyWallet, ethEmptyNote, tangemWalletEmpty
+    case withoutWallet
+    case twin
+    case ethereum
+    case stellar
+    case v4
+    case cardanoNote
+    case cardanoNoteEmptyWallet
+    case ethEmptyNote
+    case tangemWalletEmpty
     
     var cardModel: CardViewModel { scanResult.cardModel! }
     
