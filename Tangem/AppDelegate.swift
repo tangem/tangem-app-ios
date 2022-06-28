@@ -86,6 +86,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
     
     func applicationDidBecomeActive(_ application: UIApplication) {
+        guard AppEnvironment.current == .production else { return }
+
         AppsFlyerLib.shared().start()
     }
 }
@@ -108,6 +110,10 @@ private extension AppDelegate {
 
         AppsFlyerLib.shared().appsFlyerDevKey = CommonKeysManager().appsFlyerDevKey
         AppsFlyerLib.shared().appleAppID = "1354868448"
-        AppsFlyerLib.shared().isDebug = AppEnvironment.current == .beta
+        #if DEBUG
+        AppsFlyerLib.shared().isDebug = true
+        #else
+        AppsFlyerLib.shared().isDebug = false
+        #endif
     }
 }
