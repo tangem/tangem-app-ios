@@ -20,7 +20,7 @@ struct CardInfo {
     var twinCardInfo: TwinCardInfo?
     var isTangemNote: Bool
     var isTangemWallet: Bool
-    var derivedKeys: [Data:[DerivationPath:ExtendedPublicKey]] = [:]
+    var derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]] = [:]
     var primaryCard: PrimaryCard? = nil
     
     var imageLoadDTO: ImageLoadDTO {
@@ -29,9 +29,9 @@ struct CardInfo {
                      artwotkInfo: artworkInfo)
     }
     
-#if !CLIP
+    #if !CLIP
     var isTestnet: Bool {
-        if card.batchId == "99FF" { //[REDACTED_TODO_COMMENT]
+        if card.batchId == "99FF" { // [REDACTED_TODO_COMMENT]
             return card.cardId.starts(with: card.batchId.reversed())
         }
         
@@ -45,7 +45,7 @@ struct CardInfo {
             return nil
         }
         
-        let blockchainName = isTangemNote ? (walletData.blockchain.lowercased() == "binance" ? "bsc": walletData.blockchain)
+        let blockchainName = isTangemNote ? (walletData.blockchain.lowercased() == "binance" ? "bsc" : walletData.blockchain)
             : walletData.blockchain
         
         return Blockchain.from(blockchainName: blockchainName, curve: curve)
@@ -71,7 +71,7 @@ struct CardInfo {
         return StorageEntry(blockchainNetwork: network, tokens: tokens)
     }
     
-#endif
+    #endif
     
     var artworkInfo: ArtworkInfo? {
         switch artwork {

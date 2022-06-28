@@ -89,7 +89,7 @@ class CommonTokenItemsRepository {
         remove([blockchainNetwork], for: cardId)
     }
     
-    func remove(_ blockchainNetworks: [BlockchainNetwork], for cardId: String){
+    func remove(_ blockchainNetworks: [BlockchainNetwork], for cardId: String) {
         lockQueue.sync {
             var items = fetch(for: cardId)
             var hasRemoved: Bool = false
@@ -147,7 +147,7 @@ class CommonTokenItemsRepository {
         }
         
         wallets.forEach { cardId, oldData in
-            let blockchains = Set(oldData.map{ $0.blockchain })
+            let blockchains = Set(oldData.map { $0.blockchain })
             let tokens = oldData.compactMap { $0.token }
             let groupedTokens = Dictionary(grouping: tokens, by: { $0.blockchain })
             
@@ -185,7 +185,7 @@ fileprivate extension Array where Element == StorageEntry {
             
             return appended
         } else {
-            //add new entry
+            // add new entry
             append(entry)
         }
         
@@ -197,15 +197,15 @@ fileprivate extension Array where Element == StorageEntry {
             if let existingTokenIndex = self[existingIndex].tokens.firstIndex(of: token) {
                 if self[existingIndex].tokens[existingTokenIndex].id == nil,
                    token.id != nil {
-                    self[existingIndex].tokens[existingTokenIndex] = token //upgrade custom token
+                    self[existingIndex].tokens[existingTokenIndex] = token // upgrade custom token
                 } else {
-                    return false //already contains
+                    return false // already contains
                 }
             } else {
-                self[existingIndex].tokens.append(token) //append new token
+                self[existingIndex].tokens.append(token) // append new token
             }
         } else {
-            //create new entry
+            // create new entry
             let entry = StorageEntry(blockchainNetwork: blockchainNetwork, tokens: [token])
             append(entry)
         }
@@ -215,9 +215,9 @@ fileprivate extension Array where Element == StorageEntry {
     
     mutating func tryAppend(blockchainNetwork: BlockchainNetwork) -> Bool {
         if contains(where: { $0.blockchainNetwork == blockchainNetwork }) {
-            return false //already contains
+            return false // already contains
         } else {
-            //create new entry
+            // create new entry
             let entry = StorageEntry(blockchainNetwork: blockchainNetwork, tokens: [])
             append(entry)
             return true
@@ -254,7 +254,7 @@ struct StorageEntry: Codable, Equatable {
     var tokens: [BlockchainSdk.Token]
 }
 
-//MARK: - Legacy storage
+// MARK: - Legacy storage
 
 fileprivate enum LegacyStorageEntry: Codable {
     case blockchain(Blockchain)
