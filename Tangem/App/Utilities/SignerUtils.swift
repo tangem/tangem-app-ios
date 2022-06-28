@@ -15,13 +15,13 @@ struct SignerUtils {
         let fileData = try! Data(contentsOf: path)
         return try! JSONDecoder.tangemSdkDecoder.decode([KeyPair].self, from: fileData)
     }()
-    
+
     static func signerKeys(for issuer: String) -> KeyPair? {
-        return issuers.first(where: {$0.id.lowercased() == issuer.lowercased()})
+        return issuers.first(where: { $0.id.lowercased() == issuer.lowercased() })
     }
-    
+
     static func signerKeys(for publicKey: Data) -> KeyPair? {
-        return issuers.first(where: {$0.publicKey == publicKey})
+        return issuers.first(where: { $0.publicKey == publicKey })
     }
 }
 
