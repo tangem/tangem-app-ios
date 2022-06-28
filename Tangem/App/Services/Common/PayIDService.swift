@@ -60,8 +60,8 @@ enum PayIdNetwork: String {
 
 enum PayIdTarget: TargetType {
     case address(payId: String, network: PayIdNetwork)
-    case getPayId(cid: String, cardPublicKey:Data)
-    case createPayId(cid: String, cardPublicKey:Data, payId: String, address: String, network: PayIdNetwork)
+    case getPayId(cid: String, cardPublicKey: Data)
+    case createPayId(cid: String, cardPublicKey: Data, payId: String, address: String, network: PayIdNetwork)
     
     var baseURL: URL {
         switch self {
@@ -106,23 +106,23 @@ enum PayIdTarget: TargetType {
         case .address:
             return .requestPlain
         case .getPayId(let cid, let cardPublicKey):
-            return .requestParameters(parameters: ["cid" : cid,
-                                                   "key" : cardPublicKey.hexString], encoding: URLEncoding.default)
+            return .requestParameters(parameters: ["cid": cid,
+                                                   "key": cardPublicKey.hexString], encoding: URLEncoding.default)
         case .createPayId(let cid, let cardPublicKey, let payId, let address, let network):
-            return .requestParameters(parameters: ["cid" : cid,
-                                                   "key" : cardPublicKey.hexString,
-                                                   "payid" : payId,
-                                                   "address" : address,
-                                                   "network" : network.rawValue
-            ], encoding: URLEncoding.default)
+            return .requestParameters(parameters: ["cid": cid,
+                                                   "key": cardPublicKey.hexString,
+                                                   "payid": payId,
+                                                   "address": address,
+                                                   "network": network.rawValue,
+                ], encoding: URLEncoding.default)
         }
     }
     
     public var headers: [String: String]? {
         switch self {
         case .address(_, let network):
-            return ["Accept" : "application/\(network.rawValue.lowercased())-mainnet+json",
-                "PayID-Version" : "1.0"]
+            return ["Accept": "application/\(network.rawValue.lowercased())-mainnet+json",
+                    "PayID-Version": "1.0"]
         default:
             return nil
         }
@@ -141,7 +141,7 @@ struct CreatePayIdResponse: Codable {
 
 class PayIDService {
     let network: PayIdNetwork
-    let payIdProvider = MoyaProvider<PayIdTarget>(/*plugins: [NetworkLoggerPlugin()]*/)
+    let payIdProvider = MoyaProvider<PayIdTarget>( /* plugins: [NetworkLoggerPlugin()] */ )
     
     internal init(network: PayIdNetwork) {
         self.network = network
@@ -188,7 +188,7 @@ class PayIDService {
     }
     
     
-    func loadPayIDInfo (for card: Card) -> AnyPublisher<PayIdStatus, Error> {
+    func loadPayIDInfo(for card: Card) -> AnyPublisher<PayIdStatus, Error> {
         return loadPayId(cid: card.cardId, key: card.cardPublicKey)
     }
     
@@ -204,7 +204,7 @@ class PayIDService {
                 }
                 throw PayIdError.emptyResponse
             }
-            .tryCatch{ error -> AnyPublisher<PayIdStatus, Error> in
+            .tryCatch { error -> AnyPublisher<PayIdStatus, Error> in
                 if let moyaError = error as? MoyaError,
                    case let .statusCode(response) = moyaError {
                     if response.statusCode == 404 {
@@ -270,7 +270,7 @@ class PayIDService {
     }
     
     func resolve(_ payId: String, completion: @escaping (Result<PayIdAddressDetails, Error>) -> Void) {
-        payIdProvider.request(.address(payId: payId, network: self.network)) {[weak self] moyaResult in
+        payIdProvider.request(.address(payId: payId, network: self.network)) { [weak self] moyaResult in
             guard let self = self else { return }
             switch moyaResult {
             case .success(let response):
