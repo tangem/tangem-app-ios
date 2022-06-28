@@ -58,17 +58,17 @@ class AppFeaturesService {
 }
 
 extension AppFeaturesService: AppFeaturesProviding {    
-	var canSetAccessCode: Bool { features.contains(.pins) }
+    var canSetAccessCode: Bool { features.contains(.pins) }
 	
-	var canSetPasscode: Bool { features.contains(.pins) }
+    var canSetPasscode: Bool { features.contains(.pins) }
 	
-	var canCreateTwin: Bool { features.contains(.twinCreation) }
+    var canCreateTwin: Bool { features.contains(.twinCreation) }
 	
-	var isPayIdEnabled: Bool { canSendToPayId || canReceiveToPayId }
+    var isPayIdEnabled: Bool { canSendToPayId || canReceiveToPayId }
 	
-	var canSendToPayId: Bool { features.contains(.payIDSend) }
+    var canSendToPayId: Bool { features.contains(.payIDSend) }
 	
-	var canReceiveToPayId: Bool { features.contains(.payIDReceive) }
+    var canReceiveToPayId: Bool { features.contains(.payIDReceive) }
 	
-	var canExchangeCrypto: Bool { features.contains(.topup) }
+    var canExchangeCrypto: Bool { features.contains(.topup) }
 }
