@@ -494,3 +494,7 @@ URL: %@";
 "token_details_unable_hide_alert_message" = "The %@ token is the main currency on the %@ network and cannot be hidden as long as you have other tokens on this network in the list.";
 
 "token_item_no_rate" = "No rate";
+"main_no_backup_warning_title" = "Your wallet has not been backed up";
+"main_no_backup_warning_subtitle" = "To protect your assets, we advise you to carry out this procedure";
+"details_ask_a_question" = "Ask a question";
+"common_retry" = "Retry";
