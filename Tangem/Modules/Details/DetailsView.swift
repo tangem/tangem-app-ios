@@ -12,7 +12,7 @@ import TangemSdk
 
 struct DetailsView: View {
     private enum NavigationTag: String {
-        case currency, disclaimer, cardTermsOfUse, securityManagement, walletConnect, resetToFactory
+        case currency, disclaimer, cardTermsOfUse, securityManagement, walletConnect, resetToFactory, supportChat
     }
     
     @ObservedObject var viewModel: DetailsViewModel
@@ -181,6 +181,11 @@ struct DetailsView: View {
                                   tag: NavigationTag.walletConnect,
                                   selection: $selection)
             }
+            
+            DetailsRowView(title: "details_ask_a_question".localized, subtitle: "")
+                .onNavigation(viewModel.openSupportChat,
+                              tag: NavigationTag.supportChat,
+                              selection: $selection)
         }
     }
 }
