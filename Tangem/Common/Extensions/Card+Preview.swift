@@ -13,7 +13,7 @@ extension Card {
     static var card: Card = {
         fromJson(cardJson)
     }()
-    
+
     private static func fromJson(_ json: String) -> Card {
         let jsonData = json.data(using: .utf8)!
         let decoder = JSONDecoder.tangemSdkDecoder
@@ -31,7 +31,7 @@ extension Card {
             fatalError(error.errorDescription ?? error.localizedDescription)
         }
     }
-    
+
     private static let cardJson =
         """
         {
