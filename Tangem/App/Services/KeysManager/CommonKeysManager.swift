@@ -57,6 +57,10 @@ extension CommonKeysManager: KeysManager {
     var shopifyShop: ShopifyShop {
         keys.shopifyShop
     }
+    
+    var zendesk: ZendeskConfig {
+        keys.zendesk
+    }
 }
 
 extension CommonKeysManager {
@@ -70,11 +74,13 @@ extension CommonKeysManager {
         let appsFlyerDevKey: String
         let cryptoAPIsApiKey: String
         let shopifyShop: ShopifyShop
+        let zendesk: ZendeskConfig
         
         fileprivate static var empty: Keys {
             .init(moonPayApiKey: "", moonPayApiSecretKey: "", onramperApiKey: "", blockchairApiKey: "",
-                  blockcypherTokens: [], infuraProjectId: "", appsFlyerDevKey: "", cryptoAPIsApiKey: "",
-                  shopifyShop: .init(domain: "", storefrontApiKey: "", merchantID: ""))
+                  blockcypherTokens: [], infuraProjectId: "", appsFlyerDevKey: "",
+                  shopifyShop: .init(domain: "", storefrontApiKey: "", merchantID: ""),
+                  zendesk: .init(zendeskApiKey: "", zendeskAppId: "", zendeskClientId: "", zendeskUrl: ""))
         }
     }
 }
