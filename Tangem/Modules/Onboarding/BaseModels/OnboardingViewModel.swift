@@ -106,7 +106,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
     }
     
     var isBackButtonVisible: Bool {
-        if !isInitialAnimPlayed || isFromMain {
+        if !isInitialAnimPlayed {
             return false
         }
         
