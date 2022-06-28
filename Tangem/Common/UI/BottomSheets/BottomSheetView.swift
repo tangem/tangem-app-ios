@@ -50,7 +50,7 @@ struct BottomSheetView<Content: View>: View {
                 let shouldDismiss = value.predictedEndTranslation.height > UIScreen.main.bounds.height / 3
                 let speed: Double = speed(for: value)
                 
-                if(speed > 200) || shouldDismiss {
+                if (speed > 200) || shouldDismiss {
                     let distanceToBottomEdge = (screenSize.height - value.location.y)
                     let animDuration = min(defaultAnimDuration, Double(distanceToBottomEdge) / speed)
                     hideBottomSheet(with: animDuration)
