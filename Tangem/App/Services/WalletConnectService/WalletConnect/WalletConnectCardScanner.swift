@@ -25,7 +25,6 @@ enum WalletConnectCardScannerError: LocalizedError {
 }
 
 class WalletConnectCardScanner {
-    @Injected(\.assemblyProvider) var assemblyProvider: AssemblyProviding
     @Injected(\.tangemSdkProvider) var tangemSdkProvider: TangemSdkProviding
     @Injected(\.scannedCardsRepository) var scannedCardsRepository: ScannedCardsRepository
     @Injected(\.cardsRepository) var cardsRepository: CardsRepository
@@ -39,7 +38,7 @@ class WalletConnectCardScanner {
                     let network = try self.parseNetwork(wcNetwork)
                     
                     self.tangemSdkProvider.sdk.startSession(with: AppScanTask(),
-                                                            initialMessage: Message(header: "wallet_connect_scan_card_message".localized)) {[weak self] result in
+                                                            initialMessage: Message(header: "wallet_connect_scan_card_message".localized)) { [weak self] result in
                         guard let self = self else { return }
                         
                         switch result {
@@ -105,7 +104,7 @@ class WalletConnectCardScanner {
            existingCardModel.cardInfo.card.cardId == cardInfo.card.cardId {
             return existingCardModel.walletModels ?? []
         } else {
-            return assemblyProvider.assembly.makeAllWalletModels(from: cardInfo)
+            return WalletManagerAssembly.makeAllWalletModels(from: cardInfo)
         }
     }
 }
