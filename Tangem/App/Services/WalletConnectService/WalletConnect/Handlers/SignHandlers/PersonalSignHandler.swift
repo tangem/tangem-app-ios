@@ -13,7 +13,7 @@ import TangemSdk
 import BlockchainSdk
 
 class PersonalSignHandler: WalletConnectSignHandler {
-    
+
     override var action: WalletConnectAction { .personalSign }
 
     override func handle(request: Request) {
@@ -25,30 +25,30 @@ class PersonalSignHandler: WalletConnectSignHandler {
                 delegate?.send(.reject(request), for: action)
                 return
             }
-        
+
             let messageData = Data(hex: messageBytes)
             let prefix = String(format: "wallet_connect_personal_sign_message".localized, session.session.dAppInfo.peerMeta.name)
             let personalMessageData = self.makePersonalMessageData(messageData)
-            
+
             askToSign(in: session, request: request, message: prefix + messageBytes, dataToSign: personalMessageData)
         } catch {
             delegate?.sendInvalid(request)
         }
     }
-    
+
     override func signatureResponse(for signature: String, session: WalletConnectSession, request: Request) -> Response {
         .signature(signature, for: request)
     }
-    
-    override func sign(data: Data, cardId: String, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<String, Error> {
+
+    override func sign(data: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<String, Error> {
         let hash = data.sha3(.keccak256)
-        
-        return signer.sign(hash: hash, cardId: cardId, walletPublicKey: walletPublicKey)
+
+        return signer.sign(hash: hash, walletPublicKey: walletPublicKey)
             .tryMap { response -> String in
                 if let unmarshalledSig = try? Secp256k1Signature(with: response).unmarshal(with: walletPublicKey.blockchainKey,
                                                                                            hash: hash) {
                     let strSig =  "0x" + unmarshalledSig.r.hexString + unmarshalledSig.s.hexString +
-                    unmarshalledSig.v.hexString
+                        unmarshalledSig.v.hexString
                     return strSig
                 } else {
                     throw WalletConnectServiceError.signFailed
@@ -62,6 +62,6 @@ class PersonalSignHandler: WalletConnectSignHandler {
         let prefixData = (prefix + "\(data.count)").data(using: .utf8)!
         return prefixData + data
     }
-    
+
 }
 
