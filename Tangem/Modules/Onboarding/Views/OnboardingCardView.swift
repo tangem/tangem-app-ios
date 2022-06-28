@@ -40,16 +40,15 @@ struct OnboardingCardView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(size: geom.size)
                     .opacity(cardScanned ? 1.0 : 0.0)
+            } else {
+                Image(placeholderCardType.imageName)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(size: geom.size)
+                    .opacity(cardScanned ? 0.0 : 1.0)
+                    .transition(.opacity.animation(.easeOut.delay(0.3)))
             }
-            Image(placeholderCardType.imageName)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(size: geom.size)
-                .opacity(cardScanned ? 0.0 : 1.0)
         }
-//            BlankCard(cardType: placeholderCardType)
-//                .opacity(cardScanned ? 0.0 : 1.0)
-//        }
     }
     
 }
