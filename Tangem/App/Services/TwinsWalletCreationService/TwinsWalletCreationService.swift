@@ -177,6 +177,9 @@ class TwinsWalletCreationService {
 
 extension TwinsWalletCreationService {
     enum CreationStep {
-        case first, second, third, done
+        case first
+        case second
+        case third
+        case done
     }
 }
