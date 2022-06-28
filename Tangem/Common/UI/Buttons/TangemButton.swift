@@ -64,7 +64,8 @@ struct TangemButton: View {
 
 extension TangemButton {
     enum IconPosition {
-        case leading, trailing
+        case leading
+        case trailing
     }
     
     static func vertical(title: LocalizedStringKey,
