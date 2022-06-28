@@ -103,14 +103,6 @@ struct CardInfo {
 }
 
 enum CardArtwork: Equatable {
-    static func == (lhs: CardArtwork, rhs: CardArtwork) -> Bool {
-        switch (lhs, rhs) {
-        case (.notLoaded, .notLoaded), (.noArtwork, .noArtwork): return true
-        case (.artwork(let lhsArt), .artwork(let rhsArt)): return lhsArt == rhsArt
-        default: return false
-        }
-    }
-    
     case notLoaded, noArtwork, artwork(ArtworkInfo)
 }
 
