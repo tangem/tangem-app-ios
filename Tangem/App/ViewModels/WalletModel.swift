@@ -507,19 +507,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
 }
 
 extension WalletModel {
-    enum State: Equatable {
-        static func == (lhs: WalletModel.State, rhs: WalletModel.State) -> Bool {
-            switch (lhs, rhs) {
-            case (.noAccount, noAccount),
-                 (.created, .created),
-                 (.idle, .idle),
-                 (.loading, .loading),
-                 (.failed, .failed): return true
-            default:
-                return false
-            }
-        }
-        
+    enum State {
         case created
         case idle
         case loading
@@ -595,6 +583,21 @@ extension WalletModel {
     enum DisplayState {
         case readyForDisplay
         case busy
+    }
+}
+
+extension WalletModel.State: Equatable {
+    static func == (lhs: WalletModel.State, rhs: WalletModel.State) -> Bool {
+        switch (lhs, rhs) {
+        case (.noAccount, noAccount),
+             (.created, .created),
+             (.idle, .idle),
+             (.loading, .loading),
+             (.failed, .failed):
+            return true
+        default:
+            return false
+        }
     }
 }
 
