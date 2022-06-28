@@ -15,14 +15,14 @@ class CreateMultiWalletTask: CardSessionRunnable {
     init(curves: [EllipticCurve] = [.secp256k1, .ed25519]) {
         self.curves = curves
     }
-    
+
     func run(in session: CardSession, completion: @escaping CompletionResult<SuccessResponse>) {
         createWallet(at: 0, session: session, completion: completion)
     }
-    
+
     private func createWallet(at index: Int, session: CardSession, completion: @escaping CompletionResult<SuccessResponse>) {
         let curve = curves[index]
-        let createWalletTask = CreateWalletTask(curve: curve/*, isPermanent: false*/)
+        let createWalletTask = CreateWalletTask(curve: curve /* , isPermanent: false */ )
         createWalletTask.run(in: session) { createWalletCompletion in
             switch createWalletCompletion {
             case .failure(let error):
@@ -36,5 +36,5 @@ class CreateMultiWalletTask: CardSessionRunnable {
             }
         }
     }
-    
+
 }
