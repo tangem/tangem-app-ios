@@ -730,9 +730,9 @@ class MainViewModel: ObservableObject {
 
 extension MainViewModel {
     enum EmailFeedbackCase: Int, Identifiable {
-        var id: Int { rawValue }
-        
         case negativeFeedback, scanTroubleshooting
+        
+        var id: Int { rawValue }
         
         var emailType: EmailType {
             switch self {
