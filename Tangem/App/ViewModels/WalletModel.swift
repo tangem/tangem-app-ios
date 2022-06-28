@@ -603,7 +603,9 @@ extension WalletModel.State: Equatable {
 
 extension WalletModel {
     enum RemovalState: Hashable {
-        case able, unable, ableThroughtAlert
+        case able
+        case unable
+        case ableThroughtAlert
         
         var isRemovable: Bool {
             self != .unable
