@@ -50,6 +50,11 @@ target 'Tangem' do
   pod 'Mobile-Buy-SDK' # Shopify
   pod 'AlertToast', :git => 'https://github.com/tangem/AlertToast'
   
+  pod 'ZendeskSupportSDK', '~> 5.5.0'
+  pod 'ZendeskSupportProvidersSDK', '~> 5.5.0'
+  pod 'ZendeskChatSDK', '~> 2.12.0'
+  pod 'ZendeskAnswerBotSDK', '~> 2.2.0'
+  
   target 'TangemTests' do
     inherit! :search_paths
     # Pods for testing
