@@ -148,7 +148,11 @@ class OnboardingViewModel<Step: OnboardingStep> {
     private func loadImage(for cardModel: CardViewModel) {
         cardModel
             .imageLoaderPublisher
-            .weakAssign(to: \.cardImage, on: self)
+            .sink { [weak self] image in
+                withAnimation {
+                    self?.cardImage = image
+                }
+            }
             .store(in: &bag)
     }
     
