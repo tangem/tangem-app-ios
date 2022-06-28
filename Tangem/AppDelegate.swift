@@ -104,6 +104,8 @@ private extension AppDelegate {
     }
     
     func configureAppsFlyer() {
+        guard AppEnvironment.current == .production else { return }
+
         AppsFlyerLib.shared().appsFlyerDevKey = CommonKeysManager().appsFlyerDevKey
         AppsFlyerLib.shared().appleAppID = "1354868448"
         AppsFlyerLib.shared().isDebug = AppEnvironment.current == .beta
