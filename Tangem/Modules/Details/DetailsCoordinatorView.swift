@@ -44,6 +44,10 @@ struct DetailsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.disclaimerViewModel) {
                 DisclaimerView(viewModel: $0)
             }
+            .navigation(item: $coordinator.supportChatViewModel) {
+                SupportChatView(viewModel: $0)
+                    .edgesIgnoringSafeArea(.vertical)
+            }
     }
     
     @ViewBuilder
