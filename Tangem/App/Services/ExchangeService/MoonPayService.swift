@@ -41,7 +41,8 @@ fileprivate struct IpCheckResponse: Decodable {
 
 fileprivate struct MoonpayCurrency: Decodable {
     enum CurrencyType: String, Decodable {
-        case crypto, fiat
+        case crypto
+        case fiat
     }
     
     let type: CurrencyType
