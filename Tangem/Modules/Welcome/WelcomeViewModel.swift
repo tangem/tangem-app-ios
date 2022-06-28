@@ -107,7 +107,7 @@ class WelcomeViewModel: ObservableObject {
             } receiveValue: { [unowned self] steps in
                 let input = OnboardingInput(steps: steps,
                                             cardInput: .cardModel(cardModel),
-                                            cardsPosition: (.zero, .zero),
+                                            cardsPosition: nil,
                                             welcomeStep: nil,
                                             currentStepIndex: 0)
                 
