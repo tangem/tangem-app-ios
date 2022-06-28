@@ -11,7 +11,9 @@ import TangemSdk
 import BlockchainSdk
 
 enum SendAdditionalFields {
-    case memo, destinationTag, none
+    case memo
+    case destinationTag
+    case none
 
     static func fields(for blockchain: Blockchain) -> SendAdditionalFields {
         switch blockchain {
