@@ -75,7 +75,7 @@ struct WarningView: View {
         if let buttons = warning.event?.buttons, !buttons.isEmpty {
             return buttons
         } else {
-           return [.okGotIt]
+            return [.okGotIt]
         }
     }
     
@@ -115,7 +115,7 @@ struct WarningView_Previews: PreviewProvider {
         AppWarning(title: "Warning", message: "Blockchain is currently unavailable", priority: .critical, type: .permanent),
         AppWarning(title: "Good news, everyone!", message: "New Tangem Cards available. Visit our web site to learn more", priority: .info, type: .temporary),
         AppWarning(title: "Attention!", message: "Something huuuuuge is going to happen! Something huuuuuge is going to happen! Something huuuuuge is going to happen! Something huuuuuge is going to happen! Something huuuuuge is going to happen! Something huuuuuge is going to happen!", priority: .warning, type: .permanent),
-        WarningsList.multiWalletSignedHashes
+        WarningsList.multiWalletSignedHashes,
     ]
     static var previews: some View {
         ScrollView {
