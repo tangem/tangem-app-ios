@@ -237,7 +237,7 @@ DEPENDENCIES:
   - BinanceChain (from `https://github.com/lazutkin-andrey/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/lazutkin-andrey/bitcoincore.git`, tag `0.0.16`)
   - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-123`)
-  - DeviceGuru
+  - DeviceGuru (= 8.0.0)
   - Firebase/Analytics
   - Firebase/Crashlytics
   - Firebase/RemoteConfig
@@ -431,6 +431,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: 0ac7b2d9a1d73cd6864d0fc151b3698f050f6c38
+PODFILE CHECKSUM: c60ce2836dc721adbb03aaf2fdeba079c495eaae
 
 COCOAPODS: 1.11.3
