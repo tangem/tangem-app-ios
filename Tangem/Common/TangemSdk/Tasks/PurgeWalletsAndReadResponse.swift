@@ -15,16 +15,16 @@ class PurgeWalletsAndReadTask: CardSessionRunnable {
             completion(.failure(.missingPreflightRead))
             return
         }
-        
+
         purgeWallet(index: 0, wallets: card.wallets, in: session, completion: completion)
     }
-    
+
     private func purgeWallet(index: Int, wallets: [Card.Wallet], in session: CardSession, completion: @escaping CompletionResult<Card>) {
         if index >= wallets.count {
             completion(.success(session.environment.card!))
             return
         }
-        
+
         let purgeWalletCommand = PurgeWalletCommand(publicKey: wallets[index].publicKey)
         purgeWalletCommand.run(in: session) { purgeWalletCompletion in
             switch purgeWalletCompletion {
