@@ -11,7 +11,8 @@ import SwiftUI
 
 struct MessageView: View {
     enum MessageType {
-        case error, message
+        case error
+        case message
 
         var iconName: String {
             switch self {
