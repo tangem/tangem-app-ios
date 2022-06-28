@@ -22,7 +22,7 @@ struct WebImage: View {
     var isLoadingImage: Bool {
         downloadedImage?.image == nil
     }
-    
+
     var body: some View {
         Image(uiImage: img)
             .resizable()
