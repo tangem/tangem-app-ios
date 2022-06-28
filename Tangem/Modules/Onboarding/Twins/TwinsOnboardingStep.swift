@@ -23,7 +23,15 @@ extension SuccessStep {
 }
 
 enum TwinsOnboardingStep {
-    case welcome, intro(pairNumber: String), first, second, third, topup, done, success, alert
+    case welcome
+    case intro(pairNumber: String)
+    case first
+    case second
+    case third
+    case topup
+    case done
+    case success
+    case alert
     
     static var previewCases: [TwinsOnboardingStep] {
         [.intro(pairNumber: "2"), .topup, .done]
