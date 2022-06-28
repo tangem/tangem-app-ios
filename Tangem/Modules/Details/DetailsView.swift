@@ -72,7 +72,7 @@ struct DetailsView: View {
                 twinCardRecreateView
                 
             } else {
-                if viewModel.backupVisible && viewModel.canCreateBackup {
+                if viewModel.canCreateBackup {
                     createBackupRow
                 }
                 
