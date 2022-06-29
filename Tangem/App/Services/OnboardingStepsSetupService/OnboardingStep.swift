@@ -9,7 +9,9 @@
 import SwiftUI
 
 enum OnboardingSteps {
-    case singleWallet([SingleCardOnboardingStep]), twins([TwinsOnboardingStep]), wallet([WalletOnboardingStep])
+    case singleWallet([SingleCardOnboardingStep])
+    case twins([TwinsOnboardingStep])
+    case wallet([WalletOnboardingStep])
 
     var needOnboarding: Bool {
         stepsCount > 0
