@@ -12,7 +12,13 @@ import TangemSdk
 
 struct DetailsView: View {
     private enum NavigationTag: String {
-        case currency, disclaimer, cardTermsOfUse, securityManagement, walletConnect, resetToFactory, supportChat
+        case currency
+        case disclaimer
+        case cardTermsOfUse
+        case securityManagement
+        case walletConnect
+        case resetToFactory
+        case supportChat
     }
     
     @ObservedObject var viewModel: DetailsViewModel
