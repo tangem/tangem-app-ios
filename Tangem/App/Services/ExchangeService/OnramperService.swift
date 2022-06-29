@@ -18,9 +18,8 @@ fileprivate enum QueryKey: String {
     case wallets
     case onlyGateways
     case language
-    case redirectUR
+    case redirectURL
 }
-
 
 fileprivate struct OnramperGatewaysResponse: Decodable {
     let gateways: [OnramperGateway]
