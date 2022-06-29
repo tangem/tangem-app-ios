@@ -134,7 +134,10 @@ struct PagerViewWithDots<Data, Content>: View
 
 enum TangemWalletOnboardingInfoPage: CaseIterable {
     
-    case first, second, third, fourth
+    case first
+    case second
+    case third
+    case fourth
     
     var title: LocalizedStringKey {
         switch self {

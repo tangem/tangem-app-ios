@@ -9,7 +9,8 @@
 import SwiftUI
 
 enum WelcomeStep {
-    case welcome, letsStart
+    case welcome
+    case letsStart
     
     var title: LocalizedStringKey {
         switch self {
