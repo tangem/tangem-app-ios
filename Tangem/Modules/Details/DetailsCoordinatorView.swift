@@ -32,8 +32,8 @@ struct DetailsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.currencySelectViewModel) {
                 CurrencySelectView(viewModel: $0)
             }
-            .navigation(item: $coordinator.secManagementCoordinator) {
-                SecurityManagementCoordinatorView(coordinator: $0)
+            .navigation(item: $coordinator.securityPrivacyCoordinator) {
+                SecurityPrivacyCoordinatorView(coordinator: $0)
             }
             .navigation(item: $coordinator.walletConnectCoordinator) {
                 WalletConnectCoordinatorView(coordinator: $0)
