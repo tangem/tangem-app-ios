@@ -65,7 +65,8 @@ enum WalletConnectAction: String {
 }
 
 enum WalletConnectNetwork {
-    case eth(chainId: Int), bnb(testnet: Bool)
+    case eth(chainId: Int)
+    case bnb(testnet: Bool)
     
     var blockchain: Blockchain? {
         switch self {
