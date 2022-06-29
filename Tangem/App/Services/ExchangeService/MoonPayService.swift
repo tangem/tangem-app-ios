@@ -13,15 +13,15 @@ import Combine
 import BlockchainSdk
 
 fileprivate enum QueryKey: String {
-    case apiKey,
-         currencyCode,
-         walletAddress,
-         redirectURL,
-         baseCurrencyCode,
-         refundWalletAddress,
-         signature,
-         baseCurrencyAmount,
-         depositWalletAddress
+    case apiKey
+    case currencyCode
+    case walletAddress
+    case redirectURL
+    case baseCurrencyCode
+    case refundWalletAddress
+    case signature
+    case baseCurrencyAmount
+    case depositWalletAddres
 }
 
 fileprivate struct IpCheckResponse: Decodable {
@@ -32,16 +32,17 @@ fileprivate struct IpCheckResponse: Decodable {
     let isSellAllowed: Bool
     
     private enum CodingKeys: String, CodingKey {
-        case countryCode = "alpha3",
-             isMoonpayAllowed = "isAllowed",
-             stateCode = "state"
+        case countryCode = "alpha3"
+        case isMoonpayAllowed = "isAllowed"
+        case stateCode = "state"
         case isBuyAllowed, isSellAllowed
     }
 }
 
 fileprivate struct MoonpayCurrency: Decodable {
     enum CurrencyType: String, Decodable {
-        case crypto, fiat
+        case crypto
+        case fiat
     }
     
     let type: CurrencyType
