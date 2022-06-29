@@ -10,7 +10,11 @@ import Foundation
 import SwiftUI
 
 enum WalletConnectEvent {
-    case establishSession, sign, sendTx, error, success
+    case establishSession
+    case sign
+    case sendTx
+    case error
+    case success
 
     var withCancelButton: Bool {
         switch self {
