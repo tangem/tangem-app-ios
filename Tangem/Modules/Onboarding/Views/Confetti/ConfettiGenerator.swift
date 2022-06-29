@@ -9,7 +9,9 @@
 import UIKit
 
 enum ConfettiGeneratorPosition {
-    case aboveTop, bottom, custom(point: CGPoint)
+    case aboveTop
+    case bottom
+    case custom(point: CGPoint)
     
     var position: CGPoint {
         let screenBounds = UIScreen.main.bounds
