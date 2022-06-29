@@ -132,15 +132,9 @@ class OnboardingViewModel<Step: OnboardingStep> {
     init(input: OnboardingInput, onboardingCoordinator: OnboardingRoutable) {
         self.input = input
         self.onboardingCoordinator = onboardingCoordinator
-        if let cardsSettings = input.cardsPosition {
-            mainCardSettings = cardsSettings.dark
-            supplementCardSettings = cardsSettings.light
-            isInitialAnimPlayed = false
-        } else {
-            isFromMain = true
-            isInitialAnimPlayed = true
-            isNavBarVisible = true
-        }
+        isFromMain = true
+        isInitialAnimPlayed = true
+        isNavBarVisible = true
         
         input.cardInput.cardModel.map { loadImage(for: $0) }
     }
