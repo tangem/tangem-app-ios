@@ -9,7 +9,10 @@
 import Foundation
 
 enum TwinCardSeries: String, CaseIterable {
-    case cb61 = "CB61", cb62 = "CB62", cb64 = "CB64", cb65 = "CB65"
+    case cb61 = "CB61"
+    case cb62 = "CB62"
+    case cb64 = "CB64"
+    case cb65 = "CB65"
 
     var number: Int {
         switch self {
