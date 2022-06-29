@@ -71,14 +71,7 @@ enum TokenItem: Hashable {
     var contractName: String? {
         switch self {
         case .token:
-            switch blockchain {
-            case .binance: return "BEP2"
-            case .bsc: return "BEP20"
-            case .ethereum: return "ERC20"
-            case .tron: return "TRC20"
-            default:
-                return nil
-            }
+            return blockchain.tokenStandardName
         case .blockchain:
             return "MAIN"
         }
