@@ -21,7 +21,7 @@ fileprivate enum QueryKey: String {
     case refundWalletAddress
     case signature
     case baseCurrencyAmount
-    case depositWalletAddres
+    case depositWalletAddress
 }
 
 fileprivate struct IpCheckResponse: Decodable {
