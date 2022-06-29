@@ -50,8 +50,7 @@ extension CommonKeysManager: KeysManager {
     var blockchainConfig: BlockchainSdkConfig {
         BlockchainSdkConfig(blockchairApiKey: keys.blockchairApiKey,
                             blockcypherTokens: keys.blockcypherTokens,
-                            infuraProjectId: keys.infuraProjectId,
-                            cryptoAPIsApiKey: keys.cryptoAPIsApiKey)
+                            infuraProjectId: keys.infuraProjectId)
     }
     
     var shopifyShop: ShopifyShop {
@@ -72,7 +71,6 @@ extension CommonKeysManager {
         let blockcypherTokens: [String]
         let infuraProjectId: String
         let appsFlyerDevKey: String
-        let cryptoAPIsApiKey: String
         let shopifyShop: ShopifyShop
         let zendesk: ZendeskConfig
         
