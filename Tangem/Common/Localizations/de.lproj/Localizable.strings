@@ -498,3 +498,4 @@ URL: %@";
 "main_no_backup_warning_subtitle" = "To protect your assets, we advise you to carry out this procedure";
 "details_ask_a_question" = "Ask a question";
 "common_retry" = "Retry";
+"wallet_currency_subtitle" = "%@ network";
