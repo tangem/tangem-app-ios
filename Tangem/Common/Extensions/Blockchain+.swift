@@ -10,86 +10,8 @@ import Foundation
 import BlockchainSdk
 
 extension Blockchain {
-    var id: String {
-        switch self {
-        case .binance: return "binancecoin"
-        case .bitcoin: return "bitcoin"
-        case .bitcoinCash: return "bitcoin-cash"
-        case .cardano: return "cardano"
-        case .ducatus: return "ducatus"
-        case .ethereum: return "ethereum"
-        case .ethereumClassic: return "ethereum-classic"
-        case .litecoin: return "litecoin"
-        case .rsk: return "rootstock"
-        case .stellar: return "stellar"
-        case .tezos: return "tezos"
-        case .xrp: return "ripple"
-        case .dogecoin: return "dogecoin"
-        case .bsc: return "binancecoin"
-        case .polygon: return "matic-network"
-        case .avalanche: return "avalanche-2"
-        case .solana: return "solana"
-        case .fantom: return "fantom"
-        case .polkadot: return "polkadot"
-        case .kusama: return "kusama"
-        case .tron: return "tron"
-        case .arbitrum: return "arbitrum-one"
-        }
-    }
-    
-    var currencyId: String {
-        switch self {
-        case .arbitrum(let testnet):
-            return Blockchain.ethereum(testnet: testnet).id
-        default:
-            return id
-        }
-    }
-    
-    var networkId: String {
-        switch self {
-        case .binance: return "binancecoin"
-        case .bitcoin: return "bitcoin"
-        case .bitcoinCash: return "bitcoin-cash"
-        case .cardano: return "cardano"
-        case .ducatus: return "ducatus"
-        case .ethereum: return "ethereum"
-        case .ethereumClassic: return "ethereum-classic"
-        case .litecoin: return "litecoin"
-        case .rsk: return "rootstock"
-        case .stellar: return "stellar"
-        case .tezos: return "tezos"
-        case .xrp: return "xrp"
-        case .dogecoin: return "dogecoin"
-        case .bsc: return "binance-smart-chain"
-        case .polygon: return "polygon-pos"
-        case .avalanche: return "avalanche"
-        case .solana: return "solana"
-        case .fantom: return "fantom"
-        case .polkadot: return "polkadot"
-        case .kusama: return "kusama"
-        case .tron: return "tron"
-        case .arbitrum: return "arbitrum-one"
-        }
-    }
-    
     private static var testnetId = "/test"
     
-    var rawStringId: String {
-        var name = "\(self)".lowercased()
-        
-        if let index = name.firstIndex(of: "(") {
-            name = String(name.prefix(upTo: index))
-        }
-        
-        return name
-    }
-    
-    var stringId: String {
-        let name = rawStringId
-        return isTestnet ? "\(name)\(Blockchain.testnetId)" : name
-    }
-
     // Init blockchain from id with default params
     init?(from stringId: String) {
         let isTestnet = stringId.contains(Blockchain.testnetId)
@@ -121,6 +43,84 @@ extension Blockchain {
             print("⚠️⚠️⚠️ Failed to map network ID \"\(stringId)\"")
             return nil
         }
+    }
+    
+    var id: String {
+        switch self {
+        case .binance: return "binancecoin"
+        case .bitcoin: return "bitcoin"
+        case .bitcoinCash: return "bitcoin-cash"
+        case .cardano: return "cardano"
+        case .ducatus: return "ducatus"
+        case .ethereum: return "ethereum"
+        case .ethereumClassic: return "ethereum-classic"
+        case .litecoin: return "litecoin"
+        case .rsk: return "rootstock"
+        case .stellar: return "stellar"
+        case .tezos: return "tezos"
+        case .xrp: return "ripple"
+        case .dogecoin: return "dogecoin"
+        case .bsc: return "binancecoin"
+        case .polygon: return "matic-network"
+        case .avalanche: return "avalanche-2"
+        case .solana: return "solana"
+        case .fantom: return "fantom"
+        case .polkadot: return "polkadot"
+        case .kusama: return "kusama"
+        case .tron: return "tron"
+        case .arbitrum: return "arbitrum-one"
+        }
+    }
+    
+    var networkId: String {
+        switch self {
+        case .binance: return "binancecoin"
+        case .bitcoin: return "bitcoin"
+        case .bitcoinCash: return "bitcoin-cash"
+        case .cardano: return "cardano"
+        case .ducatus: return "ducatus"
+        case .ethereum: return "ethereum"
+        case .ethereumClassic: return "ethereum-classic"
+        case .litecoin: return "litecoin"
+        case .rsk: return "rootstock"
+        case .stellar: return "stellar"
+        case .tezos: return "tezos"
+        case .xrp: return "xrp"
+        case .dogecoin: return "dogecoin"
+        case .bsc: return "binance-smart-chain"
+        case .polygon: return "polygon-pos"
+        case .avalanche: return "avalanche"
+        case .solana: return "solana"
+        case .fantom: return "fantom"
+        case .polkadot: return "polkadot"
+        case .kusama: return "kusama"
+        case .tron: return "tron"
+        case .arbitrum: return "arbitrum-one"
+        }
+    }
+    
+    var currencyId: String {
+        switch self {
+        case .arbitrum(let testnet):
+            return Blockchain.ethereum(testnet: testnet).id
+        default:
+            return id
+        }
+    }
+    
+    var rawStringId: String {
+        var name = "\(self)".lowercased()
+        
+        if let index = name.firstIndex(of: "(") {
+            name = String(name.prefix(upTo: index))
+        }
+        
+        return name
+    }
+    
+    var stringId: String {
+        let name = rawStringId
+        return isTestnet ? "\(name)\(Blockchain.testnetId)" : name
     }
     
     var iconName: String {
