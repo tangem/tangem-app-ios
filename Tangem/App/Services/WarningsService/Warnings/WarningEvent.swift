@@ -9,7 +9,6 @@
 import Foundation
 
 enum WarningEvent: String, Decodable {
-    
     case numberOfSignedHashesIncorrect
     case multiWalletSignedHashes
     case rateApp
@@ -43,7 +42,11 @@ enum WarningEvent: String, Decodable {
 }
 
 enum WarningButton: String, Identifiable {
-    case okGotIt, rateApp, reportProblem, dismiss, learnMore
+    case okGotIt
+    case rateApp
+    case reportProblem
+    case dismiss
+    case learnMore
     
     var id: String { rawValue }
     
