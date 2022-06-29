@@ -12,6 +12,7 @@ import BlockchainSdk
 struct BalanceAddressView: View {
     @ObservedObject var walletModel: WalletModel
     var amountType: Amount.AmountType
+    var isRefreshing: Bool
     @Binding var showExplorerURL: URL?
     @State private var selectedAddressIndex: Int = 0
     
@@ -62,6 +63,10 @@ struct BalanceAddressView: View {
         walletModel.getFiatBalance(for: amountType)
     }
     
+    var isSkeletonShown: Bool {
+        walletModel.state.isLoading && !isRefreshing
+    }
+    
     var body: some View {
         VStack {
             HStack(alignment: .top) {
@@ -81,13 +86,13 @@ struct BalanceAddressView: View {
                             .truncationMode(.middle)
                             .lineLimit(2)
                             .fixedSize(horizontal: false, vertical: true)
-                            .skeletonable(isShown: walletModel.state.isLoading, radius: 6)
+                            .skeletonable(isShown: isSkeletonShown, radius: 6)
                         Text(balance)
                             .font(Font.system(size: 14.0, weight: .medium, design: .default))
                             .lineLimit(1)
                             .fixedSize(horizontal: false, vertical: true)
                             .foregroundColor(Color.tangemGrayDark)
-                            .skeletonable(isShown: walletModel.state.isLoading, radius: 6)
+                            .skeletonable(isShown: isSkeletonShown, radius: 6)
                     }
                     HStack(alignment: .firstTextBaseline, spacing: 5.0) {
                         Image(systemName: image)
@@ -196,7 +201,7 @@ struct BalanceAddressView_Previews: PreviewProvider {
             Color.gray
             ScrollView {
                 BalanceAddressView(
-                    walletModel: walletModel, amountType: .coin, showExplorerURL: .constant(nil))
+                    walletModel: walletModel, amountType: .coin, isRefreshing: false, showExplorerURL: .constant(nil))
                     .padding()
             }
         }
