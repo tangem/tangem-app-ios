@@ -15,6 +15,7 @@ class TokenDetailsViewModel: ObservableObject {
     
     @Published var alert: AlertBinder? = nil
     @Published var showTradeSheet: Bool = false
+    @Published var isRefreshing: Bool = false
     
     let card: CardViewModel
     
@@ -232,11 +233,16 @@ class TokenDetailsViewModel: ObservableObject {
     }
     
     func onRefresh(_ done: @escaping () -> Void) {
+        DispatchQueue.main.async {
+            self.isRefreshing = true
+        }
         refreshCancellable = walletModel?
             .update()
             .receive(on: RunLoop.main)
-            .sink { _ in
+            .sink { [weak self] _ in
+                guard let self = self else { return }
                 print("♻️ Token wallet model loading state changed")
+                self.isRefreshing = false
                 done()
             } receiveValue: { _ in 
                 
