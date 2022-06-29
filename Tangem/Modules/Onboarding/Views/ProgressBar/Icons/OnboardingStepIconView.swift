@@ -11,7 +11,9 @@ import SwiftUI
 struct OnboardingStepIconView: View {
     
     enum State {
-        case passed, current, future
+        case passed
+        case current
+        case future
         
         var checkmarkVisible: Bool {
             switch self {

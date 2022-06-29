@@ -11,7 +11,8 @@ import SwiftUI
 struct BlankCard: View {
     
     enum CardType {
-        case dark, light
+        case dark
+        case light
         
         var color: Color {
             switch self {
