@@ -29,7 +29,12 @@ struct CardsStackAnimatorSettings {
 }
 
 enum AnimType: Equatable {
-    case `default`, linear, easeIn, easeOut, easeInOut, noAnim
+    case `default`
+    case linear
+    case easeIn
+    case easeOut
+    case easeInOut
+    case noAnim
     
     func animation(with duration: Double?) -> Animation? {
         guard let duration = duration else {
@@ -190,7 +195,8 @@ struct CardStackAnimator<Card: View>: View {
 class CardStackAnimatorPreviewModel: ObservableObject {
     
     enum Content {
-        case twins, backup(numberOfCards: Int)
+        case twins
+        case backup(numberOfCards: Int)
     }
     
     @Published var currentCardIndex: Int = 0
