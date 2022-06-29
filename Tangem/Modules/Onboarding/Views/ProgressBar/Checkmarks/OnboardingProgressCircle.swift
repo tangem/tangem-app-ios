@@ -11,7 +11,9 @@ import SwiftUI
 struct OnboardingProgressCircle: View {
     
     enum CircleState {
-        case future, current, passed
+        case future
+        case current
+        case passed
         
         var animValue: CGFloat {
             switch self {

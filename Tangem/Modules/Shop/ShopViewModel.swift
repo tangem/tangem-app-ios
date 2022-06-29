@@ -263,7 +263,8 @@ class ShopViewModel: ObservableObject {
 
 extension ShopViewModel {
     enum Bundle: String, CaseIterable, Identifiable {
-        case twoCards, threeCards
+        case twoCards
+        case threeCards
 
         var id: Self { self }
 
