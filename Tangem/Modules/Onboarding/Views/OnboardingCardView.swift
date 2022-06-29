@@ -11,7 +11,8 @@ import SwiftUI
 struct OnboardingCardView: View {
     
     enum CardType {
-        case dark, light
+        case dark
+        case light
         
         var imageName: String {
             switch self {
