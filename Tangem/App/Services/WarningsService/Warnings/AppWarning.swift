@@ -10,11 +10,14 @@ import Foundation
 import SwiftUI
 
 enum WarningPriority: String, Decodable {
-    case info, warning, critical
+    case info
+    case warning
+    case critical
 }
 
 enum WarningType: String, Decodable {
-    case temporary, permanent
+    case temporary
+    case permanent
     
     var isWithAction: Bool {
         self == .temporary
@@ -22,7 +25,8 @@ enum WarningType: String, Decodable {
 }
 
 enum WarningsLocation: String, Decodable {
-    case main, send
+    case main
+    case send
 }
 
 struct AppWarning: Decodable, Hashable {
