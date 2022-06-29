@@ -40,7 +40,7 @@ target 'Tangem' do
   pod 'Firebase/Crashlytics'
   pod 'Firebase/Analytics'
 	pod 'Firebase/RemoteConfig'
-  pod 'DeviceGuru'
+  pod 'DeviceGuru', '8.0.0'
   pod 'Kingfisher', :git => 'https://github.com/onevcat/Kingfisher.git', :branch => 'version6-xcode13'
   pod 'stellar-ios-mac-sdk'
   pod 'AppsFlyerFramework'
