@@ -132,9 +132,9 @@ class OnboardingViewModel<Step: OnboardingStep> {
     init(input: OnboardingInput, onboardingCoordinator: OnboardingRoutable) {
         self.input = input
         self.onboardingCoordinator = onboardingCoordinator
-        isFromMain = true
+        isFromMain = input.isStandalone
         isInitialAnimPlayed = true
-        isNavBarVisible = true
+        isNavBarVisible = input.isStandalone
         
         input.cardInput.cardModel.map { loadImage(for: $0) }
     }
