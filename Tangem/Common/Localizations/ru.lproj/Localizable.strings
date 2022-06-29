@@ -91,7 +91,7 @@ Tangem — единственный аппаратный кошелек, пре�
 "details_row_title_create_backup" = "Создать резервную копию";
 "details_row_title_currency" = "Валюта приложения";
 "details_row_title_issuer" = "Эмитент";
-"details_row_title_manage_security" = "Управление безопасностью";
+"details_row_title_manage_security" = "Безопасность и приватность";
 "details_row_title_reset_factory_settings" = "Сброс до заводских настроек";
 "details_row_title_reset_factory_settings_warning" = "Это действие необратимо. Если после сброса карты кто-то отправит на нее средства, то вы не сможете их вывести.";
 "details_row_title_send_feedback" = "Отправить отзыв";
@@ -498,3 +498,11 @@ URL: %@";
 "main_no_backup_warning_subtitle" = "Чтобы защитить свои активы, мы советуем вам выполнить эту процедуру";
 "details_ask_a_question" = "Задать вопрос";
 "common_retry" = "Повторить";
+
+"security_and_privacy_title" = "Безопасность и приватность";
+"security_and_privacy_security" = "Безопасность";
+"security_and_privacy_privacy" = "Приватность";
+"security_and_privacy_change_password" = "Изменить пароль";
+"security_and_privacy_security_management" = "Управление безопасностью";
+"security_and_privacy_token_list_synchronization" = "Синхронизировать список токенов";
+"security_and_privacy_saved_card_reset" = "Сбросить сохраненные карты";
