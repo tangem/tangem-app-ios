@@ -80,7 +80,8 @@ struct DisclaimerView: View {
 
 extension DisclaimerView {
     enum Style {
-        case sheet(acceptCallback: () -> Void), navbar
+        case sheet(acceptCallback: () -> Void)
+        case navbar
         
         var navbarTitle: LocalizedStringKey {
             switch self {
