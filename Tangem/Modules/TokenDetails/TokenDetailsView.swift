@@ -96,6 +96,7 @@ struct TokenDetailsView: View {
                         if let walletModel = viewModel.walletModel {
                             BalanceAddressView(walletModel: walletModel,
                                                amountType: viewModel.amountType,
+                                               isRefreshing: viewModel.isRefreshing,
                                                showExplorerURL: $viewModel.showExplorerURL)
                         }
                         
