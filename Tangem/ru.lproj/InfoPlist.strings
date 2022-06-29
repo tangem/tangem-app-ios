@@ -1,3 +1,3 @@
 NFCReaderUsageDescription = "Для сканирования смарт-карты";
 NSCameraUsageDescription = "Для сканирования QR-кода";
-NSPhotoLibraryUsageDescription = "Приложение Tangem запрашивает доступ к галерее на вашем устройстве.";
+NSPhotoLibraryUsageDescription = "Для отправки в службу поддержки";
