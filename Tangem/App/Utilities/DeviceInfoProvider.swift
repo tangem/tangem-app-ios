@@ -13,7 +13,9 @@ import DeviceGuru
 struct DeviceInfoProvider {
     
     enum Subject: CaseIterable {
-        case deviceModel, osVersion, appVersion
+        case deviceModel
+        case osVersion
+        case appVersion
         
         var title: String {
             switch self {
