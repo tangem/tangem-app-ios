@@ -94,7 +94,9 @@ extension WelcomeCoordinator: WelcomeRoutable {
     
     func openOnboarding(with input: OnboardingInput) {
         let dismissAction: Action = { [weak self] in
-            self?.pushedOnboardingCoordinator = nil
+            if let card = input.cardInput.cardModel {
+                self?.openMain(with: card)
+            }
         }
         
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
