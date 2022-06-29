@@ -48,10 +48,6 @@ class DetailsViewModel: ObservableObject {
         }
     }
     
-    var backupVisible: Bool {
-        return cardModel.cardInfo.isTangemWallet
-    }
-    
     var canCreateBackup: Bool {
         if !cardModel.cardInfo.isTangemWallet {
             return false
