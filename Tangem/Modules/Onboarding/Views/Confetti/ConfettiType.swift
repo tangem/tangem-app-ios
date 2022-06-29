@@ -9,11 +9,14 @@
 import UIKit
 
 enum ConfettiShape {
-    case rectangle, circle, triangle
+    case rectangle
+    case circle
+    case triangle
 }
 
 enum ConfettiPosition {
-    case foreground, background
+    case foreground
+    case background
 }
 
 class ConfettiType {
