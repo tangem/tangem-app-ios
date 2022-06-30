@@ -575,7 +575,6 @@ class MainViewModel: ObservableObject {
 
                 let input = OnboardingInput(steps: steps,
                                             cardInput: .cardModel(cardModel),
-                                            cardsPosition: nil,
                                             welcomeStep: nil,
                                             currentStepIndex: 0)
             
@@ -609,7 +608,6 @@ class MainViewModel: ObservableObject {
                 
                 let input = OnboardingInput(steps: steps,
                                             cardInput: .cardModel(cardModel),
-                                            cardsPosition: nil,
                                             welcomeStep: nil,
                                             currentStepIndex: 0,
                                             isStandalone: true)
