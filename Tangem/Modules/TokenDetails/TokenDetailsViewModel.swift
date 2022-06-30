@@ -172,13 +172,10 @@ class TokenDetailsViewModel: ObservableObject {
             return
         }
         
-        switch walletModel.getRemovalState(amountType: amountType) {
-        case .able:
-            deleteToken()
-        case .unable:
-            showUnableToHideAlert()
-        case .ableThroughtAlert:
+        if walletModel.canRemove(amountType: amountType) {
             showWarningDeleteAlert()
+        } else {
+            showUnableToHideAlert()
         }
     }
     
