@@ -51,8 +51,10 @@ class CardOperationViewModel: ObservableObject {
     
     private func bind() {
         $isLoading.dropFirst()
-            .sink { [weak self] _ in
-                self?.dismiss()
+            .sink { [weak self] isLoading in
+                if !isLoading {
+                    self?.dismiss()
+                }
             }
             .store(in: &bag)
     }
