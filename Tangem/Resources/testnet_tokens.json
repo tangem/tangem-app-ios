@@ -412,12 +412,12 @@
           ]
         },
         {
-          "id" : "gnosis",
-          "symbol" : "GNO",
+          "id" : "xdai",
+          "symbol" : "xDAI",
           "name" : "Gnosis",
           "networks" : [
               {
-                  "networkId" : "gnosis/test"
+                  "networkId" : "xdai/test"
               }
           ]
         },
