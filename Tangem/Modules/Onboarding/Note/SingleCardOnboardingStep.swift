@@ -9,7 +9,11 @@
 import SwiftUI
 
 enum SingleCardOnboardingStep: CaseIterable {
-    case welcome, createWallet, topup, successTopup, success
+    case welcome
+    case createWallet
+    case topup
+    case successTopup
+    case success
     
     var hasProgressStep: Bool {
         switch self {
