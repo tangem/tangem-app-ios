@@ -48,10 +48,6 @@ class DetailsViewModel: ObservableObject {
         }
     }
     
-    var backupVisible: Bool {
-        return cardModel.cardInfo.isTangemWallet
-    }
-    
     var canCreateBackup: Bool {
         if !cardModel.cardInfo.isTangemWallet {
             return false
@@ -166,7 +162,6 @@ class DetailsViewModel: ObservableObject {
             
                 let input = OnboardingInput(steps: steps,
                                             cardInput: .cardModel(self.cardModel),
-                                            cardsPosition: nil,
                                             welcomeStep: nil,
                                             currentStepIndex: 0,
                                             isStandalone: true)
@@ -192,7 +187,6 @@ class DetailsViewModel: ObservableObject {
             
                 let input = OnboardingInput(steps: steps,
                                             cardInput: .cardModel(self.cardModel),
-                                            cardsPosition: nil,
                                             welcomeStep: nil,
                                             currentStepIndex: 0,
                                             isStandalone: true)

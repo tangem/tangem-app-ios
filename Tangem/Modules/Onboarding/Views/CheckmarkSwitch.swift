@@ -35,7 +35,8 @@ struct CheckmarkSwitch: View {
     }
     
     enum Shape {
-        case circle, roundedRect(cornerRadius: CGFloat)
+        case circle
+        case roundedRect(cornerRadius: CGFloat)
         
         func cornerRadius(in containerSize: CGSize) -> CGFloat {
             switch self {
