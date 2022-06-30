@@ -11,16 +11,15 @@ import Combine
 import BlockchainSdk
 
 fileprivate enum QueryKey: String {
-    case apiKey,
-         onlyCryptos,
-         defaultCrypto,
-         defaultFiat,
-         wallets,
-         onlyGateways,
-         language,
-         redirectURL
+    case apiKey
+    case onlyCryptos
+    case defaultCrypto
+    case defaultFiat
+    case wallets
+    case onlyGateways
+    case language
+    case redirectURL
 }
-
 
 fileprivate struct OnramperGatewaysResponse: Decodable {
     let gateways: [OnramperGateway]
