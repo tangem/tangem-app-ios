@@ -412,6 +412,16 @@
           ]
         },
         {
+          "id" : "gnosis",
+          "symbol" : "GNO",
+          "name" : "Gnosis",
+          "networks" : [
+              {
+                  "networkId" : "gnosis/test"
+              }
+          ]
+        },
+        {
             "id" : "stellar",
             "symbol" : "XLM",
             "name" : "Stellar",
