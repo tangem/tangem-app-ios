@@ -47,7 +47,8 @@ struct WalletConnectSession: Codable, Hashable, Identifiable {
     var status: SessionStatus = .disconnected
 
     private enum CodingKeys: String, CodingKey {
-        case wallet, session
+        case wallet
+        case session
     }
 }
 
