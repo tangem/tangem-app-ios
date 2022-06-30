@@ -123,7 +123,7 @@ class TokenDetailsViewModel: ObservableObject {
             return nil
         }
         
-        return "wallet_currency_subtitle".localized([blockchainNetwork.blockchain.displayName])
+        return "wallet_currency_subtitle".localized(blockchainNetwork.blockchain.displayName)
     }
     
     @Published var unsupportedTokenWarning: String? = nil
