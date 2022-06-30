@@ -122,7 +122,7 @@ extension Blockchain {
         case "tron": self = .tron(testnet: isTestnet)
         case "arbitrum", "arbitrum-one": self = .arbitrum(testnet: isTestnet)
         case "dash": self = .dash(testnet: isTestnet)
-        case "xdai": self = .gnosis(testnet: isTestnet)
+        case "xdai": self = .gnosis
         default:
             print("⚠️⚠️⚠️ Failed to map network ID \"\(stringId)\"")
             return nil
