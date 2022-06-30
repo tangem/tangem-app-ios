@@ -29,7 +29,9 @@ struct AnimatedView<Content: View>: View {
     }
     
     private enum AnimState {
-        case notAnimating, toIntermediate, toTarget
+        case notAnimating
+        case toIntermediate
+        case toTarget
         
         var progress: CGFloat {
             switch self {
@@ -129,7 +131,11 @@ struct AnimatedView<Content: View>: View {
 fileprivate class AnimatedViewPreviewModel: ObservableObject {
     
     enum Step: String {
-        case zero, first, second, third, fourth
+        case zero
+        case first
+        case second
+        case third
+        case fourth
         
         var next: Step {
             switch self {
