@@ -739,7 +739,7 @@ private extension SendViewModel {
             formatted = amount.description
         }
         
-        if amount.value > 0, walletModel.walletManager.isFeeApproximate(for: amountToSend.type)  {
+        if amount.value > 0, walletModel.wallet.blockchain.isFeeApproximate(for: amountToSend.type)  {
             return "< " + formatted
         }
         
