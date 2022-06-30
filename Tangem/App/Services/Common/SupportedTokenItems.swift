@@ -45,7 +45,7 @@ class SupportedTokenItems {
             .fantom(testnet: false),
             .tron(testnet: false),
             .arbitrum(testnet: false),
-            .gnosis(testnet: false),
+            .gnosis,
         ]
     }()
 
@@ -64,7 +64,6 @@ class SupportedTokenItems {
             // .polkadot(testnet: true),
             .tron(testnet: true),
             .arbitrum(testnet: true),
-            .gnosis(testnet: false),
         ]
     }()
     
