@@ -48,8 +48,13 @@ fileprivate struct BinanceSingMessage<T: BinanceMessage>: Codable {
     let source: String
     
     private enum CodingKeys: String, CodingKey {
-        case accountNumber = "account_number", chainId = "chain_id", messages = "msgs"
-        case data, memo, sequence, source
+        case accountNumber = "account_number"
+        case chainId = "chain_id"
+        case messages = "msgs"
+        case data
+        case memo
+        case sequence
+        case source
     }
 
     func encode(to encoder: Encoder) throws {

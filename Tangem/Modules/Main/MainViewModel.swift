@@ -575,7 +575,6 @@ class MainViewModel: ObservableObject {
 
                 let input = OnboardingInput(steps: steps,
                                             cardInput: .cardModel(cardModel),
-                                            cardsPosition: nil,
                                             welcomeStep: nil,
                                             currentStepIndex: 0)
             
@@ -609,7 +608,6 @@ class MainViewModel: ObservableObject {
                 
                 let input = OnboardingInput(steps: steps,
                                             cardInput: .cardModel(cardModel),
-                                            cardsPosition: nil,
                                             welcomeStep: nil,
                                             currentStepIndex: 0,
                                             isStandalone: true)
@@ -730,9 +728,10 @@ class MainViewModel: ObservableObject {
 
 extension MainViewModel {
     enum EmailFeedbackCase: Int, Identifiable {
-        var id: Int { rawValue }
+        case negativeFeedback
+        case scanTroubleshooting
         
-        case negativeFeedback, scanTroubleshooting
+        var id: Int { rawValue }
         
         var emailType: EmailType {
             switch self {
