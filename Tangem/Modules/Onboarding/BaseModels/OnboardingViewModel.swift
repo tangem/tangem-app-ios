@@ -132,15 +132,8 @@ class OnboardingViewModel<Step: OnboardingStep> {
     init(input: OnboardingInput, onboardingCoordinator: OnboardingRoutable) {
         self.input = input
         self.onboardingCoordinator = onboardingCoordinator
-        if let cardsSettings = input.cardsPosition {
-            mainCardSettings = cardsSettings.dark
-            supplementCardSettings = cardsSettings.light
-            isInitialAnimPlayed = false
-        } else {
-            isFromMain = true
-            isInitialAnimPlayed = true
-            isNavBarVisible = true
-        }
+        isFromMain = input.isStandalone
+        isNavBarVisible = input.isStandalone
         
         input.cardInput.cardModel.map { loadImage(for: $0) }
     }
@@ -148,7 +141,11 @@ class OnboardingViewModel<Step: OnboardingStep> {
     private func loadImage(for cardModel: CardViewModel) {
         cardModel
             .imageLoaderPublisher
-            .weakAssign(to: \.cardImage, on: self)
+            .sink { [weak self] image in
+                withAnimation {
+                    self?.cardImage = image
+                }
+            }
             .store(in: &bag)
     }
     
