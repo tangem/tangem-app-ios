@@ -9,7 +9,6 @@
 import Foundation
 import SwiftUI
 
-
 extension VerticalAlignment {
     private enum FirstBaselineCustomAlignment: AlignmentID {
         static func defaultValue(in context: ViewDimensions) -> CGFloat {
@@ -19,8 +18,6 @@ extension VerticalAlignment {
 
     static let firstBaselineCustom = VerticalAlignment(FirstBaselineCustomAlignment.self)
 }
-
-
 
 extension VerticalAlignment {
     private enum TextAndImage: AlignmentID {
