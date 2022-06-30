@@ -71,7 +71,7 @@ enum TokenItem: Hashable {
     var contractName: String? {
         switch self {
         case .token:
-            return blockchain.tokenStandardName
+            return blockchain.tokenTypeName
         case .blockchain:
             return "MAIN"
         }
