@@ -312,7 +312,11 @@ class TokenDetailsViewModel: ObservableObject {
             walletModel?.blockchainNetwork.blockchain.displayName ?? "",
         ])
         
-        alert = warningAlert(title: title, message: message, primaryButton: .default(Text("common_ok")))
+        alert = AlertBinder(alert: Alert(
+            title: Text(title),
+            message: Text(message),
+            dismissButton: .default(Text("common_ok"))
+        ))
     }
     
     private func showWarningDeleteAlert() {
