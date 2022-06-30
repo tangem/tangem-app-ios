@@ -214,7 +214,8 @@ extension Analytics {
     #if !CLIP
     enum WalletConnectEvent {
         enum SessionEvent {
-            case disconnect, connect
+            case disconnect
+            case connect
         }
         
         case error(Error, WalletConnectAction?), session(SessionEvent, URL), action(WalletConnectAction), invalidRequest(json: String?)

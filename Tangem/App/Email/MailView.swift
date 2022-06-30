@@ -10,7 +10,8 @@ import SwiftUI
 import MessageUI
 
 enum EmailSupport {
-    case tangem, start2coin
+    case tangem
+    case start2coin
 
     var recipients: [String] {
         switch self {
