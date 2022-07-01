@@ -87,12 +87,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         stepUpdate()
     }
     
-    override func reset(includeInResetAnim: (() -> Void)? = nil) {
-        super.reset {
-            self.isCardScanned = false
-        }
-    }
-    
     override func mainButtonAction() {
         switch currentStep {
         case .welcome:
