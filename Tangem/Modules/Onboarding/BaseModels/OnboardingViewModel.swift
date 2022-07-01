@@ -247,4 +247,8 @@ extension OnboardingViewModel {
     func closeOnboarding() {
         onboardingCoordinator.closeOnboarding()
     }
+    
+    func popToStories() {
+        onboardingCoordinator.popToStories()
+    }
 }
