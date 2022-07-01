@@ -62,6 +62,7 @@ struct TokenListView: View {
         .navigationBarTitle(viewModel.titleKey, displayMode: UIDevice.isIOS13 ? .inline : .automatic)
         .navigationBarItems(trailing: addCustomView)
         .alert(item: $viewModel.error, content: { $0.alert })
+        .alert(item: $viewModel.alert, content: { $0.alert })
         .toast(isPresenting: $viewModel.showToast) {
             AlertToast(type: .complete(Color.tangemGreen), title: "contract_address_copied_message".localized)
         }
