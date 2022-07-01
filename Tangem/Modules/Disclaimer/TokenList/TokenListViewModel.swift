@@ -23,6 +23,7 @@ class TokenListViewModel: ObservableObject {
     @Published var isSaving: Bool = false
     @Published var isLoading: Bool = true
     @Published var error: AlertBinder?
+    @Published var alert: AlertBinder?
     @Published var pendingAdd: [TokenItem] = []
     @Published var pendingRemove: [TokenItem] = []
     @Published var showToast: Bool = false
@@ -262,7 +263,15 @@ private extension TokenListViewModel {
         let binding = Binding<Bool> { [weak self] in
             self?.isSelected(tokenItem) ?? false
         } set: { [weak self] isSelected in
-            self?.onSelect(isSelected, tokenItem)
+            if !isSelected && !(self?.pendingAdd.contains(tokenItem) ?? false) {
+                self?.showWarningDeleteAlert(tokenItem: tokenItem, deleteAction: {
+                    self?.onSelect(isSelected, tokenItem)
+                }, cancelAction: {
+                    self?.updateSelection(tokenItem)
+                })
+            } else {
+                self?.onSelect(isSelected, tokenItem)
+            }
         }
         
         return binding
@@ -289,6 +298,33 @@ private extension TokenListViewModel {
         }
         
         return CoinViewModel(with: coinModel, items: currencyItems)
+    }
+    
+    private func showWarningDeleteAlert(tokenItem: TokenItem, deleteAction: @escaping () -> (), cancelAction: @escaping () -> ()) {
+        let title = "token_details_hide_alert_title".localized(tokenItem.blockchain.currencySymbol)
+        
+        alert = warningAlert(
+            title: title,
+            message: "token_details_hide_alert_message".localized,
+            primaryButton: .destructive(Text("token_details_hide_alert_hide")) {
+                deleteAction()
+            }, cancelAction: {
+                cancelAction()
+            }
+        )
+    }
+    
+    private func warningAlert(title: String, message: String, primaryButton: Alert.Button, cancelAction: (() -> ())?) -> AlertBinder {
+        let alert = Alert(
+            title: Text(title),
+            message: Text(message.localized),
+            primaryButton: primaryButton,
+            secondaryButton: Alert.Button.cancel({
+                cancelAction?()
+            })
+        )
+        
+        return AlertBinder(alert: alert)
     }
 }
 
