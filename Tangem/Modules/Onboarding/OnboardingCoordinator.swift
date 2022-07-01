@@ -96,4 +96,8 @@ extension OnboardingCoordinator: OnboardingRoutable {
     func closeOnboarding() {
         dismiss()
     }
+    
+    func popToStories() {
+        popToRoot()
+    }
 }
