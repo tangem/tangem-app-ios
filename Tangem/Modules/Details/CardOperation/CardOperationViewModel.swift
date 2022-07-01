@@ -36,8 +36,6 @@ class CardOperationViewModel: ObservableObject {
         self.alert = alert
         self.actionButtonPressed = actionButtonPressed
         self.coordinator = coordinator
-        
-        bind()
     }
     
     func onTap() {
@@ -47,16 +45,6 @@ class CardOperationViewModel: ObservableObject {
                 self?.handleCompletion(result)
             }
         }
-    }
-    
-    private func bind() {
-        $isLoading.dropFirst()
-            .sink { [weak self] isLoading in
-                if !isLoading {
-                    self?.dismiss()
-                }
-            }
-            .store(in: &bag)
     }
     
     private func handleCompletion(_ result: Result<Void, Error>) {
