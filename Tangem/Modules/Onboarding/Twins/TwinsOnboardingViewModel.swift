@@ -260,7 +260,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         if isFromMain {
             closeOnboarding()
         } else {
-            reset()
+            popToStories()
         }
     }
     
