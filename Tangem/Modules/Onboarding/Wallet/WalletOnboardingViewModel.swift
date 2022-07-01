@@ -407,7 +407,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             if isFromMain {
                 closeOnboarding()
             } else {
-                reset()
+                popToStories()
             }
             
             backupService.discardIncompletedBackup()
