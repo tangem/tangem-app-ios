@@ -17,6 +17,19 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             if let model = coordinator.tokenDetailsViewModel {
                 TokenDetailsView(viewModel: model)
                     .navigationLinks(links)
+                
+                BottomSheetView(isPresented: coordinator.$showWarning,
+                                showClosedButton: false,
+                                addDragGesture: false,
+                                closeOnTapOutside: false) {
+                } content: {
+                    WarningBankCardView {
+                        coordinator.warningBankCardViewModel?.confirmCallback()
+                    } decline: {
+                        coordinator.warningBankCardViewModel?.declineCallback()
+                        coordinator.showWarning = false
+                    }
+                }
             }
             
             sheets

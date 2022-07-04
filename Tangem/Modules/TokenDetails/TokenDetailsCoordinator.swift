@@ -24,6 +24,9 @@ class TokenDetailsCoordinator: CoordinatorObject {
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
     
+    @Published var showWarning: Bool = false
+    @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
+    
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
@@ -105,5 +108,10 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
                                                 cardModel: card)
         coordinator.start(with: options)
         self.pushTxCoordinator = coordinator
+    }
+    
+    func showWarningIfNeeded(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) {
+        warningBankCardViewModel = .init(confirmCallback: confirmCallback, declineCallback: declineCallback)
+        showWarning = true
     }
 }
