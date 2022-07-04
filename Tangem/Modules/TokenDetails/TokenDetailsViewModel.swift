@@ -16,6 +16,7 @@ class TokenDetailsViewModel: ObservableObject {
     @Published var alert: AlertBinder? = nil
     @Published var showTradeSheet: Bool = false
     @Published var isRefreshing: Bool = false
+    @Published var showCardWarningPopUp: Bool = false
     
     let card: CardViewModel
     
@@ -181,6 +182,15 @@ class TokenDetailsViewModel: ObservableObject {
     
     func tradeCryptoAction() {
         showTradeSheet = true
+    }
+    
+    func showWarningIfNeeded() {
+        coordinator.showWarningIfNeeded {
+            print("confirm")
+        } declineCallback: {
+            print("decline")
+        }
+
     }
     
     func processSellCryptoRequest(_ request: String) {
