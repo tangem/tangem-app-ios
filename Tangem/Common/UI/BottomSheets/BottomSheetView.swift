@@ -10,15 +10,25 @@ import SwiftUI
 import Combine
 
 struct BottomSheetView<Content: View>: View {
-    
+    var showClosedButton: Bool
+    var addDragGesture: Bool
+    var closeOnTapOutside: Bool
     var isPresented: Published<Bool>.Publisher
     var hideBottomSheetCallback: () -> ()
     var content: Content
     
     @State private var _isPresented = false
     
-    init(isPresented: Published<Bool>.Publisher, hideBottomSheetCallback: @escaping () -> (), @ViewBuilder content: () -> Content) {
+    init(isPresented: Published<Bool>.Publisher,
+         showClosedButton: Bool = true,
+         addDragGesture: Bool = true,
+         closeOnTapOutside: Bool = true,
+         hideBottomSheetCallback: @escaping () -> (),
+         @ViewBuilder content: () -> Content) {
         self.isPresented = isPresented
+        self.showClosedButton = showClosedButton
+        self.addDragGesture = addDragGesture
+        self.closeOnTapOutside = closeOnTapOutside
         self.hideBottomSheetCallback = hideBottomSheetCallback
         self.content = content()
     }
@@ -68,21 +78,27 @@ struct BottomSheetView<Content: View>: View {
                     .frame(maxHeight: UIScreen.main.bounds.height)
                     .opacity(backgroundOpacity)
                     .onTapGesture {
-                        hideBottomSheet(with: defaultAnimDuration)
+                        if closeOnTapOutside {
+                            hideBottomSheet(with: defaultAnimDuration)
+                        }
                     }
                 VStack {
-                    SheetDragHandler()
-                    content
-                    TangemButton(title: "common_close") {
-                        hideBottomSheet(with: defaultAnimDuration)
+                    if addDragGesture {
+                        SheetDragHandler()
                     }
-                    .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt, layout: .wide))
-                    .padding(.bottom, 16 + proxy.safeAreaInsets.bottom)
+                    content
+                    if showClosedButton {
+                        TangemButton(title: "common_close") {
+                            hideBottomSheet(with: defaultAnimDuration)
+                        }
+                        .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt, layout: .wide))
+                        .padding(.bottom, 16 + proxy.safeAreaInsets.bottom)
+                    }
                 }
                 .frame(maxWidth: .infinity)
                 .background(Color.white)
                 .cornerRadius(10, corners: [.topLeft, .topRight])
-                .gesture(dragGesture)
+                .gesture(addDragGesture ? dragGesture : nil)
                 .offset(x: 0, y: sheetOffset)
                 .readSize { size in
                     sheetSize = size
@@ -95,6 +111,9 @@ struct BottomSheetView<Content: View>: View {
             _isPresented = isPresented
             
             guard isPresented else {
+                if !showClosedButton {
+                    hideBottomSheet(with: defaultAnimDuration)
+                }
                 return
             }
             
