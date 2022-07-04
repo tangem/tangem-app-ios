@@ -80,6 +80,7 @@ extension OnboardingCoordinator: OnboardingTopupRoutable {
     
     func openQR(shareAddress: String, address: String, qrNotice: String) {
         addressQrBottomSheetContentViewVodel = .init(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
+        qrBottomSheetKeeper = true
     }
 }
 
