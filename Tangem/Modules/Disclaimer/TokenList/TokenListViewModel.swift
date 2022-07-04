@@ -262,18 +262,7 @@ private extension TokenListViewModel {
         let binding = Binding<Bool> { [weak self] in
             self?.isSelected(tokenItem) ?? false
         } set: { [weak self] isSelected in
-            if !isSelected
-                && !(self?.pendingAdd.contains(tokenItem) ?? false)
-                && (self?.isTokenAvailable(tokenItem) ?? true)
-            {
-                self?.showWarningDeleteAlert(tokenItem: tokenItem, hideAction: {
-                    self?.onSelect(isSelected, tokenItem)
-                }, cancelAction: {
-                    self?.updateSelection(tokenItem)
-                })
-            } else {
-                self?.onSelect(isSelected, tokenItem)
-            }
+            self?.showWarningDeleteAlertIfNeeded(isSelected: isSelected, tokenItem: tokenItem)
         }
         
         return binding
@@ -302,27 +291,30 @@ private extension TokenListViewModel {
         return CoinViewModel(with: coinModel, items: currencyItems)
     }
     
-    private func showWarningDeleteAlert(tokenItem: TokenItem, hideAction: @escaping () -> (), cancelAction: @escaping () -> ()) {
+    private func showWarningDeleteAlertIfNeeded(isSelected: Bool, tokenItem: TokenItem) {
+        guard !isSelected,
+              !self.pendingAdd.contains(tokenItem),
+              self.isTokenAvailable(tokenItem) else {
+            self.onSelect(isSelected, tokenItem)
+            return
+        }
+        
         let title = "token_details_hide_alert_title".localized(tokenItem.blockchain.currencySymbol)
         
-        alert = warningAlert(
-            title: title,
-            message: "token_details_hide_alert_message".localized,
-            primaryButton: .destructive(Text("token_details_hide_alert_hide"), action: hideAction),
-            cancelAction: cancelAction)
-    }
-    
-    private func warningAlert(title: String, message: String, primaryButton: Alert.Button, cancelAction: (() -> ())?) -> AlertBinder {
-        let alert = Alert(
-            title: Text(title),
-            message: Text(message.localized),
-            primaryButton: primaryButton,
-            secondaryButton: Alert.Button.cancel({
-                cancelAction?()
-            })
-        )
+        let cancelAction = { [unowned self] in
+            self.updateSelection(tokenItem)
+        }
         
-        return AlertBinder(alert: alert)
+        let hideAction = { [unowned self] in
+            self.onSelect(isSelected, tokenItem)
+        }
+        
+        alert = AlertBinder(alert:
+            Alert(title: Text(title),
+                  message: Text("token_details_hide_alert_message".localized),
+                  primaryButton: .destructive(Text("token_details_hide_alert_hide"), action: hideAction),
+                  secondaryButton: .cancel(cancelAction))
+        )
     }
     
     private func isTokenAvailable(_ tokenItem: TokenItem) -> Bool {
