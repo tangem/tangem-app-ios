@@ -132,7 +132,7 @@ struct WalletOnboardingView: View {
                                            supplement: viewModel.supplementButtonSettings)
 
                 ) {
-                    viewModel.popToStories()
+                    viewModel.popToRoot()
                 }
                 .padding(.horizontal, 40)
             }
