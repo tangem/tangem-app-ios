@@ -401,7 +401,7 @@ URL: %@";
 "wallet_pending_tx_receiving_address_format" = "от %@";
 "wallet_pending_tx_sending" = "Отправка";
 "wallet_pending_tx_sending_address_format" = "к %@";
-"wallet_remove_token" = "Удалить валюту";
+"wallet_hide_token" = "Скрыть токен";
 "wallet_title" = "Tangem";
 "warning_button_can_be_better" = "Можно лучше";
 "warning_button_learn_more" = "Узнать больше";
