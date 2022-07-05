@@ -401,7 +401,7 @@ URL: %@";
 "wallet_pending_tx_receiving_address_format" = "from %@";
 "wallet_pending_tx_sending" = "Sending";
 "wallet_pending_tx_sending_address_format" = "to %@";
-"wallet_remove_token" = "Remove token";
+"wallet_hide_token" = "Hide token";
 "wallet_title" = "Tangem";
 "warning_button_can_be_better" = "Can be better";
 "warning_button_learn_more" = "Learn more";
