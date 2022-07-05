@@ -26,6 +26,7 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
                 } content: {
                     WarningBankCardView {
                         coordinator.warningBankCardViewModel?.confirmCallback()
+                        coordinator.showWarning = false
                     } decline: {
                         coordinator.warningBankCardViewModel?.declineCallback()
                         coordinator.showWarning = false
@@ -60,6 +61,11 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
         
         NavHolder()
             .sheet(item: $coordinator.modalWebViewModel) {
+                WebViewContainer(viewModel: $0)
+            }
+        
+        NavHolder()
+            .sheet(item: $coordinator.p2pTutorialWebViewModel) {
                 WebViewContainer(viewModel: $0)
             }
     }
