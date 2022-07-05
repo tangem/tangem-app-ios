@@ -178,4 +178,6 @@ extension MainCoordinator: MainRoutable {
     }
     
     func showWarningIfNeeded(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) { }
+    
+    func showP2PTutorial() { }
 }
