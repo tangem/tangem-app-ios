@@ -224,12 +224,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         }
     }
     
-    override func reset(includeInResetAnim: (() -> Void)? = nil) {
-        super.reset {
-            self.displayTwinImages = false
-        }
-    }
-    
     override func supplementButtonAction() {
         switch currentStep {
         case .topup:
@@ -260,7 +254,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         if isFromMain {
             closeOnboarding()
         } else {
-            reset()
+            popToRoot()
         }
     }
     
