@@ -26,6 +26,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
     
     @Published var showWarning: Bool = false
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
+    @Published var p2pTutorialWebViewModel: WebViewContainerViewModel? = nil
     
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -113,5 +114,13 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
     func showWarningIfNeeded(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) {
         warningBankCardViewModel = .init(confirmCallback: confirmCallback, declineCallback: declineCallback)
         showWarning = true
+    }
+    
+    func showP2PTutorial() {
+        p2pTutorialWebViewModel = WebViewContainerViewModel(url: URL(string: "https://tangem.com/howtobuy.html")!,
+                                                            title: "",
+                                                            addLoadingIndicator: false,
+                                                            withCloseButton: true,
+                                                            urlActions: [:])
     }
 }

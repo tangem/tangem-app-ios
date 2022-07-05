@@ -185,7 +185,7 @@ class TokenDetailsViewModel: ObservableObject {
     
     func showBankWarningIfNeeded() {
         coordinator.showWarningIfNeeded { [weak self] in
-            print("")
+            self?.coordinator.showP2PTutorial()
         } declineCallback: { [weak self] in
             self?.openBuyCrypto()
         }
