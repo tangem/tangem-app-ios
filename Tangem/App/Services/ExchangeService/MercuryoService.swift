@@ -34,7 +34,7 @@ class MercuryoService {
     @Injected(\.keysManager) var keysManager: KeysManager
     
     #warning("TODO")
-    private var widgetId: String { "asdasd" }
+    private var widgetId: String { "bbb14588-cf27-425a-b8fe-841ccdd88620" }
     
     private var availableCryptoCurrencyCodes: [String] = []
     
@@ -55,7 +55,20 @@ extension MercuryoService: ExchangeService {
     }
     
     func canBuy(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
-        return availableCryptoCurrencyCodes.contains(currencySymbol)
+        guard availableCryptoCurrencyCodes.contains(currencySymbol) else {
+            return false
+        }
+        
+        switch amountType {
+        case .token:
+            if case .ethereum = blockchain {
+                return true
+            } else {
+                return false
+            }
+        default:
+            return true
+        }
     }
     
     func canSell(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
@@ -75,7 +88,7 @@ extension MercuryoService: ExchangeService {
         
         var queryItems = [URLQueryItem]()
         #warning("TODO")
-//        queryItems.append(.init(key: .widget_id, value: widgetId.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
+        queryItems.append(.init(key: .widget_id, value: widgetId.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         queryItems.append(.init(key: .type, value: "buy"))
         queryItems.append(.init(key: .currency, value: currencySymbol.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         queryItems.append(.init(key: .address, value: walletAddress.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
