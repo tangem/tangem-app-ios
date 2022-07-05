@@ -13,7 +13,6 @@ import Combine
 class CardOperationViewModel: ObservableObject {
     @Published var error: AlertBinder? = nil
     @Published var isLoading: Bool = false
-    @Published var dismissPublisher: Bool = false
     
     let title: String
     let buttonTitle: LocalizedStringKey
@@ -52,12 +51,12 @@ class CardOperationViewModel: ObservableObject {
         
         switch result {
         case .success:
-            if self.shouldPopToRoot {
-                DispatchQueue.main.async {
+            DispatchQueue.main.async {
+                if self.shouldPopToRoot {
                     self.popToRoot()
+                } else {
+                    self.dismiss()
                 }
-            } else {
-                dismissPublisher.toggle()
             }
         case .failure(let error):
             if case .userCancelled = error.toTangemSdkError() {
