@@ -33,7 +33,6 @@ fileprivate struct MercuryoData: Decodable {
 class MercuryoService {
     @Injected(\.keysManager) var keysManager: KeysManager
     
-    #warning("TODO")
     private var widgetId: String { "bbb14588-cf27-425a-b8fe-841ccdd88620" }
     
     private var availableCryptoCurrencyCodes: [String] = []
@@ -87,7 +86,6 @@ extension MercuryoService: ExchangeService {
         urlComponents.host = "exchange.mercuryo.io"
         
         var queryItems = [URLQueryItem]()
-        #warning("TODO")
         queryItems.append(.init(key: .widget_id, value: widgetId.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         queryItems.append(.init(key: .type, value: "buy"))
         queryItems.append(.init(key: .currency, value: currencySymbol.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
