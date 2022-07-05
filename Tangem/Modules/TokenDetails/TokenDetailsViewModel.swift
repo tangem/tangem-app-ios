@@ -16,7 +16,6 @@ class TokenDetailsViewModel: ObservableObject {
     @Published var alert: AlertBinder? = nil
     @Published var showTradeSheet: Bool = false
     @Published var isRefreshing: Bool = false
-    @Published var showCardWarningPopUp: Bool = false
     
     let card: CardViewModel
     
@@ -184,11 +183,11 @@ class TokenDetailsViewModel: ObservableObject {
         showTradeSheet = true
     }
     
-    func showWarningIfNeeded() {
-        coordinator.showWarningIfNeeded {
-            print("confirm")
-        } declineCallback: {
-            print("decline")
+    func showBankWarningIfNeeded() {
+        coordinator.showWarningIfNeeded { [weak self] in
+            print("")
+        } declineCallback: { [weak self] in
+            self?.openBuyCrypto()
         }
 
     }
