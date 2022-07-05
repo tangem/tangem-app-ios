@@ -95,10 +95,6 @@ class WelcomeViewModel: ObservableObject {
         showInteruptedBackupAlertIfNeeded()
     }
     
-    func updateState(for cardModel: CardViewModel) {
-        cardModel.updateState()
-    }
-    
     private func processScannedCard(_ cardModel: CardViewModel, isWithAnimation: Bool) {
         cardModel.cardInfo.primaryCard.map { backupService.setPrimaryCard($0) }
         
@@ -118,7 +114,6 @@ class WelcomeViewModel: ObservableObject {
                 if input.steps.needOnboarding {
                     openOnboarding(with: input)
                 } else {
-                    cardModel.updateState()
                     openMain(with: input)
                 }
                 
