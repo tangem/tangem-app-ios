@@ -46,6 +46,14 @@ extension Card {
     var isStart2Coin: Bool {
         issuer.name.lowercased() == "start2coin"
     }
+
+    var isTestnet: Bool {
+        if batchId == "99FF" { // [REDACTED_TODO_COMMENT]
+            return cardId.starts(with: batchId.reversed())
+        } else {
+            return false
+        }
+    }
     
     var isDemoCard: Bool {
         let demoCards: [String] = [
