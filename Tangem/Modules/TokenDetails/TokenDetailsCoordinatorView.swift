@@ -21,7 +21,8 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
                 BottomSheetView(isPresented: coordinator.$showWarning,
                                 showClosedButton: false,
                                 addDragGesture: false,
-                                closeOnTapOutside: false) {
+                                closeOnTapOutside: false,
+                                cornerRadius: 30) {
                 } content: {
                     WarningBankCardView {
                         coordinator.warningBankCardViewModel?.confirmCallback()
