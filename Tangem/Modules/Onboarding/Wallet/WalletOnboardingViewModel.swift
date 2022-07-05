@@ -379,14 +379,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         }
     }
     
-    override func reset(includeInResetAnim: (() -> Void)? = nil) {
-        super.reset {
-            self.previewBackupCardsAdded = 0
-            self.previewBackupState = .finalizingPrimaryCard
-            self.thirdCardSettings = WelcomeCardLayout.supplementary.cardSettings(at: .welcome, in: self.containerSize, animated: true)
-        }
-    }
-    
     func jumpToLatestStep() {
         withAnimation {
             currentStepIndex = steps.count - 1
@@ -407,7 +399,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             if isFromMain {
                 closeOnboarding()
             } else {
-                reset()
+                popToRoot()
             }
             
             backupService.discardIncompletedBackup()
