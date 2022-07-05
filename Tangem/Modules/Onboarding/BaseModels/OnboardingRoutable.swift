@@ -10,5 +10,5 @@ import Foundation
 
 protocol OnboardingRoutable: AnyObject {
     func closeOnboarding()
-    func popToStories()
+    func popToRoot()
 }
