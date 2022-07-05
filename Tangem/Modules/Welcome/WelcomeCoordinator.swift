@@ -99,7 +99,11 @@ extension WelcomeCoordinator: WelcomeRoutable {
             }
         }
         
-        let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
+        let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] _ in
+            self?.pushedOnboardingCoordinator = nil
+        }
+        
+        let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
         let options = OnboardingCoordinator.Options(input: input)
         coordinator.start(with: options)
         pushedOnboardingCoordinator = coordinator
