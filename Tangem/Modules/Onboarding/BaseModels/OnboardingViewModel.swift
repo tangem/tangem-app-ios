@@ -227,6 +227,6 @@ extension OnboardingViewModel {
     }
     
     func popToRoot() {
-        onboardingCoordinator.popToStories()
+        onboardingCoordinator.popToRoot()
     }
 }
