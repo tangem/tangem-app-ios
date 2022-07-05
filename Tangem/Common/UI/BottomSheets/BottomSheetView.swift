@@ -13,6 +13,7 @@ struct BottomSheetView<Content: View>: View {
     var showClosedButton: Bool
     var addDragGesture: Bool
     var closeOnTapOutside: Bool
+    var cornerRadius: CGFloat
     var isPresented: Published<Bool>.Publisher
     var hideBottomSheetCallback: () -> ()
     var content: Content
@@ -23,11 +24,13 @@ struct BottomSheetView<Content: View>: View {
          showClosedButton: Bool = true,
          addDragGesture: Bool = true,
          closeOnTapOutside: Bool = true,
+         cornerRadius: CGFloat = 10,
          hideBottomSheetCallback: @escaping () -> (),
          @ViewBuilder content: () -> Content) {
         self.isPresented = isPresented
         self.showClosedButton = showClosedButton
         self.addDragGesture = addDragGesture
+        self.cornerRadius = cornerRadius
         self.closeOnTapOutside = closeOnTapOutside
         self.hideBottomSheetCallback = hideBottomSheetCallback
         self.content = content()
@@ -97,7 +100,7 @@ struct BottomSheetView<Content: View>: View {
                 }
                 .frame(maxWidth: .infinity)
                 .background(Color.white)
-                .cornerRadius(10, corners: [.topLeft, .topRight])
+                .cornerRadius(cornerRadius, corners: [.topLeft, .topRight])
                 .gesture(addDragGesture ? dragGesture : nil)
                 .offset(x: 0, y: sheetOffset)
                 .readSize { size in
