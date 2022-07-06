@@ -282,7 +282,7 @@ private extension TokenListViewModel {
         let currencyItems = coinModel.items.enumerated().map { (index, item) in
             CoinItemViewModel(tokenItem: item,
                               isReadonly: isReadonlyMode,
-                              isDisabled: cardModel == nil,
+                              isDisabled: true,
                               isSelected: bindSelection(item),
                               isCopied: bindCopy(),
                               position: .init(with: index, total: coinModel.items.count))
