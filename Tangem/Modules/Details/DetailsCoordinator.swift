@@ -93,11 +93,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
     
     func openSecManagement(with cardModel: CardViewModel) {
-        let dismissAction: Action = { [weak self] in
-            self?.secManagementCoordinator?.cardOperationViewModel = nil
-        }
-        
-        let coordinator = SecurityManagementCoordinator(dismissAction: dismissAction, popToRootAction: self.popToRootAction)
+        let coordinator = SecurityManagementCoordinator(popToRootAction: self.popToRootAction)
         let options = SecurityManagementCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
         secManagementCoordinator = coordinator
