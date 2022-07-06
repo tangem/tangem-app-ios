@@ -272,6 +272,8 @@ class MainViewModel: ObservableObject {
                 guard let walletModels = self.cardModel?.walletModels else { return }
                 if walletModels.isEmpty {
                     self.totalSumBalanceViewModel.update(with: [])
+                } else if !self.isLoadingTokensBalance {
+                    self.updateTotalBalanceTokenListIfNeeded()
                 }
             }
             .store(in: &bag)
