@@ -43,4 +43,8 @@ extension SecurityManagementCoordinator: SecurityManagementRoutable {
     }
 }
 
-extension SecurityManagementCoordinator: CardOperationRoutable {}
+extension SecurityManagementCoordinator: CardOperationRoutable {
+    func dismissCardOperation() {
+        cardOperationViewModel = nil
+    }
+}
