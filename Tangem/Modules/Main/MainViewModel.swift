@@ -819,10 +819,6 @@ extension MainViewModel {
         coordinator.openCurrencySelection(autoDismiss: true)
     }
     
-    func openExternalURL(_ url: URL) {
-        coordinator.openExternalURL(url)
-    }
-    
     func openTokensList() {
         if let cardModel = self.cardModel {
             coordinator.openTokensList(with: cardModel)
