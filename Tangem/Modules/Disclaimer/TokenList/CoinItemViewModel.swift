@@ -14,7 +14,6 @@ class CoinItemViewModel: Identifiable, ObservableObject {
     let id: UUID = .init()
     let tokenItem: TokenItem
     let isReadonly: Bool
-    var isDisabled: Bool
     var isSelected: Binding<Bool>
     let position: ItemPosition
     let isCopied: Binding<Bool>
@@ -32,10 +31,9 @@ class CoinItemViewModel: Identifiable, ObservableObject {
     
     private var bag = Set<AnyCancellable>()
     
-    init(tokenItem: TokenItem, isReadonly: Bool, isDisabled: Bool, isSelected: Binding<Bool>, isCopied: Binding<Bool> = .constant(false), position: ItemPosition = .middle) {
+    init(tokenItem: TokenItem, isReadonly: Bool, isSelected: Binding<Bool>, isCopied: Binding<Bool> = .constant(false), position: ItemPosition = .middle) {
         self.tokenItem = tokenItem
         self.isReadonly = isReadonly
-        self.isDisabled = isDisabled
         self.isSelected = isSelected
         self.isCopied = isCopied
         self.position = position
