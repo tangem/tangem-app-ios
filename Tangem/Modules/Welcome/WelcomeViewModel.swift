@@ -112,6 +112,7 @@ class WelcomeViewModel: ObservableObject {
                 
                 self.isScanningCard = false
                 if input.steps.needOnboarding {
+                    cardModel.updateState()
                     openOnboarding(with: input)
                 } else {
                     cardModel.updateState()
