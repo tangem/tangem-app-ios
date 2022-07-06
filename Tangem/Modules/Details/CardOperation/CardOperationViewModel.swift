@@ -55,7 +55,7 @@ class CardOperationViewModel: ObservableObject {
                 if self.shouldPopToRoot {
                     self.popToRoot()
                 } else {
-                    self.dismiss()
+                    self.dismissCardOperation()
                 }
             }
         case .failure(let error):
@@ -74,7 +74,7 @@ extension CardOperationViewModel {
         coordinator.popToRoot()
     }
     
-    func dismiss() {
-        coordinator.dismiss()
+    func dismissCardOperation() {
+        coordinator.dismissCardOperation()
     }
 }
