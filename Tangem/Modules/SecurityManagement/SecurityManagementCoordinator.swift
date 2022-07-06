@@ -37,7 +37,7 @@ extension SecurityManagementCoordinator {
 extension SecurityManagementCoordinator: SecurityManagementRoutable {
     func openPinChange(with title: String, action: @escaping (@escaping (Result<Void, Error>) -> Void) -> Void) {
         cardOperationViewModel = CardOperationViewModel(title: title,
-                                                        alert: "details_row_title_reset_factory_settings_warning".localized,
+                                                        alert: "details_security_management_warning".localized,
                                                         actionButtonPressed: action,
                                                         coordinator: self)
     }
