@@ -33,7 +33,7 @@ fileprivate struct MercuryoData: Decodable {
 class MercuryoService {
     @Injected(\.keysManager) var keysManager: KeysManager
     
-    private var widgetId: String { "bbb14588-cf27-425a-b8fe-841ccdd88620" }
+    private var widgetId: String { keysManager.mercuryoWidgetId }
     
     private var availableCryptoCurrencyCodes: [String] = []
     
