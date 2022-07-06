@@ -81,11 +81,6 @@ struct MainCoordinatorView: CoordinatorView {
     
     @ViewBuilder
     private var otherSheets: some View {
-        NavHolder()
-            .sheet(item: $coordinator.safariURL) {
-                SafariView(url: $0)
-            }
-        
         BottomSheetView(isPresented: coordinator.$qrBottomSheetKeeper,
                         hideBottomSheetCallback: coordinator.hideQrBottomSheet,
                         content: { addressQrBottomSheetContent })
