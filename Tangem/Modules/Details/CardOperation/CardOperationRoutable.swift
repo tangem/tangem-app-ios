@@ -10,5 +10,5 @@ import Foundation
 
 protocol CardOperationRoutable: AnyObject {
     func popToRoot()
-    func dismiss()
+    func dismissCardOperation()
 }
