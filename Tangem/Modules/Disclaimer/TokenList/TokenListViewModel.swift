@@ -214,10 +214,12 @@ private extension TokenListViewModel {
     }
     
     func onSelect(_ selected: Bool, _ tokenItem: TokenItem) {
+        guard let cardModel = cardModel else {
+            return
+        }
         if selected,
            case let .token(_, blockchain) = tokenItem,
            case .solana = blockchain,
-           let cardModel = cardModel,
            !cardModel.cardInfo.card.canSupportSolanaTokens
         {
             let okButton = Alert.Button.default(Text("common_ok".localized)) {
@@ -232,10 +234,17 @@ private extension TokenListViewModel {
         }
         
         let alreadyAdded = isAdded(tokenItem)
+
+        let network = tokenItem.getDefaultBlockchainNetwork(for: cardModel.cardInfo.card.derivationStyle)
+        let token = TokenItem.blockchain(network.blockchain)
         
         if alreadyAdded {
             if selected {
                 pendingRemove.remove(tokenItem)
+                if pendingRemove.contains(token) {
+                    pendingRemove.remove(token)
+                    updateSelection(token)
+                }
             } else {
                 pendingRemove.append(tokenItem)
             }
@@ -282,7 +291,7 @@ private extension TokenListViewModel {
         let currencyItems = coinModel.items.enumerated().map { (index, item) in
             CoinItemViewModel(tokenItem: item,
                               isReadonly: isReadonlyMode,
-                              isDisabled: true,
+                              isDisabled: false,
                               isSelected: bindSelection(item),
                               isCopied: bindCopy(),
                               position: .init(with: index, total: coinModel.items.count))
