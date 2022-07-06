@@ -9,6 +9,7 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import TangemSdk
 
 fileprivate enum QueryKey: String {
     case widget_id
@@ -27,15 +28,32 @@ fileprivate struct MercuryoCurrencyResponse: Decodable {
 
 fileprivate struct MercuryoData: Decodable {
     let crypto: [String]
+    let config: MercuryoConfig
+}
+
+fileprivate struct MercuryoConfig: Decodable {
+    let base: [String: String]
 }
 
 
 class MercuryoService {
-    @Injected(\.keysManager) var keysManager: KeysManager
-    
-    private var widgetId: String { keysManager.mercuryoWidgetId }
+    @Injected(\.keysManager) private var keysManager: KeysManager
+    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
+
+    private var widgetId: String {
+        keysManager.mercuryoWidgetId
+    }
+
+    private var isTestnet: Bool {
+        cardsRepository.lastScanResult.cardModel?.cardInfo.isTestnet ?? false
+    }
+
+    private var availableCurves: [EllipticCurve] {
+        cardsRepository.lastScanResult.card?.walletCurves ?? []
+    }
     
     private var availableCryptoCurrencyCodes: [String] = []
+    private var networkCodeByCurrencyCode: [String: String] = [:]
     
     private var bag: Set<AnyCancellable> = []
     
@@ -60,7 +78,10 @@ extension MercuryoService: ExchangeService {
         
         switch amountType {
         case .token:
-            if case .ethereum = blockchain {
+            if let mercuryoNetworkCurrencyCode = networkCodeByCurrencyCode[currencySymbol],
+               let mercuryoBlockchain = self.blockchain(for: mercuryoNetworkCurrencyCode),
+               mercuryoBlockchain == blockchain
+            {
                 return true
             } else {
                 return false
@@ -125,8 +146,28 @@ extension MercuryoService: ExchangeService {
                 
             } receiveValue: { [unowned self] response in
                 self.availableCryptoCurrencyCodes = response.data.crypto
+                self.networkCodeByCurrencyCode = response.data.config.base
             }
             .store(in: &bag)
+    }
+    
+    private func blockchain(for currencyCode: String) -> Blockchain? {
+        let supportedBlockchains = SupportedTokenItems()
+            .blockchains(for: availableCurves, isTestnet: isTestnet)
+            .filter {
+                // Arbitrum uses ETH, binance uses BNB.
+                // Both are in conflict with the other cryptocurrencies.
+                switch $0 {
+                case .arbitrum, .binance:
+                    return false
+                default:
+                    return true
+                }
+            }
+        
+        return supportedBlockchains.first {
+            $0.currencySymbol == currencyCode
+        }
     }
 }
 
