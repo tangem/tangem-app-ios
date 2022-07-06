@@ -100,7 +100,7 @@ Tangem is the only hardware wallet to offer signature count protection.";
 "details_row_title_twins_recreate" = "Re-create twin wallet";
 "details_section_title_app" = "App";
 "details_section_title_card" = "Card";
-"details_security_management_warning" = "If you forget the code, you will lose the ability to use the card. There is no way to recover or change your code if you lose it.";
+"details_security_management_warning" = "If you forget the code you will lose access to your funds. Сode recovery is not possible.";
 "details_title" = "Details";
 "details_twins_create_warning" = "The wallet creation procedure consists of three steps. You must complete it to the end, otherwise the cards will not be paired and you will have to start from the beginning.";
 "details_twins_recreate_button_format" = "Tap the card #%d";
