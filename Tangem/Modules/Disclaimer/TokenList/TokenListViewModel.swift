@@ -282,7 +282,7 @@ private extension TokenListViewModel {
         let currencyItems = coinModel.items.enumerated().map { (index, item) in
             CoinItemViewModel(tokenItem: item,
                               isReadonly: isReadonlyMode,
-                              isDisabled: !canManage(item),
+                              isDisabled: cardModel == nil,
                               isSelected: bindSelection(item),
                               isCopied: bindCopy(),
                               position: .init(with: index, total: coinModel.items.count))
@@ -298,23 +298,65 @@ private extension TokenListViewModel {
             self.onSelect(isSelected, tokenItem)
             return
         }
-        
-        let title = "token_details_hide_alert_title".localized(tokenItem.blockchain.currencySymbol)
-        
-        let cancelAction = { [unowned self] in
-            self.updateSelection(tokenItem)
+        if canManage(tokenItem) || canRemove(tokenItem: tokenItem) {
+            let title = "token_details_hide_alert_title".localized(tokenItem.blockchain.currencySymbol)
+            
+            let cancelAction = { [unowned self] in
+                self.updateSelection(tokenItem)
+            }
+            
+            let hideAction = { [unowned self] in
+                self.onSelect(isSelected, tokenItem)
+            }
+            
+            alert = AlertBinder(alert:
+                Alert(title: Text(title),
+                      message: Text("token_details_hide_alert_message".localized),
+                      primaryButton: .destructive(Text("token_details_hide_alert_hide"), action: hideAction),
+                      secondaryButton: .cancel(cancelAction))
+            )
+        } else {
+            guard let cardModel = cardModel,
+                  let walletModel = cardModel.walletModels?.first(where: { $0.blockchainNetwork == tokenItem.getDefaultBlockchainNetwork(for: cardModel.cardInfo.card.derivationStyle) })
+            else {
+                return
+            }
+            
+            let title = "token_details_unable_hide_alert_title".localized(tokenItem.blockchain.currencySymbol)
+            
+            let message = "token_details_unable_hide_alert_message".localized([
+                tokenItem.blockchain.currencySymbol,
+                walletModel.blockchainNetwork.blockchain.displayName,
+            ])
+            
+            alert = AlertBinder(alert: Alert(
+                title: Text(title),
+                message: Text(message),
+                dismissButton: .default(Text("common_ok"), action: {
+                    self.updateSelection(tokenItem)
+                })
+            ))
+        }
+    }
+    
+    private func canRemove(tokenItem: TokenItem) -> Bool {
+        guard let cardModel = cardModel,
+              let walletModel = cardModel.walletModels?.first(where: { $0.blockchainNetwork == tokenItem.getDefaultBlockchainNetwork(for: cardModel.cardInfo.card.derivationStyle) })
+        else {
+            return false
         }
         
-        let hideAction = { [unowned self] in
-            self.onSelect(isSelected, tokenItem)
-        }
+        let network = tokenItem.getDefaultBlockchainNetwork(for: cardModel.cardInfo.card.derivationStyle)
         
-        alert = AlertBinder(alert:
-            Alert(title: Text(title),
-                  message: Text("token_details_hide_alert_message".localized),
-                  primaryButton: .destructive(Text("token_details_hide_alert_hide"), action: hideAction),
-                  secondaryButton: .cancel(cancelAction))
-        )
+        let cardTokens: [TokenItem] = walletModel
+            .walletManager
+            .cardTokens
+            .map { token in
+                TokenItem.token(token, network.blockchain)
+            }
+            .filter({ !pendingRemove.contains($0) })
+        
+        return cardTokens.isEmpty
     }
     
     private func isTokenAvailable(_ tokenItem: TokenItem) -> Bool {
