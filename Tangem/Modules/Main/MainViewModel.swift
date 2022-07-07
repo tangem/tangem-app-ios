@@ -254,6 +254,7 @@ class MainViewModel: ObservableObject {
         self.state = .card(model: cardModel) // [REDACTED_TODO_COMMENT]
         self.coordinator = coordinator
         bind()
+        cardModel.updateState()
     }
     
     deinit {
