@@ -46,9 +46,10 @@ class StoriesViewModel: ViewModel, ObservableObject {
             }
             .store(in: &bag)
         
-        Publishers.Merge(
+        Publishers.Merge3(
             navigation.$readToTokenList,
-            navigation.$readToShop
+            navigation.$readToShop,
+            navigation.$readToWebShop
         )
             .drop { showingSheet in
                 showingSheet == false
