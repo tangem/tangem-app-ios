@@ -739,26 +739,11 @@ private extension SendViewModel {
             formatted = amount.description
         }
         
-        if amount.value > 0, isFeeApproximate() {
+        if amount.value > 0, walletModel.wallet.blockchain.isFeeApproximate(for: amountToSend.type)  {
             return "< " + formatted
         }
         
         return formatted
-    }
-    
-    func isFeeApproximate() -> Bool {
-        switch blockchainNetwork.blockchain {
-        case .tron:
-            if case .token = amountToSend.type {
-                return true
-            }
-        case .arbitrum:
-            return true
-        default:
-            break
-        }
-
-        return false
     }
 }
 
