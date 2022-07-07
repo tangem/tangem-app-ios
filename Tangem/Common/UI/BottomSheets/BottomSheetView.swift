@@ -100,7 +100,7 @@ struct BottomSheetView<Content: View>: View {
                 }
                 .frame(maxWidth: .infinity)
                 .background(Color.white)
-                .cornerRadius(10, corners: [.topLeft, .topRight])
+                .cornerRadius(cornerRadius, corners: [.topLeft, .topRight])
                 .gesture(addDragGesture ? dragGesture : nil)
                 .offset(x: 0, y: sheetOffset)
                 .readSize { size in
