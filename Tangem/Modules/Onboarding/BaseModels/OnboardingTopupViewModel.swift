@@ -110,16 +110,6 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
         }
     }
     
-    override func reset(includeInResetAnim: (() -> Void)? = nil) {
-        walletModelUpdateCancellable = nil
-        
-        super.reset {
-            self.refreshButtonState = .refreshButton
-            self.isBalanceRefresherVisible = false
-            includeInResetAnim?()
-        }
-    }
-    
     private func resetRefreshButtonState() {
 //        guard refreshButtonDispatchWork == nil else { return }
 //
