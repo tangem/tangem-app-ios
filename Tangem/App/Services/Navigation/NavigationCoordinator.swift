@@ -18,6 +18,7 @@ class NavigationCoordinator: ObservableObject {
         }
     }
     @Published var readToShop: Bool = false
+    @Published var readToWebShop: Bool = false
     @Published var readToTokenList: Bool = false
     @Published var readToDisclaimer: Bool = false
     @Published var readToTwinOnboarding = false
@@ -95,6 +96,7 @@ class NavigationCoordinator: ObservableObject {
         readToMain = false
         readToDisclaimer = false
         readToShop = false
+        readToWebShop = false
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.reset()
         }
@@ -103,6 +105,7 @@ class NavigationCoordinator: ObservableObject {
     func reset() {
         readToMain = false
         readToShop = false
+        readToWebShop = false
         readToDisclaimer = false
         readToTwinOnboarding = false
         readToTroubleshootingScan = false
