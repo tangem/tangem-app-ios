@@ -37,14 +37,4 @@ extension Wallet {
         
         return true
     }
-    
-    @ViewBuilder func getImageView(for amountType: Amount.AmountType) -> some View {
-        if amountType == .coin, let name = IconsUtils.getBlockchainIcon(blockchain) {
-            Image(name)
-        } else if let token = amountType.token {
-            CircleImageTextView(name: token.name, color: token.color)
-        } else {
-            CircleImageTextView(name: blockchain.displayName, color: Color.tangemGrayLight4)
-        }
-    }
 }
