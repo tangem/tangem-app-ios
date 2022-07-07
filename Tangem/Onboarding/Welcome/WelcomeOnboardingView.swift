@@ -21,6 +21,7 @@ struct WelcomeOnboardingView: View {
             StoriesView(viewModel: storiesModel) {
                 storiesModel.currentStoryPage(
                     isScanning: viewModel.isScanningCard,
+                    isOpeningShop: viewModel.isOpeningShop,
                     scanCard: viewModel.scanCard,
                     orderCard: viewModel.orderCard,
                     searchTokens: viewModel.searchTokens
