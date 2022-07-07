@@ -12,7 +12,7 @@ import Moya
 
 class CommonGeoIpService {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
-    
+
     private let provider = MoyaProvider<TangemApiTarget>()
     private var bag: Set<AnyCancellable> = []
 }
@@ -21,7 +21,7 @@ extension CommonGeoIpService: GeoIpService {
     func regionCode() -> AnyPublisher<String, Never> {
         let card = cardsRepository.lastScanResult.card
         let target = TangemApiTarget(type: .geo, card: card)
-        
+
         return provider
             .requestPublisher(target)
             .filterSuccessfulStatusCodes()
