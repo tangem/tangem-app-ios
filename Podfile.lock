@@ -236,7 +236,7 @@ DEPENDENCIES:
   - BigInt
   - BinanceChain (from `https://github.com/tangem/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/tangem/bitcoincore.git`, tag `0.0.16`)
-  - BlockchainSdk (from `https://github.com/Tangem/blockchain-sdk-swift.git`, tag `develop-127`)
+  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-127`)
   - DeviceGuru (= 8.0.0)
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -320,7 +320,7 @@ EXTERNAL SOURCES:
     :git: https://github.com/tangem/bitcoincore.git
     :tag: 0.0.16
   BlockchainSdk:
-    :git: https://github.com/Tangem/blockchain-sdk-swift.git
+    :git: https://github.com/tangem/blockchain-sdk-swift.git
     :tag: develop-127
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
@@ -352,7 +352,7 @@ CHECKOUT OPTIONS:
     :git: https://github.com/tangem/bitcoincore.git
     :tag: 0.0.16
   BlockchainSdk:
-    :git: https://github.com/Tangem/blockchain-sdk-swift.git
+    :git: https://github.com/tangem/blockchain-sdk-swift.git
     :tag: develop-127
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
@@ -431,6 +431,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: b37822ff9a9252ce9270fae3bcdea549ffff67a1
+PODFILE CHECKSUM: 390ce1bb301083f48dfd97cc4103abdbb345d91b
 
 COCOAPODS: 1.11.3
