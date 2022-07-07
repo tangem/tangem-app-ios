@@ -190,7 +190,7 @@ class TokenDetailsViewModel: ObservableObject {
             .receive(on: RunLoop.main)
             .sink { [weak self] code in
                 guard let self = self else { return }
-                if code != "ru" {
+                if code == "ru" {
                     self.coordinator.showWarningIfNeeded { [weak self] in
                         self?.coordinator.showP2PTutorial()
                     } declineCallback: { [weak self] in
