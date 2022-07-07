@@ -15,7 +15,6 @@ protocol MainRoutable: TokenDetailsRoutable {
     func openTokenDetails(cardModel: CardViewModel, blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType)
     func openOnboardingModal(with input: OnboardingInput)
     func openCurrencySelection(autoDismiss: Bool)
-    func openExternalURL(_ url: URL)
     func openTokensList(with cardModel: CardViewModel)
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType)
     func openQR(shareAddress: String, address: String, qrNotice: String)
