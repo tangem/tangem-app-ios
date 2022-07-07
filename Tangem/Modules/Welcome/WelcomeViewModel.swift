@@ -115,7 +115,6 @@ class WelcomeViewModel: ObservableObject {
                     cardModel.updateState()
                     openOnboarding(with: input)
                 } else {
-                    cardModel.updateState()
                     openMain(with: input)
                 }
                 
