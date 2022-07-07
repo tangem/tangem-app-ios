@@ -31,9 +31,6 @@ class MainCoordinator: CoordinatorObject {
     @Published var mailViewModel: MailViewModel? = nil
     @Published var addressQrBottomSheetContentViewVodel: AddressQrBottomSheetContentViewVodel? = nil
     
-    // MARK: - Other view bindings
-    @Published var safariURL: URL? = nil
-    
     // MARK: - Helpers
     @Published var qrBottomSheetKeeper: Bool = false
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
@@ -161,10 +158,6 @@ extension MainCoordinator: MainRoutable {
         currencySelectViewModel?.dismissAfterSelection = autoDismiss
     }
     
-    func openExternalURL(_ url: URL) {
-        safariURL = url
-    }
-    
     func openTokensList(with cardModel: CardViewModel) {
         let dismissAction: Action = { [weak self] in
             self?.tokenListCoordinator = nil
@@ -181,5 +174,6 @@ extension MainCoordinator: MainRoutable {
     
     func openQR(shareAddress: String, address: String, qrNotice: String) {
         addressQrBottomSheetContentViewVodel = .init(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
+        qrBottomSheetKeeper = true
     }
 }
