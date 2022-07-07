@@ -64,7 +64,7 @@ class PreparePrimaryCardTask: CardSessionRunnable {
             return
         }
         
-        let blockchains = SupportedTokenItems().predefinedBlockchains(isDemo: card.isDemoCard)
+        let blockchains = SupportedTokenItems().predefinedBlockchains(isDemo: card.isDemoCard, testnet: card.isTestnet)
         
         let derivations: [Data: [DerivationPath]] = blockchains.reduce(into: [:]) { partialResult, blockchain in
             if let wallet = session.environment.card?.wallets.first(where: { $0.curve == blockchain.curve }),
