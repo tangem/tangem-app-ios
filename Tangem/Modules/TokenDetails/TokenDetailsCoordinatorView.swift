@@ -25,10 +25,10 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
                                 cornerRadius: 30) {
                 } content: {
                     WarningBankCardView {
-                        coordinator.warningBankCardViewModel?.confirmCallback()
+                        coordinator.warningBankCardViewModel?.declineCallback()
                         coordinator.showWarning = false
                     } decline: {
-                        coordinator.warningBankCardViewModel?.declineCallback()
+                        coordinator.warningBankCardViewModel?.confirmCallback()
                         coordinator.showWarning = false
                     }
                 }
