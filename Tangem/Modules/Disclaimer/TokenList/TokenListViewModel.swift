@@ -22,7 +22,7 @@ class TokenListViewModel: ObservableObject {
     
     @Published var isSaving: Bool = false
     @Published var isLoading: Bool = true
-    @Published var error: AlertBinder?
+    @Published var alert: AlertBinder?
     @Published var pendingAdd: [TokenItem] = []
     @Published var pendingRemove: [TokenItem] = []
     @Published var showToast: Bool = false
@@ -103,7 +103,7 @@ class TokenListViewModel: ObservableObject {
                 self?.closeModule()
             case .failure(let error):
                 if case TangemSdkError.userCancelled = error {} else {
-                    self?.error = error.alertBinder
+                    self?.alert = error.alertBinder
                 }
             }
         }
@@ -224,7 +224,7 @@ private extension TokenListViewModel {
                 self.updateSelection(tokenItem)
             }
             
-            error = AlertBinder(alert: Alert(title: Text("common_attention".localized),
+            alert = AlertBinder(alert: Alert(title: Text("common_attention".localized),
                                              message: Text("alert_manage_tokens_unsupported_message".localized),
                                              dismissButton: okButton))
             
@@ -262,7 +262,7 @@ private extension TokenListViewModel {
         let binding = Binding<Bool> { [weak self] in
             self?.isSelected(tokenItem) ?? false
         } set: { [weak self] isSelected in
-            self?.onSelect(isSelected, tokenItem)
+            self?.showWarningDeleteAlertIfNeeded(isSelected: isSelected, tokenItem: tokenItem)
         }
         
         return binding
@@ -289,6 +289,43 @@ private extension TokenListViewModel {
         }
         
         return CoinViewModel(with: coinModel, items: currencyItems)
+    }
+    
+    private func showWarningDeleteAlertIfNeeded(isSelected: Bool, tokenItem: TokenItem) {
+        guard !isSelected,
+              !self.pendingAdd.contains(tokenItem),
+              self.isTokenAvailable(tokenItem) else {
+            self.onSelect(isSelected, tokenItem)
+            return
+        }
+        
+        let title = "token_details_hide_alert_title".localized(tokenItem.blockchain.currencySymbol)
+        
+        let cancelAction = { [unowned self] in
+            self.updateSelection(tokenItem)
+        }
+        
+        let hideAction = { [unowned self] in
+            self.onSelect(isSelected, tokenItem)
+        }
+        
+        alert = AlertBinder(alert:
+            Alert(title: Text(title),
+                  message: Text("token_details_hide_alert_message".localized),
+                  primaryButton: .destructive(Text("token_details_hide_alert_hide"), action: hideAction),
+                  secondaryButton: .cancel(cancelAction))
+        )
+    }
+    
+    private func isTokenAvailable(_ tokenItem: TokenItem) -> Bool {
+        if case let .token(_, blockchain) = tokenItem,
+           case .solana = blockchain,
+           let cardModel = cardModel,
+           !cardModel.cardInfo.card.canSupportSolanaTokens
+        {
+            return false
+        }
+        return true
     }
 }
 
