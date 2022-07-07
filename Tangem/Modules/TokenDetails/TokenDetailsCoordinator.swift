@@ -119,8 +119,8 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
     func showP2PTutorial() {
         p2pTutorialWebViewModel = WebViewContainerViewModel(url: URL(string: "https://tangem.com/howtobuy.html")!,
                                                             title: "",
-                                                            addLoadingIndicator: false,
-                                                            withCloseButton: true,
+                                                            addLoadingIndicator: true,
+                                                            withCloseButton: false,
                                                             urlActions: [:])
     }
 }
