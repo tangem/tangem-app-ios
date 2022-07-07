@@ -76,18 +76,14 @@ extension MercuryoService: ExchangeService {
             return false
         }
         
-        switch amountType {
-        case .token:
-            if let mercuryoNetworkCurrencyCode = networkCodeByCurrencyCode[currencySymbol],
-               let mercuryoBlockchain = self.blockchain(for: mercuryoNetworkCurrencyCode),
-               mercuryoBlockchain == blockchain
-            {
-                return true
-            } else {
-                return false
-            }
-        default:
+        
+        if let mercuryoNetworkCurrencyCode = networkCodeByCurrencyCode[currencySymbol],
+           let mercuryoBlockchain = self.blockchain(for: mercuryoNetworkCurrencyCode),
+           mercuryoBlockchain == blockchain
+        {
             return true
+        } else {
+            return false
         }
     }
     
