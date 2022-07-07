@@ -12,6 +12,7 @@ import Combine
 class TokenDetailsViewModel: ObservableObject {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
+    @Injected(\.geoIpService) private var geoIpService: GeoIpService
     
     @Published var alert: AlertBinder? = nil
     @Published var showTradeSheet: Bool = false
@@ -184,11 +185,21 @@ class TokenDetailsViewModel: ObservableObject {
     }
     
     func showBankWarningIfNeeded() {
-        coordinator.showWarningIfNeeded { [weak self] in
-            self?.coordinator.showP2PTutorial()
-        } declineCallback: { [weak self] in
-            self?.openBuyCrypto()
-        }
+        geoIpService
+            .regionCode()
+            .receive(on: RunLoop.main)
+            .sink { [weak self] code in
+                guard let self = self else { return }
+                if code != "ru" {
+                    self.coordinator.showWarningIfNeeded { [weak self] in
+                        self?.coordinator.showP2PTutorial()
+                    } declineCallback: { [weak self] in
+                        self?.openBuyCrypto()
+                    }
+                } else {
+                    self.openBuyCrypto()
+                }
+            }.store(in: &bag)
 
     }
     
