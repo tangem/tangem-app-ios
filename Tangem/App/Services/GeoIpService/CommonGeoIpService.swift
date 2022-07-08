@@ -22,15 +22,14 @@ extension CommonGeoIpService: GeoIpService {
         let card = cardsRepository.lastScanResult.card
         let target = TangemApiTarget(type: .geo, card: card)
         
+        let fallbackRegionCode = Locale.current.regionCode?.lowercased() ?? ""
+        
         return provider
             .requestPublisher(target)
-            .filterSuccessfulStatusCodes()
+            .filterSuccessfulStatusAndRedirectCodes()
             .map(GeoResponse.self)
             .map(\.code)
-            .catch { _ -> AnyPublisher<String, Never> in
-                Just(Locale.current.regionCode?.lowercased() ?? "")
-                    .eraseToAnyPublisher()
-            }
+            .replaceError(with: fallbackRegionCode)
             .eraseToAnyPublisher()
     }
 }
