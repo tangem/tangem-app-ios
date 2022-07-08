@@ -25,7 +25,7 @@ extension CommonGeoIpService: GeoIpService {
         
         let fallbackRegionCode = Locale.current.regionCode?.lowercased() ?? ""
         
-        return provider
+        provider
             .requestPublisher(target)
             .filterSuccessfulStatusAndRedirectCodes()
             .map(GeoResponse.self)
