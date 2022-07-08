@@ -13,7 +13,15 @@ import Moya
 class CommonGeoIpService {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     
-    private var regionCode: String = ""
+    var regionCode: String {
+        if internalRegionCode.isEmpty {
+            return fallbackRegionCode
+        }
+        return internalRegionCode
+    }
+    
+    private let fallbackRegionCode = Locale.current.regionCode?.lowercased() ?? ""
+    private var internalRegionCode: String = ""
     private let provider = MoyaProvider<TangemApiTarget>()
     private var bag: Set<AnyCancellable> = []
 }
@@ -23,8 +31,6 @@ extension CommonGeoIpService: GeoIpService {
         let card = cardsRepository.lastScanResult.card
         let target = TangemApiTarget(type: .geo, card: card)
         
-        let fallbackRegionCode = Locale.current.regionCode?.lowercased() ?? ""
-        
         provider
             .requestPublisher(target)
             .filterSuccessfulStatusAndRedirectCodes()
@@ -32,15 +38,7 @@ extension CommonGeoIpService: GeoIpService {
             .map(\.code)
             .replaceError(with: fallbackRegionCode)
             .sink { [weak self] code in
-                self?.regionCode = code
+                self?.internalRegionCode = code
             }.store(in: &bag)
-    }
-    
-    func getRegionCode() -> String {
-        if regionCode.isEmpty {
-            return Locale.current.regionCode?.lowercased() ?? ""
-        } else {
-            return regionCode
-        }
     }
 }
