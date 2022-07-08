@@ -14,14 +14,14 @@ class CommonGeoIpService {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     
     var regionCode: String {
-        if internalRegionCode.isEmpty {
-            return fallbackRegionCode
+        if let code = internalRegionCode {
+            return code
         }
-        return internalRegionCode
+        return fallbackRegionCode
     }
     
     private let fallbackRegionCode = Locale.current.regionCode?.lowercased() ?? ""
-    private var internalRegionCode: String = ""
+    private var internalRegionCode: String?
     private let provider = MoyaProvider<TangemApiTarget>()
     private var bag: Set<AnyCancellable> = []
 }
