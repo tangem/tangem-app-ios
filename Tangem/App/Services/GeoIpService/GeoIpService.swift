@@ -9,7 +9,7 @@
 import Combine
 
 protocol GeoIpService: Initializable {
-    func getRegionCode() -> String
+    var regionCode: String { get }
 }
 
 private struct GeoIpServiceKey: InjectionKey {
