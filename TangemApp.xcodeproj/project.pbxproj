@@ -183,8 +183,6 @@
 		659768172837B61000F9F04A /* TokenItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 659768162837B61000F9F04A /* TokenItemView.swift */; };
 		65A1910A2833EA900023355D /* TokensView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A191092833EA900023355D /* TokensView.swift */; };
 		65B435FE2844BF7200DEAE1B /* AttributedTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B435FD2844BF7100DEAE1B /* AttributedTextView.swift */; };
-		65B436022844FDE700DEAE1B /* TangemSkeletonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B436012844FDE700DEAE1B /* TangemSkeletonModifier.swift */; };
-		65D874932877120F009D0448 /* WarningBankCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D874922877120F009D0448 /* WarningBankCardView.swift */; };
 		65C9FCAC2863103800FDE63E /* ZendeskConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCAB2863103800FDE63E /* ZendeskConfig.swift */; };
 		65C9FCAE28644F9D00FDE63E /* DetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCAD28644F9D00FDE63E /* DetailsView.swift */; };
 		65C9FCB12864507600FDE63E /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCAF2864507600FDE63E /* MainViewModel.swift */; };
@@ -408,10 +406,10 @@
 		DA5FAD8A27B27F7F00EE53AE /* SheetDragHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5FAD8927B27F7F00EE53AE /* SheetDragHandler.swift */; };
 		DA64C36D27CCAD7E005B5E9A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = DA64C36F27CCAD7E005B5E9A /* InfoPlist.strings */; };
 		DA64C37327CCB176005B5E9A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = DA64C37527CCB176005B5E9A /* InfoPlist.strings */; };
+		DAA0559928744E2400E4F7B9 /* MercuryoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA0559828744E2400E4F7B9 /* MercuryoService.swift */; };
 		DAA153B72876C0C0002254D1 /* GeoIpService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA153B62876C0C0002254D1 /* GeoIpService.swift */; };
 		DAA153B92876C0C3002254D1 /* CommonGeoIpService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA153B82876C0C3002254D1 /* CommonGeoIpService.swift */; };
 		DAA153BC2876CBFC002254D1 /* GeoResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA153BB2876CBFC002254D1 /* GeoResponse.swift */; };
-		DAA0559928744E2400E4F7B9 /* MercuryoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA0559828744E2400E4F7B9 /* MercuryoService.swift */; };
 		DAADD5B427EB5A180046DEC3 /* SafariView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAADD5B327EB5A180046DEC3 /* SafariView.swift */; };
 		DAB1E62627B4E40D00C1F510 /* ShopOrderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB1E62527B4E40D00C1F510 /* ShopOrderView.swift */; };
 		DABA435427BFB63D00718AC6 /* WelcomeStoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DABA435327BFB63D00718AC6 /* WelcomeStoryPage.swift */; };
@@ -782,8 +780,6 @@
 		65C9FCAF2864507600FDE63E /* MainViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
 		65C9FCB02864507600FDE63E /* MainView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		65C9FCB92869CC3E00FDE63E /* SupportChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportChatViewModel.swift; sourceTree = "<group>"; };
-		65B436012844FDE700DEAE1B /* TangemSkeletonModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSkeletonModifier.swift; sourceTree = "<group>"; };
-		65D874922877120F009D0448 /* WarningBankCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningBankCardView.swift; sourceTree = "<group>"; };
 		660C0A4ED84D5E9C3C8E3304 /* Pods-Tangem Tap-Tangem TapUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap-Tangem TapUITests.release.xcconfig"; path = "Target Support Files/Pods-Tangem Tap-Tangem TapUITests/Pods-Tangem Tap-Tangem TapUITests.release.xcconfig"; sourceTree = "<group>"; };
 		6DAB43B88F12E203AB57FCC5 /* Pods-TangemClip.firebase.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemClip.firebase.xcconfig"; path = "Target Support Files/Pods-TangemClip/Pods-TangemClip.firebase.xcconfig"; sourceTree = "<group>"; };
 		6DBB055D99B4DB295C04B287 /* Pods-Tangem.release(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.release(production).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.release(production).xcconfig"; sourceTree = "<group>"; };
@@ -990,10 +986,10 @@
 		DA64C37027CCAD7F005B5E9A /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		DA64C37427CCB176005B5E9A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		DA64C37627CCB177005B5E9A /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		DAA0559828744E2400E4F7B9 /* MercuryoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MercuryoService.swift; sourceTree = "<group>"; };
 		DAA153B62876C0C0002254D1 /* GeoIpService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoIpService.swift; sourceTree = "<group>"; };
 		DAA153B82876C0C3002254D1 /* CommonGeoIpService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonGeoIpService.swift; sourceTree = "<group>"; };
 		DAA153BB2876CBFC002254D1 /* GeoResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoResponse.swift; sourceTree = "<group>"; };
-		DAA0559828744E2400E4F7B9 /* MercuryoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MercuryoService.swift; sourceTree = "<group>"; };
 		DAADD5B327EB5A180046DEC3 /* SafariView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariView.swift; sourceTree = "<group>"; };
 		DAB1E62527B4E40D00C1F510 /* ShopOrderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopOrderView.swift; sourceTree = "<group>"; };
 		DABA435327BFB63D00718AC6 /* WelcomeStoryPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeStoryPage.swift; sourceTree = "<group>"; };
@@ -1289,6 +1285,7 @@
 				5D3F77C324BF56D800E8695B /* Products */,
 				BBA154748909F0AB4121528D /* Pods */,
 				2E5061A84512B23CCB5F2E17 /* Frameworks */,
+				65D8749528785477009D0448 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1643,6 +1640,13 @@
 				6563B8BA2859EA82009A8A7D /* SupportChatService.swift */,
 			);
 			path = SupportChatService;
+			sourceTree = "<group>";
+		};
+		65D8749528785477009D0448 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 		B018F3012591FED600D8F89A /* JsonSettings */ = {
@@ -3336,7 +3340,6 @@
 				DC66BC18285C65C900CDF765 /* TokenDetailsRoutable.swift in Sources */,
 				B031AAB526C16A1B00015003 /* UIColor+.swift in Sources */,
 				DAA153B72876C0C0002254D1 /* GeoIpService.swift in Sources */,
-				B099614D26D52C22000E3779 /* OnboardingBaseView.swift in Sources */,
 				DAA153B72876C0C0002254D1 /* GeoIpService.swift in Sources */,
 				DA5FAD8627B2791C00EE53AE /* ApplePayButton.swift in Sources */,
 				DC295B3C2861C19C006CB7B6 /* MainCoordinator.swift in Sources */,
@@ -3351,7 +3354,6 @@
 				DC51187A2860B704004FB954 /* AppCoordinator.swift in Sources */,
 				DC66BBFE285A389000CDF765 /* View+Navigation.swift in Sources */,
 				5DA3A2F1251CB6CA009A8E08 /* SecurityManagementView.swift in Sources */,
-				65D874932877120F009D0448 /* WarningBankCardView.swift in Sources */,
 				DC0A57EA2822AD6D0031BECC /* PersistentStorageKey.swift in Sources */,
 				DC295B4E2861D871006CB7B6 /* WalletConnectCoordinatorView.swift in Sources */,
 				B0F79C6A2689AC56008C9B30 /* FileEncryptionUtility.swift in Sources */,
