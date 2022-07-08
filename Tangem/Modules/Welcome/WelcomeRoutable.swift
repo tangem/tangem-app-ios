@@ -13,7 +13,7 @@ protocol WelcomeRoutable: AnyObject {
     func openOnboardingModal(with input: OnboardingInput)
     func openMail(with dataCollector: EmailDataCollector)
     func openDisclaimer()
-    func openShop()
+    func openShop(with options: ShopCoordinator.Options)
     func openOnboarding(with input: OnboardingInput)
     func openMain(with cardModel: CardViewModel)
 }
