@@ -217,7 +217,7 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     }
     
     func buyCryptoIfPossible() {
-        if geoIpService.getRegionCode() == "ru" {
+        if geoIpService.regionCode == "ru" {
             showBankWarning = true
         } else {
             buyCryptoAction()
