@@ -34,7 +34,6 @@ extension CommonGeoIpService: GeoIpService {
             .sink { [weak self] code in
                 self?.regionCode = code
             }.store(in: &bag)
-
     }
     
     func getRegionCode() -> String {
