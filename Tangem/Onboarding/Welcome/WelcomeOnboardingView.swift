@@ -69,7 +69,7 @@ struct WelcomeOnboardingView: View {
             
             Color.clear.frame(width: 1, height: 1)
                 .sheet(isPresented: $navigation.readToWebShop) {
-                    WebShopView()
+                    SafariView(url: URL(string: "https://tangem.com/ru/resellers/")!)
                 }
             
             Color.clear.frame(width: 1, height: 1)
