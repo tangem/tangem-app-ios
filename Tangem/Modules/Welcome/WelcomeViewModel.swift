@@ -15,6 +15,7 @@ class WelcomeViewModel: ObservableObject {
     @Injected(\.onboardingStepsSetupService) private var stepsSetupService: OnboardingStepsSetupService
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
+    @Injected(\.geoIpService) private var geoIpService: GeoIpService
 
     @Published var showTroubleshootingView: Bool = false
     @Published var isScanningCard: Bool = false
@@ -87,7 +88,20 @@ class WelcomeViewModel: ObservableObject {
     }
 
     func orderCard() {
-        openShop()
+        let webShopRegionCodes = [
+            "ru",
+            "by",
+        ]
+
+        let webVersionUrl: URL?
+        if webShopRegionCodes.contains(geoIpService.regionCode) {
+            webVersionUrl = URL(string: "https://tangem.com/ru/resellers/")
+        } else {
+            webVersionUrl = nil
+        }
+
+        let options = ShopCoordinator.Options(webVersionUrl: webVersionUrl)
+        openShop(with: options)
         Analytics.log(.getACard, params: [.source: .welcome])
     }
 
@@ -142,8 +156,8 @@ extension WelcomeViewModel {
         coordinator.openTokensList()
     }
 
-    func openShop() {
-        coordinator.openShop()
+    func openShop(with options: ShopCoordinator.Options) {
+        coordinator.openShop(with: options)
     }
 
     func openOnboarding(with input: OnboardingInput) {
