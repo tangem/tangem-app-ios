@@ -176,4 +176,8 @@ extension MainCoordinator: MainRoutable {
         addressQrBottomSheetContentViewVodel = .init(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
         qrBottomSheetKeeper = true
     }
+    
+    func showWarningIfNeeded(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) { }
+    
+    func showP2PTutorial() { }
 }
