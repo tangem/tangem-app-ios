@@ -87,12 +87,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         stepUpdate()
     }
     
-    override func reset(includeInResetAnim: (() -> Void)? = nil) {
-        super.reset {
-            self.isCardScanned = false
-        }
-    }
-    
     override func mainButtonAction() {
         switch currentStep {
         case .welcome:
@@ -170,7 +164,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
                 if let defaultEntry = cardInfo.defaultStorageEntry {
                     self?.tokensRepo.append([defaultEntry], for: cardInfo.card.cardId)
                 } else {
-                    let blockchains = SupportedTokenItems().predefinedBlockchains(isDemo: false)
+                    let blockchains = SupportedTokenItems().predefinedBlockchains(isDemo: false, testnet: cardInfo.isTestnet)
                     self?.tokensRepo.append(blockchains, for: cardInfo.card.cardId, style: cardInfo.card.derivationStyle)
                 }
             }
