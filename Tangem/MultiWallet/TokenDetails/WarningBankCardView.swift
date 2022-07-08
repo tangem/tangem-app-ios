@@ -17,10 +17,12 @@ struct WarningBankCardView: View {
         VStack(spacing: 0) {
             Image("russia_flag")
                 .padding(.top, 80)
-            Text("title_warning_russian_bank_card".localized)
+            
+            Text("russian_bank_card_warning_title".localized)
                 .font(.system(size: 20, weight: .regular))
                 .padding(30)
-            Text("subtitle_warning_russian_bank_card".localized)
+            
+            Text("russian_bank_card_warning_subtitle".localized)
                 .font(.system(size: 15, weight: .regular))
                 .padding(.top, 50)
                 .padding(.horizontal, 30)
@@ -29,19 +31,18 @@ struct WarningBankCardView: View {
                 Button(action: {
                     confirm()
                 }, label: {
-                    Text("yes_word".localized)
+                    Text("common_yes".localized)
                 })
-                .padding(.leading, 16)
                 .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
 
                 Button(action: {
                     decline()
                 }, label: {
-                    Text("no_word".localized)
+                    Text("common_no".localized)
                 })
-                .padding(.trailing, 16)
                 .buttonStyle(TangemButtonStyle(colorStyle: .gray, layout: .flexibleWidth))
             }
+            .padding(.horizontal, 16)
             .padding(.vertical, 40)
         }
         .multilineTextAlignment(.center)
