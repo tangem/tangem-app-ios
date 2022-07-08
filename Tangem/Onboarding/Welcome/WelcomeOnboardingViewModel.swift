@@ -18,7 +18,6 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     @Injected(\.geoIpService) private var geoIpService: GeoIpService
 
     @Published var isScanningCard: Bool = false
-    @Published var isOpeningShop: Bool = false
     @Published var isBackupModal: Bool = false
     @Published var error: AlertBinder?
     @Published var discardAlert: ActionSheetBinder?
@@ -95,29 +94,18 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     }
 
     func orderCard() {
-        self.isOpeningShop = true
-        
-        geoIpService.regionCode()
-            .sink { [weak self] regionCode in
-                // [REDACTED_TODO_COMMENT]
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    self?.isOpeningShop = false
-                }
-                
-                let webShopRegionCodes = [
-                    "ru",
-                    "by",
-                ]
-                let openWebShop = webShopRegionCodes.contains(regionCode)
+        let webShopRegionCodes = [
+            "ru",
+            "by",
+        ]
+        let openWebShop = webShopRegionCodes.contains(geoIpService.regionCode)
 
-                if openWebShop {
-                    self?.navigation.readToWebShop = true
-                } else {
-                    self?.navigation.readToShop = true
-                }
-                Analytics.log(.getACard, params: [.source: .welcome])
-            }
-            .store(in: &bag)
+        if openWebShop {
+            navigation.readToWebShop = true
+        } else {
+            navigation.readToShop = true
+        }
+        Analytics.log(.getACard, params: [.source: .welcome])
     }
 
     func searchTokens() {
