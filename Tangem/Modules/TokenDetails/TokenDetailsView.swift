@@ -52,7 +52,7 @@ struct TokenDetailsView: View {
             // Keep the BUY button last so that it will appear when everything is disabled
             TangemButton.vertical(title: "wallet_button_topup",
                                   systemImage: "arrow.up",
-                                  action: viewModel.showBankWarningIfNeeded)
+                                  action: viewModel.buyCryptoIfPossible)
                 .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
                                                isDisabled: !viewModel.canBuyCrypto))
         }
