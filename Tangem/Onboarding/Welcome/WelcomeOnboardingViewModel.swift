@@ -99,6 +99,7 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
         
         geoIpService.regionCode()
             .sink { [weak self] regionCode in
+                // [REDACTED_TODO_COMMENT]
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     self?.isOpeningShop = false
                 }
