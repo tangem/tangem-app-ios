@@ -45,6 +45,7 @@ class SupportedTokenItems {
             .fantom(testnet: false),
             .tron(testnet: false),
             .arbitrum(testnet: false),
+            .gnosis,
         ]
     }()
 
