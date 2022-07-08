@@ -126,8 +126,6 @@ struct BottomSheetView<Content: View>: View {
         }
     }
     
-    
-    
     private func speed(for value: DragGesture.Value) -> Double {
         guard let lastDragValue = lastDragValue else { return 0 }
         
