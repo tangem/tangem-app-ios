@@ -171,14 +171,26 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
                 }
 
                 let tokens = walletModel.wallet.amounts.keys.compactMap({ $0.token })
+                let tokenViewModels = walletModel.tokenItemViewModels
                 if !tokens.isEmpty {
                     dataToFormat.append(EmailCollectedData(type: .token(.tokens), data: ""))
                 }
                 
-                for token in tokens {
-                    dataToFormat.append(EmailCollectedData(type: .token(.id), data: token.id ?? "[custom token]"))
-                    dataToFormat.append(EmailCollectedData(type: .token(.name), data: token.name))
-                    dataToFormat.append(EmailCollectedData(type: .token(.contractAddress), data: token.contractAddress))
+                if tokenViewModels.count == tokens.count {
+                    for token in tokens {
+                        dataToFormat.append(EmailCollectedData(type: .token(.id), data: token.id ?? "[custom token]"))
+                        dataToFormat.append(EmailCollectedData(type: .token(.name), data: token.name))
+                        dataToFormat.append(EmailCollectedData(type: .token(.contractAddress), data: token.contractAddress))
+                    }
+                } else {
+                    for token in tokenViewModels {
+                        if !token.amountType.isToken { continue }
+                        dataToFormat.append(EmailCollectedData(type: .token(.id), data: token.amountType.token?.id ?? "[custom token]"))
+                        dataToFormat.append(EmailCollectedData(type: .token(.name), data: token.amountType.token?.name ?? token.name))
+                        if let contractAddress = token.amountType.token?.contractAddress {
+                            dataToFormat.append(EmailCollectedData(type: .token(.contractAddress), data: contractAddress))
+                        }
+                    }
                 }
                 
                 dataToFormat.append(EmailCollectedData(type: .wallet(.walletManagerHost), data: walletModel.walletManager.currentHost))
