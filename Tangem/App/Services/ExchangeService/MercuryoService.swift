@@ -16,6 +16,7 @@ fileprivate enum QueryKey: String {
     case type
     case currency
     case address
+    case signature
     case lang
     case fix_currency
     case return_url
@@ -42,6 +43,10 @@ class MercuryoService {
 
     private var widgetId: String {
         keysManager.mercuryoWidgetId
+    }
+    
+    private var secret: String {
+        keysManager.mercuryoSecret
     }
 
     private var isTestnet: Bool {
@@ -106,6 +111,7 @@ extension MercuryoService: ExchangeService {
         queryItems.append(.init(key: .type, value: "buy"))
         queryItems.append(.init(key: .currency, value: currencySymbol.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         queryItems.append(.init(key: .address, value: walletAddress.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
+        queryItems.append(.init(key: .signature, value: signature(for: walletAddress).addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         queryItems.append(.init(key: .fix_currency, value: "true"))
         queryItems.append(.init(key: .return_url, value: successCloseUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)))
         
@@ -163,6 +169,10 @@ extension MercuryoService: ExchangeService {
         return supportedBlockchains.first {
             $0.currencySymbol == currencyCode
         }
+    }
+    
+    private func signature(for address: String) -> String {
+        (address + secret).sha512()
     }
 }
 
