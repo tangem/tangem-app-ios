@@ -423,6 +423,9 @@
 		DAA153B92876C0C3002254D1 /* CommonGeoIpService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA153B82876C0C3002254D1 /* CommonGeoIpService.swift */; };
 		DAA153BC2876CBFC002254D1 /* GeoResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA153BB2876CBFC002254D1 /* GeoResponse.swift */; };
 		DAA0559928744E2400E4F7B9 /* MercuryoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA0559828744E2400E4F7B9 /* MercuryoService.swift */; };
+		DAA153B72876C0C0002254D1 /* GeoIpService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA153B62876C0C0002254D1 /* GeoIpService.swift */; };
+		DAA153B92876C0C3002254D1 /* CommonGeoIpService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA153B82876C0C3002254D1 /* CommonGeoIpService.swift */; };
+		DAA153BC2876CBFC002254D1 /* GeoResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA153BB2876CBFC002254D1 /* GeoResponse.swift */; };
 		DAADD5B427EB5A180046DEC3 /* SafariView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAADD5B327EB5A180046DEC3 /* SafariView.swift */; };
 		DAB1E62427B4E10800C1F510 /* ShopContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB1E62327B4E10800C1F510 /* ShopContainerView.swift */; };
 		DAB1E62627B4E40D00C1F510 /* ShopOrderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB1E62527B4E40D00C1F510 /* ShopOrderView.swift */; };
@@ -953,6 +956,9 @@
 		DAA153B82876C0C3002254D1 /* CommonGeoIpService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonGeoIpService.swift; sourceTree = "<group>"; };
 		DAA153BB2876CBFC002254D1 /* GeoResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoResponse.swift; sourceTree = "<group>"; };
 		DAA0559828744E2400E4F7B9 /* MercuryoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MercuryoService.swift; sourceTree = "<group>"; };
+		DAA153B62876C0C0002254D1 /* GeoIpService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoIpService.swift; sourceTree = "<group>"; };
+		DAA153B82876C0C3002254D1 /* CommonGeoIpService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonGeoIpService.swift; sourceTree = "<group>"; };
+		DAA153BB2876CBFC002254D1 /* GeoResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoResponse.swift; sourceTree = "<group>"; };
 		DAADD5B327EB5A180046DEC3 /* SafariView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariView.swift; sourceTree = "<group>"; };
 		DAB1E62327B4E10800C1F510 /* ShopContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopContainerView.swift; sourceTree = "<group>"; };
 		DAB1E62527B4E40D00C1F510 /* ShopOrderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopOrderView.swift; sourceTree = "<group>"; };
@@ -3107,6 +3113,7 @@
 				B05209BE261F1FF3000DD204 /* RoundedCorner.swift in Sources */,
 				5D09380F25E6BDB00049B8F0 /* RoundedRectButton.swift in Sources */,
 				B031AAB526C16A1B00015003 /* UIColor+.swift in Sources */,
+				DAA153B72876C0C0002254D1 /* GeoIpService.swift in Sources */,
 				B099614D26D52C22000E3779 /* OnboardingBaseView.swift in Sources */,
 				DAA153B72876C0C0002254D1 /* GeoIpService.swift in Sources */,
 				DA5FAD8627B2791C00EE53AE /* ApplePayButton.swift in Sources */,
