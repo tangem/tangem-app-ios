@@ -13,12 +13,13 @@ import Moya
 class CommonGeoIpService {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     
+    private var regionCode: String = ""
     private let provider = MoyaProvider<TangemApiTarget>()
     private var bag: Set<AnyCancellable> = []
 }
 
 extension CommonGeoIpService: GeoIpService {
-    func regionCode() -> AnyPublisher<String, Never> {
+    func initialize() {
         let card = cardsRepository.lastScanResult.card
         let target = TangemApiTarget(type: .geo, card: card)
         
@@ -30,6 +31,17 @@ extension CommonGeoIpService: GeoIpService {
             .map(GeoResponse.self)
             .map(\.code)
             .replaceError(with: fallbackRegionCode)
-            .eraseToAnyPublisher()
+            .sink { [weak self] code in
+                self?.regionCode = code
+            }.store(in: &bag)
+
+    }
+    
+    func getRegionCode() -> String {
+        if regionCode.isEmpty {
+            return Locale.current.regionCode?.lowercased() ?? ""
+        } else {
+            return regionCode
+        }
     }
 }
