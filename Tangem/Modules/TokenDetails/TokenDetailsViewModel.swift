@@ -184,23 +184,12 @@ class TokenDetailsViewModel: ObservableObject {
         showTradeSheet = true
     }
     
-    func showBankWarningIfNeeded() {
-        geoIpService
-            .regionCode()
-            .receive(on: RunLoop.main)
-            .sink { [weak self] code in
-                guard let self = self else { return }
-                if code == "ru" {
-                    self.coordinator.showWarningIfNeeded { [weak self] in
-                        self?.coordinator.showP2PTutorial()
-                    } declineCallback: { [weak self] in
-                        self?.openBuyCrypto()
-                    }
-                } else {
-                    self.openBuyCrypto()
-                }
-            }.store(in: &bag)
-
+    func buyCryptoIfPossible() {
+        if geoIpService.regionCode == "ru" {
+            coordinator.showP2PTutorial()
+        } else {
+            openBuyCrypto()
+        }
     }
     
     func processSellCryptoRequest(_ request: String) {
