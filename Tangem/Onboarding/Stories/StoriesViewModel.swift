@@ -46,9 +46,10 @@ class StoriesViewModel: ViewModel, ObservableObject {
             }
             .store(in: &bag)
         
-        Publishers.Merge(
+        Publishers.Merge3(
             navigation.$readToTokenList,
-            navigation.$readToShop
+            navigation.$readToShop,
+            navigation.$readToWebShop
         )
             .drop { showingSheet in
                 showingSheet == false
@@ -75,6 +76,7 @@ class StoriesViewModel: ViewModel, ObservableObject {
     @ViewBuilder
     func currentStoryPage(
         isScanning: Bool,
+        isOpeningShop: Bool,
         scanCard: @escaping () -> Void,
         orderCard: @escaping () -> Void,
         searchTokens: @escaping () -> Void
@@ -85,19 +87,20 @@ class StoriesViewModel: ViewModel, ObservableObject {
             self?.currentProgress = $0
         }
         
+        // [REDACTED_TODO_COMMENT]
         switch currentPage {
         case WelcomeStoryPage.meetTangem:
-            MeetTangemStoryPage(progress: progressBinding, immediatelyShowButtons: didDisplayMainScreenStories, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
+            MeetTangemStoryPage(progress: progressBinding, immediatelyShowButtons: didDisplayMainScreenStories, isScanning: isScanning, isOpeningShop: isOpeningShop, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.awe:
-            AweStoryPage(progress: progressBinding, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
+            AweStoryPage(progress: progressBinding, isScanning: isScanning, isOpeningShop: isOpeningShop, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.backup:
-            BackupStoryPage(progress: progressBinding, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
+            BackupStoryPage(progress: progressBinding, isScanning: isScanning, isOpeningShop: isOpeningShop, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.currencies:
-            CurrenciesStoryPage(progress: progressBinding, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard, searchTokens: searchTokens)
+            CurrenciesStoryPage(progress: progressBinding, isScanning: isScanning, isOpeningShop: isOpeningShop, scanCard: scanCard, orderCard: orderCard, searchTokens: searchTokens)
         case WelcomeStoryPage.web3:
-            Web3StoryPage(progress: progressBinding, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
+            Web3StoryPage(progress: progressBinding, isScanning: isScanning, isOpeningShop: isOpeningShop, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.finish:
-            FinishStoryPage(progress: progressBinding, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
+            FinishStoryPage(progress: progressBinding, isScanning: isScanning, isOpeningShop: isOpeningShop, scanCard: scanCard, orderCard: orderCard)
         }
     }
 
