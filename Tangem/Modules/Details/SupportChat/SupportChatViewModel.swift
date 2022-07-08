@@ -19,8 +19,7 @@ class SupportChatViewModel {
     }
 
     func buildUI() throws -> UIViewController {
-        let supportEngine = try SupportEngine.engine()
-        return try Messaging.instance.buildUI(engines: [supportEngine],
-                                              configs: [messagingConfiguration])
+        let requestConfig = RequestUiConfiguration()
+        return RequestUi.buildRequestList(with: [requestConfig])
     }
 }
