@@ -8,8 +8,8 @@
 
 import Combine
 
-protocol GeoIpService {
-    func regionCode() -> AnyPublisher<String, Never>
+protocol GeoIpService: Initializable {
+    var regionCode: String { get }
 }
 
 private struct GeoIpServiceKey: InjectionKey {
