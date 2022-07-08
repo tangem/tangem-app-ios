@@ -254,6 +254,7 @@ class MainViewModel: ObservableObject {
         self.state = .card(model: cardModel) // [REDACTED_TODO_COMMENT]
         self.coordinator = coordinator
         bind()
+        cardModel.updateState()
     }
     
     deinit {
@@ -272,6 +273,8 @@ class MainViewModel: ObservableObject {
                 guard let walletModels = self.cardModel?.walletModels else { return }
                 if walletModels.isEmpty {
                     self.totalSumBalanceViewModel.update(with: [])
+                } else if !self.isLoadingTokensBalance {
+                    self.updateTotalBalanceTokenListIfNeeded()
                 }
             }
             .store(in: &bag)
@@ -497,11 +500,6 @@ class MainViewModel: ObservableObject {
         case .dismiss:
             Analytics.log(event: .dismissRateAppWarning)
             rateAppService.dismissRateAppWarning()
-            
-            if warning.event == .fundsRestoration {
-                userPrefsService.isFundsRestorationShown = true
-            }
-            
         case .reportProblem:
             Analytics.log(event: .negativeRateAppFeedback)
             rateAppService.userReactToRateAppWarning(isPositive: false)
@@ -518,18 +516,6 @@ class MainViewModel: ObservableObject {
                                                      }
                                                  }))
                 return
-            } else if warning.event == .fundsRestoration {
-                hideWarning = false
-                
-                let fundRestorationUrl: URL
-                switch Locale.current.languageCode {
-                case "ru":
-                    fundRestorationUrl = URL(string: "https://tangem.com/ru/kak-vosstanovit-tokeny-otpravlennye-ne-na-tot-adres-v-tangem-wallet")!
-                default:
-                    fundRestorationUrl = URL(string: "https://tangem.com/en/how-to-recover-crypto-sent-to-the-wrong-address-in-tangem-wallet")!
-                }
-                
-                openExternalURL(fundRestorationUrl)
             }
         }
         
@@ -575,7 +561,6 @@ class MainViewModel: ObservableObject {
 
                 let input = OnboardingInput(steps: steps,
                                             cardInput: .cardModel(cardModel),
-                                            cardsPosition: nil,
                                             welcomeStep: nil,
                                             currentStepIndex: 0)
             
@@ -609,7 +594,6 @@ class MainViewModel: ObservableObject {
                 
                 let input = OnboardingInput(steps: steps,
                                             cardInput: .cardModel(cardModel),
-                                            cardsPosition: nil,
                                             welcomeStep: nil,
                                             currentStepIndex: 0,
                                             isStandalone: true)
@@ -836,10 +820,6 @@ extension MainViewModel {
     
     func openCurrencySelection() {
         coordinator.openCurrencySelection(autoDismiss: true)
-    }
-    
-    func openExternalURL(_ url: URL) {
-        coordinator.openExternalURL(url)
     }
     
     func openTokensList() {
