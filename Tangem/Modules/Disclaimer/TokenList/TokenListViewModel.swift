@@ -22,7 +22,7 @@ class TokenListViewModel: ObservableObject {
     
     @Published var isSaving: Bool = false
     @Published var isLoading: Bool = true
-    @Published var error: AlertBinder?
+    @Published var alert: AlertBinder?
     @Published var pendingAdd: [TokenItem] = []
     @Published var pendingRemove: [TokenItem] = []
     @Published var showToast: Bool = false
@@ -103,7 +103,7 @@ class TokenListViewModel: ObservableObject {
                 self?.closeModule()
             case .failure(let error):
                 if case TangemSdkError.userCancelled = error {} else {
-                    self?.error = error.alertBinder
+                    self?.alert = error.alertBinder
                 }
             }
         }
@@ -214,17 +214,19 @@ private extension TokenListViewModel {
     }
     
     func onSelect(_ selected: Bool, _ tokenItem: TokenItem) {
+        guard let cardModel = cardModel else {
+            return
+        }
         if selected,
            case let .token(_, blockchain) = tokenItem,
            case .solana = blockchain,
-           let cardModel = cardModel,
            !cardModel.cardInfo.card.canSupportSolanaTokens
         {
             let okButton = Alert.Button.default(Text("common_ok".localized)) {
                 self.updateSelection(tokenItem)
             }
             
-            error = AlertBinder(alert: Alert(title: Text("common_attention".localized),
+            alert = AlertBinder(alert: Alert(title: Text("common_attention".localized),
                                              message: Text("alert_manage_tokens_unsupported_message".localized),
                                              dismissButton: okButton))
             
@@ -232,10 +234,17 @@ private extension TokenListViewModel {
         }
         
         let alreadyAdded = isAdded(tokenItem)
+
+        let network = tokenItem.getDefaultBlockchainNetwork(for: cardModel.cardInfo.card.derivationStyle)
+        let token = TokenItem.blockchain(network.blockchain)
         
         if alreadyAdded {
             if selected {
                 pendingRemove.remove(tokenItem)
+                if pendingRemove.contains(token) {
+                    pendingRemove.remove(token)
+                    updateSelection(token)
+                }
             } else {
                 pendingRemove.append(tokenItem)
             }
@@ -262,7 +271,7 @@ private extension TokenListViewModel {
         let binding = Binding<Bool> { [weak self] in
             self?.isSelected(tokenItem) ?? false
         } set: { [weak self] isSelected in
-            self?.onSelect(isSelected, tokenItem)
+            self?.showWarningDeleteAlertIfNeeded(isSelected: isSelected, tokenItem: tokenItem)
         }
         
         return binding
@@ -282,13 +291,91 @@ private extension TokenListViewModel {
         let currencyItems = coinModel.items.enumerated().map { (index, item) in
             CoinItemViewModel(tokenItem: item,
                               isReadonly: isReadonlyMode,
-                              isDisabled: !canManage(item),
                               isSelected: bindSelection(item),
                               isCopied: bindCopy(),
                               position: .init(with: index, total: coinModel.items.count))
         }
         
         return CoinViewModel(with: coinModel, items: currencyItems)
+    }
+    
+    private func showWarningDeleteAlertIfNeeded(isSelected: Bool, tokenItem: TokenItem) {
+        guard !isSelected,
+              !self.pendingAdd.contains(tokenItem),
+              self.isTokenAvailable(tokenItem) else {
+            self.onSelect(isSelected, tokenItem)
+            return
+        }
+        if canManage(tokenItem) || canRemove(tokenItem: tokenItem) {
+            let title = "token_details_hide_alert_title".localized(tokenItem.blockchain.currencySymbol)
+            
+            let cancelAction = { [unowned self] in
+                self.updateSelection(tokenItem)
+            }
+            
+            let hideAction = { [unowned self] in
+                self.onSelect(isSelected, tokenItem)
+            }
+            
+            alert = AlertBinder(alert:
+                Alert(title: Text(title),
+                      message: Text("token_details_hide_alert_message".localized),
+                      primaryButton: .destructive(Text("token_details_hide_alert_hide"), action: hideAction),
+                      secondaryButton: .cancel(cancelAction))
+            )
+        } else {
+            guard let cardModel = cardModel,
+                  let walletModel = cardModel.walletModels?.first(where: { $0.blockchainNetwork == tokenItem.getDefaultBlockchainNetwork(for: cardModel.cardInfo.card.derivationStyle) })
+            else {
+                return
+            }
+            
+            let title = "token_details_unable_hide_alert_title".localized(tokenItem.blockchain.currencySymbol)
+            
+            let message = "token_details_unable_hide_alert_message".localized([
+                tokenItem.blockchain.currencySymbol,
+                walletModel.blockchainNetwork.blockchain.displayName,
+            ])
+            
+            alert = AlertBinder(alert: Alert(
+                title: Text(title),
+                message: Text(message),
+                dismissButton: .default(Text("common_ok"), action: {
+                    self.updateSelection(tokenItem)
+                })
+            ))
+        }
+    }
+    
+    private func canRemove(tokenItem: TokenItem) -> Bool {
+        guard let cardModel = cardModel,
+              let walletModel = cardModel.walletModels?.first(where: { $0.blockchainNetwork == tokenItem.getDefaultBlockchainNetwork(for: cardModel.cardInfo.card.derivationStyle) })
+        else {
+            return false
+        }
+        
+        let network = tokenItem.getDefaultBlockchainNetwork(for: cardModel.cardInfo.card.derivationStyle)
+        
+        let cardTokens: [TokenItem] = walletModel
+            .walletManager
+            .cardTokens
+            .map { token in
+                TokenItem.token(token, network.blockchain)
+            }
+            .filter({ !pendingRemove.contains($0) })
+        
+        return cardTokens.isEmpty
+    }
+    
+    private func isTokenAvailable(_ tokenItem: TokenItem) -> Bool {
+        if case let .token(_, blockchain) = tokenItem,
+           case .solana = blockchain,
+           let cardModel = cardModel,
+           !cardModel.cardInfo.card.canSupportSolanaTokens
+        {
+            return false
+        }
+        return true
     }
 }
 

@@ -124,7 +124,7 @@ class TokenDetailsViewModel: ObservableObject {
             return nil
         }
         
-        return blockchainNetwork.blockchain.tokenDisplayName
+        return "wallet_currency_subtitle".localized(blockchainNetwork.blockchain.displayName)
     }
     
     @Published var unsupportedTokenWarning: String? = nil
@@ -172,13 +172,10 @@ class TokenDetailsViewModel: ObservableObject {
             return
         }
         
-        switch walletModel.getRemovalState(amountType: amountType) {
-        case .able:
-            deleteToken()
-        case .unable:
-            showUnableToHideAlert()
-        case .ableThroughtAlert:
+        if walletModel.canRemove(amountType: amountType) {
             showWarningDeleteAlert()
+        } else {
+            showUnableToHideAlert()
         }
     }
     
@@ -312,7 +309,11 @@ class TokenDetailsViewModel: ObservableObject {
             walletModel?.blockchainNetwork.blockchain.displayName ?? "",
         ])
         
-        alert = warningAlert(title: title, message: message, primaryButton: .default(Text("common_ok")))
+        alert = AlertBinder(alert: Alert(
+            title: Text(title),
+            message: Text(message),
+            dismissButton: .default(Text("common_ok"))
+        ))
     }
     
     private func showWarningDeleteAlert() {
