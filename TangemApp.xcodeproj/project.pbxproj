@@ -523,6 +523,7 @@
 		DC7DA81E2844F27800AD6DBD /* WelcomeCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7DA81D2844F27800AD6DBD /* WelcomeCoordinatorView.swift */; };
 		DC7DA8202844F33D00AD6DBD /* CoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7DA81F2844F33D00AD6DBD /* CoordinatorView.swift */; };
 		DC7DA8222844F53F00AD6DBD /* CommonOnboardingStepsSetupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7DA8212844F53F00AD6DBD /* CommonOnboardingStepsSetupService.swift */; };
+		DCE7119F28784F6700969857 /* DisclaimerRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE7119E28784F6700969857 /* DisclaimerRoutable.swift */; };
 		EF08A0EF283D1914008BD923 /* Moya+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0EE283D1914008BD923 /* Moya+.swift */; };
 		EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0F0283D2382008BD923 /* CoinsListRequestModel.swift */; };
 		EF0FF8712866021B00B7CEAF /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0FF8702866021B00B7CEAF /* AppEnvironment.swift */; };
@@ -1083,6 +1084,7 @@
 		DC7DA81D2844F27800AD6DBD /* WelcomeCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeCoordinatorView.swift; sourceTree = "<group>"; };
 		DC7DA81F2844F33D00AD6DBD /* CoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoordinatorView.swift; sourceTree = "<group>"; };
 		DC7DA8212844F53F00AD6DBD /* CommonOnboardingStepsSetupService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommonOnboardingStepsSetupService.swift; sourceTree = "<group>"; };
+		DCE7119E28784F6700969857 /* DisclaimerRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisclaimerRoutable.swift; sourceTree = "<group>"; };
 		DFEC35A94293DE7EB96CEBC1 /* Pods-Tangem.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.debug(production).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.debug(production).xcconfig"; sourceTree = "<group>"; };
 		E53081CA3060D2785F9D22F0 /* Pods-Tangem-TangemUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release.xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release.xcconfig"; sourceTree = "<group>"; };
 		EF08A0EE283D1914008BD923 /* Moya+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Moya+.swift"; sourceTree = "<group>"; };
@@ -1172,6 +1174,7 @@
 				B08ACD8025D2BC2A007387BD /* TokenList */,
 				B09536FD26D3D2460040A90D /* DisclaimerView.swift */,
 				DC66BBEA2859AB8600CDF765 /* DisclaimerViewModel.swift */,
+				DCE7119E28784F6700969857 /* DisclaimerRoutable.swift */,
 			);
 			path = Disclaimer;
 			sourceTree = "<group>";
@@ -3052,6 +3055,7 @@
 				B0541DBC26FB2FF50043893E /* WalletOnboardingView.swift in Sources */,
 				5D3F77C624BF56D800E8695B /* AppDelegate.swift in Sources */,
 				DC5118652860AA4F004FB954 /* ShopViewRoutable.swift in Sources */,
+				DCE7119F28784F6700969857 /* DisclaimerRoutable.swift in Sources */,
 				5D51037327C5371D0025EA55 /* EthereumAddress.swift in Sources */,
 				DC0A582C282555940031BECC /* CommonScannedCardsRepository.swift in Sources */,
 				DC0A5806282501530031BECC /* KeysManager.swift in Sources */,
