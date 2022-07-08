@@ -122,10 +122,6 @@ class WelcomeViewModel: ObservableObject {
             }
             .store(in: &bag)
     }
-    
-    private func acceptDisclaimer() {
-        userPrefsService.isTermsOfServiceAccepted = true
-    }
 }
 
 // MARK: - Navigation
@@ -139,7 +135,7 @@ extension WelcomeViewModel {
     }
     
     func openDisclaimer() {
-        coordinator.openDisclaimer(acceptCallback: acceptDisclaimer, dismissCallback: scanCard)
+        coordinator.openDisclaimer()
     }
     
     func openTokensList() {

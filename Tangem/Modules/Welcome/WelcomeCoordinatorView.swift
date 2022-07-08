@@ -63,7 +63,6 @@ struct WelcomeCoordinatorView: CoordinatorView {
         NavHolder()
             .sheet(item: $coordinator.disclaimerViewModel) {
                 DisclaimerView(viewModel: $0)
-                    .presentation(modal: true, onDismissalAttempt: nil, onDismissed: $0.dismissCallback)
             }
         
         NavHolder()
