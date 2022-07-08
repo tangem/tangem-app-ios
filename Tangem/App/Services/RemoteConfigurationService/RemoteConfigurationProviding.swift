@@ -9,7 +9,6 @@
 import Foundation
 
 protocol RemoteConfigurationProviding {
-    var warnings: [AppWarning] { get }
     var features: AppFeatures { get }
 }
 
