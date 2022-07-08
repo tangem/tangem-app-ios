@@ -282,7 +282,11 @@ extension DetailsViewModel {
     }
     
     func openSecManagement() {
-        coordinator.openSecManagement(with: cardModel)
+        checkPin { [weak self] in
+            guard let self = self else { return }
+            
+            self.coordinator.openSecManagement(with: self.cardModel)
+        }
     }
     
     func openSupportChat() {
