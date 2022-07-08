@@ -102,7 +102,7 @@ struct MainView: View {
     var scanNavigationButton: some View {
         Button(action: viewModel.onScan,
                label: {
-                   Image("scanCardIcon")
+                   Image("wallets")
                        .foregroundColor(Color.black)
                        .frame(width: 44, height: 44)
                })
