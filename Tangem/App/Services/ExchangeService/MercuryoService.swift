@@ -76,7 +76,6 @@ extension MercuryoService: ExchangeService {
             return false
         }
         
-        
         if let mercuryoNetworkCurrencyCode = networkCodeByCurrencyCode[currencySymbol],
            let mercuryoBlockchain = self.blockchain(for: mercuryoNetworkCurrencyCode),
            mercuryoBlockchain == blockchain
