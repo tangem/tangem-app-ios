@@ -41,12 +41,6 @@ class ShopViewModel: ViewModel, ObservableObject {
     private var checkoutByVariantID: [GraphQL.ID: Checkout] = [:]
     private var initialized = false
     
-    override init() {
-        if Locale.current.regionCode == "RU" {
-            webShopUrl = URL(string: "https://mv.tangem.com")
-        }
-    }
-    
     func didAppear() {
         showingWebCheckout = false
         
