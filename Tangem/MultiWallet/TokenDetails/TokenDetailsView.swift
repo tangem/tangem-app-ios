@@ -89,7 +89,7 @@ struct TokenDetailsView: View {
             // Keep the BUY button last so that it will appear when everything is disabled
             TangemButton.vertical(title: "wallet_button_topup",
                                   systemImage: "arrow.up",
-                                  action: viewModel.showBankWarningIfNeeded)
+                                  action: viewModel.buyCryptoIfPossible)
             .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
                                            isDisabled: !viewModel.canBuyCrypto))
         }
@@ -169,10 +169,10 @@ struct TokenDetailsView: View {
             } content: {
                 WarningBankCardView {
                     self.viewModel.showBankWarning = false
-                    self.viewModel.hasAnotherCountryBankCard()
+                    self.viewModel.buyCryptoAction()
                 } decline: {
                     self.viewModel.showBankWarning = false
-                    self.viewModel.hasOnlyRussiaBankCard()
+                    self.viewModel.showP2PTutorialAction()
                 }
             }
 
