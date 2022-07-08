@@ -89,7 +89,7 @@ struct TokenDetailsView: View {
             // Keep the BUY button last so that it will appear when everything is disabled
             TangemButton.vertical(title: "wallet_button_topup",
                                   systemImage: "arrow.up",
-                                  action: viewModel.buyCryptoAction)
+                                  action: viewModel.buyCryptoIfPossible)
             .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
                                            isDisabled: !viewModel.canBuyCrypto))
         }
@@ -161,6 +161,21 @@ struct TokenDetailsView: View {
                 }
             }
             
+            BottomSheetView(isPresented: viewModel.$showBankWarning,
+                            showClosedButton: false,
+                            addDragGesture: false,
+                            closeOnTapOutside: false,
+                            cornerRadius: 30) {
+            } content: {
+                WarningBankCardView {
+                    self.viewModel.showBankWarning = false
+                    self.viewModel.buyCryptoAction()
+                } decline: {
+                    self.viewModel.showBankWarning = false
+                    self.viewModel.showP2PTutorialAction()
+                }
+            }
+            
             Color.clear.frame(width: 0.5, height: 0.5)
                 .sheet(item: $viewModel.showExplorerURL) {
                     WebViewContainer(url: $0, title: "common_explorer_format".localized(viewModel.blockchainNetwork.blockchain.displayName), withCloseButton: true)
@@ -193,6 +208,15 @@ struct TokenDetailsView: View {
                             card: viewModel.card))
                         .environmentObject(navigation)
                     }
+                }
+            
+            Color.clear.frame(width: 0.5, height: 0.5)
+                .sheet(isPresented: $viewModel.showP2PTutorial) {
+                    WebViewContainer(url: URL(string: "https://tangem.com/howtobuy.html")!,
+                                     title: "",
+                                     addLoadingIndicator: true,
+                                     withCloseButton: false,
+                                     urlActions: [:])
                 }
         }
         .edgesIgnoringSafeArea(.bottom)
