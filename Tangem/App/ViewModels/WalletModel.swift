@@ -330,28 +330,16 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
         updateTokensViewModels()
     }
     
-    func getRemovalState(amountType: Amount.AmountType) -> RemovalState {
+    func canRemove(amountType: Amount.AmountType) -> Bool {
         if amountType == .coin && !walletManager.cardTokens.isEmpty {
-            return .unable
+            return false
         }
         
-        if wallet.hasPendingTx(for: amountType) {
-            return .ableThroughtAlert
-        }
-        
-        if !state.isSuccesfullyLoaded {
-            return .ableThroughtAlert
-        }
-        
-        if let amount = wallet.amounts[amountType], !amount.isZero {
-            return .ableThroughtAlert
-        }
-        
-        return .able
+        return true
     }
     
     func removeToken(_ token: Token, for cardId: String) -> Bool {
-        guard getRemovalState(amountType: .token(value: token)).isRemovable else {
+        guard canRemove(amountType: .token(value: token)) else {
             assertionFailure("Delete token isn't possible")
             return false
         }
@@ -597,18 +585,6 @@ extension WalletModel.State: Equatable {
             return true
         default:
             return false
-        }
-    }
-}
-
-extension WalletModel {
-    enum RemovalState: Hashable {
-        case able
-        case unable
-        case ableThroughtAlert
-        
-        var isRemovable: Bool {
-            self != .unable
         }
     }
 }

@@ -35,7 +35,7 @@ class TangemSdkProvider: TangemSdkProviding {
     
     func didScan(_ card: Card) {
         if card.isTwinCard {
-            sdk.config.cardIdDisplayFormat = .last(4)
+            sdk.config.cardIdDisplayFormat = .lastLunh(4)
         }
     }
 }
