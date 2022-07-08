@@ -162,7 +162,6 @@ class DetailsViewModel: ObservableObject {
             
                 let input = OnboardingInput(steps: steps,
                                             cardInput: .cardModel(self.cardModel),
-                                            cardsPosition: nil,
                                             welcomeStep: nil,
                                             currentStepIndex: 0,
                                             isStandalone: true)
@@ -188,7 +187,6 @@ class DetailsViewModel: ObservableObject {
             
                 let input = OnboardingInput(steps: steps,
                                             cardInput: .cardModel(self.cardModel),
-                                            cardsPosition: nil,
                                             welcomeStep: nil,
                                             currentStepIndex: 0,
                                             isStandalone: true)
@@ -284,7 +282,11 @@ extension DetailsViewModel {
     }
     
     func openSecManagement() {
-        coordinator.openSecManagement(with: cardModel)
+        checkPin { [weak self] in
+            guard let self = self else { return }
+            
+            self.coordinator.openSecManagement(with: self.cardModel)
+        }
     }
     
     func openSupportChat() {
