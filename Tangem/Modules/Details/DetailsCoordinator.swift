@@ -76,7 +76,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
     
     func openDisclaimer() {
-        disclaimerViewModel = .init(style: .navbar, showAccept: false, dismissCallback: {})
+        disclaimerViewModel = .init(style: .navbar, showAccept: false, coordinator: nil)
     }
     
     func openCardTOU(at url: URL) {
