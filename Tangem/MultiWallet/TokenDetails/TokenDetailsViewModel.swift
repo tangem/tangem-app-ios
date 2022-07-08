@@ -217,17 +217,11 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
     }
     
     func buyCryptoIfPossible() {
-        geoIpService
-            .regionCode()
-            .receive(on: RunLoop.main)
-            .sink { [weak self] code in
-                guard let self = self else { return }
-                if code == "ru" {
-                    self.showBankWarning = true
-                } else {
-                    self.buyCryptoAction()
-                }
-            }.store(in: &bag)
+        if geoIpService.getRegionCode() == "ru" {
+            showBankWarning = true
+        } else {
+            buyCryptoAction()
+        }
     }
     
     func showP2PTutorialAction() {
