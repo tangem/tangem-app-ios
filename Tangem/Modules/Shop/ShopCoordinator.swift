@@ -28,9 +28,9 @@ class ShopCoordinator: CoordinatorObject {
         self.popToRootAction = popToRootAction
     }
 
-    func start(with options: ShopCoordinator.Options = .init()) {
-        if Locale.current.regionCode == "RU" {
-            webShopUrl = URL(string: "https://mv.tangem.com")
+    func start(with options: ShopCoordinator.Options) {
+        if let webVersionUrl = options.webVersionUrl {
+            webShopUrl = webVersionUrl
         } else {
             shopViewModel = ShopViewModel(coordinator: self)
         }
@@ -39,7 +39,7 @@ class ShopCoordinator: CoordinatorObject {
 
 extension ShopCoordinator {
     struct Options {
-
+        let webVersionUrl: URL?
     }
 }
 
