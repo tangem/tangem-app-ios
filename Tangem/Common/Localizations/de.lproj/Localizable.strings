@@ -486,3 +486,7 @@ URL: %@";
 "main_tokens" = "Tokens";
 "token_item_no_rate" = "No rate";
 "common_retry" = "Retry";
+"common_yes" = "Yes";
+"common_no" = "No";
+"russian_bank_card_warning_title" = "Russian bank cards are not accepted at the moment";
+"russian_bank_card_warning_subtitle" = "Do you have a bank card of another country or a UnionPay card?";
