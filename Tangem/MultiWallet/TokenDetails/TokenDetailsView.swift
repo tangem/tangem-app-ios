@@ -175,7 +175,6 @@ struct TokenDetailsView: View {
                     self.viewModel.showP2PTutorialAction()
                 }
             }
-
             
             Color.clear.frame(width: 0.5, height: 0.5)
                 .sheet(item: $viewModel.showExplorerURL) {
