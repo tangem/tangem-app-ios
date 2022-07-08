@@ -8,10 +8,10 @@
 
 import Foundation
 
-protocol AssemblyProviding { //[REDACTED_TODO_COMMENT]
+protocol AssemblyProviding { // [REDACTED_TODO_COMMENT]
     var assembly: Assembly { get }
 }
- 
+
 private struct AssemblyProviderKey: InjectionKey {
     static var currentValue: AssemblyProviding = AssemblyProvider()
 }
