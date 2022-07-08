@@ -30,8 +30,8 @@ struct BottomSheetView<Content: View>: View {
         self.isPresented = isPresented
         self.showClosedButton = showClosedButton
         self.addDragGesture = addDragGesture
-        self.cornerRadius = cornerRadius
         self.closeOnTapOutside = closeOnTapOutside
+        self.cornerRadius = cornerRadius
         self.hideBottomSheetCallback = hideBottomSheetCallback
         self.content = content()
     }
@@ -126,8 +126,6 @@ struct BottomSheetView<Content: View>: View {
         }
     }
     
-    
-    
     private func speed(for value: DragGesture.Value) -> Double {
         guard let lastDragValue = lastDragValue else { return 0 }
         
@@ -160,6 +158,6 @@ class BottomSheetPreviewProvider: ObservableObject {
 struct BottomSheetView_Previews: PreviewProvider {
     static var previews: some View {
         AddressQrBottomSheetPreviewView(model: BottomSheetPreviewProvider())
-//            .previewGroup(devices: [.iPhone12Pro])
+        //            .previewGroup(devices: [.iPhone12Pro])
     }
 }
