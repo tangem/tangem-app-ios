@@ -14,6 +14,7 @@ struct TangemApiTarget: TargetType {
         case rates(coinIds: [String], currencyId: String)
         case currencies
         case coins(_ requestModel: CoinsListRequestModel)
+        case geo
     }
     
     let type: TangemApiTargetType
@@ -29,6 +30,8 @@ struct TangemApiTarget: TargetType {
             return "/currencies"
         case .coins:
             return "/coins"
+        case .geo:
+            return "/geo"
         }
     }
     
@@ -40,11 +43,10 @@ struct TangemApiTarget: TargetType {
             return .requestParameters(parameters: ["coinIds": coinIds.joined(separator: ","),
                                                    "currencyId": currencyId.lowercased()],
                                       encoding: URLEncoding.default)
-        case .currencies:
-            return .requestPlain
-
         case let .coins(pageModel):
             return .requestURLEncodable(pageModel)
+        case .currencies, .geo:
+            return .requestPlain
         }
     }
     
