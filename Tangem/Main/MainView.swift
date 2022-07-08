@@ -105,9 +105,10 @@ struct MainView: View {
         Button(action: {
             viewModel.onScan()
         }, label: {
-            Image("scanCardIcon")
+            Image("wallets")
                 .foregroundColor(Color.black)
                 .frame(width: 44, height: 44)
+                .offset(x: -11, y: 0)
         })
         .buttonStyle(PlainButtonStyle())
     }
@@ -120,7 +121,7 @@ struct MainView: View {
         }, label: { Image("verticalDots")
                 .foregroundColor(Color.tangemGrayDark6)
                 .frame(width: 44.0, height: 44.0, alignment: .center)
-                .offset(x: 10.0, y: 0.0)
+                .offset(x: 11, y: 0)
         })
         .accessibility(label: Text("voice_over_open_card_details"))
         .padding(0.0)
