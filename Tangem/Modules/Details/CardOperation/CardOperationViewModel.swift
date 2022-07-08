@@ -13,7 +13,6 @@ import Combine
 class CardOperationViewModel: ObservableObject {
     @Published var error: AlertBinder? = nil
     @Published var isLoading: Bool = false
-    @Published var dismissPublisher: Bool = false
     
     let title: String
     let buttonTitle: LocalizedStringKey
@@ -36,8 +35,6 @@ class CardOperationViewModel: ObservableObject {
         self.alert = alert
         self.actionButtonPressed = actionButtonPressed
         self.coordinator = coordinator
-        
-        bind()
     }
     
     func onTap() {
@@ -49,25 +46,17 @@ class CardOperationViewModel: ObservableObject {
         }
     }
     
-    private func bind() {
-        $isLoading.dropFirst()
-            .sink { [weak self] _ in
-                self?.dismiss()
-            }
-            .store(in: &bag)
-    }
-    
     private func handleCompletion(_ result: Result<Void, Error>) {
         isLoading = false
         
         switch result {
         case .success:
-            if self.shouldPopToRoot {
-                DispatchQueue.main.async {
+            DispatchQueue.main.async {
+                if self.shouldPopToRoot {
                     self.popToRoot()
+                } else {
+                    self.dismissCardOperation()
                 }
-            } else {
-                dismissPublisher.toggle()
             }
         case .failure(let error):
             if case .userCancelled = error.toTangemSdkError() {
@@ -85,7 +74,7 @@ extension CardOperationViewModel {
         coordinator.popToRoot()
     }
     
-    func dismiss() {
-        coordinator.dismiss()
+    func dismissCardOperation() {
+        coordinator.dismissCardOperation()
     }
 }
