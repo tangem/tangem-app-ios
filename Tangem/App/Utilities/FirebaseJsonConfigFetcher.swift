@@ -10,7 +10,6 @@ import FirebaseRemoteConfig
 
 enum FirebaseConfigKeys: String {
     case features = "features"
-    case warnings = "warnings"
 }
 
 struct FirebaseJsonConfigFetcher {
