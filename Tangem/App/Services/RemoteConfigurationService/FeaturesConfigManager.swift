@@ -15,7 +15,6 @@ class FeaturesConfigManager: RemoteConfigurationProviding {
     private let config: RemoteConfig
 
     private(set) var features: AppFeatures
-    private(set) var warnings: [AppWarning] = []
 
     init() {
         config = RemoteConfig.remoteConfig()
@@ -32,12 +31,11 @@ class FeaturesConfigManager: RemoteConfigurationProviding {
     }
 
     private func fetch() {
-        config.fetchAndActivate { [weak self] (status, error) in
-            guard let self = self else { return }
-
+//        config.fetchAndActivate { [weak self] (status, error) in
+//            guard let self = self else { return }
+//
 //            self.setupFeatures()
-            self.setupWarnings()
-        }
+//        }
     }
 
 //    private func setupFeatures() {
@@ -47,12 +45,4 @@ class FeaturesConfigManager: RemoteConfigurationProviding {
 //        }
 //        print("App features config updated")
 //    }
-
-    private func setupWarnings() {
-        guard let warnings = FirebaseJsonConfigFetcher.fetch(from: config, type: [RemoteAppWarning].self, withKey: .warnings) else {
-            return
-        }
-
-        self.warnings = AppWarning.fetch(remote: warnings)
-    }
 }
