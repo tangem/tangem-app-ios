@@ -17,11 +17,11 @@ struct WarningBankCardView: View {
         VStack(spacing: 0) {
             Image("russia_flag")
                 .padding(.top, 80)
-            
+
             Text("russian_bank_card_warning_title".localized)
                 .font(.system(size: 20, weight: .regular))
                 .padding(30)
-            
+
             Text("russian_bank_card_warning_subtitle".localized)
                 .font(.system(size: 15, weight: .regular))
                 .padding(.top, 50)
