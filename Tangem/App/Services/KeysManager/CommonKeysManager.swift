@@ -43,8 +43,8 @@ extension CommonKeysManager: KeysManager {
         MoonPayKeys(apiKey: keys.moonPayApiKey, secretApiKey: keys.moonPayApiSecretKey)
     }
     
-    var onramperApiKey: String {
-        keys.onramperApiKey
+    var mercuryoWidgetId: String {
+        keys.mercuryoWidgetId
     }
     
     var blockchainConfig: BlockchainSdkConfig {
@@ -66,7 +66,7 @@ extension CommonKeysManager {
     struct Keys: Decodable {
         let moonPayApiKey: String
         let moonPayApiSecretKey: String
-        let onramperApiKey: String
+        let mercuryoWidgetId: String
         let blockchairApiKey: String
         let blockcypherTokens: [String]
         let infuraProjectId: String
@@ -75,7 +75,7 @@ extension CommonKeysManager {
         let zendesk: ZendeskConfig
         
         fileprivate static var empty: Keys {
-            .init(moonPayApiKey: "", moonPayApiSecretKey: "", onramperApiKey: "", blockchairApiKey: "",
+            .init(moonPayApiKey: "", moonPayApiSecretKey: "", mercuryoWidgetId: "", blockchairApiKey: "",
                   blockcypherTokens: [], infuraProjectId: "", appsFlyerDevKey: "",
                   shopifyShop: .init(domain: "", storefrontApiKey: "", merchantID: ""),
                   zendesk: .init(zendeskApiKey: "", zendeskAppId: "", zendeskClientId: "", zendeskUrl: ""))
