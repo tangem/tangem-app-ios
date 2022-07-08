@@ -257,7 +257,7 @@ final class AppScanTask: CardSessionRunnable {
         }
         
         if card.isDemoCard { // Force add blockchains for demo cards
-            let demoBlockchains = SupportedTokenItems().predefinedBlockchains(isDemo: true)
+            let demoBlockchains = SupportedTokenItems().predefinedBlockchains(isDemo: true, testnet: false)
             tokenItemsRepository.append(demoBlockchains, for: card.cardId, style: card.derivationStyle)
         }
         
