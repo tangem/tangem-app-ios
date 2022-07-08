@@ -21,6 +21,7 @@ struct WelcomeOnboardingView: View {
             StoriesView(viewModel: storiesModel) {
                 storiesModel.currentStoryPage(
                     isScanning: viewModel.isScanningCard,
+                    isOpeningShop: viewModel.isOpeningShop,
                     scanCard: viewModel.scanCard,
                     orderCard: viewModel.orderCard,
                     searchTokens: viewModel.searchTokens
@@ -65,6 +66,11 @@ struct WelcomeOnboardingView: View {
                     ShopContainerView(viewModel: viewModel.assembly.makeShopViewModel())
                         .environmentObject(navigation)
                 })
+            
+            Color.clear.frame(width: 1, height: 1)
+                .sheet(isPresented: $navigation.readToWebShop) {
+                    SafariView(url: URL(string: "https://tangem.com/ru/resellers/")!)
+                }
             
             Color.clear.frame(width: 1, height: 1)
                 .sheet(isPresented: $navigation.readToTokenList) {
