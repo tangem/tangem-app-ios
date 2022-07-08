@@ -104,4 +104,8 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 }
 
-extension DetailsCoordinator: CardOperationRoutable {}
+extension DetailsCoordinator: CardOperationRoutable {
+    func dismissCardOperation() {
+        cardOperationViewModel = nil
+    }
+}
