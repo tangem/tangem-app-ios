@@ -13,7 +13,6 @@ struct StoriesBottomButtons: View {
     let orderColorStyle: ButtonColorStyle
     
     let isScanning: Bool
-    let isOpeningShop: Bool
     
     let scanCard: (() -> Void)
     let orderCard: (() -> Void)
@@ -24,14 +23,14 @@ struct StoriesBottomButtons: View {
                 .buttonStyle(TangemButtonStyle(colorStyle: scanColorStyle, layout: .flexibleWidth, isLoading: isScanning))
 
             TangemButton(title: "home_button_order", action: orderCard)
-                .buttonStyle(TangemButtonStyle(colorStyle: orderColorStyle, layout: .flexibleWidth, isLoading: isOpeningShop))
+                .buttonStyle(TangemButtonStyle(colorStyle: orderColorStyle, layout: .flexibleWidth))
         }
     }
 }
 
 struct StoriesBottomButtons_Previews: PreviewProvider {
     static var previews: some View {
-        StoriesBottomButtons(scanColorStyle: .black, orderColorStyle: .grayAlt, isScanning: false, isOpeningShop: false) {
+        StoriesBottomButtons(scanColorStyle: .black, orderColorStyle: .grayAlt, isScanning: false) {
 
         } orderCard: {
 
