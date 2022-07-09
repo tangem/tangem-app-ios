@@ -114,7 +114,7 @@ struct BottomSheetView<Content: View>: View {
             _isPresented = isPresented
             
             guard isPresented else {
-                if !showClosedButton {
+                if sheetOffset == 0 {
                     hideBottomSheet(with: defaultAnimDuration)
                 }
                 return
