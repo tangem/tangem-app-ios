@@ -74,7 +74,7 @@ struct TokenDetailsView: View {
             .actionSheet(isPresented: $navigation.detailsToTradeSheet, content: {
                 ActionSheet(title: Text("action_sheet_trade_hint"),
                             buttons: [
-                                .default(Text("wallet_button_topup"), action: viewModel.buyCryptoAction),
+                                .default(Text("wallet_button_topup"), action: viewModel.buyCryptoIfPossible),
                                 .default(Text("wallet_button_sell_crypto"), action: viewModel.sellCryptoAction),
                                 .cancel()
                             ])
@@ -163,8 +163,6 @@ struct TokenDetailsView: View {
             
             BottomSheetView(isPresented: viewModel.$showBankWarning,
                             showClosedButton: false,
-                            addDragGesture: false,
-                            closeOnTapOutside: false,
                             cornerRadius: 30) {
             } content: {
                 WarningBankCardView {
