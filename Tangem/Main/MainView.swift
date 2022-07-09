@@ -322,11 +322,34 @@ struct MainView: View {
                         })
                 })
             
+            
+            Color.clear.frame(width: 0.5, height: 0.5)
+                .sheet(isPresented: $viewModel.showP2PTutorial) {
+                    WebViewContainer(url: URL(string: "https://tangem.com/howtobuy.html")!,
+                                     title: "",
+                                     addLoadingIndicator: true,
+                                     withCloseButton: false,
+                                     urlActions: [:])
+                }
+
+            BottomSheetView(isPresented: viewModel.$showBankWarning,
+                            showClosedButton: false,
+                            cornerRadius: 30) {
+            } content: {
+                WarningBankCardView {
+                    self.viewModel.showBankWarning = false
+                    self.viewModel.buyCryptoAction()
+                } decline: {
+                    self.viewModel.showBankWarning = false
+                    self.viewModel.showP2PTutorialAction()
+                }
+            }
+            
             BottomSheetView(isPresented: navigation.$mainToQR,
                             hideBottomSheetCallback: {
                 navigation.mainToQR = false
             }, content: {
-                
+
                 AddressQrBottomSheetContent(shareAddress: viewModel.cardModel?.walletModels?.first?.shareAddressString(for: viewModel.selectedAddressIndex) ?? "",
                                             address: viewModel.cardModel?.walletModels?.first?.displayAddress(for: viewModel.selectedAddressIndex) ?? "",
                                             qrNotice: viewModel.qrMessage)
@@ -410,7 +433,7 @@ struct MainView: View {
             .actionSheet(isPresented: $navigation.mainToTradeSheet, content: {
                 ActionSheet(title: Text("action_sheet_trade_hint"),
                             buttons: [
-                                .default(Text("wallet_button_topup"), action: viewModel.buyCryptoAction),
+                                .default(Text("wallet_button_topup"), action: viewModel.buyCryptoIfPossible),
                                 .default(Text("wallet_button_sell_crypto"), action: viewModel.sellCryptoAction),
                                 .cancel()
                             ])
@@ -418,7 +441,7 @@ struct MainView: View {
         } else {
             TangemButton.vertical(title: "wallet_button_topup",
                                   systemImage: "arrow.up",
-                                  action: viewModel.buyCryptoAction)
+                                  action: viewModel.buyCryptoIfPossible)
             .buttonStyle(TangemButtonStyle(layout: .flexibleWidth))
         }
     }
