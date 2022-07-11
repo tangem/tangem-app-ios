@@ -21,6 +21,7 @@ class MainViewModel: ObservableObject {
     @Injected(\.rateAppService) private var rateAppService: RateAppService
     @Injected(\.onboardingStepsSetupService) private var cardOnboardingStepSetupService: OnboardingStepsSetupService
     @Injected(\.negativeFeedbackDataProvider) var negativeFeedbackDataCollector: NegativeFeedbackDataProvider
+    @Injected(\.geoIpService) private var geoIpService: GeoIpService
     
     // MARK: - Published variables
     
@@ -799,6 +800,18 @@ extension MainViewModel {
         }
         
         testnetBuyCryptoService.buyCrypto(.erc20Token(walletManager: walletModel.walletManager, token: token))
+    }
+    
+    func openBuyCryptoIfPossible() {
+        if geoIpService.regionCode == "ru" {
+            coordinator.openBankWarning {
+                self.openBuyCrypto()
+            } declineCallback: {
+                self.coordinator.openP2PTutorial()
+            }
+        } else {
+            openBuyCrypto()
+        }
     }
     
     func openPushTx(for index: Int) {

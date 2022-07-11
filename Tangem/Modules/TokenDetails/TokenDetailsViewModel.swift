@@ -184,14 +184,6 @@ class TokenDetailsViewModel: ObservableObject {
         showTradeSheet = true
     }
     
-    func buyCryptoIfPossible() {
-        if geoIpService.regionCode == "ru" {
-            coordinator.showP2PTutorial()
-        } else {
-            openBuyCrypto()
-        }
-    }
-    
     func processSellCryptoRequest(_ request: String) {
         if let request = exchangeService.extractSellCryptoRequest(from: request) {
             openSendToSell(with: request)
@@ -404,6 +396,18 @@ extension TokenDetailsViewModel {
         guard let model = walletModel else { return }
         
         testnetBuyCrypto.buyCrypto(.erc20Token(walletManager: model.walletManager, token: token))
+    }
+    
+    func openBuyCryptoIfPossible() {
+        if geoIpService.regionCode == "ru" {
+            coordinator.openBankWarning {
+                self.openBuyCrypto()
+            } declineCallback: {
+                self.coordinator.openP2PTutorial()
+            }
+        } else {
+            openBuyCrypto()
+        }
     }
     
     func openPushTx(for index: Int) {
