@@ -30,10 +30,12 @@ class MainCoordinator: CoordinatorObject {
     @Published var currencySelectViewModel: CurrencySelectViewModel? = nil
     @Published var mailViewModel: MailViewModel? = nil
     @Published var addressQrBottomSheetContentViewVodel: AddressQrBottomSheetContentViewVodel? = nil
+    @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
     
     // MARK: - Helpers
     @Published var qrBottomSheetKeeper: Bool = false
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
+    @Published var openWarning: Bool = false
     
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -177,7 +179,22 @@ extension MainCoordinator: MainRoutable {
         qrBottomSheetKeeper = true
     }
     
-    func showWarningIfNeeded(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) { }
+    func openBankWarning(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) {
+        warningBankCardViewModel = .init(confirmCallback: {
+            confirmCallback()
+            self.openWarning = true
+        }, declineCallback: {
+            declineCallback()
+            self.openWarning = false
+        })
+        openWarning = true
+    }
     
-    func showP2PTutorial() { }
+    func openP2PTutorial() {
+        modalWebViewModel = WebViewContainerViewModel(url: URL(string: "https://tangem.com/howtobuy.html")!,
+                                                      title: "",
+                                                      addLoadingIndicator: true,
+                                                      withCloseButton: false,
+                                                      urlActions: [:])
+    }
 }
