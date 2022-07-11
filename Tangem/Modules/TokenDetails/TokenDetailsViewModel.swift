@@ -15,6 +15,7 @@ class TokenDetailsViewModel: ObservableObject {
     
     @Published var alert: AlertBinder? = nil
     @Published var showTradeSheet: Bool = false
+    @Published var isRefreshing: Bool = false
     
     let card: CardViewModel
     
@@ -123,7 +124,7 @@ class TokenDetailsViewModel: ObservableObject {
             return nil
         }
         
-        return blockchainNetwork.blockchain.tokenDisplayName
+        return "wallet_currency_subtitle".localized(blockchainNetwork.blockchain.displayName)
     }
     
     @Published var unsupportedTokenWarning: String? = nil
@@ -171,13 +172,10 @@ class TokenDetailsViewModel: ObservableObject {
             return
         }
         
-        switch walletModel.getRemovalState(amountType: amountType) {
-        case .able:
-            deleteToken()
-        case .unable:
-            showUnableToHideAlert()
-        case .ableThroughtAlert:
+        if walletModel.canRemove(amountType: amountType) {
             showWarningDeleteAlert()
+        } else {
+            showUnableToHideAlert()
         }
     }
     
@@ -232,11 +230,16 @@ class TokenDetailsViewModel: ObservableObject {
     }
     
     func onRefresh(_ done: @escaping () -> Void) {
+        DispatchQueue.main.async {
+            self.isRefreshing = true
+        }
         refreshCancellable = walletModel?
             .update()
             .receive(on: RunLoop.main)
-            .sink { _ in
+            .sink { [weak self] _ in
+                guard let self = self else { return }
                 print("♻️ Token wallet model loading state changed")
+                self.isRefreshing = false
                 done()
             } receiveValue: { _ in 
                 
@@ -306,7 +309,11 @@ class TokenDetailsViewModel: ObservableObject {
             walletModel?.blockchainNetwork.blockchain.displayName ?? "",
         ])
         
-        alert = warningAlert(title: title, message: message, primaryButton: .default(Text("common_ok")))
+        alert = AlertBinder(alert: Alert(
+            title: Text(title),
+            message: Text(message),
+            dismissButton: .default(Text("common_ok"))
+        ))
     }
     
     private func showWarningDeleteAlert() {
