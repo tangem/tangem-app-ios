@@ -158,6 +158,6 @@ class BottomSheetPreviewProvider: ObservableObject {
 struct BottomSheetView_Previews: PreviewProvider {
     static var previews: some View {
         AddressQrBottomSheetPreviewView(model: BottomSheetPreviewProvider())
-        //            .previewGroup(devices: [.iPhone12Pro])
+    //            .previewGroup(devices: [.iPhone12Pro])
     }
 }
