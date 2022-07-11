@@ -50,6 +50,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         configureFirebase()
         configureAppsFlyer()
+        configureAmplitude()
         
         let userPrefs = UserPrefsService()
         userPrefs.numberOfLaunches += 1
@@ -116,5 +117,11 @@ private extension AppDelegate {
         #else
         AppsFlyerLib.shared().isDebug = false
         #endif
+    }
+    
+    func configureAmplitude() {
+        guard AppEnvironment.current == .production else { return }
+        
+        Amplitude.instance().initializeApiKey(CommonKeysManager().amplitudeApiKey)
     }
 }
