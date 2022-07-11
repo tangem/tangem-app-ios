@@ -49,7 +49,6 @@ struct CoinItemView: View {
                 if !model.isReadonly {
                     Toggle("", isOn: $model.selectedPublisher)
                         .labelsHidden()
-                        .disabled(model.isDisabled)
                         .toggleStyleCompat(.tangemGreen2)
                         .offset(x: 2)
                         .scaleEffect(0.8)
@@ -69,12 +68,10 @@ struct CurrencyItemView_Previews: PreviewProvider {
         VStack(spacing: 0) {
             CoinItemView(model: CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
                                                   isReadonly: false,
-                                                  isDisabled: false,
                                                   isSelected: .constant(false)))
             
             CoinItemView(model: CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
                                                   isReadonly: false,
-                                                  isDisabled: false,
                                                   isSelected: .constant(true),
                                                   position: .last))
             
@@ -82,7 +79,6 @@ struct CurrencyItemView_Previews: PreviewProvider {
             StatefulPreviewWrapper(false) {
                 CoinItemView(model: CoinItemViewModel(tokenItem: .blockchain(.ethereum(testnet: false)),
                                                       isReadonly: false,
-                                                      isDisabled: false,
                                                       isSelected: $0))
                 
             }
