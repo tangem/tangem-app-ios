@@ -80,12 +80,22 @@ extension CommonKeysManager {
         let zendesk: ZendeskConfig
         
         fileprivate static var empty: Keys {
-            .init(moonPayApiKey: "", moonPayApiSecretKey: "", onramperApiKey: "", blockchairApiKey: "",
-                  blockcypherTokens: [], infuraProjectId: "", appsFlyerDevKey: "",
-                  shopifyShop: .init(domain: "", storefrontApiKey: "", merchantID: ""),
-                  zendesk: .init(zendeskApiKey: "", zendeskAppId: "", zendeskClientId: "", zendeskUrl: ""))
-                  blockcypherTokens: [], infuraProjectId: "", appsFlyerDevKey: "", amplitudeApiKey: "",
-                  shopifyShop: .init(domain: "", storefrontApiKey: "", merchantID: ""))
+            .init(moonPayApiKey: "",
+                  moonPayApiSecretKey: "",
+                  onramperApiKey: "",
+                  blockchairApiKey: "",
+                  blockcypherTokens: [],
+                  infuraProjectId: "",
+                  appsFlyerDevKey: "",
+                  amplitudeApiKey: "",
+                  shopifyShop: .init(domain: "",
+                                     storefrontApiKey: "",
+                                     merchantID: ""),
+                  zendesk: .init(zendeskApiKey: "",
+                                 zendeskAppId: "",
+                                 zendeskClientId: "",
+                                 zendeskUrl: "")
+            )
         }
     }
 }
