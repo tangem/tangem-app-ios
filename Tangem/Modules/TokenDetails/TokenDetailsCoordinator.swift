@@ -114,7 +114,7 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
     func openBankWarning(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) {
         warningBankCardViewModel = .init(confirmCallback: {
             confirmCallback()
-            self.openWarning = true
+            self.openWarning = false
         }, declineCallback: {
             declineCallback()
             self.openWarning = false
