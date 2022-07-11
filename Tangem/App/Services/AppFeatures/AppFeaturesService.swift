@@ -23,31 +23,10 @@ class AppFeaturesService {
         }
         
         var features =  Set<AppFeature>.all
-        let configFeatures = try! AppFeatures.local
-        
-        if card.isTwinCard ||
-            !configFeatures.isWalletPayIdEnabled {
-            features.remove(.payIDReceive)
-        }
-        
-        if !configFeatures.isSendingToPayIdEnabled {
-            features.remove(.payIDSend)
-        }
-        
-        if !configFeatures.isCreatingTwinCardsAllowed {
-            features.remove(.twinCreation)
-        }
-        
-        if !configFeatures.isTopUpEnabled {
-            features.remove(.topup)
-        }
-
+        features.remove(.payIDReceive)
         features.remove(.pins)
-        
         return features
     }
-    
-    private var bag = Set<AnyCancellable>()
     
     init() {}
     
@@ -63,11 +42,9 @@ extension AppFeaturesService: AppFeaturesProviding {
 	
     var canCreateTwin: Bool { features.contains(.twinCreation) }
 	
-    var isPayIdEnabled: Bool { canSendToPayId || canReceiveToPayId }
+    var isPayIdEnabled: Bool { canSendToPayId }
 	
     var canSendToPayId: Bool { features.contains(.payIDSend) }
-	
-    var canReceiveToPayId: Bool { features.contains(.payIDReceive) }
 	
     var canExchangeCrypto: Bool { features.contains(.topup) }
 }
