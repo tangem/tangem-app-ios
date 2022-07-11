@@ -23,7 +23,6 @@ class AppFeaturesService {
         }
         
         var features =  Set<AppFeature>.all
-        features.remove(.payIDReceive)
         features.remove(.pins)
         return features
     }
