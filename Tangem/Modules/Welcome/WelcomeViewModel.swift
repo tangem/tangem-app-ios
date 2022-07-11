@@ -107,15 +107,14 @@ class WelcomeViewModel: ObservableObject {
             } receiveValue: { [unowned self] steps in
                 let input = OnboardingInput(steps: steps,
                                             cardInput: .cardModel(cardModel),
-                                            cardsPosition: (.zero, .zero),
                                             welcomeStep: nil,
                                             currentStepIndex: 0)
                 
                 self.isScanningCard = false
                 if input.steps.needOnboarding {
+                    cardModel.updateState()
                     openOnboarding(with: input)
                 } else {
-                    cardModel.updateState()
                     openMain(with: input)
                 }
                 
@@ -207,7 +206,6 @@ private extension WelcomeViewModel {
                 
                 let input = OnboardingInput(steps: steps,
                                             cardInput: .cardId(primaryCardId),
-                                            cardsPosition: nil,
                                             welcomeStep: nil,
                                             currentStepIndex: 0,
                                             isStandalone: false)

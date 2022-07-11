@@ -12,7 +12,6 @@ import TangemSdk
 struct OnboardingInput {
     let steps: OnboardingSteps
     let cardInput: CardInput
-    let cardsPosition: (dark: AnimatedViewSettings, light: AnimatedViewSettings)?
     let welcomeStep: WelcomeStep?
     var currentStepIndex: Int
     var isStandalone = false
