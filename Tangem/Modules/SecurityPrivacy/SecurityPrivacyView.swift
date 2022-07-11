@@ -25,11 +25,10 @@ struct SecurityPrivacyView: View {
     private var securitySection: some View {
         Section(content: {
             RowView(title: "security_and_privacy_change_password".localized,
-                    action: viewModel.viewDidRequestChangePassword)
+                    action: viewModel.openChangePassword)
             
             RowView(title: "security_and_privacy_security_management".localized,
-                    action: viewModel.viewDidRequestSecurityManagement)
-            
+                    action: viewModel.openSecurityManagement)
         }, header: {
             HeaderView(title: "security_and_privacy_security".localized)
         })
@@ -38,11 +37,10 @@ struct SecurityPrivacyView: View {
     private var privacySection: some View {
         Section(content: {
             RowView(title: "security_and_privacy_token_list_synchronization".localized,
-                    action: viewModel.viewDidRequestTokenSynchronization)
+                    action: viewModel.openTokenSynchronization)
             
             RowView(title: "security_and_privacy_saved_card_reset".localized,
-                    action: viewModel.viewDidRequestResetSavedCards)
-            
+                    action: viewModel.openResetSavedCards)
         }, header: {
             HeaderView(title: "security_and_privacy_privacy".localized)
         })
