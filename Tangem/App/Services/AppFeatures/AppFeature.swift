@@ -9,7 +9,6 @@
 import Foundation
 
 enum AppFeature: String, Option {
-    case payIDReceive
     case payIDSend
     case topup
     case pins
