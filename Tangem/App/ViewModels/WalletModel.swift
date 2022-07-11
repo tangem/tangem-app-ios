@@ -121,7 +121,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
         updateBalanceViewModel(with: walletManager.wallet)
         self.walletManager.walletPublisher
             .receive(on: DispatchQueue.main)
-            .sink(receiveValue: {[weak self] wallet in
+            .sink(receiveValue: { [weak self] wallet in
                 print("💳 Wallet model received update")
                 self?.updateBalanceViewModel(with: wallet)
                 //                if wallet.hasPendingTx {
