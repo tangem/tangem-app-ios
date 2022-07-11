@@ -23,10 +23,10 @@ class TokenDetailsCoordinator: CoordinatorObject {
     // MARK: - Child view models
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
-    
-    @Published var showWarning: Bool = false
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
-    @Published var p2pTutorialWebViewModel: WebViewContainerViewModel? = nil
+    
+    // MARK: - Helpers
+    @Published var openWarning: Bool = false
     
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -111,16 +111,22 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
         self.pushTxCoordinator = coordinator
     }
     
-    func showWarningIfNeeded(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) {
-        warningBankCardViewModel = .init(confirmCallback: confirmCallback, declineCallback: declineCallback)
-        showWarning = true
+    func openBankWarning(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) {
+        warningBankCardViewModel = .init(confirmCallback: {
+            confirmCallback()
+            self.openWarning = true
+        }, declineCallback: {
+            declineCallback()
+            self.openWarning = false
+        })
+        openWarning = true
     }
     
-    func showP2PTutorial() {
-        p2pTutorialWebViewModel = WebViewContainerViewModel(url: URL(string: "https://tangem.com/howtobuy.html")!,
-                                                            title: "",
-                                                            addLoadingIndicator: true,
-                                                            withCloseButton: false,
-                                                            urlActions: [:])
+    func openP2PTutorial() {
+        modalWebViewModel = WebViewContainerViewModel(url: URL(string: "https://tangem.com/howtobuy.html")!,
+                                                      title: "",
+                                                      addLoadingIndicator: true,
+                                                      withCloseButton: false,
+                                                      urlActions: [:])
     }
 }

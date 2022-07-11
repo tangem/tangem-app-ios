@@ -10,8 +10,7 @@ import Foundation
 import SwiftUI
 
 struct WarningBankCardView: View {
-    let confirm: () -> ()
-    let decline: () -> ()
+    let viewModel: WarningBankCardViewModel?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -29,14 +28,14 @@ struct WarningBankCardView: View {
 
             HStack(spacing: 11) {
                 Button(action: {
-                    confirm()
+                    viewModel?.confirmCallback()
                 }, label: {
                     Text("common_yes".localized)
                 })
                 .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
 
                 Button(action: {
-                    decline()
+                    viewModel?.declineCallback()
                 }, label: {
                     Text("common_no".localized)
                 })
@@ -57,12 +56,7 @@ struct WarningBankCardView_Previews: PreviewProvider {
     static var previews: some View {
         BottomSheetView(isPresented: _PopUpModel().$show, showClosedButton: false) {
         } content: {
-            WarningBankCardView {
-
-            } decline: {
-
-            }
-
+            WarningBankCardView(viewModel: nil)
         }
     }
 }
