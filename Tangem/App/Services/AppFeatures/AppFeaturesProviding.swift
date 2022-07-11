@@ -14,7 +14,6 @@ protocol AppFeaturesProviding {
     var canCreateTwin: Bool { get }
     var isPayIdEnabled: Bool { get }
     var canSendToPayId: Bool { get }
-    var canReceiveToPayId: Bool { get }
     var canExchangeCrypto: Bool { get }
 }
 
