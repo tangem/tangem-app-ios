@@ -11,7 +11,6 @@ import TangemSdk
 import Combine
 
 class AppFeaturesService {
-    @Injected(\.remoteConfigurationProvider) var configProvider: RemoteConfigurationProviding
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     
     var features: Set<AppFeature> {
@@ -24,7 +23,7 @@ class AppFeaturesService {
         }
         
         var features =  Set<AppFeature>.all
-        let configFeatures = configProvider.features
+        let configFeatures = try! AppFeatures.local
         
         if card.isTwinCard ||
             !configFeatures.isWalletPayIdEnabled {
