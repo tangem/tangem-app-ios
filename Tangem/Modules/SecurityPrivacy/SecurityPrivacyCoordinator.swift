@@ -43,22 +43,22 @@ extension SecurityPrivacyCoordinator {
 // MARK: - SecurityPrivacyRoutable
 
 extension SecurityPrivacyCoordinator: SecurityPrivacyRoutable {
-    func didRequestChangePassword() {
+    func openChangePassword() {
         
     }
     
-    func didRequestSecurityManagement(cardModel: CardViewModel) {
+    func openSecurityManagement(cardModel: CardViewModel) {
         let coordinator = SecurityManagementCoordinator(popToRootAction: popToRootAction)
         let options = SecurityManagementCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
         securityManagementCoordinator = coordinator
     }
     
-    func didRequestTokenSynchronization() {
+    func openTokenSynchronization() {
             
     }
     
-    func didRequestResetSavedCards() {
+    func openResetSavedCards() {
         
     }
 }
