@@ -18,7 +18,7 @@ struct WarningBankCardView: View {
             Image("russia_flag")
                 .padding(.top, 80)
                 .padding(.leading, 10)
-            
+
             Text("russian_bank_card_warning_title".localized)
                 .font(.system(size: 20, weight: .regular))
                 .padding(30)
