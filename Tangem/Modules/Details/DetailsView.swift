@@ -131,21 +131,15 @@ struct DetailsView: View {
     // MARK: SecurityManagement
     
     private var securityManagementRow: some View {
-        Button(action: {
-            viewModel.checkPin {
-                selection = .securityManagement
-            }
-        }, label: {
-            HStack {
-                Text("details_row_title_manage_security")
-                    .font(.system(size: 16, weight: .regular, design: .default))
-                    .foregroundColor(.tangemGrayDark6)
-                
-                Spacer()
-                
-                ActivityIndicatorView(isAnimating: viewModel.isCheckingPin, color: .tangemGrayDark4)
-            }
-        })
+        HStack {
+            Text("details_row_title_manage_security")
+                .font(.system(size: 16, weight: .regular, design: .default))
+                .foregroundColor(.tangemGrayDark6)
+            
+            Spacer()
+            
+            ActivityIndicatorView(isAnimating: viewModel.isCheckingPin, color: .tangemGrayDark4)
+        }
         .onNavigation(viewModel.openSecManagement,
                       tag: NavigationTag.securityManagement,
                       selection: $selection)
