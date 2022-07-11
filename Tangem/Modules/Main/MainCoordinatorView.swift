@@ -93,7 +93,6 @@ struct MainCoordinatorView: CoordinatorView {
         } content: {
             WarningBankCardView(viewModel: coordinator.warningBankCardViewModel)
         }
-
     }
     
     @ViewBuilder
