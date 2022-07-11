@@ -132,15 +132,8 @@ class OnboardingViewModel<Step: OnboardingStep> {
     init(input: OnboardingInput, onboardingCoordinator: OnboardingRoutable) {
         self.input = input
         self.onboardingCoordinator = onboardingCoordinator
-        if let cardsSettings = input.cardsPosition {
-            mainCardSettings = cardsSettings.dark
-            supplementCardSettings = cardsSettings.light
-            isInitialAnimPlayed = false
-        } else {
-            isFromMain = true
-            isInitialAnimPlayed = true
-            isNavBarVisible = true
-        }
+        isFromMain = input.isStandalone
+        isNavBarVisible = input.isStandalone
         
         input.cardInput.cardModel.map { loadImage(for: $0) }
     }
@@ -148,7 +141,11 @@ class OnboardingViewModel<Step: OnboardingStep> {
     private func loadImage(for cardModel: CardViewModel) {
         cardModel
             .imageLoaderPublisher
-            .weakAssign(to: \.cardImage, on: self)
+            .sink { [weak self] image in
+                withAnimation {
+                    self?.cardImage = image
+                }
+            }
             .store(in: &bag)
     }
     
@@ -210,28 +207,6 @@ class OnboardingViewModel<Step: OnboardingStep> {
         }
     }
     
-    func reset(includeInResetAnim: (() -> Void)? = nil) { // [REDACTED_TODO_COMMENT]
-//        let defaultSettings = WelcomeCardLayout.defaultSettings(in: containerSize, animated: true)
-//        var newSteps = [Step.initialStep]
-//        if assembly.isPreview {
-//            newSteps.append(contentsOf: steps)
-//        }
-//
-//       // withAnimation(.easeIn(duration: resetAnimDuration)) { //disable back animation
-//            mainCardSettings = defaultSettings.main
-//            supplementCardSettings = defaultSettings.supplement
-//            isNavBarVisible = false
-//            currentStepIndex = 0
-//            steps = newSteps
-//            isMainButtonBusy = false
-//            includeInResetAnim?()
-//        //}
-//        // [REDACTED_TODO_COMMENT]
-//       // DispatchQueue.main.asyncAfter(deadline: .now() /* + resetAnimDuration*/) {
-//            self.navigation.onboardingReset = true
-//       // }
-    }
-    
     func mainButtonAction() {
         fatalError("Not implemented")
     }
@@ -249,5 +224,9 @@ class OnboardingViewModel<Step: OnboardingStep> {
 extension OnboardingViewModel {
     func closeOnboarding() {
         onboardingCoordinator.closeOnboarding()
+    }
+    
+    func popToRoot() {
+        onboardingCoordinator.popToRoot()
     }
 }
