@@ -21,22 +21,24 @@ class SecurityPrivacyViewModel: ObservableObject {
         self.cardModel = cardModel
         self.coordinator = coordinator
     }
+}
 
-    // MARK: View Output
+// MARK: View Output
 
-    func viewDidRequestChangePassword() {
-        coordinator.didRequestChangePassword()
+extension SecurityPrivacyViewModel {
+    func openChangePassword() {
+        coordinator.openChangePassword()
     }
 
-    func viewDidRequestSecurityManagement() {
-        coordinator.didRequestSecurityManagement(cardModel: cardModel)
+    func openSecurityManagement() {
+        coordinator.openSecurityManagement(cardModel: cardModel)
     }
 
-    func viewDidRequestTokenSynchronization() {
-        coordinator.didRequestTokenSynchronization()
+    func openTokenSynchronization() {
+        coordinator.openTokenSynchronization()
     }
 
-    func viewDidRequestResetSavedCards() {
-        coordinator.didRequestResetSavedCards()
+    func openResetSavedCards() {
+        coordinator.openResetSavedCards()
     }
 }
