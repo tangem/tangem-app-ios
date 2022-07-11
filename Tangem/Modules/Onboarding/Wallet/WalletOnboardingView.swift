@@ -35,10 +35,7 @@ struct WalletOnboardingView: View {
     }
     
     var secondCardPlaceholder: OnboardingCardView.CardType {
-        switch currentStep {
-        case .welcome, .backupIntro, .createWallet, .scanPrimaryCard: return .light
-        default: return .dark
-        }
+        .dark
     }
     
     var body: some View {
@@ -135,7 +132,7 @@ struct WalletOnboardingView: View {
                                            supplement: viewModel.supplementButtonSettings)
 
                 ) {
-                    viewModel.reset()
+                    viewModel.popToRoot()
                 }
                 .padding(.horizontal, 40)
             }
