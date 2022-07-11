@@ -10,29 +10,38 @@ import Foundation
 
 @propertyWrapper
 struct Storage<T> {
-    let key: String
-    let defaultValue: T
-    
-    let defaults: UserDefaults
-    
+    private let key: String
+    private let defaultValue: T
+
+    private let defaults: UserDefaults
     private let appGroupName = "group.com.tangem.Tangem"
-    
-    init(type: StorageType, defaultValue: T) {
-        key = type.rawValue
-        self.defaultValue = defaultValue
-        defaults = UserDefaults(suiteName: appGroupName) ?? .standard
-        migrateFromOldDefaultsIfNeeded()
-    }
 
     var wrappedValue: T {
         get {
             defaults.object(forKey: key) as? T ?? defaultValue
-        }
-        set {
+        } set {
             defaults.set(newValue, forKey: key)
         }
     }
-    
+
+    init(type: StorageType, defaultValue: T) {
+        key = type.rawValue
+        self.defaultValue = defaultValue
+
+        #if CLIP
+        defaults = UserDefaults(suiteName: appGroupName) ?? .standard
+        #else
+        switch AppEnvironment.current {
+        case .production:
+            defaults = UserDefaults(suiteName: appGroupName) ?? .standard
+        case .beta:
+            defaults = .standard
+        }
+        #endif
+
+        migrateFromOldDefaultsIfNeeded()
+    }
+
     private func migrateFromOldDefaultsIfNeeded() {
         let migrationKey = StorageType.isMigratedToNewUserDefaults.rawValue
         if defaults.bool(forKey: migrationKey) {
