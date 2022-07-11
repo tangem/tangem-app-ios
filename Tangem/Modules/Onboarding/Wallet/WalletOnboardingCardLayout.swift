@@ -43,13 +43,9 @@ enum WalletOnboardingCardLayout {
                                                   opacity: opacity(at: step, in: container),
                                                   zIndex: zIndex(at: step),
                                                   rotationAngle: rotation(at: step, in: container))
-            var intermediateSettings: CardAnimSettings? = nil
-            if self == .firstBackup, step == .backupIntro {
-                intermediateSettings = targetSettings
-                intermediateSettings?.zIndex = zIndex(at: .createWallet)
-            }
+            
             return .init(targetSettings: targetSettings,
-                         intermediateSettings: intermediateSettings)
+                         intermediateSettings: nil)
         }
     }
     
