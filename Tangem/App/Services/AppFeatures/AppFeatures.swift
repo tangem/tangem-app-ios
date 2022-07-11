@@ -13,4 +13,10 @@ struct AppFeatures: Decodable {
     let isSendingToPayIdEnabled: Bool
     let isTopUpEnabled: Bool
     let isCreatingTwinCardsAllowed: Bool
+
+    static var local: AppFeatures {
+        get throws {
+            return try JsonUtils.readBundleFile(with: "features", type: AppFeatures.self)
+        }
+    }
 }
