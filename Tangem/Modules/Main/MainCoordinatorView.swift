@@ -84,6 +84,16 @@ struct MainCoordinatorView: CoordinatorView {
         BottomSheetView(isPresented: coordinator.$qrBottomSheetKeeper,
                         hideBottomSheetCallback: coordinator.hideQrBottomSheet,
                         content: { addressQrBottomSheetContent })
+        
+        BottomSheetView(isPresented: coordinator.$openWarning,
+                        showClosedButton: false,
+                        addDragGesture: false,
+                        closeOnTapOutside: false,
+                        cornerRadius: 30) {
+        } content: {
+            WarningBankCardView(viewModel: coordinator.warningBankCardViewModel)
+        }
+
     }
     
     @ViewBuilder
