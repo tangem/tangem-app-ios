@@ -18,20 +18,7 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
                 TokenDetailsView(viewModel: model)
                     .navigationLinks(links)
                 
-                BottomSheetView(isPresented: coordinator.$showWarning,
-                                showClosedButton: false,
-                                addDragGesture: false,
-                                closeOnTapOutside: false,
-                                cornerRadius: 30) {
-                } content: {
-                    WarningBankCardView {
-                        coordinator.warningBankCardViewModel?.declineCallback()
-                        coordinator.showWarning = false
-                    } decline: {
-                        coordinator.warningBankCardViewModel?.confirmCallback()
-                        coordinator.showWarning = false
-                    }
-                }
+                otherSheets
             }
             
             sheets
@@ -63,10 +50,17 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.modalWebViewModel) {
                 WebViewContainer(viewModel: $0)
             }
-        
-        NavHolder()
-            .sheet(item: $coordinator.p2pTutorialWebViewModel) {
-                WebViewContainer(viewModel: $0)
-            }
+    }
+    
+    @ViewBuilder
+    private var otherSheets: some View {
+        BottomSheetView(isPresented: coordinator.$openWarning,
+                        showClosedButton: false,
+                        addDragGesture: false,
+                        closeOnTapOutside: false,
+                        cornerRadius: 30) {
+        } content: {
+            WarningBankCardView(viewModel: coordinator.warningBankCardViewModel)
+        }
     }
 }
