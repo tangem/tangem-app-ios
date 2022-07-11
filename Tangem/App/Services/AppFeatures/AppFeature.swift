@@ -25,16 +25,4 @@ extension Set where Element == AppFeature {
     static var none:  Set<AppFeature> {
         return Set()
     }
-
-    static var allExceptPayReceive:  Set<AppFeature> {
-        var features = all
-        features.remove(.payIDReceive)
-        return features
-    }
-
-    static func allExcept(_ set:  Set<AppFeature>) ->  Set<AppFeature> {
-        var features = all
-        set.forEach { features.remove($0) }
-        return features
-    }
 }
