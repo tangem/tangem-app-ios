@@ -130,8 +130,8 @@ extension WelcomeCoordinator: WelcomeRoutable {
         mailViewModel = MailViewModel(dataCollector: dataCollector, support: .tangem, emailType: .failedToScanCard)
     }
     
-    func openDisclaimer(acceptCallback: @escaping () -> Void, dismissCallback: @escaping  () -> Void) {
-        disclaimerViewModel = DisclaimerViewModel(style: .sheet(acceptCallback: acceptCallback), showAccept: true, dismissCallback: dismissCallback)
+    func openDisclaimer() {
+        disclaimerViewModel = DisclaimerViewModel(style: .sheet, showAccept: true, coordinator: self)
     }
     
     func openTokensList() {
@@ -147,5 +147,12 @@ extension WelcomeCoordinator: WelcomeRoutable {
         let coordinator = ShopCoordinator()
         coordinator.start()
         self.shopCoordinator = coordinator
+    }
+}
+
+extension WelcomeCoordinator: DisclaimerRoutable {
+    func dismissAcceptedDisclaimer() {
+        self.disclaimerViewModel = nil
+        self.welcomeViewModel?.scanCard()
     }
 }
