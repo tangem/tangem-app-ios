@@ -45,6 +45,7 @@ class SupportedTokenItems {
             .fantom(testnet: false),
             .tron(testnet: false),
             .arbitrum(testnet: false),
+            .gnosis,
         ]
     }()
 
@@ -66,12 +67,12 @@ class SupportedTokenItems {
         ]
     }()
     
-    func predefinedBlockchains(isDemo: Bool) -> [Blockchain] {
+    func predefinedBlockchains(isDemo: Bool, testnet: Bool) -> [Blockchain] {
         if isDemo {
             return Array(predefinedDemoBalances.keys)
         }
         
-        return [.ethereum(testnet: false), .bitcoin(testnet: false)]
+        return [.ethereum(testnet: testnet), .bitcoin(testnet: testnet)]
     }
     
     func blockchains(for curves: [EllipticCurve], isTestnet: Bool?) -> Set<Blockchain> {
