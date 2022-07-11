@@ -170,7 +170,8 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
                     dataToFormat.append(EmailCollectedData(type: .wallet(.outputsCount), data: outputsDescription))
                 }
 
-                let tokens = walletModel.wallet.amounts.keys.compactMap({ $0.token })
+                let tokens = walletModel.tokenItemViewModels.compactMap { $0.amountType.token }
+
                 if !tokens.isEmpty {
                     dataToFormat.append(EmailCollectedData(type: .token(.tokens), data: ""))
                 }
