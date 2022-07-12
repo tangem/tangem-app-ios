@@ -33,9 +33,9 @@ class MainCoordinator: CoordinatorObject {
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
     
     // MARK: - Helpers
-    @Published var qrBottomSheetKeeper: Bool = false
+    @Published var bottomSheetKeeper: Bool = false
+    @Published var bottomSheetSettings: BottomSheetSettings?
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
-    @Published var openWarning: Bool = false
     
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -46,8 +46,9 @@ class MainCoordinator: CoordinatorObject {
         mainViewModel = MainViewModel(cardModel: options.cardModel, coordinator: self)
     }
     
-    func hideQrBottomSheet() {
-        qrBottomSheetKeeper.toggle()
+    func hideBottomSheet() {
+        bottomSheetKeeper = false
+        bottomSheetSettings = nil
     }
 }
 
@@ -176,18 +177,21 @@ extension MainCoordinator: MainRoutable {
     
     func openQR(shareAddress: String, address: String, qrNotice: String) {
         addressQrBottomSheetContentViewVodel = .init(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
-        qrBottomSheetKeeper = true
+        bottomSheetSettings = BottomSheet.qr
+        bottomSheetKeeper = true
     }
     
     func openBankWarning(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) {
         warningBankCardViewModel = .init(confirmCallback: {
             confirmCallback()
-            self.openWarning = true
+            self.hideBottomSheet()
         }, declineCallback: {
             declineCallback()
-            self.openWarning = false
+            self.hideBottomSheet()
         })
-        openWarning = true
+        
+        bottomSheetSettings = BottomSheet.warning
+        bottomSheetKeeper = true
     }
     
     func openP2PTutorial() {
@@ -196,5 +200,38 @@ extension MainCoordinator: MainRoutable {
                                                       addLoadingIndicator: true,
                                                       withCloseButton: false,
                                                       urlActions: [:])
+    }
+}
+
+extension MainCoordinator {
+    enum BottomSheet: BottomSheetSettings {
+        case qr
+        case warning
+        
+        var cornerRadius: CGFloat {
+            switch self {
+            case .qr:
+                return 10
+            case .warning:
+                return 30
+            }
+        }
+        
+        var showClosedButton: Bool {
+            switch self {
+            case .qr:
+                return true
+            case .warning:
+                return false
+            }
+        }
+        
+        var addDragGesture: Bool {
+            true
+        }
+        
+        var closeOnTapOutside: Bool {
+            true
+        }
     }
 }
