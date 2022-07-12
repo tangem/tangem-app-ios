@@ -26,7 +26,8 @@ class TokenDetailsCoordinator: CoordinatorObject {
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
     
     // MARK: - Helpers
-    @Published var openWarning: Bool = false
+    @Published var bottomSheetKeeper: Bool = false
+    @Published var bottomSheetSettings: BottomSheetSettings?
     
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -38,6 +39,11 @@ class TokenDetailsCoordinator: CoordinatorObject {
                                                       blockchainNetwork: options.blockchainNetwork,
                                                       amountType: options.amountType,
                                                       coordinator: self)
+    }
+    
+    func hideBottomSheet() {
+        bottomSheetKeeper = false
+        bottomSheetSettings = nil
     }
 }
 
@@ -114,12 +120,14 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
     func openBankWarning(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) {
         warningBankCardViewModel = .init(confirmCallback: {
             confirmCallback()
-            self.openWarning = false
+            self.hideBottomSheet()
         }, declineCallback: {
             declineCallback()
-            self.openWarning = false
+            self.hideBottomSheet()
         })
-        openWarning = true
+        
+        bottomSheetSettings = BottomSheet.warning
+        bottomSheetKeeper = true
     }
     
     func openP2PTutorial() {
@@ -128,5 +136,27 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
                                                       addLoadingIndicator: true,
                                                       withCloseButton: false,
                                                       urlActions: [:])
+    }
+}
+
+extension TokenDetailsCoordinator {
+    enum BottomSheet: BottomSheetSettings {
+        case warning
+        
+        var cornerRadius: CGFloat {
+            30
+        }
+        
+        var showClosedButton: Bool {
+            false
+        }
+        
+        var addDragGesture: Bool {
+            true
+        }
+        
+        var closeOnTapOutside: Bool {
+            true
+        }
     }
 }

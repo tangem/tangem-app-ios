@@ -54,13 +54,16 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
     
     @ViewBuilder
     private var otherSheets: some View {
-        BottomSheetView(isPresented: coordinator.$openWarning,
-                        showClosedButton: false,
-                        addDragGesture: false,
-                        closeOnTapOutside: false,
-                        cornerRadius: 30) {
-        } content: {
-            WarningBankCardView(viewModel: coordinator.warningBankCardViewModel)
+        BottomSheetView(from: coordinator.bottomSheetSettings,
+                        isPresented: coordinator.$bottomSheetKeeper,
+                        hideBottomSheetCallback: coordinator.hideBottomSheet,
+                        content: { sheetContent })
+    }
+    
+    @ViewBuilder
+    private var sheetContent: some View {
+        if let model = coordinator.warningBankCardViewModel {
+            WarningBankCardView(viewModel: model)
         }
     }
 }
