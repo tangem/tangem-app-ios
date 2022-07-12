@@ -87,7 +87,8 @@ extension CommonKeysManager {
         fileprivate static var empty: Keys {
             .init(moonPayApiKey: "",
                   moonPayApiSecretKey: "",
-                  onramperApiKey: "",
+                  mercuryoWidgetId: "",
+                  mercuryoSecret: "",
                   blockchairApiKey: "",
                   blockcypherTokens: [],
                   infuraProjectId: "",
