@@ -14,3 +14,34 @@ protocol BottomSheetSettings {
     var closeOnTapOutside: Bool { get }
     var cornerRadius: CGFloat { get }
 }
+
+enum BottomSheet: BottomSheetSettings {
+    case qr
+    case warning
+
+    var cornerRadius: CGFloat {
+        switch self {
+        case .qr:
+            return 10
+        case .warning:
+            return 30
+        }
+    }
+
+    var showClosedButton: Bool {
+        switch self {
+        case .qr:
+            return true
+        case .warning:
+            return false
+        }
+    }
+
+    var addDragGesture: Bool {
+        true
+    }
+
+    var closeOnTapOutside: Bool {
+        true
+    }
+}
