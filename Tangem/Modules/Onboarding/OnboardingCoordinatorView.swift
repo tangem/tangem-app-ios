@@ -29,9 +29,10 @@ struct OnboardingCoordinatorView: CoordinatorView {
                     OnboardingAccessCodeView(viewModel: $0)
                 }
             
-            BottomSheetView(isPresented: coordinator.$qrBottomSheetKeeper,
+            BottomSheetView(from: coordinator.bottomSheetSettings,
+                            isPresented: coordinator.$qrBottomSheetKeeper,
                             hideBottomSheetCallback: coordinator.hideQrBottomSheet,
-                            content: { addressQrBottomSheetContent })
+                            content: { content })
             // .frame(maxWidth: screenSize.width) //UISCreen.main.bounds [REDACTED_TODO_COMMENT]
         }
     }
