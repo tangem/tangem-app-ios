@@ -54,6 +54,9 @@ target 'Tangem' do
   pod 'ZendeskChatSDK', '~> 2.12.0'
   pod 'ZendeskAnswerBotSDK', '~> 2.2.0'
   
+  # Analytics
+  pod 'Amplitude', '~> 8.8.0'
+  
   target 'TangemTests' do
     inherit! :search_paths
     # Pods for testing
