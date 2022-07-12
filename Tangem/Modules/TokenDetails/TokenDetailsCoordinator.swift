@@ -27,7 +27,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
     
     // MARK: - Helpers
     @Published var bottomSheetKeeper: Bool = false
-    @Published var bottomSheetSettings: BottomSheetSettings?
+    @Published var bottomSheetSettings: BottomSheetSettings? //Don't set to nil, when hide sheet
     
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -43,7 +43,6 @@ class TokenDetailsCoordinator: CoordinatorObject {
     
     func hideBottomSheet() {
         bottomSheetKeeper = false
-        bottomSheetSettings = nil
     }
 }
 
@@ -136,27 +135,5 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
                                                       addLoadingIndicator: true,
                                                       withCloseButton: false,
                                                       urlActions: [:])
-    }
-}
-
-extension TokenDetailsCoordinator {
-    enum BottomSheet: BottomSheetSettings {
-        case warning
-        
-        var cornerRadius: CGFloat {
-            30
-        }
-        
-        var showClosedButton: Bool {
-            false
-        }
-        
-        var addDragGesture: Bool {
-            true
-        }
-        
-        var closeOnTapOutside: Bool {
-            true
-        }
     }
 }
