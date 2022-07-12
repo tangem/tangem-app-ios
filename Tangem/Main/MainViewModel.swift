@@ -21,9 +21,11 @@ class MainViewModel: ViewModel, ObservableObject {
     @Injected(\.rateAppService) private var rateAppService: RateAppService
     @Injected(\.onboardingStepsSetupService) private var cardOnboardingStepSetupService: OnboardingStepsSetupService
     @Injected(\.negativeFeedbackDataProvider) var negativeFeedbackDataCollector: NegativeFeedbackDataProvider
+    @Injected(\.geoIpService) private var geoIpService: GeoIpService
     
     //MARK: - Published variables
-    
+    @Published var showBankWarning: Bool = false
+    @Published var showP2PTutorial: Bool = false
     @Published var error: AlertBinder?
     @Published var isScanning: Bool = false
     @Published var isCreatingWallet: Bool = false
@@ -564,10 +566,21 @@ class MainViewModel: ViewModel, ObservableObject {
         testnetBuyCryptoService.buyCrypto(.erc20Token(walletManager: walletModel.walletManager, token: token))
     }
     
+    func buyCryptoIfPossible() {
+        if geoIpService.regionCode == "ru" {
+            showBankWarning = true
+        } else {
+            buyCryptoAction()
+        }
+    }
+    
+    func showP2PTutorialAction() {
+        showP2PTutorial = true
+    }
+    
     func tradeCryptoAction() {
         navigation.mainToTradeSheet = true
     }
-    
     
     func sellCryptoAction() {
         if cardModel?.cardInfo.card.isDemoCard ?? false {
