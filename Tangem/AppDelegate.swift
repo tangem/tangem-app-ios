@@ -9,6 +9,7 @@
 import UIKit
 import Firebase
 import AppsFlyerLib
+import Amplitude
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -49,6 +50,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         configureFirebase()
         configureAppsFlyer()
+        configureAmplitude()
         
         let userPrefs = UserPrefsService()
         userPrefs.numberOfLaunches += 1
@@ -115,5 +117,12 @@ private extension AppDelegate {
         #else
         AppsFlyerLib.shared().isDebug = false
         #endif
+    }
+    
+    func configureAmplitude() {
+        guard AppEnvironment.current == .production else { return }
+        
+        Amplitude.instance().trackingSessionEvents = true
+        Amplitude.instance().initializeApiKey(CommonKeysManager().amplitudeApiKey)
     }
 }
