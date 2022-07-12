@@ -15,7 +15,8 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
     @Injected(\.onboardingStepsSetupService) private var stepsSetupService: OnboardingStepsSetupService
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
-    
+    @Injected(\.geoIpService) private var geoIpService: GeoIpService
+
     @Published var isScanningCard: Bool = false
     @Published var isBackupModal: Bool = false
     @Published var error: AlertBinder?
@@ -91,12 +92,22 @@ class WelcomeOnboardingViewModel: ViewModel, ObservableObject {
         
         subscription?.store(in: &bag)
     }
-    
+
     func orderCard() {
-        navigation.readToShop = true
+        let webShopRegionCodes = [
+            "ru",
+            "by",
+        ]
+        let openWebShop = webShopRegionCodes.contains(geoIpService.regionCode)
+
+        if openWebShop {
+            navigation.readToWebShop = true
+        } else {
+            navigation.readToShop = true
+        }
         Analytics.log(.getACard, params: [.source: .welcome])
     }
-    
+
     func searchTokens() {
         navigation.readToTokenList = true
     }
