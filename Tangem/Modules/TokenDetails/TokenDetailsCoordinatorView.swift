@@ -64,6 +64,8 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
     private var sheetContent: some View {
         if let model = coordinator.warningBankCardViewModel {
             WarningBankCardView(viewModel: model)
+        } else {
+            EmptyView()
         }
     }
 }
