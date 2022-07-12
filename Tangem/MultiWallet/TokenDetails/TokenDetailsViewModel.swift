@@ -12,9 +12,12 @@ import Combine
 class TokenDetailsViewModel: ViewModel, ObservableObject {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
+    @Injected(\.geoIpService) private var geoIpService: GeoIpService
     
     @Published var alert: AlertBinder? = nil
-    
+    @Published var showBankWarning: Bool = false
+    @Published var showP2PTutorial: Bool = false
+
     var card: CardViewModel! {
         didSet {
             bind()
@@ -211,6 +214,18 @@ class TokenDetailsViewModel: ViewModel, ObservableObject {
         guard let model = walletModel else { return }
         
         testnetBuyCrypto.buyCrypto(.erc20Token(walletManager: model.walletManager, token: token))
+    }
+    
+    func buyCryptoIfPossible() {
+        if geoIpService.regionCode == "ru" {
+            showBankWarning = true
+        } else {
+            buyCryptoAction()
+        }
+    }
+    
+    func showP2PTutorialAction() {
+        showP2PTutorial = true
     }
     
     func sellCryptoAction() {
