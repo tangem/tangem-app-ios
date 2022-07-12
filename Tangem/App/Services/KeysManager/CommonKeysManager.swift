@@ -54,7 +54,8 @@ extension CommonKeysManager: KeysManager {
     var blockchainConfig: BlockchainSdkConfig {
         BlockchainSdkConfig(blockchairApiKey: keys.blockchairApiKey,
                             blockcypherTokens: keys.blockcypherTokens,
-                            infuraProjectId: keys.infuraProjectId)
+                            infuraProjectId: keys.infuraProjectId,
+                            tronGridApiKey: keys.tronGridApiKey)
     }
     
     var shopifyShop: ShopifyShop {
@@ -72,11 +73,12 @@ extension CommonKeysManager {
         let blockcypherTokens: [String]
         let infuraProjectId: String
         let appsFlyerDevKey: String
+        let tronGridApiKey: String
         let shopifyShop: ShopifyShop
         
         fileprivate static var empty: Keys {
             .init(moonPayApiKey: "", moonPayApiSecretKey: "", mercuryoWidgetId: "", mercuryoSecret: "", blockchairApiKey: "",
-                  blockcypherTokens: [], infuraProjectId: "", appsFlyerDevKey: "",
+                  blockcypherTokens: [], infuraProjectId: "", appsFlyerDevKey: "", tronGridApiKey: "",
                   shopifyShop: .init(domain: "", storefrontApiKey: "", merchantID: ""))
         }
     }
