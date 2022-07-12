@@ -14,7 +14,7 @@ struct Storage<T> {
     private let defaultValue: T
 
     private let defaults: UserDefaults
-    private let appGroupName = "group.com.tangem.Tangem"
+    private let suiteName = AppEnvironment.current.suiteName
 
     var wrappedValue: T {
         get {
@@ -27,18 +27,7 @@ struct Storage<T> {
     init(type: StorageType, defaultValue: T) {
         key = type.rawValue
         self.defaultValue = defaultValue
-
-        #if CLIP
-        defaults = UserDefaults(suiteName: appGroupName) ?? .standard
-        #else
-        switch AppEnvironment.current {
-        case .production:
-            defaults = UserDefaults(suiteName: appGroupName) ?? .standard
-        case .beta:
-            defaults = .standard
-        }
-        #endif
-
+        defaults = UserDefaults(suiteName: suiteName) ?? .standard
         migrateFromOldDefaultsIfNeeded()
     }
 
@@ -48,7 +37,7 @@ struct Storage<T> {
             return
         }
         let standardDefaults = UserDefaults.standard
-        
+
         for key in standardDefaults.dictionaryRepresentation().keys {
             defaults.set(standardDefaults.dictionaryRepresentation()[key], forKey: key)
         }
