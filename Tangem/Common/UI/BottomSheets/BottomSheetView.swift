@@ -36,6 +36,19 @@ struct BottomSheetView<Content: View>: View {
         self.content = content()
     }
     
+    init(from settings: BottomSheetSettings?,
+         isPresented: Published<Bool>.Publisher,
+         hideBottomSheetCallback: @escaping () -> (),
+         @ViewBuilder content: () -> Content) {
+        self.isPresented = isPresented
+        self.showClosedButton = settings?.showClosedButton ?? true
+        self.addDragGesture = settings?.addDragGesture ?? true
+        self.closeOnTapOutside = settings?.closeOnTapOutside ?? true
+        self.cornerRadius = settings?.cornerRadius ?? 10
+        self.hideBottomSheetCallback = hideBottomSheetCallback
+        self.content = content()
+    }
+    
     @State private var backgroundOpacity: Double = 0
     @State private var sheetOffset: CGFloat = UIScreen.main.bounds.height
     @State private var lastDragValue: DragGesture.Value?
