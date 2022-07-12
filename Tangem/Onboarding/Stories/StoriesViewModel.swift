@@ -46,9 +46,10 @@ class StoriesViewModel: ViewModel, ObservableObject {
             }
             .store(in: &bag)
         
-        Publishers.Merge(
+        Publishers.Merge3(
             navigation.$readToTokenList,
-            navigation.$readToShop
+            navigation.$readToShop,
+            navigation.$readToWebShop
         )
             .drop { showingSheet in
                 showingSheet == false
@@ -85,6 +86,7 @@ class StoriesViewModel: ViewModel, ObservableObject {
             self?.currentProgress = $0
         }
         
+        // [REDACTED_TODO_COMMENT]
         switch currentPage {
         case WelcomeStoryPage.meetTangem:
             MeetTangemStoryPage(progress: progressBinding, immediatelyShowButtons: didDisplayMainScreenStories, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
