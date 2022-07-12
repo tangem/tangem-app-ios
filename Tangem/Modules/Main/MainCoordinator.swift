@@ -48,7 +48,6 @@ class MainCoordinator: CoordinatorObject {
     
     func hideBottomSheet() {
         bottomSheetKeeper = false
-        bottomSheetSettings = nil
     }
 }
 
@@ -200,38 +199,5 @@ extension MainCoordinator: MainRoutable {
                                                       addLoadingIndicator: true,
                                                       withCloseButton: false,
                                                       urlActions: [:])
-    }
-}
-
-extension MainCoordinator {
-    enum BottomSheet: BottomSheetSettings {
-        case qr
-        case warning
-        
-        var cornerRadius: CGFloat {
-            switch self {
-            case .qr:
-                return 10
-            case .warning:
-                return 30
-            }
-        }
-        
-        var showClosedButton: Bool {
-            switch self {
-            case .qr:
-                return true
-            case .warning:
-                return false
-            }
-        }
-        
-        var addDragGesture: Bool {
-            true
-        }
-        
-        var closeOnTapOutside: Bool {
-            true
-        }
     }
 }
