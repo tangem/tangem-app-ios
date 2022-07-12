@@ -12,6 +12,7 @@ import FirebaseAnalytics
 import FirebaseCrashlytics
 import AppsFlyerLib
 import BlockchainSdk
+import Amplitude
 #endif
 import TangemSdk
 
@@ -26,6 +27,7 @@ class Analytics {
         let values = params?.firebaseParams
         FirebaseAnalytics.Analytics.logEvent(key, parameters: values)
         AppsFlyerLib.shared().logEvent(key, withValues: values)
+        Amplitude.instance().logEvent(key, withEventProperties: values)
         #endif
     }
     
