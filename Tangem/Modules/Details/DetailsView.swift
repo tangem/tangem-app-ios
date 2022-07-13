@@ -20,18 +20,18 @@ struct DetailsView: View {
         case resetToFactory
         case supportChat
     }
-    
+
     @ObservedObject var viewModel: DetailsViewModel
-    
+
     // fix remain highlited bug on ios14
     @State private var selection: NavigationTag? = nil
-    
+
     var body: some View {
         List {
             cardDetailsSection
-            
+
             applicationDetailsSection
-            
+
             Section(header: Color.tangemBgGray.listRowInsets(EdgeInsets())) {
                 EmptyView()
             }
@@ -52,16 +52,16 @@ struct DetailsView: View {
             }
         }
     }
-    
+
     // MARK: First Section
-    
+
     private var cardDetailsSection: some View {
         Section(header: HeaderView(text: "details_section_title_card".localized), footer: footerView) {
             DetailsRowView(title: "details_row_title_cid".localized,
                            subtitle: viewModel.cardCid)
             DetailsRowView(title: "details_row_title_issuer".localized,
                            subtitle: viewModel.cardModel.cardInfo.card.issuer.name)
-            
+
             if viewModel.hasWallet, !viewModel.isTwinCard {
                 DetailsRowView(
                     title: "details_row_title_signed_hashes".localized,
@@ -71,32 +71,32 @@ struct DetailsView: View {
                     )
                 )
             }
-            
+
             securityManagementRow
-            
+
             if viewModel.isTwinCard {
                 twinCardRecreateView
-                
+
             } else {
                 if viewModel.canCreateBackup {
                     createBackupRow
                 }
-                
+
                 resetToFactoryRow
             }
         }
     }
-    
+
     var footerView: some View {
         if let purgeWalletProhibitedDescription = viewModel.cardModel.purgeWalletProhibitedDescription {
             return FooterView(text: purgeWalletProhibitedDescription)
         }
-        
+
         return FooterView()
     }
-    
+
     // MARK: Twin Card Recreate
-    
+
     private var twinCardRecreateView: some View {
         Button(action: viewModel.prepareTwinOnboarding, label: {
             Text("details_row_title_twins_recreate")
@@ -105,9 +105,9 @@ struct DetailsView: View {
         })
         .disabled(!viewModel.cardModel.canRecreateTwinCard)
     }
-    
+
     // MARK: Backup row
-    
+
     private var createBackupRow: some View {
         Button(action: viewModel.prepareBackup, label: {
             Text("details_row_title_create_backup")
@@ -116,9 +116,9 @@ struct DetailsView: View {
         })
         .disabled(!viewModel.canCreateBackup)
     }
-    
+
     // MARK: Reset row
-    
+
     @ViewBuilder
     private var resetToFactoryRow: some View {
         DetailsRowView(title: "details_row_title_reset_factory_settings".localized, subtitle: "")
@@ -127,26 +127,26 @@ struct DetailsView: View {
                           selection: $selection)
             .disabled(!viewModel.cardModel.canPurgeWallet)
     }
-    
+
     // MARK: SecurityManagement
-    
+
     private var securityManagementRow: some View {
         HStack {
             Text("details_row_title_manage_security")
                 .font(.system(size: 16, weight: .regular, design: .default))
                 .foregroundColor(.tangemGrayDark6)
-            
+
             Spacer()
-            
+
             ActivityIndicatorView(isAnimating: viewModel.isCheckingPin, color: .tangemGrayDark4)
         }
         .onNavigation(viewModel.openSecManagement,
                       tag: NavigationTag.securityManagement,
                       selection: $selection)
     }
-    
+
     // MARK: Second Section
-    
+
     private var applicationDetailsSection: some View {
         Section(header: HeaderView(text: "details_section_title_app".localized), footer: FooterView()) {
             if !viewModel.isMultiWallet {
@@ -167,21 +167,21 @@ struct DetailsView: View {
                     .font(.system(size: 16, weight: .regular, design: .default))
                     .foregroundColor(.tangemGrayDark6)
             })
-            
+
             if viewModel.cardTouURL != nil {
                 DetailsRowView(title: "details_row_title_card_tou".localized, subtitle: "")
                     .onNavigation(viewModel.openCatdTOU,
                                   tag: NavigationTag.cardTermsOfUse,
                                   selection: $selection)
             }
-            
+
             if viewModel.shouldShowWC {
                 DetailsRowView(title: "WalletConnect", subtitle: "")
                     .onNavigation(viewModel.openWalletConnect,
                                   tag: NavigationTag.walletConnect,
                                   selection: $selection)
             }
-            
+
             DetailsRowView(title: "details_ask_a_question".localized, subtitle: "")
                 .onNavigation(viewModel.openSupportChat,
                               tag: NavigationTag.supportChat,
@@ -208,7 +208,7 @@ extension DetailsView {
             // .listRowInsets(EdgeInsets())
         }
     }
-    
+
     struct HeaderView: View {
         var text: String
         var additionalTopPadding: CGFloat = 0
@@ -225,7 +225,7 @@ extension DetailsView {
             .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 1, trailing: 0))
         }
     }
-    
+
     struct FooterView: View {
         var text: String = ""
         var additionalBottomPadding: CGFloat = 0
