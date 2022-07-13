@@ -11,21 +11,21 @@ import BlockchainSdk
 
 struct TokenDetailsView: View {
     @ObservedObject var viewModel: TokenDetailsViewModel
-    
+
     var pendingTransactionViews: [PendingTxView] {
         let incTx = viewModel.incomingTransactions.map {
             PendingTxView(pendingTx: $0)
         }
-        
+
         let outgTx = viewModel.outgoingTransactions.enumerated().map { (index, pendingTx) in
             PendingTxView(pendingTx: pendingTx) {
                 viewModel.openPushTx(for: index)
             }
         }
-        
+
         return incTx + outgTx
     }
-    
+
     @ViewBuilder
     var exchangeCryptoButton: some View {
         if viewModel.canSellCrypto && viewModel.canBuyCrypto {
@@ -37,7 +37,7 @@ struct TokenDetailsView: View {
                 .actionSheet(isPresented: $viewModel.showTradeSheet, content: {
                     ActionSheet(title: Text("action_sheet_trade_hint"),
                                 buttons: [
-                                    .default(Text("wallet_button_topup"), action: viewModel.openBuyCrypto),
+                                    .default(Text("wallet_button_topup"), action: viewModel.openBuyCryptoIfPossible),
                                     .default(Text("wallet_button_sell_crypto"), action: viewModel.openSellCrypto),
                                     .cancel(),
                                 ])
@@ -52,17 +52,17 @@ struct TokenDetailsView: View {
             // Keep the BUY button last so that it will appear when everything is disabled
             TangemButton.vertical(title: "wallet_button_topup",
                                   systemImage: "arrow.up",
-                                  action: viewModel.openBuyCrypto)
+                                  action: viewModel.openBuyCryptoIfPossible)
                 .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
                                                isDisabled: !viewModel.canBuyCrypto))
         }
     }
-    
+
     @ViewBuilder var bottomButtons: some View {
         HStack(alignment: .center) {
-            
+
             exchangeCryptoButton
-            
+
             TangemButton(title: "wallet_button_send",
                          systemImage: "arrow.right",
                          action: viewModel.openSend)
@@ -70,15 +70,15 @@ struct TokenDetailsView: View {
                                                isDisabled: !viewModel.canSend))
         }
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            
+
             Text(viewModel.title)
                 .font(Font.system(size: 36, weight: .bold, design: .default))
                 .padding(.horizontal, 16)
                 .animation(nil)
-            
+
             if let subtitle = viewModel.tokenSubtitle {
                 Text(subtitle)
                     .font(.system(size: 14, weight: .regular, design: .default))
@@ -87,31 +87,31 @@ struct TokenDetailsView: View {
                     .padding(.horizontal, 16)
                     .animation(nil)
             }
-            
+
             GeometryReader { geometry in
                 RefreshableScrollView(onRefresh: { viewModel.onRefresh($0) }) {
                     VStack(spacing: 8.0) {
                         ForEach(self.pendingTransactionViews) { $0 }
-                        
+
                         if let walletModel = viewModel.walletModel {
                             BalanceAddressView(walletModel: walletModel,
                                                amountType: viewModel.amountType,
                                                isRefreshing: viewModel.isRefreshing,
                                                showExplorerURL: $viewModel.showExplorerURL)
                         }
-                        
+
                         bottomButtons
                             .padding(.top, 16)
-                        
-                        
+
+
                         if let sendBlockedReason = viewModel.sendBlockedReason {
                             AlertCardView(title: "", message: sendBlockedReason)
                         }
-                        
+
                         if let unsupportedTokenWarning = viewModel.unsupportedTokenWarning {
                             AlertCardView(title: "common_warning".localized, message: unsupportedTokenWarning)
                         }
-                        
+
                         if let solanaRentWarning = viewModel.solanaRentWarning {
                             AlertCardView(title: "common_warning".localized, message: solanaRentWarning)
                         }
@@ -139,7 +139,7 @@ struct TokenDetailsView: View {
         //            }
         .alert(item: $viewModel.alert) { $0.alert }
     }
-    
+
     private var trailingButton: some View {
         Button(action: viewModel.onRemove) {
             Text("wallet_hide_token")
