@@ -12,6 +12,7 @@ import Combine
 class TokenDetailsViewModel: ObservableObject {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
+    @Injected(\.geoIpService) private var geoIpService: GeoIpService
     
     @Published var alert: AlertBinder? = nil
     @Published var showTradeSheet: Bool = false
@@ -395,6 +396,18 @@ extension TokenDetailsViewModel {
         guard let model = walletModel else { return }
         
         testnetBuyCrypto.buyCrypto(.erc20Token(walletManager: model.walletManager, token: token))
+    }
+    
+    func openBuyCryptoIfPossible() {
+        if geoIpService.regionCode == "ru" {
+            coordinator.openBankWarning {
+                self.openBuyCrypto()
+            } declineCallback: {
+                self.coordinator.openP2PTutorial()
+            }
+        } else {
+            openBuyCrypto()
+        }
     }
     
     func openPushTx(for index: Int) {
