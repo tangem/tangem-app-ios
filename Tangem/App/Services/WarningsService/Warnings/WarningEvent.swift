@@ -14,21 +14,21 @@ enum WarningEvent: String, Decodable {
     case rateApp
     case failedToValidateCard
     case testnetCard
-    
+
     var locationsToDisplay: Set<WarningsLocation> {
         switch self {
         case .numberOfSignedHashesIncorrect, .rateApp, .failedToValidateCard, .multiWalletSignedHashes: return [.main]
         case .testnetCard: return [.main, .send]
         }
     }
-    
+
     var canBeDismissed: Bool {
         switch self {
         case .numberOfSignedHashesIncorrect, .failedToValidateCard, .multiWalletSignedHashes, .testnetCard: return false
         case .rateApp: return true
         }
     }
-    
+
     var buttons: [WarningButton] {
         switch self {
         case .numberOfSignedHashesIncorrect: return [.okGotIt]
@@ -37,7 +37,7 @@ enum WarningEvent: String, Decodable {
         case .failedToValidateCard, .testnetCard: return []
         }
     }
-    
+
 }
 
 enum WarningButton: String, Identifiable {
@@ -46,9 +46,9 @@ enum WarningButton: String, Identifiable {
     case reportProblem
     case dismiss
     case learnMore
-    
+
     var id: String { rawValue }
-    
+
     var buttonTitle: String {
         switch self {
         case .okGotIt: return "warning_button_ok".localized
@@ -58,5 +58,5 @@ enum WarningButton: String, Identifiable {
         case .dismiss: return ""
         }
     }
-    
+
 }
