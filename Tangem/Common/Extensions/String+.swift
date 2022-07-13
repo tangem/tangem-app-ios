@@ -12,23 +12,23 @@ extension String {
     var localized: String {
         return NSLocalizedString(self, comment: "")
     }
-    
+
     func localized(_ arguments: [CVarArg]) -> String {
         return String(format: localized, arguments: arguments)
     }
-    
+
     func localized(_ arguments: CVarArg) -> String {
         return String(format: localized, arguments)
     }
-    
+
     func removeLatestSlash() -> String {
         if self.last == "/" {
             return String(self.dropLast())
         }
-        
+
         return self
     }
-    
+
     func capitalizingFirstLetter() -> String {
         return prefix(1).capitalized + dropFirst()
     }
@@ -36,17 +36,17 @@ extension String {
     mutating func capitalizeFirstLetter() {
         self = self.capitalizingFirstLetter()
     }
-    
+
     func remove(contentsOf strings: [String]) -> String {
         strings.reduce(into: self, {
             $0 = $0.remove($1)
         })
     }
-    
+
     func trimmed() -> String {
         self.trimmingCharacters(in: .whitespacesAndNewlines)
     }
-    
+
 }
 
 extension StringProtocol {
