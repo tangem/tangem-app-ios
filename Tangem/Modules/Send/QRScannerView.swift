@@ -18,9 +18,9 @@ struct QRScanViewModel: Identifiable {
 
 struct QRScanView: View {
     let viewModel: QRScanViewModel
-    
+
     @Environment(\.presentationMode) var presentationMode
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Button("common_done") {
@@ -34,7 +34,7 @@ struct QRScanView: View {
 
 struct QRScanView_Previews: PreviewProvider {
     @State static var code: String = ""
-    
+
     static var previews: some View {
         QRScanView(viewModel: .init(code: $code))
     }
@@ -43,48 +43,48 @@ struct QRScanView_Previews: PreviewProvider {
 struct QRScannerView: UIViewRepresentable {
     @Binding var code: String
     @Environment(\.presentationMode) var presentationMode
-    
+
     func makeUIView(context: Context) -> UIQRScannerView {
         let view = UIQRScannerView()
         view.delegate = context.coordinator
         return view
     }
-    
+
     func updateUIView(_ uiView: UIQRScannerView, context: Context) {
-        
+
     }
-    
+
     func makeCoordinator() -> Coordinator {
         Coordinator(code: $code, presentationMode: presentationMode)
     }
-    
+
     class Coordinator: NSObject, QRScannerViewDelegate {
         @Binding var code: String
         @Binding var presentationMode: PresentationMode
-        
+
         init(code: Binding<String>, presentationMode: Binding<PresentationMode>) {
             self._code = code
             self._presentationMode = presentationMode
         }
-        
+
         func qrScanningDidFail() {
             DispatchQueue.main.async {
                 self.presentationMode.dismiss()
             }
         }
-        
+
         func qrScanningSucceededWithCode(_ str: String?) {
             if let str = str {
                 self.code = str
             }
-            
+
             DispatchQueue.main.async {
                 self.presentationMode.dismiss()
             }
         }
-        
+
         func qrScanningDidStop() {
-            
+
         }
     }
 }
@@ -98,9 +98,9 @@ protocol QRScannerViewDelegate: AnyObject {
 }
 
 class UIQRScannerView: UIView {
-    
+
     weak var delegate: QRScannerViewDelegate?
-    
+
     /// capture settion which allows us to start and stop scanning.
     var captureSession: AVCaptureSession?
     private var feedbackGenerator: UINotificationFeedbackGenerator? = nil
@@ -113,7 +113,7 @@ class UIQRScannerView: UIView {
         super.init(frame: frame)
         doInitialSetup()
     }
-    
+
     // MARK: overriding the layerClass to return `AVCaptureVideoPreviewLayer`.
     override class var layerClass: AnyClass  {
         return AVCaptureVideoPreviewLayer.self
@@ -127,23 +127,23 @@ extension UIQRScannerView {
     var isRunning: Bool {
         return captureSession?.isRunning ?? false
     }
-    
+
     func startScanning() {
         feedbackGenerator?.prepare()
         captureSession?.startRunning()
     }
-    
+
     func stopScanning() {
         captureSession?.stopRunning()
         delegate?.qrScanningDidStop()
     }
-    
+
     /// Does the initial setup for captureSession
     private func doInitialSetup() {
         clipsToBounds = true
         captureSession = AVCaptureSession()
         feedbackGenerator = UINotificationFeedbackGenerator()
-        
+
         if AVCaptureDevice.authorizationStatus(for: .video) == .authorized {
             initVideo()
         } else {
@@ -158,7 +158,7 @@ extension UIQRScannerView {
             })
         }
     }
-    
+
     private func initVideo() {
         guard let videoCaptureDevice = AVCaptureDevice.default(for: .video) else { return }
         let videoInput: AVCaptureDeviceInput
@@ -168,45 +168,45 @@ extension UIQRScannerView {
             print(error)
             return
         }
-        
+
         if (captureSession?.canAddInput(videoInput) ?? false) {
             captureSession?.addInput(videoInput)
         } else {
             scanningDidFail()
             return
         }
-        
+
         let metadataOutput = AVCaptureMetadataOutput()
-        
+
         if (captureSession?.canAddOutput(metadataOutput) ?? false) {
             captureSession?.addOutput(metadataOutput)
-            
+
             metadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
             metadataOutput.metadataObjectTypes = [.qr]
         } else {
             scanningDidFail()
             return
         }
-        
+
         self.layer.session = captureSession
         self.layer.videoGravity = .resizeAspectFill
-        
+
         captureSession?.startRunning()
     }
-    
+
     func scanningDidFail() {
         feedbackGenerator?.notificationOccurred(.error)
         delegate?.qrScanningDidFail()
         captureSession = nil
         feedbackGenerator = nil
     }
-    
+
     func found(code: String) {
         feedbackGenerator?.notificationOccurred(.success)
         delegate?.qrScanningSucceededWithCode(code)
         feedbackGenerator = nil
     }
-    
+
 }
 
 extension UIQRScannerView: AVCaptureMetadataOutputObjectsDelegate {
@@ -214,7 +214,7 @@ extension UIQRScannerView: AVCaptureMetadataOutputObjectsDelegate {
                         didOutput metadataObjects: [AVMetadataObject],
                         from connection: AVCaptureConnection) {
         stopScanning()
-        
+
         if let metadataObject = metadataObjects.first {
             guard let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject else { return }
             guard let stringValue = readableObject.stringValue else { return }
@@ -222,5 +222,5 @@ extension UIQRScannerView: AVCaptureMetadataOutputObjectsDelegate {
             found(code: stringValue)
         }
     }
-    
+
 }

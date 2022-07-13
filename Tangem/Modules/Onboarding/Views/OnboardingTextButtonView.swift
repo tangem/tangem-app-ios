@@ -15,17 +15,17 @@ struct TangemButtonSettings {
     let isBusy: Bool
     var isEnabled: Bool
     let isVisible: Bool
-    
+
     var color: ButtonColorStyle = .green
     var customIconName: String = ""
     var systemIconName: String = ""
     var iconPosition: TangemButton.IconPosition = .trailing
-    
+
 }
 
 struct OnboardingBottomButtonsSettings {
     let main: TangemButtonSettings
-    
+
     var supplement: TangemButtonSettings? = nil
 }
 
@@ -37,7 +37,7 @@ struct ButtonsSettings {
     var mainColor: ButtonColorStyle = .green
     var mainButtonSystemIconName: String = ""
     let isMainEnabled: Bool
-    
+
     let supplementTitle: LocalizedStringKey
     let supplementSize: ButtonLayout
     let supplementAction: (() -> Void)?
@@ -47,7 +47,7 @@ struct ButtonsSettings {
 }
 
 struct OnboardingTextButtonView: View {
-    
+
     let title: LocalizedStringKey
     let subtitle: LocalizedStringKey
     var textOffset: CGSize = .zero
@@ -56,7 +56,7 @@ struct OnboardingTextButtonView: View {
     let titleAction: (() -> Void)?
     var checkmarkText: LocalizedStringKey? = nil
     var isCheckmarkChecked: Binding<Bool> = .constant(false)
-    
+
     @ViewBuilder
     var buttons: some View {
         VStack(spacing: 10) {
@@ -72,7 +72,7 @@ struct OnboardingTextButtonView: View {
                                            layout: mainSettings.size,
                                            isDisabled: !mainSettings.isEnabled,
                                            isLoading: mainSettings.isBusy))
-            
+
             if let settings = buttonsSettings.supplement {
 //            if buttonsSettings.containSupplementButton {
                 TangemButton(title: settings.title) {
@@ -85,7 +85,7 @@ struct OnboardingTextButtonView: View {
             }
         }
     }
-    
+
     var body: some View {
         VStack(spacing: 0) {
             OnboardingMessagesView(title: title,
@@ -94,9 +94,9 @@ struct OnboardingTextButtonView: View {
             }
             .frame(alignment: .top)
             .offset(textOffset)
-            
+
             Spacer()
-            
+
             if let checkmarkText = self.checkmarkText {
                 HStack {
                     CheckmarkSwitch(isChecked: isCheckmarkChecked,
@@ -109,22 +109,22 @@ struct OnboardingTextButtonView: View {
                             }
                         }
                 }
-                
+
                 Spacer()
             }
-            
+
             buttons
                 .padding(.bottom, buttonsSettings.supplement != nil ? 16 : 20)
-                
+
         }
         .frame(maxHeight: 304)
     }
-    
+
 }
 
 struct OnboardingTextButtonView_Previews: PreviewProvider {
     @State static var isChecked: Bool = false
-    
+
     static var previews: some View {
         OnboardingTextButtonView(
             title: "Create wallet",

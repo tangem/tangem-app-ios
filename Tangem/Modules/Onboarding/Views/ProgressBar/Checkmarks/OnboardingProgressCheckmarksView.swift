@@ -10,15 +10,15 @@ import SwiftUI
 import Combine
 
 struct OnboardingProgressCheckmarksView: View {
-    
+
     var numberOfSteps: Int
     var currentStep: Published<Int>.Publisher
-    
+
     var checkmarksDiameter: CGFloat = 17
     var progressBarHeight: CGFloat = 3
     private let animDuration: TimeInterval = 0.3
     private let outerCircleDiameter: CGFloat = 31
-    
+
     @State private var currentProgress: CGFloat = 0
     @State private var animatedSelectedIndex: Int = 0
     @State private var containerSize: CGSize = .zero
@@ -26,7 +26,7 @@ struct OnboardingProgressCheckmarksView: View {
     @State private var selectionBackOffset: CGFloat = 0
     @State private var selectionIndex: Int = 0
     @State private var initialized: Bool = false
-    
+
     var body: some View {
         VStack {
             ZStack(alignment: .leading) {
@@ -68,14 +68,14 @@ struct OnboardingProgressCheckmarksView: View {
             updateState(to: newStep, animated: initialized)
         })
     }
-    
+
     private func animateSelection(at index: Int, animated: Bool) {
         withAnimation(.linear(duration: animated ? animDuration / 2 : 0)) {
             selectionBackScale = 0.01
         }
         selectionIndex = index
     }
-    
+
     private func updateState(to index: Int, animated: Bool) {
         withAnimation(.linear(duration: animated ? animDuration : 0)) {
             currentProgress = min(1.0, CGFloat(index) / CGFloat(numberOfSteps - 1))
@@ -84,21 +84,21 @@ struct OnboardingProgressCheckmarksView: View {
             animatedSelectedIndex = index
         }
     }
-    
+
     private func calculateCircleOffset(for index: Int) -> CGFloat {
         numberOfSteps <= 1 ?
             containerSize.width / 2 :
             (CGFloat(index) * (containerSize.width - checkmarksDiameter) / CGFloat(numberOfSteps - 1))
     }
-    
+
 }
 
 fileprivate class Provider: ObservableObject {
-    
+
     @Published var currentStep: Int = 10
-    
+
     var numberOfSteps: Int { 6 }
-    
+
     func goToNextStep() {
         var nextStep = currentStep + 1
         if nextStep > numberOfSteps {
@@ -106,13 +106,13 @@ fileprivate class Provider: ObservableObject {
         }
         currentStep = nextStep
     }
-    
+
 }
 
 struct OnboardingProgressCheckmarksPreview: View {
-    
+
     @ObservedObject fileprivate var model: Provider
-    
+
     var body: some View {
         VStack {
             OnboardingProgressCheckmarksView(numberOfSteps: model.numberOfSteps,
@@ -126,7 +126,7 @@ struct OnboardingProgressCheckmarksPreview: View {
             })
         }
     }
-    
+
 }
 
 struct OnboardingProgressCheckmarksView_Previews: PreviewProvider {

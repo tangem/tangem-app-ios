@@ -13,12 +13,12 @@ struct AweStoryPage: View {
     let isScanning: Bool
     let scanCard: (() -> Void)
     let orderCard: (() -> Void)
-    
+
     var body: some View {
         VStack {
             StoriesTangemLogo()
                 .padding()
-            
+
             VStack(spacing: 12) {
                 Text("story_awe_title")
                     .font(.system(size: 36, weight: .semibold))
@@ -27,7 +27,7 @@ struct AweStoryPage: View {
                     .foregroundColor(.white)
                     .padding(.horizontal)
                     .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .minorDelay)
-                
+
                 Text("story_awe_description")
                     .font(.system(size: 24))
                     .multilineTextAlignment(.center)
@@ -36,9 +36,9 @@ struct AweStoryPage: View {
                     .storyTextAppearanceModifier(progress: progress, type: .description, textBlockAppearance: .minorDelay)
             }
             .fixedSize(horizontal: false, vertical: true)
-            
+
             Spacer()
-            
+
             Image("coin_shower")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
@@ -57,7 +57,7 @@ struct AweStoryPage: View {
                     fastMovementEnd: 0.15,
                     slowMovementSpeedCoefficient: 0.15
                 )
-            
+
             StoriesBottomButtons(scanColorStyle: .black, orderColorStyle: .grayAlt, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
                 .padding(.horizontal)
                 .padding(.bottom)

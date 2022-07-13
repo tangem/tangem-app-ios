@@ -13,15 +13,15 @@ struct Web3StoryPage: View {
     let isScanning: Bool
     let scanCard: (() -> Void)
     let orderCard: (() -> Void)
-    
+
     private let numberOfRows = 6
     private let numberOfRowImages = 6
-    
+
     var body: some View {
         VStack {
             StoriesTangemLogo()
                 .padding()
-            
+
             VStack(spacing: 16) {
                 Text("story_web3_title")
                     .font(.system(size: 36, weight: .semibold))
@@ -29,7 +29,7 @@ struct Web3StoryPage: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
                     .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .almostImmediate)
-                
+
                 Text("story_web3_description")
                     .font(.system(size: 20))
                     .multilineTextAlignment(.center)
@@ -38,7 +38,7 @@ struct Web3StoryPage: View {
                     .storyTextAppearanceModifier(progress: progress, type: .description, textBlockAppearance: .almostImmediate)
             }
             .fixedSize(horizontal: false, vertical: true)
-            
+
             Color.clear
                 .background(
                     VStack {
@@ -66,7 +66,7 @@ struct Web3StoryPage: View {
                         }
                     }
                 )
-            
+
             StoriesBottomButtons(scanColorStyle: .grayAlt2, orderColorStyle: .black, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
                 .padding(.horizontal)
                 .padding(.bottom)

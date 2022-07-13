@@ -9,12 +9,12 @@
 import SwiftUI
 
 struct OnboardingProgressIconView: View {
-    
+
     var steps: [SingleCardOnboardingStep]
     var currentStep: Int
-    
+
     private let animDuration: TimeInterval = 0.3
-    
+
     var body: some View {
         HStack {
             ForEach(0 ..< steps.count) { stepIndex in
@@ -35,10 +35,10 @@ struct OnboardingProgressIconView: View {
                     }
                 }
             }
-            
+
         }
     }
-    
+
     func stepState(for index: Int) -> OnboardingStepIconView.State {
         if currentStep == index {
             return .current
@@ -51,14 +51,14 @@ struct OnboardingProgressIconView: View {
 }
 
 struct OnboardingProgressIconView_Previews: PreviewProvider {
-    
+
     static var previews: some View {
         VStack {
             OnboardingProgressIconView(steps: [.createWallet, .topup], currentStep: 1)
             OnboardingProgressIconView(steps: [.createWallet], currentStep: 0)
             OnboardingProgressIconView(steps: [.topup], currentStep: 0)
         }
-        
+
     }
-    
+
 }

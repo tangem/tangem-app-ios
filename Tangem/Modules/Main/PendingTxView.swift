@@ -11,15 +11,15 @@ import SwiftUI
 
 
 struct PendingTxView: View, Identifiable {
-    
+
     var id: Int { pendingTx.id }
     let pendingTx: PendingTransaction
     var pushAction: (() -> Void)? = nil
-    
+
     var address: String {
         pendingTx.destination
     }
-    
+
     var titlePrefixLocalized: String {
         switch pendingTx.direction {
         case .outgoing:
@@ -28,7 +28,7 @@ struct PendingTxView: View, Identifiable {
             return "wallet_pending_tx_receiving".localized
         }
     }
-    
+
     var titleFormat: String {
         switch pendingTx.direction {
         case .outgoing:
@@ -37,7 +37,7 @@ struct PendingTxView: View, Identifiable {
             return "wallet_pending_tx_receiving_address_format".localized
         }
     }
-    
+
     var text: String {
         if address == "unknown" {
             return "wallet_balance_tx_in_progress".localized
@@ -45,7 +45,7 @@ struct PendingTxView: View, Identifiable {
             return titlePrefixLocalized + " " + pendingTx.transferAmount + " " + String(format: titleFormat, AddressFormatter(address: address).truncated())
         }
     }
-    
+
     var body: some View {
         VStack(alignment: .leading) {
             HStack(spacing: 0) {
@@ -58,14 +58,14 @@ struct PendingTxView: View, Identifiable {
                         .frame(width: 12.0, height: 12.0)
                         .padding(.trailing, 8)
                 }
-                
+
                 Text(text)
                     .font(Font.system(size: 13.0, weight: .medium, design: .default))
                     .foregroundColor(Color.tangemGrayDark6)
                     .lineLimit(1)
-                
+
                 Spacer(minLength: 0)
-                
+
                 if pendingTx.canBePushed {
                     RoundedRectButton(action: {
                         pushAction?()
@@ -90,7 +90,7 @@ struct PendingTxView_Previews: PreviewProvider {
                 PendingTxView(pendingTx: PendingTransaction(amountType: .coin, destination: "0x2314719083467891237649123675478612354", transferAmount: "0.2 BTC", canBePushed: true, direction: .outgoing))
             }
             .padding(.horizontal, 16)
-            
+
         }
     }
 }
