@@ -13,7 +13,7 @@ import BlockchainSdk
 
 struct TokenBalanceView: View {
     var tokenViewModel: TokenBalanceViewModel
-    
+
     var body: some View {
         VStack {
             HStack {
@@ -40,23 +40,23 @@ struct TokenBalanceView: View {
 struct BalanceView: View {
     var balanceViewModel: BalanceViewModel
     var tokenViewModels: [TokenBalanceViewModel]
-    
+
     var blockchainText: String {
         if balanceViewModel.state.isLoading {
             return  "wallet_balance_loading".localized
         }
-        
+
         if balanceViewModel.state.errorDescription != nil {
             return "wallet_balance_blockchain_unreachable".localized
         }
-        
+
         if balanceViewModel.hasTransactionInProgress {
             return  "wallet_balance_tx_in_progress".localized
         }
-        
+
         return "wallet_balance_verified".localized
     }
-    
+
     var accentColor: Color {
         if balanceViewModel.state.errorDescription == nil
             && !balanceViewModel.hasTransactionInProgress
@@ -65,10 +65,10 @@ struct BalanceView: View {
         }
         return .tangemWarning
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            
+
             Color.clear.frame(height: 16)
 
             HStack {
@@ -85,8 +85,8 @@ struct BalanceView: View {
             .padding(.horizontal, 24.0)
             .padding(.bottom, 8)
             .fixedSize(horizontal: false, vertical: true)
-            
-            
+
+
             HStack(alignment: .firstTextBaseline, spacing: 5.0) {
                 Image(systemName: balanceViewModel.state.errorDescription == nil && !balanceViewModel.hasTransactionInProgress ? "checkmark.circle" : "exclamationmark.circle")
                     .resizable()
@@ -115,8 +115,8 @@ struct BalanceView: View {
             }
             .padding(.bottom, 16.0)
             .padding(.horizontal, 24.0)
-            
-            
+
+
             if balanceViewModel.isToken {
                 Color.tangemGrayLight5
                     .frame(width: nil, height: 1.0, alignment: .center)
@@ -138,10 +138,10 @@ struct BalanceView: View {
                             .lineLimit(1)
                             .foregroundColor(Color.tangemGrayDark)
                     }
-                    
+
                 }
                 .padding(.horizontal, 24.0)
-                
+
                 Color.clear.frame(height: 16)
             } else if !tokenViewModels.isEmpty {
                 VStack(spacing: 8) {
@@ -159,13 +159,13 @@ struct BalanceView: View {
 }
 
 struct BalanceView_Previews: PreviewProvider {
-    
+
     static let tokens = [
         TokenBalanceViewModel(token: Token(name: "SushiSwap", symbol: "SUSHI", contractAddress: "", decimalCount: 18),
                               balance: "163.7425436",
                               fiatBalance: "$ 2241.31"),
     ]
-    
+
     static var previews: some View {
         ZStack {
             Color.tangemBgGray
@@ -180,7 +180,7 @@ struct BalanceView_Previews: PreviewProvider {
                                                                secondaryName: ""),
                             tokenViewModels: tokens)
                     .padding(.horizontal, 16)
-                
+
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: false,
                                                                hasTransactionInProgress: false,
                                                                state: .loading,
@@ -191,7 +191,7 @@ struct BalanceView_Previews: PreviewProvider {
                                                                secondaryName: ""),
                             tokenViewModels: tokens)
                     .padding(.horizontal, 16)
-                
+
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: true,
                                                                hasTransactionInProgress: false,
                                                                state: .failed(error: "The internet connection appears to be offline. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description"),
@@ -203,7 +203,7 @@ struct BalanceView_Previews: PreviewProvider {
                                                                secondaryName: "Bitcoin"),
                             tokenViewModels: tokens)
                     .padding(.horizontal, 16)
-                
+
                 BalanceView(balanceViewModel: BalanceViewModel(isToken: true,
                                                                hasTransactionInProgress: true,
                                                                state: .idle,
