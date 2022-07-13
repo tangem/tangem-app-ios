@@ -16,7 +16,7 @@ struct FanStackCalculatorSettings {
     let cardOffsetStep: CGSize
     let scaleStep: CGFloat
     let numberOfCards: Int
-    
+
     static var defaultSettings: FanStackCalculatorSettings {
         .init(cardsSize: .init(width: 315, height: 198),
               topCardRotation: 3,
@@ -29,34 +29,34 @@ struct FanStackCalculatorSettings {
 }
 
 struct FanStackCalculator {
-    
+
     private let maxZIndex: Double = 100
-    
+
     private var containerSize: CGSize = .zero
     private var cardsSettings: [CardAnimSettings] = []
     private var settings: FanStackCalculatorSettings = .defaultSettings
-    
+
     func settingsForCard(at index: Int) -> CardAnimSettings {
         guard index < cardsSettings.count, index >= 0 else {
             return .zero
         }
-        
+
         return cardsSettings[index]
     }
-    
+
     mutating func setup(for container: CGSize, with settings: FanStackCalculatorSettings) {
         containerSize = container
         self.settings = settings
         populateSettings()
     }
-    
+
     mutating private func populateSettings() {
         cardsSettings = []
         for i in 0 ..< settings.numberOfCards {
             cardsSettings.append(cardInStackSettings(at: i))
         }
     }
-    
+
     private func cardInStackSettings(at index: Int) -> CardAnimSettings {
         let floatIndex = CGFloat(index)
         let doubleIndex = Double(index)
@@ -65,7 +65,7 @@ struct FanStackCalculator {
         let rotation: Double = settings.topCardRotation + settings.cardRotationStep * doubleIndex
         let scale = settings.scaleStep * floatIndex
         let zIndex: Double = maxZIndex - doubleIndex
-        
+
         return .init(frame: settings.cardsSize,
                      offset: .init(width: widthOffset, height: heightOffset),
                      scale: 1.0 - scale,
@@ -75,18 +75,18 @@ struct FanStackCalculator {
                      animType: .linear,
                      animDuration: 0.3)
     }
-    
+
 }
 
 class FanStackPreviewModel: ObservableObject {
-    
+
     @Published var firstSettings: AnimatedViewSettings = .zero
     @Published var secondSettings: AnimatedViewSettings = .zero
     @Published var thirdSettings: AnimatedViewSettings = .zero
     @Published var fourthSettings: AnimatedViewSettings = .zero
-    
+
     var calc = FanStackCalculator()
-    
+
     func setupContainer(with size: CGSize) {
         calc.setup(for: size,
                    with: .defaultSettings)
@@ -95,15 +95,15 @@ class FanStackPreviewModel: ObservableObject {
         thirdSettings = .init(targetSettings: calc.settingsForCard(at: 2), intermediateSettings: nil)
         fourthSettings = .init(targetSettings: calc.settingsForCard(at: 3), intermediateSettings: nil)
     }
-    
+
 }
 
 struct FanStackView: View {
-    
+
     @ObservedObject var model: FanStackPreviewModel = .init()
-    
+
     private let image = UIImage(named: "wallet_card")!
-    
+
     var body: some View {
         VStack {
             GeometryReader { geom in
@@ -113,14 +113,14 @@ struct FanStackView: View {
                                            cardImage: image,
                                            cardScanned: true)
                     }
-                    
+
                     AnimatedView(settings: model.$secondSettings) {
                         OnboardingCardView(placeholderCardType: .dark,
                                            cardImage: image,
                                            cardScanned: true)
                             .opacity(0.2)
                     }
-                    
+
                     AnimatedView(settings: model.$thirdSettings) {
                         OnboardingCardView(placeholderCardType: .dark,
                                            cardImage: image,
@@ -143,13 +143,13 @@ struct FanStackView: View {
                 .frame(size: .init(width: 100, height: 297))
         }
     }
-    
+
 }
 
 struct FanStackView_Previews: PreviewProvider {
-    
+
     static var previews: some View {
         FanStackView()
     }
-    
+
 }
