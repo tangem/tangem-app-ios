@@ -9,26 +9,26 @@
 import SwiftUI
 
 struct OnboardingStepIconView: View {
-    
+
     enum State {
         case passed
         case current
         case future
-        
+
         var checkmarkVisible: Bool {
             switch self {
             case .passed: return true
             default: return false
             }
         }
-        
+
         var iconColor: Color {
             switch self {
             case .passed, .current: return .white
             case .future: return .tangemGrayDark
             }
         }
-        
+
         var backgroundColor: Color {
             switch self {
             case .passed, .current: return .tangemGreen
@@ -36,18 +36,18 @@ struct OnboardingStepIconView: View {
             }
         }
     }
-    
+
     var image: Image
     var state: State
-    
+
     var imageFont: Font = .system(size: 25, weight: .bold, design: .default)
     var circleSize: CGSize = .init(width: 50, height: 50)
     var checkmarkSize: CGSize = .init(width: 17, height: 17)
-    
+
     private var smallCircleSize: CGSize {
         .init(width: circleSize.width - 4, height: circleSize.height - 4)
     }
-    
+
     var body: some View {
         ZStack(alignment: .center) {
             Circle()
@@ -82,6 +82,6 @@ struct OnboardingStepIconView_Previews: PreviewProvider {
             OnboardingStepIconView(image: Image("onboarding.topup"), state: .passed)
             OnboardingStepIconView(image: Image("onboarding.topup"), state: .future)
         }
-        
+
     }
 }
