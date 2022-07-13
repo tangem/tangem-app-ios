@@ -13,26 +13,26 @@ import TangemSdk
 class ListDataLoader {
     // MARK: Dependencies
     @Injected(\.coinsService) var coinsService: CoinsService
-    
+
     // MARK: Output
     @Published var items: [CoinModel] = []
-    
+
     // Tells if all items have been loaded. (Used to hide/show activity spinner)
     private(set) var canFetchMore = true
-    
+
     // MARK: Input
     private let cardInfo: CardInfo?
-    
+
     // MARK: Private
-    
+
     // Tracks last page loaded. Used to load next page (current + 1)
     private var currentPage = 0
-    
+
     // Limit of records per page
     private let perPage = 50
-    
+
     private var cancellable: AnyCancellable?
-    
+
     private var cached: [CoinModel] = []
     private var cachedSearch: [String: [CoinModel]] = [:]
     private var lastSearchText = ""
@@ -45,11 +45,11 @@ class ListDataLoader {
     private var isTestnet: Bool {
         cardInfo?.isTestnet ?? false
     }
-    
+
     init(cardInfo: CardInfo?) {
         self.cardInfo = cardInfo
     }
-    
+
     func reset(_ searchText: String) {
         self.canFetchMore = true
         self.items = []
@@ -57,19 +57,19 @@ class ListDataLoader {
         self.lastSearchText = searchText
         self.cachedSearch = [:]
     }
-    
+
     func fetch(_ searchText: String) {
         cancellable = nil
-        
+
         if lastSearchText != searchText {
             reset(searchText)
         }
-     
+
         cancellable = loadItems(searchText)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] items in
                 guard let self = self else { return }
-                
+
                 self.currentPage += 1
                 self.items.append(contentsOf: items)
                 // If count of data received is less than perPage value then it is last page.
@@ -88,36 +88,36 @@ private extension ListDataLoader {
         if isTestnet {
             return loadTestnetItems(searchText)
         }
-    
+
         return loadMainnetItems(searchText)
     }
-    
+
     func loadTestnetItems(_ searchText: String) -> AnyPublisher<[CoinModel], Never> {
         let searchText = searchText.lowercased()
         let itemsPublisher: AnyPublisher<[CoinModel], Never>
-        
+
         if cached.isEmpty {
             itemsPublisher = loadCoinsFromLocalJsonPublisher()
         } else {
             itemsPublisher = Just(cached).eraseToAnyPublisher()
         }
-        
+
         return itemsPublisher
             .map { [weak self] models -> [CoinModel] in
                 guard let self = self else { return [] }
-                
+
                 if searchText.isEmpty { return models }
-                
+
                 if let cachedSearch = self.cachedSearch[searchText] {
                     return cachedSearch
                 }
-             
+
                 let foundItems = models.filter {
                     "\($0.name) \($0.symbol)".lowercased().contains(searchText)
                 }
-                
+
                 self.cachedSearch[searchText] = foundItems
-                
+
                 return foundItems
             }
             .map { [weak self] models -> [CoinModel] in
@@ -139,12 +139,12 @@ private extension ListDataLoader {
             offset: items.count,
             active: true
         )
-        
+
         return coinsService.loadCoins(requestModel: requestModel)
             .replaceError(with: [])
             .eraseToAnyPublisher()
     }
-    
+
     func loadCoinsFromLocalJsonPublisher() -> AnyPublisher<[CoinModel], Never> {
         SupportedTokenItems().loadTestnetCoins(supportedCurves: walletCurves)
             .handleEvents(receiveOutput: { [weak self] output in
@@ -153,7 +153,7 @@ private extension ListDataLoader {
             .replaceError(with: [])
             .eraseToAnyPublisher()
     }
-    
+
     func getPage(for items: [CoinModel]) -> [CoinModel] {
         Array(items.dropFirst(currentPage * perPage).prefix(perPage))
     }

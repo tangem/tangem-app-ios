@@ -10,12 +10,12 @@ import SwiftUI
 
 struct SingleCardOnboardingView: View {
     @ObservedObject var viewModel: SingleCardOnboardingViewModel
-    
+
     private let horizontalPadding: CGFloat = 16
     private let screenSize: CGSize = UIScreen.main.bounds.size
-    
+
     var currentStep: SingleCardOnboardingStep { viewModel.currentStep }
-    
+
     private var isTopItemsVisible: Bool {
         viewModel.isNavBarVisible
     }
@@ -30,7 +30,7 @@ struct SingleCardOnboardingView: View {
                 GeometryReader { proxy in
                     let size = proxy.size
                     ZStack(alignment: .center) {
-                        
+
                         NavigationBar(title: "onboarding_navbar_activating_card",
                                       settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear),
                                       leftButtons: {
@@ -44,15 +44,15 @@ struct SingleCardOnboardingView: View {
                                       .frame(size: viewModel.navbarSize)
                                       .offset(x: 0, y: -size.height / 2 + (isTopItemsVisible ? viewModel.navbarSize.height / 2 : 0))
                                       .opacity(isTopItemsVisible ? 1.0 : 0.0)
-                        
+
                         ProgressBar(height: 5, currentProgress: viewModel.currentProgress)
                             .offset(x: 0, y: -size.height / 2 + (isTopItemsVisible ? viewModel.navbarSize.height + 10 : 0))
                             .opacity(isTopItemsVisible ? 1.0 : 0.0)
                             .padding(.horizontal, horizontalPadding)
-                        
+
                         let backgroundFrame = viewModel.isInitialAnimPlayed ? currentStep.cardBackgroundFrame(containerSize: size) : .zero
                         let backgroundOffset = viewModel.isInitialAnimPlayed ? currentStep.cardBackgroundOffset(containerSize: size) : .zero
-                        
+
                         AnimatedView(settings: viewModel.$supplementCardSettings) {
                             OnboardingCardView(placeholderCardType: .light,
                                                cardImage: nil,
@@ -63,7 +63,7 @@ struct SingleCardOnboardingView: View {
                                                cardImage: viewModel.cardImage,
                                                cardScanned: viewModel.isInitialAnimPlayed && viewModel.isCardScanned)
                         }
-                        
+
                         OnboardingTopupBalanceView(
                             backgroundFrameSize: backgroundFrame,
                             cornerSize: currentStep.cardBackgroundCornerRadius(containerSize: size),
@@ -78,7 +78,7 @@ struct SingleCardOnboardingView: View {
                             refreshButtonSize: .medium,
                             refreshButtonOpacity: currentStep.balanceStackOpacity
                         )
-                        
+
                         OnboardingCircleButton(refreshAction: {},
                                                state: currentStep.successCircleState,
                                                size: .huge)
@@ -90,7 +90,7 @@ struct SingleCardOnboardingView: View {
                 .readSize { value in
                     viewModel.setupContainer(with: value)
                 }
-                
+
                 OnboardingTextButtonView(
                     title: viewModel.title,
                     subtitle: viewModel.subtitle,
@@ -118,9 +118,9 @@ struct OnboardingView_Previews: PreviewProvider {
 }
 
 struct CardOnboardingBackgroundCircle: View {
-    
+
     let scale: CGFloat
-    
+
     var body: some View {
         Circle()
             .foregroundColor(.white)
@@ -139,5 +139,5 @@ struct CardOnboardingBackgroundCircle: View {
             .scaleEffect(scale)
             .offset(x: 299, y: -228)
     }
-    
+
 }
