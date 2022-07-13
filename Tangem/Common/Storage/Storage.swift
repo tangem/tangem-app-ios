@@ -12,11 +12,11 @@ import Foundation
 struct Storage<T> {
     let key: String
     let defaultValue: T
-    
+
     let defaults: UserDefaults
-    
+
     private let appGroupName = "group.com.tangem.Tangem"
-    
+
     init(type: StorageType, defaultValue: T) {
         key = type.rawValue
         self.defaultValue = defaultValue
@@ -32,14 +32,14 @@ struct Storage<T> {
             defaults.set(newValue, forKey: key)
         }
     }
-    
+
     private func migrateFromOldDefaultsIfNeeded() {
         let migrationKey = StorageType.isMigratedToNewUserDefaults.rawValue
         if defaults.bool(forKey: migrationKey) {
             return
         }
         let standardDefaults = UserDefaults.standard
-        
+
         for key in standardDefaults.dictionaryRepresentation().keys {
             defaults.set(standardDefaults.dictionaryRepresentation()[key], forKey: key)
         }
