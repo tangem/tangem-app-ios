@@ -30,9 +30,11 @@ class MainCoordinator: CoordinatorObject {
     @Published var currencySelectViewModel: CurrencySelectViewModel? = nil
     @Published var mailViewModel: MailViewModel? = nil
     @Published var addressQrBottomSheetContentViewVodel: AddressQrBottomSheetContentViewVodel? = nil
+    @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
     
     // MARK: - Helpers
-    @Published var qrBottomSheetKeeper: Bool = false
+    @Published var bottomSheetKeeper: Bool = false
+    @Published var bottomSheetSettings: BottomSheetSettings?
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
     
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
@@ -44,8 +46,8 @@ class MainCoordinator: CoordinatorObject {
         mainViewModel = MainViewModel(cardModel: options.cardModel, coordinator: self)
     }
     
-    func hideQrBottomSheet() {
-        qrBottomSheetKeeper.toggle()
+    func hideBottomSheet() {
+        bottomSheetKeeper = false
     }
 }
 
@@ -174,6 +176,28 @@ extension MainCoordinator: MainRoutable {
     
     func openQR(shareAddress: String, address: String, qrNotice: String) {
         addressQrBottomSheetContentViewVodel = .init(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
-        qrBottomSheetKeeper = true
+        bottomSheetSettings = BottomSheet.qr
+        bottomSheetKeeper = true
+    }
+    
+    func openBankWarning(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) {
+        warningBankCardViewModel = .init(confirmCallback: {
+            confirmCallback()
+            self.hideBottomSheet()
+        }, declineCallback: {
+            declineCallback()
+            self.hideBottomSheet()
+        })
+        
+        bottomSheetSettings = BottomSheet.warning
+        bottomSheetKeeper = true
+    }
+    
+    func openP2PTutorial() {
+        modalWebViewModel = WebViewContainerViewModel(url: URL(string: "https://tangem.com/howtobuy.html")!,
+                                                      title: "",
+                                                      addLoadingIndicator: true,
+                                                      withCloseButton: false,
+                                                      urlActions: [:])
     }
 }

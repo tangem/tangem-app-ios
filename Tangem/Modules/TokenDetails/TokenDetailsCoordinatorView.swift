@@ -17,6 +17,8 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             if let model = coordinator.tokenDetailsViewModel {
                 TokenDetailsView(viewModel: model)
                     .navigationLinks(links)
+                
+                otherSheets
             }
             
             sheets
@@ -48,5 +50,22 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.modalWebViewModel) {
                 WebViewContainer(viewModel: $0)
             }
+    }
+    
+    @ViewBuilder
+    private var otherSheets: some View {
+        BottomSheetView(from: coordinator.bottomSheetSettings,
+                        isPresented: coordinator.$bottomSheetKeeper,
+                        hideBottomSheetCallback: coordinator.hideBottomSheet,
+                        content: { sheetContent })
+    }
+    
+    @ViewBuilder
+    private var sheetContent: some View {
+        if let model = coordinator.warningBankCardViewModel {
+            WarningBankCardView(viewModel: model)
+        } else {
+            EmptyView()
+        }
     }
 }
