@@ -17,9 +17,9 @@ class CoinItemViewModel: Identifiable, ObservableObject {
     var isSelected: Binding<Bool>
     let position: ItemPosition
     let isCopied: Binding<Bool>
-    
+
     @Published var selectedPublisher: Bool
-    
+
     var isMain: Bool { tokenItem.isBlockchain }
     var imageName: String { tokenItem.blockchain.iconName  }
     var imageNameSelected: String { tokenItem.blockchain.iconNameFilled }
@@ -28,9 +28,9 @@ class CoinItemViewModel: Identifiable, ObservableObject {
     var networkNameForegroundColor: Color { selectedPublisher ? .tangemGrayDark6 : Color(hex: "#848488")! }
     var contractNameForegroundColor: Color { tokenItem.isBlockchain ? .tangemGreen2 : Color(hex: "#AAAAAD")! }
     var hasContextMenu: Bool { tokenItem.isToken }
-    
+
     private var bag = Set<AnyCancellable>()
-    
+
     init(tokenItem: TokenItem, isReadonly: Bool, isSelected: Binding<Bool>, isCopied: Binding<Bool> = .constant(false), position: ItemPosition = .middle) {
         self.tokenItem = tokenItem
         self.isReadonly = isReadonly
@@ -38,7 +38,7 @@ class CoinItemViewModel: Identifiable, ObservableObject {
         self.isCopied = isCopied
         self.position = position
         self.selectedPublisher = isSelected.wrappedValue
-        
+
         $selectedPublisher
             .dropFirst()
             .sink(receiveValue: { [unowned self] value in
@@ -46,15 +46,15 @@ class CoinItemViewModel: Identifiable, ObservableObject {
             })
             .store(in: &bag)
     }
-    
+
     func updateSelection(with isSelected: Binding<Bool>) {
         self.isSelected = isSelected
         self.selectedPublisher = isSelected.wrappedValue
     }
-    
+
     func onCopy() {
         if isReadonly { return }
-        
+
         if let contractAddress = tokenItem.contractAddress {
             UIPasteboard.general.string = contractAddress
             let generator = UINotificationFeedbackGenerator()
@@ -68,7 +68,7 @@ extension CoinItemViewModel: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
-    
+
     static func == (lhs: CoinItemViewModel, rhs: CoinItemViewModel) -> Bool {
         lhs.id == rhs.id
     }
