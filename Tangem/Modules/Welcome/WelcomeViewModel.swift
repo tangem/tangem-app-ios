@@ -205,7 +205,7 @@ private extension WelcomeViewModel {
                                             welcomeStep: nil,
                                             currentStepIndex: 0,
                                             isStandalone: true)
-                
+
                 self.openInterruptedBackup(with: input)
             }
             .store(in: &bag)
