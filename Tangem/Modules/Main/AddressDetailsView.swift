@@ -15,7 +15,7 @@ struct AddressDetailView: View {
     @Binding var showExplorerURL: URL?
     var walletModel: WalletModel
     var payID: PayIdStatus
-    
+
     var showPayIdBlock: Bool {
         switch payID {
         case .notSupported:
@@ -24,7 +24,7 @@ struct AddressDetailView: View {
             return true
         }
     }
-    
+
     var isPayIdCreated: Bool {
         switch payID {
         case .created:
@@ -33,11 +33,11 @@ struct AddressDetailView: View {
             return false
         }
     }
-    
+
     var showAddressSelector: Bool {
         return walletModel.wallet.addresses.count > 1
     }
-    
+
     var payIdText: String {
         if case let .created(text) = payID {
             return text
@@ -45,17 +45,17 @@ struct AddressDetailView: View {
             return ""
         }
     }
-    
+
     var pickerViews: [Text] {
         var views = [Text]()
         for (index, address) in walletModel.wallet.addresses.enumerated() {
             let textView = Text(address.localizedName).tag(index) as! Text
             views.append(textView)
         }
-        
+
         return views
     }
-    
+
     var body: some View {
         VStack(spacing: 0.0) {
             if showAddressSelector {
@@ -70,14 +70,14 @@ struct AddressDetailView: View {
                         .lineLimit(1)
                         .truncationMode(.middle)
                         .foregroundColor(Color.tangemGrayDark)
-                    
+
                     ExploreButton(url: walletModel.exploreURL(for: selectedAddressIndex),
                                   urlBinding: $showExplorerURL)
 
                 }
-                
+
                 Spacer()
-                
+
                 CircleActionButton(action: {  UIPasteboard.general.string = walletModel.displayAddress(for: selectedAddressIndex) },
                                    backgroundColor: .tangemBgGray,
                                    imageName: "square.on.square",
@@ -86,7 +86,7 @@ struct AddressDetailView: View {
                                    withVerification: true,
                                    isDisabled: false)
                     .accessibility(label: Text("voice_over_copy_address"))
-                
+
                 CircleActionButton(action: { self.showQr = true },
                                    backgroundColor: .tangemBgGray,
                                    imageName: "qrcode",
@@ -108,7 +108,7 @@ struct AddressDetailView: View {
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 96.0, height: 19.0)
                     Spacer(minLength: 8)
-                    
+
                     if !isPayIdCreated {
                         Button(action: {
                             // self.showCreatePayID = true //[REDACTED_TODO_COMMENT]
@@ -122,7 +122,7 @@ struct AddressDetailView: View {
                                 Image(systemName: "chevron.right")
                                     .font(Font.system(size: 14.0, weight: .bold, design: .default))
                                     .foregroundColor(Color.tangemGrayDark6)
-                                
+
                             }
                         }
                     } else {
