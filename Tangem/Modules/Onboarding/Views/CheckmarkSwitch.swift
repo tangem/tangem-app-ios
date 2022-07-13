@@ -9,14 +9,14 @@
 import SwiftUI
 
 struct CheckmarkSwitch: View {
-    
+
     struct Settings {
         let shape: Shape
         let color: Color
         let borderColor: Color
         let checkmarkLineWidth: CGFloat
         let isInteractable: Bool
-        
+
         static func defaultCircled(interactable: Bool = true) -> Settings {
             .init(shape: .circle,
                   color: .tangemGreen,
@@ -24,7 +24,7 @@ struct CheckmarkSwitch: View {
                   checkmarkLineWidth: 2,
                   isInteractable: interactable)
         }
-        
+
         static func defaultRoundedRect(interactable: Bool = true) -> Settings {
             .init(shape: .roundedRect(cornerRadius: 3),
                   color: .tangemGreen,
@@ -33,11 +33,11 @@ struct CheckmarkSwitch: View {
                   isInteractable: interactable)
         }
     }
-    
+
     enum Shape {
         case circle
         case roundedRect(cornerRadius: CGFloat)
-        
+
         func cornerRadius(in containerSize: CGSize) -> CGFloat {
             switch self {
             case .circle:
@@ -47,10 +47,10 @@ struct CheckmarkSwitch: View {
             }
         }
     }
-    
+
     var isChecked: Binding<Bool>
     var settings: Settings
-    
+
     var body: some View {
         GeometryReader { geometry in
             ZStack {
@@ -73,7 +73,7 @@ struct CheckmarkSwitch: View {
             }
             .onTapGesture {
                 guard settings.isInteractable else { return }
-                
+
                 withAnimation {
                     isChecked.wrappedValue.toggle()
                 }
@@ -83,10 +83,10 @@ struct CheckmarkSwitch: View {
 }
 
 struct CheckmarkSwitchPreview: View {
-    
+
     @State var isEvenChecked: Bool = false
     @State var isOddChecked: Bool = true
-    
+
     var body: some View {
         VStack {
             CheckmarkSwitch(isChecked: $isOddChecked,
@@ -103,11 +103,11 @@ struct CheckmarkSwitchPreview: View {
                 .frame(size: .init(width: 26, height: 26))
         }
     }
-    
+
 }
 
 struct CheckmarkSwitch_Previews: PreviewProvider {
-    
+
     static var previews: some View {
         CheckmarkSwitchPreview()
     }
