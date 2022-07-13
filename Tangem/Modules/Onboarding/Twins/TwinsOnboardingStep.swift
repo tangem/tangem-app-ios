@@ -32,40 +32,40 @@ enum TwinsOnboardingStep {
     case done
     case success
     case alert
-    
+
     static var previewCases: [TwinsOnboardingStep] {
         [.intro(pairNumber: "2"), .topup, .done]
     }
-    
+
     static var twinningProcessSteps: [TwinsOnboardingStep] {
         [.first, .second, .third]
     }
-    
+
     static var topupSteps: [TwinsOnboardingStep] {
         [.topup, .done]
     }
-    
+
     var topTwinCardIndex: Int {
         switch self {
         case .second: return 1
         default: return 0
         }
     }
-    
+
     var isBackgroundVisible: Bool {
         switch self {
         case .intro: return true
         default: return false
         }
     }
-    
+
     var isModal: Bool {
         switch self {
         case .second, .third: return true
         default: return false
         }
     }
-    
+
     func backgroundFrame(in container: CGSize) -> CGSize {
         switch self {
         case .topup,  .done:
@@ -75,7 +75,7 @@ enum TwinsOnboardingStep {
         default: return .init(width: 10, height: 10)
         }
     }
-    
+
     func backgroundCornerRadius(in container: CGSize) -> CGFloat {
         switch self {
         case .topup,  .done: return defaultBackgroundCornerRadius
@@ -83,11 +83,11 @@ enum TwinsOnboardingStep {
         default: return backgroundFrame(in: container).height / 2
         }
     }
-    
+
     func backgroundOffset(in container: CGSize) -> CGSize {
         defaultBackgroundOffset(in: container)
     }
-    
+
     var backgroundOpacity: Double {
         switch self {
         case .topup,  .done: return 1
@@ -105,14 +105,14 @@ extension TwinsOnboardingStep: OnboardingProgressStepIndicatable {
             return false
         }
     }
-    
+
     var successCircleOpacity: Double {
         switch self {
         case .success: return 1
         default: return 0
         }
     }
-    
+
     var successCircleState: OnboardingCircleButton.State {
         switch self {
         case .success: return .doneCheckmark
@@ -140,7 +140,7 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
         case .alert: return "common_warning"
         }
     }
-    
+
     var subtitle: LocalizedStringKey {
         switch self {
         case .welcome: return WelcomeStep.welcome.subtitle
@@ -151,7 +151,7 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
         case .alert: return "onboarding_alert_twins_recreate_subtitle"
         }
     }
-    
+
     var messagesOffset: CGSize {
         switch self {
         default: return .zero
@@ -172,7 +172,7 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
         case .alert: return "common_continue"
         }
     }
-    
+
     var supplementButtonTitle: LocalizedStringKey {
         switch self {
         case .welcome: return WelcomeStep.welcome.supplementButtonTitle
@@ -180,16 +180,16 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
         default: return ""
         }
     }
-    
+
     var isSupplementButtonVisible: Bool {
         switch self {
         case .topup, .welcome: return true
         default: return false
         }
     }
-    
+
     var isContainSupplementButton: Bool { true }
-    
+
     var checkmarkText: LocalizedStringKey? {
         switch self {
         case .alert:
