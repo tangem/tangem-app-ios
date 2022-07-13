@@ -15,7 +15,7 @@ import MessageUI
 
 struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
-    
+
     var sendChoiceButtons: [ActionSheet.Button] {
         let symbols = viewModel
             .wallets?
@@ -24,7 +24,7 @@ struct MainView: View {
             .filter { $0.key != .reserve && $0.value.value > 0 }
             .values
             .map { $0.self }
-        
+
         let buttons = symbols?.map { amount in
             return ActionSheet.Button.default(Text(amount.currencySymbol)) {
                 viewModel.openSend(for: Amount(with: amount, value: 0))
@@ -32,21 +32,21 @@ struct MainView: View {
         }
         return buttons ?? []
     }
-    
+
     var pendingTransactionViews: [PendingTxView] {
         let incTx = viewModel.incomingTransactions.map {
             PendingTxView(pendingTx: $0)
         }
-        
+
         let outgTx = viewModel.outgoingTransactions.enumerated().map { (index, pendingTx) -> PendingTxView in
             PendingTxView(pendingTx: pendingTx) {
                 viewModel.openPushTx(for: index)
             }
         }
-        
+
         return incTx + outgTx
     }
-    
+
     var isUnsupportdState: Bool {
         switch viewModel.state {
         case .unsupported, .notScannedYet:
@@ -55,7 +55,7 @@ struct MainView: View {
             return false
         }
     }
-    
+
     var shouldShowEmptyView: Bool {
         if let cardModel = viewModel.state.cardModel {
             switch cardModel.state {
@@ -72,7 +72,7 @@ struct MainView: View {
         }
         return false
     }
-    
+
     var shouldShowBalanceView: Bool {
         if let walletModel = viewModel.cardModel?.walletModels?.first {
             switch walletModel.state {
@@ -82,10 +82,10 @@ struct MainView: View {
                 return false
             }
         }
-        
+
         return false
     }
-    
+
     var noAccountView: MessageView? {
         if let walletModel = viewModel.cardModel?.walletModels?.first {
             switch walletModel.state {
@@ -95,10 +95,10 @@ struct MainView: View {
                 return nil
             }
         }
-        
+
         return nil
     }
-    
+
     var scanNavigationButton: some View {
         Button(action: viewModel.onScan,
                label: {
@@ -108,7 +108,7 @@ struct MainView: View {
                })
                .buttonStyle(PlainButtonStyle())
     }
-    
+
     var settingsNavigationButton: some View {
         Button(action: viewModel.openSettings,
                label: { Image("verticalDots")
@@ -118,7 +118,7 @@ struct MainView: View {
             .accessibility(label: Text("voice_over_open_card_details"))
             .padding(0.0)
     }
-    
+
     var backupWarningView: some View {
         BackUpWarningButton(tapAction: {
             viewModel.prepareForBackup()
@@ -126,7 +126,7 @@ struct MainView: View {
         .padding(.horizontal, 16)
         .padding(.bottom, 6)
     }
-    
+
     var body: some View {
         GeometryReader { geometry in
             ZStack {
@@ -137,7 +137,7 @@ struct MainView: View {
                                  currentCardNumber: viewModel.cardNumber,
                                  totalCards: viewModel.totalCards)
                             .fixedSize(horizontal: false, vertical: true)
-                        
+
                         if viewModel.isBackupAllowed {
                             backupWarningView
                         }
@@ -149,12 +149,12 @@ struct MainView: View {
                                 viewModel.warningButtonAction(at: $0, priority: $1, button: $2)
                             })
                             .padding(.horizontal, 16)
-                            
+
                             if !viewModel.cardModel!.cardInfo.isMultiWallet {
                                 ForEach(pendingTransactionViews) { $0 }
                                     .padding(.horizontal, 16.0)
                             }
-                            
+
                             if shouldShowEmptyView {
                                 MessageView(
                                     title: viewModel.isTwinCard ? "wallet_error_empty_twin_card".localized : "wallet_error_empty_card".localized,
@@ -163,7 +163,7 @@ struct MainView: View {
                                 )
                             } else {
                                 if viewModel.cardModel!.cardInfo.isMultiWallet {
-                                    
+
                                     if !viewModel.tokenItemViewModels.isEmpty {
                                         TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel) {
                                             viewModel.openCurrencySelection()
@@ -172,14 +172,14 @@ struct MainView: View {
                                         .padding(.horizontal, 16)
                                         .padding(.bottom, 6)
                                     }
-                                    
+
                                     TokensView(items: viewModel.tokenItemViewModels, action: viewModel.openTokenDetails)
-                                    
+
                                     AddTokensView(action: viewModel.openTokensList)
                                         .padding(.horizontal, 16)
                                         .padding(.bottom, 8)
                                         .padding(.top, 6)
-                                    
+
                                 } else {
                                     if shouldShowBalanceView {
                                         BalanceView(
@@ -194,7 +194,7 @@ struct MainView: View {
                                             EmptyView()
                                         }
                                     }
-                                    
+
                                     if let walletModel = viewModel.cardModel?.walletModels?.first,
                                        let card = viewModel.cardModel?.cardInfo.card  {
                                         if card.isTwinCard, viewModel.cardModel?.cardInfo.twinCardInfo?.pairPublicKey == nil {
@@ -210,11 +210,11 @@ struct MainView: View {
                                 }
                             }
                         }
-                        
+
                         Color.clear.frame(width: 10, height: viewModel.hasMultipleButtons ? 116 : 58, alignment: .center)
                     }
                 }
-                
+
                 bottomButtons
                     .frame(width: geometry.size.width)
             }
@@ -231,7 +231,7 @@ struct MainView: View {
         .ignoresKeyboard()
         .alert(item: $viewModel.error) { $0.alert }
     }
-    
+
     var createWalletButton: some View {
         TangemButton(title: viewModel.isTwinCard ? "wallet_button_create_twin_wallet" : "wallet_button_create_wallet",
                      systemImage: "arrow.right") { viewModel.createWallet()  }
@@ -239,7 +239,7 @@ struct MainView: View {
                                            isDisabled: !viewModel.canCreateWallet || !viewModel.canCreateTwinWallet,
                                            isLoading: viewModel.isCreatingWallet))
     }
-    
+
     var sendButton: some View {
         TangemButton(title: "wallet_button_send",
                      systemImage: "arrow.right",
@@ -250,11 +250,11 @@ struct MainView: View {
                 ActionSheet(title: Text("wallet_choice_wallet_option_title"),
                             message: nil,
                             buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
-            
+
             }
-        
+
     }
-    
+
     @ViewBuilder
     var exchangeCryptoButton: some View {
         if viewModel.canSellCrypto {
@@ -277,26 +277,26 @@ struct MainView: View {
                 .buttonStyle(TangemButtonStyle(layout: .flexibleWidth))
         }
     }
-    
-    
+
+
     var bottomButtons: some View {
         VStack {
-            
+
             Spacer()
-            
+
             VStack {
                 HStack(alignment: .center) {
-                    
+
                     if viewModel.canCreateWallet {
                         createWalletButton
                     }
-                    
+
                     if !viewModel.canCreateWallet
                         && viewModel.canBuyCrypto
                         && !(viewModel.cardModel?.cardInfo.isMultiWallet ?? true)  {
                         exchangeCryptoButton
                     }
-                    
+
                     if let cardModel = viewModel.cardModel, !cardModel.cardInfo.isMultiWallet,
                        (!viewModel.canCreateWallet || (cardModel.isTwinCard && cardModel.hasBalance)) {
                         sendButton
