@@ -39,5 +39,3 @@ extension AppEnvironment {
         return identifier
     }
 }
-
-
