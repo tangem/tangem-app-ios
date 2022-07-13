@@ -12,41 +12,41 @@ struct TwinsOnboardingView: View {
     @ObservedObject var viewModel: TwinsOnboardingViewModel
 
     private let screenSize: CGSize = UIScreen.main.bounds.size
-    
+
     var isNavbarVisible: Bool {
         viewModel.isNavBarVisible
     }
-    
+
     var isProgressBarVisible: Bool {
         if case .intro = currentStep {
             return false
         }
-        
+
         if case .welcome = currentStep {
             return false
         }
-        
+
         if !viewModel.isInitialAnimPlayed {
             return false
         }
-        
+
         return true
     }
-    
+
     var currentStep: TwinsOnboardingStep { viewModel.currentStep }
-    
+
     var body: some View {
         ZStack {
             ConfettiView(shouldFireConfetti: $viewModel.shouldFireConfetti)
                 .allowsHitTesting(false)
                 .frame(maxWidth: screenSize.width)
                 .zIndex(110)
-            
+
             VStack(spacing: 0) {
                 GeometryReader { geom in
                     ZStack(alignment: .center) {
                         let size = geom.size
-                        
+
                         // Navbar is added to ZStack instead of VStack because of wrong animation when container changed
                         // and cards jumps instead of smooth transition
                         NavigationBar(title: "twins_onboarding_title",
@@ -67,12 +67,12 @@ struct TwinsOnboardingView: View {
                                       })
                                       .offset(x: 0, y: -geom.size.height / 2 + (isNavbarVisible ? viewModel.navbarSize.height / 2 : 0))
                                       .opacity(isNavbarVisible ? 1.0 : 0.0)
-                        
+
                         ProgressBar(height: 5, currentProgress: viewModel.currentProgress)
                             .offset(x: 0, y: -size.height / 2 + viewModel.navbarSize.height + 10)
                             .opacity(isProgressBarVisible ? 1.0 : 0.0)
                             .padding(.horizontal, 16)
-                        
+
                         let backgroundFrame = currentStep.backgroundFrame(in: size)
                         let backgroundOffset = currentStep.backgroundOffset(in: size)
                         OnboardingTopupBalanceView(
@@ -89,13 +89,13 @@ struct TwinsOnboardingView: View {
                             refreshButtonSize: .medium,
                             refreshButtonOpacity: currentStep.backgroundOpacity
                         )
-                        
+
                         OnboardingCircleButton(refreshAction: {},
                                                state: currentStep.successCircleState,
                                                size: .huge)
                             .offset(y: 8)
                             .opacity(currentStep.successCircleOpacity)
-                        
+
                         AnimatedView(settings: viewModel.$supplementCardSettings) {
                             OnboardingCardView(placeholderCardType: .light,
                                                cardImage: viewModel.secondTwinImage,
@@ -112,9 +112,9 @@ struct TwinsOnboardingView: View {
                 .readSize { size in
                     viewModel.setupContainer(with: size)
                 }
-                
+
                 // alert
-                
+
                 OnboardingTextButtonView(
                     title: viewModel.title,
                     subtitle: viewModel.subtitle,
@@ -122,7 +122,7 @@ struct TwinsOnboardingView: View {
                                            supplement: viewModel.supplementButtonSettings),
                     titleAction: {
 //                        guard viewModel.assembly.isPreview else { return }
-                        
+
 //                        withAnimation { //reset for testing
 //                            viewModel.reset()
 //                        }
@@ -147,11 +147,11 @@ struct TwinsOnboardingView: View {
             if viewModel.isInitialAnimPlayed {
                 return
             }
-            
+
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 self.viewModel.playInitialAnim()
             }
-            
+
         })
 
     }
