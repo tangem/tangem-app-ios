@@ -11,6 +11,9 @@
 
 ENVIRONMENT_NAME = Beta
 
+// Storage container name
+SUITE_NAME = $(PRODUCT_BUNDLE_IDENTIFIER)
+
 // Overriding (do NOT change key name)
 // app name
 PRODUCT_NAME = Tangem $(ENVIRONMENT_NAME)
