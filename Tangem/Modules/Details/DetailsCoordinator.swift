@@ -11,10 +11,10 @@ import Foundation
 class DetailsCoordinator: CoordinatorObject {
     var dismissAction: Action
     var popToRootAction: ParamsAction<PopToRootOptions>
-    
+
     // MARK: - Main view model
     @Published private(set) var detailsViewModel: DetailsViewModel? = nil
-    
+
     // MARK: - Child coordinators
     @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
     @Published var walletConnectCoordinator: WalletConnectCoordinator? = nil
@@ -27,15 +27,15 @@ class DetailsCoordinator: CoordinatorObject {
     @Published var disclaimerViewModel: DisclaimerViewModel? = nil
     @Published var cardOperationViewModel: CardOperationViewModel? = nil
     @Published var supportChatViewModel: SupportChatViewModel? = nil
-    
+
     // MARK: - Helpers
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
-    
+
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
-    
+
     func start(with options: DetailsCoordinator.Options) {
         detailsViewModel = DetailsViewModel(cardModel: options.cardModel, coordinator: self)
     }
@@ -52,37 +52,37 @@ extension DetailsCoordinator: DetailsRoutable {
         currencySelectViewModel = CurrencySelectViewModel()
         currencySelectViewModel?.dismissAfterSelection = autoDismiss
     }
-    
+
     func openOnboardingModal(with input: OnboardingInput) {
         let dismissAction: Action = { [weak self] in
             self?.modalOnboardingCoordinator = nil
         }
-        
+
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
         let options = OnboardingCoordinator.Options(input: input)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
     }
-    
+
     func openMail(with dataCollector: EmailDataCollector, support: EmailSupport, emailType: EmailType) {
         mailViewModel = MailViewModel(dataCollector: dataCollector, support: support, emailType: emailType)
     }
-    
+
     func openWalletConnect(with cardModel: CardViewModel) {
         let coordinator = WalletConnectCoordinator()
         let options = WalletConnectCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
         walletConnectCoordinator = coordinator
     }
-    
+
     func openDisclaimer() {
         disclaimerViewModel = .init(style: .navbar, showAccept: false, coordinator: nil)
     }
-    
+
     func openCardTOU(at url: URL) {
         pushedWebViewModel = WebViewContainerViewModel(url: url, title: "details_row_title_card_tou".localized)
     }
-    
+
     func openResetToFactory(action: @escaping (_ completion: @escaping (Result<Void, Error>) -> Void) -> Void) {
         cardOperationViewModel = CardOperationViewModel(title: "details_row_title_reset_factory_settings".localized,
                                                         buttonTitle: "card_operation_button_title_reset",
@@ -91,13 +91,13 @@ extension DetailsCoordinator: DetailsRoutable {
                                                         actionButtonPressed: action,
                                                         coordinator: self)
     }
-    
+
     func openSecManagement(with cardModel: CardViewModel) {
         let coordinator = SecurityPrivacyCoordinator(popToRootAction: self.popToRootAction)
         coordinator.start(with: .cardModel(cardModel))
         securityPrivacyCoordinator = coordinator
     }
-    
+
     func openSupportChat() {
         supportChatViewModel = SupportChatViewModel()
     }
