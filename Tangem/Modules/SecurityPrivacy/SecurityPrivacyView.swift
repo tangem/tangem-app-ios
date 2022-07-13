@@ -29,11 +29,13 @@ struct SecurityPrivacyView: View {
         Section(content: {
             RowView(
                 title: "security_and_privacy_security_mode".localized,
+                details: viewModel.securityModeTitle,
                 action: viewModel.openChangeAccessMethod
             )
             
             RowView(
                 title: "security_and_privacy_change_access_code".localized,
+                details: nil,
                 action: viewModel.openChangeAccessCode
             )
         }, header: {
@@ -91,19 +93,26 @@ private extension SecurityPrivacyView {
     
     struct RowView: View {
         let title: String
+        let details: String?
         let action: () -> Void
         
         var body: some View {
-            HStack {
-                Button(action: action) {
+            Button(action: action) {
+                HStack {
                     Text(title)
                         .font(.regular17)
                         .foregroundColor(.tangemGrayDark6)
+                        
+                    Spacer()
+                        
+                    if let details = details {
+                        Text(details)
+                            .font(.regular17)
+                            .foregroundColor(.textTertiary)
+                    }
+                        
+                    Image("chevron")
                 }
-                
-                Spacer()
-                
-                Image("chevron")
             }
         }
     }
@@ -132,7 +141,6 @@ struct SecurityPrivacyView_Preview: PreviewProvider {
     static var previews: some View {
         NavigationView {
             SecurityPrivacyView(viewModel: .mock)
-                .deviceForPreview(.iPhone11Pro)
         }
     }
 }
