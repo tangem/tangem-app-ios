@@ -23,7 +23,7 @@ extension View {
 
 enum PreviewDeviceType: String, Identifiable, CaseIterable {
     var id: UUID { UUID() }
-	
+
     case iPhone7 = "iPhone 7"
     case iPhone8Plus = "iPhone 8 Plus"
     case iPhoneX = "iPhone X"
@@ -32,7 +32,7 @@ enum PreviewDeviceType: String, Identifiable, CaseIterable {
     case iPhone11ProMax = "iPhone 11 Pro Max"
     case iPhone12Pro = "iPhone 12 Pro"
     case iPhone12ProMax = "iPhone 12 Pro Max"
-    
+
     var zoomedLayout: PreviewLayout {
         switch self {
         case .iPhone7: return .iphone7Zoomed
@@ -53,13 +53,13 @@ extension View {
         self
             .previewDevice(PreviewDevice(rawValue: type.rawValue))
             .previewDisplayName(type.rawValue)
-			
+
     }
-    
+
     func deviceForPreviewZoomed(_ type: PreviewDeviceType) -> some View {
         previewLayout(type.zoomedLayout)
             .previewDisplayName("\(type.rawValue) Zoomed")
-        
+
     }
 }
 
@@ -67,15 +67,15 @@ extension PreviewLayout {
     static var iphone7Zoomed: PreviewLayout {
         .fixed(width: 320, height: 568)
     }
-    
+
     static var iphone11Pro: PreviewLayout {
         .fixed(width: 320, height: 693)
     }
-    
+
     static var iphone11ProMax: PreviewLayout {
         .fixed(width: 375, height: 812)
     }
-    
+
     static var iphone8Plus: PreviewLayout {
         .fixed(width: 375, height: 667)
     }
