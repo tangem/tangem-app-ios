@@ -9,12 +9,13 @@
 import UIKit
 import Firebase
 import AppsFlyerLib
+import Amplitude
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-    
+
     var loadingView: UIView? = nil
-    
+
     func addLoadingView() {
         if let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) {
             let view = UIView(frame: window.bounds)
@@ -28,7 +29,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             loadingView = view
         }
     }
-    
+
     func removeLoadingView() {
         loadingView?.removeFromSuperview()
         loadingView = nil
@@ -46,28 +47,29 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // To remove only extra separators below the list:
             UITableView.appearance().tableFooterView = UIView()
         }
-        
+
         configureFirebase()
         configureAppsFlyer()
-        
+        configureAmplitude()
+
         let userPrefs = UserPrefsService()
         userPrefs.numberOfLaunches += 1
         print("Launch number:", userPrefs.numberOfLaunches)
-        
+
         return true
     }
-    
+
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
-        
+
         guard
             userActivity.activityType == NSUserActivityTypeBrowsingWeb,
             let url = userActivity.webpageURL
         else {
             return false
         }
-        
+
         print("User continue with activity url: \(url)")
-        
+
         return true
     }
 
@@ -84,7 +86,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
-    
+
     func applicationDidBecomeActive(_ application: UIApplication) {
         guard AppEnvironment.current == .production else { return }
 
@@ -95,16 +97,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 private extension AppDelegate {
     func configureFirebase() {
         let plistName = "GoogleService-Info-\(AppEnvironment.current.rawValue.capitalizingFirstLetter())"
-        
+
         guard let filePath = Bundle.main.path(forResource: plistName, ofType: "plist"),
               let options = FirebaseOptions(contentsOfFile: filePath) else {
             assertionFailure("GoogleService-Info.plist not found")
             return
         }
-        
+
         FirebaseApp.configure(options: options)
     }
-    
+
     func configureAppsFlyer() {
         guard AppEnvironment.current == .production else { return }
 
@@ -115,5 +117,12 @@ private extension AppDelegate {
         #else
         AppsFlyerLib.shared().isDebug = false
         #endif
+    }
+
+    func configureAmplitude() {
+        guard AppEnvironment.current == .production else { return }
+
+        Amplitude.instance().trackingSessionEvents = true
+        Amplitude.instance().initializeApiKey(CommonKeysManager().amplitudeApiKey)
     }
 }

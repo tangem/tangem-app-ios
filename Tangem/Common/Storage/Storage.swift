@@ -12,9 +12,7 @@ import Foundation
 struct Storage<T> {
     private let key: String
     private let defaultValue: T
-
     private let defaults: UserDefaults
-    private let suiteName = AppEnvironment.current.suiteName
 
     var wrappedValue: T {
         get {
@@ -27,7 +25,7 @@ struct Storage<T> {
     init(type: StorageType, defaultValue: T) {
         key = type.rawValue
         self.defaultValue = defaultValue
-        defaults = UserDefaults(suiteName: suiteName) ?? .standard
+        defaults = UserDefaults(suiteName: AppEnvironment.current.suiteName) ?? .standard
         migrateFromOldDefaultsIfNeeded()
     }
 
