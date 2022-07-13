@@ -16,40 +16,40 @@
 //    let shareString: String
 //    [REDACTED_USERNAME] var userBrightness: CGFloat = 0.5
 //    [REDACTED_USERNAME](\.viewController) private var viewControllerHolder: UIViewController?
-//    
+//
 //    private static let initialOffsetHeight: CGFloat = UIScreen.main.bounds.height
-//    
+//
 //    [REDACTED_USERNAME] private var offset = CGSize(width: 0, height: initialOffsetHeight)
 //    [REDACTED_USERNAME] private var opacity = 0.0
-//    
+//
 //    var body: some View {
-//        
+//
 //        let dragGesture = DragGesture()
 //            .onChanged { value in
 //                offset.height = max(0, value.translation.height)
 //                opacity = Double(1.0 - offset.height/QRCodeView.initialOffsetHeight)
 //            }
 //            .onEnded { value in
-//                
+//
 //                let shouldDismiss = value.predictedEndTranslation.height >= value.translation.height
 //                let finalOffsetHeight = shouldDismiss ? QRCodeView.initialOffsetHeight : 0
 //                let finalOpacity = shouldDismiss ? 0.0 : 1.0
-//                
+//
 //                withAnimation(Animation.linear(duration: 0.1)) {
 //                    offset.height = finalOffsetHeight
 //                    opacity = finalOpacity
 //                }
-//                
+//
 //                if shouldDismiss {
 //                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
 //                        self.viewControllerHolder?.presentedViewController?.dismiss(animated: true, completion: nil)
 //                    }
 //                }
 //            }
-//        
+//
 //        VStack {
 //            Spacer()
-//            
+//
 //            VStack {
 //                VStack(alignment: .center, spacing: 24.0) {
 //                    HStack {
@@ -73,7 +73,7 @@
 //            .offset(offset)
 //            .opacity(opacity)
 //            .gesture(dragGesture)
-//            
+//
 //            Spacer()
 //        }
 //        .padding(.horizontal, 12.0)
@@ -87,7 +87,7 @@
 //            }
 //        }
 //        .onDisappear {
-//            
+//
 //        }
 //        .onWillDisappear {
 //            UIScreen.main.animateBrightness(from: UIScreen.main.brightness, to: userBrightness)
@@ -102,11 +102,11 @@
 //        .edgesIgnoringSafeArea(.all)
 //        .background(Color.clear)
 //    }
-//    
-//    
+//
+//
 //    private func getQrCodeImage(width: CGFloat, height: CGFloat) -> UIImage {
 //        let padding: CGFloat = 10
-//        
+//
 //        if let cgImage = EFQRCode.generate(content: shareString,
 //                                           size: EFIntSize(width: Int(width), height: Int(height)), backgroundColor: CGColor(red: 0, green: 0, blue: 0, alpha: 0)) {
 //            return UIImage(cgImage: cgImage.cropping(to: CGRect(x: padding,
