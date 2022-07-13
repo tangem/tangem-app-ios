@@ -23,6 +23,11 @@ class TokenDetailsCoordinator: CoordinatorObject {
     // MARK: - Child view models
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
+    @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
+    
+    // MARK: - Helpers
+    @Published var bottomSheetKeeper: Bool = false
+    @Published var bottomSheetSettings: BottomSheetSettings? //Don't set to nil, when hide sheet
     
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -34,6 +39,10 @@ class TokenDetailsCoordinator: CoordinatorObject {
                                                       blockchainNetwork: options.blockchainNetwork,
                                                       amountType: options.amountType,
                                                       coordinator: self)
+    }
+    
+    func hideBottomSheet() {
+        bottomSheetKeeper = false
     }
 }
 
@@ -105,5 +114,26 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
                                                 cardModel: card)
         coordinator.start(with: options)
         self.pushTxCoordinator = coordinator
+    }
+    
+    func openBankWarning(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) {
+        warningBankCardViewModel = .init(confirmCallback: {
+            confirmCallback()
+            self.hideBottomSheet()
+        }, declineCallback: {
+            declineCallback()
+            self.hideBottomSheet()
+        })
+        
+        bottomSheetSettings = BottomSheet.warning
+        bottomSheetKeeper = true
+    }
+    
+    func openP2PTutorial() {
+        modalWebViewModel = WebViewContainerViewModel(url: URL(string: "https://tangem.com/howtobuy.html")!,
+                                                      title: "",
+                                                      addLoadingIndicator: true,
+                                                      withCloseButton: false,
+                                                      urlActions: [:])
     }
 }
