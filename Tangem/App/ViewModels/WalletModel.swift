@@ -14,56 +14,56 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
     @Injected(\.transactionSigner) private var signer: TangemSigner
     @Injected(\.currencyRateService) private var currencyRateService: CurrencyRateService
-    
+
     @Published var state: State = .created
     @Published var balanceViewModel: BalanceViewModel!
     @Published var tokenItemViewModels: [TokenItemViewModel] = []
     @Published var tokenViewModels: [TokenBalanceViewModel] = []
     @Published var rates: [String: Decimal] = [:]
     @Published var displayState: DisplayState = .busy
-    
+
     var wallet: Wallet { walletManager.wallet }
-    
+
     var addressNames: [String] {
         wallet.addresses.map { $0.localizedName }
     }
-    
+
     var hasBalance: Bool {
         if !state.isSuccesfullyLoaded {
             return false
         }
-        
+
         if wallet.hasPendingTx {
             return true
         }
-        
+
         if !wallet.isEmpty {
             return true
         }
-        
+
         return false
     }
-    
+
     var canCreateOrPurgeWallet: Bool {
         if !wallet.isEmpty || wallet.hasPendingTx {
             return false
         }
-        
+
         return state.canCreateOrPurgeWallet
     }
-    
+
     var fiatValue: Decimal {
         getFiat(for: wallet.amounts[.coin]) ?? 0
     }
-    
+
     var isTestnet: Bool {
         wallet.blockchain.isTestnet
     }
-    
+
     var pendingTransactions: [PendingTransaction] {
         incomingPendingTransactions + outgoingPendingTransactions
     }
-    
+
     var incomingPendingTransactions: [PendingTransaction] {
         wallet.pendingIncomingTransactions.map {
             PendingTransaction(amountType: $0.amount.type,
@@ -73,13 +73,13 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
                                direction: .incoming)
         }
     }
-    
+
     var outgoingPendingTransactions: [PendingTransaction] {
         // let txPusher = walletManager as? TransactionPusher
-        
+
         return wallet.pendingOutgoingTransactions.map {
             // let isTxStuckByTime = Date().timeIntervalSince($0.date ?? Date()) > Constants.bitcoinTxStuckTimeSec
-            
+
             return PendingTransaction(amountType: $0.amount.type,
                                       destination: $0.destinationAddress,
                                       transferAmount: $0.amount.string(with: 8),
@@ -87,19 +87,19 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
                                       direction: .outgoing)
         }
     }
-    
+
     var isEmptyIncludingPendingIncomingTxs: Bool {
         wallet.isEmpty && incomingPendingTransactions.count == 0
     }
-    
+
     var blockchainNetwork: BlockchainNetwork {
         if wallet.publicKey.derivationPath == nil { // cards without hd wallet
             return .init(wallet.blockchain, derivationPath: wallet.blockchain.derivationPath(for: .legacy))
         }
-        
+
         return .init(wallet.blockchain, derivationPath: wallet.publicKey.derivationPath)
     }
-    
+
     let walletManager: WalletManager
     private var bag = Set<AnyCancellable>()
     private var updateTimer: AnyCancellable? = nil
@@ -108,16 +108,16 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     private var isDemo: Bool { demoBalance != nil }
     private var latestUpdateTime: Date? = nil
     private var updatePublisher: PassthroughSubject<Never, Never>?
-    
+
     deinit {
         print("🗑 WalletModel deinit")
     }
-    
+
     init(walletManager: WalletManager, derivationStyle: DerivationStyle, demoBalance: Decimal? = nil) {
         self.walletManager = walletManager
         self.demoBalance = demoBalance
         self.derivationStyle = derivationStyle
-        
+
         updateBalanceViewModel(with: walletManager.wallet)
         self.walletManager.walletPublisher
             .receive(on: DispatchQueue.main)
@@ -134,7 +134,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
             })
             .store(in: &bag)
     }
-    
+
     func initialize() {
         currencyRateService
             .selectedCurrencyCodePublisher
@@ -144,7 +144,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
             }
             .store(in: &bag)
     }
-    
+
     @discardableResult
     func update(silent: Bool = false) -> AnyPublisher<Never, Never> {
         if let updatePublisher = updatePublisher {
@@ -154,7 +154,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
         // Keep this before the async call
         let newUpdatePublisher = PassthroughSubject<Never, Never>()
         self.updatePublisher = newUpdatePublisher
-        
+
         DispatchQueue.main.async {
             if let latestUpdateTime = self.latestUpdateTime,
                latestUpdateTime.distance(to: Date()) <= 10 {
@@ -165,24 +165,24 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
                 self.updatePublisher = nil
                 return
             }
-            
+
             if case .loading = self.state {
                 return
             }
-            
+
             if !silent {
                 self.updateBalanceViewModel(with: self.wallet)
                 self.state = .loading
                 self.displayState = .busy
             }
-            
+
             print("🔄 Updating wallet model for \(self.wallet.blockchain)")
             self.walletManager.update { result in
                 DispatchQueue.main.async { [weak self] in
                     guard let self = self else { return }
-                    
+
                     print("🔄 Finished updating wallet model for \(self.wallet.blockchain)")
-                    
+
                     if case let .failure(error) = result {
                         if case let .noAccount(noAccountMessage) = (error as? WalletError) {
                             self.state = .noAccount(message: noAccountMessage)
@@ -194,28 +194,28 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
                         }
                     } else {
                         self.latestUpdateTime = Date()
-                        
+
                         if let demoBalance = self.demoBalance {
                             self.walletManager.wallet.add(coinValue: demoBalance)
                         }
-                        
+
                         if !silent {
                             self.state = .idle
                         }
-                        
+
                         self.loadRates()
                     }
-                    
+
                     self.updateBalanceViewModel(with: self.wallet)
                     self.updatePublisher?.send(completion: .finished)
                     self.updatePublisher = nil
                 }
             }
         }
-        
+
         return newUpdatePublisher.eraseToAnyPublisher()
     }
-    
+
     func currencyId(for amount: Amount.AmountType) -> String? {
         switch amount {
         case .coin, .reserve:
@@ -224,33 +224,33 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
             return token.id
         }
     }
-    
+
     func getRate(for amountType: Amount.AmountType) -> Decimal {
         if let currencyId = self.currencyId(for: amountType),
            let rate = rates[currencyId] {
             return rate
         }
-        
+
         return 0
     }
-    
+
     func getRateFormatted(for amountType: Amount.AmountType) -> String {
         var rateString = ""
-        
+
         if let currencyId = self.currencyId(for: amountType),
            let rate = rates[currencyId] {
             rateString = rate.currencyFormatted(code: currencyRateService.selectedCurrencyCode)
         }
-        
+
         return rateString
     }
-    
-    
+
+
     func getQRReceiveMessage(for amountType: Amount.AmountType? = nil)  -> String {
         let type: Amount.AmountType = amountType ?? wallet.amounts.keys.first(where: { $0.isToken }) ?? .coin
         // todo: handle default token
         let symbol = wallet.amounts[type]?.currencySymbol ?? wallet.blockchain.currencySymbol
-        
+
         if case let .token(token) = amountType {
             return String(format: "address_qr_code_message_token_format".localized,
                           token.name,
@@ -262,18 +262,18 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
                           symbol)
         }
     }
-    
+
     func getFiatFormatted(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> String? {
         return getFiat(for: amount, roundingMode: roundingMode)?.currencyFormatted(code: currencyRateService.selectedCurrencyCode)
     }
-    
+
     func getFiat(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> Decimal? {
         if let amount = amount {
             return getFiat(for: amount.value, currencyId: currencyId(for: amount.type), roundingMode: roundingMode)
         }
         return nil
     }
-    
+
     func getFiat(for value: Decimal, currencyId: String?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> Decimal? {
         if let currencyId = currencyId,
            let rate = rates[currencyId]
@@ -286,7 +286,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
         }
         return nil
     }
-    
+
     func getCrypto(for amount: Amount?) -> Decimal? {
         guard
             let amount = amount,
@@ -294,50 +294,50 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
         else {
             return nil
         }
-        
+
         if let rate = rates[currencyId] {
             return (amount.value / rate).rounded(scale: amount.decimals)
         }
         return nil
     }
-    
+
     func displayAddress(for index: Int) -> String {
         wallet.addresses[index].value
     }
-    
+
     func shareAddressString(for index: Int) -> String {
         wallet.getShareString(for: wallet.addresses[index].value)
     }
-    
+
     func exploreURL(for index: Int) -> URL? {
         if isDemo {
             return nil
         }
-        
+
         return wallet.getExploreURL(for: wallet.addresses[index].value)
     }
-    
+
     func addTokens(_ tokens: [Token]) {
         latestUpdateTime = nil
-        
+
         tokens.forEach {
             if walletManager.cardTokens.contains($0) {
                 walletManager.removeToken($0)
             }
         }
-        
+
         walletManager.addTokens(tokens)
         updateTokensViewModels()
     }
-    
+
     func canRemove(amountType: Amount.AmountType) -> Bool {
         if amountType == .coin && !walletManager.cardTokens.isEmpty {
             return false
         }
-        
+
         return true
     }
-    
+
     func removeToken(_ token: Token, for cardId: String) -> Bool {
         guard canRemove(amountType: .token(value: token)) else {
             assertionFailure("Delete token isn't possible")
@@ -349,15 +349,15 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
         updateTokensViewModels()
         return true
     }
-    
+
     func getBalance(for type: Amount.AmountType) -> String {
         return wallet.amounts[type].map { $0.string(with: 8) } ?? ""
     }
-    
+
     func getFiatBalance(for type: Amount.AmountType) -> String {
         return getFiatFormatted(for: wallet.amounts[type]) ?? Decimal(0).currencyFormatted(code: currencyRateService.selectedCurrencyCode)
     }
-    
+
     func startUpdatingTimer() {
         latestUpdateTime = nil
         print("⏰ Starting updating timer for Wallet model")
@@ -372,7 +372,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
                 self?.updateTimer?.cancel()
             }
     }
-    
+
     func send(_ tx: Transaction) -> AnyPublisher<Void, Error> {
         if isDemo {
             return signer.sign(hash: Data.randomData(count: 32),
@@ -381,7 +381,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
                 .receive(on: DispatchQueue.main)
                 .eraseToAnyPublisher()
         }
-        
+
         return walletManager.send(tx, signer: signer)
             .receive(on: RunLoop.main)
             .handleEvents(receiveOutput: { [weak self] _ in
@@ -389,19 +389,19 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
             })
             .eraseToAnyPublisher()
     }
-    
+
     func isCustom(_ amountType: Amount.AmountType) -> Bool {
         if state.isLoading {
             return false
         }
-        
+
         let defaultDerivation = wallet.blockchain.derivationPath(for: derivationStyle)
         let currentDerivation = blockchainNetwork.derivationPath
-        
+
         if currentDerivation != defaultDerivation {
             return true
         }
-        
+
         switch amountType {
         case .coin, .reserve:
             return false
@@ -409,7 +409,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
             return token.id == nil
         }
     }
-    
+
     private func updateBalanceViewModel(with wallet: Wallet) {
         balanceViewModel = BalanceViewModel(isToken: false,
                                             hasTransactionInProgress: wallet.hasPendingTx,
@@ -423,13 +423,13 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
         updateTokensViewModels()
         updateTokenItemViewModels()
     }
-    
+
     private func loadRates() {
         let currenciesToExchange = [walletManager.wallet.blockchain.currencyId] + walletManager.cardTokens.compactMap { $0.id }
-        
+
         loadRates(for: Array(currenciesToExchange))
     }
-    
+
     private func loadRates(for currenciesToExchange: [String]) {
         currencyRateService
             .rates(for: currenciesToExchange)
@@ -449,25 +449,25 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
                 }
             }) { [weak self] rates in
                 guard let self = self else { return }
-                
+
                 if !self.rates.isEmpty && rates.count == 0 {
                     return
                 }
                 self.displayState = .readyForDisplay
                 self.rates = rates
                 self.updateBalanceViewModel(with: self.wallet)
-                
+
             }
             .store(in: &bag)
     }
-    
+
     private func updateTokensViewModels() {
         tokenViewModels = walletManager.cardTokens.map {
             let type = Amount.AmountType.token(value: $0)
             return TokenBalanceViewModel(token: $0, balance: getBalance(for: type), fiatBalance: getFiatBalance(for: type))
         }
     }
-    
+
     private func updateTokenItemViewModels() {
         let blockchainAmountType = Amount.AmountType.coin
         let blockchainItem = TokenItemViewModel(from: balanceViewModel,
@@ -477,7 +477,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
                                                 hasTransactionInProgress: wallet.hasPendingTx(for: blockchainAmountType),
                                                 isCustom: isCustom(blockchainAmountType),
                                                 displayState: self.displayState)
-        
+
         let items: [TokenItemViewModel] = tokenViewModels.map {
             let amountType = Amount.AmountType.token(value: $0.token)
             return TokenItemViewModel(from: balanceViewModel,
@@ -489,7 +489,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
                                       isCustom: isCustom(amountType),
                                       displayState: self.displayState)
         }
-        
+
         tokenItemViewModels = [blockchainItem] + items
     }
 }
@@ -501,7 +501,7 @@ extension WalletModel {
         case loading
         case noAccount(message: String)
         case failed(error: Error)
-        
+
         var isLoading: Bool {
             switch self {
             case .loading, .created:
@@ -510,7 +510,7 @@ extension WalletModel {
                 return false
             }
         }
-        
+
         var isSuccesfullyLoaded: Bool {
             switch self {
             case .idle, .noAccount:
@@ -519,7 +519,7 @@ extension WalletModel {
                 return false
             }
         }
-        
+
         var isBlockchainUnreachable: Bool {
             switch self {
             case .failed:
@@ -528,7 +528,7 @@ extension WalletModel {
                 return false
             }
         }
-        
+
         var isNoAccount: Bool {
             switch self {
             case .noAccount:
@@ -537,7 +537,7 @@ extension WalletModel {
                 return false
             }
         }
-        
+
         var errorDescription: String? {
             switch self {
             case .failed(let error):
@@ -548,7 +548,7 @@ extension WalletModel {
                 return nil
             }
         }
-        
+
         var failureDescription: String? {
             switch self {
             case .failed(let error):
@@ -557,7 +557,7 @@ extension WalletModel {
                 return nil
             }
         }
-        
+
         fileprivate var canCreateOrPurgeWallet: Bool {
             switch self {
             case .failed, .loading, .created:
@@ -567,7 +567,7 @@ extension WalletModel {
             }
         }
     }
-    
+
     enum DisplayState {
         case readyForDisplay
         case busy
