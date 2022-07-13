@@ -10,7 +10,7 @@ import SwiftUI
 import Combine
 
 struct CircleActionButton: View {
-	
+
     var action: () -> Void = { }
     var diameter: CGFloat = 41
     let backgroundColor: Color
@@ -19,15 +19,15 @@ struct CircleActionButton: View {
     let imageColor: Color
     var withVerification: Bool = false
     var isDisabled = false
-	
+
     @State private var isVerify = false
-    
+
     var image: Image {
         isSystemImage ?
             Image(systemName: imageName) :
             Image(imageName)
     }
-    
+
     var body: some View {
         Button(action: {
             action()
@@ -53,15 +53,15 @@ struct CircleActionButton: View {
         })
         .buttonStyle(PlainButtonStyle())
     }
-    
+
     private func playVerifyAnimation() {
         withAnimation {
             isVerify = true
         }
-        
+
         let notificationGenerator = UINotificationFeedbackGenerator()
         notificationGenerator.notificationOccurred(.success)
-        
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
             withAnimation {
                 isVerify = false
