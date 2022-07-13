@@ -19,7 +19,7 @@ class DetailsCoordinator: CoordinatorObject {
     @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
     @Published var walletConnectCoordinator: WalletConnectCoordinator? = nil
     @Published var securityPrivacyCoordinator: SecurityPrivacyCoordinator? = nil
-    
+
     // MARK: - Child view models
     @Published var currencySelectViewModel: CurrencySelectViewModel? = nil
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil

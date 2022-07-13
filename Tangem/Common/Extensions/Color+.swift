@@ -112,11 +112,11 @@ extension Color {
     }
 
     // MARK: Background
-    
+
     static var backgroundSecondary: Color {
         return Color("backgroundSecondary")
     }
-    
+
     @nonobjc static var tangemBgGray: Color {
         return Color(.tangemBgGray)
     }
@@ -152,11 +152,15 @@ extension Color {
     @nonobjc static var underlyingCardBackground2: Color {
         return Color("underlying-card-background2")
     }
-    
+
     // MARK: Text
-    
+
     static var textTertiary: Color {
         return Color("textTertiary")
+    }
+
+    static var textPrimary: Color {
+        return Color("textPrimary")
     }
 }
 
