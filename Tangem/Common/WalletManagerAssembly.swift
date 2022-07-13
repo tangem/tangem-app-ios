@@ -13,13 +13,13 @@ import BlockchainSdk
 class WalletManagerAssembly {
     @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
     @Injected(\.keysManager) private var keysManager: KeysManager
-    
+
     private lazy var factory: WalletManagerFactory = {
         .init(config: keysManager.blockchainConfig)
     }()
-    
+
     init() {}
-    
+
     func makeAllWalletManagers(for cardInfo: CardInfo) -> [WalletManager] {
         // If this card is Twin, return twinWallet
         if cardInfo.card.isTwinCard {
@@ -30,7 +30,7 @@ class WalletManagerAssembly {
                                                                     isTestnet: false) {
                 return [twinManager]
             }
-            
+
             // temp for bugged case
             if cardInfo.twinCardInfo?.pairPublicKey == nil,
                let wallet = cardInfo.card.wallets.first,
@@ -38,31 +38,31 @@ class WalletManagerAssembly {
                                                                    walletPublicKey: wallet.publicKey) {
                 return [bitcoinManager]
             }
-            
+
             return []
         }
-        
+
         // If this card supports multiwallet feature, load all saved tokens from persistent storage
         if cardInfo.isMultiWallet {
             var walletManagers: [WalletManager] = []
             let items = tokenItemsRepository.getItems(for: cardInfo.card.cardId)
-            
+
             if !items.isEmpty {
                 // Load tokens if exists
                 walletManagers.append(contentsOf: makeWalletManagers(from: cardInfo, entries: items))
             }
-            
+
             return walletManagers
         }
-        
+
         // Old single walled ada cards or Tangem Notes
         if let nativeWalletManager = makeNativeWalletManager(from: cardInfo) {
             return [nativeWalletManager]
         }
-        
+
         return []
     }
-    
+
     /// Try to make WalletManagers for blockchains with suitable wallet
     func makeWalletManagers(from cardInfo: CardInfo, entries: [StorageEntry]) -> [WalletManager] {
         return entries.compactMap { entry in
@@ -78,7 +78,7 @@ class WalletManagerAssembly {
             return nil
         }
     }
-    
+
     func makeWalletManagers(from cardDto: SavedCard, blockchainNetworks: [BlockchainNetwork]) -> [WalletManager] {
         return blockchainNetworks.compactMap { network in
             if let wallet = cardDto.wallets.first(where: { $0.curve == network.blockchain.curve }) {
@@ -87,11 +87,11 @@ class WalletManagerAssembly {
                                          isHDWalletAllowed: wallet.isHdWalletAllowed,
                                          derivedKeys: cardDto.getDerivedKeys(for: wallet.publicKey))
             }
-            
+
             return nil
         }
     }
-    
+
     private func makeWalletManager(walletPublicKey: Data,
                                    blockchainNetwork: BlockchainNetwork,
                                    isHDWalletAllowed: Bool,
@@ -99,7 +99,7 @@ class WalletManagerAssembly {
         if isHDWalletAllowed, blockchainNetwork.blockchain.curve == .secp256k1 || blockchainNetwork.blockchain.curve == .ed25519  {
             guard let derivationPath = blockchainNetwork.derivationPath,
                   let derivedKey = derivedKeys[derivationPath] else { return nil }
-            
+
             return try? factory.makeWalletManager(blockchain: blockchainNetwork.blockchain,
                                                   seedKey: walletPublicKey,
                                                   derivedKey: derivedKey,
@@ -109,7 +109,7 @@ class WalletManagerAssembly {
                                                   walletPublicKey: walletPublicKey)
         }
     }
-    
+
     /// Try to load native walletmanager from card
     private func makeNativeWalletManager(from cardInfo: CardInfo) -> WalletManager? {
         if let defaultBlockchain = cardInfo.defaultBlockchain {
@@ -119,10 +119,10 @@ class WalletManagerAssembly {
                 if let defaultToken = cardInfo.defaultToken {
                     cardWalletManager.addToken(defaultToken)
                 }
-                
+
                 return cardWalletManager
             }
-            
+
         }
         return nil
     }
@@ -137,7 +137,7 @@ extension WalletManagerAssembly {
                                 derivationStyle: cardInfo.card.derivationStyle,
                                 isDemoCard: cardInfo.card.isDemoCard)
     }
-    
+
     static func makeWalletModels(from cardInfo: CardInfo, entries: [StorageEntry]) -> [WalletModel] {
         let assembly = WalletManagerAssembly()
         let walletManagers = assembly.makeWalletManagers(from: cardInfo, entries: entries)
@@ -145,7 +145,7 @@ extension WalletManagerAssembly {
                                 derivationStyle: cardInfo.card.derivationStyle,
                                 isDemoCard: cardInfo.card.isDemoCard)
     }
-    
+
     static func makeWalletModels(from cardDto: SavedCard, blockchainNetworks: [BlockchainNetwork]) -> [WalletModel] {
         let assembly = WalletManagerAssembly()
         let walletManagers = assembly.makeWalletManagers(from: cardDto, blockchainNetworks: blockchainNetworks)
@@ -153,7 +153,7 @@ extension WalletManagerAssembly {
                                 derivationStyle: cardDto.derivationStyle,
                                 isDemoCard: false)
     }
-    
+
     // Make walletModel from walletManager
     static private func makeWalletModels(walletManagers: [WalletManager],
                                          derivationStyle: DerivationStyle,
@@ -164,11 +164,11 @@ extension WalletManagerAssembly {
             if isDemoCard, let balance = items.predefinedDemoBalances[manager.wallet.blockchain] {
                 demoBalance = balance
             }
-            
+
             let model = WalletModel(walletManager: manager,
                                     derivationStyle: derivationStyle,
                                     demoBalance: demoBalance)
-            
+
             model.initialize()
             return model
         }
