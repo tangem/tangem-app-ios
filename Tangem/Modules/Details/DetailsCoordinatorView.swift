@@ -11,18 +11,18 @@ import SwiftUI
 
 struct DetailsCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: DetailsCoordinator
-    
+
     var body: some View {
         ZStack {
             if let model = coordinator.detailsViewModel {
                 DetailsView(viewModel: model)
                     .navigationLinks(links)
             }
-            
+
             sheets
         }
     }
-    
+
     @ViewBuilder
     private var links: some View {
         NavHolder()
@@ -49,14 +49,14 @@ struct DetailsCoordinatorView: CoordinatorView {
                     .edgesIgnoringSafeArea(.vertical)
             }
     }
-    
+
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
             .sheet(item: $coordinator.mailViewModel) {
                 MailView(viewModel: $0)
             }
-        
+
         NavHolder()
             .sheet(item: $coordinator.modalOnboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)
@@ -65,8 +65,8 @@ struct DetailsCoordinatorView: CoordinatorView {
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
             }
-        
+
         NavHolder()
-           
+
     }
 }

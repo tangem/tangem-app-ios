@@ -13,15 +13,15 @@ import Kingfisher
 struct CoinView: View {
     @ObservedObject var model: CoinViewModel
     var subtitle: LocalizedStringKey = "currency_subtitle_expanded"
-    
+
     var body: some View {
         VStack(spacing: 10) {
             HStack(spacing: 0) {
                 Icon(model.imageURL, name: model.name)
                     .padding(.trailing, 14)
-                
+
                 VStack(alignment: .leading, spacing: 6) {
-                    
+
                     Group {
                         Text(model.name)
                             .foregroundColor(.tangemGrayDark6)
@@ -30,13 +30,13 @@ struct CoinView: View {
                     }
                     .lineLimit(1)
                     .font(.system(size: 17, weight: .medium, design: .default))
-                    
+
                     VStack {
                         if isExpanded {
                             Text(subtitle)
                                 .font(.system(size: 13))
                                 .foregroundColor(Color(hex: "#A9A9AD")!)
-                            
+
                             Spacer()
                         } else {
                             HStack(spacing: 5) {
@@ -47,16 +47,16 @@ struct CoinView: View {
                         }
                     }.frame(height: 20)
                 }
-                
+
                 Spacer(minLength: 0)
-                
+
                 chevronView
             }
             .contentShape(Rectangle())
             .onTapGesture {
                 isExpanded.toggle()
             }
-            
+
             if isExpanded {
                 VStack(spacing: 0) {
                     ForEach(model.items) { CoinItemView(model: $0) }
@@ -66,10 +66,10 @@ struct CoinView: View {
         .padding(.vertical, 10)
         .animation(nil) // Disable animations on scroll reuse
     }
-    
+
     private var symbolFormatted: String { " (\(model.symbol))" }
     @State private var isExpanded = false
-    
+
     private var chevronView: some View {
         Image(systemName: "chevron.down")
             .font(.system(size: 17, weight: .medium, design: .default))
@@ -83,7 +83,7 @@ fileprivate struct Icon: View {
     let url: URL?
     let name: String
     var size: CGSize = .init(width: 46, height: 46)
-    
+
     var body: some View {
         KFImage(url)
             .setProcessor(DownsamplingImageProcessor(size: size))
@@ -97,7 +97,7 @@ fileprivate struct Icon: View {
             .cornerRadius(5)
             .frame(size: size)
     }
-    
+
     init(_ url: URL?, name: String) {
         self.url = url
         self.name = name
@@ -126,7 +126,7 @@ struct CurrencyView_Previews: PreviewProvider {
                                                                     position: .last),
                                               ]))
             }
-            
+
             StatefulPreviewWrapper(false) {
                 CoinView(model: CoinViewModel(imageURL: nil,
                                               name: "Very Long Name of The Token",
@@ -146,7 +146,7 @@ struct CurrencyView_Previews: PreviewProvider {
                                                                     position: .last),
                                               ]))
             }
-            
+
             Spacer()
         }
         .padding()
