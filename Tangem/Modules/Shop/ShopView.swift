@@ -10,38 +10,38 @@ import SwiftUI
 
 struct ShopView: View {
     @ObservedObject var viewModel: ShopViewModel
-    
+
     private let sectionRowVerticalPadding = 12.0
     private let sectionCornerRadius = 18.0
     private let applePayCornerRadius = 18.0
-    
+
     var body: some View {
         VStack(spacing: 0) {
             SheetDragHandler()
                 .padding(.bottom, 12)
-            
+
             GeometryReader { geometry in
                 ScrollView {
                     VStack {
                         Spacer()
                             .frame(maxHeight: .infinity)
-                        
+
                         cardStack
                             .layoutPriority(1)
-                        
+
                         Spacer()
                             .frame(maxHeight: .infinity)
-                        
+
                         Text("shop_one_wallet")
                             .font(.system(size: 30, weight: .bold))
-                        
+
                         cardSelector
-                        
+
                         Spacer()
                             .frame(maxHeight: .infinity)
-                        
+
                         purchaseForm
-                        
+
                         buyButtons
                     }
                     .padding(.horizontal)
@@ -59,11 +59,11 @@ struct ShopView: View {
         .keyboardAdaptive(animated: .constant(false))
         .alert(item: $viewModel.error) { $0.alert }
     }
-    
+
     private var cardStack: some View {
         let secondCardOffset = 12.0
         let thirdCardOffset = 22.0
-        
+
         return Image("wallet_card")
             .resizable()
             .aspectRatio(contentMode: .fit)
@@ -82,7 +82,7 @@ struct ShopView: View {
             .padding(.bottom, thirdCardOffset)
             .padding(.horizontal, 20)
     }
-    
+
     @ViewBuilder
     private var cardSelector: some View {
         Picker("", selection: $viewModel.selectedBundle) {
@@ -92,7 +92,7 @@ struct ShopView: View {
         .pickerStyle(.segmented)
         .frame(minWidth: 0, maxWidth: 250)
     }
-    
+
     @ViewBuilder
     private var purchaseForm: some View {
         VStack(spacing: 0) {
@@ -104,9 +104,9 @@ struct ShopView: View {
             }
             .padding(.horizontal)
             .padding(.vertical, sectionRowVerticalPadding)
-            
+
             Separator(height: 0.5, padding: 0)
-            
+
             HStack {
                 Image("ticket")
                 TextField("shop_i_have_a_promo_code", text: $viewModel.discountCode) { editing in
@@ -116,7 +116,7 @@ struct ShopView: View {
                 }
                 .disableAutocorrection(true)
                 .keyboardType(.alphabet)
-                
+
                 if viewModel.checkingDiscountCode {
                     ActivityIndicatorView(isAnimating: true, color: .tangemGrayDark)
                 }
@@ -126,25 +126,25 @@ struct ShopView: View {
         }
         .background(Color.white.cornerRadius(sectionCornerRadius))
         .padding(.bottom, 8)
-        
+
         VStack {
             HStack {
                 Text("shop_total")
-                
+
                 Spacer()
-                
+
                 if let totalAmountWithoutDiscount = viewModel.totalAmountWithoutDiscount {
                     Text(totalAmountWithoutDiscount)
                         .strikethrough()
                 }
-                
+
                 ZStack {
                     Text(viewModel.totalAmount)
                     Text("0")
                         .foregroundColor(.clear)
                 }
                 .font(.system(size: 22, weight: .bold))
-                
+
                 if viewModel.loadingProducts {
                     ActivityIndicatorView(isAnimating: true, color: .tangemGrayDark)
                 }
@@ -155,7 +155,7 @@ struct ShopView: View {
         .background(Color.white.cornerRadius(sectionCornerRadius))
         .padding(.bottom, 8)
     }
-    
+
     @ViewBuilder
     private var buyButtons: some View {
         if viewModel.canUseApplePay {
@@ -164,7 +164,7 @@ struct ShopView: View {
             }
             .frame(height: 46)
             .cornerRadius(applePayCornerRadius)
-            
+
             Button {
                 viewModel.openWebCheckout()
             } label: {
