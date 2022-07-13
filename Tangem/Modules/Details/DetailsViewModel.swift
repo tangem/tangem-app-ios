@@ -16,28 +16,28 @@ class DetailsViewModel: ObservableObject {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     @Injected(\.onboardingStepsSetupService) private var onboardingStepsSetupService: OnboardingStepsSetupService
     @Injected(\.currencyRateService) private(set) var currencyRateService: CurrencyRateService
-    
+
     @Published var isCheckingPin = false
-    
+
     @Published var cardModel: CardViewModel
-    
+
     @Published var error: AlertBinder?
-    
+
     var dataCollector: DetailsFeedbackDataCollector!
-    
+
     var hasWallet: Bool {
         cardModel.hasWallet
     }
-    
+
     var isMultiWallet: Bool {
         cardModel.cardInfo.isMultiWallet
     }
-    
+
     var backupStatus: String? {
         guard let status = cardModel.cardInfo.card.backupStatus else {
             return nil
         }
-      
+
         switch status {
         case .active(let cardsCount):
             return String(format: "details_backup_status_format_active".localized, cardsCount)
@@ -47,50 +47,50 @@ class DetailsViewModel: ObservableObject {
             return "details_backup_status_no_backup".localized
         }
     }
-    
+
     var canCreateBackup: Bool {
         if !cardModel.cardInfo.isTangemWallet {
             return false
         }
-        
+
         if !cardModel.cardInfo.card.settings.isBackupAllowed {
             return false
         }
-        
+
         // todo: respect involved cards
-        
+
         return cardModel.cardInfo.card.backupStatus == .noBackup
     }
-    
+
     var shouldShowWC: Bool {
         if cardModel.cardInfo.isTangemNote {
             return false
         }
-        
+
         if cardModel.cardInfo.card.isStart2Coin {
             return false
         }
-        
+
         if cardModel.cardInfo.card.isTwinCard {
             return false
         }
-        
+
         if !cardModel.cardInfo.card.supportedCurves.contains(.secp256k1) {
             return false
         }
-        
+
         return true
     }
-    
+
     var isTwinCard: Bool {
         cardModel.isTwinCard
     }
-    
+
     var cardTouURL: URL? {
         guard cardModel.isStart2CoinCard else { // is this card is S2C
             return nil
         }
-        
+
         let baseurl = "https://app.tangem.com/tou/"
         let regionCode = self.regionCode(for: cardModel.cardInfo.card.cardId) ?? "fr"
         let languageCode = Locale.current.languageCode ?? "fr"
@@ -98,24 +98,24 @@ class DetailsViewModel: ObservableObject {
         let url = URL(string: baseurl + filename)
         return url
     }
-    
+
     var cardCid: String {
         let cardId = cardModel.cardInfo.card.cardId
         return isTwinCard ?
             AppTwinCardIdFormatter.format(cid: cardId, cardNumber: cardModel.cardInfo.twinCardInfo?.series.number) :
             AppCardIdFormatter(cid: cardId).formatted()
     }
-    
+
     private var bag = Set<AnyCancellable>()
     private unowned let coordinator: DetailsRoutable
-    
+
     init(cardModel: CardViewModel, coordinator: DetailsRoutable) {
         self.cardModel = cardModel
         self.coordinator = coordinator
         self.dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel)
         bind()
     }
-    
+
     func onAppear() {
         currencyRateService
             .selectedCurrencyCodePublisher
@@ -125,17 +125,17 @@ class DetailsViewModel: ObservableObject {
             }
             .store(in: &bag)
     }
-    
+
     func checkPin(_ completion: @escaping () -> Void) {
         if cardModel.cardInfo.card.firmwareVersion.doubleValue >= 4.39 {
             completion()
             return
         }
-        
+
         isCheckingPin = true
         cardModel.checkPin { [weak self] result in
             guard let self = self else { return }
-            
+
             self.isCheckingPin = false
             switch result {
             case .success:
@@ -145,7 +145,7 @@ class DetailsViewModel: ObservableObject {
             }
         }
     }
-    
+
     func prepareTwinOnboarding() {
         onboardingStepsSetupService.twinRecreationSteps(for: cardModel.cardInfo)
             .sink { completion in
@@ -159,18 +159,18 @@ class DetailsViewModel: ObservableObject {
                 }
             } receiveValue: { [weak self] steps in
                 guard let self = self else { return }
-            
+
                 let input = OnboardingInput(steps: steps,
                                             cardInput: .cardModel(self.cardModel),
                                             welcomeStep: nil,
                                             currentStepIndex: 0,
                                             isStandalone: true)
-            
+
                 self.openOnboarding(with: input)
             }
             .store(in: &bag)
     }
-    
+
     func prepareBackup() {
         onboardingStepsSetupService.backupSteps(cardModel.cardInfo)
             .sink { completion in
@@ -184,18 +184,18 @@ class DetailsViewModel: ObservableObject {
                 }
             } receiveValue: { [weak self] steps in
                 guard let self = self else { return }
-            
+
                 let input = OnboardingInput(steps: steps,
                                             cardInput: .cardModel(self.cardModel),
                                             welcomeStep: nil,
                                             currentStepIndex: 0,
                                             isStandalone: true)
-            
+
                 self.openOnboarding(with: input)
             }
             .store(in: &bag)
     }
-    
+
     private func bind() {
         cardModel.objectWillChange
             .receive(on: RunLoop.main)
@@ -204,7 +204,7 @@ class DetailsViewModel: ObservableObject {
             }
             .store(in: &bag)
     }
-    
+
     private func filename(languageCode: String, regionCode: String) -> String {
         switch (languageCode, regionCode) {
         case ("fr", "ch"):
@@ -229,7 +229,7 @@ class DetailsViewModel: ObservableObject {
             return "Start2Coin-fr-fr-atangem.pdf"
         }
     }
-    
+
     private func regionCode(for cid: String) -> String? {
         let cidPrefix = cid[cid.index(cid.startIndex, offsetBy: 1)]
         switch cidPrefix {
@@ -250,45 +250,45 @@ extension DetailsViewModel {
     func openOnboarding(with input: OnboardingInput) {
         coordinator.openOnboardingModal(with: input)
     }
-    
+
     func openMail() {
         coordinator.openMail(with: dataCollector,
                              support: cardModel.emailSupport,
                              emailType: .appFeedback(support: cardModel.isStart2CoinCard ? .start2coin : .tangem))
     }
-    
+
     func openWalletConnect() {
         coordinator.openWalletConnect(with: cardModel)
     }
-    
+
     func openCurrencySelection() {
         coordinator.openCurrencySelection(autoDismiss: false)
     }
-    
+
     func openDisclaimer() {
         coordinator.openDisclaimer()
     }
-    
+
     func openCatdTOU() {
         if let url = cardTouURL {
             coordinator.openCardTOU(at: url)
         }
     }
-    
+
     func openResetToFactory() {
         coordinator.openResetToFactory { [weak self] completion in
             self?.cardModel.resetToFactory(completion: completion)
         }
     }
-    
+
     func openSecManagement() {
         checkPin { [weak self] in
             guard let self = self else { return }
-            
+
             self.coordinator.openSecManagement(with: self.cardModel)
         }
     }
-    
+
     func openSupportChat() {
         coordinator.openSupportChat()
     }
