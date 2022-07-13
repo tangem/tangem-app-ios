@@ -16,34 +16,34 @@ class FileEncryptionUtility {
         keychain.synchronizable = true
         return keychain
     }()
-    
+
     init() {}
-    
+
     private var keychainKey: String { "tangem_files_symmetric_key" }
-    
+
     func encryptData(_ data: Data) throws -> Data {
         let sealedBox = try ChaChaPoly.seal(data, using: storedSymmetricKey())
         let sealedData = sealedBox.combined
         return sealedData
     }
-    
+
     func decryptData(_ data: Data) throws -> Data {
         let sealedBox = try ChaChaPoly.SealedBox(combined: data)
         let decryptedData = try ChaChaPoly.open(sealedBox, using: storedSymmetricKey())
         return decryptedData
     }
-    
+
     private func storedSymmetricKey() -> SymmetricKey {
         if let key = keychain.getData(keychainKey) {
             let symmetricKey: SymmetricKey = .init(data: key)
             return symmetricKey
         }
-        
+
         let key = SymmetricKey(size: .bits256)
         keychain.set(key.dataRepresentation, forKey: keychainKey)
         return key
     }
-    
+
 }
 
 extension ContiguousBytes {
