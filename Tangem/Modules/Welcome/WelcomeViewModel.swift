@@ -126,7 +126,7 @@ class WelcomeViewModel: ObservableObject {
 
 // MARK: - Navigation
 extension WelcomeViewModel {
-    func openInterrupedBackup(with input: OnboardingInput) {
+    func openInterruptedBackup(with input: OnboardingInput) {
         coordinator.openOnboardingModal(with: input)
     }
 
@@ -206,7 +206,7 @@ private extension WelcomeViewModel {
                                             currentStepIndex: 0,
                                             isStandalone: true)
                 
-                self.openInterrupedBackup(with: input)
+                self.openInterruptedBackup(with: input)
             }
             .store(in: &bag)
     }
