@@ -17,6 +17,9 @@ struct BackUpWarningButton: View {
         } label: {
             HStack(alignment: .center, spacing: 0) {
                 Image("warningIcon")
+                    .frame(width: 42, height: 42)
+                    .background(Color.tangemBgGray)
+                    .cornerRadius(21)
                     .padding(.vertical, 8)
 
                 VStack(alignment: .leading, spacing: 2) {
