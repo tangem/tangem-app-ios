@@ -13,12 +13,12 @@ struct BackupStoryPage: View {
     let isScanning: Bool
     let scanCard: (() -> Void)
     let orderCard: (() -> Void)
-    
+
     var body: some View {
         VStack {
             StoriesTangemLogo()
                 .padding()
-            
+
             VStack(spacing: 14) {
                 Text("story_backup_title")
                     .font(.system(size: 36, weight: .semibold))
@@ -26,7 +26,7 @@ struct BackupStoryPage: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
                     .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .almostImmediate)
-                
+
                 Group {
                     Text("story_backup_description_1") + Text(" ") +
                         Text("story_backup_description_2_bold").bold() + Text(" ") + Text("story_backup_description_3")
@@ -38,9 +38,9 @@ struct BackupStoryPage: View {
                 .storyTextAppearanceModifier(progress: progress, type: .description, textBlockAppearance: .almostImmediate)
             }
             .fixedSize(horizontal: false, vertical: true)
-            
+
             Spacer()
-            
+
             GeometryReader { geometry in
                 Color.clear
                     .background(
@@ -88,9 +88,9 @@ struct BackupStoryPage: View {
                             .scaleEffect(1 - 0.2 * progress)
                     )
             }
-            
+
             Spacer()
-            
+
             StoriesBottomButtons(scanColorStyle: .grayAlt2, orderColorStyle: .black, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
                 .padding(.horizontal)
                 .padding(.bottom)

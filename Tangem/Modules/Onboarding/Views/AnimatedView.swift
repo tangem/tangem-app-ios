@@ -11,7 +11,7 @@ import SwiftUI
 struct AnimatedViewSettings: Equatable {
     var targetSettings: CardAnimSettings
     var intermediateSettings: CardAnimSettings?
-    
+
     static var zero: AnimatedViewSettings {
         .init(targetSettings: .zero,
               intermediateSettings: nil)
@@ -19,20 +19,20 @@ struct AnimatedViewSettings: Equatable {
 }
 
 struct AnimatedView<Content: View>: View {
-    
+
     let content: Content
     let settings: Published<AnimatedViewSettings>.Publisher
-    
+
     init(settings: Published<AnimatedViewSettings>.Publisher, @ViewBuilder content: () -> Content) {
         self.settings = settings
         self.content = content()
     }
-    
+
     private enum AnimState {
         case notAnimating
         case toIntermediate
         case toTarget
-        
+
         var progress: CGFloat {
             switch self {
             case .notAnimating: return 0
@@ -41,14 +41,14 @@ struct AnimatedView<Content: View>: View {
             }
         }
     }
-    
+
     // [REDACTED_TODO_COMMENT]
     @State var currentSettings: AnimatedViewSettings = .zero
     @State var lastSettings: AnimatedViewSettings!
-    
+
     @State private var animationProgress: CGFloat = 0
     @State private var animState: AnimState = .notAnimating
-    
+
     var body: some View {
         applySettings(content)
             .onAnimationCompleted(for: animationProgress, completion: {
@@ -65,11 +65,11 @@ struct AnimatedView<Content: View>: View {
                     lastSettings = newSettings
                     return
                 }
-                
+
                 guard lastSettings != newSettings else { return }
-                
+
                 currentSettings = newSettings
-                
+
                 if let inter = newSettings.intermediateSettings {
                     launchAnimation(for: .toIntermediate, with: inter)
                 } else {
@@ -77,7 +77,7 @@ struct AnimatedView<Content: View>: View {
                 }
             })
     }
-    
+
     private func launchAnimation(for state: AnimState, with settings: CardAnimSettings) {
         guard let animation = settings.animation else {
             // [REDACTED_TODO_COMMENT]
@@ -87,13 +87,13 @@ struct AnimatedView<Content: View>: View {
             }
             return
         }
-        
+
         withAnimation(animation) {
             animState = state
             animationProgress = state.progress
         }
     }
-    
+
     @ViewBuilder
     func applySettings<Content: View>(to view: Content, settings: CardAnimSettings) -> some View {
         view
@@ -104,7 +104,7 @@ struct AnimatedView<Content: View>: View {
             .opacity(settings.opacity)
             .zIndex(settings.zIndex)
     }
-    
+
     @ViewBuilder
     private func applySettings<Content: View>(_ view: Content) -> some View {
         if let settings = selectSettings() {
@@ -113,7 +113,7 @@ struct AnimatedView<Content: View>: View {
             view
         }
     }
-    
+
     private func selectSettings() -> CardAnimSettings? {
         if lastSettings == nil {
             return nil
@@ -125,18 +125,18 @@ struct AnimatedView<Content: View>: View {
             return currentSettings.targetSettings
         }
     }
-    
+
 }
 
 fileprivate class AnimatedViewPreviewModel: ObservableObject {
-    
+
     enum Step: String {
         case zero
         case first
         case second
         case third
         case fourth
-        
+
         var next: Step {
             switch self {
             case .zero: return .first
@@ -146,12 +146,12 @@ fileprivate class AnimatedViewPreviewModel: ObservableObject {
             case .fourth: return .zero
             }
         }
-        
+
         var settings: AnimatedViewSettings {
             .init(targetSettings: target,
                   intermediateSettings: intermediateOffset)
         }
-        
+
         var target: CardAnimSettings {
             switch self {
             case .zero:
@@ -194,7 +194,7 @@ fileprivate class AnimatedViewPreviewModel: ObservableObject {
                              animDuration: 0.3)
             }
         }
-        
+
         var intermediateOffset: CardAnimSettings {
             switch self {
             case .zero:
@@ -238,21 +238,21 @@ fileprivate class AnimatedViewPreviewModel: ObservableObject {
             }
         }
     }
-    
+
     @Published var step: Step = .zero
     @Published var settings: AnimatedViewSettings = .zero
-    
+
     func next() {
         step = step.next
         settings = step.settings
     }
-    
+
 }
 
 fileprivate struct AnimatedViewPreview: View {
-    
+
     @ObservedObject var viewModel: AnimatedViewPreviewModel
-    
+
     var body: some View {
         GeometryReader { geom in
             ZStack(alignment: .center) {
