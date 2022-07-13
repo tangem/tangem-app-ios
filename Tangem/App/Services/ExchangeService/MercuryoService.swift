@@ -44,7 +44,7 @@ class MercuryoService {
     private var widgetId: String {
         keysManager.mercuryoWidgetId
     }
-    
+
     private var secret: String {
         keysManager.mercuryoSecret
     }
@@ -56,14 +56,14 @@ class MercuryoService {
     private var availableCurves: [EllipticCurve] {
         cardsRepository.lastScanResult.card?.walletCurves ?? []
     }
-    
+
     private var availableCryptoCurrencyCodes: [String] = []
     private var networkCodeByCurrencyCode: [String: String] = [:]
-    
+
     private var bag: Set<AnyCancellable> = []
-    
+
     init() {}
-    
+
     deinit {
         print("MercuryoService deinit")
     }
@@ -71,16 +71,16 @@ class MercuryoService {
 
 extension MercuryoService: ExchangeService {
     var successCloseUrl: String { "https://success.tangem.com" }
-    
+
     var sellRequestUrl: String {
         return ""
     }
-    
+
     func canBuy(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
         guard availableCryptoCurrencyCodes.contains(currencySymbol) else {
             return false
         }
-        
+
         if let mercuryoNetworkCurrencyCode = networkCodeByCurrencyCode[currencySymbol],
            let mercuryoBlockchain = self.blockchain(for: mercuryoNetworkCurrencyCode),
            mercuryoBlockchain == blockchain
@@ -90,22 +90,22 @@ extension MercuryoService: ExchangeService {
             return false
         }
     }
-    
+
     func canSell(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
         return false
     }
-    
+
     func getBuyUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String) -> URL? {
         guard
             canBuy(currencySymbol, amountType: amountType, blockchain: blockchain)
         else {
             return nil
         }
-        
+
         var urlComponents = URLComponents()
         urlComponents.scheme = "https"
         urlComponents.host = "exchange.mercuryo.io"
-        
+
         var queryItems = [URLQueryItem]()
         queryItems.append(.init(key: .widget_id, value: widgetId.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         queryItems.append(.init(key: .type, value: "buy"))
@@ -114,44 +114,44 @@ extension MercuryoService: ExchangeService {
         queryItems.append(.init(key: .signature, value: signature(for: walletAddress).addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         queryItems.append(.init(key: .fix_currency, value: "true"))
         queryItems.append(.init(key: .return_url, value: successCloseUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)))
-        
+
         if let languageCode = Locale.current.languageCode {
             queryItems.append(.init(key: .lang, value: languageCode))
         }
-        
+
         urlComponents.percentEncodedQueryItems = queryItems
-        
+
         let url = urlComponents.url
         return url
     }
-    
+
     func getSellUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String) -> URL? {
         fatalError("[REDACTED_TODO_COMMENT]")
     }
-    
+
     func extractSellCryptoRequest(from data: String) -> SellCryptoRequest? {
         return nil
     }
-    
+
     func initialize() {
         let request = URLRequest(url: URL(string: "https://api.mercuryo.io/v1.6/lib/currencies")!)
-        
+
         let config = URLSessionConfiguration.default
         config.requestCachePolicy = .reloadIgnoringLocalCacheData
         config.urlCache = nil
-        
+
         URLSession(configuration: config).dataTaskPublisher(for: request)
             .map(\.data)
             .decode(type: MercuryoCurrencyResponse.self, decoder: JSONDecoder())
             .sink { _ in
-                
+
             } receiveValue: { [unowned self] response in
                 self.availableCryptoCurrencyCodes = response.data.crypto
                 self.networkCodeByCurrencyCode = response.data.config.base
             }
             .store(in: &bag)
     }
-    
+
     private func blockchain(for currencyCode: String) -> Blockchain? {
         let supportedBlockchains = SupportedTokenItems()
             .blockchains(for: availableCurves, isTestnet: isTestnet)
@@ -165,12 +165,12 @@ extension MercuryoService: ExchangeService {
                     return true
                 }
             }
-        
+
         return supportedBlockchains.first {
             $0.currencySymbol == currencyCode
         }
     }
-    
+
     private func signature(for address: String) -> String {
         (address + secret).sha512()
     }
