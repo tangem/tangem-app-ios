@@ -9,7 +9,7 @@
 import Foundation
 
 protocol SecurityPrivacyRoutable: AnyObject {
-    func openChangePassword()
+    func openChangeAccessCode()
     func openSecurityManagement(cardModel: CardViewModel)
     func openTokenSynchronization()
     func openResetSavedCards()
