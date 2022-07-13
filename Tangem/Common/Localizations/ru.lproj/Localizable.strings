@@ -497,4 +497,8 @@ URL: %@";
 "main_no_backup_warning_subtitle" = "Чтобы защитить свои активы, мы советуем вам выполнить эту процедуру";
 "details_ask_a_question" = "Задать вопрос";
 "common_retry" = "Повторить";
+"common_yes" = "Да";
+"common_no" = "Нет";
+"russian_bank_card_warning_title" = "Карты банков РФ в данный момент не принимаются";
+"russian_bank_card_warning_subtitle" = "У вас есть карта банка другой страны или платежной системы UnionPay?";
 "wallet_currency_subtitle" = "Сеть %@";
