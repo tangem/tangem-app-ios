@@ -11,23 +11,23 @@ import Foundation
 class ShopCoordinator: CoordinatorObject {
     var dismissAction: Action
     var popToRootAction: ParamsAction<PopToRootOptions>
-    
+
     // MARK: - Main view model
     @Published private(set) var shopViewModel: ShopViewModel? = nil
-    
+
     // MARK: - Child view models
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
-    
+
     @Published var webShopUrl: URL? = nil
-    
+
     // MARK: - Private helpers
     @Published var emptyModel: Int? = nil // Fix single navigation link issue
-    
+
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
-    
+
     func start(with options: ShopCoordinator.Options = .init()) {
         if Locale.current.regionCode == "RU" {
             webShopUrl = URL(string: "https://mv.tangem.com")
@@ -39,7 +39,7 @@ class ShopCoordinator: CoordinatorObject {
 
 extension ShopCoordinator {
     struct Options {
-        
+
     }
 }
 
@@ -49,7 +49,7 @@ extension ShopCoordinator: ShopViewRoutable {
                                                        title: "shop_web_checkout_title".localized,
                                                        addLoadingIndicator: true)
     }
-    
+
     func closeWebCheckout() {
         pushedWebViewModel = nil
     }
