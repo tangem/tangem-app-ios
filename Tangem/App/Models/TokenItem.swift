@@ -15,9 +15,9 @@ enum TokenItem: Hashable {
     case token(Token, Blockchain)
 
     var isBlockchain: Bool { token == nil }
-    
+
     var isToken: Bool { token != nil }
-    
+
     var id: String? {
         switch self {
         case .token(let token, _):
@@ -26,7 +26,7 @@ enum TokenItem: Hashable {
             return blockchain.id
         }
     }
-    
+
     var blockchain: Blockchain {
         switch self {
         case .token(_, let blockchain):
@@ -35,7 +35,7 @@ enum TokenItem: Hashable {
             return blockchain
         }
     }
-    
+
     var amountType: Amount.AmountType {
         switch self {
         case .token(let token, _):
@@ -44,12 +44,12 @@ enum TokenItem: Hashable {
             return .coin
         }
     }
-    
+
     func getDefaultBlockchainNetwork(for style: DerivationStyle) -> BlockchainNetwork {
         let path = blockchain.derivationPath(for: style)
         return .init(blockchain, derivationPath: path)
     }
-    
+
     var token: Token? {
         switch self {
         case .token(let token, _):
@@ -58,7 +58,7 @@ enum TokenItem: Hashable {
             return nil
         }
     }
-    
+
     var name: String {
         switch self {
         case .token(let token, _):
@@ -67,7 +67,7 @@ enum TokenItem: Hashable {
             return blockchain.displayName
         }
     }
-    
+
     var contractName: String? {
         switch self {
         case .token:
@@ -76,7 +76,7 @@ enum TokenItem: Hashable {
             return "MAIN"
         }
     }
-    
+
     var symbol: String {
         switch self {
         case .token(let token, _):
@@ -85,7 +85,7 @@ enum TokenItem: Hashable {
             return blockchain.currencySymbol
         }
     }
-    
+
     var contractAddress: String? {
         token?.contractAddress
     }

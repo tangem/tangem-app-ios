@@ -20,23 +20,23 @@ func logToConsole(_ message: String) {
 }
 
 class Logger: TangemSdkLogger {
-    
+
     private let fileManager = FileManager.default
-    
+
     var scanLogFileData: Data? {
         try? Data(contentsOf: scanLogsFileUrl)
     }
-    
+
     private var scanLogsFileUrl: URL {
         fileManager.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("scanLogs.txt")
     }
-    
+
     private var isRecordingLogs: Bool = false
-    
+
     init() {
         try? fileManager.removeItem(at: scanLogsFileUrl)
     }
-    
+
     func log(_ message: String, level: Log.Level) {
         let formattedMessage = "\(loggerDateFormatter.string(from: Date())): \(message)\n"
         let messageData = formattedMessage.data(using: .utf8)!

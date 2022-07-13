@@ -18,9 +18,9 @@ struct AddressQrBottomSheetContentViewVodel: Identifiable {
 
 struct AddressQrBottomSheetContent: View {
     let viewModel: AddressQrBottomSheetContentViewVodel
-    
+
     @State private var showCheckmark = false
-    
+
     var body: some View {
         VStack(spacing: 0) {
             Image(uiImage: QrCodeGenerator.generateQRCode(from: viewModel.shareAddress))
@@ -38,14 +38,14 @@ struct AddressQrBottomSheetContent: View {
                 Button(action: {
                     showCheckmark = true
                     UIPasteboard.general.string = viewModel.address
-                    
+
                     let notificationGenerator = UINotificationFeedbackGenerator()
                     notificationGenerator.notificationOccurred(.success)
-                    
+
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
                         showCheckmark = false
                     }
-                    
+
                 }, label: {
                     HStack {
                         Text(viewModel.address)
@@ -54,7 +54,7 @@ struct AddressQrBottomSheetContent: View {
                             .frame(maxWidth: 100)
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundColor(.tangemGrayDark6)
-                        
+
                         Group {
                             showCheckmark ?
                                 Image(systemName: "checkmark")
@@ -82,21 +82,21 @@ struct AddressQrBottomSheetContent: View {
             .padding(.top, 30)
             .padding(.bottom, 50)
         }
-        
+
     }
-    
+
     private func showShareSheet() {
         let av = UIActivityViewController(activityItems: [viewModel.address], applicationActivities: nil)
         UIApplication.topViewController?.present(av, animated: true, completion: nil)
     }
-    
+
 }
 
 
 struct AddressQrBottomSheetPreviewView: View {
-    
+
     @ObservedObject var model: BottomSheetPreviewProvider
-    
+
     var body: some View {
         ZStack {
             Button(action: {
@@ -115,20 +115,20 @@ struct AddressQrBottomSheetPreviewView: View {
                                                                  qrNotice: "BTC"))
                 })
         }
-        
+
     }
 }
 
 struct AddressQrBottomSheet_Previews: PreviewProvider {
-    
+
     static var previews: some View {
         AddressQrBottomSheetPreviewView(model: BottomSheetPreviewProvider())
             .previewGroup(devices: [.iPhoneX], withZoomed: false)
-        
+
         AddressQrBottomSheetContent(viewModel: .init(shareAddress: "eth:0x01232483902f903678a098bce",
                                                      address: "0x01232483902f903678a098bce",
                                                      qrNotice: "BTC"))
     }
-    
+
 }
 

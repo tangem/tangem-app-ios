@@ -11,24 +11,24 @@ import SwiftUI
 
 struct OnboardingCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: OnboardingCoordinator
-    
+
     var body: some View {
         ZStack {
             content
                 .transition(.withoutOpacity)
                 .navigationBarTitle("", displayMode: .inline)
                 .navigationBarHidden(true)
-            
+
             NavHolder()
                 .sheet(item: $coordinator.buyCryptoModel) {
                     WebViewContainer(viewModel: $0)
                 }
-            
+
             NavHolder()
                 .sheet(item: $coordinator.accessCodeModel) {
                     OnboardingAccessCodeView(viewModel: $0)
                 }
-            
+
             BottomSheetView(from: coordinator.bottomSheetSettings,
                             isPresented: coordinator.$qrBottomSheetKeeper,
                             hideBottomSheetCallback: coordinator.hideQrBottomSheet,
@@ -36,7 +36,7 @@ struct OnboardingCoordinatorView: CoordinatorView {
             // .frame(maxWidth: screenSize.width) //UISCreen.main.bounds [REDACTED_TODO_COMMENT]
         }
     }
-    
+
     @ViewBuilder
     private var content: some View {
         if let singleCardViewModel = coordinator.singleCardViewModel {
@@ -47,7 +47,7 @@ struct OnboardingCoordinatorView: CoordinatorView {
             WalletOnboardingView(viewModel: walletViewModel)
         }
     }
-    
+
     @ViewBuilder
     private var addressQrBottomSheetContent: some View {
         if let model = coordinator.addressQrBottomSheetContentViewVodel {

@@ -14,7 +14,7 @@ struct MeetTangemStoryPage: View {
     let isScanning: Bool
     let scanCard: (() -> Void)
     let orderCard: (() -> Void)
-    
+
     private let words: [LocalizedStringKey] = [
         "",
         "",
@@ -30,12 +30,12 @@ struct MeetTangemStoryPage: View {
 //        "story_meet_stake", // no stake for now
         "",
     ]
-    
+
     private let wordListProgressEnd = 0.6
-    
+
     private let titleProgressStart = 0.7
     private let titleProgressEnd = 0.9
-    
+
     var body: some View {
         ZStack {
             ForEach(0 ..< words.count) { index in
@@ -51,7 +51,7 @@ struct MeetTangemStoryPage: View {
                         end: Double(index + 1) / Double(words.count) * wordListProgressEnd
                     ))
             }
-            
+
             VStack(spacing: 0) {
                 StoriesTangemLogo()
                     .padding()
@@ -60,7 +60,7 @@ struct MeetTangemStoryPage: View {
                         start: wordListProgressEnd,
                         end: .infinity
                     ))
-                
+
                 Text("story_meet_title")
                     .font(.system(size: 60, weight: .semibold))
                     .lineLimit(2)
@@ -84,7 +84,7 @@ struct MeetTangemStoryPage: View {
                         start: titleProgressStart,
                         end: .infinity
                     ))
-                
+
                 Color.clear
                     .background(
                         Image("hand_with_card")
@@ -116,10 +116,10 @@ struct MeetTangemStoryPage: View {
                         alignment: .top
                     )
             }
-            
+
             VStack {
                 Spacer()
-                
+
                 StoriesBottomButtons(scanColorStyle: .black, orderColorStyle: .grayAlt, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
             }
             .padding(.horizontal)

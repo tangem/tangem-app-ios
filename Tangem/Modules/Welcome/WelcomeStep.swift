@@ -11,28 +11,28 @@ import SwiftUI
 enum WelcomeStep {
     case welcome
     case letsStart
-    
+
     var title: LocalizedStringKey {
         switch self {
         case .welcome: return "onboarding_read_title"
         case .letsStart: return "onboarding_read_title"
         }
     }
-    
+
     var subtitle: LocalizedStringKey {
         switch self {
         case .welcome: return "onboarding_read_subtitle"
         case .letsStart: return "onboarding_read_subtitle"
         }
     }
-    
+
     var mainButtonTitle: LocalizedStringKey {
         switch self {
         case .welcome: return "home_button_scan"
         case .letsStart: return "home_button_scan"
         }
     }
-    
+
     var supplementButtonTitle: LocalizedStringKey {
         switch self {
         case .welcome: return "onboarding_button_shop"
