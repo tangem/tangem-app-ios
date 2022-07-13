@@ -16,9 +16,9 @@ struct RoundedRectButton: View {
     var foregroundColor: Color = .tangemBlue
     var withVerification: Bool = false
     var isDisabled = false
-    
+
     @State private var isVerify = false
-    
+
     var body: some View {
         Button(action: {
             action()
@@ -44,15 +44,15 @@ struct RoundedRectButton: View {
         })
         .buttonStyle(PlainButtonStyle())
     }
-    
+
     private func playVerifyAnimation() {
         withAnimation {
             isVerify = true
         }
-        
+
         let notificationGenerator = UINotificationFeedbackGenerator()
         notificationGenerator.notificationOccurred(.success)
-        
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
             withAnimation {
                 isVerify = false
