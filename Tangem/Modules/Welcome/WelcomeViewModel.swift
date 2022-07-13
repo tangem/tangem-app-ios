@@ -204,7 +204,7 @@ private extension WelcomeViewModel {
                                             cardInput: .cardId(primaryCardId),
                                             welcomeStep: nil,
                                             currentStepIndex: 0,
-                                            isStandalone: false)
+                                            isStandalone: true)
                 
                 self.openInterrupedBackup(with: input)
             }
