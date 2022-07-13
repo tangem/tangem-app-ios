@@ -12,7 +12,8 @@ import BlockchainSdk
 protocol KeysManager {
     var appsFlyerDevKey: String { get }
     var moonPayKeys: MoonPayKeys { get }
-    var onramperApiKey: String { get }
+    var mercuryoWidgetId: String { get }
+    var mercuryoSecret: String { get }
     var blockchainConfig: BlockchainSdkConfig { get }
     var shopifyShop: ShopifyShop { get }
     var zendesk: ZendeskConfig { get }

@@ -11,31 +11,32 @@ import Foundation
 class OnboardingCoordinator: CoordinatorObject {
     var dismissAction: Action
     var popToRootAction: ParamsAction<PopToRootOptions>
-    
+
     // MARK: - Main view models
     @Published private(set) var singleCardViewModel: SingleCardOnboardingViewModel? = nil
     @Published private(set) var twinsViewModel: TwinsOnboardingViewModel? = nil
     @Published private(set) var walletViewModel: WalletOnboardingViewModel? = nil
-    
+
     // MARK: - Child coordinators
     @Published var mainCoordinator: MainCoordinator? = nil
-    
+
     // MARK: - Child view models
     @Published var buyCryptoModel: WebViewContainerViewModel? = nil
     @Published var accessCodeModel: OnboardingAccessCodeViewModel? = nil
     @Published var addressQrBottomSheetContentViewVodel: AddressQrBottomSheetContentViewVodel? = nil
-    
+
     // MARK: - Helpers
     @Published var qrBottomSheetKeeper: Bool = false
-    
+    @Published var bottomSheetSettings: BottomSheet?
+
     // For non-dismissable presentation
     var onDismissalAttempt: () -> Void = {}
-    
+
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
-    
+
     func start(with options: OnboardingCoordinator.Options) {
         let input = options.input
         switch input.steps {
@@ -53,7 +54,7 @@ class OnboardingCoordinator: CoordinatorObject {
             walletViewModel = model
         }
     }
-    
+
     func hideQrBottomSheet() {
         qrBottomSheetKeeper.toggle()
     }
@@ -77,9 +78,10 @@ extension OnboardingCoordinator: OnboardingTopupRoutable {
                                    }
                                }])
     }
-    
+
     func openQR(shareAddress: String, address: String, qrNotice: String) {
         addressQrBottomSheetContentViewVodel = .init(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
+        bottomSheetSettings = .qr
         qrBottomSheetKeeper = true
     }
 }
