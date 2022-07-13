@@ -10,9 +10,9 @@ import SwiftUI
 
 struct TotalSumBalanceView: View {
     @ObservedObject var viewModel: TotalSumBalanceViewModel
-    
+
     var tapOnCurrencySymbol: () -> ()
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 0) {
@@ -20,9 +20,9 @@ struct TotalSumBalanceView: View {
                     .lineLimit(1)
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(Color.tangemTextGray)
-                
+
                 Spacer()
-                
+
                 Button {
                     tapOnCurrencySymbol()
                 } label: {
@@ -37,12 +37,12 @@ struct TotalSumBalanceView: View {
                 .buttonStyle(PlainButtonStyle())
             }
             .padding(.bottom, 4)
-            
+
             AttributedTextView(viewModel.totalFiatValueString)
                 .foregroundColor(Color.tangemGrayDark6)
                 .skeletonable(isShown: viewModel.isLoading, size: CGSize(width: 100, height: 25))
                 .frame(height: 33)
-            
+
             if viewModel.hasError {
                 Text("main_processing_full_amount".localized)
                     .foregroundColor(Color.tangemWarning)
