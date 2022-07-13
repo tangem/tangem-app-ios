@@ -13,9 +13,9 @@ import TangemSdk
 struct SecurityManagementRowView: View {
     @Binding var selectedOption: SecurityManagementOption
     let option: SecurityManagementOption
-    
+
     @EnvironmentObject var cardViewModel: CardViewModel // [REDACTED_TODO_COMMENT]
-    
+
     var isEnabled: Bool {
         switch option {
         case .accessCode:
@@ -26,9 +26,9 @@ struct SecurityManagementRowView: View {
             return cardViewModel.canSetPasscode
         }
     }
-    
+
     var isSelected: Bool { selectedOption == option }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .lastTextBaseline) {
@@ -62,10 +62,10 @@ struct SecurityManagementRowView: View {
 
 struct SecurityManagementView: View {
     @ObservedObject var viewModel: SecurityManagementViewModel
-    
+
     var body: some View {
         VStack {
-            
+
             List {
                 Section(content: {
                     ForEach(viewModel.cardViewModel.availableSecOptions) { option in
@@ -90,8 +90,8 @@ struct SecurityManagementView: View {
             }
             .listRowInsets(EdgeInsets())
             .listStyle(GroupedListStyle())
-            
-            
+
+
             TangemButton(title: viewModel.selectedOption == .longTap ? "common_save_changes" : "common_continue") {
                 self.viewModel.onTap()
             }.buttonStyle(TangemButtonStyle(colorStyle: .black,
