@@ -11,21 +11,21 @@ import Foundation
 class SecurityPrivacyCoordinator: CoordinatorObject {
     var dismissAction: Action
     var popToRootAction: ParamsAction<PopToRootOptions>
-    
+
     // MARK: - Main view model
     @Published private(set) var securityPrivacyViewModel: SecurityPrivacyViewModel?
-    
+
     // MARK: - Child view models
     // [REDACTED_TODO_COMMENT]
-    
+
     // MARK: - Child coordinators
     @Published var securityManagementCoordinator: SecurityManagementCoordinator?
-    
+
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
-    
+
     func start(with options: Options) {
         switch options {
         case let .cardModel(viewModel):
@@ -44,7 +44,7 @@ extension SecurityPrivacyCoordinator {
 
 extension SecurityPrivacyCoordinator: SecurityPrivacyRoutable {
     func openChangeAccessCode() {
-        
+
     }
 
     func openSecurityManagement(cardModel: CardViewModel) {
@@ -53,12 +53,12 @@ extension SecurityPrivacyCoordinator: SecurityPrivacyRoutable {
         coordinator.start(with: options)
         securityManagementCoordinator = coordinator
     }
-    
+
     func openTokenSynchronization() {
-            
+
     }
-    
+
     func openResetSavedCards() {
-        
+
     }
 }
