@@ -11,17 +11,17 @@ import SwiftUI
 
 struct SendCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: SendCoordinator
-    
+
     var body: some View {
         ZStack {
             if let model = coordinator.sendViewModel {
                 SendView(viewModel: model)
             }
-           
+
             sheets
         }
     }
-    
+
     @ViewBuilder
     private var sheets: some View {
         VStack {
@@ -29,7 +29,7 @@ struct SendCoordinatorView: CoordinatorView {
                 .sheet(item: $coordinator.mailViewModel) {
                     MailView(viewModel: $0)
                 }
-            
+
             NavHolder()
                 .sheet(item: $coordinator.qrScanViewModel) {
                     QRScanView(viewModel: $0)
