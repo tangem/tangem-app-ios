@@ -16,7 +16,7 @@ enum WalletOnboardingStep {
     case selectBackupCards
     case backupCards
     case success
-    
+
     var navbarTitle: LocalizedStringKey {
         switch self {
         case .welcome: return ""
@@ -25,7 +25,7 @@ enum WalletOnboardingStep {
         case .success: return "common_done"
         }
     }
-    
+
     func backgroundFrameSize(in container: CGSize) -> CGSize {
         switch self {
         case .welcome, .success, .backupCards:
@@ -38,7 +38,7 @@ enum WalletOnboardingStep {
             return .init(width: diameter, height: diameter)
         }
     }
-    
+
     func backgroundOffset(in container: CGSize) -> CGSize {
         switch self {
 //        case .backupIntro:
@@ -49,7 +49,7 @@ enum WalletOnboardingStep {
 //            return .init(width: 0, height: container.height * 0.089)
         }
     }
-    
+
 }
 
 extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
@@ -64,7 +64,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         case .success: return successTitle
         }
     }
-    
+
     var subtitle: LocalizedStringKey {
         switch self {
         case .welcome: return WelcomeStep.welcome.subtitle
@@ -76,7 +76,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         case .success: return "onboarding_subtitle_success_backup"
         }
     }
-    
+
     var messagesOffset: CGSize {
         switch self {
         case .success: return CGSize(width: 0, height: -2)
@@ -97,7 +97,7 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
         case .success: return "onboarding_button_continue_wallet"
         }
     }
-    
+
     var supplementButtonTitle: LocalizedStringKey {
         switch self {
         case .welcome: return WelcomeStep.welcome.supplementButtonTitle
@@ -106,20 +106,20 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
         case .selectBackupCards: return "onboarding_button_finalize_backup"
         default: return ""
         }
-        
+
     }
-    
+
     var isSupplementButtonVisible: Bool {
         switch self {
         case .scanPrimaryCard, .backupCards, .success, .createWallet: return false
         default: return true
         }
     }
-    
+
     var isContainSupplementButton: Bool {
         true
     }
-    
+
     var checkmarkText: LocalizedStringKey? {
         return nil
     }
@@ -129,22 +129,22 @@ extension WalletOnboardingStep: OnboardingInitialStepInfo {
     static var initialStep: WalletOnboardingStep {
         .welcome
     }
-    
-    
+
+
 }
 
 extension WalletOnboardingStep: OnboardingProgressStepIndicatable {
     var isOnboardingFinished: Bool {
         self == .success
     }
-    
+
     var successCircleOpacity: Double {
         isOnboardingFinished ? 1.0 : 0.0
     }
-    
+
     var successCircleState: OnboardingCircleButton.State {
         isOnboardingFinished ? .doneCheckmark : .blank
     }
-    
-    
+
+
 }

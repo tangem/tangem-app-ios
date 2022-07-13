@@ -14,12 +14,12 @@ import TangemSdk
 
 class CommonCoinsService {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
-    
+
     private let provider = MoyaProvider<TangemApiTarget>()
     private var bag: Set<AnyCancellable> = .init()
-    
+
     init() {}
-    
+
     deinit {
         print("CoinsService deinit")
     }
@@ -31,7 +31,7 @@ extension CommonCoinsService: CoinsService {
     func loadCoins(requestModel: CoinsListRequestModel) -> AnyPublisher<[CoinModel], Error> {
         let card = cardsRepository.lastScanResult.card
         let target = TangemApiTarget(type: .coins(requestModel), card: card)
-        
+
         return provider
             .requestPublisher(target)
             .filterSuccessfulStatusCodes()
@@ -45,17 +45,17 @@ extension CommonCoinsService: CoinsService {
                 guard let contractAddress = requestModel.contractAddress else {
                     return coinModels
                 }
-                
+
                 return coinModels.compactMap { coinModel in
                     let items = coinModel.items.filter {
                         let itemContractAddress = $0.contractAddress ?? ""
                         return itemContractAddress.caseInsensitiveCompare(contractAddress) == .orderedSame
                     }
-                    
+
                     guard !items.isEmpty else {
                         return nil
                     }
-                    
+
                     return CoinModel(
                         id: coinModel.id,
                         name: coinModel.name,
