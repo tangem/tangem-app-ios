@@ -19,7 +19,7 @@
 //    [REDACTED_USERNAME] private var isFirstResponder : Bool? = false
 //    [REDACTED_USERNAME](\.presentationMode) var presentationMode
 //    var cardViewModel: CardViewModel
-//    
+//
 //    var body: some View {
 //        VStack(alignment: .leading, spacing: 8) {
 //                Text("wallet_create_payid")
@@ -46,7 +46,7 @@
 //                    Color.tangemGrayLight5
 //                        .frame(height: 1.0, alignment: .center)
 //                }
-//                
+//
 //                Text("wallet_create_payid_domain")
 //                    .font(Font.system(size: 16.0, weight: .regular, design: .default))
 //                    .lineLimit(1)
@@ -74,7 +74,7 @@
 //                if self.isLoading {
 //                    return
 //                }
-//                
+//
 //                self.isLoading = true
 //                self.cardViewModel.createPayID(self.payIdText) { result in
 //                    self.isLoading = false
@@ -98,7 +98,7 @@
 //        .padding(.horizontal)
 //        .keyboardAdaptive(animated: $isAppeared)
 //        .onWillAppear {
-//            self.isFirstResponder = true          
+//            self.isFirstResponder = true
 //        }
 //        .onWillDisappear {
 //            self.isFirstResponder = false
