@@ -526,6 +526,8 @@
 		EF0FF873286608BC00B7CEAF /* GoogleService-Info-Beta.plist in Resources */ = {isa = PBXBuildFile; fileRef = EF0FF8722866089200B7CEAF /* GoogleService-Info-Beta.plist */; };
 		EF4B41BB2864491B003911F6 /* TangemSkeletonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B41BA2864491B003911F6 /* TangemSkeletonModifier.swift */; };
 		EF4B41BD28644982003911F6 /* SkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B41BC28644982003911F6 /* SkeletonView.swift */; };
+		EF6691D1287ED86100773AA6 /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A0A19025822EFF005FC94D /* Storage.swift */; };
+		EF6691D2287ED86900773AA6 /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0FF8702866021B00B7CEAF /* AppEnvironment.swift */; };
 		EF7B9CEF286C6BD7004C33A9 /* SecurityPrivacyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CEE286C6BD7004C33A9 /* SecurityPrivacyView.swift */; };
 		EF7B9CF1286C6BE2004C33A9 /* SecurityPrivacyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF0286C6BE2004C33A9 /* SecurityPrivacyViewModel.swift */; };
 		EF7B9CF5286C7023004C33A9 /* SecurityPrivacyCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF4286C7023004C33A9 /* SecurityPrivacyCoordinator.swift */; };
@@ -3499,7 +3501,7 @@
 				B0CA5AC225F785FA0078F42F /* VerticalAlignment+.swift in Sources */,
 				DC5118662860AD38004FB954 /* CardView.swift in Sources */,
 				DC0A57EE2822AEF70031BECC /* TangemSdkProviding.swift in Sources */,
-				EFB997B0287D8924002F45F6 /* Storage.swift in Sources */,
+				EF6691D1287ED86100773AA6 /* Storage.swift in Sources */,
 				B00BC589260B179200F0647D /* CircleActionButton.swift in Sources */,
 				5D49035027BE8AAE0072C642 /* ExploreButton.swift in Sources */,
 				DC0A57ED2822AEF30031BECC /* PersistentStorageKey.swift in Sources */,
@@ -3522,7 +3524,7 @@
 				DC0A57EC2822AEF10031BECC /* PersistentStorageProtocol.swift in Sources */,
 				5DE7DD4A269625F800472205 /* AppScanTask.swift in Sources */,
 				B0C34953267B19B90027CC9D /* RoundedCorner.swift in Sources */,
-				EFB997B1287D8926002F45F6 /* AppEnvironment.swift in Sources */,
+				EF6691D2287ED86900773AA6 /* AppEnvironment.swift in Sources */,
 				5DE7DD232695C27E00472205 /* UserPrefsService.swift in Sources */,
 				DC0A57EB2822AEEB0031BECC /* PersistentStorage.swift in Sources */,
 				DC0A5853282E3AB60031BECC /* CardInfo.swift in Sources */,
