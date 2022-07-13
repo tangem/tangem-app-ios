@@ -28,7 +28,7 @@ public struct SkeletonView: View {
         ZStack {
             backgroundView
 
-            gradientView  
+            gradientView
         }
     }
 

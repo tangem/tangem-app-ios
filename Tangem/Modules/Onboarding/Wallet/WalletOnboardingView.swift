@@ -13,38 +13,38 @@ struct WalletOnboardingView: View {
 
     private let screenSize: CGSize = UIScreen.main.bounds.size
     private let infoPagerHeight: CGFloat = 146
-    
+
     var currentStep: WalletOnboardingStep {
         viewModel.currentStep
     }
-    
+
     var isNavbarVisible: Bool {
         viewModel.isNavBarVisible
     }
-    
+
     var isProgressBarVisible: Bool {
         if case .welcome = currentStep {
             return false
         }
-        
+
         if !viewModel.isInitialAnimPlayed {
             return false
         }
-        
+
         return true
     }
-    
+
     var secondCardPlaceholder: OnboardingCardView.CardType {
         .dark
     }
-    
+
     var body: some View {
-        ZStack {            
+        ZStack {
             ConfettiView(shouldFireConfetti: $viewModel.shouldFireConfetti)
                 .allowsHitTesting(false)
                 .frame(maxWidth: screenSize.width)
                 .zIndex(110)
-            
+
             VStack(spacing: 0) {
                 GeometryReader { geom in
                     let size = geom.size
@@ -53,7 +53,7 @@ struct WalletOnboardingView: View {
                             .foregroundColor(.tangemBgGray)
                             .frame(size: viewModel.isInitialAnimPlayed ? currentStep.backgroundFrameSize(in: size) : .zero)
                             .offset(viewModel.isInitialAnimPlayed ? currentStep.backgroundOffset(in: size) : .zero)
-                        
+
                         // Navbar is added to ZStack instead of VStack because of wrong animation when container changed
                         // and cards jumps instead of smooth transition
                         NavigationBar(title: viewModel.navbarTitle,
@@ -67,24 +67,24 @@ struct WalletOnboardingView: View {
                                       })
                                       .offset(x: 0, y: -geom.size.height / 2 + (isNavbarVisible ? viewModel.navbarSize.height / 2 + 4 : 0))
                                       .opacity(isNavbarVisible ? 1.0 : 0.0)
-                        
+
                         ProgressBar(height: 5, currentProgress: viewModel.currentProgress)
                             .opacity(isProgressBarVisible ? 1.0 : 0.0)
                             .frame(width: screenSize.width - 32)
                             .offset(x: 0, y: -size.height / 2 + viewModel.navbarSize.height + 10)
-                        
+
                         AnimatedView(settings: viewModel.$thirdCardSettings) {
                             OnboardingCardView(placeholderCardType: secondCardPlaceholder,
                                                cardImage: viewModel.cardImage,
                                                cardScanned: (viewModel.backupCardsAddedCount >= 2 || currentStep == .backupIntro) && viewModel.canDisplayCardImage)
                         }
-                        
+
                         AnimatedView(settings: viewModel.$supplementCardSettings) {
                             OnboardingCardView(placeholderCardType: secondCardPlaceholder,
                                                cardImage: viewModel.cardImage,
                                                cardScanned: (viewModel.backupCardsAddedCount >= 1 || currentStep == .backupIntro) && viewModel.canDisplayCardImage)
                         }
-                        
+
                         AnimatedView(settings: viewModel.$mainCardSettings) {
                             ZStack(alignment: .topTrailing) {
                                 OnboardingCardView(placeholderCardType: .dark,
@@ -101,15 +101,15 @@ struct WalletOnboardingView: View {
                                     .padding(12)
                                     .opacity(currentStep == .backupCards ? 1.0 : 0.0)
                             }
-                            
+
                         }
-                        
+
                         OnboardingCircleButton(refreshAction: {},
                                                state: currentStep.successCircleState,
                                                size: .huge)
                             .offset(y: 8)
                             .opacity(currentStep.successCircleOpacity)
-                        
+
                         if viewModel.isInfoPagerVisible {
                             OnboardingWalletInfoPager(animated: viewModel.isInfoPagerVisible)
                                 .offset(.init(width: 0, height: size.height / 2 + infoPagerHeight / 2))
@@ -145,7 +145,7 @@ struct WalletOnboardingView: View {
             if viewModel.isInitialAnimPlayed {
                 return
             }
-            
+
             viewModel.playInitialAnim()
         })
     }

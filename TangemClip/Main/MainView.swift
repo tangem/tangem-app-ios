@@ -10,11 +10,11 @@ import SwiftUI
 import StoreKit
 
 struct MainView: View {
-    
+
     @ObservedObject var viewModel: MainViewModel
-    
+
     @State var isDisplayingAppStoreOverlay = false
-    
+
     var body: some View {
         VStack {
             Text("main_title")
@@ -62,7 +62,7 @@ struct MainView: View {
                 SKOverlay.AppClipConfiguration(position: .bottom)
             }
             .onAppear(perform: viewModel.onAppear)
-            
+
 //            if viewModel.state == .notScannedYet {
 //                TangemButton(title: "main_button_read_wallets",
 //                             image: "scan",
@@ -75,8 +75,8 @@ struct MainView: View {
         }
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
     }
-    
-    
+
+
 }
 
 // struct MainView_Previews: PreviewProvider {

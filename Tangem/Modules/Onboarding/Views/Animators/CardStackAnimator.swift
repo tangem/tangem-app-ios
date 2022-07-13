@@ -16,7 +16,7 @@ struct CardsStackAnimatorSettings {
     let opacityStep: Double
     var numberOfCards: Int
     var maxCardsInStack: Int
-    
+
     static var zero: CardsStackAnimatorSettings {
         .init(topCardSize: .zero,
               topCardOffset: .zero,
@@ -35,7 +35,7 @@ enum AnimType: Equatable {
     case easeOut
     case easeInOut
     case noAnim
-    
+
     func animation(with duration: Double?) -> Animation? {
         guard let duration = duration else {
             switch self {
@@ -47,7 +47,7 @@ enum AnimType: Equatable {
             case .noAnim: return nil
             }
         }
-        
+
         switch self {
         case .default: return .default
         case .linear: return .linear(duration: duration)
@@ -66,14 +66,14 @@ struct CardAnimSettings: Equatable {
     var opacity: Double
     var zIndex: Double
     var rotationAngle: Angle
-    
+
     var animType: AnimType = .default
     var animDuration: Double = 0.3
-    
+
     var animation: Animation? {
         animType.animation(with: animDuration)
     }
-    
+
     static var zero: CardAnimSettings {
         .init(frame: .zero,
               offset: .zero,
@@ -83,13 +83,13 @@ struct CardAnimSettings: Equatable {
               rotationAngle: .zero
         )
     }
-    
+
     @ViewBuilder
     func applyAnim<Content: View>(to view: Content) -> some View {
         applySettings(to: view)
             .animation(animation)
     }
-    
+
     @ViewBuilder
     func applySettings<Content: View>(to view: Content) -> some View {
         view
@@ -104,18 +104,18 @@ struct CardAnimSettings: Equatable {
 
 @available(iOS 14, *)
 struct CardStackAnimator<Card: View>: View {
-    
+
     let cards: [Card]
     let namespace: Namespace.ID
     let settings: CardsStackAnimatorSettings
     let currentCardIndexPublisher: Published<Int>.Publisher
-    
+
     @State private var size: CGSize = .zero
     @State private var selectedIndex: Int = 0
     @State private var hiddenIndex: CGFloat = -1
-    
+
     private let maxZIndex: Double = 100
-    
+
     var body: some View {
         GeometryReader { geom in
             ZStack {
@@ -123,7 +123,7 @@ struct CardStackAnimator<Card: View>: View {
                     modify(cards[index], at: index)
                         .onAnimationCompleted(for: hiddenIndex) {
                             guard hiddenIndex == CGFloat(index) else { return }
-                            
+
                             withAnimation(.linear(duration: 0.35)) {
                                 hiddenIndex = -1
                             }
@@ -137,14 +137,14 @@ struct CardStackAnimator<Card: View>: View {
         }
         .onReceive(currentCardIndexPublisher, perform: { newCardIndex in
             guard selectedIndex != newCardIndex else { return }
-            
+
             withAnimation(.linear(duration: 0.4)) {
                 hiddenIndex = CGFloat(selectedIndex)
                 selectedIndex = min(cards.count - 1, max(newCardIndex, 0))
             }
         })
     }
-    
+
     @ViewBuilder
     private func modify<Card: View>(_ view: Card, at index: Int) -> some View {
         let delta = index - selectedIndex
@@ -161,11 +161,11 @@ struct CardStackAnimator<Card: View>: View {
             .opacity(settings.opacity)
             .zIndex(settings.zIndex)
     }
-    
+
     private func prehideAnimSettings(for index: Int) -> CardAnimSettings {
         let settings = cardInStackSettings(at: index)
         let targetFrameHeight = settings.frame.height
-        
+
         return .init(frame: settings.frame,
                      offset: .init(width: 0, height: -(settings.frame.height / 2 + targetFrameHeight / 2) - 10),
                      scale: 1.0,
@@ -173,7 +173,7 @@ struct CardStackAnimator<Card: View>: View {
                      zIndex: maxZIndex + 100,
                      rotationAngle: Angle(degrees: 0))
     }
-    
+
     private func cardInStackSettings(at index: Int) -> CardAnimSettings {
         let floatIndex = CGFloat(index)
         let doubleIndex = Double(index)
@@ -181,7 +181,7 @@ struct CardStackAnimator<Card: View>: View {
         let scale: CGFloat = max(1 - settings.scaleStep * floatIndex, 0)
         let opacity: Double = max(1 - settings.opacityStep * doubleIndex, 0)
         let zIndex: Double = maxZIndex - Double(index)
-        
+
         return .init(frame: settings.topCardSize,
                      offset: .init(width: 0, height: offset),
                      scale: scale,
@@ -189,41 +189,41 @@ struct CardStackAnimator<Card: View>: View {
                      zIndex: zIndex,
                      rotationAngle: .zero)
     }
-    
+
 }
 
 class CardStackAnimatorPreviewModel: ObservableObject {
-    
+
     enum Content {
         case twins
         case backup(numberOfCards: Int)
     }
-    
+
     @Published var currentCardIndex: Int = 0
     @Published var sliderIndex: Double = 0
-    
+
     let content: Content
-    
+
     var maxIndex: Int {
         switch content {
         case .twins: return 1
         case .backup(let numberOfCards): return numberOfCards - 1
         }
     }
-    
+
     init(content: Content) {
         self.content = content
     }
-    
+
 }
 
 @available(iOS 14, *)
 struct CardStackAnimatorPreview: View {
-    
+
     @ObservedObject var viewModel: CardStackAnimatorPreviewModel = CardStackAnimatorPreviewModel(content: .backup(numberOfCards: 3))
-    
+
     @Namespace var ns
-    
+
     var animatorSettings: CardsStackAnimatorSettings {
         .init(topCardSize: .init(width: 315, height: 184),
               topCardOffset: .zero,
@@ -233,7 +233,7 @@ struct CardStackAnimatorPreview: View {
               numberOfCards: 3,
               maxCardsInStack: 3)
     }
-    
+
     @ViewBuilder
     var animator: some View {
         switch viewModel.content {
@@ -263,14 +263,14 @@ struct CardStackAnimatorPreview: View {
             )
         }
     }
-    
+
     var body: some View {
         VStack(spacing: 0) {
             animator
-            
+
             OnboardingMessagesView(title: "Testing animator",
                                    subtitle: "This is preview screen and must not be used in production. \nSelect card number:") {
-                
+
             }
             .padding(.bottom, 50)
             HStack {
@@ -303,12 +303,12 @@ struct CardStackAnimatorPreview: View {
         }
         .padding(.horizontal, 40)
     }
-    
+
 }
 
 @available(iOS 14, *)
 struct CardStackAnimator_Previews: PreviewProvider {
-    
+
     static var previews: some View {
         CardStackAnimatorPreview(
             viewModel:
