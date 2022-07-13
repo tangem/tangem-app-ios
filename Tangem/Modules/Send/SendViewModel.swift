@@ -18,14 +18,14 @@ class SendViewModel: ObservableObject {
     @Injected(\.currencyRateService) private var ratesService: CurrencyRateService
     @Injected(\.appFeaturesService) private var featuresService: AppFeaturesProviding
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
-    
+
     @Published var showCameraDeniedAlert = false
-    
+
     // MARK: Input
     @Published var validatedClipboard: String? = nil
     @Published var destination: String = ""
     @Published var amountText: String = "0"
-    
+
     @Published var isFiatCalculation: Bool = false
     @Published var isFeeIncluded: Bool = false
     @Published var selectedFeeLevel: Int = 1
@@ -44,32 +44,32 @@ class SendViewModel: ObservableObject {
                 .store(in: &bag)
         }
     }
-    
+
     // MARK: UI
     var shoudShowFeeSelector: Bool {
         walletModel.walletManager.allowsFeeSelection
     }
-    
+
     var shoudShowFeeIncludeSelector: Bool {
         amountToSend.type == .coin && !isSellingCrypto
     }
-    
+
     var shouldShowNetworkBlock: Bool  {
         shoudShowFeeSelector || shoudShowFeeIncludeSelector
     }
-    
+
     var isPayIdSupported: Bool {
         featuresService.canSendToPayId && payIDService != nil
     }
-    
+
     var hasAdditionalInputFields: Bool {
         additionalInputFields != .none
     }
-    
+
     var additionalInputFields: SendAdditionalFields {
         .fields(for: blockchainNetwork.blockchain)
     }
-    
+
     var memoPlaceholder: String {
         switch blockchainNetwork.blockchain {
         case .xrp, .stellar:
@@ -80,13 +80,13 @@ class SendViewModel: ObservableObject {
             return ""
         }
     }
-    
+
     var inputDecimalsCount: Int? {
         isFiatCalculation ? 2 : amountToSend.decimals
     }
-    
+
     @Published var isNetworkFeeBlockOpen: Bool = false
-    
+
     // MARK: Output
     @Published var destinationHint: TextHint? = nil
     @Published var amountHint: TextHint? = nil
@@ -99,14 +99,14 @@ class SendViewModel: ObservableObject {
     @Published var transaction: BlockchainSdk.Transaction? = nil
     @Published var canFiatCalculation: Bool = true
     @Published var isFeeLoading: Bool = false
-    
+
     var isSendEnabled: Bool {
         let hasDestinationErrorHint = destinationHint?.isError ?? false
         let hasAmountErrorHint = amountHint?.isError ?? false
-        
+
         return !hasDestinationErrorHint && !hasAmountErrorHint && transaction != nil
     }
-    
+
     // MARK: Additional input
     @Published var isAdditionalInputEnabled: Bool = false
     @Published var memo: String = ""
@@ -115,61 +115,61 @@ class SendViewModel: ObservableObject {
     @Published var validatedMemo: String? = nil
     @Published var destinationTagStr: String = ""
     @Published var destinationTagHint: TextHint? = nil
-    
+
     @Published var error: AlertBinder?
-    
+
     let cardViewModel: CardViewModel
-    
+
     var walletModel: WalletModel {
         return cardViewModel.walletModels!.first(where: { $0.blockchainNetwork == blockchainNetwork })!
     }
-    
+
     var bag = Set<AnyCancellable>()
-    
+
     var currencyUnit: String {
         return isFiatCalculation ? ratesService.selectedCurrencyCode : self.amountToSend.currencySymbol
     }
-    
+
     var walletTotalBalanceDecimals: String {
         let amount = walletModel.wallet.amounts[amountToSend.type]
         return isFiatCalculation ? walletModel.getFiat(for: amount)?.description ?? ""
             : amount?.value.description ?? ""
     }
-    
+
     var walletTotalBalanceFormatted: String {
         let amount = walletModel.wallet.amounts[self.amountToSend.type]
         let value = getDescription(for: amount)
         return String(format: "send_balance_subtitle_format".localized, value)
     }
-    
+
     // MARK: Private
     @Published private var validatedDestination: String? = nil
     @Published private var validatedAmount: Amount? = nil
-    
+
     let amountToSend: Amount
-    
+
     private(set) var isSellingCrypto: Bool
     lazy var emailDataCollector: SendScreenDataCollector = .init(sendViewModel: self)
     private var scannedQRCode: CurrentValueSubject<String?, Never> = .init(nil)
-    
+
     @Published private var validatedXrpDestinationTag: UInt32? = nil
-    
+
     private let feeRetrySubject = CurrentValueSubject<Void, Never>(())
-    
+
     private var blockchainNetwork: BlockchainNetwork
-    
+
     private var lastClipboardChangeCount: Int?
-   
+
     private lazy var payIDService: PayIDService? = {
         if featuresService.isPayIdEnabled, let payIdService = PayIDService.make(from: blockchainNetwork.blockchain) {
             return payIdService
         }
-        
+
         return nil
     }()
-    
+
     private unowned let coordinator: SendRoutable
-    
+
     init(amountToSend: Amount,
          blockchainNetwork: BlockchainNetwork,
          cardViewModel: CardViewModel,
@@ -183,7 +183,7 @@ class SendViewModel: ObservableObject {
         bind()
         setupWarnings()
     }
-    
+
     convenience init(amountToSend: Amount,
                      destination: String,
                      blockchainNetwork: BlockchainNetwork,
@@ -200,7 +200,7 @@ class SendViewModel: ObservableObject {
         amountText = sendAmount
         bind()
     }
-    
+
     private func getDescription(for amount: Amount?) -> String {
         if isFiatCalculation {
             return walletModel.getFiatFormatted(for: amount) ?? ""
@@ -208,20 +208,20 @@ class SendViewModel: ObservableObject {
 
         return amount?.description ?? ""
     }
-    
+
     private func fillTotalBlockWithDefaults() {
         let dummyAmount = Amount(with: amountToSend, value: 0)
-        
+
         updateFee(amount: selectedFee)
         self.sendAmount = getDescription(for: dummyAmount)
         self.sendTotal = getDescription(for: dummyAmount)
         self.sendTotalSubtitle = " "
     }
-    
+
     // MARK: - Subscriptions
     func bind() {
         bag = Set<AnyCancellable>()
-        
+
         cardViewModel
             .objectWillChange
             .receive(on: RunLoop.main)
@@ -229,7 +229,7 @@ class SendViewModel: ObservableObject {
                 self?.objectWillChange.send()
             }
             .store(in: &bag)
-        
+
         walletModel
             .objectWillChange
             .receive(on: RunLoop.main)
@@ -237,7 +237,7 @@ class SendViewModel: ObservableObject {
                 self?.objectWillChange.send()
             }
             .store(in: &bag)
-        
+
         walletModel
             .$rates
             .map { [unowned self] newRates -> Bool in
@@ -245,7 +245,7 @@ class SendViewModel: ObservableObject {
             }
             .weakAssign(to: \.canFiatCalculation, on: self)
             .store(in: &bag)
-        
+
         $destination // destination validation
             .debounce(for: 1.0, scheduler: RunLoop.main, options: nil)
             .removeDuplicates()
@@ -253,7 +253,7 @@ class SendViewModel: ObservableObject {
                 self.validateDestination(newText)
             }
             .store(in: &bag)
-        
+
         $transaction    // update total block
             .combineLatest($isFiatCalculation.uiPublisherWithFirst)
             .sink { [unowned self] tx, isFiatCalculation in
@@ -264,7 +264,7 @@ class SendViewModel: ObservableObject {
                 }
             }
             .store(in: &bag)
-        
+
         $isFiatCalculation // handle conversion
             .uiPublisher
             .filter { [unowned self] _ in self.amountText != "0" }
@@ -272,22 +272,22 @@ class SendViewModel: ObservableObject {
                 guard let decimals = Decimal(string: self.amountText.replacingOccurrences(of: ",", with: ".")) else {
                     return
                 }
-                
+
                 let currencyId = self.walletModel.currencyId(for: self.amountToSend.type)
-                
+
                 if let converted = value ? self.walletModel.getFiat(for: decimals, currencyId: currencyId)
                     : self.walletModel.getCrypto(for: Amount(with: self.amountToSend, value: decimals)) {
                     self.amountText = converted.description
                 } else {
                     self.amountText = "0"
                 }
-                
+
 //                self.amountText = value ? self.walletModel.getFiat(for: self.amountToSend)?.description
 //                    ?? ""
 //                    : self.valida.value.description
             }
             .store(in: &bag)
-        
+
         // MARK: Amount
         $amountText
             .uiPublisher
@@ -309,10 +309,10 @@ class SendViewModel: ObservableObject {
                     self.validatedAmount = nil
                     return
                 }
-                
+
                 let newAmountValue = isFiat ? self.walletModel.getCrypto(for: Amount(with: self.amountToSend, value: decimals)) ?? 0 : decimals
                 let newAmount = Amount(with: self.amountToSend, value: newAmountValue)
-                
+
                 if let amountError = self.walletModel.walletManager.validate(amount: newAmount) {
                     self.amountHint = TextHint(isError: true, message: amountError.localizedDescription)
                     self.validatedAmount = nil
@@ -320,10 +320,10 @@ class SendViewModel: ObservableObject {
                     self.amountHint = nil
                     self.validatedAmount = newAmount
                 }
-                
+
             }
             .store(in: &bag)
-                
+
         $validatedAmount // update fee
             .dropFirst()
             .compactMap { $0 }
@@ -334,7 +334,7 @@ class SendViewModel: ObservableObject {
                     .catch { [unowned self] error -> Just<[Amount]> in
                         print(error)
                         Analytics.log(error: error)
-                        
+
                         let ok = Alert.Button.default(Text("common_ok"))
                         let retry = Alert.Button.default(Text("common_retry")) { [unowned self] in
                             self.feeRetrySubject.send()
@@ -354,7 +354,7 @@ class SendViewModel: ObservableObject {
                 self.fees = fees
             })
             .store(in: &bag)
-        
+
         $validatedAmount
             .combineLatest($validatedDestination,
                            $selectedFee,
@@ -363,7 +363,7 @@ class SendViewModel: ObservableObject {
                 guard let amount = amount, let destination = destination, let fee = fee else {
                     return
                 }
-             
+
                 do {
                     let tx = try self.walletModel.walletManager.createTransaction(amount: isFeeIncluded ? amount - fee : amount,
                                                                                   fee: fee,
@@ -371,17 +371,17 @@ class SendViewModel: ObservableObject {
                     DispatchQueue.main.async {
                         self.validateWithdrawal(tx, amount)
                     }
-                    
+
                     self.amountHint = nil
                     self.transaction = tx
-                    
+
                 } catch {
                     self.amountHint = TextHint(isError: true, message: error.localizedDescription)
                     self.transaction = nil
                 }
             }
             .store(in: &bag)
-        
+
         $maxAmountTapped // handle max amount tap
             .dropFirst()
             .sink { [unowned self] _ in
@@ -392,7 +392,7 @@ class SendViewModel: ObservableObject {
                 }
             }
             .store(in: &bag)
-        
+
         // MARK: Fee
         $fees // handle fee selection
             .combineLatest($selectedFeeLevel)
@@ -404,29 +404,29 @@ class SendViewModel: ObservableObject {
                 }
             }
             .store(in: &bag)
-        
+
         $selectedFee // update fee label
             .uiPublisher
             .sink { [unowned self] newAmount in
                 self.updateFee(amount: newAmount)
             }
             .store(in: &bag)
-        
+
         // MARK: Memo + destination tag
         $destinationTagStr
             .uiPublisher
             .sink(receiveValue: { [unowned self] destTagStr in
                 self.validatedXrpDestinationTag = nil
                 self.destinationTagHint = nil
-                
+
                 if destTagStr.isEmpty { return }
-                
+
                 let tag = UInt32(destTagStr)
                 self.validatedXrpDestinationTag = tag
                 self.destinationTagHint = tag == nil ? TextHint(isError: true, message: "send_error_invalid_destination_tag".localized) : nil
             })
             .store(in: &bag)
-        
+
         $memo
             .uiPublisher
             .sink(receiveValue: { [unowned self] memo in
@@ -436,9 +436,9 @@ class SendViewModel: ObservableObject {
                 case .xrp, .stellar:
                     self.validatedMemoId = nil
                     self.memoHint = nil
-                    
+
                     if memo.isEmpty { return }
-                    
+
                     let memoId = UInt64(memo)
                     self.validatedMemoId = memoId
                     self.memoHint = memoId == nil  ? TextHint(isError: true, message: "send_error_invalid_memo_id".localized) : nil
@@ -447,7 +447,7 @@ class SendViewModel: ObservableObject {
                 }
             })
             .store(in: &bag)
-        
+
         scannedQRCode
             .compactMap { $0 }
             .sink { [unowned self] qrCodeString in
@@ -466,50 +466,50 @@ class SendViewModel: ObservableObject {
             }
             .store(in: &bag)
     }
-    
+
     func onAppear() {
         validateClipboard()
         setupWarnings()
     }
-    
+
     func onBecomingActive() {
         validateClipboard()
     }
-    
+
     // MARK: - Validation
     func validateClipboard() {
         let clipboardChangeCount = UIPasteboard.general.changeCount
         if clipboardChangeCount == lastClipboardChangeCount {
             return
         }
-        
+
         validatedClipboard = nil
         lastClipboardChangeCount = clipboardChangeCount
-        
+
         guard let input = UIPasteboard.general.string else {
             return
         }
-        
+
         if payIDService?.validate(input) ?? false || validateAddress(input) {
             validatedClipboard = input
         }
     }
-    
+
     func validateAddress(_ address: String) -> Bool {
         return walletModel.wallet.blockchain.validate(address: address)
             && !walletModel.wallet.addresses.contains(where: { $0.value == address })
     }
-    
-    
+
+
     func validateDestination(_ destination: String) {
         validatedDestination = nil
         destinationHint = nil
         isAdditionalInputEnabled = false
-        
+
         if destination.isEmpty {
             return
         }
-        
+
         if isPayIdSupported,
            let payIdService = self.payIDService,
            payIdService.validate(destination) {
@@ -527,16 +527,16 @@ class SendViewModel: ObservableObject {
                         self?.destinationHint = TextHint(isError: true,
                                                          message: "send_validation_invalid_address".localized)
                         self?.setAdditionalInputVisibility(for: nil)
-                        
+
                     }
                 case .failure(let error):
                     self?.destinationHint = TextHint(isError: true,
                                                      message: error.localizedDescription)
                     self?.setAdditionalInputVisibility(for: nil)
                 }
-                
+
             }
-            
+
         } else {
             if validateAddress(destination) {
                 validatedDestination = destination
@@ -548,7 +548,7 @@ class SendViewModel: ObservableObject {
             }
         }
     }
-    
+
     func validateWithdrawal(_ transaction: BlockchainSdk.Transaction, _ totalAmount: Amount) {
         if let validator = walletModel.walletManager as? WithdrawalValidator,
            let warning = validator.validate(transaction),
@@ -557,28 +557,28 @@ class SendViewModel: ObservableObject {
                               message: Text(warning.warningMessage),
                               primaryButton: Alert.Button.default(Text(warning.reduceMessage),
                                                                   action: {
-                
+
                                                                       let newAmount = totalAmount - warning.suggestedReduceAmount
                                                                       self.amountText = self.isFiatCalculation ? self.walletModel.getFiat(for: newAmount)?.description ?? "0" :
                                                                           newAmount.value.description
                                                                   }),
                               secondaryButton: Alert.Button.cancel(Text(warning.ignoreMessage),
                                                                    action: {
-                
+
                                                                    }))
             UIApplication.shared.endEditing()
             self.error = AlertBinder(alert: alert, error: nil)
         }
     }
-    
+
     // MARK: Validation end -
-    
+
     func pasteClipboardTapped() {
         if let validatedClipboard = self.validatedClipboard {
             destination = validatedClipboard
         }
     }
-    
+
     func setAdditionalInputVisibility(for address: String?) {
         let isInputEnabled: Bool
         defer {
@@ -586,12 +586,12 @@ class SendViewModel: ObservableObject {
                 isAdditionalInputEnabled = isInputEnabled
             }
         }
-        
+
         guard let address = address else {
             isInputEnabled = false
             return
         }
-        
+
         switch additionalInputFields {
         case .destinationTag:
             let xrpXAddress = try? XRPAddress.decodeXAddress(xAddress: address)
@@ -602,45 +602,45 @@ class SendViewModel: ObservableObject {
             isInputEnabled = false
         }
     }
-    
+
     // MARK: - Send
 
     func send() {
         guard var tx = self.transaction else {
             return
         }
-        
+
         if let destinationTag = self.validatedXrpDestinationTag {
             tx.params = XRPTransactionParams(destinationTag: destinationTag)
         }
-        
+
         if let memoId = self.validatedMemoId, isAdditionalInputEnabled {
             tx.params = StellarTransactionParams(memo: .id(memoId))
         }
-        
+
         if let memo = self.validatedMemo, isAdditionalInputEnabled {
             tx.params = BinanceTransactionParams(memo: memo)
         }
-        
+
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.addLoadingView()
-        
+
         walletModel.send(tx)
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self = self else { return }
-                
+
                 appDelegate.removeLoadingView()
-                
+
                 if case let .failure(error) = completion {
                     if case .userCancelled = error.toTangemSdkError() {
                         return
                     }
-                    
+
                     Analytics.logCardSdkError(error.toTangemSdkError(),
                                               for: .sendTx,
                                               card: self.cardViewModel.cardInfo.card,
                                               parameters: [.blockchain: self.walletModel.wallet.blockchain.displayName])
-                    
+
                     self.emailDataCollector.lastError = error
                     self.error = error.alertBinder
                 } else {
@@ -651,7 +651,7 @@ class SendViewModel: ObservableObject {
                             Analytics.logTx(blockchainName: self.blockchainNetwork.blockchain.displayName)
                         }
                     }
-                    
+
                     DispatchQueue.main.async {
                         let alert = AlertBuilder.makeSuccessAlert(message: self.cardViewModel.cardInfo.card.isDemoCard ? "alert_demo_feature_disabled".localized
                             : "send_transaction_success".localized,
@@ -659,21 +659,21 @@ class SendViewModel: ObservableObject {
                         self.error = alert
                     }
                 }
-                
+
             }, receiveValue: { _ in  })
             .store(in: &bag)
     }
-    
+
     func warningButtonAction(at index: Int, priority: WarningPriority, button: WarningButton) {
         guard let warning = warnings.warning(at: index, with: priority) else { return }
-        
+
         warningsService.hideWarning(warning)
     }
-    
+
     func openSystemSettings() {
         UIApplication.openSystemSettings()
     }
-    
+
     private func setupWarnings() {
         warnings = warningsService.warnings(for: .send)
     }
@@ -692,7 +692,7 @@ private extension SendViewModel {
         if isFiatCalculation {
             sendAmount = walletModel.getFiatFormatted(for: transaction.amount,  roundingMode: .plain) ?? ""
             sendTotal = totalInFiatFormatted.total
-            
+
             if transaction.amount.type == transaction.fee.type {
                 sendTotalSubtitle = "send_total_subtitle_format".localized(totalAmount.description)
             } else {
@@ -703,7 +703,7 @@ private extension SendViewModel {
         } else {
             sendAmount = transaction.amount.description
             sendTotal = (transaction.amount + transaction.fee).description
-            
+
             sendTotalSubtitle = "send_total_subtitle_fiat_format".localized(
                 [totalInFiatFormatted.total, totalInFiatFormatted.fee]
             )
@@ -711,17 +711,17 @@ private extension SendViewModel {
 
         updateFee(amount: transaction.fee)
     }
-    
+
     func totalAndFeeInFiatFormatted(from transaction: BlockchainSdk.Transaction, currencyCode: String) -> (total: String, fee: String) {
         guard let famount = walletModel.getFiat(for: transaction.amount, roundingMode: .plain),
               let ffee = walletModel.getFiat(for: transaction.fee, roundingMode: .plain),
               let feeFormatted = walletModel.getFiatFormatted(for: transaction.fee, roundingMode: .plain) else {
             return (total: "", fee: "")
         }
-        
+
         let totalAmount = famount + ffee
         let totalFiatFormatted = totalAmount.currencyFormatted(code: currencyCode)
-        
+
         return (total: totalFiatFormatted, fee: feeFormatted)
     }
 
@@ -729,20 +729,20 @@ private extension SendViewModel {
     func updateFee(amount: Amount?) {
         sendFee = formattedFee(amount: amount ?? .zeroCoin(for: walletModel.wallet.blockchain))
     }
-    
+
     func formattedFee(amount: Amount) -> String {
         let formatted: String
-        
+
         if isFiatCalculation {
             formatted = walletModel.getFiatFormatted(for: amount, roundingMode: .plain) ?? ""
         } else {
             formatted = amount.description
         }
-        
+
         if amount.value > 0, walletModel.wallet.blockchain.isFeeApproximate(for: amountToSend.type)  {
             return "< " + formatted
         }
-        
+
         return formatted
     }
 }
@@ -752,11 +752,11 @@ extension SendViewModel {
     func openMail() {
         coordinator.openMail(with: emailDataCollector)
     }
-    
+
     func close() {
         coordinator.closeModule()
     }
-    
+
     func openQRScanner() {
         if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
             self.showCameraDeniedAlert = true
@@ -768,7 +768,7 @@ extension SendViewModel {
                 set: { [weak self] in
                     self?.scannedQRCode.send($0)
                 })
-            
+
             coordinator.openQRScanner(with: binding)
         }
     }
