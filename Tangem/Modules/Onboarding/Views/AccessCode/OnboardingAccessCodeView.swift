@@ -21,12 +21,12 @@ struct OnboardingAccessCodeViewModel: Identifiable {
 
 struct OnboardingAccessCodeView: View {
     let viewModel: OnboardingAccessCodeViewModel
-    
+
     @State private var state: ViewState = .intro
     @State private var firstEnteredCode: String = ""
     @State private var secondEnteredCode: String = ""
     @State private var error: AccessCodeError = .none
-    
+
     @ViewBuilder
     var content: some View {
         switch state {
@@ -59,7 +59,7 @@ struct OnboardingAccessCodeView: View {
             inputContent
         }
     }
-    
+
     @ViewBuilder
     var inputContent: some View {
         Text("onboarding_access_code_hint")
@@ -74,7 +74,7 @@ struct OnboardingAccessCodeView: View {
                                 onCommit: {})
             .frame(height: 44)
     }
-    
+
     var body: some View {
         VStack {
             Text(state.title)
@@ -93,9 +93,9 @@ struct OnboardingAccessCodeView: View {
                         secondEnteredCode = ""
                     }
                 }
-            
+
             content
-            
+
             Text(error.description)
                 .id("error_\(error.rawValue)")
                 .multilineTextAlignment(.center)
@@ -112,17 +112,17 @@ struct OnboardingAccessCodeView: View {
                     guard isAccessCodeValid() else {
                         return
                     }
-                    
+
                     nextState = .repeatCode
                 case .repeatCode:
                     guard isAccessCodeValid() else {
                         return
                     }
-                    
+
                     viewModel.successHandler(secondEnteredCode)
                     return
                 }
-                
+
                 state = nextState
             }
             .buttonStyle(TangemButtonStyle(layout: .wide))
@@ -136,7 +136,7 @@ struct OnboardingAccessCodeView: View {
             }
         }
     }
-    
+
     private func isAccessCodeValid() -> Bool {
         var error: AccessCodeError = .none
         switch state {
@@ -146,7 +146,7 @@ struct OnboardingAccessCodeView: View {
         case .repeatCode:
             error = firstEnteredCode == secondEnteredCode ? .none : .dontMatch
         }
-        
+
         withAnimation {
             self.error = error
         }
@@ -156,18 +156,18 @@ struct OnboardingAccessCodeView: View {
 }
 
 struct CustomPasswordTextField: View {
-    
+
     let placeholder: LocalizedStringKey
     let color: Color
     var backgroundColor: Color = .tangemBgGray2
-    
+
     var password: Binding<String>
-    
+
     var onEditingChanged: (Bool) -> Void = { _ in }
     var onCommit: () -> Void = { }
-    
+
     @State var isSecured: Bool = true
-    
+
     @ViewBuilder
     var input: some View {
         if isSecured {
@@ -179,7 +179,7 @@ struct CustomPasswordTextField: View {
                 .transition(.opacity)
         }
     }
-    
+
     var body: some View {
         GeometryReader { geom in
             HStack(spacing: 8) {
@@ -207,14 +207,14 @@ extension OnboardingAccessCodeView {
         case intro
         case inputCode
         case repeatCode
-        
+
         var title: LocalizedStringKey {
             switch self {
             case .intro, .inputCode: return "onboarding_access_code_intro_title"
             case .repeatCode: return "onboarding_access_code_repeat_code_title"
             }
         }
-        
+
         var buttonTitle: LocalizedStringKey {
             switch self {
             case .intro: return "common_continue"
@@ -222,7 +222,7 @@ extension OnboardingAccessCodeView {
             case .repeatCode: return "common_submit"
             }
         }
-        
+
         fileprivate static var featuresDescription: [AccessCodeFeature] {
             [
                 .init(title: "onboarding_access_code_feature_1_title",
@@ -237,12 +237,12 @@ extension OnboardingAccessCodeView {
             ]
         }
     }
-    
+
     enum AccessCodeError: String {
         case none
         case tooShort
         case dontMatch
-        
+
         var description: LocalizedStringKey {
             switch self {
             case .none: return ""
@@ -250,7 +250,7 @@ extension OnboardingAccessCodeView {
             case .dontMatch: return "onboarding_access_codes_doesnt_match"
             }
         }
-        
+
         var errorOpacity: Double {
             switch self {
             case .none: return 0
