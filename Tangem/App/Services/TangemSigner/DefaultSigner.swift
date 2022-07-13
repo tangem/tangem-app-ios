@@ -13,23 +13,23 @@ import Combine
 public class DefaultSigner: TransactionSigner, TransactionSignerPublisher {
     @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
-    
+
     var signedCardPublisher = PassthroughSubject<Card, Never>()
-    
+
     private var initialMessage: Message { .init(header: nil, body: "initial_message_sign_body".localized) }
-    
+
     public init() {}
-    
+
     public func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[Data], Error> {
         let requiredCardId: String?
-        
+
         let card = cardsRepository.lastScanResult.cardModel?.cardInfo.card
         if let backupStatus = card?.backupStatus, backupStatus.isActive {
             requiredCardId = nil
         } else {
             requiredCardId = card?.cardId
         }
-        
+
         let future = Future<[Data], Error> { [unowned self] promise in
             let signCommand = SignAndReadTask(hashes: hashes,
                                               walletPublicKey: walletPublicKey.seedKey,
@@ -46,7 +46,7 @@ public class DefaultSigner: TransactionSigner, TransactionSignerPublisher {
         }
         return AnyPublisher(future)
     }
-    
+
     public func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<Data, Error> {
         sign(hashes: [hash], walletPublicKey: walletPublicKey)
             .map { $0[0] }
