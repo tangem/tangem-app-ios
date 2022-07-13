@@ -10,10 +10,10 @@ import SwiftUI
 import BlockchainSdk
 
 struct FilledInputView: View {
-    
+
     let title: String
     let text: String
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(title)
@@ -25,14 +25,14 @@ struct FilledInputView: View {
                 .foregroundColor(.tangemGrayDark6)
             Separator()
         }
-        
-        
+
+
     }
 }
 
 struct PushTxView: View {
     @ObservedObject var viewModel: PushTxViewModel
-    
+
     var body: some View {
         GeometryReader { geometry in
             ScrollView {
@@ -77,7 +77,7 @@ struct PushTxView: View {
                         .font(.system(size: 38, weight: .light))
                     }
                     .padding(.top, 15)
-                    
+
                     Separator()
                     HStack {
                         Spacer()
@@ -112,7 +112,7 @@ struct PushTxView: View {
                         AmountView(label: "send_amount_label",
                                    labelColor: .tangemGrayDark6,
                                    amountText: viewModel.amount)
-                        
+
                         AmountView(label: "push_previous_fee",
                                    labelColor: .tangemGrayDark,
                                    amountText: viewModel.previousFee)
@@ -122,7 +122,7 @@ struct PushTxView: View {
                                    isLoading: viewModel.isFeeLoading,
                                    amountText: viewModel.additionalFee)
                         Separator()
-                        
+
                         AmountView(label: "send_total_label",
                                    labelColor: .tangemGrayDark6,
                                    labelFont: .system(size: 20, weight: .bold, design: .default),
@@ -153,9 +153,9 @@ struct PushTxView: View {
                                 if binder.error == nil {
                                     return binder.alert
                                 }
-                            
+
                                 let errorDescription = String(binder.error?.localizedDescription.dropTrailingPeriod ?? "Unknown error")
-                            
+
                                 return Alert(title: Text("alert_failed_to_send_transaction_title"),
                                              message: Text(String(format: "alert_failed_to_send_transaction_message".localized, errorDescription)),
                                              primaryButton: .default(Text("alert_button_send_feedback"), action: viewModel.openMail),

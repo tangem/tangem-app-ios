@@ -10,7 +10,7 @@ import SwiftUI
 
 struct WalletConnectView: View {
     @ObservedObject var viewModel: WalletConnectViewModel
-    
+
     @ViewBuilder
     var navBarButton: some View {
         NavigationBusyButton(isBusy: viewModel.isServiceBusy,
@@ -19,7 +19,7 @@ struct WalletConnectView: View {
                              action: viewModel.openSession)
             .accessibility(label: Text("voice_over_open_new_wallet_connect_session"))
     }
-    
+
     var body: some View {
         ZStack {
             VStack {
@@ -44,7 +44,7 @@ struct WalletConnectView: View {
                     .listStyle(PlainListStyle())
                 }
             }
-            
+
             Color.clear.frame(width: 0.5, height: 0.5)
                 .actionSheet(isPresented: $viewModel.isActionSheetVisible, content: {
                     ActionSheet(title: Text("common_select_action"), message: Text("wallet_connect_clipboard_alert"), buttons: [
@@ -53,14 +53,14 @@ struct WalletConnectView: View {
                         .cancel(),
                     ])
                 })
-            
-               
+
+
             Color.clear.frame(width: 0.5, height: 0.5)
                 .cameraAccessDeniedAlert($viewModel.showCameraDeniedAlert)
-            
+
             Color.clear.frame(width: 0.5, height: 0.5)
                 .alert(item: $viewModel.alert) { $0.alert }
-            
+
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
