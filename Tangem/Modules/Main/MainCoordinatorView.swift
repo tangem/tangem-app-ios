@@ -11,20 +11,20 @@ import SwiftUI
 
 struct MainCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: MainCoordinator
-    
+
     var body: some View {
         ZStack {
             if let model = coordinator.mainViewModel {
                 MainView(viewModel: model)
                     .navigationLinks(links)
             }
-            
+
             sheets
-            
+
             otherSheets
         }
     }
-    
+
     @ViewBuilder
     private var links: some View {
         NavHolder()
@@ -41,34 +41,34 @@ struct MainCoordinatorView: CoordinatorView {
                 DetailsCoordinatorView(coordinator: $0)
             }
     }
-    
+
     @ViewBuilder
     private var sheets: some View {
         NavHolder()
             .sheet(item: $coordinator.sendCoordinator) {
                 SendCoordinatorView(coordinator: $0)
             }
-        
+
         NavHolder()
             .sheet(item: $coordinator.pushTxCoordinator) {
                 PushTxCoordinatorView(coordinator: $0)
             }
-        
+
         NavHolder()
             .sheet(item: $coordinator.modalWebViewModel) {
                 WebViewContainer(viewModel: $0)
             }
-        
+
         NavHolder()
             .sheet(item: $coordinator.tokenListCoordinator) {
                 TokenListCoordinatorView(coordinator: $0)
             }
-        
+
         NavHolder()
             .sheet(item: $coordinator.mailViewModel) {
                 MailView(viewModel: $0)
             }
-        
+
         NavHolder()
             .sheet(item: $coordinator.modalOnboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)
@@ -78,18 +78,21 @@ struct MainCoordinatorView: CoordinatorView {
                     })
             }
     }
-    
+
     @ViewBuilder
     private var otherSheets: some View {
-        BottomSheetView(isPresented: coordinator.$qrBottomSheetKeeper,
-                        hideBottomSheetCallback: coordinator.hideQrBottomSheet,
-                        content: { addressQrBottomSheetContent })
+        BottomSheetView(from: coordinator.bottomSheetSettings,
+                        isPresented: coordinator.$bottomSheetKeeper,
+                        hideBottomSheetCallback: coordinator.hideBottomSheet,
+                        content: { sheetContent })
     }
-    
+
     @ViewBuilder
-    private var addressQrBottomSheetContent: some View {
+    private var sheetContent: some View {
         if let model = coordinator.addressQrBottomSheetContentViewVodel {
             AddressQrBottomSheetContent(viewModel: model)
+        } else if let model = coordinator.warningBankCardViewModel {
+            WarningBankCardView(viewModel: model)
         }
     }
 }
