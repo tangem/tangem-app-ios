@@ -11,9 +11,9 @@ import SwiftUI
 enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
     case first
     case second
-    
+
     var cardHeightWidthRatio: CGFloat { 0.519 }
-    
+
     func animSettings(at step: TwinsOnboardingStep, containerSize: CGSize, stackCalculator: StackCalculator, animated: Bool) -> AnimatedViewSettings {
         switch (step, self) {
         case (.first, _), (.second, .second), (.third, .first):
@@ -42,7 +42,7 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
                          intermediateSettings: nil)
         }
     }
-    
+
     func cardFrameMinHorizontalPadding(at step: TwinsOnboardingStep) -> CGFloat {
         switch (step, self) {
         case (.welcome, _), (.success, _): return 0
@@ -53,7 +53,7 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
             return 220
         }
     }
-    
+
     func cardHeightToContainerHeightRatio(for step: TwinsOnboardingStep) -> CGFloat {
         switch (step, self) {
         case (.welcome, _), (.success, _): return 0
@@ -66,7 +66,7 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
             return 0.246
         }
     }
-    
+
     private func offset(at step: TwinsOnboardingStep, in container: CGSize) -> CGSize {
         let containerHeight = container.height
         switch (step, self) {
@@ -91,14 +91,14 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
             return .init(width: 0, height: -containerHeight * 0.08)
         }
     }
-    
+
     private func rotationAngle(at step: TwinsOnboardingStep) -> Angle {
         switch (step, self) {
         case (.intro, _), (.alert, _): return Angle(degrees: -2)
         default: return .zero
         }
     }
-    
+
     private func zIndex(at step: TwinsOnboardingStep) -> Double {
         let topCardIndex: Double = 10
         let lowerCardIndex: Double = 9
@@ -109,7 +109,7 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
         case (_, .second): return lowerCardIndex
         }
     }
-    
+
     private func stackIndex(at step: TwinsOnboardingStep) -> Int {
         let topCard = 0
         let lowerCard = 1
@@ -120,7 +120,7 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
         case (_, .second): return lowerCard
         }
     }
-    
+
     private func opacity(at step: TwinsOnboardingStep) -> Double {
         switch (step, self) {
         case (.intro, _), (.alert, _): return 1
