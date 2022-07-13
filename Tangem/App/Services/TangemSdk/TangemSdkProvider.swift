@@ -11,9 +11,9 @@ import TangemSdk
 
 class TangemSdkProvider: TangemSdkProviding {
     @Injected(\.loggerProvider) var loggerProvider: LoggerProviding
-    
+
     var sdk: TangemSdk = .init()
-    
+
     private lazy var defaultSdkConfig: Config = {
         var config = Config()
         config.filter.allowedCardTypes = [.release, .sdk]
@@ -23,16 +23,16 @@ class TangemSdkProvider: TangemSdkProviding {
                                              "0030",
                                              "0031",
                                              "0035"])
-        
+
         config.filter.issuerFilter = .deny(["TTM BANK"])
         config.allowUntrustedCards = true
         return config
     }()
-    
+
     func prepareScan() {
         sdk.config = defaultSdkConfig
     }
-    
+
     func didScan(_ card: Card) {
         if card.isTwinCard {
             sdk.config.cardIdDisplayFormat = .lastLunh(4)
