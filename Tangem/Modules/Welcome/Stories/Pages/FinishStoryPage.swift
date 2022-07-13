@@ -13,12 +13,12 @@ struct FinishStoryPage: View {
     let isScanning: Bool
     let scanCard: (() -> Void)
     let orderCard: (() -> Void)
-    
+
     var body: some View {
         VStack {
             StoriesTangemLogo()
                 .padding()
-            
+
             VStack(spacing: 18) {
                 Text("story_finish_title")
                     .font(.system(size: 36, weight: .semibold))
@@ -27,7 +27,7 @@ struct FinishStoryPage: View {
                     .foregroundColor(.white)
                     .padding(.horizontal)
                     .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .minorDelay)
-                
+
                 Text("story_finish_description")
                     .font(.system(size: 24))
                     .multilineTextAlignment(.center)
@@ -36,9 +36,9 @@ struct FinishStoryPage: View {
                     .storyTextAppearanceModifier(progress: progress, type: .description, textBlockAppearance: .minorDelay)
             }
             .fixedSize(horizontal: false, vertical: true)
-            
+
             Spacer()
-            
+
             Image("amazement")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
@@ -57,9 +57,9 @@ struct FinishStoryPage: View {
                     fastMovementEnd: 0.15,
                     slowMovementSpeedCoefficient: 0.15
                 )
-            
+
             Spacer()
-            
+
             StoriesBottomButtons(scanColorStyle: .black, orderColorStyle: .grayAlt, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
                 .padding(.horizontal)
                 .padding(.bottom)
