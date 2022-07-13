@@ -9,11 +9,11 @@
 import SwiftUI
 
 struct OnboardingMessagesView: View {
-    
+
     let title: LocalizedStringKey
     let subtitle: LocalizedStringKey
     let onTitleTapCallback: (() -> Void)?
-    
+
     var body: some View {
         VStack(spacing: 0) {
             Text(title)
@@ -44,7 +44,7 @@ struct OnboardingMessagesView: View {
                 .id("onboarding_subtitle_\(subtitle)")
         }
     }
-    
+
 }
 
 struct OnboardingMessagesView_Previews: PreviewProvider {
@@ -52,9 +52,9 @@ struct OnboardingMessagesView_Previews: PreviewProvider {
         ZStack(alignment: .top) {
             OnboardingMessagesView(title: "Create wallet",
                                    subtitle: "Tap card to create wallet") {
-                
+
             }.background(Color.red)
-            
+
             OnboardingMessagesView(title: "Create wallet",
                                    subtitle: "All the backup cards can be used as full-functoinal wallets with the identical keys.") {
             }.background(Color.green)
