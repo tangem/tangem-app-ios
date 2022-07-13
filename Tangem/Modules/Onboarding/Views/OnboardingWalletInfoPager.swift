@@ -11,7 +11,7 @@ import Combine
 
 struct PagerView<Data, Content>: View
     where Data: RandomAccessCollection, Data.Element: Hashable, Content: View {
-    
+
     let indexUpdateNotifier: PassthroughSubject<Void, Never>
     // the source data to render, can be a range, an array, or any other collection of Hashable
     private let data: Data
@@ -19,10 +19,10 @@ struct PagerView<Data, Content>: View
     @Binding var currentIndex: Int
     // maps data to page views
     private let content: (Data.Element) -> Content
-    
+
     // keeps track of how much did user swipe left or right
     @GestureState private var translation: CGFloat = 0
-    
+
     // the custom init is here to allow for @ViewBuilder for
     // defining content mapping
     init(_ data: Data,
@@ -34,7 +34,7 @@ struct PagerView<Data, Content>: View
         _currentIndex = currentIndex
         self.content = content
     }
-    
+
     var body: some View {
         GeometryReader { geometry in
             HStack(alignment: .top, spacing: 0) {
@@ -76,17 +76,17 @@ struct PagerViewWithDots<Data, Content>: View
     private let data: Data
     private let animated: Bool
     private let content: (Data.Element) -> Content
-    
+
     @State private var indexUpdatePublisher: PassthroughSubject<Void, Never> = .init()
     @State private var pageUpdateWork: DispatchWorkItem?
-    
+
     init(_ data: Data, animated: Bool,
          @ViewBuilder content: @escaping (Data.Element) -> Content) {
         self.data = data
         self.animated = animated
         self.content = content
     }
-    
+
     var body: some View {
         ZStack {
             // let the PagerView and the dots fill the available screen
@@ -114,10 +114,10 @@ struct PagerViewWithDots<Data, Content>: View
             switchToNextPage()
         })
     }
-    
+
     private func switchToNextPage() {
         guard animated else { return }
-        
+
         pageUpdateWork = DispatchWorkItem {
             var index = currentIndex + 1
             if index >= data.count {
@@ -133,12 +133,12 @@ struct PagerViewWithDots<Data, Content>: View
 }
 
 enum TangemWalletOnboardingInfoPage: CaseIterable {
-    
+
     case first
     case second
     case third
     case fourth
-    
+
     var title: LocalizedStringKey {
         switch self {
         case .first: return "onboarding_wallet_info_title_first"
@@ -158,18 +158,18 @@ enum TangemWalletOnboardingInfoPage: CaseIterable {
 }
 
 struct OnboardingWalletInfoPager: View {
-    
+
     let infoPages: [TangemWalletOnboardingInfoPage] = TangemWalletOnboardingInfoPage.allCases
-    
+
     let animated: Bool
-    
+
     var body: some View {
         PagerViewWithDots(infoPages, animated: animated) { page in
             OnboardingMessagesView(title: page.title, subtitle: page.subtitle, onTitleTapCallback: { })
                 .padding(.horizontal, 40)
         }
     }
-    
+
 }
 
 struct OnboardingWalletInfoPager_Previews: PreviewProvider {

@@ -39,7 +39,6 @@ target 'Tangem' do
   pod 'Moya'
   pod 'Firebase/Crashlytics'
   pod 'Firebase/Analytics'
-	pod 'Firebase/RemoteConfig'
   pod 'DeviceGuru', '8.0.0'
   pod 'Kingfisher', :git => 'https://github.com/onevcat/Kingfisher.git', :branch => 'version6-xcode13'
   pod 'stellar-ios-mac-sdk'
@@ -54,6 +53,9 @@ target 'Tangem' do
   pod 'ZendeskSupportProvidersSDK', '~> 5.5.0'
   pod 'ZendeskChatSDK', '~> 2.12.0'
   pod 'ZendeskAnswerBotSDK', '~> 2.2.0'
+  
+  # Analytics
+  pod 'Amplitude', '~> 8.8.0'
   
   target 'TangemTests' do
     inherit! :search_paths

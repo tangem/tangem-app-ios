@@ -10,7 +10,7 @@ import SwiftUI
 
 struct TwinIntroBackgroundView: View {
     let size: CGSize
-    
+
     var body: some View {
         ZStack {
             Ellipse()
@@ -19,7 +19,7 @@ struct TwinIntroBackgroundView: View {
                             green: 222.0 / 255.0,
                             blue: 224.0 / 255.0,
                             opacity: 0.4))
-            
+
             Ellipse()
                 .fill(Color(.sRGB,
                             red: 220.0 / 255.0,
@@ -27,7 +27,7 @@ struct TwinIntroBackgroundView: View {
                             blue: 220.0 / 255.0,
                             opacity: 0.4))
                 .padding(inset(for: 0.6))
-            
+
             Ellipse()
                 .fill(Color(.sRGB,
                             red: 217.0 / 255.0,
@@ -38,11 +38,11 @@ struct TwinIntroBackgroundView: View {
         }
         .frame(size: size)
     }
-    
+
     private func inset(for coeff: CGFloat) -> EdgeInsets {
         let width = coeff * 0.4 * size.width
         let height = coeff * 0.5 * size.height
-        
+
         return .init(top: height,
                      leading: width,
                      bottom: height,

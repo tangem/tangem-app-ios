@@ -12,7 +12,7 @@ enum WalletOnboardingCardLayout {
     case origin
     case firstBackup
     case secondBackup
-    
+
     var cardFanStackIndex: Int {
         switch self {
         case .origin: return 0
@@ -20,7 +20,7 @@ enum WalletOnboardingCardLayout {
         case .secondBackup: return 2
         }
     }
-    
+
     func animSettings(at step: WalletOnboardingStep, in container: CGSize, fanStackCalculator: FanStackCalculator, animated: Bool) -> AnimatedViewSettings {
         switch (self, step) {
         case (.origin, .welcome):
@@ -43,12 +43,12 @@ enum WalletOnboardingCardLayout {
                                                   opacity: opacity(at: step, in: container),
                                                   zIndex: zIndex(at: step),
                                                   rotationAngle: rotation(at: step, in: container))
-            
+
             return .init(targetSettings: targetSettings,
                          intermediateSettings: nil)
         }
     }
-    
+
     func offset(at step: WalletOnboardingStep, in container: CGSize) -> CGSize {
         switch (self, step) {
         case (_, .createWallet), (_, .scanPrimaryCard):
@@ -63,11 +63,11 @@ enum WalletOnboardingCardLayout {
             return .zero
         }
     }
-    
+
     func scale(at step: WalletOnboardingStep, in container: CGSize) -> CGFloat {
         1
     }
-    
+
     func zIndex(at step: WalletOnboardingStep) -> Double {
         switch (self, step) {
         case (.origin, _): return 100
@@ -76,7 +76,7 @@ enum WalletOnboardingCardLayout {
         case (.firstBackup, _): return 99
         }
     }
-    
+
     func opacity(at step: WalletOnboardingStep, in container: CGSize) -> Double {
         switch (self, step) {
         case (.secondBackup, .createWallet), (.secondBackup, .welcome), (_, .success): return 0
@@ -84,7 +84,7 @@ enum WalletOnboardingCardLayout {
             return 1
         }
     }
-    
+
     func rotation(at step: WalletOnboardingStep, in container: CGSize) -> Angle {
         switch (self, step) {
         case (.origin, .backupIntro):
@@ -98,11 +98,11 @@ enum WalletOnboardingCardLayout {
 
 extension WalletOnboardingCardLayout: OnboardingCardFrameCalculator {
     typealias Step = WalletOnboardingStep
-    
+
     var cardHeightWidthRatio: CGFloat {
         0.629
     }
-    
+
     func cardHeightToContainerHeightRatio(for step: WalletOnboardingStep) -> CGFloat {
         switch step {
         case .createWallet, .scanPrimaryCard:
@@ -115,7 +115,7 @@ extension WalletOnboardingCardLayout: OnboardingCardFrameCalculator {
             return 0.5
         }
     }
-    
+
     func cardFrameMinHorizontalPadding(at step: WalletOnboardingStep) -> CGFloat {
         switch step {
         case .createWallet, .scanPrimaryCard: return 60

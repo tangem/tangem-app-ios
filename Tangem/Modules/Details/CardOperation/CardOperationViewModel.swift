@@ -13,16 +13,16 @@ import Combine
 class CardOperationViewModel: ObservableObject {
     @Published var error: AlertBinder? = nil
     @Published var isLoading: Bool = false
-    
+
     let title: String
     let buttonTitle: LocalizedStringKey
     let shouldPopToRoot: Bool
     let alert: String
     let actionButtonPressed: (_ completion: @escaping (Result<Void, Error>) -> Void) -> Void
-    
+
     private unowned let coordinator: CardOperationRoutable
     private var bag: Set<AnyCancellable> = []
-    
+
     init(title: String,
          buttonTitle: LocalizedStringKey = "common_save_changes",
          shouldPopToRoot: Bool = false,
@@ -36,7 +36,7 @@ class CardOperationViewModel: ObservableObject {
         self.actionButtonPressed = actionButtonPressed
         self.coordinator = coordinator
     }
-    
+
     func onTap() {
         isLoading = true
         actionButtonPressed { [weak self] result in
@@ -45,10 +45,10 @@ class CardOperationViewModel: ObservableObject {
             }
         }
     }
-    
+
     private func handleCompletion(_ result: Result<Void, Error>) {
         isLoading = false
-        
+
         switch result {
         case .success:
             DispatchQueue.main.async {
@@ -62,7 +62,7 @@ class CardOperationViewModel: ObservableObject {
             if case .userCancelled = error.toTangemSdkError() {
                 return
             }
-            
+
             self.error = error.alertBinder
         }
     }
@@ -73,7 +73,7 @@ extension CardOperationViewModel {
     func popToRoot() {
         coordinator.popToRoot()
     }
-    
+
     func dismissCardOperation() {
         coordinator.dismissCardOperation()
     }
