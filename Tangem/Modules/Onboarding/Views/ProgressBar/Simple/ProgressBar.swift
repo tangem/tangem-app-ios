@@ -14,7 +14,7 @@ struct ProgressBar: View {
     let currentProgress: CGFloat
     var backgroundColor: Color = .tangemGrayDark.opacity(0.12)
     var progressColor: Color = .tangemGreen
-    
+
     var body: some View {
         Rectangle()
             .modifier(
@@ -28,9 +28,9 @@ struct ProgressBar: View {
 }
 
 struct ProgressBarPreviewView: View {
-    
+
     @State var progress: CGFloat = 0.4
-    
+
     var body: some View {
         VStack {
             ProgressBar(height: 5, currentProgress: progress, backgroundColor: .tangemGrayDark.opacity(0.12), progressColor: .blue)
@@ -51,10 +51,10 @@ struct ProgressBarPreviewView: View {
             })
             Spacer()
         }
-        
+
     }
-    
-    
+
+
 }
 
 struct ProgressBar_Previews: PreviewProvider {
