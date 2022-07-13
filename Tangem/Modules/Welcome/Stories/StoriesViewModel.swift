@@ -12,7 +12,7 @@ import SwiftUI
 class StoriesViewModel: ObservableObject {
     @Published var currentPage: WelcomeStoryPage = WelcomeStoryPage.allCases[0]
     @Published var currentProgress = 0.0
-    
+
     let pages: [WelcomeStoryPage] = WelcomeStoryPage.allCases
     private var userPrefsService: UserPrefsService = .init()
     private var timerSubscription: AnyCancellable?
@@ -21,10 +21,10 @@ class StoriesViewModel: ObservableObject {
     private var longTapDetected = false
     private var currentDragLocation: CGPoint?
     private var bag: Set<AnyCancellable> = []
-    
+
     private let longTapDuration = 0.25
     private let minimumSwipeDistance = 100.0
-    
+
     func onAppear() {
         NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)
             .dropFirst()
@@ -32,24 +32,24 @@ class StoriesViewModel: ObservableObject {
                 self?.pauseTimer()
             }
             .store(in: &bag)
-        
+
         NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
             .dropFirst()
             .sink { [weak self] _ in
                 self?.resumeTimer()
             }
             .store(in: &bag)
-        
+
         DispatchQueue.main.async {
             self.restartTimer()
         }
     }
-    
+
     func onDisappear() {
         pauseTimer()
         bag = []
     }
-    
+
     @ViewBuilder
     func currentStoryPage(
         isScanning: Bool,
@@ -62,7 +62,7 @@ class StoriesViewModel: ObservableObject {
         } set: { [weak self] in
             self?.currentProgress = $0
         }
-        
+
         switch currentPage {
         case WelcomeStoryPage.meetTangem:
             MeetTangemStoryPage(progress: progressBinding, immediatelyShowButtons: userPrefsService.didDisplayMainScreenStories, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
@@ -83,14 +83,14 @@ class StoriesViewModel: ObservableObject {
         if longTapDetected {
             return
         }
-        
+
         if let currentDragLocation = currentDragLocation, currentDragLocation.distance(to: current) < minimumSwipeDistance {
             return
         }
 
         currentDragLocation = current
         pauseTimer()
-        
+
         longTapTimerSubscription = Timer.publish(every: longTapDuration, on: RunLoop.main, in: .default)
             .autoconnect()
             .sink { [unowned self] _ in
@@ -99,11 +99,11 @@ class StoriesViewModel: ObservableObject {
                 self.longTapDetected = true
             }
     }
-    
+
     func didEndDrag(_ current: CGPoint, destination: CGPoint, viewWidth: CGFloat) {
         if let currentDragLocation = currentDragLocation {
             let distance = (destination.x - current.x)
-            
+
             let moveForward: Bool
             if abs(distance) < minimumSwipeDistance {
                 moveForward = currentDragLocation.x > viewWidth / 2
@@ -115,12 +115,12 @@ class StoriesViewModel: ObservableObject {
         } else {
             resumeTimer()
         }
-        
+
         currentDragLocation = nil
         longTapTimerSubscription = nil
         longTapDetected = false
     }
-    
+
     private func move(forward: Bool) {
         currentPage = WelcomeStoryPage(rawValue: currentPage.rawValue + (forward ? 1 : -1)) ?? pages.first!
         restartTimer()
@@ -128,45 +128,45 @@ class StoriesViewModel: ObservableObject {
             userPrefsService.didDisplayMainScreenStories = true
         }
     }
-    
+
     private func timerIsRunning() -> Bool {
         timerSubscription != nil
     }
-    
+
     private func restartTimer() {
         currentProgress = 0
         resumeTimer()
     }
-    
+
     private func pauseTimer() {
         let now = Date()
-        
+
         let elapsedTime: TimeInterval
         if let timerStartDate = timerStartDate {
             elapsedTime = now.timeIntervalSince(timerStartDate)
         } else {
             elapsedTime = 0
         }
-        
+
         let progress = elapsedTime / currentPage.duration
-        
+
         timerSubscription = nil
         withAnimation(.linear(duration: 0)) {
             self.currentProgress = progress
         }
     }
-    
+
     private func resumeTimer() {
         let remainingProgress = 1 - currentProgress
         let remainingStoryDuration = currentPage.duration * remainingProgress
         let currentStoryTime = currentPage.duration * currentProgress
-        
+
         timerStartDate = Date() - TimeInterval(currentStoryTime)
-        
+
         withAnimation(.linear(duration: remainingStoryDuration)) {
             self.currentProgress = 1
         }
-        
+
         timerSubscription = Timer.publish(every: remainingStoryDuration, on: .main, in: .default)
             .autoconnect()
             .sink { [unowned self] _ in
@@ -182,7 +182,7 @@ extension StoriesViewModel: WelcomeViewLifecycleListener {
             pauseTimer()
         }
     }
-    
+
     func becomeActive() {
         if !timerIsRunning() {
             resumeTimer()
