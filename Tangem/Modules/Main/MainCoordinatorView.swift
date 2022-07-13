@@ -81,15 +81,18 @@ struct MainCoordinatorView: CoordinatorView {
     
     @ViewBuilder
     private var otherSheets: some View {
-        BottomSheetView(isPresented: coordinator.$qrBottomSheetKeeper,
-                        hideBottomSheetCallback: coordinator.hideQrBottomSheet,
-                        content: { addressQrBottomSheetContent })
+        BottomSheetView(from: coordinator.bottomSheetSettings,
+                        isPresented: coordinator.$bottomSheetKeeper,
+                        hideBottomSheetCallback: coordinator.hideBottomSheet,
+                        content: { sheetContent })
     }
     
     @ViewBuilder
-    private var addressQrBottomSheetContent: some View {
+    private var sheetContent: some View {
         if let model = coordinator.addressQrBottomSheetContentViewVodel {
             AddressQrBottomSheetContent(viewModel: model)
+        } else if let model = coordinator.warningBankCardViewModel {
+            WarningBankCardView(viewModel: model)
         }
     }
 }
