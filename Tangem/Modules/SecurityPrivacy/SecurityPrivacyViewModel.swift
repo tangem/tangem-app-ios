@@ -16,6 +16,7 @@ class SecurityPrivacyViewModel: ObservableObject {
 
     // MARK: ViewState
 
+    @Published var securityModeTitle: String?
     @Published var isSavedCards: Bool = true
     @Published var isSavedPasswords: Bool = true
     @Published var alert: AlertBinder?
@@ -30,6 +31,8 @@ class SecurityPrivacyViewModel: ObservableObject {
     ) {
         self.cardModel = cardModel
         self.coordinator = coordinator
+
+        securityModeTitle = cardModel.currentSecOption.title
 
         bind()
     }
