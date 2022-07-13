@@ -11,7 +11,7 @@ import SwiftUI
 
 struct WelcomeCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: WelcomeCoordinator
-    
+
     var body: some View {
         NavigationView {
             ZStack {
@@ -19,7 +19,7 @@ struct WelcomeCoordinatorView: CoordinatorView {
                     WelcomeView(viewModel: welcomeModel)
                         .navigationLinks(links)
                 }
-                
+
                 sheets
             }
             .navigationBarTitle("") // fix ios13 navbar glitches. We should change navbar's state before transition
@@ -27,7 +27,7 @@ struct WelcomeCoordinatorView: CoordinatorView {
         }
         .navigationViewStyle(.stack)
     }
-    
+
     @ViewBuilder
     private var links: some View {
         NavHolder()
@@ -45,12 +45,12 @@ struct WelcomeCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.shopCoordinator) {
                 ShopCoordinatorView(coordinator: $0)
             }
-        
+
         NavHolder()
             .sheet(item: $coordinator.tokenListCoordinator) {
                 TokenListCoordinatorView(coordinator: $0)
             }
-        
+
         NavHolder()
             .sheet(item: $coordinator.modalOnboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)
@@ -59,12 +59,12 @@ struct WelcomeCoordinatorView: CoordinatorView {
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
             }
-        
+
         NavHolder()
             .sheet(item: $coordinator.disclaimerViewModel) {
                 DisclaimerView(viewModel: $0)
             }
-        
+
         NavHolder()
             .sheet(item: $coordinator.mailViewModel) {
                 MailView(viewModel: $0)

@@ -9,25 +9,25 @@
 import SwiftUI
 
 struct BlankCard: View {
-    
+
     enum CardType {
         case dark
         case light
-        
+
         var color: Color {
             switch self {
             case .dark: return .tangemGrayDark6
             case .light: return .tangemGrayLight4
             }
         }
-        
+
         var logoColor: Color {
             switch self {
             case .dark: return .white
             case .light: return .tangemGrayDark5
             }
         }
-        
+
         var starsColor: Color {
             switch self {
             case .dark: return .tangemGrayDark
@@ -35,22 +35,22 @@ struct BlankCard: View {
             }
         }
     }
-    
+
     let cardType: CardType
-    
+
     private let logoRatio: CGSize = .init(width: 0.239, height: 0.103)
     private let starsWidthRatio: CGFloat = 0.728
     private let maxHorizontalPadding: CGFloat = 26
     private let maxVerticalPadding: CGFloat = 30
     private let horizontalPaddingRatio: CGFloat = 0.081
     private let verticalPaddingRatio: CGFloat = 0.182
-    
+
     var body: some View {
         GeometryReader { geom in
             VStack(alignment: .leading, spacing: 0) {
                 let horizontalPadding = geom.size.width * horizontalPaddingRatio
                 let verticalPadding = geom.size.height * verticalPaddingRatio
-                
+
                 Image("tangemLogo")
                     .renderingMode(.template)
                     .resizable()
