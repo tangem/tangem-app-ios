@@ -13,16 +13,16 @@ import SwiftUI
 
 class ShopViewModel: ObservableObject {
     @Injected(\.shopifyService) private var shopifyService: ShopifyProtocol
-    
+
     var bag = Set<AnyCancellable>()
-    
+
     // MARK: - Input
     @Published var selectedBundle: Bundle = .threeCards
     @Published var discountCode = ""
     @Published var canUseApplePay = true
-    
+
     // MARK: - Output
-    
+
     @Published var checkingDiscountCode = false
     @Published var showingThirdCard = true
     @Published var loadingProducts = false
@@ -30,50 +30,50 @@ class ShopViewModel: ObservableObject {
     @Published var totalAmount = ""
     @Published var pollingForOrder = false
     @Published var order: Order?
-    
+
     @Published var error: AlertBinder?
-    
+
     private var shopifyProductVariants: [ProductVariant] = []
     private var currentVariantID: GraphQL.ID = GraphQL.ID(rawValue: "")
     private var checkoutByVariantID: [GraphQL.ID: Checkout] = [:]
     private var initialized = false
     private unowned let coordinator: ShopViewRoutable
-    
+
     init(coordinator: ShopViewRoutable) {
         self.coordinator = coordinator
     }
-    
+
     func didAppear() {
         closeWebCheckout()
-        
+
         fetchProduct()
-        
+
         guard !initialized else {
             return
         }
-        
+
         initialized = true
-        
+
         canUseApplePay = shopifyService.canUseApplePay()
-        
+
         $selectedBundle
             .sink { [unowned self] newBundle in
                 self.didSelectBundle(newBundle)
             }
             .store(in: &bag)
     }
-    
+
     func didEnterDiscountCode() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { // Fix iOS13 keyboard layout glitch
             self.setDiscountCode(self.discountCode.isEmpty ? nil : self.discountCode)
         }
     }
-    
+
     func openApplePayCheckout() {
         guard let checkoutID = checkoutByVariantID[currentVariantID]?.id else {
             return
         }
-        
+
         shopifyService
             .startApplePaySession(checkoutID: checkoutID)
             .flatMap { [unowned self] _ -> AnyPublisher<Checkout, Error> in
@@ -91,21 +91,21 @@ class ShopViewModel: ObservableObject {
             }
             .store(in: &bag)
     }
-    
+
     private func fetchProduct() {
         guard shopifyProductVariants.isEmpty else {
             return
         }
-        
+
         loadingProducts = true
-        
+
         shopifyService
             .products(collectionTitleFilter: nil)
             .sink { completion in
-                
+
             } receiveValue: { [unowned self] collections in
                 self.loadingProducts = false
-                
+
                 // There can be multiple variants with the same SKU and the same ID along multiple products.
                 let allVariants: [ProductVariant] = collections.reduce([]) { partialResult, collection in
                     let products = collection.products
@@ -114,14 +114,14 @@ class ShopViewModel: ObservableObject {
                     }
                     return partialResult + variants
                 }
-                
+
                 let skusToDisplay = Bundle.allCases.map { $0.sku }
                 let variants = skusToDisplay.compactMap { skuToDisplay in
                     allVariants.first {
                         $0.sku == skuToDisplay
                     }
                 }
-                
+
                 guard variants.count == skusToDisplay.count else {
                     self.error = AppError.serverUnavailable.alertBinder
                     return
@@ -132,24 +132,24 @@ class ShopViewModel: ObservableObject {
             }
             .store(in: &bag)
     }
-    
+
     private func didSelectBundle(_ bundle: Bundle) {
         withAnimation(.easeOut(duration: 0.25)) {
             showingThirdCard = (bundle == .threeCards)
         }
-        
+
         let sku = bundle.sku
         guard let variant = shopifyProductVariants.first(where: {
             $0.sku == sku
         }) else {
             return
         }
-        
+
         self.currentVariantID = variant.id
         updatePrice()
         createCheckouts()
     }
-    
+
     private func didCloseWebCheckout() {
         shopifyService.cancelTasks()
         if order == nil {
@@ -163,12 +163,12 @@ class ShopViewModel: ObservableObject {
             createCheckouts()
         }
     }
-    
+
     private func didPlaceOrder(_ order: Order) {
         self.order = order
         Analytics.logShopifyOrder(order)
     }
-    
+
     private func createCheckouts() {
         // Create a checkout for each product so that we can switch between them immediately.
         // The same logic is behind applying discount codes.
@@ -176,40 +176,40 @@ class ShopViewModel: ObservableObject {
             createCheckout(variantID: $0.id)
         }
     }
-    
+
     private func createCheckout(variantID: GraphQL.ID) {
         let checkoutID = checkoutByVariantID[variantID]?.id
         guard checkoutID == nil else {
             return
         }
-        
+
         let lineItems: [CheckoutLineItem] = [.checkoutInput(variantID: variantID, quantity: 1)]
         shopifyService
             .createCheckout(checkoutID: checkoutID, lineItems: lineItems)
             .sink { _ in
-                
+
             } receiveValue: { [unowned self] checkout in
                 self.checkoutByVariantID[variantID] = checkout
             }
             .store(in: &bag)
     }
-    
+
     private func setDiscountCode(_ discountCode: String?) {
         shopifyProductVariants.forEach {
             setDiscountCode(discountCode, variantID: $0.id)
         }
     }
-    
+
     private func setDiscountCode(_ discountCode: String?, variantID: GraphQL.ID) {
         guard let checkoutID = checkoutByVariantID[variantID]?.id else {
             return
         }
-        
+
         let isCurrentVariantID = (variantID == currentVariantID)
         if isCurrentVariantID && discountCode != nil {
             checkingDiscountCode = true
         }
-        
+
         shopifyService.applyDiscount(discountCode, checkoutID: checkoutID)
             .sink { _ in
 
@@ -225,7 +225,7 @@ class ShopViewModel: ObservableObject {
             }
             .store(in: &bag)
     }
-    
+
     private func moneyFormatter(_ currencyCode: String) -> NumberFormatter {
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
@@ -233,7 +233,7 @@ class ShopViewModel: ObservableObject {
         formatter.currencyCode = currencyCode
         return formatter
     }
-    
+
     private func updatePrice() {
         guard let currentVariant = shopifyProductVariants.first(where: {
             $0.id == currentVariantID
@@ -241,7 +241,7 @@ class ShopViewModel: ObservableObject {
             return
         }
 
-        
+
         let totalAmount: Decimal
         if let checkout = checkoutByVariantID[currentVariantID] {
             totalAmount = checkout.total
@@ -251,7 +251,7 @@ class ShopViewModel: ObservableObject {
 
 
         let formatter = moneyFormatter(currentVariant.currencyCode)
-        
+
         self.totalAmount = formatter.string(from: NSDecimalNumber(decimal: totalAmount)) ?? ""
         if let originalAmount = currentVariant.originalAmount {
             self.totalAmountWithoutDiscount = formatter.string(from: NSDecimalNumber(decimal: originalAmount))
@@ -285,7 +285,7 @@ extension ShopViewModel {
         guard let checkoutID = checkoutByVariantID[currentVariantID]?.id else {
             return
         }
-        
+
         // Checking order ID
         shopifyService.checkout(pollUntilOrder: false, checkoutID: checkoutID)
             .flatMap { [unowned self] checkout -> AnyPublisher<Checkout, Error> in
@@ -294,17 +294,17 @@ extension ShopViewModel {
                 return self.shopifyService.checkout(pollUntilOrder: true, checkoutID: checkoutID)
             }
             .sink { _ in
-                
+
             } receiveValue: { [unowned self] checkout in
                 if let order = checkout.order {
                     self.didPlaceOrder(order)
                 }
-                
+
                 self.closeWebCheckout()
             }
             .store(in: &bag)
     }
-    
+
     func closeWebCheckout() {
         coordinator.closeWebCheckout()
         didCloseWebCheckout()
