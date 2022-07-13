@@ -10,31 +10,31 @@ import SwiftUI
 
 struct AddCustomTokenView: View {
     @ObservedObject var viewModel: AddCustomTokenViewModel
-    
+
     var body: some View {
         ScrollView {
             VStack(spacing: 10) {
                 VStack(spacing: 1) {
                     TextInputWithTitle(title: "custom_token_contract_address_input_title".localized, placeholder: "0x0000000000000000000000000000000000000000", text: $viewModel.contractAddress, keyboardType: .default, isEnabled: true, isLoading: viewModel.isLoading)
                         .cornerRadius(10, corners: [.topLeft, .topRight])
-                    
+
                     PickerInputWithTitle(title: "custom_token_network_input_title".localized, model: $viewModel.blockchainsPicker)
-                    
+
                     TextInputWithTitle(title: "custom_token_name_input_title".localized, placeholder: "custom_token_name_input_placeholder".localized, text: $viewModel.name, keyboardType: .default, isEnabled: viewModel.canEnterTokenDetails, isLoading: false)
-                    
+
                     TextInputWithTitle(title: "custom_token_token_symbol_input_title".localized, placeholder: "custom_token_token_symbol_input_placeholder".localized, text: $viewModel.symbol, keyboardType: .default, isEnabled: viewModel.canEnterTokenDetails, isLoading: false)
-                    
+
                     TextInputWithTitle(title: "custom_token_decimals_input_title".localized, placeholder: "0", text: $viewModel.decimals, keyboardType: .numberPad, isEnabled: viewModel.canEnterTokenDetails, isLoading: false)
                         .cornerRadius(viewModel.showDerivationPaths ? 0 : 10, corners: [.bottomLeft, .bottomRight])
-                    
+
                     if viewModel.showDerivationPaths {
                         PickerInputWithTitle(title: "custom_token_derivation_path_input_title".localized, model: $viewModel.derivationsPicker)
                             .cornerRadius(10, corners: [.bottomLeft, .bottomRight])
                     }
                 }
-                
+
                 WarningListView(warnings: viewModel.warningContainer, warningButtonAction: { _, _, _ in })
-                
+
                 TangemButton(title: "custom_token_add_token", systemImage: "plus", action: viewModel.createToken)
                     .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth, isDisabled: viewModel.addButtonDisabled, isLoading: viewModel.isLoading))
             }
@@ -59,16 +59,16 @@ fileprivate struct TextInputWithTitle: View {
     var backgroundColor: Color =  .white
     let isEnabled: Bool
     let isLoading: Bool
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
                 .font(.system(size: 13, weight: .regular))
                 .foregroundColor(Color.tangemGrayDark6)
-            
+
             HStack {
                 CustomTextField(text: text, isResponder: .constant(nil), actionButtonTapped: .constant(false), handleKeyboard: true, keyboard: keyboardType, textColor: isEnabled ? UIColor.tangemGrayDark4 : .lightGray, font: UIFont.systemFont(ofSize: 17, weight: .regular), placeholder: placeholder, isEnabled: isEnabled)
-                
+
                 if isLoading {
                     ActivityIndicatorView(isAnimating: true, color: .tangemGrayDark)
                 }
@@ -85,13 +85,13 @@ fileprivate struct PickerInputWithTitle: View {
     var height: CGFloat = 60
     var backgroundColor: Color = .white
     @Binding var model: PickerModel
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title)
                 .font(.system(size: 13, weight: .regular))
                 .foregroundColor(Color.tangemGrayDark6)
-            
+
             HStack {
                 Picker("", selection: $model.selection) {
                     ForEach(model.items, id: \.1) { value in
@@ -103,7 +103,7 @@ fileprivate struct PickerInputWithTitle: View {
                 .id(model.id)
                 .modifier(PickerStyleModifier())
                 .disabled(!model.isEnabled)
-                
+
                 Spacer()
             }
         }
