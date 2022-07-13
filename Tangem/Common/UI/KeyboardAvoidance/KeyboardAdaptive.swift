@@ -9,7 +9,7 @@
 import SwiftUI
 import Combine
 
-/// Note that the `KeyboardAdaptive` modifier wraps your view in a `GeometryReader`, 
+/// Note that the `KeyboardAdaptive` modifier wraps your view in a `GeometryReader`,
 /// which attempts to fill all the available space, potentially increasing content view size.
 struct KeyboardAdaptive: ViewModifier {
     @State private var bottomPadding: CGFloat = 0
