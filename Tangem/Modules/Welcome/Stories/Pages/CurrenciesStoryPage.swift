@@ -14,15 +14,15 @@ struct CurrenciesStoryPage: View {
     let scanCard: (() -> Void)
     let orderCard: (() -> Void)
     let searchTokens: (() -> Void)
-    
+
     private let numberOfRows = 6
     private let numberOfRowImages = 5
-    
+
     var body: some View {
         VStack {
             StoriesTangemLogo()
                 .padding()
-            
+
             VStack(spacing: 16) {
                 Text("story_currencies_title")
                     .font(.system(size: 36, weight: .semibold))
@@ -30,7 +30,7 @@ struct CurrenciesStoryPage: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
                     .storyTextAppearanceModifier(progress: progress, type: .title, textBlockAppearance: .almostImmediate)
-                
+
                 Text("story_currencies_description")
                     .font(.system(size: 22))
                     .multilineTextAlignment(.center)
@@ -39,7 +39,7 @@ struct CurrenciesStoryPage: View {
                     .storyTextAppearanceModifier(progress: progress, type: .description, textBlockAppearance: .almostImmediate)
             }
             .fixedSize(horizontal: false, vertical: true)
-            
+
             ZStack(alignment: .bottom) {
                 Color.clear
                     .background(
@@ -68,12 +68,12 @@ struct CurrenciesStoryPage: View {
                             }
                         }
                     )
-                
+
                 TangemButton(title: "home_button_search_tokens", systemImage: "magnifyingglass", action: searchTokens)
                     .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt2, layout: .flexibleWidth))
                     .padding(.horizontal)
             }
-            
+
             StoriesBottomButtons(scanColorStyle: .grayAlt2, orderColorStyle: .black, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
                 .padding(.horizontal)
                 .padding(.bottom)

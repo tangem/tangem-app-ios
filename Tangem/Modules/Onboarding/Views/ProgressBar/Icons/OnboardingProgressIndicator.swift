@@ -13,7 +13,7 @@ struct ProgressIndicatorView: View {
     var maxIndex: Int
     var filled: Bool
     var animDuration: TimeInterval = 0.3
-    
+
     var body: some View {
         ZStack {
             Circle()
@@ -34,11 +34,11 @@ struct ProgressIndicatorView: View {
 }
 
 struct ProgressIndicatorGroupView: View {
-    
+
     var filled: Bool
     var numberOfIndicators: Int = 3
     var animDuration: TimeInterval
-    
+
     var body: some View {
         HStack {
             ForEach(1 ... numberOfIndicators) { index in
@@ -50,13 +50,13 @@ struct ProgressIndicatorGroupView: View {
             }
         }
     }
-    
+
 }
 
 struct ProgressIndicatorGroupView_Previews: PreviewProvider {
-    
+
     static var previews: some View {
         ProgressIndicatorGroupView(filled: true, numberOfIndicators: 3, animDuration: 0.3)
     }
-    
+
 }

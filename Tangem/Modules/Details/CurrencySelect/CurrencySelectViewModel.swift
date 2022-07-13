@@ -11,15 +11,15 @@ import Combine
 
 class CurrencySelectViewModel: ObservableObject {
     @Injected(\.currencyRateService) private var currencyRateService: CurrencyRateService
-    
+
     var dismissAfterSelection: Bool = true
-    
+
     @Published var loading: Bool = false
     @Published var currencies: [CurrenciesResponse.Currency] = []
     @Published var error: AlertBinder?
-    
+
     private var bag = Set<AnyCancellable>()
-    
+
     func onAppear() {
         loading = true
         currencyRateService
@@ -38,11 +38,11 @@ class CurrencySelectViewModel: ObservableObject {
             })
             .store(in: &self.bag)
     }
-    
+
     func isSelected(_ currency: CurrenciesResponse.Currency) -> Bool {
         currencyRateService.selectedCurrencyCode == currency.code
     }
-    
+
     func onSelect(_ currency: CurrenciesResponse.Currency) {
         objectWillChange.send()
         currencyRateService.selectedCurrencyCode = currency.code
