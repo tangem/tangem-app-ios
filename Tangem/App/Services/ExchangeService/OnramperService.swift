@@ -39,34 +39,34 @@ fileprivate struct OnramperCryptoCurrency: Decodable {
 
 class OnramperService {
     @Injected(\.keysManager) var keysManager: KeysManager
-    
+
     private var key: String { keysManager.onramperApiKey }
-    
+
     private var availableCryptoCurrencies: [OnramperCryptoCurrency] = []
-    
+
     private let canBuyCrypto = true
     private let canSellCrypto = false
     private var bag: Set<AnyCancellable> = []
-    
+
     init() {}
-    
+
     deinit {
         print("OnramperService deinit")
     }
-    
+
     private func currencyId(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> String? {
         guard blockchain.supportsOnramper else {
             return nil
         }
-        
+
         var networkIds: [String?] = []
-        
+
         switch amountType {
         case .reserve:
             return nil
         case .coin:
             networkIds.append(nil)
-            
+
             switch blockchain {
             case .litecoin:
                 // [REDACTED_TODO_COMMENT]
@@ -85,29 +85,29 @@ class OnramperService {
                 networkIds.append(blockchainNetworkId)
             }
         }
-        
+
         let currencies = availableCryptoCurrencies.filter { $0.code == currencySymbol }
         let currency = currencies.first { networkIds.contains($0.network) }
-        
+
         return currency?.id
     }
 }
 
 extension OnramperService: ExchangeService {
     var successCloseUrl: String { "https://success.tangem.com" }
-    
+
     var sellRequestUrl: String {
         return ""
     }
-    
+
     func canBuy(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
         return canBuyCrypto && currencyId(currencySymbol: currencySymbol, amountType: amountType, blockchain: blockchain) != nil
     }
-    
+
     func canSell(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
         return false
     }
-    
+
     func getBuyUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String) -> URL? {
         guard
             canBuy(currencySymbol, amountType: amountType, blockchain: blockchain),
@@ -115,11 +115,11 @@ extension OnramperService: ExchangeService {
         else {
             return nil
         }
-        
+
         var urlComponents = URLComponents()
         urlComponents.scheme = "https"
         urlComponents.host = "widget.onramper.com"
-        
+
         var queryItems = [URLQueryItem]()
         queryItems.append(.init(key: .apiKey, value: key.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         queryItems.append(.init(key: .defaultCrypto, value: currencyID.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
@@ -129,39 +129,39 @@ extension OnramperService: ExchangeService {
         if let languageCode = Locale.current.languageCode {
             queryItems.append(.init(key: .language, value: languageCode))
         }
-        
+
         urlComponents.percentEncodedQueryItems = queryItems
-        
+
         let url = urlComponents.url
         return url
     }
-    
+
     func getSellUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String) -> URL? {
         fatalError("[REDACTED_TODO_COMMENT]")
     }
-    
+
     func extractSellCryptoRequest(from data: String) -> SellCryptoRequest? {
         return nil
     }
-    
+
     func initialize() {
         var request = URLRequest(url: URL(string: "https://onramper.tech/gateways")!)
         request.addValue("Basic \(key)", forHTTPHeaderField: "Authorization")
-        
+
         let config = URLSessionConfiguration.default
         config.requestCachePolicy = .reloadIgnoringLocalCacheData
         config.urlCache = nil
-        
+
         URLSession(configuration: config).dataTaskPublisher(for: request)
             .map(\.data)
             .decode(type: OnramperGatewaysResponse.self, decoder: JSONDecoder())
             .sink { _ in
-                
+
             } receiveValue: { [unowned self] response in
                 let currencies = response.gateways.reduce([]) {
                     $0 + $1.cryptoCurrencies
                 }
-                
+
                 self.availableCryptoCurrencies = currencies
             }
             .store(in: &bag)
@@ -183,7 +183,7 @@ fileprivate extension Blockchain {
             return true
         }
     }
-    
+
     var onramperNetworkId: String? {
         switch self {
         case .avalanche:
