@@ -43,10 +43,10 @@ extension SecurityPrivacyCoordinator {
 // MARK: - SecurityPrivacyRoutable
 
 extension SecurityPrivacyCoordinator: SecurityPrivacyRoutable {
-    func openChangePassword() {
+    func openChangeAccessCode() {
         
     }
-    
+
     func openSecurityManagement(cardModel: CardViewModel) {
         let coordinator = SecurityManagementCoordinator(popToRootAction: popToRootAction)
         let options = SecurityManagementCoordinator.Options(cardModel: cardModel)
