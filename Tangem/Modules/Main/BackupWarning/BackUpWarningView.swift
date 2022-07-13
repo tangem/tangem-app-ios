@@ -10,7 +10,7 @@ import SwiftUI
 
 struct BackUpWarningButton: View {
     let tapAction: () -> ()
-    
+
     var body: some View {
         Button {
             tapAction()
@@ -18,20 +18,20 @@ struct BackUpWarningButton: View {
             HStack(alignment: .center, spacing: 0) {
                 Image("warningIcon")
                     .padding(.vertical, 8)
-                
+
                 VStack(alignment: .leading, spacing: 2) {
                     Text("main_no_backup_warning_title".localized)
                         .font(.system(size: 15, weight: .medium))
-                    
+
                     Text("main_no_backup_warning_subtitle".localized)
                         .font(.system(size: 13, weight: .regular))
                         .foregroundColor(Color.tangemTextGray)
                 }
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.leading, 10)
-                
+
                 Spacer()
-                
+
                 Image("chevron")
             }
         }
