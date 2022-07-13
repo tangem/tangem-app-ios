@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct OnboardingTopupBalanceUpdater: View {
-    
+
     let balance: String
     let frame: CGSize
     let offset:  CGSize
@@ -17,7 +17,7 @@ struct OnboardingTopupBalanceUpdater: View {
     let refreshButtonState: OnboardingCircleButton.State
     let refreshButtonSize: OnboardingCircleButton.Size
     let opacity: Double
-    
+
     var body: some View {
         Group {
             VStack(spacing: 0) {
@@ -39,7 +39,7 @@ struct OnboardingTopupBalanceUpdater: View {
                     .fixedSize()
             }
             .offset(offset)
-            
+
             OnboardingCircleButton(refreshAction: refreshAction,
                                    state: refreshButtonState,
                                    size: refreshButtonSize)
@@ -47,24 +47,24 @@ struct OnboardingTopupBalanceUpdater: View {
         }
         .opacity(opacity)
     }
-    
+
 }
 
 struct OnboardingTopupBalanceView: View {
-    
+
     let backgroundFrameSize: CGSize
     let cornerSize: CGFloat
     let backgroundOffset: CGSize
-    
+
     let balance: String
     let balanceUpdaterFrame: CGSize
     let balanceUpdaterOffset: CGSize
-    
+
     let refreshAction: () -> Void
     let refreshButtonState: OnboardingCircleButton.State
     let refreshButtonSize: OnboardingCircleButton.Size
     let refreshButtonOpacity: Double
-    
+
     var body: some View {
         ZStack {
             Rectangle()
@@ -86,7 +86,7 @@ struct OnboardingTopupBalanceView: View {
             )
         }
     }
-    
+
 }
 
 struct OnboardingTopupBalanceView_Previews: PreviewProvider {
@@ -99,7 +99,7 @@ struct OnboardingTopupBalanceView_Previews: PreviewProvider {
             balanceUpdaterFrame: CGSize(width: 100, height: 200),
             balanceUpdaterOffset: CGSize(width: 0, height: 40),
             refreshAction: {
-                
+
             },
             refreshButtonState: .refreshButton,
             refreshButtonSize: .medium,
