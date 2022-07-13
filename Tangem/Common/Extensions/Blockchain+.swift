@@ -11,7 +11,7 @@ import BlockchainSdk
 
 extension Blockchain {
     private static var testnetId = "/test"
-    
+
     // Init blockchain from id with default params
     init?(from stringId: String) {
         let isTestnet = stringId.contains(Blockchain.testnetId)
@@ -46,7 +46,7 @@ extension Blockchain {
             return nil
         }
     }
-    
+
     var id: String {
         switch self {
         case .binance: return "binancecoin"
@@ -75,7 +75,7 @@ extension Blockchain {
         case .gnosis: return "xdai"
         }
     }
-    
+
     var networkId: String {
         switch self {
         case .binance: return "binancecoin"
@@ -104,7 +104,7 @@ extension Blockchain {
         case .gnosis: return "xdai"
         }
     }
-    
+
     var currencyId: String {
         switch self {
         case .arbitrum(let testnet):
@@ -113,31 +113,31 @@ extension Blockchain {
             return id
         }
     }
-    
+
     var rawStringId: String {
         var name = "\(self)".lowercased()
-        
+
         if let index = name.firstIndex(of: "(") {
             name = String(name.prefix(upTo: index))
         }
-        
+
         return name
     }
-    
+
     var stringId: String {
         let name = rawStringId
         return isTestnet ? "\(name)\(Blockchain.testnetId)" : name
     }
-    
+
     var iconName: String {
         let rawId = rawStringId
-        
+
         if rawId == "binance" {
             return "bsc"
         }
-        
+
         return rawId
     }
-    
+
     var iconNameFilled: String { "\(iconName).fill" }
 }
