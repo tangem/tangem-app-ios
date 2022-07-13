@@ -14,13 +14,13 @@ import Moya
 
 struct SendView: View {
     @ObservedObject var viewModel: SendViewModel
-    
+
     private var addressHint: String {
         viewModel.isPayIdSupported ?
             "send_destination_hint".localized :
             "send_destination_hint_address".localized
     }
-    
+
     var body: some View {
         GeometryReader { geometry in
             ScrollView {
@@ -58,7 +58,7 @@ struct SendView: View {
                                    message: self.viewModel.destinationHint?.message ?? " ",
                                    isErrorMessage: self.viewModel.destinationHint?.isError ?? false)
                         .disabled(viewModel.isSellingCrypto)
-                    
+
                     if viewModel.isAdditionalInputEnabled {
                         if case .memo = viewModel.additionalInputFields {
                             TextInputField(placeholder: self.viewModel.memoPlaceholder,
@@ -69,7 +69,7 @@ struct SendView: View {
                                            isErrorMessage: self.viewModel.memoHint?.isError ?? false)
                                 .transition(.opacity)
                         }
-                        
+
                         if case .destinationTag = viewModel.additionalInputFields {
                             TextInputField(placeholder: "send_extras_hint_destination_tag".localized,
                                            text: self.$viewModel.destinationTagStr,
@@ -80,7 +80,7 @@ struct SendView: View {
                                 .transition(.opacity)
                         }
                     }
-                    
+
                     Group {
                         HStack {
                             CustomTextField(text: self.$viewModel.amountText,
@@ -171,9 +171,9 @@ struct SendView: View {
                             }
                         }
                     }
-                    
+
                     Spacer()
-                    
+
                     VStack(spacing: 8.0) {
                         HStack {
                             Text("send_amount_label")
@@ -214,7 +214,7 @@ struct SendView: View {
                                 .minimumScaleFactor(0.5)
                                 .fixedSize(horizontal: false, vertical: true)
                                 .foregroundColor(Color.tangemGrayDark6)
-                            
+
                         }
                         if !viewModel.isSellingCrypto {
                             HStack {
@@ -231,7 +231,7 @@ struct SendView: View {
                     })
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.vertical, 16)
-                    
+
                     sendButton
                 }
                 .padding(16)
@@ -249,7 +249,7 @@ struct SendView: View {
                 viewModel.onBecomingActive()
         }
     }
-    
+
     @ViewBuilder private var sendButton: some View {
         TangemButton(title: "wallet_button_send", systemImage: "arrow.right", action: viewModel.send)
             .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
@@ -259,9 +259,9 @@ struct SendView: View {
                 if binder.error == nil {
                     return binder.alert
                 }
-                
+
                 let errorDescription = String(binder.error?.localizedDescription.dropTrailingPeriod ?? "Unknown error")
-                
+
                 return Alert(title: Text("alert_failed_to_send_transaction_title"),
                              message: Text(String(format: "alert_failed_to_send_transaction_message".localized, errorDescription)),
                              primaryButton: .default(Text("alert_button_request_support"), action: viewModel.openMail),
@@ -281,7 +281,7 @@ struct ExtractView_Previews: PreviewProvider {
                                       cardViewModel: PreviewCard.ethereum.cardModel,
                                       coordinator: SendCoordinator()))
                 .previewLayout(.iphone7Zoomed)
-            
+
             SendView(viewModel: .init(amountToSend: Amount(with: PreviewCard.ethereum.blockchain!,
                                                            type: .token(value: Token(name: "DAI", symbol: "DAI", contractAddress: "0xdwekdn32jfne", decimalCount: 18)),
                                                            value: 0.0),
