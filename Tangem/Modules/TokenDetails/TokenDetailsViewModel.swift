@@ -235,13 +235,15 @@ class TokenDetailsViewModel: ObservableObject {
             self.isRefreshing = true
         }
         refreshCancellable = walletModel?
-            .update()
+            .update(silent: true)
             .receive(on: RunLoop.main)
             .sink { [weak self] _ in
                 guard let self = self else { return }
                 print("♻️ Token wallet model loading state changed")
-                self.isRefreshing = false
-                done()
+                withAnimation(.default.delay(0.2)) {
+                    self.isRefreshing = false
+                    done()
+                }
             } receiveValue: { _ in
 
             }
