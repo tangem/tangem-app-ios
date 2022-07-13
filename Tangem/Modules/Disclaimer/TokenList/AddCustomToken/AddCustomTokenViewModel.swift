@@ -16,24 +16,24 @@ class AddCustomTokenViewModel: ObservableObject {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     @Injected(\.coinsService) private var coinsService: CoinsService
     @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
-    
+
     weak var cardModel: CardViewModel!
-    
+
     @Published var name = ""
     @Published var symbol = ""
     @Published var contractAddress = ""
     @Published var decimals = ""
-    
+
     @Published var blockchainsPicker: PickerModel = .empty
     @Published var derivationsPicker: PickerModel = .empty
-    
-    
+
+
     @Published var error: AlertBinder?
-    
+
     @Published var warningContainer = WarningsContainer()
     @Published var addButtonDisabled = false
     @Published var isLoading = false
-    
+
     var canEnterTokenDetails: Bool {
         foundStandardToken == nil && selectedBlockchainSupportsTokens
     }
@@ -41,24 +41,24 @@ class AddCustomTokenViewModel: ObservableObject {
     var showDerivationPaths: Bool {
         cardHasDifferentDerivationPaths && blockchainHasDifferentDerivationPaths
     }
-    
+
     @Published private var cardHasDifferentDerivationPaths: Bool = true
     @Published private var blockchainHasDifferentDerivationPaths: Bool = true
-    
+
     private var selectedBlockchainSupportsTokens: Bool {
         let blockchain = try? enteredBlockchain()
         return blockchain?.canHandleTokens ?? true
     }
-    
+
     private var bag: Set<AnyCancellable> = []
     private var blockchainByName: [String: Blockchain] = [:]
     private var foundStandardToken: CoinModel?
     private unowned let coordinator: AddCustomTokenRoutable
-    
+
     init(cardModel: CardViewModel, coordinator: AddCustomTokenRoutable) {
         self.coordinator = coordinator
         self.cardModel = cardModel
-        
+
         Publishers.CombineLatest3(
             $blockchainsPicker.map { $0.selection }.removeDuplicates(),
             $contractAddress.removeDuplicates(),
@@ -68,12 +68,12 @@ class AddCustomTokenViewModel: ObservableObject {
         .debounce(for: 0.5, scheduler: RunLoop.main)
         .flatMap { [unowned self] (blockchainName, contractAddress, derivationPath) -> AnyPublisher<[CoinModel], Never> in
             self.isLoading = true
-                
+
             guard !contractAddress.isEmpty else {
                 return Just([])
                     .eraseToAnyPublisher()
             }
-                
+
             return self.findToken(contractAddress: contractAddress)
         }
         .receive(on: RunLoop.main)
@@ -81,17 +81,17 @@ class AddCustomTokenViewModel: ObservableObject {
             self.didFinishTokenSearch(currencyModels)
         }
         .store(in: &bag)
-        
+
         $blockchainsPicker.map { $0.selection }
             .sink { [unowned self] newBlockchainName in
                 self.didChangeBlockchain(newBlockchainName)
             }
             .store(in: &bag)
     }
-    
+
     func createToken() {
         UIApplication.shared.endEditing()
-        
+
         let tokenItem: TokenItem
         let blockchain: Blockchain
         let derivationPath: DerivationPath?
@@ -103,7 +103,7 @@ class AddCustomTokenViewModel: ObservableObject {
             }
             blockchain = try enteredBlockchain()
             derivationPath = try enteredDerivationPath()
-            
+
             if case let .token(_, blockchain) = tokenItem,
                case .solana = blockchain,
                !cardModel.cardInfo.card.canSupportSolanaTokens
@@ -114,20 +114,20 @@ class AddCustomTokenViewModel: ObservableObject {
             self.error = error.alertBinder
             return
         }
-        
+
         let amountType: Amount.AmountType
         if let token = tokenItem.token {
             amountType = .token(value: token)
         } else {
             amountType = .coin
         }
-        
+
         let derivationStyle = cardModel.cardInfo.card.derivationStyle
         let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath ?? blockchain.derivationPath(for: derivationStyle))
-        
+
         cardModel.add(items: [(amountType, blockchainNetwork)]) { [weak self] result in
             guard let self = self else { return }
-            
+
             switch result {
             case .success:
                 self.closeModule()
@@ -135,17 +135,17 @@ class AddCustomTokenViewModel: ObservableObject {
                 if case TangemSdkError.userCancelled = error {
                     return
                 }
-                
+
                 self.error = error.alertBinder
             }
         }
     }
-    
+
     func onAppear() {
         updateBlockchains(getBlockchains(withTokenSupport: true))
         updateDerivationPaths()
     }
-    
+
     func onDisappear() {
         blockchainsPicker = .empty
         derivationsPicker = .empty
@@ -154,10 +154,10 @@ class AddCustomTokenViewModel: ObservableObject {
         contractAddress = ""
         decimals = ""
     }
-    
+
     private func updateBlockchains(_ blockchains: Set<Blockchain>) {
         let defaultItem = ("custom_token_network_input_not_selected".localized, "")
-        
+
         let newBlockchains = [defaultItem] + blockchains.sorted {
             $0.displayName < $1.displayName
         }.map {
@@ -166,23 +166,23 @@ class AddCustomTokenViewModel: ObservableObject {
         self.blockchainByName = Dictionary(uniqueKeysWithValues: blockchains.map {
             ($0.codingKey, $0)
         })
-        
+
         var newBlockchainName = self.blockchainsPicker.selection
         if blockchains.count == 1, let firstBlockchain = blockchains.first {
             newBlockchainName = firstBlockchain.codingKey
         } else if blockchainByName[blockchainsPicker.selection] == nil {
             newBlockchainName = ""
         }
-        
+
         self.blockchainsPicker = .init(items: newBlockchains, selection: newBlockchainName, isEnabled: blockchains.count > 1)
     }
-    
+
     private func getBlockchains(withTokenSupport: Bool) -> Set<Blockchain> {
         let cardInfo = cardModel.cardInfo
-        
+
         let supportedTokenItems = SupportedTokenItems()
         let blockchains = supportedTokenItems.blockchains(for: cardInfo.card.walletCurves, isTestnet: cardInfo.isTestnet)
-        
+
         if withTokenSupport {
             let blockchainsWithTokens = supportedTokenItems.blockchainsWithTokens(isTestnet: cardInfo.isTestnet)
             let evmBlockchains = supportedTokenItems.evmBlockchains(isTestnet: cardInfo.isTestnet)
@@ -192,12 +192,12 @@ class AddCustomTokenViewModel: ObservableObject {
             return blockchains
         }
     }
-    
+
     private func updateDerivationPaths() {
         let derivationStyle = cardModel.cardInfo.card.derivationStyle
-        
+
         let defaultItem = ("custom_token_derivation_path_default".localized, "")
-        
+
         let evmBlockchains = getBlockchains(withTokenSupport: false).filter { $0.isEvm }
         let evmDerivationPaths: [(String, String)]
         if !cardModel.cardInfo.card.settings.isHDWalletAllowed {
@@ -216,25 +216,25 @@ class AddCustomTokenViewModel: ObservableObject {
                     $0.0 < $1.0
                 }
         }
-        
+
         let uniqueDerivations = Set(evmDerivationPaths.map(\.1))
         self.cardHasDifferentDerivationPaths = uniqueDerivations.count > 1
         let newDerivationSelection = self.derivationsPicker.selection
         self.derivationsPicker = .init(items: [defaultItem] + evmDerivationPaths, selection: newDerivationSelection)
     }
-    
+
     private func enteredTokenItem() throws -> TokenItem {
         let blockchain = try enteredBlockchain()
-        
+
         if contractAddress.isEmpty && name.isEmpty && symbol.isEmpty && decimals.isEmpty {
             return .blockchain(blockchain)
         } else {
             let enteredContractAddress = try self.enteredContractAddress(in: blockchain)
-            
+
             guard !name.isEmpty, !symbol.isEmpty, !decimals.isEmpty else {
                 throw TokenCreationErrors.emptyFields
             }
-            
+
             let maxDecimalNumber = 30
             guard
                 let decimals = Int(decimals),
@@ -242,84 +242,84 @@ class AddCustomTokenViewModel: ObservableObject {
             else {
                 throw TokenCreationErrors.invalidDecimals(precision: maxDecimalNumber)
             }
-            
+
             let token = Token(
                 name: name,
                 symbol: symbol.uppercased(),
                 contractAddress: enteredContractAddress,
                 decimalCount: decimals
             )
-            
+
             return .token(token, blockchain)
         }
     }
-    
+
     private func enteredBlockchain() throws -> Blockchain {
         guard let blockchain = blockchainByName[blockchainsPicker.selection] else {
             throw TokenCreationErrors.blockchainNotSelected
         }
-        
+
         return blockchain
     }
-    
+
     private func enteredContractAddress(in blockchain: Blockchain) throws -> String {
         if case .binance = blockchain, !contractAddress.trimmed().isEmpty {
             return contractAddress // skip validation for binance
         }
-        
+
         guard blockchain.validate(address: contractAddress) else {
             throw TokenCreationErrors.invalidContractAddress
         }
-    
+
         return contractAddress
     }
-    
+
     private func enteredDerivationPath() throws -> DerivationPath? {
         if let blockchain = try? enteredBlockchain(),
            !blockchain.isEvm
         {
             return nil
         }
-        
+
         let rawPath = derivationsPicker.selection
         if !rawPath.isEmpty {
             let derivationPath = try? DerivationPath(rawPath: rawPath)
-            
+
             if derivationPath == nil {
                 throw TokenCreationErrors.invalidDerivationPath
             }
-            
+
             return derivationPath
         } else {
             return nil
         }
     }
-    
+
     private func checkLocalStorage() throws {
         let derivationStyle = cardModel.cardInfo.card.derivationStyle
         let cardId = cardModel.cardInfo.card.cardId
-        
+
         guard let blockchain = try? enteredBlockchain() else {
             return
         }
-        
+
         let cardTokenItems = tokenItemsRepository.getItems(for: cardId)
         let checkingContractAddress = !contractAddress.isEmpty
         let derivationPath = try? enteredDerivationPath() ?? blockchain.derivationPath(for: derivationStyle)
-        
+
         let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath)
-        
+
         if let networkItem = cardTokenItems.first(where: { $0.blockchainNetwork == blockchainNetwork }) {
             if !checkingContractAddress {
                 throw TokenSearchError.alreadyAdded
             }
-            
+
             if networkItem.tokens.contains(where: { $0.contractAddress == contractAddress }) {
                 throw TokenSearchError.alreadyAdded
             }
         }
     }
-    
+
     private func findToken(contractAddress: String) -> AnyPublisher<[CoinModel], Never> {
         if let currentCurrencyModel = foundStandardToken,
            let token = currentCurrencyModel.items.first?.token,
@@ -328,30 +328,30 @@ class AddCustomTokenViewModel: ObservableObject {
             return Just([currentCurrencyModel])
                 .eraseToAnyPublisher()
         }
-        
+
         let networkIds = getBlockchains(withTokenSupport: true).map { $0.networkId }
         let requestModel = CoinsListRequestModel(
             contractAddress: contractAddress,
             networkIds: networkIds
         )
-        
+
         return coinsService
             .loadCoins(requestModel: requestModel)
             .replaceError(with: [])
             .eraseToAnyPublisher()
     }
-    
+
     private func didFinishTokenSearch(_ currencyModels: [CoinModel]) {
         warningContainer.removeAll()
         addButtonDisabled = false
         isLoading = false
-        
+
         let previouslyFoundStandardToken = foundStandardToken
-        
+
         let currencyModelBlockchains = currencyModels.reduce(Set<Blockchain>()) { partialResult, currencyModel in
             partialResult.union(currencyModel.items.map { $0.blockchain })
         }
-        
+
         let blockchains: Set<Blockchain>
         if !currencyModelBlockchains.isEmpty {
             blockchains = currencyModelBlockchains
@@ -359,9 +359,9 @@ class AddCustomTokenViewModel: ObservableObject {
             blockchains = getBlockchains(withTokenSupport: true)
         }
         updateBlockchains(blockchains)
-        
+
         self.foundStandardToken = currencyModels.first
-        
+
         if let token = foundStandardToken?.items.first?.token {
             decimals = "\(token.decimalCount)"
             symbol = token.symbol
@@ -375,7 +375,7 @@ class AddCustomTokenViewModel: ObservableObject {
             symbol = ""
             name = ""
         }
-        
+
         do {
             try checkLocalStorage()
 
@@ -389,23 +389,23 @@ class AddCustomTokenViewModel: ObservableObject {
             let tokenSearchError = error as? TokenSearchError
             addButtonDisabled = tokenSearchError?.preventsFromAdding ?? false
             warningContainer.removeAll()
-            
+
             if let tokenSearchError = tokenSearchError {
                 warningContainer.add(tokenSearchError.appWarning)
             }
         }
     }
-    
+
     private func didChangeBlockchain(_ newBlockchainName: String) {
         let newBlockchain = blockchainByName[newBlockchainName]
-       
+
         let blockchainHasDerivationPaths: Bool
         if let newBlockchain = newBlockchain {
             blockchainHasDerivationPaths = newBlockchain.isEvm
         } else {
             blockchainHasDerivationPaths = true
         }
-      
+
         blockchainHasDifferentDerivationPaths = blockchainHasDerivationPaths
     }
 }
@@ -425,7 +425,7 @@ private extension AddCustomTokenViewModel {
         case invalidDecimals(precision: Int)
         case invalidContractAddress
         case invalidDerivationPath
-        
+
         var errorDescription: String? {
             switch self {
             case .blockchainNotSelected:
@@ -443,11 +443,11 @@ private extension AddCustomTokenViewModel {
             }
         }
     }
-    
+
     enum TokenSearchError: LocalizedError {
         case alreadyAdded
         case failedToFindToken
-        
+
         var preventsFromAdding: Bool {
             switch self {
             case .alreadyAdded:
@@ -456,7 +456,7 @@ private extension AddCustomTokenViewModel {
                 return false
             }
         }
-        
+
         var errorDescription: String? {
             switch self {
             case .failedToFindToken:
@@ -465,7 +465,7 @@ private extension AddCustomTokenViewModel {
                 return "custom_token_validation_error_already_added".localized
             }
         }
-        
+
         var appWarning: AppWarning {
             return AppWarning(title: "common_warning".localized, message: errorDescription ?? "", priority: .warning)
         }
@@ -477,7 +477,7 @@ struct PickerModel: Identifiable {
     let items: [(String, String)]
     var selection: String
     var isEnabled: Bool = true
-    
+
     static var empty: PickerModel {
         .init(items: [], selection: "")
     }
