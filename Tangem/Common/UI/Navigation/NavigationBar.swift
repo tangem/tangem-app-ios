@@ -12,7 +12,7 @@ struct ArrowBack: View {
     let action: () -> Void
     let height: CGFloat
     var color: Color = .tangemGrayDark6
-	
+
     var body: some View {
         Button(action: action, label: {
             Image(systemName: "chevron.left")
@@ -25,14 +25,14 @@ struct ArrowBack: View {
 }
 
 struct BackButton: View {
-    
+
     let height: CGFloat
     let isVisible: Bool
     let isEnabled: Bool
     var color: Color = .tangemGrayDark6
     var hPadding: CGFloat = 16
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action, label: {
             HStack(spacing: 5) {
@@ -48,40 +48,40 @@ struct BackButton: View {
         .foregroundColor(isEnabled ? color : color.opacity(0.5))
         .padding(.horizontal, hPadding)
     }
-    
+
 }
 
 struct NavigationBar<LeftButtons: View, RightButtons: View>: View {
-	
+
     struct Settings {
         let titleFont: Font
         let titleColor: Color
         let backgroundColor: Color
         let horizontalPadding: CGFloat
         let height: CGFloat
-		
+
         init(titleFont: Font = .system(size: 17, weight: .medium),
              titleColor: Color = .tangemGrayDark6,
              backgroundColor: Color = .tangemBgGray,
              horizontalPadding: CGFloat = 0,
              height: CGFloat = 44) {
-			
+
             self.titleFont = titleFont
             self.titleColor = titleColor
             self.backgroundColor = backgroundColor
             self.horizontalPadding = horizontalPadding
             self.height = height
         }
-		
+
         //		static var `default`: Settings { .init() }
-		
+
     }
-	
+
     private let title: LocalizedStringKey
     private let settings: Settings
     private let leftButtons: LeftButtons
     private let rightButtons: RightButtons
-	
+
     init(
         title: LocalizedStringKey,
         settings: Settings = .init(),
@@ -93,7 +93,7 @@ struct NavigationBar<LeftButtons: View, RightButtons: View>: View {
         leftButtons = leftItems()
         rightButtons = rightItems()
     }
-	
+
     var body: some View {
         ZStack {
             HStack {
@@ -198,7 +198,7 @@ struct NavigationBar_Previews: PreviewProvider {
                 NavigationBar(title: "Hello, World!")
                 Spacer()
             }.deviceForPreview(.iPhone11ProMax)
-            
+
             HStack {
                 BackButton(height: 44, isVisible: true, isEnabled: true) { }
                 Spacer()
