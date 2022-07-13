@@ -12,7 +12,7 @@ enum StoriesConstants {
     enum TextType {
         case title
         case description
-        
+
         var timeOffset: Double {
             switch self {
             case .title:
@@ -22,11 +22,11 @@ enum StoriesConstants {
             }
         }
     }
-    
+
     enum TextBlockAppearance {
         case almostImmediate
         case minorDelay
-        
+
         var time: Double {
             switch self {
             case .almostImmediate:
@@ -36,6 +36,6 @@ enum StoriesConstants {
             }
         }
     }
-    
+
     static let textAppearanceDuration = 0.2
 }

@@ -21,10 +21,10 @@ enum PreviewCard {
     case cardanoNoteEmptyWallet
     case ethEmptyNote
     case tangemWalletEmpty
-    
+
     var cardModel: CardViewModel { scanResult.cardModel! }
-    
-    
+
+
     var scanResult: ScanResult {
         let card = Card.card
         let ci = CardInfo(card: card,
@@ -44,14 +44,14 @@ enum PreviewCard {
         } else {
             walletModels = []
         }
-        
+
         walletModels.forEach { $0.initialize() }
-        
+
         vm.state = .loaded(walletModel: walletModels)
         #endif
         return scanResult
     }
-    
+
     var walletData: WalletData? {
         switch self {
         case .ethereum:
@@ -68,7 +68,7 @@ enum PreviewCard {
             return nil
         }
     }
-    
+
     #if !CLIP
     var blockchain: Blockchain? {
         switch self {
@@ -82,12 +82,12 @@ enum PreviewCard {
             return nil
         }
     }
-    
+
     var blockchainNetwork: BlockchainNetwork? {
         blockchain.map { BlockchainNetwork($0) }
     }
     #endif
-    
+
     var publicKey: Data {
         // [REDACTED_TODO_COMMENT]
         switch self {
@@ -95,7 +95,7 @@ enum PreviewCard {
             return Data(count: 32)
         }
     }
-    
+
     var isNote: Bool {
         switch self {
         case .cardanoNote, .ethEmptyNote, .cardanoNoteEmptyWallet:
@@ -104,7 +104,7 @@ enum PreviewCard {
             return false
         }
     }
-    
+
     private var twinInfo: TwinCardInfo? {
         switch self {
         case .twin: return TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairPublicKey: nil)
