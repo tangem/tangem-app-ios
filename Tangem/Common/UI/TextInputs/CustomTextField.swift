@@ -10,9 +10,9 @@ import Foundation
 import SwiftUI
 
 struct CustomTextField: UIViewRepresentable {
-    
+
     class Coordinator: NSObject, UITextFieldDelegate {
-        
+
         @Binding var text: String
         @Binding var isResponder: Bool?
         @Binding var actionButtonTapped: Bool
@@ -20,7 +20,7 @@ struct CustomTextField: UIViewRepresentable {
         var decimalCount: Int?
         let defaultStringToClear: String?
         var isEnabled = true
-        
+
         init(text: Binding<String>, placeholder: String, decimalCount: Int?, defaultStringToClear: String?,
              isResponder: Binding<Bool?>, actionButtonTapped: Binding<Bool>) {
             _text = text
@@ -30,47 +30,47 @@ struct CustomTextField: UIViewRepresentable {
             self.decimalCount = decimalCount
             self.defaultStringToClear = defaultStringToClear
         }
-        
+
         func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
             return isEnabled
         }
-        
+
         func textFieldDidChangeSelection(_ textField: UITextField) {
             text = textField.text ?? ""
         }
-        
+
         func textFieldDidBeginEditing(_ textField: UITextField) {
             DispatchQueue.main.async {
                 self.isResponder = true
             }
-            
+
             if let toClear = defaultStringToClear {
                 if textField.text == toClear {
                     textField.text = ""
                 }
             }
         }
-        
+
         func textFieldDidEndEditing(_ textField: UITextField) {
             DispatchQueue.main.async {
                 self.isResponder = false
             }
-            
+
             if let toClear = defaultStringToClear {
                 if textField.text == "" {
                     textField.text = toClear
                 }
             }
         }
-        
+
         @objc func actionTapped() {
             self.actionButtonTapped.toggle()
         }
-        
+
         @objc func hideKeyboard() {
             UIApplication.shared.endEditing()
         }
-        
+
         func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
             guard let maxLength = self.decimalCount else {
                 return true
@@ -102,16 +102,16 @@ struct CustomTextField: UIViewRepresentable {
                 textField.text = newString.replacingOccurrences(of: ",", with: ".")
                 return false
             }
-            
+
             return true
         }
-        
+
     }
-    
+
     @Binding var text: String
     @Binding var isResponder: Bool?
     @Binding var actionButtonTapped: Bool
-    
+
     var isSecured: Bool = false
     var clearsOnBeginEditing: Bool = false
     var defaultStringToClear: String? = nil
@@ -150,11 +150,11 @@ struct CustomTextField: UIViewRepresentable {
                                             style: .plain,
                                             target: context.coordinator,
                                             action: #selector(context.coordinator.hideKeyboard))]
-            
-          
-       
+
+
+
         }
-        
+
         if let actionButton = actionButton {
             toolbarItems.insert(UIBarButtonItem(title: actionButton,
                                                 style: .plain,
@@ -169,10 +169,10 @@ struct CustomTextField: UIViewRepresentable {
             toolbar.tintColor = UIColor.black
             textField.inputAccessoryView = toolbar
         }
-        
+
         return textField
     }
-    
+
     func makeCoordinator() -> CustomTextField.Coordinator {
         return Coordinator(text: $text, placeholder: placeholder,
                            decimalCount: decimalCount,
@@ -180,19 +180,19 @@ struct CustomTextField: UIViewRepresentable {
                            isResponder: $isResponder,
                            actionButtonTapped: $actionButtonTapped)
     }
-    
+
     func updateUIView(_ uiView: UITextField, context: UIViewRepresentableContext<CustomTextField>) {
         uiView.text = text
         uiView.textColor = textColor
         context.coordinator.decimalCount = decimalCount
         context.coordinator.isEnabled = isEnabled
-        
+
         if isResponder ?? false {
             DispatchQueue.main.async {
                 uiView.becomeFirstResponder()
             }
         }
     }
-    
+
 }
 
