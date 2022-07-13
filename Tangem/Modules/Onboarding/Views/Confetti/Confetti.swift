@@ -13,7 +13,7 @@ struct ConfettiView: UIViewRepresentable {
     var position: ConfettiGeneratorPosition = .aboveTop
     var confettiLifetime: Float = 4
     var generationDuration: Double = 0.3
-    
+
     func makeUIView(context: Context) -> UIView {
         let view = UIView()
         view.backgroundColor = .clear
@@ -21,17 +21,17 @@ struct ConfettiView: UIViewRepresentable {
         view.isUserInteractionEnabled = false
         return view
     }
-    
+
     func updateUIView(_ uiView: UIView, context: Context) {
         if shouldFireConfetti.wrappedValue {
             launchConfetti(for: uiView)
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 self.shouldFireConfetti.wrappedValue = false
             }
-            
+
         }
     }
-    
+
     private func launchConfetti(for view: UIView) {
         view.layer.sublayers?.removeAll()
         let confettiLayers = ConfettiGenerator.shared
@@ -46,16 +46,16 @@ struct ConfettiView: UIViewRepresentable {
             view.layer.addSublayer(layer)
             layer.frame = view.bounds
         }
-        
+
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(.success)
     }
 }
 
 struct ConfettiViewPreview: View {
-    
+
     @State var shouldFireConfetti: Bool = false
-    
+
     var body: some View {
         ZStack {
             ConfettiView(
@@ -76,7 +76,7 @@ struct ConfettiViewPreview: View {
             }
         }
     }
-    
+
 }
 
 struct ConfettiView_Previews: PreviewProvider {
