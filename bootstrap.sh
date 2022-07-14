@@ -4,17 +4,26 @@
 # Install "Command line tools" xcode-select --install
 # Install Homebrew -> https://brew.sh
 
-echo "==== Installing dependencies... 🔜 ===="
-if which -a brew > /dev/null
-then
-    brew install mint
+
+echo "🔜 Check & Install dependencies..."
+
+if which -a brew > /dev/null; then
+    echo "🟢 Homebrew installed. Skipping install"
 else
-    echo "⚠️ Homebrew wasn't installed. Try to install"
+    echo "🔴 Homebrew not installed. Start install"
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
-mint install nicklockwood/SwiftFormat
-echo "==== Dependencies succesfully installed ✅ ===="
 
-echo "==== Running swiftformat ===="
- mint run swiftformat .
-echo "==== Bootstrap competed 🎉 ===="
+if which -a mint > /dev/null; then
+    echo "🟢 Mint installed. Skipping install"
+else
+    echo "🔴 Mint not installed. Start install"
+    brew install mint
+fi
+
+mint bootstrap
+echo "✅ Dependencies succesfully installed"
+
+echo "🚀 Running SwiftFormat"
+mint run swiftformat@0.49.11 . --config .swiftformat
+echo "Bootstrap competed 🎉"
