@@ -2,8 +2,8 @@
 "add_custom_token_title" = "Add custom token";
 "add_tokens_title" = "Manage tokens";
 "main_manage_tokens" = "Manage tokens";
-"address_qr_code_message_format" = "Send only %@ (%@) to this address. Sending any other currency will result in its irreversible loss.";
-"address_qr_code_message_token_format" = "Send only %@ (%@) from %@ network to this address. Sending any other currency will result in its irreversible loss.";
+"address_qr_code_message_format" = "Send only %@ (%@) to this address. Using other tokens and networks may result in loss of funds.";
+"address_qr_code_message_token_format" = "Send only %@ (%@) from %@ network to this address. Using other tokens and networks may result in loss of funds.";
 "alert_app_feedback_sent_message" = "Thank you for your feedback";
 "alert_app_feedback_sent_title" = "Sent successfully";
 "alert_button_i_understand" = "I understand";
@@ -477,7 +477,6 @@ URL: %@";
 "common_notice" = "Notice";
 "common_attention" = "Attention";
 "alert_manage_tokens_addresses_message" = "Note that tokens on different networks have different addresses. Double check that your address matches the network when you transfer funds.";
-"warning_token_send_unsupported_message" = "Do not transfer your funds to tokens in this blockchain, otherwise it may lead to their irretrievable loss.";
 "alert_manage_tokens_unsupported_message" = "Tokens in Solana network are not supported by this card due to firmware limitation.";
 "contract_address_copied_message" = "Contract address copied!";
 "common_server_unavailable" = "The server is not available, please try again later";
