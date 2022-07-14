@@ -52,14 +52,6 @@ struct SecurityPrivacyView: View {
         })
     }
 
-    private var changeAccessCodeSection: some View {
-        Section(content: {
-            Text("")
-        }, footer: {
-            FooterView(title: "security_and_privacy_change_access_code_footer".localized)
-        })
-    }
-
     private var savedCardsSection: some View {
         Section(content: {
             ToggleRowView(
