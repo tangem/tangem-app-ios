@@ -2,8 +2,8 @@
 "add_custom_token_title" = "Добавить токен";
 "add_tokens_title" = "Валюты";
 "main_manage_tokens" = "Управление токенами";
-"address_qr_code_message_format" = "Отправляйте только %@ (%@) на этот адрес. Отправка любой другой валюты приведет к ее безвозвратной утере.";
-"address_qr_code_message_token_format" = "Отправляйте только %@ (%@) из сети %@ на этот адрес. Отправка любой другой валюты приведет к ее безвозвратной утере.";
+"address_qr_code_message_format" = "Отправляйте только %@ (%@) на этот адрес. Иначе это может привести к утрате средств.";
+"address_qr_code_message_token_format" = "Отправляйте только %@ (%@) из сети %@ на этот адрес. Иначе это может привести к утрате средств.";
 "alert_app_feedback_sent_message" = "Спасибо за ваш отзыв";
 "alert_app_feedback_sent_title" = "Отправлено успешно";
 "alert_button_i_understand" = "Я понимаю";
@@ -477,7 +477,6 @@ URL: %@";
 "common_notice" = "Уведомление";
 "common_attention" = "Внимание";
 "alert_manage_tokens_addresses_message" = "Внимание! Валюты на разных сетях имеют разные адреса. Убедитесь, что адрес соответствует сети, в которой вы отправляете средства.";
-"warning_token_send_unsupported_message" = "Не осуществляйте перевод на токены в данной сети, иначе это может привести к их безвозвратной утере.";
 "alert_manage_tokens_unsupported_message" = "Токены в сети Solana не поддерживаются этой картой из-за ограничений прошивки.";
 "contract_address_copied_message" = "Адрес контракта скопирован!";
 "common_server_unavailable" = "Сервер недоступен, повторите попытку позднее";
