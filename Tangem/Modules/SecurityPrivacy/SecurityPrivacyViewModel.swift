@@ -12,7 +12,7 @@ import Combine
 class SecurityPrivacyViewModel: ObservableObject {
     // MARK: Dependecies
     private unowned let coordinator: SecurityPrivacyRoutable
-    private let cardModel: CardViewModel?
+    private let cardModel: CardViewModel
 
     // MARK: ViewState
 
@@ -29,15 +29,15 @@ class SecurityPrivacyViewModel: ObservableObject {
     private var shouldShowAlertOnDisableSaveAccessCodes: Bool = true
 
     init(
-        inputModel: InputModel,
+        cardModel: CardViewModel,
         coordinator: SecurityPrivacyRoutable
     ) {
-        self.cardModel = inputModel.cardModel
+        self.cardModel = cardModel
         self.coordinator = coordinator
 
-        securityModeTitle = inputModel.currentSecOption.title
-        isOnceOptionSecurityMode = inputModel.availableSecOptions.count <= 1
-        isChangeAccessCodeVisible = inputModel.currentSecOption == .accessCode
+        securityModeTitle = cardModel.currentSecOption.title
+        isOnceOptionSecurityMode = cardModel.availableSecOptions.count <= 1
+        isChangeAccessCodeVisible = cardModel.currentSecOption == .accessCode
 
         bind()
     }
@@ -127,9 +127,7 @@ extension SecurityPrivacyViewModel {
     }
 
     func openChangeAccessMethod() {
-        if let cardModel = cardModel {
-            coordinator.openSecurityManagement(cardModel: cardModel)
-        }
+        coordinator.openSecurityManagement(cardModel: cardModel)
     }
 
     func openTokenSynchronization() {
