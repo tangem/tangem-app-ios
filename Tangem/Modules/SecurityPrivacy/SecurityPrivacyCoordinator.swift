@@ -29,7 +29,12 @@ class SecurityPrivacyCoordinator: CoordinatorObject {
     func start(with options: Options) {
         switch options {
         case let .cardModel(viewModel):
-            securityPrivacyViewModel = SecurityPrivacyViewModel(cardModel: viewModel, coordinator: self)
+            securityPrivacyViewModel = SecurityPrivacyViewModel(
+                inputModel: .init(currentSecOption: viewModel.currentSecOption,
+                                  availableSecOptions: viewModel.availableSecOptions,
+                                  cardModel: viewModel),
+                coordinator: self
+            )
         }
     }
 }

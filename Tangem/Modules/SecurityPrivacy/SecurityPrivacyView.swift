@@ -11,6 +11,14 @@ import SwiftUI
 struct SecurityPrivacyView: View {
     @ObservedObject var viewModel: SecurityPrivacyViewModel
 
+    var firstSectionFooterTitle: String {
+        if viewModel.isChangeAccessCodeVisible {
+            return "security_and_privacy_change_access_code_footer".localized
+        } else {
+            return "security_and_privacy_security_mode_footer".localized
+        }
+    }
+
     var body: some View {
         List {
             firstSection
@@ -33,13 +41,14 @@ struct SecurityPrivacyView: View {
                 isEnable: !viewModel.isOnceOptionSecurityMode,
                 action: viewModel.openChangeAccessMethod
             )
-            
-            RowView(
-                title: "security_and_privacy_change_access_code".localized,
-                action: viewModel.openChangeAccessCode
-            )
+            if viewModel.isChangeAccessCodeVisible {
+                RowView(
+                    title: "security_and_privacy_change_access_code".localized,
+                    action: viewModel.openChangeAccessCode
+                )
+            }
         }, footer: {
-            FooterView(title: "security_and_privacy_change_access_code_footer".localized)
+            FooterView(title: firstSectionFooterTitle)
         })
     }
 
@@ -54,11 +63,11 @@ struct SecurityPrivacyView: View {
     private var savedCardsSection: some View {
         Section(content: {
             ToggleRowView(
-                title: "security_and_privacy_saved_cards".localized,
+                title: "security_and_privacy_saved_wallet".localized,
                 isOn: $viewModel.isSaveCards
             )
         }, footer: {
-            FooterView(title: "security_and_privacy_saved_cards_footer".localized)
+            FooterView(title: "security_and_privacy_saved_wallet_footer".localized)
         })
     }
 
@@ -144,6 +153,7 @@ private extension SecurityPrivacyView {
                 Toggle("", isOn: isOn)
                     .labelsHidden()
                     .toggleStyleCompat(.tangemGreen)
+                    .disabled(true)
             }
         }
     }
@@ -159,7 +169,13 @@ struct SecurityPrivacyView_Preview: PreviewProvider {
 
 private extension SecurityPrivacyViewModel {
     static let mock = SecurityPrivacyViewModel(
-        cardModel: CardViewModel(cardInfo: CardInfo(card: .card, walletData: nil, artwork: .noArtwork, twinCardInfo: nil, isTangemNote: false, isTangemWallet: false, derivedKeys: [:], primaryCard: nil)),
+        inputModel: .init(currentSecOption: .longTap,
+                          availableSecOptions: [.longTap, .accessCode],
+                          cardModel: nil),
         coordinator: SecurityPrivacyCoordinator()
     )
+
+    /*
+     CardViewModel(cardInfo: CardInfo(card: .card, walletData: nil, artwork: .noArtwork, twinCardInfo: nil, isTangemNote: false, isTangemWallet: false, derivedKeys: [:], primaryCard: nil)))
+     */
 }
