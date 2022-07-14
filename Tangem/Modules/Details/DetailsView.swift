@@ -132,7 +132,7 @@ struct DetailsView: View {
 
     private var securityManagementRow: some View {
         HStack {
-            Text("details_row_title_security_and_privacy")
+            Text("details_row_title_manage_security")
                 .font(.system(size: 16, weight: .regular, design: .default))
                 .foregroundColor(.tangemGrayDark6)
 
