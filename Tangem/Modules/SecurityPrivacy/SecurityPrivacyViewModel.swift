@@ -12,11 +12,12 @@ import Combine
 class SecurityPrivacyViewModel: ObservableObject {
     // MARK: Dependecies
     private unowned let coordinator: SecurityPrivacyRoutable
-    private let cardModel: CardViewModel
+    private let cardModel: CardViewModel?
 
     // MARK: ViewState
 
     @Published var isOnceOptionSecurityMode: Bool = false
+    @Published var isChangeAccessCodeVisible: Bool = false
     @Published var securityModeTitle: String?
     @Published var isSaveCards: Bool = true
     @Published var isSaveAccessCodes: Bool = true
@@ -25,16 +26,18 @@ class SecurityPrivacyViewModel: ObservableObject {
     // MARK: Properties
 
     private var bag: Set<AnyCancellable> = []
+    private var shouldShowAlertOnDisableSaveAccessCodes: Bool = true
 
     init(
-        cardModel: CardViewModel,
+        inputModel: InputModel,
         coordinator: SecurityPrivacyRoutable
     ) {
-        self.cardModel = cardModel
+        self.cardModel = inputModel.cardModel
         self.coordinator = coordinator
 
-        securityModeTitle = cardModel.currentSecOption.title
-        isOnceOptionSecurityMode = cardModel.availableSecOptions.count <= 1
+        securityModeTitle = inputModel.currentSecOption.title
+        isOnceOptionSecurityMode = inputModel.availableSecOptions.count <= 1
+        isChangeAccessCodeVisible = inputModel.currentSecOption == .accessCode
 
         bind()
     }
@@ -48,7 +51,7 @@ private extension SecurityPrivacyViewModel {
             .dropFirst()
             .filter { !$0 }
             .sink(receiveValue: { [weak self] _ in
-                self?.presenSavedCardsDeleteAlert()
+                self?.presentSaveWalletDeleteAlert()
             })
             .store(in: &bag)
 
@@ -61,17 +64,37 @@ private extension SecurityPrivacyViewModel {
             .store(in: &bag)
     }
 
-    func presentChangeAccessCodeDeleteAlert() {
-        let okButton = Alert.Button.destructive(Text("common_delete"), action: {
-            // [REDACTED_TODO_COMMENT]
+    func presentSaveWalletDeleteAlert() {
+        let okButton = Alert.Button.destructive(Text("common_delete"), action: { [weak self] in
+            self?.disableSaveWallet()
         })
+        let cancelButton = Alert.Button.cancel(Text("common_cancel"), action: { [weak self] in
+            self?.isSaveCards = true
+        })
+
+        let alert = Alert(
+            title: Text("common_attention"),
+            message: Text("security_and_privacy_off_saved_wallet_alert_message"),
+            primaryButton: okButton,
+            secondaryButton: cancelButton
+        )
+
+        self.alert = AlertBinder(alert: alert)
+    }
+
+    func presentChangeAccessCodeDeleteAlert() {
+        guard shouldShowAlertOnDisableSaveAccessCodes else { return }
+        let okButton = Alert.Button.destructive(Text("common_delete"), action: { [weak self] in
+            self?.disableSaveAccessCodes()
+        })
+
         let cancelButton = Alert.Button.cancel(Text("common_cancel"), action: { [weak self] in
             self?.isSaveAccessCodes = true
         })
 
         let alert = Alert(
             title: Text("common_attention"),
-            message: Text("При отключении данной опции все сохраненные карты и пароли будут сброше, все данные удалены. Для входа в приложение понадобится прикладывать карту."),
+            message: Text("security_and_privacy_off_saved_access_code_alert_message"),
             primaryButton: okButton,
             secondaryButton: cancelButton
         )
@@ -80,22 +103,19 @@ private extension SecurityPrivacyViewModel {
         self.alert = AlertBinder(alert: alert)
     }
 
-    func presenSavedCardsDeleteAlert() {
-        let okButton = Alert.Button.destructive(Text("common_delete"), action: {
-            // [REDACTED_TODO_COMMENT]
-        })
-        let cancelButton = Alert.Button.cancel(Text("common_cancel"), action: { [weak self] in
-            self?.isSaveCards = true
-        })
+    func disableSaveWallet() {
+        // [REDACTED_TODO_COMMENT]
+        disableSaveAccessCodes()
+    }
 
-        let alert = Alert(
-            title: Text("common_attention"),
-            message: Text("Все сохраненные пароли от карт будут удалены. Для проведения операций с картой вам необходимо будет вводить пароль."),
-            primaryButton: okButton,
-            secondaryButton: cancelButton
-        )
+    func disableSaveAccessCodes() {
+        // [REDACTED_TODO_COMMENT]
 
-        self.alert = AlertBinder(alert: alert)
+        if isSaveAccessCodes {
+            shouldShowAlertOnDisableSaveAccessCodes = false
+            isSaveAccessCodes = false
+            shouldShowAlertOnDisableSaveAccessCodes = true
+        }
     }
 }
 
@@ -107,7 +127,9 @@ extension SecurityPrivacyViewModel {
     }
 
     func openChangeAccessMethod() {
-        coordinator.openSecurityManagement(cardModel: cardModel)
+        if let cardModel = cardModel {
+            coordinator.openSecurityManagement(cardModel: cardModel)
+        }
     }
 
     func openTokenSynchronization() {
@@ -116,5 +138,13 @@ extension SecurityPrivacyViewModel {
 
     func openResetSavedCards() {
         coordinator.openResetSavedCards()
+    }
+}
+
+extension SecurityPrivacyViewModel {
+    struct InputModel {
+        let currentSecOption: SecurityManagementOption
+        let availableSecOptions: [SecurityManagementOption]
+        let cardModel: CardViewModel?
     }
 }
