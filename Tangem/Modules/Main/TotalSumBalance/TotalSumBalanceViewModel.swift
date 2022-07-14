@@ -66,24 +66,24 @@ class TotalSumBalanceViewModel: ObservableObject {
                 var hasTotalBalanceError: Bool = false
                 var totalFiatValue: Decimal = 0.0
                 for token in self.tokenItemViewModels {
-                        if token.state.isSuccesfullyLoaded {
-                            totalFiatValue += token.fiatValue
-                        }
-
-                        if token.rate.isEmpty || !token.state.isSuccesfullyLoaded {
-                            hasTotalBalanceError = true
-                        }
+                    if token.state.isSuccesfullyLoaded {
+                        totalFiatValue += token.fiatValue
                     }
 
-                    self.totalFiatValueString = self.addAttributeForBalance(totalFiatValue, withCurrencyCode: currency.code)
-
-                    if loadingAnimationEnable {
-                        self.disableLoading(withError: hasTotalBalanceError)
-                    } else {
-                        if !self.isLoading && self.tokenItemViewModels.first(where: { $0.displayState == .busy }) == nil {
-                            self.hasError = hasTotalBalanceError
-                        }
+                    if token.rate.isEmpty || !token.state.isSuccesfullyLoaded {
+                        hasTotalBalanceError = true
                     }
+                }
+
+                self.totalFiatValueString = self.addAttributeForBalance(totalFiatValue, withCurrencyCode: currency.code)
+
+                if loadingAnimationEnable {
+                    self.disableLoading(withError: hasTotalBalanceError)
+                } else {
+                    if !self.isLoading && self.tokenItemViewModels.first(where: { $0.displayState == .busy }) == nil {
+                        self.hasError = hasTotalBalanceError
+                    }
+                }
             }
     }
 
