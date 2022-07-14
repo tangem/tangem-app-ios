@@ -138,11 +138,3 @@ extension SecurityPrivacyViewModel {
         coordinator.openResetSavedCards()
     }
 }
-
-extension SecurityPrivacyViewModel {
-    struct InputModel {
-        let currentSecOption: SecurityManagementOption
-        let availableSecOptions: [SecurityManagementOption]
-        let cardModel: CardViewModel?
-    }
-}
