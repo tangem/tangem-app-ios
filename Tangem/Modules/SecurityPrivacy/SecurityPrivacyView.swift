@@ -145,7 +145,7 @@ private extension SecurityPrivacyView {
                 Toggle("", isOn: isOn)
                     .labelsHidden()
                     .toggleStyleCompat(.tangemGreen)
-                    .disabled(true)
+                    .disabled(true) // [REDACTED_TODO_COMMENT]
             }
         }
     }
