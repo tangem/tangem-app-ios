@@ -150,24 +150,3 @@ private extension SecurityPrivacyView {
         }
     }
 }
-
-struct SecurityPrivacyView_Preview: PreviewProvider {
-    static var previews: some View {
-        NavigationView {
-            SecurityPrivacyView(viewModel: .mock)
-        }
-    }
-}
-
-private extension SecurityPrivacyViewModel {
-    static let mock = SecurityPrivacyViewModel(
-        inputModel: .init(currentSecOption: .longTap,
-                          availableSecOptions: [.longTap, .accessCode],
-                          cardModel: nil),
-        coordinator: SecurityPrivacyCoordinator()
-    )
-
-    /*
-     CardViewModel(cardInfo: CardInfo(card: .card, walletData: nil, artwork: .noArtwork, twinCardInfo: nil, isTangemNote: false, isTangemWallet: false, derivedKeys: [:], primaryCard: nil)))
-     */
-}
