@@ -69,14 +69,14 @@ class TotalSumBalanceViewModel: ObservableObject {
                     if token.state.isSuccesfullyLoaded {
                         totalFiatValue += token.fiatValue
                     }
-                    
+
                     if token.rate.isEmpty || !token.state.isSuccesfullyLoaded {
                         hasTotalBalanceError = true
                     }
                 }
-                
+
                 self.totalFiatValueString = self.addAttributeForBalance(totalFiatValue, withCurrencyCode: currency.code)
-                
+
                 if loadingAnimationEnable {
                     self.disableLoading(withError: hasTotalBalanceError)
                 } else {
