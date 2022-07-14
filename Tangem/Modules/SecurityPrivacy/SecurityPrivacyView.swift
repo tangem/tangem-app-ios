@@ -13,9 +13,7 @@ struct SecurityPrivacyView: View {
 
     var body: some View {
         List {
-            securityModeSection
-
-            changeAccessCodeSection
+            firstSection
 
             savedCardsSection
 
@@ -27,7 +25,7 @@ struct SecurityPrivacyView: View {
         .navigationBarTitle("security_and_privacy_title", displayMode: .inline)
     }
 
-    private var securityModeSection: some View {
+    private var firstSection: some View {
         Section(content: {
             RowView(
                 title: "security_and_privacy_security_mode".localized,
@@ -35,17 +33,19 @@ struct SecurityPrivacyView: View {
                 isEnable: !viewModel.isOnceOptionSecurityMode,
                 action: viewModel.openChangeAccessMethod
             )
+            
+            RowView(
+                title: "security_and_privacy_change_access_code".localized,
+                action: viewModel.openChangeAccessCode
+            )
         }, footer: {
-            FooterView(title: "security_and_privacy_security_mode_footer".localized)
+            FooterView(title: "security_and_privacy_change_access_code_footer".localized)
         })
     }
 
     private var changeAccessCodeSection: some View {
         Section(content: {
-            RowView(
-                title: "security_and_privacy_change_access_code".localized,
-                action: viewModel.openChangeAccessCode
-            )
+            Text("")
         }, footer: {
             FooterView(title: "security_and_privacy_change_access_code_footer".localized)
         })
