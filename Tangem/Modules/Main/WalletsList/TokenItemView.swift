@@ -32,7 +32,7 @@ struct TokenItemView: View {
     }
 
     var body: some View {
-        HStack(alignment: .center) {
+        HStack(alignment: .center, spacing: 12) {
             TokenIconView(with: item.amountType, blockchain: item.blockchainNetwork.blockchain)
                 .saturation(item.isTestnet ? 0.0 : 1.0)
                 .overlay(
@@ -41,7 +41,7 @@ struct TokenItemView: View {
                         .offset(x: 1, y: 1)
                 )
 
-            VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 2) {
                 HStack(alignment: .firstTextBaseline) {
                     Text(item.name)
                         .font(.system(size: 15, weight: .medium))
