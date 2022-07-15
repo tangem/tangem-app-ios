@@ -12,11 +12,11 @@ import Combine
 class SecurityPrivacyViewModel: ObservableObject {
     // MARK: ViewState
 
-    @Published var isOnceOptionSecurityMode: Bool = false
+    @Published var hasSingleSecurityMode: Bool = false
     @Published var isChangeAccessCodeVisible: Bool = false
     @Published var securityModeTitle: String?
-    @Published var isSaveCards: Bool = true
-    @Published var isSaveAccessCodes: Bool = true
+    @Published var isSavingWallet: Bool = true
+    @Published var isSavingAccessCodes: Bool = true
     @Published var alert: AlertBinder?
 
     // MARK: Dependecies
@@ -37,7 +37,7 @@ class SecurityPrivacyViewModel: ObservableObject {
         self.coordinator = coordinator
 
         securityModeTitle = cardModel.currentSecOption.title
-        isOnceOptionSecurityMode = cardModel.availableSecOptions.count <= 1
+        hasSingleSecurityMode = cardModel.availableSecOptions.count <= 1
         isChangeAccessCodeVisible = cardModel.currentSecOption == .accessCode
 
         bind()
@@ -48,29 +48,29 @@ class SecurityPrivacyViewModel: ObservableObject {
 
 private extension SecurityPrivacyViewModel {
     func bind() {
-        $isSaveCards
+        $isSavingWallet
             .dropFirst()
             .filter { !$0 }
             .sink(receiveValue: { [weak self] _ in
-                self?.presentSaveWalletDeleteAlert()
+                self?.presentSavingWalletDeleteAlert()
             })
             .store(in: &bag)
 
-        $isSaveAccessCodes
+        $isSavingAccessCodes
             .dropFirst()
             .filter { !$0 }
             .sink(receiveValue: { [weak self] _ in
-                self?.presentChangeAccessCodeDeleteAlert()
+                self?.presentSavingAccessCodesDeleteAlert()
             })
             .store(in: &bag)
     }
 
-    func presentSaveWalletDeleteAlert() {
+    func presentSavingWalletDeleteAlert() {
         let okButton = Alert.Button.destructive(Text("common_delete"), action: { [weak self] in
             self?.disableSaveWallet()
         })
         let cancelButton = Alert.Button.cancel(Text("common_cancel"), action: { [weak self] in
-            self?.isSaveCards = true
+            self?.isSavingWallet = true
         })
 
         let alert = Alert(
@@ -83,14 +83,15 @@ private extension SecurityPrivacyViewModel {
         self.alert = AlertBinder(alert: alert)
     }
 
-    func presentChangeAccessCodeDeleteAlert() {
+    func presentSavingAccessCodesDeleteAlert() {
         guard shouldShowAlertOnDisableSaveAccessCodes else { return }
+
         let okButton = Alert.Button.destructive(Text("common_delete"), action: { [weak self] in
             self?.disableSaveAccessCodes()
         })
 
         let cancelButton = Alert.Button.cancel(Text("common_cancel"), action: { [weak self] in
-            self?.isSaveAccessCodes = true
+            self?.isSavingAccessCodes = true
         })
 
         let alert = Alert(
@@ -112,9 +113,9 @@ private extension SecurityPrivacyViewModel {
     func disableSaveAccessCodes() {
         // [REDACTED_TODO_COMMENT]
 
-        if isSaveAccessCodes {
+        if isSavingAccessCodes {
             shouldShowAlertOnDisableSaveAccessCodes = false
-            isSaveAccessCodes = false
+            isSavingAccessCodes = false
             shouldShowAlertOnDisableSaveAccessCodes = true
         }
     }
