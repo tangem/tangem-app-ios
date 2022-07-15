@@ -15,14 +15,14 @@ enum WalletConnectNetworkParserUtility {
         let network: WalletConnectNetwork
         let chainId: Int
     }
-    
+
     static func parse(dAppInfo: Session.DAppInfo) -> ParseResult? {
         let wcNetwork: WalletConnectNetwork
         var chainId: Int = -1
         if let id = dAppInfo.chainId {
             chainId = id
             wcNetwork = .eth(chainId: id)
-            
+
             // There is no adequate way to determine which network we are trying to connect to and create a WC session,
             // icon links are the only thing that is different and allows us to determine whether we are connecting to testnet or mainnet.
             // But this only applies to binance.org and suddenly for wallet.matic.network.

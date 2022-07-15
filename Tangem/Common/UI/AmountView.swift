@@ -9,21 +9,21 @@
 import SwiftUI
 
 struct AmountView: View {
-    
+
     let label: LocalizedStringKey
     let labelColor: Color
     var labelFont: Font = .system(size: 14.0, weight: .medium, design: .default)
-    
+
     var isLoading: Bool = false
-    
+
     let amountText: String
     var amountColor: Color? = nil
     var amountFont: Font? = nil
     var amountScaleFactor: CGFloat? = nil
     var amountLineLimit: Int? = nil
-    
+
     var blinkPublisher: Published<Bool>.Publisher? = nil
-    
+
     @ViewBuilder
     var valueText: some View {
         let mainColor = amountColor ?? labelColor
@@ -32,7 +32,7 @@ struct AmountView: View {
             .lineLimit(amountLineLimit)
             .minimumScaleFactor(amountScaleFactor ?? 1)
             .fixedSize(horizontal: false, vertical: true)
-        
+
         if blinkPublisher != nil {
             txt
                 .blink(publisher: blinkPublisher!,
@@ -43,9 +43,9 @@ struct AmountView: View {
             txt
         }
     }
-    
+
     var body: some View {
-        HStack{
+        HStack {
             Text(label)
                 .font(labelFont)
                 .foregroundColor(labelColor)
@@ -66,7 +66,6 @@ fileprivate class Blinker: ObservableObject {
 
 struct AmountView_Previews: PreviewProvider {
     @ObservedObject fileprivate static var blinker = Blinker()
-    static let assembly = Assembly.previewAssembly
     static var previews: some View {
         VStack {
             Button("Blink") {
