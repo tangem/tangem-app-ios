@@ -14,7 +14,7 @@ struct ProductVariant {
     let amount: Decimal
     let originalAmount: Decimal?
     let currencyCode: String
-    
+
     let product: Product
 }
 
@@ -26,7 +26,7 @@ extension ProductVariant {
         self.amount = productVariant.priceV2.amount
         self.originalAmount = productVariant.compareAtPriceV2?.amount
         self.currencyCode = productVariant.priceV2.currencyCode.rawValue
-        
+
         self.product = Product(productVariant.product)
     }
 }

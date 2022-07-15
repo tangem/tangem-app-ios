@@ -12,6 +12,7 @@ import FirebaseAnalytics
 import FirebaseCrashlytics
 import AppsFlyerLib
 import BlockchainSdk
+import Amplitude
 #endif
 import TangemSdk
 
@@ -19,52 +20,53 @@ class Analytics {
     static func log(_ event: Event, params: [ParameterKey: ParameterValue]) {
         log(event: event, with: params.mapValues { $0.rawValue })
     }
-    
+
     static func log(event: Event, with params: [ParameterKey: Any]? = nil) {
         #if !CLIP
         let key = event.rawValue
         let values = params?.firebaseParams
         FirebaseAnalytics.Analytics.logEvent(key, parameters: values)
         AppsFlyerLib.shared().logEvent(key, withValues: values)
+        Amplitude.instance().logEvent(key, withEventProperties: values)
         #endif
     }
-    
+
     static func logScan(card: Card) {
         log(event: .cardIsScanned, with: collectCardData(card))
-        
+
         if card.isDemoCard {
-            log(event: .demoActivated, with: [.cardId : card.cardId])
+            log(event: .demoActivated, with: [.cardId: card.cardId])
         }
     }
-    
+
     static func logTx(blockchainName: String?, isPushed: Bool = false) {
         log(event: isPushed ? .transactionIsPushed : .transactionIsSent,
             with: [ParameterKey.blockchain: blockchainName ?? ""])
     }
-    
+
     static func logCardSdkError(_ error: TangemSdkError, for action: Action, parameters: [ParameterKey: Any] = [:]) {
         #if !CLIP
         if case .userCancelled = error { return }
-        
+
         var params = parameters
         params[.action] = action.rawValue
         params[.errorKey] = String(describing: error)
-        
+
         let nsError = NSError(domain: "Tangem SDK Error #\(error.code)", code: error.code, userInfo: params.firebaseParams)
         Crashlytics.crashlytics().record(error: nsError)
         #endif
     }
-    
+
     static func logCardSdkError(_ error: TangemSdkError, for action: Action, card: Card, parameters: [ParameterKey: Any] = [:]) {
         logCardSdkError(error, for: action, parameters: collectCardData(card, additionalParams: parameters))
     }
-    
+
     static func log(error: Error) {
         #if !CLIP
         if case .userCancelled = error.toTangemSdkError() {
             return
         }
-        
+
         if let detailedDescription = (error as? DetailedError)?.detailedDescription {
             var params = [ParameterKey: Any]()
             params[.errorDescription] = detailedDescription
@@ -75,10 +77,10 @@ class Analytics {
         } else {
             Crashlytics.crashlytics().record(error: error)
         }
-       
+
         #endif
     }
-    
+
     #if !CLIP
     static func logWcEvent(_ event: WalletConnectEvent) {
         var params = [ParameterKey: Any]()
@@ -107,39 +109,39 @@ class Analytics {
             }
             params[.walletConnectDappUrl] = url.absoluteString
         }
-        
+
         log(event: firEvent, with: params)
     }
     #endif
-    
-#if !CLIP
+
+    #if !CLIP
     static func logShopifyOrder(_ order: Order) {
         var appsFlyerDiscountParams: [String: Any] = [:]
         var firebaseDiscountParams: [String: Any] = [:]
-        
+
         if let discountCode = order.discount?.code {
             appsFlyerDiscountParams[AFEventParamCouponCode] = discountCode
             firebaseDiscountParams[AnalyticsParameterCoupon] = discountCode
         }
-        
+
         let sku = order.lineItems.first?.sku ?? "unknown"
-        
+
         AppsFlyerLib.shared().logEvent(AFEventPurchase, withValues: appsFlyerDiscountParams.merging([
             AFEventParamContentId: sku,
             AFEventParamRevenue: order.total,
-            AFEventParamCurrency: order.currencyCode
+            AFEventParamCurrency: order.currencyCode,
         ], uniquingKeysWith: { $1 }))
 
         FirebaseAnalytics.Analytics.logEvent(AnalyticsEventPurchase, parameters: firebaseDiscountParams.merging([
             AnalyticsParameterItems: [
-                [AnalyticsParameterItemID: sku]
+                [AnalyticsParameterItemID: sku],
             ],
             AnalyticsParameterValue: order.total,
-            AnalyticsParameterCurrency: order.currencyCode
+            AnalyticsParameterCurrency: order.currencyCode,
         ], uniquingKeysWith: { $1 }))
     }
-#endif
-    
+    #endif
+
     private static func collectCardData(_ card: Card, additionalParams: [ParameterKey: Any] = [:]) -> [ParameterKey: Any] {
         var params = additionalParams
         params[.batchId] = card.batchId
@@ -166,12 +168,12 @@ extension Analytics {
         case userSoldCrypto = "user_sold_crypto"
         case getACard = "get_card"
         case demoActivated = "demo_mode_activated"
-        
+
         fileprivate static var nfcError: String {
             "nfc_error"
         }
     }
-    
+
     enum Action: String {
         case scan = "tap_scan_task"
         case sendTx = "send_transaction"
@@ -188,7 +190,7 @@ extension Analytics {
         case addbackup = "add_backup"
         case proceedBackup = "proceed_backup"
     }
-    
+
     enum ParameterKey: String {
         case blockchain = "blockchain"
         case batchId = "batch_id"
@@ -205,18 +207,19 @@ extension Analytics {
         case source = "source"
         case cardId = "cardId"
     }
-    
+
     enum ParameterValue: String {
         case welcome
         case walletOnboarding = "wallet_onboarding"
     }
-    
+
     #if !CLIP
     enum WalletConnectEvent {
         enum SessionEvent {
-            case disconnect, connect
+            case disconnect
+            case connect
         }
-        
+
         case error(Error, WalletConnectAction?), session(SessionEvent, URL), action(WalletConnectAction), invalidRequest(json: String?)
     }
     #endif
@@ -224,7 +227,7 @@ extension Analytics {
 
 fileprivate extension Dictionary where Key == Analytics.ParameterKey, Value == Any {
     var firebaseParams: [String: Any] {
-        var convertedParams = [String:Any]()
+        var convertedParams = [String: Any]()
         forEach { convertedParams[$0.key.rawValue] = $0.value }
         return convertedParams
     }

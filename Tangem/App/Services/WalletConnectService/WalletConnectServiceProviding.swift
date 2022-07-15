@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol WalletConnectServiceProviding {
+protocol WalletConnectServiceProviding: Initializable {
     var service: WalletConnectService { get }
 }
 
