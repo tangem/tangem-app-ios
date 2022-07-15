@@ -33,21 +33,21 @@ public final class ABIEncoder {
         case .bytes(let data):
             try encode(data, static: true)
         case .array(let values):
-           try encode(array: values)
+            try encode(array: values)
         case .string(let string):
             try encode(string)
         case .tuple(let array):
             try encode(tuple: array)
         }
     }
-    
+
     public func encode(array: [ABIValue]) throws {
         let encoder = ABIEncoder()
         try encoder.encode(tuple: array)
         let hash = encoder.data.sha3(.keccak256)
         self.data.append(hash)
     }
-    
+
     /// Encodes a tuple
     public func encode(tuple: [ABIValue]) throws {
         var headSize = 0
@@ -120,7 +120,7 @@ public final class ABIEncoder {
         }
         let count = min(32, bytes.count)
         let padding = ((count + 31) / 32) * 32 - count
-        data.append(bytes[0..<count])
+        data.append(bytes[0 ..< count])
         data.append(Data(repeating: 0, count: padding))
     }
 
@@ -152,7 +152,7 @@ public final class ABIEncoder {
             throw ABIError.invalidUTF8String
         }
         let hash = bytes.sha3(.keccak256)
-        return hash[0..<4]
+        return hash[0 ..< 4]
     }
 }
 

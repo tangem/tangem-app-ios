@@ -30,7 +30,7 @@ extension Order {
         self.financialStatus = order.financialStatus?.rawValue ?? ""
         self.statusUrl = order.statusUrl
         self.address = (order.shippingAddress?.formatted ?? []).joined(separator: ", ")
-        if let discount = order.discountApplications.edges.first.map( { Discount($0.node) } ) {
+        if let discount = order.discountApplications.edges.first.map({ Discount($0.node) }) {
             self.discount = discount
         } else {
             self.discount = nil
