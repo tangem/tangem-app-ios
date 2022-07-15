@@ -22,7 +22,7 @@ struct AddTokensView: View {
                     .foregroundColor(Color.white)
                     .frame(maxWidth: .infinity)
                     .frame(height: 46)
-                    .background(Color.tangemGreen)
+                    .background(Color.black)
             }
             .buttonStyle(PlainButtonStyle())
             .cornerRadius(14)
