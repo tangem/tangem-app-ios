@@ -11,7 +11,7 @@ import TangemSdk
 
 protocol TangemSdkProviding {
     var sdk: TangemSdk { get }
-    
+
     func prepareScan()
     func didScan(_ card: Card)
 }
