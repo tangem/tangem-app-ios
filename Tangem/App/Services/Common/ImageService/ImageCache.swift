@@ -13,7 +13,7 @@ import var CommonCrypto.CC_MD5_DIGEST_LENGTH
 import func CommonCrypto.CC_MD5
 import typealias CommonCrypto.CC_LONG
 
-//[REDACTED_TODO_COMMENT]
+// [REDACTED_TODO_COMMENT]
 
 // Declares in-memory image cache
 public protocol ImageCacheType: AnyObject {
@@ -52,7 +52,7 @@ public final class ImageCache: ImageCacheType {
 
     private var cacheFolderUrl: URL {
         let url = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("ImageCache")
-        if !fileManager.fileExists(atPath: url.path){
+        if !fileManager.fileExists(atPath: url.path) {
             try? fileManager.createDirectory(at: url, withIntermediateDirectories: true, attributes: nil)
         }
         return url
@@ -128,7 +128,7 @@ public final class ImageCache: ImageCacheType {
 fileprivate extension String {
     var md5String: String {
         let length = Int(CC_MD5_DIGEST_LENGTH)
-        let messageData = data(using:.utf8)!
+        let messageData = data(using: .utf8)!
         var digestData = Data(count: length)
 
         _ = digestData.withUnsafeMutableBytes { digestBytes -> UInt8 in
