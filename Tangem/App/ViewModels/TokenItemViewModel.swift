@@ -24,7 +24,7 @@ struct TokenItemViewModel: Identifiable, Equatable, Comparable {
     let blockchainNetwork: BlockchainNetwork
     let fiatValue: Decimal
     let isCustom: Bool
-    
+
     var currencySymbol: String {
         if amountType == .coin {
             return blockchainNetwork.blockchain.currencySymbol
@@ -33,57 +33,57 @@ struct TokenItemViewModel: Identifiable, Equatable, Comparable {
         }
         return ""
     }
-    
+
     var isTestnet: Bool {
         blockchainNetwork.blockchain.isTestnet
     }
-    
+
     var displayBalanceText: String {
         if state.failureDescription != nil {
             return "—"
         }
         return balance.isEmpty ? Decimal(0).currencyFormatted(code: currencySymbol) : balance
     }
-    
+
     var displayFiatBalanceText: String {
         if rate.isEmpty {
             return "—"
         }
-        
+
         if state.isNoAccount {
             return fiatBalance
         }
-        
+
         return state.failureDescription != nil ? "—" : fiatBalance
     }
-    
+
     var displayRateText: String {
         if state.isBlockchainUnreachable {
             return "wallet_balance_blockchain_unreachable".localized
         }
-        
+
         if hasTransactionInProgress {
             return  "wallet_balance_tx_in_progress".localized
         }
-        
+
         return rate.isEmpty ? "token_item_no_rate".localized : rate
     }
-    
+
 //    [REDACTED_TODO_COMMENT]
     var isLoading: Bool {
         return (displayState == .busy || balance.isEmpty) && !state.isBlockchainUnreachable && !state.isNoAccount
     }
-    
+
     static let `default` = TokenItemViewModel(state: .created, displayState: .busy, hasTransactionInProgress: false, name: "", fiatBalance: "", balance: "", rate: "", amountType: .coin, blockchainNetwork: .init(.bitcoin(testnet: false)), fiatValue: 0, isCustom: false)
-    
+
     static func < (lhs: TokenItemViewModel, rhs: TokenItemViewModel) -> Bool {
         if lhs.fiatValue == 0 && rhs.fiatValue == 0 {
             return lhs.name < rhs.name
         }
-        
+
         return lhs.fiatValue > rhs.fiatValue
     }
-    
+
     static func == (lhs: TokenItemViewModel, rhs: TokenItemViewModel) -> Bool {
         lhs.id == rhs.id
     }
@@ -97,7 +97,7 @@ extension TokenItemViewModel {
         self.displayState = displayState
         name = balanceViewModel.name
         if name == "" {
-            
+
         }
         balance = balanceViewModel.balance
         fiatBalance = balanceViewModel.fiatBalance
@@ -107,7 +107,7 @@ extension TokenItemViewModel {
         self.fiatValue = fiatValue
         self.isCustom = isCustom
     }
-    
+
     init(from balanceViewModel: BalanceViewModel,
          tokenBalanceViewModel: TokenBalanceViewModel,
          rate: String,
