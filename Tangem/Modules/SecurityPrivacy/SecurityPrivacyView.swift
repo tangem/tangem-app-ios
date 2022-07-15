@@ -21,11 +21,11 @@ struct SecurityPrivacyView: View {
 
     var body: some View {
         List {
-            firstSection
+            securityModeSection
 
-            savedCardsSection
+            savingWalletSection
 
-            saveAccessCodeSection
+            savingAccessCodesSection
         }
         .listStyle(DefaultListStyle())
         .alert(item: $viewModel.alert) { $0.alert }
@@ -33,12 +33,12 @@ struct SecurityPrivacyView: View {
         .navigationBarTitle("security_and_privacy_title", displayMode: .inline)
     }
 
-    private var firstSection: some View {
+    private var securityModeSection: some View {
         Section(content: {
             RowView(
                 title: "security_and_privacy_security_mode".localized,
                 details: viewModel.securityModeTitle,
-                isEnable: !viewModel.isOnceOptionSecurityMode,
+                isTappable: !viewModel.hasSingleSecurityMode,
                 action: viewModel.openChangeAccessMethod
             )
             if viewModel.isChangeAccessCodeVisible {
@@ -52,22 +52,22 @@ struct SecurityPrivacyView: View {
         })
     }
 
-    private var savedCardsSection: some View {
+    private var savingWalletSection: some View {
         Section(content: {
             ToggleRowView(
                 title: "security_and_privacy_saved_wallet".localized,
-                isOn: $viewModel.isSaveCards
+                isOn: $viewModel.isSavingWallet
             )
         }, footer: {
             FooterView(title: "security_and_privacy_saved_wallet_footer".localized)
         })
     }
 
-    private var saveAccessCodeSection: some View {
+    private var savingAccessCodesSection: some View {
         Section(content: {
             ToggleRowView(
                 title: "security_and_privacy_saved_access_codes".localized,
-                isOn: $viewModel.isSaveAccessCodes
+                isOn: $viewModel.isSavingAccessCodes
             )
         }, footer: {
             FooterView(title: "security_and_privacy_saved_access_codes_footer".localized)
@@ -89,18 +89,18 @@ private extension SecurityPrivacyView {
     struct RowView: View {
         let title: String
         let details: String?
-        let isEnable: Bool
+        let isTappable: Bool
         let action: () -> Void
 
         init(
             title: String,
             details: String? = nil,
-            isEnable: Bool = true,
+            isTappable: Bool = true,
             action: @escaping () -> Void
         ) {
             self.title = title
             self.details = details
-            self.isEnable = isEnable
+            self.isTappable = isTappable
             self.action = action
         }
 
@@ -120,13 +120,13 @@ private extension SecurityPrivacyView {
                             .layoutPriority(1)
                     }
 
-                    if isEnable {
+                    if isTappable {
                         Image("chevron")
                     }
                 }
                 .lineLimit(1)
             }
-            .disabled(!isEnable)
+            .disabled(!isTappable)
         }
     }
 
