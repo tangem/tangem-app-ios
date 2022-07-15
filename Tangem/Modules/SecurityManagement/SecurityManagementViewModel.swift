@@ -69,7 +69,7 @@ class SecurityManagementViewModel: ObservableObject {
 }
 
 
-enum SecurityManagementOption: CaseIterable, Identifiable {
+enum SecurityManagementOption: String, CaseIterable, Identifiable, Equatable {
     case longTap
     case passCode
     case accessCode
