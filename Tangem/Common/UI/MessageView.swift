@@ -11,15 +11,16 @@ import SwiftUI
 
 struct MessageView: View {
     enum MessageType {
-        case error, message
-        
+        case error
+        case message
+
         var iconName: String {
             switch self {
             case .error: return "exclamationmark.circle"
             case .message: return "info.circle"
             }
         }
-        
+
         var iconColor: Color {
             switch self {
             case .error: return .tangemWarning
@@ -27,21 +28,21 @@ struct MessageView: View {
             }
         }
     }
-    
+
     var title: String
     var subtitle: String
     var type: MessageType
-    
+
     var body: some View {
         HStack(alignment: .textAndImage, spacing: 18.0) {
             Spacer()
                 .frame(width: 8.0, height: nil, alignment: .center)
             Image(systemName: type.iconName)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
                 .foregroundColor(type.iconColor)
-                    .frame(width: 26.5, height: 26.5)
-                    .alignmentGuide(.textAndImage) { d in d[.bottom] / 2 }
+                .frame(width: 26.5, height: 26.5)
+                .alignmentGuide(.textAndImage) { d in d[.bottom] / 2 }
 
             VStack(alignment: .leading, spacing: 6.0) {
                 Text(title)
