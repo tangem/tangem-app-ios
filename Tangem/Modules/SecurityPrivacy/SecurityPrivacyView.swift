@@ -29,7 +29,7 @@ struct SecurityPrivacyView: View {
         }
         .listStyle(DefaultListStyle())
         .alert(item: $viewModel.alert) { $0.alert }
-        .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
+        .background(Color.backgroundSecondary.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("security_and_privacy_title", displayMode: .inline)
     }
 
@@ -109,7 +109,7 @@ private extension SecurityPrivacyView {
                 HStack {
                     Text(title)
                         .font(.regular17)
-                        .foregroundColor(.tangemGrayDark6)
+                        .foregroundColor(.textPrimary1)
 
                     Spacer()
 
@@ -138,13 +138,12 @@ private extension SecurityPrivacyView {
             HStack {
                 Text(title)
                     .font(.regular17)
-                    .foregroundColor(.tangemGrayDark6)
+                    .foregroundColor(.textPrimary1)
 
                 Spacer()
-
                 Toggle("", isOn: isOn)
                     .labelsHidden()
-                    .toggleStyleCompat(.tangemGreen)
+                    .toggleStyleCompat(.controlChecked)
                     .disabled(true) // [REDACTED_TODO_COMMENT]
             }
         }
