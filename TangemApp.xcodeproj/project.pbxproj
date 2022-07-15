@@ -526,9 +526,15 @@
 		EF0FF873286608BC00B7CEAF /* GoogleService-Info-Beta.plist in Resources */ = {isa = PBXBuildFile; fileRef = EF0FF8722866089200B7CEAF /* GoogleService-Info-Beta.plist */; };
 		EF4B41BB2864491B003911F6 /* TangemSkeletonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B41BA2864491B003911F6 /* TangemSkeletonModifier.swift */; };
 		EF4B41BD28644982003911F6 /* SkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B41BC28644982003911F6 /* SkeletonView.swift */; };
+		EF6691D1287ED86100773AA6 /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A0A19025822EFF005FC94D /* Storage.swift */; };
+		EF6691D2287ED86900773AA6 /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0FF8702866021B00B7CEAF /* AppEnvironment.swift */; };
+		EF7B9CEF286C6BD7004C33A9 /* SecurityPrivacyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CEE286C6BD7004C33A9 /* SecurityPrivacyView.swift */; };
+		EF7B9CF1286C6BE2004C33A9 /* SecurityPrivacyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF0286C6BE2004C33A9 /* SecurityPrivacyViewModel.swift */; };
+		EF7B9CF5286C7023004C33A9 /* SecurityPrivacyCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF4286C7023004C33A9 /* SecurityPrivacyCoordinator.swift */; };
+		EF7B9CF7286C702E004C33A9 /* SecurityPrivacyCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF6286C702E004C33A9 /* SecurityPrivacyCoordinatorView.swift */; };
+		EF9C52B3287C77A10015D540 /* SecurityPrivacyRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF2286C6C7A004C33A9 /* SecurityPrivacyRoutable.swift */; };
 		EFB4C1322837C51700E991C1 /* TextHint.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB4C1312837C51700E991C1 /* TextHint.swift */; };
-		EFB997B0287D8924002F45F6 /* Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0A0A19025822EFF005FC94D /* Storage.swift */; };
-		EFB997B1287D8926002F45F6 /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0FF8702866021B00B7CEAF /* AppEnvironment.swift */; };
+		EFB997B3287DB948002F45F6 /* Font+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB997B2287DB948002F45F6 /* Font+.swift */; };
 		F06BBA2FE022C3EF1F3B6513 /* Pods_Tangem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F3AA1BEE46AF490A6F95DA /* Pods_Tangem.framework */; };
 /* End PBXBuildFile section */
 
@@ -1092,8 +1098,14 @@
 		EF2EFDE22865C07100798051 /* Beta.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Beta.xcconfig; sourceTree = "<group>"; };
 		EF4B41BA2864491B003911F6 /* TangemSkeletonModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TangemSkeletonModifier.swift; sourceTree = "<group>"; };
 		EF4B41BC28644982003911F6 /* SkeletonView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SkeletonView.swift; sourceTree = "<group>"; };
+		EF7B9CEE286C6BD7004C33A9 /* SecurityPrivacyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityPrivacyView.swift; sourceTree = "<group>"; };
+		EF7B9CF0286C6BE2004C33A9 /* SecurityPrivacyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityPrivacyViewModel.swift; sourceTree = "<group>"; };
+		EF7B9CF2286C6C7A004C33A9 /* SecurityPrivacyRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityPrivacyRoutable.swift; sourceTree = "<group>"; };
+		EF7B9CF4286C7023004C33A9 /* SecurityPrivacyCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityPrivacyCoordinator.swift; sourceTree = "<group>"; };
+		EF7B9CF6286C702E004C33A9 /* SecurityPrivacyCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityPrivacyCoordinatorView.swift; sourceTree = "<group>"; };
 		EFA7173D72D1E6FAD54D308A /* Pods-TangemClip.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemClip.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemClip/Pods-TangemClip.release(beta).xcconfig"; sourceTree = "<group>"; };
 		EFB4C1312837C51700E991C1 /* TextHint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextHint.swift; sourceTree = "<group>"; };
+		EFB997B2287DB948002F45F6 /* Font+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Font+.swift"; sourceTree = "<group>"; };
 		F3B96D298A039D2A8811CEF0 /* Pods-Tangem Tap.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap.release.xcconfig"; path = "Target Support Files/Pods-Tangem Tap/Pods-Tangem Tap.release.xcconfig"; sourceTree = "<group>"; };
 		F53CBE3ACFB9A989F5FE398D /* Pods-TangemClip.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemClip.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemClip/Pods-TangemClip.debug(production).xcconfig"; sourceTree = "<group>"; };
 		F60138EF52D91E1A088F9C27 /* Pods-TangemTests.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.debug(beta).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.debug(beta).xcconfig"; sourceTree = "<group>"; };
@@ -1496,6 +1508,7 @@
 				5DA5067C27A2FF56000A8901 /* URL+.swift */,
 				5D62446027A7CAB60069DEC2 /* Bool+.swift */,
 				5D49035127BE9D550072C642 /* Data+.swift */,
+				EFB997B2287DB948002F45F6 /* Font+.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -2581,6 +2594,7 @@
 		DC7DA81A2844EED800AD6DBD /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				EF7B9CED286C6B95004C33A9 /* SecurityPrivacy */,
 				DC66BBF6285A20FE00CDF765 /* Main */,
 				DA23788E27B250D3009795A8 /* Shop */,
 				B074BABF26779B14005D641B /* PushTx */,
@@ -2622,6 +2636,18 @@
 				EF0FF8722866089200B7CEAF /* GoogleService-Info-Beta.plist */,
 			);
 			path = Configurations;
+			sourceTree = "<group>";
+		};
+		EF7B9CED286C6B95004C33A9 /* SecurityPrivacy */ = {
+			isa = PBXGroup;
+			children = (
+				EF7B9CEE286C6BD7004C33A9 /* SecurityPrivacyView.swift */,
+				EF7B9CF0286C6BE2004C33A9 /* SecurityPrivacyViewModel.swift */,
+				EF7B9CF2286C6C7A004C33A9 /* SecurityPrivacyRoutable.swift */,
+				EF7B9CF4286C7023004C33A9 /* SecurityPrivacyCoordinator.swift */,
+				EF7B9CF6286C702E004C33A9 /* SecurityPrivacyCoordinatorView.swift */,
+			);
+			path = SecurityPrivacy;
 			sourceTree = "<group>";
 		};
 		EFB4C1302837C50C00E991C1 /* Types */ = {
@@ -3050,6 +3076,7 @@
 				B051A1B0262192A300809FD2 /* WalletConnectModels.swift in Sources */,
 				5DFB499C24E6BAF10037E76F /* MessageView.swift in Sources */,
 				5D0A2CDF27E9D47900396399 /* StatefulPreviewWrapper.swift in Sources */,
+				EF7B9CF1286C6BE2004C33A9 /* SecurityPrivacyViewModel.swift in Sources */,
 				DC0A57D82822A3C80031BECC /* InjectedValues.swift in Sources */,
 				B09BB87E259A095B00B92000 /* WarningsPriority+Colors.swift in Sources */,
 				B0F16D7126EF5ED800687C47 /* ProgressBar.swift in Sources */,
@@ -3158,6 +3185,7 @@
 				DAA153BC2876CBFC002254D1 /* GeoResponse.swift in Sources */,
 				B0C807232620549F00F7DADE /* WalletConnectSessionItemView.swift in Sources */,
 				B069B6DB268AFEBA004E7928 /* BnbSignHandler.swift in Sources */,
+				EF7B9CF5286C7023004C33A9 /* SecurityPrivacyCoordinator.swift in Sources */,
 				5DFB499A24E554140037E76F /* Card+Preview.swift in Sources */,
 				652B0136282C0A7800F2E27A /* TotalSumBalanceView.swift in Sources */,
 				B0C4F77926F092640086D815 /* WelcomeCardLayout.swift in Sources */,
@@ -3227,6 +3255,7 @@
 				5DD4CB5424FAEE8B008F23CC /* AppCardIdFormatter.swift in Sources */,
 				DC0A57E82822AC410031BECC /* PersistentStorageProtocol.swift in Sources */,
 				5D62446127A7CAB60069DEC2 /* Bool+.swift in Sources */,
+				EF7B9CF7286C702E004C33A9 /* SecurityPrivacyCoordinatorView.swift in Sources */,
 				B0D34E772626DF2F00625AC5 /* WalletConnectRequestHandler.swift in Sources */,
 				DC66BBE92859A8CC00CDF765 /* MailViewModel.swift in Sources */,
 				DC0A57DF2822A5490031BECC /* LoggerProvider.swift in Sources */,
@@ -3268,6 +3297,7 @@
 				DAC53CF927BE63830027147D /* StoriesViewModel.swift in Sources */,
 				B0C4F76B26F0896E0086D815 /* SingleCardOnboardingCardsLayout.swift in Sources */,
 				5DDFC1FB2812A59F005976FE /* CoinsResponse.swift in Sources */,
+				EFB997B3287DB948002F45F6 /* Font+.swift in Sources */,
 				5D15F9E8258A522500392BA5 /* PickerView.swift in Sources */,
 				B0C6B4C326CE678900FA990B /* CGSize+.swift in Sources */,
 				DC0A580C282524510031BECC /* CurrencyRateService.swift in Sources */,
@@ -3328,6 +3358,7 @@
 				DC0A57EA2822AD6D0031BECC /* PersistentStorageKey.swift in Sources */,
 				DC295B4E2861D871006CB7B6 /* WalletConnectCoordinatorView.swift in Sources */,
 				B0F79C6A2689AC56008C9B30 /* FileEncryptionUtility.swift in Sources */,
+				EF9C52B3287C77A10015D540 /* SecurityPrivacyRoutable.swift in Sources */,
 				B046FC3626BC1DB600A7EECE /* OnboardingProgressIndicator.swift in Sources */,
 				B053759126CA3EFA0090FCFC /* CheckmarkSwitch.swift in Sources */,
 				5DF2522924F93C2A0015B429 /* QRCodeView.swift in Sources */,
@@ -3387,6 +3418,7 @@
 				5DFCCB7824C389740014A293 /* CardViewModel.swift in Sources */,
 				EF4B41BD28644982003911F6 /* SkeletonView.swift in Sources */,
 				B05B85A92589F0CF008A4452 /* AppFeature.swift in Sources */,
+				EF7B9CEF286C6BD7004C33A9 /* SecurityPrivacyView.swift in Sources */,
 				B020A51726F1DD9E00D38596 /* OnboardingTopupViewModel.swift in Sources */,
 				5D9DCB0C255199AA0059799C /* SecurityManagementViewModel.swift in Sources */,
 				DA4C84CE27DA2D6D00B76F91 /* StoriesConstants.swift in Sources */,
@@ -3469,7 +3501,7 @@
 				B0CA5AC225F785FA0078F42F /* VerticalAlignment+.swift in Sources */,
 				DC5118662860AD38004FB954 /* CardView.swift in Sources */,
 				DC0A57EE2822AEF70031BECC /* TangemSdkProviding.swift in Sources */,
-				EFB997B0287D8924002F45F6 /* Storage.swift in Sources */,
+				EF6691D1287ED86100773AA6 /* Storage.swift in Sources */,
 				B00BC589260B179200F0647D /* CircleActionButton.swift in Sources */,
 				5D49035027BE8AAE0072C642 /* ExploreButton.swift in Sources */,
 				DC0A57ED2822AEF30031BECC /* PersistentStorageKey.swift in Sources */,
@@ -3492,7 +3524,7 @@
 				DC0A57EC2822AEF10031BECC /* PersistentStorageProtocol.swift in Sources */,
 				5DE7DD4A269625F800472205 /* AppScanTask.swift in Sources */,
 				B0C34953267B19B90027CC9D /* RoundedCorner.swift in Sources */,
-				EFB997B1287D8926002F45F6 /* AppEnvironment.swift in Sources */,
+				EF6691D2287ED86900773AA6 /* AppEnvironment.swift in Sources */,
 				5DE7DD232695C27E00472205 /* UserPrefsService.swift in Sources */,
 				DC0A57EB2822AEEB0031BECC /* PersistentStorage.swift in Sources */,
 				DC0A5853282E3AB60031BECC /* CardInfo.swift in Sources */,
