@@ -27,21 +27,16 @@ class SecurityPrivacyCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        switch options {
-        case let .cardModel(viewModel):
-            securityPrivacyViewModel = SecurityPrivacyViewModel(
-                inputModel: .init(currentSecOption: viewModel.currentSecOption,
-                                  availableSecOptions: viewModel.availableSecOptions,
-                                  cardModel: viewModel),
-                coordinator: self
-            )
-        }
+        securityPrivacyViewModel = SecurityPrivacyViewModel(
+            cardModel: options.cardModel,
+            coordinator: self
+        )
     }
 }
 
 extension SecurityPrivacyCoordinator {
-    enum Options {
-        case cardModel(CardViewModel)
+    struct Options {
+        let cardModel: CardViewModel
     }
 }
 
