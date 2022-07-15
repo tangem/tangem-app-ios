@@ -10,8 +10,9 @@ import SwiftUI
 import MessageUI
 
 enum EmailSupport {
-    case tangem, start2coin
-    
+    case tangem
+    case start2coin
+
     var recipients: [String] {
         switch self {
         case .tangem: return ["support@tangem.com"]
@@ -21,17 +22,14 @@ enum EmailSupport {
 }
 
 struct MailView: UIViewControllerRepresentable {
+    let viewModel: MailViewModel
 
-    var dataCollector: EmailDataCollector
-    var support: EmailSupport
-    
-    @Environment(\.presentationMode) var presentation
-    let emailType: EmailType
+    @Environment(\.presentationMode) private var presentation
 
     class Coordinator: NSObject, MFMailComposeViewControllerDelegate {
 
         @Binding var presentation: PresentationMode
-        
+
         let emailType: EmailType
 
         init(presentation: Binding<PresentationMode>, emailType: EmailType) {
@@ -63,24 +61,24 @@ struct MailView: UIViewControllerRepresentable {
     }
 
     func makeCoordinator() -> Coordinator {
-        return Coordinator(presentation: presentation, emailType: emailType)
+        return Coordinator(presentation: presentation, emailType: viewModel.emailType)
     }
 
     func makeUIViewController(context: UIViewControllerRepresentableContext<MailView>) -> UIViewController {
         guard MFMailComposeViewController.canSendMail() else {
             return UIHostingController(rootView: MailViewPlaceholder(presentationMode: presentation))
         }
-        
+
         let vc = MFMailComposeViewController()
         vc.mailComposeDelegate = context.coordinator
-        vc.setToRecipients(support.recipients)
-        vc.setSubject(emailType.emailSubject)
-        var messageBody = "\n" + emailType.emailPreface
+        vc.setToRecipients(viewModel.support.recipients)
+        vc.setSubject(viewModel.emailType.emailSubject)
+        var messageBody = "\n" + viewModel.emailType.emailPreface
         messageBody.append("\n\n\n")
-        messageBody.append(emailType.dataCollectionMessage + "\n")
-        messageBody.append(dataCollector.dataForEmail)
+        messageBody.append(viewModel.emailType.dataCollectionMessage + "\n")
+        messageBody.append(viewModel.dataCollector.dataForEmail)
         vc.setMessageBody(messageBody, isHTML: false)
-        if let attachment = dataCollector.attachment {
+        if let attachment = viewModel.dataCollector.attachment {
             vc.addAttachmentData(attachment, mimeType: "text/plain", fileName: "logs.txt")
         }
         return vc
@@ -94,7 +92,7 @@ struct MailView: UIViewControllerRepresentable {
 
 fileprivate struct MailViewPlaceholder: View {
     @Binding var presentationMode: PresentationMode
-    
+
     var body: some View {
         VStack(spacing: 8) {
             HStack {
@@ -118,7 +116,7 @@ fileprivate struct MailViewPlaceholder: View {
 
 struct MailViewPlaceholder_Previews: PreviewProvider {
     @Environment(\.presentationMode) static var presentation
-    
+
     static var previews: some View {
         MailViewPlaceholder(presentationMode: .constant(presentation.wrappedValue))
     }
