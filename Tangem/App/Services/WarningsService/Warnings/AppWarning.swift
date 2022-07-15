@@ -10,33 +10,37 @@ import Foundation
 import SwiftUI
 
 enum WarningPriority: String, Decodable {
-    case info, warning, critical
+    case info
+    case warning
+    case critical
 }
 
 enum WarningType: String, Decodable {
-    case temporary, permanent
-    
+    case temporary
+    case permanent
+
     var isWithAction: Bool {
         self == .temporary
     }
 }
 
 enum WarningsLocation: String, Decodable {
-    case main, send
+    case main
+    case send
 }
 
 struct AppWarning: Decodable, Hashable {
     let title: String
     let message: String
     let priority: WarningPriority
-    
+
     var type: WarningType = .permanent
     var location: [WarningsLocation] = [.main]
-    
+
     // Warning settings
     var blockchains: [String]?
     var event: WarningEvent?
-    
+
     init(title: String, message: String, priority: WarningPriority, type: WarningType = .permanent,
          location: [WarningsLocation] = [.main], blockchains: [String]? = nil, event: WarningEvent? = nil) {
         self.title = title
@@ -47,33 +51,4 @@ struct AppWarning: Decodable, Hashable {
         self.blockchains = blockchains
         self.event = event
     }
-    
-    init(from remote: RemoteAppWarning) {
-        title = remote.title
-        message = remote.message
-        priority = remote.priority
-        if let type = remote.type {
-            self.type = type
-        }
-        if let location = remote.location {
-            self.location = location
-        }
-        blockchains = remote.blockchains
-    }
-    
-    static func fetch(remote: [RemoteAppWarning]) -> [AppWarning] {
-        remote.map { AppWarning(from: $0) }
-    }
-}
-
-struct RemoteAppWarning: Decodable {
-    let title: String
-    let message: String
-    let priority: WarningPriority
-    
-    var type: WarningType?
-    var location: [WarningsLocation]?
-    
-    // Warning settings
-    var blockchains: [String]?
 }
