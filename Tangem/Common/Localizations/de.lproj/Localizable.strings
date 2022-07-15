@@ -505,7 +505,7 @@ URL: %@";
 "security_and_privacy_title" = "Security & Privacy";
 "security_and_privacy_security_mode" = "Security Mode";
 "security_and_privacy_security_mode_footer" = "Selected application protection method";
-"security_and_privacy_change_access_code" = "Change Access Code";
+"security_and_privacy_change_access_code" = "Change access code";
 "security_and_privacy_change_access_code_footer" = "Access code will be changed on this card only";
 "security_and_privacy_saved_wallet" = "Save wallet";
 "security_and_privacy_saved_wallet_footer" = "You no longer need to hold your card to your phone to enter your wallet";
