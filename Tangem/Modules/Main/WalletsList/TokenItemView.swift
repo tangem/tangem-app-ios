@@ -22,11 +22,11 @@ struct TokenItemView: View {
         if item.isCustom {
             Circle()
                 .foregroundColor(Color.white)
-                .frame(width: 13, height: 13)
+                .frame(width: 10, height: 10)
                 .overlay(
                     Circle()
                         .foregroundColor(Color.tangemTextGray)
-                        .frame(width: 9, height: 9, alignment: .center)
+                        .frame(width: 8, height: 8, alignment: .center)
                 )
         }
     }
