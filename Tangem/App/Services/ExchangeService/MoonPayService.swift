@@ -13,15 +13,15 @@ import Combine
 import BlockchainSdk
 
 fileprivate enum QueryKey: String {
-    case apiKey,
-         currencyCode,
-         walletAddress,
-         redirectURL,
-         baseCurrencyCode,
-         refundWalletAddress,
-         signature,
-         baseCurrencyAmount,
-         depositWalletAddress
+    case apiKey
+    case currencyCode
+    case walletAddress
+    case redirectURL
+    case baseCurrencyCode
+    case refundWalletAddress
+    case signature
+    case baseCurrencyAmount
+    case depositWalletAddress
 }
 
 fileprivate struct IpCheckResponse: Decodable {
@@ -30,20 +30,21 @@ fileprivate struct IpCheckResponse: Decodable {
     let isMoonpayAllowed: Bool
     let isBuyAllowed: Bool
     let isSellAllowed: Bool
-    
+
     private enum CodingKeys: String, CodingKey {
-        case countryCode = "alpha3",
-             isMoonpayAllowed = "isAllowed",
-             stateCode = "state"
+        case countryCode = "alpha3"
+        case isMoonpayAllowed = "isAllowed"
+        case stateCode = "state"
         case isBuyAllowed, isSellAllowed
     }
 }
 
 fileprivate struct MoonpayCurrency: Decodable {
     enum CurrencyType: String, Decodable {
-        case crypto, fiat
+        case crypto
+        case fiat
     }
-    
+
     let type: CurrencyType
     let code: String
     let supportsLiveMode: Bool?
@@ -55,72 +56,72 @@ fileprivate struct MoonpayCurrency: Decodable {
 
 class MoonPayService {
     @Injected(\.keysManager) var keysManager: KeysManager
-    
+
     private var keys: MoonPayKeys { keysManager.moonPayKeys }
-    
+
     private var availableToBuy: Set<String> = [
         "ZRX", "AAVE", "ALGO", "AXS", "BAT", "BNB", "BUSD", "BTC", "BCH", "BTT", "ADA", "CELO", "CUSD", "LINK", "CHZ", "COMP", "ATOM", "DAI", "DASH", "MANA", "DGB", "DOGE", "EGLD",
         "ENJ", "EOS", "ETC", "ETH", "KETH", "RINKETH", "FIL", "HBAR", "MIOTA", "KAVA", "KLAY", "LBC", "LTC", "LUNA", "MKR", "OM", "MATIC", "NANO", "NEAR", "XEM", "NEO", "NIM", "OKB",
         "OMG", "ONG", "ONT", "DOT", "QTUM", "RVN", "RFUEL", "KEY", "SRM", "SOL", "XLM", "STMX", "SNX", "KRT", "UST", "USDT", "XTZ", "RUNE", "SAND", "TOMO", "AVA", "TRX", "TUSD", "UNI",
-        "USDC", "UTK", "VET", "WAXP", "WBTC", "XRP", "ZEC", "ZIL"
+        "USDC", "UTK", "VET", "WAXP", "WBTC", "XRP", "ZEC", "ZIL",
     ]
     private var availableToSell: Set<String> = [
-        "BTC", "ETH", "BCH"
+        "BTC", "ETH", "BCH",
     ]
-    
+
     private(set) var canBuyCrypto = true
     private(set) var canSellCrypto = true
     private var bag: Set<AnyCancellable> = []
-	
-	init() {}
-    
+
+    init() {}
+
     deinit {
         print("MoonPay deinit")
     }
-    
+
     private func makeSignature(for components: URLComponents) -> URLQueryItem {
         let queryData = "?\(components.percentEncodedQuery!)".data(using: .utf8)!
         let secretKey = keys.secretApiKey.data(using: .utf8)!
         let signature = HMAC<SHA256>.authenticationCode(for: queryData, using: SymmetricKey(data: secretKey))
-        
+
         return .init(key: .signature, value: Data(signature).base64EncodedString().addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed))
     }
-    
+
 }
 
 extension MoonPayService: ExchangeService {
-    
+
     var successCloseUrl: String { "https://success.tangem.com" }
-    
+
     var sellRequestUrl: String {
         "https://sell-request.tangem.com"
     }
-    
+
     func canBuy(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
         if currencySymbol.uppercased() == "BNB" && (blockchain == .bsc(testnet: true) || blockchain == .bsc(testnet: false)) {
             return false
         }
-        
+
         return availableToBuy.contains(currencySymbol.uppercased()) && canBuyCrypto
     }
-    
+
     func canSell(_ currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain) -> Bool {
         if currencySymbol.uppercased() == "BNB" && (blockchain == .bsc(testnet: true) || blockchain == .bsc(testnet: false)) {
             return false
         }
-        
+
         return availableToSell.contains(currencySymbol.uppercased()) && canSellCrypto
     }
-    
+
     func getBuyUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String) -> URL? {
         guard canBuy(currencySymbol, amountType: amountType, blockchain: blockchain) else {
             return nil
         }
-        
+
         var urlComponents = URLComponents()
         urlComponents.scheme = "https"
         urlComponents.host = "buy.moonpay.io"
-        
+
         var queryItems = [URLQueryItem]()
         queryItems.append(.init(key: .apiKey, value: keys.apiKey.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         queryItems.append(.init(key: .currencyCode, value: currencySymbol.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
@@ -131,35 +132,35 @@ extension MoonPayService: ExchangeService {
         let signatureItem = makeSignature(for: urlComponents)
         queryItems.append(signatureItem)
         urlComponents.percentEncodedQueryItems = queryItems
-        
+
         let url = urlComponents.url
         return url
     }
-    
+
     func getSellUrl(currencySymbol: String, amountType: Amount.AmountType, blockchain: Blockchain, walletAddress: String) -> URL? {
         guard canSell(currencySymbol, amountType: amountType, blockchain: blockchain) else {
             return nil
         }
-        
+
         var components = URLComponents()
         components.scheme = "https"
         components.host = "sell.moonpay.com"
-        
+
         var queryItems = [URLQueryItem]()
         queryItems.append(.init(key: .apiKey, value: keys.apiKey.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         queryItems.append(.init(key: .baseCurrencyCode, value: currencySymbol.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         queryItems.append(.init(key: .refundWalletAddress, value: walletAddress.addingPercentEncoding(withAllowedCharacters: .afURLQueryAllowed)))
         queryItems.append(.init(key: .redirectURL, value: sellRequestUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)))
-        
+
         components.percentEncodedQueryItems = queryItems
         let signature = makeSignature(for: components)
         queryItems.append(signature)
         components.percentEncodedQueryItems = queryItems
-        
+
         let url = components.url
         return url
     }
-    
+
     func extractSellCryptoRequest(from data: String) -> SellCryptoRequest? {
         guard
             data.starts(with: sellRequestUrl),
@@ -176,14 +177,14 @@ extension MoonPayService: ExchangeService {
 
         return .init(currencyCode: currencyCode, amount: amount, targetAddress: targetAddress)
     }
-    
+
     func initialize() {
         let config = URLSessionConfiguration.default
         config.requestCachePolicy = .reloadIgnoringLocalCacheData
         config.urlCache = nil
-        
+
         let session = URLSession(configuration: config)
-        
+
         Publishers.Zip(
             session.dataTaskPublisher(for: URL(string: ("https://api.moonpay.com/v4/ip_address?" + QueryKey.apiKey.rawValue + "=" + keys.apiKey))!),
             session.dataTaskPublisher(for: URL(string: "https://api.moonpay.com/v3/currencies?" + QueryKey.apiKey.rawValue + "=" + keys.apiKey)!)
@@ -212,19 +213,19 @@ extension MoonPayService: ExchangeService {
                         let isSuspended = $0.isSuspended, !isSuspended,
                         let supportsLiveMode = $0.supportsLiveMode, supportsLiveMode
                     else { return }
-                    
+
                     if countryCode == "USA" {
                         if let isSupportedInUS = $0.isSupportedInUS, !isSupportedInUS {
                             return
                         }
-                        
+
                         if let notAllowedUSStates = $0.notAllowedUSStates, notAllowedUSStates.contains(stateCode) {
                             return
                         }
                     }
-                    
+
                     currenciesToBuy.insert($0.code.uppercased())
-                    
+
                     if let isSellSupported = $0.isSellSupported, isSellSupported {
                         currenciesToSell.insert($0.code.uppercased())
                     }
