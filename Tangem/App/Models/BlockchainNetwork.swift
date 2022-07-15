@@ -13,7 +13,7 @@ import struct TangemSdk.DerivationPath
 struct BlockchainNetwork: Codable, Hashable, Equatable {
     let blockchain: Blockchain
     let derivationPath: DerivationPath?
-    
+
     init(_ blockchain: Blockchain, derivationPath: DerivationPath? = nil) {
         self.blockchain = blockchain
         self.derivationPath = derivationPath

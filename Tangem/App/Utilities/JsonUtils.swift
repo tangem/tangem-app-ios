@@ -9,7 +9,7 @@
 import Foundation
 
 struct JsonUtils {
-    
+
     static func readBundleFile<T: Decodable>(with name: String, type: T.Type, shouldAddCompilationCondition: Bool = true) throws -> T {
         var suffix: String = ""
         if shouldAddCompilationCondition {
