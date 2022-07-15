@@ -31,7 +31,7 @@ extension Storefront.ProductQuery {
         var query = self
             .id()
             .title()
-        
+
         if includeVariants {
             query = query
                 .variants(first: 250) { $0
@@ -42,7 +42,7 @@ extension Storefront.ProductQuery {
                     }
                 }
         }
-        
+
         return query
     }
 }
