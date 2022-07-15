@@ -108,10 +108,6 @@ struct TokenDetailsView: View {
                             AlertCardView(title: "", message: sendBlockedReason)
                         }
 
-                        if let unsupportedTokenWarning = viewModel.unsupportedTokenWarning {
-                            AlertCardView(title: "common_warning".localized, message: unsupportedTokenWarning)
-                        }
-
                         if let solanaRentWarning = viewModel.solanaRentWarning {
                             AlertCardView(title: "common_warning".localized, message: solanaRentWarning)
                         }
