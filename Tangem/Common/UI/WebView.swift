@@ -10,42 +10,36 @@ import Foundation
 import SwiftUI
 import WebKit
 
-
-struct WebViewContainer: View {
+struct WebViewContainerViewModel: Identifiable {
+    let id = UUID()
     var url: URL?
-    @State var popupUrl: URL?
-    //    var closeUrl: String? = nil
     var title: String
     var addLoadingIndicator = false
     var withCloseButton = false
-    @Environment(\.presentationMode) var presentationMode
+    var urlActions: [String: ((String) -> Void)] = [:]
+}
+
+struct WebViewContainer: View {
+    let viewModel: WebViewContainerViewModel
+
+    @State private var popupUrl: URL?
+    @Environment(\.presentationMode) private var presentationMode
     @State private var isLoading: Bool = true
-    
-    var urlActions: [String : ((String) -> Void)] = [:]
-    //    {
-    //        if let closeUrl = closeUrl {
-    //            return [closeUrl: {
-    //                self.presentationMode.wrappedValue.dismiss()
-    //            }]
-    //        } else {
-    //            return [:]
-    //        }
-    //    }
-    
+
     private var content: some View {
         ZStack {
-            WebView(url: url, popupUrl: $popupUrl, urlActions: urlActions, isLoading: $isLoading)
-                .navigationBarTitle(Text(title), displayMode: .inline)
+            WebView(url: viewModel.url, popupUrl: $popupUrl, urlActions: viewModel.urlActions, isLoading: $isLoading)
+                .navigationBarTitle(Text(viewModel.title), displayMode: .inline)
                 .background(Color.tangemBg.edgesIgnoringSafeArea(.all))
-            if isLoading && addLoadingIndicator {
+            if isLoading && viewModel.addLoadingIndicator {
                 ActivityIndicatorView(color: .tangemGrayDark)
             }
         }
     }
-    
+
     var body: some View {
         VStack {
-            if withCloseButton {
+            if viewModel.withCloseButton {
                 NavigationView {
                     content
                         .navigationBarItems(leading:
@@ -57,7 +51,7 @@ struct WebViewContainer: View {
             } else {
                 content
             }
-            
+
         }
         .sheet(item: $popupUrl) { popupUrl in
             NavigationView {
@@ -68,22 +62,21 @@ struct WebViewContainer: View {
     }
 }
 
-
 struct WebView: UIViewRepresentable {
     var url: URL?
     var popupUrl: Binding<URL?>
-    var urlActions: [String : ((String) -> Void)] = [:]
+    var urlActions: [String: ((String) -> Void)] = [:]
     var isLoading:  Binding<Bool>
-    
+
     func makeUIView(context: Context) -> WKWebView {
         let preferences = WKPreferences()
         preferences.javaScriptCanOpenWindowsAutomatically = true
-        
+
         let configuration = WKWebViewConfiguration()
         configuration.preferences = preferences
         configuration.allowsInlineMediaPlayback = true
         configuration.mediaTypesRequiringUserActionForPlayback = []
-        
+
         let view =  WKWebView(frame: CGRect(x: 0, y: 0, width: 100, height: 100), configuration: configuration)
         if let url = url {
             print("Loading request with url: \(url)")
@@ -91,23 +84,23 @@ struct WebView: UIViewRepresentable {
         }
         view.navigationDelegate = context.coordinator
         view.uiDelegate = context.coordinator
-        
+
         return view
     }
-    
+
     func updateUIView(_ uiView: WKWebView, context: Context) {}
-    
+
     class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
         let urlActions: [String: ((String) -> Void)]
         var popupUrl: Binding<URL?>
         var isLoading:  Binding<Bool>
-        
-        init(urlActions: [String : ((String) -> Void)] = [:], popupUrl: Binding<URL?>, isLoading: Binding<Bool>) {
+
+        init(urlActions: [String: ((String) -> Void)] = [:], popupUrl: Binding<URL?>, isLoading: Binding<Bool>) {
             self.urlActions = urlActions
             self.popupUrl = popupUrl
             self.isLoading = isLoading
         }
-        
+
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
             if let url = navigationAction.request.url?.absoluteString.split(separator: "?").first,
                let actionForURL = urlActions[String(url).removeLatestSlash()] {
@@ -115,24 +108,24 @@ struct WebView: UIViewRepresentable {
                 actionForURL(navigationAction.request.url!.absoluteString)
                 return
             }
-            
+
             decisionHandler(.allow)
         }
-        
+
         func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
             isLoading.wrappedValue = false
         }
-        
+
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
             isLoading.wrappedValue = false
         }
-        
+
         func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
             popupUrl.wrappedValue = navigationAction.request.url
             return nil
         }
     }
-    
+
     func makeCoordinator() -> Coordinator {
         return Coordinator(urlActions: urlActions, popupUrl: self.popupUrl, isLoading: self.isLoading)
     }

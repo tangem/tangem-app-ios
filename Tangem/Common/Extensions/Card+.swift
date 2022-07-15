@@ -17,42 +17,50 @@ extension Card {
 //        let isPin2Default = self.isPin2Default ?? true
 //        let hasSmartSecurityDelay = settingsMask?.contains(.smartSecurityDelay) ?? false
 //        let canSkipSD = hasSmartSecurityDelay && !isPin2Default
-        
+
         if firmwareVersion.doubleValue < 2.28 {
             if settings.securityDelay > 15000 {
 //                && !canSkipSD {
                 return false
             }
         }
-        
+
         return true
     }
-    
+
     var canSupportSolanaTokens: Bool {
-        //[REDACTED_TODO_COMMENT]
+        // [REDACTED_TODO_COMMENT]
         let fwVersion = firmwareVersion.doubleValue
         return fwVersion >= 4.52
     }
-    
+
     var isTwinCard: Bool {
         TwinCardSeries.series(for: cardId) != nil
     }
-    
+
     var twinNumber: Int {
         TwinCardSeries.series(for: cardId)?.number ?? 0
     }
-    
-    
+
+
     var isStart2Coin: Bool {
         issuer.name.lowercased() == "start2coin"
     }
-    
+
+    var isTestnet: Bool {
+        if batchId == "99FF" { // [REDACTED_TODO_COMMENT]
+            return cardId.starts(with: batchId.reversed())
+        } else {
+            return false
+        }
+    }
+
     var isDemoCard: Bool {
         let demoCards: [String] = [
             "FB10000000000196", // Note BTC
             "FB20000000000186", // Note ETH
             "FB30000000000176", // Wallet
-            
+
             // Tangem Wallet:
             "AC01000000041100",
             "AC01000000042462",
@@ -126,7 +134,7 @@ extension Card {
             "AB01000000015782",
             "AB01000000022598",
             "AB01000000022580",
-            
+
             // Tangem Note Ethereum:
             "AB02000000051000",
             "AB02000000050986",
@@ -163,44 +171,44 @@ extension Card {
             "AB02000000018652",
             "AB02000000018561",
         ]
-        
+
         return demoCards.contains(cardId)
     }
-    
+
     var isPermanentLegacyWallet: Bool {
         if firmwareVersion < .multiwalletAvailable {
             return wallets.first?.settings.isPermanent ?? false
         }
-        
+
         return false
     }
-    
+
     var walletSignedHashes: Int {
         wallets.compactMap { $0.totalSignedHashes }.reduce(0, +)
     }
-    
+
     var walletCurves: [EllipticCurve] {
         wallets.compactMap { $0.curve }
     }
-    
-#if !CLIP
+
+    #if !CLIP
     var derivationStyle: DerivationStyle {
         Card.getDerivationStyle(for: batchId, isHdWalletAllowed: settings.isHDWalletAllowed)
     }
-    
+
     static func getDerivationStyle(for batchId: String, isHdWalletAllowed: Bool) -> DerivationStyle {
         guard isHdWalletAllowed else {
             return .legacy
         }
-        
+
         let batchId = batchId.uppercased()
-        
+
         if BatchId.isDetached(batchId) {
             return .legacy
         }
-        
+
         return .new
     }
-    
-#endif
+
+    #endif
 }
