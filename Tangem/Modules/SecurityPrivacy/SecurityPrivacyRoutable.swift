@@ -9,7 +9,7 @@
 import Foundation
 
 protocol SecurityPrivacyRoutable: AnyObject {
-    func openChangeAccessCode()
+    func openChangeAccessCodeWarningView(action: @escaping (@escaping (Result<Void, Error>) -> Void) -> Void)
     func openSecurityManagement(cardModel: CardViewModel)
     func openTokenSynchronization()
     func openResetSavedCards()
