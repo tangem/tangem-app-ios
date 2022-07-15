@@ -54,7 +54,8 @@ extension CommonKeysManager: KeysManager {
     var blockchainConfig: BlockchainSdkConfig {
         BlockchainSdkConfig(blockchairApiKey: keys.blockchairApiKey,
                             blockcypherTokens: keys.blockcypherTokens,
-                            infuraProjectId: keys.infuraProjectId)
+                            infuraProjectId: keys.infuraProjectId,
+                            tronGridApiKey: keys.tronGridApiKey)
     }
 
     var shopifyShop: ShopifyShop {
@@ -81,6 +82,7 @@ extension CommonKeysManager {
         let infuraProjectId: String
         let appsFlyerDevKey: String
         let amplitudeApiKey: String
+        let tronGridApiKey: String
         let shopifyShop: ShopifyShop
         let zendesk: ZendeskConfig
 
@@ -94,6 +96,7 @@ extension CommonKeysManager {
                   infuraProjectId: "",
                   appsFlyerDevKey: "",
                   amplitudeApiKey: "",
+                  tronGridApiKey: "",
                   shopifyShop: .init(domain: "",
                                      storefrontApiKey: "",
                                      merchantID: ""),
