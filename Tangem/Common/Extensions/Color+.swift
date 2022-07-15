@@ -159,8 +159,14 @@ extension Color {
         return Color("textTertiary")
     }
 
-    static var textPrimary: Color {
-        return Color("textPrimary")
+    static var textPrimary1: Color {
+        return Color("textPrimary1")
+    }
+    
+    // MARK: Control
+    
+    static var controlChecked: Color {
+        return Color("controlChecked")
     }
 }
 
