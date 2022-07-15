@@ -16,7 +16,7 @@ class SecurityPrivacyCoordinator: CoordinatorObject {
     @Published private(set) var securityPrivacyViewModel: SecurityPrivacyViewModel?
 
     // MARK: - Child view models
-    // [REDACTED_TODO_COMMENT]
+    @Published var cardOperationViewModel: CardOperationViewModel?
 
     // MARK: - Child coordinators
     @Published var securityManagementCoordinator: SecurityManagementCoordinator?
@@ -43,8 +43,16 @@ extension SecurityPrivacyCoordinator {
 // MARK: - SecurityPrivacyRoutable
 
 extension SecurityPrivacyCoordinator: SecurityPrivacyRoutable {
-    func openChangeAccessCode() {
+    func openChangeAccessCodeWarningView(action: @escaping (@escaping (Result<Void, Error>) -> Void) -> Void) {
+        cardOperationViewModel = CardOperationViewModel(title: "details_manage_security_access_code".localized,
+                                                        buttonTitle: "common_continue",
+                                                        alert: "Пароль будет изменен только на данной карте, для изменения пароля на остальных картах необходимо будет выполнить функцию синхронизации карт.",
+                                                        actionButtonPressed: action,
+                                                        coordinator: self)
+    }
 
+    func openChangeAccessCode(cardModel: CardViewModel) {
+        cardModel.changeSecOption(.accessCode) { _ in }
     }
 
     func openSecurityManagement(cardModel: CardViewModel) {
@@ -60,5 +68,13 @@ extension SecurityPrivacyCoordinator: SecurityPrivacyRoutable {
 
     func openResetSavedCards() {
 
+    }
+}
+
+// MARK: - CardOperationRoutable
+
+extension SecurityPrivacyCoordinator: CardOperationRoutable {
+    func dismissCardOperation() {
+        cardOperationViewModel = nil
     }
 }
