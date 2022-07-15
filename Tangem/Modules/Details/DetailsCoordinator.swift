@@ -92,9 +92,9 @@ extension DetailsCoordinator: DetailsRoutable {
                                                         coordinator: self)
     }
 
-    func openSecManagement(with cardModel: CardViewModel) {
+    func openSecurityPrivacy(with cardModel: CardViewModel) {
         let coordinator = SecurityPrivacyCoordinator(popToRootAction: self.popToRootAction)
-        coordinator.start(with: .cardModel(cardModel))
+        coordinator.start(with: .init(cardModel: cardModel))
         securityPrivacyCoordinator = coordinator
     }
 
