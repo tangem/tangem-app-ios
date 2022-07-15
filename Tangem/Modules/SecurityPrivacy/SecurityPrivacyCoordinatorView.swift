@@ -18,7 +18,9 @@ struct SecurityPrivacyCoordinatorView: CoordinatorView {
                 .navigation(item: $coordinator.securityManagementCoordinator) {
                     SecurityManagementCoordinatorView(coordinator: $0)
                 }
-                .emptyNavigationLink()
+                .navigation(item: $coordinator.cardOperationViewModel) {
+                    CardOperationView(viewModel: $0)
+                }
         }
     }
 }
