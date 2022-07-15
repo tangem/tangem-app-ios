@@ -10,10 +10,6 @@ import SwiftUI
 import Combine
 
 class SecurityPrivacyViewModel: ObservableObject {
-    // MARK: Dependecies
-    private unowned let coordinator: SecurityPrivacyRoutable
-    private let cardModel: CardViewModel
-
     // MARK: ViewState
 
     @Published var isOnceOptionSecurityMode: Bool = false
@@ -22,6 +18,11 @@ class SecurityPrivacyViewModel: ObservableObject {
     @Published var isSaveCards: Bool = true
     @Published var isSaveAccessCodes: Bool = true
     @Published var alert: AlertBinder?
+
+    // MARK: Dependecies
+
+    private unowned let coordinator: SecurityPrivacyRoutable
+    private let cardModel: CardViewModel
 
     // MARK: Properties
 
@@ -119,7 +120,7 @@ private extension SecurityPrivacyViewModel {
     }
 }
 
-// MARK: - View Output
+// MARK: - Navigation
 
 extension SecurityPrivacyViewModel {
     func openChangeAccessCode() {
