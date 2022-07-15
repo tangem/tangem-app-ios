@@ -1,2 +1,3 @@
 NFCReaderUsageDescription = "Для сканирования смарт-карты";
 NSCameraUsageDescription = "Для сканирования QR-кода";
+NSPhotoLibraryUsageDescription = "Для отправки в службу поддержки";
