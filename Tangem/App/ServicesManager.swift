@@ -12,20 +12,24 @@ import Combine
 class ServicesManager {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
+    @Injected(\.walletConnectServiceProvider) private var walletConnectServiceProvider: WalletConnectServiceProviding
+    @Injected(\.supportChatService) private var supportChatService: SupportChatServiceProtocol
     @Injected(\.geoIpService) private var geoIpService: GeoIpService
-    
+
     private var bag = Set<AnyCancellable>()
-    
+
     func initialize() {
         exchangeService.initialize()
+        walletConnectServiceProvider.initialize()
+        supportChatService.initialize()
         geoIpService.initialize()
-        
+
         bind()
     }
-    
+
     private func bind() {
-        cardsRepository.didScanPublisher.sink {cardInfo in
-         //subscrive to scan here
+        cardsRepository.didScanPublisher.sink { cardInfo in
+            // subscrive to scan here
         }
         .store(in: &bag)
     }
