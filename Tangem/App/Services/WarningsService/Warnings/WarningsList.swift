@@ -10,7 +10,7 @@ import Foundation
 
 struct WarningsList {
     static let warningTitle = "common_warning".localized
-    
+
     static let oldCard = AppWarning(title: warningTitle, message: "alert_old_card".localized, priority: .info, type: .permanent)
     static let oldDeviceOldCard = AppWarning(title: warningTitle, message: "alert_old_device_this_card".localized, priority: .info, type: .permanent)
     static let devCard = AppWarning(title: warningTitle, message: "alert_developer_card".localized, priority: .critical, type: .permanent)
@@ -24,5 +24,4 @@ struct WarningsList {
         let message = String(format: "warning_low_signatures_format".localized, "\(count)")
         return AppWarning(title: warningTitle, message: message, priority: .critical, type: .permanent)
     }
-    static let fundsRestoration = AppWarning(title: "common_notice".localized, message: "alert_funds_restoration_message".localized, priority: .info, type: .temporary, location: [.main], event: .fundsRestoration)
 }
