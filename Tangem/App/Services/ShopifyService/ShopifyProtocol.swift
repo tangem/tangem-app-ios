@@ -15,10 +15,10 @@ protocol ShopifyProtocol {
     func shopName() -> AnyPublisher<String, Error>
     func products(collectionTitleFilter: String?) -> AnyPublisher<[Collection], Error>
     func checkout(pollUntilOrder: Bool, checkoutID: GraphQL.ID) -> AnyPublisher<Checkout, Error>
-    
+
     func canUseApplePay() -> Bool
     func startApplePaySession(checkoutID: GraphQL.ID) -> AnyPublisher<Checkout, Error>
-    
+
     func createCheckout(checkoutID: GraphQL.ID?, lineItems: [CheckoutLineItem]) -> AnyPublisher<Checkout, Error>
     func applyDiscount(_ discountCode: String?, checkoutID: GraphQL.ID) -> AnyPublisher<Checkout, Error>
 }

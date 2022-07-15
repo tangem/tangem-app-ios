@@ -11,7 +11,7 @@ import BlockchainSdk
 
 class TwinsWalletCreationServiceProvider: TwinsWalletCreationServiceProviding {
     @Injected(\.keysManager) private var keysManager: KeysManager
-    
+
     lazy var service: TwinsWalletCreationService = {
         .init(twinFileEncoder: TwinCardTlvFileEncoder(),
               walletManagerFactory: WalletManagerFactory(config: keysManager.blockchainConfig))

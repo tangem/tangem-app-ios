@@ -16,12 +16,12 @@ struct TangemApiTarget: TargetType {
         case coins(_ requestModel: CoinsListRequestModel)
         case geo
     }
-    
+
     let type: TangemApiTargetType
     let card: Card?
 
-    var baseURL: URL {URL(string: "https://api.tangem-tech.com/v1")!}
-    
+    var baseURL: URL { URL(string: "https://api.tangem-tech.com/v1")! }
+
     var path: String {
         switch type {
         case .rates:
@@ -34,9 +34,9 @@ struct TangemApiTarget: TargetType {
             return "/geo"
         }
     }
-    
+
     var method: Moya.Method { .get }
-    
+
     var task: Task {
         switch type {
         case .rates(let coinIds, let currencyId):
@@ -49,8 +49,8 @@ struct TangemApiTarget: TargetType {
             return .requestPlain
         }
     }
-    
-    var headers: [String : String]? {
+
+    var headers: [String: String]? {
         guard let card = card else {
             return nil
         }
