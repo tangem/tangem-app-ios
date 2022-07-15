@@ -37,8 +37,8 @@ struct TokenItemView: View {
                 .saturation(item.isTestnet ? 0.0 : 1.0)
                 .overlay(
                     customTokenMark
-                        .frame(width: 40, height: 40, alignment: .topTrailing)
-                        .offset(x: 1, y: -1)
+                        .frame(width: 40, height: 40, alignment: .bottomTrailing)
+                        .offset(x: 1, y: 1)
                 )
 
             VStack(alignment: .leading, spacing: 0) {
