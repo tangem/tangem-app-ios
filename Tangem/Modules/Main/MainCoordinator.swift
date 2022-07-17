@@ -34,7 +34,7 @@ class MainCoordinator: CoordinatorObject {
 
     // MARK: - Helpers
     @Published var bottomSheetKeeper: Bool = false
-    @Published var bottomSheetSettings: BottomSheetSettings?
+    @Published var bottomSheetSettings: BottomSheetSettings? = nil
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
@@ -176,7 +176,7 @@ extension MainCoordinator: MainRoutable {
 
     func openQR(shareAddress: String, address: String, qrNotice: String) {
         addressQrBottomSheetContentViewVodel = .init(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
-        bottomSheetSettings = BottomSheet.qr
+        bottomSheetSettings = BottomSheetSettings.QR()
         bottomSheetKeeper = true
     }
 
@@ -189,7 +189,7 @@ extension MainCoordinator: MainRoutable {
             self.hideBottomSheet()
         })
 
-        bottomSheetSettings = BottomSheet.warning
+        bottomSheetSettings = BottomSheetSettings.Warning()
         bottomSheetKeeper = true
     }
 
