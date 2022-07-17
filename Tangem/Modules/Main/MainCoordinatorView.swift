@@ -77,6 +77,12 @@ struct MainCoordinatorView: CoordinatorView {
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
             }
+
+        NavHolder()
+            .bottomSheet(isPresented: $coordinator.bottomSheetKeeper,
+                         viewModelSettings: coordinator.bottomSheetSettings ?? BottomSheetSettings.QR()) {
+                sheetContent
+            }
     }
 
     @ViewBuilder
