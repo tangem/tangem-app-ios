@@ -25,7 +25,7 @@ struct WarningBankCardView: View {
             Text("russian_bank_card_warning_subtitle".localized)
                 .font(.system(size: 15, weight: .regular))
                 .padding(.top, 50)
-                .padding(.horizontal, 30)
+                .padding([.horizontal, .bottom], 30)
 
             HStack(spacing: 11) {
                 Button(action: {
@@ -46,7 +46,6 @@ struct WarningBankCardView: View {
                 .buttonStyle(TangemButtonStyle(colorStyle: .gray, layout: .flexibleWidth))
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 40)
         }
         .multilineTextAlignment(.center)
     }
