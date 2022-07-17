@@ -17,8 +17,6 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             if let model = coordinator.tokenDetailsViewModel {
                 TokenDetailsView(viewModel: model)
                     .navigationLinks(links)
-
-                otherSheets
             }
 
             sheets
@@ -49,6 +47,12 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
         NavHolder()
             .sheet(item: $coordinator.modalWebViewModel) {
                 WebViewContainer(viewModel: $0)
+            }
+
+        NavHolder()
+            .bottomSheet(isPresented: $coordinator.bottomSheetKeeper,
+                         viewModelSettings: BottomSheetSettings.Warning()) {
+                sheetContent
             }
     }
 
