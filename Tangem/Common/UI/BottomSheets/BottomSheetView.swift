@@ -42,8 +42,8 @@ struct BottomSheetView<Content: View>: View {
          @ViewBuilder content: () -> Content) {
         self.isPresented = isPresented
         self.showClosedButton = settings?.showClosedButton ?? true
-        self.addDragGesture = settings?.addDragGesture ?? true
-        self.closeOnTapOutside = settings?.closeOnTapOutside ?? true
+        self.addDragGesture = settings?.swipeDownToDismissEnabled ?? true
+        self.closeOnTapOutside = settings?.tapOutsideToDismissEnabled ?? true
         self.cornerRadius = settings?.cornerRadius ?? 10
         self.hideBottomSheetCallback = hideBottomSheetCallback
         self.content = content()
