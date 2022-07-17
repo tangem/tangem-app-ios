@@ -125,7 +125,7 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
             self.hideBottomSheet()
         })
 
-        bottomSheetSettings = BottomSheet.warning
+        bottomSheetSettings = WarningBottomSheetSettings()
         bottomSheetKeeper = true
     }
 
