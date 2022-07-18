@@ -33,7 +33,6 @@ class MainCoordinator: CoordinatorObject {
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
 
     // MARK: - Helpers
-    @Published var bottomSheetSettings: BottomSheetSettings? = nil
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
@@ -175,12 +174,10 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openQR(shareAddress: String, address: String, qrNotice: String) {
-        bottomSheetSettings = BottomSheetSettings.qr()
         addressQrBottomSheetContentViewVodel = .init(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
     }
 
     func openBankWarning(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) {
-        bottomSheetSettings = BottomSheetSettings.warning()
         warningBankCardViewModel = .init(confirmCallback: {
             confirmCallback()
             self.hideBottomSheet()
