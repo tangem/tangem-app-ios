@@ -52,14 +52,7 @@ struct WarningBankCardView: View {
 }
 
 struct WarningBankCardView_Previews: PreviewProvider {
-    private class _PopUpModel: ObservableObject {
-        @Published var show: Bool = true
-    }
-
     static var previews: some View {
-        BottomSheetView(isPresented: _PopUpModel().$show, showClosedButton: false) {
-        } content: {
-            WarningBankCardView(viewModel: WarningBankCardViewModel(confirmCallback: { }, declineCallback: { }))
-        }
+        WarningBankCardView(viewModel: WarningBankCardViewModel(confirmCallback: { }, declineCallback: { }))
     }
 }
