@@ -9,37 +9,10 @@
 import SwiftUI
 import UIKit
 
-extension View {
-    func bottomSheet<Content: View>(isPresented: Binding<Bool>,
-                                    viewModelSettings: BottomSheetSettings,
-                                    @ViewBuilder contentView: @escaping () -> Content) -> some View {
-        self.modifier(BottomSheetModifier(isPresented: isPresented, viewModelSettings: viewModelSettings, contentView: contentView))
-    }
-
-    func bottomSheet<Item: Identifiable, Content: View>(item: Binding<Item?>,
-                                                        viewModelSettings: BottomSheetSettings,
-                                                        @ViewBuilder content: @escaping (Item) -> Content) -> some View {
-        let isPresented = Binding {
-            item.wrappedValue != nil
-        } set: { value in
-            if !value {
-                item.wrappedValue = nil
-            }
-        }
-        return bottomSheet(isPresented: isPresented, viewModelSettings: viewModelSettings) {
-            if let unwrapedItem = item.wrappedValue {
-                content(unwrapedItem)
-            } else {
-                EmptyView()
-            }
-        }
-    }
-}
-
 struct BottomSheetModifier<ContentView: View>: ViewModifier {
     @Binding private var isPresented: Bool
     @State private var bottomSheetViewController: BottomSheetBaseController?
-    private var viewModelSettings: BottomSheetSettings
+    private let viewModelSettings: BottomSheetSettings
 
     private let contentView: () -> ContentView
 
@@ -49,6 +22,7 @@ struct BottomSheetModifier<ContentView: View>: ViewModifier {
     ) {
         _isPresented = isPresented
         self.viewModelSettings = viewModelSettings
+        print(self.viewModelSettings)
         self.contentView = contentView
     }
 
@@ -69,9 +43,14 @@ struct BottomSheetModifier<ContentView: View>: ViewModifier {
         }
 
         if isPresented {
+            let wrappedView = BottomSheetWrappedView(content: contentView(),
+                                                     settings: viewModelSettings) {
+                bottomSheetViewController?.dismiss(animated: true)
+            }
+
             bottomSheetViewController = BottomSheetViewController(
                 isPresented: $isPresented,
-                content: contentView()
+                content: wrappedView
             )
 
             bottomSheetViewController?.preferredSheetSizing = viewModelSettings.bottomSheetSize
@@ -80,8 +59,8 @@ struct BottomSheetModifier<ContentView: View>: ViewModifier {
             bottomSheetViewController?.swipeDownToDismissEnabled = viewModelSettings.swipeDownToDismissEnabled
             bottomSheetViewController?.tapOutsideToDismissEnabled = viewModelSettings.tapOutsideToDismissEnabled
 
-            controllerToPresentFrom.present(bottomSheetViewController!, animated: true)
             viewModelSettings.impactOnShow.play()
+            controllerToPresentFrom.present(bottomSheetViewController!, animated: true)
         } else {
             bottomSheetViewController?.dismiss(animated: true)
         }
