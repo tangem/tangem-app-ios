@@ -50,26 +50,9 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
             }
 
         NavHolder()
-            .bottomSheet(isPresented: $coordinator.bottomSheetKeeper,
-                         viewModelSettings: BottomSheetSettings.Warning()) {
-                sheetContent
+            .bottomSheet(item: $coordinator.warningBankCardViewModel,
+                         viewModelSettings: coordinator.bottomSheetSettings ?? .default()) {
+                WarningBankCardView(viewModel: $0)
             }
-    }
-
-    @ViewBuilder
-    private var otherSheets: some View {
-        BottomSheetView(from: coordinator.bottomSheetSettings,
-                        isPresented: coordinator.$bottomSheetKeeper,
-                        hideBottomSheetCallback: coordinator.hideBottomSheet,
-                        content: { sheetContent })
-    }
-
-    @ViewBuilder
-    private var sheetContent: some View {
-        if let model = coordinator.warningBankCardViewModel {
-            WarningBankCardView(viewModel: model)
-        } else {
-            EmptyView()
-        }
     }
 }
