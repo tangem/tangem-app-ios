@@ -26,7 +26,6 @@ class TokenDetailsCoordinator: CoordinatorObject {
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
 
     // MARK: - Helpers
-    @Published var bottomSheetKeeper: Bool = false
     @Published var bottomSheetSettings: BottomSheetSettings? // Don't set to nil, when hide sheet
 
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
@@ -42,7 +41,7 @@ class TokenDetailsCoordinator: CoordinatorObject {
     }
 
     func hideBottomSheet() {
-        bottomSheetKeeper = false
+        warningBankCardViewModel = nil
     }
 }
 
@@ -117,6 +116,7 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
     }
 
     func openBankWarning(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) {
+        bottomSheetSettings = BottomSheetSettings.warning()
         warningBankCardViewModel = .init(confirmCallback: {
             confirmCallback()
             self.hideBottomSheet()
@@ -124,9 +124,6 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
             declineCallback()
             self.hideBottomSheet()
         })
-
-        bottomSheetSettings = WarningBottomSheetSettings()
-        bottomSheetKeeper = true
     }
 
     func openP2PTutorial() {
