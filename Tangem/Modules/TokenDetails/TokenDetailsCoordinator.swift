@@ -25,9 +25,6 @@ class TokenDetailsCoordinator: CoordinatorObject {
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
 
-    // MARK: - Helpers
-    @Published var bottomSheetSettings: BottomSheetSettings? // Don't set to nil, when hide sheet
-
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
@@ -116,7 +113,6 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
     }
 
     func openBankWarning(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) {
-        bottomSheetSettings = BottomSheetSettings.warning()
         warningBankCardViewModel = .init(confirmCallback: {
             confirmCallback()
             self.hideBottomSheet()
