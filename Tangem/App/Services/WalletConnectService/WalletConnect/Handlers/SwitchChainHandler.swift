@@ -16,8 +16,8 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
 
     var action: WalletConnectAction { .switchChain }
 
-    unowned var delegate: WalletConnectHandlerDelegate?
-    unowned var dataSource: WalletConnectHandlerDataSource?
+    weak var delegate: WalletConnectHandlerDelegate?
+    weak var dataSource: WalletConnectHandlerDataSource?
 
     private var bag: Set<AnyCancellable> = []
 
