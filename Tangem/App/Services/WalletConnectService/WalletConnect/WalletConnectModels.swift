@@ -22,14 +22,6 @@ struct WalletInfo: Codable, Hashable {
         let blockchainKey = derivedPublicKey ?? walletPublicKey
         return try! blockchain.makeAddresses(from: blockchainKey, with: nil).first!.value
     }
-
-    internal init(cid: String, walletPublicKey: Data, derivedPublicKey: Data?, derivationPath: DerivationPath?, blockchain: Blockchain) {
-        self.cid = cid
-        self.walletPublicKey = walletPublicKey
-        self.derivedPublicKey = derivedPublicKey
-        self.derivationPath = derivationPath
-        self.blockchain = blockchain
-    }
 }
 
 struct WalletConnectSession: Codable, Hashable, Identifiable {
