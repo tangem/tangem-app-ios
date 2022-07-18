@@ -10,7 +10,7 @@ import UIKit
 
 class BottomSheetDismissalTransition: NSObject {
 
-    private let stretchOffset: CGFloat = 16
+    private let stretchOffset: CGFloat = 32
     private let maxTransitionDuration: CGFloat = 0.25
     private let minTransitionDuration: CGFloat = 0.15
     private let animationCurve: UIView.AnimationCurve = .easeIn

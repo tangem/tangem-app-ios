@@ -189,6 +189,8 @@
 		65B4DED828835BE4001524CF /* BottomSheetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B4DED728835BE4001524CF /* BottomSheetViewController.swift */; };
 		65B4DEDA28835C82001524CF /* BottomSheetModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B4DED928835C82001524CF /* BottomSheetModifier.swift */; };
 		65B4DEDE2884B68E001524CF /* ImpactFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B4DEDD2884B68E001524CF /* ImpactFeedback.swift */; };
+		65B4DEE02885334F001524CF /* View+BottomSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B4DEDF2885334F001524CF /* View+BottomSheet.swift */; };
+		65B4DEE22885719C001524CF /* BottomSheetWrappedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B4DEE12885719C001524CF /* BottomSheetWrappedView.swift */; };
 		65C9FCAC2863103800FDE63E /* ZendeskConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCAB2863103800FDE63E /* ZendeskConfig.swift */; };
 		65C9FCAE28644F9D00FDE63E /* DetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCAD28644F9D00FDE63E /* DetailsView.swift */; };
 		65C9FCB12864507600FDE63E /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCAF2864507600FDE63E /* MainViewModel.swift */; };
@@ -794,6 +796,8 @@
 		65B4DED728835BE4001524CF /* BottomSheetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetViewController.swift; sourceTree = "<group>"; };
 		65B4DED928835C82001524CF /* BottomSheetModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetModifier.swift; sourceTree = "<group>"; };
 		65B4DEDD2884B68E001524CF /* ImpactFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImpactFeedback.swift; sourceTree = "<group>"; };
+		65B4DEDF2885334F001524CF /* View+BottomSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+BottomSheet.swift"; sourceTree = "<group>"; };
+		65B4DEE12885719C001524CF /* BottomSheetWrappedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetWrappedView.swift; sourceTree = "<group>"; };
 		65C9FCAB2863103800FDE63E /* ZendeskConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZendeskConfig.swift; sourceTree = "<group>"; };
 		65C9FCAD28644F9D00FDE63E /* DetailsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailsView.swift; sourceTree = "<group>"; };
 		65C9FCAF2864507600FDE63E /* MainViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
@@ -1672,6 +1676,8 @@
 				65B4DED928835C82001524CF /* BottomSheetModifier.swift */,
 				65D87498287DA0F6009D0448 /* BottomSheetSettings.swift */,
 				65B4DEDD2884B68E001524CF /* ImpactFeedback.swift */,
+				65B4DEDF2885334F001524CF /* View+BottomSheet.swift */,
+				65B4DEE12885719C001524CF /* BottomSheetWrappedView.swift */,
 			);
 			path = BottomSheet;
 			sourceTree = "<group>";
@@ -3355,6 +3361,7 @@
 				DAADD5B427EB5A180046DEC3 /* SafariView.swift in Sources */,
 				B0D34E6F2626CEEB00625AC5 /* WalletConnectSignHandler.swift in Sources */,
 				B0CC818325CD63FB006D49B9 /* Token+.swift in Sources */,
+				65B4DEE22885719C001524CF /* BottomSheetWrappedView.swift in Sources */,
 				DA23788427B24222009795A8 /* Checkout.swift in Sources */,
 				DA23787F27B24222009795A8 /* CheckoutPayload.swift in Sources */,
 				65C9FCBA2869CC3E00FDE63E /* SupportChatViewModel.swift in Sources */,
@@ -3438,6 +3445,7 @@
 				DC51185F28609F67004FB954 /* CardOperationViewModel.swift in Sources */,
 				5DDFC1FF2812A63B005976FE /* Network.swift in Sources */,
 				5DFB499824E54A340037E76F /* BalanceView.swift in Sources */,
+				65B4DEE02885334F001524CF /* View+BottomSheet.swift in Sources */,
 				DC66BBF8285A211F00CDF765 /* MainRoutable.swift in Sources */,
 				659768172837B61000F9F04A /* TokenItemView.swift in Sources */,
 				DC0A582628252D140031BECC /* FailedScanTrackable.swift in Sources */,
