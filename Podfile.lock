@@ -42,7 +42,7 @@ PODS:
     - SwiftyJSON
     - TangemSdk
     - web3swift
-  - CryptoSwift (1.4.3)
+  - CryptoSwift (1.5.1)
   - DeviceGuru (8.0.0):
     - DeviceGuru/DeviceGuru (= 8.0.0)
   - DeviceGuru/DeviceGuru (8.0.0):
@@ -184,9 +184,8 @@ PODS:
   - SwiftyJSON (5.0.1)
   - TangemSdk (3.3.4)
   - TweetNacl (1.0.2)
-  - WalletConnectSwift (1.6.2):
-    - CryptoSwift (~> 1.4)
-    - Starscream (~> 4.0.4)
+  - WalletConnectSwift (1.7.0):
+    - CryptoSwift (~> 1.5)
   - web3swift (2.2.1):
     - BigInt
     - CryptoSwift
@@ -241,12 +240,11 @@ DEPENDENCIES:
   - ScaleCodec
   - Sodium
   - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-1`)
-  - Starscream (~> 4.0.4)
   - stellar-ios-mac-sdk
   - SwiftCBOR
   - SwiftyJSON
   - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-152`)
-  - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.6.2`)
+  - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.7.0`)
   - web3swift (from `https://github.com/tangem/web3swift.git`, tag `2.2.9`)
   - ZendeskAnswerBotSDK (~> 2.2.0)
   - ZendeskChatSDK (~> 2.12.0)
@@ -328,7 +326,7 @@ EXTERNAL SOURCES:
     :tag: develop-152
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
-    :tag: 1.6.2
+    :tag: 1.7.0
   web3swift:
     :git: https://github.com/tangem/web3swift.git
     :tag: 2.2.9
@@ -360,7 +358,7 @@ CHECKOUT OPTIONS:
     :tag: develop-152
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
-    :tag: 1.6.2
+    :tag: 1.7.0
   web3swift:
     :git: https://github.com/tangem/web3swift.git
     :tag: 2.2.9
@@ -376,7 +374,7 @@ SPEC CHECKSUMS:
   BinanceChain: b77d4c0e496efbf13bdb1f428621480fd52f4ba1
   BitcoinCore.swift: 64ac4e69d9a6ef917bcbb0c23f1324cf57a822fb
   BlockchainSdk: dc61afa84bef366f16c0649baf9db50934e25bca
-  CryptoSwift: a0799ee936271bd2253a006f1e4523df21845000
+  CryptoSwift: c4f2debceb38bf44c80659afe009f71e23e4a082
   DeviceGuru: 0362f13097207ca1fe246e92df2ba1d3978b2293
   Firebase: 7e8fe528c161b9271d365217a74c16aaf834578e
   FirebaseAnalytics: 2fc3876e2eb347673ad2f35e249ae7b15d6c88f5
@@ -408,7 +406,7 @@ SPEC CHECKSUMS:
   SwiftyJSON: 2f33a42c6fbc52764d96f13368585094bfd8aa5e
   TangemSdk: 9ea2c230bd616787bdccc5fb3ab36925d06199d4
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
-  WalletConnectSwift: 046ae74e8cb69445be9c94c66ef66f9cb019b68f
+  WalletConnectSwift: 6309bf3011b0b30e3e9d1e7449535302a9240f71
   web3swift: 93f68f5430c11a78bba2351c139d2d22f2c04b5e
   XCGLogger: 1943831ef907df55108b0b18657953f868de973b
   ZendeskAnswerBotProvidersSDK: ec58548f5a968c31d4672dcb2493a9ac307bd2a2
@@ -423,6 +421,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: d4bfb08c1c508fbca528a3a6a70aac16b51166d1
+PODFILE CHECKSUM: ba20b58318fefcf95b1d87fe5839d8cab243a762
 
 COCOAPODS: 1.11.3
