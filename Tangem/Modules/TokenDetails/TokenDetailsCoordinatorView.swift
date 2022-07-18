@@ -51,7 +51,7 @@ struct TokenDetailsCoordinatorView: CoordinatorView {
 
         NavHolder()
             .bottomSheet(item: $coordinator.warningBankCardViewModel,
-                         viewModelSettings: coordinator.bottomSheetSettings ?? .default()) {
+                         viewModelSettings: BottomSheetSettings.warning()) {
                 WarningBankCardView(viewModel: $0)
             }
     }
