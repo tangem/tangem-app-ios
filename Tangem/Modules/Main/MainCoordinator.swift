@@ -33,7 +33,6 @@ class MainCoordinator: CoordinatorObject {
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
 
     // MARK: - Helpers
-    @Published var bottomSheetKeeper: Bool = false
     @Published var bottomSheetSettings: BottomSheetSettings? = nil
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
@@ -47,7 +46,8 @@ class MainCoordinator: CoordinatorObject {
     }
 
     func hideBottomSheet() {
-        bottomSheetKeeper = false
+        warningBankCardViewModel = nil
+        addressQrBottomSheetContentViewVodel = nil
     }
 }
 
@@ -175,12 +175,12 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openQR(shareAddress: String, address: String, qrNotice: String) {
+        bottomSheetSettings = BottomSheetSettings.qr()
         addressQrBottomSheetContentViewVodel = .init(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
-        bottomSheetSettings = BottomSheetSettings.QR()
-        bottomSheetKeeper = true
     }
 
     func openBankWarning(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) {
+        bottomSheetSettings = BottomSheetSettings.warning()
         warningBankCardViewModel = .init(confirmCallback: {
             confirmCallback()
             self.hideBottomSheet()
@@ -188,9 +188,6 @@ extension MainCoordinator: MainRoutable {
             declineCallback()
             self.hideBottomSheet()
         })
-
-        bottomSheetSettings = BottomSheetSettings.Warning()
-        bottomSheetKeeper = true
     }
 
     func openP2PTutorial() {

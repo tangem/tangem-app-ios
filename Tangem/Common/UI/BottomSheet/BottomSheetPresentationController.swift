@@ -18,7 +18,6 @@ class BottomSheetPresentationController: UIPresentationController {
 
     let bottomSheetInteractiveDismissalTransition = BottomSheetDismissalTransition()
 
-    let sheetTopInset: CGFloat
     let sheetCornerRadius: CGFloat
     let sheetSizingFactor: CGFloat
     let sheetBackgroundColor: UIColor
@@ -30,12 +29,10 @@ class BottomSheetPresentationController: UIPresentationController {
     init(
         presentedViewController: UIViewController,
         presenting presentingViewController: UIViewController?,
-        sheetTopInset: CGFloat,
         sheetCornerRadius: CGFloat,
         sheetSizingFactor: CGFloat,
         sheetBackgroundColor: UIColor
     ) {
-        self.sheetTopInset = sheetTopInset
         self.sheetCornerRadius = sheetCornerRadius
         self.sheetSizingFactor = sheetSizingFactor
         self.sheetBackgroundColor = sheetBackgroundColor
@@ -133,11 +130,9 @@ class BottomSheetPresentationController: UIPresentationController {
         preferredHeightConstraint.priority = .fittingSizeLevel
 
         let maxHeightConstraint = presentedView.topAnchor.constraint(
-            greaterThanOrEqualTo: containerView.safeAreaLayoutGuide.topAnchor,
-            constant: 0
+            greaterThanOrEqualTo: containerView.safeAreaLayoutGuide.topAnchor
         )
 
-        // Prevents conflicts with the height constraint used by the animated transition
         maxHeightConstraint.priority = .required - 1
 
         let heightConstraint = presentedView.heightAnchor.constraint(
@@ -199,7 +194,7 @@ class BottomSheetPresentationController: UIPresentationController {
     }
 
     override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        panGestureRecognizer.isEnabled = false // This will cancel any ongoing pan gesture
+        panGestureRecognizer.isEnabled = false
         coordinator.animate(alongsideTransition: nil) { context in
             self.panGestureRecognizer.isEnabled = true
         }

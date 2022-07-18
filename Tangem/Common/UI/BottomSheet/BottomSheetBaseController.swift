@@ -10,7 +10,6 @@ import UIKit
 
 class BottomSheetBaseController: UIViewController {
     private lazy var bottomSheetTransitioningDelegate = BottomSheetTransitionDelegate(
-        preferredSheetTopInset: preferredSheetTopInset,
         preferredSheetCornerRadius: preferredSheetCornerRadius,
         preferredSheetSizingFactor: preferredSheetSizing.rawValue,
         preferredSheetBackdropColor: preferredSheetBackdropColor
@@ -42,12 +41,6 @@ class BottomSheetBaseController: UIViewController {
             bottomSheetTransitioningDelegate
         }
         set { }
-    }
-
-    var preferredSheetTopInset: CGFloat = 0 {
-        didSet {
-            bottomSheetTransitioningDelegate.preferredSheetTopInset = preferredSheetTopInset
-        }
     }
 
     var preferredSheetCornerRadius: CGFloat = 8 {
