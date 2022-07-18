@@ -29,10 +29,16 @@ struct OnboardingCoordinatorView: CoordinatorView {
                     OnboardingAccessCodeView(viewModel: $0)
                 }
 
-            BottomSheetView(from: coordinator.bottomSheetSettings,
-                            isPresented: coordinator.$qrBottomSheetKeeper,
-                            hideBottomSheetCallback: coordinator.hideQrBottomSheet,
-                            content: { addressQrBottomSheetContent })
+//            NavHolder()
+//                .bottomSheet(item: $coordinator.addressQrBottomSheetContentViewVodel,
+//                             viewModelSettings: coordinator.bottomSheetSettings ?? .default()) {
+//
+//                }
+//
+//            BottomSheetView(from: coordinator.bottomSheetSettings,
+//                            isPresented: coordinator.$qrBottomSheetKeeper,
+//                            hideBottomSheetCallback: coordinator.hideQrBottomSheet,
+//                            content: { content })
             // .frame(maxWidth: screenSize.width) //UISCreen.main.bounds [REDACTED_TODO_COMMENT]
         }
     }
