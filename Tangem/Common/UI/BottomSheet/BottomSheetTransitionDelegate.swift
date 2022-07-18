@@ -11,7 +11,6 @@ import UIKit
 class BottomSheetTransitionDelegate: NSObject, UIViewControllerTransitioningDelegate {
     private weak var bottomSheetPresentationController: BottomSheetPresentationController?
 
-    var preferredSheetTopInset: CGFloat
     var preferredSheetCornerRadius: CGFloat
     var preferredSheetSizingFactor: CGFloat
     var preferredSheetBackdropColor: UIColor
@@ -29,12 +28,10 @@ class BottomSheetTransitionDelegate: NSObject, UIViewControllerTransitioningDele
     }
 
     init(
-        preferredSheetTopInset: CGFloat,
         preferredSheetCornerRadius: CGFloat,
         preferredSheetSizingFactor: CGFloat,
         preferredSheetBackdropColor: UIColor
     ) {
-        self.preferredSheetTopInset = preferredSheetTopInset
         self.preferredSheetCornerRadius = preferredSheetCornerRadius
         self.preferredSheetSizingFactor = preferredSheetSizingFactor
         self.preferredSheetBackdropColor = preferredSheetBackdropColor
@@ -48,7 +45,6 @@ class BottomSheetTransitionDelegate: NSObject, UIViewControllerTransitioningDele
         let bottomSheetPresentationController = BottomSheetPresentationController(
             presentedViewController: presented,
             presenting: presenting ?? source,
-            sheetTopInset: preferredSheetTopInset,
             sheetCornerRadius: preferredSheetCornerRadius,
             sheetSizingFactor: preferredSheetSizingFactor,
             sheetBackgroundColor: preferredSheetBackdropColor
@@ -73,5 +69,39 @@ class BottomSheetTransitionDelegate: NSObject, UIViewControllerTransitioningDele
 
     func interactionControllerForDismissal(using animator: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
         animator as? BottomSheetDismissalTransition
+    }
+}
+
+class BottomSheetPresentingAnimation: NSObject, UIViewControllerAnimatedTransitioning {
+    func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
+        0.35
+    }
+
+    func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
+        let animator = createOffsetAnimator(using: transitionContext)
+        animator.startAnimation()
+    }
+
+    func interruptibleAnimator(using transitionContext: UIViewControllerContextTransitioning) -> UIViewImplicitlyAnimating {
+        return createOffsetAnimator(using: transitionContext)
+    }
+
+    private func createOffsetAnimator(using transitionContext: UIViewControllerContextTransitioning) -> UIViewImplicitlyAnimating {
+        let to = transitionContext.view(forKey: .to)!
+        let finalFrame = transitionContext.finalFrame(for: transitionContext.viewController(forKey: .to)!)
+        to.frame = finalFrame.offsetBy(dx: 0, dy: finalFrame.height)
+
+        let timingParameters = UISpringTimingParameters(dampingRatio: 2, initialVelocity: .zero)
+        let animator = UIViewPropertyAnimator(duration: 0.35, timingParameters: timingParameters)
+
+        animator.addAnimations {
+            to.frame = finalFrame
+        }
+
+        animator.addCompletion { (position) in
+            transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
+        }
+
+        return animator
     }
 }
