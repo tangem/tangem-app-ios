@@ -121,7 +121,7 @@ private extension SecurityPrivacyView {
                     }
 
                     if isTappable {
-                        Image("chevron")
+                        Assets.chevron
                     }
                 }
                 .lineLimit(1)
