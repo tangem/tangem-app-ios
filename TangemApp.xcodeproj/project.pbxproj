@@ -354,7 +354,6 @@
 		B0E1564D26B941AF005B33E4 /* SingleCardOnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1564C26B941AF005B33E4 /* SingleCardOnboardingViewModel.swift */; };
 		B0E1565226B97F8C005B33E4 /* OnboardingCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1565126B97F8C005B33E4 /* OnboardingCardView.swift */; };
 		B0E1D175257DE75D00A3AB98 /* CommonKeysManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E1D174257DE75D00A3AB98 /* CommonKeysManager.swift */; };
-		B0E92C9726D38A7E004F0855 /* BottomSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E92C9626D38A7E004F0855 /* BottomSheetView.swift */; };
 		B0E9E2FD2679DA5B00269C7A /* Separator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E9E2FC2679DA5B00269C7A /* Separator.swift */; };
 		B0E9E2FF2679DA8000269C7A /* AmountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E9E2FE2679DA8000269C7A /* AmountView.swift */; };
 		B0EC1200267386FC00137059 /* PendingTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EC11FF267386FC00137059 /* PendingTransaction.swift */; };
@@ -949,7 +948,6 @@
 		B0E1564C26B941AF005B33E4 /* SingleCardOnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleCardOnboardingViewModel.swift; sourceTree = "<group>"; };
 		B0E1565126B97F8C005B33E4 /* OnboardingCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCardView.swift; sourceTree = "<group>"; };
 		B0E1D174257DE75D00A3AB98 /* CommonKeysManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonKeysManager.swift; sourceTree = "<group>"; };
-		B0E92C9626D38A7E004F0855 /* BottomSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetView.swift; sourceTree = "<group>"; };
 		B0E9E2FC2679DA5B00269C7A /* Separator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Separator.swift; sourceTree = "<group>"; };
 		B0E9E2FE2679DA8000269C7A /* AmountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountView.swift; sourceTree = "<group>"; };
 		B0EC11FF267386FC00137059 /* PendingTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PendingTransaction.swift; sourceTree = "<group>"; };
@@ -1496,8 +1494,6 @@
 				DC66BC17285C65C900CDF765 /* TokenDetailsRoutable.swift */,
 				DC295B3F2861C27D006CB7B6 /* TokenDetailsCoordinator.swift */,
 				DC295B412861C444006CB7B6 /* TokenDetailsCoordinatorView.swift */,
-				6596AD4828730F4900508D0A /* WarningBankCardView.swift */,
-				6596AD4A28738F0100508D0A /* WarningBankCardViewModel.swift */,
 			);
 			path = TokenDetails;
 			sourceTree = "<group>";
@@ -1678,6 +1674,7 @@
 				65B4DEDD2884B68E001524CF /* ImpactFeedback.swift */,
 				65B4DEDF2885334F001524CF /* View+BottomSheet.swift */,
 				65B4DEE12885719C001524CF /* BottomSheetWrappedView.swift */,
+				DA5FAD8927B27F7F00EE53AE /* SheetDragHandler.swift */,
 			);
 			path = BottomSheet;
 			sourceTree = "<group>";
@@ -2153,9 +2150,9 @@
 		B0E92C9526D38A56004F0855 /* BottomSheets */ = {
 			isa = PBXGroup;
 			children = (
+				6596AD4828730F4900508D0A /* WarningBankCardView.swift */,
+				6596AD4A28738F0100508D0A /* WarningBankCardViewModel.swift */,
 				B0BA7BCA26C5684E00D7066F /* AddressQrBottomSheetView.swift */,
-				B0E92C9626D38A7E004F0855 /* BottomSheetView.swift */,
-				DA5FAD8927B27F7F00EE53AE /* SheetDragHandler.swift */,
 			);
 			path = BottomSheets;
 			sourceTree = "<group>";
@@ -3181,7 +3178,6 @@
 				B0B9E0B62629779500408726 /* AlertBinder.swift in Sources */,
 				DA23788127B24222009795A8 /* Product.swift in Sources */,
 				DC66BBFD285A389000CDF765 /* SheetModifier.swift in Sources */,
-				B0E92C9726D38A7E004F0855 /* BottomSheetView.swift in Sources */,
 				B074BAC126779B28005D641B /* PushTxView.swift in Sources */,
 				B0651737259CACD8001D966C /* WarningsList.swift in Sources */,
 				B085154D26D7797400E1A836 /* TwinsOnboardingView.swift in Sources */,
