@@ -16,21 +16,19 @@ struct WalletInfo: Codable, Hashable {
     let walletPublicKey: Data
     let derivedPublicKey: Data?
     let derivationPath: DerivationPath?
-    let blockchain: Blockchain
-    let chainId: Int?
+    var blockchain: Blockchain
 
     var address: String {
         let blockchainKey = derivedPublicKey ?? walletPublicKey
         return try! blockchain.makeAddresses(from: blockchainKey, with: nil).first!.value
     }
 
-    internal init(cid: String, walletPublicKey: Data, derivedPublicKey: Data?, derivationPath: DerivationPath?, blockchain: Blockchain, chainId: Int?) {
+    internal init(cid: String, walletPublicKey: Data, derivedPublicKey: Data?, derivationPath: DerivationPath?, blockchain: Blockchain) {
         self.cid = cid
         self.walletPublicKey = walletPublicKey
         self.derivedPublicKey = derivedPublicKey
         self.derivationPath = derivationPath
         self.blockchain = blockchain
-        self.chainId = chainId
     }
 }
 
@@ -42,7 +40,7 @@ struct WalletConnectSession: Codable, Hashable, Identifiable {
         hasher.combine(session.dAppInfo.peerId)
     }
 
-    let wallet: WalletInfo
+    var wallet: WalletInfo
     var session: Session
     var status: SessionStatus = .disconnected
 
