@@ -128,7 +128,7 @@ struct DetailsView: View {
             .disabled(!viewModel.cardModel.canPurgeWallet)
     }
 
-    // MARK: SecurityManagement
+    // MARK: SecurityMode
 
     private var securityManagementRow: some View {
         HStack {
