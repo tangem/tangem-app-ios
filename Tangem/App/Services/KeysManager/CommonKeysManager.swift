@@ -15,14 +15,14 @@ class CommonKeysManager {
 
     convenience init() {
         do {
-            try self.init(alwaysWithLocalKeys: ())
+            try self.init(withLocalKeys: ())
         } catch {
             print("Failed to parse keys", error)
-            self.init(alwaysWithEmptyKeys: ())
+            self.init(withEmptyKeys: ())
         }
     }
 
-    init(alwaysWithLocalKeys: Void) throws {
+    init(withLocalKeys: Void) throws {
         let keys = try JsonUtils.readBundleFile(with: keysFileName, type: CommonKeysManager.Keys.self)
 
         if keys.blockchairApiKey.isEmpty ||
@@ -38,7 +38,7 @@ class CommonKeysManager {
         self.keys = keys
     }
 
-    init(alwaysWithEmptyKeys: Void) {
+    init(withEmptyKeys: Void) {
         self.keys = .empty
     }
 }
