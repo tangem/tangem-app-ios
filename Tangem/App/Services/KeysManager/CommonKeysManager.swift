@@ -10,15 +10,36 @@ import Foundation
 import BlockchainSdk
 
 class CommonKeysManager {
+    private let keysFileName = "config"
     private let keys: Keys
 
-    init() {
+    convenience init() {
         do {
-            self.keys = try KeysParser().keys
+            try self.init(alwaysWithLocalKeys: ())
         } catch {
             print("Failed to parse keys", error)
-            self.keys = .empty
+            self.init(alwaysWithEmptyKeys: ())
         }
+    }
+
+    init(alwaysWithLocalKeys: Void) throws {
+        let keys = try JsonUtils.readBundleFile(with: keysFileName, type: CommonKeysManager.Keys.self)
+
+        if keys.blockchairApiKey.isEmpty ||
+            keys.blockcypherTokens.isEmpty ||
+            keys.infuraProjectId.isEmpty {
+            throw NSError(domain: "Empty keys in config file", code: -9998, userInfo: nil)
+        }
+
+        if keys.blockcypherTokens.first(where: { $0.isEmpty }) != nil {
+            throw NSError(domain: "One of blockcypher tokens is empty", code: -10001, userInfo: nil)
+        }
+
+        self.keys = keys
+    }
+
+    init(alwaysWithEmptyKeys: Void) {
+        self.keys = .empty
     }
 }
 
