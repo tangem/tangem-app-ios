@@ -110,7 +110,7 @@ private extension AppDelegate {
     func configureAppsFlyer() {
         guard AppEnvironment.current == .production else { return }
 
-        AppsFlyerLib.shared().appsFlyerDevKey = CommonKeysManager().appsFlyerDevKey
+        AppsFlyerLib.shared().appsFlyerDevKey = try! CommonKeysManager().appsFlyerDevKey
         AppsFlyerLib.shared().appleAppID = "1354868448"
         #if DEBUG
         AppsFlyerLib.shared().isDebug = true
@@ -123,6 +123,6 @@ private extension AppDelegate {
         guard AppEnvironment.current == .production else { return }
 
         Amplitude.instance().trackingSessionEvents = true
-        Amplitude.instance().initializeApiKey(CommonKeysManager().amplitudeApiKey)
+        Amplitude.instance().initializeApiKey(try! CommonKeysManager().amplitudeApiKey)
     }
 }

@@ -13,16 +13,7 @@ class CommonKeysManager {
     private let keysFileName = "config"
     private let keys: Keys
 
-    convenience init() {
-        do {
-            try self.init(withLocalKeys: ())
-        } catch {
-            print("Failed to parse keys", error)
-            self.init(withEmptyKeys: ())
-        }
-    }
-
-    init(withLocalKeys: Void) throws {
+    init() throws {
         let keys = try JsonUtils.readBundleFile(with: keysFileName, type: CommonKeysManager.Keys.self)
 
         if keys.blockchairApiKey.isEmpty ||
@@ -36,10 +27,6 @@ class CommonKeysManager {
         }
 
         self.keys = keys
-    }
-
-    init(withEmptyKeys: Void) {
-        self.keys = .empty
     }
 }
 
@@ -94,26 +81,5 @@ extension CommonKeysManager {
         let tronGridApiKey: String
         let shopifyShop: ShopifyShop
         let zendesk: ZendeskConfig
-
-        fileprivate static var empty: Keys {
-            .init(moonPayApiKey: "",
-                  moonPayApiSecretKey: "",
-                  mercuryoWidgetId: "",
-                  mercuryoSecret: "",
-                  blockchairApiKey: "",
-                  blockcypherTokens: [],
-                  infuraProjectId: "",
-                  appsFlyerDevKey: "",
-                  amplitudeApiKey: "",
-                  tronGridApiKey: "",
-                  shopifyShop: .init(domain: "",
-                                     storefrontApiKey: "",
-                                     merchantID: ""),
-                  zendesk: .init(zendeskApiKey: "",
-                                 zendeskAppId: "",
-                                 zendeskClientId: "",
-                                 zendeskUrl: "")
-            )
-        }
     }
 }
