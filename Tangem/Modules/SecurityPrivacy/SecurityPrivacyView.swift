@@ -29,7 +29,7 @@ struct SecurityPrivacyView: View {
         }
         .listStyle(DefaultListStyle())
         .alert(item: $viewModel.alert) { $0.alert }
-        .background(Color.backgroundSecondary.edgesIgnoringSafeArea(.all))
+        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("security_and_privacy_title", displayMode: .inline)
     }
 
@@ -82,7 +82,7 @@ private extension SecurityPrivacyView {
         var body: some View {
             Text(title)
                 .font(.footnote)
-                .foregroundColor(.textTertiary)
+                .foregroundColor(Colors.Text.tertiary)
         }
     }
 
@@ -109,19 +109,19 @@ private extension SecurityPrivacyView {
                 HStack {
                     Text(title)
                         .font(.body)
-                        .foregroundColor(.textPrimary1)
+                        .foregroundColor(Colors.Text.primary1)
 
                     Spacer()
 
                     if let details = details {
                         Text(details)
                             .font(.body)
-                            .foregroundColor(.textTertiary)
+                            .foregroundColor(Colors.Text.tertiary)
                             .layoutPriority(1)
                     }
 
                     if isTappable {
-                        Image("chevron")
+                        Assets.chevron
                     }
                 }
                 .lineLimit(1)
@@ -138,12 +138,13 @@ private extension SecurityPrivacyView {
             HStack {
                 Text(title)
                     .font(.body)
-                    .foregroundColor(.textPrimary1)
+                    .foregroundColor(Colors.Text.primary1)
 
                 Spacer()
+
                 Toggle("", isOn: isOn)
                     .labelsHidden()
-                    .toggleStyleCompat(.controlChecked)
+                    .toggleStyleCompat(Colors.Control.checked)
                     .disabled(true) // [REDACTED_TODO_COMMENT]
             }
         }
