@@ -82,7 +82,6 @@ struct AddressQrBottomSheetContent: View {
             .padding(.top, 30)
             .padding(.bottom, 50)
         }
-
     }
 
     private func showShareSheet() {
