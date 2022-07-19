@@ -9,8 +9,11 @@
 import ZendeskCoreSDK
 import SupportSDK
 import MessagingSDK
+import Foundation
 
-class SupportChatViewModel {
+class SupportChatViewModel: Identifiable {
+    let id: UUID = .init()
+
     private let chatBotName: String = "Tangem"
     private var messagingConfiguration: MessagingConfiguration {
         let messagingConfiguration = MessagingConfiguration()
