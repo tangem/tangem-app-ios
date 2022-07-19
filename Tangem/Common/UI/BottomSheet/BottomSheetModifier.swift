@@ -12,8 +12,8 @@ import UIKit
 struct BottomSheetModifier<ContentView: View>: ViewModifier {
     @Binding private var isPresented: Bool
     @State private var bottomSheetViewController: BottomSheetBaseController?
-    private let viewModelSettings: BottomSheetSettings
 
+    private let viewModelSettings: BottomSheetSettings
     private let contentView: () -> ContentView
 
     init(isPresented: Binding<Bool>,
