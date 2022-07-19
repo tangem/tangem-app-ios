@@ -39,12 +39,8 @@ class BottomSheetViewController<Content: View>: BottomSheetBaseController {
             contentView.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             contentView.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             contentView.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            contentView.view.topAnchor.constraint(equalTo: view.topAnchor),
         ])
-        if self.preferredSheetSizing == .adaptive {
-            NSLayoutConstraint.activate([
-                contentView.view.topAnchor.constraint(equalTo: view.topAnchor),
-            ])
-        }
     }
 
     override func viewDidDisappear(_ animated: Bool) {
