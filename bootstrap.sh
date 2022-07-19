@@ -21,9 +21,13 @@ else
     brew install mint
 fi
 
-mint bootstrap
+mint bootstrap --mintfile ./Utilites/Mintfile 
 echo "✅ Dependencies succesfully installed"
 
 echo "🚀 Running SwiftFormat"
 mint run swiftformat@0.49.11 . --config .swiftformat
+
+echo "🚀 Running SwiftFormat"
+mint run swiftgen@6.5.1 config run --config swiftgen.yml 
+
 echo "Bootstrap competed 🎉"
