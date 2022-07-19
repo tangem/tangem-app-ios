@@ -81,7 +81,7 @@ private extension SecurityPrivacyView {
 
         var body: some View {
             Text(title)
-                .font(.regular13)
+                .font(.footnote)
                 .foregroundColor(Colors.Text.tertiary)
         }
     }
@@ -108,14 +108,14 @@ private extension SecurityPrivacyView {
             Button(action: action) {
                 HStack {
                     Text(title)
-                        .font(.regular17)
+                        .font(.body)
                         .foregroundColor(Colors.Text.primary1)
 
                     Spacer()
 
                     if let details = details {
                         Text(details)
-                            .font(.regular17)
+                            .font(.body)
                             .foregroundColor(Colors.Text.tertiary)
                             .layoutPriority(1)
                     }
@@ -137,10 +137,11 @@ private extension SecurityPrivacyView {
         var body: some View {
             HStack {
                 Text(title)
-                    .font(.regular17)
+                    .font(.body)
                     .foregroundColor(Colors.Text.primary1)
 
                 Spacer()
+
                 Toggle("", isOn: isOn)
                     .labelsHidden()
                     .toggleStyleCompat(Colors.Control.checked)
