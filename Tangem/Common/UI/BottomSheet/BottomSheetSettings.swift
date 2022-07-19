@@ -15,7 +15,6 @@ struct BottomSheetSettings: Identifiable {
     var tapOutsideToDismissEnabled: Bool = true
     var cornerRadius: CGFloat = 10
     var backgroundColor: UIColor = UIColor.black.withAlphaComponent(0.7)
-    var bottomSheetSize: BottomSheetBaseController.PreferredSheetSizing = .adaptive
     var impactOnShow: ImpactFeedback = .none
 }
 
