@@ -9,6 +9,8 @@
 import UIKit
 
 class BottomSheetDismissalTransition: NSObject {
+    var bottomConstraint: NSLayoutConstraint?
+    var heightConstraint: NSLayoutConstraint?
 
     private let stretchOffset: CGFloat = 32
     private let maxTransitionDuration: CGFloat = 0.25
@@ -22,57 +24,6 @@ class BottomSheetDismissalTransition: NSObject {
 
     private var interactiveDismissal: Bool = false
 
-    var bottomConstraint: NSLayoutConstraint?
-    var heightConstraint: NSLayoutConstraint?
-
-    private func createHeightAnimator(animating view: UIView, from height: CGFloat) -> UIViewPropertyAnimator {
-        let propertyAnimator = UIViewPropertyAnimator(
-            duration: minTransitionDuration,
-            curve: animationCurve
-        )
-
-        heightConstraint?.constant = height
-        heightConstraint?.isActive = true
-
-        let finalHeight = height + stretchOffset
-
-        propertyAnimator.addAnimations {
-            self.heightConstraint?.constant = finalHeight
-            view.superview?.layoutIfNeeded()
-        }
-
-        propertyAnimator.addCompletion { position in
-            self.heightConstraint?.constant = position == .end ? finalHeight : height
-            self.heightConstraint?.isActive = position == .end ? true : false
-        }
-
-        return propertyAnimator
-    }
-
-    private func createOffsetAnimator(animating view: UIView, to offset: CGFloat) -> UIViewPropertyAnimator {
-        let propertyAnimator = UIViewPropertyAnimator(
-            duration: maxTransitionDuration,
-            curve: animationCurve
-        )
-
-        propertyAnimator.addAnimations {
-            self.bottomConstraint?.constant = offset
-            view.superview?.layoutIfNeeded()
-        }
-
-        propertyAnimator.addCompletion { position in
-            self.bottomConstraint?.constant = position == .end ? offset : 0
-        }
-
-        return propertyAnimator
-    }
-
-    private func stretchProgress(basedOn translation: CGFloat) -> CGFloat {
-        (translation > 0 ? pow(translation, 0.33) : -pow(-translation, 0.33)) / stretchOffset
-    }
-}
-
-extension BottomSheetDismissalTransition {
     func start(moving presentedView: UIView, interactiveDismissal: Bool) {
         self.interactiveDismissal = interactiveDismissal
 
@@ -140,7 +91,6 @@ extension BottomSheetDismissalTransition {
 // MARK: UIViewControllerAnimatedTransitioning
 
 extension BottomSheetDismissalTransition: UIViewControllerAnimatedTransitioning {
-
     func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
         maxTransitionDuration
     }
@@ -178,7 +128,6 @@ extension BottomSheetDismissalTransition: UIViewControllerAnimatedTransitioning 
 // MARK: UIViewControllerInteractiveTransitioning
 
 extension BottomSheetDismissalTransition: UIViewControllerInteractiveTransitioning {
-
     func startInteractiveTransition(_ transitionContext: UIViewControllerContextTransitioning) {
         guard
             transitionContext.isInteractive,
@@ -214,5 +163,55 @@ extension BottomSheetDismissalTransition: UIViewControllerInteractiveTransitioni
 
     var completionSpeed: CGFloat {
         1.0
+    }
+}
+
+//  MARK: - Private
+
+extension BottomSheetDismissalTransition {
+    private func createHeightAnimator(animating view: UIView, from height: CGFloat) -> UIViewPropertyAnimator {
+        let propertyAnimator = UIViewPropertyAnimator(
+            duration: minTransitionDuration,
+            curve: animationCurve
+        )
+
+        heightConstraint?.constant = height
+        heightConstraint?.isActive = true
+
+        let finalHeight = height + stretchOffset
+
+        propertyAnimator.addAnimations {
+            self.heightConstraint?.constant = finalHeight
+            view.superview?.layoutIfNeeded()
+        }
+
+        propertyAnimator.addCompletion { position in
+            self.heightConstraint?.constant = position == .end ? finalHeight : height
+            self.heightConstraint?.isActive = position == .end ? true : false
+        }
+
+        return propertyAnimator
+    }
+
+    private func createOffsetAnimator(animating view: UIView, to offset: CGFloat) -> UIViewPropertyAnimator {
+        let propertyAnimator = UIViewPropertyAnimator(
+            duration: maxTransitionDuration,
+            curve: animationCurve
+        )
+
+        propertyAnimator.addAnimations {
+            self.bottomConstraint?.constant = offset
+            view.superview?.layoutIfNeeded()
+        }
+
+        propertyAnimator.addCompletion { position in
+            self.bottomConstraint?.constant = position == .end ? offset : 0
+        }
+
+        return propertyAnimator
+    }
+
+    private func stretchProgress(basedOn translation: CGFloat) -> CGFloat {
+        (translation > 0 ? pow(translation, 0.33) : -pow(-translation, 0.33)) / stretchOffset
     }
 }
