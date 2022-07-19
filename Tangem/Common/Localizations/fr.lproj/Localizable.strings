@@ -375,7 +375,7 @@ URL: %@";
 "wallet_connect_scan_card_message" = "Tap card to bind to wallet connect";
 "wallet_connect_scan_new_code" = "Scan new code";
 "wallet_connect_scanner_error_not_valid_card" = "This card can’t be used to establish WalletConnect session";
-"wallet_connect_scanner_error_unsupported_network" = "This network is not supported";
+"wallet_connect_scanner_error_unsupported_network" = "This network is not supported. Please select another network.";
 "wallet_connect_service_no_chain_id" = "Dapp didn't provide essential data to establish WalletConnect session";
 "wallet_connect_session_not_found" = "Failed to find session for request";
 "wallet_connect_sessions_title" = "WalletConnect Sessions";
