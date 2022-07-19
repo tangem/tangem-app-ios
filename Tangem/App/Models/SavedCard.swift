@@ -10,11 +10,23 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 
-struct SavedCard: Codable {
+struct SavedCard: Codable { // [REDACTED_TODO_COMMENT]
     let cardId: String
     let batchId: String?
     let wallets: [SavedCardWallet]
     var derivedKeys: [Data: [SavedExtendedPublicKey]] = [:]
+
+    var isTestnet: Bool {
+        guard let batchId = batchId else {
+            return false // Old saved cards cannot be testnet
+        }
+
+        if batchId == "99FF" {
+            return cardId.starts(with: batchId.reversed())
+        } else {
+            return false
+        }
+    }
 
     public var derivationStyle: DerivationStyle {
         guard let batchId = batchId else {
