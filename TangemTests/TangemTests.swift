@@ -19,6 +19,6 @@ class TangemTests: XCTestCase {
     }
 
     func testParseConfig() throws {
-        XCTAssertNoThrow(try KeysParser())
+        XCTAssertNoThrow(try CommonKeysManager(alwaysWithLocalKeys: ()))
     }
 }
