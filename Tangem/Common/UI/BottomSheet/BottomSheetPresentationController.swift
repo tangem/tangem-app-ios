@@ -39,47 +39,6 @@ class BottomSheetPresentationController: UIPresentationController {
         super.init(presentedViewController: presentedViewController, presenting: presentingViewController)
     }
 
-    @objc private func onTap(_ gestureRecognizer: UITapGestureRecognizer) {
-        guard
-            let presentedView = presentedView,
-            let containerView = containerView,
-            !presentedView.frame.contains(gestureRecognizer.location(in: containerView))
-        else {
-            return
-        }
-
-        presentingViewController.dismiss(animated: true)
-    }
-
-    @objc private func onPan(_ gestureRecognizer: UIPanGestureRecognizer) {
-        guard let presentedView = presentedView else {
-            return
-        }
-
-        let translation = gestureRecognizer.translation(in: presentedView)
-
-        let progress = translation.y / presentedView.frame.height
-
-        switch gestureRecognizer.state {
-        case .began:
-            bottomSheetInteractiveDismissalTransition.start(
-                moving: presentedView, interactiveDismissal: panToDismissEnabled
-            )
-        case .changed:
-            if panToDismissEnabled && progress > 0 && !presentedViewController.isBeingDismissed {
-                presentingViewController.dismiss(animated: true)
-            }
-            bottomSheetInteractiveDismissalTransition.move(
-                presentedView, using: translation.y
-            )
-        default:
-            let velocity = gestureRecognizer.velocity(in: presentedView)
-            bottomSheetInteractiveDismissalTransition.stop(
-                moving: presentedView, at: translation.y, with: velocity
-            )
-        }
-    }
-
     override func presentationTransitionWillBegin() {
         guard let presentedView = presentedView else {
             return
@@ -200,4 +159,44 @@ class BottomSheetPresentationController: UIPresentationController {
         }
     }
 
+    @objc private func onTap(_ gestureRecognizer: UITapGestureRecognizer) {
+        guard
+            let presentedView = presentedView,
+            let containerView = containerView,
+            !presentedView.frame.contains(gestureRecognizer.location(in: containerView))
+        else {
+            return
+        }
+
+        presentingViewController.dismiss(animated: true)
+    }
+
+    @objc private func onPan(_ gestureRecognizer: UIPanGestureRecognizer) {
+        guard let presentedView = presentedView else {
+            return
+        }
+
+        let translation = gestureRecognizer.translation(in: presentedView)
+
+        let progress = translation.y / presentedView.frame.height
+
+        switch gestureRecognizer.state {
+        case .began:
+            bottomSheetInteractiveDismissalTransition.start(
+                moving: presentedView, interactiveDismissal: panToDismissEnabled
+            )
+        case .changed:
+            if panToDismissEnabled && progress > 0 && !presentedViewController.isBeingDismissed {
+                presentingViewController.dismiss(animated: true)
+            }
+            bottomSheetInteractiveDismissalTransition.move(
+                presentedView, using: translation.y
+            )
+        default:
+            let velocity = gestureRecognizer.velocity(in: presentedView)
+            bottomSheetInteractiveDismissalTransition.stop(
+                moving: presentedView, at: translation.y, with: velocity
+            )
+        }
+    }
 }
