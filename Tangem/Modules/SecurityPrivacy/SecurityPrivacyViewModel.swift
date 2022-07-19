@@ -63,6 +63,12 @@ private extension SecurityPrivacyViewModel {
                 self?.presentSavingAccessCodesDeleteAlert()
             })
             .store(in: &bag)
+
+        cardModel.$currentSecOption
+            .map { $0.title }
+            .print()
+            .weakAssign(to: \.securityModeTitle, on: self)
+            .store(in: &bag)
     }
 
     func presentSavingWalletDeleteAlert() {
@@ -129,7 +135,7 @@ extension SecurityPrivacyViewModel {
     }
 
     func openChangeAccessMethod() {
-        coordinator.openSecurityManagement(cardModel: cardModel)
+        coordinator.openSecurityMode(cardModel: cardModel)
     }
 
     func openTokenSynchronization() {
