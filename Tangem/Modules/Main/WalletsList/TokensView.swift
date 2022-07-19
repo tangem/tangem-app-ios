@@ -39,7 +39,7 @@ struct TokensView: View {
 
                     if items.firstIndex(of: item) != items.count - 1 {
                         Separator(height: 1, padding: 0, color: Color.tangemBgGray2)
-                            .padding(.leading, 16)
+                            .padding(.leading, 68)
                     }
                 }
             }
