@@ -15,6 +15,9 @@ struct TokenIconView: View {
     let tokenItem: TokenItem
     var size: CGSize = .init(width: 40, height: 40)
 
+    private let networkIconSize = CGSize(width: 16, height: 16)
+    private let networkIconBorderWidth: Double = 1
+
     var body: some View {
         KFImage(tokenItem.imageURL)
             .setProcessor(DownsamplingImageProcessor(size: size))
@@ -26,10 +29,25 @@ struct TokenIconView: View {
             .scaledToFit()
             .cornerRadius(5)
             .frame(size: size)
+            .overlay(networkIcon.offset(x: 4, y: -4), alignment: .topTrailing)
     }
 
+    @ViewBuilder
+    private var networkIcon: some View {
+        if case let .token(_, blockchain) = tokenItem {
+            NetworkIcon(imageName: blockchain.iconNameFilled,
+                        isMainIndicatorVisible: false,
+                        size: networkIconSize)
+                .background(
+                    Color.white
+                        .clipShape(Circle())
+                        .frame(size: networkIconSize + CGSize(width: 2 * networkIconBorderWidth, height: 2 * networkIconBorderWidth))
+                )
+        }
+    }
 
-    @ViewBuilder private var placeholder: some View {
+    @ViewBuilder
+    private var placeholder: some View {
         CircleImageTextView(name: tokenItem.name, color: .tangemGrayLight4)
     }
 }
