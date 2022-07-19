@@ -20,7 +20,7 @@ protocol KeysManager {
 }
 
 private struct KeysManagerKey: InjectionKey {
-    static var currentValue: KeysManager = CommonKeysManager()
+    static var currentValue: KeysManager = try! CommonKeysManager()
 }
 
 extension InjectedValues {
