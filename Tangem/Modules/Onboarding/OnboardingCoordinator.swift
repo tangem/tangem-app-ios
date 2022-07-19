@@ -26,7 +26,7 @@ class OnboardingCoordinator: CoordinatorObject {
     @Published var addressQrBottomSheetContentViewVodel: AddressQrBottomSheetContentViewVodel? = nil
 
     // MARK: - Helpers
-    @Published var bottomSheetSettings: BottomSheetSettings? = nil
+    @Published var qrBottomSheetKeeper: Bool = false
 
     // For non-dismissable presentation
     var onDismissalAttempt: () -> Void = {}
@@ -53,11 +53,6 @@ class OnboardingCoordinator: CoordinatorObject {
             walletViewModel = model
         }
     }
-
-    func hideQrBottomSheet() {
-        bottomSheetSettings = nil
-        addressQrBottomSheetContentViewVodel = nil
-    }
 }
 
 extension OnboardingCoordinator {
@@ -80,7 +75,6 @@ extension OnboardingCoordinator: OnboardingTopupRoutable {
     }
 
     func openQR(shareAddress: String, address: String, qrNotice: String) {
-        bottomSheetSettings = BottomSheetSettings.qr()
         addressQrBottomSheetContentViewVodel = .init(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
     }
 }
