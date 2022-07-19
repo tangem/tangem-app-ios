@@ -376,8 +376,6 @@
 		DA1D80862885355200722E56 /* KeysManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A5805282501530031BECC /* KeysManager.swift */; };
 		DA1D80872885356F00722E56 /* InjectionKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A57D42822A3C80031BECC /* InjectionKey.swift */; };
 		DA1D8088288535C800722E56 /* InjectedValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A57D52822A3C80031BECC /* InjectedValues.swift */; };
-		DA1D808A2885423D00722E56 /* KeysParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D80892885423D00722E56 /* KeysParser.swift */; };
-		DA1D808B2885423D00722E56 /* KeysParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA1D80892885423D00722E56 /* KeysParser.swift */; };
 		DA23787A27B24222009795A8 /* Address.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA23786B27B24221009795A8 /* Address.swift */; };
 		DA23787B27B24222009795A8 /* ProductVariant.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA23786C27B24221009795A8 /* ProductVariant.swift */; };
 		DA23787C27B24222009795A8 /* ShopifyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA23786D27B24221009795A8 /* ShopifyService.swift */; };
@@ -960,7 +958,6 @@
 		D513FF545D1945A2BACAA25F /* Pods_Tangem_TangemUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Tangem_TangemUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9B0B0F1869C2BD108CE901A /* Pods-Tangem-TangemUITests.firebase.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.firebase.xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.firebase.xcconfig"; sourceTree = "<group>"; };
 		DA105C2E27F5B65E00596839 /* CommonCoinsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonCoinsService.swift; sourceTree = "<group>"; };
-		DA1D80892885423D00722E56 /* KeysParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeysParser.swift; sourceTree = "<group>"; };
 		DA23786B27B24221009795A8 /* Address.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Address.swift; sourceTree = "<group>"; };
 		DA23786C27B24221009795A8 /* ProductVariant.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProductVariant.swift; sourceTree = "<group>"; };
 		DA23786D27B24221009795A8 /* ShopifyService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShopifyService.swift; sourceTree = "<group>"; };
@@ -2384,7 +2381,6 @@
 			children = (
 				DC0A5805282501530031BECC /* KeysManager.swift */,
 				B0E1D174257DE75D00A3AB98 /* CommonKeysManager.swift */,
-				DA1D80892885423D00722E56 /* KeysParser.swift */,
 				DC0A5807282501CA0031BECC /* MoonPayKeys.swift */,
 				65C9FCAB2863103800FDE63E /* ZendeskConfig.swift */,
 			);
@@ -3101,7 +3097,6 @@
 				DC0A582C282555940031BECC /* CommonScannedCardsRepository.swift in Sources */,
 				DC0A5806282501530031BECC /* KeysManager.swift in Sources */,
 				DC66BBE32858E7A600CDF765 /* WelcomeRoutable.swift in Sources */,
-				DA1D808A2885423D00722E56 /* KeysParser.swift in Sources */,
 				B09BB865259A075600B92000 /* TextInputField.swift in Sources */,
 				B037B1EE256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift in Sources */,
 				DC0A5808282501CA0031BECC /* MoonPayKeys.swift in Sources */,
@@ -3467,7 +3462,6 @@
 				B09BB879259A092B00B92000 /* WarningEvent.swift in Sources */,
 				B09BB871259A085100B92000 /* AppWarning.swift in Sources */,
 				DA1D80852885351200722E56 /* ZendeskConfig.swift in Sources */,
-				DA1D808B2885423D00722E56 /* KeysParser.swift in Sources */,
 				DA1D80842885350700722E56 /* MoonPayKeys.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
