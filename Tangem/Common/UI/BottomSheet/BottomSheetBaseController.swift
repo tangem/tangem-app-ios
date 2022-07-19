@@ -9,26 +9,6 @@
 import UIKit
 
 class BottomSheetBaseController: UIViewController {
-    private lazy var bottomSheetTransitioningDelegate = BottomSheetTransitionDelegate(
-        preferredSheetCornerRadius: preferredSheetCornerRadius,
-        preferredSheetSizingFactor: preferredSheetSizing.rawValue,
-        preferredSheetBackdropColor: preferredSheetBackdropColor
-    )
-
-    override var additionalSafeAreaInsets: UIEdgeInsets {
-        get {
-            .init(
-                top: super.additionalSafeAreaInsets.top,
-                left: super.additionalSafeAreaInsets.left,
-                bottom: super.additionalSafeAreaInsets.bottom,
-                right: super.additionalSafeAreaInsets.right
-            )
-        }
-        set {
-            super.additionalSafeAreaInsets = newValue
-        }
-    }
-
     override var modalPresentationStyle: UIModalPresentationStyle {
         get {
             .custom
@@ -72,6 +52,12 @@ class BottomSheetBaseController: UIViewController {
             bottomSheetTransitioningDelegate.swipeDownToDismissEnabled = swipeDownToDismissEnabled
         }
     }
+
+    private lazy var bottomSheetTransitioningDelegate = BottomSheetTransitionDelegate(
+        preferredSheetCornerRadius: preferredSheetCornerRadius,
+        preferredSheetSizingFactor: preferredSheetSizing.rawValue,
+        preferredSheetBackdropColor: preferredSheetBackdropColor
+    )
 }
 
 extension BottomSheetBaseController {
