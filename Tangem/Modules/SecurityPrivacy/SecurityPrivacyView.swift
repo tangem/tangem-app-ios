@@ -29,7 +29,7 @@ struct SecurityPrivacyView: View {
         }
         .listStyle(DefaultListStyle())
         .alert(item: $viewModel.alert) { $0.alert }
-        .background(Color.backgroundSecondary.edgesIgnoringSafeArea(.all))
+        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("security_and_privacy_title", displayMode: .inline)
     }
 
@@ -81,8 +81,8 @@ private extension SecurityPrivacyView {
 
         var body: some View {
             Text(title)
-                .font(.regular13)
-                .foregroundColor(.textTertiary)
+                .font(.footnote)
+                .foregroundColor(Colors.Text.tertiary)
         }
     }
 
@@ -108,20 +108,20 @@ private extension SecurityPrivacyView {
             Button(action: action) {
                 HStack {
                     Text(title)
-                        .font(.regular17)
-                        .foregroundColor(.textPrimary1)
+                        .font(.body)
+                        .foregroundColor(Colors.Text.primary1)
 
                     Spacer()
 
                     if let details = details {
                         Text(details)
-                            .font(.regular17)
-                            .foregroundColor(.textTertiary)
+                            .font(.body)
+                            .foregroundColor(Colors.Text.tertiary)
                             .layoutPriority(1)
                     }
 
                     if isTappable {
-                        Image("chevron")
+                        Assets.chevron
                     }
                 }
                 .lineLimit(1)
@@ -137,13 +137,14 @@ private extension SecurityPrivacyView {
         var body: some View {
             HStack {
                 Text(title)
-                    .font(.regular17)
-                    .foregroundColor(.textPrimary1)
+                    .font(.body)
+                    .foregroundColor(Colors.Text.primary1)
 
                 Spacer()
+
                 Toggle("", isOn: isOn)
                     .labelsHidden()
-                    .toggleStyleCompat(.controlChecked)
+                    .toggleStyleCompat(Colors.Control.checked)
                     .disabled(true) // [REDACTED_TODO_COMMENT]
             }
         }
