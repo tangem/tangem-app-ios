@@ -29,15 +29,9 @@ class BottomSheetBaseController: UIViewController {
         }
     }
 
-    var preferredSheetSizing: PreferredSheetSizing = .medium {
+    var preferredSheetBackgroundColor: UIColor = .label {
         didSet {
-            bottomSheetTransitioningDelegate.preferredSheetSizingFactor = preferredSheetSizing.rawValue
-        }
-    }
-
-    var preferredSheetBackdropColor: UIColor = .label {
-        didSet {
-            bottomSheetTransitioningDelegate.preferredSheetBackdropColor = preferredSheetBackdropColor
+            bottomSheetTransitioningDelegate.preferredSheetBackgroundColor = preferredSheetBackgroundColor
         }
     }
 
@@ -55,16 +49,6 @@ class BottomSheetBaseController: UIViewController {
 
     private lazy var bottomSheetTransitioningDelegate = BottomSheetTransitionDelegate(
         preferredSheetCornerRadius: preferredSheetCornerRadius,
-        preferredSheetSizingFactor: preferredSheetSizing.rawValue,
-        preferredSheetBackdropColor: preferredSheetBackdropColor
+        preferredSheetBackgroundColor: preferredSheetBackgroundColor
     )
-}
-
-extension BottomSheetBaseController {
-    enum PreferredSheetSizing: CGFloat {
-        case adaptive = 0
-        case small = 0.25
-        case medium = 0.5
-        case large = 0.75
-    }
 }
