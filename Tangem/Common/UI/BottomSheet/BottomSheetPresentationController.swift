@@ -19,7 +19,6 @@ class BottomSheetPresentationController: UIPresentationController {
     let bottomSheetInteractiveDismissalTransition = BottomSheetDismissalTransition()
 
     let sheetCornerRadius: CGFloat
-    let sheetSizingFactor: CGFloat
     let sheetBackgroundColor: UIColor
 
     private(set) lazy var tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onTap))
@@ -30,11 +29,9 @@ class BottomSheetPresentationController: UIPresentationController {
         presentedViewController: UIViewController,
         presenting presentingViewController: UIViewController?,
         sheetCornerRadius: CGFloat,
-        sheetSizingFactor: CGFloat,
         sheetBackgroundColor: UIColor
     ) {
         self.sheetCornerRadius = sheetCornerRadius
-        self.sheetSizingFactor = sheetSizingFactor
         self.sheetBackgroundColor = sheetBackgroundColor
         super.init(presentedViewController: presentedViewController, presenting: presentingViewController)
     }
@@ -83,7 +80,7 @@ class BottomSheetPresentationController: UIPresentationController {
 
         let preferredHeightConstraint = presentedView.heightAnchor.constraint(
             equalTo: containerView.safeAreaLayoutGuide.heightAnchor,
-            multiplier: sheetSizingFactor
+            multiplier: 0
         )
 
         preferredHeightConstraint.priority = .fittingSizeLevel
@@ -104,14 +101,11 @@ class BottomSheetPresentationController: UIPresentationController {
 
         NSLayoutConstraint.activate([
             maxHeightConstraint,
-            presentedView.leadingAnchor.constraint(
-                equalTo: containerView.leadingAnchor
-            ),
-            presentedView.trailingAnchor.constraint(
-                equalTo: containerView.trailingAnchor
-            ),
             bottomConstraint,
             preferredHeightConstraint,
+
+            presentedView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor),
+            presentedView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor),
         ])
 
         bottomSheetInteractiveDismissalTransition.bottomConstraint = bottomConstraint
