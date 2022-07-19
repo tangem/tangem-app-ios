@@ -1665,8 +1665,8 @@
 			isa = PBXGroup;
 			children = (
 				65B4DEC62881A95A001524CF /* BottomSheetTransitionDelegate.swift */,
-				65B4DEC82881AAD1001524CF /* BottomSheetPresentationController.swift */,
 				65B4DECA2881ABA4001524CF /* BottomSheetDismissalTransition.swift */,
+				65B4DEC82881AAD1001524CF /* BottomSheetPresentationController.swift */,
 				65B4DED5288357DC001524CF /* BottomSheetBaseController.swift */,
 				65B4DED728835BE4001524CF /* BottomSheetViewController.swift */,
 				65B4DED928835C82001524CF /* BottomSheetModifier.swift */,
