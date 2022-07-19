@@ -13,24 +13,20 @@ class CommonKeysManager {
     private let keysFileName = "config"
     private let keys: Keys
 
-    init() {
-        do {
-            let keys = try JsonUtils.readBundleFile(with: keysFileName, type: Keys.self)
+    init() throws {
+        let keys = try JsonUtils.readBundleFile(with: keysFileName, type: CommonKeysManager.Keys.self)
 
-            if keys.blockchairApiKey.isEmpty ||
-                keys.blockcypherTokens.isEmpty ||
-                keys.infuraProjectId.isEmpty {
-                throw NSError(domain: "Empty keys in config file", code: -9998, userInfo: nil)
-            }
-
-            if keys.blockcypherTokens.first(where: { $0.isEmpty }) != nil {
-                throw NSError(domain: "One of blockcypher tokens is empty", code: -10001, userInfo: nil)
-            }
-
-            self.keys = keys
-        } catch {
-            self.keys = Keys.empty
+        if keys.blockchairApiKey.isEmpty ||
+            keys.blockcypherTokens.isEmpty ||
+            keys.infuraProjectId.isEmpty {
+            throw NSError(domain: "Empty keys in config file", code: -9998, userInfo: nil)
         }
+
+        if keys.blockcypherTokens.first(where: { $0.isEmpty }) != nil {
+            throw NSError(domain: "One of blockcypher tokens is empty", code: -10001, userInfo: nil)
+        }
+
+        self.keys = keys
     }
 }
 
@@ -85,26 +81,5 @@ extension CommonKeysManager {
         let tronGridApiKey: String
         let shopifyShop: ShopifyShop
         let zendesk: ZendeskConfig
-
-        fileprivate static var empty: Keys {
-            .init(moonPayApiKey: "",
-                  moonPayApiSecretKey: "",
-                  mercuryoWidgetId: "",
-                  mercuryoSecret: "",
-                  blockchairApiKey: "",
-                  blockcypherTokens: [],
-                  infuraProjectId: "",
-                  appsFlyerDevKey: "",
-                  amplitudeApiKey: "",
-                  tronGridApiKey: "",
-                  shopifyShop: .init(domain: "",
-                                     storefrontApiKey: "",
-                                     merchantID: ""),
-                  zendesk: .init(zendeskApiKey: "",
-                                 zendeskAppId: "",
-                                 zendeskClientId: "",
-                                 zendeskUrl: "")
-            )
-        }
     }
 }
