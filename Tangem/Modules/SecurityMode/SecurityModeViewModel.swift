@@ -1,5 +1,5 @@
 //
-//  SecurityManagementViewModel.swift
+//  SecurityModeViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,50 +10,42 @@ import Foundation
 import SwiftUI
 import Combine
 
-class SecurityManagementViewModel: ObservableObject {
+class SecurityModeViewModel: ObservableObject {
+
+    // MARK: ViewState
+
+    @Published var selectedOption: SecurityModeOption
+    @Published var availableSecOptions: [SecurityModeOption]
     @Published var error: AlertBinder?
-    @Published var selectedOption: SecurityManagementOption = .longTap
     @Published var isLoading: Bool = false
 
-    var accessCodeDisclaimer: String? {
-        if cardViewModel.cardInfo.isTangemWallet, cardViewModel.cardInfo.card.backupStatus == .noBackup {
-            return "manage_security_access_code_disclaimer".localized
-        }
-
-        return nil
+    var isActionButtonEnabled: Bool {
+        selectedOption != cardModel.currentSecOption
     }
 
-    var isOptionDisabled: Bool {
-        selectedOption == cardViewModel.currentSecOption
-    }
+    // MARK: Private
 
-    var cardViewModel: CardViewModel
-
+    private let cardModel: CardViewModel
     private var bag = Set<AnyCancellable>()
-    private unowned let coordinator: SecurityManagementRoutable
+    private unowned let coordinator: SecurityModeRoutable
 
-    init(cardModel: CardViewModel, coordinator: SecurityManagementRoutable) {
-        self.cardViewModel = cardModel
+    init(cardModel: CardViewModel, coordinator: SecurityModeRoutable) {
+        self.cardModel = cardModel
         self.coordinator = coordinator
-        selectedOption = cardModel.currentSecOption
 
-        cardViewModel.objectWillChange
-            .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [weak self] in
-                self?.selectedOption = self?.cardViewModel.currentSecOption ?? .longTap
-                self?.objectWillChange.send()
-            })
-            .store(in: &bag)
+        selectedOption = cardModel.currentSecOption
+        availableSecOptions = cardModel.availableSecOptions
     }
 
-    func onTap() {
+    func actionButtonDidTap() {
         switch selectedOption {
         case .accessCode, .passCode:
             openPinChange()
         case .longTap:
             isLoading = true
-            cardViewModel.changeSecOption(.longTap) { result in
-                self.isLoading = false
+            cardModel.changeSecOption(.longTap) { [weak self] result in
+                self?.isLoading = false
+
                 switch result {
                 case .success:
                     break
@@ -61,15 +53,28 @@ class SecurityManagementViewModel: ObservableObject {
                     if case .userCancelled = error.toTangemSdkError() {
                         return
                     }
-                    self.error = error.alertBinder
+                    self?.error = error.alertBinder
                 }
+            }
+        }
+    }
+
+    func isSelected(option: SecurityModeOption) -> Binding<Bool> {
+        Binding<Bool> { [weak self] in
+            self?.selectedOption == option
+        } set: { [weak self] isSelected in
+            guard let self = self else { return }
+
+            if isSelected {
+                self.selectedOption = option
+            } else {
+                self.selectedOption = self.cardModel.currentSecOption
             }
         }
     }
 }
 
-
-enum SecurityManagementOption: String, CaseIterable, Identifiable, Equatable {
+enum SecurityModeOption: String, CaseIterable, Identifiable, Equatable {
     case longTap
     case passCode
     case accessCode
@@ -100,12 +105,12 @@ enum SecurityManagementOption: String, CaseIterable, Identifiable, Equatable {
 }
 
 // MARK: - Navigation
-extension SecurityManagementViewModel {
+extension SecurityModeViewModel {
     func openPinChange() {
         coordinator.openPinChange(with: selectedOption.title) { [weak self] completion in
             guard let self = self else { return }
 
-            self.cardViewModel.changeSecOption(self.selectedOption, completion: completion)
+            self.cardModel.changeSecOption(self.selectedOption, completion: completion)
         }
     }
 }
