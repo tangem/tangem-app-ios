@@ -13,18 +13,21 @@ class SecurityModeCoordinator: CoordinatorObject {
     var popToRootAction: ParamsAction<PopToRootOptions>
 
     // MARK: - Main view model
-    @Published private(set) var secManagementViewModel: SecurityModeViewModel? = nil
+    @Published private(set) var securityModeViewModel: SecurityModeViewModel?
 
     // MARK: - Child view models
-    @Published var cardOperationViewModel: CardOperationViewModel? = nil
+    @Published var cardOperationViewModel: CardOperationViewModel?
 
-    required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
+    required init(
+        dismissAction: @escaping Action,
+        popToRootAction: @escaping ParamsAction<PopToRootOptions>
+    ) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
 
     func start(with options: SecurityModeCoordinator.Options) {
-        secManagementViewModel = SecurityModeViewModel(cardModel: options.cardModel, coordinator: self)
+        securityModeViewModel = SecurityModeViewModel(cardModel: options.cardModel, coordinator: self)
     }
 }
 
