@@ -72,10 +72,7 @@ class BottomSheetDismissalTransition: NSObject {
     }
 }
 
-// MARK: Public methods
-
 extension BottomSheetDismissalTransition {
-
     func start(moving presentedView: UIView, interactiveDismissal: Bool) {
         self.interactiveDismissal = interactiveDismissal
 
@@ -149,8 +146,6 @@ extension BottomSheetDismissalTransition: UIViewControllerAnimatedTransitioning 
     }
 
     func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
-        // This method is never called since we only care about interactive transitions,
-        // and use UIKit's default transitions/animations for non-interactive transitions.
         guard let presentedView = transitionContext.view(forKey: .from) else {
             return
         }
