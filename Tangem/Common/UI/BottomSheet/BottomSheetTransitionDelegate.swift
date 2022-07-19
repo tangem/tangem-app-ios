@@ -9,8 +9,6 @@
 import UIKit
 
 class BottomSheetTransitionDelegate: NSObject, UIViewControllerTransitioningDelegate {
-    private weak var bottomSheetPresentationController: BottomSheetPresentationController?
-
     var preferredSheetCornerRadius: CGFloat
     var preferredSheetSizingFactor: CGFloat
     var preferredSheetBackdropColor: UIColor
@@ -26,6 +24,8 @@ class BottomSheetTransitionDelegate: NSObject, UIViewControllerTransitioningDele
             bottomSheetPresentationController?.panToDismissEnabled = swipeDownToDismissEnabled
         }
     }
+
+    private weak var bottomSheetPresentationController: BottomSheetPresentationController?
 
     init(
         preferredSheetCornerRadius: CGFloat,
@@ -69,39 +69,5 @@ class BottomSheetTransitionDelegate: NSObject, UIViewControllerTransitioningDele
 
     func interactionControllerForDismissal(using animator: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
         animator as? BottomSheetDismissalTransition
-    }
-}
-
-class BottomSheetPresentingAnimation: NSObject, UIViewControllerAnimatedTransitioning {
-    func transitionDuration(using transitionContext: UIViewControllerContextTransitioning?) -> TimeInterval {
-        0.35
-    }
-
-    func animateTransition(using transitionContext: UIViewControllerContextTransitioning) {
-        let animator = createOffsetAnimator(using: transitionContext)
-        animator.startAnimation()
-    }
-
-    func interruptibleAnimator(using transitionContext: UIViewControllerContextTransitioning) -> UIViewImplicitlyAnimating {
-        return createOffsetAnimator(using: transitionContext)
-    }
-
-    private func createOffsetAnimator(using transitionContext: UIViewControllerContextTransitioning) -> UIViewImplicitlyAnimating {
-        let to = transitionContext.view(forKey: .to)!
-        let finalFrame = transitionContext.finalFrame(for: transitionContext.viewController(forKey: .to)!)
-        to.frame = finalFrame.offsetBy(dx: 0, dy: finalFrame.height)
-
-        let timingParameters = UISpringTimingParameters(dampingRatio: 2, initialVelocity: .zero)
-        let animator = UIViewPropertyAnimator(duration: 0.35, timingParameters: timingParameters)
-
-        animator.addAnimations {
-            to.frame = finalFrame
-        }
-
-        animator.addCompletion { (position) in
-            transitionContext.completeTransition(!transitionContext.transitionWasCancelled)
-        }
-
-        return animator
     }
 }
