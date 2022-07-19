@@ -30,7 +30,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
 
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
-    @Published private(set) var currentSecOption: SecurityManagementOption = .longTap
+    @Published private(set) var currentSecOption: SecurityModeOption = .longTap
     @Published public var cardInfo: CardInfo
     @Published var walletsBalanceState: WalletsBalanceState = .loaded
 
@@ -41,8 +41,12 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
     private var migrated = false
     private var tangemSdk: TangemSdk { tangemSdkProvider.sdk }
 
-    var availableSecOptions: [SecurityManagementOption] {
-        var options = [SecurityManagementOption.longTap]
+    var availableSecOptions: [SecurityModeOption] {
+        var options: [SecurityModeOption] = []
+
+        if canSetLongTap || currentSecOption == .longTap {
+            options.append(.longTap)
+        }
 
         if featuresService.canSetAccessCode || currentSecOption == .accessCode {
             options.append(.accessCode)
@@ -388,7 +392,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
         }
     }
 
-    func changeSecOption(_ option: SecurityManagementOption, completion: @escaping (Result<Void, Error>) -> Void) {
+    func changeSecOption(_ option: SecurityModeOption, completion: @escaping (Result<Void, Error>) -> Void) {
         switch option {
         case .accessCode:
             tangemSdk.startSession(with: SetUserCodeCommand(accessCode: nil),
