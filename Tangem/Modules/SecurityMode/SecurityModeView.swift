@@ -26,12 +26,12 @@ struct SecurityModeView: View {
 
     private var list: some View {
         List(viewModel.availableSecurityOptions) { option in
-            sectionForOption(option: option)
+            section(for: option)
         }
         .listStyle(DefaultListStyle())
     }
 
-    private func sectionForOption(option: SecurityModeOption) -> some View {
+    private func section(for option: SecurityModeOption) -> some View {
         Section {
             RowView(
                 title: option.title,
