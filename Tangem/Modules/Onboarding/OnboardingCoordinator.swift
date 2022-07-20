@@ -25,9 +25,6 @@ class OnboardingCoordinator: CoordinatorObject {
     @Published var accessCodeModel: OnboardingAccessCodeViewModel? = nil
     @Published var addressQrBottomSheetContentViewVodel: AddressQrBottomSheetContentViewVodel? = nil
 
-    // MARK: - Helpers
-    @Published var qrBottomSheetKeeper: Bool = false
-
     // For non-dismissable presentation
     var onDismissalAttempt: () -> Void = {}
 
