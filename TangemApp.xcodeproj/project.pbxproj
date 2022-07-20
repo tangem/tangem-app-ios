@@ -188,7 +188,6 @@
 		65B4DED6288357DC001524CF /* BottomSheetBaseController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B4DED5288357DC001524CF /* BottomSheetBaseController.swift */; };
 		65B4DED828835BE4001524CF /* BottomSheetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B4DED728835BE4001524CF /* BottomSheetViewController.swift */; };
 		65B4DEDA28835C82001524CF /* BottomSheetModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B4DED928835C82001524CF /* BottomSheetModifier.swift */; };
-		65B4DEDE2884B68E001524CF /* ImpactFeedback.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B4DEDD2884B68E001524CF /* ImpactFeedback.swift */; };
 		65B4DEE02885334F001524CF /* View+BottomSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B4DEDF2885334F001524CF /* View+BottomSheet.swift */; };
 		65B4DEE22885719C001524CF /* BottomSheetWrappedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B4DEE12885719C001524CF /* BottomSheetWrappedView.swift */; };
 		65C9FCAC2863103800FDE63E /* ZendeskConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCAB2863103800FDE63E /* ZendeskConfig.swift */; };
@@ -794,7 +793,6 @@
 		65B4DED5288357DC001524CF /* BottomSheetBaseController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetBaseController.swift; sourceTree = "<group>"; };
 		65B4DED728835BE4001524CF /* BottomSheetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetViewController.swift; sourceTree = "<group>"; };
 		65B4DED928835C82001524CF /* BottomSheetModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetModifier.swift; sourceTree = "<group>"; };
-		65B4DEDD2884B68E001524CF /* ImpactFeedback.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImpactFeedback.swift; sourceTree = "<group>"; };
 		65B4DEDF2885334F001524CF /* View+BottomSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+BottomSheet.swift"; sourceTree = "<group>"; };
 		65B4DEE12885719C001524CF /* BottomSheetWrappedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetWrappedView.swift; sourceTree = "<group>"; };
 		65C9FCAB2863103800FDE63E /* ZendeskConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZendeskConfig.swift; sourceTree = "<group>"; };
@@ -1671,7 +1669,6 @@
 				65B4DED728835BE4001524CF /* BottomSheetViewController.swift */,
 				65B4DED928835C82001524CF /* BottomSheetModifier.swift */,
 				65D87498287DA0F6009D0448 /* BottomSheetSettings.swift */,
-				65B4DEDD2884B68E001524CF /* ImpactFeedback.swift */,
 				65B4DEDF2885334F001524CF /* View+BottomSheet.swift */,
 				65B4DEE12885719C001524CF /* BottomSheetWrappedView.swift */,
 				DA5FAD8927B27F7F00EE53AE /* SheetDragHandler.swift */,
@@ -3471,7 +3468,6 @@
 				EF4B41BD28644982003911F6 /* SkeletonView.swift in Sources */,
 				B05B85A92589F0CF008A4452 /* AppFeature.swift in Sources */,
 				EF7B9CEF286C6BD7004C33A9 /* SecurityPrivacyView.swift in Sources */,
-				65B4DEDE2884B68E001524CF /* ImpactFeedback.swift in Sources */,
 				B020A51726F1DD9E00D38596 /* OnboardingTopupViewModel.swift in Sources */,
 				5D9DCB0C255199AA0059799C /* SecurityModeViewModel.swift in Sources */,
 				DA4C84CE27DA2D6D00B76F91 /* StoriesConstants.swift in Sources */,
