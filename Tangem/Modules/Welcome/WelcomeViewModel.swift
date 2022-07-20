@@ -88,19 +88,7 @@ class WelcomeViewModel: ObservableObject {
     }
 
     func orderCard() {
-        let webShopRegionCodes = [
-            "ru",
-            "by",
-        ]
-
-        let webVersionUrl: URL?
-        if webShopRegionCodes.contains(geoIpService.regionCode) {
-            webVersionUrl = URL(string: "https://tangem.com/ru/resellers/")
-        } else {
-            webVersionUrl = nil
-        }
-
-        let options = ShopCoordinator.Options(webVersionUrl: webVersionUrl)
+        let options = ShopCoordinator.Options(currentRegionCode: geoIpService.regionCode)
         openShop(with: options)
         Analytics.log(.getACard, params: [.source: .welcome])
     }
