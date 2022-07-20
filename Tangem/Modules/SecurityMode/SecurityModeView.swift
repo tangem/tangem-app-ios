@@ -14,7 +14,7 @@ struct SecurityModeView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            Color.tangemBgGray.edgesIgnoringSafeArea(.all)
+            Colors.Background.secondary.edgesIgnoringSafeArea(.all)
 
             list
 
