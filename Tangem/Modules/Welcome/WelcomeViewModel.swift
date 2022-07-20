@@ -15,7 +15,6 @@ class WelcomeViewModel: ObservableObject {
     @Injected(\.onboardingStepsSetupService) private var stepsSetupService: OnboardingStepsSetupService
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
-    @Injected(\.geoIpService) private var geoIpService: GeoIpService
 
     @Published var showTroubleshootingView: Bool = false
     @Published var isScanningCard: Bool = false
@@ -88,8 +87,7 @@ class WelcomeViewModel: ObservableObject {
     }
 
     func orderCard() {
-        let options = ShopCoordinator.Options(currentRegionCode: geoIpService.regionCode)
-        openShop(with: options)
+        openShop()
         Analytics.log(.getACard, params: [.source: .welcome])
     }
 
@@ -144,8 +142,8 @@ extension WelcomeViewModel {
         coordinator.openTokensList()
     }
 
-    func openShop(with options: ShopCoordinator.Options) {
-        coordinator.openShop(with: options)
+    func openShop() {
+        coordinator.openShop()
     }
 
     func openOnboarding(with input: OnboardingInput) {
