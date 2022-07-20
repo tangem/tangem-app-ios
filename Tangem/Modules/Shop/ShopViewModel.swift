@@ -39,6 +39,15 @@ class ShopViewModel: ObservableObject {
     private var initialized = false
     private unowned let coordinator: ShopViewRoutable
 
+    static func webVersionUrl(for regionCode: String) -> URL? {
+        switch regionCode {
+        case "ru", "by":
+            return URL(string: "https://tangem.com/ru/resellers/")
+        default:
+            return nil
+        }
+    }
+
     init(coordinator: ShopViewRoutable) {
         self.coordinator = coordinator
     }
