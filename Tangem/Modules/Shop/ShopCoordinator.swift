@@ -28,9 +28,9 @@ class ShopCoordinator: CoordinatorObject {
         self.popToRootAction = popToRootAction
     }
 
-    func start(with options: ShopCoordinator.Options) {
-        if let webVersionUrl = ShopViewModel.webVersionUrl(for: options.currentRegionCode) {
-            webShopUrl = webVersionUrl
+    func start(with options: ShopCoordinator.Options = .init()) {
+        if let webShopUrl = ShopWebHelper().webShopUrl {
+            self.webShopUrl = webShopUrl
         } else {
             shopViewModel = ShopViewModel(coordinator: self)
         }
@@ -39,7 +39,7 @@ class ShopCoordinator: CoordinatorObject {
 
 extension ShopCoordinator {
     struct Options {
-        let currentRegionCode: String
+
     }
 }
 
