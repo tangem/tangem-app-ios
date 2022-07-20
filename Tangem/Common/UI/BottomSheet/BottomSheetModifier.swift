@@ -22,7 +22,6 @@ struct BottomSheetModifier<ContentView: View>: ViewModifier {
     ) {
         _isPresented = isPresented
         self.viewModelSettings = viewModelSettings
-        print(self.viewModelSettings)
         self.contentView = contentView
     }
 
