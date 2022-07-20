@@ -58,7 +58,6 @@ struct BottomSheetModifier<ContentView: View>: ViewModifier {
             bottomSheetViewController?.swipeDownToDismissEnabled = viewModelSettings.swipeDownToDismissEnabled
             bottomSheetViewController?.tapOutsideToDismissEnabled = viewModelSettings.tapOutsideToDismissEnabled
 
-            viewModelSettings.impactOnShow.play()
             controllerToPresentFrom.present(bottomSheetViewController!, animated: true)
         } else {
             bottomSheetViewController?.dismiss(animated: true)
