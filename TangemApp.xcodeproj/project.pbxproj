@@ -405,6 +405,7 @@
 		DAA153B72876C0C0002254D1 /* GeoIpService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA153B62876C0C0002254D1 /* GeoIpService.swift */; };
 		DAA153B92876C0C3002254D1 /* CommonGeoIpService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA153B82876C0C3002254D1 /* CommonGeoIpService.swift */; };
 		DAA153BC2876CBFC002254D1 /* GeoResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA153BB2876CBFC002254D1 /* GeoResponse.swift */; };
+		DAA8F88A2888397700F14B9A /* ShopWebHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA8F8892888397700F14B9A /* ShopWebHelper.swift */; };
 		DAADD5B427EB5A180046DEC3 /* SafariView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAADD5B327EB5A180046DEC3 /* SafariView.swift */; };
 		DAB1E62627B4E40D00C1F510 /* ShopOrderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAB1E62527B4E40D00C1F510 /* ShopOrderView.swift */; };
 		DABA435427BFB63D00718AC6 /* WelcomeStoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DABA435327BFB63D00718AC6 /* WelcomeStoryPage.swift */; };
@@ -521,8 +522,8 @@
 		DC7DA81E2844F27800AD6DBD /* WelcomeCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7DA81D2844F27800AD6DBD /* WelcomeCoordinatorView.swift */; };
 		DC7DA8202844F33D00AD6DBD /* CoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7DA81F2844F33D00AD6DBD /* CoordinatorView.swift */; };
 		DC7DA8222844F53F00AD6DBD /* CommonOnboardingStepsSetupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7DA8212844F53F00AD6DBD /* CommonOnboardingStepsSetupService.swift */; };
-		DCE7E02C287BF92400063EEC /* SwitchChainHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE7E02B287BF92400063EEC /* SwitchChainHandler.swift */; };
 		DCE7119F28784F6700969857 /* DisclaimerRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE7119E28784F6700969857 /* DisclaimerRoutable.swift */; };
+		DCE7E02C287BF92400063EEC /* SwitchChainHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE7E02B287BF92400063EEC /* SwitchChainHandler.swift */; };
 		EF08A0EF283D1914008BD923 /* Moya+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0EE283D1914008BD923 /* Moya+.swift */; };
 		EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0F0283D2382008BD923 /* CoinsListRequestModel.swift */; };
 		EF0FF8712866021B00B7CEAF /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0FF8702866021B00B7CEAF /* AppEnvironment.swift */; };
@@ -990,6 +991,7 @@
 		DAA153B62876C0C0002254D1 /* GeoIpService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoIpService.swift; sourceTree = "<group>"; };
 		DAA153B82876C0C3002254D1 /* CommonGeoIpService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonGeoIpService.swift; sourceTree = "<group>"; };
 		DAA153BB2876CBFC002254D1 /* GeoResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoResponse.swift; sourceTree = "<group>"; };
+		DAA8F8892888397700F14B9A /* ShopWebHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShopWebHelper.swift; sourceTree = "<group>"; };
 		DAADD5B327EB5A180046DEC3 /* SafariView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariView.swift; sourceTree = "<group>"; };
 		DAB1E62527B4E40D00C1F510 /* ShopOrderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopOrderView.swift; sourceTree = "<group>"; };
 		DABA435327BFB63D00718AC6 /* WelcomeStoryPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeStoryPage.swift; sourceTree = "<group>"; };
@@ -2222,6 +2224,7 @@
 				DAB1E62527B4E40D00C1F510 /* ShopOrderView.swift */,
 				DA2D04D227BB9B07006F1E69 /* ShopOrderProgressView.swift */,
 				DC5118642860AA4F004FB954 /* ShopViewRoutable.swift */,
+				DAA8F8892888397700F14B9A /* ShopWebHelper.swift */,
 			);
 			path = Shop;
 			sourceTree = "<group>";
@@ -3233,6 +3236,7 @@
 				5D384B8B24FD154C00C2C92C /* PayIDService.swift in Sources */,
 				B0FAD00E26BAC51F00F45E88 /* CircledCheckmarkView.swift in Sources */,
 				5D12D21325B60AA4006060A1 /* SearchBar.swift in Sources */,
+				DAA8F88A2888397700F14B9A /* ShopWebHelper.swift in Sources */,
 				DABA435627BFC41700718AC6 /* StoriesBottomButtons.swift in Sources */,
 				B082E923255A8EF000A0CEA9 /* StorageType.swift in Sources */,
 				DC0A57E22822A5C50031BECC /* TangemSdkProviding.swift in Sources */,
