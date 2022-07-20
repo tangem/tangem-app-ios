@@ -42,7 +42,7 @@ class SecurityModeViewModel: ObservableObject {
             openPinChange()
         case .longTap:
             isLoading = true
-            cardModel.changeSecOption(.longTap) { [weak self] result in
+            cardModel.changeSecurityOption(.longTap) { [weak self] result in
                 self?.isLoading = false
 
                 switch result {
@@ -118,7 +118,7 @@ extension SecurityModeViewModel {
         coordinator.openPinChange(with: currentSecurityOption.title) { [weak self] completion in
             guard let self = self else { return }
 
-            self.cardModel.changeSecOption(self.currentSecurityOption, completion: completion)
+            self.cardModel.changeSecurityOption(self.currentSecurityOption, completion: completion)
         }
     }
 }
