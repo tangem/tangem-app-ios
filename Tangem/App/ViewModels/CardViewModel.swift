@@ -30,7 +30,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
 
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
-    @Published private(set) var currentSecOption: SecurityModeOption = .longTap
+    @Published private(set) var currentSecurityOption: SecurityModeOption = .longTap
     @Published public var cardInfo: CardInfo
     @Published var walletsBalanceState: WalletsBalanceState = .loaded
 
@@ -41,18 +41,18 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
     private var migrated = false
     private var tangemSdk: TangemSdk { tangemSdkProvider.sdk }
 
-    var availableSecOptions: [SecurityModeOption] {
+    var availableSecurityOptions: [SecurityModeOption] {
         var options: [SecurityModeOption] = []
 
-        if canSetLongTap || currentSecOption == .longTap {
+        if canSetLongTap || currentSecurityOption == .longTap {
             options.append(.longTap)
         }
 
-        if featuresService.canSetAccessCode || currentSecOption == .accessCode {
+        if featuresService.canSetAccessCode || currentSecurityOption == .accessCode {
             options.append(.accessCode)
         }
 
-        if featuresService.canSetPasscode || isTwinCard || currentSecOption == .passCode {
+        if featuresService.canSetPasscode || isTwinCard || currentSecurityOption == .passCode {
             options.append(.passCode)
         }
 
@@ -871,12 +871,12 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
 
     func updateCurrentSecOption() {
         if !(cardPinSettings.isPin1Default ?? true) {
-            self.currentSecOption = .accessCode
+            self.currentSecurityOption = .accessCode
         } else if !(cardPinSettings.isPin2Default ?? true) {
-            self.currentSecOption = .passCode
+            self.currentSecurityOption = .passCode
         }
         else {
-            self.currentSecOption = .longTap
+            self.currentSecurityOption = .longTap
         }
     }
 }
