@@ -576,7 +576,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                             if updatedCard.cardId == self.backupService.primaryCardId {
                                 self.input.cardInput.cardModel?.cardInfo.card = updatedCard
                                 self.input.cardInput.cardModel?.updateCardPinSettings()
-                                self.input.cardInput.cardModel?.updateCurrentSecOption()
+                                self.input.cardInput.cardModel?.updateCurrentSecurityOption()
                             } else { // add tokens for backup cards
                                 self.addTokens(for: updatedCard.cardId, style: updatedCard.derivationStyle)
                             }
