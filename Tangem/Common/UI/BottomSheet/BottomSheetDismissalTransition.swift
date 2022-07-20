@@ -75,10 +75,12 @@ class BottomSheetDismissalTransition: NSObject {
             transitionContext?.finishInteractiveTransition()
         }
 
-        heightAnimator?.continueAnimation(
-            withTimingParameters: nil,
-            durationFactor: 0
-        )
+        if transitionContext?.isInteractive ?? true {
+            heightAnimator?.continueAnimation(
+                withTimingParameters: nil,
+                durationFactor: 0
+            )
+        }
         offsetAnimator?.continueAnimation(
             withTimingParameters: nil,
             durationFactor: 0
