@@ -143,9 +143,9 @@ extension WelcomeCoordinator: WelcomeRoutable {
         self.tokenListCoordinator = coordinator
     }
 
-    func openShop(with options: ShopCoordinator.Options) {
+    func openShop() {
         let coordinator = ShopCoordinator()
-        coordinator.start(with: options)
+        coordinator.start()
         self.shopCoordinator = coordinator
     }
 }
