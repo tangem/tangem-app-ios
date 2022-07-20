@@ -9,21 +9,21 @@
 import UIKit
 
 class BottomSheetPresentationController: UIPresentationController {
+    let bottomSheetInteractiveDismissalTransition = BottomSheetDismissalTransition()
+
+    let sheetCornerRadius: CGFloat
+    let sheetBackgroundColor: UIColor
+    var panToDismissEnabled: Bool = true
+
+    private(set) lazy var tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onTap))
+    private lazy var panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(onPan))
+    
     private lazy var backgroundView: UIView = {
         let view = UIView()
         view.backgroundColor = sheetBackgroundColor
         view.alpha = 0
         return view
     }()
-
-    let bottomSheetInteractiveDismissalTransition = BottomSheetDismissalTransition()
-
-    let sheetCornerRadius: CGFloat
-    let sheetBackgroundColor: UIColor
-
-    private(set) lazy var tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onTap))
-    private lazy var panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(onPan))
-    var panToDismissEnabled: Bool = true
 
     init(
         presentedViewController: UIViewController,
