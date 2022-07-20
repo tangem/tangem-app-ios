@@ -11,16 +11,15 @@ import SwiftUI
 import Combine
 
 class SecurityModeViewModel: ObservableObject {
-
     // MARK: ViewState
 
-    @Published var selectedOption: SecurityModeOption
-    @Published var availableSecOptions: [SecurityModeOption]
+    @Published var currentSecurityOption: SecurityModeOption
+    @Published var availableSecurityOptions: [SecurityModeOption]
     @Published var error: AlertBinder?
     @Published var isLoading: Bool = false
 
     var isActionButtonEnabled: Bool {
-        selectedOption != cardModel.currentSecOption
+        currentSecurityOption != cardModel.currentSecurityOption
     }
 
     // MARK: Private
@@ -33,12 +32,12 @@ class SecurityModeViewModel: ObservableObject {
         self.cardModel = cardModel
         self.coordinator = coordinator
 
-        selectedOption = cardModel.currentSecOption
-        availableSecOptions = cardModel.availableSecOptions
+        currentSecurityOption = cardModel.currentSecurityOption
+        availableSecurityOptions = cardModel.availableSecurityOptions
     }
 
     func actionButtonDidTap() {
-        switch selectedOption {
+        switch currentSecurityOption {
         case .accessCode, .passCode:
             openPinChange()
         case .longTap:
@@ -61,14 +60,14 @@ class SecurityModeViewModel: ObservableObject {
 
     func isSelected(option: SecurityModeOption) -> Binding<Bool> {
         Binding<Bool> { [weak self] in
-            self?.selectedOption == option
+            self?.currentSecurityOption == option
         } set: { [weak self] isSelected in
             guard let self = self else { return }
 
             if isSelected {
-                self.selectedOption = option
+                self.currentSecurityOption = option
             } else {
-                self.selectedOption = self.cardModel.currentSecOption
+                self.currentSecurityOption = self.cardModel.currentSecurityOption
             }
         }
     }
@@ -102,15 +101,24 @@ enum SecurityModeOption: String, CaseIterable, Identifiable, Equatable {
             return "details_manage_security_passcode_description".localized
         }
     }
+    
+    var actionButtonTitle: LocalizedStringKey {
+        switch self {
+        case .longTap:
+            return "common_save_changes"
+        case .accessCode, .passCode:
+            return "common_continue"
+        }
+    }
 }
 
 // MARK: - Navigation
 extension SecurityModeViewModel {
     func openPinChange() {
-        coordinator.openPinChange(with: selectedOption.title) { [weak self] completion in
+        coordinator.openPinChange(with: currentSecurityOption.title) { [weak self] completion in
             guard let self = self else { return }
 
-            self.cardModel.changeSecOption(self.selectedOption, completion: completion)
+            self.cardModel.changeSecOption(self.currentSecurityOption, completion: completion)
         }
     }
 }
