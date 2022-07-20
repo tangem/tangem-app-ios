@@ -25,7 +25,7 @@ struct SecurityModeView: View {
     }
 
     private var list: some View {
-        List(viewModel.availableSecOptions) { option in
+        List(viewModel.availableSecurityOptions) { option in
             sectionForOption(option: option)
         }
         .listStyle(DefaultListStyle())
@@ -45,14 +45,14 @@ struct SecurityModeView: View {
     }
 
     private var actionButton: some View {
-        TangemButton(title: viewModel.selectedOption == .longTap ? "common_save_changes" : "common_continue") { [weak viewModel] in
+        TangemButton(title: viewModel.currentSecurityOption.actionButtonTitle) { [weak viewModel] in
             viewModel?.actionButtonDidTap()
         }
         .buttonStyle(TangemButtonStyle(colorStyle: .black,
                                        layout: .flexibleWidth,
                                        isDisabled: !viewModel.isActionButtonEnabled,
                                        isLoading: viewModel.isLoading))
-        .padding(.all, 16)
+        .padding(16)
     }
 }
 
