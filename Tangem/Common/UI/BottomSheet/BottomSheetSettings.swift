@@ -28,6 +28,6 @@ extension BottomSheetSettings {
     }
 
     static func warning() -> BottomSheetSettings {
-        BottomSheetSettings(showClosedButton: false, cornerRadius: 30)
+        BottomSheetSettings(showClosedButton: false, cornerRadius: 30, impactOnShow: .warning)
     }
 }
