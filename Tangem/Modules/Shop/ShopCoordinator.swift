@@ -29,7 +29,7 @@ class ShopCoordinator: CoordinatorObject {
     }
 
     func start(with options: ShopCoordinator.Options) {
-        if let webVersionUrl = options.webVersionUrl {
+        if let webVersionUrl = ShopViewModel.webVersionUrl(for: options.currentRegionCode) {
             webShopUrl = webVersionUrl
         } else {
             shopViewModel = ShopViewModel(coordinator: self)
@@ -39,7 +39,7 @@ class ShopCoordinator: CoordinatorObject {
 
 extension ShopCoordinator {
     struct Options {
-        let webVersionUrl: URL?
+        let currentRegionCode: String
     }
 }
 
