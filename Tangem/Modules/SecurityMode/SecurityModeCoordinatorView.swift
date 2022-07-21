@@ -1,5 +1,5 @@
 //
-//  SecurityManagementCoordinatorView.swift
+//  SecurityModeCoordinatorView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,12 +9,12 @@
 import Foundation
 import SwiftUI
 
-struct SecurityManagementCoordinatorView: CoordinatorView {
-    @ObservedObject var coordinator: SecurityManagementCoordinator
+struct SecurityModeCoordinatorView: CoordinatorView {
+    @ObservedObject var coordinator: SecurityModeCoordinator
 
     var body: some View {
-        if let model = coordinator.secManagementViewModel {
-            SecurityManagementView(viewModel: model)
+        if let model = coordinator.securityModeViewModel {
+            SecurityModeView(viewModel: model)
                 .navigation(item: $coordinator.cardOperationViewModel) {
                     CardOperationView(viewModel: $0)
                 }
