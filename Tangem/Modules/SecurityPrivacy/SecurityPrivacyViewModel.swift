@@ -36,9 +36,9 @@ class SecurityPrivacyViewModel: ObservableObject {
         self.cardModel = cardModel
         self.coordinator = coordinator
 
-        securityModeTitle = cardModel.currentSecOption.title
-        hasSingleSecurityMode = cardModel.availableSecOptions.count <= 1
-        isChangeAccessCodeVisible = cardModel.currentSecOption == .accessCode
+        securityModeTitle = cardModel.currentSecurityOption.title
+        hasSingleSecurityMode = cardModel.availableSecurityOptions.count <= 1
+        isChangeAccessCodeVisible = cardModel.currentSecurityOption == .accessCode
 
         bind()
     }
@@ -62,6 +62,12 @@ private extension SecurityPrivacyViewModel {
             .sink(receiveValue: { [weak self] _ in
                 self?.presentSavingAccessCodesDeleteAlert()
             })
+            .store(in: &bag)
+
+        cardModel.$currentSecurityOption
+            .map { $0.title }
+            .print()
+            .weakAssign(to: \.securityModeTitle, on: self)
             .store(in: &bag)
     }
 
@@ -129,7 +135,7 @@ extension SecurityPrivacyViewModel {
     }
 
     func openChangeAccessMethod() {
-        coordinator.openSecurityManagement(cardModel: cardModel)
+        coordinator.openSecurityMode(cardModel: cardModel)
     }
 
     func openTokenSynchronization() {
