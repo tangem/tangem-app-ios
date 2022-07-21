@@ -31,11 +31,13 @@ protocol WalletConnectHandlerDelegate: AnyObject {
     func send(_ response: Response, for action: WalletConnectAction)
     func sendInvalid(_ request: Request)
     func sendReject(for request: Request, with error: Error, for action: WalletConnectAction)
+    func sendUpdate(for session: Session, with walletInfo: Session.WalletInfo)
 }
 
 protocol WalletConnectHandlerDataSource: AnyObject {
     var server: Server! { get }
     func session(for request: Request, address: String) -> WalletConnectSession?
+    func updateSession(_ session: WalletConnectSession)
 }
 
 enum WalletConnectAction: String {
@@ -45,6 +47,7 @@ enum WalletConnectAction: String {
     case bnbSign = "bnb_sign"
     case bnbTxConfirmation = "bnb_tx_confirmation"
     case signTypedData = "eth_signTypedData"
+    case switchChain = "wallet_switchEthereumChain"
 
 //    var shouldDisplaySuccessAlert: Bool {
 //        switch self {
@@ -59,32 +62,7 @@ enum WalletConnectAction: String {
         case .signTransaction: return "wallet_connect_transaction_signed".localized
         case .sendTransaction: return "wallet_connect_transaction_signed_and_send".localized
         case .bnbSign: return "wallet_connect_bnb_transaction_signed".localized
-        case .bnbTxConfirmation: return "".localized
-        }
-    }
-}
-
-enum WalletConnectNetwork {
-    case eth(chainId: Int)
-    case bnb(testnet: Bool)
-
-    var blockchain: Blockchain? {
-        switch self {
-        case .eth(let chainId):
-            let items = SupportedTokenItems()
-            let allBlockchains = items.blockchains(for: [.secp256k1], isTestnet: nil)
-            return allBlockchains.first(where: { $0.chainId == chainId })
-        case .bnb(let testnet):
-            return .binance(testnet: testnet)
-        }
-    }
-
-    var chainId: Int? {
-        switch self {
-        case .eth(let chainId):
-            return chainId
-        case .bnb:
-            return nil
+        case .bnbTxConfirmation, .switchChain: return "".localized
         }
     }
 }
@@ -115,6 +93,7 @@ class WalletConnectService: ObservableObject {
         server.register(handler: BnbSignHandler(delegate: self, dataSource: self))
         server.register(handler: BnbSuccessHandler(delegate: self, dataSource: self))
         server.register(handler: SignTypedDataHandler(delegate: self, dataSource: self))
+        server.register(handler: SwitchChainHandler(delegate: self, dataSource: self))
     }
 
     func restore() {
@@ -204,6 +183,13 @@ extension WalletConnectService: WalletConnectHandlerDataSource {
     func session(for request: Request, address: String) -> WalletConnectSession? {
         sessions.first(where: { $0.wallet.address.lowercased() == address.lowercased() && $0.session.url.topic == request.url.topic })
     }
+
+    func updateSession(_ session: WalletConnectSession) {
+        if let index = sessions.firstIndex(where: { $0.id == session.id }) {
+            sessions[index] = session
+            save()
+        }
+    }
 }
 
 extension WalletConnectService: WalletConnectHandlerDelegate {
@@ -224,6 +210,14 @@ extension WalletConnectService: WalletConnectHandlerDelegate {
     func sendReject(for request: Request, with error: Error, for action: WalletConnectAction) {
         handle(error, for: action)
         server.send(.reject(request))
+    }
+
+    func sendUpdate(for session: Session, with walletInfo: Session.WalletInfo) {
+        do {
+            try server.updateSession(session, with: walletInfo)
+        } catch {
+            Log.error(error)
+        }
     }
 }
 
@@ -292,13 +286,8 @@ extension WalletConnectService: ServerDelegate {
         }
 
         resetSessionConnectTimer()
-        guard let parsedNetworkInfo = WalletConnectNetworkParserUtility.parse(dAppInfo: session.dAppInfo) else {
-            failureCompletion()
-            return
-        }
-        let chainId = parsedNetworkInfo.chainId
 
-        cardScanner.scanCard(for: parsedNetworkInfo.network)
+        cardScanner.scanCard(for: session.dAppInfo)
             .sink { [unowned self] completion in
                 if case let .failure(error) = completion {
                     self.handle(error, delay: 0.5)
@@ -318,12 +307,11 @@ extension WalletConnectService: ServerDelegate {
                         let newUrl = session.dAppInfo.peerMeta.url.host ?? ""
 
                         return $0.wallet == wallet &&
-                            $0.wallet.chainId == chainId &&
                             (savedUrl.count > newUrl.count ? savedUrl.contains(newUrl) : newUrl.contains(savedUrl))
                     }.forEach { try? server.disconnect(from: $0.session) }
                     completion(Session.WalletInfo(approved: true,
                                                   accounts: [wallet.address],
-                                                  chainId: wallet.chainId ?? 1,
+                                                  chainId: wallet.blockchain.chainId ?? 1, // binance case only?
                                                   peerId: UUID().uuidString,
                                                   peerMeta: self.walletMeta))
                 }
@@ -434,6 +422,9 @@ enum WalletConnectServiceError: LocalizedError {
     case other(Error)
     case noChainId
     case unsupportedNetwork
+    case notValidCard
+    case networkNotFound(name: String)
+
     var shouldHandle: Bool {
         switch self {
         case .cancelled, .deallocated, .failedToFindSigner: return false
@@ -453,6 +444,8 @@ enum WalletConnectServiceError: LocalizedError {
         case .other(let error): return error.localizedDescription
         case .noChainId: return "wallet_connect_service_no_chain_id".localized
         case .unsupportedNetwork: return "wallet_connect_scanner_error_unsupported_network".localized
+        case .notValidCard: return "wallet_connect_scanner_error_not_valid_card".localized
+        case .networkNotFound(let name): return "wallet_connect_network_not_found_format".localized(name)
         default: return ""
         }
     }
