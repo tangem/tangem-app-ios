@@ -173,10 +173,12 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openBankWarning(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) {
-        warningBankCardViewModel = .init(confirmCallback: {
+        warningBankCardViewModel = .init(confirmCallback: { [weak self] in
             confirmCallback()
-        }, declineCallback: {
+            self?.warningBankCardViewModel = nil
+        }, declineCallback: { [weak self] in
             declineCallback()
+            self?.warningBankCardViewModel = nil
         })
     }
 
