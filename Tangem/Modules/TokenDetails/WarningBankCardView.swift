@@ -16,6 +16,7 @@ struct WarningBankCardView: View {
         VStack(spacing: 0) {
             Image("russia_flag")
                 .padding(.top, 80)
+                .padding(.leading, 10)
 
             Text("russian_bank_card_warning_title".localized)
                 .font(.system(size: 20, weight: .regular))
@@ -31,6 +32,7 @@ struct WarningBankCardView: View {
                     viewModel.confirmCallback()
                 }, label: {
                     Text("common_yes".localized)
+                        .font(.system(size: 15, weight: .medium))
                 })
                 .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
 
@@ -38,6 +40,8 @@ struct WarningBankCardView: View {
                     viewModel.declineCallback()
                 }, label: {
                     Text("common_no".localized)
+                        .foregroundColor(.black)
+                        .font(.system(size: 15, weight: .medium))
                 })
                 .buttonStyle(TangemButtonStyle(colorStyle: .gray, layout: .flexibleWidth))
             }
