@@ -8,7 +8,7 @@
 
 import Foundation
 
-class WarningBankCardViewModel {
+class WarningBankCardViewModel: Identifiable {
     let confirmCallback: () -> ()
     let declineCallback: () -> ()
 
