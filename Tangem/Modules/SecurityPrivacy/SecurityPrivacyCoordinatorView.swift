@@ -16,7 +16,7 @@ struct SecurityPrivacyCoordinatorView: CoordinatorView {
         if let model = coordinator.securityPrivacyViewModel {
             SecurityPrivacyView(viewModel: model)
                 .navigation(item: $coordinator.securityManagementCoordinator) {
-                    SecurityManagementCoordinatorView(coordinator: $0)
+                    SecurityModeCoordinatorView(coordinator: $0)
                 }
                 .emptyNavigationLink()
         }
