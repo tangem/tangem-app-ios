@@ -39,12 +39,12 @@ struct SecurityPrivacyView: View {
                 title: "security_and_privacy_security_mode".localized,
                 details: viewModel.securityModeTitle,
                 isTappable: !viewModel.hasSingleSecurityMode,
-                action: viewModel.openChangeAccessMethod
+                action: viewModel.openSecurityMode
             )
             if viewModel.isChangeAccessCodeVisible {
                 RowView(
                     title: "security_and_privacy_change_access_code".localized,
-                    action: viewModel.openChangeAccessCode
+                    action: viewModel.openChangeAccessCodeWarningView
                 )
             }
         }, footer: {
