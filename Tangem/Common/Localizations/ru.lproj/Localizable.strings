@@ -375,7 +375,7 @@ URL: %@";
 "wallet_connect_scan_card_message" = "Прислоните карту, чтобы привязать ее к кошельку.";
 "wallet_connect_scan_new_code" = "Сканировать новый код";
 "wallet_connect_scanner_error_not_valid_card" = "Эту карту нельзя использовать с WalletConnect.";
-"wallet_connect_scanner_error_unsupported_network" = "Эта сеть не поддерживается";
+"wallet_connect_scanner_error_unsupported_network" = "Эта сеть не поддерживается. Пожалуйста, выберите другую сеть.";
 "wallet_connect_service_no_chain_id" = "Dapp не предоставил необходимые данные для открытия сессии WalletConnect";
 "wallet_connect_session_not_found" = "Не удалось найти сессию для обработки запроса";
 "wallet_connect_sessions_title" = "Сессии WalletConnect";
