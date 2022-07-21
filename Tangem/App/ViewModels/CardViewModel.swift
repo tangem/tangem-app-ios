@@ -30,7 +30,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
 
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
-    @Published private(set) var currentSecOption: SecurityManagementOption = .longTap
+    @Published private(set) var currentSecurityOption: SecurityModeOption = .longTap
     @Published public var cardInfo: CardInfo
     @Published var walletsBalanceState: WalletsBalanceState = .loaded
 
@@ -41,14 +41,18 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
     private var migrated = false
     private var tangemSdk: TangemSdk { tangemSdkProvider.sdk }
 
-    var availableSecOptions: [SecurityManagementOption] {
-        var options = [SecurityManagementOption.longTap]
+    var availableSecurityOptions: [SecurityModeOption] {
+        var options: [SecurityModeOption] = []
 
-        if featuresService.canSetAccessCode || currentSecOption == .accessCode {
+        if canSetLongTap || currentSecurityOption == .longTap {
+            options.append(.longTap)
+        }
+
+        if featuresService.canSetAccessCode || currentSecurityOption == .accessCode {
             options.append(.accessCode)
         }
 
-        if featuresService.canSetPasscode || isTwinCard || currentSecOption == .passCode {
+        if featuresService.canSetPasscode || isTwinCard || currentSecurityOption == .passCode {
             options.append(.passCode)
         }
 
@@ -249,7 +253,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
     init(cardInfo: CardInfo) {
         self.cardInfo = cardInfo
         updateCardPinSettings()
-        updateCurrentSecOption()
+        updateCurrentSecurityOption()
     }
 
     func initialize() {
@@ -380,7 +384,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
             switch result {
             case .success(let resp):
                 self?.cardPinSettings = CardPinSettings(isPin1Default: !resp.isAccessCodeSet, isPin2Default: !resp.isPasscodeSet)
-                self?.updateCurrentSecOption()
+                self?.updateCurrentSecurityOption()
                 completion(.success(resp))
             case .failure(let error):
                 completion(.failure(error))
@@ -388,7 +392,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
         }
     }
 
-    func changeSecOption(_ option: SecurityManagementOption, completion: @escaping (Result<Void, Error>) -> Void) {
+    func changeSecurityOption(_ option: SecurityModeOption, completion: @escaping (Result<Void, Error>) -> Void) {
         switch option {
         case .accessCode:
             tangemSdk.startSession(with: SetUserCodeCommand(accessCode: nil),
@@ -400,7 +404,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
                 case .success:
                     self.cardPinSettings.isPin1Default = false
                     self.cardPinSettings.isPin2Default = true
-                    self.updateCurrentSecOption()
+                    self.updateCurrentSecurityOption()
                     completion(.success(()))
                 case .failure(let error):
                     Analytics.logCardSdkError(error, for: .changeSecOptions, card: self.cardInfo.card, parameters: [.newSecOption: "Access Code"])
@@ -416,7 +420,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
                 case .success:
                     self.cardPinSettings.isPin1Default = true
                     self.cardPinSettings.isPin2Default = true
-                    self.updateCurrentSecOption()
+                    self.updateCurrentSecurityOption()
                     completion(.success(()))
                 case .failure(let error):
                     Analytics.logCardSdkError(error, for: .changeSecOptions, card: self.cardInfo.card, parameters: [.newSecOption: "Long tap"])
@@ -433,7 +437,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
                 case .success:
                     self.cardPinSettings.isPin1Default = true
                     self.cardPinSettings.isPin2Default = false
-                    self.updateCurrentSecOption()
+                    self.updateCurrentSecurityOption()
                     completion(.success(()))
                 case .failure(let error):
                     Analytics.logCardSdkError(error, for: .changeSecOptions, card: self.cardInfo.card, parameters: [.newSecOption: "Pass code"])
@@ -532,7 +536,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
         print("🟩 Updating Card view model with new Card")
         cardInfo.card = card
         updateCardPinSettings()
-        self.updateCurrentSecOption()
+        self.updateCurrentSecurityOption()
         updateModel()
     }
 
@@ -540,7 +544,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
         print("🔷 Updating Card view model with new CardInfo")
         self.cardInfo = cardInfo
         updateCardPinSettings()
-        self.updateCurrentSecOption()
+        self.updateCurrentSecurityOption()
         updateModel()
     }
 
@@ -865,14 +869,14 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
         cardInfo.card.isPasscodeSet.map { self.cardPinSettings.isPin2Default = !$0 }
     }
 
-    func updateCurrentSecOption() {
+    func updateCurrentSecurityOption() {
         if !(cardPinSettings.isPin1Default ?? true) {
-            self.currentSecOption = .accessCode
+            self.currentSecurityOption = .accessCode
         } else if !(cardPinSettings.isPin2Default ?? true) {
-            self.currentSecOption = .passCode
+            self.currentSecurityOption = .passCode
         }
         else {
-            self.currentSecOption = .longTap
+            self.currentSecurityOption = .longTap
         }
     }
 }
