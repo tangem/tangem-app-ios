@@ -3,7 +3,7 @@ platform :ios, '13.0'
 project 'TangemApp.xcodeproj'
 
 def common_pods
-   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-152'
+   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-152_hotfix_sign'
    #pod 'TangemSdk', :path => '../tangem-sdk-ios'
    pod 'KeychainSwift', '~> 19.0'
 end
@@ -34,8 +34,7 @@ target 'Tangem' do
   pod 'BitcoinCore.swift', :git => 'https://github.com/tangem/bitcoincore.git', :tag => '0.0.16'
   #pod 'BitcoinCore.swift', :path => '../bitcoincore'
 
-  pod 'WalletConnectSwift', :git => 'https://github.com/WalletConnect/WalletConnectSwift', :tag => '1.6.2'
-  pod 'Starscream', '~> 4.0.4'
+  pod 'WalletConnectSwift', :git => 'https://github.com/WalletConnect/WalletConnectSwift', :tag => '1.7.0'
   pod 'Moya'
   pod 'Firebase/Crashlytics'
   pod 'Firebase/Analytics'
