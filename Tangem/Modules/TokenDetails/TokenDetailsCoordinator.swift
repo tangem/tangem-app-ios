@@ -36,10 +36,6 @@ class TokenDetailsCoordinator: CoordinatorObject {
                                                       amountType: options.amountType,
                                                       coordinator: self)
     }
-
-    func hideBottomSheet() {
-        warningBankCardViewModel = nil
-    }
 }
 
 extension TokenDetailsCoordinator {
@@ -115,10 +111,8 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
     func openBankWarning(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) {
         warningBankCardViewModel = .init(confirmCallback: {
             confirmCallback()
-            self.hideBottomSheet()
         }, declineCallback: {
             declineCallback()
-            self.hideBottomSheet()
         })
     }
 

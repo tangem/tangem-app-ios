@@ -17,7 +17,7 @@ class BottomSheetPresentationController: UIPresentationController {
 
     private(set) lazy var tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onTap))
     private lazy var panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(onPan))
-    
+
     private lazy var backgroundView: UIView = {
         let view = UIView()
         view.backgroundColor = sheetBackgroundColor

@@ -78,13 +78,13 @@ struct MainCoordinatorView: CoordinatorView {
 
         NavHolder()
             .bottomSheet(item: $coordinator.addressQrBottomSheetContentViewVodel,
-                         viewModelSettings: BottomSheetSettings.qr()) {
+                         viewModelSettings: .qr) {
                 AddressQrBottomSheetContent(viewModel: $0)
             }
 
         NavHolder()
             .bottomSheet(item: $coordinator.warningBankCardViewModel,
-                         viewModelSettings: BottomSheetSettings.warning()) {
+                         viewModelSettings: .warning) {
                 WarningBankCardView(viewModel: $0)
             }
     }
