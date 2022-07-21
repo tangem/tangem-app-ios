@@ -18,15 +18,15 @@ struct BottomSheetSettings: Identifiable {
 }
 
 extension BottomSheetSettings {
-    static func `default`() -> BottomSheetSettings {
+    static var `default`: BottomSheetSettings {
         BottomSheetSettings()
     }
 
-    static func qr() -> BottomSheetSettings {
+    static var qr: BottomSheetSettings {
         BottomSheetSettings()
     }
 
-    static func warning() -> BottomSheetSettings {
+    static var warning: BottomSheetSettings {
         BottomSheetSettings(showClosedButton: false)
     }
 }
