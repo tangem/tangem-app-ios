@@ -22,7 +22,7 @@ class SecurityPrivacyViewModel: ObservableObject {
     // MARK: Dependecies
 
     private unowned let coordinator: SecurityPrivacyRoutable
-    private let cardViewModel: CardViewModel
+    private let cardModel: CardViewModel
 
     // MARK: Properties
 
@@ -33,7 +33,7 @@ class SecurityPrivacyViewModel: ObservableObject {
         cardModel: CardViewModel,
         coordinator: SecurityPrivacyRoutable
     ) {
-        self.cardViewModel = cardModel
+        self.cardModel = cardModel
         self.coordinator = coordinator
 
         securityModeTitle = cardModel.currentSecurityOption.title
@@ -130,15 +130,15 @@ private extension SecurityPrivacyViewModel {
 // MARK: - Navigation
 
 extension SecurityPrivacyViewModel {
-    func openChangeAccessCodeWarningView(action: @escaping (@escaping (Result<Void, Error>) -> Void) -> Void) {
+    func openChangeAccessCodeWarningView() {
         coordinator.openChangeAccessCodeWarningView { [weak self] completion in
             guard let self = self else { return }
 
-            self.cardViewModel.changeSecOption(.accessCode, completion: completion)
+            self.cardModel.changeSecurityOption(.accessCode, completion: completion)
         }
     }
 
-    func openSecurityMode(cardModel: CardViewModel) {
+    func openSecurityMode() {
         coordinator.openSecurityMode(cardModel: cardModel)
     }
 
