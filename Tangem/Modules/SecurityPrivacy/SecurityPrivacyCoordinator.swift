@@ -51,10 +51,6 @@ extension SecurityPrivacyCoordinator: SecurityPrivacyRoutable {
                                                         coordinator: self)
     }
 
-    func openChangeAccessCode(cardModel: CardViewModel) {
-        cardModel.changeSecOption(.accessCode) { _ in }
-    }
-
     func openSecurityMode(cardModel: CardViewModel) {
         let coordinator = SecurityModeCoordinator(popToRootAction: popToRootAction)
         let options = SecurityModeCoordinator.Options(cardModel: cardModel)
