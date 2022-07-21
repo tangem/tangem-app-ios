@@ -105,7 +105,7 @@ struct AddressQrBottomSheetPreviewView: View {
                     .padding()
             })
             NavHolder()
-                .bottomSheet(isPresented: $model.isBottomSheetPresented, viewModelSettings: .qr()) {
+                .bottomSheet(isPresented: $model.isBottomSheetPresented, viewModelSettings: .qr) {
                     AddressQrBottomSheetContent(viewModel: .init(shareAddress: "eth:0x01232483902f903678a098bce",
                                                                  address: "0x01232483902f903678a098bce",
                                                                  qrNotice: "BTC"))
