@@ -43,11 +43,6 @@ class MainCoordinator: CoordinatorObject {
     func start(with options: MainCoordinator.Options) {
         mainViewModel = MainViewModel(cardModel: options.cardModel, coordinator: self)
     }
-
-    func hideBottomSheet() {
-        warningBankCardViewModel = nil
-        addressQrBottomSheetContentViewVodel = nil
-    }
 }
 
 extension MainCoordinator {
@@ -180,10 +175,8 @@ extension MainCoordinator: MainRoutable {
     func openBankWarning(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) {
         warningBankCardViewModel = .init(confirmCallback: {
             confirmCallback()
-            self.hideBottomSheet()
         }, declineCallback: {
             declineCallback()
-            self.hideBottomSheet()
         })
     }
 
