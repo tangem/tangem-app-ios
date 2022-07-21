@@ -29,8 +29,8 @@ class ShopCoordinator: CoordinatorObject {
     }
 
     func start(with options: ShopCoordinator.Options = .init()) {
-        if Locale.current.regionCode == "RU" {
-            webShopUrl = URL(string: "https://mv.tangem.com")
+        if let webShopUrl = ShopWebHelper().webShopUrl {
+            self.webShopUrl = webShopUrl
         } else {
             shopViewModel = ShopViewModel(coordinator: self)
         }
