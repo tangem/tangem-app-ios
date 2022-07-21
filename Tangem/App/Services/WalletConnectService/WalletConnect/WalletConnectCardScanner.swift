@@ -12,61 +12,45 @@ import Combine
 import BlockchainSdk
 import WalletConnectSwift
 
-enum WalletConnectCardScannerError: LocalizedError {
-    case notValidCard
-    case networkNotFound(name: String)
-
-    var errorDescription: String? {
-        switch self {
-        case .notValidCard: return "wallet_connect_scanner_error_not_valid_card".localized
-        case .networkNotFound(let name): return "wallet_connect_network_not_found_format".localized(name)
-        }
-    }
-}
-
 class WalletConnectCardScanner {
     @Injected(\.tangemSdkProvider) var tangemSdkProvider: TangemSdkProviding
     @Injected(\.scannedCardsRepository) var scannedCardsRepository: ScannedCardsRepository
     @Injected(\.cardsRepository) var cardsRepository: CardsRepository
 
-    func scanCard(for wcNetwork: WalletConnectNetwork) -> AnyPublisher<WalletInfo, Error> {
+    func scanCard(for dAppInfo: Session.DAppInfo) -> AnyPublisher<WalletInfo, Error> {
         Deferred {
             Future { [weak self] promise in
                 guard let self = self else { return }
 
-                do {
-                    let network = try self.parseNetwork(wcNetwork)
+                self.tangemSdkProvider.sdk.startSession(with: AppScanTask(),
+                                                        initialMessage: Message(header: "wallet_connect_scan_card_message".localized)) { [weak self] result in
+                    guard let self = self else { return }
 
-                    self.tangemSdkProvider.sdk.startSession(with: AppScanTask(),
-                                                            initialMessage: Message(header: "wallet_connect_scan_card_message".localized)) { [weak self] result in
-                        guard let self = self else { return }
-
-                        switch result {
-                        case .success(let card):
-                            do {
-                                promise(.success(try self.walletInfo(for: card.getCardInfo(),
-                                                                     blockchain: network.blockchain,
-                                                                     chainId: network.chainId)))
-                            } catch {
-                                print("Failed to receive wallet info for with id: \(card.card.cardId)")
-                                promise(.failure(error))
-                            }
-                        case .failure(let error):
+                    switch result {
+                    case .success(let card):
+                        do {
+                            promise(.success(try self.walletInfo(for: card.getCardInfo(), dAppInfo: dAppInfo)))
+                        } catch {
+                            print("Failed to receive wallet info for with id: \(card.card.cardId)")
                             promise(.failure(error))
                         }
+                    case .failure(let error):
+                        promise(.failure(error))
                     }
-                } catch {
-                    promise(.failure(error))
                 }
             }
         }
         .eraseToAnyPublisher()
     }
 
-    private func walletInfo(for cardInfo: CardInfo, blockchain: Blockchain, chainId: Int?) throws -> WalletInfo {
+    private func walletInfo(for cardInfo: CardInfo, dAppInfo: Session.DAppInfo) throws -> WalletInfo {
         guard cardInfo.isMultiWallet,
               cardInfo.card.wallets.contains(where: { $0.curve == .secp256k1 }) else {
-            throw WalletConnectCardScannerError.notValidCard
+            throw WalletConnectServiceError.notValidCard
+        }
+
+        guard let blockchain = WalletConnectNetworkParserUtility.parse(dAppInfo: dAppInfo, isTestnet: cardInfo.isTestnet) else {
+            throw WalletConnectServiceError.unsupportedNetwork
         }
 
         let walletModels = getWalletModels(for: cardInfo)
@@ -76,7 +60,7 @@ class WalletConnectCardScanner {
             .map { $0.wallet }
 
         guard let wallet = wallet else {
-            throw WalletConnectCardScannerError.networkNotFound(name: blockchain.displayName)
+            throw WalletConnectServiceError.networkNotFound(name: blockchain.displayName)
         }
 
         scannedCardsRepository.add(cardInfo)
@@ -87,16 +71,7 @@ class WalletConnectCardScanner {
                           walletPublicKey: wallet.publicKey.seedKey,
                           derivedPublicKey: derivedKey,
                           derivationPath: wallet.publicKey.derivationPath,
-                          blockchain: blockchain,
-                          chainId: chainId)
-    }
-
-    private func parseNetwork(_ wcNetwork: WalletConnectNetwork) throws -> (blockchain: Blockchain, chainId: Int?) {
-        guard let blockchain = wcNetwork.blockchain else {
-            throw WalletConnectServiceError.unsupportedNetwork
-        }
-
-        return (blockchain, wcNetwork.chainId)
+                          blockchain: blockchain)
     }
 
     private func getWalletModels(for cardInfo: CardInfo) -> [WalletModel] {
