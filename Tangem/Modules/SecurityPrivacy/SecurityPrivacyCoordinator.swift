@@ -19,7 +19,7 @@ class SecurityPrivacyCoordinator: CoordinatorObject {
     @Published var cardOperationViewModel: CardOperationViewModel?
 
     // MARK: - Child coordinators
-    @Published var securityManagementCoordinator: SecurityManagementCoordinator?
+    @Published var securityManagementCoordinator: SecurityModeCoordinator?
 
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -55,9 +55,9 @@ extension SecurityPrivacyCoordinator: SecurityPrivacyRoutable {
         cardModel.changeSecOption(.accessCode) { _ in }
     }
 
-    func openSecurityManagement(cardModel: CardViewModel) {
-        let coordinator = SecurityManagementCoordinator(popToRootAction: popToRootAction)
-        let options = SecurityManagementCoordinator.Options(cardModel: cardModel)
+    func openSecurityMode(cardModel: CardViewModel) {
+        let coordinator = SecurityModeCoordinator(popToRootAction: popToRootAction)
+        let options = SecurityModeCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
         securityManagementCoordinator = coordinator
     }
