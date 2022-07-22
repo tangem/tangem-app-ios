@@ -21,7 +21,7 @@ class MainViewModel: ObservableObject {
     @Injected(\.rateAppService) private var rateAppService: RateAppService
     @Injected(\.onboardingStepsSetupService) private var cardOnboardingStepSetupService: OnboardingStepsSetupService
     @Injected(\.negativeFeedbackDataProvider) var negativeFeedbackDataCollector: NegativeFeedbackDataProvider
-    @Injected(\.geoIpService) private var geoIpService: GeoIpService
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     // MARK: - Published variables
 
@@ -800,7 +800,7 @@ extension MainViewModel {
     }
 
     func openBuyCryptoIfPossible() {
-        if geoIpService.regionCode == "ru" {
+        if tangemApiService.geoIpRegionCode == "ru" {
             coordinator.openBankWarning {
                 self.openBuyCrypto()
             } declineCallback: {
