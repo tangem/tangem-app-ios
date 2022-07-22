@@ -36,7 +36,6 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
 
     private var walletBalanceSubscription: AnyCancellable? = nil
     private var cardPinSettings: CardPinSettings = CardPinSettings()
-    private var userPrefsService: UserPrefsService = .init()
     private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
     private var migrated = false
     private var tangemSdk: TangemSdk { tangemSdkProvider.sdk }
@@ -562,7 +561,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
             print("⁉️ Recreating all wallet models for Card view model state")
             self.state = .loaded(walletModel: WalletManagerAssembly.makeAllWalletModels(from: cardInfo))
 
-            if !userPrefsService.cardsStartedActivation.contains(cardInfo.card.cardId) || cardInfo.isTangemWallet {
+            if !AppSettings.shared.cardsStartedActivation.contains(cardInfo.card.cardId) || cardInfo.isTangemWallet {
                 update()
                     .sink { _ in
 
@@ -626,7 +625,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
 
     private func searchTokens() {
         guard cardInfo.isMultiWallet, !cardInfo.isTangemWallet,
-              !userPrefsService.searchedCards.contains(cardInfo.card.cardId) else {
+              !AppSettings.shared.searchedCards.contains(cardInfo.card.cardId) else {
             return
         }
 
@@ -642,7 +641,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
         }
 
         guard let tokenFinder = ethWalletModel?.walletManager as? TokenFinder else {
-            self.userPrefsService.searchedCards.append(self.cardInfo.card.cardId)
+            AppSettings.shared.searchedCards.append(self.cardInfo.card.cardId)
             self.searchBlockchains()
             return
         }
@@ -668,7 +667,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
                 print(error)
             }
 
-            self.userPrefsService.searchedCards.append(self.cardInfo.card.cardId)
+            AppSettings.shared.searchedCards.append(self.cardInfo.card.cardId)
             self.searchBlockchains()
         }
     }
