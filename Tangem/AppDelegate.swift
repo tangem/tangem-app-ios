@@ -13,7 +13,6 @@ import Amplitude
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
     var loadingView: UIView? = nil
 
     func addLoadingView() {
@@ -52,10 +51,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         configureAppsFlyer()
         configureAmplitude()
 
-        let userPrefs = UserPrefsService()
-        userPrefs.numberOfLaunches += 1
-        print("Launch number:", userPrefs.numberOfLaunches)
-
+        AppSettings.shared.numberOfLaunches += 1
         return true
     }
 
