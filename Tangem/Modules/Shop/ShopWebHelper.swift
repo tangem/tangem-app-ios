@@ -12,7 +12,7 @@ class ShopWebHelper {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     var webShopUrl: URL? {
-        switch tangemApiService.regionCode {
+        switch tangemApiService.geoIpRegionCode {
         case "ru", "by":
             return URL(string: "https://tangem.com/ru/resellers/")
         default:
