@@ -84,6 +84,10 @@ class SendViewModel: ObservableObject {
         isFiatCalculation ? 2 : amountToSend.decimals
     }
 
+    var isFiatConvertingAvailable: Bool {
+        !isSellingCrypto && walletModel.getFiat(for: amountToSend) != nil
+    }
+
     @Published var isNetworkFeeBlockOpen: Bool = false
 
     // MARK: Output
