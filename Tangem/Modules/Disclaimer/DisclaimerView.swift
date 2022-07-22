@@ -11,52 +11,58 @@ import SwiftUI
 struct DisclaimerView: View {
     let viewModel: DisclaimerViewModel
 
+    private let bottomViewHeight: CGFloat = 150
+
     var body: some View {
         ZStack(alignment: .bottom) {
-            VStack(spacing: 0) {
-                if viewModel.style.withHeaderStack {
-                    HStack {
-                        Text("disclaimer_title")
-                            .font(.system(size: 30, weight: .bold, design: .default))
-                            .foregroundColor(.tangemGrayDark6)
-                        Spacer()
-                    }
-                    .padding(EdgeInsets(top: 20, leading: 16, bottom: 20, trailing: 16))
+            VStack(alignment: .leading, spacing: 16) {
+                if viewModel.style.isVisibleHeader {
+                    Text(viewModel.style.title)
+                        .font(.system(size: 30, weight: .bold, design: .default))
+                        .foregroundColor(.tangemGrayDark6)
+                        .padding([.top, .horizontal], 16)
                 }
 
                 ScrollView {
                     Text("disclaimer_text")
-                        .font(Font.system(size: 16, weight: .regular, design: .default))
+                        .font(.system(size: 16, weight: .regular, design: .default))
                         .foregroundColor(.tangemGrayDark5)
                         .padding(.horizontal, 16)
-                        .padding(.bottom, viewModel.showAccept ? 150 : 0)
-                        .padding(.top, viewModel.style.disclaimerTextTopPadding)
+                        .padding(.bottom, viewModel.showAccept ? bottomViewHeight : 0)
                 }
             }
 
             if viewModel.showAccept {
-                TangemButton(title: "common_accept", action: viewModel.onAccept)
-                    .buttonStyle(TangemButtonStyle())
-                    .background(
-                        LinearGradient(
-                            gradient: Gradient(stops: [
-                                .init(color: .white.opacity(0.2), location: 0.0),
-                                .init(color: .white, location: 0.5),
-                                .init(color: .white, location: 1.0),
-                            ]),
-                            startPoint: .top,
-                            endPoint: .bottom)
-                            .frame(size: CGSize(width: UIScreen.main.bounds.width, height: 135))
-                            .offset(y: -20)
-                    )
-                    .alignmentGuide(.bottom, computeValue: { dimension in
-                        dimension[.bottom] + 16
-                    })
+                bottomView
             }
         }
-        .navigationBarTitle(viewModel.style.navbarTitle)
-        .navigationBarBackButtonHidden(viewModel.style.navbarItemsHidden)
-        .navigationBarHidden(viewModel.style.navbarItemsHidden)
+        .modifier(if: viewModel.showAccept, then: {
+            $0.edgesIgnoringSafeArea(.bottom)
+        })
+        .navigationBarTitle(viewModel.style.title)
+        .navigationBarBackButtonHidden(viewModel.style.isNavigationBarHidden)
+        .navigationBarHidden(viewModel.style.isNavigationBarHidden)
+    }
+
+    private var bottomView: some View {
+        ZStack(alignment: .center) {
+            LinearGradient(
+                gradient: Gradient(stops: [
+                    Gradient.Stop(color: .white.opacity(0.2), location: 0.0),
+                    Gradient.Stop(color: .white, location: 0.5),
+                    Gradient.Stop(color: .white, location: 1.0),
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .frame(
+                width: UIScreen.main.bounds.width,
+                height: bottomViewHeight
+            )
+
+            TangemButton(title: "common_accept", action: viewModel.onAccept)
+                .buttonStyle(TangemButtonStyle())
+        }
     }
 }
 
@@ -65,41 +71,17 @@ extension DisclaimerView {
         case sheet
         case navbar
 
-        var navbarTitle: LocalizedStringKey {
-            switch self {
-            case .sheet: return ""
-            case .navbar: return "disclaimer_title"
-            }
-        }
-
-        var withHeaderStack: Bool {
-            switch self {
-            case .sheet: return true
-            case .navbar: return false
-            }
-        }
-
-        var disclaimerTextTopPadding: CGFloat {
-            switch self {
-            case .sheet: return 0
-            case .navbar: return 16
-            }
-        }
-
-        var navbarItemsHidden: Bool {
-            switch self {
-            case .navbar: return false
-            default: return true
-            }
-        }
-
+        var title: LocalizedStringKey { "disclaimer_title" }
+        var isVisibleHeader: Bool { self == .sheet }
+        var isNavigationBarHidden: Bool { self == .sheet }
     }
 }
 
 struct DisclaimerView_Previews: PreviewProvider {
     static var previews: some View {
         DisclaimerView(viewModel: .init(style: .sheet, showAccept: true, coordinator: nil))
-            .previewGroup(devices: [.iPhoneX, .iPhone8Plus], withZoomed: false)
+            .previewGroup(devices: [.iPhone12Pro, .iPhone8Plus], withZoomed: false)
+
         NavigationView(content: {
             DisclaimerView(viewModel: .init(style: .navbar, showAccept: true, coordinator: nil))
         })
