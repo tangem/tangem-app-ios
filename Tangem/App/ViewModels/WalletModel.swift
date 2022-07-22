@@ -13,7 +13,7 @@ import BlockchainSdk
 class WalletModel: ObservableObject, Identifiable, Initializable {
     @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
     @Injected(\.transactionSigner) private var signer: TangemSigner
-    @Injected(\.currencyRateService) private var currencyRateService: CurrencyRateService
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     @Published var state: State = .created
     @Published var balanceViewModel: BalanceViewModel!
@@ -431,8 +431,8 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     }
 
     private func loadRates(for currenciesToExchange: [String]) {
-        currencyRateService
-            .rates(for: currenciesToExchange)
+        tangemApiService
+            .loadRates(for: currenciesToExchange)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self = self else {
