@@ -20,8 +20,6 @@ struct MainCoordinatorView: CoordinatorView {
             }
 
             sheets
-
-            otherSheets
         }
     }
 
@@ -77,22 +75,17 @@ struct MainCoordinatorView: CoordinatorView {
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
             }
-    }
 
-    @ViewBuilder
-    private var otherSheets: some View {
-        BottomSheetView(from: coordinator.bottomSheetSettings,
-                        isPresented: coordinator.$bottomSheetKeeper,
-                        hideBottomSheetCallback: coordinator.hideBottomSheet,
-                        content: { sheetContent })
-    }
+        NavHolder()
+            .bottomSheet(item: $coordinator.addressQrBottomSheetContentViewVodel,
+                         viewModelSettings: .qr) {
+                AddressQrBottomSheetContent(viewModel: $0)
+            }
 
-    @ViewBuilder
-    private var sheetContent: some View {
-        if let model = coordinator.addressQrBottomSheetContentViewVodel {
-            AddressQrBottomSheetContent(viewModel: model)
-        } else if let model = coordinator.warningBankCardViewModel {
-            WarningBankCardView(viewModel: model)
-        }
+        NavHolder()
+            .bottomSheet(item: $coordinator.warningBankCardViewModel,
+                         viewModelSettings: .warning) {
+                WarningBankCardView(viewModel: $0)
+            }
     }
 }
