@@ -170,7 +170,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             }
 
             if cardInfo.isTangemNote {
-                self?.userPrefsService.cardsStartedActivation.append(cardInfo.card.cardId)
+                AppSettings.shared.cardsStartedActivation.append(cardInfo.card.cardId)
             }
 
             self?.cardModel?.updateState()
