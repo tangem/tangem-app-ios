@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 protocol TangemApiService: AnyObject, Initializable {
-    var regionCode: String { get }
+    var geoIpRegionCode: String { get }
 
     func loadCoins(requestModel: CoinsListRequestModel) -> AnyPublisher<[CoinModel], Error>
     func loadRates(for coinIds: [String]) -> AnyPublisher<[String: Decimal], Never>
