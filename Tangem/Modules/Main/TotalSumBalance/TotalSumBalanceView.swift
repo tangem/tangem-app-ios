@@ -13,6 +13,9 @@ struct TotalSumBalanceView: View {
 
     var tapOnCurrencySymbol: () -> ()
 
+    @AppStorageCompat(StorageType.selectedCurrencyCode)
+    private var currencyType: String = "USD"
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 0) {
@@ -27,7 +30,7 @@ struct TotalSumBalanceView: View {
                     tapOnCurrencySymbol()
                 } label: {
                     HStack(spacing: 6) {
-                        Text(viewModel.currencyType)
+                        Text(currencyType)
                             .lineLimit(1)
                             .font(.system(size: 13, weight: .medium))
                         Image("tangemArrowDown")
