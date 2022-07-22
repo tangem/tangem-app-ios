@@ -186,8 +186,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         case .done, .success, .alert:
             goToNextStep()
         case .first:
-            if !retwinMode, !(userPrefsService.cardsStartedActivation.contains(twinInfo.cid)) {
-                userPrefsService.cardsStartedActivation.append(twinInfo.cid)
+            if !retwinMode, !(AppSettings.shared.cardsStartedActivation.contains(twinInfo.cid)) {
+                AppSettings.shared.cardsStartedActivation.append(twinInfo.cid)
             }
 
             if twinsService.step.value != .first {
@@ -296,8 +296,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
 
                 if let pairCardId = twinsService.twinPairCardId,
                    !retwinMode,
-                   !userPrefsService.cardsStartedActivation.contains(pairCardId) {
-                    userPrefsService.cardsStartedActivation.append(pairCardId)
+                   !AppSettings.shared.cardsStartedActivation.contains(pairCardId) {
+                    AppSettings.shared.cardsStartedActivation.append(pairCardId)
                 }
             })
     }
