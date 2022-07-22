@@ -14,7 +14,6 @@ class StoriesViewModel: ObservableObject {
     @Published var currentProgress = 0.0
 
     let pages: [WelcomeStoryPage] = WelcomeStoryPage.allCases
-    private var userPrefsService: UserPrefsService = .init()
     private var timerSubscription: AnyCancellable?
     private var timerStartDate: Date?
     private var longTapTimerSubscription: AnyCancellable?
@@ -65,7 +64,7 @@ class StoriesViewModel: ObservableObject {
 
         switch currentPage {
         case WelcomeStoryPage.meetTangem:
-            MeetTangemStoryPage(progress: progressBinding, immediatelyShowButtons: userPrefsService.didDisplayMainScreenStories, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
+            MeetTangemStoryPage(progress: progressBinding, immediatelyShowButtons: AppSettings.shared.didDisplayMainScreenStories, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.awe:
             AweStoryPage(progress: progressBinding, isScanning: isScanning, scanCard: scanCard, orderCard: orderCard)
         case WelcomeStoryPage.backup:
@@ -125,7 +124,7 @@ class StoriesViewModel: ObservableObject {
         currentPage = WelcomeStoryPage(rawValue: currentPage.rawValue + (forward ? 1 : -1)) ?? pages.first!
         restartTimer()
         if currentPage != pages.first {
-            userPrefsService.didDisplayMainScreenStories = true
+            AppSettings.shared.didDisplayMainScreenStories = true
         }
     }
 
