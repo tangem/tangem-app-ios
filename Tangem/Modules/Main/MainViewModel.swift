@@ -800,7 +800,7 @@ extension MainViewModel {
     }
 
     func openBuyCryptoIfPossible() {
-        if tangemApiService.regionCode == "ru" {
+        if tangemApiService.geoIpRegionCode == "ru" {
             coordinator.openBankWarning {
                 self.openBuyCrypto()
             } declineCallback: {
