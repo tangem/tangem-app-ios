@@ -12,7 +12,7 @@ import Combine
 class TokenDetailsViewModel: ObservableObject {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
-    @Injected(\.geoIpService) private var geoIpService: GeoIpService
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     @Published var alert: AlertBinder? = nil
     @Published var showTradeSheet: Bool = false
@@ -384,7 +384,7 @@ extension TokenDetailsViewModel {
     }
 
     func openBuyCryptoIfPossible() {
-        if geoIpService.regionCode == "ru" {
+        if tangemApiService.geoIpRegionCode == "ru" {
             coordinator.openBankWarning {
                 self.openBuyCrypto()
             } declineCallback: {
