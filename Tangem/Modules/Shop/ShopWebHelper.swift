@@ -9,10 +9,10 @@
 import Foundation
 
 class ShopWebHelper {
-    @Injected(\.geoIpService) private var geoIpService: GeoIpService
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     var webShopUrl: URL? {
-        switch geoIpService.regionCode {
+        switch tangemApiService.geoIpRegionCode {
         case "ru", "by":
             return URL(string: "https://tangem.com/ru/resellers/")
         default:
