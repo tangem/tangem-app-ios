@@ -91,8 +91,6 @@ fileprivate class LegacyCardMigrator {
     @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
     @Injected(\.scannedCardsRepository) private var scannedCardsRepository: ScannedCardsRepository
 
-    private var userPrefsService: UserPrefsService = .init()
-
     // Save default blockchain and token to main tokens repo.
     func migrateIfNeeded(for cardInfo: CardInfo) {
         let cardId = cardInfo.card.cardId
@@ -110,12 +108,12 @@ fileprivate class LegacyCardMigrator {
         // Migrate only known cards.
         guard scannedCardsRepository.cards.keys.contains(cardId) else {
             // Newly scanned card. Save and forgot.
-            userPrefsService.migratedCardsWithDefaultTokens.append(cardId)
+            AppSettings.shared.migratedCardsWithDefaultTokens.append(cardId)
             return
         }
 
         // Migrate only once.
-        guard !userPrefsService.migratedCardsWithDefaultTokens.contains(cardId) else {
+        guard !AppSettings.shared.migratedCardsWithDefaultTokens.contains(cardId) else {
             return
         }
 
@@ -126,6 +124,6 @@ fileprivate class LegacyCardMigrator {
         tokenItemsRepository.removeAll(for: cardId)
         tokenItemsRepository.append(entries, for: cardId)
 
-        userPrefsService.migratedCardsWithDefaultTokens.append(cardId)
+        AppSettings.shared.migratedCardsWithDefaultTokens.append(cardId)
     }
 }
