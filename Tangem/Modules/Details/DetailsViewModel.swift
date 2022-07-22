@@ -15,12 +15,9 @@ import BlockchainSdk
 class DetailsViewModel: ObservableObject {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     @Injected(\.onboardingStepsSetupService) private var onboardingStepsSetupService: OnboardingStepsSetupService
-    @Injected(\.currencyRateService) private(set) var currencyRateService: CurrencyRateService
 
     @Published var isCheckingPin = false
-
     @Published var cardModel: CardViewModel
-
     @Published var error: AlertBinder?
 
     var dataCollector: DetailsFeedbackDataCollector!
@@ -114,16 +111,6 @@ class DetailsViewModel: ObservableObject {
         self.coordinator = coordinator
         self.dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel)
         bind()
-    }
-
-    func onAppear() {
-        currencyRateService
-            .selectedCurrencyCodePublisher
-            .receive(on: RunLoop.main)
-            .sink { [weak self] _ in
-                self?.objectWillChange.send()
-            }
-            .store(in: &bag)
     }
 
     func checkPin(_ completion: @escaping () -> Void) {
