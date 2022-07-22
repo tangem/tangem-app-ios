@@ -17,7 +17,7 @@ class CommonTangemApiService {
     private var bag: Set<AnyCancellable> = .init()
 
     private let fallbackRegionCode = Locale.current.regionCode?.lowercased() ?? ""
-    private var _regionCode: String? = nil
+    private var _geoIpRegionCode: String? = nil
 
     private var authData: TangemApiTarget.AuthData? {
         guard let card = cardsRepository.lastScanResult.card else {
@@ -33,8 +33,8 @@ class CommonTangemApiService {
 }
 
 extension CommonTangemApiService: TangemApiService {
-    var regionCode: String {
-        return _regionCode ?? fallbackRegionCode
+    var geoIpRegionCode: String {
+        return _geoIpRegionCode ?? fallbackRegionCode
     }
 
     func loadCoins(requestModel: CoinsListRequestModel) -> AnyPublisher<[CoinModel], Error> {
@@ -106,7 +106,7 @@ extension CommonTangemApiService: TangemApiService {
             .map(\.code)
             .replaceError(with: fallbackRegionCode)
             .subscribe(on: DispatchQueue.global())
-            .weakAssign(to: \._regionCode, on: self)
+            .weakAssign(to: \._geoIpRegionCode, on: self)
             .store(in: &bag)
     }
 }
