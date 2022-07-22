@@ -10,7 +10,7 @@ import SwiftUI
 import Combine
 
 class TotalSumBalanceViewModel: ObservableObject {
-    @Injected(\.currencyRateService) private var currencyRateService: CurrencyRateService
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     @Published var isLoading: Bool = false
     @Published var totalFiatValueString: NSAttributedString = NSAttributedString(string: "")
@@ -49,8 +49,8 @@ class TotalSumBalanceViewModel: ObservableObject {
     }
 
     private func refresh(loadingAnimationEnable: Bool = true) {
-        refreshSubscription = currencyRateService
-            .baseCurrencies()
+        refreshSubscription = tangemApiService
+            .loadCurrencies()
             .receive(on: RunLoop.main)
             .sink { _ in
             } receiveValue: { [weak self] currencies in

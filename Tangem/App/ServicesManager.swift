@@ -14,7 +14,7 @@ class ServicesManager {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
     @Injected(\.walletConnectServiceProvider) private var walletConnectServiceProvider: WalletConnectServiceProviding
     @Injected(\.supportChatService) private var supportChatService: SupportChatServiceProtocol
-    @Injected(\.geoIpService) private var geoIpService: GeoIpService
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     private var bag = Set<AnyCancellable>()
 
@@ -22,7 +22,7 @@ class ServicesManager {
         exchangeService.initialize()
         walletConnectServiceProvider.initialize()
         supportChatService.initialize()
-        geoIpService.initialize()
+        tangemApiService.initialize()
 
         bind()
     }
