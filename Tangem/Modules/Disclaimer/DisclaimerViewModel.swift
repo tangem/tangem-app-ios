@@ -14,7 +14,6 @@ class DisclaimerViewModel: Identifiable {
     let style: DisclaimerView.Style
     let showAccept: Bool
 
-    private let userPrefsService: UserPrefsService = .init()
     private unowned let coordinator: DisclaimerRoutable?
 
     init(style: DisclaimerView.Style, showAccept: Bool, coordinator: DisclaimerRoutable?) {
@@ -24,7 +23,7 @@ class DisclaimerViewModel: Identifiable {
     }
 
     func onAccept() {
-        userPrefsService.isTermsOfServiceAccepted = true
+        AppSettings.shared.isTermsOfServiceAccepted = true
         dismissAccepted()
     }
 }

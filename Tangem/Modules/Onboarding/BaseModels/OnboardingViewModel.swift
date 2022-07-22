@@ -25,7 +25,6 @@ class OnboardingViewModel<Step: OnboardingStep> {
     @Published var alert: AlertBinder?
     @Published var cardImage: UIImage?
 
-    var userPrefsService: UserPrefsService = .init()
     private var confettiFired: Bool = false
     var bag: Set<AnyCancellable> = []
 
@@ -171,8 +170,8 @@ class OnboardingViewModel<Step: OnboardingStep> {
     }
 
     func onOnboardingFinished(for cardId: String) {
-        if let existingIndex = userPrefsService.cardsStartedActivation.firstIndex(where: { $0 == cardId }) {
-            userPrefsService.cardsStartedActivation.remove(at: existingIndex)
+        if let existingIndex = AppSettings.shared.cardsStartedActivation.firstIndex(where: { $0 == cardId }) {
+            AppSettings.shared.cardsStartedActivation.remove(at: existingIndex)
         }
     }
 

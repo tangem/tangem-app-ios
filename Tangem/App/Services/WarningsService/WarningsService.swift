@@ -28,8 +28,6 @@ class WarningsService {
         }
     }
 
-    private var userPrefsService: UserPrefsService = .init()
-
     init() {}
 
     deinit {
