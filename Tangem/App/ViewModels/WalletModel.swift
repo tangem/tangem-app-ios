@@ -136,8 +136,8 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     }
 
     func initialize() {
-        currencyRateService
-            .selectedCurrencyCodePublisher
+        AppSettings.shared
+            .$selectedCurrencyCode
             .dropFirst()
             .sink { [unowned self] _ in
                 self.loadRates()
@@ -239,7 +239,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
 
         if let currencyId = self.currencyId(for: amountType),
            let rate = rates[currencyId] {
-            rateString = rate.currencyFormatted(code: currencyRateService.selectedCurrencyCode)
+            rateString = rate.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
         }
 
         return rateString
@@ -264,7 +264,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     }
 
     func getFiatFormatted(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> String? {
-        return getFiat(for: amount, roundingMode: roundingMode)?.currencyFormatted(code: currencyRateService.selectedCurrencyCode)
+        return getFiat(for: amount, roundingMode: roundingMode)?.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
     }
 
     func getFiat(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> Decimal? {
@@ -355,7 +355,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     }
 
     func getFiatBalance(for type: Amount.AmountType) -> String {
-        return getFiatFormatted(for: wallet.amounts[type]) ?? Decimal(0).currencyFormatted(code: currencyRateService.selectedCurrencyCode)
+        return getFiatFormatted(for: wallet.amounts[type]) ?? Decimal(0).currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
     }
 
     func startUpdatingTimer() {
