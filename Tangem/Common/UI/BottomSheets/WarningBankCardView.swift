@@ -25,7 +25,7 @@ struct WarningBankCardView: View {
             Text("russian_bank_card_warning_subtitle".localized)
                 .font(.system(size: 15, weight: .regular))
                 .padding(.top, 50)
-                .padding(.horizontal, 30)
+                .padding([.horizontal, .bottom], 30)
 
             HStack(spacing: 11) {
                 Button(action: {
@@ -46,21 +46,13 @@ struct WarningBankCardView: View {
                 .buttonStyle(TangemButtonStyle(colorStyle: .gray, layout: .flexibleWidth))
             }
             .padding(.horizontal, 16)
-            .padding(.vertical, 40)
         }
         .multilineTextAlignment(.center)
     }
 }
 
 struct WarningBankCardView_Previews: PreviewProvider {
-    private class _PopUpModel: ObservableObject {
-        @Published var show: Bool = true
-    }
-
     static var previews: some View {
-        BottomSheetView(isPresented: _PopUpModel().$show, showClosedButton: false) {
-        } content: {
-            WarningBankCardView(viewModel: WarningBankCardViewModel(confirmCallback: { }, declineCallback: { }))
-        }
+        WarningBankCardView(viewModel: WarningBankCardViewModel(confirmCallback: { }, declineCallback: { }))
     }
 }
