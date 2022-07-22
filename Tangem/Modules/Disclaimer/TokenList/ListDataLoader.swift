@@ -12,7 +12,7 @@ import TangemSdk
 
 class ListDataLoader {
     // MARK: Dependencies
-    @Injected(\.coinsService) var coinsService: CoinsService
+    @Injected(\.tangemApiService) var tangemApiService: TangemApiService
 
     // MARK: Output
     @Published var items: [CoinModel] = []
@@ -140,7 +140,7 @@ private extension ListDataLoader {
             active: true
         )
 
-        return coinsService.loadCoins(requestModel: requestModel)
+        return tangemApiService.loadCoins(requestModel: requestModel)
             .replaceError(with: [])
             .eraseToAnyPublisher()
     }
