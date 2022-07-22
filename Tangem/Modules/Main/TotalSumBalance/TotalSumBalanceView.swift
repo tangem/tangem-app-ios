@@ -13,6 +13,7 @@ struct TotalSumBalanceView: View {
 
     var tapOnCurrencySymbol: () -> ()
 
+    /// Change to @AppStorage and move to model with IOS 14.5 minimum deployment target
     @AppStorageCompat(StorageType.selectedCurrencyCode)
     private var currencyType: String = "USD"
 
