@@ -31,17 +31,11 @@ import Combine
         }
         set {
             saveValue(newValue)
-            // _value.value = newValue
         }
     }
 
     public var projectedValue: Published<Value>.Publisher {
-
-        return _value.$value
-//        Binding(
-//            get: { self.wrappedValue },
-//            set: { self.wrappedValue = $0 }
-//        )
+        _value.$value
     }
 }
 
