@@ -64,9 +64,6 @@ class MainViewModel: ObservableObject {
     var isLoadingTokensBalance: Bool = false
     lazy var totalSumBalanceViewModel: TotalSumBalanceViewModel = .init()
 
-    @Storage(type: .validatedSignedHashesCards, defaultValue: [])
-    private var validatedSignedHashesCards: [String]
-    private var userPrefsService: UserPrefsService = .init()
     private var bag = Set<AnyCancellable>()
     private var isHashesCounted = false
     private var isProcessingNewCard = false
@@ -485,7 +482,7 @@ class MainViewModel: ObservableObject {
                 return
             }
 
-            validatedSignedHashesCards.append(cardId)
+            AppSettings.shared.validatedSignedHashesCards.append(cardId)
         }
 
         var hideWarning = true
@@ -629,7 +626,7 @@ class MainViewModel: ObservableObject {
 
         if card.isDemoCard { return }
 
-        if validatedSignedHashesCards.contains(card.cardId) { return }
+        if AppSettings.shared.validatedSignedHashesCards.contains(card.cardId) { return }
 
         if cardModel?.cardInfo.isMultiWallet ?? false {
             if cardModel?.cardInfo.card.wallets.filter({ $0.totalSignedHashes ?? 0 > 0 }).count ?? 0 > 0 {
@@ -637,7 +634,7 @@ class MainViewModel: ObservableObject {
                     warningsService.appendWarning(for: .multiWalletSignedHashes)
                 }
             } else {
-                validatedSignedHashesCards.append(card.cardId)
+                AppSettings.shared.validatedSignedHashesCards.append(card.cardId)
             }
             print("⚠️ Hashes counted")
             return
