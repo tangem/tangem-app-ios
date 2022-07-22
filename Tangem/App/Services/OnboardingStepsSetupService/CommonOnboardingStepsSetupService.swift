@@ -93,30 +93,9 @@ class CommonOnboardingStepsSetupService: OnboardingStepsSetupService {
             return .justWithError(output: .twins(steps))
         } else { // twin with created wallet
             if twinCardInfo.pairPublicKey == nil { // is not twinned
-                // check balance because of legacy bug
-                if let walletModel = WalletManagerAssembly.makeAllWalletModels(from: cardInfo).first {
-                    return Future { promise in
-                        walletModel.walletManager.update { result in
-                            switch result {
-                            case .success:
-                                if walletModel.isEmptyIncludingPendingIncomingTxs { // Empty balance, It's safe to onboarding
-                                    steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
-                                    steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
-                                    return promise(.success(.twins(steps)))
-                                } else { // bugged case, has balance go to main
-                                    return promise(.success(.twins([])))
-                                }
-                            case .failure(let error):
-                                promise(.failure(error))
-                            }
-                        }
-                    }
-                    .eraseToAnyPublisher()
-                } else { // will use this branch in future releases. Just start onboarding
-                    steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
-                    steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
-                    return .justWithError(output: .twins(steps))
-                }
+                steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
+                steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
+                return .justWithError(output: .twins(steps))
             } else { // is twinned
                 if AppSettings.shared.cardsStartedActivation.contains(cardInfo.card.cardId) { // card is in onboarding process, go to topup
                     steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
