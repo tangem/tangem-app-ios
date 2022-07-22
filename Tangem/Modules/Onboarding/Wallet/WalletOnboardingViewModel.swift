@@ -438,7 +438,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     private func createWallet() {
         isMainButtonBusy = true
         if !input.isStandalone {
-            userPrefsService.cardsStartedActivation.append(input.cardInput.cardId)
+            AppSettings.shared.cardsStartedActivation.append(input.cardInput.cardId)
         }
         stepPublisher = preparePrimaryCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
