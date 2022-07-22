@@ -10,7 +10,6 @@ import UIKit
 import SwiftUI
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-    private var userPrefs = UserPrefsService()
     private let mainViewModel: MainViewModel = .init()
     var window: UIWindow?
 
@@ -40,7 +39,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             }
             url = incomingURL
             scene.userActivity = activity
-        } else if let savedNdef = URL(string: userPrefs.lastScannedNdef) {
+        } else if let savedNdef = URL(string: AppSettings.shared.lastScannedNdef) {
             url = savedNdef
         } else {
             url = URL(string: "https://tangem.com/ndef/CB79")!
@@ -49,9 +48,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let link = url.absoluteString
         let batch = url.lastPathComponent
         mainViewModel.updateCardBatch(batch, fullLink: link)
-        userPrefs.lastScannedNdef = link
-        if !userPrefs.scannedNdefs.contains(link) {
-            userPrefs.scannedNdefs.append(link)
+        AppSettings.shared.lastScannedNdef = link
+        if !AppSettings.shared.scannedNdefs.contains(link) {
+            AppSettings.shared.scannedNdefs.append(link)
         }
     }
 
