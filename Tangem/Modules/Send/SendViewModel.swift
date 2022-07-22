@@ -15,7 +15,6 @@ import stellarsdk
 import AVFoundation
 
 class SendViewModel: ObservableObject {
-    @Injected(\.currencyRateService) private var ratesService: CurrencyRateService
     @Injected(\.appFeaturesService) private var featuresService: AppFeaturesProviding
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
 
@@ -127,7 +126,7 @@ class SendViewModel: ObservableObject {
     var bag = Set<AnyCancellable>()
 
     var currencyUnit: String {
-        return isFiatCalculation ? ratesService.selectedCurrencyCode : self.amountToSend.currencySymbol
+        return isFiatCalculation ? AppSettings.shared.selectedCurrencyCode : self.amountToSend.currencySymbol
     }
 
     var walletTotalBalanceDecimals: String {
@@ -686,7 +685,7 @@ private extension SendViewModel {
         let totalAmount = transaction.amount + transaction.fee
         let totalInFiatFormatted = totalAndFeeInFiatFormatted(
             from: transaction,
-            currencyCode: ratesService.selectedCurrencyCode
+            currencyCode: AppSettings.shared.selectedCurrencyCode
         )
 
         if isFiatCalculation {
