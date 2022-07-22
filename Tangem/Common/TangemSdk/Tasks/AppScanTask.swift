@@ -65,8 +65,6 @@ enum AppScanTaskError: String, Error, LocalizedError {
 }
 
 final class AppScanTask: CardSessionRunnable {
-    private var userPrefsService = UserPrefsService()
-
     private let targetBatch: String?
     private var twinIssuerData: Data? = nil
     private var noteWalletData: WalletData? = nil
@@ -119,7 +117,7 @@ final class AppScanTask: CardSessionRunnable {
                 return
             }
 
-            if userPrefsService.cardsStartedActivation.contains(card.cardId),
+            if AppSettings.shared.cardsStartedActivation.contains(card.cardId),
                card.backupStatus == .noBackup {
                 readPrimaryCard(session, completion)
                 return
