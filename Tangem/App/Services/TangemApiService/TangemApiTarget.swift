@@ -10,15 +10,8 @@ import Moya
 import TangemSdk
 
 struct TangemApiTarget: TargetType {
-    enum TangemApiTargetType {
-        case rates(coinIds: [String], currencyId: String)
-        case currencies
-        case coins(_ requestModel: CoinsListRequestModel)
-        case geo
-    }
-
-    let type: TangemApiTargetType
-    let card: Card?
+    let type: TargetType
+    let authData: AuthData?
 
     var baseURL: URL { URL(string: "https://api.tangem-tech.com/v1")! }
 
@@ -51,13 +44,27 @@ struct TangemApiTarget: TargetType {
     }
 
     var headers: [String: String]? {
-        guard let card = card else {
-            return nil
-        }
+        authData?.headers
+    }
+}
 
-        return [
-            "card_id": card.cardId,
-            "card_public_key": card.cardPublicKey.hexString,
-        ]
+extension TangemApiTarget {
+    enum TargetType {
+        case rates(coinIds: [String], currencyId: String)
+        case currencies
+        case coins(_ requestModel: CoinsListRequestModel)
+        case geo
+    }
+
+    struct AuthData {
+        let cardId: String
+        let cardPublicKey: Data
+
+        var headers: [String: String] {
+            [
+                "card_id": cardId,
+                "card_public_key": cardPublicKey.hexString,
+            ]
+        }
     }
 }
