@@ -14,17 +14,6 @@ import TangemSdk
 class CommonCurrencyRateService: CurrencyRateService {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
 
-    @Storage(type: StorageType.selectedCurrencyCode, defaultValue: "USD")
-
-    var selectedCurrencyCode: String {
-        didSet {
-            selectedCode = selectedCurrencyCode
-        }
-    }
-
-    var selectedCurrencyCodePublisher: Published<String>.Publisher { $selectedCode }
-
-    @Published private var selectedCode: String = ""
     private let provider = MoyaProvider<TangemApiTarget>()
     private var bag: Set<AnyCancellable> = .init()
 
@@ -55,7 +44,7 @@ class CommonCurrencyRateService: CurrencyRateService {
         }
 
         return provider
-            .requestPublisher(TangemApiTarget(type: .rates(coinIds: coinIds, currencyId: selectedCurrencyCode), card: card))
+            .requestPublisher(TangemApiTarget(type: .rates(coinIds: coinIds, currencyId: AppSettings.shared.selectedCurrencyCode), card: card))
             .filterSuccessfulStatusAndRedirectCodes()
             .map(RatesResponse.self)
             .map { $0.rates }
