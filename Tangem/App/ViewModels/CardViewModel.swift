@@ -25,7 +25,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
     @Injected(\.appFeaturesService) private var featuresService: AppFeaturesProviding
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
-    @Injected(\.coinsService) private var coinsService: CoinsService
+    @Injected(\.tangemApiService) var tangemApiService: TangemApiService
     @Injected(\.transactionSigner) private var signer: TangemSigner
 
     @Published var state: State = .created
@@ -824,7 +824,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
                     networkIds: [item.blockchainNetwork.blockchain.networkId]
                 )
 
-                return coinsService
+                return tangemApiService
                     .loadCoins(requestModel: requestModel)
                     .replaceError(with: [])
                     .map { [unowned self] models -> Bool in
