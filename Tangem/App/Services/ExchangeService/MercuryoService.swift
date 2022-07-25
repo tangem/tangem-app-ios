@@ -22,7 +22,6 @@ fileprivate enum QueryKey: String {
     case return_url
 }
 
-
 fileprivate struct MercuryoCurrencyResponse: Decodable {
     let data: MercuryoData
 }
@@ -36,10 +35,8 @@ fileprivate struct MercuryoConfig: Decodable {
     let base: [String: String]
 }
 
-
 class MercuryoService {
     @Injected(\.keysManager) private var keysManager: KeysManager
-    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
 
     private var widgetId: String {
         keysManager.mercuryoWidgetId
@@ -47,14 +44,6 @@ class MercuryoService {
 
     private var secret: String {
         keysManager.mercuryoSecret
-    }
-
-    private var isTestnet: Bool {
-        cardsRepository.lastScanResult.cardModel?.cardInfo.isTestnet ?? false
-    }
-
-    private var availableCurves: [EllipticCurve] {
-        cardsRepository.lastScanResult.card?.walletCurves ?? []
     }
 
     private var availableCryptoCurrencyCodes: [String] = []
@@ -81,10 +70,15 @@ extension MercuryoService: ExchangeService {
             return false
         }
 
+        switch blockchain {
+        case .binance, .arbitrum:
+            return false
+        default:
+            break
+        }
+
         if let mercuryoNetworkCurrencyCode = networkCodeByCurrencyCode[currencySymbol],
-           let mercuryoBlockchain = self.blockchain(for: mercuryoNetworkCurrencyCode),
-           mercuryoBlockchain == blockchain
-        {
+           mercuryoNetworkCurrencyCode.caseInsensitiveCompare(blockchain.currencySymbol) == .orderedSame {
             return true
         } else {
             return false
@@ -150,25 +144,6 @@ extension MercuryoService: ExchangeService {
                 self.networkCodeByCurrencyCode = response.data.config.base
             }
             .store(in: &bag)
-    }
-
-    private func blockchain(for currencyCode: String) -> Blockchain? {
-        let supportedBlockchains = SupportedTokenItems()
-            .blockchains(for: availableCurves, isTestnet: isTestnet)
-            .filter {
-                // Arbitrum uses ETH, binance uses BNB.
-                // Both are in conflict with the other cryptocurrencies.
-                switch $0 {
-                case .arbitrum, .binance:
-                    return false
-                default:
-                    return true
-                }
-            }
-
-        return supportedBlockchains.first {
-            $0.currencySymbol == currencyCode
-        }
     }
 
     private func signature(for address: String) -> String {
