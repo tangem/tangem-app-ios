@@ -23,7 +23,7 @@ class SignTransactionHandler: WalletConnectTransactionHandler {
 
     private func askToSign(in session: WalletConnectSession, request: Request, ethTransaction: WalletConnectEthTransaction) {
         buildTx(in: session, ethTransaction)
-            .flatMap { [weak self] buildResponse -> AnyPublisher<String, Error> in
+            .flatMap { buildResponse -> AnyPublisher<String, Error> in
                 let ethWalletModel = buildResponse.0
                 let tx = buildResponse.1
 
