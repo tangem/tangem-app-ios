@@ -119,7 +119,7 @@
 		5DA3A2F1251CB6CA009A8E08 /* SecurityModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA3A2F0251CB6CA009A8E08 /* SecurityModeView.swift */; };
 		5DA5067D27A2FF57000A8901 /* URL+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DA5067C27A2FF56000A8901 /* URL+.swift */; };
 		5DAC0888251391D900B73E8B /* CoreNFC.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DAC08832513917F00B73E8B /* CoreNFC.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
-		5DB862B8252396CD00566AA0 /* DefaultSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DB862B7252396CD00566AA0 /* DefaultSigner.swift */; };
+		5DB862B8252396CD00566AA0 /* TangemSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DB862B7252396CD00566AA0 /* TangemSigner.swift */; };
 		5DBAFD1E27E2471D0008B882 /* CoinModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DBAFD1D27E2471D0008B882 /* CoinModel.swift */; };
 		5DBBAB0824D850EA00E78F1C /* CircleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0724D850EA00E78F1C /* CircleView.swift */; };
 		5DBBAB0B24D853B600E78F1C /* Color+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0A24D853B600E78F1C /* Color+.swift */; };
@@ -458,7 +458,6 @@
 		DC0A582928252FEB0031BECC /* TokenItemsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A582828252FEB0031BECC /* TokenItemsRepository.swift */; };
 		DC0A582C282555940031BECC /* CommonScannedCardsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A582B282555940031BECC /* CommonScannedCardsRepository.swift */; };
 		DC0A582E282BCBEB0031BECC /* ShopifyProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A582D282BCBEB0031BECC /* ShopifyProtocol.swift */; };
-		DC0A5831282BE4640031BECC /* TangemSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A5830282BE4640031BECC /* TangemSigner.swift */; };
 		DC0A583D282BF9E10031BECC /* OnboardingStepsSetupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A583C282BF9E10031BECC /* OnboardingStepsSetupService.swift */; };
 		DC0A5844282BFDFC0031BECC /* CardsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A5843282BFDFC0031BECC /* CardsRepository.swift */; };
 		DC0A584A282C07A20031BECC /* WalletConnectServiceProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A5849282C07A20031BECC /* WalletConnectServiceProviding.swift */; };
@@ -724,7 +723,7 @@
 		5DA3A2F0251CB6CA009A8E08 /* SecurityModeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityModeView.swift; sourceTree = "<group>"; };
 		5DA5067C27A2FF56000A8901 /* URL+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+.swift"; sourceTree = "<group>"; };
 		5DAC08832513917F00B73E8B /* CoreNFC.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreNFC.framework; path = System/Library/Frameworks/CoreNFC.framework; sourceTree = SDKROOT; };
-		5DB862B7252396CD00566AA0 /* DefaultSigner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultSigner.swift; sourceTree = "<group>"; };
+		5DB862B7252396CD00566AA0 /* TangemSigner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSigner.swift; sourceTree = "<group>"; };
 		5DBAFD1D27E2471D0008B882 /* CoinModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinModel.swift; sourceTree = "<group>"; };
 		5DBBAB0724D850EA00E78F1C /* CircleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CircleView.swift; sourceTree = "<group>"; };
 		5DBBAB0A24D853B600E78F1C /* Color+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Color+.swift"; sourceTree = "<group>"; };
@@ -1033,7 +1032,6 @@
 		DC0A582828252FEB0031BECC /* TokenItemsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenItemsRepository.swift; sourceTree = "<group>"; };
 		DC0A582B282555940031BECC /* CommonScannedCardsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonScannedCardsRepository.swift; sourceTree = "<group>"; };
 		DC0A582D282BCBEB0031BECC /* ShopifyProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopifyProtocol.swift; sourceTree = "<group>"; };
-		DC0A5830282BE4640031BECC /* TangemSigner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSigner.swift; sourceTree = "<group>"; };
 		DC0A583C282BF9E10031BECC /* OnboardingStepsSetupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingStepsSetupService.swift; sourceTree = "<group>"; };
 		DC0A5843282BFDFC0031BECC /* CardsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsRepository.swift; sourceTree = "<group>"; };
 		DC0A5849282C07A20031BECC /* WalletConnectServiceProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectServiceProviding.swift; sourceTree = "<group>"; };
@@ -2303,7 +2301,6 @@
 				EF08A0ED283D1905008BD923 /* Extensions */,
 				DC0A584D282C12BC0031BECC /* Common */,
 				DC0A5848282C07750031BECC /* WalletConnectService */,
-				DC0A582F282BE4220031BECC /* TangemSigner */,
 				DA23786A27B241C2009795A8 /* ShopifyService */,
 				DC0A582A282555590031BECC /* ScannedCardsRepository */,
 				DC0A582728252F9D0031BECC /* TokenItemsRepository */,
@@ -2470,15 +2467,6 @@
 			path = ScannedCardsRepository;
 			sourceTree = "<group>";
 		};
-		DC0A582F282BE4220031BECC /* TangemSigner */ = {
-			isa = PBXGroup;
-			children = (
-				DC0A5830282BE4640031BECC /* TangemSigner.swift */,
-				5DB862B7252396CD00566AA0 /* DefaultSigner.swift */,
-			);
-			path = TangemSigner;
-			sourceTree = "<group>";
-		};
 		DC0A5848282C07750031BECC /* WalletConnectService */ = {
 			isa = PBXGroup;
 			children = (
@@ -2494,6 +2482,7 @@
 			children = (
 				B069F3AF2631D56700ACFD19 /* ImageService */,
 				5D384B8A24FD154C00C2C92C /* PayIDService.swift */,
+				5DB862B7252396CD00566AA0 /* TangemSigner.swift */,
 				5D225CB82524B721001564A3 /* Analytics.swift */,
 				5D9DCB05255193C30059799C /* AppSettings.swift */,
 				B0C4A1D22671F3FB00DCB921 /* TestnetBuyCryptoService.swift */,
@@ -3014,7 +3003,7 @@
 				5D4B8BBF27EDD5B5002CE87C /* ScanResult.swift in Sources */,
 				B0FAD01026BAF19E00F45E88 /* OnboardingStepIconView.swift in Sources */,
 				DC66BBF12859B77700CDF765 /* TokenListCoordinator.swift in Sources */,
-				5DB862B8252396CD00566AA0 /* DefaultSigner.swift in Sources */,
+				5DB862B8252396CD00566AA0 /* TangemSigner.swift in Sources */,
 				DC0A5844282BFDFC0031BECC /* CardsRepository.swift in Sources */,
 				DC66BBED2859B68100CDF765 /* ShopCoordinator.swift in Sources */,
 				B06917E0270444CE0000E6C1 /* OnboardingWalletInfoPager.swift in Sources */,
@@ -3271,7 +3260,6 @@
 				B0C8A0D42562C86A00DEEAC7 /* View+PreviewDevice.swift in Sources */,
 				DC66BBFC285A389000CDF765 /* PopoverModifier.swift in Sources */,
 				B0B8670326DF5AE1008DAA67 /* ModalSheetPreferenceKey.swift in Sources */,
-				DC0A5831282BE4640031BECC /* TangemSigner.swift in Sources */,
 				DA23787B27B24222009795A8 /* ProductVariant.swift in Sources */,
 				B046EE182578D38E00EA38A5 /* SceneDelegate.swift in Sources */,
 				5D341CC827E340770028D8FC /* CoinItemView.swift in Sources */,
