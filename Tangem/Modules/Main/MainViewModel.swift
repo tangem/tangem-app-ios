@@ -410,32 +410,17 @@ class MainViewModel: ObservableObject {
             return
         }
 
-        if cardModel.isTwinCard {
-            if cardModel.hasBalance {
-                error = AlertBinder(alert: Alert(title: Text("Attention!"),
-                                                 message: Text("Your wallet is not empty, please withdraw your funds before creating twin wallet or they will be lost."),
-                                                 primaryButton: .cancel(),
-                                                 secondaryButton: .destructive(Text("I understand, continue anyway")) { [weak self] in
-                                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                                         self?.prepareTwinOnboarding()
-                                                     }
-                                                 }))
-            } else {
-                prepareTwinOnboarding()
-            }
-        } else {
-            self.isCreatingWallet = true
-            cardModel.createWallet() { [weak self] result in
-                defer { self?.isCreatingWallet = false }
-                switch result {
-                case .success:
-                    break
-                case .failure(let error):
-                    if case .userCancelled = error.toTangemSdkError() {
-                        return
-                    }
-                    self?.setError(error.alertBinder)
+        self.isCreatingWallet = true
+        cardModel.createWallet() { [weak self] result in
+            defer { self?.isCreatingWallet = false }
+            switch result {
+            case .success:
+                break
+            case .failure(let error):
+                if case .userCancelled = error.toTangemSdkError() {
+                    return
                 }
+                self?.setError(error.alertBinder)
             }
         }
     }
@@ -539,32 +524,6 @@ class MainViewModel: ObservableObject {
         default:
             break
         }
-    }
-
-    func prepareTwinOnboarding() {
-        guard let cardModel = self.cardModel else { return }
-
-        cardOnboardingStepSetupService.twinRecreationSteps(for: cardModel.cardInfo)
-            .sink { completion in
-                switch completion {
-                case .failure(let error):
-                    Analytics.log(error: error)
-                    print("Failed to load image for new card")
-                    self.error = error.alertBinder
-                case .finished:
-                    break
-                }
-            } receiveValue: { [weak self] steps in
-                guard let self = self else { return }
-
-                let input = OnboardingInput(steps: steps,
-                                            cardInput: .cardModel(cardModel),
-                                            welcomeStep: nil,
-                                            currentStepIndex: 0)
-
-                self.openOnboarding(with: input)
-            }
-            .store(in: &bag)
     }
 
     func prepareForBackup() {
