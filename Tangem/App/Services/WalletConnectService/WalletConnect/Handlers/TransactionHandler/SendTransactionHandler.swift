@@ -29,7 +29,7 @@ class SendTransactionHandler: WalletConnectTransactionHandler {
 
                 let ethWalletModel = buildResult.0
                 let tx = buildResult.1
-                return ethWalletModel.walletManager.send(tx, signer: self.signer)
+                return ethWalletModel.walletManager.send(tx, signer: TangemSigner(with: session.wallet.cid))
                     .map { ethWalletModel }
                     .eraseToAnyPublisher()
             }
