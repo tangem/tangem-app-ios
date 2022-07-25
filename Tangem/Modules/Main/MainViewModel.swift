@@ -20,7 +20,6 @@ class MainViewModel: ObservableObject {
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
     @Injected(\.rateAppService) private var rateAppService: RateAppService
     @Injected(\.onboardingStepsSetupService) private var cardOnboardingStepSetupService: OnboardingStepsSetupService
-    @Injected(\.negativeFeedbackDataProvider) var negativeFeedbackDataCollector: NegativeFeedbackDataProvider
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     // MARK: - Published variables
@@ -367,7 +366,7 @@ class MainViewModel: ObservableObject {
     func getDataCollector(for feedbackCase: EmailFeedbackCase) -> EmailDataCollector {
         switch feedbackCase {
         case .negativeFeedback:
-            return negativeFeedbackDataCollector
+            return NegativeFeedbackDataCollector(cardInfo: cardModel!.cardInfo) // [REDACTED_TODO_COMMENT]
         case .scanTroubleshooting:
             return failedCardScanTracker
         }
