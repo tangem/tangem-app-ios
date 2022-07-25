@@ -40,7 +40,7 @@ class SignTypedDataHandler: WalletConnectSignHandler {
         .signature(signature, for: request)
     }
 
-    override func sign(data: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<String, Error> {
+    override func sign(data: Data, walletPublicKey: Wallet.PublicKey, signer: TangemSigner) -> AnyPublisher<String, Error> {
         return signer.sign(hash: data, walletPublicKey: walletPublicKey)
             .tryMap { response -> String in
                 if let unmarshalledSig = try? Secp256k1Signature(with: response).unmarshal(with: walletPublicKey.blockchainKey,
