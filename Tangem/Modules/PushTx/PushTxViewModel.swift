@@ -11,8 +11,6 @@ import BlockchainSdk
 import Combine
 
 class PushTxViewModel: ObservableObject {
-    @Injected(\.transactionSigner) private var signer: TangemSigner
-
     var destination: String { transaction.destinationAddress }
 
     var previousTotal: String {
@@ -132,7 +130,7 @@ class PushTxViewModel: ObservableObject {
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.addLoadingView()
-        pusher.pushTransaction(with: previousTxHash, newTransaction: tx, signer: signer)
+        pusher.pushTransaction(with: previousTxHash, newTransaction: tx, signer: cardViewModel.signer)
             .delay(for: 0.5, scheduler: DispatchQueue.main)
             .sink(receiveCompletion: { [unowned self] completion in
                 appDelegate.removeLoadingView()
