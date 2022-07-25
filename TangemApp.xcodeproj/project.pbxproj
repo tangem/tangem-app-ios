@@ -461,7 +461,6 @@
 		DC0A5831282BE4640031BECC /* TangemSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A5830282BE4640031BECC /* TangemSigner.swift */; };
 		DC0A583D282BF9E10031BECC /* OnboardingStepsSetupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A583C282BF9E10031BECC /* OnboardingStepsSetupService.swift */; };
 		DC0A5844282BFDFC0031BECC /* CardsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A5843282BFDFC0031BECC /* CardsRepository.swift */; };
-		DC0A5847282C06A80031BECC /* NegativeFeedbackDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A5846282C06A80031BECC /* NegativeFeedbackDataProvider.swift */; };
 		DC0A584A282C07A20031BECC /* WalletConnectServiceProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A5849282C07A20031BECC /* WalletConnectServiceProviding.swift */; };
 		DC0A584C282C07B10031BECC /* WalletConnectServiceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A584B282C07B10031BECC /* WalletConnectServiceProvider.swift */; };
 		DC0A5853282E3AB60031BECC /* CardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D4B8BC227EDD601002CE87C /* CardInfo.swift */; };
@@ -1037,7 +1036,6 @@
 		DC0A5830282BE4640031BECC /* TangemSigner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSigner.swift; sourceTree = "<group>"; };
 		DC0A583C282BF9E10031BECC /* OnboardingStepsSetupService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingStepsSetupService.swift; sourceTree = "<group>"; };
 		DC0A5843282BFDFC0031BECC /* CardsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardsRepository.swift; sourceTree = "<group>"; };
-		DC0A5846282C06A80031BECC /* NegativeFeedbackDataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NegativeFeedbackDataProvider.swift; sourceTree = "<group>"; };
 		DC0A5849282C07A20031BECC /* WalletConnectServiceProviding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectServiceProviding.swift; sourceTree = "<group>"; };
 		DC0A584B282C07B10031BECC /* WalletConnectServiceProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectServiceProvider.swift; sourceTree = "<group>"; };
 		DC0A5855282E3E220031BECC /* ServicesManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServicesManager.swift; sourceTree = "<group>"; };
@@ -2305,7 +2303,6 @@
 				EF08A0ED283D1905008BD923 /* Extensions */,
 				DC0A584D282C12BC0031BECC /* Common */,
 				DC0A5848282C07750031BECC /* WalletConnectService */,
-				DC0A5845282C06810031BECC /* NegativeFeedback */,
 				DC0A582F282BE4220031BECC /* TangemSigner */,
 				DA23786A27B241C2009795A8 /* ShopifyService */,
 				DC0A582A282555590031BECC /* ScannedCardsRepository */,
@@ -2480,14 +2477,6 @@
 				5DB862B7252396CD00566AA0 /* DefaultSigner.swift */,
 			);
 			path = TangemSigner;
-			sourceTree = "<group>";
-		};
-		DC0A5845282C06810031BECC /* NegativeFeedback */ = {
-			isa = PBXGroup;
-			children = (
-				DC0A5846282C06A80031BECC /* NegativeFeedbackDataProvider.swift */,
-			);
-			path = NegativeFeedback;
 			sourceTree = "<group>";
 		};
 		DC0A5848282C07750031BECC /* WalletConnectService */ = {
@@ -3169,7 +3158,6 @@
 				B018F304259204A200D8F89A /* WarningEvent.swift in Sources */,
 				65B4DED6288357DC001524CF /* BottomSheetBaseController.swift in Sources */,
 				5D559BCC25406BB40009E0F6 /* AppFeaturesService.swift in Sources */,
-				DC0A5847282C06A80031BECC /* NegativeFeedbackDataProvider.swift in Sources */,
 				5D39514D2556CDDF002CC452 /* MoonPayService.swift in Sources */,
 				5D5332B125F9091900D32CA5 /* TokenItem.swift in Sources */,
 				B085154F26D77C2400E1A836 /* TwinsOnboardingViewModel.swift in Sources */,
