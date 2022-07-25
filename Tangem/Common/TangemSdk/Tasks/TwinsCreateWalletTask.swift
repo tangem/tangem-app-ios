@@ -27,14 +27,12 @@ class TwinsCreateWalletTask: CardSessionRunnable {
 
     private let firstTwinCardId: String?
     private var fileToWrite: Data?
-    private let walletManagerFactory: WalletManagerFactory?
     private var walletManager: WalletManager? = nil
     private var scanCommand: AppScanTask? = nil
 
-    init(firstTwinCardId: String?, fileToWrite: Data?, walletManagerFactory: WalletManagerFactory?) {
+    init(firstTwinCardId: String?, fileToWrite: Data?) {
         self.firstTwinCardId = firstTwinCardId
         self.fileToWrite = fileToWrite
-        self.walletManagerFactory = walletManagerFactory
     }
 
     func run(in session: CardSession, completion: @escaping CompletionResult<CommandResponse>) {
@@ -65,29 +63,7 @@ class TwinsCreateWalletTask: CardSessionRunnable {
         if card.wallets.isEmpty {
             createWallet(in: session, completion: completion)
         } else {
-            if let walletManagerFactory = self.walletManagerFactory,
-               let wallet = card.wallets.first {
-                self.walletManager = try? walletManagerFactory.makeWalletManager(blockchain: .bitcoin(testnet: false),
-                                                                                 walletPublicKey: wallet.publicKey)
-
-                walletManager?.update(completion: { result in
-                    switch result {
-                    case .success:
-                        let wallet = self.walletManager!.wallet
-                        if wallet.hasPendingTx || !wallet.isEmpty {
-                            let number = AppTwinCardIdFormatter.format(cid: card.cardId, cardNumber: TwinCardSeries.series(for: card.cardId)?.number)
-                            let err = "Your wallet on the card \(number) is not empty, please scan it and withdraw your funds before creating twin wallet or they will be lost."
-                            completion(.failure(err.toTangemSdkError()))
-                        } else {
-                            self.eraseWallet(in: session, completion: completion)
-                        }
-                    case .failure(let error):
-                        completion(.failure(error.toTangemSdkError()))
-                    }
-                })
-            } else {
-                eraseWallet(in: session, completion: completion)
-            }
+            eraseWallet(in: session, completion: completion)
         }
     }
 
