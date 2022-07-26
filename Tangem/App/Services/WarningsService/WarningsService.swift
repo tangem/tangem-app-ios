@@ -28,6 +28,8 @@ class WarningsService {
         }
     }
 
+    private var currentCardId: String = ""
+
     init() {}
 
     deinit {
@@ -120,8 +122,16 @@ class WarningsService {
 
 extension WarningsService: AppWarningsProviding {
     func setupWarnings(for cardInfo: CardInfo) {
+        currentCardId = cardInfo.card.cardId
+
         mainWarnings = warningsForMain(for: cardInfo)
         sendWarnings = warningsForSend(for: cardInfo)
+    }
+
+    func didSign(with card: Card) {
+        guard currentCardId == card.cardId else { return }
+
+        addLowRemainingSignaturesWarningIfNeeded(in: mainWarnings, for: card)
     }
 
     func warnings(for location: WarningsLocation) -> WarningsContainer {
