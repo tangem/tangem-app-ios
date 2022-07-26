@@ -10,8 +10,6 @@ import Foundation
 import Combine
 
 protocol CardsRepository {
-    var lastScanResult: ScanResult { get set }
-
     var didScanPublisher: PassthroughSubject<CardInfo, Never> { get }
 
     func scan(with batch: String?, _ completion: @escaping (Result<ScanResult, Error>) -> Void)

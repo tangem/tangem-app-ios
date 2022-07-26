@@ -15,7 +15,6 @@ import stellarsdk
 import AVFoundation
 
 class SendViewModel: ObservableObject {
-    @Injected(\.appFeaturesService) private var featuresService: AppFeaturesProviding
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
 
     @Published var showCameraDeniedAlert = false
@@ -170,6 +169,8 @@ class SendViewModel: ObservableObject {
 
         return nil
     }()
+
+    private var featuresService: AppFeaturesService { .init(with: cardViewModel.cardInfo.card) } // Temp
 
     private unowned let coordinator: SendRoutable
 
