@@ -18,7 +18,7 @@ class TangemSdkProvider: TangemSdkProviding {
         var config = Config()
         config.filter.allowedCardTypes = [.release, .sdk]
         config.logConfig = Log.Config.custom(logLevel: Log.Level.allCases,
-                                             loggers: [loggerProvider.logger, ConsoleLogger()])
+                                             loggers: [loggerProvider.logger, ConsoleLogger(), TangemSdkEventLogger()])
         config.filter.batchIdFilter = .deny(["0027", // todo: tangem tags
                                              "0030",
                                              "0031",
