@@ -59,6 +59,9 @@ class ListDataLoader {
     }
 
     func fetch(_ searchText: String) {
+        if !searchText.isEmpty {
+            Analytics.logAmplitude(.tokenSearch, params: ["token_name": searchText])
+        }
         cancellable = nil
 
         if lastSearchText != searchText {
@@ -132,6 +135,7 @@ private extension ListDataLoader {
             .map { $0.networkId }
 
         let searchText = searchText.trimmed()
+        Analytics.logAmplitude(.searchToken, params: ["token_name": searchText])
         let requestModel = CoinsListRequestModel(
             networkIds: networkIds,
             searchText: searchText,

@@ -309,6 +309,7 @@ class TokenDetailsViewModel: ObservableObject {
             title: title,
             message: "token_details_hide_alert_message".localized,
             primaryButton: .destructive(Text("token_details_hide_alert_hide")) { [weak self] in
+                Analytics.logAmplitude(.removeToken)
                 self?.deleteToken()
             }
         )
@@ -385,6 +386,7 @@ extension TokenDetailsViewModel {
     }
 
     func openBuyCryptoIfPossible() {
+        Analytics.logAmplitude(.buyTokenClicked)
         if tangemApiService.geoIpRegionCode == LanguageCode.ru {
             coordinator.openBankWarning {
                 self.openBuyCrypto()
