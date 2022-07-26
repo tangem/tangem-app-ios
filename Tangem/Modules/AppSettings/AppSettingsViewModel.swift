@@ -1,4 +1,4 @@
-// 
+//
 //  AppSettingsViewModel.swift
 //  Tangem
 //
@@ -10,6 +10,10 @@ import Combine
 
 final class AppSettingsViewModel: ObservableObject {
     // MARK: ViewState
+
+    @Published var isSavingWallet: Bool = true
+    @Published var isSavingAccessCodes: Bool = true
+    @Published var alert: AlertBinder?
 
     // MARK: Dependencies
 
