@@ -17,7 +17,7 @@ struct ScanCardSettingsCoordinatorView: CoordinatorView {
     }
 
     var body: some View {
-        if let rootViewModel = coordinator.rootViewModel {
+        if let rootViewModel = coordinator.scanCardSettingsViewModel {
             ScanCardSettingsView(viewModel: rootViewModel)
                 .navigation(item: $coordinator.cardSettingsCoordinator) {
                     CardSettingsCoordinatorView(coordinator: $0)
