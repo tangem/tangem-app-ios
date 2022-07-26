@@ -16,6 +16,7 @@ struct DetailsView: View {
         case disclaimer
         case cardTermsOfUse
         case securityManagement
+        case appSettings
         case walletConnect
         case resetToFactory
         case supportChat
@@ -76,6 +77,10 @@ struct DetailsView: View {
             }
 
             securityManagementRow
+
+            if AppEnvironment.current == .beta {
+                appSettings
+            }
 
             if viewModel.isTwinCard {
                 twinCardRecreateView
@@ -145,6 +150,21 @@ struct DetailsView: View {
         }
         .onNavigation(viewModel.openCardSettings,
                       tag: NavigationTag.securityManagement,
+                      selection: $selection)
+    }
+
+    private var appSettings: some View {
+        HStack {
+            Text("details_row_title_app_settings")
+                .font(.system(size: 16, weight: .regular, design: .default))
+                .foregroundColor(.tangemGrayDark6)
+
+            Spacer()
+
+            ActivityIndicatorView(isAnimating: viewModel.isCheckingPin, color: .tangemGrayDark4)
+        }
+        .onNavigation(viewModel.openAppSettings,
+                      tag: NavigationTag.appSettings,
                       selection: $selection)
     }
 
