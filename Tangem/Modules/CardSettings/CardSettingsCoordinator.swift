@@ -13,7 +13,7 @@ class CardSettingsCoordinator: CoordinatorObject {
     var popToRootAction: ParamsAction<PopToRootOptions>
 
     // MARK: - Main view model
-    @Published private(set) var securityPrivacyViewModel: CardSettingsViewModel?
+    @Published private(set) var сardSettingsViewModel: CardSettingsViewModel?
 
     // MARK: - Child view models
     // [REDACTED_TODO_COMMENT]
@@ -27,7 +27,7 @@ class CardSettingsCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        securityPrivacyViewModel = CardSettingsViewModel(
+        сardSettingsViewModel = CardSettingsViewModel(
             cardModel: options.cardModel,
             coordinator: self
         )
