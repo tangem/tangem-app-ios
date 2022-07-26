@@ -75,22 +75,22 @@ struct CardSettingsView: View {
     private var savingWalletSection: some View {
         Section(content: {
             ToggleRowView(
-                title: "card_settings_saved_wallet".localized,
+                title: "app_settings_saved_wallet".localized,
                 isOn: $viewModel.isSavingWallet
             )
         }, footer: {
-            FooterView(title: "card_settings_saved_wallet_footer".localized)
+            FooterView(title: "app_settings_saved_wallet_footer".localized)
         })
     }
 
     private var savingAccessCodesSection: some View {
         Section(content: {
             ToggleRowView(
-                title: "card_settings_saved_access_codes".localized,
+                title: "app_settings_saved_access_codes".localized,
                 isOn: $viewModel.isSavingAccessCodes
             )
         }, footer: {
-            FooterView(title: "card_settings_saved_access_codes_footer".localized)
+            FooterView(title: "app_settings_saved_access_codes_footer".localized)
         })
     }
 }
