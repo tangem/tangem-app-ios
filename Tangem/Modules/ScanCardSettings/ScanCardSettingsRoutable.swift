@@ -8,4 +8,6 @@
 
 import Foundation
 
-public protocol ScanCardSettingsRoutable: AnyObject {}
+protocol ScanCardSettingsRoutable: AnyObject {
+    func openCardSettings(cardModel: CardViewModel)
+}
