@@ -19,7 +19,7 @@ class CardSettingsViewModel: ObservableObject {
     @Published var isSavingAccessCodes: Bool = true
     @Published var alert: AlertBinder?
 
-    var cardCid: String {
+    var cardId: String {
         let cardId = cardModel.cardInfo.card.cardId
         if cardModel.isTwinCard {
             return AppTwinCardIdFormatter.format(
