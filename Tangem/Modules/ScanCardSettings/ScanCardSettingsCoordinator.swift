@@ -15,7 +15,7 @@ class ScanCardSettingsCoordinator: CoordinatorObject {
 
     // MARK: Root View Model
 
-    @Published private(set) var rootViewModel: ScanCardSettingsViewModel?
+    @Published private(set) var scanCardSettingsViewModel: ScanCardSettingsViewModel?
 
     // MARK: Child View Models
 
@@ -30,7 +30,7 @@ class ScanCardSettingsCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = ScanCardSettingsViewModel(cardModel: options.cardModel, coordinator: self)
+        scanCardSettingsViewModel = ScanCardSettingsViewModel(cardModel: options.cardModel, coordinator: self)
     }
 }
 
