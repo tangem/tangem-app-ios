@@ -2,4 +2,4 @@
 
 import Foundation
 
-public protocol ___VARIABLE_moduleName:identifier___Routable: AnyObject {}
+protocol ___VARIABLE_moduleName:identifier___Routable: AnyObject {}
