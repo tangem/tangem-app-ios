@@ -65,10 +65,12 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openMail(with dataCollector: EmailDataCollector, support: EmailSupport, emailType: EmailType) {
+        Analytics.logAmplitude(.makeComment)
         mailViewModel = MailViewModel(dataCollector: dataCollector, support: support, emailType: emailType)
     }
 
     func openWalletConnect(with cardModel: CardViewModel) {
+        Analytics.logAmplitude(.wcClicked)
         let coordinator = WalletConnectCoordinator()
         let options = WalletConnectCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
@@ -84,6 +86,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openResetToFactory(action: @escaping (_ completion: @escaping (Result<Void, Error>) -> Void) -> Void) {
+        Analytics.logAmplitude(.factoryRessetClicked)
         cardOperationViewModel = CardOperationViewModel(title: "details_row_title_reset_factory_settings".localized,
                                                         buttonTitle: "card_operation_button_title_reset",
                                                         shouldPopToRoot: true,
@@ -99,6 +102,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openSupportChat() {
+        Analytics.logAmplitude(.chatClicked)
         supportChatViewModel = SupportChatViewModel()
     }
 }
