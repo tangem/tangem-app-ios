@@ -26,18 +26,21 @@ class AppSettingsCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-
+        rootViewModel = AppSettingsViewModel(cardModel: options.cardModel, coordinator: self)
     }
 }
 
 // MARK: - Options
 
 extension AppSettingsCoordinator {
-    enum Options {
-
+    struct Options {
+        let cardModel: CardViewModel
     }
 }
 
 // MARK: - AppSettingsRoutable
 
-extension AppSettingsCoordinator: AppSettingsRoutable {}
+extension AppSettingsCoordinator: AppSettingsRoutable {
+    func openTokenSynchronization() {}
+    func openResetSavedCards() {}
+}
