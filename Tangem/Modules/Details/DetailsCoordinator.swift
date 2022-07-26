@@ -73,10 +73,12 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openMail(with dataCollector: EmailDataCollector, support: EmailSupport, emailType: EmailType) {
+        Analytics.logAmplitude(.makeComment)
         mailViewModel = MailViewModel(dataCollector: dataCollector, support: support, emailType: emailType)
     }
 
     func openWalletConnect(with cardModel: CardViewModel) {
+        Analytics.logAmplitude(.wcClicked)
         let coordinator = WalletConnectCoordinator()
         let options = WalletConnectCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
@@ -92,6 +94,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openScanCardSettings() {
+        Analytics.logAmplitude(.factoryRessetClicked)
         scanCardSettingsViewModel = ScanCardSettingsViewModel(coordinator: self)
     }
 
@@ -102,6 +105,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openSupportChat(cardId: String) {
+        Analytics.logAmplitude(.chatClicked)
         supportChatViewModel = SupportChatViewModel(cardId: cardId)
     }
 
