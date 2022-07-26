@@ -1,5 +1,5 @@
 //
-//  SecurityPrivacyCoordinatorView.swift
+//  CardSettingsCoordinatorView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,12 +9,12 @@
 import Foundation
 import SwiftUI
 
-struct SecurityPrivacyCoordinatorView: CoordinatorView {
-    @ObservedObject var coordinator: SecurityPrivacyCoordinator
+struct CardSettingsCoordinatorView: CoordinatorView {
+    @ObservedObject var coordinator: CardSettingsCoordinator
 
     var body: some View {
-        if let model = coordinator.securityPrivacyViewModel {
-            SecurityPrivacyView(viewModel: model)
+        if let model = coordinator.сardSettingsViewModel {
+            CardSettingsView(viewModel: model)
                 .navigation(item: $coordinator.securityManagementCoordinator) {
                     SecurityModeCoordinatorView(coordinator: $0)
                 }
