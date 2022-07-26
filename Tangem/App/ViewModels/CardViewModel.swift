@@ -362,11 +362,6 @@ class CardViewModel: Identifiable, ObservableObject {
             }
     }
 
-    func onSign(_ card: Card) {
-        cardInfo.card = card
-        warningsService.setupWarnings(for: cardInfo)
-    }
-
     // MARK: - Security
 
     func checkPin(_ completion: @escaping (Result<CheckUserCodesResponse, Error>) -> Void) {
