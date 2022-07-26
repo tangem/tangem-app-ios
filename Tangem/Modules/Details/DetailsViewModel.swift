@@ -113,26 +113,6 @@ class DetailsViewModel: ObservableObject {
         bind()
     }
 
-    func checkPin(_ completion: @escaping () -> Void) {
-        if cardModel.cardInfo.card.firmwareVersion.doubleValue >= 4.39 {
-            completion()
-            return
-        }
-
-        isCheckingPin = true
-        cardModel.checkPin { [weak self] result in
-            guard let self = self else { return }
-
-            self.isCheckingPin = false
-            switch result {
-            case .success:
-                completion()
-            case .failure(let error):
-                Analytics.logCardSdkError(error.toTangemSdkError(), for: .readPinSettings, card: self.cardModel.cardInfo.card)
-            }
-        }
-    }
-
     func prepareTwinOnboarding() {
         onboardingStepsSetupService.twinRecreationSteps(for: cardModel.cardInfo)
             .sink { completion in
@@ -233,6 +213,7 @@ class DetailsViewModel: ObservableObject {
 }
 
 // MARK: - Navigation
+
 extension DetailsViewModel {
     func openOnboarding(with input: OnboardingInput) {
         coordinator.openOnboardingModal(with: input)
@@ -268,12 +249,8 @@ extension DetailsViewModel {
         }
     }
 
-    func openSecManagement() {
-        checkPin { [weak self] in
-            guard let self = self else { return }
-
-            self.coordinator.openSecurityPrivacy(with: self.cardModel)
-        }
+    func openCardSettings() {
+        coordinator.openScanCardSettings(with: cardModel)
     }
 
     func openSupportChat() {
