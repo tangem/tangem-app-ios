@@ -1,5 +1,5 @@
 //
-//  SecurityPrivacyCoordinator.swift
+//  CardSettingsCoordinator.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,12 +8,12 @@
 
 import Foundation
 
-class SecurityPrivacyCoordinator: CoordinatorObject {
+class CardSettingsCoordinator: CoordinatorObject {
     var dismissAction: Action
     var popToRootAction: ParamsAction<PopToRootOptions>
 
     // MARK: - Main view model
-    @Published private(set) var securityPrivacyViewModel: SecurityPrivacyViewModel?
+    @Published private(set) var сardSettingsViewModel: CardSettingsViewModel?
 
     // MARK: - Child view models
     // [REDACTED_TODO_COMMENT]
@@ -27,22 +27,22 @@ class SecurityPrivacyCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        securityPrivacyViewModel = SecurityPrivacyViewModel(
+        сardSettingsViewModel = CardSettingsViewModel(
             cardModel: options.cardModel,
             coordinator: self
         )
     }
 }
 
-extension SecurityPrivacyCoordinator {
+extension CardSettingsCoordinator {
     struct Options {
         let cardModel: CardViewModel
     }
 }
 
-// MARK: - SecurityPrivacyRoutable
+// MARK: - CardSettingsRoutable
 
-extension SecurityPrivacyCoordinator: SecurityPrivacyRoutable {
+extension CardSettingsCoordinator: CardSettingsRoutable {
     func openChangeAccessCode() {
 
     }
