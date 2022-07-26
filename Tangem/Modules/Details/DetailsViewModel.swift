@@ -250,7 +250,7 @@ extension DetailsViewModel {
     }
 
     func openCardSettings() {
-        coordinator.openCardSettings(with: cardModel)
+        coordinator.openScanCardSettings(with: cardModel)
     }
 
     func openSupportChat() {
