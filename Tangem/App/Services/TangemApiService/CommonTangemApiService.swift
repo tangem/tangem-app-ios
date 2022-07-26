@@ -103,7 +103,7 @@ extension CommonTangemApiService: TangemApiService {
             .store(in: &bag)
     }
 
-    func authorize(with authData: TangemApiTarget.AuthData) {
+    func setAuthData(_ authData: TangemApiTarget.AuthData) {
         self.authData = authData
     }
 }
