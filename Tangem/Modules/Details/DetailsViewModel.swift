@@ -16,7 +16,6 @@ class DetailsViewModel: ObservableObject {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     @Injected(\.onboardingStepsSetupService) private var onboardingStepsSetupService: OnboardingStepsSetupService
 
-    @Published var isCheckingPin = false
     @Published var cardModel: CardViewModel
     @Published var error: AlertBinder?
 
