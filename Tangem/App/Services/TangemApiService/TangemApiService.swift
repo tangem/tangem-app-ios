@@ -16,7 +16,7 @@ protocol TangemApiService: AnyObject, Initializable {
     func loadRates(for coinIds: [String]) -> AnyPublisher<[String: Decimal], Never>
     func loadCurrencies() -> AnyPublisher<[CurrenciesResponse.Currency], Error>
 
-    func authorize(with authData: TangemApiTarget.AuthData)
+    func setAuthData(_ authData: TangemApiTarget.AuthData)
 }
 
 private struct TangemApiServiceKey: InjectionKey {
