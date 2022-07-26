@@ -75,7 +75,7 @@ class CommonCardsRepository: CardsRepository {
         scannedCardsRepository.add(cardInfo)
         sdkProvider.didScan(cardInfo.card)
         didScanPublisher.send(cardInfo)
-        tangemApiService.authorize(with: cardInfo.card.tangemApiAuthData)
+        tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
 
         let cm = CardViewModel(cardInfo: cardInfo)
         let result: ScanResult = .card(model: cm)
