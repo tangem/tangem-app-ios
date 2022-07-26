@@ -18,14 +18,7 @@ class CommonTangemApiService {
 
     private let fallbackRegionCode = Locale.current.regionCode?.lowercased() ?? ""
     private var _geoIpRegionCode: String? = nil
-
-    private var authData: TangemApiTarget.AuthData? {
-        guard let card = cardsRepository.lastScanResult.card else {
-            return nil
-        }
-
-        return TangemApiTarget.AuthData(cardId: card.cardId, cardPublicKey: card.cardPublicKey)
-    }
+    private var authData: TangemApiTarget.AuthData? = nil
 
     deinit {
         print("CommonTangemApiService deinit")
@@ -108,5 +101,9 @@ extension CommonTangemApiService: TangemApiService {
             .subscribe(on: DispatchQueue.global())
             .weakAssign(to: \._geoIpRegionCode, on: self)
             .store(in: &bag)
+    }
+
+    func setAuthData(_ authData: TangemApiTarget.AuthData) {
+        self.authData = authData
     }
 }
