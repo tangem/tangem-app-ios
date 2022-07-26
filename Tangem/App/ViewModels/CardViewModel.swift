@@ -26,13 +26,14 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
-    @Injected(\.transactionSigner) private var signer: TangemSigner
 
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
     @Published private(set) var currentSecurityOption: SecurityModeOption = .longTap
     @Published public var cardInfo: CardInfo
     @Published var walletsBalanceState: WalletsBalanceState = .loaded
+
+    var signer: TangemSigner
 
     private var walletBalanceSubscription: AnyCancellable? = nil
     private var cardPinSettings: CardPinSettings = CardPinSettings()
@@ -251,6 +252,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
 
     init(cardInfo: CardInfo) {
         self.cardInfo = cardInfo
+        self.signer = .init(with: cardInfo.card)
         updateCardPinSettings()
         updateCurrentSecurityOption()
     }
@@ -447,7 +449,6 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
     }
 
     // MARK: - Wallet
-
     func createWallet(_ completion: @escaping (Result<Void, Error>) -> Void) {
         let card = self.cardInfo.card
         tangemSdk.startSession(with: CreateWalletAndReadTask(with: cardInfo.defaultBlockchain?.curve),
@@ -534,6 +535,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
     func update(with card: Card) {
         print("🟩 Updating Card view model with new Card")
         cardInfo.card = card
+        signer = .init(with: cardInfo.card)
         updateCardPinSettings()
         self.updateCurrentSecurityOption()
         updateModel()
@@ -542,6 +544,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
     func update(with cardInfo: CardInfo) {
         print("🔷 Updating Card view model with new CardInfo")
         self.cardInfo = cardInfo
+        signer = .init(with: cardInfo.card)
         updateCardPinSettings()
         self.updateCurrentSecurityOption()
         updateModel()
