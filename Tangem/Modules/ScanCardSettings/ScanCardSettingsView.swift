@@ -17,7 +17,6 @@ struct ScanCardSettingsView: View {
 
     var body: some View {
         VStack(alignment: .center, spacing: 0) {
-
             Assets.cards
                 .padding(.vertical, 32)
 
