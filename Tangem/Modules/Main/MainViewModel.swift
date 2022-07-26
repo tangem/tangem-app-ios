@@ -732,15 +732,15 @@ extension MainViewModel {
     }
 
     func openBuyCrypto() {
-        guard let cardInfo = cardModel?.cardInfo else { return }
+        guard let cardModel = self.cardModel else { return }
 
-        if cardInfo.card.isDemoCard  {
+        if cardModel.cardInfo.card.isDemoCard  {
             error = AlertBuilder.makeDemoAlert()
             return
         }
 
-        guard cardInfo.isTestnet, !cardInfo.isMultiWallet,
-              let walletModel = cardModel?.walletModels?.first,
+        guard cardModel.cardInfo.isTestnet, !cardModel.cardInfo.isMultiWallet,
+              let walletModel = cardModel.walletModels?.first,
               walletModel.wallet.blockchain == .ethereum(testnet: true),
               let token = walletModel.tokenItemViewModels.first?.amountType.token else {
             if let url = buyCryptoURL {
@@ -754,7 +754,7 @@ extension MainViewModel {
             return
         }
 
-        testnetBuyCryptoService.buyCrypto(.erc20Token(walletManager: walletModel.walletManager, token: token))
+        testnetBuyCryptoService.buyCrypto(.erc20Token(token, walletManager: walletModel.walletManager, signer: cardModel.signer))
     }
 
     func openBuyCryptoIfPossible() {

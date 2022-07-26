@@ -1,5 +1,5 @@
 //
-//  DefaultSigner.swift
+//  TangemSigner.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,31 +10,32 @@ import TangemSdk
 import BlockchainSdk
 import Combine
 
-public class DefaultSigner: TransactionSigner, TransactionSignerPublisher {
+class TangemSigner: TransactionSigner {
     @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
-    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
 
     var signedCardPublisher = PassthroughSubject<Card, Never>()
 
     private var initialMessage: Message { .init(header: nil, body: "initial_message_sign_body".localized) }
+    private let cardId: String?
 
-    public init() {}
+    init(with cardId: String?) {
+        self.cardId = cardId
+    }
 
-    public func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[Data], Error> {
-        let requiredCardId: String?
-
-        let card = cardsRepository.lastScanResult.cardModel?.cardInfo.card
-        if let backupStatus = card?.backupStatus, backupStatus.isActive {
-            requiredCardId = nil
+    convenience init(with card: Card) {
+        if let backupStatus = card.backupStatus, backupStatus.isActive {
+            self.init(with: nil)
         } else {
-            requiredCardId = card?.cardId
+            self.init(with: card.cardId)
         }
+    }
 
+    func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[Data], Error> {
         let future = Future<[Data], Error> { [unowned self] promise in
             let signCommand = SignAndReadTask(hashes: hashes,
                                               walletPublicKey: walletPublicKey.seedKey,
                                               derivationPath: walletPublicKey.derivationPath)
-            self.sdkProvider.sdk.startSession(with: signCommand, cardId: requiredCardId, initialMessage: self.initialMessage) { signResult in
+            self.sdkProvider.sdk.startSession(with: signCommand, cardId: self.cardId, initialMessage: self.initialMessage) { signResult in
                 switch signResult {
                 case .success(let response):
                     self.signedCardPublisher.send(response.card)
@@ -47,7 +48,7 @@ public class DefaultSigner: TransactionSigner, TransactionSignerPublisher {
         return AnyPublisher(future)
     }
 
-    public func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<Data, Error> {
+    func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<Data, Error> {
         sign(hashes: [hash], walletPublicKey: walletPublicKey)
             .map { $0[0] }
             .eraseToAnyPublisher()
