@@ -9,10 +9,6 @@
 import Combine
 
 final class ScanCardSettingsViewModel: ObservableObject {
-    // MARK: ViewState
-
-    // MARK: Dependencies
-
     private unowned let coordinator: ScanCardSettingsRoutable
     private let cardModel: CardViewModel
 
