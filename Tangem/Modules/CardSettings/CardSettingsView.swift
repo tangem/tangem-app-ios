@@ -25,8 +25,8 @@ struct CardSettingsView: View {
 
             securityModeSection
 
+            // [REDACTED_TODO_COMMENT]
 //            savingWalletSection
-
 //            savingAccessCodesSection
         }
         .listStyle(DefaultListStyle())
@@ -39,7 +39,7 @@ struct CardSettingsView: View {
         Section(content: {
             RowView(
                 title: "details_row_title_cid".localized,
-                details: viewModel.cardCid
+                details: viewModel.cardId
             )
 
             RowView(
