@@ -253,6 +253,10 @@ extension DetailsViewModel {
         coordinator.openScanCardSettings(with: cardModel)
     }
 
+    func openAppSettings() {
+        coordinator.openAppSettings(with: cardModel)
+    }
+
     func openSupportChat() {
         coordinator.openSupportChat()
     }
