@@ -18,11 +18,10 @@ struct CardPinSettings {
     var isPin2Default: Bool? = nil
 }
 
-class CardViewModel: Identifiable, ObservableObject, Initializable {
+class CardViewModel: Identifiable, ObservableObject {
     // MARK: Services
     @Injected(\.cardImageLoader) var imageLoader: CardImageLoaderProtocol
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
-    @Injected(\.appFeaturesService) private var featuresService: AppFeaturesProviding
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
@@ -40,6 +39,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
     private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
     private var migrated = false
     private var tangemSdk: TangemSdk { tangemSdkProvider.sdk }
+    private var featuresService: AppFeaturesService { .init(with: cardInfo.card) } // Temp
 
     var availableSecurityOptions: [SecurityModeOption] {
         var options: [SecurityModeOption] = []
@@ -255,17 +255,6 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
         self.signer = .init(with: cardInfo.card)
         updateCardPinSettings()
         updateCurrentSecurityOption()
-    }
-
-    func initialize() {
-        signer.signedCardPublisher.sink { [weak self] card in
-            guard let self = self else { return }
-
-            if self.cardInfo.card.cardId == card.cardId {
-                self.onSign(card)
-            }
-        }
-        .store(in: &bag)
     }
 
 //    func loadPayIDInfo () {
