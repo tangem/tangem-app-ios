@@ -75,7 +75,7 @@ struct DetailsView: View {
                 )
             }
 
-            securityManagementRow
+            cardSettingsRow
 
             if viewModel.isTwinCard {
                 twinCardRecreateView
@@ -133,15 +133,13 @@ struct DetailsView: View {
 
     // MARK: SecurityMode
 
-    private var securityManagementRow: some View {
+    private var cardSettingsRow: some View {
         HStack {
             Text("details_row_title_card_settings")
                 .font(.system(size: 16, weight: .regular, design: .default))
                 .foregroundColor(.tangemGrayDark6)
 
             Spacer()
-
-            ActivityIndicatorView(isAnimating: viewModel.isCheckingPin, color: .tangemGrayDark4)
         }
         .onNavigation(viewModel.openCardSettings,
                       tag: NavigationTag.securityManagement,
