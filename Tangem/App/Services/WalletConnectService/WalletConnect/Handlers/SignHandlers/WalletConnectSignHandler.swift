@@ -13,8 +13,6 @@ import BlockchainSdk
 import Combine
 
 class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
-    @Injected(\.transactionSigner) var signer: TangemSigner
-
     weak var delegate: WalletConnectHandlerDelegate?
     weak var dataSource: WalletConnectHandlerDataSource?
 
@@ -35,7 +33,7 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
         fatalError("Must be overriden by a subclass")
     }
 
-    func sign(data: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<String, Error> {
+    func sign(data: Data, walletPublicKey: Wallet.PublicKey, signer: TangemSigner) -> AnyPublisher<String, Error> {
         fatalError("Must be overriden by a subclass")
     }
 
@@ -74,7 +72,8 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
         signerSubscription = sign(data: data,
                                   walletPublicKey: Wallet.PublicKey(seedKey: wallet.walletPublicKey,
                                                                     derivedKey: wallet.derivedPublicKey,
-                                                                    derivationPath: wallet.derivationPath))
+                                                                    derivationPath: wallet.derivationPath),
+                                  signer: TangemSigner(with: wallet.cid))
             .sink(receiveCompletion: { [weak self] subsCompletion in
                 if case let .failure(error) = subsCompletion {
                     completion(.failure(error))
