@@ -272,7 +272,7 @@ extension DetailsViewModel {
         checkPin { [weak self] in
             guard let self = self else { return }
 
-            self.coordinator.openSecurityPrivacy(with: self.cardModel)
+            self.coordinator.openCardSettings(with: self.cardModel)
         }
     }
 
