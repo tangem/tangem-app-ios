@@ -71,28 +71,6 @@ struct CardSettingsView: View {
             FooterView(title: firstSectionFooterTitle)
         })
     }
-
-    private var savingWalletSection: some View {
-        Section(content: {
-            ToggleRowView(
-                title: "app_settings_saved_wallet".localized,
-                isOn: $viewModel.isSavingWallet
-            )
-        }, footer: {
-            FooterView(title: "app_settings_saved_wallet_footer".localized)
-        })
-    }
-
-    private var savingAccessCodesSection: some View {
-        Section(content: {
-            ToggleRowView(
-                title: "app_settings_saved_access_codes".localized,
-                isOn: $viewModel.isSavingAccessCodes
-            )
-        }, footer: {
-            FooterView(title: "app_settings_saved_access_codes_footer".localized)
-        })
-    }
 }
 
 private extension CardSettingsView {
