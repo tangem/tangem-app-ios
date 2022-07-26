@@ -13,7 +13,7 @@ struct CardSettingsCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: CardSettingsCoordinator
 
     var body: some View {
-        if let model = coordinator.securityPrivacyViewModel {
+        if let model = coordinator.сardSettingsViewModel {
             CardSettingsView(viewModel: model)
                 .navigation(item: $coordinator.securityManagementCoordinator) {
                     SecurityModeCoordinatorView(coordinator: $0)
