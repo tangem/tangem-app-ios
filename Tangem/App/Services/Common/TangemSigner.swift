@@ -13,8 +13,6 @@ import Combine
 class TangemSigner: TransactionSigner {
     @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
 
-    var signedCardPublisher = PassthroughSubject<Card, Never>()
-
     private var initialMessage: Message { .init(header: nil, body: "initial_message_sign_body".localized) }
     private let cardId: String?
 
@@ -38,7 +36,6 @@ class TangemSigner: TransactionSigner {
             self.sdkProvider.sdk.startSession(with: signCommand, cardId: self.cardId, initialMessage: self.initialMessage) { signResult in
                 switch signResult {
                 case .success(let response):
-                    self.signedCardPublisher.send(response.card)
                     promise(.success(response.signatures))
                 case .failure(let error):
                     promise(.failure(error))
