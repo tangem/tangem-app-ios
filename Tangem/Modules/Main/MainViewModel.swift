@@ -337,6 +337,7 @@ class MainViewModel: ObservableObject {
     func onRefresh(_ done: @escaping () -> Void) {
         if cardModel.state.canUpdate,
            let walletModels = cardModel.walletModels, !walletModels.isEmpty {
+            Analytics.logAmplitude(.pageSwipe)
             refreshCancellable = cardModel.refresh()
                 .receive(on: RunLoop.main)
                 .sink { _ in
@@ -374,6 +375,7 @@ class MainViewModel: ObservableObject {
 
     func onScan() {
         DispatchQueue.main.async {
+            Analytics.logAmplitude(.scanCardClicked)
             self.totalSumBalanceViewModel.update(with: [])
             self.coordinator.close(newScan: true)
         }
@@ -684,6 +686,7 @@ extension MainViewModel {
     }
 
     func openBuyCryptoIfPossible() {
+        Analytics.logAmplitude(.buyTokenClicked)
         if tangemApiService.geoIpRegionCode == LanguageCode.ru {
             coordinator.openBankWarning {
                 self.openBuyCrypto()
