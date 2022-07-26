@@ -628,7 +628,7 @@ class SendViewModel: ObservableObject {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.addLoadingView()
 
-        walletModel.send(tx)
+        walletModel.send(tx, signer: cardViewModel.signer)
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self = self else { return }
 
