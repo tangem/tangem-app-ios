@@ -140,7 +140,7 @@ struct BalanceAddressView: View {
                                           urlBinding: $showExplorerURL)
 
                             HStack {
-                                RoundedRectButton(action: { UIPasteboard.general.string = walletModel.displayAddress(for: selectedAddressIndex) },
+                                RoundedRectButton(action: { copyAddress() },
                                                   systemImageName: "doc.on.clipboard",
                                                   title: "common_copy".localized,
                                                   withVerification: true)
@@ -173,9 +173,15 @@ struct BalanceAddressView: View {
     }
 
     func showShareSheet() {
+        Analytics.logAmplitude(.shareAddress)
         let address = walletModel.displayAddress(for: selectedAddressIndex)
         let av = UIActivityViewController(activityItems: [address], applicationActivities: nil)
         UIApplication.shared.windows.first?.rootViewController?.present(av, animated: true, completion: nil)
+    }
+
+    private func copyAddress() {
+        Analytics.logAmplitude(.copyAddress)
+        UIPasteboard.general.string = walletModel.displayAddress(for: selectedAddressIndex)
     }
 }
 
