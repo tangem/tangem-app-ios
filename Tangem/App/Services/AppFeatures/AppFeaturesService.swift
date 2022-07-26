@@ -10,14 +10,10 @@ import Foundation
 import TangemSdk
 import Combine
 
-class AppFeaturesService {
-    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
+class AppFeaturesService { // [REDACTED_TODO_COMMENT]
+    private var card: Card
 
     var features: Set<AppFeature> {
-        guard let card = cardsRepository.lastScanResult.card else {
-            return .all
-        }
-
         if card.isStart2Coin {
             return .none
         }
@@ -27,14 +23,16 @@ class AppFeaturesService {
         return features
     }
 
-    init() {}
+    init(with card: Card) {
+        self.card = card
+    }
 
     deinit {
         print("AppFeaturesService deinit")
     }
 }
 
-extension AppFeaturesService: AppFeaturesProviding {
+extension AppFeaturesService {
     var canSetAccessCode: Bool { features.contains(.pins) }
 
     var canSetPasscode: Bool { features.contains(.pins) }
