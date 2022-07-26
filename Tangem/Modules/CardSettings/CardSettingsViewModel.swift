@@ -1,5 +1,5 @@
 //
-//  SecurityPrivacyViewModel.swift
+//  CardSettingsViewModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import SwiftUI
 import Combine
 
-class SecurityPrivacyViewModel: ObservableObject {
+class CardSettingsViewModel: ObservableObject {
     // MARK: ViewState
 
     @Published var hasSingleSecurityMode: Bool = false
@@ -19,9 +19,33 @@ class SecurityPrivacyViewModel: ObservableObject {
     @Published var isSavingAccessCodes: Bool = true
     @Published var alert: AlertBinder?
 
+    var cardId: String {
+        let cardId = cardModel.cardInfo.card.cardId
+        if cardModel.isTwinCard {
+            return AppTwinCardIdFormatter.format(
+                cid: cardId,
+                cardNumber: cardModel.cardInfo.twinCardInfo?.series.number
+            )
+        }
+
+        return AppCardIdFormatter(cid: cardId).formatted()
+    }
+
+    var cardIssuer: String {
+        cardModel.cardInfo.card.issuer.name
+    }
+
+    var cardSignedHashes: String? {
+        guard cardModel.hasWallet, !cardModel.isTwinCard else {
+            return nil
+        }
+
+        return "\(cardModel.cardInfo.card.walletSignedHashes)"
+    }
+
     // MARK: Dependecies
 
-    private unowned let coordinator: SecurityPrivacyRoutable
+    private unowned let coordinator: CardSettingsRoutable
     private let cardModel: CardViewModel
 
     // MARK: Properties
@@ -31,7 +55,7 @@ class SecurityPrivacyViewModel: ObservableObject {
 
     init(
         cardModel: CardViewModel,
-        coordinator: SecurityPrivacyRoutable
+        coordinator: CardSettingsRoutable
     ) {
         self.cardModel = cardModel
         self.coordinator = coordinator
@@ -46,7 +70,7 @@ class SecurityPrivacyViewModel: ObservableObject {
 
 // MARK: - Private
 
-private extension SecurityPrivacyViewModel {
+private extension CardSettingsViewModel {
     func bind() {
         $isSavingWallet
             .dropFirst()
@@ -66,7 +90,6 @@ private extension SecurityPrivacyViewModel {
 
         cardModel.$currentSecurityOption
             .map { $0.title }
-            .print()
             .weakAssign(to: \.securityModeTitle, on: self)
             .store(in: &bag)
     }
@@ -81,7 +104,7 @@ private extension SecurityPrivacyViewModel {
 
         let alert = Alert(
             title: Text("common_attention"),
-            message: Text("security_and_privacy_off_saved_wallet_alert_message"),
+            message: Text("card_settings_off_saved_wallet_alert_message"),
             primaryButton: okButton,
             secondaryButton: cancelButton
         )
@@ -102,7 +125,7 @@ private extension SecurityPrivacyViewModel {
 
         let alert = Alert(
             title: Text("common_attention"),
-            message: Text("security_and_privacy_off_saved_access_code_alert_message"),
+            message: Text("card_settings_off_saved_access_code_alert_message"),
             primaryButton: okButton,
             secondaryButton: cancelButton
         )
@@ -129,7 +152,7 @@ private extension SecurityPrivacyViewModel {
 
 // MARK: - Navigation
 
-extension SecurityPrivacyViewModel {
+extension CardSettingsViewModel {
     func openChangeAccessCode() {
         coordinator.openChangeAccessCode()
     }
