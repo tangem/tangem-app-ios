@@ -22,11 +22,12 @@ struct ScanCardSettingsView: View {
                 .padding(.vertical, 32)
 
             VStack(alignment: .center, spacing: 16) {
-                Text("Get your card ready!")
+                Text("scan_card_settings_title")
+                    .multilineTextAlignment(.center)
                     .font(.title1.bold)
                     .foregroundColor(Colors.Text.primary1)
 
-                Text(" Scan the card to change its settings. The changes will impact only the card you’ve scanned and will not affect other cards tied to your wallet.")
+                Text("scan_card_settings_message")
                     .multilineTextAlignment(.center)
                     .font(.callout)
                     .foregroundColor(Colors.Text.primary1)
@@ -34,8 +35,8 @@ struct ScanCardSettingsView: View {
 
             Spacer()
 
-            TangemButton(title: "Scan card") {
-
+            TangemButton(title: "scan_card_settings_button", image: "tangemIcon", iconPosition: .trailing) {
+                viewModel.scanCard()
             }
             .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
         }
