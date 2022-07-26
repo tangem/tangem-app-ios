@@ -12,7 +12,6 @@ import BlockchainSdk
 
 class WalletModel: ObservableObject, Identifiable, Initializable {
     @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
-    @Injected(\.transactionSigner) private var signer: TangemSigner
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     @Published var state: State = .created
@@ -373,7 +372,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
             }
     }
 
-    func send(_ tx: Transaction) -> AnyPublisher<Void, Error> {
+    func send(_ tx: Transaction, signer: TangemSigner) -> AnyPublisher<Void, Error> {
         if isDemo {
             return signer.sign(hash: Data.randomData(count: 32),
                                walletPublicKey: wallet.publicKey)
