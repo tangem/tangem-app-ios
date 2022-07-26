@@ -23,8 +23,8 @@ import Intents
 class CommonCardsRepository: CardsRepository {
     @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
     @Injected(\.scannedCardsRepository) private var scannedCardsRepository: ScannedCardsRepository
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    var lastScanResult: ScanResult = .notScannedYet
     var didScanPublisher: PassthroughSubject<CardInfo, Never> = .init()
 
     private(set) var cards = [String: ScanResult]()
@@ -75,11 +75,11 @@ class CommonCardsRepository: CardsRepository {
         scannedCardsRepository.add(cardInfo)
         sdkProvider.didScan(cardInfo.card)
         didScanPublisher.send(cardInfo)
+        tangemApiService.authorize(with: cardInfo.card.tangemApiAuthData)
 
         let cm = CardViewModel(cardInfo: cardInfo)
         let result: ScanResult = .card(model: cm)
         cards[cardInfo.card.cardId] = result
-        lastScanResult = result
         cm.getCardInfo()
         return result
     }
