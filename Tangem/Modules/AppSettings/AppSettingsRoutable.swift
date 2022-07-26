@@ -8,4 +8,7 @@
 
 import Foundation
 
-public protocol AppSettingsRoutable: AnyObject {}
+protocol AppSettingsRoutable: AnyObject {
+    func openTokenSynchronization()
+    func openResetSavedCards()
+}
