@@ -143,7 +143,7 @@ struct DetailsView: View {
 
             ActivityIndicatorView(isAnimating: viewModel.isCheckingPin, color: .tangemGrayDark4)
         }
-        .onNavigation(viewModel.openSecManagement,
+        .onNavigation(viewModel.openCardSettings,
                       tag: NavigationTag.securityManagement,
                       selection: $selection)
     }
