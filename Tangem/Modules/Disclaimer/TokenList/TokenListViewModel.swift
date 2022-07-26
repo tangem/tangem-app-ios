@@ -99,6 +99,7 @@ class TokenListViewModel: ObservableObject {
             switch result {
             case .success:
                 self?.closeModule()
+                Analytics.logAmplitude(.saveChanges)
             case .failure(let error):
                 if case TangemSdkError.userCancelled = error {} else {
                     self?.alert = error.alertBinder
@@ -230,6 +231,7 @@ private extension TokenListViewModel {
 
             return
         }
+        sendAnalyticsOnChangeTokenState(tokenIsSelected: selected)
 
         let alreadyAdded = isAdded(tokenItem)
 
@@ -374,6 +376,14 @@ private extension TokenListViewModel {
             return false
         }
         return true
+    }
+
+    private func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool) {
+        if tokenIsSelected {
+            Analytics.logAmplitude(.tokenSwitchOn)
+        } else {
+            Analytics.logAmplitude(.tokenSwitchOff)
+        }
     }
 }
 

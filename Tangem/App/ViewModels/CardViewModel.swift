@@ -445,6 +445,7 @@ class CardViewModel: Identifiable, ObservableObject {
                                                        body: "initial_message_purge_wallet_body".localized)) { [weak self] result in
             switch result {
             case .success(let response):
+                Analytics.logAmplitude(.factoryRessetSuccess)
                 self?.tokenItemsRepository.removeAll(for: response.cardId)
                 self?.clearTwinPairKey()
                 // self.update(with: response)
