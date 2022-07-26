@@ -88,6 +88,7 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openSend(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
+        Analytics.logAmplitude(.sendTokenClicked)
         let coordinator = SendCoordinator()
         let options = SendCoordinator.Options(amountToSend: amountToSend,
                                               destination: nil,
@@ -125,6 +126,7 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openSettings(cardModel: CardViewModel) {
+        Analytics.logAmplitude(.settingsClicked)
         let dismissAction: Action = { [weak self] in
             self?.detailsCoordinator = nil
         }
@@ -137,6 +139,7 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openTokenDetails(cardModel: CardViewModel, blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType) {
+        Analytics.logAmplitude(.tokenClicked)
         let dismissAction: Action = { [weak self] in
             self?.tokenDetailsCoordinator = nil
         }
@@ -155,6 +158,7 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openTokensList(with cardModel: CardViewModel) {
+        Analytics.logAmplitude(.manageTokensClicked)
         let dismissAction: Action = { [weak self] in
             self?.tokenListCoordinator = nil
         }
@@ -183,6 +187,7 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openP2PTutorial() {
+        Analytics.logAmplitude(.p2pInstructionClicked)
         modalWebViewModel = WebViewContainerViewModel(url: URL(string: "https://tangem.com/howtobuy.html")!,
                                                       title: "",
                                                       addLoadingIndicator: true,
