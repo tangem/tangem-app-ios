@@ -1,4 +1,4 @@
-// 
+//
 //  AppSettingsCoordinator.swift
 //  Tangem
 //
