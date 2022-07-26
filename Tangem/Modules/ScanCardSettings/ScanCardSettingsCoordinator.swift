@@ -13,9 +13,13 @@ class ScanCardSettingsCoordinator: CoordinatorObject {
     var dismissAction: Action
     var popToRootAction: ParamsAction<PopToRootOptions>
 
-    // MARK: - Main view model
+    // MARK: Root View Model
 
     @Published private(set) var rootViewModel: ScanCardSettingsViewModel?
+
+    // MARK: Child View Models
+
+    @Published var cardSettingsCoordinator: CardSettingsCoordinator?
 
     required init(
         dismissAction: @escaping Action,
@@ -26,7 +30,7 @@ class ScanCardSettingsCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = ScanCardSettingsViewModel(coordinator: self)
+        rootViewModel = ScanCardSettingsViewModel(cardModel: options.cardModel, coordinator: self)
     }
 }
 
@@ -40,4 +44,11 @@ extension ScanCardSettingsCoordinator {
 
 // MARK: - ScanCardSettingsRoutable
 
-extension ScanCardSettingsCoordinator: ScanCardSettingsRoutable {}
+extension ScanCardSettingsCoordinator: ScanCardSettingsRoutable {
+    func openCardSettings(cardModel: CardViewModel) {
+        let coordinator = CardSettingsCoordinator(popToRootAction: self.popToRootAction)
+        coordinator.start(with: .init(cardModel: cardModel))
+
+        cardSettingsCoordinator = coordinator
+    }
+}
