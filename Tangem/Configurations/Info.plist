@@ -6,8 +6,6 @@
 	<string>$(SUITE_NAME)</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>To share with chat support</string>
-	<key>NSFaceIDUsageDescription</key>
-	<string>Just for case</string>
 	<key>ENVIRONMENT_NAME</key>
 	<string>$(ENVIRONMENT_NAME)</string>
 	<key>CFBundleDevelopmentRegion</key>
