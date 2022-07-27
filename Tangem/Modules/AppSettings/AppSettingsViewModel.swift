@@ -8,7 +8,6 @@
 
 import Combine
 import SwiftUI
-import LocalAuthentication
 
 class AppSettingsViewModel: ObservableObject {
     // MARK: ViewState
@@ -92,7 +91,6 @@ private extension AppSettingsViewModel {
             secondaryButton: cancelButton
         )
 
-
         self.alert = AlertBinder(alert: alert)
     }
 
@@ -112,11 +110,7 @@ private extension AppSettingsViewModel {
     }
 
     func updateBiometricWarning() {
-        let context = LAContext()
-        var error: NSError?
-        let canEvaluatePolicy = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
-        let hasBiometry = context.biometryType != .none
-        isBiometryAvailable = hasBiometry && canEvaluatePolicy
+        isBiometryAvailable = BiometricAuthorizationUtils.getBiometricState() == .available
 
         if !isBiometryAvailable {
             isSavingWallet = false
