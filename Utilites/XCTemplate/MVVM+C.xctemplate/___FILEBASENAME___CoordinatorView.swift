@@ -1,6 +1,5 @@
 // ___FILEHEADER___
 
-import Foundation
 import SwiftUI
 
 struct ___VARIABLE_moduleName___CoordinatorView: CoordinatorView {
@@ -16,7 +15,7 @@ struct ___VARIABLE_moduleName___CoordinatorView: CoordinatorView {
                 ___VARIABLE_moduleName___View(viewModel: rootViewModel)
                     .navigationLinks(links)
             }
-            
+
             sheets
         }
     }
