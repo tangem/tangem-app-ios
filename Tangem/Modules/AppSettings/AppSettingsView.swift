@@ -17,8 +17,10 @@ struct AppSettingsView: View {
 
     var body: some View {
         List {
-            warningSection
-            
+            if !viewModel.isBiometryAvailable {
+                warningSection
+            }
+
             savingWalletSection
 
             savingAccessCodesSection
@@ -31,21 +33,14 @@ struct AppSettingsView: View {
 
     private var warningSection: some View {
         Section(content: {
-//            if !viewModel.isShowBiometricWarning {
             DefaultWarningRow(
                 icon: Assets.attention,
                 title: "Enable biometric authentication",
                 subtitle: "Go to settings to enable biometric authentication in the Tandem App",
-                action: {}
+                action: {
+                    viewModel.openSettings()
+                }
             )
-//            }
-
-            DefaultToggleRowView(
-                title: "app_settings_saved_wallet".localized,
-                isOn: $viewModel.isSavingWallet
-            )
-        }, footer: {
-            DefaultFooterView(title: "app_settings_saved_wallet_footer".localized)
         })
     }
 
@@ -53,6 +48,7 @@ struct AppSettingsView: View {
         Section(content: {
             DefaultToggleRowView(
                 title: "app_settings_saved_wallet".localized,
+                isEnabled: viewModel.isBiometryAvailable,
                 isOn: $viewModel.isSavingWallet
             )
         }, footer: {
@@ -64,6 +60,7 @@ struct AppSettingsView: View {
         Section(content: {
             DefaultToggleRowView(
                 title: "app_settings_saved_access_codes".localized,
+                isEnabled: viewModel.isBiometryAvailable,
                 isOn: $viewModel.isSavingAccessCodes
             )
         }, footer: {
