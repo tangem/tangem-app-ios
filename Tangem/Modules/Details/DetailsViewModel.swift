@@ -249,7 +249,7 @@ extension DetailsViewModel {
     }
 
     func openCardSettings() {
-        coordinator.openScanCardSettings(with: cardModel)
+        coordinator.openScanCardSettings()
     }
 
     func openSupportChat() {
