@@ -94,14 +94,14 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openScanCardSettings() {
-        let coordinator = ScanCardSettingsCoordinator(popToRootAction: self.popToRootAction)
+        let coordinator = ScanCardSettingsCoordinator(popToRootAction: popToRootAction)
         coordinator.start(with: .default)
         scanCardSettingsCoordinator = coordinator
     }
 
-    func openAppSettings(with cardModel: CardViewModel) {
-        let coordinator = AppSettingsCoordinator(popToRootAction: self.popToRootAction)
-        coordinator.start(with: .init(cardModel: cardModel))
+    func openAppSettings() {
+        let coordinator = AppSettingsCoordinator(popToRootAction: popToRootAction)
+        coordinator.start(with: .default)
         appSettingsCoordinator = coordinator
     }
 
