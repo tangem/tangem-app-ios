@@ -253,7 +253,7 @@ extension DetailsViewModel {
     }
 
     func openAppSettings() {
-        coordinator.openAppSettings(with: cardModel)
+        coordinator.openAppSettings()
     }
 
     func openSupportChat() {

@@ -18,6 +18,5 @@ protocol DetailsRoutable: AnyObject {
     func openResetToFactory(action: @escaping (_ completion: @escaping (Result<Void, Error>) -> Void) -> Void)
     func openScanCardSettings()
     func openAppSettings()
-    func openScanCardSettings()
     func openSupportChat()
 }
