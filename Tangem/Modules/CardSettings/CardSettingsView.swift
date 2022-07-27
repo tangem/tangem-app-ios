@@ -1,5 +1,5 @@
 //
-//  SecurityPrivacyView.swift
+//  CardSettingsView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,42 +8,66 @@
 
 import SwiftUI
 
-struct SecurityPrivacyView: View {
-    @ObservedObject var viewModel: SecurityPrivacyViewModel
+struct CardSettingsView: View {
+    @ObservedObject var viewModel: CardSettingsViewModel
 
     var firstSectionFooterTitle: String {
         if viewModel.isChangeAccessCodeVisible {
-            return "security_and_privacy_change_access_code_footer".localized
+            return "card_settings_change_access_code_footer".localized
         } else {
-            return "security_and_privacy_security_mode_footer".localized
+            return "card_settings_security_mode_footer".localized
         }
     }
 
     var body: some View {
         List {
+            cardInfoSection
+
             securityModeSection
 
-            savingWalletSection
-
-            savingAccessCodesSection
+            // [REDACTED_TODO_COMMENT]
+//            savingWalletSection
+//            savingAccessCodesSection
         }
         .listStyle(DefaultListStyle())
         .alert(item: $viewModel.alert) { $0.alert }
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
-        .navigationBarTitle("security_and_privacy_title", displayMode: .inline)
+        .navigationBarTitle("card_settings_title", displayMode: .inline)
+    }
+
+    private var cardInfoSection: some View {
+        Section(content: {
+            RowView(
+                title: "details_row_title_cid".localized,
+                details: viewModel.cardId
+            )
+
+            RowView(
+                title: "details_row_title_issuer".localized,
+                details: viewModel.cardIssuer
+            )
+
+            if let cardSignedHashes = viewModel.cardSignedHashes {
+                RowView(
+                    title: "details_row_title_signed_hashes".localized,
+                    details: "details_row_subtitle_signed_hashes_format".localized(cardSignedHashes)
+                )
+            }
+        })
     }
 
     private var securityModeSection: some View {
         Section(content: {
             RowView(
-                title: "security_and_privacy_security_mode".localized,
+                title: "card_settings_security_mode".localized,
                 details: viewModel.securityModeTitle,
                 isTappable: !viewModel.hasSingleSecurityMode,
                 action: viewModel.openChangeAccessMethod
             )
             if viewModel.isChangeAccessCodeVisible {
                 RowView(
-                    title: "security_and_privacy_change_access_code".localized,
+                    title: "card_settings_change_access_code".localized,
+                    isTappable: true,
                     action: viewModel.openChangeAccessCode
                 )
             }
@@ -55,27 +79,27 @@ struct SecurityPrivacyView: View {
     private var savingWalletSection: some View {
         Section(content: {
             ToggleRowView(
-                title: "security_and_privacy_saved_wallet".localized,
+                title: "card_settings_saved_wallet".localized,
                 isOn: $viewModel.isSavingWallet
             )
         }, footer: {
-            FooterView(title: "security_and_privacy_saved_wallet_footer".localized)
+            FooterView(title: "card_settings_saved_wallet_footer".localized)
         })
     }
 
     private var savingAccessCodesSection: some View {
         Section(content: {
             ToggleRowView(
-                title: "security_and_privacy_saved_access_codes".localized,
+                title: "card_settings_saved_access_codes".localized,
                 isOn: $viewModel.isSavingAccessCodes
             )
         }, footer: {
-            FooterView(title: "security_and_privacy_saved_access_codes_footer".localized)
+            FooterView(title: "card_settings_saved_access_codes_footer".localized)
         })
     }
 }
 
-private extension SecurityPrivacyView {
+private extension CardSettingsView {
     struct FooterView: View {
         let title: String
 
@@ -95,8 +119,8 @@ private extension SecurityPrivacyView {
         init(
             title: String,
             details: String? = nil,
-            isTappable: Bool = true,
-            action: @escaping () -> Void
+            isTappable: Bool = false,
+            action: @escaping () -> Void = {}
         ) {
             self.title = title
             self.details = details
