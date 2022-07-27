@@ -13,50 +13,17 @@ import TangemSdk
 import BlockchainSdk
 
 class DetailsViewModel: ObservableObject {
+    // MARK: - Dependencies
+    
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     @Injected(\.onboardingStepsSetupService) private var onboardingStepsSetupService: OnboardingStepsSetupService
+    private let dataCollector: DetailsFeedbackDataCollector
 
+
+    // MARK: - View State
+    
     @Published var cardModel: CardViewModel
     @Published var error: AlertBinder?
-
-    var dataCollector: DetailsFeedbackDataCollector!
-
-    var hasWallet: Bool {
-        cardModel.hasWallet
-    }
-
-    var isMultiWallet: Bool {
-        cardModel.cardInfo.isMultiWallet
-    }
-
-    var backupStatus: String? {
-        guard let status = cardModel.cardInfo.card.backupStatus else {
-            return nil
-        }
-
-        switch status {
-        case .active(let cardsCount):
-            return String(format: "details_backup_status_format_active".localized, cardsCount)
-        case .cardLinked(let cardsCount):
-            return String(format: "details_backup_status_format_linked".localized, cardsCount)
-        case .noBackup:
-            return "details_backup_status_no_backup".localized
-        }
-    }
-
-    var canCreateBackup: Bool {
-        if !cardModel.cardInfo.isTangemWallet {
-            return false
-        }
-
-        if !cardModel.cardInfo.card.settings.isBackupAllowed {
-            return false
-        }
-
-        // todo: respect involved cards
-
-        return cardModel.cardInfo.card.backupStatus == .noBackup
-    }
 
     var shouldShowWC: Bool {
         if cardModel.cardInfo.isTangemNote {
@@ -77,30 +44,39 @@ class DetailsViewModel: ObservableObject {
 
         return true
     }
+    
+    var canCreateBackup: Bool {
+        if !cardModel.cardInfo.isTangemWallet {
+            return false
+        }
+
+        if !cardModel.cardInfo.card.settings.isBackupAllowed {
+            return false
+        }
+
+        // todo: respect involved cards
+
+        return cardModel.cardInfo.card.backupStatus == .noBackup
+    }
 
     var isTwinCard: Bool {
         cardModel.isTwinCard
     }
-
-    var cardTouURL: URL? {
-        guard cardModel.isStart2CoinCard else { // is this card is S2C
+    
+    var applicationInfoFooter: String? {
+        guard let appName = InfoDictionaryUtils.appName.info,
+              let version = InfoDictionaryUtils.version.info,
+              let bundleVersion = InfoDictionaryUtils.bundleVersion.info else {
             return nil
         }
 
-        let baseurl = "https://app.tangem.com/tou/"
-        let regionCode = self.regionCode(for: cardModel.cardInfo.card.cardId) ?? "fr"
-        let languageCode = Locale.current.languageCode ?? "fr"
-        let filename = self.filename(languageCode: languageCode, regionCode: regionCode)
-        let url = URL(string: baseurl + filename)
-        return url
+        return String(
+            format: "%@ %@ (%@)",
+            arguments: [appName, version, bundleVersion]
+        )
     }
 
-    var cardCid: String {
-        let cardId = cardModel.cardInfo.card.cardId
-        return isTwinCard ?
-            AppTwinCardIdFormatter.format(cid: cardId, cardNumber: cardModel.cardInfo.twinCardInfo?.series.number) :
-            AppCardIdFormatter(cid: cardId).formatted()
-    }
+    // MARK: - Private
 
     private var bag = Set<AnyCancellable>()
     private unowned let coordinator: DetailsRoutable
@@ -108,7 +84,9 @@ class DetailsViewModel: ObservableObject {
     init(cardModel: CardViewModel, coordinator: DetailsRoutable) {
         self.cardModel = cardModel
         self.coordinator = coordinator
-        self.dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel)
+        
+        dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel)
+
         bind()
     }
 
@@ -161,54 +139,6 @@ class DetailsViewModel: ObservableObject {
             }
             .store(in: &bag)
     }
-
-    private func bind() {
-        cardModel.objectWillChange
-            .receive(on: RunLoop.main)
-            .sink { [weak self] in
-                self?.objectWillChange.send()
-            }
-            .store(in: &bag)
-    }
-
-    private func filename(languageCode: String, regionCode: String) -> String {
-        switch (languageCode, regionCode) {
-        case ("fr", "ch"):
-            return "Start2Coin-fr-ch-tangem.pdf"
-        case ("de", "ch"):
-            return "Start2Coin-de-ch-tangem.pdf"
-        case ("en", "ch"):
-            return "Start2Coin-en-ch-tangem.pdf"
-        case ("it", "ch"):
-            return "Start2Coin-it-ch-tangem.pdf"
-        case ("fr", "fr"):
-            return "Start2Coin-fr-fr-atangem.pdf"
-        case ("de", "at"):
-            return "Start2Coin-de-at-tangem.pdf"
-        case (_, "fr"):
-            return "Start2Coin-fr-fr-atangem.pdf"
-        case (_, "ch"):
-            return "Start2Coin-en-ch-tangem.pdf"
-        case (_, "at"):
-            return "Start2Coin-de-at-tangem.pdf"
-        default:
-            return "Start2Coin-fr-fr-atangem.pdf"
-        }
-    }
-
-    private func regionCode(for cid: String) -> String? {
-        let cidPrefix = cid[cid.index(cid.startIndex, offsetBy: 1)]
-        switch cidPrefix {
-        case "0":
-            return "fr"
-        case "1":
-            return "ch"
-        case "2":
-            return "at"
-        default:
-            return nil
-        }
-    }
 }
 
 // MARK: - Navigation
@@ -236,8 +166,18 @@ extension DetailsViewModel {
         coordinator.openDisclaimer()
     }
 
+    // [REDACTED_TODO_COMMENT]
     func openCatdTOU() {
-        if let url = cardTouURL {
+        guard cardModel.isStart2CoinCard else { // is this card is S2C
+            return
+        }
+
+        let baseurl = "https://app.tangem.com/tou/"
+        let regionCode = self.regionCode(for: cardModel.cardInfo.card.cardId) ?? "fr"
+        let languageCode = Locale.current.languageCode ?? "fr"
+        let filename = self.filename(languageCode: languageCode, regionCode: regionCode)
+        
+        if let url = URL(string: baseurl + filename) {
             coordinator.openCardTOU(at: url)
         }
     }
@@ -258,5 +198,61 @@ extension DetailsViewModel {
 
     func openSupportChat() {
         coordinator.openSupportChat()
+    }
+
+    func openSocialNetwork(network: SocialNetwork) {
+        // [REDACTED_TODO_COMMENT]
+    }
+}
+
+// MARK: - Private
+
+private extension DetailsViewModel {
+    func bind() {
+        cardModel.objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak self] in
+                self?.objectWillChange.send()
+            }
+            .store(in: &bag)
+    }
+
+    func filename(languageCode: String, regionCode: String) -> String {
+        switch (languageCode, regionCode) {
+        case ("fr", "ch"):
+            return "Start2Coin-fr-ch-tangem.pdf"
+        case ("de", "ch"):
+            return "Start2Coin-de-ch-tangem.pdf"
+        case ("en", "ch"):
+            return "Start2Coin-en-ch-tangem.pdf"
+        case ("it", "ch"):
+            return "Start2Coin-it-ch-tangem.pdf"
+        case ("fr", "fr"):
+            return "Start2Coin-fr-fr-atangem.pdf"
+        case ("de", "at"):
+            return "Start2Coin-de-at-tangem.pdf"
+        case (_, "fr"):
+            return "Start2Coin-fr-fr-atangem.pdf"
+        case (_, "ch"):
+            return "Start2Coin-en-ch-tangem.pdf"
+        case (_, "at"):
+            return "Start2Coin-de-at-tangem.pdf"
+        default:
+            return "Start2Coin-fr-fr-atangem.pdf"
+        }
+    }
+
+    func regionCode(for cid: String) -> String? {
+        let cidPrefix = cid[cid.index(cid.startIndex, offsetBy: 1)]
+        switch cidPrefix {
+        case "0":
+            return "fr"
+        case "1":
+            return "ch"
+        case "2":
+            return "at"
+        default:
+            return nil
+        }
     }
 }
