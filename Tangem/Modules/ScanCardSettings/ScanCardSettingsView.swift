@@ -37,9 +37,10 @@ struct ScanCardSettingsView: View {
             TangemButton(title: "scan_card_settings_button", image: "tangemIcon", iconPosition: .trailing) {
                 viewModel.scanCard()
             }
-            .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
+            .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth, isLoading: viewModel.isLoading))
         }
         .padding([.bottom, .horizontal], 16)
+        .alert(item: $viewModel.alert) { $0.alert }
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("card_settings_title", displayMode: .inline)
     }
