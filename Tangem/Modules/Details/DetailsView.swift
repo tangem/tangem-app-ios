@@ -78,9 +78,8 @@ struct DetailsView: View {
 
             cardSettingsRow
 
-            if AppEnvironment.current == .beta {
-                appSettings
-            }
+// [REDACTED_TODO_COMMENT]
+//                appSettings
 
             if viewModel.isTwinCard {
                 twinCardRecreateView
