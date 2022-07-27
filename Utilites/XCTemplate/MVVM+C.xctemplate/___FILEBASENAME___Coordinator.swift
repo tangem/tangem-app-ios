@@ -1,11 +1,11 @@
 // ___FILEHEADER___
 
-import Combine
 import Foundation
+import Combine
 
 class ___VARIABLE_moduleName___Coordinator: CoordinatorObject {
-    var dismissAction: Action
-    var popToRootAction: ParamsAction<PopToRootOptions>
+    let dismissAction: Action
+    let popToRootAction: ParamsAction<PopToRootOptions>
 
     // MARK: - Root view model
 
