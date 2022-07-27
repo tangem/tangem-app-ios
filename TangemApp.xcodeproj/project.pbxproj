@@ -533,6 +533,7 @@
 		EF0F99B228902902008B01DF /* DefaultToggleRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99AF28902902008B01DF /* DefaultToggleRowView.swift */; };
 		EF0F99B328902902008B01DF /* DefaultFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99B028902902008B01DF /* DefaultFooterView.swift */; };
 		EF0F99B428902902008B01DF /* DefaultRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99B128902902008B01DF /* DefaultRowView.swift */; };
+		EF0F99B6289125C7008B01DF /* DefaultWarningRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99B5289125C7008B01DF /* DefaultWarningRow.swift */; };
 		EF0FF8712866021B00B7CEAF /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0FF8702866021B00B7CEAF /* AppEnvironment.swift */; };
 		EF0FF873286608BC00B7CEAF /* GoogleService-Info-Beta.plist in Resources */ = {isa = PBXBuildFile; fileRef = EF0FF8722866089200B7CEAF /* GoogleService-Info-Beta.plist */; };
 		EF4B41BB2864491B003911F6 /* TangemSkeletonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B41BA2864491B003911F6 /* TangemSkeletonModifier.swift */; };
@@ -1117,6 +1118,7 @@
 		EF0F99AF28902902008B01DF /* DefaultToggleRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultToggleRowView.swift; sourceTree = "<group>"; };
 		EF0F99B028902902008B01DF /* DefaultFooterView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultFooterView.swift; sourceTree = "<group>"; };
 		EF0F99B128902902008B01DF /* DefaultRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultRowView.swift; sourceTree = "<group>"; };
+		EF0F99B5289125C7008B01DF /* DefaultWarningRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultWarningRow.swift; sourceTree = "<group>"; };
 		EF0FF8702866021B00B7CEAF /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
 		EF0FF8722866089200B7CEAF /* GoogleService-Info-Beta.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info-Beta.plist"; sourceTree = "<group>"; };
 		EF2EFDE12865C05D00798051 /* Production.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Production.xcconfig; sourceTree = "<group>"; };
@@ -2677,6 +2679,7 @@
 				EF0F99B028902902008B01DF /* DefaultFooterView.swift */,
 				EF0F99B128902902008B01DF /* DefaultRowView.swift */,
 				EF0F99AF28902902008B01DF /* DefaultToggleRowView.swift */,
+				EF0F99B5289125C7008B01DF /* DefaultWarningRow.swift */,
 			);
 			path = DefaultListViews;
 			sourceTree = "<group>";
@@ -3239,6 +3242,7 @@
 				5D4B8BB927EDB327002CE87C /* ArrowView.swift in Sources */,
 				B06997D02692EC5E0014A676 /* ExchangeService.swift in Sources */,
 				EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */,
+				EF0F99B6289125C7008B01DF /* DefaultWarningRow.swift in Sources */,
 				DC295B5D2862E6DE006CB7B6 /* BackUpWarningView.swift in Sources */,
 				DC66BC10285C405C00CDF765 /* CoordinatorObject.swift in Sources */,
 				EF4B41BB2864491B003911F6 /* TangemSkeletonModifier.swift in Sources */,
