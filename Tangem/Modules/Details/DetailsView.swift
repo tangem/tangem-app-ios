@@ -158,8 +158,6 @@ struct DetailsView: View {
                 .foregroundColor(.tangemGrayDark6)
 
             Spacer()
-
-            ActivityIndicatorView(isAnimating: viewModel.isCheckingPin, color: .tangemGrayDark4)
         }
         .onNavigation(viewModel.openAppSettings,
                       tag: NavigationTag.appSettings,
