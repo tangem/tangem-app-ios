@@ -1,5 +1,5 @@
 //
-//  SecurityPrivacyRoutable.swift
+//  CardSettingsRoutable.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol SecurityPrivacyRoutable: AnyObject {
+protocol CardSettingsRoutable: AnyObject {
     func openChangeAccessCode()
     func openSecurityMode(cardModel: CardViewModel)
     func openTokenSynchronization()
