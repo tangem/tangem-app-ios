@@ -30,15 +30,15 @@ class ScanCardSettingsCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        scanCardSettingsViewModel = ScanCardSettingsViewModel(cardModel: options.cardModel, coordinator: self)
+        scanCardSettingsViewModel = ScanCardSettingsViewModel(coordinator: self)
     }
 }
 
 // MARK: - Options
 
 extension ScanCardSettingsCoordinator {
-    struct Options {
-        let cardModel: CardViewModel
+    enum Options {
+        case `default`
     }
 }
 
