@@ -7,9 +7,13 @@ class ___VARIABLE_moduleName___Coordinator: CoordinatorObject {
     var dismissAction: Action
     var popToRootAction: ParamsAction<PopToRootOptions>
 
-    // MARK: - Main view model
+    // MARK: - Root view model
 
     @Published private(set) var rootViewModel: ___VARIABLE_moduleName___ViewModel?
+
+    // MARK: - Child coordinators
+
+    // MARK: - Child view models
 
     required init(
         dismissAction: @escaping Action,
