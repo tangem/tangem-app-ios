@@ -11,8 +11,23 @@ struct ___VARIABLE_moduleName___CoordinatorView: CoordinatorView {
     }
 
     var body: some View {
-        if let rootViewModel = coordinator.rootViewModel {
-            ___VARIABLE_moduleName___View(viewModel: rootViewModel)
+        ZStack {
+            if let rootViewModel = coordinator.rootViewModel {
+                ___VARIABLE_moduleName___View(viewModel: rootViewModel)
+                    .navigationLinks(links)
+            }
+            
+            sheets
         }
+    }
+
+    @ViewBuilder
+    private var links: some View {
+        EmptyView()
+    }
+
+    @ViewBuilder
+    private var sheets: some View {
+        EmptyView()
     }
 }
