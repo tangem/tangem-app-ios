@@ -534,6 +534,8 @@
 		EF0F99B328902902008B01DF /* DefaultFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99B028902902008B01DF /* DefaultFooterView.swift */; };
 		EF0F99B428902902008B01DF /* DefaultRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99B128902902008B01DF /* DefaultRowView.swift */; };
 		EF0F99B6289125C7008B01DF /* DefaultWarningRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99B5289125C7008B01DF /* DefaultWarningRow.swift */; };
+		EF0F99E128917003008B01DF /* SocialNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99E028917003008B01DF /* SocialNetwork.swift */; };
+		EF0F99E3289177C6008B01DF /* InfoDictionaryUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99E2289177C6008B01DF /* InfoDictionaryUtils.swift */; };
 		EF0FF8712866021B00B7CEAF /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0FF8702866021B00B7CEAF /* AppEnvironment.swift */; };
 		EF0FF873286608BC00B7CEAF /* GoogleService-Info-Beta.plist in Resources */ = {isa = PBXBuildFile; fileRef = EF0FF8722866089200B7CEAF /* GoogleService-Info-Beta.plist */; };
 		EF4B41BB2864491B003911F6 /* TangemSkeletonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B41BA2864491B003911F6 /* TangemSkeletonModifier.swift */; };
@@ -1119,6 +1121,8 @@
 		EF0F99B028902902008B01DF /* DefaultFooterView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultFooterView.swift; sourceTree = "<group>"; };
 		EF0F99B128902902008B01DF /* DefaultRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultRowView.swift; sourceTree = "<group>"; };
 		EF0F99B5289125C7008B01DF /* DefaultWarningRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultWarningRow.swift; sourceTree = "<group>"; };
+		EF0F99E028917003008B01DF /* SocialNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialNetwork.swift; sourceTree = "<group>"; };
+		EF0F99E2289177C6008B01DF /* InfoDictionaryUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoDictionaryUtils.swift; sourceTree = "<group>"; };
 		EF0FF8702866021B00B7CEAF /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
 		EF0FF8722866089200B7CEAF /* GoogleService-Info-Beta.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info-Beta.plist"; sourceTree = "<group>"; };
 		EF2EFDE12865C05D00798051 /* Production.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Production.xcconfig; sourceTree = "<group>"; };
@@ -1829,6 +1833,7 @@
 				B0F62C5425DE4F6B005C8BA0 /* DeviceInfoProvider.swift */,
 				B0CAFA8C26C6C0FE001238DA /* QRCodeGenerator.swift */,
 				B0C87B472566492000F861DE /* TwinCardInfo.swift */,
+				EF0F99E2289177C6008B01DF /* InfoDictionaryUtils.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -2688,6 +2693,7 @@
 			isa = PBXGroup;
 			children = (
 				EFB4C1312837C51700E991C1 /* TextHint.swift */,
+				EF0F99E028917003008B01DF /* SocialNetwork.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -3364,11 +3370,13 @@
 				B0A9E93F25921D21007B6D36 /* WarningView.swift in Sources */,
 				DC295B402861C27D006CB7B6 /* TokenDetailsCoordinator.swift in Sources */,
 				5D78D118261DFEBA00F98B18 /* PurgeWalletsAndReadResponse.swift in Sources */,
+				EF0F99E128917003008B01DF /* SocialNetwork.swift in Sources */,
 				B0AA865226DC90E600287F80 /* WelcomeView.swift in Sources */,
 				5D225CB92524B721001564A3 /* Analytics.swift in Sources */,
 				DC66BC16285C529600CDF765 /* SendRoutable.swift in Sources */,
 				5DDFC2022812B716005976FE /* CurrenciesResponse.swift in Sources */,
 				5D51036F27C535D10025EA55 /* ABIValue.swift in Sources */,
+				EF0F99E3289177C6008B01DF /* InfoDictionaryUtils.swift in Sources */,
 				DC66BC0C285B75BF00CDF765 /* PushTxCoordinator.swift in Sources */,
 				B0E1564D26B941AF005B33E4 /* SingleCardOnboardingViewModel.swift in Sources */,
 				B09BB85F259A075600B92000 /* TangemButton.swift in Sources */,
