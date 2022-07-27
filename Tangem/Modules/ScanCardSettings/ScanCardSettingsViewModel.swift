@@ -7,16 +7,17 @@
 //
 
 import Combine
+import SwiftUI
 
 final class ScanCardSettingsViewModel: ObservableObject {
-    private unowned let coordinator: ScanCardSettingsRoutable
-    private let cardModel: CardViewModel
+    @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
 
-    init(
-        cardModel: CardViewModel,
-        coordinator: ScanCardSettingsRoutable
-    ) {
-        self.cardModel = cardModel
+    @Published var isLoading: Bool = false
+    @Published var alert: AlertBinder?
+
+    private unowned let coordinator: ScanCardSettingsRoutable
+
+    init(coordinator: ScanCardSettingsRoutable) {
         self.coordinator = coordinator
     }
 }
@@ -25,12 +26,15 @@ final class ScanCardSettingsViewModel: ObservableObject {
 
 extension ScanCardSettingsViewModel {
     func scanCard() {
-        checkPin { [weak self] in
-            guard let self = self else {
-                return
+        scan { [weak self] result in
+            switch result {
+            case let .success(cardInfo):
+                let cardModel = CardViewModel(cardInfo: cardInfo)
+                cardModel.updateState()
+                self?.coordinator.openCardSettings(cardModel: cardModel)
+            case let .failure(error):
+                self?.showErrorAlert(error: error)
             }
-
-            self.coordinator.openCardSettings(cardModel: self.cardModel)
         }
     }
 }
@@ -38,16 +42,26 @@ extension ScanCardSettingsViewModel {
 // MARK: - Private
 
 extension ScanCardSettingsViewModel {
-    func checkPin(_ completion: @escaping () -> Void) {
-        cardModel.checkPin { [weak self] result in
-            guard let self = self else { return }
-
+    func scan(completion: @escaping (Result<CardInfo, Error>) -> Void) {
+        sdkProvider.prepareScan()
+        sdkProvider.sdk.startSession(with: AppScanTask(targetBatch: nil)) { result in
             switch result {
-            case .success:
-                completion()
             case .failure(let error):
-                Analytics.logCardSdkError(error.toTangemSdkError(), for: .readPinSettings, card: self.cardModel.cardInfo.card)
+                Analytics.logCardSdkError(error, for: .scan)
+                completion(.failure(error))
+            case .success(let response):
+                completion(.success(response.getCardInfo()))
             }
         }
+    }
+
+    func showErrorAlert(error: Error) {
+        let alert = Alert(
+            title: Text("common_error"),
+            message: Text(error.localizedDescription),
+            dismissButton: .default(Text("common_ok"))
+        )
+
+        self.alert = AlertBinder(alert: alert)
     }
 }
