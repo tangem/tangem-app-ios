@@ -9,7 +9,9 @@
 import ZendeskCoreSDK
 import SupportSDK
 import MessagingSDK
+import ChatSDK
 import Foundation
+import UIKit
 
 class SupportChatViewModel: Identifiable {
     let id: UUID = .init()
@@ -21,8 +23,16 @@ class SupportChatViewModel: Identifiable {
         return messagingConfiguration
     }
 
+    private var chatConfiguration: ChatConfiguration {
+        let config = ChatConfiguration()
+        config.isAgentAvailabilityEnabled = true
+        config.isOfflineFormEnabled = true
+        return config
+    }
+
     func buildUI() throws -> UIViewController {
-        let requestConfig = RequestUiConfiguration()
-        return RequestUi.buildRequestList(with: [requestConfig])
+        let chatEngine = try! ChatEngine.engine()
+        let viewController = try! Messaging.instance.buildUI(engines: [chatEngine], configs: [chatConfiguration, messagingConfiguration])
+        return viewController
     }
 }
