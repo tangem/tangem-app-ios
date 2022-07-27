@@ -26,15 +26,15 @@ class AppSettingsCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        rootViewModel = AppSettingsViewModel(cardModel: options.cardModel, coordinator: self)
+        rootViewModel = AppSettingsViewModel(coordinator: self)
     }
 }
 
 // MARK: - Options
 
 extension AppSettingsCoordinator {
-    struct Options {
-        let cardModel: CardViewModel
+    enum Options {
+        case `default`
     }
 }
 
