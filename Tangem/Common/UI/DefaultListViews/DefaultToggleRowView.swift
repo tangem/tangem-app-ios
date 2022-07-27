@@ -10,20 +10,27 @@ import SwiftUI
 
 struct DefaultToggleRowView: View {
     let title: String
+    let isEnabled: Bool
     let isOn: Binding<Bool>
+
+    init(title: String, isEnabled: Bool = true, isOn: Binding<Bool>) {
+        self.title = title
+        self.isEnabled = isEnabled
+        self.isOn = isOn
+    }
 
     var body: some View {
         HStack {
             Text(title)
                 .font(.body)
-                .foregroundColor(Colors.Text.primary1)
+                .foregroundColor(isEnabled ? Colors.Text.primary1 : Colors.Text.disabled)
 
             Spacer()
 
             Toggle("", isOn: isOn)
                 .labelsHidden()
                 .toggleStyleCompat(Colors.Control.checked)
-                .disabled(true) // [REDACTED_TODO_COMMENT]
+                .disabled(!isEnabled)
         }
     }
 }
