@@ -11,10 +11,6 @@ import SwiftUI
 struct DetailsView: View {
     @ObservedObject var viewModel: DetailsViewModel
 
-    /// Change to @AppStorage and move to model with IOS 14.5 minimum deployment target
-    @AppStorageCompat(StorageType.selectedCurrencyCode)
-    private var selectedCurrencyCode: String = "USD"
-
     var body: some View {
         List {
             if viewModel.shouldShowWC {
@@ -48,11 +44,11 @@ struct DetailsView: View {
                         .frame(width: 48, height: 48)
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("WalletConnect")
+                        Text("wallet_connect_title")
                             .font(.body)
                             .foregroundColor(Colors.Text.primary1)
 
-                        Text("Сonnect to decentralized Apps")
+                        Text("wallet_connect_subtitle")
                             .font(.footnote)
                             .foregroundColor(Colors.Text.tertiary)
                     }
@@ -70,7 +66,7 @@ struct DetailsView: View {
 
     private var supportSection: some View {
         Section {
-            DefaultRowView(title: "details_ask_a_question".localized, isTappable: true) {
+            DefaultRowView(title: "details_chat".localized, isTappable: true) {
                 viewModel.openSupportChat()
             }
 
@@ -96,12 +92,12 @@ struct DetailsView: View {
                     viewModel.prepareTwinOnboarding()
                 }
             } else if viewModel.canCreateBackup {
-                DefaultRowView(title: "details_row_title_create_backup".localized, isTappable: true) {
+                DefaultRowView(title: "details_row_title_create_backup".localized, isTappable: true) { // or Link More Cards
                     viewModel.prepareBackup()
                 }
             }
         }, footer: {
-            DefaultFooterView(title: "You can synchronize up to three cards into one wallet. It can only be done once.")
+            DefaultFooterView(title: "details_row_title_create_backup_footer".localized)
         })
     }
 
