@@ -7,6 +7,8 @@
 //
 
 import XCTest
+import TangemSdk
+import BlockchainSdk
 @testable import Tangem
 
 class TangemTests: XCTestCase {
