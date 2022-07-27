@@ -16,7 +16,7 @@ class AppSettingsViewModel: ObservableObject {
     @Published var isSavingWallet: Bool = true
     @Published var isSavingAccessCodes: Bool = true
     @Published var alert: AlertBinder?
-    @Published var isShowBiometricWarning: Bool = false
+    @Published var isBiometryAvailable: Bool = false
 
     // MARK: Dependencies
 
@@ -121,8 +121,12 @@ private extension AppSettingsViewModel {
         var error: NSError?
         let canEvaluatePolicy = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
         let hasBiometry = context.biometryType != .none
+        isBiometryAvailable = hasBiometry && canEvaluatePolicy
 
-        isShowBiometricWarning = hasBiometry && !canEvaluatePolicy
+        if !isBiometryAvailable {
+            isSavingWallet = false
+            isSavingAccessCodes = false
+        }
     }
 }
 
@@ -135,5 +139,14 @@ extension AppSettingsViewModel {
 
     func openResetSavedCards() {
         coordinator.openResetSavedCards()
+    }
+
+    func openSettings() {
+        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString),
+              UIApplication.shared.canOpenURL(settingsUrl) else {
+            return
+        }
+
+        UIApplication.shared.open(settingsUrl, completionHandler: { _ in })
     }
 }

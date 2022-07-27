@@ -34,11 +34,22 @@ struct DefaultWarningRow: View {
                         .foregroundColor(Colors.Text.secondary)
                 }
             }
+            .padding(.vertical, 16)
+            .background(Colors.Background.primary)
+            .contentShape(Rectangle())
+            .cornerRadius(12)
         }
         .buttonStyle(PlainButtonStyle())
-        .padding(16)
-        .background(Colors.Background.primary)
-        .contentShape(Rectangle())
-        .cornerRadius(12)
+    }
+}
+
+struct DefaultWarningRow_Preview: PreviewProvider {
+    static var previews: some View {
+        DefaultWarningRow(
+            icon: Assets.attention,
+            title: "Enable biometric authentication",
+            subtitle: "Go to settings to enable biometric authentication in the Tandem App",
+            action: {}
+        )
     }
 }
