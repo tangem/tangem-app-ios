@@ -17,6 +17,8 @@ struct AppSettingsView: View {
 
     var body: some View {
         List {
+            warningSection
+            
             savingWalletSection
 
             savingAccessCodesSection
@@ -25,6 +27,26 @@ struct AppSettingsView: View {
         .alert(item: $viewModel.alert) { $0.alert }
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("app_settings_title", displayMode: .inline)
+    }
+
+    private var warningSection: some View {
+        Section(content: {
+//            if !viewModel.isShowBiometricWarning {
+            DefaultWarningRow(
+                icon: Assets.attention,
+                title: "Enable biometric authentication",
+                subtitle: "Go to settings to enable biometric authentication in the Tandem App",
+                action: {}
+            )
+//            }
+
+            DefaultToggleRowView(
+                title: "app_settings_saved_wallet".localized,
+                isOn: $viewModel.isSavingWallet
+            )
+        }, footer: {
+            DefaultFooterView(title: "app_settings_saved_wallet_footer".localized)
+        })
     }
 
     private var savingWalletSection: some View {
