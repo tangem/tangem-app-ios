@@ -10,6 +10,7 @@ import UIKit
 import Firebase
 import AppsFlyerLib
 import Amplitude
+import LocalAuthentication
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -34,6 +35,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         loadingView = nil
     }
 
+
+    func updateBiomertyState() {
+        var context = LAContext()
+        var error: NSError?
+        let canEvaluatePolicy = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
+
+        print("canEvaluatePolicy", canEvaluatePolicy, "context.biometryType", context.biometryType.rawValue)
+
+        if canEvaluatePolicy {
+            context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: "Just") { state, error in
+                print(state, error)
+            }
+        }
+    }
+
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         UISwitch.appearance().onTintColor = .tangemBlue
@@ -47,6 +63,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             UITableView.appearance().tableFooterView = UIView()
         }
 
+        updateBiomertyState()
         configureFirebase()
         configureAppsFlyer()
         configureAmplitude()
