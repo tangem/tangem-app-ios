@@ -19,8 +19,9 @@ struct DefaultWarningRow: View {
         Button(action: action) {
             HStack(alignment: .center, spacing: 12) {
                 icon
+                    .resizable()
                     .frame(width: 24, height: 24)
-                    .padding(9)
+                    .padding(8)
                     .background(Colors.Background.secondary)
                     .cornerRadius(40)
 
