@@ -16,7 +16,6 @@ class DetailsViewModel: ObservableObject {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     @Injected(\.onboardingStepsSetupService) private var onboardingStepsSetupService: OnboardingStepsSetupService
 
-    @Published var isCheckingPin = false
     @Published var cardModel: CardViewModel
     @Published var error: AlertBinder?
 
@@ -250,7 +249,7 @@ extension DetailsViewModel {
     }
 
     func openCardSettings() {
-        coordinator.openScanCardSettings(with: cardModel)
+        coordinator.openScanCardSettings()
     }
 
     func openAppSettings() {
