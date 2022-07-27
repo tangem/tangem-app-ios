@@ -8,13 +8,15 @@
 
 import Combine
 import SwiftUI
+import LocalAuthentication
 
-final class AppSettingsViewModel: ObservableObject {
+class AppSettingsViewModel: ObservableObject {
     // MARK: ViewState
 
     @Published var isSavingWallet: Bool = true
     @Published var isSavingAccessCodes: Bool = true
     @Published var alert: AlertBinder?
+    @Published var isShowBiometricWarning: Bool = false
 
     // MARK: Dependencies
 
@@ -34,6 +36,7 @@ final class AppSettingsViewModel: ObservableObject {
         self.coordinator = coordinator
 
         bind()
+        updateBiometricWarning()
     }
 }
 
@@ -111,6 +114,15 @@ private extension AppSettingsViewModel {
             isSavingAccessCodes = false
             shouldShowAlertOnDisableSaveAccessCodes = true
         }
+    }
+
+    func updateBiometricWarning() {
+        let context = LAContext()
+        var error: NSError?
+        let canEvaluatePolicy = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
+        let hasBiometry = context.biometryType != .none
+
+        isShowBiometricWarning = hasBiometry && !canEvaluatePolicy
     }
 }
 
