@@ -66,7 +66,7 @@ private extension AppSettingsViewModel {
 
         let alert = Alert(
             title: Text("common_attention"),
-            message: Text("card_settings_off_saved_wallet_alert_message"),
+            message: Text("app_settings_off_saved_wallet_alert_message"),
             primaryButton: okButton,
             secondaryButton: cancelButton
         )
@@ -87,7 +87,7 @@ private extension AppSettingsViewModel {
 
         let alert = Alert(
             title: Text("common_attention"),
-            message: Text("card_settings_off_saved_access_code_alert_message"),
+            message: Text("app_settings_off_saved_access_code_alert_message"),
             primaryButton: okButton,
             secondaryButton: cancelButton
         )
