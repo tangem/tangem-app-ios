@@ -92,7 +92,7 @@ extension DetailsCoordinator: DetailsRoutable {
                                                         coordinator: self)
     }
 
-    func openScanCardSettings(with cardModel: CardViewModel) {
+    func openScanCardSettings() {
         let coordinator = ScanCardSettingsCoordinator(popToRootAction: self.popToRootAction)
         coordinator.start(with: .default)
         scanCardSettingsCoordinator = coordinator
