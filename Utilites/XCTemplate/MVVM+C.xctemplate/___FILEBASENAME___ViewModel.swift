@@ -4,9 +4,9 @@ import Combine
 import SwiftUI
 
 final class ___VARIABLE_moduleName:identifier___ViewModel: ObservableObject {
-    // MARK: ViewState
+    // MARK: - ViewState
 
-    // MARK: Dependencies
+    // MARK: - Dependencies
 
     private unowned let coordinator: ___VARIABLE_moduleName___Routable
 
