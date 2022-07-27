@@ -20,7 +20,6 @@ class AppSettingsViewModel: ObservableObject {
 
     // MARK: Dependencies
 
-    private let cardModel: CardViewModel
     private unowned let coordinator: AppSettingsRoutable
 
     // MARK: Properties
@@ -28,11 +27,7 @@ class AppSettingsViewModel: ObservableObject {
     private var bag: Set<AnyCancellable> = []
     private var shouldShowAlertOnDisableSaveAccessCodes: Bool = true
 
-    init(
-        cardModel: CardViewModel,
-        coordinator: AppSettingsRoutable
-    ) {
-        self.cardModel = cardModel
+    init(coordinator: AppSettingsRoutable) {
         self.coordinator = coordinator
 
         bind()
