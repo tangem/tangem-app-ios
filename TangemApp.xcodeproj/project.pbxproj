@@ -532,11 +532,16 @@
 		EF50A5A42881CEE30081C5BB /* XCAssets+Generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF50A5A32881CEE30081C5BB /* XCAssets+Generated.swift */; };
 		EF50A5B1288976140081C5BB /* View+ConditionalModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF50A5B0288976140081C5BB /* View+ConditionalModifiers.swift */; };
 		EF6691D2287ED86900773AA6 /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0FF8702866021B00B7CEAF /* AppEnvironment.swift */; };
-		EF7B9CEF286C6BD7004C33A9 /* SecurityPrivacyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CEE286C6BD7004C33A9 /* SecurityPrivacyView.swift */; };
-		EF7B9CF1286C6BE2004C33A9 /* SecurityPrivacyViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF0286C6BE2004C33A9 /* SecurityPrivacyViewModel.swift */; };
-		EF7B9CF5286C7023004C33A9 /* SecurityPrivacyCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF4286C7023004C33A9 /* SecurityPrivacyCoordinator.swift */; };
-		EF7B9CF7286C702E004C33A9 /* SecurityPrivacyCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF6286C702E004C33A9 /* SecurityPrivacyCoordinatorView.swift */; };
-		EF9C52B3287C77A10015D540 /* SecurityPrivacyRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF2286C6C7A004C33A9 /* SecurityPrivacyRoutable.swift */; };
+		EF7B9CEF286C6BD7004C33A9 /* CardSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CEE286C6BD7004C33A9 /* CardSettingsView.swift */; };
+		EF7B9CF1286C6BE2004C33A9 /* CardSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF0286C6BE2004C33A9 /* CardSettingsViewModel.swift */; };
+		EF7B9CF5286C7023004C33A9 /* CardSettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF4286C7023004C33A9 /* CardSettingsCoordinator.swift */; };
+		EF7B9CF7286C702E004C33A9 /* CardSettingsCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF6286C702E004C33A9 /* CardSettingsCoordinatorView.swift */; };
+		EF9C52B3287C77A10015D540 /* CardSettingsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF2286C6C7A004C33A9 /* CardSettingsRoutable.swift */; };
+		EF9CFC10288FECE100329BE0 /* ScanCardSettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9CFC0B288FECE100329BE0 /* ScanCardSettingsCoordinator.swift */; };
+		EF9CFC11288FECE100329BE0 /* ScanCardSettingsCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9CFC0C288FECE100329BE0 /* ScanCardSettingsCoordinatorView.swift */; };
+		EF9CFC12288FECE100329BE0 /* ScanCardSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9CFC0D288FECE100329BE0 /* ScanCardSettingsView.swift */; };
+		EF9CFC13288FECE100329BE0 /* ScanCardSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9CFC0E288FECE100329BE0 /* ScanCardSettingsViewModel.swift */; };
+		EF9CFC14288FECE100329BE0 /* ScanCardSettingsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9CFC0F288FECE100329BE0 /* ScanCardSettingsRoutable.swift */; };
 		EFB4C1322837C51700E991C1 /* TextHint.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB4C1312837C51700E991C1 /* TextHint.swift */; };
 		EFB997B3287DB948002F45F6 /* Font+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB997B2287DB948002F45F6 /* Font+.swift */; };
 		F06BBA2FE022C3EF1F3B6513 /* Pods_Tangem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F3AA1BEE46AF490A6F95DA /* Pods_Tangem.framework */; };
@@ -1104,11 +1109,16 @@
 		EF4B41BC28644982003911F6 /* SkeletonView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SkeletonView.swift; sourceTree = "<group>"; };
 		EF50A5A32881CEE30081C5BB /* XCAssets+Generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "XCAssets+Generated.swift"; sourceTree = "<group>"; };
 		EF50A5B0288976140081C5BB /* View+ConditionalModifiers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "View+ConditionalModifiers.swift"; sourceTree = "<group>"; };
-		EF7B9CEE286C6BD7004C33A9 /* SecurityPrivacyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityPrivacyView.swift; sourceTree = "<group>"; };
-		EF7B9CF0286C6BE2004C33A9 /* SecurityPrivacyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityPrivacyViewModel.swift; sourceTree = "<group>"; };
-		EF7B9CF2286C6C7A004C33A9 /* SecurityPrivacyRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityPrivacyRoutable.swift; sourceTree = "<group>"; };
-		EF7B9CF4286C7023004C33A9 /* SecurityPrivacyCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityPrivacyCoordinator.swift; sourceTree = "<group>"; };
-		EF7B9CF6286C702E004C33A9 /* SecurityPrivacyCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecurityPrivacyCoordinatorView.swift; sourceTree = "<group>"; };
+		EF7B9CEE286C6BD7004C33A9 /* CardSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsView.swift; sourceTree = "<group>"; };
+		EF7B9CF0286C6BE2004C33A9 /* CardSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsViewModel.swift; sourceTree = "<group>"; };
+		EF7B9CF2286C6C7A004C33A9 /* CardSettingsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsRoutable.swift; sourceTree = "<group>"; };
+		EF7B9CF4286C7023004C33A9 /* CardSettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsCoordinator.swift; sourceTree = "<group>"; };
+		EF7B9CF6286C702E004C33A9 /* CardSettingsCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsCoordinatorView.swift; sourceTree = "<group>"; };
+		EF9CFC0B288FECE100329BE0 /* ScanCardSettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanCardSettingsCoordinator.swift; sourceTree = "<group>"; };
+		EF9CFC0C288FECE100329BE0 /* ScanCardSettingsCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanCardSettingsCoordinatorView.swift; sourceTree = "<group>"; };
+		EF9CFC0D288FECE100329BE0 /* ScanCardSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanCardSettingsView.swift; sourceTree = "<group>"; };
+		EF9CFC0E288FECE100329BE0 /* ScanCardSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanCardSettingsViewModel.swift; sourceTree = "<group>"; };
+		EF9CFC0F288FECE100329BE0 /* ScanCardSettingsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanCardSettingsRoutable.swift; sourceTree = "<group>"; };
 		EFA7173D72D1E6FAD54D308A /* Pods-TangemClip.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemClip.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemClip/Pods-TangemClip.release(beta).xcconfig"; sourceTree = "<group>"; };
 		EFB4C1312837C51700E991C1 /* TextHint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextHint.swift; sourceTree = "<group>"; };
 		EFB997B2287DB948002F45F6 /* Font+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Font+.swift"; sourceTree = "<group>"; };
@@ -2569,7 +2579,8 @@
 				5D011A222530776A00758010 /* Disclaimer */,
 				B0E1564926B9417E005B33E4 /* Onboarding */,
 				DC66BBE12858DB1900CDF765 /* Welcome */,
-				EF7B9CED286C6B95004C33A9 /* SecurityPrivacy */,
+				EF9CFC00288FEB4A00329BE0 /* ScanCardSettings */,
+				EF7B9CED286C6B95004C33A9 /* CardSettings */,
 				5D9DCB0A255199810059799C /* SecurityMode */,
 				5DDE22F32609020E008657C6 /* WalletConnect */,
 			);
@@ -2606,16 +2617,28 @@
 			path = Configurations;
 			sourceTree = "<group>";
 		};
-		EF7B9CED286C6B95004C33A9 /* SecurityPrivacy */ = {
+		EF7B9CED286C6B95004C33A9 /* CardSettings */ = {
 			isa = PBXGroup;
 			children = (
-				EF7B9CEE286C6BD7004C33A9 /* SecurityPrivacyView.swift */,
-				EF7B9CF0286C6BE2004C33A9 /* SecurityPrivacyViewModel.swift */,
-				EF7B9CF2286C6C7A004C33A9 /* SecurityPrivacyRoutable.swift */,
-				EF7B9CF4286C7023004C33A9 /* SecurityPrivacyCoordinator.swift */,
-				EF7B9CF6286C702E004C33A9 /* SecurityPrivacyCoordinatorView.swift */,
+				EF7B9CEE286C6BD7004C33A9 /* CardSettingsView.swift */,
+				EF7B9CF0286C6BE2004C33A9 /* CardSettingsViewModel.swift */,
+				EF7B9CF2286C6C7A004C33A9 /* CardSettingsRoutable.swift */,
+				EF7B9CF4286C7023004C33A9 /* CardSettingsCoordinator.swift */,
+				EF7B9CF6286C702E004C33A9 /* CardSettingsCoordinatorView.swift */,
 			);
-			path = SecurityPrivacy;
+			path = CardSettings;
+			sourceTree = "<group>";
+		};
+		EF9CFC00288FEB4A00329BE0 /* ScanCardSettings */ = {
+			isa = PBXGroup;
+			children = (
+				EF9CFC0B288FECE100329BE0 /* ScanCardSettingsCoordinator.swift */,
+				EF9CFC0C288FECE100329BE0 /* ScanCardSettingsCoordinatorView.swift */,
+				EF9CFC0D288FECE100329BE0 /* ScanCardSettingsView.swift */,
+				EF9CFC0E288FECE100329BE0 /* ScanCardSettingsViewModel.swift */,
+				EF9CFC0F288FECE100329BE0 /* ScanCardSettingsRoutable.swift */,
+			);
+			path = ScanCardSettings;
 			sourceTree = "<group>";
 		};
 		EFB4C1302837C50C00E991C1 /* Types */ = {
@@ -2987,6 +3010,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EF9CFC12288FECE100329BE0 /* ScanCardSettingsView.swift in Sources */,
 				DCE5C66C28898B7F000C7F67 /* TangemApiService.swift in Sources */,
 				5DDFC2042812B72C005976FE /* Currency.swift in Sources */,
 				5D09382825E7A2D80049B8F0 /* TokenDetailsView.swift in Sources */,
@@ -3003,6 +3027,7 @@
 				5DB862B8252396CD00566AA0 /* TangemSigner.swift in Sources */,
 				DC0A5844282BFDFC0031BECC /* CardsRepository.swift in Sources */,
 				DC66BBED2859B68100CDF765 /* ShopCoordinator.swift in Sources */,
+				EF9CFC10288FECE100329BE0 /* ScanCardSettingsCoordinator.swift in Sources */,
 				B06917E0270444CE0000E6C1 /* OnboardingWalletInfoPager.swift in Sources */,
 				DC295B422861C444006CB7B6 /* TokenDetailsCoordinatorView.swift in Sources */,
 				5DD966F925499E8B006070F3 /* WebView.swift in Sources */,
@@ -3045,7 +3070,7 @@
 				B051A1B0262192A300809FD2 /* WalletConnectModels.swift in Sources */,
 				5DFB499C24E6BAF10037E76F /* MessageView.swift in Sources */,
 				5D0A2CDF27E9D47900396399 /* StatefulPreviewWrapper.swift in Sources */,
-				EF7B9CF1286C6BE2004C33A9 /* SecurityPrivacyViewModel.swift in Sources */,
+				EF7B9CF1286C6BE2004C33A9 /* CardSettingsViewModel.swift in Sources */,
 				DC0A57D82822A3C80031BECC /* InjectedValues.swift in Sources */,
 				B09BB87E259A095B00B92000 /* WarningsPriority+Colors.swift in Sources */,
 				B0F16D7126EF5ED800687C47 /* ProgressBar.swift in Sources */,
@@ -3143,6 +3168,7 @@
 				65B4DED828835BE4001524CF /* BottomSheetViewController.swift in Sources */,
 				B018F304259204A200D8F89A /* WarningEvent.swift in Sources */,
 				65B4DED6288357DC001524CF /* BottomSheetBaseController.swift in Sources */,
+				EF9CFC13288FECE100329BE0 /* ScanCardSettingsViewModel.swift in Sources */,
 				5D559BCC25406BB40009E0F6 /* AppFeaturesService.swift in Sources */,
 				5D39514D2556CDDF002CC452 /* MoonPayService.swift in Sources */,
 				5D5332B125F9091900D32CA5 /* TokenItem.swift in Sources */,
@@ -3153,9 +3179,10 @@
 				5D69E0E325016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift in Sources */,
 				B0FB98A52598D24300B769A3 /* Card+.swift in Sources */,
 				DAA153BC2876CBFC002254D1 /* GeoResponse.swift in Sources */,
+				EF9CFC14288FECE100329BE0 /* ScanCardSettingsRoutable.swift in Sources */,
 				B0C807232620549F00F7DADE /* WalletConnectSessionItemView.swift in Sources */,
 				B069B6DB268AFEBA004E7928 /* BnbSignHandler.swift in Sources */,
-				EF7B9CF5286C7023004C33A9 /* SecurityPrivacyCoordinator.swift in Sources */,
+				EF7B9CF5286C7023004C33A9 /* CardSettingsCoordinator.swift in Sources */,
 				5DFB499A24E554140037E76F /* Card+Preview.swift in Sources */,
 				652B0136282C0A7800F2E27A /* TotalSumBalanceView.swift in Sources */,
 				B0C4F77926F092640086D815 /* WelcomeCardLayout.swift in Sources */,
@@ -3226,7 +3253,7 @@
 				5DD4CB5424FAEE8B008F23CC /* AppCardIdFormatter.swift in Sources */,
 				DC0A57E82822AC410031BECC /* PersistentStorageProtocol.swift in Sources */,
 				5D62446127A7CAB60069DEC2 /* Bool+.swift in Sources */,
-				EF7B9CF7286C702E004C33A9 /* SecurityPrivacyCoordinatorView.swift in Sources */,
+				EF7B9CF7286C702E004C33A9 /* CardSettingsCoordinatorView.swift in Sources */,
 				B0D34E772626DF2F00625AC5 /* WalletConnectRequestHandler.swift in Sources */,
 				DC66BBE92859A8CC00CDF765 /* MailViewModel.swift in Sources */,
 				DC0A57DF2822A5490031BECC /* LoggerProvider.swift in Sources */,
@@ -3255,6 +3282,7 @@
 				65C9FCB12864507600FDE63E /* MainViewModel.swift in Sources */,
 				B0C8A0D42562C86A00DEEAC7 /* View+PreviewDevice.swift in Sources */,
 				DC66BBFC285A389000CDF765 /* PopoverModifier.swift in Sources */,
+				EF9CFC11288FECE100329BE0 /* ScanCardSettingsCoordinatorView.swift in Sources */,
 				B0B8670326DF5AE1008DAA67 /* ModalSheetPreferenceKey.swift in Sources */,
 				DA23787B27B24222009795A8 /* ProductVariant.swift in Sources */,
 				B046EE182578D38E00EA38A5 /* SceneDelegate.swift in Sources */,
@@ -3325,7 +3353,7 @@
 				DC0A57EA2822AD6D0031BECC /* PersistentStorageKey.swift in Sources */,
 				DC295B4E2861D871006CB7B6 /* WalletConnectCoordinatorView.swift in Sources */,
 				B0F79C6A2689AC56008C9B30 /* FileEncryptionUtility.swift in Sources */,
-				EF9C52B3287C77A10015D540 /* SecurityPrivacyRoutable.swift in Sources */,
+				EF9C52B3287C77A10015D540 /* CardSettingsRoutable.swift in Sources */,
 				B046FC3626BC1DB600A7EECE /* OnboardingProgressIndicator.swift in Sources */,
 				B053759126CA3EFA0090FCFC /* CheckmarkSwitch.swift in Sources */,
 				5DF2522924F93C2A0015B429 /* QRCodeView.swift in Sources */,
@@ -3388,7 +3416,7 @@
 				5DFCCB7824C389740014A293 /* CardViewModel.swift in Sources */,
 				EF4B41BD28644982003911F6 /* SkeletonView.swift in Sources */,
 				B05B85A92589F0CF008A4452 /* AppFeature.swift in Sources */,
-				EF7B9CEF286C6BD7004C33A9 /* SecurityPrivacyView.swift in Sources */,
+				EF7B9CEF286C6BD7004C33A9 /* CardSettingsView.swift in Sources */,
 				B020A51726F1DD9E00D38596 /* OnboardingTopupViewModel.swift in Sources */,
 				5D9DCB0C255199AA0059799C /* SecurityModeViewModel.swift in Sources */,
 				DA4C84CE27DA2D6D00B76F91 /* StoriesConstants.swift in Sources */,
