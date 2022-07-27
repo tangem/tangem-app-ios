@@ -35,8 +35,8 @@ struct AppSettingsView: View {
         Section(content: {
             DefaultWarningRow(
                 icon: Assets.attention,
-                title: "Enable biometric authentication",
-                subtitle: "Go to settings to enable biometric authentication in the Tandem App",
+                title: "app_settings_warning_title".localized,
+                subtitle: "app_settings_warning_subtitle".localized,
                 action: {
                     viewModel.openSettings()
                 }
