@@ -231,7 +231,7 @@ private extension TokenListViewModel {
 
             return
         }
-        sendAnalyticsOnChangeTokenState(tokenIsSelected: selected)
+        sendAnalyticsOnChangeTokenState(tokenIsSelected: selected, tokenItem: tokenItem)
 
         let alreadyAdded = isAdded(tokenItem)
 
@@ -378,11 +378,11 @@ private extension TokenListViewModel {
         return true
     }
 
-    private func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool) {
+    private func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool, tokenItem: TokenItem) {
         if tokenIsSelected {
-            Analytics.logAmplitude(.tokenSwitchOn)
+            Analytics.logAmplitude(.tokenSwitchOn, params: ["token_name": "\(tokenItem.name) \(tokenItem.symbol)"])
         } else {
-            Analytics.logAmplitude(.tokenSwitchOff)
+            Analytics.logAmplitude(.tokenSwitchOff, params: ["token_name": "\(tokenItem.name) \(tokenItem.symbol)"])
         }
     }
 }
