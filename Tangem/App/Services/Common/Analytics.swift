@@ -20,7 +20,6 @@ class Analytics {
     static func logAmplitude(_ event: AmplitudeEvent, params: [String: String] = [:]) {
         #if !CLIP
         Amplitude.instance().logEvent(event.rawValue.camelCaseToSnakeCase(), withEventProperties: params)
-        print("AMPLITUDE TEST -> event: \(event.rawValue.camelCaseToSnakeCase()), parameters: \(params)")
         #endif
     }
 
@@ -34,7 +33,6 @@ class Analytics {
         let values = params?.firebaseParams
         FirebaseAnalytics.Analytics.logEvent(key, parameters: values)
         AppsFlyerLib.shared().logEvent(key, withValues: values)
-//        Amplitude.instance().logEvent(key, withEventProperties: values)
         #endif
     }
 
