@@ -25,6 +25,7 @@ class CardViewModel: Identifiable, ObservableObject {
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
+    @Injected(\.scannedCardsRepository) private var scannedCardsRepository: ScannedCardsRepository
 
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
@@ -476,6 +477,8 @@ class CardViewModel: Identifiable, ObservableObject {
                 self.cardInfo.derivedKeys[newKey.key, default: [:]][newDerivation.key] = newDerivation.value
             }
         }
+
+        scannedCardsRepository.add(cardInfo)
     }
 
     // MARK: - Update
