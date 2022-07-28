@@ -17,12 +17,6 @@ import Amplitude
 import TangemSdk
 
 class Analytics {
-    static func logAmplitude(_ event: AmplitudeEvent, params: [String: String] = [:]) {
-        #if !CLIP
-        Amplitude.instance().logEvent(event.rawValue.camelCaseToSnakeCase(), withEventProperties: params)
-        #endif
-    }
-
     static func log(_ event: Event, params: [ParameterKey: ParameterValue]) {
         log(event: event, with: params.mapValues { $0.rawValue })
     }
@@ -147,6 +141,12 @@ class Analytics {
     }
     #endif
 
+    static func logAmplitude(_ event: AmplitudeEvent, params: [String: String] = [:]) {
+        #if !CLIP
+        Amplitude.instance().logEvent(event.rawValue.camelCaseToSnakeCase(), withEventProperties: params)
+        #endif
+    }
+    
     private static func collectCardData(_ card: Card, additionalParams: [ParameterKey: Any] = [:]) -> [ParameterKey: Any] {
         var params = additionalParams
         params[.batchId] = card.batchId
@@ -267,8 +267,8 @@ extension Analytics {
         case scanCardClicked
         case chatClicked
         case wcClicked
-        case factoryRessetClicked
-        case factoryRessetSuccess
+        case factoryResetClicked
+        case factoryResetSuccess
         case createBackupClicked
         case makeComment
         case walletConnectSuccessResponse
