@@ -25,6 +25,8 @@ struct CardSettingsView: View {
 
             securityModeSection
 
+            resetToFactorySection
+
             // [REDACTED_TODO_COMMENT]
 //            savingWalletSection
 //            savingAccessCodesSection
@@ -73,6 +75,18 @@ struct CardSettingsView: View {
             }
         }, footer: {
             FooterView(title: firstSectionFooterTitle)
+        })
+    }
+
+    private var resetToFactorySection: some View {
+        Section(content: {
+            RowView(
+                title: "Resset to Factory Settings",
+                isTappable: true,
+                action: viewModel.openResetCard
+            )
+        }, footer: {
+            FooterView(title: "Factory Reset will completely delete the wallet from the selected card and you will not be able to restore the current wallet or use the card to recover the access code.")
         })
     }
 
