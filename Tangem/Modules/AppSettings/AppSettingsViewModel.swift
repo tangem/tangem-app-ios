@@ -131,11 +131,6 @@ extension AppSettingsViewModel {
     }
 
     func openSettings() {
-        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString),
-              UIApplication.shared.canOpenURL(settingsUrl) else {
-            return
-        }
-
-        UIApplication.shared.open(settingsUrl, completionHandler: { _ in })
+        coordinator.openAppSettings()
     }
 }
