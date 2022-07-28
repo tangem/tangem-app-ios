@@ -689,8 +689,10 @@ extension MainViewModel {
         Analytics.logAmplitude(.buyTokenClicked)
         if tangemApiService.geoIpRegionCode == LanguageCode.ru {
             coordinator.openBankWarning {
+                Analytics.logAmplitude(.p2pInstructionClicked, params: ["type": "yes"])
                 self.openBuyCrypto()
             } declineCallback: {
+                Analytics.logAmplitude(.p2pInstructionClicked, params: ["type": "no"])
                 self.coordinator.openP2PTutorial()
             }
         } else {
