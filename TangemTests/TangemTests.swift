@@ -7,6 +7,7 @@
 //
 
 import XCTest
+import TangemSdk
 @testable import Tangem
 
 class TangemTests: XCTestCase {
@@ -20,5 +21,14 @@ class TangemTests: XCTestCase {
 
     func testParseConfig() throws {
         XCTAssertNoThrow(try CommonKeysManager())
+    }
+
+    func testDemoCardIds() throws {
+        let cardIdRegex = try! NSRegularExpression(pattern: "[A-Z]{2}\\d{14}")
+        for demoCardId in Card.demoCardIds {
+            let range = NSRange(location: 0, length: demoCardId.count)
+            let match = cardIdRegex.firstMatch(in: demoCardId, options: [], range: range)
+            XCTAssertTrue(match != nil, "Demo Card ID \(demoCardId) is invalid")
+        }
     }
 }
