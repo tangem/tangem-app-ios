@@ -15,6 +15,8 @@ struct BottomSheetSettings: Identifiable {
     var tapOutsideToDismissEnabled: Bool = true
     var cornerRadius: CGFloat = 10
     var backgroundColor: UIColor = UIColor.black.withAlphaComponent(0.7)
+    var backgroundAlpha: CGFloat = 0.3
+    var bottomBackgroundSheetColor: UIColor = UIColor.white
 }
 
 extension BottomSheetSettings {
