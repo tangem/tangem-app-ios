@@ -191,8 +191,6 @@
 		65B4DEDA28835C82001524CF /* BottomSheetModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B4DED928835C82001524CF /* BottomSheetModifier.swift */; };
 		65B4DEE02885334F001524CF /* View+BottomSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B4DEDF2885334F001524CF /* View+BottomSheet.swift */; };
 		65B4DEE22885719C001524CF /* BottomSheetWrappedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B4DEE12885719C001524CF /* BottomSheetWrappedView.swift */; };
-		65B96F2F2890149B0057B993 /* TangemSdkEventLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B96F2E2890149B0057B993 /* TangemSdkEventLogger.swift */; };
-		65B96F3028901A110057B993 /* TangemSdkEventLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65B96F2E2890149B0057B993 /* TangemSdkEventLogger.swift */; };
 		65C9FCAC2863103800FDE63E /* ZendeskConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCAB2863103800FDE63E /* ZendeskConfig.swift */; };
 		65C9FCAE28644F9D00FDE63E /* DetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCAD28644F9D00FDE63E /* DetailsView.swift */; };
 		65C9FCB12864507600FDE63E /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C9FCAF2864507600FDE63E /* MainViewModel.swift */; };
@@ -809,7 +807,6 @@
 		65B4DED928835C82001524CF /* BottomSheetModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetModifier.swift; sourceTree = "<group>"; };
 		65B4DEDF2885334F001524CF /* View+BottomSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+BottomSheet.swift"; sourceTree = "<group>"; };
 		65B4DEE12885719C001524CF /* BottomSheetWrappedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BottomSheetWrappedView.swift; sourceTree = "<group>"; };
-		65B96F2E2890149B0057B993 /* TangemSdkEventLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkEventLogger.swift; sourceTree = "<group>"; };
 		65C9FCAB2863103800FDE63E /* ZendeskConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZendeskConfig.swift; sourceTree = "<group>"; };
 		65C9FCAD28644F9D00FDE63E /* DetailsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetailsView.swift; sourceTree = "<group>"; };
 		65C9FCAF2864507600FDE63E /* MainViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainViewModel.swift; sourceTree = "<group>"; };
@@ -2386,7 +2383,6 @@
 			children = (
 				DC0A57E12822A5C50031BECC /* TangemSdkProviding.swift */,
 				DC0A57E32822A5D00031BECC /* TangemSdkProvider.swift */,
-				65B96F2E2890149B0057B993 /* TangemSdkEventLogger.swift */,
 			);
 			path = TangemSdk;
 			sourceTree = "<group>";
@@ -3507,7 +3503,6 @@
 				EF7B9CEF286C6BD7004C33A9 /* CardSettingsView.swift in Sources */,
 				B020A51726F1DD9E00D38596 /* OnboardingTopupViewModel.swift in Sources */,
 				5D9DCB0C255199AA0059799C /* SecurityModeViewModel.swift in Sources */,
-				65B96F2F2890149B0057B993 /* TangemSdkEventLogger.swift in Sources */,
 				DA4C84CE27DA2D6D00B76F91 /* StoriesConstants.swift in Sources */,
 				EF0F99B328902902008B01DF /* DefaultFooterView.swift in Sources */,
 				5DF612A224E6E0ED001BF301 /* AddressFormatter.swift in Sources */,
@@ -3615,7 +3610,6 @@
 				B0CA5A8B25F779C60078F42F /* View+.swift in Sources */,
 				DC0A57EC2822AEF10031BECC /* PersistentStorageProtocol.swift in Sources */,
 				5DE7DD4A269625F800472205 /* AppScanTask.swift in Sources */,
-				65B96F3028901A110057B993 /* TangemSdkEventLogger.swift in Sources */,
 				B0C34953267B19B90027CC9D /* RoundedCorner.swift in Sources */,
 				EF6691D2287ED86900773AA6 /* AppEnvironment.swift in Sources */,
 				5DE7DD232695C27E00472205 /* AppSettings.swift in Sources */,
