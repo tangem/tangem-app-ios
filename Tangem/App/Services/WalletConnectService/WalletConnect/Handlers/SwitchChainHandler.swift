@@ -50,40 +50,52 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
 
     private func switchChain(_ session: WalletConnectSession, chainId: Int) throws -> Session.WalletInfo  {
         var session = session
-        let wallet = session.wallet
+        let oldWalletInfo = session.wallet
 
-        guard let oldWalletInfo = session.session.walletInfo else {
+        guard let oldSessionWalletInfo = session.session.walletInfo else {
             throw WalletConnectServiceError.sessionNotFound
         }
 
-        guard let card = scannedCardsRepo.cards[wallet.cid] else {
+        guard let card = scannedCardsRepo.cards[oldWalletInfo.cid] else {
             throw WalletConnectServiceError.cardNotFound
         }
 
         let supportedBlockchains = SupportedTokenItems().blockchains(for: [.secp256k1], isTestnet: card.isTestnet)
 
-        let supportedChainIds = supportedBlockchains.compactMap { $0.chainId }
-        guard supportedChainIds.contains(chainId) else {
+        guard let desiredBlockchain = supportedBlockchains.first(where: { $0.chainId == chainId }) else {
             throw WalletConnectServiceError.unsupportedNetwork
         }
 
-        let newBlockchain = supportedBlockchains.first(where: { $0.chainId == chainId })!
-
-        let items = tokenItemsRepository.getItems(for: wallet.cid)
-        let currentChainIds = items.compactMap { $0.blockchainNetwork.blockchain.chainId }
-
-        guard currentChainIds.contains(chainId) else {
-            throw WalletConnectServiceError.networkNotFound(name: newBlockchain.displayName)
+        let availableItems = tokenItemsRepository.getItems(for: oldWalletInfo.cid)
+        guard let availableItem = availableItems.first(where: { $0.blockchainNetwork.blockchain.chainId == chainId }) else {
+            throw WalletConnectServiceError.networkNotFound(name: desiredBlockchain.displayName)
         }
 
-        session.wallet.blockchain = newBlockchain
+        let availableWallet = WalletManagerAssembly.makeWalletModels(from: card, blockchainNetworks: [availableItem.blockchainNetwork])
+            .filter { !$0.isCustom(.coin) }
+            .first(where: { $0.wallet.blockchain == desiredBlockchain })
+            .map { $0.wallet }
+
+        guard let wallet = availableWallet else {
+            throw WalletConnectServiceError.networkNotFound(name: desiredBlockchain.displayName)
+        }
+
+        let derivedKey = wallet.publicKey.blockchainKey != wallet.publicKey.seedKey ? wallet.publicKey.blockchainKey : nil
+
+        let walletInfo = WalletInfo(cid: card.cardId,
+                                    walletPublicKey: wallet.publicKey.seedKey,
+                                    derivedPublicKey: derivedKey,
+                                    derivationPath: wallet.publicKey.derivationPath,
+                                    blockchain: desiredBlockchain)
+
+        session.wallet = walletInfo
         dataSource?.updateSession(session)
 
         return Session.WalletInfo(approved: true,
                                   accounts: [wallet.address],
                                   chainId: chainId,
-                                  peerId: oldWalletInfo.peerId,
-                                  peerMeta: oldWalletInfo.peerMeta)
+                                  peerId: oldSessionWalletInfo.peerId,
+                                  peerMeta: oldSessionWalletInfo.peerMeta)
     }
 
     private func showError(_ error: Error) {
