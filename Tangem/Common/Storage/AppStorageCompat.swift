@@ -67,9 +67,7 @@ final class Storage<Value>: NSObject, ObservableObject {
                                change: [NSKeyValueChangeKey: Any]?,
                                context: UnsafeMutableRawPointer?) {
 
-        DispatchQueue.main.async {
-            self.value = change?[.newKey].flatMap(self.transform) ?? self.defaultValue
-        }
+        self.value = change?[.newKey].flatMap(self.transform) ?? self.defaultValue
     }
 }
 
