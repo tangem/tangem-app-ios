@@ -101,13 +101,13 @@ extension Card {
 
 extension Card {
     var isDemoCard: Bool {
-        Self.demoCards.contains(cardId)
+        Self.demoCardIds.contains(cardId)
     }
 
-    static var demoCards: [String] {
+    static var demoCardIds: [String] {
         [
             // === Not from the Google Sheet table ===
-            
+
             "FB10000000000196", // Note BTC
             "FB20000000000186", // Note ETH
             "FB30000000000176", // Wallet
@@ -122,7 +122,7 @@ extension Card {
 
 
             // === Mvideo ===
-            
+
             // Wallet
             "AC01000000045754",
             "AC01000000041662",
@@ -206,7 +206,7 @@ extension Card {
             "AC03000000046479",
             "AC03000000046461",
             "AC03000000046453",
-            
+
             // Note BTC
             "AB01000000059608",
             "AB01000000046647",
@@ -290,7 +290,7 @@ extension Card {
             "AB07000000005787",
             "AB07000000005795",
             "AB07000000005506",
-            
+
             // Note ETH
             "AB02000000051083",
             "AB02000000051059",
@@ -374,9 +374,9 @@ extension Card {
             "AB08000000009119",
             "AB08000000009127",
             "AB08000000009259",
-            
+
             // === Technopark ===
-            
+
             // Wallet
             "AC01000000044120",
             "AC01000000044997",
@@ -398,7 +398,7 @@ extension Card {
             "AC01000000044492",
             "AC01000000044260",
             "AC01000000044278",
-            
+
             // Note BTC
             "AB01000000049864",
             "AB01000000053239",
@@ -420,7 +420,7 @@ extension Card {
             "AB01000000047850",
             "AB01000000047868",
             "AB01000000048288",
-            
+
             // Note ETH
             "AB02000000049715",
             "AB02000000049848",
