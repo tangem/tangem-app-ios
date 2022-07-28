@@ -27,13 +27,13 @@ class BottomSheetViewController<Content: View>: BottomSheetBaseController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
         view.layer.masksToBounds = true
 
         addChild(contentView)
         view.addSubview(contentView.view)
 
         contentView.view.translatesAutoresizingMaskIntoConstraints = false
+        contentView.view.backgroundColor = bottomSheetBackgroundColor
 
         NSLayoutConstraint.activate([
             contentView.view.bottomAnchor.constraint(equalTo: view.bottomAnchor),
