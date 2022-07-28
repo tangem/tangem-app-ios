@@ -13,15 +13,15 @@ enum BiometricAuthorizationUtils {
         let context = LAContext()
         var error: NSError?
         let canEvaluatePolicy = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
-        
+
         if context.biometryType == .none {
             return .notExist
         }
-        
+
         if !canEvaluatePolicy {
             return .forbidden
         }
-        
+
         return .available
     }
 }
