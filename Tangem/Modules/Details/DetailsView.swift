@@ -83,10 +83,12 @@ struct DetailsView: View {
             DefaultRowView(title: "details_row_title_card_settings".localized, isTappable: true) {
                 viewModel.openCardSettings()
             }
-
+            /*
             DefaultRowView(title: "details_row_title_app_settings".localized, isTappable: true) {
                 viewModel.openAppSettings()
             }
+            */
+
             if viewModel.isTwinCard {
                 DefaultRowView(title: "details_row_title_twins_recreate".localized, isTappable: true) {
                     viewModel.prepareTwinOnboarding()
