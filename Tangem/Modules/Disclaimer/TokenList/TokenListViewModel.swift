@@ -379,11 +379,7 @@ private extension TokenListViewModel {
     }
 
     private func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool, tokenItem: TokenItem) {
-        if tokenIsSelected {
-            Analytics.logAmplitude(.tokenSwitchOn, params: ["token_name": "\(tokenItem.name) \(tokenItem.symbol)"])
-        } else {
-            Analytics.logAmplitude(.tokenSwitchOff, params: ["token_name": "\(tokenItem.name) \(tokenItem.symbol)"])
-        }
+        Analytics.logAmplitude(tokenIsSelected ? .tokenSwitchOn : .tokenSwitchOff, params: ["token_name": "\(tokenItem.name) \(tokenItem.symbol)"])
     }
 }
 
