@@ -120,7 +120,6 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
     }
 
     func openP2PTutorial() {
-        Analytics.logAmplitude(.p2pInstructionClicked)
         modalWebViewModel = WebViewContainerViewModel(url: URL(string: "https://tangem.com/howtobuy.html")!,
                                                       title: "",
                                                       addLoadingIndicator: true,
