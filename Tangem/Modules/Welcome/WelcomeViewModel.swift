@@ -67,13 +67,8 @@ class WelcomeViewModel: ObservableObject {
                     }
                 }
                 subscription.map { _ = self?.bag.remove($0) }
-            } receiveValue: { [weak self] result in
+            } receiveValue: { [weak self] cardModel in
                 self?.failedCardScanTracker.resetCounter()
-
-                guard let cardModel = result.cardModel else {
-                    return
-                }
-
                 self?.processScannedCard(cardModel, isWithAnimation: true)
             }
 
