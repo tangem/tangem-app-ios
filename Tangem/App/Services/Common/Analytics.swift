@@ -233,9 +233,6 @@ extension Analytics {
 //  MARK: - Amplitude events
 extension Analytics {
     enum AmplitudeEvent: String {
-        case appInstall
-        case appRemove
-        case no30daysActivity
         case viewStory1
         case viewStory2
         case viewStory3
@@ -246,16 +243,9 @@ extension Analytics {
         case searchToken
         case buyBottomClicked
         case firstScan
-        case accessCodeClicked
-        case accessCodeEntered
         case secondScan
         case supportClicked
         case tryAgainClicked
-        case sessionExpired
-        case accessCodeIncorrect
-        case newCodeEntered
-        case newCodeConfirmed
-        case cardCodeResset
         case createWalletClicked
         case backupClicked
         case backupLaterClicked
@@ -281,7 +271,6 @@ extension Analytics {
         case factoryRessetSuccess
         case createBackupClicked
         case makeComment
-        case commentSent
         case walletConnectSuccessResponse
         case walletConnectInvalidRequest
         case walletConnectNewSession
@@ -295,7 +284,6 @@ extension Analytics {
         case removeToken
         case copyAddress
         case shareAddress
-        case checkAddress
         case buyTokenClicked
         case p2pInstructionClicked
         case transactionIsSent
