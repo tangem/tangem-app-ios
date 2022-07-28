@@ -8,10 +8,11 @@
 
 import Combine
 import Foundation
+import UIKit
 
 class AppSettingsCoordinator: CoordinatorObject {
-    var dismissAction: Action
-    var popToRootAction: ParamsAction<PopToRootOptions>
+    let dismissAction: Action
+    let popToRootAction: ParamsAction<PopToRootOptions>
 
     // MARK: - Main view model
 
@@ -43,4 +44,12 @@ extension AppSettingsCoordinator {
 extension AppSettingsCoordinator: AppSettingsRoutable {
     func openTokenSynchronization() {}
     func openResetSavedCards() {}
+    func openAppSettings() {
+        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString),
+              UIApplication.shared.canOpenURL(settingsUrl) else {
+            return
+        }
+
+        UIApplication.shared.open(settingsUrl, completionHandler: { _ in })
+    }
 }
