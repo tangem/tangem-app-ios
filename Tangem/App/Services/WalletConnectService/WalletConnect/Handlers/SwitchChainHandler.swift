@@ -62,22 +62,22 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
 
         let supportedBlockchains = SupportedTokenItems().blockchains(for: [.secp256k1], isTestnet: card.isTestnet)
 
-        guard let desiredBlockchain = supportedBlockchains.first(where: { $0.chainId == chainId }) else {
+        guard let targetBlockchain = supportedBlockchains.first(where: { $0.chainId == chainId }) else {
             throw WalletConnectServiceError.unsupportedNetwork
         }
 
         let availableItems = tokenItemsRepository.getItems(for: oldWalletInfo.cid)
         guard let availableItem = availableItems.first(where: { $0.blockchainNetwork.blockchain.chainId == chainId }) else {
-            throw WalletConnectServiceError.networkNotFound(name: desiredBlockchain.displayName)
+            throw WalletConnectServiceError.networkNotFound(name: targetBlockchain.displayName)
         }
 
         let availableWallet = WalletManagerAssembly.makeWalletModels(from: card, blockchainNetworks: [availableItem.blockchainNetwork])
             .filter { !$0.isCustom(.coin) }
-            .first(where: { $0.wallet.blockchain == desiredBlockchain })
+            .first(where: { $0.wallet.blockchain == targetBlockchain })
             .map { $0.wallet }
 
         guard let wallet = availableWallet else {
-            throw WalletConnectServiceError.networkNotFound(name: desiredBlockchain.displayName)
+            throw WalletConnectServiceError.networkNotFound(name: targetBlockchain.displayName)
         }
 
         let derivedKey = wallet.publicKey.blockchainKey != wallet.publicKey.seedKey ? wallet.publicKey.blockchainKey : nil
@@ -86,7 +86,7 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
                                     walletPublicKey: wallet.publicKey.seedKey,
                                     derivedPublicKey: derivedKey,
                                     derivationPath: wallet.publicKey.derivationPath,
-                                    blockchain: desiredBlockchain)
+                                    blockchain: targetBlockchain)
 
         session.wallet = walletInfo
         dataSource?.updateSession(session)
