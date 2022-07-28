@@ -47,6 +47,14 @@ class BottomSheetBaseController: UIViewController {
         }
     }
 
+    var backgroundAlpha: CGFloat = 0.3 {
+        didSet {
+            bottomSheetTransitioningDelegate.backgroundAlpha = backgroundAlpha
+        }
+    }
+
+    var bottomSheetBackgroundColor: UIColor = UIColor.white
+
     private lazy var bottomSheetTransitioningDelegate = BottomSheetTransitionDelegate(
         preferredSheetCornerRadius: preferredSheetCornerRadius,
         preferredSheetBackgroundColor: preferredSheetBackgroundColor
