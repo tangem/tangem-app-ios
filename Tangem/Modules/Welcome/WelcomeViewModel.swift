@@ -76,8 +76,14 @@ class WelcomeViewModel: ObservableObject {
 
         subscription?.store(in: &bag)
     }
+    
+    func tryAgain() {
+        Analytics.logAmplitude(.tryAgainClicked)
+        scanCard()
+    }
 
     func requestSupport() {
+        Analytics.logAmplitude(.supportClicked)
         failedCardScanTracker.resetCounter()
         openMail()
     }
