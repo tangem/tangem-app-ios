@@ -11,6 +11,7 @@ import UIKit
 class BottomSheetTransitionDelegate: NSObject, UIViewControllerTransitioningDelegate {
     var preferredSheetCornerRadius: CGFloat
     var preferredSheetBackgroundColor: UIColor
+    var backgroundAlpha: CGFloat = 0.3
 
     var tapOutsideToDismissEnabled: Bool = true {
         didSet {
@@ -43,7 +44,8 @@ class BottomSheetTransitionDelegate: NSObject, UIViewControllerTransitioningDele
             presentedViewController: presented,
             presenting: presenting ?? source,
             sheetCornerRadius: preferredSheetCornerRadius,
-            sheetBackgroundColor: preferredSheetBackgroundColor
+            sheetBackgroundColor: preferredSheetBackgroundColor,
+            backgroundAlpha: backgroundAlpha
         )
 
         bottomSheetPresentationController.tapGestureRecognizer.isEnabled = tapOutsideToDismissEnabled
