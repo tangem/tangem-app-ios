@@ -168,4 +168,12 @@ extension CardSettingsViewModel {
     func openResetSavedCards() {
         coordinator.openResetSavedCards()
     }
+
+    func openResetCard() {
+        coordinator.openResetCardToFactoryWarning { [weak self] in
+            self?.cardModel.resetToFactory { result in
+                print("result resetToFactory", result)
+            }
+        }
+    }
 }

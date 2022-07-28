@@ -13,4 +13,5 @@ protocol CardSettingsRoutable: AnyObject {
     func openSecurityMode(cardModel: CardViewModel)
     func openTokenSynchronization()
     func openResetSavedCards()
+    func openResetCardToFactoryWarning(mainButtonAction: @escaping () -> Void)
 }
