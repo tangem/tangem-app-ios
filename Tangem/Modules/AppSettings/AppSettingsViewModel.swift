@@ -8,7 +8,6 @@
 
 import Combine
 import SwiftUI
-import LocalAuthentication
 
 class AppSettingsViewModel: ObservableObject {
     // MARK: ViewState
@@ -66,7 +65,7 @@ private extension AppSettingsViewModel {
 
         let alert = Alert(
             title: Text("common_attention"),
-            message: Text("card_settings_off_saved_wallet_alert_message"),
+            message: Text("app_settings_off_saved_wallet_alert_message"),
             primaryButton: okButton,
             secondaryButton: cancelButton
         )
@@ -87,11 +86,10 @@ private extension AppSettingsViewModel {
 
         let alert = Alert(
             title: Text("common_attention"),
-            message: Text("card_settings_off_saved_access_code_alert_message"),
+            message: Text("app_settings_off_saved_access_code_alert_message"),
             primaryButton: okButton,
             secondaryButton: cancelButton
         )
-
 
         self.alert = AlertBinder(alert: alert)
     }
@@ -112,11 +110,7 @@ private extension AppSettingsViewModel {
     }
 
     func updateBiometricWarning() {
-        let context = LAContext()
-        var error: NSError?
-        let canEvaluatePolicy = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
-        let hasBiometry = context.biometryType != .none
-        isBiometryAvailable = hasBiometry && canEvaluatePolicy
+        isBiometryAvailable = BiometricAuthorizationUtils.getBiometricState() == .available
 
         if !isBiometryAvailable {
             isSavingWallet = false
@@ -137,11 +131,6 @@ extension AppSettingsViewModel {
     }
 
     func openSettings() {
-        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString),
-              UIApplication.shared.canOpenURL(settingsUrl) else {
-            return
-        }
-
-        UIApplication.shared.open(settingsUrl, completionHandler: { _ in })
+        coordinator.openAppSettings()
     }
 }
