@@ -23,4 +23,22 @@ class TangemTests: XCTestCase {
     func testParseConfig() throws {
         XCTAssertNoThrow(try CommonKeysManager())
     }
+
+    func testBlockchainCoding() throws {
+        let blockchains = SupportedTokenItems().blockchains(for: EllipticCurve.allCases, isTestnet: nil)
+
+        let encoder = JSONEncoder()
+        let decoder = JSONDecoder()
+
+        for blockchain in blockchains {
+            let recoveredFromCodable = try? decoder.decode(Blockchain.self, from: try encoder.encode(blockchain))
+            XCTAssertTrue(recoveredFromCodable == blockchain)
+
+            let recoveredFromId = Blockchain(from: blockchain.id)
+            XCTAssertNotNil(recoveredFromId)
+
+            let recoveredFromNetworkId = Blockchain(from: blockchain.networkId)
+            XCTAssertNotNil(recoveredFromNetworkId)
+        }
+    }
 }
