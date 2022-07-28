@@ -18,24 +18,6 @@ class MainViewModel: ObservableObject {
     @Published var isScanning: Bool = false
     @Published var image: UIImage? = nil
     @Published var shouldShowGetFullApp = false
-    @Published var state: ScanResult = .notScannedYet  {
-        willSet {
-            print("⚠️ Reset bag")
-            if newValue == .notScannedYet {
-                image = nil
-            }
-            bag = Set<AnyCancellable>()
-        }
-        didSet {}
-    }
-
-    var cardModel: CardViewModel? {
-        state.cardModel
-    }
-
-    var isCardEmpty: Bool {
-        state.cardModel?.isCardEmpty ?? true
-    }
 
     private var imageLoadingCancellable: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
@@ -45,34 +27,8 @@ class MainViewModel: ObservableObject {
         updateCardBatch(nil, fullLink: "")
     }
 
-    func scanCard() {
-        isScanning = true
-
-        let task = AppScanTask(targetBatch: savedBatch)
-        sdkProvider.sdk.startSession(with: task) { [weak self] (result) in
-            guard let self = self else { return }
-
-            switch result {
-            case .success(let response):
-                Analytics.logScan(card: response.card)
-                self.shouldShowGetFullApp = true
-
-                let cm = CardViewModel(cardInfo: response.getCardInfo())
-                let result: ScanResult = .card(model: cm)
-                cm.getCardInfo()
-
-                self.state = result
-            case .failure(let error):
-                Analytics.logCardSdkError(error, for: .scan)
-            }
-
-            self.isScanning = false
-        }
-    }
-
     func updateCardBatch(_ batch: String?, fullLink: String) {
         savedBatch = batch
-        state = .notScannedYet
         //  shouldShowGetFullApp = false
         loadImageByBatch(batch, fullLink: fullLink)
     }
