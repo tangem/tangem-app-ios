@@ -11,4 +11,5 @@ import Foundation
 protocol AppSettingsRoutable: AnyObject {
     func openTokenSynchronization()
     func openResetSavedCards()
+    func openAppSettings()
 }
