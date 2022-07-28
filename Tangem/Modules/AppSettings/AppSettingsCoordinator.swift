@@ -8,6 +8,7 @@
 
 import Combine
 import Foundation
+import UIKit
 
 class AppSettingsCoordinator: CoordinatorObject {
     let dismissAction: Action
@@ -43,4 +44,12 @@ extension AppSettingsCoordinator {
 extension AppSettingsCoordinator: AppSettingsRoutable {
     func openTokenSynchronization() {}
     func openResetSavedCards() {}
+    func openAppSettings() {
+        guard let settingsUrl = URL(string: UIApplication.openSettingsURLString),
+              UIApplication.shared.canOpenURL(settingsUrl) else {
+            return
+        }
+
+        UIApplication.shared.open(settingsUrl, completionHandler: { _ in })
+    }
 }
