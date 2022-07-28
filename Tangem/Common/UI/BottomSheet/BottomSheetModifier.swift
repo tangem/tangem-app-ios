@@ -56,6 +56,8 @@ struct BottomSheetModifier<ContentView: View>: ViewModifier {
             bottomSheetViewController?.preferredSheetBackgroundColor = viewModelSettings.backgroundColor
             bottomSheetViewController?.swipeDownToDismissEnabled = viewModelSettings.swipeDownToDismissEnabled
             bottomSheetViewController?.tapOutsideToDismissEnabled = viewModelSettings.tapOutsideToDismissEnabled
+            bottomSheetViewController?.bottomSheetBackgroundColor = viewModelSettings.bottomBackgroundSheetColor
+            bottomSheetViewController?.backgroundAlpha = viewModelSettings.backgroundAlpha
 
             controllerToPresentFrom.present(bottomSheetViewController!, animated: true)
         } else {
