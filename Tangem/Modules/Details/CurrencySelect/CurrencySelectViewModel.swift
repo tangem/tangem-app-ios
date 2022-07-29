@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 class CurrencySelectViewModel: ObservableObject {
-    @Injected(\.currencyRateService) private var currencyRateService: CurrencyRateService
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     var dismissAfterSelection: Bool = true
 
@@ -22,8 +22,8 @@ class CurrencySelectViewModel: ObservableObject {
 
     func onAppear() {
         loading = true
-        currencyRateService
-            .baseCurrencies()
+        tangemApiService
+            .loadCurrencies()
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 if case let .failure(error) = completion {
@@ -40,11 +40,11 @@ class CurrencySelectViewModel: ObservableObject {
     }
 
     func isSelected(_ currency: CurrenciesResponse.Currency) -> Bool {
-        currencyRateService.selectedCurrencyCode == currency.code
+        AppSettings.shared.selectedCurrencyCode == currency.code
     }
 
     func onSelect(_ currency: CurrenciesResponse.Currency) {
         objectWillChange.send()
-        currencyRateService.selectedCurrencyCode = currency.code
+        AppSettings.shared.selectedCurrencyCode = currency.code
     }
 }
