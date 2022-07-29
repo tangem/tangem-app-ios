@@ -18,15 +18,14 @@ struct CardPinSettings {
     var isPin2Default: Bool? = nil
 }
 
-class CardViewModel: Identifiable, ObservableObject, Initializable {
+class CardViewModel: Identifiable, ObservableObject {
     // MARK: Services
     @Injected(\.cardImageLoader) var imageLoader: CardImageLoaderProtocol
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
-    @Injected(\.appFeaturesService) private var featuresService: AppFeaturesProviding
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
-    @Injected(\.coinsService) private var coinsService: CoinsService
-    @Injected(\.transactionSigner) private var signer: TangemSigner
+    @Injected(\.tangemApiService) var tangemApiService: TangemApiService
+    @Injected(\.scannedCardsRepository) private var scannedCardsRepository: ScannedCardsRepository
 
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
@@ -34,12 +33,14 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
     @Published public var cardInfo: CardInfo
     @Published var walletsBalanceState: WalletsBalanceState = .loaded
 
+    var signer: TangemSigner
+
     private var walletBalanceSubscription: AnyCancellable? = nil
     private var cardPinSettings: CardPinSettings = CardPinSettings()
-    private var userPrefsService: UserPrefsService = .init()
     private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
     private var migrated = false
     private var tangemSdk: TangemSdk { tangemSdkProvider.sdk }
+    private var featuresService: AppFeaturesService { .init(with: cardInfo.card) } // Temp
 
     var availableSecurityOptions: [SecurityModeOption] {
         var options: [SecurityModeOption] = []
@@ -252,19 +253,9 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
 
     init(cardInfo: CardInfo) {
         self.cardInfo = cardInfo
+        self.signer = .init(with: cardInfo.card)
         updateCardPinSettings()
         updateCurrentSecurityOption()
-    }
-
-    func initialize() {
-        signer.signedCardPublisher.sink { [weak self] card in
-            guard let self = self else { return }
-
-            if self.cardInfo.card.cardId == card.cardId {
-                self.onSign(card)
-            }
-        }
-        .store(in: &bag)
     }
 
 //    func loadPayIDInfo () {
@@ -372,26 +363,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
             }
     }
 
-    func onSign(_ card: Card) {
-        cardInfo.card = card
-        warningsService.setupWarnings(for: cardInfo)
-    }
-
     // MARK: - Security
-
-    func checkPin(_ completion: @escaping (Result<CheckUserCodesResponse, Error>) -> Void) {
-        tangemSdk.startSession(with: CheckUserCodesCommand(), cardId: cardInfo.card.cardId) { [weak self] (result) in
-            switch result {
-            case .success(let resp):
-                self?.cardPinSettings = CardPinSettings(isPin1Default: !resp.isAccessCodeSet, isPin2Default: !resp.isPasscodeSet)
-                self?.updateCurrentSecurityOption()
-                completion(.success(resp))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
-    }
-
     func changeSecurityOption(_ option: SecurityModeOption, completion: @escaping (Result<Void, Error>) -> Void) {
         switch option {
         case .accessCode:
@@ -448,7 +420,6 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
     }
 
     // MARK: - Wallet
-
     func createWallet(_ completion: @escaping (Result<Void, Error>) -> Void) {
         let card = self.cardInfo.card
         tangemSdk.startSession(with: CreateWalletAndReadTask(with: cardInfo.defaultBlockchain?.curve),
@@ -506,6 +477,8 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
                 self.cardInfo.derivedKeys[newKey.key, default: [:]][newDerivation.key] = newDerivation.value
             }
         }
+
+        scannedCardsRepository.add(cardInfo)
     }
 
     // MARK: - Update
@@ -535,6 +508,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
     func update(with card: Card) {
         print("🟩 Updating Card view model with new Card")
         cardInfo.card = card
+        signer = .init(with: cardInfo.card)
         updateCardPinSettings()
         self.updateCurrentSecurityOption()
         updateModel()
@@ -543,6 +517,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
     func update(with cardInfo: CardInfo) {
         print("🔷 Updating Card view model with new CardInfo")
         self.cardInfo = cardInfo
+        signer = .init(with: cardInfo.card)
         updateCardPinSettings()
         self.updateCurrentSecurityOption()
         updateModel()
@@ -562,7 +537,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
             print("⁉️ Recreating all wallet models for Card view model state")
             self.state = .loaded(walletModel: WalletManagerAssembly.makeAllWalletModels(from: cardInfo))
 
-            if !userPrefsService.cardsStartedActivation.contains(cardInfo.card.cardId) || cardInfo.isTangemWallet {
+            if !AppSettings.shared.cardsStartedActivation.contains(cardInfo.card.cardId) || cardInfo.isTangemWallet {
                 update()
                     .sink { _ in
 
@@ -626,7 +601,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
 
     private func searchTokens() {
         guard cardInfo.isMultiWallet, !cardInfo.isTangemWallet,
-              !userPrefsService.searchedCards.contains(cardInfo.card.cardId) else {
+              !AppSettings.shared.searchedCards.contains(cardInfo.card.cardId) else {
             return
         }
 
@@ -642,7 +617,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
         }
 
         guard let tokenFinder = ethWalletModel?.walletManager as? TokenFinder else {
-            self.userPrefsService.searchedCards.append(self.cardInfo.card.cardId)
+            AppSettings.shared.searchedCards.append(self.cardInfo.card.cardId)
             self.searchBlockchains()
             return
         }
@@ -668,7 +643,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
                 print(error)
             }
 
-            self.userPrefsService.searchedCards.append(self.cardInfo.card.cardId)
+            AppSettings.shared.searchedCards.append(self.cardInfo.card.cardId)
             self.searchBlockchains()
         }
     }
@@ -825,7 +800,7 @@ class CardViewModel: Identifiable, ObservableObject, Initializable {
                     networkIds: [item.blockchainNetwork.blockchain.networkId]
                 )
 
-                return coinsService
+                return tangemApiService
                     .loadCoins(requestModel: requestModel)
                     .replaceError(with: [])
                     .map { [unowned self] models -> Bool in

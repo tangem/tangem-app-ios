@@ -40,7 +40,7 @@ class PersonalSignHandler: WalletConnectSignHandler {
         .signature(signature, for: request)
     }
 
-    override func sign(data: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<String, Error> {
+    override func sign(data: Data, walletPublicKey: Wallet.PublicKey, signer: TangemSigner) -> AnyPublisher<String, Error> {
         let hash = data.sha3(.keccak256)
 
         return signer.sign(hash: hash, walletPublicKey: walletPublicKey)
