@@ -57,19 +57,11 @@ extension CardSettingsCoordinator: CardSettingsRoutable {
         securityManagementCoordinator = coordinator
     }
 
-    func openTokenSynchronization() {
-
-    }
-
-    func openResetSavedCards() {
-
-    }
-
     func openResetCardToFactoryWarning(mainButtonAction: @escaping () -> Void) {
         attentionViewModel = AttentionViewModel(
             isCheckedWarning: false,
             navigationTitle: "reset_card_to_factory_navigation_title",
-            title: "reset_card_to_factory_title".localized,
+            title: "common_attention".localized,
             message: "reset_card_to_factory_message".localized,
             warningText: "reset_card_to_factory_warning_message".localized,
             buttonTitle: "reset_card_to_factory_button_title",
