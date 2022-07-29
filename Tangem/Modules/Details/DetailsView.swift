@@ -39,7 +39,7 @@ struct DetailsView: View {
                 viewModel.openWalletConnect()
             }) {
                 HStack(spacing: 12) {
-                    Assets.walletConnectIcon
+                    Assets.walletConnect
                         .resizable()
                         .frame(width: 48, height: 48)
 
