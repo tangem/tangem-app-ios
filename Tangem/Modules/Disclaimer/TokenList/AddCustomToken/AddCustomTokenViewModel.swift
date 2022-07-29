@@ -14,7 +14,7 @@ import enum TangemSdk.TangemSdkError
 
 class AddCustomTokenViewModel: ObservableObject {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
-    @Injected(\.coinsService) private var coinsService: CoinsService
+    @Injected(\.tangemApiService) var tangemApiService: TangemApiService
     @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
 
     weak var cardModel: CardViewModel!
@@ -335,7 +335,7 @@ class AddCustomTokenViewModel: ObservableObject {
             networkIds: networkIds
         )
 
-        return coinsService
+        return tangemApiService
             .loadCoins(requestModel: requestModel)
             .replaceError(with: [])
             .eraseToAnyPublisher()
