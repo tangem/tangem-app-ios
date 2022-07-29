@@ -50,11 +50,6 @@ extension DetailsCoordinator {
 }
 
 extension DetailsCoordinator: DetailsRoutable {
-    func openCurrencySelection(autoDismiss: Bool) {
-        currencySelectViewModel = CurrencySelectViewModel()
-        currencySelectViewModel?.dismissAfterSelection = autoDismiss
-    }
-
     func openOnboardingModal(with input: OnboardingInput) {
         let dismissAction: Action = { [weak self] in
             self?.modalOnboardingCoordinator = nil
@@ -79,10 +74,6 @@ extension DetailsCoordinator: DetailsRoutable {
 
     func openDisclaimer() {
         disclaimerViewModel = .init(style: .navbar, showAccept: false, coordinator: nil)
-    }
-
-    func openCardTOU(at url: URL) {
-        pushedWebViewModel = WebViewContainerViewModel(url: url, title: "details_row_title_card_tou".localized)
     }
 
     func openResetToFactory(action: @escaping (_ completion: @escaping (Result<Void, Error>) -> Void) -> Void) {
