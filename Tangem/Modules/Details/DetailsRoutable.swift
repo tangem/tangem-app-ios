@@ -14,9 +14,9 @@ protocol DetailsRoutable: AnyObject {
     func openWalletConnect(with cardModel: CardViewModel)
     func openCurrencySelection(autoDismiss: Bool)
     func openDisclaimer()
-    func openCardTOU(at url: URL)
     func openResetToFactory(action: @escaping (_ completion: @escaping (Result<Void, Error>) -> Void) -> Void)
     func openScanCardSettings()
     func openAppSettings()
     func openSupportChat()
+    func openInSafari(url: URL)
 }
