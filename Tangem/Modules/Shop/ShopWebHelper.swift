@@ -13,7 +13,7 @@ class ShopWebHelper {
 
     var webShopUrl: URL? {
         switch tangemApiService.geoIpRegionCode {
-        case "ru", "by":
+        case LanguageCode.ru.rawValue, LanguageCode.by.rawValue:
             return URL(string: "https://tangem.com/ru/resellers/")
         default:
             return nil
