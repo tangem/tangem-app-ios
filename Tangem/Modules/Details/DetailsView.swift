@@ -111,7 +111,7 @@ struct DetailsView: View {
                 viewModel.openDisclaimer()
             }
 
-            if let url = viewModel.cardTouURL {
+            if let url = viewModel.cardTOUURL {
                 DefaultRowView(title: "details_row_title_card_tou".localized, isTappable: true) {
                     viewModel.openCardTOU(url: url)
                 }
