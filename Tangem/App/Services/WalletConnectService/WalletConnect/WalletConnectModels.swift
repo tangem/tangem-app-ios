@@ -16,7 +16,7 @@ struct WalletInfo: Codable, Hashable {
     let walletPublicKey: Data
     let derivedPublicKey: Data?
     let derivationPath: DerivationPath?
-    var blockchain: Blockchain
+    let blockchain: Blockchain
 
     var address: String {
         let blockchainKey = derivedPublicKey ?? walletPublicKey
