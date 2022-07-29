@@ -26,12 +26,6 @@ struct DetailsCoordinatorView: CoordinatorView {
     @ViewBuilder
     private var links: some View {
         NavHolder()
-            .navigation(item: $coordinator.pushedWebViewModel) {
-                WebViewContainer(viewModel: $0)
-            }
-            .navigation(item: $coordinator.currencySelectViewModel) {
-                CurrencySelectView(viewModel: $0)
-            }
             .navigation(item: $coordinator.scanCardSettingsCoordinator) {
                 ScanCardSettingsCoordinatorView(coordinator: $0)
             }
@@ -40,9 +34,6 @@ struct DetailsCoordinatorView: CoordinatorView {
             }
             .navigation(item: $coordinator.walletConnectCoordinator) {
                 WalletConnectCoordinatorView(coordinator: $0)
-            }
-            .navigation(item: $coordinator.cardOperationViewModel) {
-                CardOperationView(viewModel: $0)
             }
             .navigation(item: $coordinator.disclaimerViewModel) {
                 DisclaimerView(viewModel: $0)

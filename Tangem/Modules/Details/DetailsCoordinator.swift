@@ -14,23 +14,24 @@ class DetailsCoordinator: CoordinatorObject {
     var popToRootAction: ParamsAction<PopToRootOptions>
 
     // MARK: - Main view model
+
     @Published private(set) var detailsViewModel: DetailsViewModel? = nil
 
     // MARK: - Child coordinators
+
     @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
     @Published var walletConnectCoordinator: WalletConnectCoordinator? = nil
     @Published var scanCardSettingsCoordinator: ScanCardSettingsCoordinator? = nil
     @Published var appSettingsCoordinator: AppSettingsCoordinator? = nil
 
     // MARK: - Child view models
-    @Published var currencySelectViewModel: CurrencySelectViewModel? = nil
-    @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
+
     @Published var mailViewModel: MailViewModel? = nil
     @Published var disclaimerViewModel: DisclaimerViewModel? = nil
-    @Published var cardOperationViewModel: CardOperationViewModel? = nil
     @Published var supportChatViewModel: SupportChatViewModel? = nil
 
     // MARK: - Helpers
+
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
@@ -76,15 +77,6 @@ extension DetailsCoordinator: DetailsRoutable {
         disclaimerViewModel = .init(style: .navbar, showAccept: false, coordinator: nil)
     }
 
-    func openResetToFactory(action: @escaping (_ completion: @escaping (Result<Void, Error>) -> Void) -> Void) {
-        cardOperationViewModel = CardOperationViewModel(title: "details_row_title_reset_factory_settings".localized,
-                                                        buttonTitle: "card_operation_button_title_reset",
-                                                        shouldPopToRoot: true,
-                                                        alert: "details_row_title_reset_factory_settings_warning".localized,
-                                                        actionButtonPressed: action,
-                                                        coordinator: self)
-    }
-
     func openScanCardSettings() {
         let coordinator = ScanCardSettingsCoordinator(popToRootAction: popToRootAction)
         coordinator.start(with: .default)
@@ -103,11 +95,5 @@ extension DetailsCoordinator: DetailsRoutable {
 
     func openInSafari(url: URL) {
         UIApplication.shared.open(url)
-    }
-}
-
-extension DetailsCoordinator: CardOperationRoutable {
-    func dismissCardOperation() {
-        cardOperationViewModel = nil
     }
 }
