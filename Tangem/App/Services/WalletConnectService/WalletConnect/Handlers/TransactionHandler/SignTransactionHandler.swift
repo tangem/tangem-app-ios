@@ -23,9 +23,7 @@ class SignTransactionHandler: WalletConnectTransactionHandler {
 
     private func askToSign(in session: WalletConnectSession, request: Request, ethTransaction: WalletConnectEthTransaction) {
         buildTx(in: session, ethTransaction)
-            .flatMap { [weak self] buildResponse -> AnyPublisher<String, Error> in
-                guard let self = self else { return .anyFail(error: WalletConnectServiceError.deallocated) }
-
+            .flatMap { buildResponse -> AnyPublisher<String, Error> in
                 let ethWalletModel = buildResponse.0
                 let tx = buildResponse.1
 
@@ -33,7 +31,7 @@ class SignTransactionHandler: WalletConnectTransactionHandler {
                     return .anyFail(error: WalletConnectServiceError.failedToFindSigner)
                 }
 
-                return txSigner.sign(tx, signer: self.signer)
+                return txSigner.sign(tx, signer: TangemSigner(with: session.wallet.cid))
             }
             .sink { [weak self] completion in
                 switch completion {

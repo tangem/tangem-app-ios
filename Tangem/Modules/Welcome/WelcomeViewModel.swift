@@ -25,7 +25,6 @@ class WelcomeViewModel: ObservableObject {
     private var storiesModelSubscription: AnyCancellable? = nil
     private var bag: Set<AnyCancellable> = []
     private var backupService: BackupService { backupServiceProvider.backupService }
-    private var userPrefsService: UserPrefsService = .init()
 
     private unowned let coordinator: WelcomeRoutable
 
@@ -39,7 +38,7 @@ class WelcomeViewModel: ObservableObject {
     }
 
     func scanCard() {
-        guard userPrefsService.isTermsOfServiceAccepted else {
+        guard AppSettings.shared.isTermsOfServiceAccepted else {
             openDisclaimer()
             return
         }
