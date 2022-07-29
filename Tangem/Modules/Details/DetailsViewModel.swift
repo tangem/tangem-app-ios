@@ -64,9 +64,9 @@ class DetailsViewModel: ObservableObject {
     }
 
     var applicationInfoFooter: String? {
-        guard let appName = InfoDictionaryUtils.appName.info,
-              let version = InfoDictionaryUtils.version.info,
-              let bundleVersion = InfoDictionaryUtils.bundleVersion.info else {
+        guard let appName = InfoDictionaryUtils.appName.value,
+              let version = InfoDictionaryUtils.version.value,
+              let bundleVersion = InfoDictionaryUtils.bundleVersion.value else {
             return nil
         }
 
@@ -156,10 +156,6 @@ extension DetailsViewModel {
 
     func openWalletConnect() {
         coordinator.openWalletConnect(with: cardModel)
-    }
-
-    func openCurrencySelection() {
-        coordinator.openCurrencySelection(autoDismiss: false)
     }
 
     func openDisclaimer() {
