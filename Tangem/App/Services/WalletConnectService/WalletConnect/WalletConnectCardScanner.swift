@@ -15,7 +15,6 @@ import WalletConnectSwift
 class WalletConnectCardScanner {
     @Injected(\.tangemSdkProvider) var tangemSdkProvider: TangemSdkProviding
     @Injected(\.scannedCardsRepository) var scannedCardsRepository: ScannedCardsRepository
-    @Injected(\.cardsRepository) var cardsRepository: CardsRepository
 
     func scanCard(for dAppInfo: Session.DAppInfo) -> AnyPublisher<WalletInfo, Error> {
         Deferred {
@@ -53,7 +52,7 @@ class WalletConnectCardScanner {
             throw WalletConnectServiceError.unsupportedNetwork
         }
 
-        let walletModels = getWalletModels(for: cardInfo)
+        let walletModels = WalletManagerAssembly.makeAllWalletModels(from: cardInfo)
         let wallet = walletModels
             .filter { !$0.isCustom(.coin) }
             .first(where: { $0.wallet.blockchain == blockchain })
@@ -72,14 +71,5 @@ class WalletConnectCardScanner {
                           derivedPublicKey: derivedKey,
                           derivationPath: wallet.publicKey.derivationPath,
                           blockchain: blockchain)
-    }
-
-    private func getWalletModels(for cardInfo: CardInfo) -> [WalletModel] {
-        if let existingCardModel = cardsRepository.lastScanResult.cardModel,
-           existingCardModel.cardInfo.card.cardId == cardInfo.card.cardId {
-            return existingCardModel.walletModels ?? []
-        } else {
-            return WalletManagerAssembly.makeAllWalletModels(from: cardInfo)
-        }
     }
 }
