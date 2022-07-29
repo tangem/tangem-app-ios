@@ -12,8 +12,7 @@ import BlockchainSdk
 
 class WalletModel: ObservableObject, Identifiable, Initializable {
     @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
-    @Injected(\.transactionSigner) private var signer: TangemSigner
-    @Injected(\.currencyRateService) private var currencyRateService: CurrencyRateService
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     @Published var state: State = .created
     @Published var balanceViewModel: BalanceViewModel!
@@ -136,8 +135,8 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     }
 
     func initialize() {
-        currencyRateService
-            .selectedCurrencyCodePublisher
+        AppSettings.shared
+            .$selectedCurrencyCode
             .dropFirst()
             .sink { [unowned self] _ in
                 self.loadRates()
@@ -239,7 +238,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
 
         if let currencyId = self.currencyId(for: amountType),
            let rate = rates[currencyId] {
-            rateString = rate.currencyFormatted(code: currencyRateService.selectedCurrencyCode)
+            rateString = rate.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
         }
 
         return rateString
@@ -264,7 +263,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     }
 
     func getFiatFormatted(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> String? {
-        return getFiat(for: amount, roundingMode: roundingMode)?.currencyFormatted(code: currencyRateService.selectedCurrencyCode)
+        return getFiat(for: amount, roundingMode: roundingMode)?.currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
     }
 
     func getFiat(for amount: Amount?, roundingMode: NSDecimalNumber.RoundingMode = .down) -> Decimal? {
@@ -355,7 +354,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     }
 
     func getFiatBalance(for type: Amount.AmountType) -> String {
-        return getFiatFormatted(for: wallet.amounts[type]) ?? Decimal(0).currencyFormatted(code: currencyRateService.selectedCurrencyCode)
+        return getFiatFormatted(for: wallet.amounts[type]) ?? Decimal(0).currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
     }
 
     func startUpdatingTimer() {
@@ -373,7 +372,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
             }
     }
 
-    func send(_ tx: Transaction) -> AnyPublisher<Void, Error> {
+    func send(_ tx: Transaction, signer: TangemSigner) -> AnyPublisher<Void, Error> {
         if isDemo {
             return signer.sign(hash: Data.randomData(count: 32),
                                walletPublicKey: wallet.publicKey)
@@ -431,8 +430,8 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     }
 
     private func loadRates(for currenciesToExchange: [String]) {
-        currencyRateService
-            .rates(for: currenciesToExchange)
+        tangemApiService
+            .loadRates(for: currenciesToExchange)
             .receive(on: DispatchQueue.main)
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self = self else {
