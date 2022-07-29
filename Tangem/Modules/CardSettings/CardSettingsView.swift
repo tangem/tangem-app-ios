@@ -57,12 +57,11 @@ struct CardSettingsView: View {
             RowView(
                 title: "card_settings_security_mode".localized,
                 details: viewModel.securityModeTitle,
-                isTappable: !viewModel.hasSingleSecurityMode,
-                action: viewModel.openSecurityMode
+                action: viewModel.hasSingleSecurityMode ? nil : viewModel.openSecurityMode
             )
             if viewModel.isChangeAccessCodeVisible {
                 RowView(
-                    title: "security_and_privacy_change_access_code".localized,
+                    title: "card_settings_change_access_code".localized,
                     action: viewModel.openChangeAccessCodeWarningView
                 )
             }
@@ -86,23 +85,22 @@ private extension CardSettingsView {
     struct RowView: View {
         let title: String
         let details: String?
-        let isTappable: Bool
-        let action: () -> Void
+        let action: (() -> Void)?
+
+        private var isTappable: Bool { action != nil }
 
         init(
             title: String,
             details: String? = nil,
-            isTappable: Bool = false,
-            action: @escaping () -> Void = {}
+            action: (() -> Void)? = nil
         ) {
             self.title = title
             self.details = details
-            self.isTappable = isTappable
             self.action = action
         }
 
         var body: some View {
-            Button(action: action) {
+            Button(action: { action?() }) {
                 HStack {
                     Text(title)
                         .font(.body)
