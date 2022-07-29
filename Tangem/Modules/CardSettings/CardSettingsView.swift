@@ -26,10 +26,6 @@ struct CardSettingsView: View {
             securityModeSection
 
             resetToFactorySection
-
-            // [REDACTED_TODO_COMMENT]
-//            savingWalletSection
-//            savingAccessCodesSection
         }
         .listStyle(DefaultListStyle())
         .alert(item: $viewModel.alert) { $0.alert }
@@ -87,28 +83,6 @@ struct CardSettingsView: View {
             )
         }, footer: {
             FooterView(title: "card_settings_reset_card_to_factory".localized)
-        })
-    }
-
-    private var savingWalletSection: some View {
-        Section(content: {
-            ToggleRowView(
-                title: "card_settings_saved_wallet".localized,
-                isOn: $viewModel.isSavingWallet
-            )
-        }, footer: {
-            FooterView(title: "card_settings_saved_wallet_footer".localized)
-        })
-    }
-
-    private var savingAccessCodesSection: some View {
-        Section(content: {
-            ToggleRowView(
-                title: "card_settings_saved_access_codes".localized,
-                isOn: $viewModel.isSavingAccessCodes
-            )
-        }, footer: {
-            FooterView(title: "card_settings_saved_access_codes_footer".localized)
         })
     }
 }
