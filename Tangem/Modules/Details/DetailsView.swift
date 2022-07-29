@@ -23,6 +23,10 @@ struct DetailsView: View {
 
     @ObservedObject var viewModel: DetailsViewModel
 
+    /// Change to @AppStorage and move to model with IOS 14.5 minimum deployment target
+    @AppStorageCompat(StorageType.selectedCurrencyCode)
+    private var selectedCurrencyCode: String = "USD"
+
     // fix remain highlited bug on ios14
     @State private var selection: NavigationTag? = nil
 
@@ -42,7 +46,6 @@ struct DetailsView: View {
         .navigationBarTitle("details_title", displayMode: .inline)
         .navigationBarBackButtonHidden(false)
         .navigationBarHidden(false)
-        .onAppear(perform: viewModel.onAppear)
         .onDisappear {
             if #available(iOS 14.5, *) { } else {
                 if #available(iOS 14.3, *) {
@@ -72,7 +75,7 @@ struct DetailsView: View {
                 )
             }
 
-            securityManagementRow
+            cardSettingsRow
 
             if viewModel.isTwinCard {
                 twinCardRecreateView
@@ -130,17 +133,15 @@ struct DetailsView: View {
 
     // MARK: SecurityMode
 
-    private var securityManagementRow: some View {
+    private var cardSettingsRow: some View {
         HStack {
-            Text("details_row_title_manage_security")
+            Text("details_row_title_card_settings")
                 .font(.system(size: 16, weight: .regular, design: .default))
                 .foregroundColor(.tangemGrayDark6)
 
             Spacer()
-
-            ActivityIndicatorView(isAnimating: viewModel.isCheckingPin, color: .tangemGrayDark4)
         }
-        .onNavigation(viewModel.openSecManagement,
+        .onNavigation(viewModel.openCardSettings,
                       tag: NavigationTag.securityManagement,
                       selection: $selection)
     }
@@ -151,7 +152,7 @@ struct DetailsView: View {
         Section(header: HeaderView(text: "details_section_title_app".localized), footer: FooterView()) {
             if !viewModel.isMultiWallet {
                 DetailsRowView(title: "details_row_title_currency".localized,
-                               subtitle: viewModel.currencyRateService.selectedCurrencyCode)
+                               subtitle: selectedCurrencyCode)
                     .onNavigation(viewModel.openCurrencySelection,
                                   tag: NavigationTag.currency,
                                   selection: $selection)
