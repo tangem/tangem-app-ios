@@ -24,12 +24,10 @@ class SendTransactionHandler: WalletConnectTransactionHandler {
 
     private func askToMakeTx(in session: WalletConnectSession, for request: Request, ethTx: WalletConnectEthTransaction) {
         buildTx(in: session, ethTx)
-            .flatMap { [weak self] buildResult -> AnyPublisher<WalletModel, Error> in
-                guard let self = self else { return .anyFail(error: WalletConnectServiceError.deallocated) }
-
+            .flatMap { buildResult -> AnyPublisher<WalletModel, Error> in
                 let ethWalletModel = buildResult.0
                 let tx = buildResult.1
-                return ethWalletModel.walletManager.send(tx, signer: self.signer)
+                return ethWalletModel.walletManager.send(tx, signer: TangemSigner(with: session.wallet.cid))
                     .map { ethWalletModel }
                     .eraseToAnyPublisher()
             }

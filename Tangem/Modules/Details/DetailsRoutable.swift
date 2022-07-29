@@ -16,6 +16,6 @@ protocol DetailsRoutable: AnyObject {
     func openDisclaimer()
     func openCardTOU(at url: URL)
     func openResetToFactory(action: @escaping (_ completion: @escaping (Result<Void, Error>) -> Void) -> Void)
-    func openSecurityPrivacy(with cardModel: CardViewModel)
+    func openScanCardSettings()
     func openSupportChat()
 }
