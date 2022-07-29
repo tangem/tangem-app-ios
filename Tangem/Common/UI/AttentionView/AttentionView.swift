@@ -58,10 +58,10 @@ struct AttentionView: View {
     @ViewBuilder
     private var agreeView: some View {
         if let warningText = viewModel.warningText {
-            HStack(spacing: 18) {
-                Button(action: {
-                    viewModel.isCheckedWarning.toggle()
-                }) {
+            Button(action: {
+                viewModel.isCheckedWarning.toggle()
+            }) {
+                HStack(spacing: 18) {
                     if viewModel.isCheckedWarning {
                         Assets.checkFill
                             .resizable()
@@ -71,11 +71,12 @@ struct AttentionView: View {
                             .resizable()
                             .frame(width: 22, height: 22)
                     }
-                }
 
-                Text(warningText)
-                    .font(.caption1)
-                    .foregroundColor(Colors.Text.secondary)
+                    Text(warningText)
+                        .multilineTextAlignment(.leading)
+                        .font(.caption1)
+                        .foregroundColor(Colors.Text.secondary)
+                }
             }
             .padding(.horizontal, 16)
         }
