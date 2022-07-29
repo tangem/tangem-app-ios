@@ -95,23 +95,24 @@ struct SendView: View {
                                             placeholder: "",
                                             decimalCount: self.viewModel.inputDecimalsCount)
                                 .disabled(viewModel.isSellingCrypto)
+
                             Button(action: {
-                                if !viewModel.isSellingCrypto {
-                                    self.viewModel.isFiatCalculation.toggle()
-                                }
-                            }) { HStack(alignment: .center, spacing: 8.0) {
-                                Text(self.viewModel.currencyUnit)
-                                    .font(Font.system(size: 38.0, weight: .light, design: .default))
-                                    .foregroundColor(!viewModel.isSellingCrypto ?
-                                        Color.tangemBlue : Color.tangemGrayDark6.opacity(0.5))
-                                if !viewModel.isSellingCrypto {
-                                    Image(systemName: "arrow.up.arrow.down")
-                                        .font(Font.system(size: 17.0, weight: .regular, design: .default))
-                                        .foregroundColor(Color.tangemBlue)
+                                self.viewModel.isFiatCalculation.toggle()
+                            }) {
+                                HStack(alignment: .center, spacing: 8.0) {
+                                    Text(self.viewModel.currencyUnit)
+                                        .font(Font.system(size: 38.0, weight: .light, design: .default))
+                                        .foregroundColor(!viewModel.isSellingCrypto ?
+                                            Color.tangemBlue : Color.tangemGrayDark6.opacity(0.5))
+
+                                    if viewModel.isFiatConvertingAvailable {
+                                        Image(systemName: "arrow.up.arrow.down")
+                                            .font(Font.system(size: 17.0, weight: .regular, design: .default))
+                                            .foregroundColor(Color.tangemBlue)
+                                    }
                                 }
                             }
-                            }
-                            .disabled(viewModel.isSellingCrypto)
+                            .disabled(!viewModel.isFiatConvertingAvailable)
                         }
                         .padding(.top, 25.0)
                         Separator()
