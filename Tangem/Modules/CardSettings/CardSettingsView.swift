@@ -35,18 +35,18 @@ struct CardSettingsView: View {
         Section(content: {
             DefaultRowView(
                 title: "details_row_title_cid".localized,
-                details: viewModel.cardId
+                detailsType: .text(viewModel.cardId)
             )
 
             DefaultRowView(
                 title: "details_row_title_issuer".localized,
-                details: viewModel.cardIssuer
+                detailsType: .text(viewModel.cardIssuer)
             )
 
             if let cardSignedHashes = viewModel.cardSignedHashes {
                 DefaultRowView(
                     title: "details_row_title_signed_hashes".localized,
-                    details: "details_row_subtitle_signed_hashes_format".localized(cardSignedHashes)
+                    detailsType: .text("details_row_subtitle_signed_hashes_format".localized(cardSignedHashes))
                 )
             }
         })
@@ -56,13 +56,14 @@ struct CardSettingsView: View {
         Section(content: {
             DefaultRowView(
                 title: "card_settings_security_mode".localized,
-                details: viewModel.securityModeTitle,
+                detailsType: .text(viewModel.securityModeTitle),
                 action: viewModel.hasSingleSecurityMode ? nil : viewModel.openSecurityMode
             )
 
             if viewModel.isChangeAccessCodeVisible {
                 DefaultRowView(
                     title: "card_settings_change_access_code".localized,
+                    detailsType: viewModel.isChangeAccessCodeLoading ? .loader : .none,
                     action: viewModel.openChangeAccessCodeWarningView
                 )
             }
