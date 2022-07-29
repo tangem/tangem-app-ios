@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 class DetailsCoordinator: CoordinatorObject {
     var dismissAction: Action
@@ -107,6 +108,10 @@ extension DetailsCoordinator: DetailsRoutable {
 
     func openSupportChat() {
         supportChatViewModel = SupportChatViewModel()
+    }
+
+    func openInSafari(url: URL) {
+        UIApplication.shared.open(url)
     }
 }
 
