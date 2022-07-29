@@ -162,12 +162,6 @@ extension DetailsViewModel {
         coordinator.openDisclaimer()
     }
 
-    func openResetToFactory() {
-        coordinator.openResetToFactory { [weak self] completion in
-            self?.cardModel.resetToFactory(completion: completion)
-        }
-    }
-
     func openCardSettings() {
         coordinator.openScanCardSettings()
     }
