@@ -27,7 +27,7 @@ class CommonCardsRepository: CardsRepository {
 
     var didScanPublisher: PassthroughSubject<CardInfo, Never> = .init()
 
-    private(set) var cards = [String: ScanResult]()
+    private(set) var cards = [String: CardViewModel]()
 
     private var bag: Set<AnyCancellable> = .init()
     private let legacyCardMigrator: LegacyCardMigrator = .init()
@@ -36,7 +36,7 @@ class CommonCardsRepository: CardsRepository {
         print("CardsRepository deinit")
     }
 
-    func scan(with batch: String? = nil, _ completion: @escaping (Result<ScanResult, Error>) -> Void) {
+    func scan(with batch: String? = nil, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
         sdkProvider.prepareScan()
         sdkProvider.sdk.startSession(with: AppScanTask(targetBatch: batch)) { [unowned self] result in
@@ -51,7 +51,7 @@ class CommonCardsRepository: CardsRepository {
         }
     }
 
-    func scanPublisher(with batch: String? = nil) ->  AnyPublisher<ScanResult, Error>  {
+    func scanPublisher(with batch: String? = nil) -> AnyPublisher<CardViewModel, Error>  {
         Deferred {
             Future { [weak self] promise in
                 self?.scan(with: batch) { result in
@@ -67,7 +67,7 @@ class CommonCardsRepository: CardsRepository {
         .eraseToAnyPublisher()
     }
 
-    private func processScan(_ cardInfo: CardInfo) -> ScanResult {
+    private func processScan(_ cardInfo: CardInfo) -> CardViewModel {
         let interaction = INInteraction(intent: ScanTangemCardIntent(), response: nil)
         interaction.donate(completion: nil)
 
@@ -78,10 +78,9 @@ class CommonCardsRepository: CardsRepository {
         tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
 
         let cm = CardViewModel(cardInfo: cardInfo)
-        let result: ScanResult = .card(model: cm)
-        cards[cardInfo.card.cardId] = result
+        cards[cardInfo.card.cardId] = cm
         cm.getCardInfo()
-        return result
+        return cm
     }
 }
 
