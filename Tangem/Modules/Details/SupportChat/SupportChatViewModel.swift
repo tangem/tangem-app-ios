@@ -7,14 +7,20 @@
 //
 
 import ZendeskCoreSDK
-import SupportSDK
 import MessagingSDK
 import ChatSDK
+import ChatProvidersSDK
 import Foundation
 import UIKit
+import DeviceGuru
 
 class SupportChatViewModel: Identifiable {
     let id: UUID = .init()
+    let cardID: String
+
+    init(cardID: String = "") {
+        self.cardID = cardID
+    }
 
     private let chatBotName: String = "Tangem"
     private var messagingConfiguration: MessagingConfiguration {
@@ -27,10 +33,17 @@ class SupportChatViewModel: Identifiable {
         let config = ChatConfiguration()
         config.isAgentAvailabilityEnabled = true
         config.isOfflineFormEnabled = true
+        config.preChatFormConfiguration = ChatFormConfiguration(name: .hidden, email: .hidden, phoneNumber: .hidden, department: .hidden)
         return config
     }
 
     func buildUI() throws -> UIViewController {
+        let device = DeviceGuru().hardwareDescription() ?? ""
+        Chat
+            .instance?
+            .providers
+            .profileProvider
+            .setNote("\(device) \(cardID)")
         let chatEngine = try! ChatEngine.engine()
         let viewController = try! Messaging.instance.buildUI(engines: [chatEngine], configs: [chatConfiguration, messagingConfiguration])
         return viewController
