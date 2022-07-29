@@ -26,6 +26,7 @@ class DetailsCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
+    @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
     @Published var mailViewModel: MailViewModel? = nil
     @Published var disclaimerViewModel: DisclaimerViewModel? = nil
     @Published var supportChatViewModel: SupportChatViewModel? = nil
@@ -75,6 +76,10 @@ extension DetailsCoordinator: DetailsRoutable {
 
     func openDisclaimer() {
         disclaimerViewModel = .init(style: .navbar, showAccept: false, coordinator: nil)
+    }
+
+    func openCardTOU(url: URL) {
+        pushedWebViewModel = WebViewContainerViewModel(url: url, title: "details_row_title_card_tou".localized)
     }
 
     func openScanCardSettings() {
