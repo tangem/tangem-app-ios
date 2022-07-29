@@ -94,7 +94,7 @@ struct DetailsView: View {
                     viewModel.prepareTwinOnboarding()
                 }
             } else if viewModel.canCreateBackup {
-                DefaultRowView(title: "details_row_title_create_backup".localized, isTappable: true) { // or Link More Cards
+                DefaultRowView(title: "details_row_title_create_backup".localized, isTappable: true) {
                     viewModel.prepareBackup()
                 }
             }
