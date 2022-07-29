@@ -11,23 +11,26 @@ import SwiftUI
 struct DefaultRowView: View {
     let title: String
     let details: String?
-    let isTappable: Bool
-    let action: () -> Void
+    let action: (() -> Void)?
 
+    private var isTappable: Bool { action != nil }
+
+    /// - Parameters:
+    ///   - title: Leading one line title
+    ///   - details: Trailing one line text
+    ///   - action: If set the action that row will be tappable with chevron
     init(
         title: String,
         details: String? = nil,
-        isTappable: Bool = true,
-        action: @escaping () -> Void
+        action: (() -> Void)? = nil
     ) {
         self.title = title
         self.details = details
-        self.isTappable = isTappable
         self.action = action
     }
 
     var body: some View {
-        Button(action: action) {
+        Button(action: { action?() }) {
             HStack {
                 Text(title)
                     .font(.body)
