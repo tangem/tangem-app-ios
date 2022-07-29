@@ -115,8 +115,10 @@ struct DetailsView: View {
                 Spacer()
 
                 VStack(alignment: .center, spacing: 20) {
-                    SocialNetworkStackView(networks: SocialNetwork.allCases) {
-                        viewModel.openSocialNetwork(network: $0)
+                    HStack(spacing: 16) {
+                        ForEach(SocialNetwork.allCases) { network in
+                            socialNetworkView(network: network)
+                        }
                     }
 
                     if let applicationInfoFooter = viewModel.applicationInfoFooter {
@@ -131,23 +133,14 @@ struct DetailsView: View {
             .padding(.top, 40)
         })
     }
-}
 
-struct SocialNetworkStackView: View {
-    let networks: [SocialNetwork]
-    let tapNetworkAction: (SocialNetwork) -> Void
-
-    var body: some View {
-        HStack(spacing: 16) {
-            ForEach(networks) { network in
-                Button(action: {
-                    tapNetworkAction(network)
-                }) {
-                    network.icon
-                        .resizable()
-                        .frame(width: 24, height: 24)
-                }
-            }
+    private func socialNetworkView(network: SocialNetwork) -> some View {
+        Button(action: {
+            viewModel.openSocialNetwork(network: network)
+        }) {
+            network.icon
+                .resizable()
+                .frame(width: 24, height: 24)
         }
     }
 }
