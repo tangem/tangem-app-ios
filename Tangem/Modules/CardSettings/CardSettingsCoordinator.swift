@@ -42,7 +42,7 @@ extension CardSettingsCoordinator {
 
 // MARK: - CardSettingsRoutable
 
-extension SecurityPrivacyCoordinator: SecurityPrivacyRoutable {
+extension CardSettingsCoordinator: CardSettingsRoutable {
     func openChangeAccessCodeWarningView(action: @escaping (@escaping (Result<Void, Error>) -> Void) -> Void) {
         cardOperationViewModel = CardOperationViewModel(title: "details_manage_security_access_code".localized,
                                                         buttonTitle: "common_continue",
@@ -69,7 +69,7 @@ extension SecurityPrivacyCoordinator: SecurityPrivacyRoutable {
 
 // MARK: - CardOperationRoutable
 
-extension SecurityPrivacyCoordinator: CardOperationRoutable {
+extension CardSettingsCoordinator: CardOperationRoutable {
     func dismissCardOperation() {
         cardOperationViewModel = nil
     }
