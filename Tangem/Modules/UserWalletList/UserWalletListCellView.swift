@@ -11,6 +11,9 @@ import SwiftUI
 struct UserWalletListCellView: View {
     let model: UserWalletListCellViewModel
 
+    private let selectedIconSize: CGSize = .init(width: 14, height: 14)
+    private let selectedIconBorderWidth: Double = 2
+
     var body: some View {
         HStack(spacing: 12) {
             if let image = model.cardImage {
@@ -18,6 +21,7 @@ struct UserWalletListCellView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(minHeight: 30, maxHeight: 30)
+                    .overlay(selectedIcon.offset(x: 4, y: -4), alignment: .topTrailing)
             } else {
                 Color.tangemGrayLight4
                     .transition(.opacity)
@@ -29,7 +33,7 @@ struct UserWalletListCellView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(model.account.name)
                     .font(Font.subheadline.bold)
-                    .foregroundColor(Colors.Text.primary1)
+                    .foregroundColor(model.isSelected ? Colors.Text.accent : Colors.Text.primary1)
 
                 Text(model.subtitle)
                     .font(Font.footnote)
@@ -49,6 +53,21 @@ struct UserWalletListCellView: View {
             }
         }
         .padding(16)
+    }
+
+    @ViewBuilder
+    private var selectedIcon: some View {
+        if model.isSelected {
+            Image(systemName: "checkmark.circle.fill")
+                .resizable()
+                .frame(width: selectedIconSize.width, height: selectedIconSize.height)
+                .foregroundColor(Colors.Text.accent)
+                .background(
+                    Colors.Background.primary
+                        .clipShape(Circle())
+                        .frame(size: selectedIconSize + CGSize(width: 2 * selectedIconBorderWidth, height: 2 * selectedIconBorderWidth))
+                )
+        }
     }
 }
 
