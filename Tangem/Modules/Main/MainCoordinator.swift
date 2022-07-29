@@ -23,6 +23,7 @@ class MainCoordinator: CoordinatorObject {
     @Published var detailsCoordinator: DetailsCoordinator? = nil
     @Published var tokenListCoordinator: TokenListCoordinator? = nil
     @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
+    @Published var userWalletListCoordinator: UserWalletListCoordinator?
 
     // MARK: - Child view models
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
@@ -34,6 +35,8 @@ class MainCoordinator: CoordinatorObject {
 
     // MARK: - Helpers
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
+
+    @Published var userWalletListPresented: Bool = false
 
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -188,5 +191,14 @@ extension MainCoordinator: MainRoutable {
                                                       addLoadingIndicator: true,
                                                       withCloseButton: false,
                                                       urlActions: [:])
+    }
+
+    func openUserWalletList() {
+        let dismissAction: Action = { [weak self] in
+            self?.userWalletListCoordinator = nil
+            self?.userWalletListPresented = false
+        }
+        userWalletListPresented = true
+        userWalletListCoordinator = UserWalletListCoordinator(dismissAction: dismissAction)
     }
 }
