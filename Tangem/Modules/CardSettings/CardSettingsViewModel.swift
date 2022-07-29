@@ -79,7 +79,7 @@ private extension CardSettingsViewModel {
 
 // MARK: - Navigation
 
-extension SecurityPrivacyViewModel {
+extension CardSettingsViewModel {
     func openChangeAccessCodeWarningView() {
         coordinator.openChangeAccessCodeWarningView { [weak self] completion in
             guard let self = self else { return }
