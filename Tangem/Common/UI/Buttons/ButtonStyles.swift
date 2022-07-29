@@ -98,7 +98,8 @@ enum ButtonColorStyle {
         case .black: return .tangemGrayDark6
         case .gray: return .tangemGrayLight4
         case .transparentWhite: return .clear
-        case .grayAlt: return .tangemBgGray
+            #warning("[REDACTED_TODO_COMMENT]")
+        case .grayAlt: return Colors.Button.secondary
         case .grayAlt2: return .tangemBgGray3
         }
     }
