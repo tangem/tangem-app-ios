@@ -98,8 +98,8 @@ extension DetailsCoordinator: DetailsRoutable {
         scanCardSettingsCoordinator = coordinator
     }
 
-    func openSupportChat() {
-        supportChatViewModel = SupportChatViewModel()
+    func openSupportChat(cardID: String) {
+        supportChatViewModel = SupportChatViewModel(cardID: cardID)
     }
 }
 
