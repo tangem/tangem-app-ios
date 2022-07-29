@@ -74,7 +74,6 @@
 		5D4B8BBB27EDB354002CE87C /* NetworkIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D4B8BBA27EDB354002CE87C /* NetworkIcon.swift */; };
 		5D4B8BBC27EDD253002CE87C /* Color+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0A24D853B600E78F1C /* Color+.swift */; };
 		5D4B8BBD27EDD2EA002CE87C /* MainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CA5A9B25F77A5B0078F42F /* MainViewModel.swift */; };
-		5D4B8BBF27EDD5B5002CE87C /* ScanResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D4B8BBE27EDD5B5002CE87C /* ScanResult.swift */; };
 		5D4B8BC327EDD601002CE87C /* CardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D4B8BC227EDD601002CE87C /* CardInfo.swift */; };
 		5D51036927C534A60025EA55 /* JSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D51036827C534A60025EA55 /* JSON.swift */; };
 		5D51036B27C534CB0025EA55 /* EIP712TypedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D51036A27C534CB0025EA55 /* EIP712TypedData.swift */; };
@@ -462,7 +461,6 @@
 		DC0A584A282C07A20031BECC /* WalletConnectServiceProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A5849282C07A20031BECC /* WalletConnectServiceProviding.swift */; };
 		DC0A584C282C07B10031BECC /* WalletConnectServiceProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A584B282C07B10031BECC /* WalletConnectServiceProvider.swift */; };
 		DC0A5853282E3AB60031BECC /* CardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D4B8BC227EDD601002CE87C /* CardInfo.swift */; };
-		DC0A5854282E3ACD0031BECC /* ScanResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D4B8BBE27EDD5B5002CE87C /* ScanResult.swift */; };
 		DC0A5856282E3E220031BECC /* ServicesManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A5855282E3E220031BECC /* ServicesManager.swift */; };
 		DC295B3A28615D03006CB7B6 /* NavHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B3928615D03006CB7B6 /* NavHolder.swift */; };
 		DC295B3C2861C19C006CB7B6 /* MainCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B3B2861C19C006CB7B6 /* MainCoordinator.swift */; };
@@ -690,7 +688,6 @@
 		5D49035127BE9D550072C642 /* Data+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+.swift"; sourceTree = "<group>"; };
 		5D4B8BB827EDB327002CE87C /* ArrowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrowView.swift; sourceTree = "<group>"; };
 		5D4B8BBA27EDB354002CE87C /* NetworkIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIcon.swift; sourceTree = "<group>"; };
-		5D4B8BBE27EDD5B5002CE87C /* ScanResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanResult.swift; sourceTree = "<group>"; };
 		5D4B8BC227EDD601002CE87C /* CardInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardInfo.swift; sourceTree = "<group>"; };
 		5D51036827C534A60025EA55 /* JSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSON.swift; sourceTree = "<group>"; };
 		5D51036A27C534CB0025EA55 /* EIP712TypedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EIP712TypedData.swift; sourceTree = "<group>"; };
@@ -1292,7 +1289,6 @@
 				B0F79C72268A2E98008C9B30 /* SavedCard.swift */,
 				5D96BD2727F60AC5000AA797 /* BlockchainNetwork.swift */,
 				5D4B8BC227EDD601002CE87C /* CardInfo.swift */,
-				5D4B8BBE27EDD5B5002CE87C /* ScanResult.swift */,
 				5D5332B025F9091900D32CA5 /* TokenItem.swift */,
 			);
 			path = Models;
@@ -3076,7 +3072,6 @@
 				DA23789027B250EB009795A8 /* ShopViewModel.swift in Sources */,
 				DA23787A27B24222009795A8 /* Address.swift in Sources */,
 				5DD4CB5024FAAB1A008F23CC /* KeyboardHeightPublisher.swift in Sources */,
-				5D4B8BBF27EDD5B5002CE87C /* ScanResult.swift in Sources */,
 				B0FAD01026BAF19E00F45E88 /* OnboardingStepIconView.swift in Sources */,
 				DC66BBF12859B77700CDF765 /* TokenListCoordinator.swift in Sources */,
 				5DB862B8252396CD00566AA0 /* TangemSigner.swift in Sources */,
@@ -3578,7 +3573,6 @@
 				5DE7DD122695BEE900472205 /* UrlHandler.swift in Sources */,
 				5D4B8BBD27EDD2EA002CE87C /* MainViewModel.swift in Sources */,
 				B07FE4D12616F686000F0EF9 /* MessageView.swift in Sources */,
-				DC0A5854282E3ACD0031BECC /* ScanResult.swift in Sources */,
 				B0CA5A8625F7797B0078F42F /* RefreshableScrollView.swift in Sources */,
 				5DE7DD332696236500472205 /* CardViewModel.swift in Sources */,
 				DC0A57EF2822AEFA0031BECC /* TangemSdkProvider.swift in Sources */,
