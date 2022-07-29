@@ -22,10 +22,7 @@ enum PreviewCard {
     case ethEmptyNote
     case tangemWalletEmpty
 
-    var cardModel: CardViewModel { scanResult.cardModel! }
-
-
-    var scanResult: ScanResult {
+    var cardModel: CardViewModel {
         let card = Card.card
         let ci = CardInfo(card: card,
                           walletData: walletData,
@@ -34,7 +31,6 @@ enum PreviewCard {
                           isTangemNote: isNote,
                           isTangemWallet: true)
         let vm = CardViewModel(cardInfo: ci)
-        let scanResult = ScanResult.card(model: vm)
         #if !CLIP
         let walletModels: [WalletModel]
         if let blockchain = blockchain {
@@ -49,7 +45,7 @@ enum PreviewCard {
 
         vm.state = .loaded(walletModel: walletModels)
         #endif
-        return scanResult
+        return vm
     }
 
     var walletData: WalletData? {
