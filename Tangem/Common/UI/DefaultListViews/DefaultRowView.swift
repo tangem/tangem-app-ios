@@ -18,7 +18,7 @@ struct DefaultRowView: View {
     /// - Parameters:
     ///   - title: Leading one line title
     ///   - details: Trailing one line text
-    ///   - action: If set the action that row will be tappable with chevron
+    ///   - action: If the `action` is set that the row will be tappable and have chevron icon
     init(
         title: String,
         details: String? = nil,
