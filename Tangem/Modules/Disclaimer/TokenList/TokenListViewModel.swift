@@ -13,8 +13,6 @@ import TangemSdk
 import SwiftUI
 
 class TokenListViewModel: ObservableObject {
-    @Injected(\.negativeFeedbackDataProvider) var dataCollector: NegativeFeedbackDataProvider
-
     // I can't use @Published here, because of swiftui redraw perfomance drop
     var enteredSearchText = CurrentValueSubject<String, Never>("")
 

@@ -7,6 +7,7 @@
 {% set imageType %}{{param.imageTypeName|default:"Image"}}{% endset %}
 {% set forceNamespaces %}{{param.forceProvidesNamespaces|default:"false"}}{% endset %}
 {% set accessModifier %}{% if param.publicAccess %}public{% else %}internal{% endif %}{% endset %}
+{% set removeFolderName %}{{param.removeFolderName|default:"false"}}{% endset %}
 import SwiftUI
 
 // swiftlint:disable superfluous_disable_command
@@ -15,7 +16,7 @@ import SwiftUI
 // MARK: - Asset Catalogs
 
 {% macro enumBlock assets %}
-  {% call casesBlock assets %}
+  {% call casesBlock assets "" %}
   {% if param.allValues %}
 
   // swiftlint:disable trailing_comma
@@ -28,19 +29,26 @@ import SwiftUI
   // swiftlint:enable trailing_comma
   {% endif %}
 {% endmacro %}
-{% macro casesBlock assets %}
+{% macro casesBlock assets folderName %}
   {% for asset in assets %}
   {% if asset.type == "color" %}
+  {% if removeFolderName == "true" %}
+  {{accessModifier}} static let {{asset.name|replace:folderName,""|swiftIdentifier:"pretty"|lowerFirstWord|escapeReservedKeywords}} = {{colorType}}(name: "{{asset.value}}")
+  {% else %}
   {{accessModifier}} static let {{asset.name|swiftIdentifier:"pretty"|lowerFirstWord|escapeReservedKeywords}} = {{colorType}}(name: "{{asset.value}}")
+  {% endif %}
   {% elif asset.type == "image" %}
+  {% if removeFolderName == "true" %}
+  {{accessModifier}} static let {{asset.name|replace:folderName,""|swiftIdentifier:"pretty"|lowerFirstWord|escapeReservedKeywords}} = {{imageType}}(name: "{{asset.value}}")
+  {% else %}
   {{accessModifier}} static let {{asset.name|swiftIdentifier:"pretty"|lowerFirstWord|escapeReservedKeywords}} = {{imageType}}(name: "{{asset.value}}")
+  {% endif %}
   {% elif asset.items and ( forceNamespaces == "true" or asset.isNamespaced == "true" ) %}
   {{accessModifier}} enum {{asset.name|swiftIdentifier:"pretty"|escapeReservedKeywords}} {
-
-    {% filter indent:2 %}{% call casesBlock asset.items %}{% endfilter %}
+    {% filter indent:2 %}{% call casesBlock asset.items asset.name %}{% endfilter %}
   }
   {% elif asset.items %}
-  {% call casesBlock asset.items %}
+  {% call casesBlock asset.items "" %}
   {% endif %}
   {% endfor %}
 {% endmacro %}

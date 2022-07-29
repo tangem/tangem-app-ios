@@ -33,8 +33,6 @@ class MainCoordinator: CoordinatorObject {
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
 
     // MARK: - Helpers
-    @Published var bottomSheetKeeper: Bool = false
-    @Published var bottomSheetSettings: BottomSheetSettings?
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
@@ -44,10 +42,6 @@ class MainCoordinator: CoordinatorObject {
 
     func start(with options: MainCoordinator.Options) {
         mainViewModel = MainViewModel(cardModel: options.cardModel, coordinator: self)
-    }
-
-    func hideBottomSheet() {
-        bottomSheetKeeper = false
     }
 }
 
@@ -176,21 +170,16 @@ extension MainCoordinator: MainRoutable {
 
     func openQR(shareAddress: String, address: String, qrNotice: String) {
         addressQrBottomSheetContentViewVodel = .init(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
-        bottomSheetSettings = BottomSheet.qr
-        bottomSheetKeeper = true
     }
 
     func openBankWarning(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) {
-        warningBankCardViewModel = .init(confirmCallback: {
+        warningBankCardViewModel = .init(confirmCallback: { [weak self] in
             confirmCallback()
-            self.hideBottomSheet()
-        }, declineCallback: {
+            self?.warningBankCardViewModel = nil
+        }, declineCallback: { [weak self] in
             declineCallback()
-            self.hideBottomSheet()
+            self?.warningBankCardViewModel = nil
         })
-
-        bottomSheetSettings = BottomSheet.warning
-        bottomSheetKeeper = true
     }
 
     func openP2PTutorial() {
