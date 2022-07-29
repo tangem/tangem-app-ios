@@ -82,7 +82,6 @@ struct AddressQrBottomSheetContent: View {
             .padding(.top, 30)
             .padding(.bottom, 50)
         }
-
     }
 
     private func showShareSheet() {
@@ -105,15 +104,12 @@ struct AddressQrBottomSheetPreviewView: View {
                 Text("Show bottom sheet")
                     .padding()
             })
-            BottomSheetView(
-                isPresented: model.$isBottomSheetPresented,
-                hideBottomSheetCallback: {
-                    model.isBottomSheetPresented = false
-                }, content: {
+            NavHolder()
+                .bottomSheet(isPresented: $model.isBottomSheetPresented, viewModelSettings: .qr) {
                     AddressQrBottomSheetContent(viewModel: .init(shareAddress: "eth:0x01232483902f903678a098bce",
                                                                  address: "0x01232483902f903678a098bce",
                                                                  qrNotice: "BTC"))
-                })
+                }
         }
 
     }
@@ -132,3 +128,6 @@ struct AddressQrBottomSheet_Previews: PreviewProvider {
 
 }
 
+class BottomSheetPreviewProvider: ObservableObject {
+    @Published var isBottomSheetPresented: Bool = false
+}
