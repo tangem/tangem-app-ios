@@ -13,6 +13,7 @@ protocol DetailsRoutable: AnyObject {
     func openMail(with dataCollector: EmailDataCollector, support: EmailSupport, emailType: EmailType)
     func openWalletConnect(with cardModel: CardViewModel)
     func openDisclaimer()
+    func openCardTOU(url: URL)
     func openScanCardSettings()
     func openAppSettings()
     func openSupportChat()
