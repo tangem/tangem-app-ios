@@ -516,4 +516,4 @@ URL: %@";
 "app_settings_off_saved_wallet_alert_message" = "Removing the saved card deletes all the saved wallets and their access codes.";
 "app_settings_off_saved_access_code_alert_message" = "This will delete all the saved wallet access codes. Any further operation with the wallet will require submitting the access code.";
 "wallet_connect_title" = "WalletConnect";
-"wallet_connect_subtitle" = "Сonnect to decentralized Apps";
+"wallet_connect_subtitle" = "Сonnect to Dapps";

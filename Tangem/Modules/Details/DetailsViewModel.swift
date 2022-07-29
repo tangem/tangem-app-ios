@@ -63,12 +63,12 @@ class DetailsViewModel: ObservableObject {
         cardModel.isTwinCard
     }
 
-    var cardTouURL: URL? {
+    var cardTOUURL: URL? {
         guard cardModel.isStart2CoinCard else { // is this card is S2C
             return nil
         }
 
-        return buildCardTouURL()
+        return buildCardTOUURL()
     }
 
     var applicationInfoFooter: String? {
@@ -206,7 +206,7 @@ private extension DetailsViewModel {
             .store(in: &bag)
     }
 
-    func buildCardTouURL() -> URL? {
+    func buildCardTOUURL() -> URL? {
         let baseurl = "https://app.tangem.com/tou/"
         let regionCode = regionCode(for: cardModel.cardInfo.card.cardId) ?? "fr"
         let languageCode = Locale.current.languageCode ?? "fr"
