@@ -37,6 +37,11 @@ enum WalletConnectNetworkParserUtility {
             } else {
                 return nil
             }
+        } else if dAppInfo.peerMeta.url.absoluteString.contains("honeyswap.1hive.eth.limo") {
+            // This service doesn't return chainID despite the fact they support both Gnosis and Polygon.
+            // [REDACTED_TODO_COMMENT]
+            // https://github.com/1Hive/honeyswap-interface/issues/83
+            return Blockchain.gnosis
         } else {
             // WC interface doesn't provide info about network. So in cases when chainId is null we use ethereum network
             // Dapps on ethereum mainnet sending null in chainId
