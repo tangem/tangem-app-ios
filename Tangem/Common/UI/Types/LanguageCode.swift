@@ -11,4 +11,5 @@ import Foundation
 enum LanguageCode: String {
     case en
     case ru
+    case by
 }
