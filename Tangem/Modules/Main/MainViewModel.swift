@@ -20,8 +20,7 @@ class MainViewModel: ObservableObject {
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
     @Injected(\.rateAppService) private var rateAppService: RateAppService
     @Injected(\.onboardingStepsSetupService) private var cardOnboardingStepSetupService: OnboardingStepsSetupService
-    @Injected(\.negativeFeedbackDataProvider) var negativeFeedbackDataCollector: NegativeFeedbackDataProvider
-    @Injected(\.geoIpService) private var geoIpService: GeoIpService
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     // MARK: - Published variables
 
@@ -64,9 +63,6 @@ class MainViewModel: ObservableObject {
     var isLoadingTokensBalance: Bool = false
     lazy var totalSumBalanceViewModel: TotalSumBalanceViewModel = .init()
 
-    @Storage(type: .validatedSignedHashesCards, defaultValue: [])
-    private var validatedSignedHashesCards: [String]
-    private var userPrefsService: UserPrefsService = .init()
     private var bag = Set<AnyCancellable>()
     private var isHashesCounted = false
     private var isProcessingNewCard = false
@@ -370,7 +366,7 @@ class MainViewModel: ObservableObject {
     func getDataCollector(for feedbackCase: EmailFeedbackCase) -> EmailDataCollector {
         switch feedbackCase {
         case .negativeFeedback:
-            return negativeFeedbackDataCollector
+            return NegativeFeedbackDataCollector(cardInfo: cardModel!.cardInfo) // [REDACTED_TODO_COMMENT]
         case .scanTroubleshooting:
             return failedCardScanTracker
         }
@@ -413,32 +409,17 @@ class MainViewModel: ObservableObject {
             return
         }
 
-        if cardModel.isTwinCard {
-            if cardModel.hasBalance {
-                error = AlertBinder(alert: Alert(title: Text("Attention!"),
-                                                 message: Text("Your wallet is not empty, please withdraw your funds before creating twin wallet or they will be lost."),
-                                                 primaryButton: .cancel(),
-                                                 secondaryButton: .destructive(Text("I understand, continue anyway")) { [weak self] in
-                                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                                         self?.prepareTwinOnboarding()
-                                                     }
-                                                 }))
-            } else {
-                prepareTwinOnboarding()
-            }
-        } else {
-            self.isCreatingWallet = true
-            cardModel.createWallet() { [weak self] result in
-                defer { self?.isCreatingWallet = false }
-                switch result {
-                case .success:
-                    break
-                case .failure(let error):
-                    if case .userCancelled = error.toTangemSdkError() {
-                        return
-                    }
-                    self?.setError(error.alertBinder)
+        self.isCreatingWallet = true
+        cardModel.createWallet() { [weak self] result in
+            defer { self?.isCreatingWallet = false }
+            switch result {
+            case .success:
+                break
+            case .failure(let error):
+                if case .userCancelled = error.toTangemSdkError() {
+                    return
                 }
+                self?.setError(error.alertBinder)
             }
         }
     }
@@ -485,7 +466,7 @@ class MainViewModel: ObservableObject {
                 return
             }
 
-            validatedSignedHashesCards.append(cardId)
+            AppSettings.shared.validatedSignedHashesCards.append(cardId)
         }
 
         var hideWarning = true
@@ -542,32 +523,6 @@ class MainViewModel: ObservableObject {
         default:
             break
         }
-    }
-
-    func prepareTwinOnboarding() {
-        guard let cardModel = self.cardModel else { return }
-
-        cardOnboardingStepSetupService.twinRecreationSteps(for: cardModel.cardInfo)
-            .sink { completion in
-                switch completion {
-                case .failure(let error):
-                    Analytics.log(error: error)
-                    print("Failed to load image for new card")
-                    self.error = error.alertBinder
-                case .finished:
-                    break
-                }
-            } receiveValue: { [weak self] steps in
-                guard let self = self else { return }
-
-                let input = OnboardingInput(steps: steps,
-                                            cardInput: .cardModel(cardModel),
-                                            welcomeStep: nil,
-                                            currentStepIndex: 0)
-
-                self.openOnboarding(with: input)
-            }
-            .store(in: &bag)
     }
 
     func prepareForBackup() {
@@ -629,7 +584,7 @@ class MainViewModel: ObservableObject {
 
         if card.isDemoCard { return }
 
-        if validatedSignedHashesCards.contains(card.cardId) { return }
+        if AppSettings.shared.validatedSignedHashesCards.contains(card.cardId) { return }
 
         if cardModel?.cardInfo.isMultiWallet ?? false {
             if cardModel?.cardInfo.card.wallets.filter({ $0.totalSignedHashes ?? 0 > 0 }).count ?? 0 > 0 {
@@ -637,7 +592,7 @@ class MainViewModel: ObservableObject {
                     warningsService.appendWarning(for: .multiWalletSignedHashes)
                 }
             } else {
-                validatedSignedHashesCards.append(card.cardId)
+                AppSettings.shared.validatedSignedHashesCards.append(card.cardId)
             }
             print("⚠️ Hashes counted")
             return
@@ -777,15 +732,15 @@ extension MainViewModel {
     }
 
     func openBuyCrypto() {
-        guard let cardInfo = cardModel?.cardInfo else { return }
+        guard let cardModel = self.cardModel else { return }
 
-        if cardInfo.card.isDemoCard  {
+        if cardModel.cardInfo.card.isDemoCard  {
             error = AlertBuilder.makeDemoAlert()
             return
         }
 
-        guard cardInfo.isTestnet, !cardInfo.isMultiWallet,
-              let walletModel = cardModel?.walletModels?.first,
+        guard cardModel.cardInfo.isTestnet, !cardModel.cardInfo.isMultiWallet,
+              let walletModel = cardModel.walletModels?.first,
               walletModel.wallet.blockchain == .ethereum(testnet: true),
               let token = walletModel.tokenItemViewModels.first?.amountType.token else {
             if let url = buyCryptoURL {
@@ -799,11 +754,11 @@ extension MainViewModel {
             return
         }
 
-        testnetBuyCryptoService.buyCrypto(.erc20Token(walletManager: walletModel.walletManager, token: token))
+        testnetBuyCryptoService.buyCrypto(.erc20Token(token, walletManager: walletModel.walletManager, signer: cardModel.signer))
     }
 
     func openBuyCryptoIfPossible() {
-        if geoIpService.regionCode == "ru" {
+        if tangemApiService.geoIpRegionCode == "ru" {
             coordinator.openBankWarning {
                 self.openBuyCrypto()
             } declineCallback: {
