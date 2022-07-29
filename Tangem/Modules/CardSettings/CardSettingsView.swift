@@ -81,12 +81,12 @@ struct CardSettingsView: View {
     private var resetToFactorySection: some View {
         Section(content: {
             RowView(
-                title: "Resset to Factory Settings",
+                title: "card_settings_reset_card_to_factory".localized,
                 isTappable: true,
                 action: viewModel.openResetCard
             )
         }, footer: {
-            FooterView(title: "Factory Reset will completely delete the wallet from the selected card and you will not be able to restore the current wallet or use the card to recover the access code.")
+            FooterView(title: "card_settings_reset_card_to_factory".localized)
         })
     }
 
