@@ -36,12 +36,14 @@ extension EmailDataCollector {
     }
 }
 
-class NegativeFeedbackDataCollector: EmailDataCollector, NegativeFeedbackDataProvider {
-    @Injected(\.cardsRepository) private var cardRepository: CardsRepository
+class NegativeFeedbackDataCollector: EmailDataCollector {
+    private let cardInfo: CardInfo
+
+    init(cardInfo: CardInfo) {
+        self.cardInfo = cardInfo
+    }
 
     var dataForEmail: String {
-        guard let cardInfo = cardRepository.lastScanResult.cardModel?.cardInfo else { return "" }
-
         return formatData(collectData(from: cardInfo))
     }
 }
