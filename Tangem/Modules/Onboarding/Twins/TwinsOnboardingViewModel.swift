@@ -10,7 +10,6 @@ import SwiftUI
 import Combine
 
 class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, ObservableObject {
-    @Injected(\.twinsWalletCreationServiceProvider) var twinsServiceProvider: TwinsWalletCreationServiceProviding
     @Injected(\.cardImageLoader) var imageLoader: CardImageLoaderProtocol
 
     @Published var firstTwinImage: UIImage?
@@ -108,20 +107,16 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
     private var stackCalculator: StackCalculator = .init()
     private var twinInfo: TwinCardInfo
     private var stepUpdatesSubscription: AnyCancellable?
-    private var twinsService: TwinsWalletCreationService { twinsServiceProvider.service }
+    private let twinsService: TwinsWalletCreationUtil
+
     private var canBuy: Bool { exchangeService.canBuy("BTC", amountType: .coin, blockchain: .bitcoin(testnet: false)) }
 
     required init(input: OnboardingInput, coordinator: OnboardingTopupRoutable) {
-        if let twinInfo = input.cardInput.cardModel?.cardInfo.twinCardInfo {
-//            pairNumber = AppTwinCardIdFormatter.format(cid: twinInfo.pairCid, cardNumber: nil)
-            pairNumber = "\(twinInfo.series.pair.number)"
-//            if twinInfo.series.number != 1 {
-//                self.twinInfo = .init(cid: "",
-//                                      series: twinInfo.series.pair,
-//                                      pairPublicKey: nil)
-//            } else {
+        if let card = input.cardInput.cardModel,
+           let twinInfo = card.cardInfo.twinCardInfo {
+            self.pairNumber = "\(twinInfo.series.pair.number)"
             self.twinInfo = twinInfo
-//            }
+            self.twinsService = .init(card: card)
         } else {
             fatalError("Wrong card model passed to Twins onboarding view model")
         }
@@ -186,8 +181,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         case .done, .success, .alert:
             goToNextStep()
         case .first:
-            if !retwinMode, !(userPrefsService.cardsStartedActivation.contains(twinInfo.cid)) {
-                userPrefsService.cardsStartedActivation.append(twinInfo.cid)
+            if !retwinMode, !(AppSettings.shared.cardsStartedActivation.contains(twinInfo.cid)) {
+                AppSettings.shared.cardsStartedActivation.append(twinInfo.cid)
             }
 
             if twinsService.step.value != .first {
@@ -296,8 +291,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
 
                 if let pairCardId = twinsService.twinPairCardId,
                    !retwinMode,
-                   !userPrefsService.cardsStartedActivation.contains(pairCardId) {
-                    userPrefsService.cardsStartedActivation.append(pairCardId)
+                   !AppSettings.shared.cardsStartedActivation.contains(pairCardId) {
+                    AppSettings.shared.cardsStartedActivation.append(pairCardId)
                 }
             })
     }
