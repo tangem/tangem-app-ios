@@ -41,11 +41,12 @@ enum SocialNetwork: Hashable, CaseIterable, Identifiable {
     var url: URL? {
         switch self {
         case .telegram:
-            if Locale.current.languageCode == LanguageCode.ru.rawValue {
+            switch Locale.current.languageCode {
+            case LanguageCode.ru, LanguageCode.by:
                 return URL(string: "https://t.me/tangem_ru")
+            default:
+                return URL(string: "https://t.me/TangemCards")
             }
-
-            return URL(string: "https://t.me/TangemCards")
         case .twitter:
             return URL(string: "https://twitter.com/tangem")
         case .facebook:
