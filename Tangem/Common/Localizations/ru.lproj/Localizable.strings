@@ -516,3 +516,8 @@ URL: %@";
 "scan_card_settings_title" = "Приготовьте свою карту";
 "scan_card_settings_message" = "Отсканируйте карту, чтобы изменить ее настройки. Изменения затронут только ту карту, которую вы отсканировали, и не повлияют на другие карты, привязанные к вашему кошельку.";
 "scan_card_settings_button" = "Сканировать";
+"reset_card_to_factory_navigation_title" = "Reset to factory settings";
+"reset_card_to_factory_title" = "Attention";
+"reset_card_to_factory_message" = "This action will lead to the complete removal of the wallet from the selected card and it will not be possible to restore the current wallet on it or use the card to recover the password";
+"reset_card_to_factory_warning_message" = "I understand that after performing this action, I will no longer have access to the current wallet";
+"reset_card_to_factory_button_title" = "Reset the card";
