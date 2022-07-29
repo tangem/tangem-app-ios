@@ -13,7 +13,7 @@ enum InfoDictionaryUtils {
     case version
     case bundleVersion
 
-    var info: String? {
+    var value: String? {
         let infoDictionary = Bundle.main.infoDictionary ?? [:]
         switch self {
         case .appName:
