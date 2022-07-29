@@ -65,8 +65,6 @@ enum AppScanTaskError: String, Error, LocalizedError {
 }
 
 final class AppScanTask: CardSessionRunnable {
-    private var userPrefsService = UserPrefsService()
-
     private let targetBatch: String?
     private var twinIssuerData: Data? = nil
     private var noteWalletData: WalletData? = nil
@@ -119,7 +117,7 @@ final class AppScanTask: CardSessionRunnable {
                 return
             }
 
-            if userPrefsService.cardsStartedActivation.contains(card.cardId),
+            if AppSettings.shared.cardsStartedActivation.contains(card.cardId),
                card.backupStatus == .noBackup {
                 readPrimaryCard(session, completion)
                 return
@@ -130,7 +128,7 @@ final class AppScanTask: CardSessionRunnable {
 
         }
 
-        runAttestation(session, completion)
+        self.runScanTask(session, completion)
     }
 
     private func readNote(_ card: Card, session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
@@ -168,7 +166,7 @@ final class AppScanTask: CardSessionRunnable {
                 }
 
                 self.noteWalletData = walletData
-                self.runAttestation(session, completion)
+                self.runScanTask(session, completion)
             case .failure(let error):
                 switch error {
                 case .fileNotFound, .insNotSupported:
@@ -192,7 +190,7 @@ final class AppScanTask: CardSessionRunnable {
                     return
                 }
 
-                self.runAttestation(session, completion)
+                self.runScanTask(session, completion)
             case .failure(let error):
                 completion(.failure(error))
             }
@@ -220,7 +218,7 @@ final class AppScanTask: CardSessionRunnable {
         CreateMultiWalletTask(curves: curves).run(in: session) { result in
             switch result {
             case .success:
-                self.runAttestation(session, completion)
+                self.runScanTask(session, completion)
             case .failure(let error):
                 completion(.failure(error))
             }
@@ -242,11 +240,11 @@ final class AppScanTask: CardSessionRunnable {
 
     private func deriveKeysIfNeeded(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
         #if CLIP
-        self.runAttestation(session, completion)
+        self.runScanTask(session, completion)
         return
         #else
         guard session.environment.card?.settings.isHDWalletAllowed == true else {
-            self.runAttestation(session, completion)
+            self.runScanTask(session, completion)
             return
         }
 
@@ -272,7 +270,7 @@ final class AppScanTask: CardSessionRunnable {
         }
 
         if derivations.isEmpty {
-            self.runAttestation(session, completion)
+            self.runScanTask(session, completion)
             return
         }
 
@@ -281,7 +279,7 @@ final class AppScanTask: CardSessionRunnable {
                 switch result {
                 case .success(let derivedKeys):
                     self.derivedKeys = derivedKeys
-                    self.runAttestation(session, completion)
+                    self.runScanTask(session, completion)
                 case .failure(let error):
                     completion(.failure(error))
                 }
@@ -289,9 +287,9 @@ final class AppScanTask: CardSessionRunnable {
         #endif
     }
 
-    private func runAttestation(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        let attestationTask = AttestationTask(mode: session.environment.config.attestationMode)
-        attestationTask.run(in: session) { result in
+    private func runScanTask(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
+        let scanTask = ScanTask()
+        scanTask.run(in: session) { result in
             switch result {
             case .success:
                 self.complete(session, completion)
