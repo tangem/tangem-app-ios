@@ -12,24 +12,22 @@ import Combine
 import UIKit
 
 class TestnetBuyCryptoService {
-    @Injected(\.transactionSigner) private var signer: TangemSigner
-
     private var bag: Set<AnyCancellable> = []
 
     func buyCrypto(_ target: CryptoToBuy) {
         switch target {
-        case let .erc20Token(walletManager, token):
-            buyErc20Token(walletManager: walletManager, token: token)
+        case let .erc20Token(token, walletManager, signer):
+            buyErc20Token(token, walletManager: walletManager, signer: signer)
         }
     }
 
-    private func buyErc20Token(walletManager: WalletManager, token: Token) {
+    private func buyErc20Token(_ token: Token, walletManager: WalletManager, signer: TransactionSigner) {
         let amountToSend = Amount(with: walletManager.wallet.blockchain, value: 0)
         let destinationAddress = token.contractAddress
 
         var subs: AnyCancellable!
         subs = walletManager.getFee(amount: amountToSend, destination: destinationAddress)
-            .flatMap { [unowned self] (fees: [Amount]) -> AnyPublisher<Void, Error> in
+            .flatMap { (fees: [Amount]) -> AnyPublisher<Void, Error> in
                 let fee = fees[0]
 
                 guard fee.value <= walletManager.wallet.amounts[.coin]?.value ?? 0 else {
@@ -40,7 +38,7 @@ class TestnetBuyCryptoService {
                     return .anyFail(error: "testnet_error_failed_create_tx".localized)
                 }
 
-                return walletManager.send(tx, signer: self.signer)
+                return walletManager.send(tx, signer: signer)
             }
             .sink { [unowned self] completion in
                 if case let .failure(error) = completion {
@@ -69,6 +67,6 @@ class TestnetBuyCryptoService {
 
 extension TestnetBuyCryptoService {
     enum CryptoToBuy {
-        case erc20Token(walletManager: WalletManager, token: Token)
+        case erc20Token(_ token: Token, walletManager: WalletManager, signer: TransactionSigner)
     }
 }

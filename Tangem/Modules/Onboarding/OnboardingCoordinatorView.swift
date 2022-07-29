@@ -29,11 +29,10 @@ struct OnboardingCoordinatorView: CoordinatorView {
                     OnboardingAccessCodeView(viewModel: $0)
                 }
 
-            BottomSheetView(from: coordinator.bottomSheetSettings,
-                            isPresented: coordinator.$qrBottomSheetKeeper,
-                            hideBottomSheetCallback: coordinator.hideQrBottomSheet,
-                            content: { addressQrBottomSheetContent })
-            // .frame(maxWidth: screenSize.width) //UISCreen.main.bounds [REDACTED_TODO_COMMENT]
+            NavHolder()
+                .bottomSheet(item: $coordinator.addressQrBottomSheetContentViewVodel, viewModelSettings: .qr) {
+                    AddressQrBottomSheetContent(viewModel: $0)
+                }
         }
     }
 
@@ -45,13 +44,6 @@ struct OnboardingCoordinatorView: CoordinatorView {
             TwinsOnboardingView(viewModel: twinsViewModel)
         } else if let walletViewModel = coordinator.walletViewModel {
             WalletOnboardingView(viewModel: walletViewModel)
-        }
-    }
-
-    @ViewBuilder
-    private var addressQrBottomSheetContent: some View {
-        if let model = coordinator.addressQrBottomSheetContentViewVodel {
-            AddressQrBottomSheetContent(viewModel: model)
         }
     }
 }

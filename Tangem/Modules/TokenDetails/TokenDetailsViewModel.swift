@@ -12,7 +12,7 @@ import Combine
 class TokenDetailsViewModel: ObservableObject {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
-    @Injected(\.geoIpService) private var geoIpService: GeoIpService
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     @Published var alert: AlertBinder? = nil
     @Published var showTradeSheet: Bool = false
@@ -138,7 +138,7 @@ class TokenDetailsViewModel: ObservableObject {
     private var bag = Set<AnyCancellable>()
     private var rentWarningSubscription: AnyCancellable?
     private var refreshCancellable: AnyCancellable? = nil
-    private lazy var testnetBuyCrypto: TestnetBuyCryptoService = .init()
+    private lazy var testnetBuyCryptoService: TestnetBuyCryptoService = .init()
     private unowned let coordinator: TokenDetailsRoutable
 
     private var currencySymbol: String {
@@ -380,11 +380,12 @@ extension TokenDetailsViewModel {
 
         guard let model = walletModel else { return }
 
-        testnetBuyCrypto.buyCrypto(.erc20Token(walletManager: model.walletManager, token: token))
+
+        testnetBuyCryptoService.buyCrypto(.erc20Token(token, walletManager: model.walletManager, signer: card.signer))
     }
 
     func openBuyCryptoIfPossible() {
-        if geoIpService.regionCode == "ru" {
+        if tangemApiService.geoIpRegionCode == "ru" {
             coordinator.openBankWarning {
                 self.openBuyCrypto()
             } declineCallback: {
