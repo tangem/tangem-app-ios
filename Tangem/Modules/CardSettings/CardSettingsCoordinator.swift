@@ -57,14 +57,6 @@ extension CardSettingsCoordinator: CardSettingsRoutable {
         coordinator.start(with: options)
         securityManagementCoordinator = coordinator
     }
-
-    func openTokenSynchronization() {
-
-    }
-
-    func openResetSavedCards() {
-
-    }
 }
 
 // MARK: - CardOperationRoutable
