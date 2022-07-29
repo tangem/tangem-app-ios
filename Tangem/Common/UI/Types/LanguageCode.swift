@@ -8,8 +8,8 @@
 
 import Foundation
 
-enum LanguageCode: String {
-    case en
-    case ru
-    case by
+enum LanguageCode {
+    static let en = "en"
+    static let ru = "ru"
+    static let by = "by"
 }
