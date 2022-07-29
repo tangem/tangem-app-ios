@@ -13,4 +13,5 @@ struct ZendeskConfig: Decodable {
     let zendeskAppId: String
     let zendeskClientId: String
     let zendeskUrl: String
+    let zendeskAccountKey: String
 }
