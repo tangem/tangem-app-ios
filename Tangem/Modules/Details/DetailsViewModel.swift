@@ -25,6 +25,20 @@ class DetailsViewModel: ObservableObject {
     @Published var cardModel: CardViewModel
     @Published var error: AlertBinder?
 
+    var canCreateBackup: Bool {
+        if !cardModel.cardInfo.isTangemWallet {
+            return false
+        }
+
+        if !cardModel.cardInfo.card.settings.isBackupAllowed {
+            return false
+        }
+
+        // todo: respect involved cards
+
+        return cardModel.cardInfo.card.backupStatus == .noBackup
+    }
+
     var shouldShowWC: Bool {
         if cardModel.cardInfo.isTangemNote {
             return false
@@ -45,18 +59,12 @@ class DetailsViewModel: ObservableObject {
         return true
     }
 
-    var canCreateBackup: Bool {
-        if !cardModel.cardInfo.isTangemWallet {
-            return false
+    var cardTouURL: URL? {
+        guard cardModel.isStart2CoinCard else { // is this card is S2C
+            return nil
         }
 
-        if !cardModel.cardInfo.card.settings.isBackupAllowed {
-            return false
-        }
-
-        // todo: respect involved cards
-
-        return cardModel.cardInfo.card.backupStatus == .noBackup
+        return buildCardTouURL()
     }
 
     var isTwinCard: Bool {
@@ -162,6 +170,10 @@ extension DetailsViewModel {
         coordinator.openDisclaimer()
     }
 
+    func openCardTOU(url: URL) {
+        coordinator.openCardTOU(url: url)
+    }
+
     func openCardSettings() {
         coordinator.openScanCardSettings()
     }
@@ -194,43 +206,52 @@ private extension DetailsViewModel {
             }
             .store(in: &bag)
     }
-//
-//    func filename(languageCode: String, regionCode: String) -> String {
-//        switch (languageCode, regionCode) {
-//        case ("fr", "ch"):
-//            return "Start2Coin-fr-ch-tangem.pdf"
-//        case ("de", "ch"):
-//            return "Start2Coin-de-ch-tangem.pdf"
-//        case ("en", "ch"):
-//            return "Start2Coin-en-ch-tangem.pdf"
-//        case ("it", "ch"):
-//            return "Start2Coin-it-ch-tangem.pdf"
-//        case ("fr", "fr"):
-//            return "Start2Coin-fr-fr-atangem.pdf"
-//        case ("de", "at"):
-//            return "Start2Coin-de-at-tangem.pdf"
-//        case (_, "fr"):
-//            return "Start2Coin-fr-fr-atangem.pdf"
-//        case (_, "ch"):
-//            return "Start2Coin-en-ch-tangem.pdf"
-//        case (_, "at"):
-//            return "Start2Coin-de-at-tangem.pdf"
-//        default:
-//            return "Start2Coin-fr-fr-atangem.pdf"
-//        }
-//    }
-//
-//    func regionCode(for cid: String) -> String? {
-//        let cidPrefix = cid[cid.index(cid.startIndex, offsetBy: 1)]
-//        switch cidPrefix {
-//        case "0":
-//            return "fr"
-//        case "1":
-//            return "ch"
-//        case "2":
-//            return "at"
-//        default:
-//            return nil
-//        }
-//    }
+
+    func buildCardTouURL() -> URL? {
+        let baseurl = "https://app.tangem.com/tou/"
+        let regionCode = regionCode(for: cardModel.cardInfo.card.cardId) ?? "fr"
+        let languageCode = Locale.current.languageCode ?? "fr"
+        let filename = filename(languageCode: languageCode, regionCode: regionCode)
+        let url = URL(string: baseurl + filename)
+        return url
+    }
+
+    func filename(languageCode: String, regionCode: String) -> String {
+        switch (languageCode, regionCode) {
+        case ("fr", "ch"):
+            return "Start2Coin-fr-ch-tangem.pdf"
+        case ("de", "ch"):
+            return "Start2Coin-de-ch-tangem.pdf"
+        case ("en", "ch"):
+            return "Start2Coin-en-ch-tangem.pdf"
+        case ("it", "ch"):
+            return "Start2Coin-it-ch-tangem.pdf"
+        case ("fr", "fr"):
+            return "Start2Coin-fr-fr-atangem.pdf"
+        case ("de", "at"):
+            return "Start2Coin-de-at-tangem.pdf"
+        case (_, "fr"):
+            return "Start2Coin-fr-fr-atangem.pdf"
+        case (_, "ch"):
+            return "Start2Coin-en-ch-tangem.pdf"
+        case (_, "at"):
+            return "Start2Coin-de-at-tangem.pdf"
+        default:
+            return "Start2Coin-fr-fr-atangem.pdf"
+        }
+    }
+
+    func regionCode(for cid: String) -> String? {
+        let cidPrefix = cid[cid.index(cid.startIndex, offsetBy: 1)]
+        switch cidPrefix {
+        case "0":
+            return "fr"
+        case "1":
+            return "ch"
+        case "2":
+            return "at"
+        default:
+            return nil
+        }
+    }
 }
