@@ -87,5 +87,12 @@ struct MainCoordinatorView: CoordinatorView {
                          viewModelSettings: .warning) {
                 WarningBankCardView(viewModel: $0)
             }
+
+        NavHolder()
+            .bottomSheet(isPresented: $coordinator.userWalletListPresented, viewModelSettings: BottomSheetSettings(showClosedButton: false)) {
+                if let userWalletListCoordinator = coordinator.userWalletListCoordinator {
+                    UserWalletListView(viewModel: UserWalletListViewModel(coordinator: userWalletListCoordinator))
+                }
+            }
     }
 }
