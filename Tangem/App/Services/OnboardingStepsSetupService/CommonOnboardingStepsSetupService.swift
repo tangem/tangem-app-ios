@@ -14,8 +14,6 @@ import BlockchainSdk
 class CommonOnboardingStepsSetupService: OnboardingStepsSetupService {
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
 
-    private var userPrefs = UserPrefsService()
-
     static var previewSteps: [SingleCardOnboardingStep] {
         [.createWallet, .topup, .successTopup]
     }
@@ -67,7 +65,7 @@ class CommonOnboardingStepsSetupService: OnboardingStepsSetupService {
             return .justWithError(output: .singleWallet(steps))
         }
 
-        if !self.userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId) {
+        if !AppSettings.shared.cardsStartedActivation.contains(cardInfo.card.cardId) {
             return .justWithError(output: .singleWallet(steps))
         }
 
@@ -83,8 +81,8 @@ class CommonOnboardingStepsSetupService: OnboardingStepsSetupService {
 
         var steps = [TwinsOnboardingStep]()
 
-        if !userPrefs.isTwinCardOnboardingWasDisplayed { // show intro only once
-            userPrefs.isTwinCardOnboardingWasDisplayed = true
+        if !AppSettings.shared.isTwinCardOnboardingWasDisplayed { // show intro only once
+            AppSettings.shared.isTwinCardOnboardingWasDisplayed = true
             let twinPairCid = AppTwinCardIdFormatter.format(cid: "", cardNumber: twinCardInfo.series.pair.number)
             steps.append(.intro(pairNumber: "\(twinPairCid)"))
         }
@@ -95,32 +93,11 @@ class CommonOnboardingStepsSetupService: OnboardingStepsSetupService {
             return .justWithError(output: .twins(steps))
         } else { // twin with created wallet
             if twinCardInfo.pairPublicKey == nil { // is not twinned
-                // check balance because of legacy bug
-                if let walletModel = WalletManagerAssembly.makeAllWalletModels(from: cardInfo).first {
-                    return Future { promise in
-                        walletModel.walletManager.update { result in
-                            switch result {
-                            case .success:
-                                if walletModel.isEmptyIncludingPendingIncomingTxs { // Empty balance, It's safe to onboarding
-                                    steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
-                                    steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
-                                    return promise(.success(.twins(steps)))
-                                } else { // bugged case, has balance go to main
-                                    return promise(.success(.twins([])))
-                                }
-                            case .failure(let error):
-                                promise(.failure(error))
-                            }
-                        }
-                    }
-                    .eraseToAnyPublisher()
-                } else { // will use this branch in future releases. Just start onboarding
-                    steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
-                    steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
-                    return .justWithError(output: .twins(steps))
-                }
+                steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
+                steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
+                return .justWithError(output: .twins(steps))
             } else { // is twinned
-                if userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId) { // card is in onboarding process, go to topup
+                if AppSettings.shared.cardsStartedActivation.contains(cardInfo.card.cardId) { // card is in onboarding process, go to topup
                     steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
                     return .justWithError(output: .twins(steps))
                 } else { // unknown twin, ready to use, go to main
@@ -134,7 +111,7 @@ class CommonOnboardingStepsSetupService: OnboardingStepsSetupService {
         if let backupStatus = cardInfo.card.backupStatus,
            backupStatus.isActive ||
            (cardInfo.card.wallets.count != 0 &&
-               !userPrefs.cardsStartedActivation.contains(cardInfo.card.cardId)) {
+               !AppSettings.shared.cardsStartedActivation.contains(cardInfo.card.cardId)) {
             return .justWithError(output: .wallet([]))
         }
 
