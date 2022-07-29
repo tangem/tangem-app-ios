@@ -2271,8 +2271,8 @@
 			children = (
 				DA2A1B9E28940B02007B7595 /* UserWalletListCoordinator.swift */,
 				DA2A1B9F28940B02007B7595 /* UserWalletListCoordinatorView.swift */,
-				DA2A1BA028940B02007B7595 /* UserWalletListView.swift */,
 				DA2A1BA128940B02007B7595 /* UserWalletListViewModel.swift */,
+				DA2A1BA028940B02007B7595 /* UserWalletListView.swift */,
 				DA5FA738288FE1010002717F /* UserWalletListCellView.swift */,
 				DA2A1B9A2893DA3C007B7595 /* UserWalletListHeaderView.swift */,
 				DA2A1BA228940B02007B7595 /* UserWalletListRoutable.swift */,
