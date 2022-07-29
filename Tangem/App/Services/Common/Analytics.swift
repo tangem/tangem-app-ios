@@ -17,6 +17,12 @@ import Amplitude
 import TangemSdk
 
 class Analytics {
+    static func logAmplitude(_ event: AmplitudeEvent, params: [String: String] = [:]) {
+        #if !CLIP
+        Amplitude.instance().logEvent(event.rawValue.camelCaseToSnakeCase(), withEventProperties: params)
+        #endif
+    }
+
     static func log(_ event: Event, params: [ParameterKey: ParameterValue]) {
         log(event: event, with: params.mapValues { $0.rawValue })
     }
@@ -27,7 +33,6 @@ class Analytics {
         let values = params?.firebaseParams
         FirebaseAnalytics.Analytics.logEvent(key, parameters: values)
         AppsFlyerLib.shared().logEvent(key, withValues: values)
-        Amplitude.instance().logEvent(key, withEventProperties: values)
         #endif
     }
 
@@ -223,6 +228,67 @@ extension Analytics {
         case error(Error, WalletConnectAction?), session(SessionEvent, URL), action(WalletConnectAction), invalidRequest(json: String?)
     }
     #endif
+}
+
+//  MARK: - Amplitude events
+extension Analytics {
+    enum AmplitudeEvent: String {
+        case viewStory1
+        case viewStory2
+        case viewStory3
+        case viewStory4
+        case viewStory5
+        case viewStory6
+        case tokenListClicked
+        case searchToken
+        case buyBottomClicked
+        case firstScan
+        case secondScan
+        case supportClicked
+        case tryAgainClicked
+        case createWalletClicked
+        case backupClicked
+        case backupLaterClicked
+        case firstCardScan
+        case addBackupCard
+        case backupFinish
+        case createAccessCode
+        case accessCodeConfirm
+        case cardCodeSign
+        case backupCardSign
+        case onboardingSuccess
+        case enter
+        case pageSwipe
+        case currencyTypeClicked
+        case currencyChanged
+        case settingsClicked
+        case manageTokensClicked
+        case tokenClicked
+        case scanCardClicked
+        case chatClicked
+        case wcClicked
+        case factoryRessetClicked
+        case factoryRessetSuccess
+        case createBackupClicked
+        case makeComment
+        case walletConnectSuccessResponse
+        case walletConnectInvalidRequest
+        case walletConnectNewSession
+        case walletConnectSessionDisconnected
+        case tokenSearch
+        case tokenSwitchOn
+        case tokenSwitchOff
+        case saveChanges
+        case сustomTokenAdd
+        case customTokenSave
+        case removeToken
+        case copyAddress
+        case shareAddress
+        case buyTokenClicked
+        case p2pInstructionClicked
+        case transactionIsSent
+        case sendTokenClicked
+    }
 }
 
 fileprivate extension Dictionary where Key == Analytics.ParameterKey, Value == Any {
