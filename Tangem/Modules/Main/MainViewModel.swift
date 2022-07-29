@@ -681,7 +681,7 @@ extension MainViewModel {
     }
 
     func openBuyCryptoIfPossible() {
-        if tangemApiService.geoIpRegionCode == LanguageCode.ru.rawValue {
+        if tangemApiService.geoIpRegionCode == LanguageCode.ru {
             coordinator.openBankWarning {
                 self.openBuyCrypto()
             } declineCallback: {
