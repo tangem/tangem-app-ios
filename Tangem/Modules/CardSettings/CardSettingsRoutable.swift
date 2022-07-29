@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol SecurityPrivacyRoutable: AnyObject {
+protocol CardSettingsRoutable: AnyObject {
     func openChangeAccessCodeWarningView(action: @escaping (@escaping (Result<Void, Error>) -> Void) -> Void)
     func openSecurityMode(cardModel: CardViewModel)
     func openTokenSynchronization()
