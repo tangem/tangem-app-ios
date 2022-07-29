@@ -81,10 +81,8 @@ private extension CardSettingsViewModel {
 
 extension CardSettingsViewModel {
     func openChangeAccessCodeWarningView() {
-        coordinator.openChangeAccessCodeWarningView { [weak self] completion in
-            guard let self = self else { return }
-
-            self.cardModel.changeSecurityOption(.accessCode, completion: completion)
+        cardModel.changeSecurityOption(.accessCode) { result in
+            print("changeSecurityOption result", result)
         }
     }
 
