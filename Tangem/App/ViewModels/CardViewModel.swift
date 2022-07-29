@@ -25,6 +25,7 @@ class CardViewModel: Identifiable, ObservableObject {
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
+    @Injected(\.scannedCardsRepository) private var scannedCardsRepository: ScannedCardsRepository
 
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
@@ -363,20 +364,6 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     // MARK: - Security
-
-    func checkPin(_ completion: @escaping (Result<CheckUserCodesResponse, Error>) -> Void) {
-        tangemSdk.startSession(with: CheckUserCodesCommand(), cardId: cardInfo.card.cardId) { [weak self] (result) in
-            switch result {
-            case .success(let resp):
-                self?.cardPinSettings = CardPinSettings(isPin1Default: !resp.isAccessCodeSet, isPin2Default: !resp.isPasscodeSet)
-                self?.updateCurrentSecurityOption()
-                completion(.success(resp))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
-    }
-
     func changeSecurityOption(_ option: SecurityModeOption, completion: @escaping (Result<Void, Error>) -> Void) {
         switch option {
         case .accessCode:
@@ -490,6 +477,8 @@ class CardViewModel: Identifiable, ObservableObject {
                 self.cardInfo.derivedKeys[newKey.key, default: [:]][newDerivation.key] = newDerivation.value
             }
         }
+
+        scannedCardsRepository.add(cardInfo)
     }
 
     // MARK: - Update
