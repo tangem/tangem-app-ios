@@ -10,19 +10,16 @@ import SwiftUI
 import Combine
 
 class TotalSumBalanceViewModel: ObservableObject {
-    @Injected(\.currencyRateService) private var currencyRateService: CurrencyRateService
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     @Published var isLoading: Bool = false
-    @Published var currencyType: String = ""
     @Published var totalFiatValueString: NSAttributedString = NSAttributedString(string: "")
     @Published var hasError: Bool = false
 
     private var refreshSubscription: AnyCancellable?
     private var tokenItemViewModels: [TokenItemViewModel] = []
 
-    init() {
-        currencyType = currencyRateService.selectedCurrencyCode
-    }
+    init() {}
 
     func beginUpdates() {
         DispatchQueue.main.async {
@@ -52,14 +49,13 @@ class TotalSumBalanceViewModel: ObservableObject {
     }
 
     private func refresh(loadingAnimationEnable: Bool = true) {
-        currencyType = currencyRateService.selectedCurrencyCode
-        refreshSubscription = currencyRateService
-            .baseCurrencies()
+        refreshSubscription = tangemApiService
+            .loadCurrencies()
             .receive(on: RunLoop.main)
             .sink { _ in
             } receiveValue: { [weak self] currencies in
                 guard let self = self,
-                      let currency = currencies.first(where: { $0.code == self.currencyRateService.selectedCurrencyCode })
+                      let currency = currencies.first(where: { $0.code == AppSettings.shared.selectedCurrencyCode })
                 else {
                     return
                 }
