@@ -19,6 +19,7 @@ class DetailsCoordinator: CoordinatorObject {
     @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
     @Published var walletConnectCoordinator: WalletConnectCoordinator? = nil
     @Published var scanCardSettingsCoordinator: ScanCardSettingsCoordinator? = nil
+    @Published var appSettingsCoordinator: AppSettingsCoordinator? = nil
 
     // MARK: - Child view models
     @Published var currencySelectViewModel: CurrencySelectViewModel? = nil
@@ -93,9 +94,15 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openScanCardSettings() {
-        let coordinator = ScanCardSettingsCoordinator(popToRootAction: self.popToRootAction)
+        let coordinator = ScanCardSettingsCoordinator(popToRootAction: popToRootAction)
         coordinator.start(with: .default)
         scanCardSettingsCoordinator = coordinator
+    }
+
+    func openAppSettings() {
+        let coordinator = AppSettingsCoordinator(popToRootAction: popToRootAction)
+        coordinator.start(with: .default)
+        appSettingsCoordinator = coordinator
     }
 
     func openSupportChat() {
