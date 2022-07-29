@@ -24,10 +24,7 @@ class SupportChatService: SupportChatServiceProtocol {
                            zendeskUrl: keysManager.zendesk.zendeskUrl)
         Support.initialize(withZendesk: Zendesk.instance)
         Zendesk.instance?.setIdentity(Identity.createAnonymous())
-        
-//        Chat.initialize(accountKey: keysManager.zendesk.zendeskApiKey, a)
-        
-        Chat.initialize(accountKey: <#T##String#>, appId: <#T##String?#>, queue: <#T##DispatchQueue#>)
+        Chat.initialize(accountKey: keysManager.zendesk.zendeskAccountKey, appId: keysManager.zendesk.zendeskAppId)
     }
 }
 
