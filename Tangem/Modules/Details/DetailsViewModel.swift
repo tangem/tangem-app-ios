@@ -59,16 +59,16 @@ class DetailsViewModel: ObservableObject {
         return true
     }
 
+    var isTwinCard: Bool {
+        cardModel.isTwinCard
+    }
+
     var cardTouURL: URL? {
         guard cardModel.isStart2CoinCard else { // is this card is S2C
             return nil
         }
 
         return buildCardTouURL()
-    }
-
-    var isTwinCard: Bool {
-        cardModel.isTwinCard
     }
 
     var applicationInfoFooter: String? {
@@ -92,7 +92,6 @@ class DetailsViewModel: ObservableObject {
     init(cardModel: CardViewModel, coordinator: DetailsRoutable) {
         self.cardModel = cardModel
         self.coordinator = coordinator
-
         dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel)
 
         bind()
