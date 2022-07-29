@@ -25,10 +25,6 @@ class TokenDetailsCoordinator: CoordinatorObject {
     @Published var modalWebViewModel: WebViewContainerViewModel? = nil
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
 
-    // MARK: - Helpers
-    @Published var bottomSheetKeeper: Bool = false
-    @Published var bottomSheetSettings: BottomSheetSettings? // Don't set to nil, when hide sheet
-
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
@@ -39,10 +35,6 @@ class TokenDetailsCoordinator: CoordinatorObject {
                                                       blockchainNetwork: options.blockchainNetwork,
                                                       amountType: options.amountType,
                                                       coordinator: self)
-    }
-
-    func hideBottomSheet() {
-        bottomSheetKeeper = false
     }
 }
 
@@ -117,16 +109,13 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
     }
 
     func openBankWarning(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) {
-        warningBankCardViewModel = .init(confirmCallback: {
+        warningBankCardViewModel = .init(confirmCallback: { [weak self] in
             confirmCallback()
-            self.hideBottomSheet()
-        }, declineCallback: {
+            self?.warningBankCardViewModel = nil
+        }, declineCallback: { [weak self] in
             declineCallback()
-            self.hideBottomSheet()
+            self?.warningBankCardViewModel = nil
         })
-
-        bottomSheetSettings = BottomSheet.warning
-        bottomSheetKeeper = true
     }
 
     func openP2PTutorial() {

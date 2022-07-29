@@ -15,8 +15,6 @@ import stellarsdk
 import AVFoundation
 
 class SendViewModel: ObservableObject {
-    @Injected(\.currencyRateService) private var ratesService: CurrencyRateService
-    @Injected(\.appFeaturesService) private var featuresService: AppFeaturesProviding
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
 
     @Published var showCameraDeniedAlert = false
@@ -85,6 +83,10 @@ class SendViewModel: ObservableObject {
         isFiatCalculation ? 2 : amountToSend.decimals
     }
 
+    var isFiatConvertingAvailable: Bool {
+        !isSellingCrypto && walletModel.getFiat(for: amountToSend) != nil
+    }
+
     @Published var isNetworkFeeBlockOpen: Bool = false
 
     // MARK: Output
@@ -127,7 +129,7 @@ class SendViewModel: ObservableObject {
     var bag = Set<AnyCancellable>()
 
     var currencyUnit: String {
-        return isFiatCalculation ? ratesService.selectedCurrencyCode : self.amountToSend.currencySymbol
+        return isFiatCalculation ? AppSettings.shared.selectedCurrencyCode : self.amountToSend.currencySymbol
     }
 
     var walletTotalBalanceDecimals: String {
@@ -167,6 +169,8 @@ class SendViewModel: ObservableObject {
 
         return nil
     }()
+
+    private var featuresService: AppFeaturesService { .init(with: cardViewModel.cardInfo.card) } // Temp
 
     private unowned let coordinator: SendRoutable
 
@@ -625,7 +629,7 @@ class SendViewModel: ObservableObject {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.addLoadingView()
 
-        walletModel.send(tx)
+        walletModel.send(tx, signer: cardViewModel.signer)
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self = self else { return }
 
@@ -686,7 +690,7 @@ private extension SendViewModel {
         let totalAmount = transaction.amount + transaction.fee
         let totalInFiatFormatted = totalAndFeeInFiatFormatted(
             from: transaction,
-            currencyCode: ratesService.selectedCurrencyCode
+            currencyCode: AppSettings.shared.selectedCurrencyCode
         )
 
         if isFiatCalculation {
