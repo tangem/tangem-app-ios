@@ -37,4 +37,27 @@ enum SocialNetwork: Hashable, CaseIterable, Identifiable {
             return Assets.SocialNetwork.linkedIn
         }
     }
+
+    var url: URL? {
+        switch self {
+        case .telegram:
+            if Locale.current.languageCode == LanguageCode.ru.rawValue {
+                return URL(string: "https://t.me/tangem_ru")
+            }
+
+            return URL(string: "https://t.me/TangemCards")
+        case .twitter:
+            return URL(string: "https://twitter.com/tangem")
+        case .facebook:
+            return URL(string: "https://facebook.com/TangemCards/")
+        case .instagram:
+            return URL(string: "https://instagram.com/tangemcards")
+        case .github:
+            return URL(string: "https://github.com/tangem")
+        case .youtube:
+            return URL(string: "https://youtube.com/channel/UCFGwLS7yggzVkP6ozte0m1w")
+        case .linkedin:
+            return URL(string: "https://www.linkedin.com/company/tangem")
+        }
+    }
 }
