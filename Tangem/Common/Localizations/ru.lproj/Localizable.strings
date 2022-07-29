@@ -516,5 +516,5 @@ URL: %@";
 "app_settings_saved_access_codes" = "Сохранение кода доступа";
 "app_settings_saved_access_codes_footer" = "Если эта опция включена, пароли от карты будут хранится на телефоне в зашифрованном виде и при работе с картой вместо пароля будет запрашиваться биометрическая аутентификация";
 "wallet_connect_title" = "WalletConnect";
-"wallet_connect_subtitle" = "Подключение к децентрализованным сервисам";
+"wallet_connect_subtitle" = "Подключение к Dapps";
 
