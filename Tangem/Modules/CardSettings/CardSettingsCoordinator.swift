@@ -68,11 +68,11 @@ extension CardSettingsCoordinator: CardSettingsRoutable {
     func openResetCardToFactoryWarning(mainButtonAction: @escaping () -> Void) {
         attentionViewModel = AttentionViewModel(
             isCheckedWarning: false,
-            navigationTitle: "Reset to factory settings",
-            title: "Attention",
-            message: "This action will lead to the complete removal of the wallet from the selected card and it will not be possible to restore the current wallet on it or use the card to recover the password",
-            warningText: "I understand that after performing this action, I will no longer have access to the current wallet",
-            buttonTitle: "Reset the card",
+            navigationTitle: "reset_card_to_factory_navigation_title",
+            title: "reset_card_to_factory_title".localized,
+            message: "reset_card_to_factory_message".localized,
+            warningText: "reset_card_to_factory_warning_message".localized,
+            buttonTitle: "reset_card_to_factory_button_title",
             mainButtonAction: mainButtonAction
         )
     }
