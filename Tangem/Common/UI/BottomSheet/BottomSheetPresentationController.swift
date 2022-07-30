@@ -13,7 +13,6 @@ class BottomSheetPresentationController: UIPresentationController {
 
     let sheetCornerRadius: CGFloat
     let sheetBackgroundColor: UIColor
-    let backgroundAlpha: CGFloat
     var panToDismissEnabled: Bool = true
 
     private(set) lazy var tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onTap))
@@ -23,6 +22,7 @@ class BottomSheetPresentationController: UIPresentationController {
         let view = UIView()
         view.backgroundColor = sheetBackgroundColor
         view.alpha = 0
+        view.layer.opacity = 0
         return view
     }()
 
@@ -30,12 +30,10 @@ class BottomSheetPresentationController: UIPresentationController {
         presentedViewController: UIViewController,
         presenting presentingViewController: UIViewController?,
         sheetCornerRadius: CGFloat,
-        sheetBackgroundColor: UIColor,
-        backgroundAlpha: CGFloat
+        sheetBackgroundColor: UIColor
     ) {
         self.sheetCornerRadius = sheetCornerRadius
         self.sheetBackgroundColor = sheetBackgroundColor
-        self.backgroundAlpha = backgroundAlpha
         super.init(presentedViewController: presentedViewController, presenting: presentingViewController)
     }
 
@@ -119,7 +117,7 @@ class BottomSheetPresentationController: UIPresentationController {
         }
 
         transitionCoordinator.animate { context in
-            self.backgroundView.alpha = self.backgroundAlpha
+            self.backgroundView.alpha = 1
         }
     }
 
