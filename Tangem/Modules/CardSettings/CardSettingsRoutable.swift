@@ -9,6 +9,5 @@
 import Foundation
 
 protocol CardSettingsRoutable: AnyObject {
-    func openChangeAccessCode()
     func openSecurityMode(cardModel: CardViewModel)
 }
