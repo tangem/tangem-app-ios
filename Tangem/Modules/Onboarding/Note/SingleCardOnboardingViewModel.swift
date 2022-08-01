@@ -14,7 +14,6 @@ import Combine
 class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardingStep>, ObservableObject {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     @Injected(\.tokenItemsRepository) private var tokensRepo: TokenItemsRepository
-    @Injected(\.onboardingStepsSetupService) private var stepsSetupService: OnboardingStepsSetupService
 
     @Published var isCardScanned: Bool = true
 
@@ -133,7 +132,8 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
     private func сreateWallet() {
         isMainButtonBusy = true
-        let cardInfo = cardModel!.cardInfo
+        let cardInfo = cardModel!.cardInfo //[REDACTED_TODO_COMMENT]
+        let config = cardModel!.config
 
         var subscription: AnyCancellable? = nil
 
@@ -169,7 +169,8 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
                 }
             }
 
-            if cardInfo.isTangemNote {
+          
+            if config.features.contains(.activation) {
                 AppSettings.shared.cardsStartedActivation.append(cardInfo.card.cardId)
             }
 
@@ -210,24 +211,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             fireConfetti()
         default:
             break
-        }
-    }
-
-    private func readPreviewCard() {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            let previewModel = PreviewCard.ethEmptyNote.cardModel
-            self.cardModel = previewModel
-            self.stepsSetupService.steps(for: previewModel.cardInfo)
-                .sink { _ in }
-                    receiveValue: { [weak self] steps in
-                    if case let .singleWallet(singleSteps) = steps {
-                        self?.steps = singleSteps
-                    }
-                    self?.goToNextStep()
-                    self?.isMainButtonBusy = false
-                }
-                .store(in: &self.bag)
-
         }
     }
 }
