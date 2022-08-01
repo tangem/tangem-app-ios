@@ -90,7 +90,7 @@ class TokenDetailsViewModel: ObservableObject {
     }
 
     var canSend: Bool {
-        guard card.canSign else {
+        guard card.config.features.contains(.signingSupported) else {
             return false
         }
 

@@ -337,7 +337,7 @@ class PushTxViewModel: ObservableObject {
 // MARK: - Navigation
 extension PushTxViewModel {
     func openMail() {
-        coordinator.openMail(with: emailDataCollector)
+        coordinator.openMail(with: emailDataCollector, recipient: cardViewModel.config.emailConfig.recipient)
     }
 
     func dismiss() {

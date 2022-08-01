@@ -44,7 +44,15 @@ enum TwinsOnboardingStep {
     static var topupSteps: [TwinsOnboardingStep] {
         [.topup, .done]
     }
-
+    
+    static var twinningSteps: [TwinsOnboardingStep] {
+        var steps: [TwinsOnboardingStep] = []
+        steps.append(.alert)
+        steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
+        steps.append(.success)
+        return steps
+    }
+    
     var topTwinCardIndex: Int {
         switch self {
         case .second: return 1
