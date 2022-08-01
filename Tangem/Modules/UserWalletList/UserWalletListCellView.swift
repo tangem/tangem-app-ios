@@ -56,6 +56,7 @@ struct UserWalletListCellView: View {
         }
         .padding(16)
         .contentShape(Rectangle())
+        .background(Colors.Background.primary)
         .onTapGesture {
             didTapUserWallet(model.userWallet)
         }
