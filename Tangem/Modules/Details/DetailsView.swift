@@ -67,11 +67,11 @@ struct DetailsView: View {
 
     private var supportSection: some View {
         Section {
-            DefaultRowView(title: "details_chat".localized, isTappable: true) {
+            DefaultRowView(title: "details_chat".localized) {
                 viewModel.openSupportChat()
             }
 
-            DefaultRowView(title: "details_row_title_send_feedback".localized, isTappable: true) {
+            DefaultRowView(title: "details_row_title_send_feedback".localized) {
                 viewModel.openMail()
             }
         }
@@ -81,7 +81,7 @@ struct DetailsView: View {
 
     private var settingsSection: some View {
         Section(content: {
-            DefaultRowView(title: "details_row_title_card_settings".localized, isTappable: true) {
+            DefaultRowView(title: "details_row_title_card_settings".localized) {
                 viewModel.openCardSettings()
             }
 
@@ -90,11 +90,11 @@ struct DetailsView: View {
 //            }
 
             if viewModel.isTwinCard {
-                DefaultRowView(title: "details_row_title_twins_recreate".localized, isTappable: true) {
+                DefaultRowView(title: "details_row_title_twins_recreate".localized) {
                     viewModel.prepareTwinOnboarding()
                 }
             } else if viewModel.canCreateBackup {
-                DefaultRowView(title: "details_row_title_create_backup".localized, isTappable: true) {
+                DefaultRowView(title: "details_row_title_create_backup".localized) {
                     viewModel.prepareBackup()
                 }
             }
@@ -107,12 +107,12 @@ struct DetailsView: View {
 
     private var legalSection: some View {
         Section(content: {
-            DefaultRowView(title: "disclaimer_title".localized, isTappable: true) {
+            DefaultRowView(title: "disclaimer_title".localized) {
                 viewModel.openDisclaimer()
             }
 
             if let url = viewModel.cardTOUURL {
-                DefaultRowView(title: "details_row_title_card_tou".localized, isTappable: true) {
+                DefaultRowView(title: "details_row_title_card_tou".localized) {
                     viewModel.openCardTOU(url: url)
                 }
             }
