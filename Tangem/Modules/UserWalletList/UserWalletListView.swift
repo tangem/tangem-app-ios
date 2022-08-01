@@ -48,8 +48,8 @@ struct UserWalletListView: View {
             UserWalletListHeaderView(name: header)
 
             ForEach(0 ..< models.count, id: \.self) { i in
-                UserWalletListCellView(model: models[i], isSelected: viewModel.selectedAccountId == models[i].account.accountId) { account in
-                    viewModel.onAccountTapped(account)
+                UserWalletListCellView(model: models[i], isSelected: viewModel.selectedUserWalletId == models[i].userWallet.userWalletId) { userWallet in
+                    viewModel.onUserWalletTapped(userWallet)
                 }
 
                 if i != (models.count - 1) {
