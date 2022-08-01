@@ -62,9 +62,14 @@ final class UserWalletListViewModel: ObservableObject {
 
     // MARK: - Dependencies
 
+
+    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
+
     static private var numberOfExtraWalletModels = 0
 
     private unowned let coordinator: UserWalletListRoutable
+
+    private var bag: Set<AnyCancellable> = []
 
     init(
         coordinator: UserWalletListRoutable
@@ -108,5 +113,37 @@ final class UserWalletListViewModel: ObservableObject {
 
     func onUserWalletTapped(_ userWallet: UserWallet) {
         self.selectedUserWalletId = userWallet.userWalletId
+    }
+
+    func addCard() {
+        cardsRepository.scanPublisher()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+//                if case let .failure(error) = completion {
+//                    print("Failed to scan card: \(error)")
+//                    self?.isScanningCard = false
+//                    self?.failedCardScanTracker.recordFailure()
+
+//                    if self?.failedCardScanTracker.shouldDisplayAlert ?? false {
+//                        self?.showTroubleshootingView = true
+//                    } else {
+//                        switch error.toTangemSdkError() {
+//                        case .unknownError, .cardVerificationFailed:
+//                            self?.error = error.alertBinder
+//                        default:
+//                            break
+//                        }
+//                    }
+//                }
+//                subscription.map { _ = self?.bag.remove($0) }
+            } receiveValue: { [weak self] cardModel in
+//                self?.failedCardScanTracker.resetCounter()
+                self?.processScannedCard(cardModel)
+            }
+            .store(in: &bag)
+    }
+
+    private func processScannedCard(_ cardModel: CardViewModel) {
+        print(cardModel)
     }
 }
