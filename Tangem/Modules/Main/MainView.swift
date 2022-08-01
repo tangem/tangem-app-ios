@@ -110,8 +110,7 @@ struct MainView: View {
                     VStack(spacing: 8.0) {
                         CardView(image: viewModel.image,
                                  width: geometry.size.width - 32,
-                                 currentCardNumber: viewModel.cardNumber,
-                                 totalCards: viewModel.totalCards)
+                                 cardSetLabel: viewModel.cardModel.config.cardSetLabel)
                             .fixedSize(horizontal: false, vertical: true)
 
                         if viewModel.isBackupAllowed {

@@ -19,15 +19,7 @@ class CardSettingsViewModel: ObservableObject {
     @Published var isChangeAccessCodeLoading: Bool = false
 
     var cardId: String {
-        let cardId = cardModel.cardInfo.card.cardId
-        if cardModel.isTwinCard {
-            return AppTwinCardIdFormatter.format(
-                cid: cardId,
-                cardNumber: cardModel.cardInfo.twinCardInfo?.series.number
-            )
-        }
-
-        return AppCardIdFormatter(cid: cardId).formatted()
+        cardModel.config.cardIdFormatted
     }
 
     var cardIssuer: String {
@@ -35,7 +27,8 @@ class CardSettingsViewModel: ObservableObject {
     }
 
     var cardSignedHashes: String? {
-        guard cardModel.hasWallet, !cardModel.isTwinCard else {
+        guard cardModel.hasWallet,
+              cardModel.config.features.contains(.signedHashesCounterAvailable) else {
             return nil
         }
 
