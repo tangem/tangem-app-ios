@@ -87,7 +87,6 @@ extension CardSettingsViewModel {
             DispatchQueue.main.async {
                 self?.isChangeAccessCodeLoading = false
             }
-            print("changeSecurityOption result", result)
         }
     }
 
