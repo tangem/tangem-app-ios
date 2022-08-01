@@ -11,7 +11,7 @@ import SwiftUI
 struct UserWalletListCellView: View {
     let model: UserWalletListCellViewModel
     let isSelected: Bool
-    let didTapAccount: (Account) -> Void
+    let didTapUserWallet: (UserWallet) -> Void
 
     private let selectedIconSize: CGSize = .init(width: 14, height: 14)
     private let selectedIconBorderWidth: Double = 2
@@ -33,7 +33,7 @@ struct UserWalletListCellView: View {
             }
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(model.account.name)
+                Text(model.userWallet.name)
                     .font(Font.subheadline.bold)
                     .foregroundColor(isSelected ? Colors.Text.accent : Colors.Text.primary1)
 
@@ -57,7 +57,7 @@ struct UserWalletListCellView: View {
         .padding(16)
         .contentShape(Rectangle())
         .onTapGesture {
-            didTapAccount(model.account)
+            didTapUserWallet(model.userWallet)
         }
     }
 
@@ -79,6 +79,6 @@ struct UserWalletListCellView: View {
 
 struct UserWalletListCellView_Previews: PreviewProvider {
     static var previews: some View {
-        UserWalletListCellView(model: .init(account: .wallet(index: 0), subtitle: "3 Cards", numberOfTokens: 12), isSelected: true) { _ in }
+        UserWalletListCellView(model: .init(userWallet: .wallet(index: 0), subtitle: "3 Cards", numberOfTokens: 12), isSelected: true) { _ in }
     }
 }
