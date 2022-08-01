@@ -15,8 +15,8 @@ struct BottomSheetSettings: Identifiable {
     var swipeDownToDismissEnabled: Bool = true
     var tapOutsideToDismissEnabled: Bool = true
     var cornerRadius: CGFloat = 10
-    var backgroundColor: Color = Colors.Background.action.opacity(0.7)
-    var backgroundSheetColor: Color = Color.white
+    var overlayColor: Color = Colors.Background.action.opacity(0.7)
+    var contentBackgroundColor: Color = Color.white
 }
 
 extension BottomSheetSettings {
