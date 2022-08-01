@@ -13,55 +13,13 @@ import BlockchainSdk
 #endif
 
 extension Card {
-    var canSign: Bool {
-//        let isPin2Default = self.isPin2Default ?? true
-//        let hasSmartSecurityDelay = settingsMask?.contains(.smartSecurityDelay) ?? false
-//        let canSkipSD = hasSmartSecurityDelay && !isPin2Default
-
-        if firmwareVersion.doubleValue < 2.28 {
-            if settings.securityDelay > 15000 {
-//                && !canSkipSD {
-                return false
-            }
-        }
-
-        return true
-    }
-
-    var canSupportSolanaTokens: Bool {
-        // [REDACTED_TODO_COMMENT]
-        let fwVersion = firmwareVersion.doubleValue
-        return fwVersion >= 4.52
-    }
-
-    var isTwinCard: Bool {
-        TwinCardSeries.series(for: cardId) != nil
-    }
-
-    var twinNumber: Int {
-        TwinCardSeries.series(for: cardId)?.number ?? 0
-    }
-
-
-    var isStart2Coin: Bool {
-        issuer.name.lowercased() == "start2coin"
-    }
-
-    var isTestnet: Bool {
-        if batchId == "99FF" { // [REDACTED_TODO_COMMENT]
-            return cardId.starts(with: batchId.reversed())
-        } else {
-            return false
-        }
-    }
-
-    var isPermanentLegacyWallet: Bool {
-        if firmwareVersion < .multiwalletAvailable {
-            return wallets.first?.settings.isPermanent ?? false
-        }
-
-        return false
-    }
+//    var isTestnet: Bool {
+//        if batchId == "99FF" { // [REDACTED_TODO_COMMENT]
+//            return cardId.starts(with: batchId.reversed())
+//        } else {
+//            return false
+//        }
+//    }
 
     var walletSignedHashes: Int {
         wallets.compactMap { $0.totalSignedHashes }.reduce(0, +)
@@ -100,9 +58,9 @@ extension Card {
 // MARK: - Demo cards
 
 extension Card {
-    var isDemoCard: Bool {
-        Self.demoCardIds.contains(cardId)
-    }
+//    var isDemoCard: Bool {
+//        Self.demoCardIds.contains(cardId)
+//    }
 
     static var demoCardIds: [String] {
         [
