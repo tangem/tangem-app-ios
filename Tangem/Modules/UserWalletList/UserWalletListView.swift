@@ -23,23 +23,11 @@ struct UserWalletListView: View {
 
             ScrollView(.vertical) {
                 VStack(spacing: 0) {
-                    if !viewModel.walletCellModels.isEmpty {
-                        #warning("l10n")
-                        UserWalletListHeaderView(name: "Multi-currency")
+                    #warning("l10n")
+                    section("Multi-currency", for: viewModel.walletCellModels)
 
-                        ForEach(viewModel.walletCellModels) { cellModel in
-                            UserWalletListCellView(model: cellModel)
-                        }
-                    }
-
-                    if !viewModel.noteCellModels.isEmpty {
-                        #warning("l10n")
-                        UserWalletListHeaderView(name: "Single-currency")
-
-                        ForEach(viewModel.noteCellModels) { cellModel in
-                            UserWalletListCellView(model: cellModel)
-                        }
-                    }
+                    #warning("l10n")
+                    section("Single-currency", for: viewModel.noteCellModels)
                 }
             }
             .background(Colors.Background.primary)
@@ -52,6 +40,22 @@ struct UserWalletListView: View {
             .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt, layout: .flexibleWidth))
         }
         .padding(16)
+    }
+
+    @ViewBuilder
+    private func section(_ header: String, for models: [UserWalletListCellViewModel]) -> some View {
+        if !models.isEmpty {
+            UserWalletListHeaderView(name: header)
+
+            ForEach(0 ..< models.count, id: \.self) { i in
+                UserWalletListCellView(model: models[i])
+
+                if i != (models.count - 1) {
+                    Separator(height: 0.5, padding: 0, color: Colors.Stroke.primary)
+                        .padding(.leading, 78)
+                }
+            }
+        }
     }
 }
 
