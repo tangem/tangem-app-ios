@@ -15,11 +15,8 @@ import BlockchainSdk
 
 struct CardInfo {
     var card: Card
-    var walletData: WalletData?
+    var walletData: DefaultWalletData
     var artwork: CardArtwork = .notLoaded
-    var twinCardInfo: TwinCardInfo?
-    var isTangemNote: Bool
-    var isTangemWallet: Bool
     var derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]] = [:]
     var primaryCard: PrimaryCard? = nil
 
@@ -30,31 +27,9 @@ struct CardInfo {
     }
 
     #if !CLIP
-    var isTestnet: Bool {
-        return card.isTestnet || (defaultBlockchain?.isTestnet ?? false)
-    }
-
-    var defaultBlockchain: Blockchain? {
-        guard let walletData = walletData else { return nil }
-
-        guard let curve = isTangemNote ? EllipticCurve.secp256k1 : card.supportedCurves.first else {
-            return nil
-        }
-
-        let blockchainName = isTangemNote ? (walletData.blockchain.lowercased() == "binance" ? "bsc" : walletData.blockchain)
-            : walletData.blockchain
-
-        return Blockchain.from(blockchainName: blockchainName, curve: curve)
-    }
-
-    var defaultToken: BlockchainSdk.Token? {
-        guard let token = walletData?.token, defaultBlockchain != nil else { return nil }
-
-        return Token(name: token.name,
-                     symbol: token.symbol,
-                     contractAddress: token.contractAddress,
-                     decimalCount: token.decimals)
-    }
+//    var isTestnet: Bool {
+//        return card.isTestnet || (defaultBlockchain?.isTestnet ?? false)
+//    }
 
     var defaultStorageEntry: StorageEntry? {
         guard let defaultBlockchain = defaultBlockchain else {
@@ -77,24 +52,8 @@ struct CardInfo {
     }
 
     var isMultiWallet: Bool {
-        if isTangemNote {
-            return false
-        }
 
-        if card.isTwinCard {
-            return false
-        }
-
-        if card.isStart2Coin {
-            return false
-        }
-
-        if card.firmwareVersion.major < 4,
-           !card.supportedCurves.contains(.secp256k1) {
-            return false
-        }
-
-        return true
+        return true //[REDACTED_TODO_COMMENT]
     }
 }
 

@@ -25,6 +25,10 @@ enum WalletOnboardingStep {
         case .success: return "common_done"
         }
     }
+    
+    static var resumeBackupSteps: [WalletOnboardingStep] {
+        [.backupCards, .success]
+    }
 
     func backgroundFrameSize(in container: CGSize) -> CGSize {
         switch self {
