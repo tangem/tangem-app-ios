@@ -24,10 +24,10 @@ struct UserWalletListView: View {
             ScrollView(.vertical) {
                 VStack(spacing: 0) {
                     #warning("l10n")
-                    section("Multi-currency", for: viewModel.walletCellModels)
+                    section("Multi-currency", for: viewModel.multiCurrencyModels)
 
                     #warning("l10n")
-                    section("Single-currency", for: viewModel.noteCellModels)
+                    section("Single-currency", for: viewModel.singleCurrencyModels)
                 }
             }
             .background(Colors.Background.primary)
