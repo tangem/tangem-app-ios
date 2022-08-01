@@ -39,7 +39,7 @@ struct AttentionView: View {
             .edgesIgnoringSafeArea(.top)
             .padding(.bottom, 16)
         }
-        .navigationBarTitle(viewModel.navigationTitle, displayMode: .inline)
+        .navigationBarTitle(Text(viewModel.navigationTitle), displayMode: .inline)
     }
 
     private var mainInformationView: some View {
@@ -55,22 +55,17 @@ struct AttentionView: View {
                 .padding(.horizontal, 46)
         }
     }
+
     @ViewBuilder
     private var agreeView: some View {
         if let warningText = viewModel.warningText {
-            Button(action: {
-                viewModel.isCheckedWarning.toggle()
-            }) {
+            Button {
+                viewModel.isWarningChecked.toggle()
+            } label: {
                 HStack(spacing: 18) {
-                    if viewModel.isCheckedWarning {
-                        Assets.checkFill
-                            .resizable()
-                            .frame(width: 22, height: 22)
-                    } else {
-                        Assets.checkEmpty
-                            .resizable()
-                            .frame(width: 22, height: 22)
-                    }
+                    circleImage
+                        .resizable()
+                        .frame(width: 22, height: 22)
 
                     Text(warningText)
                         .multilineTextAlignment(.leading)
@@ -82,6 +77,10 @@ struct AttentionView: View {
         }
     }
 
+    private var circleImage: Image {
+        viewModel.isWarningChecked ? Assets.circleChecked : Assets.circleEmpty
+    }
+
     private var actionButton: some View {
         TangemButton(title: viewModel.buttonTitle, image: "tangemIcon", iconPosition: .trailing) {
             viewModel.mainButtonAction()
@@ -89,7 +88,7 @@ struct AttentionView: View {
         .buttonStyle(TangemButtonStyle(
             colorStyle: .black,
             layout: .flexibleWidth,
-            isDisabled: !viewModel.isCheckedWarning
+            isDisabled: !viewModel.isWarningChecked
         ))
         .padding(.horizontal, 16)
     }
@@ -97,7 +96,7 @@ struct AttentionView: View {
 
 struct AttentionView_Previews: PreviewProvider {
     static let viewModel = AttentionViewModel(
-        isCheckedWarning: false,
+        isWarningChecked: false,
         navigationTitle: "Reset to factory settings",
         title: "Attention",
         message: "This action will lead to the complete removal of the wallet from the selected card and it will not be possible to restore the current wallet on it or use the card to recover the password",
