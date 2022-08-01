@@ -126,8 +126,8 @@ extension WelcomeCoordinator: WelcomeRoutable {
         mainCoordinator = coordinator
     }
 
-    func openMail(with dataCollector: EmailDataCollector) {
-        mailViewModel = MailViewModel(dataCollector: dataCollector, support: .tangem, emailType: .failedToScanCard)
+    func openMail(with dataCollector: EmailDataCollector, recipient: String) {
+        mailViewModel = MailViewModel(dataCollector: dataCollector, recipient: recipient, emailType: .failedToScanCard)
     }
 
     func openDisclaimer() {
