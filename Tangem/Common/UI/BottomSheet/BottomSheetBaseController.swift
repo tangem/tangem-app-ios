@@ -23,17 +23,19 @@ class BottomSheetBaseController: UIViewController {
         set { }
     }
 
-    var preferredSheetCornerRadius: CGFloat = 8 {
+    var cornerRadius: CGFloat = 8 {
         didSet {
-            bottomSheetTransitioningDelegate.preferredSheetCornerRadius = preferredSheetCornerRadius
+            bottomSheetTransitioningDelegate.cornerRadius = cornerRadius
         }
     }
 
-    var preferredSheetBackgroundColor: UIColor = .label {
+    var backgroundColor: UIColor = .label {
         didSet {
-            bottomSheetTransitioningDelegate.preferredSheetBackgroundColor = preferredSheetBackgroundColor
+            bottomSheetTransitioningDelegate.backgroundColor = backgroundColor
         }
     }
+
+    var contentBackgroundColor: UIColor = UIColor.white
 
     var tapOutsideToDismissEnabled: Bool = true {
         didSet {
@@ -47,10 +49,8 @@ class BottomSheetBaseController: UIViewController {
         }
     }
 
-    var preferredContentBackgroundColor: UIColor = UIColor.white
-
     private lazy var bottomSheetTransitioningDelegate = BottomSheetTransitionDelegate(
-        preferredSheetCornerRadius: preferredSheetCornerRadius,
-        preferredSheetBackgroundColor: preferredSheetBackgroundColor
+        cornerRadius: cornerRadius,
+        backgroundColor: backgroundColor
     )
 }
