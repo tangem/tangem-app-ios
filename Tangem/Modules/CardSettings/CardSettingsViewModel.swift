@@ -14,8 +14,9 @@ class CardSettingsViewModel: ObservableObject {
 
     @Published var hasSingleSecurityMode: Bool = false
     @Published var isChangeAccessCodeVisible: Bool = false
-    @Published var securityModeTitle: String?
+    @Published var securityModeTitle: String
     @Published var alert: AlertBinder?
+    @Published var isChangeAccessCodeLoading: Bool = false
 
     var cardId: String {
         let cardId = cardModel.cardInfo.card.cardId
@@ -80,11 +81,16 @@ private extension CardSettingsViewModel {
 // MARK: - Navigation
 
 extension CardSettingsViewModel {
-    func openChangeAccessCode() {
-        coordinator.openChangeAccessCode()
+    func openChangeAccessCodeWarningView() {
+        isChangeAccessCodeLoading = true
+        cardModel.changeSecurityOption(.accessCode) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.isChangeAccessCodeLoading = false
+            }
+        }
     }
 
-    func openChangeAccessMethod() {
+    func openSecurityMode() {
         coordinator.openSecurityMode(cardModel: cardModel)
     }
 }
