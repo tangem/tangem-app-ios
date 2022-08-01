@@ -76,13 +76,14 @@ class UserWalletListCellViewModel: ObservableObject, Identifiable {
 
 final class UserWalletListViewModel: ObservableObject {
     // MARK: - ViewState
-    @Published var walletCellModels: [UserWalletListCellViewModel] = []
-    @Published var noteCellModels: [UserWalletListCellViewModel] = []
     @Published var selectedAccountId: Data?
+    @Published var multiCurrencyModels: [UserWalletListCellViewModel] = []
+    @Published var singleCurrencyModels: [UserWalletListCellViewModel] = []
+
 
     // MARK: - Dependencies
 
-    static var numberOfExtraWalletModels = 0
+    static private var numberOfExtraWalletModels = 0
 
     private unowned let coordinator: UserWalletListRoutable
 
@@ -94,7 +95,7 @@ final class UserWalletListViewModel: ObservableObject {
 
         Self.numberOfExtraWalletModels = 2
 
-        walletCellModels = [
+        multiCurrencyModels = [
             .init(account: .wallet(index: 0), subtitle: "3 Cards"),
         ]
 
@@ -102,28 +103,28 @@ final class UserWalletListViewModel: ObservableObject {
 
 
         for i in 0 ..< Self.numberOfExtraWalletModels {
-            walletCellModels.append(
+            multiCurrencyModels.append(
                 .init(account: .wallet(index: i + 1), subtitle: "2 Cards")
             )
         }
 
 
-        noteCellModels = [
+        singleCurrencyModels = [
 
         ]
 
         if Self.numberOfExtraWalletModels >= 1 {
-            noteCellModels.append(.init(account: .noteBtc(index: 0), subtitle: "Bitcoin"))
+            singleCurrencyModels.append(.init(account: .noteBtc(index: 0), subtitle: "Bitcoin"))
         }
 
         if Self.numberOfExtraWalletModels >= 2 {
-            noteCellModels.append(.init(account: .noteDoge(index: 0), subtitle: "Dogecoin"))
+            singleCurrencyModels.append(.init(account: .noteDoge(index: 0), subtitle: "Dogecoin"))
         }
 
         Self.numberOfExtraWalletModels += 1
         Self.numberOfExtraWalletModels = (Self.numberOfExtraWalletModels % 3)
 
-        selectedAccountId = walletCellModels.first?.account.accountId
+        selectedAccountId = multiCurrencyModels.first?.account.accountId
     }
 
     func onAccountTapped(_ account: Account) {
