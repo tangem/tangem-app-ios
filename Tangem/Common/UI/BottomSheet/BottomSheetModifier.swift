@@ -53,10 +53,10 @@ struct BottomSheetModifier<ContentView: View>: ViewModifier {
             )
 
             bottomSheetViewController?.preferredSheetCornerRadius = viewModelSettings.cornerRadius
-            bottomSheetViewController?.preferredSheetBackgroundColor = viewModelSettings.backgroundColor.uiColor()
+            bottomSheetViewController?.preferredSheetBackgroundColor = viewModelSettings.overlayColor.uiColor()
+            bottomSheetViewController?.preferredContentBackgroundColor = viewModelSettings.contentBackgroundColor.uiColor()
             bottomSheetViewController?.swipeDownToDismissEnabled = viewModelSettings.swipeDownToDismissEnabled
             bottomSheetViewController?.tapOutsideToDismissEnabled = viewModelSettings.tapOutsideToDismissEnabled
-            bottomSheetViewController?.bottomSheetBackgroundColor = viewModelSettings.backgroundSheetColor.uiColor()
 
             controllerToPresentFrom.present(bottomSheetViewController!, animated: true)
         } else {
