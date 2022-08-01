@@ -57,7 +57,7 @@ class SendViewModel: ObservableObject {
     }
 
     var isPayIdSupported: Bool {
-        featuresService.canSendToPayId && payIDService != nil
+        payIDService != nil
     }
 
     var hasAdditionalInputFields: Bool {
@@ -163,14 +163,13 @@ class SendViewModel: ObservableObject {
     private var lastClipboardChangeCount: Int?
 
     private lazy var payIDService: PayIDService? = {
-        if featuresService.isPayIdEnabled, let payIdService = PayIDService.make(from: blockchainNetwork.blockchain) {
+        if cardViewModel.config.features.contains(.sendingToPayIDAllowed),
+           let payIdService = PayIDService.make(from: blockchainNetwork.blockchain) {
             return payIdService
         }
 
         return nil
     }()
-
-    private var featuresService: AppFeaturesService { .init(with: cardViewModel.cardInfo.card) } // Temp
 
     private unowned let coordinator: SendRoutable
 
@@ -754,7 +753,7 @@ private extension SendViewModel {
 // MARK: - Navigation
 extension SendViewModel {
     func openMail() {
-        coordinator.openMail(with: emailDataCollector)
+        coordinator.openMail(with: emailDataCollector, recipient: cardViewModel.config.emailConfig.recipient)
     }
 
     func close() {
