@@ -64,4 +64,8 @@ extension CardSettingsCoordinator: CardSettingsRoutable {
             mainButtonAction: mainButtonAction
         )
     }
+
+    func closeResetCardToFactoryWarning() {
+        attentionViewModel = nil
+    }
 }
