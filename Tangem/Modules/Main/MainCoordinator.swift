@@ -164,8 +164,8 @@ extension MainCoordinator: MainRoutable {
         self.tokenListCoordinator = coordinator
     }
 
-    func openMail(with dataCollector: EmailDataCollector, emailType: EmailType) {
-        mailViewModel = MailViewModel(dataCollector: dataCollector, support: .tangem, emailType: emailType)
+    func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String) {
+        mailViewModel = MailViewModel(dataCollector: dataCollector, recipient: recipient, emailType: emailType)
     }
 
     func openQR(shareAddress: String, address: String, qrNotice: String) {
