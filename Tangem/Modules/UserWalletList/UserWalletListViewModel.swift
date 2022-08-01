@@ -56,13 +56,20 @@ class UserWalletListCellViewModel: ObservableObject, Identifiable {
 
     let account: Account
     let subtitle: String
+    let numberOfTokens: String?
     var cardImage: UIImage?
 
     private var bag: Set<AnyCancellable> = []
 
-    init(account: Account, subtitle: String) {
+    init(account: Account, subtitle: String, numberOfTokens: Int?) {
         self.account = account
         self.subtitle = subtitle
+        if let numberOfTokens = numberOfTokens {
+            #warning("l10n")
+            self.numberOfTokens = "\(numberOfTokens) tokens"
+        } else {
+            self.numberOfTokens = nil
+        }
 
         imageLoader.loadImage(cid: account.card.cardId, cardPublicKey: account.card.cardPublicKey, artworkInfo: account.artwork)
             .sink { [weak self] (image, _) in
@@ -96,7 +103,7 @@ final class UserWalletListViewModel: ObservableObject {
         Self.numberOfExtraWalletModels = 2
 
         multiCurrencyModels = [
-            .init(account: .wallet(index: 0), subtitle: "3 Cards"),
+            .init(account: .wallet(index: 0), subtitle: "3 Cards", numberOfTokens: Int.random(in: 5 ... 10)),
         ]
 
 //        let count = Int.random(in: 0 ... 2)
@@ -104,7 +111,7 @@ final class UserWalletListViewModel: ObservableObject {
 
         for i in 0 ..< Self.numberOfExtraWalletModels {
             multiCurrencyModels.append(
-                .init(account: .wallet(index: i + 1), subtitle: "2 Cards")
+                .init(account: .wallet(index: i + 1), subtitle: "2 Cards", numberOfTokens: Int.random(in: 5 ... 10))
             )
         }
 
@@ -114,11 +121,11 @@ final class UserWalletListViewModel: ObservableObject {
         ]
 
         if Self.numberOfExtraWalletModels >= 1 {
-            singleCurrencyModels.append(.init(account: .noteBtc(index: 0), subtitle: "Bitcoin"))
+            singleCurrencyModels.append(.init(account: .noteBtc(index: 0), subtitle: "Bitcoin", numberOfTokens: nil))
         }
 
         if Self.numberOfExtraWalletModels >= 2 {
-            singleCurrencyModels.append(.init(account: .noteDoge(index: 0), subtitle: "Dogecoin"))
+            singleCurrencyModels.append(.init(account: .noteDoge(index: 0), subtitle: "Dogecoin", numberOfTokens: nil))
         }
 
         Self.numberOfExtraWalletModels += 1
