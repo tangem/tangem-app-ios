@@ -96,9 +96,7 @@ extension CardSettingsViewModel {
 
     func openResetCard() {
         coordinator.openResetCardToFactoryWarning { [weak self] in
-            self?.cardModel.resetToFactory { result in
-                print("result resetToFactory", result)
-            }
+            self?.cardModel.resetToFactory { _ in }
         }
     }
 }
