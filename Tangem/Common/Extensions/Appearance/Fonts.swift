@@ -1,5 +1,5 @@
 //
-//  Fonts.swift
+//  Font+.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,60 +8,59 @@
 
 import SwiftUI
 
-public enum Fonts {
-    /// weight: regular, size: 34
-    case largeTitle
-    /// weight: regular, size: 28
-    case title1
-    /// weight: regular, size: 22
-    case title2
-    /// weight: regular, size: 20
-    case title3
-    /// weight: semibold, size: 17
-    case headline
-    /// weight: regular, size: 17
-    case body
-    /// weight: regular, size: 16
-    case callout
-    /// weight: regular, size: 15
-    case subheadline
-    /// weight: regular, size: 13
-    case footnote
-    /// weight: regular, size: 12
-    case caption1
-    /// weight: regular, size: 11
-    case caption2
-    
-    var font: Font {
-        switch self {
-        case .largeTitle:
-            return Font.system(size: 34, weight: .regular)
-        case .title1:
-            return Font.system(size: 28, weight: .regular)
-        case .title2:
-            return Font.system(size: 22, weight: .regular)
-        case .title3:
-            return Font.system(size: 20, weight: .regular)
-        case .headline:
-            return Font.system(size: 17, weight: .semibold)
-        case .body:
-            return Font.system(size: 17, weight: .regular)
-        case .callout:
-            return Font.system(size: 16, weight: .regular)
-        case .subheadline:
-            return Font.system(size: 15, weight: .regular)
-        case .footnote:
-            return Font.system(size: 13, weight: .regular)
-        case .caption1:
-            return Font.system(size: 12, weight: .regular)
-        case .caption2:
-            return Font.system(size: 11, weight: .regular)
-        }
-    }
-}
-
 public extension Font {
-    var medium: Font { weight(.medium) }
-    var semibold: Font { weight(.semibold) }
-    var bold: Font { weight(.bold) }
+    /// weight: regular, size: 34
+    static func largeTitle(_ weight: Font.Weight = .regular) -> Font {
+        .system(size: 34, weight: weight)
+    }
+
+    /// weight: regular, size: 28
+    static func title1(_ weight: Font.Weight = .regular) -> Font {
+        .system(size: 28, weight: weight)
+    }
+
+    /// weight: regular, size: 22
+    static func title2(_ weight: Font.Weight = .regular) -> Font {
+        .system(size: 22, weight: weight)
+    }
+
+    /// weight: regular, size: 20
+    static func title3(_ weight: Font.Weight = .regular) -> Font {
+        .system(size: 20, weight: weight)
+    }
+
+    /// weight: semibold, size: 17
+    static func headline(_ weight: Font.Weight = .semibold) -> Font {
+        .system(size: 17, weight: weight)
+    }
+
+    /// weight: regular, size: 17
+    static func body(_ weight: Font.Weight = .regular) -> Font {
+        .system(size: 17, weight: weight)
+    }
+
+    /// weight: regular, size: 16
+    static func callout(_ weight: Font.Weight = .regular) -> Font {
+        .system(size: 16, weight: weight)
+    }
+
+    /// weight: regular, size: 15
+    static func subheadline(_ weight: Font.Weight = .regular) -> Font {
+        .system(size: 15, weight: weight)
+    }
+
+    /// weight: regular, size: 13
+    static func footnote(_ weight: Font.Weight = .regular) -> Font {
+        .system(size: 13, weight: weight)
+    }
+
+    /// weight: regular, size: 12
+    static func caption1(_ weight: Font.Weight = .regular) -> Font {
+        .system(size: 12, weight: weight)
+    }
+
+    /// weight: regular, size: 11
+    static func caption2(_ weight: Font.Weight = .regular) -> Font {
+        .system(size: 11, weight: weight)
+    }
 }
