@@ -10,6 +10,8 @@ import Foundation
 import ZendeskCoreSDK
 import SupportSDK
 import MessagingSDK
+import ChatSDK
+import ChatProvidersSDK
 
 protocol SupportChatServiceProtocol: Initializable { }
 
@@ -22,6 +24,7 @@ class SupportChatService: SupportChatServiceProtocol {
                            zendeskUrl: keysManager.zendesk.zendeskUrl)
         Support.initialize(withZendesk: Zendesk.instance)
         Zendesk.instance?.setIdentity(Identity.createAnonymous())
+        Chat.initialize(accountKey: keysManager.zendesk.zendeskAccountKey, appId: keysManager.zendesk.zendeskAppId)
     }
 }
 
