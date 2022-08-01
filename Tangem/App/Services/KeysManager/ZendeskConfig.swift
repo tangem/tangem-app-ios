@@ -9,7 +9,6 @@
 import Foundation
 
 struct ZendeskConfig: Decodable {
-    let zendeskApiKey: String
     let zendeskAppId: String
     let zendeskClientId: String
     let zendeskUrl: String
