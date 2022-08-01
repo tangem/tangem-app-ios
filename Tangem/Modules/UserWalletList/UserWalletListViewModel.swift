@@ -18,9 +18,9 @@ import struct TangemSdk.WalletData
 
 // MARK: -
 
-struct Account: Identifiable {
+struct UserWallet: Identifiable {
     var id = UUID()
-    let accountId: Data
+    let userWalletId: Data
     let name: String
     let card: Card
     let extraData: CardExtraData
@@ -37,15 +37,15 @@ struct TwinData {
     let pairPublicKey: Data?
 }
 
-extension Account {
-    static func wallet(index: Int) -> Account {
-        .init(accountId: Data(hex: "0\(index)"), name: "Wallet", card: .wallet, extraData: .twin(TwinData(pairPublicKey: nil)), artwork: ArtworkInfo(id: "card_tg115", hash: "asd", date: "2022-01-01"), keys: [:])
+extension UserWallet {
+    static func wallet(index: Int) -> UserWallet {
+        .init(userWalletId: Data(hex: "0\(index)"), name: "Wallet", card: .wallet, extraData: .twin(TwinData(pairPublicKey: nil)), artwork: ArtworkInfo(id: "card_tg115", hash: "asd", date: "2022-01-01"), keys: [:])
     }
-    static func noteBtc(index: Int) -> Account {
-        return .init(accountId: Data(hex: "1\(index)"), name: "Note", card: .noteBtc, extraData: .twin(TwinData(pairPublicKey: nil)), artwork: ArtworkInfo(id: "card_tg109", hash: "asd", date: "2022-01-01"), keys: [:])
+    static func noteBtc(index: Int) -> UserWallet {
+        return .init(userWalletId: Data(hex: "1\(index)"), name: "Note", card: .noteBtc, extraData: .twin(TwinData(pairPublicKey: nil)), artwork: ArtworkInfo(id: "card_tg109", hash: "asd", date: "2022-01-01"), keys: [:])
     }
-    static func noteDoge(index: Int) -> Account {
-        return .init(accountId: Data(hex: "2\(index)"), name: "Note", card: .noteDoge, extraData: .twin(TwinData(pairPublicKey: nil)), artwork: ArtworkInfo(id: "card_tg112", hash: "asd", date: "2022-01-01"), keys: [:])
+    static func noteDoge(index: Int) -> UserWallet {
+        return .init(userWalletId: Data(hex: "2\(index)"), name: "Note", card: .noteDoge, extraData: .twin(TwinData(pairPublicKey: nil)), artwork: ArtworkInfo(id: "card_tg112", hash: "asd", date: "2022-01-01"), keys: [:])
     }
 }
 
@@ -55,7 +55,7 @@ extension Account {
 
 final class UserWalletListViewModel: ObservableObject {
     // MARK: - ViewState
-    @Published var selectedAccountId: Data?
+    @Published var selectedUserWalletId: Data?
     @Published var multiCurrencyModels: [UserWalletListCellViewModel] = []
     @Published var singleCurrencyModels: [UserWalletListCellViewModel] = []
 
@@ -75,7 +75,7 @@ final class UserWalletListViewModel: ObservableObject {
         Self.numberOfExtraWalletModels = 2
 
         multiCurrencyModels = [
-            .init(account: .wallet(index: 0), subtitle: "3 Cards", numberOfTokens: Int.random(in: 5 ... 10)),
+            .init(userWallet: .wallet(index: 0), subtitle: "3 Cards", numberOfTokens: Int.random(in: 5 ... 10)),
         ]
 
 //        let count = Int.random(in: 0 ... 2)
@@ -83,7 +83,7 @@ final class UserWalletListViewModel: ObservableObject {
 
         for i in 0 ..< Self.numberOfExtraWalletModels {
             multiCurrencyModels.append(
-                .init(account: .wallet(index: i + 1), subtitle: "2 Cards", numberOfTokens: Int.random(in: 5 ... 10))
+                .init(userWallet: .wallet(index: i + 1), subtitle: "2 Cards", numberOfTokens: Int.random(in: 5 ... 10))
             )
         }
 
@@ -93,20 +93,20 @@ final class UserWalletListViewModel: ObservableObject {
         ]
 
         if Self.numberOfExtraWalletModels >= 1 {
-            singleCurrencyModels.append(.init(account: .noteBtc(index: 0), subtitle: "Bitcoin", numberOfTokens: nil))
+            singleCurrencyModels.append(.init(userWallet: .noteBtc(index: 0), subtitle: "Bitcoin", numberOfTokens: nil))
         }
 
         if Self.numberOfExtraWalletModels >= 2 {
-            singleCurrencyModels.append(.init(account: .noteDoge(index: 0), subtitle: "Dogecoin", numberOfTokens: nil))
+            singleCurrencyModels.append(.init(userWallet: .noteDoge(index: 0), subtitle: "Dogecoin", numberOfTokens: nil))
         }
 
         Self.numberOfExtraWalletModels += 1
         Self.numberOfExtraWalletModels = (Self.numberOfExtraWalletModels % 3)
 
-        selectedAccountId = multiCurrencyModels.first?.account.accountId
+        selectedUserWalletId = multiCurrencyModels.first?.userWallet.userWalletId
     }
 
-    func onAccountTapped(_ account: Account) {
-        self.selectedAccountId = account.accountId
+    func onUserWalletTapped(_ userWallet: UserWallet) {
+        self.selectedUserWalletId = userWallet.userWalletId
     }
 }
