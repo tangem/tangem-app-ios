@@ -12,47 +12,24 @@ import TangemSdk
 import BlockchainSdk
 #endif
 
+enum DefaultWalletData {
+    case note(WalletData)
+    case v3(WalletData)
+    case twin(TwinCardInfo)
+    case none
+}
+
 struct AppScanTaskResponse {
     let card: Card
-    let walletData: WalletData?
-    let twinIssuerData: Data?
-    let isTangemNote: Bool // todo refactor
-    let isTangemWallet: Bool
+    let walletData: DefaultWalletData
     let derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]
     let primaryCard: PrimaryCard?
 
     func getCardInfo() -> CardInfo {
         return CardInfo(card: card,
                         walletData: walletData,
-                        //                        artworkInfo: nil,
-                        twinCardInfo: decodeTwinFile(from: self),
-                        isTangemNote: isTangemNote,
-                        isTangemWallet: isTangemWallet,
                         derivedKeys: derivedKeys,
                         primaryCard: primaryCard)
-    }
-
-    private func decodeTwinFile(from response: AppScanTaskResponse) -> TwinCardInfo? {
-        guard
-            card.isTwinCard,
-            let series: TwinCardSeries = .series(for: card.cardId)
-        else {
-            return nil
-        }
-
-        var pairPublicKey: Data?
-
-        if let walletPubKey = card.wallets.first?.publicKey, let fullData = twinIssuerData, fullData.count == 129 {
-            let pairPubKey = fullData[0 ..< 65]
-            let signature = fullData[65 ..< fullData.count]
-            if (try? Secp256k1Signature(with: signature).verify(with: walletPubKey, message: pairPubKey)) ?? false {
-                pairPublicKey = pairPubKey
-            }
-        }
-
-        return TwinCardInfo(cid: response.card.cardId,
-                            series: series,
-                            pairPublicKey: pairPublicKey)
     }
 }
 
@@ -66,8 +43,7 @@ enum AppScanTaskError: String, Error, LocalizedError {
 
 final class AppScanTask: CardSessionRunnable {
     private let targetBatch: String?
-    private var twinIssuerData: Data? = nil
-    private var noteWalletData: WalletData? = nil
+    private var walletData: DefaultWalletData = .none
     private var primaryCard: PrimaryCard? = nil
     private var derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]] = [:]
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
@@ -101,12 +77,16 @@ final class AppScanTask: CardSessionRunnable {
             completion(.failure(TangemSdkError.underlying(error: AppScanTaskError.wrongCardClip)))
             return
         }
+        
+        if let v3WalletData = session.environment.walletData {
+            self.walletData = .v3(v3WalletData)
+        }
 
         self.readExtra(card, session: session, completion: completion)
     }
 
     private func readExtra(_ card: Card, session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        if card.isTwinCard {
+        if TwinCardSeries.series(for: card.cardId) != nil {
             readTwin(card, session: session, completion: completion)
             return
         }
@@ -132,12 +112,7 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func readNote(_ card: Card, session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        // self.noteWalletData = WalletData(blockchain: "BTC") //for test without file
-        // self.runAttestation(session, completion)
-        // return
-
         func exit() {
-            self.noteWalletData = nil
             self.deriveKeysIfNeeded(session, completion)
         }
 
@@ -165,7 +140,7 @@ final class AppScanTask: CardSessionRunnable {
                     return
                 }
 
-                self.noteWalletData = walletData
+                self.walletData = .note(walletData)
                 self.runScanTask(session, completion)
             case .failure(let error):
                 switch error {
@@ -183,7 +158,7 @@ final class AppScanTask: CardSessionRunnable {
         readIssuerDataCommand.run(in: session) { (result) in
             switch result {
             case .success(let response):
-                self.twinIssuerData = response.issuerData
+                self.walletData = .twin(self.decodeTwinFile(from: card, twinIssuerData: response.issuerData))
 
                 guard session.environment.card != nil else {
                     completion(.failure(.missingPreflightRead))
@@ -195,6 +170,22 @@ final class AppScanTask: CardSessionRunnable {
                 completion(.failure(error))
             }
         }
+    }
+    
+    private func decodeTwinFile(from card: Card, twinIssuerData: Data) -> TwinCardInfo {
+        var pairPublicKey: Data?
+
+        if let walletPubKey = card.wallets.first?.publicKey, twinIssuerData.count == 129 {
+            let pairPubKey = twinIssuerData[0 ..< 65]
+            let signature = twinIssuerData[65 ..< twinIssuerData.count]
+            if (try? Secp256k1Signature(with: signature).verify(with: walletPubKey, message: pairPubKey)) ?? false {
+                pairPublicKey = pairPubKey
+            }
+        }
+
+        return TwinCardInfo(cid: card.cardId,
+                            series: TwinCardSeries.series(for: card.cardId)!,
+                            pairPublicKey: pairPublicKey)
     }
 
     private func appendWalletsIfNeeded(session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
@@ -300,15 +291,8 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func complete(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        let card = session.environment.card!
-        let isNote = noteWalletData != nil
-        let isWallet = card.firmwareVersion.doubleValue >= 4.39 && !isNote && card.settings.maxWalletsCount > 1
-
         completion(.success(AppScanTaskResponse(card: session.environment.card!,
-                                                walletData: noteWalletData ?? session.environment.walletData,
-                                                twinIssuerData: twinIssuerData,
-                                                isTangemNote: noteWalletData != nil,
-                                                isTangemWallet: isWallet,
+                                                walletData: walletData,
                                                 derivedKeys: derivedKeys,
                                                 primaryCard: primaryCard)))
     }
