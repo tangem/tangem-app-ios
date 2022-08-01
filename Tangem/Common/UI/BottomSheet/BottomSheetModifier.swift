@@ -52,9 +52,9 @@ struct BottomSheetModifier<ContentView: View>: ViewModifier {
                 content: wrappedView
             )
 
-            bottomSheetViewController?.preferredSheetCornerRadius = viewModelSettings.cornerRadius
-            bottomSheetViewController?.preferredSheetBackgroundColor = viewModelSettings.overlayColor.uiColor()
-            bottomSheetViewController?.preferredContentBackgroundColor = viewModelSettings.contentBackgroundColor.uiColor()
+            bottomSheetViewController?.cornerRadius = viewModelSettings.cornerRadius
+            bottomSheetViewController?.backgroundColor = viewModelSettings.overlayColor.uiColor()
+            bottomSheetViewController?.contentBackgroundColor = viewModelSettings.contentBackgroundColor.uiColor()
             bottomSheetViewController?.swipeDownToDismissEnabled = viewModelSettings.swipeDownToDismissEnabled
             bottomSheetViewController?.tapOutsideToDismissEnabled = viewModelSettings.tapOutsideToDismissEnabled
 
