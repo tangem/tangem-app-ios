@@ -49,7 +49,7 @@ struct UserWalletListCellView: View {
                     .font(Font.subheadline)
                     .foregroundColor(Colors.Text.primary1)
 
-                Text("12 tokens")
+                Text(model.numberOfTokens ?? "")
                     .font(Font.footnote)
                     .foregroundColor(Colors.Text.tertiary)
             }
@@ -79,6 +79,6 @@ struct UserWalletListCellView: View {
 
 struct UserWalletListCellView_Previews: PreviewProvider {
     static var previews: some View {
-        UserWalletListCellView(model: .init(account: .wallet(index: 0), subtitle: "3 Cards"), isSelected: true) { _ in }
+        UserWalletListCellView(model: .init(account: .wallet(index: 0), subtitle: "3 Cards", numberOfTokens: 12), isSelected: true) { _ in }
     }
 }
