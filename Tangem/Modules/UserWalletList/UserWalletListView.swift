@@ -51,6 +51,36 @@ struct UserWalletListView: View {
                 UserWalletListCellView(model: models[i], isSelected: viewModel.selectedUserWalletId == models[i].userWallet.userWalletId) { userWallet in
                     viewModel.onUserWalletTapped(userWallet)
                 }
+                .contextMenu {
+                    Button {
+                        print("Rename")
+                    } label: {
+                        HStack {
+                            Text("Rename")
+                            Image(systemName: "pencil")
+                        }
+                    }
+
+                    if #available(iOS 15.0, *) {
+                        Button(role: .destructive) {
+                            print("Delete")
+                        } label: {
+                            HStack {
+                                Text("Delete")
+                                Image(systemName: "trash")
+                            }
+                        }
+                    } else {
+                        Button {
+                            print("Delete")
+                        } label: {
+                            HStack {
+                                Text("Delete")
+                                Image(systemName: "trash")
+                            }
+                        }
+                    }
+                }
 
                 if i != (models.count - 1) {
                     Separator(height: 0.5, padding: 0, color: Colors.Stroke.primary)
