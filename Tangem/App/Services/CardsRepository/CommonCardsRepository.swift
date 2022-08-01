@@ -73,12 +73,12 @@ class CommonCardsRepository: CardsRepository {
 
         legacyCardMigrator.migrateIfNeeded(for: cardInfo)
         scannedCardsRepository.add(cardInfo)
-        sdkProvider.didScan(cardInfo.card)
         didScanPublisher.send(cardInfo)
         tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
 
         let cm = CardViewModel(cardInfo: cardInfo)
         cards[cardInfo.card.cardId] = cm
+        sdkProvider.didScan(cm.config)
         cm.getCardInfo()
         return cm
     }
