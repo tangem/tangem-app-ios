@@ -12,7 +12,6 @@ import TangemSdk
 
 class WelcomeViewModel: ObservableObject {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
-    @Injected(\.onboardingStepsSetupService) private var stepsSetupService: OnboardingStepsSetupService
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
 
@@ -92,29 +91,19 @@ class WelcomeViewModel: ObservableObject {
     private func processScannedCard(_ cardModel: CardViewModel, isWithAnimation: Bool) {
         cardModel.cardInfo.primaryCard.map { backupService.setPrimaryCard($0) }
 
-        stepsSetupService.steps(for: cardModel.cardInfo)
-            .sink { [weak self] completion in
-                if case let .failure(error) = completion {
-                    self?.error = error.alertBinder
-                }
-                self?.isScanningCard = false
-            } receiveValue: { [unowned self] steps in
-                let input = OnboardingInput(steps: steps,
-                                            cardInput: .cardModel(cardModel),
-                                            welcomeStep: nil,
-                                            currentStepIndex: 0)
-
-                self.isScanningCard = false
-                if input.steps.needOnboarding {
-                    cardModel.updateState()
-                    openOnboarding(with: input)
-                } else {
-                    openMain(with: input)
-                }
-
-                self.bag.removeAll()
-            }
-            .store(in: &bag)
+        let input = OnboardingInput(steps: cardModel.config.onboardingSteps,
+                                    cardInput: .cardModel(cardModel),
+                                    welcomeStep: nil,
+                                    currentStepIndex: 0)
+        
+        self.isScanningCard = false
+        
+        if input.steps.needOnboarding {
+            cardModel.updateState()
+            openOnboarding(with: input)
+        } else {
+            openMain(with: input)
+        }
     }
 }
 
@@ -125,7 +114,7 @@ extension WelcomeViewModel {
     }
 
     func openMail() {
-        coordinator.openMail(with: failedCardScanTracker)
+        coordinator.openMail(with: failedCardScanTracker, recipient: EmailConfig.default.recipient)
     }
 
     func openDisclaimer() {
@@ -181,28 +170,13 @@ private extension WelcomeViewModel {
             return
         }
 
-        stepsSetupService.stepsForBackupResume()
-            .sink { completion in
-                switch completion {
-                case .failure(let error):
-                    Analytics.log(error: error)
-                    print("Failed to load image for new card")
-                    self.error = error.alertBinder
-                case .finished:
-                    break
-                }
-            } receiveValue: { [weak self] steps in
-                guard let self = self else { return }
+        let input = OnboardingInput(steps: .wallet(WalletOnboardingStep.resumeBackupSteps),
+                                    cardInput: .cardId(primaryCardId),
+                                    welcomeStep: nil,
+                                    currentStepIndex: 0,
+                                    isStandalone: true)
 
-                let input = OnboardingInput(steps: steps,
-                                            cardInput: .cardId(primaryCardId),
-                                            welcomeStep: nil,
-                                            currentStepIndex: 0,
-                                            isStandalone: true)
-
-                self.openInterruptedBackup(with: input)
-            }
-            .store(in: &bag)
+        self.openInterruptedBackup(with: input)
     }
 }
 
