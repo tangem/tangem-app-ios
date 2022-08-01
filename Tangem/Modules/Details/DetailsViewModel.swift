@@ -182,7 +182,7 @@ extension DetailsViewModel {
     }
 
     func openSupportChat() {
-        coordinator.openSupportChat()
+        coordinator.openSupportChat(cardID: cardModel.cardInfo.card.cardId)
     }
 
     func openSocialNetwork(network: SocialNetwork) {
