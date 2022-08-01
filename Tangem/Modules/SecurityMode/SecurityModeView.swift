@@ -39,8 +39,7 @@ struct SecurityModeView: View {
             )
         } footer: {
             Text(option.subtitle)
-                .font(.footnote)
-                .foregroundColor(Colors.Text.tertiary)
+                .style(font: .footnote(), color: Colors.Text.tertiary)
         }
     }
 
@@ -66,8 +65,7 @@ extension SecurityModeView {
             Button(action: { isSelected.toggle() }) {
                 HStack {
                     Text(title)
-                        .font(.body)
-                        .foregroundColor(Colors.Text.primary1)
+                        .style(font: .body(), color: Colors.Text.primary1)
 
                     Spacer()
 
