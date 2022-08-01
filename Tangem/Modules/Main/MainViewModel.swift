@@ -19,7 +19,6 @@ class MainViewModel: ObservableObject {
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
     @Injected(\.rateAppService) private var rateAppService: RateAppService
-    @Injected(\.onboardingStepsSetupService) private var cardOnboardingStepSetupService: OnboardingStepsSetupService
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     // MARK: - Published variables
@@ -110,7 +109,7 @@ class MainViewModel: ObservableObject {
     }
 
     public var canSend: Bool {
-        guard cardModel.canSign else {
+        guard cardModel.config.features.contains(.signingSupported) else {
             return false
         }
 
@@ -177,36 +176,6 @@ class MainViewModel: ObservableObject {
 
     var outgoingTransactions: [PendingTransaction] {
         cardModel.walletModels?.first?.outgoingPendingTransactions ?? []
-    }
-
-    var cardNumber: Int? {
-        if let twinNumber = cardModel.cardInfo.twinCardInfo?.series.number {
-            return twinNumber
-        }
-
-        if cardModel.cardInfo.isTangemWallet,
-           let backupStatus = cardModel.cardInfo.card.backupStatus, case .active = backupStatus {
-            return 1
-        }
-
-        return nil
-    }
-
-    var totalCards: Int? {
-        if cardModel.cardInfo.twinCardInfo?.series.number != nil {
-            return 2
-        }
-
-        if cardModel.cardInfo.isTangemWallet,
-           let backupStatus = cardModel.cardInfo.card.backupStatus, case let .active(backupCards) = backupStatus {
-            return backupCards + 1
-        }
-
-        return nil
-    }
-
-    var isTwinCard: Bool {
-        cardModel.isTwinCard
     }
 
     var isBackupAllowed: Bool {
@@ -719,7 +688,7 @@ extension MainViewModel {
     func openMail(with emailFeedbackCase: EmailFeedbackCase) {
         let collector = getDataCollector(for: emailFeedbackCase)
         let type = emailFeedbackCase.emailType
-        coordinator.openMail(with: collector, emailType: type)
+        coordinator.openMail(with: collector, emailType: type, recipient: cardModel.config.emailConfig.recipient)
     }
 
     func openQR() {
