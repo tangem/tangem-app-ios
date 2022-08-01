@@ -9,8 +9,8 @@
 import Foundation
 
 class CardSettingsCoordinator: CoordinatorObject {
-    var dismissAction: Action
-    var popToRootAction: ParamsAction<PopToRootOptions>
+    let dismissAction: Action
+    let popToRootAction: ParamsAction<PopToRootOptions>
 
     // MARK: - Main view model
 
@@ -46,10 +46,6 @@ extension CardSettingsCoordinator {
 // MARK: - CardSettingsRoutable
 
 extension CardSettingsCoordinator: CardSettingsRoutable {
-    func openChangeAccessCode() {
-
-    }
-
     func openSecurityMode(cardModel: CardViewModel) {
         let coordinator = SecurityModeCoordinator(popToRootAction: popToRootAction)
         let options = SecurityModeCoordinator.Options(cardModel: cardModel)
