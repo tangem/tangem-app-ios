@@ -40,7 +40,8 @@ class CardViewModel: Identifiable, ObservableObject {
     private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
     private var migrated = false
     private var tangemSdk: TangemSdk { tangemSdkProvider.sdk }
-    private var featuresService: AppFeaturesService { .init(with: cardInfo.card) } // Temp
+
+    let config: UserWalletConfig
 
     var availableSecurityOptions: [SecurityModeOption] {
         var options: [SecurityModeOption] = []
@@ -49,11 +50,11 @@ class CardViewModel: Identifiable, ObservableObject {
             options.append(.longTap)
         }
 
-        if featuresService.canSetAccessCode || currentSecurityOption == .accessCode {
+        if config.features.contains(.settingAccessCodeAllowed) || currentSecurityOption == .accessCode {
             options.append(.accessCode)
         }
 
-        if featuresService.canSetPasscode || isTwinCard || currentSecurityOption == .passCode {
+        if config.features.contains(.settingPasscodeAllowed) || currentSecurityOption == .passCode {
             options.append(.passCode)
         }
 
@@ -68,21 +69,13 @@ class CardViewModel: Identifiable, ObservableObject {
         return walletModels?.map { $0.wallet }
     }
 
-    var emailSupport: EmailSupport {
-        isStart2CoinCard ? .start2coin : .tangem
-    }
-
-    var isStart2CoinCard: Bool {
-        cardInfo.card.isStart2Coin
-    }
-
     var canSetAccessCode: Bool {
         if cardInfo.isTangemWallet {
             return cardInfo.card.settings.isSettingAccessCodeAllowed
         }
 
         return cardInfo.card.settings.isSettingAccessCodeAllowed
-            && featuresService.canSetAccessCode
+            && config.features.contains(.settingAccessCodeAllowed)
     }
 
     var canSetPasscode: Bool {
@@ -92,15 +85,11 @@ class CardViewModel: Identifiable, ObservableObject {
 
         return cardInfo.card.settings.isSettingPasscodeAllowed
             /* && cardInfo.card.settings.isRemovingAccessCodeAllowed */ // Disable temporary because of sdk inverted mapping bug
-            && (featuresService.canSetPasscode || isPairedTwin)
+            && (config.features.contains(.settingPasscodeAllowed) || isPairedTwin)
     }
 
     var canSetLongTap: Bool {
         return cardInfo.card.settings.isResettingUserCodesAllowed
-    }
-
-    var canSign: Bool {
-        cardInfo.card.canSign
     }
 
     var hasWallet: Bool {
@@ -160,10 +149,6 @@ class CardViewModel: Identifiable, ObservableObject {
         return false
     }
 
-    var isTwinCard: Bool {
-        cardInfo.card.isTwinCard
-    }
-
     var isNotPairedTwin: Bool {
         isTwinCard && cardInfo.twinCardInfo?.pairPublicKey == nil
     }
@@ -193,7 +178,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     var canRecreateTwinCard: Bool {
-        guard isTwinCard && cardInfo.twinCardInfo?.series != nil && featuresService.canCreateTwin else { return false }
+        guard isTwinCard && cardInfo.twinCardInfo?.series != nil  else { return false }
 
         if case .empty = state {
             return false
@@ -211,7 +196,7 @@ class CardViewModel: Identifiable, ObservableObject {
         return true
     }
 
-    var canExchangeCrypto: Bool { featuresService.canExchangeCrypto }
+    var canExchangeCrypto: Bool { config.features.contains(.exchangingAllowed) }
 
     var isTestnet: Bool { cardInfo.isTestnet }
 
@@ -254,6 +239,9 @@ class CardViewModel: Identifiable, ObservableObject {
     init(cardInfo: CardInfo) {
         self.cardInfo = cardInfo
         self.signer = .init(with: cardInfo.card)
+
+        let configBuilder = UserWalletConfigBuilderFactory.makeBuilder(for: cardInfo)
+        self.config = configBuilder.buildConfig()
         updateCardPinSettings()
         updateCurrentSecurityOption()
     }
