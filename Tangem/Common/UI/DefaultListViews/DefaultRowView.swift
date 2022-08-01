@@ -10,24 +10,27 @@ import SwiftUI
 
 struct DefaultRowView: View {
     let title: String
-    let details: String?
-    let isTappable: Bool
-    let action: () -> Void
+    let detailsType: DetailsType?
+    let action: (() -> Void)?
 
+    private var isTappable: Bool { action != nil }
+
+    /// - Parameters:
+    ///   - title: Leading one line title
+    ///   - details: Trailing one line text
+    ///   - action: If the `action` is set that the row will be tappable and have chevron icon
     init(
         title: String,
-        details: String? = nil,
-        isTappable: Bool = true,
-        action: @escaping () -> Void
+        detailsType: DetailsType? = .none,
+        action: (() -> Void)? = nil
     ) {
         self.title = title
-        self.details = details
-        self.isTappable = isTappable
+        self.detailsType = detailsType
         self.action = action
     }
 
     var body: some View {
-        Button(action: action) {
+        Button(action: { action?() }) {
             HStack {
                 Text(title)
                     .font(.body)
@@ -35,12 +38,7 @@ struct DefaultRowView: View {
 
                 Spacer()
 
-                if let details = details {
-                    Text(details)
-                        .font(.body)
-                        .foregroundColor(Colors.Text.tertiary)
-                        .layoutPriority(1)
-                }
+                detailsView
 
                 if isTappable {
                     Assets.chevron
@@ -49,5 +47,27 @@ struct DefaultRowView: View {
             .lineLimit(1)
         }
         .disabled(!isTappable)
+    }
+
+    @ViewBuilder
+    private var detailsView: some View {
+        switch detailsType {
+        case .none:
+            EmptyView()
+        case .loader:
+            ActivityIndicatorView(style: .medium, color: .gray)
+        case let .text(string):
+            Text(string)
+                .font(.body)
+                .foregroundColor(Colors.Text.tertiary)
+                .layoutPriority(1)
+        }
+    }
+}
+
+extension DefaultRowView {
+    enum DetailsType {
+        case text(_ string: String)
+        case loader
     }
 }
