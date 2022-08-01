@@ -532,7 +532,8 @@
 		EF0F99B328902902008B01DF /* DefaultFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99B028902902008B01DF /* DefaultFooterView.swift */; };
 		EF0F99B428902902008B01DF /* DefaultRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99B128902902008B01DF /* DefaultRowView.swift */; };
 		EF0F99B6289125C7008B01DF /* DefaultWarningRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99B5289125C7008B01DF /* DefaultWarningRow.swift */; };
-		EF0F99E528919137008B01DF /* BiometricAuthorizationUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99E428919137008B01DF /* BiometricAuthorizationUtils.swift */; };
+		EF0F99E128917003008B01DF /* SocialNetwork.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99E028917003008B01DF /* SocialNetwork.swift */; };
+		EF0F99E3289177C6008B01DF /* InfoDictionaryUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99E2289177C6008B01DF /* InfoDictionaryUtils.swift */; };
 		EF0FF8712866021B00B7CEAF /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0FF8702866021B00B7CEAF /* AppEnvironment.swift */; };
 		EF0FF873286608BC00B7CEAF /* GoogleService-Info-Beta.plist in Resources */ = {isa = PBXBuildFile; fileRef = EF0FF8722866089200B7CEAF /* GoogleService-Info-Beta.plist */; };
 		EF4B41BB2864491B003911F6 /* TangemSkeletonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B41BA2864491B003911F6 /* TangemSkeletonModifier.swift */; };
@@ -550,6 +551,8 @@
 		EF9CFC12288FECE100329BE0 /* ScanCardSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9CFC0D288FECE100329BE0 /* ScanCardSettingsView.swift */; };
 		EF9CFC13288FECE100329BE0 /* ScanCardSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9CFC0E288FECE100329BE0 /* ScanCardSettingsViewModel.swift */; };
 		EF9CFC14288FECE100329BE0 /* ScanCardSettingsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9CFC0F288FECE100329BE0 /* ScanCardSettingsRoutable.swift */; };
+		EFA580612893E4E200110DB0 /* LanguageCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA580602893E4E200110DB0 /* LanguageCode.swift */; };
+		EFA580632893E6AA00110DB0 /* BiometricAuthorizationUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA580622893E6AA00110DB0 /* BiometricAuthorizationUtils.swift */; };
 		EFB4C1322837C51700E991C1 /* TextHint.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB4C1312837C51700E991C1 /* TextHint.swift */; };
 		EFB997B3287DB948002F45F6 /* Font+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB997B2287DB948002F45F6 /* Font+.swift */; };
 		F06BBA2FE022C3EF1F3B6513 /* Pods_Tangem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F3AA1BEE46AF490A6F95DA /* Pods_Tangem.framework */; };
@@ -1117,7 +1120,8 @@
 		EF0F99B028902902008B01DF /* DefaultFooterView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultFooterView.swift; sourceTree = "<group>"; };
 		EF0F99B128902902008B01DF /* DefaultRowView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultRowView.swift; sourceTree = "<group>"; };
 		EF0F99B5289125C7008B01DF /* DefaultWarningRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultWarningRow.swift; sourceTree = "<group>"; };
-		EF0F99E428919137008B01DF /* BiometricAuthorizationUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BiometricAuthorizationUtils.swift; sourceTree = "<group>"; };
+		EF0F99E028917003008B01DF /* SocialNetwork.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SocialNetwork.swift; sourceTree = "<group>"; };
+		EF0F99E2289177C6008B01DF /* InfoDictionaryUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoDictionaryUtils.swift; sourceTree = "<group>"; };
 		EF0FF8702866021B00B7CEAF /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
 		EF0FF8722866089200B7CEAF /* GoogleService-Info-Beta.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info-Beta.plist"; sourceTree = "<group>"; };
 		EF2EFDE12865C05D00798051 /* Production.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Production.xcconfig; sourceTree = "<group>"; };
@@ -1136,6 +1140,8 @@
 		EF9CFC0D288FECE100329BE0 /* ScanCardSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanCardSettingsView.swift; sourceTree = "<group>"; };
 		EF9CFC0E288FECE100329BE0 /* ScanCardSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanCardSettingsViewModel.swift; sourceTree = "<group>"; };
 		EF9CFC0F288FECE100329BE0 /* ScanCardSettingsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanCardSettingsRoutable.swift; sourceTree = "<group>"; };
+		EFA580602893E4E200110DB0 /* LanguageCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageCode.swift; sourceTree = "<group>"; };
+		EFA580622893E6AA00110DB0 /* BiometricAuthorizationUtils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BiometricAuthorizationUtils.swift; sourceTree = "<group>"; };
 		EFA7173D72D1E6FAD54D308A /* Pods-TangemClip.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemClip.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemClip/Pods-TangemClip.release(beta).xcconfig"; sourceTree = "<group>"; };
 		EFB4C1312837C51700E991C1 /* TextHint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextHint.swift; sourceTree = "<group>"; };
 		EFB997B2287DB948002F45F6 /* Font+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Font+.swift"; sourceTree = "<group>"; };
@@ -1819,6 +1825,7 @@
 		B068A7E525678A6E00D28CD2 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				EFA580622893E6AA00110DB0 /* BiometricAuthorizationUtils.swift */,
 				B0F79C692689AC56008C9B30 /* FileEncryptionUtility.swift */,
 				B068A7E625678A8800D28CD2 /* TwinCardsUtils.swift */,
 				B0C87B422566461600F861DE /* TwinCardsFileCoder.swift */,
@@ -1827,7 +1834,7 @@
 				B0F62C5425DE4F6B005C8BA0 /* DeviceInfoProvider.swift */,
 				B0CAFA8C26C6C0FE001238DA /* QRCodeGenerator.swift */,
 				B0C87B472566492000F861DE /* TwinCardInfo.swift */,
-				EF0F99E428919137008B01DF /* BiometricAuthorizationUtils.swift */,
+				EF0F99E2289177C6008B01DF /* InfoDictionaryUtils.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -2687,6 +2694,8 @@
 			isa = PBXGroup;
 			children = (
 				EFB4C1312837C51700E991C1 /* TextHint.swift */,
+				EF0F99E028917003008B01DF /* SocialNetwork.swift */,
+				EFA580602893E4E200110DB0 /* LanguageCode.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -3224,6 +3233,7 @@
 				DAA153BC2876CBFC002254D1 /* GeoResponse.swift in Sources */,
 				EF9CFC14288FECE100329BE0 /* ScanCardSettingsRoutable.swift in Sources */,
 				B0C807232620549F00F7DADE /* WalletConnectSessionItemView.swift in Sources */,
+				EFA580632893E6AA00110DB0 /* BiometricAuthorizationUtils.swift in Sources */,
 				B069B6DB268AFEBA004E7928 /* BnbSignHandler.swift in Sources */,
 				EF7B9CF5286C7023004C33A9 /* CardSettingsCoordinator.swift in Sources */,
 				5DFB499A24E554140037E76F /* Card+Preview.swift in Sources */,
@@ -3283,11 +3293,11 @@
 				5D39516125597DB1002CC452 /* BalanceViewModel.swift in Sources */,
 				5D4B8BC327EDD601002CE87C /* CardInfo.swift in Sources */,
 				5D9DCB06255193C30059799C /* AppSettings.swift in Sources */,
-				EF0F99E528919137008B01DF /* BiometricAuthorizationUtils.swift in Sources */,
 				DC66BBF32859B79600CDF765 /* TokenListCoordinatorView.swift in Sources */,
 				B0541DC026FB300F0043893E /* WalletOnboardingStep.swift in Sources */,
 				B0C4F76D26F089850086D815 /* SingleCardOnboardingStep.swift in Sources */,
 				DC5118692860B3E1004FB954 /* PreviewCard.swift in Sources */,
+				EFA580612893E4E200110DB0 /* LanguageCode.swift in Sources */,
 				DA23788627B24222009795A8 /* Collection.swift in Sources */,
 				B0453672264D4B730005B23E /* Constants.swift in Sources */,
 				B0E9E2FD2679DA5B00269C7A /* Separator.swift in Sources */,
@@ -3363,11 +3373,13 @@
 				B0A9E93F25921D21007B6D36 /* WarningView.swift in Sources */,
 				DC295B402861C27D006CB7B6 /* TokenDetailsCoordinator.swift in Sources */,
 				5D78D118261DFEBA00F98B18 /* PurgeWalletsAndReadResponse.swift in Sources */,
+				EF0F99E128917003008B01DF /* SocialNetwork.swift in Sources */,
 				B0AA865226DC90E600287F80 /* WelcomeView.swift in Sources */,
 				5D225CB92524B721001564A3 /* Analytics.swift in Sources */,
 				DC66BC16285C529600CDF765 /* SendRoutable.swift in Sources */,
 				5DDFC2022812B716005976FE /* CurrenciesResponse.swift in Sources */,
 				5D51036F27C535D10025EA55 /* ABIValue.swift in Sources */,
+				EF0F99E3289177C6008B01DF /* InfoDictionaryUtils.swift in Sources */,
 				DC66BC0C285B75BF00CDF765 /* PushTxCoordinator.swift in Sources */,
 				B0E1564D26B941AF005B33E4 /* SingleCardOnboardingViewModel.swift in Sources */,
 				B09BB85F259A075600B92000 /* TangemButton.swift in Sources */,
