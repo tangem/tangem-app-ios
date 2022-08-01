@@ -47,7 +47,7 @@ class BottomSheetBaseController: UIViewController {
         }
     }
 
-    var bottomSheetBackgroundColor: UIColor = UIColor.white
+    var preferredContentBackgroundColor: UIColor = UIColor.white
 
     private lazy var bottomSheetTransitioningDelegate = BottomSheetTransitionDelegate(
         preferredSheetCornerRadius: preferredSheetCornerRadius,
