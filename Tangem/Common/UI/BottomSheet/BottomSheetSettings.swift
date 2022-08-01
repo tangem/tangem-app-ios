@@ -6,7 +6,6 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import UIKit
 import SwiftUI
 
 struct BottomSheetSettings: Identifiable {
