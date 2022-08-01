@@ -16,10 +16,10 @@ import DeviceGuru
 
 class SupportChatViewModel: Identifiable {
     let id: UUID = .init()
-    let cardID: String?
+    let cardId: String?
 
-    init(cardID: String? = nil) {
-        self.cardID = cardID
+    init(cardId: String? = nil) {
+        self.cardId = cardId
     }
 
     private let chatBotName: String = "Tangem"
@@ -43,7 +43,7 @@ class SupportChatViewModel: Identifiable {
             .instance?
             .providers
             .profileProvider
-            .setNote("\(device) \(cardID ?? "")")
+            .setNote("\(device) \(cardId ?? "")")
         let chatEngine = try! ChatEngine.engine()
         let viewController = try! Messaging.instance.buildUI(engines: [chatEngine], configs: [chatConfiguration, messagingConfiguration])
         return viewController
