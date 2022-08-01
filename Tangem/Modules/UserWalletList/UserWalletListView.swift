@@ -35,7 +35,7 @@ struct UserWalletListView: View {
 
             #warning("l10n")
             TangemButton(title: "Add new card", systemImage: "plus") {
-
+                viewModel.addCard()
             }
             .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt, layout: .flexibleWidth))
         }
