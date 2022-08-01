@@ -38,27 +38,31 @@ struct TwinData {
 }
 
 extension Account {
-    static let wallet: Account = .init(accountId: Data(hex: "00"), name: "Wallet", card: .wallet, extraData: .twin(TwinData(pairPublicKey: nil)), artwork: ArtworkInfo(id: "card_tg115", hash: "asd", date: "2022-01-01"), keys: [:])
-    static let noteBtc: Account = .init(accountId: Data(hex: "01"), name: "Note", card: .noteBtc, extraData: .twin(TwinData(pairPublicKey: nil)), artwork: ArtworkInfo(id: "card_tg109", hash: "asd", date: "2022-01-01"), keys: [:])
-    static let noteDoge: Account = .init(accountId: Data(hex: "01"), name: "Note", card: .noteDoge, extraData: .twin(TwinData(pairPublicKey: nil)), artwork: ArtworkInfo(id: "card_tg112", hash: "asd", date: "2022-01-01"), keys: [:])
+    static func wallet(index: Int) -> Account {
+        .init(accountId: Data(hex: "0\(index)"), name: "Wallet", card: .wallet, extraData: .twin(TwinData(pairPublicKey: nil)), artwork: ArtworkInfo(id: "card_tg115", hash: "asd", date: "2022-01-01"), keys: [:])
+    }
+    static func noteBtc(index: Int) -> Account {
+        return .init(accountId: Data(hex: "1\(index)"), name: "Note", card: .noteBtc, extraData: .twin(TwinData(pairPublicKey: nil)), artwork: ArtworkInfo(id: "card_tg109", hash: "asd", date: "2022-01-01"), keys: [:])
+    }
+    static func noteDoge(index: Int) -> Account {
+        return .init(accountId: Data(hex: "2\(index)"), name: "Note", card: .noteDoge, extraData: .twin(TwinData(pairPublicKey: nil)), artwork: ArtworkInfo(id: "card_tg112", hash: "asd", date: "2022-01-01"), keys: [:])
+    }
 }
 
 // MARK: -
 
-class UserWalletListCellViewModel: Identifiable {
+class UserWalletListCellViewModel: ObservableObject, Identifiable {
     @Injected(\.cardImageLoader) var imageLoader: CardImageLoaderProtocol
 
     let account: Account
     let subtitle: String
-    var isSelected: Bool
     var cardImage: UIImage?
 
     private var bag: Set<AnyCancellable> = []
 
-    init(account: Account, subtitle: String, isSelected: Bool) {
+    init(account: Account, subtitle: String) {
         self.account = account
         self.subtitle = subtitle
-        self.isSelected = isSelected
 
         imageLoader.loadImage(cid: account.card.cardId, cardPublicKey: account.card.cardPublicKey, artworkInfo: account.artwork)
             .sink { [weak self] (image, _) in
@@ -72,10 +76,13 @@ class UserWalletListCellViewModel: Identifiable {
 
 final class UserWalletListViewModel: ObservableObject {
     // MARK: - ViewState
-    var walletCellModels: [UserWalletListCellViewModel] = []
-    var noteCellModels: [UserWalletListCellViewModel] = []
+    @Published var walletCellModels: [UserWalletListCellViewModel] = []
+    @Published var noteCellModels: [UserWalletListCellViewModel] = []
+    @Published var selectedAccountId: Data?
 
     // MARK: - Dependencies
+
+    static var numberOfExtraWalletModels = 0
 
     private unowned let coordinator: UserWalletListRoutable
 
@@ -84,14 +91,42 @@ final class UserWalletListViewModel: ObservableObject {
     ) {
         self.coordinator = coordinator
 
+
+        Self.numberOfExtraWalletModels = 2
+
         walletCellModels = [
-            .init(account: .wallet, subtitle: "3 Cards", isSelected: true),
-            .init(account: .wallet, subtitle: "2 Cards", isSelected: false),
+            .init(account: .wallet(index: 0), subtitle: "3 Cards"),
         ]
 
+//        let count = Int.random(in: 0 ... 2)
+
+
+        for i in 0 ..< Self.numberOfExtraWalletModels {
+            walletCellModels.append(
+                .init(account: .wallet(index: i + 1), subtitle: "2 Cards")
+            )
+        }
+
+
         noteCellModels = [
-            .init(account: .noteBtc, subtitle: "Bitcoin", isSelected: false),
-            .init(account: .noteDoge, subtitle: "Dogecoin", isSelected: false),
+
         ]
+
+        if Self.numberOfExtraWalletModels >= 1 {
+            noteCellModels.append(.init(account: .noteBtc(index: 0), subtitle: "Bitcoin"))
+        }
+
+        if Self.numberOfExtraWalletModels >= 2 {
+            noteCellModels.append(.init(account: .noteDoge(index: 0), subtitle: "Dogecoin"))
+        }
+
+        Self.numberOfExtraWalletModels += 1
+        Self.numberOfExtraWalletModels = (Self.numberOfExtraWalletModels % 3)
+
+        selectedAccountId = walletCellModels.first?.account.accountId
+    }
+
+    func onAccountTapped(_ account: Account) {
+        self.selectedAccountId = account.accountId
     }
 }
