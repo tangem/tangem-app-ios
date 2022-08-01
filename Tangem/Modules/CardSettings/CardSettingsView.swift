@@ -81,7 +81,7 @@ struct CardSettingsView: View {
                 action: viewModel.openResetCard
             )
         }, footer: {
-            DefaultFooterView(title: "card_settings_reset_card_to_factory".localized)
+            DefaultFooterView(title: "card_settings_reset_card_to_factory_footer".localized)
         })
     }
 }
