@@ -370,6 +370,12 @@ class MainViewModel: ObservableObject {
     }
 
     func onScan() {
+        /*
+         DispatchQueue.main.async {
+             self.totalSumBalanceViewModel.update(with: [])
+             self.coordinator.close(newScan: true)
+         }
+          */
         self.coordinator.openUserWalletList()
     }
 
