@@ -12,15 +12,15 @@ import Combine
 class UserWalletListCellViewModel: ObservableObject, Identifiable {
     @Injected(\.cardImageLoader) var imageLoader: CardImageLoaderProtocol
 
-    let account: Account
+    let userWallet: UserWallet
     let subtitle: String
     let numberOfTokens: String?
     var cardImage: UIImage?
 
     private var bag: Set<AnyCancellable> = []
 
-    init(account: Account, subtitle: String, numberOfTokens: Int?) {
-        self.account = account
+    init(userWallet: UserWallet, subtitle: String, numberOfTokens: Int?) {
+        self.userWallet = userWallet
         self.subtitle = subtitle
         if let numberOfTokens = numberOfTokens {
             #warning("l10n")
@@ -29,7 +29,7 @@ class UserWalletListCellViewModel: ObservableObject, Identifiable {
             self.numberOfTokens = nil
         }
 
-        imageLoader.loadImage(cid: account.card.cardId, cardPublicKey: account.card.cardPublicKey, artworkInfo: account.artwork)
+        imageLoader.loadImage(cid: userWallet.card.cardId, cardPublicKey: userWallet.card.cardPublicKey, artworkInfo: userWallet.artwork)
             .sink { [weak self] (image, _) in
                 self?.cardImage = image
             }
