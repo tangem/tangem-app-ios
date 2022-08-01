@@ -33,9 +33,9 @@ class TangemSdkProvider: TangemSdkProviding {
         sdk.config = defaultSdkConfig
     }
 
-    func didScan(_ card: Card) {
-        if card.isTwinCard {
-            sdk.config.cardIdDisplayFormat = .lastLunh(4)
-        }
+#if !CLIP
+    func didScan(_ config: UserWalletConfig) {
+        sdk.config.cardIdDisplayFormat = config.cardIdDisplayFormat
     }
+#endif
 }
