@@ -10,9 +10,9 @@ import SwiftUI
 import Foundation
 
 class AttentionViewModel: ObservableObject {
-    @Published var isCheckedWarning: Bool
+    @Published var isWarningChecked: Bool
 
-    let navigationTitle: LocalizedStringKey
+    let navigationTitle: String
     let title: String
     let message: String
 
@@ -21,15 +21,15 @@ class AttentionViewModel: ObservableObject {
     let mainButtonAction: () -> Void
 
     init(
-        isCheckedWarning: Bool,
-        navigationTitle: LocalizedStringKey,
+        isWarningChecked: Bool,
+        navigationTitle: String,
         title: String,
         message: String,
         warningText: String? = nil,
         buttonTitle: LocalizedStringKey,
         mainButtonAction: @escaping () -> Void
     ) {
-        self.isCheckedWarning = isCheckedWarning
+        self.isWarningChecked = isWarningChecked
         self.navigationTitle = navigationTitle
         self.title = title
         self.message = message
