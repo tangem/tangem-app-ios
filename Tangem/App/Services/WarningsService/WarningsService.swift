@@ -81,7 +81,7 @@ class WarningsService {
     }
 
     private func addOldCardWarning(in container: WarningsContainer, for card: Card) {
-        if card.canSign { return }
+        // if card.canSign { return } [REDACTED_TODO_COMMENT]
 
         container.add(WarningsList.oldCard)
     }
