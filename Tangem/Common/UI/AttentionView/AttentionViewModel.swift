@@ -7,7 +7,6 @@
 //
 
 import SwiftUI
-import Foundation
 
 class AttentionViewModel: ObservableObject {
     @Published var isWarningChecked: Bool
