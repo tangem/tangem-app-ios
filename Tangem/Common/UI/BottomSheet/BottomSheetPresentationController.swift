@@ -22,6 +22,7 @@ class BottomSheetPresentationController: UIPresentationController {
         let view = UIView()
         view.backgroundColor = sheetBackgroundColor
         view.alpha = 0
+        view.layer.opacity = 0
         return view
     }()
 
@@ -116,7 +117,7 @@ class BottomSheetPresentationController: UIPresentationController {
         }
 
         transitionCoordinator.animate { context in
-            self.backgroundView.alpha = 0.3
+            self.backgroundView.alpha = 1
         }
     }
 
