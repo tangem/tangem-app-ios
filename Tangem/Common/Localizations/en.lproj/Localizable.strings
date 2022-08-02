@@ -14,7 +14,7 @@
 "alert_developer_card" = "The card you scanned is a development card. Don’t accept it as a payment.";
 "alert_failed_to_send_email_message" = "Reason: %@";
 "alert_failed_to_send_email_title" = "Failed to send email";
-"alert_failed_to_send_transaction_message" = "Reason: %@. Do you want to request support?";
+"alert_failed_to_send_transaction_message" = "Reason: %@.";
 "alert_failed_to_send_transaction_title" = "Can't send a transaction";
 "alert_negative_app_rate_sent_message" = "Thank your for your feedback. We will response as soon as possible";
 "alert_negative_app_rate_sent_title" = "Your suggestions were sent";
