@@ -50,6 +50,6 @@ struct CardOperationVIew_Previews: PreviewProvider {
         CardOperationView(viewModel: .init(title: "Manage",
                                            alert: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Et quis vitae dictumst consequat.",
                                            actionButtonPressed:  { _ in },
-                                           coordinator: DetailsCoordinator()))
+                                           coordinator: SecurityModeCoordinator()))
     }
 }
