@@ -29,7 +29,7 @@ class BottomSheetBaseController: UIViewController {
         }
     }
 
-    var backgroundColor: UIColor = (UIColor(named: "Backgroundaction") ?? .label).withAlphaComponent(0.7) {
+    var backgroundColor: UIColor = (UIColor(named: "BackgroundAction") ?? UIColor.black).withAlphaComponent(0.7) {
         didSet {
             bottomSheetTransitioningDelegate.backgroundColor = backgroundColor
         }
