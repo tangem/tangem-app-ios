@@ -24,6 +24,8 @@ struct CardSettingsView: View {
             cardInfoSection
 
             securityModeSection
+
+            resetToFactorySection
         }
         .listStyle(DefaultListStyle())
         .alert(item: $viewModel.alert) { $0.alert }
@@ -69,6 +71,17 @@ struct CardSettingsView: View {
             }
         }, footer: {
             DefaultFooterView(title: firstSectionFooterTitle)
+        })
+    }
+
+    private var resetToFactorySection: some View {
+        Section(content: {
+            DefaultRowView(
+                title: "card_settings_reset_card_to_factory".localized,
+                action: viewModel.openResetCard
+            )
+        }, footer: {
+            DefaultFooterView(title: "card_settings_reset_card_to_factory_footer".localized)
         })
     }
 }
