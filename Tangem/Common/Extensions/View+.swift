@@ -65,13 +65,12 @@ extension View {
         }
     }
 
-    @ViewBuilder func valueChanged<T: Equatable>(value: T, onChange: @escaping (T) -> Void) -> some View {
-        if #available(iOS 14.0, *) {
-            self.onChange(of: value, perform: onChange)
+    @_disfavoredOverload
+    @ViewBuilder public func onChange<V>(of value: V, perform action: @escaping (V) -> Void) -> some View where V: Equatable {
+        if #available(iOS 14, *) {
+            onChange(of: value, perform: action)
         } else {
-            self.onReceive(Just(value)) { (value) in
-                onChange(value)
-            }
+            modifier(ChangeObserver(newValue: value, action: action))
         }
     }
 }
