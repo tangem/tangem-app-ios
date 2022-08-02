@@ -6,248 +6,148 @@
 //  Copyright © 2020 Tangem AG. All rights reserved.
 //
 
-import Foundation
 import SwiftUI
-import TangemSdk
 
 struct DetailsView: View {
-    private enum NavigationTag: String {
-        case currency
-        case disclaimer
-        case cardTermsOfUse
-        case securityManagement
-        case walletConnect
-        case resetToFactory
-        case supportChat
-    }
-
     @ObservedObject var viewModel: DetailsViewModel
-
-    /// Change to @AppStorage and move to model with IOS 14.5 minimum deployment target
-    @AppStorageCompat(StorageType.selectedCurrencyCode)
-    private var selectedCurrencyCode: String = "USD"
-
-    // fix remain highlited bug on ios14
-    @State private var selection: NavigationTag? = nil
 
     var body: some View {
         List {
-            cardDetailsSection
-
-            applicationDetailsSection
-
-            Section(header: Color.tangemBgGray.listRowInsets(EdgeInsets())) {
-                EmptyView()
+            if viewModel.shouldShowWC {
+                walletConnectSection
             }
+
+            supportSection
+
+            settingsSection
+
+            legalSection
         }
-        .listStyle(GroupedListStyle())
+        .listStyle(DefaultListStyle())
         .alert(item: $viewModel.error) { $0.alert }
-        .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
+        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("details_title", displayMode: .inline)
         .navigationBarBackButtonHidden(false)
         .navigationBarHidden(false)
-        .onDisappear {
-            if #available(iOS 14.5, *) { } else {
-                if #available(iOS 14.3, *) {
-                    // remains selection fix from 14.3 to 14.5
-                    self.selection = nil
+    }
+
+    // MARK: - Wallet Connect Section
+
+    private var walletConnectSection: some View {
+        Section {
+            Button(action: {
+                viewModel.openWalletConnect()
+            }) {
+                HStack(spacing: 12) {
+                    Assets.walletConnect
+                        .resizable()
+                        .frame(width: 48, height: 48)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("wallet_connect_title")
+                            .font(.body)
+                            .foregroundColor(Colors.Text.primary1)
+
+                        Text("wallet_connect_subtitle")
+                            .font(.footnote)
+                            .foregroundColor(Colors.Text.tertiary)
+                    }
+                    .lineLimit(1)
+
+                    Spacer()
+
+                    Assets.chevron
                 }
+                .padding(.vertical, 8)
             }
         }
     }
 
-    // MARK: First Section
+    // MARK: - Wallet Connect Section
 
-    private var cardDetailsSection: some View {
-        Section(header: HeaderView(text: "details_section_title_card".localized), footer: footerView) {
-            DetailsRowView(title: "details_row_title_cid".localized,
-                           subtitle: viewModel.cardCid)
-            DetailsRowView(title: "details_row_title_issuer".localized,
-                           subtitle: viewModel.cardModel.cardInfo.card.issuer.name)
-
-            if viewModel.hasWallet, !viewModel.isTwinCard {
-                DetailsRowView(
-                    title: "details_row_title_signed_hashes".localized,
-                    subtitle: String(
-                        format: "details_row_subtitle_signed_hashes_format".localized,
-                        "\(viewModel.cardModel.cardInfo.card.walletSignedHashes)"
-                    )
-                )
+    private var supportSection: some View {
+        Section {
+            DefaultRowView(title: "details_chat".localized) {
+                viewModel.openSupportChat()
             }
 
-            cardSettingsRow
+            DefaultRowView(title: "details_row_title_send_feedback".localized) {
+                viewModel.openMail()
+            }
+        }
+    }
+
+    // MARK: - Settings Section
+
+    private var settingsSection: some View {
+        Section(content: {
+            DefaultRowView(title: "details_row_title_card_settings".localized) {
+                viewModel.openCardSettings()
+            }
+
+//            DefaultRowView(title: "details_row_title_app_settings".localized, isTappable: true) {
+//                viewModel.openAppSettings()
+//            }
 
             if viewModel.isTwinCard {
-                twinCardRecreateView
-
-            } else {
-                if viewModel.canCreateBackup {
-                    createBackupRow
+                DefaultRowView(title: "details_row_title_twins_recreate".localized) {
+                    viewModel.prepareTwinOnboarding()
                 }
-
-                resetToFactoryRow
+            } else if viewModel.canCreateBackup {
+                DefaultRowView(title: "details_row_title_create_backup".localized) {
+                    viewModel.prepareBackup()
+                }
             }
-        }
-    }
-
-    var footerView: some View {
-        if let purgeWalletProhibitedDescription = viewModel.cardModel.purgeWalletProhibitedDescription {
-            return FooterView(text: purgeWalletProhibitedDescription)
-        }
-
-        return FooterView()
-    }
-
-    // MARK: Twin Card Recreate
-
-    private var twinCardRecreateView: some View {
-        Button(action: viewModel.prepareTwinOnboarding, label: {
-            Text("details_row_title_twins_recreate")
-                .font(.system(size: 16, weight: .regular, design: .default))
-                .foregroundColor(viewModel.cardModel.canRecreateTwinCard ? .tangemGrayDark6 : .tangemGrayDark)
+        }, footer: {
+            DefaultFooterView(title: "details_row_title_create_backup_footer".localized)
         })
-        .disabled(!viewModel.cardModel.canRecreateTwinCard)
     }
 
-    // MARK: Backup row
+    // MARK: - Legal Section
 
-    private var createBackupRow: some View {
-        Button(action: viewModel.prepareBackup, label: {
-            Text("details_row_title_create_backup")
-                .font(.system(size: 16, weight: .regular, design: .default))
-                .foregroundColor(viewModel.canCreateBackup ? .tangemGrayDark6 : .tangemGrayDark)
-        })
-        .disabled(!viewModel.canCreateBackup)
-    }
-
-    // MARK: Reset row
-
-    @ViewBuilder
-    private var resetToFactoryRow: some View {
-        DetailsRowView(title: "details_row_title_reset_factory_settings".localized, subtitle: "")
-            .onNavigation(viewModel.openResetToFactory,
-                          tag: NavigationTag.resetToFactory,
-                          selection: $selection)
-            .disabled(!viewModel.cardModel.canPurgeWallet)
-    }
-
-    // MARK: SecurityMode
-
-    private var cardSettingsRow: some View {
-        HStack {
-            Text("details_row_title_card_settings")
-                .font(.system(size: 16, weight: .regular, design: .default))
-                .foregroundColor(.tangemGrayDark6)
-
-            Spacer()
-        }
-        .onNavigation(viewModel.openCardSettings,
-                      tag: NavigationTag.securityManagement,
-                      selection: $selection)
-    }
-
-    // MARK: Second Section
-
-    private var applicationDetailsSection: some View {
-        Section(header: HeaderView(text: "details_section_title_app".localized), footer: FooterView()) {
-            if !viewModel.isMultiWallet {
-                DetailsRowView(title: "details_row_title_currency".localized,
-                               subtitle: selectedCurrencyCode)
-                    .onNavigation(viewModel.openCurrencySelection,
-                                  tag: NavigationTag.currency,
-                                  selection: $selection)
+    private var legalSection: some View {
+        Section(content: {
+            DefaultRowView(title: "disclaimer_title".localized) {
+                viewModel.openDisclaimer()
             }
 
-            DetailsRowView(title: "disclaimer_title".localized, subtitle: "")
-                .onNavigation(viewModel.openDisclaimer,
-                              tag: NavigationTag.disclaimer,
-                              selection: $selection)
-
-            Button(action: viewModel.openMail, label: {
-                Text("details_row_title_send_feedback".localized)
-                    .font(.system(size: 16, weight: .regular, design: .default))
-                    .foregroundColor(.tangemGrayDark6)
-            })
-
-            if viewModel.cardTouURL != nil {
-                DetailsRowView(title: "details_row_title_card_tou".localized, subtitle: "")
-                    .onNavigation(viewModel.openCatdTOU,
-                                  tag: NavigationTag.cardTermsOfUse,
-                                  selection: $selection)
+            if let url = viewModel.cardTOUURL {
+                DefaultRowView(title: "details_row_title_card_tou".localized) {
+                    viewModel.openCardTOU(url: url)
+                }
             }
 
-            if viewModel.shouldShowWC {
-                DetailsRowView(title: "WalletConnect", subtitle: "")
-                    .onNavigation(viewModel.openWalletConnect,
-                                  tag: NavigationTag.walletConnect,
-                                  selection: $selection)
-            }
-
-            DetailsRowView(title: "details_ask_a_question".localized, subtitle: "")
-                .onNavigation(viewModel.openSupportChat,
-                              tag: NavigationTag.supportChat,
-                              selection: $selection)
-        }
-    }
-}
-
-extension DetailsView {
-    struct DetailsRowView: View {
-        var title: String
-        var subtitle: String
-        var body: some View {
-            HStack(alignment: .center) {
-                Text(title)
-                    .font(Font.system(size: 16.0, weight: .regular, design: .default))
-                    .foregroundColor(.tangemGrayDark6)
-                Spacer()
-                Text(subtitle)
-                    .font(Font.system(size: 16.0, weight: .regular, design: .default))
-                    .foregroundColor(.tangemGrayDark)
-            }
-            // .padding(.leading)
-            // .listRowInsets(EdgeInsets())
-        }
-    }
-
-    struct HeaderView: View {
-        var text: String
-        var additionalTopPadding: CGFloat = 0
-        var body: some View {
+        }, footer: {
             HStack {
-                Text(text)
-                    .font(.headline)
-                    .foregroundColor(.tangemBlue)
-                    .padding(16)
+                Spacer()
+
+                VStack(alignment: .center, spacing: 20) {
+                    HStack(spacing: 16) {
+                        ForEach(SocialNetwork.allCases) { network in
+                            socialNetworkView(network: network)
+                        }
+                    }
+
+                    if let applicationInfoFooter = viewModel.applicationInfoFooter {
+                        Text(applicationInfoFooter)
+                            .font(.footnote)
+                            .foregroundColor(Colors.Text.tertiary)
+                    }
+                }
+
                 Spacer()
             }
-            .padding(.top, additionalTopPadding)
-            .background(Color.tangemBgGray)
-            .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 1, trailing: 0))
-        }
+            .padding(.top, 40)
+        })
     }
 
-    struct FooterView: View {
-        var text: String = ""
-        var additionalBottomPadding: CGFloat = 0
-        var body: some View {
-            if text.isEmpty {
-                Color.tangemBgGray
-                    .listRowBackground(Color.tangemBgGray)
-                    .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-                    .frame(height: 0)
-            } else {
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(text)
-                        .font(.footnote)
-                        .foregroundColor(.tangemGrayDark)
-                        .padding()
-                        .padding(.bottom, additionalBottomPadding)
-                    Color.clear.frame(height: 0)
-                }
-                .background(Color.tangemBgGray)
-                .listRowInsets(EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0))
-            }
+    private func socialNetworkView(network: SocialNetwork) -> some View {
+        Button(action: {
+            viewModel.openSocialNetwork(network: network)
+        }) {
+            network.icon
+                .resizable()
+                .frame(width: 24, height: 24)
         }
     }
 }
