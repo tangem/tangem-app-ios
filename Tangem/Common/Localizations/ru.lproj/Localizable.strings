@@ -14,7 +14,7 @@
 "alert_developer_card" = "Карта, которую вы отсканировали, является картой разработчика. Не принимайте её в качестве оплаты.";
 "alert_failed_to_send_email_message" = "Причина: %@";
 "alert_failed_to_send_email_title" = "Не удалось отправить письмо";
-"alert_failed_to_send_transaction_message" = "Причина: %@. Вы хотите обратиться в поддержку?";
+"alert_failed_to_send_transaction_message" = "Причина: %@.";
 "alert_failed_to_send_transaction_title" = "Не могу отправить транзакцию";
 "alert_negative_app_rate_sent_message" = "Спасибо за ваш отзыв. Мы ответим в кратчайшие сроки.";
 "alert_negative_app_rate_sent_title" = "Ваши предложения отправлены";
