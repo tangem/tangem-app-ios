@@ -9,16 +9,15 @@
 import Foundation
 
 class CardSettingsCoordinator: CoordinatorObject {
-    var dismissAction: Action
-    var popToRootAction: ParamsAction<PopToRootOptions>
+    let dismissAction: Action
+    let popToRootAction: ParamsAction<PopToRootOptions>
 
     // MARK: - Main view model
+
     @Published private(set) var сardSettingsViewModel: CardSettingsViewModel?
 
-    // MARK: - Child view models
-    // [REDACTED_TODO_COMMENT]
-
     // MARK: - Child coordinators
+
     @Published var securityManagementCoordinator: SecurityModeCoordinator?
 
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
@@ -43,22 +42,10 @@ extension CardSettingsCoordinator {
 // MARK: - CardSettingsRoutable
 
 extension CardSettingsCoordinator: CardSettingsRoutable {
-    func openChangeAccessCode() {
-
-    }
-
     func openSecurityMode(cardModel: CardViewModel) {
         let coordinator = SecurityModeCoordinator(popToRootAction: popToRootAction)
         let options = SecurityModeCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
         securityManagementCoordinator = coordinator
-    }
-
-    func openTokenSynchronization() {
-
-    }
-
-    func openResetSavedCards() {
-
     }
 }
