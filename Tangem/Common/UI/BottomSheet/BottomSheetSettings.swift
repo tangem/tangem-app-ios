@@ -6,7 +6,7 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import UIKit
+import SwiftUI
 
 struct BottomSheetSettings: Identifiable {
     var id: UUID = UUID()
@@ -14,7 +14,8 @@ struct BottomSheetSettings: Identifiable {
     var swipeDownToDismissEnabled: Bool = true
     var tapOutsideToDismissEnabled: Bool = true
     var cornerRadius: CGFloat = 10
-    var backgroundColor: UIColor = UIColor.black.withAlphaComponent(0.7)
+    var overlayColor: Color = Colors.Background.action.opacity(0.7)
+    var contentBackgroundColor: Color = Colors.Background.primary
 }
 
 extension BottomSheetSettings {
