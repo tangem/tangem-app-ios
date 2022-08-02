@@ -21,6 +21,10 @@ class TangemSigner: TransactionSigner {
         self.cardId = cardId
     }
 
+    deinit {
+        print("TangemSigner deinit")
+    }
+
     convenience init(with card: Card) {
         if let backupStatus = card.backupStatus, backupStatus.isActive {
             self.init(with: nil)
@@ -30,10 +34,11 @@ class TangemSigner: TransactionSigner {
     }
 
     func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[Data], Error> {
-        let future = Future<[Data], Error> { [unowned self] promise in
+        Future<[Data], Error> { promise in
             let signCommand = SignAndReadTask(hashes: hashes,
                                               walletPublicKey: walletPublicKey.seedKey,
                                               derivationPath: walletPublicKey.derivationPath)
+
             self.sdkProvider.sdk.startSession(with: signCommand, cardId: self.cardId, initialMessage: self.initialMessage) { signResult in
                 switch signResult {
                 case .success(let response):
@@ -44,7 +49,7 @@ class TangemSigner: TransactionSigner {
                 }
             }
         }
-        return AnyPublisher(future)
+        .eraseToAnyPublisher()
     }
 
     func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<Data, Error> {
