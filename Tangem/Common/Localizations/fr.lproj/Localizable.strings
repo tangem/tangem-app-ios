@@ -518,7 +518,7 @@ URL: %@";
 "app_settings_off_saved_wallet_alert_message" = "Removing the saved card deletes all the saved wallets and their access codes.";
 "app_settings_off_saved_access_code_alert_message" = "This will delete all the saved wallet access codes. Any further operation with the wallet will require submitting the access code.";
 "reset_card_to_factory_navigation_title" = "Reset to factory settings";
-"reset_card_to_factory_message" = "This action will lead to the complete removal of the wallet from the selected card. It will not be possible to restore its current wallet on it or use the card to recover the access code";
+"reset_card_to_factory_message" = "This action will to completely remove the wallet from the selected card. You will not be able to restore the current wallet or use the card to recover the access code.";
 "reset_card_to_factory_warning_message" = "I understand that after performing this action, I will no longer have access to the current wallet";
 "reset_card_to_factory_button_title" = "Reset the card";
 "wallet_connect_title" = "WalletConnect";
