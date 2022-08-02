@@ -385,7 +385,7 @@ extension TokenDetailsViewModel {
     }
 
     func openBuyCryptoIfPossible() {
-        if tangemApiService.geoIpRegionCode == "ru" {
+        if tangemApiService.geoIpRegionCode == LanguageCode.ru {
             coordinator.openBankWarning {
                 self.openBuyCrypto()
             } declineCallback: {
