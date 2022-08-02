@@ -10,7 +10,7 @@ import TangemSdk
 import BlockchainSdk
 import Combine
 
-class TangemSigner: TransactionSigner {
+struct TangemSigner: TransactionSigner {
     @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
 
@@ -21,11 +21,7 @@ class TangemSigner: TransactionSigner {
         self.cardId = cardId
     }
 
-    deinit {
-        print("TangemSigner deinit")
-    }
-
-    convenience init(with card: Card) {
+    init(with card: Card) {
         if let backupStatus = card.backupStatus, backupStatus.isActive {
             self.init(with: nil)
         } else {
