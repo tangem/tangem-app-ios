@@ -13,36 +13,17 @@ import TangemSdk
 import BlockchainSdk
 
 class DetailsViewModel: ObservableObject {
+    // MARK: - Dependencies
+
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     @Injected(\.onboardingStepsSetupService) private var onboardingStepsSetupService: OnboardingStepsSetupService
+    private let dataCollector: DetailsFeedbackDataCollector
+
+
+    // MARK: - View State
 
     @Published var cardModel: CardViewModel
     @Published var error: AlertBinder?
-
-    var dataCollector: DetailsFeedbackDataCollector!
-
-    var hasWallet: Bool {
-        cardModel.hasWallet
-    }
-
-    var isMultiWallet: Bool {
-        cardModel.cardInfo.isMultiWallet
-    }
-
-    var backupStatus: String? {
-        guard let status = cardModel.cardInfo.card.backupStatus else {
-            return nil
-        }
-
-        switch status {
-        case .active(let cardsCount):
-            return String(format: "details_backup_status_format_active".localized, cardsCount)
-        case .cardLinked(let cardsCount):
-            return String(format: "details_backup_status_format_linked".localized, cardsCount)
-        case .noBackup:
-            return "details_backup_status_no_backup".localized
-        }
-    }
 
     var canCreateBackup: Bool {
         if !cardModel.cardInfo.isTangemWallet {
@@ -82,25 +63,28 @@ class DetailsViewModel: ObservableObject {
         cardModel.isTwinCard
     }
 
-    var cardTouURL: URL? {
+    var cardTOUURL: URL? {
         guard cardModel.isStart2CoinCard else { // is this card is S2C
             return nil
         }
 
-        let baseurl = "https://app.tangem.com/tou/"
-        let regionCode = self.regionCode(for: cardModel.cardInfo.card.cardId) ?? "fr"
-        let languageCode = Locale.current.languageCode ?? "fr"
-        let filename = self.filename(languageCode: languageCode, regionCode: regionCode)
-        let url = URL(string: baseurl + filename)
-        return url
+        return buildCardTOUURL()
     }
 
-    var cardCid: String {
-        let cardId = cardModel.cardInfo.card.cardId
-        return isTwinCard ?
-            AppTwinCardIdFormatter.format(cid: cardId, cardNumber: cardModel.cardInfo.twinCardInfo?.series.number) :
-            AppCardIdFormatter(cid: cardId).formatted()
+    var applicationInfoFooter: String? {
+        guard let appName = InfoDictionaryUtils.appName.value,
+              let version = InfoDictionaryUtils.version.value,
+              let bundleVersion = InfoDictionaryUtils.bundleVersion.value else {
+            return nil
+        }
+
+        return String(
+            format: "%@ %@ (%@)",
+            arguments: [appName, version, bundleVersion]
+        )
     }
+
+    // MARK: - Private
 
     private var bag = Set<AnyCancellable>()
     private unowned let coordinator: DetailsRoutable
@@ -108,7 +92,8 @@ class DetailsViewModel: ObservableObject {
     init(cardModel: CardViewModel, coordinator: DetailsRoutable) {
         self.cardModel = cardModel
         self.coordinator = coordinator
-        self.dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel)
+        dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel)
+
         bind()
     }
 
@@ -161,8 +146,58 @@ class DetailsViewModel: ObservableObject {
             }
             .store(in: &bag)
     }
+}
 
-    private func bind() {
+// MARK: - Navigation
+
+extension DetailsViewModel {
+    func openOnboarding(with input: OnboardingInput) {
+        coordinator.openOnboardingModal(with: input)
+    }
+
+    func openMail() {
+        coordinator.openMail(with: dataCollector,
+                             support: cardModel.emailSupport,
+                             emailType: .appFeedback(support: cardModel.isStart2CoinCard ? .start2coin : .tangem))
+    }
+
+    func openWalletConnect() {
+        coordinator.openWalletConnect(with: cardModel)
+    }
+
+    func openDisclaimer() {
+        coordinator.openDisclaimer()
+    }
+
+    func openCardTOU(url: URL) {
+        coordinator.openCardTOU(url: url)
+    }
+
+    func openCardSettings() {
+        coordinator.openScanCardSettings()
+    }
+
+    func openAppSettings() {
+        coordinator.openAppSettings()
+    }
+
+    func openSupportChat() {
+        coordinator.openSupportChat(cardId: cardModel.cardInfo.card.cardId)
+    }
+
+    func openSocialNetwork(network: SocialNetwork) {
+        guard let url = network.url else {
+            return
+        }
+
+        coordinator.openInSafari(url: url)
+    }
+}
+
+// MARK: - Private
+
+private extension DetailsViewModel {
+    func bind() {
         cardModel.objectWillChange
             .receive(on: RunLoop.main)
             .sink { [weak self] in
@@ -171,7 +206,16 @@ class DetailsViewModel: ObservableObject {
             .store(in: &bag)
     }
 
-    private func filename(languageCode: String, regionCode: String) -> String {
+    func buildCardTOUURL() -> URL? {
+        let baseurl = "https://app.tangem.com/tou/"
+        let regionCode = regionCode(for: cardModel.cardInfo.card.cardId) ?? "fr"
+        let languageCode = Locale.current.languageCode ?? "fr"
+        let filename = filename(languageCode: languageCode, regionCode: regionCode)
+        let url = URL(string: baseurl + filename)
+        return url
+    }
+
+    func filename(languageCode: String, regionCode: String) -> String {
         switch (languageCode, regionCode) {
         case ("fr", "ch"):
             return "Start2Coin-fr-ch-tangem.pdf"
@@ -196,7 +240,7 @@ class DetailsViewModel: ObservableObject {
         }
     }
 
-    private func regionCode(for cid: String) -> String? {
+    func regionCode(for cid: String) -> String? {
         let cidPrefix = cid[cid.index(cid.startIndex, offsetBy: 1)]
         switch cidPrefix {
         case "0":
@@ -208,51 +252,5 @@ class DetailsViewModel: ObservableObject {
         default:
             return nil
         }
-    }
-}
-
-// MARK: - Navigation
-
-extension DetailsViewModel {
-    func openOnboarding(with input: OnboardingInput) {
-        coordinator.openOnboardingModal(with: input)
-    }
-
-    func openMail() {
-        coordinator.openMail(with: dataCollector,
-                             support: cardModel.emailSupport,
-                             emailType: .appFeedback(support: cardModel.isStart2CoinCard ? .start2coin : .tangem))
-    }
-
-    func openWalletConnect() {
-        coordinator.openWalletConnect(with: cardModel)
-    }
-
-    func openCurrencySelection() {
-        coordinator.openCurrencySelection(autoDismiss: false)
-    }
-
-    func openDisclaimer() {
-        coordinator.openDisclaimer()
-    }
-
-    func openCatdTOU() {
-        if let url = cardTouURL {
-            coordinator.openCardTOU(at: url)
-        }
-    }
-
-    func openResetToFactory() {
-        coordinator.openResetToFactory { [weak self] completion in
-            self?.cardModel.resetToFactory(completion: completion)
-        }
-    }
-
-    func openCardSettings() {
-        coordinator.openScanCardSettings()
-    }
-
-    func openSupportChat() {
-        coordinator.openSupportChat()
     }
 }
