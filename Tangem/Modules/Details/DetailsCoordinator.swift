@@ -7,28 +7,32 @@
 //
 
 import Foundation
+import UIKit
 
 class DetailsCoordinator: CoordinatorObject {
     var dismissAction: Action
     var popToRootAction: ParamsAction<PopToRootOptions>
 
     // MARK: - Main view model
+
     @Published private(set) var detailsViewModel: DetailsViewModel? = nil
 
     // MARK: - Child coordinators
+
     @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
     @Published var walletConnectCoordinator: WalletConnectCoordinator? = nil
     @Published var scanCardSettingsCoordinator: ScanCardSettingsCoordinator? = nil
+    @Published var appSettingsCoordinator: AppSettingsCoordinator? = nil
 
     // MARK: - Child view models
-    @Published var currencySelectViewModel: CurrencySelectViewModel? = nil
+
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
     @Published var mailViewModel: MailViewModel? = nil
     @Published var disclaimerViewModel: DisclaimerViewModel? = nil
-    @Published var cardOperationViewModel: CardOperationViewModel? = nil
     @Published var supportChatViewModel: SupportChatViewModel? = nil
 
     // MARK: - Helpers
+
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
@@ -48,11 +52,6 @@ extension DetailsCoordinator {
 }
 
 extension DetailsCoordinator: DetailsRoutable {
-    func openCurrencySelection(autoDismiss: Bool) {
-        currencySelectViewModel = CurrencySelectViewModel()
-        currencySelectViewModel?.dismissAfterSelection = autoDismiss
-    }
-
     func openOnboardingModal(with input: OnboardingInput) {
         let dismissAction: Action = { [weak self] in
             self?.modalOnboardingCoordinator = nil
@@ -79,32 +78,27 @@ extension DetailsCoordinator: DetailsRoutable {
         disclaimerViewModel = .init(style: .navbar, showAccept: false, coordinator: nil)
     }
 
-    func openCardTOU(at url: URL) {
+    func openCardTOU(url: URL) {
         pushedWebViewModel = WebViewContainerViewModel(url: url, title: "details_row_title_card_tou".localized)
     }
 
-    func openResetToFactory(action: @escaping (_ completion: @escaping (Result<Void, Error>) -> Void) -> Void) {
-        cardOperationViewModel = CardOperationViewModel(title: "details_row_title_reset_factory_settings".localized,
-                                                        buttonTitle: "card_operation_button_title_reset",
-                                                        shouldPopToRoot: true,
-                                                        alert: "details_row_title_reset_factory_settings_warning".localized,
-                                                        actionButtonPressed: action,
-                                                        coordinator: self)
-    }
-
     func openScanCardSettings() {
-        let coordinator = ScanCardSettingsCoordinator(popToRootAction: self.popToRootAction)
+        let coordinator = ScanCardSettingsCoordinator(popToRootAction: popToRootAction)
         coordinator.start(with: .default)
         scanCardSettingsCoordinator = coordinator
     }
 
-    func openSupportChat() {
-        supportChatViewModel = SupportChatViewModel()
+    func openAppSettings() {
+        let coordinator = AppSettingsCoordinator(popToRootAction: popToRootAction)
+        coordinator.start(with: .default)
+        appSettingsCoordinator = coordinator
     }
-}
 
-extension DetailsCoordinator: CardOperationRoutable {
-    func dismissCardOperation() {
-        cardOperationViewModel = nil
+    func openSupportChat(cardId: String) {
+        supportChatViewModel = SupportChatViewModel(cardId: cardId)
+    }
+
+    func openInSafari(url: URL) {
+        UIApplication.shared.open(url)
     }
 }
