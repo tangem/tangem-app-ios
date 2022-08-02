@@ -555,6 +555,8 @@
 		EFA580632893E6AA00110DB0 /* BiometricAuthorizationUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFA580622893E6AA00110DB0 /* BiometricAuthorizationUtils.swift */; };
 		EFB4C1322837C51700E991C1 /* TextHint.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB4C1312837C51700E991C1 /* TextHint.swift */; };
 		EFB997B3287DB948002F45F6 /* Font+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB997B2287DB948002F45F6 /* Font+.swift */; };
+		EFC98EA22897CB3F00261D33 /* AttentionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC98EA02897CB3F00261D33 /* AttentionViewModel.swift */; };
+		EFC98EA32897CB3F00261D33 /* AttentionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC98EA12897CB3F00261D33 /* AttentionView.swift */; };
 		F06BBA2FE022C3EF1F3B6513 /* Pods_Tangem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F3AA1BEE46AF490A6F95DA /* Pods_Tangem.framework */; };
 /* End PBXBuildFile section */
 
@@ -1130,6 +1132,7 @@
 		EF4B41BC28644982003911F6 /* SkeletonView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SkeletonView.swift; sourceTree = "<group>"; };
 		EF50A5A32881CEE30081C5BB /* XCAssets+Generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "XCAssets+Generated.swift"; sourceTree = "<group>"; };
 		EF50A5B0288976140081C5BB /* View+ConditionalModifiers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "View+ConditionalModifiers.swift"; sourceTree = "<group>"; };
+		EF6CA24B2892D79900D7E4B1 /* AttentionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttentionViewModel.swift; sourceTree = "<group>"; };
 		EF7B9CEE286C6BD7004C33A9 /* CardSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsView.swift; sourceTree = "<group>"; };
 		EF7B9CF0286C6BE2004C33A9 /* CardSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsViewModel.swift; sourceTree = "<group>"; };
 		EF7B9CF2286C6C7A004C33A9 /* CardSettingsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsRoutable.swift; sourceTree = "<group>"; };
@@ -1145,6 +1148,9 @@
 		EFA7173D72D1E6FAD54D308A /* Pods-TangemClip.release(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemClip.release(beta).xcconfig"; path = "Target Support Files/Pods-TangemClip/Pods-TangemClip.release(beta).xcconfig"; sourceTree = "<group>"; };
 		EFB4C1312837C51700E991C1 /* TextHint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextHint.swift; sourceTree = "<group>"; };
 		EFB997B2287DB948002F45F6 /* Font+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Font+.swift"; sourceTree = "<group>"; };
+		EFC98EA02897CB3F00261D33 /* AttentionViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttentionViewModel.swift; sourceTree = "<group>"; };
+		EFC98EA12897CB3F00261D33 /* AttentionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttentionView.swift; sourceTree = "<group>"; };
+		EFCDF8C52892A8A3007127B9 /* AttentionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttentionView.swift; sourceTree = "<group>"; };
 		F3B96D298A039D2A8811CEF0 /* Pods-Tangem Tap.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap.release.xcconfig"; path = "Target Support Files/Pods-Tangem Tap/Pods-Tangem Tap.release.xcconfig"; sourceTree = "<group>"; };
 		F53CBE3ACFB9A989F5FE398D /* Pods-TangemClip.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemClip.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemClip/Pods-TangemClip.debug(production).xcconfig"; sourceTree = "<group>"; };
 		F60138EF52D91E1A088F9C27 /* Pods-TangemTests.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.debug(beta).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.debug(beta).xcconfig"; sourceTree = "<group>"; };
@@ -1427,6 +1433,7 @@
 		5D958E1224F513C1006BD932 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				EFA580642893F89000110DB0 /* AttentionView */,
 				EF9CFC3A2890233100329BE0 /* DefaultListViews */,
 				65B4DEC52881A948001524CF /* BottomSheet */,
 				EFB4C1302837C50C00E991C1 /* Types */,
@@ -1706,6 +1713,8 @@
 		65D8749528785477009D0448 /* Recovered References */ = {
 			isa = PBXGroup;
 			children = (
+				EF6CA24B2892D79900D7E4B1 /* AttentionViewModel.swift */,
+				EFCDF8C52892A8A3007127B9 /* AttentionView.swift */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -2690,6 +2699,15 @@
 			path = DefaultListViews;
 			sourceTree = "<group>";
 		};
+		EFA580642893F89000110DB0 /* AttentionView */ = {
+			isa = PBXGroup;
+			children = (
+				EFC98EA12897CB3F00261D33 /* AttentionView.swift */,
+				EFC98EA02897CB3F00261D33 /* AttentionViewModel.swift */,
+			);
+			path = AttentionView;
+			sourceTree = "<group>";
+		};
 		EFB4C1302837C50C00E991C1 /* Types */ = {
 			isa = PBXGroup;
 			children = (
@@ -3179,6 +3197,7 @@
 				B0B9E0B62629779500408726 /* AlertBinder.swift in Sources */,
 				DA23788127B24222009795A8 /* Product.swift in Sources */,
 				DC66BBFD285A389000CDF765 /* SheetModifier.swift in Sources */,
+				EFC98EA22897CB3F00261D33 /* AttentionViewModel.swift in Sources */,
 				B074BAC126779B28005D641B /* PushTxView.swift in Sources */,
 				B0651737259CACD8001D966C /* WarningsList.swift in Sources */,
 				B085154D26D7797400E1A836 /* TwinsOnboardingView.swift in Sources */,
@@ -3411,6 +3430,7 @@
 				5DA3A2F1251CB6CA009A8E08 /* SecurityModeView.swift in Sources */,
 				DC0A57EA2822AD6D0031BECC /* PersistentStorageKey.swift in Sources */,
 				DC295B4E2861D871006CB7B6 /* WalletConnectCoordinatorView.swift in Sources */,
+				EFC98EA32897CB3F00261D33 /* AttentionView.swift in Sources */,
 				B0F79C6A2689AC56008C9B30 /* FileEncryptionUtility.swift in Sources */,
 				EF9C52B3287C77A10015D540 /* CardSettingsRoutable.swift in Sources */,
 				EF0F99AD289028F8008B01DF /* AppSettingsView.swift in Sources */,
