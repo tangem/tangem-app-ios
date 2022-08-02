@@ -14,10 +14,9 @@ class CardSettingsViewModel: ObservableObject {
 
     @Published var hasSingleSecurityMode: Bool = false
     @Published var isChangeAccessCodeVisible: Bool = false
-    @Published var securityModeTitle: String?
-    @Published var isSavingWallet: Bool = true
-    @Published var isSavingAccessCodes: Bool = true
+    @Published var securityModeTitle: String
     @Published var alert: AlertBinder?
+    @Published var isChangeAccessCodeLoading: Bool = false
 
     var cardId: String {
         let cardId = cardModel.cardInfo.card.cardId
@@ -72,100 +71,26 @@ class CardSettingsViewModel: ObservableObject {
 
 private extension CardSettingsViewModel {
     func bind() {
-        $isSavingWallet
-            .dropFirst()
-            .filter { !$0 }
-            .sink(receiveValue: { [weak self] _ in
-                self?.presentSavingWalletDeleteAlert()
-            })
-            .store(in: &bag)
-
-        $isSavingAccessCodes
-            .dropFirst()
-            .filter { !$0 }
-            .sink(receiveValue: { [weak self] _ in
-                self?.presentSavingAccessCodesDeleteAlert()
-            })
-            .store(in: &bag)
-
         cardModel.$currentSecurityOption
             .map { $0.title }
             .weakAssign(to: \.securityModeTitle, on: self)
             .store(in: &bag)
-    }
-
-    func presentSavingWalletDeleteAlert() {
-        let okButton = Alert.Button.destructive(Text("common_delete"), action: { [weak self] in
-            self?.disableSaveWallet()
-        })
-        let cancelButton = Alert.Button.cancel(Text("common_cancel"), action: { [weak self] in
-            self?.isSavingWallet = true
-        })
-
-        let alert = Alert(
-            title: Text("common_attention"),
-            message: Text("card_settings_off_saved_wallet_alert_message"),
-            primaryButton: okButton,
-            secondaryButton: cancelButton
-        )
-
-        self.alert = AlertBinder(alert: alert)
-    }
-
-    func presentSavingAccessCodesDeleteAlert() {
-        guard shouldShowAlertOnDisableSaveAccessCodes else { return }
-
-        let okButton = Alert.Button.destructive(Text("common_delete"), action: { [weak self] in
-            self?.disableSaveAccessCodes()
-        })
-
-        let cancelButton = Alert.Button.cancel(Text("common_cancel"), action: { [weak self] in
-            self?.isSavingAccessCodes = true
-        })
-
-        let alert = Alert(
-            title: Text("common_attention"),
-            message: Text("card_settings_off_saved_access_code_alert_message"),
-            primaryButton: okButton,
-            secondaryButton: cancelButton
-        )
-
-
-        self.alert = AlertBinder(alert: alert)
-    }
-
-    func disableSaveWallet() {
-        // [REDACTED_TODO_COMMENT]
-        disableSaveAccessCodes()
-    }
-
-    func disableSaveAccessCodes() {
-        // [REDACTED_TODO_COMMENT]
-
-        if isSavingAccessCodes {
-            shouldShowAlertOnDisableSaveAccessCodes = false
-            isSavingAccessCodes = false
-            shouldShowAlertOnDisableSaveAccessCodes = true
-        }
     }
 }
 
 // MARK: - Navigation
 
 extension CardSettingsViewModel {
-    func openChangeAccessCode() {
-        coordinator.openChangeAccessCode()
+    func openChangeAccessCodeWarningView() {
+        isChangeAccessCodeLoading = true
+        cardModel.changeSecurityOption(.accessCode) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.isChangeAccessCodeLoading = false
+            }
+        }
     }
 
-    func openChangeAccessMethod() {
+    func openSecurityMode() {
         coordinator.openSecurityMode(cardModel: cardModel)
-    }
-
-    func openTokenSynchronization() {
-        coordinator.openTokenSynchronization()
-    }
-
-    func openResetSavedCards() {
-        coordinator.openResetSavedCards()
     }
 }
