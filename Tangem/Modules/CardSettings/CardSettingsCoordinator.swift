@@ -16,6 +16,10 @@ class CardSettingsCoordinator: CoordinatorObject {
 
     @Published private(set) var сardSettingsViewModel: CardSettingsViewModel?
 
+    // MARK: - Child view models
+
+    @Published var attentionViewModel: AttentionViewModel?
+
     // MARK: - Child coordinators
 
     @Published var securityManagementCoordinator: SecurityModeCoordinator?
@@ -47,5 +51,21 @@ extension CardSettingsCoordinator: CardSettingsRoutable {
         let options = SecurityModeCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
         securityManagementCoordinator = coordinator
+    }
+
+    func openResetCardToFactoryWarning(mainButtonAction: @escaping () -> Void) {
+        attentionViewModel = AttentionViewModel(
+            isWarningChecked: false,
+            navigationTitle: "reset_card_to_factory_navigation_title".localized,
+            title: "common_attention".localized,
+            message: "reset_card_to_factory_message".localized,
+            warningText: "reset_card_to_factory_warning_message".localized,
+            buttonTitle: "reset_card_to_factory_button_title",
+            mainButtonAction: mainButtonAction
+        )
+    }
+
+    func closeResetCardToFactoryWarning() {
+        attentionViewModel = nil
     }
 }
