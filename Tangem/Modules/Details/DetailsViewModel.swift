@@ -98,7 +98,7 @@ class DetailsViewModel: ObservableObject {
     }
 
     func prepareBackup() {
-        Analytics.logAmplitude(.backupClicked)
+        Analytics.logAmplitude(.backupTapped)
         onboardingStepsSetupService.backupSteps(cardModel.cardInfo)
             .sink { completion in
                 switch completion {
