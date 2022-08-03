@@ -52,7 +52,7 @@ struct UserWalletListView: View {
     }
 
     @ViewBuilder
-    private func section(_ header: String, for models: [UserWalletListCellViewModel]) -> some View {
+    private func section(_ header: String, for models: [CardViewModel]) -> some View {
         if !models.isEmpty {
             UserWalletListHeaderView(name: header)
 
