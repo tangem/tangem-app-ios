@@ -44,7 +44,7 @@ class WelcomeViewModel: ObservableObject {
         }
 
         isScanningCard = true
-        Analytics.logAmplitude(.scanCardClicked)
+        Analytics.logAmplitude(.scanCardTapped)
         var subscription: AnyCancellable? = nil
 
         subscription = cardsRepository.scanPublisher()
@@ -76,14 +76,14 @@ class WelcomeViewModel: ObservableObject {
 
         subscription?.store(in: &bag)
     }
-    
+
     func tryAgain() {
-        Analytics.logAmplitude(.tryAgainClicked)
+        Analytics.logAmplitude(.tryAgainTapped)
         scanCard()
     }
 
     func requestSupport() {
-        Analytics.logAmplitude(.supportClicked)
+        Analytics.logAmplitude(.supportTapped)
         failedCardScanTracker.resetCounter()
         openMail()
     }
@@ -141,12 +141,12 @@ extension WelcomeViewModel {
     }
 
     func openTokensList() {
-        Analytics.logAmplitude(.tokenListClicked)
+        Analytics.logAmplitude(.tokenListTapped)
         coordinator.openTokensList()
     }
 
     func openShop() {
-        Analytics.logAmplitude(.buyBottomClicked)
+        Analytics.logAmplitude(.buyBottomTapped)
         coordinator.openShop()
     }
 
