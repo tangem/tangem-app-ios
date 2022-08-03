@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct UserWalletListCellView: View {
-    let model: UserWalletListCellViewModel
+    @ObservedObject var model: CardViewModel
     let isSelected: Bool
     let didTapUserWallet: (UserWallet) -> Void
 
@@ -45,9 +45,10 @@ struct UserWalletListCellView: View {
             Spacer()
 
             VStack(alignment: .trailing, spacing: 2) {
-                Text("4 013,12$")
+                Text(model.totalBalance ?? "999.99")
                     .font(Font.subheadline)
                     .foregroundColor(Colors.Text.primary1)
+                    .skeletonable(isShown: model.totalBalanceLoading)
 
                 Text(model.numberOfTokens ?? "")
                     .font(Font.footnote)
@@ -80,6 +81,6 @@ struct UserWalletListCellView: View {
 
 struct UserWalletListCellView_Previews: PreviewProvider {
     static var previews: some View {
-        UserWalletListCellView(model: .init(userWallet: .wallet(index: 0), subtitle: "3 Cards", numberOfTokens: 12), isSelected: true) { _ in }
+        UserWalletListCellView(model: .init(cardInfo: UserWallet.wallet(index: 0).cardInfo()), isSelected: true) { _ in }
     }
 }
