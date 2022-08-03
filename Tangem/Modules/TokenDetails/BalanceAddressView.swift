@@ -11,6 +11,7 @@ import BlockchainSdk
 
 struct BalanceAddressView: View {
     @ObservedObject var walletModel: WalletModel
+    var tokenDetailsViewModel: TokenDetailsViewModel?
     var amountType: Amount.AmountType
     var isRefreshing: Bool
     @Binding var showExplorerURL: URL?
@@ -173,14 +174,14 @@ struct BalanceAddressView: View {
     }
 
     func showShareSheet() {
-        Analytics.log(.shareAddress, params: [:])
+        tokenDetailsViewModel?.shareAddress()
         let address = walletModel.displayAddress(for: selectedAddressIndex)
         let av = UIActivityViewController(activityItems: [address], applicationActivities: nil)
         UIApplication.shared.windows.first?.rootViewController?.present(av, animated: true, completion: nil)
     }
 
     private func copyAddress() {
-        Analytics.log(.copyAddress, params: [:])
+        tokenDetailsViewModel?.copyAddress()
         UIPasteboard.general.string = walletModel.displayAddress(for: selectedAddressIndex)
     }
 }
@@ -207,7 +208,7 @@ struct BalanceAddressView_Previews: PreviewProvider {
             Color.gray
             ScrollView {
                 BalanceAddressView(
-                    walletModel: walletModel, amountType: .coin, isRefreshing: false, showExplorerURL: .constant(nil))
+                    walletModel: walletModel, tokenDetailsViewModel: nil, amountType: .coin, isRefreshing: false, showExplorerURL: .constant(nil))
                     .padding()
             }
         }
