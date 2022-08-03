@@ -99,7 +99,7 @@ class TokenListViewModel: ObservableObject {
             switch result {
             case .success:
                 self?.closeModule()
-                Analytics.logAmplitude(.saveChanges)
+                Analytics.logAmplitude(.tokenListSave)
             case .failure(let error):
                 if case TangemSdkError.userCancelled = error {} else {
                     self?.alert = error.alertBinder

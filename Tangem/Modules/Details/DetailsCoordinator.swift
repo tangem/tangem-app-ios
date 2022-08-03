@@ -78,7 +78,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openWalletConnect(with cardModel: CardViewModel) {
-        Analytics.logAmplitude(.wcClicked)
+        Analytics.logAmplitude(.wcTapped)
         let coordinator = WalletConnectCoordinator()
         let options = WalletConnectCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
