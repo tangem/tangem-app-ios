@@ -146,7 +146,7 @@ class Analytics {
         Amplitude.instance().logEvent(event.rawValue.camelCaseToSnakeCase(), withEventProperties: params)
         #endif
     }
-    
+
     private static func collectCardData(_ card: Card, additionalParams: [ParameterKey: Any] = [:]) -> [ParameterKey: Any] {
         var params = additionalParams
         params[.batchId] = card.batchId
@@ -239,37 +239,37 @@ extension Analytics {
         case viewStory4
         case viewStory5
         case viewStory6
-        case tokenListClicked
+        case tokenListTapped
         case searchToken
-        case buyBottomClicked
+        case buyBottomTapped
         case firstScan
         case secondScan
-        case supportClicked
-        case tryAgainClicked
-        case createWalletClicked
-        case backupClicked
-        case backupLaterClicked
+        case supportTapped
+        case tryAgainTapped
+        case createWalletTapped
+        case backupTapped
+        case backupLaterTapped
         case firstCardScan
         case addBackupCard
         case backupFinish
         case createAccessCode
         case accessCodeConfirm
-        case cardCodeSign
-        case backupCardSign
+        case cardCodeSave
+        case backupCardSave
         case onboardingSuccess
-        case enter
-        case pageSwipe
-        case currencyTypeClicked
+        case mainPageEnter
+        case mainPageSwipe
+        case currencyTypeTapped
         case currencyChanged
-        case settingsClicked
-        case manageTokensClicked
-        case tokenClicked
-        case scanCardClicked
-        case chatClicked
-        case wcClicked
-        case factoryResetClicked
+        case settingsTapped
+        case manageTokensTapped
+        case tokenTapped
+        case scanCardTapped
+        case chatTapped
+        case wcTapped
+        case factoryResetTapped
         case factoryResetSuccess
-        case createBackupClicked
+        case createBackupTapped
         case makeComment
         case walletConnectSuccessResponse
         case walletConnectInvalidRequest
@@ -278,16 +278,16 @@ extension Analytics {
         case tokenSearch
         case tokenSwitchOn
         case tokenSwitchOff
-        case saveChanges
+        case tokenListSave
         case сustomTokenAdd
         case customTokenSave
         case removeToken
         case copyAddress
         case shareAddress
-        case buyTokenClicked
-        case p2pInstructionClicked
+        case buyTokenTapped
+        case p2pInstructionTapped
         case transactionIsSent
-        case sendTokenClicked
+        case sendTokenTapped
     }
 }
 

@@ -22,7 +22,7 @@ class CurrencySelectViewModel: ObservableObject {
 
     func onAppear() {
         loading = true
-        Analytics.logAmplitude(.currencyTypeClicked)
+        Analytics.logAmplitude(.currencyTypeTapped)
         tangemApiService
             .loadCurrencies()
             .receive(on: DispatchQueue.main)
