@@ -18,7 +18,9 @@ struct CardSettingsCoordinatorView: CoordinatorView {
                 .navigation(item: $coordinator.securityManagementCoordinator) {
                     SecurityModeCoordinatorView(coordinator: $0)
                 }
-                .emptyNavigationLink()
+                .navigation(item: $coordinator.attentionViewModel) {
+                    AttentionView(viewModel: $0)
+                }
         }
     }
 }
