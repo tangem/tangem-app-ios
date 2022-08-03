@@ -11,6 +11,15 @@ import SwiftUI
 struct UserWalletListView: View {
     @ObservedObject private var viewModel: UserWalletListViewModel
 
+    static var sheetBackground: Color {
+        if #available(iOS 14, *) {
+            return Colors.Background.secondary
+        } else {
+            // iOS 13 can't convert named SwiftUI colors to UIColor
+            return Color(hex: "F2F2F7")!
+        }
+    }
+
     init(viewModel: UserWalletListViewModel) {
         self.viewModel = viewModel
     }
