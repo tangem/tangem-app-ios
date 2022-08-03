@@ -32,6 +32,8 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published private(set) var currentSecurityOption: SecurityModeOption = .longTap
     @Published public var cardInfo: CardInfo
     @Published var walletsBalanceState: WalletsBalanceState = .loaded
+    @Published var totalBalance: String? = nil
+    @Published var totalBalanceLoading = true
 
     var signer: TangemSigner
 
@@ -248,14 +250,118 @@ class CardViewModel: Identifiable, ObservableObject {
             .eraseToAnyPublisher()
     }
 
+    var userWallet: UserWallet {
+        // [REDACTED_TODO_COMMENT]
+        let walletData: DefaultWalletData
+        if cardInfo.card.cardPublicKey == Data(hex: "020B0988E56A5271614A147C9D3585AE73D72404C2B3C08FF44DBACD196C99FDCD") {
+            walletData = .note(WalletData(blockchain: "btc", token: nil))
+        } else if cardInfo.card.cardPublicKey == Data(hex: "038E78F458D1F868115D10D7A526E38DEE9FB18094FA1EF3DCFC701B8752C4E7F2") {
+            walletData = .note(WalletData(blockchain: "doge", token: nil))
+        } else {
+            walletData = .none
+        }
+
+        return .init(userWalletId: cardInfo.card.cardPublicKey,
+                     name: cardInfo.name,
+                     card: cardInfo.card,
+                     walletData: walletData,
+                     artwork: cardInfo.artworkInfo,
+                     keys: cardInfo.derivedKeys,
+                     isHDWalletAllowed: cardInfo.card.settings.isHDWalletAllowed
+        )
+    }
+
+    var cardImage: UIImage?
+
+    var subtitle: String {
+        if cardInfo.twinCardInfo?.series.number != nil {
+            return "2 Cards"
+        }
+
+        if cardInfo.isTangemWallet {
+            let numberOfCards: Int
+            if let backupStatus = cardInfo.card.backupStatus, case let .active(backupCards) = backupStatus {
+                numberOfCards = backupCards
+            } else {
+                numberOfCards = 1
+            }
+            return "\(numberOfCards) Cards"
+        }
+
+        let defaultBlockchain = cardInfo.defaultBlockchain
+        return defaultBlockchain?.displayName ?? ""
+    }
+
+    var numberOfTokens: String? {
+        let tokenRepository = CommonTokenItemsRepository()
+        let tokenItems = tokenRepository.getItems(for: userWallet.card.cardId)
+
+        let numberOfBlockchainsPerItem = 1
+        let numberOfTokens = tokenItems.reduce(0) { sum, tokenItem in
+            sum + numberOfBlockchainsPerItem + tokenItem.tokens.count
+        }
+
+        if numberOfTokens == 0 {
+            return nil
+        }
+
+        return "\(numberOfTokens) tokens"
+    }
+
+
+    private lazy var totalSumBalanceViewModel: TotalSumBalanceViewModel = .init()
+
     private var searchBlockchainsCancellable: AnyCancellable? = nil
     private var bag = Set<AnyCancellable>()
 
-    init(cardInfo: CardInfo) {
+    init(cardInfo: CardInfo, savedCards: Bool = false) {
         self.cardInfo = cardInfo
         self.signer = .init(with: cardInfo.card)
         updateCardPinSettings()
         updateCurrentSecurityOption()
+        loadImage()
+
+        if !savedCards {
+            return
+        }
+
+
+        self
+            .$walletsBalanceState
+            .receive(on: RunLoop.main)
+            .sink { [unowned self] state in
+                switch state {
+                case .inProgress:
+                    break
+                case .loaded:
+                    // Delay for hide skeleton
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        self.updateTotalBalanceTokenList()
+                    }
+                }
+            }
+            .store(in: &bag)
+
+        totalSumBalanceViewModel
+            .$totalFiatValueString
+            .sink { [unowned self] newValue in
+                withAnimation(nil) {
+                    let newTotalBalance = newValue.string
+                    self.totalBalance = newTotalBalance.isEmpty ? nil : newTotalBalance
+                }
+            }
+            .store(in: &bag)
+
+        totalSumBalanceViewModel
+            .$isLoading
+            .sink { isLoading in
+                withAnimation(nil) {
+                    self.totalBalanceLoading = isLoading
+                }
+            }
+            .store(in: &bag)
+
+        self.updateState()
     }
 
 //    func loadPayIDInfo () {
@@ -360,6 +466,7 @@ class CardViewModel: Identifiable, ObservableObject {
             .receive(on: RunLoop.main)
             .sink { [unowned self] _ in
                 self.walletsBalanceState = .loaded
+                self.updateTotalBalanceTokenList()
             }
     }
 
@@ -837,6 +944,25 @@ class CardViewModel: Identifiable, ObservableObject {
             }
         }
         .eraseToAnyPublisher()
+    }
+
+    private func loadImage() {
+        imageLoader.loadImage(cid: userWallet.card.cardId, cardPublicKey: userWallet.card.cardPublicKey, artworkInfo: userWallet.artwork)
+            .sink { [weak self] (image, _) in
+                self?.cardImage = image
+            }
+            .store(in: &bag)
+    }
+
+    private func updateTotalBalanceTokenList() {
+        guard let walletModels = self.walletModels else {
+            self.totalSumBalanceViewModel.update(with: [])
+            return
+        }
+
+        let newTokens = walletModels.flatMap { $0.tokenItemViewModels }
+        totalSumBalanceViewModel.beginUpdates()
+        totalSumBalanceViewModel.update(with: newTokens)
     }
 
     func updateCardPinSettings() {
