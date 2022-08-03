@@ -389,10 +389,10 @@ extension TokenDetailsViewModel {
         Analytics.logAmplitude(.buyTokenClicked)
         if tangemApiService.geoIpRegionCode == LanguageCode.ru {
             coordinator.openBankWarning {
-                Analytics.logAmplitude(.p2pInstructionClicked, params: ["type": "yes"])
+                Analytics.logAmplitude(.p2pInstructionTapped, params: ["type": "yes"])
                 self.openBuyCrypto()
             } declineCallback: {
-                Analytics.logAmplitude(.p2pInstructionClicked, params: ["type": "no"])
+                Analytics.logAmplitude(.p2pInstructionTapped, params: ["type": "no"])
                 self.coordinator.openP2PTutorial()
             }
         } else {
