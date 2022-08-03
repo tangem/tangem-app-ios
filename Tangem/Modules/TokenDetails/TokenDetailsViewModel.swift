@@ -246,6 +246,14 @@ class TokenDetailsViewModel: ObservableObject {
             }
     }
 
+    func copyAddress() {
+        Analytics.log(.copyAddress, params: [:])
+    }
+
+    func shareAddress() {
+        Analytics.log(.shareAddress, params: [:])
+    }
+
     private func updateRentWarning() {
         guard let rentProvider = walletModel?.walletManager as? RentProvider else {
             return

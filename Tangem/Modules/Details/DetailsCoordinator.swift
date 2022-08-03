@@ -94,7 +94,6 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openScanCardSettings() {
-        Analytics.log(.factoryResetTapped, params: [:])
         scanCardSettingsViewModel = ScanCardSettingsViewModel(coordinator: self)
     }
 
