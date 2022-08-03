@@ -328,7 +328,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             break
         case .backupIntro:
             jumpToLatestStep()
-            Analytics.logAmplitude(.backupLaterClicked)
+            Analytics.logAmplitude(.backupLaterTapped)
         case .selectBackupCards:
             if backupCardsAddedCount < 2 {
                 let controller = UIAlertController(title: "common_warning".localized, message: "onboarding_alert_message_not_max_backup_cards_added".localized, preferredStyle: .alert)
@@ -410,7 +410,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     private func saveAccessCode(_ code: String) {
         do {
             try backupService.setAccessCode(code)
-            Analytics.logAmplitude(backupService.addedBackupCardsCount == 0 ? .cardCodeSign : .backupCardSign)
+            Analytics.logAmplitude(backupService.addedBackupCardsCount == 0 ? .cardCodeSave : .backupCardSave)
             Analytics.logAmplitude(.createAccessCode)
             stackCalculator.setupNumberOfCards(1 + backupCardsAddedCount)
 
@@ -442,7 +442,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
 
     private func createWallet() {
-        Analytics.logAmplitude(.createWalletClicked)
+        Analytics.logAmplitude(.createWalletTapped)
         isMainButtonBusy = true
         if !input.isStandalone {
             AppSettings.shared.cardsStartedActivation.append(input.cardInput.cardId)
@@ -573,7 +573,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
 
     private func backupCard() {
         isMainButtonBusy = true
-        Analytics.logAmplitude(.backupClicked)
+        Analytics.logAmplitude(.backupTapped)
         stepPublisher =
             Deferred {
                 Future { [unowned self] promise in
