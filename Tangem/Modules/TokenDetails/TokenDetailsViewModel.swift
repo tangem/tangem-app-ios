@@ -309,7 +309,7 @@ class TokenDetailsViewModel: ObservableObject {
             title: title,
             message: "token_details_hide_alert_message".localized,
             primaryButton: .destructive(Text("token_details_hide_alert_hide")) { [weak self] in
-                Analytics.logAmplitude(.removeToken)
+                Analytics.log(.removeToken, params: [:])
                 self?.deleteToken()
             }
         )
@@ -386,13 +386,13 @@ extension TokenDetailsViewModel {
     }
 
     func openBuyCryptoIfPossible() {
-        Analytics.logAmplitude(.buyTokenTapped)
+        Analytics.log(.buyTokenTapped, params: [:])
         if tangemApiService.geoIpRegionCode == LanguageCode.ru {
             coordinator.openBankWarning {
-                Analytics.logAmplitude(.p2pInstructionTapped, params: ["type": "yes"])
+                Analytics.log(.p2pInstructionTapped, params: [.type: "yes"])
                 self.openBuyCrypto()
             } declineCallback: {
-                Analytics.logAmplitude(.p2pInstructionTapped, params: ["type": "no"])
+                Analytics.log(.p2pInstructionTapped, params: [.type: "no"])
                 self.coordinator.openP2PTutorial()
             }
         } else {
