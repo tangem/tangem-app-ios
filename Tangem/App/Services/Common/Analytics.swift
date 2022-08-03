@@ -154,6 +154,7 @@ class Analytics {
 
     static func logAmplitude(_ event: Event, params: [String: String] = [:]) {
         #if !CLIP
+        print("AMPLITUDE: event -> \(event.rawValue.camelCaseToSnakeCase()), params -> \(params)")
         Amplitude.instance().logEvent(event.rawValue.camelCaseToSnakeCase(), withEventProperties: params)
         #endif
     }
