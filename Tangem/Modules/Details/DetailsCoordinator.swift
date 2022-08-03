@@ -94,7 +94,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openScanCardSettings() {
-        Analytics.logAmplitude(.factoryRessetClicked)
+        Analytics.logAmplitude(.factoryResetTapped)
         scanCardSettingsViewModel = ScanCardSettingsViewModel(coordinator: self)
     }
 
@@ -105,7 +105,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openSupportChat(cardId: String) {
-        Analytics.logAmplitude(.chatClicked)
+        Analytics.logAmplitude(.chatTapped)
         supportChatViewModel = SupportChatViewModel(cardId: cardId)
     }
 
