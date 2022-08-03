@@ -131,7 +131,7 @@ class AddCustomTokenViewModel: ObservableObject {
             switch result {
             case .success:
                 self.closeModule()
-                Analytics.logAmplitude(.customTokenSave)
+                Analytics.log(.customTokenSave, params: [:])
             case .failure(let error):
                 if case TangemSdkError.userCancelled = error {
                     return
