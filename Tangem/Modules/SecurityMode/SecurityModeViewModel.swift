@@ -39,7 +39,7 @@ class SecurityModeViewModel: ObservableObject {
     }
 
     func bind() {
-        cardModel.$currentSecurityOption.print()
+        cardModel.$currentSecurityOption
             .sink(receiveValue: { [weak self] option in
                 self?.currentSecurityOption = option
             })
