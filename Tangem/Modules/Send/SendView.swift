@@ -266,7 +266,7 @@ struct SendView: View {
                 return Alert(title: Text("alert_failed_to_send_transaction_title"),
                              message: Text(String(format: "alert_failed_to_send_transaction_message".localized, errorDescription)),
                              primaryButton: .default(Text("alert_button_request_support"), action: viewModel.openMail),
-                             secondaryButton: .default(Text("common_no")))
+                             secondaryButton: .default(Text("common_cancel")))
             }
     }
 }
