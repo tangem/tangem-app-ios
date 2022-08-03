@@ -337,7 +337,7 @@ class MainViewModel: ObservableObject {
     func onRefresh(_ done: @escaping () -> Void) {
         if cardModel.state.canUpdate,
            let walletModels = cardModel.walletModels, !walletModels.isEmpty {
-            Analytics.logAmplitude(.pageSwipe)
+            Analytics.logAmplitude(.mainPageSwipe)
             refreshCancellable = cardModel.refresh()
                 .receive(on: RunLoop.main)
                 .sink { _ in
@@ -375,7 +375,7 @@ class MainViewModel: ObservableObject {
 
     func onScan() {
         DispatchQueue.main.async {
-            Analytics.logAmplitude(.scanCardClicked)
+            Analytics.logAmplitude(.scanCardTapped)
             self.totalSumBalanceViewModel.update(with: [])
             self.coordinator.close(newScan: true)
         }
@@ -689,10 +689,10 @@ extension MainViewModel {
         Analytics.logAmplitude(.buyTokenClicked)
         if tangemApiService.geoIpRegionCode == LanguageCode.ru {
             coordinator.openBankWarning {
-                Analytics.logAmplitude(.p2pInstructionClicked, params: ["type": "yes"])
+                Analytics.logAmplitude(.p2pInstructionTapped, params: ["type": "yes"])
                 self.openBuyCrypto()
             } declineCallback: {
-                Analytics.logAmplitude(.p2pInstructionClicked, params: ["type": "no"])
+                Analytics.logAmplitude(.p2pInstructionTapped, params: ["type": "no"])
                 self.coordinator.openP2PTutorial()
             }
         } else {
