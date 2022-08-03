@@ -10,7 +10,7 @@ import TangemSdk
 import BlockchainSdk
 import Combine
 
-class TangemSigner: TransactionSigner {
+struct TangemSigner: TransactionSigner {
     @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
 
@@ -21,7 +21,7 @@ class TangemSigner: TransactionSigner {
         self.cardId = cardId
     }
 
-    convenience init(with card: Card) {
+    init(with card: Card) {
         if let backupStatus = card.backupStatus, backupStatus.isActive {
             self.init(with: nil)
         } else {
@@ -30,10 +30,11 @@ class TangemSigner: TransactionSigner {
     }
 
     func sign(hashes: [Data], walletPublicKey: Wallet.PublicKey) -> AnyPublisher<[Data], Error> {
-        let future = Future<[Data], Error> { [unowned self] promise in
+        Future<[Data], Error> { promise in
             let signCommand = SignAndReadTask(hashes: hashes,
                                               walletPublicKey: walletPublicKey.seedKey,
                                               derivationPath: walletPublicKey.derivationPath)
+
             self.sdkProvider.sdk.startSession(with: signCommand, cardId: self.cardId, initialMessage: self.initialMessage) { signResult in
                 switch signResult {
                 case .success(let response):
@@ -44,7 +45,7 @@ class TangemSigner: TransactionSigner {
                 }
             }
         }
-        return AnyPublisher(future)
+        .eraseToAnyPublisher()
     }
 
     func sign(hash: Data, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<Data, Error> {
