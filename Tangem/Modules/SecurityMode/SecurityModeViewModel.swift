@@ -34,6 +34,16 @@ class SecurityModeViewModel: ObservableObject {
 
         currentSecurityOption = cardModel.currentSecurityOption
         availableSecurityOptions = cardModel.availableSecurityOptions
+
+        bind()
+    }
+
+    func bind() {
+        cardModel.$currentSecurityOption.print()
+            .sink(receiveValue: { [weak self] option in
+                self?.currentSecurityOption = option
+            })
+            .store(in: &bag)
     }
 
     func actionButtonDidTap() {
