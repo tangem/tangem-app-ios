@@ -498,6 +498,10 @@ class MainViewModel: ObservableObject {
             .store(in: &bag)
     }
 
+    func copyAddress() {
+        Analytics.log(.copyAddress, params: [:])
+    }
+
     // MARK: - Private functions
 
     private func checkPositiveBalance() {
