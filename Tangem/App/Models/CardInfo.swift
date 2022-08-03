@@ -15,6 +15,7 @@ import BlockchainSdk
 
 struct CardInfo {
     var card: Card
+    var name: String = "" // [REDACTED_TODO_COMMENT]
     var walletData: WalletData?
     var artwork: CardArtwork = .notLoaded
     var twinCardInfo: TwinCardInfo?
