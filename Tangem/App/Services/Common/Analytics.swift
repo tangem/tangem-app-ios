@@ -17,8 +17,19 @@ import Amplitude
 import TangemSdk
 
 class Analytics {
-    static func log(_ event: Event, params: [ParameterKey: ParameterValue]) {
-        log(event: event, with: params.mapValues { $0.rawValue })
+    static func log(_ event: Event, params: [ParameterKey: String]) {
+        let compatibles = event.compatibleFor()
+        for compatible in compatibles {
+            switch compatible {
+            case .appsflyer, .firebase:
+                log(event: event, with: params)
+            case .amplitude:
+                var convertParams: [String: String] = [:]
+                params.forEach({ convertParams[$0.key.rawValue] = $0.value })
+
+                logAmplitude(event, params: convertParams)
+            }
+        }
     }
 
     static func log(event: Event, with params: [ParameterKey: Any]? = nil) {
@@ -141,7 +152,7 @@ class Analytics {
     }
     #endif
 
-    static func logAmplitude(_ event: AmplitudeEvent, params: [String: String] = [:]) {
+    static func logAmplitude(_ event: Event, params: [String: String] = [:]) {
         #if !CLIP
         Amplitude.instance().logEvent(event.rawValue.camelCaseToSnakeCase(), withEventProperties: params)
         #endif
@@ -174,65 +185,7 @@ extension Analytics {
         case getACard = "get_card"
         case demoActivated = "demo_mode_activated"
 
-        fileprivate static var nfcError: String {
-            "nfc_error"
-        }
-    }
-
-    enum Action: String {
-        case scan = "tap_scan_task"
-        case sendTx = "send_transaction"
-        case pushTx = "push_transaction"
-        case walletConnectSign = "wallet_connect_personal_sign"
-        case walletConnectTxSend = "wallet_connect_tx_sign"
-        case readPinSettings = "read_pin_settings"
-        case changeSecOptions = "change_sec_options"
-        case createWallet = "create_wallet"
-        case purgeWallet = "purge_wallet"
-        case deriveKeys = "derive_keys"
-        case preparePrimary = "prepare_primary"
-        case readPrimary = "read_primary"
-        case addbackup = "add_backup"
-        case proceedBackup = "proceed_backup"
-    }
-
-    enum ParameterKey: String {
-        case blockchain = "blockchain"
-        case batchId = "batch_id"
-        case firmware = "firmware"
-        case action = "action"
-        case errorDescription = "error_description"
-        case errorCode = "error_code"
-        case newSecOption = "new_security_option"
-        case errorKey = "Tangem SDK error key"
-        case walletConnectAction = "wallet_connect_action"
-        case walletConnectRequest = "wallet_connect_request"
-        case walletConnectDappUrl = "wallet_connect_dapp_url"
-        case currencyCode = "currency_code"
-        case source = "source"
-        case cardId = "cardId"
-    }
-
-    enum ParameterValue: String {
-        case welcome
-        case walletOnboarding = "wallet_onboarding"
-    }
-
-    #if !CLIP
-    enum WalletConnectEvent {
-        enum SessionEvent {
-            case disconnect
-            case connect
-        }
-
-        case error(Error, WalletConnectAction?), session(SessionEvent, URL), action(WalletConnectAction), invalidRequest(json: String?)
-    }
-    #endif
-}
-
-//  MARK: - Amplitude events
-extension Analytics {
-    enum AmplitudeEvent: String {
+        // MARK: - Amplitude
         case viewStory1
         case viewStory2
         case viewStory3
@@ -286,8 +239,139 @@ extension Analytics {
         case shareAddress
         case buyTokenTapped
         case p2pInstructionTapped
-        case transactionIsSent
         case sendTokenTapped
+
+        // MARK: -
+        fileprivate static var nfcError: String {
+            "nfc_error"
+        }
+    }
+
+    enum Action: String {
+        case scan = "tap_scan_task"
+        case sendTx = "send_transaction"
+        case pushTx = "push_transaction"
+        case walletConnectSign = "wallet_connect_personal_sign"
+        case walletConnectTxSend = "wallet_connect_tx_sign"
+        case readPinSettings = "read_pin_settings"
+        case changeSecOptions = "change_sec_options"
+        case createWallet = "create_wallet"
+        case purgeWallet = "purge_wallet"
+        case deriveKeys = "derive_keys"
+        case preparePrimary = "prepare_primary"
+        case readPrimary = "read_primary"
+        case addbackup = "add_backup"
+        case proceedBackup = "proceed_backup"
+    }
+
+    enum ParameterKey: String {
+        case blockchain = "blockchain"
+        case batchId = "batch_id"
+        case firmware = "firmware"
+        case action = "action"
+        case errorDescription = "error_description"
+        case errorCode = "error_code"
+        case newSecOption = "new_security_option"
+        case errorKey = "Tangem SDK error key"
+        case walletConnectAction = "wallet_connect_action"
+        case walletConnectRequest = "wallet_connect_request"
+        case walletConnectDappUrl = "wallet_connect_dapp_url"
+        case currencyCode = "currency_code"
+        case source = "source"
+        case cardId = "cardId"
+        case tokenName = "token_name"
+        case type
+        case currency
+        case success
+    }
+
+    enum ParameterValue: String {
+        case welcome
+        case walletOnboarding = "wallet_onboarding"
+    }
+
+    enum AnalyticSystem {
+        case firebase
+        case amplitude
+        case appsflyer
+    }
+
+    #if !CLIP
+    enum WalletConnectEvent {
+        enum SessionEvent {
+            case disconnect
+            case connect
+        }
+
+        case error(Error, WalletConnectAction?), session(SessionEvent, URL), action(WalletConnectAction), invalidRequest(json: String?)
+    }
+    #endif
+}
+
+//  MARK: - Amplitude events
+extension Analytics.Event {
+    func compatibleFor() -> [Analytics.AnalyticSystem] {
+        switch self {
+        case .viewStory1,
+             .viewStory2,
+             .viewStory3,
+             .viewStory4,
+             .viewStory5,
+             .viewStory6,
+             .tokenListTapped,
+             .searchToken,
+             .buyBottomTapped,
+             .firstScan,
+             .secondScan,
+             .supportTapped,
+             .tryAgainTapped,
+             .createWalletTapped,
+             .backupTapped,
+             .backupLaterTapped,
+             .firstCardScan,
+             .addBackupCard,
+             .backupFinish,
+             .createAccessCode,
+             .accessCodeConfirm,
+             .cardCodeSave,
+             .backupCardSave,
+             .onboardingSuccess,
+             .mainPageEnter,
+             .mainPageSwipe,
+             .currencyTypeTapped,
+             .currencyChanged,
+             .settingsTapped,
+             .manageTokensTapped,
+             .tokenTapped,
+             .scanCardTapped,
+             .chatTapped,
+             .wcTapped,
+             .factoryResetTapped,
+             .factoryResetSuccess,
+             .createBackupTapped,
+             .makeComment,
+             .walletConnectSuccessResponse,
+             .walletConnectInvalidRequest,
+             .walletConnectNewSession,
+             .walletConnectSessionDisconnected,
+             .tokenSearch,
+             .tokenSwitchOn,
+             .tokenSwitchOff,
+             .tokenListSave,
+             .сustomTokenAdd,
+             .customTokenSave,
+             .removeToken,
+             .copyAddress,
+             .shareAddress,
+             .buyTokenTapped,
+             .p2pInstructionTapped,
+             .sendTokenTapped:
+            return [.amplitude]
+        case .transactionIsSent:
+            return [.firebase, .appsflyer, .amplitude]
+        default:
+            return [.firebase, .appsflyer]
+        }
     }
 }
 
