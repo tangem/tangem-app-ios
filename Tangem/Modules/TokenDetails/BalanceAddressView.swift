@@ -173,14 +173,14 @@ struct BalanceAddressView: View {
     }
 
     func showShareSheet() {
-        Analytics.logAmplitude(.shareAddress)
+        Analytics.log(.shareAddress, params: [:])
         let address = walletModel.displayAddress(for: selectedAddressIndex)
         let av = UIActivityViewController(activityItems: [address], applicationActivities: nil)
         UIApplication.shared.windows.first?.rootViewController?.present(av, animated: true, completion: nil)
     }
 
     private func copyAddress() {
-        Analytics.logAmplitude(.copyAddress)
+        Analytics.log(.copyAddress, params: [:])
         UIPasteboard.general.string = walletModel.displayAddress(for: selectedAddressIndex)
     }
 }
