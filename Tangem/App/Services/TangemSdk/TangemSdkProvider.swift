@@ -26,6 +26,8 @@ class TangemSdkProvider: TangemSdkProviding {
 
         config.filter.issuerFilter = .deny(["TTM BANK"])
         config.allowUntrustedCards = true
+        // [REDACTED_TODO_COMMENT]
+        config.attestationMode = .offline
         return config
     }()
 
