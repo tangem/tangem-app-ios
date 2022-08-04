@@ -79,8 +79,8 @@ struct UserWalletListCellView: View {
     }
 }
 
-struct UserWalletListCellView_Previews: PreviewProvider {
-    static var previews: some View {
-        UserWalletListCellView(model: .init(cardInfo: UserWallet.wallet(index: 0).cardInfo()), isSelected: true) { _ in }
-    }
-}
+// struct UserWalletListCellView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        UserWalletListCellView(model: .init(cardInfo: UserWallet.wallet(index: 0).cardInfo()), isSelected: true) { _ in }
+//    }
+// }
