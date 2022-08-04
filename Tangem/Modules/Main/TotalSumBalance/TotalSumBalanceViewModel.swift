@@ -12,14 +12,39 @@ import Combine
 class TotalSumBalanceViewModel: ObservableObject {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    @Published var isLoading: Bool = false
-    @Published var totalFiatValueString: NSAttributedString = NSAttributedString(string: "")
-    @Published var hasError: Bool = false
+    @Published var isLoading: Bool
+    @Published var totalFiatValueString: NSAttributedString
+    @Published var hasError: Bool
+    @Published var isSingleCoinCard: Bool
+    @Published var isCurrencySelectionVisible: Bool
+    /// If we have a note or any single coin wallet that we should show this balance
+    @Published var tokenItemViewModel: TokenItemViewModel?
+    let tapOnCurrencySymbol: () -> ()
 
     private var refreshSubscription: AnyCancellable?
-    private var tokenItemViewModels: [TokenItemViewModel] = []
+    private var tokenItemViewModels: [TokenItemViewModel] = [] {
+        didSet {
+            // Need to refactoring it
+            if isSingleCoinCard, let coinModel = tokenItemViewModels.first {
+                tokenItemViewModel = coinModel
+            }
+        }
+    }
 
-    init() {}
+    init(isLoading: Bool = false,
+         totalFiatValueString: NSAttributedString = NSAttributedString(string: ""),
+         hasError: Bool = false,
+         isSingleCoinCard: Bool,
+         isCurrencySelectionVisible: Bool,
+         tapOnCurrencySymbol: @escaping () -> ()
+    ) {
+        self.isLoading = isLoading
+        self.totalFiatValueString = totalFiatValueString
+        self.hasError = hasError
+        self.isSingleCoinCard = isSingleCoinCard
+        self.isCurrencySelectionVisible = isCurrencySelectionVisible
+        self.tapOnCurrencySymbol = tapOnCurrencySymbol
+    }
 
     func beginUpdates() {
         DispatchQueue.main.async {
@@ -52,8 +77,7 @@ class TotalSumBalanceViewModel: ObservableObject {
         refreshSubscription = tangemApiService
             .loadCurrencies()
             .receive(on: RunLoop.main)
-            .sink { _ in
-            } receiveValue: { [weak self] currencies in
+            .sink { _ in } receiveValue: { [weak self] currencies in
                 guard let self = self,
                       let currency = currencies.first(where: { $0.code == AppSettings.shared.selectedCurrencyCode })
                 else {
