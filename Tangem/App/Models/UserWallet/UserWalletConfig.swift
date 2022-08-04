@@ -16,12 +16,14 @@ protocol UserWalletConfig {
     var cardSetLabel: String? { get }
     var cardIdDisplayFormat: CardIdDisplayFormat { get }
     var features: Set<UserWalletConfig.Feature> { get }
+    var defaultCurve: EllipticCurve? { get }
 
     var onboardingSteps: OnboardingSteps { get }
     var backupSteps: OnboardingSteps? { get }
 
     var supportedBlockchains: Set<Blockchain> { get }
     var defaultBlockchains: [StorageEntry] { get }
+    var persistentBlockchains: [StorageEntry]? { get }
 }
 
 struct EmailConfig {
