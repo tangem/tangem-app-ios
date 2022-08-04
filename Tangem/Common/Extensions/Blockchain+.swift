@@ -127,7 +127,7 @@ extension Blockchain {
 
         return name
     }
-    
+
     var iconName: String {
         let rawId = rawStringId
 
