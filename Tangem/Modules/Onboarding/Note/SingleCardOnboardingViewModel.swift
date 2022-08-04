@@ -160,16 +160,8 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             subscription.map { _ = self?.bag.remove($0) }
         } receiveValue: { [weak self] (_, _) in
 
-            if cardInfo.isMultiWallet {
-                if let defaultEntry = cardInfo.defaultStorageEntry {
-                    self?.tokensRepo.append([defaultEntry], for: cardInfo.card.cardId)
-                } else {
-                    let blockchains = SupportedTokenItems().predefinedBlockchains(isDemo: false, testnet: cardInfo.isTestnet)
-                    self?.tokensRepo.append(blockchains, for: cardInfo.card.cardId, style: cardInfo.card.derivationStyle)
-                }
-            }
-
-
+            self?.tokensRepo.append(config.defaultBlockchains, for: cardInfo.card.cardId)
+            
             if config.features.contains(.activation) {
                 AppSettings.shared.cardsStartedActivation.append(cardInfo.card.cardId)
             }
