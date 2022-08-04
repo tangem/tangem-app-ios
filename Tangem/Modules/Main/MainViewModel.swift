@@ -27,7 +27,6 @@ class MainViewModel: ObservableObject {
     @Published var showTradeSheet: Bool = false
     @Published var showSelectWalletSheet: Bool = false
     @Published var isScanning: Bool = false
-    @Published var isCreatingWallet: Bool = false
     @Published var image: UIImage? = nil
     @Published var selectedAddressIndex: Int = 0
     @Published var showExplorerURL: URL? = nil
@@ -60,53 +59,6 @@ class MainViewModel: ObservableObject {
     private lazy var testnetBuyCryptoService: TestnetBuyCryptoService = .init()
 
     private unowned let coordinator: MainRoutable
-
-    public var canCreateTwinWallet: Bool {
-        if isTwinCard {
-            if cardModel.isNotPairedTwin {
-                let wallets = cardModel.wallets?.count ?? 0
-                if wallets > 0 {
-                    return cardModel.isSuccesfullyLoaded
-                } else {
-                    return true
-                }
-            }
-        }
-
-        return true
-    }
-
-    public var hasMultipleButtons: Bool {
-        if canCreateWallet {
-            return true
-        }
-
-        if !canCreateWallet
-            && canBuyCrypto
-            && !cardModel.cardInfo.isMultiWallet  {
-            return true
-        }
-
-        if !cardModel.cardInfo.isMultiWallet,
-           (!canCreateWallet || (cardModel.isTwinCard && cardModel.hasBalance)) {
-            return true
-        }
-
-        return false
-    }
-
-
-    public var canCreateWallet: Bool {
-        if isTwinCard {
-            return cardModel.canCreateTwinCard
-        }
-
-        if case .empty = cardModel.state {
-            return true
-        }
-
-        return false
-    }
 
     public var canSend: Bool {
         guard cardModel.config.features.contains(.signingSupported) else {
@@ -187,6 +139,10 @@ class MainViewModel: ObservableObject {
 
         return walletModels
             .flatMap({ $0.tokenItemViewModels })
+    }
+    
+    var isMultiWalletMode: Bool {
+        cardModel.config.features.contains(.manageTokensAllowed)
     }
 
     init(cardModel: CardViewModel, coordinator: MainRoutable) {
@@ -322,22 +278,6 @@ class MainViewModel: ObservableObject {
         }
     }
 
-    func createWallet() {
-        self.isCreatingWallet = true
-        cardModel.createWallet() { [weak self] result in
-            defer { self?.isCreatingWallet = false }
-            switch result {
-            case .success:
-                break
-            case .failure(let error):
-                if case .userCancelled = error.toTangemSdkError() {
-                    return
-                }
-                self?.setError(error.alertBinder)
-            }
-        }
-    }
-
     func onScan() {
         DispatchQueue.main.async {
             self.totalSumBalanceViewModel.update(with: [])
@@ -375,7 +315,6 @@ class MainViewModel: ObservableObject {
             AppSettings.shared.validatedSignedHashesCards.append(cardModel.cardInfo.card.cardId)
         }
 
-        var hideWarning = true
         // [REDACTED_TODO_COMMENT]
         switch button {
         case .okGotIt:
@@ -407,9 +346,7 @@ class MainViewModel: ObservableObject {
             }
         }
 
-        if hideWarning {
-            warningsService.hideWarning(warning)
-        }
+        warningsService.hideWarning(warning)
     }
 
     func tradeCryptoAction() {
@@ -432,34 +369,15 @@ class MainViewModel: ObservableObject {
     }
 
     func prepareForBackup() {
-        cardOnboardingStepSetupService
-            .backupSteps(cardModel.cardInfo)
-            .sink { [weak self] completion in
-                guard let self = self else {
-                    return
-                }
-                switch completion {
-                case .failure(let error):
-                    Analytics.log(error: error)
-                    print("Failed to load image for new card")
-                    self.error = error.alertBinder
-                case .finished:
-                    break
-                }
-            } receiveValue: { [weak self] steps in
-                guard let self = self else {
-                    return
-                }
-
-                let input = OnboardingInput(steps: steps,
-                                            cardInput: .cardModel(self.cardModel),
-                                            welcomeStep: nil,
-                                            currentStepIndex: 0,
-                                            isStandalone: true)
-
-                self.openOnboarding(with: input)
-            }
-            .store(in: &bag)
+        if let backupSteps = cardModel.config.backupSteps {
+            let input = OnboardingInput(steps: backupSteps,
+                                        cardInput: .cardModel(self.cardModel),
+                                        welcomeStep: nil,
+                                        currentStepIndex: 0,
+                                        isStandalone: true)
+            
+            self.openOnboarding(with: input)
+        }
     }
 
     // MARK: - Private functions
@@ -474,21 +392,25 @@ class MainViewModel: ObservableObject {
 
     private func validateHashesCount() {
         let card = cardModel.cardInfo.card
+        
+        guard cardModel.config.features.contains(.signedHashesCounterAvailable) else { return }
+        
         guard cardModel.hasWallet else {
-            cardModel.cardInfo.isMultiWallet ? warningsService.hideWarning(for: .multiWalletSignedHashes)
-                : warningsService.hideWarning(for: .numberOfSignedHashesIncorrect)
+            if cardModel.config.features.contains(.manageTokensAllowed) {
+                warningsService.hideWarning(for: .multiWalletSignedHashes)
+            } else {
+                warningsService.hideWarning(for: .numberOfSignedHashesIncorrect)
+            }
             return
         }
 
         if isHashesCounted { return }
 
-        if card.isTwinCard { return }
-
-        if card.isDemoCard { return }
+        if !cardModel.config.features.contains(.signedHashesCounterAvailable) { return }
 
         if AppSettings.shared.validatedSignedHashesCards.contains(card.cardId) { return }
 
-        if cardModel.cardInfo.isMultiWallet {
+        if cardModel.config.features.contains(.manageTokensAllowed) {
             if cardModel.cardInfo.card.wallets.filter({ $0.totalSignedHashes ?? 0 > 0 }).count > 0 {
                 withAnimation {
                     warningsService.appendWarning(for: .multiWalletSignedHashes)
@@ -631,7 +553,7 @@ extension MainViewModel {
             return
         }
 
-        guard cardModel.cardInfo.isTestnet, !cardModel.cardInfo.isMultiWallet,
+        guard cardModel.cardInfo.isTestnet, !cardModel.config.features.contains(.manageTokensAllowed),
               let walletModel = cardModel.walletModels?.first,
               walletModel.wallet.blockchain == .ethereum(testnet: true),
               let token = walletModel.tokenItemViewModels.first?.amountType.token else {
