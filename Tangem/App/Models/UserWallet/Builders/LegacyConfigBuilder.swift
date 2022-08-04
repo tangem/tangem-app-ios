@@ -18,21 +18,21 @@ class LegacyConfigBuilder: UserWalletConfigBuilder {
         if card.wallets.isEmpty {
             return [.createWallet, .success]
         }
-        
+
         return []
     }
-    
+
     init(card: Card, walletData: WalletData) {
         self.card = card
         self.walletData = walletData
     }
-    
+
     func buildConfig() -> UserWalletConfig {
         var features = baseFeatures(for: card)
-        
+
         features.insert(.sendingToPayIDAllowed)
         features.insert(.exchangingAllowed)
-        
+
         if card.supportedCurves.contains(.secp256k1) {
             features.insert(.walletConnectAllowed)
             features.insert(.manageTokensAllowed)
@@ -42,11 +42,11 @@ class LegacyConfigBuilder: UserWalletConfigBuilder {
         }
 
         let defaultBlockchain = Blockchain.from(blockchainName: walletData.blockchain, curve: card.supportedCurves[0])
-        
+
         let defaultToken: BlockchainSdk.Token? = walletData.token.map {
             .init(name: $0.name, symbol: $0.symbol, contractAddress: $0.contractAddress, decimalCount: $0.decimals)
         }
-        
+
         let config = UserWalletConfig(cardIdFormatted: AppCardIdFormatter(cid: card.cardId).formatted(),
                                       emailConfig: .default,
                                       touURL: nil,
