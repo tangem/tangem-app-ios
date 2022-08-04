@@ -18,7 +18,7 @@ struct NoteConfig {
         self.card = card
         self.noteData = noteData
     }
-    
+
     private var defaultBlockchain: Blockchain {
         let blockchainName = noteData.blockchain.lowercased() == "binance" ? "bsc" : noteData.blockchain
         let defaultBlockchain = Blockchain.from(blockchainName: blockchainName, curve: .secp256k1)!
@@ -53,6 +53,10 @@ extension NoteConfig: UserWalletConfig {
         return features
     }
 
+    var defaultCurve: EllipticCurve? {
+        defaultBlockchain?.curve
+    }
+
     var onboardingSteps: OnboardingSteps {
         if card.wallets.isEmpty {
             return .singleWallet([.createWallet, .topup, .successTopup])
@@ -68,15 +72,19 @@ extension NoteConfig: UserWalletConfig {
     var backupSteps: OnboardingSteps? {
         nil
     }
-    
+
     var supportedBlockchains: Set<Blockchain> {
         [defaultBlockchain]
     }
-    
+
     var defaultBlockchains: [StorageEntry] {
         let derivationPath = defaultBlockchain.derivationPath(for: .legacy)
         let network = BlockchainNetwork(defaultBlockchain, derivationPath: derivationPath)
         let entry = StorageEntry(blockchainNetwork: network, tokens: [])
         return [entry]
+    }
+
+    var persistentBlockchains: [StorageEntry]? {
+        return nil
     }
 }

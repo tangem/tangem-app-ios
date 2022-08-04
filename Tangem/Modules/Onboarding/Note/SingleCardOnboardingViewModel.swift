@@ -161,7 +161,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         } receiveValue: { [weak self] (_, _) in
 
             self?.tokensRepo.append(config.defaultBlockchains, for: cardInfo.card.cardId)
-            
+
             if config.features.contains(.activation) {
                 AppSettings.shared.cardsStartedActivation.append(cardInfo.card.cardId)
             }
