@@ -9,5 +9,5 @@
 import Foundation
 
 protocol UserWalletListRoutable: AnyObject {
-
+    func didTapUserWallet(userWallet: UserWallet)
 }
