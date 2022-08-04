@@ -490,7 +490,7 @@ class CardViewModel: Identifiable, ObservableObject {
         guard let ethBlockchain = config.supportedBlockchains.first(where: { $0.chainId == 1 }) else {
             return
         }
-      
+
         var shouldAddWalletManager = false
         let network = BlockchainNetwork(ethBlockchain, derivationPath: nil)
         var ethWalletModel = walletModels?.first(where: { $0.blockchainNetwork == network })
