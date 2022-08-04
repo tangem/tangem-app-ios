@@ -1,5 +1,5 @@
 //
-//  DemoCardBuilder.swift
+//  DemoConfig.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
