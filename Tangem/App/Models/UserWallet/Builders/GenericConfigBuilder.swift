@@ -65,6 +65,18 @@ class GenericConfigBuilder: UserWalletConfigBuilder {
         let cardSetLabel: String? = card.backupStatus?.backupCardsCount.map {
             .init(format: "card_label_number_format".localized, 1, $0 + 1)
         }
+        
+        if card.settings.isBackupAllowed, card.backupStatus == .noBackup {
+            features.insert(.backup)
+        }
+        
+        if card.settings.isSettingPasscodeAllowed {
+            features.insert(.settingAccessCodeAllowed)
+        }
+        
+        if card.settings.isSettingPasscodeAllowed {
+            features.insert(.settingPasscodeAllowed)
+        }
       
         let config = UserWalletConfig(cardIdFormatted: AppCardIdFormatter(cid: card.cardId).formatted(),
                                       emailConfig: .default,
@@ -75,7 +87,8 @@ class GenericConfigBuilder: UserWalletConfigBuilder {
                                       defaultBlockchain: nil,
                                       defaultToken: nil,
                                       onboardingSteps: .wallet(onboardingSteps),
-                                      backupSteps: .wallet(backupSteps))
+                                      backupSteps: .wallet(backupSteps),
+                                      defaultDisabledFeatureAlert: nil)
         
         return config
     }
