@@ -158,7 +158,11 @@ final class AppScanTask: CardSessionRunnable {
         readIssuerDataCommand.run(in: session) { (result) in
             switch result {
             case .success(let response):
-                self.walletData = .twin(self.decodeTwinFile(from: card, twinIssuerData: response.issuerData))
+
+                if let walletData = session.environment.walletData {
+                    let twinData = self.decodeTwinFile(from: card, twinIssuerData: response.issuerData)
+                    self.walletData = .twin(walletData, twinData)
+                }
 
                 guard session.environment.card != nil else {
                     completion(.failure(.missingPreflightRead))
@@ -245,9 +249,10 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
 
-        if card.isDemoCard { // Force add blockchains for demo cards
-            let demoBlockchains = SupportedTokenItems().predefinedBlockchains(isDemo: true, testnet: false)
-            tokenItemsRepository.append(demoBlockchains, for: card.cardId, style: card.derivationStyle)
+        // Force add blockchains for demo cards
+        let config = GenericConfig(card: card)
+        if let persistentBlockchains = config.persistentBlockchains {
+            tokenItemsRepository.append(config.defaultBlockchains, for: card.cardId)
         }
 
         let savedItems = tokenItemsRepository.getItems(for: card.cardId)
