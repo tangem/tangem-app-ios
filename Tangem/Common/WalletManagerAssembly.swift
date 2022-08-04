@@ -155,19 +155,20 @@ extension WalletManagerAssembly {
     static private func makeWalletModels(walletManagers: [WalletManager],
                                          derivationStyle: DerivationStyle,
                                          isDemoCard: Bool) -> [WalletModel] {
-        let items = SupportedTokenItems()
-        return walletManagers.map { manager -> WalletModel in
-            var demoBalance: Decimal? = nil
-            if isDemoCard, let balance = items.predefinedDemoBalances[manager.wallet.blockchain] {
-                demoBalance = balance
-            }
-
-            let model = WalletModel(walletManager: manager,
-                                    derivationStyle: derivationStyle,
-                                    demoBalance: demoBalance)
-
-            model.initialize()
-            return model
-        }
+//        let items = SupportedTokenItems()
+//        return walletManagers.map { manager -> WalletModel in
+//            var demoBalance: Decimal? = nil
+//            if isDemoCard, let balance = items.predefinedDemoBalances[manager.wallet.blockchain] {
+//                demoBalance = balance
+//            }
+//
+//            let model = WalletModel(walletManager: manager,
+//                                    derivationStyle: derivationStyle,
+//                                    demoBalance: demoBalance)
+//
+//            model.initialize()
+//            return model
+//        }
+        return []
     }
 }

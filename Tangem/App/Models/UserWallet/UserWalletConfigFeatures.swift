@@ -20,6 +20,7 @@ extension UserWalletConfig {
         case longHashesSupported
         case signedHashesCounterAvailable
         case backup
+        case twinning
 
         // MARK: - App features
 
