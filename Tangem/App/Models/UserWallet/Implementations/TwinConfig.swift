@@ -18,7 +18,7 @@ struct TwinConfig {
     private var defaultBlockchain: Blockchain {
         Blockchain.from(blockchainName: walletData.blockchain, curve: card.supportedCurves[0])!
     }
-    
+
     init(card: Card, walletData: WalletData, twinData: TwinCardInfo) {
         self.card = card
         self.walletData = walletData
@@ -51,12 +51,16 @@ extension TwinConfig: UserWalletConfig {
         features.insert(.activation)
         features.insert(.twinning)
         features.insert(.signingSupported)
-        
+
         if twinData.pairPublicKey != nil {
             features.insert(.settingPasscodeAllowed)
         }
 
         return features
+    }
+
+    var defaultCurve: EllipticCurve? {
+        defaultBlockchain?.curve
     }
 
     var onboardingSteps: OnboardingSteps {
@@ -91,15 +95,19 @@ extension TwinConfig: UserWalletConfig {
     var backupSteps: OnboardingSteps? {
         nil
     }
-    
+
     var supportedBlockchains: Set<Blockchain> {
         [defaultBlockchain]
     }
-    
+
     var defaultBlockchains: [StorageEntry] {
         let derivationPath = defaultBlockchain.derivationPath(for: .legacy)
         let network = BlockchainNetwork(defaultBlockchain, derivationPath: derivationPath)
         let entry = StorageEntry(blockchainNetwork: network, tokens: [])
         return [entry]
+    }
+
+    var persistentBlockchains: [StorageEntry]? {
+        return nil
     }
 }
