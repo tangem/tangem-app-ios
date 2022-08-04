@@ -85,7 +85,6 @@ Tangem — единственный аппаратный кошелек, пре�
 "details_manage_security_passcode" = "Пароль";
 "details_manage_security_passcode_description" = "Перед выполнением любой команды, влекущей за собой изменение состояния карты, вам необходимо будет ввести пароль.";
 "details_manage_security_title" = "Безопасность";
-"details_notification_erase_wallet_not_possible" = "На этом кошельке имеется ненулевой остаток или неподтвержденные транзакции. Сброс до заводских настроек невозможен.";
 "details_row_subtitle_signed_hashes_format" = "%@ хэшей";
 "details_row_title_card_tou" = "Условия использования карты";
 "details_row_title_cid" = "Номер карты";
@@ -319,7 +318,6 @@ This disclaimer was amended for the last time on October 1st, 2020.";
 "wallet_balance_loading" = "Баланс загружается…";
 "wallet_balance_tx_in_progress" = "Транзакция подтверждается...";
 "wallet_balance_verified" = "Подтвержденный баланс";
-"wallet_button_create_twin_wallet" = "Создать twin-кошелек";
 "wallet_button_create_wallet" = "Создать кошелек";
 "wallet_button_scan" = "Сканировать";
 "wallet_button_sell_crypto" = "Продать";
