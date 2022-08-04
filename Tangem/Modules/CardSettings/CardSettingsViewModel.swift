@@ -19,7 +19,7 @@ class CardSettingsViewModel: ObservableObject {
     @Published var isChangeAccessCodeLoading: Bool = false
 
     var cardId: String {
-        cardModel.config.cardIdFormatted
+        cardModel.cardInfo.cardIdFormatted
     }
 
     var cardIssuer: String {
