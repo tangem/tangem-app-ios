@@ -30,15 +30,7 @@ class WalletManagerAssembly {
                                                                     isTestnet: false) {
                 return [twinManager]
             }
-
-            // temp for bugged case
-            if cardInfo.twinCardInfo?.pairPublicKey == nil,
-               let wallet = cardInfo.card.wallets.first,
-               let bitcoinManager = try? factory.makeWalletManager(blockchain: .bitcoin(testnet: false),
-                                                                   walletPublicKey: wallet.publicKey) {
-                return [bitcoinManager]
-            }
-
+            
             return []
         }
 
