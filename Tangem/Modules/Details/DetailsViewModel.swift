@@ -28,6 +28,10 @@ class DetailsViewModel: ObservableObject {
         cardModel.config.features.contains(.backup)
     }
 
+    var canTwin: Bool {
+        cardModel.config.features.contains(.twinning)
+    }
+
     var shouldShowWC: Bool {
         return cardModel.config.features.contains(.walletConnectAllowed)
     }
@@ -73,13 +77,15 @@ class DetailsViewModel: ObservableObject {
     }
 
     func prepareBackup() {
-        let input = OnboardingInput(steps:  cardModel.config.backupSteps,
-                                    cardInput: .cardModel(self.cardModel),
-                                    welcomeStep: nil,
-                                    currentStepIndex: 0,
-                                    isStandalone: true)
+        if let backupSteps = cardModel.config.backupSteps {
+            let input = OnboardingInput(steps: backupSteps,
+                                        cardInput: .cardModel(self.cardModel),
+                                        welcomeStep: nil,
+                                        currentStepIndex: 0,
+                                        isStandalone: true)
 
-        self.openOnboarding(with: input)
+            self.openOnboarding(with: input)
+        }
     }
 }
 
