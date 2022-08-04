@@ -58,6 +58,9 @@ class AppSettings {
     @AppStorageCompat(StorageType.userWallets)
     var userWallets: Data = Data()
 
+    @AppStorageCompat(StorageType.selectedUserWalletId)
+    var selectedUserWalletId: Data = Data()
+
     static let shared: AppSettings = { .init() }()
 
     private init() {}
