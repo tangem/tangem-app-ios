@@ -17,7 +17,7 @@ struct Start2CoinConfig {
     private var defaultBlockchain: Blockchain {
         Blockchain.from(blockchainName: walletData.blockchain, curve: card.supportedCurves[0])!
     }
-    
+
     private func makeTouURL() -> URL? {
         let baseurl = "https://app.tangem.com/tou/"
         let regionCode = self.regionCode(for: card.cardId) ?? "fr"
@@ -97,6 +97,10 @@ extension Start2CoinConfig: UserWalletConfig {
         return features
     }
 
+    var defaultCurve: EllipticCurve? {
+        defaultBlockchain?.curve
+    }
+
     var onboardingSteps: OnboardingSteps {
         if card.wallets.isEmpty {
             return .singleWallet([.createWallet, .success])
@@ -108,15 +112,19 @@ extension Start2CoinConfig: UserWalletConfig {
     var backupSteps: OnboardingSteps? {
         return nil
     }
-    
+
     var supportedBlockchains: Set<Blockchain> {
         [defaultBlockchain]
     }
-    
+
     var defaultBlockchains: [StorageEntry] {
         let derivationPath = defaultBlockchain.derivationPath(for: .legacy)
         let network = BlockchainNetwork(defaultBlockchain, derivationPath: derivationPath)
         let entry = StorageEntry(blockchainNetwork: network, tokens: [])
         return [entry]
+    }
+
+    var persistentBlockchains: [StorageEntry]? {
+        return nil
     }
 }
