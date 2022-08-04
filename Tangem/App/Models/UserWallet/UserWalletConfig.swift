@@ -23,6 +23,20 @@ struct UserWalletConfig {
     
     let onboardingSteps: OnboardingSteps
     let backupSteps: OnboardingSteps?
+    
+    let defaultDisabledFeatureAlert: AlertBinder?
+    
+    //Temp for migration
+    var defaultStorageEntry: StorageEntry? {
+        guard let defaultBlockchain = defaultBlockchain else {
+            return nil
+        }
+
+        let derivationPath = defaultBlockchain.derivationPath(for: .legacy)
+        let network = BlockchainNetwork(defaultBlockchain, derivationPath: derivationPath)
+        let tokens = defaultToken.map { [$0] } ?? []
+        return StorageEntry(blockchainNetwork: network, tokens: tokens)
+    }
 }
 
 protocol UserWalletConfigBuilder {
@@ -30,6 +44,7 @@ protocol UserWalletConfigBuilder {
 }
 
 extension UserWalletConfigBuilder {
+    private var isTestnet: Bool
     func baseFeatures(for card: Card) -> Set<UserWalletConfig.Feature> {
         var features = Set<UserWalletConfig.Feature>()
         
@@ -44,6 +59,10 @@ extension UserWalletConfigBuilder {
         }
         
         return features
+    }
+    
+    func supportedBlockchains(for card: Card) -> Set<Blockchain> {
+        
     }
 }
 
@@ -61,7 +80,7 @@ class UserWalletConfigBuilderFactory {
                 return Start2CoinConfigBuilder(card: cardInfo.card, walletData: walletData)
             }
             
-            return V3ConfigBuilder(card: cardInfo.card, walletData: walletData)
+            return LegacyConfigBuilder(card: cardInfo.card, walletData: walletData)
         }
     }
 }
