@@ -9,135 +9,6 @@
 import Combine
 import SwiftUI
 
-import struct TangemSdk.ArtworkInfo
-import struct TangemSdk.Card
-import struct TangemSdk.DerivationPath
-import struct TangemSdk.ExtendedPublicKey
-import struct TangemSdk.WalletData
-import enum TangemSdk.EllipticCurve
-import Solana_Swift
-import TangemSdk
-
-
-// MARK: -
-
-struct UserWallet: Identifiable {
-    var id = UUID()
-    let userWalletId: Data
-    let name: String
-    let card: Card
-    let walletData: DefaultWalletData
-    let artwork: ArtworkInfo?
-    let keys: [Data: [DerivationPath: ExtendedPublicKey]] // encrypted
-    let isHDWalletAllowed: Bool
-}
-
-enum DefaultWalletData {
-    case note(WalletData)
-    case v3(WalletData)
-    case twin(TwinData)
-    case none
-}
-
-struct TwinData {
-    let cardId: String
-    var pairPublicKey: Data?
-}
-
-extension UserWallet {
-    static func wallet(index: Int) -> UserWallet {
-        .init(userWalletId: Data(hex: "0\(index)"),
-              name: "Wallet",
-              card: .wallet,
-              walletData: .twin(TwinData(cardId: "asdads", pairPublicKey: nil)),
-              artwork: ArtworkInfo(id: "card_tg115",
-                                   hash: "asd",
-                                   date: "2022-01-01"),
-              keys: [:],
-              isHDWalletAllowed: true)
-    }
-    static func wallet2(index: Int) -> UserWallet {
-        .init(userWalletId: Data(hex: "0\(index)"),
-              name: "Wallet",
-              card: .wallet2,
-              walletData: .twin(TwinData(cardId: "asdads", pairPublicKey: nil)),
-              artwork: ArtworkInfo(id: "card_tg115",
-                                   hash: "asd",
-                                   date: "2022-01-01"),
-              keys: [:],
-              isHDWalletAllowed: true)
-    }
-
-    static func walletTest(index: Int) -> UserWallet {
-        .init(userWalletId: Data(hex: "0\(index)"),
-              name: "Wallet",
-              card: .walletTest,
-              walletData: .twin(TwinData(cardId: "asdads", pairPublicKey: nil)),
-              artwork: ArtworkInfo(id: "card_tg115",
-                                   hash: "asd",
-                                   date: "2022-01-01"),
-              keys: [
-                  Data(hex: "034c88a1a83469ddf20d0c07e5c4a1e7b83734e721e60d642b94a53222c47c670d"): [try! DerivationPath(rawPath: "m/44'/1'/0'/0/0"): ExtendedPublicKey(publicKey: Data(hex: "024a8ecfcdafc46de0edd3e39061613f14c0bf4fb0e2ddf8d9392c259ca36c3e16"), chainCode: Data(hex: "af63f9ce81b11c6fafb807c34e20144bb6ad64dd0cd9202768947a0f1b99cf02"))],
-              ],
-              isHDWalletAllowed: true)
-    }
-
-    static func noteBtc(index: Int) -> UserWallet {
-        return .init(userWalletId: Data(hex: "1\(index)"),
-                     name: "Note",
-                     card: .noteBtc,
-                     walletData: .note(.init(blockchain: "btc", token: nil)),
-                     artwork: ArtworkInfo(id: "card_tg109",
-                                          hash: "asd",
-                                          date: "2022-01-01"),
-                     keys: [:],
-                     isHDWalletAllowed: true)
-    }
-    static func noteDoge(index: Int) -> UserWallet {
-        return .init(userWalletId: Data(hex: "2\(index)"),
-                     name: "Note",
-                     card: .noteDoge,
-                     walletData: .note(.init(blockchain: "doge", token: nil)),
-                     artwork: ArtworkInfo(id: "card_tg112",
-                                          hash: "asd",
-                                          date: "2022-01-01"),
-                     keys: [:],
-                     isHDWalletAllowed: true)
-    }
-
-    func cardInfo() -> CardInfo {
-        let cardInfoWalletData: WalletData?
-        if case let .note(wd) = walletData {
-            cardInfoWalletData = wd
-        } else {
-            cardInfoWalletData = nil
-        }
-        return CardInfo(
-            card: card,
-            name: self.name,
-            walletData: cardInfoWalletData,
-            artwork: artwork == nil ? .noArtwork : .artwork(artwork!),
-            twinCardInfo: nil,
-            isTangemNote: isTangemNote,
-            isTangemWallet: isTangemWallet,
-            derivedKeys: keys,
-            primaryCard: nil
-        )
-    }
-}
-
-extension UserWallet {
-    var isTangemNote: Bool {
-        return card.cardId == Card.noteBtc.cardId || card.cardId == Card.noteDoge.cardId
-    }
-
-    var isTangemWallet: Bool {
-        !isTangemNote
-    }
-}
-
-// MARK: -
-
 final class UserWalletListViewModel: ObservableObject {
     // MARK: - ViewState
     @Published var selectedUserWalletId: Data?
@@ -145,7 +16,6 @@ final class UserWalletListViewModel: ObservableObject {
     @Published var singleCurrencyModels: [CardViewModel] = []
 
     // MARK: - Dependencies
-
 
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
 
@@ -158,18 +28,25 @@ final class UserWalletListViewModel: ObservableObject {
     ) {
         self.coordinator = coordinator
 
-        multiCurrencyModels = [
-            .init(cardInfo: UserWallet.wallet(index: 0).cardInfo(), savedCards: true),
-            .init(cardInfo: UserWallet.wallet2(index: 1).cardInfo(), savedCards: true),
-            .init(cardInfo: UserWallet.walletTest(index: 0).cardInfo(), savedCards: true),
-        ]
+        let userWallets = savedUserWallets()
+        let singleCurrencyWallets = userWallets.filter {
+            if case .note = $0.walletData {
+                return true
+            } else {
+                return false
+            }
+        }
+        let multiCurrencyWallets = userWallets.filter {
+            if case .note = $0.walletData {
+                return false
+            } else {
+                return true
+            }
+        }
 
-        singleCurrencyModels = [
-            .init(cardInfo: UserWallet.noteBtc(index: 0).cardInfo(), savedCards: true),
-            .init(cardInfo: UserWallet.noteDoge(index: 0).cardInfo(), savedCards: true),
-        ]
-
-        selectedUserWalletId = multiCurrencyModels.first?.userWallet.userWalletId
+        multiCurrencyModels = multiCurrencyWallets.map { .init(cardInfo: $0.cardInfo(), savedCards: true) }
+        singleCurrencyModels = singleCurrencyWallets.map { .init(cardInfo: $0.cardInfo(), savedCards: true) }
+        selectedUserWalletId = userWallets.first?.userWalletId
     }
 
     func onUserWalletTapped(_ userWallet: UserWallet) {
@@ -205,6 +82,60 @@ final class UserWalletListViewModel: ObservableObject {
     }
 
     private func processScannedCard(_ cardModel: CardViewModel) {
-        print(cardModel)
+        let cardInfo = cardModel.cardInfo
+        let card = cardInfo.card
+
+        let walletData: DefaultWalletData
+
+        if let cardInfoWalletData = cardInfo.walletData {
+            walletData = .note(cardInfoWalletData)
+        } else {
+            walletData = .none
+        }
+        // [REDACTED_TODO_COMMENT]
+
+        let name: String
+        switch walletData {
+        case .note:
+            name = "Note"
+        case .v3:
+            name = "Wallet"
+        case .twin:
+            name = "Twin"
+        case .none:
+            name = "Wallet"
+        }
+
+        let userWallet = UserWallet(userWalletId: card.cardPublicKey, name: name, card: card, walletData: walletData, artwork: nil, keys: cardInfo.derivedKeys, isHDWalletAllowed: card.settings.isHDWalletAllowed)
+
+        var userWallets = savedUserWallets()
+
+        guard !userWallets.contains(where: { $0.userWalletId == userWallet.userWalletId }) else {
+            return
+        }
+
+        userWallets.append(userWallet)
+        singleCurrencyModels.append(.init(cardInfo: userWallet.cardInfo(), savedCards: true))
+
+        saveUserWallets(userWallets)
+    }
+
+    private func savedUserWallets() -> [UserWallet] {
+        do {
+            let data = AppSettings.shared.userWallets
+            return try JSONDecoder().decode([UserWallet].self, from: data)
+        } catch {
+            print(error)
+            return []
+        }
+    }
+
+    private func saveUserWallets(_ userWallets: [UserWallet]) {
+        do {
+            let data = try JSONEncoder().encode(userWallets)
+            AppSettings.shared.userWallets = data
+        } catch {
+            print(error)
+        }
     }
 }
