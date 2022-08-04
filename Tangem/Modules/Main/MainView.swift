@@ -122,13 +122,13 @@ struct MainView: View {
                         })
                         .padding(.horizontal, 16)
 
-                        if !viewModel.cardModel.cardInfo.isMultiWallet {
+                        if !viewModel.isMultiWalletMode {
                             ForEach(pendingTransactionViews) { $0 }
                                 .padding(.horizontal, 16.0)
                         }
 
 
-                        if viewModel.cardModel.cardInfo.isMultiWallet {
+                        if viewModel.isMultiWalletMode {
 
                             if !viewModel.tokenItemViewModels.isEmpty {
                                 TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel) {
@@ -162,26 +162,23 @@ struct MainView: View {
                             }
 
                             if let walletModel = viewModel.cardModel.walletModels?.first {
-                                if viewModel.cardModel.cardInfo.card.isTwinCard,
-                                   viewModel.cardModel.cardInfo.twinCardInfo?.pairPublicKey == nil {
-                                    EmptyView()
-                                } else {
-                                    AddressDetailView(showQr: $viewModel.showQR,
-                                                      selectedAddressIndex: $viewModel.selectedAddressIndex,
-                                                      showExplorerURL: $viewModel.showExplorerURL,
-                                                      walletModel: walletModel,
-                                                      payID: viewModel.cardModel.payId)
-                                }
+                                AddressDetailView(showQr: $viewModel.showQR,
+                                                  selectedAddressIndex: $viewModel.selectedAddressIndex,
+                                                  showExplorerURL: $viewModel.showExplorerURL,
+                                                  walletModel: walletModel,
+                                                  payID: viewModel.cardModel.payId)
                             }
                         }
 
 
-                        Color.clear.frame(width: 10, height: viewModel.hasMultipleButtons ? 116 : 58, alignment: .center)
+                        Color.clear.frame(width: 10, height: 58, alignment: .center)
                     }
                 }
 
-                bottomButtons
-                    .frame(width: geometry.size.width)
+                if !viewModel.isMultiWalletMode {
+                    bottomButtons
+                        .frame(width: geometry.size.width)
+                }
             }
         }
         .navigationBarBackButtonHidden(true)
@@ -195,14 +192,6 @@ struct MainView: View {
         .navigationBarHidden(false)
         .ignoresKeyboard()
         .alert(item: $viewModel.error) { $0.alert }
-    }
-
-    var createWalletButton: some View {
-        TangemButton(title: viewModel.isTwinCard ? "wallet_button_create_twin_wallet" : "wallet_button_create_wallet",
-                     systemImage: "arrow.right") { viewModel.createWallet()  }
-            .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
-                                           isDisabled: !viewModel.canCreateWallet || !viewModel.canCreateTwinWallet,
-                                           isLoading: viewModel.isCreatingWallet))
     }
 
     var sendButton: some View {
@@ -251,21 +240,11 @@ struct MainView: View {
 
             VStack {
                 HStack(alignment: .center) {
-
-                    if viewModel.canCreateWallet {
-                        createWalletButton
-                    }
-
-                    if !viewModel.canCreateWallet
-                        && viewModel.canBuyCrypto
-                        && !(viewModel.cardModel.cardInfo.isMultiWallet)  {
+                    if viewModel.canBuyCrypto {
                         exchangeCryptoButton
                     }
 
-                    if let cardModel = viewModel.cardModel, !cardModel.cardInfo.isMultiWallet,
-                       (!viewModel.canCreateWallet || (cardModel.isTwinCard && cardModel.hasBalance)) {
-                        sendButton
-                    }
+                    sendButton
                 }
             }
             .padding([.horizontal, .top], 16)

@@ -25,17 +25,7 @@ class DetailsViewModel: ObservableObject {
     @Published var error: AlertBinder?
 
     var canCreateBackup: Bool {
-        if !cardModel.cardInfo.isTangemWallet {
-            return false
-        }
-
-        if !cardModel.cardInfo.card.settings.isBackupAllowed {
-            return false
-        }
-
-        // todo: respect involved cards
-
-        return cardModel.cardInfo.card.backupStatus == .noBackup
+        cardModel.config.features.contains(.backup)
     }
 
     var shouldShowWC: Bool {

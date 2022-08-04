@@ -1,5 +1,5 @@
 //
-//  V3ConfigBulder.swift
+//  LegacyConfigBuilder.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 
-class V3ConfigBuilder: UserWalletConfigBuilder {
+class LegacyConfigBuilder: UserWalletConfigBuilder {
     private let card: Card
     private let walletData: WalletData
 
@@ -36,6 +36,7 @@ class V3ConfigBuilder: UserWalletConfigBuilder {
         if card.supportedCurves.contains(.secp256k1) {
             features.insert(.walletConnectAllowed)
             features.insert(.manageTokensAllowed)
+            features.insert(.tokensSearch)
         } else {
             features.insert(.signedHashesCounterAvailable)
         }
@@ -55,7 +56,8 @@ class V3ConfigBuilder: UserWalletConfigBuilder {
                                       defaultBlockchain: defaultBlockchain,
                                       defaultToken: defaultToken,
                                       onboardingSteps: .singleWallet(onboardingSteps),
-                                      backupSteps: nil)
+                                      backupSteps: nil,
+                                      defaultDisabledFeatureAlert: nil)
         return config
     }
 }
