@@ -54,11 +54,16 @@ class WelcomeCoordinator: CoordinatorObject {
     }
 
     func start(with options: WelcomeCoordinator.Options) {
+        let service = CommonUserWalletListService()
         welcomeViewModel = .init(coordinator: self)
         subscribeToWelcomeLifecycle()
 
         if options.shouldScan {
             welcomeViewModel?.scanCard()
+        }
+
+        if let savedUserWallet = service.selectedUserWallet {
+            openMain(with: .init(userWallet: savedUserWallet))
         }
     }
 

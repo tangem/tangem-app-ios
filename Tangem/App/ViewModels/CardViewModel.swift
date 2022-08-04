@@ -314,6 +314,10 @@ class CardViewModel: Identifiable, ObservableObject {
     private var searchBlockchainsCancellable: AnyCancellable? = nil
     private var bag = Set<AnyCancellable>()
 
+    convenience init(userWallet: UserWallet) {
+        self.init(cardInfo: userWallet.cardInfo(), savedCards: true)
+    }
+
     init(cardInfo: CardInfo, savedCards: Bool = false) {
         self.cardInfo = cardInfo
         self.signer = .init(with: cardInfo.card)
