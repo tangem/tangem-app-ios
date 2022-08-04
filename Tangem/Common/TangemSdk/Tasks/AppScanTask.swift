@@ -77,7 +77,7 @@ final class AppScanTask: CardSessionRunnable {
             completion(.failure(TangemSdkError.underlying(error: AppScanTaskError.wrongCardClip)))
             return
         }
-        
+
         if let v3WalletData = session.environment.walletData {
             self.walletData = .v3(v3WalletData)
         }
@@ -171,7 +171,7 @@ final class AppScanTask: CardSessionRunnable {
             }
         }
     }
-    
+
     private func decodeTwinFile(from card: Card, twinIssuerData: Data) -> TwinCardInfo {
         var pairPublicKey: Data?
 
