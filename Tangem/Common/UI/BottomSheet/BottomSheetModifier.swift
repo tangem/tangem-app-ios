@@ -27,7 +27,7 @@ struct BottomSheetModifier<ContentView: View>: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .valueChanged(value: isPresented, onChange: updatePresentation(_:))
+            .onChange(of: isPresented, perform: updatePresentation(_:))
     }
 
     private func updatePresentation(_ isPresented: Bool) {
