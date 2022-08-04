@@ -9,9 +9,14 @@
 import Foundation
 import Combine
 
+protocol UserWalletListCoordinatorRoutable: AnyObject {
+    func didTapUserWallet(userWallet: UserWallet)
+}
+
 class UserWalletListCoordinator: CoordinatorObject {
     let dismissAction: Action
     let popToRootAction: ParamsAction<PopToRootOptions>
+    weak var router: UserWalletListCoordinatorRoutable?
 
     // MARK: - Root view model
 
@@ -23,14 +28,20 @@ class UserWalletListCoordinator: CoordinatorObject {
 
     required init(
         dismissAction: @escaping Action,
-        popToRootAction: @escaping ParamsAction<PopToRootOptions>
+        popToRootAction: @escaping ParamsAction<PopToRootOptions>,
+        router: UserWalletListCoordinatorRoutable
     ) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
+        self.router = router
     }
 
     func start(with options: Options) {
 
+    }
+
+    func didTapUserWallet(userWallet: UserWallet) {
+        router?.didTapUserWallet(userWallet: userWallet)
     }
 }
 
