@@ -13,7 +13,7 @@ import Moya
 class CommonTangemApiService {
     @Injected(\.cardsRepository) var cardsRepository: CardsRepository
 
-    private let provider = MoyaProvider<TangemApiTarget>()
+    private let provider = TangemProvider<TangemApiTarget>()
     private var bag: Set<AnyCancellable> = .init()
 
     private let fallbackRegionCode = Locale.current.regionCode?.lowercased() ?? ""
