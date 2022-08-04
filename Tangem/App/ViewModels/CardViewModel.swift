@@ -69,72 +69,12 @@ class CardViewModel: Identifiable, ObservableObject {
         return walletModels?.map { $0.wallet }
     }
 
-    var canSetAccessCode: Bool {
-        if cardInfo.isTangemWallet {
-            return cardInfo.card.settings.isSettingAccessCodeAllowed
-        }
-
-        return cardInfo.card.settings.isSettingAccessCodeAllowed
-            && config.features.contains(.settingAccessCodeAllowed)
-    }
-
-    var canSetPasscode: Bool {
-        if cardInfo.isTangemWallet {
-            return cardInfo.card.settings.isSettingPasscodeAllowed
-        }
-
-        return cardInfo.card.settings.isSettingPasscodeAllowed
-            /* && cardInfo.card.settings.isRemovingAccessCodeAllowed */ // Disable temporary because of sdk inverted mapping bug
-            && (config.features.contains(.settingPasscodeAllowed) || isPairedTwin)
-    }
-
     var canSetLongTap: Bool {
         return cardInfo.card.settings.isResettingUserCodesAllowed
     }
 
     var hasWallet: Bool {
         state.walletModels != nil
-    }
-
-    var purgeWalletProhibitedDescription: String? {
-        if isTwinCard || !hasWallet {
-            return nil
-        }
-
-        if cardInfo.card.wallets.contains(where: { $0.settings.isPermanent }) {
-            return TangemSdkError.purgeWalletProhibited.localizedDescription
-        }
-
-        if let walletModels = walletModels,
-           walletModels.filter({ !$0.state.isSuccesfullyLoaded }).count != 0  {
-            return nil
-        }
-
-        if !canPurgeWallet {
-            return "details_notification_erase_wallet_not_possible".localized
-        }
-
-        return nil
-    }
-
-    var canPurgeWallet: Bool {
-        if cardInfo.card.wallets.isEmpty {
-            return false
-        }
-
-        if cardInfo.card.wallets.contains(where: { $0.settings.isPermanent }) {
-            return false
-        }
-
-        if let walletModels = state.walletModels {
-            if walletModels.contains(where: { !$0.canCreateOrPurgeWallet }) {
-                return false
-            }
-
-            return true
-        }
-
-        return false
     }
 
     var isSuccesfullyLoaded: Bool {
@@ -149,56 +89,13 @@ class CardViewModel: Identifiable, ObservableObject {
         return false
     }
 
-    var isNotPairedTwin: Bool {
-        isTwinCard && cardInfo.twinCardInfo?.pairPublicKey == nil
-    }
-
-    var isPairedTwin: Bool {
-        isTwinCard && cardInfo.twinCardInfo?.pairPublicKey != nil
-    }
-
     var hasBalance: Bool {
         let hasBalance = state.walletModels.map { $0.contains(where: { $0.hasBalance }) } ?? false
 
         return hasBalance
     }
 
-    var canCreateTwinCard: Bool {
-        guard
-            isTwinCard,
-            let twinInfo = cardInfo.twinCardInfo
-//            twinInfo.series != nil
-        else { return false }
-
-        if twinInfo.pairPublicKey != nil {
-            return false
-        }
-
-        return true
-    }
-
-    var canRecreateTwinCard: Bool {
-        guard isTwinCard && cardInfo.twinCardInfo?.series != nil  else { return false }
-
-        if case .empty = state {
-            return false
-        }
-
-        if cardInfo.card.wallets.first?.settings.isPermanent ?? false {
-            return false
-        }
-
-        if let walletModels = state.walletModels,
-           walletModels.contains(where: { !$0.canCreateOrPurgeWallet }) {
-            return false
-        }
-
-        return true
-    }
-
     var canExchangeCrypto: Bool { config.features.contains(.exchangingAllowed) }
-
-    var isTestnet: Bool { cardInfo.isTestnet }
 
     var cachedImage: UIImage? = nil
 
@@ -208,7 +105,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
 
         return $cardInfo
-            .filter { $0.artwork != .notLoaded || $0.card.isTwinCard }
+            .filter { $0.artwork != .notLoaded }
             .map { $0.imageLoadDTO }
             .removeDuplicates()
             .flatMap { [weak self] info -> AnyPublisher<UIImage, Never> in
@@ -410,7 +307,7 @@ class CardViewModel: Identifiable, ObservableObject {
     // MARK: - Wallet
     func createWallet(_ completion: @escaping (Result<Void, Error>) -> Void) {
         let card = self.cardInfo.card
-        tangemSdk.startSession(with: CreateWalletAndReadTask(with: cardInfo.defaultBlockchain?.curve),
+        tangemSdk.startSession(with: CreateWalletAndReadTask(with: config.defaultBlockchain?.curve),
                                cardId: cardInfo.card.cardId,
                                initialMessage: Message(header: nil,
                                                        body: "initial_message_create_wallet_body".localized)) { [weak self] result in
@@ -483,9 +380,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
             switch result {
             case .success(let info):
-                guard let artwork = info.artwork else { return }
-
-                self.cardInfo.artwork = .artwork(artwork)
+                self.cardInfo.artwork =  info.artwork.map { .artwork($0) } ?? .noArtwork
             case .failure:
                 self.cardInfo.artwork = .noArtwork
                 self.warningsService.setupWarnings(for: self.cardInfo)
@@ -511,8 +406,11 @@ class CardViewModel: Identifiable, ObservableObject {
         updateModel()
     }
 
-    func clearTwinPairKey() {
-        cardInfo.twinCardInfo?.pairPublicKey = nil
+    func clearTwinPairKey() { //[REDACTED_TODO_COMMENT]
+        if case let .twin(walletData) = cardInfo.walletData {
+            let newData = TwinCardInfo(cid: walletData.cid, series: walletData.series)
+            cardInfo.walletData = .twin(newData)
+        }
     }
 
     func updateState() {
@@ -525,7 +423,8 @@ class CardViewModel: Identifiable, ObservableObject {
             print("⁉️ Recreating all wallet models for Card view model state")
             self.state = .loaded(walletModel: WalletManagerAssembly.makeAllWalletModels(from: cardInfo))
 
-            if !AppSettings.shared.cardsStartedActivation.contains(cardInfo.card.cardId) || cardInfo.isTangemWallet {
+            //[REDACTED_TODO_COMMENT]
+           // if !AppSettings.shared.cardsStartedActivation.contains(cardInfo.card.cardId) || cardInfo.isTangemWallet {
                 update()
                     .sink { _ in
 
@@ -533,7 +432,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
                     }
                     .store(in: &bag)
-            }
+          //  }
         }
     }
 
@@ -552,10 +451,8 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func searchBlockchains() {
-        guard cardInfo.isMultiWallet else {
-            return
-        }
-
+        guard config.features.contains(.tokensSearch) else { return }
+    
         searchBlockchainsCancellable = nil
 
         guard let currentBlockhains = wallets?.map({ $0.blockchain }) else {
@@ -588,11 +485,11 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func searchTokens() {
-        guard cardInfo.isMultiWallet, !cardInfo.isTangemWallet,
+        guard config.features.contains(.tokensSearch),
               !AppSettings.shared.searchedCards.contains(cardInfo.card.cardId) else {
             return
         }
-
+        
         var shouldAddWalletManager = false
         let ethBlockchain = Blockchain.ethereum(testnet: isTestnet)
         let network = BlockchainNetwork(ethBlockchain, derivationPath: nil)
