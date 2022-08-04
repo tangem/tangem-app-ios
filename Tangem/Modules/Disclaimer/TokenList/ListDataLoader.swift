@@ -9,6 +9,7 @@
 import SwiftUI
 import Combine
 import TangemSdk
+import BlockchainSdk
 
 class ListDataLoader {
     // MARK: Dependencies
@@ -21,7 +22,7 @@ class ListDataLoader {
     private(set) var canFetchMore = true
 
     // MARK: Input
-    private let cardInfo: CardInfo?
+    private let config: UserWalletConfig
 
     // MARK: Private
 
@@ -37,17 +38,8 @@ class ListDataLoader {
     private var cachedSearch: [String: [CoinModel]] = [:]
     private var lastSearchText = ""
 
-    /// Used to filter the loading of available coins
-    private var walletCurves: [EllipticCurve] {
-        cardInfo?.card.walletCurves ?? EllipticCurve.allCases
-    }
-
-    private var isTestnet: Bool {
-        cardInfo?.isTestnet ?? false
-    }
-
-    init(cardInfo: CardInfo?) {
-        self.cardInfo = cardInfo
+    init(config: UserWalletConfig) {
+        self.config = config
     }
 
     func reset(_ searchText: String) {
@@ -84,20 +76,31 @@ class ListDataLoader {
 
 private extension ListDataLoader {
     func loadItems(_ searchText: String) -> AnyPublisher<[CoinModel], Never> {
-        // If testnet then use local coins from testnet_tokens.json file
-        if isTestnet {
-            return loadTestnetItems(searchText)
+        let networkIds = config.supportedBlockchains.map { $0.networkId }
+        
+        let searchText = searchText.trimmed()
+        let requestModel = CoinsListRequestModel(
+            networkIds: networkIds,
+            searchText: searchText,
+            limit: perPage,
+            offset: items.count,
+            active: true
+        )
+        
+        // If testnet then use local coins from testnet_tokens.json file.
+        if networkIds.contains(Blockchain.testnetId) {
+            return loadTestnetItems(requestModel)
         }
 
-        return loadMainnetItems(searchText)
+        return loadMainnetItems(requestModel)
     }
 
-    func loadTestnetItems(_ searchText: String) -> AnyPublisher<[CoinModel], Never> {
-        let searchText = searchText.lowercased()
+    func loadTestnetItems(_ requestModel: CoinsListRequestModel) -> AnyPublisher<[CoinModel], Never> {
+        let searchText = requestModel.searchText?.lowercased()
         let itemsPublisher: AnyPublisher<[CoinModel], Never>
 
         if cached.isEmpty {
-            itemsPublisher = loadCoinsFromLocalJsonPublisher()
+            itemsPublisher = loadCoinsFromLocalJsonPublisher(requestModel: requestModel)
         } else {
             itemsPublisher = Just(cached).eraseToAnyPublisher()
         }
@@ -106,8 +109,8 @@ private extension ListDataLoader {
             .map { [weak self] models -> [CoinModel] in
                 guard let self = self else { return [] }
 
-                if searchText.isEmpty { return models }
-
+                guard let searchText = searchText else { return models }
+                
                 if let cachedSearch = self.cachedSearch[searchText] {
                     return cachedSearch
                 }
@@ -126,27 +129,14 @@ private extension ListDataLoader {
             .eraseToAnyPublisher()
     }
 
-    func loadMainnetItems(_ searchText: String) -> AnyPublisher<[CoinModel], Never> {
-        let networkIds = SupportedTokenItems()
-            .blockchains(for: walletCurves, isTestnet: isTestnet)
-            .map { $0.networkId }
-
-        let searchText = searchText.trimmed()
-        let requestModel = CoinsListRequestModel(
-            networkIds: networkIds,
-            searchText: searchText,
-            limit: perPage,
-            offset: items.count,
-            active: true
-        )
-
-        return tangemApiService.loadCoins(requestModel: requestModel)
+    func loadMainnetItems(_ requestModel: CoinsListRequestModel) -> AnyPublisher<[CoinModel], Never> {
+        tangemApiService.loadCoins(requestModel: requestModel)
             .replaceError(with: [])
             .eraseToAnyPublisher()
     }
 
-    func loadCoinsFromLocalJsonPublisher() -> AnyPublisher<[CoinModel], Never> {
-        SupportedTokenItems().loadTestnetCoins(supportedCurves: walletCurves)
+    func loadCoinsFromLocalJsonPublisher(requestModel: CoinsListRequestModel) -> AnyPublisher<[CoinModel], Never> {
+        SupportedTokenItems().loadCoins(requestModel: requestModel)
             .handleEvents(receiveOutput: { [weak self] output in
                 self?.cached = output
             })
