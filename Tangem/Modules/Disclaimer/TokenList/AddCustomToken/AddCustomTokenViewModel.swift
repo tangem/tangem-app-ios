@@ -184,8 +184,8 @@ class AddCustomTokenViewModel: ObservableObject {
         let blockchains = supportedTokenItems.blockchains(for: cardInfo.card.walletCurves, isTestnet: cardInfo.isTestnet)
 
         if withTokenSupport {
-            let blockchainsWithTokens = supportedTokenItems.blockchainsWithTokens(isTestnet: cardInfo.isTestnet)
-            let evmBlockchains = supportedTokenItems.evmBlockchains(isTestnet: cardInfo.isTestnet)
+            let blockchainsWithTokens = blockchains.filter { $0.canHandleTokens }
+            let evmBlockchains = blockchains.filter { $0.isEvm }
             let blockchainsToDisplay = blockchainsWithTokens.union(evmBlockchains)
             return blockchains.filter { blockchainsToDisplay.contains($0) }
         } else {
