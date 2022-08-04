@@ -488,7 +488,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                                                                     body: "initial_message_create_wallet_body".localized)) { [weak self] result in
                     switch result {
                     case .success(let result):
-                        self?.addTokens(for: cardId, style: result.card.derivationStyle)
+                        self?.addDefaultTokens(for: result.card)
 
                         if let cardModel = self?.input.cardInput.cardModel {
                             cardModel.cardInfo.derivedKeys = result.derivedKeys
@@ -578,7 +578,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                                 self.input.cardInput.cardModel?.updateCardPinSettings()
                                 self.input.cardInput.cardModel?.updateCurrentSecurityOption()
                             } else { // add tokens for backup cards
-                                self.addTokens(for: updatedCard.cardId, style: updatedCard.derivationStyle)
+                                self?.addDefaultTokens(for: updatedCard)
                             }
                             promise(.success(()))
                         case .failure(let error):
@@ -613,11 +613,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         }
     }
 
-    private func addTokens(for cardId: String, style: DerivationStyle) {
-        let isDemo = input.cardInput.cardModel?.cardInfo.card.isDemoCard ?? false
-        let testnet = input.cardInput.cardModel?.cardInfo.isTestnet ?? false
-        let blockchains = SupportedTokenItems().predefinedBlockchains(isDemo: isDemo, testnet: testnet)
-        self.tokensRepo.append(blockchains, for: cardId, style: style)
+    private func addDefaultTokens(for card: Card) {
+        let config = GenericConfig(card: card)
+        tokensRepo.append(config.defaultBlockchains, for: card.cardId)
     }
 }
 
