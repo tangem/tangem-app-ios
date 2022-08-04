@@ -91,6 +91,7 @@ enum ButtonColorStyle {
     case transparentWhite
     case grayAlt
     case grayAlt2
+    case grayAlt3
 
     var bgColor: Color {
         switch self {
@@ -98,9 +99,10 @@ enum ButtonColorStyle {
         case .black: return .tangemGrayDark6
         case .gray: return .tangemGrayLight4
         case .transparentWhite: return .clear
-            #warning("[REDACTED_TODO_COMMENT]")
-        case .grayAlt: return Colors.Button.secondary
+        case .grayAlt: return .tangemBgGray
         case .grayAlt2: return .tangemBgGray3
+        #warning("[REDACTED_TODO_COMMENT]")
+        case .grayAlt3: return Colors.Button.secondary
         }
     }
 
@@ -110,12 +112,13 @@ enum ButtonColorStyle {
         case .black: return .tangemGrayDark5
         case .gray, .grayAlt, .grayAlt2: return .tangemGrayDark
         case .transparentWhite: return .clear
+        case .grayAlt3: return Colors.Button.secondary
         }
     }
 
     var fgColor: Color {
         switch self {
-        case .transparentWhite, .grayAlt, .grayAlt2: return .tangemGrayDark6
+        case .transparentWhite, .grayAlt, .grayAlt2, .grayAlt3: return .tangemGrayDark6
         default: return .white
         }
     }
