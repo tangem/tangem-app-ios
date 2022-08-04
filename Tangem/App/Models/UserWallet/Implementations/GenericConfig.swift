@@ -15,6 +15,10 @@ struct GenericConfig {
 
     private let card: Card
 
+    private var isDemoCard: Bool {
+        DemoUtil().isDemoCard(cardId: card.cardId)
+    }
+
     private var _backupSteps: [WalletOnboardingStep] {
         if !card.settings.isBackupAllowed {
             return []
@@ -70,7 +74,7 @@ extension GenericConfig: UserWalletConfig {
         features.insert(.manageTokensAllowed)
         features.insert(.activation)
         features.insert(.signingSupported)
-        
+
         if card.settings.isBackupAllowed, card.backupStatus == .noBackup {
             features.insert(.backup)
         }
@@ -82,12 +86,16 @@ extension GenericConfig: UserWalletConfig {
         if card.settings.isSettingPasscodeAllowed {
             features.insert(.settingPasscodeAllowed)
         }
-        
+
         if card.firmwareVersion.doubleValue >= 4.52 {
             features.insert(.longHashesSupported)
         }
 
         return features
+    }
+
+    var defaultCurve: EllipticCurve? {
+        return nil
     }
 
     var onboardingSteps: OnboardingSteps {
@@ -105,23 +113,43 @@ extension GenericConfig: UserWalletConfig {
     var backupSteps: OnboardingSteps? {
         .wallet(_backupSteps)
     }
-    
+
     var supportedBlockchains: Set<Blockchain> {
         let allBlockchains = card.isTestnet ? Blockchain.supportedTestnetBlockchains
-        : Blockchain.supportedBlockchains
-        
+            : Blockchain.supportedBlockchains
+
         return allBlockchains.filter { card.supportedCurves.contains($0.curve) }
     }
-    
+
     var defaultBlockchains: [StorageEntry] {
+        if let persistentBlockchains = self.persistentBlockchains {
+            return persistentBlockchains
+        }
+
         let blockchains: [Blockchain] = [.ethereum(testnet: card.isTestnet), .bitcoin(testnet: card.isTestnet)]
-        
+
         let entries: [StorageEntry] = blockchains.map {
             let derivationPath = $0.derivationPath(for: card.derivationStyle)
             let network = BlockchainNetwork($0, derivationPath: derivationPath)
             return .init(blockchainNetwork: network, tokens: [])
         }
-        
+
+        return entries
+    }
+
+    var persistentBlockchains: [StorageEntry]? {
+        guard isDemoCard else {
+            return nil
+        }
+
+        let blockchains = DemoUtil().getDemoBlockchains(isTestnet: card.isTestnet)
+
+        let entries: [StorageEntry] = blockchains.map {
+            let derivationPath = $0.derivationPath(for: card.derivationStyle)
+            let network = BlockchainNetwork($0, derivationPath: derivationPath)
+            return .init(blockchainNetwork: network, tokens: [])
+        }
+
         return entries
     }
 }
