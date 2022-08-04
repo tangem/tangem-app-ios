@@ -31,16 +31,6 @@ struct CardInfo {
 //        return card.isTestnet || (defaultBlockchain?.isTestnet ?? false)
 //    }
 
-    var defaultStorageEntry: StorageEntry? {
-        guard let defaultBlockchain = defaultBlockchain else {
-            return nil
-        }
-
-        let derivationPath = defaultBlockchain.derivationPath(for: .legacy)
-        let network = BlockchainNetwork(defaultBlockchain, derivationPath: derivationPath)
-        let tokens = defaultToken.map { [$0] } ?? []
-        return StorageEntry(blockchainNetwork: network, tokens: tokens)
-    }
 
     #endif
 
@@ -49,11 +39,6 @@ struct CardInfo {
         case .notLoaded, .noArtwork: return nil
         case .artwork(let artwork): return artwork
         }
-    }
-
-    var isMultiWallet: Bool {
-
-        return true //[REDACTED_TODO_COMMENT]
     }
 }
 
