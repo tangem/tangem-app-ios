@@ -25,7 +25,7 @@ enum WalletOnboardingStep {
         case .success: return "common_done"
         }
     }
-    
+
     static var resumeBackupSteps: [WalletOnboardingStep] {
         [.backupCards, .success]
     }
