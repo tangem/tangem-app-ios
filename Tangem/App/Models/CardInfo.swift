@@ -26,6 +26,14 @@ struct CardInfo {
                      artwotkInfo: artworkInfo)
     }
 
+    var cardIdFormatted: String {
+        if case let .twin(twinData) = walletData {
+            return AppTwinCardIdFormatter.format(cid: card.cardId, cardNumber: twinData.series.number)
+        } else {
+            return AppCardIdFormatter(cid: card.cardId).formatted()
+        }
+    }
+
     #if !CLIP
 //    var isTestnet: Bool {
 //        return card.isTestnet || (defaultBlockchain?.isTestnet ?? false)

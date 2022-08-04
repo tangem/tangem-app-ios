@@ -10,7 +10,7 @@ import Foundation
 import BlockchainSdk
 
 extension Blockchain {
-    private static var testnetId = "/test"
+    static var testnetId = "/test"
 
     // Init blockchain from id with default params
     init?(from stringId: String) {
@@ -77,6 +77,19 @@ extension Blockchain {
     }
 
     var networkId: String {
+        isTestnet ? "\(rawNetworkId)\(Blockchain.testnetId)" : rawNetworkId
+    }
+
+    var currencyId: String {
+        switch self {
+        case .arbitrum(let testnet):
+            return Blockchain.ethereum(testnet: testnet).id
+        default:
+            return id
+        }
+    }
+
+    var rawNetworkId: String {
         switch self {
         case .binance: return "binancecoin"
         case .bitcoin: return "bitcoin"
@@ -105,15 +118,6 @@ extension Blockchain {
         }
     }
 
-    var currencyId: String {
-        switch self {
-        case .arbitrum(let testnet):
-            return Blockchain.ethereum(testnet: testnet).id
-        default:
-            return id
-        }
-    }
-
     var rawStringId: String {
         var name = "\(self)".lowercased()
 
@@ -123,12 +127,7 @@ extension Blockchain {
 
         return name
     }
-
-    var stringId: String {
-        let name = rawStringId
-        return isTestnet ? "\(name)\(Blockchain.testnetId)" : name
-    }
-
+    
     var iconName: String {
         let rawId = rawStringId
 
