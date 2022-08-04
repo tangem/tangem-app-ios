@@ -22,51 +22,6 @@ class SupportedTokenItems {
         ]
     }()
 
-    private lazy var blockchains: Set<Blockchain> = {
-        [
-            .ethereum(testnet: false),
-            .ethereumClassic(testnet: false),
-            .litecoin,
-            .bitcoin(testnet: false),
-            .bitcoinCash(testnet: false),
-            .xrp(curve: .secp256k1),
-            .rsk,
-            .binance(testnet: false),
-            .tezos(curve: .secp256k1),
-            .stellar(testnet: false),
-            .cardano(shelley: true),
-            .dogecoin,
-            .bsc(testnet: false),
-            .polygon(testnet: false),
-            .avalanche(testnet: false),
-            .solana(testnet: false),
-//            .polkadot(testnet: false),
-//            .kusama,
-            .fantom(testnet: false),
-            .tron(testnet: false),
-            .arbitrum(testnet: false),
-            .gnosis,
-        ]
-    }()
-
-    private lazy var testnetBlockchains: Set<Blockchain> = {
-        [
-            .bitcoin(testnet: true),
-            .ethereum(testnet: true),
-            .ethereumClassic(testnet: true),
-            .binance(testnet: true),
-            .stellar(testnet: true),
-            .bsc(testnet: true),
-            .polygon(testnet: true),
-            .avalanche(testnet: true),
-            .solana(testnet: true),
-            .fantom(testnet: true),
-            // .polkadot(testnet: true),
-            .tron(testnet: true),
-            .arbitrum(testnet: true),
-        ]
-    }()
-
     func predefinedBlockchains(isDemo: Bool, testnet: Bool) -> [Blockchain] {
         if isDemo {
             return Array(predefinedDemoBalances.keys)
@@ -79,16 +34,6 @@ class SupportedTokenItems {
         let allBlockchains = isTestnet.map { $0 ? testnetBlockchains : blockchains }
             ?? testnetBlockchains.union(blockchains)
         return allBlockchains.filter { curves.contains($0.curve) }
-    }
-
-    func blockchainsWithTokens(isTestnet: Bool) -> Set<Blockchain> {
-        let blockchains = isTestnet ? testnetBlockchains : blockchains
-        return blockchains.filter { $0.canHandleTokens }
-    }
-
-    func evmBlockchains(isTestnet: Bool) -> Set<Blockchain> {
-        let blockchains = isTestnet ? testnetBlockchains : blockchains
-        return blockchains.filter { $0.isEvm }
     }
 
     func loadTestnetCoins(supportedCurves: [EllipticCurve]) -> AnyPublisher<[CoinModel], Error> {
