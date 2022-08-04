@@ -10,7 +10,7 @@ import Foundation
 import TangemSdk
 import Combine
 
-class SupportedTokenItems {
+class SupportedTokenItems { // [REDACTED_TODO_COMMENT]
     func loadCoins(requestModel: CoinsListRequestModel) -> AnyPublisher<[CoinModel], Error> {
         readTestnetList()
             .map { list in
@@ -46,7 +46,7 @@ private extension CoinModel {
         let networks = networkIds?
             .split(separator: ",")
             .compactMap { String($0) }
-        
+
         let filteredItems = items.filter { item in
             networks?.contains(item.blockchain.networkId) ?? true
         }
