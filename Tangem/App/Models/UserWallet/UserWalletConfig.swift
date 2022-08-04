@@ -17,16 +17,16 @@ struct UserWalletConfig {
     let cardSetLabel: String?
     let cardIdDisplayFormat: CardIdDisplayFormat
     let features: Set<UserWalletConfig.Feature>
-    
+
     let defaultBlockchain: Blockchain?
     let defaultToken: BlockchainSdk.Token?
-    
+
     let onboardingSteps: OnboardingSteps
     let backupSteps: OnboardingSteps?
-    
+
     let defaultDisabledFeatureAlert: AlertBinder?
-    
-    //Temp for migration
+
+    // Temp for migration
     var defaultStorageEntry: StorageEntry? {
         guard let defaultBlockchain = defaultBlockchain else {
             return nil
@@ -47,22 +47,22 @@ extension UserWalletConfigBuilder {
     private var isTestnet: Bool
     func baseFeatures(for card: Card) -> Set<UserWalletConfig.Feature> {
         var features = Set<UserWalletConfig.Feature>()
-        
+
         if card.firmwareVersion.doubleValue >= 4.52 {
             features.insert(.longHashesSupported)
         }
-        
-        
+
+
         if card.firmwareVersion.doubleValue >= 2.28
             || card.settings.securityDelay <= 15000 {
             features.insert(.signingSupported)
         }
-        
+
         return features
     }
-    
+
     func supportedBlockchains(for card: Card) -> Set<Blockchain> {
-        
+
     }
 }
 
@@ -79,7 +79,7 @@ class UserWalletConfigBuilderFactory {
             if cardInfo.card.issuer.name.lowercased() == "start2coin" {
                 return Start2CoinConfigBuilder(card: cardInfo.card, walletData: walletData)
             }
-            
+
             return LegacyConfigBuilder(card: cardInfo.card, walletData: walletData)
         }
     }

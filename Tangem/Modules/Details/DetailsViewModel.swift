@@ -35,7 +35,7 @@ class DetailsViewModel: ObservableObject {
     var cardTouURL: URL? {
         cardModel.config.touURL
     }
-    
+
     var applicationInfoFooter: String? {
         guard let appName = InfoDictionaryUtils.appName.value,
               let version = InfoDictionaryUtils.version.value,

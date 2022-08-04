@@ -41,7 +41,7 @@ class TwinConfigBuilder: UserWalletConfigBuilder {
             }
         }
     }
-    
+
     init(card: Card, twinData: TwinCardInfo) {
         self.card = card
         self.twinData = twinData
@@ -49,16 +49,16 @@ class TwinConfigBuilder: UserWalletConfigBuilder {
 
     func buildConfig() -> UserWalletConfig {
         var features = baseFeatures(for: card)
-        
+
         features.insert(.sendingToPayIDAllowed)
         features.insert(.exchangingAllowed)
         features.insert(.signingSupported)
         features.insert(.activation)
-        
+
         if twinData.pairPublicKey != nil {
             features.insert(.settingPasscodeAllowed)
         }
-        
+
         let config = UserWalletConfig(cardIdFormatted: AppTwinCardIdFormatter.format(cid: card.cardId,
                                                                                      cardNumber: twinData.series.number),
                                       emailConfig: .default,

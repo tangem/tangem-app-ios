@@ -13,10 +13,10 @@ protocol TangemSdkProviding {
     var sdk: TangemSdk { get }
 
     func prepareScan()
-    
-#if !CLIP
+
+    #if !CLIP
     func didScan(_ config: UserWalletConfig)
-#endif
+    #endif
 }
 
 private struct TangemSdkProviderKey: InjectionKey {
