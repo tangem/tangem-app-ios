@@ -132,7 +132,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
     private func сreateWallet() {
         isMainButtonBusy = true
-        let cardInfo = cardModel!.cardInfo //[REDACTED_TODO_COMMENT]
+        let cardInfo = cardModel!.cardInfo // [REDACTED_TODO_COMMENT]
         let config = cardModel!.config
 
         var subscription: AnyCancellable? = nil
@@ -169,7 +169,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
                 }
             }
 
-          
+
             if config.features.contains(.activation) {
                 AppSettings.shared.cardsStartedActivation.append(cardInfo.card.cardId)
             }
