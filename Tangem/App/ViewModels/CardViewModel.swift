@@ -406,7 +406,7 @@ class CardViewModel: Identifiable, ObservableObject {
         updateModel()
     }
 
-    func clearTwinPairKey() { //[REDACTED_TODO_COMMENT]
+    func clearTwinPairKey() { // [REDACTED_TODO_COMMENT]
         if case let .twin(walletData) = cardInfo.walletData {
             let newData = TwinCardInfo(cid: walletData.cid, series: walletData.series)
             cardInfo.walletData = .twin(newData)
@@ -423,16 +423,16 @@ class CardViewModel: Identifiable, ObservableObject {
             print("⁉️ Recreating all wallet models for Card view model state")
             self.state = .loaded(walletModel: WalletManagerAssembly.makeAllWalletModels(from: cardInfo))
 
-            //[REDACTED_TODO_COMMENT]
-           // if !AppSettings.shared.cardsStartedActivation.contains(cardInfo.card.cardId) || cardInfo.isTangemWallet {
-                update()
-                    .sink { _ in
+            // [REDACTED_TODO_COMMENT]
+            // if !AppSettings.shared.cardsStartedActivation.contains(cardInfo.card.cardId) || cardInfo.isTangemWallet {
+            update()
+                .sink { _ in
 
-                    } receiveValue: { _ in
+                } receiveValue: { _ in
 
-                    }
-                    .store(in: &bag)
-          //  }
+                }
+                .store(in: &bag)
+            //  }
         }
     }
 
@@ -452,7 +452,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private func searchBlockchains() {
         guard config.features.contains(.tokensSearch) else { return }
-    
+
         searchBlockchainsCancellable = nil
 
         guard let currentBlockhains = wallets?.map({ $0.blockchain }) else {
@@ -489,7 +489,7 @@ class CardViewModel: Identifiable, ObservableObject {
               !AppSettings.shared.searchedCards.contains(cardInfo.card.cardId) else {
             return
         }
-        
+
         var shouldAddWalletManager = false
         let ethBlockchain = Blockchain.ethereum(testnet: isTestnet)
         let network = BlockchainNetwork(ethBlockchain, derivationPath: nil)
