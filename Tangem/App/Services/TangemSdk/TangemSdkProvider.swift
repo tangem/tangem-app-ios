@@ -33,9 +33,9 @@ class TangemSdkProvider: TangemSdkProviding {
         sdk.config = defaultSdkConfig
     }
 
-#if !CLIP
+    #if !CLIP
     func didScan(_ config: UserWalletConfig) {
         sdk.config.cardIdDisplayFormat = config.cardIdDisplayFormat
     }
-#endif
+    #endif
 }
