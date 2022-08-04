@@ -55,6 +55,9 @@ class AppSettings {
     @AppStorageCompat(StorageType.selectedCurrencyCode)
     var selectedCurrencyCode: String = "USD"
 
+    @AppStorageCompat(StorageType.userWallets)
+    var userWallets: Data = Data()
+
     static let shared: AppSettings = { .init() }()
 
     private init() {}
