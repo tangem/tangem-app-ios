@@ -51,7 +51,8 @@ class NoteConfigBuilder: UserWalletConfigBuilder {
                                       defaultBlockchain: defaultBlockchain,
                                       defaultToken: nil,
                                       onboardingSteps: .singleWallet(onboardingSteps),
-                                      backupSteps: nil)
+                                      backupSteps: nil,
+                                      defaultDisabledFeatureAlert: nil)
         return config
     }
 }
