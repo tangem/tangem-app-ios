@@ -7,41 +7,16 @@
 //
 
 import Foundation
-import struct BlockchainSdk.Token
-import enum BlockchainSdk.Blockchain
 import TangemSdk
 import Combine
 
 class SupportedTokenItems {
-    lazy var predefinedDemoBalances: [Blockchain: Decimal] = {
-        [
-            .bitcoin(testnet: false): 0.005,
-            .ethereum(testnet: false): 0.12,
-            .dogecoin: 45,
-            .solana(testnet: false): 3.246,
-        ]
-    }()
-
-    func predefinedBlockchains(isDemo: Bool, testnet: Bool) -> [Blockchain] {
-        if isDemo {
-            return Array(predefinedDemoBalances.keys)
-        }
-
-        return [.ethereum(testnet: testnet), .bitcoin(testnet: testnet)]
-    }
-
-    func blockchains(for curves: [EllipticCurve], isTestnet: Bool?) -> Set<Blockchain> {
-        let allBlockchains = isTestnet.map { $0 ? testnetBlockchains : blockchains }
-            ?? testnetBlockchains.union(blockchains)
-        return allBlockchains.filter { curves.contains($0.curve) }
-    }
-
-    func loadTestnetCoins(supportedCurves: [EllipticCurve]) -> AnyPublisher<[CoinModel], Error> {
+    func loadCoins(requestModel: CoinsListRequestModel) -> AnyPublisher<[CoinModel], Error> {
         readTestnetList()
             .map { list in
                 list.coins.compactMap {
                     CoinModel(with: $0, baseImageURL: list.imageHost)
-                        .withFiltered(supportedCurves: supportedCurves)
+                        .withFiltered(networkIds: requestModel.networkIds)
                 }
             }
             .eraseToAnyPublisher()
@@ -59,7 +34,6 @@ class SupportedTokenItems {
     }
 }
 
-
 fileprivate extension SupportedTokenItems {
     enum Constants {
         static let testFilename: String = "testnet_tokens"
@@ -68,9 +42,13 @@ fileprivate extension SupportedTokenItems {
 
 private extension CoinModel {
     /// Filter the `tokenItems` for supportedCurves. Used only for testnet coinds from a local file
-    func withFiltered(supportedCurves: [EllipticCurve]) -> CoinModel? {
+    func withFiltered(networkIds: String?) -> CoinModel? {
+        let networks = networkIds?
+            .split(separator: ",")
+            .compactMap { String($0) }
+        
         let filteredItems = items.filter { item in
-            supportedCurves.contains(item.blockchain.curve)
+            networks?.contains(item.blockchain.networkId) ?? true
         }
 
         if filteredItems.isEmpty {

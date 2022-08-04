@@ -89,7 +89,7 @@ struct DetailsView: View {
 //                viewModel.openAppSettings()
 //            }
 
-            if viewModel.isTwinCard {
+            if viewModel.canTwin {
                 DefaultRowView(title: "details_row_title_twins_recreate".localized) {
                     viewModel.prepareTwinOnboarding()
                 }
@@ -111,7 +111,7 @@ struct DetailsView: View {
                 viewModel.openDisclaimer()
             }
 
-            if let url = viewModel.cardTOUURL {
+            if let url = viewModel.cardTouURL {
                 DefaultRowView(title: "details_row_title_card_tou".localized) {
                     viewModel.openCardTOU(url: url)
                 }

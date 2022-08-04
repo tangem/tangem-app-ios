@@ -178,10 +178,7 @@ class AddCustomTokenViewModel: ObservableObject {
     }
 
     private func getBlockchains(withTokenSupport: Bool) -> Set<Blockchain> {
-        let cardInfo = cardModel.cardInfo
-
-        let supportedTokenItems = SupportedTokenItems()
-        let blockchains = supportedTokenItems.blockchains(for: cardInfo.card.walletCurves, isTestnet: cardInfo.isTestnet)
+        let blockchains = cardModel.config.supportedBlockchains
 
         if withTokenSupport {
             let blockchainsWithTokens = blockchains.filter { $0.canHandleTokens }
