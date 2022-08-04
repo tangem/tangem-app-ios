@@ -409,6 +409,7 @@
 		DA4C84CD27DA2D6D00B76F91 /* AnimatableModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4C84CB27DA2D6D00B76F91 /* AnimatableModifiers.swift */; };
 		DA4C84CE27DA2D6D00B76F91 /* StoriesConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4C84CC27DA2D6D00B76F91 /* StoriesConstants.swift */; };
 		DA5970EC27FC1C1B0050387C /* TangemApiTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5970EB27FC1C1B0050387C /* TangemApiTarget.swift */; };
+		DA5B960C289BB77B005B2E3A /* CommonUserWalletListService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5B960B289BB77B005B2E3A /* CommonUserWalletListService.swift */; };
 		DA5B960E289BE9A8005B2E3A /* UserWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5B960D289BE9A8005B2E3A /* UserWallet.swift */; };
 		DA5B960F289BE9B8005B2E3A /* UserWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5B960D289BE9A8005B2E3A /* UserWallet.swift */; };
 		DA5FA739288FE1010002717F /* UserWalletListCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5FA738288FE1010002717F /* UserWalletListCellView.swift */; };
@@ -1020,6 +1021,7 @@
 		DA4C84CB27DA2D6D00B76F91 /* AnimatableModifiers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimatableModifiers.swift; sourceTree = "<group>"; };
 		DA4C84CC27DA2D6D00B76F91 /* StoriesConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoriesConstants.swift; sourceTree = "<group>"; };
 		DA5970EB27FC1C1B0050387C /* TangemApiTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TangemApiTarget.swift; sourceTree = "<group>"; };
+		DA5B960B289BB77B005B2E3A /* CommonUserWalletListService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonUserWalletListService.swift; sourceTree = "<group>"; };
 		DA5B960D289BE9A8005B2E3A /* UserWallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWallet.swift; sourceTree = "<group>"; };
 		DA5FA738288FE1010002717F /* UserWalletListCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletListCellView.swift; sourceTree = "<group>"; };
 		DA5FAD8527B2791C00EE53AE /* ApplePayButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApplePayButton.swift; sourceTree = "<group>"; };
@@ -2322,6 +2324,7 @@
 				DA5FA738288FE1010002717F /* UserWalletListCellView.swift */,
 				DA2A1B9A2893DA3C007B7595 /* UserWalletListHeaderView.swift */,
 				DA2A1BA228940B02007B7595 /* UserWalletListRoutable.swift */,
+				DA5B960B289BB77B005B2E3A /* CommonUserWalletListService.swift */,
 			);
 			path = UserWalletList;
 			sourceTree = "<group>";
@@ -3324,6 +3327,7 @@
 				B0C4F77726F0924B0086D815 /* WelcomeStep.swift in Sources */,
 				5DF2522724F914E30015B429 /* AppScanTask.swift in Sources */,
 				5DD6DF21251E018A00F2693E /* AlertCardView.swift in Sources */,
+				DA5B960C289BB77B005B2E3A /* CommonUserWalletListService.swift in Sources */,
 				DC66BC06285B6C7300CDF765 /* SendCoordinatorView.swift in Sources */,
 				B0C87B432566461600F861DE /* TwinCardsFileCoder.swift in Sources */,
 				B022034B26FDB266001DCB12 /* CardViewModel+Combine.swift in Sources */,
