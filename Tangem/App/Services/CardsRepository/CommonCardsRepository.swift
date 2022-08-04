@@ -45,7 +45,6 @@ class CommonCardsRepository: CardsRepository {
                 Analytics.logCardSdkError(error, for: .scan)
                 completion(.failure(error))
             case .success(let response):
-                Analytics.logScan(card: response.card)
                 completion(.success(processScan(response.getCardInfo())))
             }
         }
@@ -77,6 +76,7 @@ class CommonCardsRepository: CardsRepository {
         tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
 
         let cm = CardViewModel(cardInfo: cardInfo)
+        Analytics.logScan(card: cardInfo.card, config: cm.config)
         cards[cardInfo.card.cardId] = cm
         sdkProvider.didScan(cm.config)
         cm.getCardInfo()

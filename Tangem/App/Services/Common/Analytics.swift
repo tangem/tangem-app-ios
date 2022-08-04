@@ -31,7 +31,7 @@ class Analytics {
         #endif
     }
 
-    static func logScan(card: Card) {
+    static func logScan(card: Card, config: UserWalletConfig) {
         log(event: .cardIsScanned, with: collectCardData(card))
 
         if card.isDemoCard {
