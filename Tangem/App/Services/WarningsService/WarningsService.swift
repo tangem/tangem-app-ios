@@ -109,7 +109,7 @@ class WarningsService {
 //        guard cardInfo.isTestnet, !cardInfo.card.isDemoCard else {
 //            return
 //        }
-        //[REDACTED_TODO_COMMENT]
+        // [REDACTED_TODO_COMMENT]
         container.add(WarningEvent.testnetCard.warning)
     }
 
