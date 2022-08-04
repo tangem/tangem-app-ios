@@ -113,7 +113,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
 
     required init(input: OnboardingInput, coordinator: OnboardingTopupRoutable) {
         guard let cardModel = input.cardInput.cardModel,
-              case let .twin(twinData) = cardModel.cardInfo.walletData else {
+              case let .twin(_, twinData) = cardModel.cardInfo.walletData else {
             fatalError("Wrong card model passed to Twins onboarding view model")
         }
 
