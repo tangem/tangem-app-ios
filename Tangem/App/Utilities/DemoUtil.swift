@@ -13,7 +13,14 @@ struct DemoUtil {
     func isDemoCard(cardId: String) -> Bool {
         demoCardIds.contains(cardId)
     }
-    
+
+    func getDemoBlockchains(isTestnet: Bool) -> [Blockchain] {
+        [.bitcoin(testnet: isTestnet),
+         .ethereum(testnet: isTestnet),
+         .dogecoin,
+         .solana(testnet: isTestnet)]
+    }
+
     func getDemoBalance(for blockchain: Blockchain) -> Decimal {
         switch blockchain {
         case .bitcoin:
@@ -25,7 +32,7 @@ struct DemoUtil {
         case .solana:
             return 3.246
         default:
-            return Decimal(Double.random(in: 0.5...1))
+            return Decimal(Double.random(in: 0.5 ... 1))
         }
     }
 }
@@ -34,7 +41,7 @@ private extension DemoUtil {
     var demoCardIds: [String] {
         [
             // === Development ===
-            
+
             "FB10000000000196", // Note BTC
             "FB20000000000186", // Note ETH
             "FB30000000000176", // Wallet
@@ -46,8 +53,8 @@ private extension DemoUtil {
             "AB01000000046704",
             "AB02000000051000",
             "AB02000000050911",
-            
-            
+
+
             // Wallet
             "AC01000000045754",
             "AC01000000041662",
@@ -131,7 +138,7 @@ private extension DemoUtil {
             "AC03000000046479",
             "AC03000000046461",
             "AC03000000046453",
-            
+
             // Note BTC
             "AB01000000059608",
             "AB01000000046647",
@@ -215,7 +222,7 @@ private extension DemoUtil {
             "AB07000000005787",
             "AB07000000005795",
             "AB07000000005506",
-            
+
             // Note ETH
             "AB02000000051083",
             "AB02000000051059",
@@ -299,7 +306,7 @@ private extension DemoUtil {
             "AB08000000009119",
             "AB08000000009127",
             "AB08000000009259",
-            
+
             // Wallet
             "AC01000000044120",
             "AC01000000044997",
@@ -321,7 +328,7 @@ private extension DemoUtil {
             "AC01000000044492",
             "AC01000000044260",
             "AC01000000044278",
-            
+
             // Note BTC
             "AB01000000049864",
             "AB01000000053239",
@@ -343,7 +350,7 @@ private extension DemoUtil {
             "AB01000000047850",
             "AB01000000047868",
             "AB01000000048288",
-            
+
             // Note ETH
             "AB02000000049715",
             "AB02000000049848",

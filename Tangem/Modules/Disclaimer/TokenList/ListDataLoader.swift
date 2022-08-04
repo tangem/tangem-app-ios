@@ -77,7 +77,7 @@ class ListDataLoader {
 private extension ListDataLoader {
     func loadItems(_ searchText: String) -> AnyPublisher<[CoinModel], Never> {
         let networkIds = config.supportedBlockchains.map { $0.networkId }
-        
+
         let searchText = searchText.trimmed()
         let requestModel = CoinsListRequestModel(
             networkIds: networkIds,
@@ -86,7 +86,7 @@ private extension ListDataLoader {
             offset: items.count,
             active: true
         )
-        
+
         // If testnet then use local coins from testnet_tokens.json file.
         if networkIds.contains(Blockchain.testnetId) {
             return loadTestnetItems(requestModel)
@@ -110,7 +110,7 @@ private extension ListDataLoader {
                 guard let self = self else { return [] }
 
                 guard let searchText = searchText else { return models }
-                
+
                 if let cachedSearch = self.cachedSearch[searchText] {
                     return cachedSearch
                 }

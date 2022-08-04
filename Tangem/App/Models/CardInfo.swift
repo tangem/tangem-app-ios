@@ -27,7 +27,7 @@ struct CardInfo {
     }
 
     var cardIdFormatted: String {
-        if case let .twin(twinData) = walletData {
+        if case let .twin(_, twinData) = walletData {
             return AppTwinCardIdFormatter.format(cid: card.cardId, cardNumber: twinData.series.number)
         } else {
             return AppCardIdFormatter(cid: card.cardId).formatted()
