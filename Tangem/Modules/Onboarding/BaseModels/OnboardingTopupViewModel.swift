@@ -65,8 +65,6 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
             walletModelUpdateCancellable == nil
         else { return }
 
-        if cardModel!.isNotPairedTwin { return }
-
         refreshButtonState = .activityIndicator
         walletModelUpdateCancellable = walletModel.$state
             .receive(on: DispatchQueue.main)

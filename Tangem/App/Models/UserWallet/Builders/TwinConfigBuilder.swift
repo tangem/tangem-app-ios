@@ -53,8 +53,11 @@ class TwinConfigBuilder: UserWalletConfigBuilder {
         features.insert(.sendingToPayIDAllowed)
         features.insert(.exchangingAllowed)
         features.insert(.signingSupported)
-        features.insert(.settingPasscodeAllowed)
         features.insert(.activation)
+        
+        if twinData.pairPublicKey != nil {
+            features.insert(.settingPasscodeAllowed)
+        }
         
         let config = UserWalletConfig(cardIdFormatted: AppTwinCardIdFormatter.format(cid: card.cardId,
                                                                                      cardNumber: twinData.series.number),
@@ -66,7 +69,8 @@ class TwinConfigBuilder: UserWalletConfigBuilder {
                                       defaultBlockchain: .bitcoin(testnet: false),
                                       defaultToken: nil,
                                       onboardingSteps: .twins(onboardingSteps),
-                                      backupSteps: nil)
+                                      backupSteps: nil,
+                                      defaultDisabledFeatureAlert: nil)
         return config
     }
 }
