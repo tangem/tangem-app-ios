@@ -198,7 +198,16 @@ extension MainCoordinator: MainRoutable {
             self?.userWalletListCoordinator = nil
             self?.userWalletListPresented = false
         }
+
         userWalletListPresented = true
-        userWalletListCoordinator = UserWalletListCoordinator(dismissAction: dismissAction)
+        userWalletListCoordinator = UserWalletListCoordinator(dismissAction: dismissAction, popToRootAction: { _ in }, router: self)
     }
+
+    func didTapUserWallet(userWallet: UserWallet) {
+        start(with: .init(cardModel: .init(userWallet: userWallet)))
+    }
+}
+
+extension MainCoordinator: UserWalletListCoordinatorRoutable {
+
 }
