@@ -13,15 +13,15 @@ import BlockchainSdk
 class Start2CoinConfigBuilder: UserWalletConfigBuilder {
     private let card: Card
     private let walletData: WalletData
-    
+
     private var onboardingSteps: [SingleCardOnboardingStep] {
         if card.wallets.isEmpty {
             return [.createWallet, .success]
         }
-        
+
         return []
     }
-    
+
     init(card: Card, walletData: WalletData) {
         self.card = card
         self.walletData = walletData
@@ -31,9 +31,9 @@ class Start2CoinConfigBuilder: UserWalletConfigBuilder {
         var features = baseFeatures(for: card)
         features.insert(.signingSupported)
         features.insert(.signedHashesCounterAvailable)
-        
+
         let defaultBlockchain = Blockchain.from(blockchainName: walletData.blockchain, curve: card.supportedCurves[0])
-        
+
         let config = UserWalletConfig(cardIdFormatted: AppCardIdFormatter(cid: card.cardId).formatted(),
                                       emailConfig: .init(recipient: "cardsupport@start2coin.com",
                                                          subject: "feedback_subject_support".localized),
