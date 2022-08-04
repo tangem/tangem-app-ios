@@ -1,5 +1,5 @@
 //
-//  Start2CoinConfigBuilder.swift
+//  Start2CoinConfig.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,44 +10,14 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 
-class Start2CoinConfigBuilder: UserWalletConfigBuilder {
+struct Start2CoinConfig {
     private let card: Card
     private let walletData: WalletData
 
-    private var onboardingSteps: [SingleCardOnboardingStep] {
-        if card.wallets.isEmpty {
-            return [.createWallet, .success]
-        }
-
-        return []
+    private var defaultBlockchain: Blockchain {
+        Blockchain.from(blockchainName: walletData.blockchain, curve: card.supportedCurves[0])!
     }
-
-    init(card: Card, walletData: WalletData) {
-        self.card = card
-        self.walletData = walletData
-    }
-
-    func buildConfig() -> UserWalletConfig {
-        var features = baseFeatures(for: card)
-        features.insert(.signingSupported)
-        features.insert(.signedHashesCounterAvailable)
-
-        let defaultBlockchain = Blockchain.from(blockchainName: walletData.blockchain, curve: card.supportedCurves[0])
-
-        let config = UserWalletConfig(cardIdFormatted: AppCardIdFormatter(cid: card.cardId).formatted(),
-                                      emailConfig: .init(recipient: "cardsupport@start2coin.com",
-                                                         subject: "feedback_subject_support".localized),
-                                      touURL: makeTouURL(),
-                                      cardSetLabel: nil,
-                                      cardIdDisplayFormat: .full,
-                                      features: features,
-                                      defaultBlockchain: defaultBlockchain,
-                                      defaultToken: nil,
-                                      onboardingSteps: .singleWallet(onboardingSteps),
-                                      backupSteps: nil)
-        return config
-    }
-
+    
     private func makeTouURL() -> URL? {
         let baseurl = "https://app.tangem.com/tou/"
         let regionCode = self.regionCode(for: card.cardId) ?? "fr"
@@ -94,5 +64,59 @@ class Start2CoinConfigBuilder: UserWalletConfigBuilder {
         default:
             return nil
         }
+    }
+
+    init(card: Card, walletData: WalletData) {
+        self.card = card
+        self.walletData = walletData
+    }
+}
+
+extension Start2CoinConfig: UserWalletConfig {
+    var emailConfig: EmailConfig {
+        .init(recipient: "cardsupport@start2coin.com",
+              subject: "feedback_subject_support".localized)
+    }
+
+    var touURL: URL? {
+        makeTouURL()
+    }
+
+    var cardSetLabel: String? {
+        nil
+    }
+
+    var cardIdDisplayFormat: CardIdDisplayFormat {
+        .full
+    }
+
+    var features: Set<UserWalletConfig.Feature> {
+        var features = Set<Feature>()
+        features.insert(.signingSupported)
+        features.insert(.signedHashesCounterAvailable)
+        return features
+    }
+
+    var onboardingSteps: OnboardingSteps {
+        if card.wallets.isEmpty {
+            return .singleWallet([.createWallet, .success])
+        }
+
+        return .singleWallet([])
+    }
+
+    var backupSteps: OnboardingSteps? {
+        return nil
+    }
+    
+    var supportedBlockchains: Set<Blockchain> {
+        [defaultBlockchain]
+    }
+    
+    var defaultBlockchains: [StorageEntry] {
+        let derivationPath = defaultBlockchain.derivationPath(for: .legacy)
+        let network = BlockchainNetwork(defaultBlockchain, derivationPath: derivationPath)
+        let entry = StorageEntry(blockchainNetwork: network, tokens: [])
+        return [entry]
     }
 }

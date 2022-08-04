@@ -136,9 +136,7 @@ class CardViewModel: Identifiable, ObservableObject {
     init(cardInfo: CardInfo) {
         self.cardInfo = cardInfo
         self.signer = .init(with: cardInfo.card)
-
-        let configBuilder = UserWalletConfigBuilderFactory.makeBuilder(for: cardInfo)
-        self.config = configBuilder.buildConfig()
+        self.config = UserWalletConfigFactory(cardInfo).makeConfig()
         updateCardPinSettings()
         updateCurrentSecurityOption()
     }
@@ -407,9 +405,9 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func clearTwinPairKey() { // [REDACTED_TODO_COMMENT]
-        if case let .twin(walletData) = cardInfo.walletData {
-            let newData = TwinCardInfo(cid: walletData.cid, series: walletData.series)
-            cardInfo.walletData = .twin(newData)
+        if case let .twin(walletData, twinData) = cardInfo.walletData {
+            let newData = TwinCardInfo(cid: twinData.cid, series: twinData.series)
+            cardInfo.walletData = .twin(walletData, newData)
         }
     }
 
@@ -459,8 +457,7 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
 
-        let supportedItems = SupportedTokenItems()
-        let unused: [StorageEntry] = supportedItems.blockchains(for: cardInfo.card.walletCurves, isTestnet: cardInfo.isTestnet)
+        let unused: [StorageEntry] = config.supportedBlockchains
             .subtracting(currentBlockhains).map { StorageEntry(blockchainNetwork: .init($0, derivationPath: nil), tokens: []) }
         let models = WalletManagerAssembly.makeWalletModels(from: cardInfo, entries: unused)
         if models.isEmpty {
@@ -490,8 +487,11 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
 
+        guard let ethBlockchain = config.supportedBlockchains.first(where: { $0.chainId == 1 }) else {
+            return
+        }
+      
         var shouldAddWalletManager = false
-        let ethBlockchain = Blockchain.ethereum(testnet: isTestnet)
         let network = BlockchainNetwork(ethBlockchain, derivationPath: nil)
         var ethWalletModel = walletModels?.first(where: { $0.blockchainNetwork == network })
 
