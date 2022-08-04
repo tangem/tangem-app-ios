@@ -48,9 +48,21 @@ class MainViewModel: ObservableObject {
         }
     }
 
+    var isSaltPayCard: Bool {
+        cardModel.cardInfo.isSaltPay
+    }
+
+    var isMultiWallet: Bool {
+        cardModel.cardInfo.isMultiWallet
+    }
+
     // MARK: Variables
     var isLoadingTokensBalance: Bool = false
-    lazy var totalSumBalanceViewModel: TotalSumBalanceViewModel = .init()
+    lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
+        isSingleCoinCard: !isMultiWallet,
+        isCurrencySelectionVisible: !isSaltPayCard,
+        tapOnCurrencySymbol: openCurrencySelection
+    )
 
     let cardModel: CardViewModel
 
