@@ -19,6 +19,8 @@ final class UserWalletListViewModel: ObservableObject {
 
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
 
+    private let userWalletListService = CommonUserWalletListService()
+
     private unowned let coordinator: UserWalletListRoutable
 
     private var bag: Set<AnyCancellable> = []
@@ -28,29 +30,15 @@ final class UserWalletListViewModel: ObservableObject {
     ) {
         self.coordinator = coordinator
 
-        let userWallets = savedUserWallets()
-        let singleCurrencyWallets = userWallets.filter {
-            if case .note = $0.walletData {
-                return true
-            } else {
-                return false
-            }
-        }
-        let multiCurrencyWallets = userWallets.filter {
-            if case .note = $0.walletData {
-                return false
-            } else {
-                return true
-            }
-        }
-
-        multiCurrencyModels = multiCurrencyWallets.map { .init(cardInfo: $0.cardInfo(), savedCards: true) }
-        singleCurrencyModels = singleCurrencyWallets.map { .init(cardInfo: $0.cardInfo(), savedCards: true) }
-        selectedUserWalletId = userWallets.first?.userWalletId
+        multiCurrencyModels = userWalletListService.multiCurrencyUserWallets.map { .init(cardInfo: $0.cardInfo(), savedCards: true) }
+        singleCurrencyModels = userWalletListService.singleCurrencyUserWallets.map { .init(cardInfo: $0.cardInfo(), savedCards: true) }
+        selectedUserWalletId = userWalletListService.selectedUserWalletId
     }
 
     func onUserWalletTapped(_ userWallet: UserWallet) {
         self.selectedUserWalletId = userWallet.userWalletId
+        userWalletListService.selectedUserWalletId = userWallet.userWalletId
+        self.coordinator.didTapUserWallet(userWallet: userWallet)
     }
 
     func addCard() {
@@ -108,34 +96,8 @@ final class UserWalletListViewModel: ObservableObject {
 
         let userWallet = UserWallet(userWalletId: card.cardPublicKey, name: name, card: card, walletData: walletData, artwork: nil, keys: cardInfo.derivedKeys, isHDWalletAllowed: card.settings.isHDWalletAllowed)
 
-        var userWallets = savedUserWallets()
-
-        guard !userWallets.contains(where: { $0.userWalletId == userWallet.userWalletId }) else {
-            return
-        }
-
-        userWallets.append(userWallet)
-        singleCurrencyModels.append(.init(cardInfo: userWallet.cardInfo(), savedCards: true))
-
-        saveUserWallets(userWallets)
-    }
-
-    private func savedUserWallets() -> [UserWallet] {
-        do {
-            let data = AppSettings.shared.userWallets
-            return try JSONDecoder().decode([UserWallet].self, from: data)
-        } catch {
-            print(error)
-            return []
-        }
-    }
-
-    private func saveUserWallets(_ userWallets: [UserWallet]) {
-        do {
-            let data = try JSONEncoder().encode(userWallets)
-            AppSettings.shared.userWallets = data
-        } catch {
-            print(error)
+        if userWalletListService.saveIfNeeded(userWallet) {
+            singleCurrencyModels.append(.init(userWallet: userWallet))
         }
     }
 }
