@@ -24,8 +24,7 @@ class Analytics {
             case .appsflyer, .firebase:
                 log(event: event, with: params)
             case .amplitude:
-                var convertParams: [String: String] = [:]
-                params.forEach({ convertParams[$0.key.rawValue] = $0.value })
+                let convertParams = params.reduce(into: [:]) { $0[$1.key.rawValue] = $1.value }
 
                 logAmplitude(event, params: convertParams)
             }
