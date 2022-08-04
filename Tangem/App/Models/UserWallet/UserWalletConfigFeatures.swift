@@ -19,6 +19,7 @@ extension UserWalletConfig {
         case signingSupported
         case longHashesSupported
         case signedHashesCounterAvailable
+        case backup
 
         // MARK: - App features
 
@@ -27,5 +28,6 @@ extension UserWalletConfig {
         case walletConnectAllowed
         case manageTokensAllowed
         case activation
+        case tokensSearch
     }
 }
