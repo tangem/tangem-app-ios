@@ -15,7 +15,7 @@ import BlockchainSdk
 enum DefaultWalletData {
     case note(WalletData)
     case v3(WalletData)
-    case twin(TwinCardInfo)
+    case twin(WalletData, TwinCardInfo)
     case none
 }
 
