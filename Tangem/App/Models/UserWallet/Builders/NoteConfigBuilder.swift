@@ -21,27 +21,27 @@ class NoteConfigBuilder: UserWalletConfigBuilder {
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
                 return []
             }
-            
+
             return [.topup, .successTopup]
         }
     }
-    
+
     init(card: Card, noteData: WalletData) {
         self.card = card
         self.noteData = noteData
     }
-    
+
     func buildConfig() -> UserWalletConfig {
         var features = baseFeatures(for: card)
-        
+
         features.insert(.sendingToPayIDAllowed)
         features.insert(.exchangingAllowed)
         features.insert(.signedHashesCounterAvailable)
         features.insert(.activation)
-        
+
         let blockchainName = noteData.blockchain.lowercased() == "binance" ? "bsc" : noteData.blockchain
         let defaultBlockchain = Blockchain.from(blockchainName: blockchainName, curve: .secp256k1)
-        
+
         let config = UserWalletConfig(cardIdFormatted: AppCardIdFormatter(cid: card.cardId).formatted(),
                                       emailConfig: .default,
                                       touURL: nil,

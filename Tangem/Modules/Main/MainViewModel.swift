@@ -140,7 +140,7 @@ class MainViewModel: ObservableObject {
         return walletModels
             .flatMap({ $0.tokenItemViewModels })
     }
-    
+
     var isMultiWalletMode: Bool {
         cardModel.config.features.contains(.manageTokensAllowed)
     }
@@ -375,7 +375,7 @@ class MainViewModel: ObservableObject {
                                         welcomeStep: nil,
                                         currentStepIndex: 0,
                                         isStandalone: true)
-            
+
             self.openOnboarding(with: input)
         }
     }
@@ -392,9 +392,9 @@ class MainViewModel: ObservableObject {
 
     private func validateHashesCount() {
         let card = cardModel.cardInfo.card
-        
+
         guard cardModel.config.features.contains(.signedHashesCounterAvailable) else { return }
-        
+
         guard cardModel.hasWallet else {
             if cardModel.config.features.contains(.manageTokensAllowed) {
                 warningsService.hideWarning(for: .multiWalletSignedHashes)
