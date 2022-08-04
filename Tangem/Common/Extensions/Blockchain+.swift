@@ -141,3 +141,51 @@ extension Blockchain {
 
     var iconNameFilled: String { "\(iconName).fill" }
 }
+
+
+extension Blockchain {
+    static var supportedBlockchains: Set<Blockchain> = {
+        [
+            .ethereum(testnet: false),
+            .ethereumClassic(testnet: false),
+            .litecoin,
+            .bitcoin(testnet: false),
+            .bitcoinCash(testnet: false),
+            .xrp(curve: .secp256k1),
+            .rsk,
+            .binance(testnet: false),
+            .tezos(curve: .secp256k1),
+            .stellar(testnet: false),
+            .cardano(shelley: true),
+            .dogecoin,
+            .bsc(testnet: false),
+            .polygon(testnet: false),
+            .avalanche(testnet: false),
+            .solana(testnet: false),
+//            .polkadot(testnet: false),
+//            .kusama,
+            .fantom(testnet: false),
+            .tron(testnet: false),
+            .arbitrum(testnet: false),
+            .gnosis,
+        ]
+    }()
+
+    static var supportedTestnetBlockchains: Set<Blockchain> = {
+        [
+            .bitcoin(testnet: true),
+            .ethereum(testnet: true),
+            .ethereumClassic(testnet: true),
+            .binance(testnet: true),
+            .stellar(testnet: true),
+            .bsc(testnet: true),
+            .polygon(testnet: true),
+            .avalanche(testnet: true),
+            .solana(testnet: true),
+            .fantom(testnet: true),
+            // .polkadot(testnet: true),
+            .tron(testnet: true),
+            .arbitrum(testnet: true),
+        ]
+    }()
+}
