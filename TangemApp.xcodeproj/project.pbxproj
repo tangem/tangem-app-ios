@@ -409,6 +409,8 @@
 		DA4C84CD27DA2D6D00B76F91 /* AnimatableModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4C84CB27DA2D6D00B76F91 /* AnimatableModifiers.swift */; };
 		DA4C84CE27DA2D6D00B76F91 /* StoriesConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4C84CC27DA2D6D00B76F91 /* StoriesConstants.swift */; };
 		DA5970EC27FC1C1B0050387C /* TangemApiTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5970EB27FC1C1B0050387C /* TangemApiTarget.swift */; };
+		DA5B960E289BE9A8005B2E3A /* UserWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5B960D289BE9A8005B2E3A /* UserWallet.swift */; };
+		DA5B960F289BE9B8005B2E3A /* UserWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5B960D289BE9A8005B2E3A /* UserWallet.swift */; };
 		DA5FA739288FE1010002717F /* UserWalletListCellView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5FA738288FE1010002717F /* UserWalletListCellView.swift */; };
 		DA5FAD8627B2791C00EE53AE /* ApplePayButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5FAD8527B2791C00EE53AE /* ApplePayButton.swift */; };
 		DA5FAD8A27B27F7F00EE53AE /* SheetDragHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5FAD8927B27F7F00EE53AE /* SheetDragHandler.swift */; };
@@ -1019,6 +1021,7 @@
 		DA4C84CB27DA2D6D00B76F91 /* AnimatableModifiers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnimatableModifiers.swift; sourceTree = "<group>"; };
 		DA4C84CC27DA2D6D00B76F91 /* StoriesConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StoriesConstants.swift; sourceTree = "<group>"; };
 		DA5970EB27FC1C1B0050387C /* TangemApiTarget.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TangemApiTarget.swift; sourceTree = "<group>"; };
+		DA5B960D289BE9A8005B2E3A /* UserWallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWallet.swift; sourceTree = "<group>"; };
 		DA5FA738288FE1010002717F /* UserWalletListCellView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletListCellView.swift; sourceTree = "<group>"; };
 		DA5FAD8527B2791C00EE53AE /* ApplePayButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApplePayButton.swift; sourceTree = "<group>"; };
 		DA5FAD8927B27F7F00EE53AE /* SheetDragHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetDragHandler.swift; sourceTree = "<group>"; };
@@ -2316,6 +2319,7 @@
 				DA2A1B9E28940B02007B7595 /* UserWalletListCoordinator.swift */,
 				DA2A1B9F28940B02007B7595 /* UserWalletListCoordinatorView.swift */,
 				DA2A1BA128940B02007B7595 /* UserWalletListViewModel.swift */,
+				DA5B960D289BE9A8005B2E3A /* UserWallet.swift */,
 				DAB8773F2897CAB700F925F2 /* UserWalletListCellViewModel.swift */,
 				DA2A1BA028940B02007B7595 /* UserWalletListView.swift */,
 				DA5FA738288FE1010002717F /* UserWalletListCellView.swift */,
@@ -3191,6 +3195,7 @@
 				5D6784E425EBC94B00149995 /* Blockchain+.swift in Sources */,
 				5DD95B8C24FA959C00E6B9D0 /* VerticalAlignment+.swift in Sources */,
 				5D6784D925EBA1D800149995 /* TokenItems+Array.swift in Sources */,
+				DA5B960E289BE9A8005B2E3A /* UserWallet.swift in Sources */,
 				B0541DBC26FB2FF50043893E /* WalletOnboardingView.swift in Sources */,
 				5D3F77C624BF56D800E8695B /* AppDelegate.swift in Sources */,
 				DC5118652860AA4F004FB954 /* ShopViewRoutable.swift in Sources */,
@@ -3616,6 +3621,7 @@
 				B01416AC2632A92B00D82A9C /* ImageLoader.swift in Sources */,
 				DCE5C67128899C42000C7F67 /* AppStorageCompat.swift in Sources */,
 				5DE7DD4C269627EF00472205 /* MainView.swift in Sources */,
+				DA5B960F289BE9B8005B2E3A /* UserWallet.swift in Sources */,
 				DC0A57F82822C14A0031BECC /* CardImageLoaderProtocol.swift in Sources */,
 				B01416A72632A92300D82A9C /* WebImage.swift in Sources */,
 				DC0A57F02822AF030031BECC /* LoggerProviding.swift in Sources */,
