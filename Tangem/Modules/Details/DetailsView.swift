@@ -11,6 +11,10 @@ import SwiftUI
 struct DetailsView: View {
     @ObservedObject var viewModel: DetailsViewModel
 
+    /// Change to @AppStorage and move to model with IOS 14.5 minimum deployment target
+    @AppStorageCompat(StorageType.selectedCurrencyCode)
+    private var selectedCurrencyCode: String = "USD"
+
     var body: some View {
         List {
             if viewModel.shouldShowWC {
@@ -81,6 +85,13 @@ struct DetailsView: View {
 
     private var settingsSection: some View {
         Section(content: {
+            if !viewModel.isMultiWallet {
+                DefaultRowView(title: "details_row_title_currency".localized,
+                               detailsType: .text(selectedCurrencyCode)) {
+                    viewModel.openCurrencySelection()
+                }
+            }
+
             DefaultRowView(title: "details_row_title_card_settings".localized) {
                 viewModel.openCardSettings()
             }
