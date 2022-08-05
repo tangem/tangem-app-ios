@@ -8,7 +8,6 @@
 
 import Combine
 import SwiftUI
-import TangemSdk
 
 final class ScanCardSettingsViewModel: ObservableObject, Identifiable {
     @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
