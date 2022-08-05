@@ -16,11 +16,11 @@ struct AddressQrBottomSheetContentViewVodel: Identifiable {
     var qrNotice: String
 
     func copyAddress() {
-        Analytics.log(.copyAddress, params: [:])
+        Analytics.log(.copyAddressTapped)
     }
 
     func showShareAddress() {
-        Analytics.log(.shareAddress, params: [:])
+        Analytics.log(.shareAddressTapped)
     }
 }
 
