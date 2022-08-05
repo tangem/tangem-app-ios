@@ -99,7 +99,9 @@ struct DetailsView: View {
                 }
             }
         }, footer: {
-            DefaultFooterView(title: "details_row_title_create_backup_footer".localized)
+            if viewModel.canCreateBackup {
+                DefaultFooterView(title: "details_row_title_create_backup_footer".localized)
+            }
         })
     }
 
