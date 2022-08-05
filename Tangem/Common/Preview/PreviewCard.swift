@@ -56,7 +56,7 @@ enum PreviewCard {
         case .cardanoNoteEmptyWallet:
             return .note(WalletData(blockchain: "ADA", token: nil))
         case .twin:
-            return .twin(TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairPublicKey: nil))
+            return .twin(WalletData(blockchain: "BTC", token: nil), TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairPublicKey: nil))
         default:
             return .none
         }
