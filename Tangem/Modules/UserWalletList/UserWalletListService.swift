@@ -16,6 +16,7 @@ protocol UserWalletListService: AnyObject, Initializable {
 
     func deleteWallet(_ userWallet: UserWallet)
     func saveIfNeeded(_ userWallet: UserWallet) -> Bool
+    func setName(_ userWallet: UserWallet, name: String)
 }
 
 private struct UserWalletListServiceKey: InjectionKey {
