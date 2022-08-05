@@ -19,9 +19,8 @@ class PersonalSignHandler: WalletConnectSignHandler {
     override func handle(request: Request) {
         do {
             let messageBytes = try request.parameter(of: String.self, at: 0)
-            let address = try request.parameter(of: String.self, at: 1)
 
-            guard let session = dataSource?.session(for: request, address: address) else {
+            guard let session = dataSource?.session(for: request) else {
                 delegate?.send(.reject(request), for: action)
                 return
             }
