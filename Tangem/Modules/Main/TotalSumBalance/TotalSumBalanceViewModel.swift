@@ -74,7 +74,8 @@ class TotalSumBalanceViewModel: ObservableObject {
         refreshSubscription = tangemApiService
             .loadCurrencies()
             .receive(on: RunLoop.main)
-            .sink { _ in } receiveValue: { [weak self] currencies in
+            .sink { _ in }
+             receiveValue: { [weak self] currencies in
                 guard let self = self,
                       let currency = currencies.first(where: { $0.code == AppSettings.shared.selectedCurrencyCode })
                 else {
