@@ -35,7 +35,7 @@ struct CardInfo {
     }
 
     var isSaltPay: Bool {
-        isTangemNote // Temp solution, we don't have information so far
+        false // Temp solution, we don't have information so far
     }
 
     var defaultBlockchain: Blockchain? {
