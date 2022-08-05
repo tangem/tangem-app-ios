@@ -9,6 +9,7 @@
 import Foundation
 
 protocol CardSettingsRoutable: AnyObject {
+    func openOnboarding(with input: OnboardingInput)
     func openSecurityMode(cardModel: CardViewModel)
     func openResetCardToFactoryWarning(mainButtonAction: @escaping () -> Void)
     func closeResetCardToFactoryWarning()
