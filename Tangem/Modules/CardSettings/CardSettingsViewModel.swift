@@ -42,6 +42,10 @@ class CardSettingsViewModel: ObservableObject {
         return "\(cardModel.cardInfo.card.walletSignedHashes)"
     }
 
+    var isResetToFactoryAvailable: Bool {
+        !cardModel.cardInfo.isSaltPay
+    }
+
     // MARK: Dependecies
 
     private unowned let coordinator: CardSettingsRoutable
