@@ -11,8 +11,6 @@ import SwiftUI
 struct TotalSumBalanceView: View {
     @ObservedObject var viewModel: TotalSumBalanceViewModel
 
-    var tapOnCurrencySymbol: () -> ()
-
     /// Change to @AppStorage and move to model with IOS 14.5 minimum deployment target
     @AppStorageCompat(StorageType.selectedCurrencyCode)
     private var currencyType: String = "USD"
@@ -28,7 +26,7 @@ struct TotalSumBalanceView: View {
                 Spacer()
 
                 Button {
-                    tapOnCurrencySymbol()
+                    viewModel.tapOnCurrencySymbol()
                 } label: {
                     HStack(spacing: 6) {
                         Text(currencyType)
@@ -42,10 +40,7 @@ struct TotalSumBalanceView: View {
             }
             .padding(.bottom, 4)
 
-            AttributedTextView(viewModel.totalFiatValueString)
-                .foregroundColor(Color.tangemGrayDark6)
-                .skeletonable(isShown: viewModel.isLoading, size: CGSize(width: 100, height: 25))
-                .frame(height: 33)
+            balanceView
 
             if viewModel.hasError {
                 Text("main_processing_full_amount".localized)
@@ -56,5 +51,22 @@ struct TotalSumBalanceView: View {
         }
         .padding(16)
         .background(Color.white)
+        .cornerRadius(16)
+    }
+
+    private var balanceView: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            AttributedTextView(viewModel.totalFiatValueString)
+                .foregroundColor(Color.tangemGrayDark6)
+                .skeletonable(isShown: viewModel.isLoading, size: CGSize(width: 100, height: 25))
+                .frame(height: 33)
+
+            if let tokenModel = viewModel.tokenItemViewModel {
+                Text(tokenModel.balance)
+                    .font(.footnote)
+                    .foregroundColor(Colors.Text.tertiary)
+                    .layoutPriority(1)
+            }
+        }
     }
 }
