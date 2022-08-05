@@ -43,7 +43,7 @@ class CardSettingsViewModel: ObservableObject {
 
         return "\(cardModel.cardInfo.card.walletSignedHashes)"
     }
-    
+
     var isResetToFactoryAvailable: Bool {
         !cardModel.cardInfo.isSaltPay && !cardModel.isStart2CoinCard
     }
