@@ -46,9 +46,9 @@ extension ScanCardSettingsCoordinator {
 
 extension ScanCardSettingsCoordinator: ScanCardSettingsRoutable {
     func openCardSettings(cardModel: CardViewModel) {
-        let coordinator = CardSettingsCoordinator(popToRootAction: self.popToRootAction)
-        coordinator.start(with: .init(cardModel: cardModel))
-
-        cardSettingsCoordinator = coordinator
+//        router.scanCardSettingDidScan(cardModel: cardModel)
+//        let coordinator = CardSettingsCoordinator(popToRootAction: self.popToRootAction)
+//        coordinator.start(with: .init(cardModel: cardModel))
+//        cardSettingsCoordinator = coordinator
     }
 }
