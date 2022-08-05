@@ -53,6 +53,10 @@ class DetailsViewModel: ObservableObject {
         )
     }
 
+    var isMultiWallet: Bool {
+        cardModel.cardInfo.isMultiWallet
+    }
+
     // MARK: - Private
 
     private var bag = Set<AnyCancellable>()
@@ -64,16 +68,6 @@ class DetailsViewModel: ObservableObject {
         dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel)
 
         bind()
-    }
-
-    func prepareTwinOnboarding() {
-        let input = OnboardingInput(steps: .twins(TwinsOnboardingStep.twinningSteps),
-                                    cardInput: .cardModel(self.cardModel),
-                                    welcomeStep: nil,
-                                    currentStepIndex: 0,
-                                    isStandalone: true)
-
-        self.openOnboarding(with: input)
     }
 
     func prepareBackup() {
@@ -104,6 +98,10 @@ extension DetailsViewModel {
 
     func openWalletConnect() {
         coordinator.openWalletConnect(with: cardModel)
+    }
+
+    func openCurrencySelection() {
+        coordinator.openCurrencySelection()
     }
 
     func openDisclaimer() {
