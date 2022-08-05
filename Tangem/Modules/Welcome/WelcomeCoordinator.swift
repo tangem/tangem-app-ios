@@ -62,8 +62,8 @@ class WelcomeCoordinator: CoordinatorObject {
             welcomeViewModel?.scanCard()
         }
 
-        if let savedUserWallet = service.selectedUserWallet {
-            openMain(with: .init(userWallet: savedUserWallet))
+        if let selectedModel = service.selectedModel {
+            openMain(with: selectedModel)
         }
     }
 
