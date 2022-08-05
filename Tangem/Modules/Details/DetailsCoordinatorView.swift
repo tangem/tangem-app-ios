@@ -29,8 +29,8 @@ struct DetailsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.pushedWebViewModel) {
                 WebViewContainer(viewModel: $0)
             }
-            .navigation(item: $coordinator.scanCardSettingsCoordinator) {
-                ScanCardSettingsCoordinatorView(coordinator: $0)
+            .navigation(item: $coordinator.cardSettingsCoordinator) {
+                CardSettingsCoordinatorView(coordinator: $0)
             }
             .navigation(item: $coordinator.appSettingsCoordinator) {
                 AppSettingsCoordinatorView(coordinator: $0)
@@ -63,6 +63,11 @@ struct DetailsCoordinatorView: CoordinatorView {
             .sheet(item: $coordinator.supportChatViewModel) {
                 SupportChatView(viewModel: $0)
                     .edgesIgnoringSafeArea(.vertical)
+            }
+
+        NavHolder()
+            .sheet(item: $coordinator.scanCardSettingsViewModel) {
+                ScanCardSettingsView(viewModel: $0)
             }
     }
 }
