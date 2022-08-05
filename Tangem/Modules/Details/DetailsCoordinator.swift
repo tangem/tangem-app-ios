@@ -26,6 +26,7 @@ class DetailsCoordinator: CoordinatorObject {
 
     // MARK: - Child view models
 
+    @Published var currencySelectViewModel: CurrencySelectViewModel? = nil
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
     @Published var mailViewModel: MailViewModel? = nil
     @Published var disclaimerViewModel: DisclaimerViewModel? = nil
@@ -55,6 +56,11 @@ extension DetailsCoordinator {
 // MARK: - DetailsRoutable
 
 extension DetailsCoordinator: DetailsRoutable {
+    func openCurrencySelection() {
+        currencySelectViewModel = CurrencySelectViewModel()
+        currencySelectViewModel?.dismissAfterSelection = false
+    }
+
     func openOnboardingModal(with input: OnboardingInput) {
         let dismissAction: Action = { [weak self] in
             self?.modalOnboardingCoordinator = nil

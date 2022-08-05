@@ -80,6 +80,10 @@ class DetailsViewModel: ObservableObject {
         )
     }
 
+    var isMultiWallet: Bool {
+        cardModel.cardInfo.isMultiWallet
+    }
+
     // MARK: - Private
 
     private var bag = Set<AnyCancellable>()
@@ -134,6 +138,10 @@ extension DetailsViewModel {
 
     func openWalletConnect() {
         coordinator.openWalletConnect(with: cardModel)
+    }
+
+    func openCurrencySelection() {
+        coordinator.openCurrencySelection()
     }
 
     func openDisclaimer() {
