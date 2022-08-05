@@ -9,7 +9,7 @@
 import SwiftUI
 
 extension List {
-    @ViewBuilder func groupedListStyleCompact() -> some View {
+    @ViewBuilder func groupedListStyleCompatibility() -> some View {
         if #available(iOS 14.0, *) {
             self.listStyle(.insetGrouped)
         } else {
