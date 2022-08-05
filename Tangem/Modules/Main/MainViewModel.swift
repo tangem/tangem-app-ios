@@ -223,6 +223,7 @@ class MainViewModel: ObservableObject {
     init(cardModel: CardViewModel, coordinator: MainRoutable) {
         self.cardModel = cardModel
         self.coordinator = coordinator
+        cardModel.getCardInfo()
         bind()
         cardModel.updateState()
     }
