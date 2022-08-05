@@ -43,6 +43,10 @@ class CardSettingsViewModel: ObservableObject {
 
         return "\(cardModel.cardInfo.card.walletSignedHashes)"
     }
+    
+    var isResetToFactoryAvailable: Bool {
+        !cardModel.isStart2CoinCard
+    }
 
     // MARK: Dependecies
 
