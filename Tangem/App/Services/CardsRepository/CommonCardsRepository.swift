@@ -70,12 +70,12 @@ class CommonCardsRepository: CardsRepository {
         let interaction = INInteraction(intent: ScanTangemCardIntent(), response: nil)
         interaction.donate(completion: nil)
 
-        legacyCardMigrator.migrateIfNeeded(for: cardInfo)
+        let cm = CardViewModel(cardInfo: cardInfo)
+        legacyCardMigrator.migrateIfNeeded(for: cardInfo.card.cardId, config: cm.config)
         scannedCardsRepository.add(cardInfo)
         didScanPublisher.send(cardInfo)
         tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
 
-        let cm = CardViewModel(cardInfo: cardInfo)
         Analytics.logScan(card: cardInfo.card, config: cm.config)
         cards[cardInfo.card.cardId] = cm
         sdkProvider.didScan(cm.config)
@@ -91,16 +91,14 @@ fileprivate class LegacyCardMigrator {
     @Injected(\.scannedCardsRepository) private var scannedCardsRepository: ScannedCardsRepository
 
     // Save default blockchain and token to main tokens repo.
-    func migrateIfNeeded(for cardInfo: CardInfo) {
-        let cardId = cardInfo.card.cardId
-
-        // Migrate only multiwallet cards
-        guard cardInfo.isMultiWallet else {
+    func migrateIfNeeded(for cardId: String, config: UserWalletConfig) {
+        //Migrate only multiwallet cards
+        guard config.features.contains(.manageTokensAllowed) else {
             return
         }
-
+        
         // Check if we have anything to migrate. It's impossible to get default token without default blockchain
-        guard let entry = cardInfo.defaultStorageEntry else {
+        guard let embeddedEntry = config.embeddedBlockchain else {
             return
         }
 
@@ -117,7 +115,7 @@ fileprivate class LegacyCardMigrator {
         }
 
         var entries = tokenItemsRepository.getItems(for: cardId)
-        entries.insert(entry, at: 0)
+        entries.insert(embeddedEntry, at: 0)
 
         // We need to preserve order of token items
         tokenItemsRepository.removeAll(for: cardId)

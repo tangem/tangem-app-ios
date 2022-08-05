@@ -628,6 +628,7 @@ class SendViewModel: ObservableObject {
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
         appDelegate.addLoadingView()
 
+        let isDemo = walletModel.isDemo
         walletModel.send(tx, signer: cardViewModel.signer)
             .sink(receiveCompletion: { [weak self] completion in
                 guard let self = self else { return }
@@ -647,7 +648,7 @@ class SendViewModel: ObservableObject {
                     self.emailDataCollector.lastError = error
                     self.error = error.alertBinder
                 } else {
-                    if !self.cardViewModel.cardInfo.card.isDemoCard {
+                    if !isDemo {
                         if self.isSellingCrypto {
                             Analytics.log(event: .userSoldCrypto, with: [.currencyCode: self.blockchainNetwork.blockchain.currencySymbol])
                         } else {
@@ -656,7 +657,7 @@ class SendViewModel: ObservableObject {
                     }
 
                     DispatchQueue.main.async {
-                        let alert = AlertBuilder.makeSuccessAlert(message: self.cardViewModel.cardInfo.card.isDemoCard ? "alert_demo_feature_disabled".localized
+                        let alert = AlertBuilder.makeSuccessAlert(message: isDemo ? "alert_demo_feature_disabled".localized
                             : "send_transaction_success".localized,
                             okAction: self.close)
                         self.error = alert
