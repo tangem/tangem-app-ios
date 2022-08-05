@@ -29,14 +29,18 @@ final class UserWalletListViewModel: ObservableObject {
     ) {
         self.coordinator = coordinator
 
-        multiCurrencyModels = userWalletListService.multiCurrencyModels
-        singleCurrencyModels = userWalletListService.singleCurrencyModels
+        updateModels()
 
         for model in (multiCurrencyModels + singleCurrencyModels) {
             model.getCardInfo()
         }
 
         selectedUserWalletId = userWalletListService.selectedUserWalletId
+    }
+
+    func updateModels() {
+        multiCurrencyModels = userWalletListService.multiCurrencyModels
+        singleCurrencyModels = userWalletListService.singleCurrencyModels
     }
 
     func onUserWalletTapped(_ userWallet: UserWallet) {
@@ -71,6 +75,33 @@ final class UserWalletListViewModel: ObservableObject {
                 self?.processScannedCard(cardModel)
             }
             .store(in: &bag)
+    }
+
+    func editWallet(_ userWallet: UserWallet) {
+        let vc: UIAlertController = UIAlertController(title: "Rename Wallet", message: nil, preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: "common_cancel".localized, style: .cancel) { _ in
+
+        }
+        vc.addAction(cancelAction)
+
+        var nameTextField: UITextField?
+        vc.addTextField { textField in
+            nameTextField = textField
+            #warning("l10n")
+            nameTextField?.placeholder = "Wallet name"
+            nameTextField?.text = userWallet.name
+            nameTextField?.clearButtonMode = .whileEditing
+            nameTextField?.autocapitalizationType = .sentences
+        }
+
+        let acceptButton = UIAlertAction(title: "common_ok".localized, style: .default) { [weak self, nameTextField] _ in
+            let name = nameTextField?.text ?? ""
+            self?.userWalletListService.setName(userWallet, name: name)
+            self?.updateModels()
+        }
+        vc.addAction(acceptButton)
+
+        UIApplication.modalFromTop(vc)
     }
 
     func deleteUserWallet(_ userWallet: UserWallet) {
