@@ -10,6 +10,7 @@ import Foundation
 import SwiftUI
 import TangemSdk
 import Combine
+import BlockchainSdk
 
 class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardingStep>, ObservableObject {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
@@ -26,8 +27,11 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     }
 
     override var subtitle: LocalizedStringKey {
-        if currentStep == .topup, cardModel!.cardInfo.walletData?.blockchain.lowercased() == "xrp" {
-            return "onboarding_topup_subtitle_xrp"
+        if currentStep == .topup {
+            if case .xrp = cardModel?.walletModels?.first?.blockchainNetwork.blockchain {
+                return "onboarding_topup_subtitle_xrp"
+            }
+            return super.subtitle
         } else {
             return super.subtitle
         }

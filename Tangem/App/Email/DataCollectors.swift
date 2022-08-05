@@ -23,8 +23,8 @@ extension EmailDataCollector {
             EmailCollectedData(type: .card(.cardId), data: cardInfo.card.cardId),
             EmailCollectedData(type: .card(.firmwareVersion), data: cardInfo.card.firmwareVersion.stringValue),
         ]
-
-        if let blockchain = cardInfo.defaultBlockchain?.displayName {
+        
+        if let blockchain = cardInfo.walletData.blockchain?.displayName {
             data.append(EmailCollectedData(type: .card(.cardBlockchain), data: blockchain))
         }
 
@@ -44,7 +44,7 @@ class NegativeFeedbackDataCollector: EmailDataCollector {
     }
 
     var dataForEmail: String {
-        return formatData(collectData(from: cardInfo))
+        return formatData(collectData(from: cardInfoб))
     }
 }
 
