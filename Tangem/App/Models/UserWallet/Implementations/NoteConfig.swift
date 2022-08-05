@@ -14,6 +14,10 @@ struct NoteConfig {
     private let card: Card
     private let noteData: WalletData
 
+    private var isDemoCard: Bool {
+        DemoUtil().isDemoCard(cardId: card.cardId)
+    }
+    
     init(card: Card, noteData: WalletData) {
         self.card = card
         self.noteData = noteData
@@ -43,8 +47,8 @@ extension NoteConfig: UserWalletConfig {
         .full
     }
 
-    var features: Set<UserWalletConfig.Feature> {
-        var features = Set<Feature>()
+    var features: Set<UserWalletFeature> {
+        var features = Set<UserWalletFeature>()
         features.insert(.sendingToPayIDAllowed)
         features.insert(.exchangingAllowed)
         features.insert(.signedHashesCounterAvailable)
@@ -54,7 +58,7 @@ extension NoteConfig: UserWalletConfig {
     }
 
     var defaultCurve: EllipticCurve? {
-        defaultBlockchain?.curve
+        defaultBlockchain.curve
     }
 
     var onboardingSteps: OnboardingSteps {
@@ -86,5 +90,15 @@ extension NoteConfig: UserWalletConfig {
 
     var persistentBlockchains: [StorageEntry]? {
         return nil
+    }
+    
+    var embeddedBlockchain: StorageEntry? {
+        return defaultBlockchains.first
+    }
+    
+    var disabledFeatureReason: String? {
+        if isDemoCard {
+            return "alert_demo_feature_disabled".localized
+        }
     }
 }
