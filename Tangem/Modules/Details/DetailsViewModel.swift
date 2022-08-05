@@ -154,10 +154,12 @@ extension DetailsViewModel {
     }
 
     func openCardSettings() {
+        Analytics.log(.cardSettingsTapped)
         coordinator.openScanCardSettings()
     }
 
     func openAppSettings() {
+        Analytics.log(.appSettingsTapped)
         coordinator.openAppSettings()
     }
 
