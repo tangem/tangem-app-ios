@@ -45,7 +45,7 @@ class CurrencySelectViewModel: ObservableObject {
     }
 
     func onSelect(_ currency: CurrenciesResponse.Currency) {
-        Analytics.log(.currencyChanged, params: [.currency: currency.name])
+        Analytics.log(.currencyTypeChanged, params: [.currency: currency.name])
         objectWillChange.send()
         AppSettings.shared.selectedCurrencyCode = currency.code
     }
