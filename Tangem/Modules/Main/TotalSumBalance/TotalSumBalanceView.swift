@@ -37,7 +37,6 @@ struct TotalSumBalanceView: View {
                     .foregroundColor(.tangemGrayLight7)
                 }
                 .buttonStyle(PlainButtonStyle())
-
             }
             .padding(.bottom, 4)
 
