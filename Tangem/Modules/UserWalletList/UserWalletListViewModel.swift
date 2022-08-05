@@ -69,6 +69,12 @@ final class UserWalletListViewModel: ObservableObject {
             .store(in: &bag)
     }
 
+    func deleteUserWallet(_ userWallet: UserWallet) {
+        userWalletListService.deleteWallet(userWallet)
+        multiCurrencyModels.removeAll { $0.userWallet.userWalletId == userWallet.userWalletId }
+        singleCurrencyModels.removeAll { $0.userWallet.userWalletId == userWallet.userWalletId }
+    }
+
     private func processScannedCard(_ cardModel: CardViewModel) {
         let cardInfo = cardModel.cardInfo
         let card = cardInfo.card
