@@ -25,20 +25,19 @@ struct TotalSumBalanceView: View {
 
                 Spacer()
 
-                if viewModel.isCurrencySelectionVisible {
-                    Button {
-                        viewModel.tapOnCurrencySymbol()
-                    } label: {
-                        HStack(spacing: 6) {
-                            Text(currencyType)
-                                .lineLimit(1)
-                                .font(.system(size: 13, weight: .medium))
-                            Image("tangemArrowDown")
-                        }
-                        .foregroundColor(.tangemGrayLight7)
+                Button {
+                    viewModel.tapOnCurrencySymbol()
+                } label: {
+                    HStack(spacing: 6) {
+                        Text(currencyType)
+                            .lineLimit(1)
+                            .font(.system(size: 13, weight: .medium))
+                        Image("tangemArrowDown")
                     }
-                    .buttonStyle(PlainButtonStyle())
+                    .foregroundColor(.tangemGrayLight7)
                 }
+                .buttonStyle(PlainButtonStyle())
+
             }
             .padding(.bottom, 4)
 
