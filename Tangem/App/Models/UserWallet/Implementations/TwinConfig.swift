@@ -43,8 +43,8 @@ extension TwinConfig: UserWalletConfig {
         .lastLunh(4)
     }
 
-    var features: Set<UserWalletConfig.Feature> {
-        var features = Set<Feature>()
+    var features: Set<UserWalletFeature> {
+        var features = Set<UserWalletFeature>()
         features.insert(.sendingToPayIDAllowed)
         features.insert(.exchangingAllowed)
         features.insert(.signingSupported)
@@ -60,7 +60,7 @@ extension TwinConfig: UserWalletConfig {
     }
 
     var defaultCurve: EllipticCurve? {
-        defaultBlockchain?.curve
+        defaultBlockchain.curve
     }
 
     var onboardingSteps: OnboardingSteps {
@@ -110,4 +110,10 @@ extension TwinConfig: UserWalletConfig {
     var persistentBlockchains: [StorageEntry]? {
         return nil
     }
+    
+    var embeddedBlockchain: StorageEntry? {
+        return defaultBlockchains.first
+    }
+    
+    var disabledFeatureReason: String? { nil }
 }
