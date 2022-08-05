@@ -180,17 +180,17 @@ class StoriesViewModel: ObservableObject {
     private func sendAnalyticsEvent() {
         switch currentPage {
         case .meetTangem:
-            Analytics.log(.viewStory1, params: [:])
+            Analytics.log(.viewStoryIntro, params: [:])
         case .awe:
-            Analytics.log(.viewStory2, params: [:])
+            Analytics.log(.viewStoryWallet, params: [:])
         case .backup:
-            Analytics.log(.viewStory3, params: [:])
+            Analytics.log(.viewStoryKeys, params: [:])
         case .currencies:
-            Analytics.log(.viewStory4, params: [:])
+            Analytics.log(.viewStoryCurrencies, params: [:])
         case .web3:
-            Analytics.log(.viewStory5, params: [:])
+            Analytics.log(.viewStoryDefi, params: [:])
         case .finish:
-            Analytics.log(.viewStory6, params: [:])
+            Analytics.log(.viewStoryEverybody, params: [:])
         }
     }
 }
