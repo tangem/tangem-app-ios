@@ -134,7 +134,7 @@ extension CardSettingsViewModel {
                 self?.cardModel.resetToFactory { [weak self] result in
                     switch result {
                     case .success:
-                        self?.coordinator.openOnboarding()
+                        self?.coordinator.resetCardDidFinish()
                     case let .failure(error):
                         print("ResetCardToFactoryWarning error", error)
                     }
