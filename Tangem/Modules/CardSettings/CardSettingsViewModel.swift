@@ -10,6 +10,8 @@ import SwiftUI
 import Combine
 
 class CardSettingsViewModel: ObservableObject {
+    @Injected(\.onboardingStepsSetupService) private var onboardingStepsSetupService: OnboardingStepsSetupService
+
     // MARK: ViewState
 
     @Published var hasSingleSecurityMode: Bool = false
@@ -76,6 +78,32 @@ private extension CardSettingsViewModel {
             .weakAssign(to: \.securityModeTitle, on: self)
             .store(in: &bag)
     }
+
+    func prepareTwinOnboarding() {
+        onboardingStepsSetupService.twinRecreationSteps(for: cardModel.cardInfo)
+            .sink { completion in
+                guard case let .failure(error) = completion else {
+                    return
+                }
+
+                Analytics.log(error: error)
+                print("Failed to load image for new card")
+                self.alert = error.alertBinder
+            } receiveValue: { [weak self] steps in
+                guard let self = self else { return }
+
+                let input = OnboardingInput(
+                    steps: steps,
+                    cardInput: .cardModel(self.cardModel),
+                    welcomeStep: nil,
+                    currentStepIndex: 0,
+                    isStandalone: true
+                )
+
+                self.coordinator.openOnboarding(with: input)
+            }
+            .store(in: &bag)
+    }
 }
 
 // MARK: - Navigation
@@ -95,13 +123,17 @@ extension CardSettingsViewModel {
     }
 
     func openResetCard() {
-        coordinator.openResetCardToFactoryWarning { [weak self] in
-            self?.cardModel.resetToFactory { [weak self] result in
-                switch result {
-                case .success:
-                    self?.coordinator.closeResetCardToFactoryWarning()
-                case let .failure(error):
-                    print("ResetCardToFactoryWarning error", error)
+        if cardModel.isTwinCard {
+            prepareTwinOnboarding()
+        } else {
+            coordinator.openResetCardToFactoryWarning { [weak self] in
+                self?.cardModel.resetToFactory { [weak self] result in
+                    switch result {
+                    case .success:
+                        self?.coordinator.closeResetCardToFactoryWarning()
+                    case let .failure(error):
+                        print("ResetCardToFactoryWarning error", error)
+                    }
                 }
             }
         }
