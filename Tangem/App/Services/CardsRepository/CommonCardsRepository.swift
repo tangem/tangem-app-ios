@@ -79,7 +79,6 @@ class CommonCardsRepository: CardsRepository {
 
         let cm = CardViewModel(cardInfo: cardInfo)
         cards[cardInfo.card.cardId] = cm
-        cm.getCardInfo()
         return cm
     }
 }
