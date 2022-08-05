@@ -16,7 +16,6 @@ class TotalSumBalanceViewModel: ObservableObject {
     @Published var totalFiatValueString: NSAttributedString
     @Published var hasError: Bool
     @Published var isSingleCoinCard: Bool
-    @Published var isCurrencySelectionVisible: Bool
     /// If we have a note or any single coin wallet that we should show this balance
     @Published var tokenItemViewModel: TokenItemViewModel?
     let tapOnCurrencySymbol: () -> ()
@@ -35,14 +34,12 @@ class TotalSumBalanceViewModel: ObservableObject {
          totalFiatValueString: NSAttributedString = NSAttributedString(string: ""),
          hasError: Bool = false,
          isSingleCoinCard: Bool,
-         isCurrencySelectionVisible: Bool,
          tapOnCurrencySymbol: @escaping () -> ()
     ) {
         self.isLoading = isLoading
         self.totalFiatValueString = totalFiatValueString
         self.hasError = hasError
         self.isSingleCoinCard = isSingleCoinCard
-        self.isCurrencySelectionVisible = isCurrencySelectionVisible
         self.tapOnCurrencySymbol = tapOnCurrencySymbol
     }
 
