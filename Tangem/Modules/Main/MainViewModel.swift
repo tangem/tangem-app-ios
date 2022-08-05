@@ -535,7 +535,7 @@ extension MainViewModel {
     }
 
     func openSellCrypto() {
-        if cardModel.cardInfo.card.isDemoCard {
+        if let disabledFeatureReason = cardModel.config.disabledFeatureReason {
             error = AlertBuilder.makeDemoAlert()
             return
         }
@@ -552,23 +552,21 @@ extension MainViewModel {
             error = AlertBuilder.makeDemoAlert()
             return
         }
-
-        guard cardModel.cardInfo.isTestnet, !cardModel.config.features.contains(.manageTokensAllowed),
-              let walletModel = cardModel.walletModels?.first,
-              walletModel.wallet.blockchain == .ethereum(testnet: true),
-              let token = walletModel.tokenItemViewModels.first?.amountType.token else {
-            if let url = buyCryptoURL {
-                coordinator.openBuyCrypto(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
-                    self?.sendAnalyticsEvent(.userBoughtCrypto)
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                        self?.cardModel.update()
-                    }
+        
+        if let walletModel = cardModel.walletModels?.first,
+           walletModel.wallet.blockchain == .ethereum(testnet: true),
+           let token = walletModel.wallet.amounts.keys.compactMap({ $0.token }).first {
+            testnetBuyCryptoService.buyCrypto(.erc20Token(token, walletManager: walletModel.walletManager, signer: cardModel.signer))
+        }
+        
+        if let url = buyCryptoURL {
+            coordinator.openBuyCrypto(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
+                self?.sendAnalyticsEvent(.userBoughtCrypto)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    self?.cardModel.update()
                 }
             }
-            return
         }
-
-        testnetBuyCryptoService.buyCrypto(.erc20Token(token, walletManager: walletModel.walletManager, signer: cardModel.signer))
     }
 
     func openBuyCryptoIfPossible() {
