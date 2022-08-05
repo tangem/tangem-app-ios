@@ -104,18 +104,6 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 }
 
-// MARK: - ScanCardSettingsCoordinatorRoutable
-
-extension DetailsCoordinator: ScanCardSettingsCoordinatorRoutable {
-    func scanCardSettingDidScan(cardModel: CardViewModel) {
-//        openAppSettings()
-
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-//            self.scanCardSettingsCoordinator = nil
-//        }
-    }
-}
-
 // MARK: - ScanCardSettingsRoutable
 
 extension DetailsCoordinator: ScanCardSettingsRoutable {
