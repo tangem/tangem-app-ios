@@ -73,6 +73,7 @@ struct UserWalletListView: View {
                     if #available(iOS 15.0, *) {
                         Button(role: .destructive) {
                             print("Delete")
+                            viewModel.deleteUserWallet(models[i].userWallet)
                         } label: {
                             HStack {
                                 Text("Delete")
@@ -82,6 +83,7 @@ struct UserWalletListView: View {
                     } else {
                         Button {
                             print("Delete")
+                            viewModel.deleteUserWallet(models[i].userWallet)
                         } label: {
                             HStack {
                                 Text("Delete")
