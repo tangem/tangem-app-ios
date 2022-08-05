@@ -16,7 +16,7 @@ class WalletConnectCardScanner {
     @Injected(\.tangemSdkProvider) var tangemSdkProvider: TangemSdkProviding
     @Injected(\.scannedCardsRepository) var scannedCardsRepository: ScannedCardsRepository
 
-    func scanCard(for dAppInfo: Session.DAppInfo) -> AnyPublisher<WalletInfo, Error> {
+    func scanCard(for dAppInfo: Session.DAppInfo) -> AnyPublisher<(CardInfo, WalletInfo), Error> {
         Deferred {
             Future { [weak self] promise in
                 guard let self = self else { return }
@@ -28,7 +28,9 @@ class WalletConnectCardScanner {
                     switch result {
                     case .success(let card):
                         do {
-                            promise(.success(try self.walletInfo(for: card.getCardInfo(), dAppInfo: dAppInfo)))
+                            let cardInfo = card.getCardInfo()
+                            let walletInfo = try self.walletInfo(for: cardInfo, dAppInfo: dAppInfo)
+                            promise(.success((cardInfo, walletInfo)))
                         } catch {
                             print("Failed to receive wallet info for with id: \(card.card.cardId)")
                             promise(.failure(error))
