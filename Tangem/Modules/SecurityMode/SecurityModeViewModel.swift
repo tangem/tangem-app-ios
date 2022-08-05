@@ -111,15 +111,6 @@ enum SecurityModeOption: String, CaseIterable, Identifiable, Equatable {
             return "details_manage_security_passcode_description".localized
         }
     }
-
-    var actionButtonTitle: LocalizedStringKey {
-        switch self {
-        case .longTap:
-            return "common_save_changes"
-        case .accessCode, .passCode:
-            return "common_continue"
-        }
-    }
 }
 
 // MARK: - Navigation
