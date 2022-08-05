@@ -305,7 +305,7 @@ class CardViewModel: Identifiable, ObservableObject {
     // MARK: - Wallet
     func createWallet(_ completion: @escaping (Result<Void, Error>) -> Void) {
         let card = self.cardInfo.card
-        tangemSdk.startSession(with: CreateWalletAndReadTask(with: config.defaultBlockchain?.curve),
+        tangemSdk.startSession(with: CreateWalletAndReadTask(with: config.defaultCurve),
                                cardId: cardInfo.card.cardId,
                                initialMessage: Message(header: nil,
                                                        body: "initial_message_create_wallet_body".localized)) { [weak self] result in
