@@ -127,16 +127,17 @@ struct MainView: View {
                                 .padding(.horizontal, 16.0)
                         }
 
+                        if viewModel.cardModel.cardInfo.isSaltPay {
+                            TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel)
+                                .padding(.horizontal, 16)
+                                .padding(.bottom, 6)
 
                         if viewModel.isMultiWalletMode {
 
                             if !viewModel.tokenItemViewModels.isEmpty {
-                                TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel) {
-                                    viewModel.openCurrencySelection()
-                                }
-                                .cornerRadius(16)
-                                .padding(.horizontal, 16)
-                                .padding(.bottom, 6)
+                                TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel)
+                                    .padding(.horizontal, 16)
+                                    .padding(.bottom, 6)
                             }
 
                             TokensView(items: viewModel.tokenItemViewModels, action: viewModel.openTokenDetails)
@@ -153,12 +154,8 @@ struct MainView: View {
                                     tokenViewModels: viewModel.cardModel.walletModels!.first!.tokenViewModels
                                 )
                                 .padding(.horizontal, 16.0)
-                            } else {
-                                if noAccountView != nil {
-                                    noAccountView!
-                                } else {
-                                    EmptyView()
-                                }
+                            } else if let noAccountView = noAccountView {
+                                noAccountView
                             }
 
                             if let walletModel = viewModel.cardModel.walletModels?.first {
