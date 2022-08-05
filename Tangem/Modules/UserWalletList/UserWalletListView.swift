@@ -62,7 +62,7 @@ struct UserWalletListView: View {
                 }
                 .contextMenu {
                     Button {
-                        print("Rename")
+                        viewModel.editWallet(models[i].userWallet)
                     } label: {
                         HStack {
                             Text("Rename")
@@ -72,7 +72,6 @@ struct UserWalletListView: View {
 
                     if #available(iOS 15.0, *) {
                         Button(role: .destructive) {
-                            print("Delete")
                             viewModel.deleteUserWallet(models[i].userWallet)
                         } label: {
                             HStack {
@@ -82,7 +81,6 @@ struct UserWalletListView: View {
                         }
                     } else {
                         Button {
-                            print("Delete")
                             viewModel.deleteUserWallet(models[i].userWallet)
                         } label: {
                             HStack {
