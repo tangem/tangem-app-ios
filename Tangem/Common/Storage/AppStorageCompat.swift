@@ -35,20 +35,25 @@ import Combine
     }
 
     public var projectedValue: Published<Value>.Publisher {
-        _value.$value
+        _value.$publishedValue
     }
 }
 
 @usableFromInline
 final class Storage<Value>: NSObject, ObservableObject {
-    @Published var value: Value
+    @Published var publishedValue: Value
+
+    var value: Value {
+        store.value(forKey: keyPath).flatMap(self.transform) ?? self.defaultValue
+    }
+
     private let defaultValue: Value
     private let store: UserDefaults
     private let keyPath: String
     private let transform: (Any?) -> Value?
 
     init(value: Value, store: UserDefaults, key: String, transform: @escaping (Any?) -> Value?) {
-        self.value = value
+        self.publishedValue = value
         self.defaultValue = value
         self.store = store
         self.keyPath = key
@@ -67,7 +72,9 @@ final class Storage<Value>: NSObject, ObservableObject {
                                change: [NSKeyValueChangeKey: Any]?,
                                context: UnsafeMutableRawPointer?) {
 
-        self.value = change?[.newKey].flatMap(self.transform) ?? self.defaultValue
+        DispatchQueue.main.async {
+            self.publishedValue = change?[.newKey].flatMap(self.transform) ?? self.defaultValue
+        }
     }
 }
 
