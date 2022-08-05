@@ -8,27 +8,25 @@
 
 import Foundation
 
-extension UserWalletConfig {
-    enum Feature: Int {
-        case none
+enum UserWalletFeature: Int {
+    case none
 
-        // MARK: - Card features
+    // MARK: - Card features
 
-        case settingAccessCodeAllowed
-        case settingPasscodeAllowed
-        case signingSupported
-        case longHashesSupported
-        case signedHashesCounterAvailable
-        case backup
-        case twinning
+    case settingAccessCodeAllowed
+    case settingPasscodeAllowed
+    case signingSupported
+    case longHashesSupported
+    case signedHashesCounterAvailable
+    case backup
+    case twinning
 
-        // MARK: - App features
+    // MARK: - App features
 
-        case sendingToPayIDAllowed
-        case exchangingAllowed
-        case walletConnectAllowed
-        case manageTokensAllowed
-        case activation
-        case tokensSearch
-    }
+    case sendingToPayIDAllowed
+    case exchangingAllowed
+    case walletConnectAllowed
+    case manageTokensAllowed
+    case activation
+    case tokensSearch
 }
