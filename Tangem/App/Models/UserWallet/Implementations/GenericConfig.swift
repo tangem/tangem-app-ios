@@ -9,6 +9,7 @@
 import Foundation
 import TangemSdk
 import BlockchainSdk
+import WalletConnectSwift
 
 struct GenericConfig {
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
@@ -66,8 +67,8 @@ extension GenericConfig: UserWalletConfig {
         .full
     }
 
-    var features: Set<UserWalletConfig.Feature> {
-        var features = Set<Feature>()
+    var features: Set<UserWalletFeature> {
+        var features = Set<UserWalletFeature>()
         features.insert(.sendingToPayIDAllowed)
         features.insert(.exchangingAllowed)
         features.insert(.walletConnectAllowed)
@@ -151,6 +152,29 @@ extension GenericConfig: UserWalletConfig {
         }
 
         return entries
+    }
+    
+    var embeddedBlockchain: StorageEntry? {
+        return nil
+    }
+    
+    var disabledFeatureReason: String? {
+        if isDemoCard {
+            return "alert_demo_feature_disabled".localized
+        }
+    }
+
+    func selectBlockchain(for dAppInfo: Session.DAppInfo) -> BlockchainNetwork? {
+        guard features.contains(.walletConnectAllowed) else { return nil }
+
+        guard let blockchain = WalletConnectNetworkParserUtility.parse(dAppInfo: dAppInfo,
+                                                                       isTestnet: card.isTestnet) else {
+            return nil
+        }
+
+        let derivationPath = blockchain.derivationPath(for: card.derivationStyle)
+        let network = BlockchainNetwork(blockchain, derivationPath: derivationPath)
+        return network
     }
 }
 

@@ -90,15 +90,15 @@ extension Start2CoinConfig: UserWalletConfig {
         .full
     }
 
-    var features: Set<UserWalletConfig.Feature> {
-        var features = Set<Feature>()
+    var features: Set<UserWalletFeature> {
+        var features = Set<UserWalletFeature>()
         features.insert(.signingSupported)
         features.insert(.signedHashesCounterAvailable)
         return features
     }
 
     var defaultCurve: EllipticCurve? {
-        defaultBlockchain?.curve
+        defaultBlockchain.curve
     }
 
     var onboardingSteps: OnboardingSteps {
@@ -127,4 +127,10 @@ extension Start2CoinConfig: UserWalletConfig {
     var persistentBlockchains: [StorageEntry]? {
         return nil
     }
+    
+    var embeddedBlockchain: StorageEntry? {
+        return defaultBlockchains.first
+    }
+    
+    var disabledFeatureReason: String? { nil }
 }

@@ -364,24 +364,22 @@ extension TokenDetailsViewModel {
             alert = AlertBuilder.makeDemoAlert()
             return
         }
-
-        guard card.isTestnet, let token = amountType.token,
-              case .ethereum(testnet: true) = blockchainNetwork.blockchain else {
-            if let url = buyCryptoUrl {
-                coordinator.openBuyCrypto(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
-                    self?.sendAnalyticsEvent(.userBoughtCrypto)
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                        self?.walletModel?.update(silent: true)
-                    }
-                }
-            }
+        
+        if let walletModel = self.walletModel,
+           let token = amountType.token,
+           blockchainNetwork.blockchain == .ethereum(testnet: true) {
+            testnetBuyCryptoService.buyCrypto(.erc20Token(token, walletManager: walletModel.walletManager, signer: card.signer))
             return
         }
 
-        guard let model = walletModel else { return }
-
-
-        testnetBuyCryptoService.buyCrypto(.erc20Token(token, walletManager: model.walletManager, signer: card.signer))
+        if let url = buyCryptoUrl {
+            coordinator.openBuyCrypto(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
+                self?.sendAnalyticsEvent(.userBoughtCrypto)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    self?.walletModel?.update(silent: true)
+                }
+            }
+        }
     }
 
     func openBuyCryptoIfPossible() {

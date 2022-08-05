@@ -9,21 +9,46 @@
 import Foundation
 import TangemSdk
 import BlockchainSdk
+import WalletConnectSwift
 
-protocol UserWalletConfig {
+protocol UserWalletConfig: WalletConnectNetworkSelector {
     var emailConfig: EmailConfig { get }
     var touURL: URL? { get }
     var cardSetLabel: String? { get }
     var cardIdDisplayFormat: CardIdDisplayFormat { get }
-    var features: Set<UserWalletConfig.Feature> { get }
+    var features: Set<UserWalletFeature> { get }
     var defaultCurve: EllipticCurve? { get }
 
     var onboardingSteps: OnboardingSteps { get }
     var backupSteps: OnboardingSteps? { get }
+    
+    var disabledFeatureReason: String? { get }
 
+    ///All blockchains supported by this user wallet.
     var supportedBlockchains: Set<Blockchain> { get }
+    
+    ///Blockchains to be added to the tokens list by default on wallet creation.
     var defaultBlockchains: [StorageEntry] { get }
+    
+    ///Blockchains to be added to the tokens list on every scan. E.g. demo blockchains.
     var persistentBlockchains: [StorageEntry]? { get }
+    
+    ///Blockchain which embedded in the card.
+    var embeddedBlockchain: StorageEntry? { get }
+    
+    func selectBlockchain(for dAppInfo: Session.DAppInfo) -> BlockchainNetwork?
+    
+    func canUseFeature(_ feature: UserWalletFeature) -> Error?
+}
+
+protocol WalletConnectNetworkSelector {
+    func selectBlockchain(for dAppInfo: Session.DAppInfo) -> BlockchainNetwork?
+}
+
+extension WalletConnectNetworkSelector {
+    func selectBlockchain(for dAppInfo: Session.DAppInfo) -> BlockchainNetwork? {
+        return nil
+    }
 }
 
 struct EmailConfig {
