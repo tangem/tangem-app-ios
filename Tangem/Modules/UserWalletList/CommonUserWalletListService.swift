@@ -78,6 +78,24 @@ class CommonUserWalletListService: UserWalletListService {
         return true
     }
 
+    func setName(_ userWallet: UserWallet, name: String) {
+        var userWallets = savedUserWallets()
+
+        for i in 0 ..< userWallets.count {
+            if userWallets[i].userWalletId == userWallet.userWalletId {
+                userWallets[i].name = name
+            }
+        }
+
+        allModels.forEach {
+            if $0.userWallet.userWalletId == userWallet.userWalletId {
+                $0.cardInfo.name = name
+            }
+        }
+
+        saveUserWallets(userWallets)
+    }
+
     private func savedUserWallets() -> [UserWallet] {
         do {
             let data = AppSettings.shared.userWallets
