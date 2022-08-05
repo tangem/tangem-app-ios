@@ -9,8 +9,10 @@
 import Combine
 import SwiftUI
 
-final class ScanCardSettingsViewModel: ObservableObject {
+final class ScanCardSettingsViewModel: ObservableObject, Identifiable {
     @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
+
+    let id = UUID()
 
     @Published var isLoading: Bool = false
     @Published var alert: AlertBinder?
@@ -46,7 +48,11 @@ extension ScanCardSettingsViewModel {
         sdkProvider.prepareScan()
         sdkProvider.sdk.startSession(with: AppScanTask(targetBatch: nil)) { result in
             switch result {
-            case .failure(let error):
+            case let .failure(error):
+                guard !error.isUserCancelled else {
+                    return
+                }
+
                 Analytics.logCardSdkError(error, for: .scan)
                 completion(.failure(error))
             case .success(let response):
