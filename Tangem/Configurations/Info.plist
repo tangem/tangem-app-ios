@@ -46,7 +46,7 @@
 	<key>NFCReaderUsageDescription</key>
 	<string>To Scan Smart Card</string>
 	<key>NSCameraUsageDescription</key>
-	<string>To Scan QR Code</string>
+	<string>To Scan QR Code or take a photo for chat support</string>
 	<key>NSUbiquitousContainers</key>
 	<dict>
 		<key>iCloud.com.tangem.TangemTap</key>
