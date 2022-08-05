@@ -25,7 +25,6 @@ class Analytics {
                 log(event: event, with: params)
             case .amplitude:
                 let convertParams = params.reduce(into: [:]) { $0[$1.key.rawValue] = $1.value }
-
                 logAmplitude(event, params: convertParams)
             }
         }
@@ -292,7 +291,7 @@ extension Analytics {
         case walletOnboarding = "wallet_onboarding"
     }
 
-    enum AnalyticSystem {
+    enum AnalyticsSystems {
         case firebase
         case amplitude
         case appsflyer
@@ -312,7 +311,7 @@ extension Analytics {
 
 //  MARK: - Amplitude events
 extension Analytics.Event {
-    func compatibleFor() -> [Analytics.AnalyticSystem] {
+    func compatibleFor() -> [Analytics.AnalyticsSystems] {
         switch self {
         case .viewStoryIntro,
              .viewStoryWallet,
