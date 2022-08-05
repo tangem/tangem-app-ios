@@ -578,7 +578,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                                 self.input.cardInput.cardModel?.updateCardPinSettings()
                                 self.input.cardInput.cardModel?.updateCurrentSecurityOption()
                             } else { // add tokens for backup cards
-                                self?.addDefaultTokens(for: updatedCard)
+                                self.addDefaultTokens(for: updatedCard)
                             }
                             promise(.success(()))
                         case .failure(let error):
