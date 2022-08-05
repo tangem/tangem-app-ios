@@ -43,23 +43,23 @@ class WalletConnectCardScanner {
     }
 
     private func walletInfo(for cardInfo: CardInfo, dAppInfo: Session.DAppInfo) throws -> WalletInfo {
-        guard cardInfo.isMultiWallet,
-              cardInfo.card.wallets.contains(where: { $0.curve == .secp256k1 }) else {
+        let config = UserWalletConfigFactory(cardInfo).makeConfig()
+
+        guard config.features.contains(.walletConnectAllowed) else {
             throw WalletConnectServiceError.notValidCard
         }
 
-        guard let blockchain = WalletConnectNetworkParserUtility.parse(dAppInfo: dAppInfo, isTestnet: cardInfo.isTestnet) else {
+        guard let blockchainNetwork = config.selectBlockchain(for: dAppInfo) else {
             throw WalletConnectServiceError.unsupportedNetwork
         }
 
         let walletModels = WalletManagerAssembly.makeAllWalletModels(from: cardInfo)
         let wallet = walletModels
-            .filter { !$0.isCustom(.coin) }
-            .first(where: { $0.wallet.blockchain == blockchain })
+            .first(where: { $0.blockchainNetwork == blockchainNetwork })
             .map { $0.wallet }
 
         guard let wallet = wallet else {
-            throw WalletConnectServiceError.networkNotFound(name: blockchain.displayName)
+            throw WalletConnectServiceError.networkNotFound(name: blockchainNetwork.blockchain.displayName)
         }
 
         scannedCardsRepository.add(cardInfo)
@@ -70,6 +70,6 @@ class WalletConnectCardScanner {
                           walletPublicKey: wallet.publicKey.seedKey,
                           derivedPublicKey: derivedKey,
                           derivationPath: wallet.publicKey.derivationPath,
-                          blockchain: blockchain)
+                          blockchain: blockchainNetwork.blockchain)
     }
 }
