@@ -161,7 +161,7 @@ private extension TokenListViewModel {
     }
 
     func setupListDataLoader() -> ListDataLoader {
-        let loader = ListDataLoader(cardInfo: cardModel?.cardInfo)
+        let loader = ListDataLoader(config: cardModel?.config ?? DummyConfig())
 
         loader.$items
             .map { [unowned self] items -> [CoinViewModel] in

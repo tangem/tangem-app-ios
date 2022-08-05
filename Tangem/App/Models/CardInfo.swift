@@ -33,15 +33,7 @@ struct CardInfo {
             return AppCardIdFormatter(cid: card.cardId).formatted()
         }
     }
-
-    #if !CLIP
-//    var isTestnet: Bool {
-//        return card.isTestnet || (defaultBlockchain?.isTestnet ?? false)
-//    }
-
-
-    #endif
-
+    
     var artworkInfo: ArtworkInfo? {
         switch artwork {
         case .notLoaded, .noArtwork: return nil
