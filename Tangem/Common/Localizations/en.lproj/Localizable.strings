@@ -373,6 +373,8 @@ Please, try again later.";
 for
 %@
 
+NETWORK: %@
+
 URL: %@";
 "wallet_connect_scan_card_message" = "Tap card to bind to wallet connect";
 "wallet_connect_scan_new_code" = "Scan new code";
@@ -523,3 +525,4 @@ URL: %@";
 "reset_card_to_factory_button_title" = "Reset the card";
 "wallet_connect_title" = "WalletConnect";
 "wallet_connect_subtitle" = "Сonnect to Dapps";
+"wallet_connect_select_network" = "Select network";

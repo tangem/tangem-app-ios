@@ -50,7 +50,10 @@ class MainViewModel: ObservableObject {
 
     // MARK: Variables
     var isLoadingTokensBalance: Bool = false
-    lazy var totalSumBalanceViewModel: TotalSumBalanceViewModel = .init()
+    lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
+        isSingleCoinCard: !cardModel.cardInfo.isMultiWallet,
+        tapOnCurrencySymbol: openCurrencySelection
+    )
 
     let cardModel: CardViewModel
 
