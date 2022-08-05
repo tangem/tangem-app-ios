@@ -89,11 +89,7 @@ struct DetailsView: View {
 //                viewModel.openAppSettings()
 //            }
 
-            if viewModel.isTwinCard {
-                DefaultRowView(title: "details_row_title_twins_recreate".localized) {
-                    viewModel.prepareTwinOnboarding()
-                }
-            } else if viewModel.canCreateBackup {
+            if viewModel.canCreateBackup {
                 DefaultRowView(title: "details_row_title_create_backup".localized) {
                     viewModel.prepareBackup()
                 }
