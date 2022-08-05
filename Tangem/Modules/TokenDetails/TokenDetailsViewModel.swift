@@ -309,7 +309,7 @@ class TokenDetailsViewModel: ObservableObject {
             title: title,
             message: "token_details_hide_alert_message".localized,
             primaryButton: .destructive(Text("token_details_hide_alert_hide")) { [weak self] in
-                Analytics.log(.removeToken, params: [:])
+                Analytics.log(.removeTokenTapped)
                 self?.deleteToken()
             }
         )
@@ -407,6 +407,7 @@ extension TokenDetailsViewModel {
     }
 
     func openExplorer(at url: URL) {
+        Analytics.log(.exploreAddressTapped)
         coordinator.openExplorer(at: url, blockchainDisplayName: blockchainNetwork.blockchain.displayName)
     }
 
