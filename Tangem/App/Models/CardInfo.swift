@@ -34,6 +34,10 @@ struct CardInfo {
         return card.isTestnet || (defaultBlockchain?.isTestnet ?? false)
     }
 
+    var isSaltPay: Bool {
+        false // Temp solution, we don't have information so far
+    }
+
     var defaultBlockchain: Blockchain? {
         guard let walletData = walletData else { return nil }
 
