@@ -29,6 +29,9 @@ struct DetailsCoordinatorView: CoordinatorView {
             .navigation(item: $coordinator.pushedWebViewModel) {
                 WebViewContainer(viewModel: $0)
             }
+            .navigation(item: $coordinator.currencySelectViewModel) {
+                CurrencySelectView(viewModel: $0)
+            }
             .navigation(item: $coordinator.cardSettingsCoordinator) {
                 CardSettingsCoordinatorView(coordinator: $0)
             }
