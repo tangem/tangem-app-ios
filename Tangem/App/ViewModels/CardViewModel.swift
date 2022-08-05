@@ -365,6 +365,12 @@ class CardViewModel: Identifiable, ObservableObject {
             }
             .store(in: &bag)
 
+        self
+            .imageLoaderPublisher
+            .weakAssignAnimated(to: \.cardImage, on: self)
+            .store(in: &bag)
+
+
         self.updateState()
     }
 
@@ -595,6 +601,10 @@ class CardViewModel: Identifiable, ObservableObject {
     // MARK: - Update
 
     func getCardInfo() {
+        if case .artwork = cardInfo.artwork {
+            return
+        }
+
         cardInfo.artwork = .notLoaded
         guard cardInfo.card.firmwareVersion.type == .release else {
             cardInfo.artwork = .noArtwork
