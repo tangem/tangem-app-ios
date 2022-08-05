@@ -48,7 +48,11 @@ extension ScanCardSettingsViewModel {
         sdkProvider.prepareScan()
         sdkProvider.sdk.startSession(with: AppScanTask(targetBatch: nil)) { result in
             switch result {
-            case .failure(let error):
+            case let .failure(error):
+                guard !error.isUserCancelled else {
+                    return
+                }
+
                 Analytics.logCardSdkError(error, for: .scan)
                 completion(.failure(error))
             case .success(let response):
