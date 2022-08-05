@@ -45,7 +45,7 @@ class CardSettingsViewModel: ObservableObject {
     }
 
     var isResetToFactoryAvailable: Bool {
-        !cardModel.cardInfo.isSaltPay
+        !cardModel.cardInfo.isSaltPay && !cardModel.isStart2CoinCard
     }
 
     // MARK: Dependecies
