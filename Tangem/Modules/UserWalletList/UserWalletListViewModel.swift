@@ -18,8 +18,7 @@ final class UserWalletListViewModel: ObservableObject {
     // MARK: - Dependencies
 
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
-
-    private let userWalletListService = CommonUserWalletListService()
+    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
 
     private unowned let coordinator: UserWalletListRoutable
 
@@ -30,8 +29,13 @@ final class UserWalletListViewModel: ObservableObject {
     ) {
         self.coordinator = coordinator
 
-        multiCurrencyModels = userWalletListService.multiCurrencyUserWallets.map { .init(cardInfo: $0.cardInfo(), savedCards: true) }
-        singleCurrencyModels = userWalletListService.singleCurrencyUserWallets.map { .init(cardInfo: $0.cardInfo(), savedCards: true) }
+        multiCurrencyModels = userWalletListService.multiCurrencyModels
+        singleCurrencyModels = userWalletListService.singleCurrencyModels
+
+        for model in (multiCurrencyModels + singleCurrencyModels) {
+            model.getCardInfo()
+        }
+
         selectedUserWalletId = userWalletListService.selectedUserWalletId
     }
 
