@@ -47,6 +47,7 @@ struct AddressQrBottomSheetContent: View {
                     showCheckmark = true
                     viewModel.copyAddress()
                     UIPasteboard.general.string = viewModel.address
+
                     let notificationGenerator = UINotificationFeedbackGenerator()
                     notificationGenerator.notificationOccurred(.success)
 
