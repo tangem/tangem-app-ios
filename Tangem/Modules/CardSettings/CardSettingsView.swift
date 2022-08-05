@@ -27,7 +27,7 @@ struct CardSettingsView: View {
 
             resetToFactorySection
         }
-        .listStyle(DefaultListStyle())
+        .groupedListStyleCompact()
         .alert(item: $viewModel.alert) { $0.alert }
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("card_settings_title", displayMode: .inline)
