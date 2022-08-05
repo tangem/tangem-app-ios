@@ -17,7 +17,7 @@ import Amplitude
 import TangemSdk
 
 class Analytics {
-    static func log(_ event: Event, params: [ParameterKey: String]) {
+    static func log(_ event: Event, params: [ParameterKey: String] = [:]) {
         let compatibles = event.compatibleFor()
         for compatible in compatibles {
             switch compatible {
@@ -185,12 +185,12 @@ extension Analytics {
         case demoActivated = "demo_mode_activated"
 
         // MARK: - Amplitude
-        case viewStory1
-        case viewStory2
-        case viewStory3
-        case viewStory4
-        case viewStory5
-        case viewStory6
+        case viewStoryIntro
+        case viewStoryWallet
+        case viewStoryKeys
+        case viewStoryCurrencies
+        case viewStoryDefi
+        case viewStoryEverybody
         case tokenListTapped
         case searchToken
         case buyBottomTapped
@@ -210,9 +210,9 @@ extension Analytics {
         case backupCardSave
         case onboardingSuccess
         case mainPageEnter
-        case mainPageSwipe
+        case mainPageRefresh
         case currencyTypeTapped
-        case currencyChanged
+        case currencyTypeChanged
         case settingsTapped
         case manageTokensTapped
         case tokenTapped
@@ -231,11 +231,14 @@ extension Analytics {
         case tokenSwitchOn
         case tokenSwitchOff
         case tokenListSave
-        case сustomTokenAdd
+        case сustomTokenTapped
         case customTokenSave
-        case removeToken
-        case copyAddress
-        case shareAddress
+        case removeTokenTapped
+        case copyAddressTapped
+        case shareAddressTapped
+        case exploreAddressTapped
+        case cardSettingsTapped
+        case appSettingsTapped
         case buyTokenTapped
         case p2pInstructionTapped
         case sendTokenTapped
@@ -311,12 +314,12 @@ extension Analytics {
 extension Analytics.Event {
     func compatibleFor() -> [Analytics.AnalyticSystem] {
         switch self {
-        case .viewStory1,
-             .viewStory2,
-             .viewStory3,
-             .viewStory4,
-             .viewStory5,
-             .viewStory6,
+        case .viewStoryIntro,
+             .viewStoryWallet,
+             .viewStoryKeys,
+             .viewStoryCurrencies,
+             .viewStoryDefi,
+             .viewStoryEverybody,
              .tokenListTapped,
              .searchToken,
              .buyBottomTapped,
@@ -336,9 +339,9 @@ extension Analytics.Event {
              .backupCardSave,
              .onboardingSuccess,
              .mainPageEnter,
-             .mainPageSwipe,
+             .mainPageRefresh,
              .currencyTypeTapped,
-             .currencyChanged,
+             .currencyTypeChanged,
              .settingsTapped,
              .manageTokensTapped,
              .tokenTapped,
@@ -357,13 +360,16 @@ extension Analytics.Event {
              .tokenSwitchOn,
              .tokenSwitchOff,
              .tokenListSave,
-             .сustomTokenAdd,
+             .сustomTokenTapped,
              .customTokenSave,
-             .removeToken,
-             .copyAddress,
-             .shareAddress,
+             .removeTokenTapped,
+             .copyAddressTapped,
+             .shareAddressTapped,
              .buyTokenTapped,
              .p2pInstructionTapped,
+             .exploreAddressTapped,
+             .cardSettingsTapped,
+             .appSettingsTapped,
              .sendTokenTapped:
             return [.amplitude]
         case .transactionIsSent:

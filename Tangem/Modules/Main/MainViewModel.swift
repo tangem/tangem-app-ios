@@ -337,7 +337,7 @@ class MainViewModel: ObservableObject {
     func onRefresh(_ done: @escaping () -> Void) {
         if cardModel.state.canUpdate,
            let walletModels = cardModel.walletModels, !walletModels.isEmpty {
-            Analytics.log(.mainPageSwipe, params: [:])
+            Analytics.log(.mainPageRefresh)
             refreshCancellable = cardModel.refresh()
                 .receive(on: RunLoop.main)
                 .sink { _ in
@@ -499,7 +499,7 @@ class MainViewModel: ObservableObject {
     }
 
     func copyAddress() {
-        Analytics.log(.copyAddress, params: [:])
+        Analytics.log(.copyAddressTapped)
     }
 
     // MARK: - Private functions
@@ -712,6 +712,7 @@ extension MainViewModel {
     }
 
     func openExplorer(at url: URL) {
+        Analytics.log(.exploreAddressTapped)
         let blockchainName = wallets?.first?.blockchain.displayName ?? ""
         coordinator.openExplorer(at: url, blockchainDisplayName: blockchainName)
     }
