@@ -81,7 +81,7 @@ extension CardSettingsCoordinator: CardSettingsRoutable {
         )
     }
 
-    func closeResetCardToFactoryWarning() {
-        attentionViewModel = nil
+    func openOnboarding() {
+        popToRoot()
     }
 }
