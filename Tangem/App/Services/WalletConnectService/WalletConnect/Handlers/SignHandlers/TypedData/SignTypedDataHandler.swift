@@ -20,9 +20,8 @@ class SignTypedDataHandler: WalletConnectSignHandler {
     override func handle(request: Request) {
         do {
             let message = try request.parameter(of: String.self, at: 1)
-            let address = try request.parameter(of: String.self, at: 0)
 
-            guard let session = dataSource?.session(for: request, address: address),
+            guard let session = dataSource?.session(for: request),
                   let messageData = message.data(using: .utf8),
                   let typedData = try? JSONDecoder().decode(EIP712TypedData.self, from: messageData) else {
                 delegate?.send(.reject(request), for: action)
