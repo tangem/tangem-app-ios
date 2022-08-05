@@ -9,8 +9,10 @@
 import Combine
 import SwiftUI
 
-final class ScanCardSettingsViewModel: ObservableObject {
+final class ScanCardSettingsViewModel: ObservableObject, Identifiable {
     @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
+
+    let id = UUID()
 
     @Published var isLoading: Bool = false
     @Published var alert: AlertBinder?
