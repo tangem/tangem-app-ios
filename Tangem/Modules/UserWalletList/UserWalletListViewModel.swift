@@ -103,7 +103,20 @@ final class UserWalletListViewModel: ObservableObject {
         let userWallet = UserWallet(userWalletId: card.cardPublicKey, name: name, card: card, walletData: walletData, artwork: nil, keys: cardInfo.derivedKeys, isHDWalletAllowed: card.settings.isHDWalletAllowed)
 
         if userWalletListService.saveIfNeeded(userWallet) {
-            singleCurrencyModels.append(.init(userWallet: userWallet))
+            let isSingleCurrency: Bool
+            switch walletData {
+            case .note, .twin:
+                isSingleCurrency = true
+            default:
+                isSingleCurrency = false
+            }
+
+            let newModel = CardViewModel(userWallet: userWallet)
+            if isSingleCurrency {
+                singleCurrencyModels.append(newModel)
+            } else {
+                multiCurrencyModels.append(newModel)
+            }
         }
     }
 }
