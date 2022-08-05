@@ -22,13 +22,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
             let appView = AppCoordinatorView(coordinator: appCoordinator)
-            let cardViewModel = CardViewModel(cardInfo: CardInfo(card: .card, isTangemNote: false, isTangemWallet: true))
-            let details = DetailsView(viewModel: DetailsViewModel(cardModel: cardViewModel, coordinator: DetailsCoordinator(dismissAction: {
-
-            }, popToRootAction: { _ in
-
-            })))
-            window.rootViewController = UIHostingController(rootView: details)
+            window.rootViewController = UIHostingController(rootView: appView)
             self.window = window
             window.makeKeyAndVisible()
         }
