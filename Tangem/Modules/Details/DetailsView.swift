@@ -27,7 +27,7 @@ struct DetailsView: View {
 
             legalSection
         }
-        .listStyle(DefaultListStyle())
+        .groupedListStyleCompatibility()
         .alert(item: $viewModel.error) { $0.alert }
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("details_title", displayMode: .inline)
