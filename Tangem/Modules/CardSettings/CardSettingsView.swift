@@ -25,7 +25,9 @@ struct CardSettingsView: View {
 
             securityModeSection
 
-            resetToFactorySection
+            if viewModel.isResetToFactoryAvailable {
+                resetToFactorySection
+            }
         }
         .listStyle(DefaultListStyle())
         .alert(item: $viewModel.alert) { $0.alert }
