@@ -8,16 +8,18 @@
 
 import Foundation
 
-class CommonUserWalletListService {
-    var multiCurrencyUserWallets: [UserWallet] = []
-    var singleCurrencyUserWallets: [UserWallet] = []
+class CommonUserWalletListService: UserWalletListService {
+    var multiCurrencyModels: [CardViewModel] = []
+    var singleCurrencyModels: [CardViewModel] = []
 
-    var allUserWallets: [UserWallet] {
-        multiCurrencyUserWallets + singleCurrencyUserWallets
+    var allModels: [CardViewModel] {
+        multiCurrencyModels + singleCurrencyModels
     }
 
-    var selectedUserWallet: UserWallet? {
-        allUserWallets.first(where: { $0.userWalletId == selectedUserWalletId }) ?? allUserWallets.first
+    var selectedModel: CardViewModel? {
+        return allModels.first {
+            $0.userWallet.userWalletId == selectedUserWalletId
+        }
     }
 
     var selectedUserWalletId: Data {
@@ -31,21 +33,29 @@ class CommonUserWalletListService {
 
     init() {
         let userWallets = savedUserWallets()
+        let cardViewModels = userWallets.map {
+            CardViewModel(userWallet: $0)
+        }
 
-        singleCurrencyUserWallets = userWallets.filter {
-            if case .note = $0.walletData {
+        singleCurrencyModels = cardViewModels.filter {
+            if case .note = $0.userWallet.walletData {
                 return true
             } else {
                 return false
             }
         }
-        multiCurrencyUserWallets = userWallets.filter {
-            if case .note = $0.walletData {
+
+        multiCurrencyModels = cardViewModels.filter {
+            if case .note = $0.userWallet.walletData {
                 return false
             } else {
                 return true
             }
         }
+    }
+
+    func initialize() {
+
     }
 
     func deleteWallet(_ userWallet: UserWallet) {
@@ -66,7 +76,6 @@ class CommonUserWalletListService {
         saveUserWallets(userWallets)
 
         return true
-
     }
 
     private func savedUserWallets() -> [UserWallet] {
