@@ -123,17 +123,17 @@ struct MainView: View {
                         })
                         .padding(.horizontal, 16)
 
-                        if !viewModel.isMultiWallet {
+                        if !viewModel.cardModel.cardInfo.isMultiWallet {
                             ForEach(pendingTransactionViews) { $0 }
                                 .padding(.horizontal, 16.0)
                         }
 
-                        if viewModel.isSaltPayCard {
+                        if viewModel.cardModel.cardInfo.isSaltPay {
                             TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel)
                                 .padding(.horizontal, 16)
                                 .padding(.bottom, 6)
 
-                        } else if viewModel.isMultiWallet {
+                        } else if viewModel.cardModel.cardInfo.isMultiWallet {
 
                             if !viewModel.tokenItemViewModels.isEmpty {
                                 TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel)
@@ -178,7 +178,7 @@ struct MainView: View {
                     }
                 }
 
-                if !viewModel.isSaltPayCard {
+                if !viewModel.cardModel.cardInfo.isSaltPay {
                     bottomButtons
                         .frame(width: geometry.size.width)
                 }
