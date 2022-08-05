@@ -9,6 +9,7 @@
 import Foundation
 import TangemSdk
 import BlockchainSdk
+import WalletConnectSwift
 
 /// V3 Config
 struct LegacyConfig {
@@ -20,12 +21,12 @@ struct LegacyConfig {
     }
 
     private var defaultToken: BlockchainSdk.Token? {
-        if let token = walletData.token {
-            return .init(name: token.name,
-                         symbol: token.symbol,
-                         contractAddress: token.contractAddress,
-                         decimalCount: token.decimals)
-        }
+        guard let token = walletData.token else { return nil }
+        
+        return .init(name: token.name,
+                     symbol: token.symbol,
+                     contractAddress: token.contractAddress,
+                     decimalCount: token.decimals)
     }
 
     init(card: Card, walletData: WalletData) {
@@ -51,8 +52,8 @@ extension LegacyConfig: UserWalletConfig {
         .full
     }
 
-    var features: Set<UserWalletConfig.Feature> {
-        var features = Set<Feature>()
+    var features: Set<UserWalletFeature> {
+        var features = Set<UserWalletFeature>()
         features.insert(.sendingToPayIDAllowed)
         features.insert(.exchangingAllowed)
 
@@ -73,7 +74,7 @@ extension LegacyConfig: UserWalletConfig {
     }
 
     var defaultCurve: EllipticCurve? {
-        defaultBlockchain?.curve
+        defaultBlockchain.curve
     }
 
     var onboardingSteps: OnboardingSteps {
@@ -109,5 +110,24 @@ extension LegacyConfig: UserWalletConfig {
 
     var persistentBlockchains: [StorageEntry]? {
         return nil
+    }
+    
+    var embeddedBlockchain: StorageEntry? {
+        return defaultBlockchains.first
+    }
+
+    var disabledFeatureReason: String? { nil }
+    
+    func selectBlockchain(for dAppInfo: Session.DAppInfo) -> BlockchainNetwork? {
+        guard features.contains(.walletConnectAllowed) else { return nil }
+
+        guard let blockchain = WalletConnectNetworkParserUtility.parse(dAppInfo: dAppInfo,
+                                                                       isTestnet: defaultBlockchain.isTestnet) else {
+            return nil
+        }
+
+        let derivationPath = blockchain.derivationPath(for: card.derivationStyle)
+        let network = BlockchainNetwork(blockchain, derivationPath: derivationPath)
+        return network
     }
 }
