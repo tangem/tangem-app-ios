@@ -81,7 +81,7 @@ extension CardSettingsCoordinator: CardSettingsRoutable {
         )
     }
 
-    func openOnboarding() {
+    func resetCardDidFinish() {
         popToRoot()
     }
 }
