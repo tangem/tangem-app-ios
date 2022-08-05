@@ -12,7 +12,7 @@ import TangemSdk
 struct UserWallet: Identifiable, Codable {
     var id = UUID()
     let userWalletId: Data
-    let name: String
+    var name: String
     let card: Card
     let walletData: DefaultWalletData
     let artwork: ArtworkInfo?
