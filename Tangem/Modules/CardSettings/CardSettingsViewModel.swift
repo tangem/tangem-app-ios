@@ -48,6 +48,10 @@ class CardSettingsViewModel: ObservableObject {
         !cardModel.isStart2CoinCard
     }
 
+    var isResetToFactoryAvailable: Bool {
+        !cardModel.cardInfo.isSaltPay
+    }
+
     // MARK: Dependecies
 
     private unowned let coordinator: CardSettingsRoutable
