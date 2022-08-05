@@ -48,6 +48,14 @@ class CommonUserWalletListService {
         }
     }
 
+    func deleteWallet(_ userWallet: UserWallet) {
+        var userWallets = savedUserWallets()
+        userWallets.removeAll {
+            $0.userWalletId == userWallet.userWalletId
+        }
+        saveUserWallets(userWallets)
+    }
+
     func saveIfNeeded(_ userWallet: UserWallet) -> Bool {
         var userWallets = savedUserWallets()
         guard !userWallets.contains(where: { $0.userWalletId == userWallet.userWalletId }) else {
