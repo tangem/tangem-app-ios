@@ -3,7 +3,7 @@ platform :ios, '13.0'
 project 'TangemApp.xcodeproj'
 
 def common_pods
-   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-152_hotfix_sign'
+   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-157'
    #pod 'TangemSdk', :path => '../tangem-sdk-ios'
    pod 'KeychainSwift', '~> 19.0'
 end
@@ -19,28 +19,26 @@ target 'Tangem' do
   # Pods for Tangem
   pod 'AnyCodable-FlightSchool'
   
-  pod 'BinanceChain', :git => 'https://github.com/lazutkin-andrey/swiftbinancechain.git', :tag => '0.0.9'
+  pod 'BinanceChain', :git => 'https://github.com/tangem/swiftbinancechain.git', :tag => '0.0.9'
   #pod 'BinanceChain', :path => '../SwiftBinanceChain'
   
-  pod 'HDWalletKit', :git => 'https://github.com/lazutkin-andrey/hdwallet.git', :tag => '0.3.12'
+  pod 'HDWalletKit', :git => 'https://github.com/tangem/hdwallet.git', :tag => '0.3.12'
   #pod 'HDWalletKit', :path => '../HDWallet'
   
-  pod 'BlockchainSdk', :git => 'https://github.com/Tangem/blockchain-sdk-swift.git', :tag => 'develop-121-tron-fee-hotfix-2'
-  #pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
+  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-133'
+#  pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
   
-  pod 'web3swift', :git => 'https://github.com/lazutkin-andrey/web3swift.git', :tag => '2.2.9'
+  pod 'web3swift', :git => 'https://github.com/tangem/web3swift.git', :tag => '2.2.9'
   #pod 'web3swift', :path => '../web3swift'
   
-  pod 'BitcoinCore.swift', :git => 'https://github.com/lazutkin-andrey/bitcoincore.git', :tag => '0.0.16'
+  pod 'BitcoinCore.swift', :git => 'https://github.com/tangem/bitcoincore.git', :tag => '0.0.16'
   #pod 'BitcoinCore.swift', :path => '../bitcoincore'
 
-  pod 'WalletConnectSwift', :git => 'https://github.com/WalletConnect/WalletConnectSwift', :tag => '1.6.2'
-  pod 'Starscream', '~> 4.0.4'
+  pod 'WalletConnectSwift', :git => 'https://github.com/WalletConnect/WalletConnectSwift', :tag => '1.7.0'
   pod 'Moya'
   pod 'Firebase/Crashlytics'
   pod 'Firebase/Analytics'
-	pod 'Firebase/RemoteConfig'
-  pod 'DeviceGuru'
+  pod 'DeviceGuru', '8.0.0'
   pod 'Kingfisher', :git => 'https://github.com/onevcat/Kingfisher.git', :branch => 'version6-xcode13'
   pod 'stellar-ios-mac-sdk'
   pod 'AppsFlyerFramework'
@@ -50,7 +48,13 @@ target 'Tangem' do
   pod 'Mobile-Buy-SDK' # Shopify
   pod 'AlertToast', :git => 'https://github.com/tangem/AlertToast'
   
-  pod 'SkeletonUI', '~> 1.0.7'
+  pod 'ZendeskSupportSDK', '~> 5.5.0'
+  pod 'ZendeskSupportProvidersSDK', '~> 5.5.0'
+  pod 'ZendeskChatSDK', '~> 2.12.0'
+  pod 'ZendeskAnswerBotSDK', '~> 2.2.0'
+  
+  # Analytics
+  pod 'Amplitude', '~> 8.8.0'
   
   target 'TangemTests' do
     inherit! :search_paths
