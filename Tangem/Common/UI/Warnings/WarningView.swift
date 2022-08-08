@@ -14,9 +14,9 @@ struct Counter {
 }
 
 struct CounterView: View {
-    
+
     let counter: Counter
-    
+
     var body: some View {
         HStack {
             Text("\(counter.number)/\(counter.totalCount)")
@@ -30,10 +30,10 @@ struct CounterView: View {
 }
 
 struct WarningView: View {
-    
+
     let warning: AppWarning
     var buttonAction: (WarningButton) -> Void = { _ in }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack(alignment: .firstTextBaseline) {
@@ -70,15 +70,15 @@ struct WarningView: View {
         .fixedSize(horizontal: false, vertical: true)
         .cornerRadius(6)
     }
-    
+
     var warningButtons: [WarningButton] {
         if let buttons = warning.event?.buttons, !buttons.isEmpty {
             return buttons
         } else {
-           return [.okGotIt]
+            return [.okGotIt]
         }
     }
-    
+
     @ViewBuilder var buttons: some View {
         if warning.type.isWithAction {
             HStack(spacing: 0) {
@@ -105,7 +105,7 @@ struct WarningView: View {
             EmptyView()
         }
     }
-    
+
 }
 
 struct WarningView_Previews: PreviewProvider {
@@ -115,7 +115,7 @@ struct WarningView_Previews: PreviewProvider {
         AppWarning(title: "Warning", message: "Blockchain is currently unavailable", priority: .critical, type: .permanent),
         AppWarning(title: "Good news, everyone!", message: "New Tangem Cards available. Visit our web site to learn more", priority: .info, type: .temporary),
         AppWarning(title: "Attention!", message: "Something huuuuuge is going to happen! Something huuuuuge is going to happen! Something huuuuuge is going to happen! Something huuuuuge is going to happen! Something huuuuuge is going to happen! Something huuuuuge is going to happen!", priority: .warning, type: .permanent),
-        WarningsList.multiWalletSignedHashes
+        WarningsList.multiWalletSignedHashes,
     ]
     static var previews: some View {
         ScrollView {
@@ -129,6 +129,6 @@ struct WarningView_Previews: PreviewProvider {
                 .transition(.opacity)
             }
         }
-        
+
     }
 }

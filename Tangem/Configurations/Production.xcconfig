@@ -1,0 +1,23 @@
+//
+//  Production.xcconfig
+//  TangemApp
+//
+//  Created by [REDACTED_AUTHOR]
+//  Copyright © 2022 Tangem AG. All rights reserved.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+ENVIRONMENT_NAME = Production
+
+// Storage container name
+SUITE_NAME = group.$(PRODUCT_BUNDLE_IDENTIFIER)
+
+// Overriding (do NOT change key name)
+// app name
+PRODUCT_NAME = Tangem
+// bundle id
+PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem
+// app icon
+ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon_$(ENVIRONMENT_NAME)

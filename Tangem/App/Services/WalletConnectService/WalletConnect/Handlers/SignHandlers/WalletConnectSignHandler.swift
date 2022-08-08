@@ -13,40 +13,38 @@ import BlockchainSdk
 import Combine
 
 class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
-    @Injected(\.transactionSigner) var signer: TangemSigner
-    
     weak var delegate: WalletConnectHandlerDelegate?
     weak var dataSource: WalletConnectHandlerDataSource?
-    
+
     var action: WalletConnectAction {
         fatalError("WalletConnect action not specified")
     }
-    
+
     private var signerSubscription: AnyCancellable?
-    
+
     init(delegate: WalletConnectHandlerDelegate, dataSource: WalletConnectHandlerDataSource) {
         self.delegate = delegate
         self.dataSource = dataSource
     }
-    
+
     func handle(request: Request) { }
-    
+
     func signatureResponse(for signature: String, session: WalletConnectSession, request: Request) -> Response {
         fatalError("Must be overriden by a subclass")
     }
-    
-    func sign(data: Data, cardId: String, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<String, Error> {
+
+    func sign(data: Data, walletPublicKey: Wallet.PublicKey, signer: TangemSigner) -> AnyPublisher<String, Error> {
         fatalError("Must be overriden by a subclass")
     }
-    
+
     func askToSign(in session: WalletConnectSession, request: Request, message: String, dataToSign: Data) {
         let wallet = session.wallet
-        
+
         let onSign: () -> Void = { [weak self] in
             self?.sign(with: wallet, data: dataToSign) { res in
                 DispatchQueue.global().async {
                     guard let self = self else { return }
-                    
+
                     switch res {
                     case .success(let signature):
                         self.delegate?.send(self.signatureResponse(for: signature, session: session, request: request), for: self.action)
@@ -56,7 +54,7 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
                 }
             }
         }
-        
+
         let alertMessage =  String(format: "wallet_connect_alert_sign_message".localized, AppCardIdFormatter(cid: session.wallet.cid).formatted(), message)
         DispatchQueue.main.async {
             UIApplication.modalFromTop(
@@ -69,13 +67,13 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
             )
         }
     }
-    
+
     func sign(with wallet: WalletInfo, data: Data, completion: @escaping (Result<String, Error>) -> Void) {
         signerSubscription = sign(data: data,
-                                  cardId: wallet.cid,
                                   walletPublicKey: Wallet.PublicKey(seedKey: wallet.walletPublicKey,
                                                                     derivedKey: wallet.derivedPublicKey,
-                                                                    derivationPath: wallet.derivationPath))
+                                                                    derivationPath: wallet.derivationPath),
+                                  signer: TangemSigner(with: wallet.cid))
             .sink(receiveCompletion: { [weak self] subsCompletion in
                 if case let .failure(error) = subsCompletion {
                     completion(.failure(error))
