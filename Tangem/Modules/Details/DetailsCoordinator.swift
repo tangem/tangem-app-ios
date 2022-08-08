@@ -21,15 +21,17 @@ class DetailsCoordinator: CoordinatorObject {
 
     @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
     @Published var walletConnectCoordinator: WalletConnectCoordinator? = nil
-    @Published var scanCardSettingsCoordinator: ScanCardSettingsCoordinator? = nil
+    @Published var cardSettingsCoordinator: CardSettingsCoordinator? = nil
     @Published var appSettingsCoordinator: AppSettingsCoordinator? = nil
 
     // MARK: - Child view models
 
+    @Published var currencySelectViewModel: CurrencySelectViewModel? = nil
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
     @Published var mailViewModel: MailViewModel? = nil
     @Published var disclaimerViewModel: DisclaimerViewModel? = nil
     @Published var supportChatViewModel: SupportChatViewModel? = nil
+    @Published var scanCardSettingsViewModel: ScanCardSettingsViewModel?
 
     // MARK: - Helpers
 
@@ -51,7 +53,14 @@ extension DetailsCoordinator {
     }
 }
 
+// MARK: - DetailsRoutable
+
 extension DetailsCoordinator: DetailsRoutable {
+    func openCurrencySelection() {
+        currencySelectViewModel = CurrencySelectViewModel()
+        currencySelectViewModel?.dismissAfterSelection = false
+    }
+
     func openOnboardingModal(with input: OnboardingInput) {
         let dismissAction: Action = { [weak self] in
             self?.modalOnboardingCoordinator = nil
@@ -83,9 +92,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openScanCardSettings() {
-        let coordinator = ScanCardSettingsCoordinator(popToRootAction: popToRootAction)
-        coordinator.start(with: .default)
-        scanCardSettingsCoordinator = coordinator
+        scanCardSettingsViewModel = ScanCardSettingsViewModel(coordinator: self)
     }
 
     func openAppSettings() {
@@ -100,5 +107,17 @@ extension DetailsCoordinator: DetailsRoutable {
 
     func openInSafari(url: URL) {
         UIApplication.shared.open(url)
+    }
+}
+
+// MARK: - ScanCardSettingsRoutable
+
+extension DetailsCoordinator: ScanCardSettingsRoutable {
+    func openCardSettings(cardModel: CardViewModel) {
+        scanCardSettingsViewModel = nil
+
+        let coordinator = CardSettingsCoordinator(popToRootAction: popToRootAction)
+        coordinator.start(with: .init(cardModel: cardModel))
+        cardSettingsCoordinator = coordinator
     }
 }
