@@ -168,7 +168,9 @@ struct MainView: View {
                                                       selectedAddressIndex: $viewModel.selectedAddressIndex,
                                                       showExplorerURL: $viewModel.showExplorerURL,
                                                       walletModel: walletModel,
-                                                      payID: viewModel.cardModel.payId)
+                                                      payID: viewModel.cardModel.payId) {
+                                        viewModel.copyAddress()
+                                    }
                                 }
                             }
                         }

@@ -337,6 +337,7 @@ class MainViewModel: ObservableObject {
     func onRefresh(_ done: @escaping () -> Void) {
         if cardModel.state.canUpdate,
            let walletModels = cardModel.walletModels, !walletModels.isEmpty {
+            Analytics.log(.mainPageRefresh)
             refreshCancellable = cardModel.refresh()
                 .receive(on: RunLoop.main)
                 .sink { _ in
@@ -374,6 +375,7 @@ class MainViewModel: ObservableObject {
 
     func onScan() {
         DispatchQueue.main.async {
+            Analytics.log(.scanCardTapped)
             self.totalSumBalanceViewModel.update(with: [])
             self.coordinator.close(newScan: true)
         }
@@ -494,6 +496,13 @@ class MainViewModel: ObservableObject {
                 self.openOnboarding(with: input)
             }
             .store(in: &bag)
+    }
+
+    func copyAddress() {
+        Analytics.log(.copyAddressTapped)
+        if let walletModel = cardModel.walletModels?.first {
+            UIPasteboard.general.string = walletModel.displayAddress(for: selectedAddressIndex)
+        }
     }
 
     // MARK: - Private functions
@@ -684,10 +693,13 @@ extension MainViewModel {
     }
 
     func openBuyCryptoIfPossible() {
+        Analytics.log(.buyTokenTapped)
         if tangemApiService.geoIpRegionCode == LanguageCode.ru {
             coordinator.openBankWarning {
+                Analytics.log(.p2pInstructionTapped, params: [.type: "yes"])
                 self.openBuyCrypto()
             } declineCallback: {
+                Analytics.log(.p2pInstructionTapped, params: [.type: "no"])
                 self.coordinator.openP2PTutorial()
             }
         } else {
@@ -703,6 +715,7 @@ extension MainViewModel {
     }
 
     func openExplorer(at url: URL) {
+        Analytics.log(.exploreAddressTapped)
         let blockchainName = wallets?.first?.blockchain.displayName ?? ""
         coordinator.openExplorer(at: url, blockchainDisplayName: blockchainName)
     }
