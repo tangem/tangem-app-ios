@@ -92,11 +92,11 @@ fileprivate class LegacyCardMigrator {
 
     // Save default blockchain and token to main tokens repo.
     func migrateIfNeeded(for cardId: String, config: UserWalletConfig) {
-        //Migrate only multiwallet cards
-        guard config.features.contains(.manageTokensAllowed) else {
+        // Migrate only multiwallet cards
+        guard config.hasFeature(.manageTokens) else {
             return
         }
-        
+
         // Check if we have anything to migrate. It's impossible to get default token without default blockchain
         guard let embeddedEntry = config.embeddedBlockchain else {
             return
