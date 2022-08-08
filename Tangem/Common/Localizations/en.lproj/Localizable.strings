@@ -373,6 +373,8 @@ Please, try again later.";
 for
 %@
 
+NETWORK: %@
+
 URL: %@";
 "wallet_connect_scan_card_message" = "Tap card to bind to wallet connect";
 "wallet_connect_scan_new_code" = "Scan new code";
@@ -484,7 +486,7 @@ URL: %@";
 
 "token_details_hide_alert_title" = "Hide %@";
 "token_details_hide_alert_hide" = "Hide";
-"token_details_hide_alert_message" = "You hide the token from the main screen, but you can add it back at any time.";
+"token_details_hide_alert_message" = "You are about to hide this token from the main screen. You can add it back anytime.";
 "token_details_unable_hide_alert_title" = "Unable to hide %@";
 "token_details_unable_hide_alert_message" = "The %@ token is the main currency on the %@ network and cannot be hidden as long as you have other tokens on this network in the list.";
 
@@ -523,3 +525,4 @@ URL: %@";
 "reset_card_to_factory_button_title" = "Reset the card";
 "wallet_connect_title" = "WalletConnect";
 "wallet_connect_subtitle" = "Сonnect to Dapps";
+"wallet_connect_select_network" = "Select network";
