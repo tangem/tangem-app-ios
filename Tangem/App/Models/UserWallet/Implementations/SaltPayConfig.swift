@@ -78,6 +78,8 @@ extension SaltPayConfig: UserWalletConfig {
         defaultBlockchains.first
     }
 
+    var warningEvents: [WarningEvent] { getBaseWarningEvents(for: card) }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         .unavailable
     }
