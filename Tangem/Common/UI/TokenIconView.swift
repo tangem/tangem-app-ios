@@ -16,7 +16,7 @@ struct TokenIconView: View {
     var size: CGSize = .init(width: 40, height: 40)
 
     private let networkIconSize = CGSize(width: 16, height: 16)
-    private let networkIconBorderWidth: Double = 1
+    private let networkIconBorderWidth: Double = 2
 
     var body: some View {
         KFImage(tokenItem.imageURL)

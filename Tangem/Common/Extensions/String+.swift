@@ -47,6 +47,11 @@ extension String {
         self.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
+    func camelCaseToSnakeCase() -> String {
+        let regex = try! NSRegularExpression(pattern: "([A-Z])", options: [])
+        let range = NSRange(location: 0, length: count)
+        return regex.stringByReplacingMatches(in: self, options: [], range: range, withTemplate: "_$1").lowercased()
+    }
 }
 
 extension StringProtocol {

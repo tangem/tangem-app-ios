@@ -141,7 +141,7 @@ struct CreatePayIdResponse: Codable {
 
 class PayIDService {
     let network: PayIdNetwork
-    let payIdProvider = MoyaProvider<PayIdTarget>( /* plugins: [NetworkLoggerPlugin()] */ )
+    let payIdProvider = TangemProvider<PayIdTarget>( /* plugins: [NetworkLoggerPlugin()] */ )
 
     internal init(network: PayIdNetwork) {
         self.network = network
