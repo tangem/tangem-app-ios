@@ -67,34 +67,6 @@ extension GenericConfig: UserWalletConfig {
         .full
     }
 
-    var features: Set<UserWalletFeature> {
-        var features = Set<UserWalletFeature>()
-        features.insert(.sendingToPayIDAllowed)
-        features.insert(.exchangingAllowed)
-        features.insert(.walletConnectAllowed)
-        features.insert(.manageTokensAllowed)
-        features.insert(.activation)
-        features.insert(.signingSupported)
-
-        if card.settings.isBackupAllowed, card.backupStatus == .noBackup {
-            features.insert(.backup)
-        }
-
-        if card.settings.isSettingPasscodeAllowed {
-            features.insert(.settingAccessCodeAllowed)
-        }
-
-        if card.settings.isSettingPasscodeAllowed {
-            features.insert(.settingPasscodeAllowed)
-        }
-
-        if card.firmwareVersion.doubleValue >= 4.52 {
-            features.insert(.longHashesSupported)
-        }
-
-        return features
-    }
-
     var defaultCurve: EllipticCurve? {
         return nil
     }
@@ -153,19 +125,13 @@ extension GenericConfig: UserWalletConfig {
 
         return entries
     }
-    
+
     var embeddedBlockchain: StorageEntry? {
         return nil
     }
-    
-    var disabledFeatureReason: String? {
-        if isDemoCard {
-            return "alert_demo_feature_disabled".localized
-        }
-    }
 
     func selectBlockchain(for dAppInfo: Session.DAppInfo) -> BlockchainNetwork? {
-        guard features.contains(.walletConnectAllowed) else { return nil }
+        guard hasFeature(.walletConnect) else { return nil }
 
         guard let blockchain = WalletConnectNetworkParserUtility.parse(dAppInfo: dAppInfo,
                                                                        isTestnet: card.isTestnet) else {
@@ -176,7 +142,77 @@ extension GenericConfig: UserWalletConfig {
         let network = BlockchainNetwork(blockchain, derivationPath: derivationPath)
         return network
     }
+
+    func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
+        switch feature {
+        case .accessCode:
+            if card.settings.isSettingAccessCodeAllowed {
+                return .available
+            }
+
+            return .disabled()
+        case .passcode:
+            if card.settings.isSettingPasscodeAllowed {
+                return .available
+            }
+
+            return .disabled()
+        case .signing:
+            return .available
+        case .longHashes:
+            if card.firmwareVersion.doubleValue >= 4.52 {
+                return .available
+            }
+
+            return .unavailable
+        case .signedHashesCounter:
+            return .unavailable
+        case .backup:
+            if isDemoCard {
+                return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
+            }
+
+            if card.settings.isBackupAllowed, card.backupStatus == .noBackup {
+                return .available
+            }
+
+            return .disabled()
+        case .twinning:
+            return .unavailable
+        case .sendingToPayID:
+            return .available
+        case .exchange:
+            if isDemoCard {
+                return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
+            }
+
+            return .available
+        case .walletConnect:
+            if isDemoCard {
+                return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
+            }
+
+            return .available
+        case .manageTokens:
+            return .available
+        case .activation:
+            return .available
+        case .tokensSearch:
+            return .unavailable
+        case .resetToFactory:
+            return .available
+        case .showAddress:
+            return .available
+        }
+    }
+    
+    var shouldLogDemoActivated: Bool {
+        isDemoCard
+    }
 }
+
+
+// MARK: - Private extensions
 
 fileprivate extension Card.BackupStatus {
     var backupCardsCount: Int? {
