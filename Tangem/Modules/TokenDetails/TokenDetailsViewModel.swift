@@ -386,7 +386,7 @@ extension TokenDetailsViewModel {
     }
 
     func openBuyCryptoIfPossible() {
-        Analytics.log(.buyTokenTapped, params: [:])
+        Analytics.log(.buyTokenTapped)
         if tangemApiService.geoIpRegionCode == LanguageCode.ru {
             coordinator.openBankWarning {
                 Analytics.log(.p2pInstructionTapped, params: [.type: "yes"])
