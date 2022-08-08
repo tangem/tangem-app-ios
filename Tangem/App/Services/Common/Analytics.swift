@@ -18,7 +18,7 @@ import TangemSdk
 
 class Analytics {
     static func log(_ event: Event, params: [ParameterKey: String] = [:]) {
-        let compatibles = event.compatibleFor()
+        let compatibles = event.analyticsSystems()
         for compatible in compatibles {
             switch compatible {
             case .appsflyer, .firebase:
@@ -291,7 +291,7 @@ extension Analytics {
         case walletOnboarding = "wallet_onboarding"
     }
 
-    enum AnalyticsSystems {
+    enum AnalyticSystem {
         case firebase
         case amplitude
         case appsflyer
@@ -311,7 +311,7 @@ extension Analytics {
 
 //  MARK: - Amplitude events
 extension Analytics.Event {
-    func compatibleFor() -> [Analytics.AnalyticsSystems] {
+    func analyticsSystems() -> [Analytics.AnalyticSystem] {
         switch self {
         case .viewStoryIntro,
              .viewStoryWallet,
@@ -373,7 +373,21 @@ extension Analytics.Event {
             return [.amplitude]
         case .transactionIsSent:
             return [.firebase, .appsflyer, .amplitude]
-        default:
+        case .cardIsScanned,
+             .transactionIsPushed,
+             .readyToScan,
+             .displayRateAppWarning,
+             .negativeRateAppFeedback,
+             .positiveRateAppFeedback,
+             .dismissRateAppWarning,
+             .wcSuccessResponse,
+             .wcInvalidRequest,
+             .wcNewSession,
+             .wcSessionDisconnected,
+             .userBoughtCrypto,
+             .userSoldCrypto,
+             .getACard,
+             .demoActivated:
             return [.firebase, .appsflyer]
         }
     }
