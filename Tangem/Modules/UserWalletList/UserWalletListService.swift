@@ -12,7 +12,7 @@ protocol UserWalletListService: AnyObject, Initializable {
     var multiCurrencyModels: [CardViewModel] { get }
     var singleCurrencyModels: [CardViewModel] { get }
 
-    var selectedUserWalletId: Data { get set }
+    var selectedUserWalletId: Data? { get set }
 
     func deleteWallet(_ userWallet: UserWallet)
     func saveIfNeeded(_ userWallet: UserWallet) -> Bool
