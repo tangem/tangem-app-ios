@@ -98,12 +98,12 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             сreateWallet()
         case .topup:
             if canBuyCrypto {
-                if cardModel?.cardInfo.card.isDemoCard ?? false {
-                    alert = AlertBuilder.makeDemoAlert(okAction: {
+                if let disabledLocalizedReason = cardModel?.config.getFeatureAvailability(.exchange).disabledLocalizedReason {
+                    alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason) {
                         DispatchQueue.main.async {
                             self.updateCardBalance()
                         }
-                    })
+                    }
                 } else {
                     openCryptoShop()
                 }
@@ -166,7 +166,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
             self?.tokensRepo.append(config.defaultBlockchains, for: cardInfo.card.cardId)
 
-            if config.features.contains(.activation) {
+            if config.hasFeature(.activation) {
                 AppSettings.shared.cardsStartedActivation.append(cardInfo.card.cardId)
             }
 
