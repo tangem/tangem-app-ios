@@ -154,7 +154,7 @@ class MainViewModel: ObservableObject {
     }
 
     var canShowSend: Bool {
-        cardModel.config.getFeatureAvailability(.signing).isHidden
+        cardModel.config.hasFeature(.withdrawal)
     }
 
     init(cardModel: CardViewModel, coordinator: MainRoutable) {
@@ -330,7 +330,7 @@ class MainViewModel: ObservableObject {
         // [REDACTED_TODO_COMMENT]
         switch button {
         case .okGotIt:
-            if warning.event == .numberOfSignedHashesIncorrect {
+            if case .numberOfSignedHashesIncorrect = warning.event {
                 registerValidatedSignedHashesCard()
             }
         case .rateApp:
@@ -344,7 +344,7 @@ class MainViewModel: ObservableObject {
             rateAppService.userReactToRateAppWarning(isPositive: false)
             openMail(with: .negativeFeedback)
         case .learnMore:
-            if warning.event == .multiWalletSignedHashes {
+            if case .multiWalletSignedHashes = warning.event {
                 error = AlertBinder(alert: Alert(title: Text(warning.title),
                                                  message: Text("alert_signed_hashes_message"),
                                                  primaryButton: .cancel(),
