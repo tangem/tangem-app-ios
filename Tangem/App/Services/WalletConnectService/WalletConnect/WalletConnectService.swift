@@ -36,7 +36,7 @@ protocol WalletConnectHandlerDelegate: AnyObject {
 
 protocol WalletConnectHandlerDataSource: AnyObject {
     var server: Server! { get }
-    func session(for request: Request, address: String) -> WalletConnectSession?
+    func session(for request: Request) -> WalletConnectSession?
     func updateSession(_ session: WalletConnectSession)
 }
 
@@ -164,7 +164,16 @@ class WalletConnectService: ObservableObject {
         }
 
         Analytics.logWcEvent(.error(error, action))
-        presentOnTop(WalletConnectUIBuilder.makeErrorAlert(error), delay: delay)
+        Analytics.log(.walletConnectInvalidRequest)
+
+        if let wcError = error as? WalletConnectServiceError {
+            switch wcError {
+            case .switchChainNotSupported:
+                break
+            default:
+                presentOnTop(WalletConnectUIBuilder.makeErrorAlert(error), delay: delay)
+            }
+        }
     }
 
     private func resetSessionConnectTimer() {
@@ -180,8 +189,8 @@ class WalletConnectService: ObservableObject {
 }
 
 extension WalletConnectService: WalletConnectHandlerDataSource {
-    func session(for request: Request, address: String) -> WalletConnectSession? {
-        sessions.first(where: { $0.wallet.address.lowercased() == address.lowercased() && $0.session.url.topic == request.url.topic })
+    func session(for request: Request) -> WalletConnectSession? {
+        sessions.first(where: { $0.session.url.topic == request.url.topic })
     }
 
     func updateSession(_ session: WalletConnectSession) {
@@ -204,6 +213,7 @@ extension WalletConnectService: WalletConnectHandlerDelegate {
 
     func sendInvalid(_ request: Request) {
         Analytics.logWcEvent(.invalidRequest(json: request.jsonString))
+        Analytics.log(.walletConnectInvalidRequest)
         server.send(.invalid(request))
     }
 
@@ -245,6 +255,7 @@ extension WalletConnectService: WalletConnectSessionController {
             self.sessions.remove(at: index)
             self.save()
             Analytics.logWcEvent(.session(.disconnect, session.session.dAppInfo.peerMeta.url))
+            Analytics.log(.walletConnectSessionDisconnected)
         }
     }
 
@@ -293,39 +304,84 @@ extension WalletConnectService: ServerDelegate {
                     self.handle(error, delay: 0.5)
                     failureCompletion()
                 }
-            } receiveValue: { [unowned self] wallet in
-                self.wallet = wallet
-
-                let peerMeta = session.dAppInfo.peerMeta
-                var message = String(format: "wallet_connect_request_session_start".localized, wallet.cid, peerMeta.name, peerMeta.url.absoluteString)
-                if let description = peerMeta.description, !description.isEmpty {
-                    message += "\n\n" + description
-                }
-                let onAccept = {
-                    self.sessions.filter {
-                        let savedUrl = $0.session.dAppInfo.peerMeta.url.host ?? ""
-                        let newUrl = session.dAppInfo.peerMeta.url.host ?? ""
-
-                        return $0.wallet == wallet &&
-                            (savedUrl.count > newUrl.count ? savedUrl.contains(newUrl) : newUrl.contains(savedUrl))
-                    }.forEach { try? server.disconnect(from: $0.session) }
-                    completion(Session.WalletInfo(approved: true,
-                                                  accounts: [wallet.address],
-                                                  chainId: wallet.blockchain.chainId ?? 1, // binance case only?
-                                                  peerId: UUID().uuidString,
-                                                  peerMeta: self.walletMeta))
-                }
-
-                self.presentOnTop(WalletConnectUIBuilder.makeAlert(for: .establishSession,
-                                                                   message: message,
-                                                                   onAcceptAction: onAccept,
-                                                                   onReject: {
-                                                                       completion(self.rejectedResponse)
-                                                                       self.isServiceBusy.send(false)
-                                                                   }),
-                                  delay: 0.5)
+            } receiveValue: { [unowned self] response in
+                self.handleScan(cardInfo: response.0, wallet: response.1, dAppInfo: session.dAppInfo, server: server, completion: completion)
             }
             .store(in: &bag)
+    }
+
+    private func handleScan(cardInfo: CardInfo, wallet: WalletInfo, dAppInfo: Session.DAppInfo, server: Server, completion: @escaping (Session.WalletInfo) -> Void) {
+        self.wallet = wallet
+
+        let peerMeta = dAppInfo.peerMeta
+        var message = String(format: "wallet_connect_request_session_start".localized, wallet.cid, peerMeta.name, wallet.blockchain.displayName, peerMeta.url.absoluteString)
+
+        if let description = peerMeta.description, !description.isEmpty {
+            message += "\n\n" + description
+        }
+
+        let isSelectChainAvailable = wallet.blockchain.isEvm
+
+        let onAccept = {
+            self.sessions.filter {
+                let savedUrl = $0.session.dAppInfo.peerMeta.url.host ?? ""
+                let newUrl = dAppInfo.peerMeta.url.host ?? ""
+
+                return $0.wallet == self.wallet &&
+                    (savedUrl.count > newUrl.count ? savedUrl.contains(newUrl) : newUrl.contains(savedUrl))
+            }.forEach { try? server.disconnect(from: $0.session) }
+            completion(Session.WalletInfo(approved: true,
+                                          accounts: [self.wallet!.address],
+                                          chainId: self.wallet?.blockchain.chainId ?? 1, // binance case only?
+                                          peerId: UUID().uuidString,
+                                          peerMeta: self.walletMeta))
+        }
+
+        let onSelectChain: (BlockchainNetwork) -> Void = { selectedNetwork in
+            let wallet = WalletManagerAssembly.makeAllWalletModels(from: cardInfo)
+                .filter { !$0.isCustom(.coin) }
+                .first(where: { $0.wallet.blockchain == selectedNetwork.blockchain })
+                .map { $0.wallet }!
+
+            let derivedKey = wallet.publicKey.blockchainKey != wallet.publicKey.seedKey ? wallet.publicKey.blockchainKey : nil
+
+            self.wallet = WalletInfo(cid: cardInfo.card.cardId,
+                                     walletPublicKey: wallet.publicKey.seedKey,
+                                     derivedPublicKey: derivedKey,
+                                     derivationPath: wallet.publicKey.derivationPath,
+                                     blockchain: selectedNetwork.blockchain)
+
+            onAccept()
+        }
+
+        let onReject = {
+            completion(self.rejectedResponse)
+            self.isServiceBusy.send(false)
+        }
+
+        let onSelectChainRequested = {
+            let walletModels = WalletManagerAssembly.makeAllWalletModels(from: cardInfo)
+
+            let availableChains = walletModels
+                .filter { $0.blockchainNetwork.blockchain.isEvm }
+                .filter { !$0.isCustom(.coin) }
+                .map { $0.blockchainNetwork }
+
+
+            self.presentOnTop(WalletConnectUIBuilder.makeChainsSheet(availableChains,
+                                                                     onAcceptAction: onSelectChain,
+                                                                     onReject: onReject),
+                              delay: 0.3)
+
+        }
+
+        self.presentOnTop(WalletConnectUIBuilder.makeAlert(for: .establishSession,
+                                                           message: message,
+                                                           onAcceptAction: onAccept,
+                                                           onReject: onReject,
+                                                           extraTitle: isSelectChainAvailable ? "wallet_connect_select_network".localized : nil,
+                                                           onExtra: onSelectChainRequested),
+                          delay: 0.5)
     }
 
     func server(_ server: Server, didConnect session: Session) {
@@ -339,6 +395,8 @@ extension WalletConnectService: ServerDelegate {
                     self.sessions.append(WalletConnectSession(wallet: wallet, session: session, status: .connected))
                     self.save()
                     Analytics.logWcEvent(.session(.connect, session.dAppInfo.peerMeta.url))
+                    Analytics.log(.walletConnectNewSession)
+                    Analytics.log(.walletConnectSuccessResponse)
                 }
             }
 
@@ -422,6 +480,7 @@ enum WalletConnectServiceError: LocalizedError {
     case other(Error)
     case noChainId
     case unsupportedNetwork
+    case switchChainNotSupported
     case notValidCard
     case networkNotFound(name: String)
 

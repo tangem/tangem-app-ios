@@ -25,7 +25,7 @@ struct AppSettingsView: View {
 
             savingAccessCodesSection
         }
-        .listStyle(DefaultListStyle())
+        .groupedListStyleCompatibility()
         .alert(item: $viewModel.alert) { $0.alert }
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("app_settings_title", displayMode: .inline)
