@@ -45,10 +45,10 @@ struct AttentionView: View {
     private var mainInformationView: some View {
         VStack(alignment: .center, spacing: 14) {
             Text(viewModel.title)
-                .style(font: .title1(.bold), color: Colors.Text.primary1)
+                .style(.title1(.bold), color: Colors.Text.primary1)
 
             Text(viewModel.message)
-                .style(font: .callout(), color: Colors.Text.secondary)
+                .style(.callout(), color: Colors.Text.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 46)
         }
@@ -66,7 +66,7 @@ struct AttentionView: View {
                         .frame(width: 22, height: 22)
 
                     Text(warningText)
-                        .style(font: .caption1(), color: Colors.Text.secondary)
+                        .style(.caption1(), color: Colors.Text.secondary)
                         .multilineTextAlignment(.leading)
                 }
             }
