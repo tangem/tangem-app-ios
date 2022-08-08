@@ -17,8 +17,9 @@ enum DefaultWalletData {
     case v3(WalletData)
     case twin(WalletData, TwinCardInfo)
     case none
-    
-    var blockchain: Blockchain? {
+
+    #if !CLIP
+    var blockchainID: String? {
         switch self {
         case .note(let walletData):
             return walletData.blockchain
@@ -30,6 +31,7 @@ enum DefaultWalletData {
             return nil
         }
     }
+    #endif
 }
 
 struct AppScanTaskResponse {

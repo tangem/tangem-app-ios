@@ -25,15 +25,15 @@ class DetailsViewModel: ObservableObject {
     @Published var error: AlertBinder?
 
     var canCreateBackup: Bool {
-        cardModel.config.features.contains(.backup)
+        cardModel.config.hasFeature(.backup)
     }
 
     var canTwin: Bool {
-        cardModel.config.features.contains(.twinning)
+        cardModel.config.hasFeature(.twinning)
     }
 
     var shouldShowWC: Bool {
-        return cardModel.config.features.contains(.walletConnectAllowed)
+        return !cardModel.config.getFeatureAvailability(.walletConnect).isHidden
     }
 
     var cardTouURL: URL? {
@@ -54,7 +54,7 @@ class DetailsViewModel: ObservableObject {
     }
 
     var isMultiWallet: Bool {
-        cardModel.cardInfo.isMultiWallet
+        cardModel.config.hasFeature(.manageTokens)
     }
 
     // MARK: - Private
