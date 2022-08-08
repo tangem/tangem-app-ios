@@ -100,7 +100,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     }
 
     var isDemo: Bool { demoBalance != nil }
-    
+
     let walletManager: WalletManager
     private var bag = Set<AnyCancellable>()
     private var updateTimer: AnyCancellable? = nil
