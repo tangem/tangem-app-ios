@@ -13,7 +13,7 @@ struct NavigationBusyButton: View {
     var color: UIColor
     var image: Image
     var action: () -> Void
-    
+
     var body: some View {
         if isBusy {
             ActivityIndicatorView(isAnimating: true, style: .medium, color: color)
@@ -25,14 +25,14 @@ struct NavigationBusyButton: View {
             })
         }
     }
-    
+
     init(isBusy: Bool, color: UIColor, imageName: String, action: @escaping () -> Void) {
         self.isBusy = isBusy
         self.color = color
         self.image = Image(imageName)
         self.action = action
     }
-    
+
     init(isBusy: Bool, color: UIColor, systemImageName: String, action: @escaping () -> Void) {
         self.isBusy = isBusy
         self.color = color
