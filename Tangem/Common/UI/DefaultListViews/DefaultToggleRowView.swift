@@ -22,7 +22,7 @@ struct DefaultToggleRowView: View {
     var body: some View {
         HStack {
             Text(title)
-                .style(font: .body(), color: isEnabled ? Colors.Text.primary1 : Colors.Text.disabled)
+                .style(.body(), color: isEnabled ? Colors.Text.primary1 : Colors.Text.disabled)
 
             Spacer()
 
