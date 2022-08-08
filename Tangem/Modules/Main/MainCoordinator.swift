@@ -88,7 +88,7 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openSend(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
-        Analytics.log(.sendTokenTapped, params: [:])
+        Analytics.log(.sendTokenTapped)
         let coordinator = SendCoordinator()
         let options = SendCoordinator.Options(amountToSend: amountToSend,
                                               destination: nil,
@@ -126,7 +126,7 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openSettings(cardModel: CardViewModel) {
-        Analytics.log(.settingsTapped, params: [:])
+        Analytics.log(.settingsTapped)
         let dismissAction: Action = { [weak self] in
             self?.detailsCoordinator = nil
         }
@@ -139,7 +139,7 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openTokenDetails(cardModel: CardViewModel, blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType) {
-        Analytics.log(.tokenTapped, params: [:])
+        Analytics.log(.tokenTapped)
         let dismissAction: Action = { [weak self] in
             self?.tokenDetailsCoordinator = nil
         }
@@ -158,7 +158,7 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openTokensList(with cardModel: CardViewModel) {
-        Analytics.log(.manageTokensTapped, params: [:])
+        Analytics.log(.manageTokensTapped)
         let dismissAction: Action = { [weak self] in
             self?.tokenListCoordinator = nil
         }
