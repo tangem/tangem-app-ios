@@ -27,10 +27,10 @@ struct DefaultWarningRow: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
-                        .style(font: .subheadline(.medium), color: Colors.Text.primary1)
+                        .style(.subheadline(.medium), color: Colors.Text.primary1)
 
                     Text(subtitle)
-                        .style(font: .footnote(), color: Colors.Text.secondary)
+                        .style(.footnote(), color: Colors.Text.secondary)
                 }
             }
             .padding(.vertical, 16)
