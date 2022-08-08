@@ -29,10 +29,9 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
     func handle(request: Request) {
         do {
             let chainIdHexString = (try request.parameter(of: [String: String].self, at: 0))["chainId"]
-            let address = try request.parameter(of: String.self, at: 1)
             let chainId = chainIdHexString.map { Data(hexString: $0) }?.toInt()
 
-            guard let session = dataSource?.session(for: request, address: address),
+            guard let session = dataSource?.session(for: request),
                   let chainId = chainId else {
                 delegate?.send(.reject(request), for: action)
                 return
@@ -41,10 +40,8 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
             let sessionWalletInfo = try switchChain(session, chainId: chainId)
             delegate?.sendUpdate(for: session.session, with: sessionWalletInfo)
         } catch {
-            delegate?.sendInvalid(request)
-            if error is WalletConnectServiceError {
-                showError(error)
-            }
+            delegate?.sendReject(for: request, with: error, for: action)
+
         }
     }
 
@@ -87,6 +84,10 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
                                     derivedPublicKey: derivedKey,
                                     derivationPath: wallet.publicKey.derivationPath,
                                     blockchain: targetBlockchain)
+
+        if wallet.address != oldWalletInfo.address {
+            throw WalletConnectServiceError.switchChainNotSupported
+        }
 
         session.wallet = walletInfo
         dataSource?.updateSession(session)

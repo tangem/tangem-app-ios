@@ -1,5 +1,5 @@
 //
-//  Font+.swift
+//  Fonts.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
