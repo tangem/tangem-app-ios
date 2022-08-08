@@ -9,24 +9,51 @@
 import Foundation
 
 enum UserWalletFeature: Int {
-    case none
-
-    // MARK: - Card features
-
-    case settingAccessCodeAllowed
-    case settingPasscodeAllowed
-    case signingSupported
-    case longHashesSupported
-    case signedHashesCounterAvailable
+    case accessCode
+    case passcode
+    case signing
+    case longHashes
+    case signedHashesCounter
     case backup
     case twinning
-
-    // MARK: - App features
-
-    case sendingToPayIDAllowed
-    case exchangingAllowed
-    case walletConnectAllowed
-    case manageTokensAllowed
+    case sendingToPayID
+    case exchange
+    case walletConnect
+    case manageTokens
     case activation
     case tokensSearch
+    case resetToFactory
+    case showAddress
+}
+
+extension UserWalletFeature {
+    enum Availability {
+        case available
+        case unavailable
+        case disabled(localizedReason: String? = nil)
+
+        var disabledLocalizedReason: String? {
+            if case let .disabled(reason) = self, let reason = reason {
+                return reason
+            }
+
+            return nil
+        }
+
+        var isAvailable: Bool {
+            if case .available = self {
+                return true
+            }
+
+            return false
+        }
+
+        var isHidden: Bool {
+            if case .unavailable = self {
+                return true
+            }
+
+            return false
+        }
+    }
 }
