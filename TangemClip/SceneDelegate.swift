@@ -10,13 +10,11 @@ import UIKit
 import SwiftUI
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-    private var userPrefs = UserPrefsService()
-    
+    private let mainViewModel: MainViewModel = .init()
     var window: UIWindow?
-    let assembly = Assembly()
-    
+
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        let contentView = MainView(viewModel: assembly.getMainViewModel())
+        let contentView = MainView(viewModel: mainViewModel)
 
         handle(connectionOptions.userActivities.first, in: scene)
         // Use a UIHostingController as window root view controller.
@@ -27,11 +25,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             window.makeKeyAndVisible()
         }
     }
-    
+
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
         handle(userActivity, in: scene)
     }
-    
+
     private func handle(_ activity: NSUserActivity?, in scene: UIScene) {
         // Get URL components from the incoming user activity
         let url: URL
@@ -41,18 +39,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             }
             url = incomingURL
             scene.userActivity = activity
-        } else if let savedNdef = URL(string: userPrefs.lastScannedNdef) {
+        } else if let savedNdef = URL(string: AppSettings.shared.lastScannedNdef) {
             url = savedNdef
         } else {
             url = URL(string: "https://tangem.com/ndef/CB79")!
         }
-        
+
         let link = url.absoluteString
         let batch = url.lastPathComponent
-        assembly.updateAppClipCard(with: batch, fullLink: link)
-        userPrefs.lastScannedNdef = link
-        if !userPrefs.scannedNdefs.contains(link) {
-            userPrefs.scannedNdefs.append(link)
+        mainViewModel.updateCardBatch(batch, fullLink: link)
+        AppSettings.shared.lastScannedNdef = link
+        if !AppSettings.shared.scannedNdefs.contains(link) {
+            AppSettings.shared.scannedNdefs.append(link)
         }
     }
 
