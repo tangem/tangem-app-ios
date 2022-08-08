@@ -50,11 +50,11 @@ class CardViewModel: Identifiable, ObservableObject {
             options.append(.longTap)
         }
 
-        if config.features.contains(.settingAccessCodeAllowed) || currentSecurityOption == .accessCode {
+        if config.hasFeature(.accessCode) || currentSecurityOption == .accessCode {
             options.append(.accessCode)
         }
 
-        if config.features.contains(.settingPasscodeAllowed) || currentSecurityOption == .passCode {
+        if config.hasFeature(.passcode) || currentSecurityOption == .passCode {
             options.append(.passCode)
         }
 
@@ -95,7 +95,7 @@ class CardViewModel: Identifiable, ObservableObject {
         return hasBalance
     }
 
-    var canExchangeCrypto: Bool { config.features.contains(.exchangingAllowed) }
+    var canExchangeCrypto: Bool { config.hasFeature(.exchange) }
 
     var cachedImage: UIImage? = nil
 
@@ -449,7 +449,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func searchBlockchains() {
-        guard config.features.contains(.tokensSearch) else { return }
+        guard config.hasFeature(.tokensSearch) else { return }
 
         searchBlockchainsCancellable = nil
 
@@ -482,7 +482,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func searchTokens() {
-        guard config.features.contains(.tokensSearch),
+        guard config.hasFeature(.tokensSearch),
               !AppSettings.shared.searchedCards.contains(cardInfo.card.cardId) else {
             return
         }
