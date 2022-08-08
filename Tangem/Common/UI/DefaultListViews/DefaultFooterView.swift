@@ -13,6 +13,6 @@ struct DefaultFooterView: View {
 
     var body: some View {
         Text(title)
-            .style(font: .footnote(), color: Colors.Text.tertiary)
+            .style(.footnote(), color: Colors.Text.tertiary)
     }
 }
