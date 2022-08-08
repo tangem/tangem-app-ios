@@ -16,6 +16,8 @@ struct AddressDetailView: View {
     var walletModel: WalletModel
     var payID: PayIdStatus
 
+    let copyAddress: () -> Void
+
     var showPayIdBlock: Bool {
         switch payID {
         case .notSupported:
@@ -78,7 +80,7 @@ struct AddressDetailView: View {
 
                 Spacer()
 
-                CircleActionButton(action: {  UIPasteboard.general.string = walletModel.displayAddress(for: selectedAddressIndex) },
+                CircleActionButton(action: copyAddress,
                                    backgroundColor: .tangemBgGray,
                                    imageName: "square.on.square",
                                    isSystemImage: true,
@@ -155,7 +157,8 @@ struct AddressDetailView_Previews: PreviewProvider {
                               selectedAddressIndex: .constant(0),
                               showExplorerURL: .constant(nil),
                               walletModel: PreviewCard.v4.cardModel.walletModels!.first!,
-                              payID: .notCreated)
+                              payID: .notCreated,
+                              copyAddress: {})
         }
     }
 }
