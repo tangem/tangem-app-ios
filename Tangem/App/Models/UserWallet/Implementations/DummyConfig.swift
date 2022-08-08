@@ -32,8 +32,10 @@ struct DummyConfig: UserWalletConfig {
     var defaultBlockchains: [StorageEntry] { [] }
 
     var persistentBlockchains: [StorageEntry]? { nil }
-    
+
     var embeddedBlockchain: StorageEntry? { nil }
-    
-    var disabledFeatureReason: String? { nil }
+
+    func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
+        return .available
+    }
 }
