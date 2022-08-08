@@ -11,45 +11,45 @@ import Foundation
 class PersistentStorage {
     private let documentsFolderName = "Documents"
     private let documentType = "json"
-    
+
     private var fileManager: FileManager {
         get { FileManager.default }
     }
-    
+
     private var cloudContainerUrl: URL? {
         fileManager.url(forUbiquityContainerIdentifier: nil)?.appendingPathComponent(documentsFolderName)
     }
-    
+
     private var containerUrl: URL {
         fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
     }
-    
+
     private lazy var encryptionUtility: FileEncryptionUtility = .init()
-    
+
     init() {
         transferFiles()
     }
-    
+
     deinit {
         print("PersistentStorage deinit")
     }
-    
+
     private func transferFiles() {
         guard let cloudContainerUrl = self.cloudContainerUrl else {
             return
         }
-        
+
         do {
             let contents = try fileManager.contentsOfDirectory(atPath: cloudContainerUrl.path)
             guard !contents.isEmpty else {
                 return
             }
-            
+
             contents.forEach {
                 let cloudPath = cloudContainerUrl.appendingPathComponent($0)
-                
+
                 guard fileManager.fileExists(atPath: cloudPath.path) else { return }
-                
+
                 do {
                     var documentPath = containerUrl.appendingPathComponent($0)
                     let data = try Data(contentsOf: cloudPath)
@@ -63,11 +63,11 @@ class PersistentStorage {
             print(error)
         }
     }
-    
+
     private func documentPath(for key: String) -> URL {
         containerUrl.appendingPathComponent(key).appendingPathExtension(documentType)
     }
-    
+
     private func encryptAndWriteToDocuments(_ data: Data, at path: inout URL) throws {
         let encrypted = try encryptionUtility.encryptData(data)
         try encrypted.write(to: path, options: .atomic)
@@ -75,7 +75,7 @@ class PersistentStorage {
         fileValues.isExcludedFromBackup = true
         try path.setResourceValues(fileValues)
     }
-    
+
     private func createDirectory() {
         if !fileManager.fileExists(atPath: containerUrl.path, isDirectory: nil) {
             do {
@@ -96,20 +96,20 @@ extension PersistentStorage: PersistentStorageProtocol {
             let decryptedData = try encryptionUtility.decryptData(data)
             return try JSONDecoder().decode(T.self, from: decryptedData)
         }
-        
+
         return nil
     }
-    
-    func store<T:Encodable>(value: T, for key: PersistentStorageKey) throws {
+
+    func store<T: Encodable>(value: T, for key: PersistentStorageKey) throws {
         var documentPath = self.documentPath(for: key.path)
         createDirectory()
         let data = try JSONEncoder().encode(value)
         try encryptAndWriteToDocuments(data, at: &documentPath)
     }
-    
-    func readAllWallets<T:Decodable>() -> [String: T] {
+
+    func readAllWallets<T: Decodable>() -> [String: T] {
         var wallets: [String: T] = [:]
-        
+
         if let contents = try? fileManager.contentsOfDirectory(atPath: containerUrl.path) {
             contents.forEach {
                 if $0.contains("wallets_") {
@@ -118,13 +118,13 @@ extension PersistentStorage: PersistentStorageProtocol {
                     let documentPath = self.documentPath(for: key.path)
                     if let data = try? Data(contentsOf: documentPath),
                        let decryptedData = try? encryptionUtility.decryptData(data),
-                       let decodedData = try? JSONDecoder().decode(T.self, from: decryptedData){
+                       let decodedData = try? JSONDecoder().decode(T.self, from: decryptedData) {
                         wallets[cardId] = decodedData
                     }
                 }
             }
         }
-        
+
         return wallets
     }
 }
