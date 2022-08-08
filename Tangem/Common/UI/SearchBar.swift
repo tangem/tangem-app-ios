@@ -17,10 +17,10 @@ struct SearchBar: UIViewRepresentable {
 
     class Coordinator: NSObject, UISearchBarDelegate {
         @Binding var text: String
-        
+
         @Published private var inputText = ""
         private var cancellable: AnyCancellable? = nil
-        
+
         init(text: Binding<String>) {
             _text = text
             super.init()
@@ -32,19 +32,19 @@ struct SearchBar: UIViewRepresentable {
         func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
             inputText = searchText
         }
-        
+
         func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
             searchBar.resignFirstResponder()
         }
-        
+
         func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
             searchBar.resignFirstResponder()
         }
-        
+
         func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
             searchBar.showsCancelButton = true
         }
-        
+
         func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
             searchBar.showsCancelButton = false
         }
@@ -59,7 +59,7 @@ struct SearchBar: UIViewRepresentable {
         searchBar.delegate = context.coordinator
         searchBar.placeholder = placeholder
         searchBar.searchBarStyle = .minimal
-       
+
         searchBar.autocapitalizationType = .none
         return searchBar
     }
