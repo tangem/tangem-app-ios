@@ -1,15 +1,3 @@
 "main_title" = "Блиц-приложение Tangem";
-"main_button_read_wallets" = "Прочитать кошельки";
-"main_error_empty_card_title" = "На карте не созданы ключи";
-"main_error_empty_card_subtitle" = "Чтобы начать пользоваться картой Tangem, скачайте основное приложение и создайте кошельки";
-"main_error_empty_wallets_title" = "Пустые кошельки";
-"main_error_empty_wallets_subtitle" = "Не удалось найти добавленных токенов. Пожалуйста, используйте основное приложение, чтобы узнать больше";
-"main_error_unsupported_card_title" = "Эта карта не проддерживается";
-"main_error_unsupported_card_subtitle" = "Не удается прочитать информацию о кошельке.\nПожалуйста, используйте полное приложение для загрузки информации из блокчейна.";
-"wallet_balance_loading" = "Баланс загружается…";
-"wallet_balance_blockchain_unreachable" = "Блокчейн недоступен";
-"alert_wrong_card_scanned" = "Вы отсканировалиy неправильную карту. Пожалуйста, попробуйте еще раз.";
-"wallet_balance_tx_in_progress" = "Транзакция в обработке...";
-"wallet_error_no_account" = "Аккаунт не создан";
 "main_warning" = "Для чтения кошельков откройте основное приложение";
 
