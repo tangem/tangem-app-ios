@@ -41,12 +41,12 @@ extension EIP712TypedData {
     /// Sign-able hash for an `EIP712TypedData`
     public var signHash: Data {
         let data = Data([0x19, 0x01]) +
-        hashStruct(data: domain, type: "EIP712Domain") +
-        hashStruct(data: message, type: primaryType)
-        
+            hashStruct(data: domain, type: "EIP712Domain") +
+            hashStruct(data: message, type: primaryType)
+
         return data.sha3(.keccak256)
     }
-    
+
     func hashStruct(data: JSON, type: String) -> Data {
         encodeData(data: data, type: type).sha3(.keccak256)
     }
@@ -55,8 +55,8 @@ extension EIP712TypedData {
     func findDependencies(primaryType: String, dependencies: Set<String> = Set<String>()) -> Set<String> {
         var found = dependencies
         guard !found.contains(primaryType),
-            let primaryTypes = types[primaryType] else {
-                return found
+              let primaryTypes = types[primaryType] else {
+            return found
         }
         found.insert(primaryType)
         for type in primaryTypes {
@@ -91,7 +91,7 @@ extension EIP712TypedData {
             if let valueTypes = types[type] {
                 try valueTypes.forEach { field in
                     if let _ = types[field.type],
-                        let json = data[field.name] {
+                       let json = data[field.name] {
                         let nestEncoded = encodeData(data: json, type: field.type)
                         values.append(try ABIValue(nestEncoded.sha3(.keccak256), type: .bytes(32)))
                     } else if let value = makeABIValue(data: data[field.name], type: field.type) {
@@ -111,26 +111,26 @@ extension EIP712TypedData {
         let isArrayType = type.contains("[")
         if isArrayType,
            let values = data?.arrayValue {
-            let valueType = String(type.prefix(while: { $0 != "["}))
+            let valueType = String(type.prefix(while: { $0 != "[" }))
             let abiValues = values.compactMap { makeABIValue(data: $0, type: valueType) }
             return .array(abiValues)
         }
         else if type == "string",
-           let value = data?.stringValue,
-           let valueData = value.data(using: .utf8) {
+                let value = data?.stringValue,
+                let valueData = value.data(using: .utf8) {
             return try? ABIValue(valueData.sha3(.keccak256), type: .bytes(32))
         }
         else if type == "bytes",
                 let value = data?.stringValue {
-                let valueData = Data(hexString:  value)
+            let valueData = Data(hexString:  value)
             return try? ABIValue(valueData.sha3(.keccak256), type: .bytes(32))
         }
         else if type == "bool",
-            let value = data?.boolValue {
+                let value = data?.boolValue {
             return try? ABIValue(value, type: .bool)
         } else if type == "address",
-            let value = data?.stringValue,
-            let address = EthereumAddress(string: value) {
+                  let value = data?.stringValue,
+                  let address = EthereumAddress(string: value) {
             return try? ABIValue(address, type: .address)
         } else if type.starts(with: "uint") {
             let size = parseIntSize(type: type, prefix: "uint")
@@ -138,7 +138,7 @@ extension EIP712TypedData {
             if let value = data?.intValue {
                 return try? ABIValue(value, type: .uint(bits: size))
             } else if let value = data?.stringValue,
-                let bigInt = BigUInt(value: value) {
+                      let bigInt = BigUInt(value: value) {
                 return try? ABIValue(bigInt, type: .uint(bits: size))
             }
         } else if type.starts(with: "int") {
@@ -147,12 +147,12 @@ extension EIP712TypedData {
             if let value = data?.intValue {
                 return try? ABIValue(value, type: .int(bits: size))
             } else if let value = data?.stringValue,
-                let bigInt = BigInt(value: value) {
+                      let bigInt = BigInt(value: value) {
                 return try? ABIValue(bigInt, type: .int(bits: size))
             }
         } else if type.starts(with: "bytes") {
             if let length = Int(type.dropFirst("bytes".count)),
-                let value = data?.stringValue {
+               let value = data?.stringValue {
                 if value.starts(with: "0x") {
                     let hex = Data(hexString: value)
                     return try? ABIValue(hex, type: .bytes(length))
@@ -167,7 +167,7 @@ extension EIP712TypedData {
     /// Helper func for encoding uint / int types
     private func parseIntSize(type: String, prefix: String) -> Int {
         guard type.starts(with: prefix),
-            let size = Int(type.dropFirst(prefix.count)) else {
+              let size = Int(type.dropFirst(prefix.count)) else {
             return -1
         }
 
