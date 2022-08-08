@@ -82,7 +82,7 @@ class BnbSignHandler: WalletConnectSignHandler {
     override func handle(request: Request) {
         guard
             let bnbMessage = extractMessage(from: request),
-            let session = dataSource?.session(for: request, address: bnbMessage.address)
+            let session = dataSource?.session(for: request)
         else {
             delegate?.sendInvalid(request)
             return
