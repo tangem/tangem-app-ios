@@ -14,7 +14,7 @@ struct BlinkingModifier: ViewModifier {
     let originalColor: Color
     let color: Color
     let duration: Double
-    
+
     @State var targetColor: Color = .clear
     @State private var item: DispatchWorkItem? = nil
 
@@ -25,7 +25,7 @@ struct BlinkingModifier: ViewModifier {
         self.duration = duration
         targetColor = originalColor
     }
-    
+
     func body(content: Content) -> some View
     {
         content
