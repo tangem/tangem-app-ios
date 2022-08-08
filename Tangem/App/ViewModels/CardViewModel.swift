@@ -381,7 +381,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 self.cardInfo.artwork =  info.artwork.map { .artwork($0) } ?? .noArtwork
             case .failure:
                 self.cardInfo.artwork = .noArtwork
-                self.warningsService.setupWarnings(for: self.cardInfo)
+                self.warningsService.setupWarnings(for: self.config)
             }
         }
     }
@@ -436,7 +436,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private func updateModel() {
         print("🔶 Updating Card view model")
-        warningsService.setupWarnings(for: cardInfo)
+        warningsService.setupWarnings(for: config)
         updateState()
     }
 
