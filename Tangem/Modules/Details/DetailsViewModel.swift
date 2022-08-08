@@ -59,10 +59,6 @@ class DetailsViewModel: ObservableObject {
         return true
     }
 
-    var isTwinCard: Bool {
-        cardModel.isTwinCard
-    }
-
     var cardTOUURL: URL? {
         guard cardModel.isStart2CoinCard else { // is this card is S2C
             return nil
@@ -84,6 +80,10 @@ class DetailsViewModel: ObservableObject {
         )
     }
 
+    var isMultiWallet: Bool {
+        cardModel.cardInfo.isMultiWallet
+    }
+
     // MARK: - Private
 
     private var bag = Set<AnyCancellable>()
@@ -97,32 +97,8 @@ class DetailsViewModel: ObservableObject {
         bind()
     }
 
-    func prepareTwinOnboarding() {
-        onboardingStepsSetupService.twinRecreationSteps(for: cardModel.cardInfo)
-            .sink { completion in
-                switch completion {
-                case .failure(let error):
-                    Analytics.log(error: error)
-                    print("Failed to load image for new card")
-                    self.error = error.alertBinder
-                case .finished:
-                    break
-                }
-            } receiveValue: { [weak self] steps in
-                guard let self = self else { return }
-
-                let input = OnboardingInput(steps: steps,
-                                            cardInput: .cardModel(self.cardModel),
-                                            welcomeStep: nil,
-                                            currentStepIndex: 0,
-                                            isStandalone: true)
-
-                self.openOnboarding(with: input)
-            }
-            .store(in: &bag)
-    }
-
     func prepareBackup() {
+        Analytics.log(.backupTapped)
         onboardingStepsSetupService.backupSteps(cardModel.cardInfo)
             .sink { completion in
                 switch completion {
@@ -165,6 +141,10 @@ extension DetailsViewModel {
         coordinator.openWalletConnect(with: cardModel)
     }
 
+    func openCurrencySelection() {
+        coordinator.openCurrencySelection()
+    }
+
     func openDisclaimer() {
         coordinator.openDisclaimer()
     }
@@ -174,10 +154,12 @@ extension DetailsViewModel {
     }
 
     func openCardSettings() {
+        Analytics.log(.cardSettingsTapped)
         coordinator.openScanCardSettings()
     }
 
     func openAppSettings() {
+        Analytics.log(.appSettingsTapped)
         coordinator.openAppSettings()
     }
 
