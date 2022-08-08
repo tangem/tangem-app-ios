@@ -80,9 +80,7 @@ struct AddressDetailView: View {
 
                 Spacer()
 
-                CircleActionButton(action: {
-                                       copyAddress()
-                                   },
+                CircleActionButton(action: copyAddress,
                                    backgroundColor: .tangemBgGray,
                                    imageName: "square.on.square",
                                    isSystemImage: true,
