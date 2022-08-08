@@ -500,6 +500,9 @@ class MainViewModel: ObservableObject {
 
     func copyAddress() {
         Analytics.log(.copyAddressTapped)
+        if let walletModel = cardModel.walletModels?.first {
+            UIPasteboard.general.string = walletModel.displayAddress(for: selectedAddressIndex)
+        }
     }
 
     // MARK: - Private functions
