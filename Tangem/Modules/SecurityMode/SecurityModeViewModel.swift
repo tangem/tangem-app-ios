@@ -34,6 +34,16 @@ class SecurityModeViewModel: ObservableObject {
 
         currentSecurityOption = cardModel.currentSecurityOption
         availableSecurityOptions = cardModel.availableSecurityOptions
+
+        bind()
+    }
+
+    func bind() {
+        cardModel.$currentSecurityOption
+            .sink { [weak self] option in
+                self?.currentSecurityOption = option
+            }
+            .store(in: &bag)
     }
 
     func actionButtonDidTap() {
@@ -99,15 +109,6 @@ enum SecurityModeOption: String, CaseIterable, Identifiable, Equatable {
             return "details_manage_security_long_tap_description".localized
         case .passCode:
             return "details_manage_security_passcode_description".localized
-        }
-    }
-
-    var actionButtonTitle: LocalizedStringKey {
-        switch self {
-        case .longTap:
-            return "common_save_changes"
-        case .accessCode, .passCode:
-            return "common_continue"
         }
     }
 }
