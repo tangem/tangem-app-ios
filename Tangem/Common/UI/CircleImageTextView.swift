@@ -11,15 +11,15 @@ import SwiftUI
 struct CircleImageTextView: View {
     let name: String
     let color: Color
-    
+
     var body: some View {
-        ZStack{
+        ZStack {
             Circle()
                 .foregroundColor(color)
             Text(String(name.first ?? " "))
                 .font(Font.system(size: 28, weight: .bold, design: .default))
                 .foregroundColor(Color.white)
-            
+
         }
         .frame(width: 40, height: 40)
         .clipped()

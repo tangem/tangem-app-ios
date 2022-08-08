@@ -1,0 +1,102 @@
+// swiftlint:disable all
+// Generated using SwiftGen — https://github.com/SwiftGen/SwiftGen
+
+{% if catalogs %}
+{% set enumName %}{{param.enumName|default:"Asset"}}{% endset %}
+{% set colorType %}{{param.colorTypeName|default:"Color"}}{% endset %}
+{% set imageType %}{{param.imageTypeName|default:"Image"}}{% endset %}
+{% set forceNamespaces %}{{param.forceProvidesNamespaces|default:"false"}}{% endset %}
+{% set accessModifier %}{% if param.publicAccess %}public{% else %}internal{% endif %}{% endset %}
+{% set removeFolderName %}{{param.removeFolderName|default:"false"}}{% endset %}
+import SwiftUI
+
+// swiftlint:disable superfluous_disable_command
+// swiftlint:disable file_length
+
+// MARK: - Asset Catalogs
+
+{% macro enumBlock assets %}
+  {% call casesBlock assets "" %}
+  {% if param.allValues %}
+
+  // swiftlint:disable trailing_comma
+  {{accessModifier}} static let allColors: [{{colorType}}] = [
+    {% filter indent:2 %}{% call allValuesBlock assets "color" "" %}{% endfilter %}
+  ]
+  {{accessModifier}} static let allImages: [{{imageType}}] = [
+    {% filter indent:2 %}{% call allValuesBlock assets "image" "" %}{% endfilter %}
+  ]
+  // swiftlint:enable trailing_comma
+  {% endif %}
+{% endmacro %}
+{% macro casesBlock assets folderName %}
+  {% for asset in assets %}
+  {% if asset.type == "color" %}
+  {% if removeFolderName == "true" %}
+  {{accessModifier}} static let {{asset.name|replace:folderName,""|swiftIdentifier:"pretty"|lowerFirstWord|escapeReservedKeywords}} = {{colorType}}(name: "{{asset.value}}")
+  {% else %}
+  {{accessModifier}} static let {{asset.name|swiftIdentifier:"pretty"|lowerFirstWord|escapeReservedKeywords}} = {{colorType}}(name: "{{asset.value}}")
+  {% endif %}
+  {% elif asset.type == "image" %}
+  {% if removeFolderName == "true" %}
+  {{accessModifier}} static let {{asset.name|replace:folderName,""|swiftIdentifier:"pretty"|lowerFirstWord|escapeReservedKeywords}} = {{imageType}}(name: "{{asset.value}}")
+  {% else %}
+  {{accessModifier}} static let {{asset.name|swiftIdentifier:"pretty"|lowerFirstWord|escapeReservedKeywords}} = {{imageType}}(name: "{{asset.value}}")
+  {% endif %}
+  {% elif asset.items and ( forceNamespaces == "true" or asset.isNamespaced == "true" ) %}
+  {{accessModifier}} enum {{asset.name|swiftIdentifier:"pretty"|escapeReservedKeywords}} {
+    {% filter indent:2 %}{% call casesBlock asset.items asset.name %}{% endfilter %}
+  }
+  {% elif asset.items %}
+  {% call casesBlock asset.items "" %}
+  {% endif %}
+  {% endfor %}
+{% endmacro %}
+{% macro allValuesBlock assets filter prefix %}
+  {% for asset in assets %}
+  {% if asset.type == filter %}
+  {{prefix}}{{asset.name|swiftIdentifier:"pretty"|lowerFirstWord|escapeReservedKeywords}},
+  {% elif asset.items and ( forceNamespaces == "true" or asset.isNamespaced == "true" ) %}
+  {% set prefix2 %}{{prefix}}{{asset.name|swiftIdentifier:"pretty"|escapeReservedKeywords}}.{% endset %}
+  {% call allValuesBlock asset.items filter prefix2 %}
+  {% elif asset.items %}
+  {% call allValuesBlock asset.items filter prefix %}
+  {% endif %}
+  {% endfor %}
+{% endmacro %}
+// swiftlint:disable identifier_name line_length nesting type_body_length type_name
+{% if catalogs.count > 1 %}
+{% for catalog in catalogs %}
+{{accessModifier}} enum {{catalog.name|swiftIdentifier:"pretty"|escapeReservedKeywords}} {
+  {% filter indent:2 %}{% call enumBlock catalog.assets %}{% endfilter %}
+}
+{% endfor %}
+{% else %}
+{% call enumBlock catalogs.first.assets %}
+{% endif %}
+// swiftlint:enable identifier_name line_length nesting type_body_length type_name
+
+// MARK: - Implementation Details
+
+{{accessModifier}} extension Color {
+  /// Creates a named color.
+  /// - Parameter asset: the color resource to lookup.
+  init(name: String) {
+    let bundle = Bundle(for: BundleToken.self)
+    self.init(name, bundle: bundle)
+  }
+}
+
+{{accessModifier}} extension Image {
+  /// Creates a labeled image that you can use as content for controls.
+  /// - Parameter asset: the image resource to lookup.
+  init(name: String) {
+    let bundle = Bundle(for: BundleToken.self)
+    self.init(name, bundle: bundle)
+  }
+}
+
+private final class BundleToken {}
+{% else %}
+// No assets found
+{% endif %}
