@@ -20,6 +20,10 @@ struct LegacyConfig {
         return Blockchain.from(blockchainName: walletData.blockchain, curve: card.supportedCurves[0])!
     }
 
+    private var isTestnet: Bool {
+        defaultBlockchain.isTestnet
+    }
+
     private var defaultToken: BlockchainSdk.Token? {
         guard let token = walletData.token else { return nil }
 
@@ -70,7 +74,7 @@ extension LegacyConfig: UserWalletConfig {
 
     var supportedBlockchains: Set<Blockchain> {
         if hasFeature(.manageTokens) {
-            let allBlockchains = defaultBlockchain.isTestnet ? Blockchain.supportedTestnetBlockchains
+            let allBlockchains = isTestnet ? Blockchain.supportedTestnetBlockchains
                 : Blockchain.supportedBlockchains
 
             return allBlockchains.filter { card.supportedCurves.contains($0.curve) }
@@ -95,11 +99,30 @@ extension LegacyConfig: UserWalletConfig {
         return defaultBlockchains.first
     }
 
+    var warningEvents: [WarningEvent] {
+        var warnings = getBaseWarningEvents(for: card)
+
+        if !hasFeature(.signing) {
+            warnings.append(.oldCard)
+        }
+
+        if card.firmwareVersion.doubleValue < 2.28,
+           NFCUtils.isPoorNfcQualityDevice {
+            warnings.append(.oldDeviceOldCard)
+        }
+
+        if isTestnet {
+            warnings.append(.testnetCard)
+        }
+
+        return warnings
+    }
+
     func selectBlockchain(for dAppInfo: Session.DAppInfo) -> BlockchainNetwork? {
         guard hasFeature(.walletConnect) else { return nil }
 
         guard let blockchain = WalletConnectNetworkParserUtility.parse(dAppInfo: dAppInfo,
-                                                                       isTestnet: defaultBlockchain.isTestnet) else {
+                                                                       isTestnet: isTestnet) else {
             return nil
         }
 
@@ -148,6 +171,8 @@ extension LegacyConfig: UserWalletConfig {
         case .resetToFactory:
             return .available
         case .showAddress:
+            return .available
+        case .withdrawal:
             return .available
         }
     }
