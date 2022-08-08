@@ -82,7 +82,6 @@ struct AddressDetailView: View {
 
                 CircleActionButton(action: {
                                        copyAddress()
-                                       UIPasteboard.general.string = walletModel.displayAddress(for: selectedAddressIndex)
                                    },
                                    backgroundColor: .tangemBgGray,
                                    imageName: "square.on.square",
