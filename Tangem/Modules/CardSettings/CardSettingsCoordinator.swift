@@ -70,7 +70,7 @@ extension CardSettingsCoordinator: CardSettingsRoutable {
     }
 
     func openResetCardToFactoryWarning(mainButtonAction: @escaping () -> Void) {
-        Analytics.log(.factoryResetTapped, params: [:])
+        Analytics.log(.factoryResetTapped)
         attentionViewModel = AttentionViewModel(
             isWarningChecked: false,
             navigationTitle: "reset_card_to_factory_navigation_title".localized,
