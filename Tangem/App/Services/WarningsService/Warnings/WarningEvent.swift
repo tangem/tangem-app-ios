@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum WarningEvent {
+enum WarningEvent: Equatable {
     case numberOfSignedHashesIncorrect
     case multiWalletSignedHashes
     case rateApp
@@ -50,7 +50,6 @@ enum WarningEvent {
             return []
         }
     }
-
 }
 
 enum WarningButton: String, Identifiable {
