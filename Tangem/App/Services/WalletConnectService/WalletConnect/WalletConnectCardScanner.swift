@@ -47,7 +47,7 @@ class WalletConnectCardScanner {
     private func walletInfo(for cardInfo: CardInfo, dAppInfo: Session.DAppInfo) throws -> WalletInfo {
         let config = UserWalletConfigFactory(cardInfo).makeConfig()
 
-        guard config.features.contains(.walletConnectAllowed) else {
+        guard config.hasFeature(.walletConnect) else {
             throw WalletConnectServiceError.notValidCard
         }
 
