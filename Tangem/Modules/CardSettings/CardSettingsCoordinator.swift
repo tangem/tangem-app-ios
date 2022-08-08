@@ -23,6 +23,11 @@ class CardSettingsCoordinator: CoordinatorObject {
     // MARK: - Child coordinators
 
     @Published var securityManagementCoordinator: SecurityModeCoordinator?
+    @Published var modalOnboardingCoordinator: OnboardingCoordinator?
+
+    // MARK: - Helpers
+
+    @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -46,6 +51,17 @@ extension CardSettingsCoordinator {
 // MARK: - CardSettingsRoutable
 
 extension CardSettingsCoordinator: CardSettingsRoutable {
+    func openOnboarding(with input: OnboardingInput) {
+        let dismissAction: Action = { [weak self] in
+            self?.modalOnboardingCoordinator = nil
+        }
+
+        let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
+        let options = OnboardingCoordinator.Options(input: input)
+        coordinator.start(with: options)
+        modalOnboardingCoordinator = coordinator
+    }
+
     func openSecurityMode(cardModel: CardViewModel) {
         let coordinator = SecurityModeCoordinator(popToRootAction: popToRootAction)
         let options = SecurityModeCoordinator.Options(cardModel: cardModel)
@@ -54,6 +70,7 @@ extension CardSettingsCoordinator: CardSettingsRoutable {
     }
 
     func openResetCardToFactoryWarning(mainButtonAction: @escaping () -> Void) {
+        Analytics.log(.factoryResetTapped)
         attentionViewModel = AttentionViewModel(
             isWarningChecked: false,
             navigationTitle: "reset_card_to_factory_navigation_title".localized,
@@ -65,7 +82,7 @@ extension CardSettingsCoordinator: CardSettingsRoutable {
         )
     }
 
-    func closeResetCardToFactoryWarning() {
-        attentionViewModel = nil
+    func resetCardDidFinish() {
+        popToRoot()
     }
 }
