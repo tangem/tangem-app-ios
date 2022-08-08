@@ -67,8 +67,8 @@ class WalletConnectViewModel: ObservableObject {
     }
 
     func openSession() {
-        if cardModel.cardInfo.card.isDemoCard {
-            alert = AlertBuilder.makeDemoAlert()
+        if let disabledLocalizedReason = cardModel.config.getFeatureAvailability(.walletConnect).disabledLocalizedReason {
+            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
         }
 
