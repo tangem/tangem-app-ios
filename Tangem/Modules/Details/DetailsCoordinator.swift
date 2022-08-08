@@ -73,10 +73,12 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openMail(with dataCollector: EmailDataCollector, support: EmailSupport, emailType: EmailType) {
+        Analytics.log(.makeCommentTapped)
         mailViewModel = MailViewModel(dataCollector: dataCollector, support: support, emailType: emailType)
     }
 
     func openWalletConnect(with cardModel: CardViewModel) {
+        Analytics.log(.wcTapped)
         let coordinator = WalletConnectCoordinator()
         let options = WalletConnectCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
@@ -102,6 +104,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openSupportChat(cardId: String) {
+        Analytics.log(.chatTapped)
         supportChatViewModel = SupportChatViewModel(cardId: cardId)
     }
 
