@@ -375,7 +375,7 @@ class MainViewModel: ObservableObject {
 
     func onScan() {
         DispatchQueue.main.async {
-            Analytics.log(.scanCardTapped, params: [:])
+            Analytics.log(.scanCardTapped)
             self.totalSumBalanceViewModel.update(with: [])
             self.coordinator.close(newScan: true)
         }
@@ -693,7 +693,7 @@ extension MainViewModel {
     }
 
     func openBuyCryptoIfPossible() {
-        Analytics.log(.buyTokenTapped, params: [:])
+        Analytics.log(.buyTokenTapped)
         if tangemApiService.geoIpRegionCode == LanguageCode.ru {
             coordinator.openBankWarning {
                 Analytics.log(.p2pInstructionTapped, params: [.type: "yes"])
