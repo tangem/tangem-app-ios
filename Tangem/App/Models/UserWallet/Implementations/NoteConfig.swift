@@ -28,6 +28,10 @@ struct NoteConfig {
         let defaultBlockchain = Blockchain.from(blockchainName: blockchainName, curve: .secp256k1)!
         return defaultBlockchain
     }
+
+    private var isTestnet: Bool {
+        defaultBlockchain.isTestnet
+    }
 }
 
 extension NoteConfig: UserWalletConfig {
@@ -86,6 +90,18 @@ extension NoteConfig: UserWalletConfig {
         return defaultBlockchains.first
     }
 
+    var warningEvents: [WarningEvent] {
+        var warnings = getBaseWarningEvents(for: card)
+
+        if isTestnet {
+            warnings.append(.testnetCard)
+        } else if isDemoCard {
+            warnings.append(.demoCard)
+        }
+
+        return warnings
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
@@ -122,10 +138,8 @@ extension NoteConfig: UserWalletConfig {
             return .available
         case .showAddress:
             return .available
+        case .withdrawal:
+            return .available
         }
-    }
-    
-    var shouldLogDemoActivated: Bool {
-        isDemoCard
     }
 }
