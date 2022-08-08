@@ -1,15 +1,3 @@
 "main_title" = "Tangem Clip";
-"main_button_read_wallets" = "Read wallets";
-"main_error_empty_card_title" = "Empty card";
-"main_error_empty_card_subtitle" = "To start using Tangem card, please, download full app and create wallets";
-"main_error_empty_wallets_title" = "Empty wallets";
-"main_error_empty_wallets_subtitle" = "All wallets on card are empty. Please use full app to learn more";
-"main_error_unsupported_card_title" = "Unsupported card";
-"main_error_unsupported_card_subtitle" = "Can't read card wallet information.\nPlease, use full app to load info from blockchain";
-"wallet_balance_loading" = "Balance is loading…";
-"wallet_balance_blockchain_unreachable" = "Blockchain is unreachable";
-"alert_wrong_card_scanned" = "You've scanned wrong card. Try again, please.";
-"wallet_balance_tx_in_progress" = "Transaction is in progress...";
-"wallet_error_no_account" = "Account is not created";
 "main_warning" = "To read wallets open the main app";
 
