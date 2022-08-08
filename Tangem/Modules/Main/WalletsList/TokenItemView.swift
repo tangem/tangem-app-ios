@@ -22,7 +22,7 @@ struct TokenItemView: View {
         if item.isCustom {
             Circle()
                 .foregroundColor(Color.white)
-                .frame(width: 10, height: 10)
+                .frame(width: 12, height: 12)
                 .overlay(
                     Circle()
                         .foregroundColor(Color.tangemTextGray)
@@ -38,7 +38,7 @@ struct TokenItemView: View {
                 .overlay(
                     customTokenMark
                         .frame(width: 40, height: 40, alignment: .bottomTrailing)
-                        .offset(x: 1, y: 1)
+                        .offset(x: 2, y: 2)
                 )
 
             VStack(alignment: .leading, spacing: 2) {
