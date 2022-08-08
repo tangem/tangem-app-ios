@@ -221,7 +221,7 @@ extension Analytics {
         case factoryResetTapped
         case factoryResetSuccess
         case createBackupTapped
-        case makeComment
+        case makeCommentTapped
         case walletConnectSuccessResponse
         case walletConnectInvalidRequest
         case walletConnectNewSession
@@ -350,7 +350,7 @@ extension Analytics.Event {
              .factoryResetTapped,
              .factoryResetSuccess,
              .createBackupTapped,
-             .makeComment,
+             .makeCommentTapped,
              .walletConnectSuccessResponse,
              .walletConnectInvalidRequest,
              .walletConnectNewSession,
