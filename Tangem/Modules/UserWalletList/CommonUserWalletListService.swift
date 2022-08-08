@@ -22,12 +22,13 @@ class CommonUserWalletListService: UserWalletListService {
         }
     }
 
-    var selectedUserWalletId: Data {
+    var selectedUserWalletId: Data? {
         get {
-            AppSettings.shared.selectedUserWalletId
+            let id = AppSettings.shared.selectedUserWalletId
+            return id.isEmpty ? nil : id
         }
         set {
-            AppSettings.shared.selectedUserWalletId = newValue
+            AppSettings.shared.selectedUserWalletId = newValue ?? Data()
         }
     }
 
