@@ -12,113 +12,39 @@ import TangemSdk
 import BlockchainSdk
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-    @Injected(\.assemblyProvider) private var assemblyProvider: AssemblyProviding
-    @Injected(\.navigationCoordinatorProvider) private var navigationCoordinatorProvider: NavigationCoordinatorProviding
-    @Injected(\.walletConnectServiceProvider) private var walletConnectServiceProvider: WalletConnectServiceProviding
-    
     var window: UIWindow?
-    
-    private var deferredIntents: [NSUserActivity] = []
-    private var deferredIntentWork: DispatchWorkItem?
-    private let servicesManager: ServicesManager = .init()
-    
+
+    private let appCoordinator: AppCoordinator = .init()
+
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        
-        servicesManager.initialize()
-        walletConnectServiceProvider.service.restore()
-        
+        appCoordinator.start(with: .init(connectionOptions: connectionOptions))
+
         if let windowScene = scene as? UIWindowScene {
             let window = UIWindow(windowScene: windowScene)
-            window.rootViewController = prepareRootController()
+            let appView = AppCoordinatorView(coordinator: appCoordinator)
+            window.rootViewController = UIHostingController(rootView: appView)
             self.window = window
             window.makeKeyAndVisible()
         }
-        handle(activities: connectionOptions.userActivities)
-        handle(contexts: connectionOptions.urlContexts)
     }
-    
+
     func scene(_ scene: UIScene, continue userActivity: NSUserActivity) {
-        handle(activities: [userActivity])
+        appCoordinator.scene(scene, continue: userActivity)
     }
 
     func sceneDidBecomeActive(_ scene: UIScene) {
         // Called when the scene has moved from an inactive state to an active state.
         // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
-        
-        deferredIntentWork = DispatchWorkItem { [weak self] in
-            self?.deferredIntents.forEach {
-                switch $0.activityType {
-                case String(describing: ScanTangemCardIntent.self):
-                    //todo: test
-                    self?.assemblyProvider.assembly.getLetsStartOnboardingViewModel()?.scanCard()
-                default:
-                    break
-                }
-            }
-            self?.deferredIntents.removeAll()
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: deferredIntentWork!)
+        appCoordinator.sceneDidBecomeActive(scene)
     }
 
     func sceneWillResignActive(_ scene: UIScene) {
         // Called when the scene will move from an active state to an inactive state.
         // This may occur due to temporary interruptions (ex. an incoming phone call).
-        deferredIntentWork?.cancel()
+        appCoordinator.sceneWillResignActive(scene)
     }
 
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
-        handle(contexts: URLContexts)
-    }
-    
-    private func handle(activities: Set<NSUserActivity>) {
-        activities.forEach {
-            switch $0.activityType {
-            case NSUserActivityTypeBrowsingWeb:
-                guard let url = $0.webpageURL else { return }
-                
-                process(url)
-            case String(describing: ScanTangemCardIntent.self):
-                navigationCoordinatorProvider.coordinator.popToRoot()
-                deferredIntents.append($0)
-            default: return
-            }
-        }
-    }
-    
-    private func handle(contexts: Set<UIOpenURLContext>) {
-        if let url = contexts.first?.url {
-            process(url)
-        }
-    }
-    
-    private func process(_ url: URL) {
-        handle(url: url)
-        walletConnectServiceProvider.service.handle(url: url)
-    }
-    
-    private func prepareRootController() -> UIViewController {
-        let vm = assemblyProvider.assembly.getLaunchOnboardingViewModel()
-        let contentView = ContentView() {
-            OnboardingBaseView(viewModel: vm)
-        }
-            .environmentObject(assemblyProvider.assembly)
-            .environmentObject(navigationCoordinatorProvider.coordinator)
-        return UIHostingController(rootView: contentView)
-    }
-}
-
-extension SceneDelegate: URLHandler {
-    @discardableResult func handle(url: String) -> Bool {
-        guard url.starts(with: "https://app.tangem.com")
-                || url.starts(with: Constants.tangemDomain + "/ndef")
-                || url.starts(with: Constants.tangemDomain + "/wc") else { return false }
-        
-        navigationCoordinatorProvider.coordinator.popToRoot()
-        return true
-    }
-    
-    @discardableResult func handle(url: URL) -> Bool {
-        handle(url: url.absoluteString)
+        appCoordinator.scene(scene, openURLContexts: URLContexts)
     }
 }
