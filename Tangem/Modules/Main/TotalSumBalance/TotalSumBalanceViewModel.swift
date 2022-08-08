@@ -12,14 +12,36 @@ import Combine
 class TotalSumBalanceViewModel: ObservableObject {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    @Published var isLoading: Bool = false
-    @Published var totalFiatValueString: NSAttributedString = NSAttributedString(string: "")
-    @Published var hasError: Bool = false
+    @Published var isLoading: Bool
+    @Published var totalFiatValueString: NSAttributedString
+    @Published var hasError: Bool
+    @Published var isSingleCoinCard: Bool
+    /// If we have a note or any single coin wallet that we should show this balance
+    @Published var tokenItemViewModel: TokenItemViewModel?
+    let tapOnCurrencySymbol: () -> ()
 
     private var refreshSubscription: AnyCancellable?
-    private var tokenItemViewModels: [TokenItemViewModel] = []
+    private var tokenItemViewModels: [TokenItemViewModel] = [] {
+        didSet {
+            // Need to refactoring it
+            if isSingleCoinCard, let coinModel = tokenItemViewModels.first {
+                tokenItemViewModel = coinModel
+            }
+        }
+    }
 
-    init() {}
+    init(isLoading: Bool = false,
+         totalFiatValueString: NSAttributedString = NSAttributedString(string: ""),
+         hasError: Bool = false,
+         isSingleCoinCard: Bool,
+         tapOnCurrencySymbol: @escaping () -> ()
+    ) {
+        self.isLoading = isLoading
+        self.totalFiatValueString = totalFiatValueString
+        self.hasError = hasError
+        self.isSingleCoinCard = isSingleCoinCard
+        self.tapOnCurrencySymbol = tapOnCurrencySymbol
+    }
 
     func beginUpdates() {
         DispatchQueue.main.async {
