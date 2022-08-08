@@ -39,12 +39,12 @@ struct SecurityModeView: View {
             )
         } footer: {
             Text(option.subtitle)
-                .style(font: .footnote(), color: Colors.Text.tertiary)
+                .style(.footnote(), color: Colors.Text.tertiary)
         }
     }
 
     private var actionButton: some View {
-        TangemButton(title: viewModel.currentSecurityOption.actionButtonTitle) { [weak viewModel] in
+        TangemButton(title: "common_save_changes", image: "tangemIcon", iconPosition: .trailing) { [weak viewModel] in
             viewModel?.actionButtonDidTap()
         }
         .buttonStyle(TangemButtonStyle(colorStyle: .black,
@@ -65,7 +65,7 @@ extension SecurityModeView {
             Button(action: { isSelected.toggle() }) {
                 HStack {
                     Text(title)
-                        .style(font: .body(), color: Colors.Text.primary1)
+                        .style(.body(), color: Colors.Text.primary1)
 
                     Spacer()
 
