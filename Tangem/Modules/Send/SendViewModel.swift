@@ -163,7 +163,7 @@ class SendViewModel: ObservableObject {
     private var lastClipboardChangeCount: Int?
 
     private lazy var payIDService: PayIDService? = {
-        if cardViewModel.config.features.contains(.sendingToPayIDAllowed),
+        if cardViewModel.config.hasFeature(.sendingToPayID),
            let payIdService = PayIDService.make(from: blockchainNetwork.blockchain) {
             return payIdService
         }

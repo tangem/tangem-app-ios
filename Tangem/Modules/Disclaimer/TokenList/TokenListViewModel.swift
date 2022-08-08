@@ -218,7 +218,7 @@ private extension TokenListViewModel {
         if selected,
            case let .token(_, blockchain) = tokenItem,
            case .solana = blockchain,
-           !cardModel.config.features.contains(.longHashesSupported)
+           !cardModel.config.hasFeature(.longHashes)
         {
             let okButton = Alert.Button.default(Text("common_ok".localized)) {
                 self.updateSelection(tokenItem)
@@ -369,7 +369,7 @@ private extension TokenListViewModel {
         if case let .token(_, blockchain) = tokenItem,
            case .solana = blockchain,
            let cardModel = cardModel,
-           !cardModel.config.features.contains(.longHashesSupported)
+           !cardModel.config.hasFeature(.longHashes)
         {
             return false
         }
