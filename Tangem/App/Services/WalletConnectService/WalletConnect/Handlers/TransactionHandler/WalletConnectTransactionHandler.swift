@@ -12,35 +12,33 @@ import Combine
 import WalletConnectSwift
 
 class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
-    @Injected(\.transactionSigner) var signer: TangemSigner
-    @Injected(\.assemblyProvider) private var assemblyProvider: AssemblyProviding
     @Injected(\.scannedCardsRepository) private var scannedCardsRepo: ScannedCardsRepository
- 
+
     unowned var delegate: WalletConnectHandlerDelegate?
     unowned var dataSource: WalletConnectHandlerDataSource?
-    
+
     var action: WalletConnectAction { fatalError("Subclass must implement") }
-    
+
     var bag: Set<AnyCancellable> = []
-    
+
     init(delegate: WalletConnectHandlerDelegate, dataSource: WalletConnectHandlerDataSource) {
         self.delegate = delegate
         self.dataSource = dataSource
     }
-    
+
     func handle(request: Request) {
         fatalError("Subclass must implement")
     }
-    
+
     func handleTransaction(from request: Request) -> (session: WalletConnectSession, tx: WalletConnectEthTransaction)? {
         do {
             let transaction = try request.parameter(of: WalletConnectEthTransaction.self, at: 0)
-            
-            guard let session = dataSource?.session(for: request, address: transaction.from) else {
+
+            guard let session = dataSource?.session(for: request) else {
                 delegate?.sendReject(for: request, with: WalletConnectServiceError.sessionNotFound, for: action)
                 return nil
             }
-            
+
             return (session, transaction)
         } catch {
             delegate?.sendInvalid(request)
@@ -52,40 +50,40 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
         delegate?.sendReject(for: request, with: error ?? WalletConnectServiceError.cancelled, for: action)
         bag = []
     }
-    
+
     func buildTx(in session: WalletConnectSession, _ transaction: WalletConnectEthTransaction) -> AnyPublisher<(WalletModel, Transaction), Error> {
         let wallet = session.wallet
         let blockchain = wallet.blockchain
-        
+
         guard let card = scannedCardsRepo.cards[wallet.cid] else {
             return .anyFail(error: WalletConnectServiceError.cardNotFound)
         }
-        
+
         let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: wallet.derivationPath)
-        let walletModels = assemblyProvider.assembly.makeWalletModels(from: card, blockchainNetworks: [blockchainNetwork])
-        
+        let walletModels = WalletManagerAssembly.makeWalletModels(from: card, blockchainNetworks: [blockchainNetwork])
+
         guard let walletModel = walletModels.first(where: { $0.wallet.address.lowercased() == transaction.from.lowercased() }) else {
             let error = WalletConnectServiceError.failedToBuildTx(code: .wrongAddress)
             Analytics.log(error: error)
             return .anyFail(error: error)
         }
-        
+
         guard let gasLoader = walletModel.walletManager as? EthereumGasLoader else {
             let error = WalletConnectServiceError.failedToBuildTx(code: .noWalletManager)
             Analytics.log(error: error)
             return .anyFail(error: error)
         }
-        
+
         let rawValue = transaction.value ?? "0x0"
         guard let value = EthereumUtils.parseEthereumDecimal(rawValue, decimalsCount: blockchain.decimalCount) else {
             let error = ETHError.failedToParseBalance(value: rawValue, address: "", decimals: blockchain.decimalCount)
             Analytics.log(error: error)
             return .anyFail(error: error)
         }
-        
+
         let valueAmount = Amount(with: blockchain, type: .coin, value: value)
-        
-        let gasLimit = transaction.gas?.hexToInteger ?? transaction.gasLimit?.hexToInteger ?? 300000 //Set high gasLimit if not provided
+
+        let gasLimit = transaction.gas?.hexToInteger ?? transaction.gasLimit?.hexToInteger ?? 300000 // Set high gasLimit if not provided
 
         let gasPricePublisher = getGasPrice(for: valueAmount, tx: transaction, txSender: gasLoader, decimalCount: blockchain.decimalCount)
         let walletUpdatePublisher = walletModel
@@ -102,10 +100,10 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
                 }
             }
             .filter { $0 == .idle }
-        
+
         walletModel.update()
 
-        
+
         // This zip attempting to load gas price and update wallet balance.
         // In some cases (ex. when swapping currencies on OpenSea) dApp didn't send gasPrice, that why we need to load this data from blockchain
         // Also we must identify that wallet failed to update balance.
@@ -118,7 +116,7 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
                     let balance = walletModel.wallet.amounts[.coin] ?? .zeroCoin(for: blockchain)
                     let dApp = session.session.dAppInfo
                     let message: String = {
-                        
+
                         var m = ""
                         m += String(format: "wallet_connect_create_tx_message".localized,
                                     AppCardIdFormatter(cid: wallet.cid).formatted(),
@@ -134,7 +132,7 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
                         return m
                     }()
                     let alert = WalletConnectUIBuilder.makeAlert(for: .sendTx, message: message, onAcceptAction: {
-                        
+
                         do {
                             var tx = try walletModel.walletManager.createTransaction(amount: valueAmount,
                                                                                      fee: gasAmount,
@@ -157,13 +155,13 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
             .map { (walletModel, $0) }
             .eraseToAnyPublisher()
     }
-    
+
     func presentOnMain(vc: UIViewController, delay: Double = 0) {
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
             UIApplication.modalFromTop(vc)
         }
     }
-    
+
     private func getGasPrice(for amount: Amount, tx: WalletConnectEthTransaction, txSender: EthereumGasLoader, decimalCount: Int) -> AnyPublisher<Int, Error> {
         guard
             let gasPriceString = tx.gasPrice,
@@ -175,10 +173,10 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
                 }
                 .eraseToAnyPublisher()
         }
-        
+
         return .justWithError(output: gasPrice)
     }
-    
+
     private func getGasLimit(for amount: Amount, destination: String, data: String?, txSender: EthereumGasLoader) -> AnyPublisher<Int, Error> {
         return txSender.getGasLimit(amount: amount, destination: destination)
             .map { Int($0) }
