@@ -46,10 +46,15 @@ fileprivate struct BinanceSingMessage<T: BinanceMessage>: Codable {
     let messages: [T]
     let sequence: String
     let source: String
-    
+
     private enum CodingKeys: String, CodingKey {
-        case accountNumber = "account_number", chainId = "chain_id", messages = "msgs"
-        case data, memo, sequence, source
+        case accountNumber = "account_number"
+        case chainId = "chain_id"
+        case messages = "msgs"
+        case data
+        case memo
+        case sequence
+        case source
     }
 
     func encode(to encoder: Encoder) throws {
@@ -71,35 +76,35 @@ fileprivate struct BnbMessageDTO {
 }
 
 class BnbSignHandler: WalletConnectSignHandler {
-    
+
     override var action: WalletConnectAction { .bnbSign }
-    
+
     override func handle(request: Request) {
         guard
             let bnbMessage = extractMessage(from: request),
-            let session = dataSource?.session(for: request, address: bnbMessage.address)
+            let session = dataSource?.session(for: request)
         else {
             delegate?.sendInvalid(request)
             return
         }
-        
+
         let message = String(format: "wallet_connect_bnb_sign_message".localized, session.session.dAppInfo.peerMeta.name, AppCardIdFormatter(cid: session.wallet.cid).formatted(), bnbMessage.message)
         askToSign(in: session, request: request, message: message, dataToSign: bnbMessage.data)
     }
-    
+
     override func signatureResponse(for signature: String, session: WalletConnectSession, request: Request) -> Response {
         struct BnbSignResponse: Encodable {
             let signature: String
             let publicKey: String
         }
-        
+
         do {
             let jsonEncoder = JSONEncoder()
             jsonEncoder.outputFormatting = .sortedKeys
             let rawKey = session.wallet.derivedPublicKey ?? session.wallet.walletPublicKey
             let pubkey = try! Secp256k1Key(with: rawKey).decompress().hexString
             let signResponse = BnbSignResponse(signature: signature, publicKey: pubkey)
-            
+
             // Important note!
             // When encoding data to json string you must escape all " in string. Otherwise Binance will return Order error - JSON.parse: unexpected character at line 1 column 2
             // Json in "result" field must be: {\"publicKey\":\"...\",\"signature\":\"...\"}"}
@@ -112,31 +117,31 @@ class BnbSignHandler: WalletConnectSignHandler {
             print(error)
             return .reject(request)
         }
-        
+
     }
-    
-    override func sign(data: Data, cardId: String, walletPublicKey: Wallet.PublicKey) -> AnyPublisher<String, Error> {
+
+    override func sign(data: Data, walletPublicKey: Wallet.PublicKey, signer: TangemSigner) -> AnyPublisher<String, Error> {
         let hash = data.sha256()
-        
-        return signer.sign(hash: hash, cardId: cardId, walletPublicKey: walletPublicKey)
+
+        return signer.sign(hash: hash, walletPublicKey: walletPublicKey)
             .tryMap { $0.hexString }
             .eraseToAnyPublisher()
     }
-    
+
     private func extractMessage(from request: Request) -> BnbMessageDTO? {
         let jsonEncoder = JSONEncoder()
         // Data for sign must not contain escaping slashes. Otherwise Dapp most likely will return signature verification failed
         jsonEncoder.outputFormatting = [.sortedKeys, .withoutEscapingSlashes]
         let blockchain = Blockchain.binance(testnet: false)
         let decimalValue = blockchain.decimalValue
-        
+
         // This part is not tested. Can't find service that will give ability to send transaction between wallets via WalletConnect interface
         if let transactionMessage = try? request.parameter(of: BinanceSingMessage<TransactionMessage>.self, at: 0) {
             guard
                 let input = transactionMessage.messages.first?.inputs.first,
                 let output = transactionMessage.messages.first?.outputs.first
             else { return nil }
-            
+
             let address = input.address
             let currency = input.coins.first?.denom ?? blockchain.currencySymbol
             let amountToSend: Int64 = input.coins.reduce(0, { $0 + ($1.denom == currency ? $1.amount : 0) })
@@ -144,18 +149,18 @@ class BnbSignHandler: WalletConnectSignHandler {
                                    address,
                                    output.address,
                                    (Decimal(amountToSend) / decimalValue).description)
-            
+
             let encodedData = try! jsonEncoder.encode(transactionMessage)
             print("Encoded BNB transaction message: \(String(data: encodedData, encoding: .utf8)!)")
             return .init(address: address, data: encodedData, message: uiMessage)
-            
+
             // Trading can be tested here: https://testnet.binance.org/en/
         } else if let tradeMessage = try? request.parameter(of: BinanceSingMessage<TradeMessage>.self, at: 0) {
             guard let address = tradeMessage.messages.first?.sender else { return nil }
-            
+
             var uiMessage: String = ""
             let numberOfMessages = tradeMessage.messages.count
-            for i in 0..<numberOfMessages {
+            for i in 0 ..< numberOfMessages {
                 let message = tradeMessage.messages[i]
                 let price = Decimal(message.price) / decimalValue
                 let quantity = Decimal(message.quantity) / decimalValue
@@ -168,52 +173,52 @@ class BnbSignHandler: WalletConnectSignHandler {
                     uiMessage += "\n\n"
                 }
             }
-            
+
             let encodedData = try! jsonEncoder.encode(tradeMessage)
             print("Encoded BNB trade order: \(String(data: encodedData, encoding: .utf8)!)")
             return .init(address: address, data: encodedData, message: uiMessage)
         }
-        
+
         return nil
     }
-    
+
 }
 
 class BnbSuccessHandler: TangemWalletConnectRequestHandler {
-    
+
     struct ConfirmationResponse: Decodable {
         let ok: Bool
         let error: String?
     }
-    
+
     weak var delegate: WalletConnectHandlerDelegate?
     weak var dataSource: WalletConnectHandlerDataSource?
-    
+
     var action: WalletConnectAction { .bnbTxConfirmation }
-    
+
     init(delegate: WalletConnectHandlerDelegate, dataSource: WalletConnectHandlerDataSource) {
         self.delegate = delegate
         self.dataSource = dataSource
     }
-    
+
     func handle(request: Request) {
         do {
             let response = try request.parameter(of: ConfirmationResponse.self, at: 0)
-            
+
             if response.ok {
                 try delegate?.send(Response(url: request.url, value: "", id: request.id!), for: action)
                 return
             }
-            
+
             guard let error = response.error, !error.isEmpty else {
                 return
             }
-            
+
             delegate?.sendReject(for: request, with: error, for: action)
         } catch {
             print(error)
             delegate?.sendInvalid(request)
         }
     }
-    
+
 }

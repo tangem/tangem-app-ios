@@ -10,7 +10,7 @@ import Foundation
 
 enum AppError: Error, LocalizedError {
     case serverUnavailable
-    
+
     var errorDescription: String? {
         switch self {
         case .serverUnavailable:
