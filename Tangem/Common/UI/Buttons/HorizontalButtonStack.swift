@@ -16,10 +16,10 @@ struct HorizontalButtonStack: View {
         let action: () -> Void
         let isDisabled: Bool
     }
-    
+
     var buttons: [ButtonInfo]
     var height: CGFloat = 56
-    
+
     var body: some View {
         GeometryReader { geo in
             HStack(spacing: 0) {
@@ -77,7 +77,7 @@ struct HorizontalButtonStack: View {
                 }
             }
             .frame(width: geo.size.width, height: height)
-            
+
         }
         .font(.system(size: 17))
         .foregroundColor(Color.white)
@@ -102,7 +102,7 @@ struct TwinButton_Previews: PreviewProvider {
                 .init(imageName: "arrow.right",
                       title: "Send",
                       action: {},
-                      isDisabled: false)
+                      isDisabled: false),
             ])
             HorizontalButtonStack(buttons: [
                 .init(imageName: "arrow.up",
@@ -112,13 +112,13 @@ struct TwinButton_Previews: PreviewProvider {
                 .init(imageName: "arrow.right",
                       title: "Send",
                       action: {},
-                      isDisabled: true)
+                      isDisabled: true),
             ])
             HorizontalButtonStack(buttons: [
                 .init(imageName: "arrow.right",
                       title: "Send",
                       action: {},
-                      isDisabled: true)
+                      isDisabled: true),
             ])
         }
         .padding()

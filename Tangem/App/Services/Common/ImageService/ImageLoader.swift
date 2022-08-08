@@ -19,12 +19,12 @@ struct DownloadedImage: Equatable {
 class ImageLoader {
     enum ImageLoaderError: String, Error, LocalizedError {
         case failed = "Failed to parse image from response"
-        
+
         var errorDescription: String? {
             self.rawValue
         }
     }
-    
+
     static let service: ImageLoader = {
         ImageLoader()
     }()
