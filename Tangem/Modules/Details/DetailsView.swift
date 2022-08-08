@@ -49,7 +49,7 @@ struct DetailsView: View {
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text("wallet_connect_title")
-                            .style(font: .body(), color: Colors.Text.primary1)
+                            .style(.body(), color: Colors.Text.primary1)
 
                         Text("wallet_connect_subtitle")
                             .style(.footnote(), color: Colors.Text.tertiary)
