@@ -98,6 +98,7 @@ class DetailsViewModel: ObservableObject {
     }
 
     func prepareBackup() {
+        Analytics.log(.backupTapped)
         onboardingStepsSetupService.backupSteps(cardModel.cardInfo)
             .sink { completion in
                 switch completion {
@@ -153,10 +154,12 @@ extension DetailsViewModel {
     }
 
     func openCardSettings() {
+        Analytics.log(.cardSettingsTapped)
         coordinator.openScanCardSettings()
     }
 
     func openAppSettings() {
+        Analytics.log(.appSettingsTapped)
         coordinator.openAppSettings()
     }
 

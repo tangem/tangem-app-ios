@@ -120,6 +120,7 @@ extension WelcomeCoordinator: WelcomeRoutable {
             }
         }
 
+        Analytics.log(.mainPageEnter)
         let coordinator = MainCoordinator(popToRootAction: popToRootAction)
         let options = MainCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)

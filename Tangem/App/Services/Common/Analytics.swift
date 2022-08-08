@@ -17,8 +17,17 @@ import Amplitude
 import TangemSdk
 
 class Analytics {
-    static func log(_ event: Event, params: [ParameterKey: ParameterValue]) {
-        log(event: event, with: params.mapValues { $0.rawValue })
+    static func log(_ event: Event, params: [ParameterKey: String] = [:]) {
+        let compatibles = event.analyticsSystems()
+        for compatible in compatibles {
+            switch compatible {
+            case .appsflyer, .firebase:
+                log(event: event, with: params)
+            case .amplitude:
+                let convertParams = params.reduce(into: [:]) { $0[$1.key.rawValue] = $1.value }
+                logAmplitude(event, params: convertParams)
+            }
+        }
     }
 
     static func log(event: Event, with params: [ParameterKey: Any]? = nil) {
@@ -27,7 +36,6 @@ class Analytics {
         let values = params?.firebaseParams
         FirebaseAnalytics.Analytics.logEvent(key, parameters: values)
         AppsFlyerLib.shared().logEvent(key, withValues: values)
-        Amplitude.instance().logEvent(key, withEventProperties: values)
         #endif
     }
 
@@ -142,6 +150,12 @@ class Analytics {
     }
     #endif
 
+    static func logAmplitude(_ event: Event, params: [String: String] = [:]) {
+        #if !CLIP
+        Amplitude.instance().logEvent(event.rawValue.camelCaseToSnakeCase(), withEventProperties: params)
+        #endif
+    }
+
     private static func collectCardData(_ card: Card, additionalParams: [ParameterKey: Any] = [:]) -> [ParameterKey: Any] {
         var params = additionalParams
         params[.batchId] = card.batchId
@@ -169,6 +183,66 @@ extension Analytics {
         case getACard = "get_card"
         case demoActivated = "demo_mode_activated"
 
+        // MARK: - Amplitude
+        case viewStoryIntro
+        case viewStoryWallet
+        case viewStoryKeys
+        case viewStoryCurrencies
+        case viewStoryDefi
+        case viewStoryEverybody
+        case tokenListTapped
+        case searchToken
+        case buyBottomTapped
+        case firstScan
+        case secondScan
+        case supportTapped
+        case tryAgainTapped
+        case createWalletTapped
+        case backupTapped
+        case backupLaterTapped
+        case firstCardScan
+        case addBackupCard
+        case backupFinish
+        case createAccessCode
+        case accessCodeConfirm
+        case cardCodeSave
+        case backupCardSave
+        case onboardingSuccess
+        case mainPageEnter
+        case mainPageRefresh
+        case currencyTypeTapped
+        case currencyTypeChanged
+        case settingsTapped
+        case manageTokensTapped
+        case tokenTapped
+        case scanCardTapped
+        case chatTapped
+        case wcTapped
+        case factoryResetTapped
+        case factoryResetSuccess
+        case createBackupTapped
+        case makeCommentTapped
+        case walletConnectSuccessResponse
+        case walletConnectInvalidRequest
+        case walletConnectNewSession
+        case walletConnectSessionDisconnected
+        case tokenSearch
+        case tokenSwitchOn
+        case tokenSwitchOff
+        case tokenListSave
+        case сustomTokenTapped
+        case customTokenSave
+        case removeTokenTapped
+        case copyAddressTapped
+        case shareAddressTapped
+        case exploreAddressTapped
+        case cardSettingsTapped
+        case appSettingsTapped
+        case buyTokenTapped
+        case p2pInstructionTapped
+        case sendTokenTapped
+
+        // MARK: -
         fileprivate static var nfcError: String {
             "nfc_error"
         }
@@ -206,11 +280,21 @@ extension Analytics {
         case currencyCode = "currency_code"
         case source = "source"
         case cardId = "cardId"
+        case tokenName = "token_name"
+        case type
+        case currency
+        case success
     }
 
     enum ParameterValue: String {
         case welcome
         case walletOnboarding = "wallet_onboarding"
+    }
+
+    enum AnalyticSystem {
+        case firebase
+        case amplitude
+        case appsflyer
     }
 
     #if !CLIP
@@ -223,6 +307,90 @@ extension Analytics {
         case error(Error, WalletConnectAction?), session(SessionEvent, URL), action(WalletConnectAction), invalidRequest(json: String?)
     }
     #endif
+}
+
+//  MARK: - Amplitude events
+extension Analytics.Event {
+    func analyticsSystems() -> [Analytics.AnalyticSystem] {
+        switch self {
+        case .viewStoryIntro,
+             .viewStoryWallet,
+             .viewStoryKeys,
+             .viewStoryCurrencies,
+             .viewStoryDefi,
+             .viewStoryEverybody,
+             .tokenListTapped,
+             .searchToken,
+             .buyBottomTapped,
+             .firstScan,
+             .secondScan,
+             .supportTapped,
+             .tryAgainTapped,
+             .createWalletTapped,
+             .backupTapped,
+             .backupLaterTapped,
+             .firstCardScan,
+             .addBackupCard,
+             .backupFinish,
+             .createAccessCode,
+             .accessCodeConfirm,
+             .cardCodeSave,
+             .backupCardSave,
+             .onboardingSuccess,
+             .mainPageEnter,
+             .mainPageRefresh,
+             .currencyTypeTapped,
+             .currencyTypeChanged,
+             .settingsTapped,
+             .manageTokensTapped,
+             .tokenTapped,
+             .scanCardTapped,
+             .chatTapped,
+             .wcTapped,
+             .factoryResetTapped,
+             .factoryResetSuccess,
+             .createBackupTapped,
+             .makeCommentTapped,
+             .walletConnectSuccessResponse,
+             .walletConnectInvalidRequest,
+             .walletConnectNewSession,
+             .walletConnectSessionDisconnected,
+             .tokenSearch,
+             .tokenSwitchOn,
+             .tokenSwitchOff,
+             .tokenListSave,
+             .сustomTokenTapped,
+             .customTokenSave,
+             .removeTokenTapped,
+             .copyAddressTapped,
+             .shareAddressTapped,
+             .buyTokenTapped,
+             .p2pInstructionTapped,
+             .exploreAddressTapped,
+             .cardSettingsTapped,
+             .appSettingsTapped,
+             .sendTokenTapped:
+            return [.amplitude]
+        case .transactionIsSent:
+            return [.firebase, .appsflyer, .amplitude]
+        case .cardIsScanned,
+             .transactionIsPushed,
+             .readyToScan,
+             .displayRateAppWarning,
+             .negativeRateAppFeedback,
+             .positiveRateAppFeedback,
+             .dismissRateAppWarning,
+             .wcSuccessResponse,
+             .wcInvalidRequest,
+             .wcNewSession,
+             .wcSessionDisconnected,
+             .userBoughtCrypto,
+             .userSoldCrypto,
+             .getACard,
+             .demoActivated:
+            return [.firebase, .appsflyer]
+        }
+    }
 }
 
 fileprivate extension Dictionary where Key == Analytics.ParameterKey, Value == Any {
