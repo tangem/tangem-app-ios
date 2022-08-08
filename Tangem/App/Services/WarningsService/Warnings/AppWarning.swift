@@ -29,7 +29,8 @@ enum WarningsLocation: String, Decodable {
     case send
 }
 
-struct AppWarning: Decodable, Hashable {
+struct AppWarning: Identifiable, Equatable, Hashable {
+    let id: UUID = .init()
     let title: String
     let message: String
     let priority: WarningPriority
@@ -51,4 +52,6 @@ struct AppWarning: Decodable, Hashable {
         self.blockchains = blockchains
         self.event = event
     }
+    
+    haser
 }
