@@ -38,21 +38,8 @@ class CommonUserWalletListService: UserWalletListService {
             CardViewModel(userWallet: $0)
         }
 
-        singleCurrencyModels = cardViewModels.filter {
-            if case .note = $0.userWallet.walletData {
-                return true
-            } else {
-                return false
-            }
-        }
-
-        multiCurrencyModels = cardViewModels.filter {
-            if case .note = $0.userWallet.walletData {
-                return false
-            } else {
-                return true
-            }
-        }
+        multiCurrencyModels = cardViewModels.filter { $0.userWallet.isMultiCurrency }
+        singleCurrencyModels = cardViewModels.filter { !$0.userWallet.isMultiCurrency }
     }
 
     func initialize() {
@@ -60,10 +47,13 @@ class CommonUserWalletListService: UserWalletListService {
     }
 
     func deleteWallet(_ userWallet: UserWallet) {
+        let userWalletId = userWallet.userWalletId
         var userWallets = savedUserWallets()
         userWallets.removeAll {
-            $0.userWalletId == userWallet.userWalletId
+            $0.userWalletId == userWalletId
         }
+        multiCurrencyModels.removeAll { $0.userWallet.userWalletId == userWalletId }
+        singleCurrencyModels.removeAll { $0.userWallet.userWalletId == userWalletId }
         saveUserWallets(userWallets)
     }
 
@@ -75,6 +65,12 @@ class CommonUserWalletListService: UserWalletListService {
 
         userWallets.append(userWallet)
         saveUserWallets(userWallets)
+
+        if userWallet.isMultiCurrency {
+            multiCurrencyModels.append(.init(userWallet: userWallet))
+        } else {
+            singleCurrencyModels.append(.init(userWallet: userWallet))
+        }
 
         return true
     }
@@ -113,6 +109,16 @@ class CommonUserWalletListService: UserWalletListService {
             AppSettings.shared.userWallets = data
         } catch {
             print(error)
+        }
+    }
+}
+
+fileprivate extension UserWallet {
+    var isMultiCurrency: Bool {
+        if case .note = self.walletData {
+            return false
+        } else {
+            return true
         }
     }
 }
