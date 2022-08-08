@@ -373,6 +373,8 @@ This disclaimer was amended for the last time on October 1st, 2020.";
 для
 %@
 
+СЕТЬ: %@
+
 URL: %@";
 "wallet_connect_scan_card_message" = "Прислоните карту, чтобы привязать ее к кошельку.";
 "wallet_connect_scan_new_code" = "Сканировать новый код";
@@ -523,4 +525,4 @@ URL: %@";
 "reset_card_to_factory_button_title" = "Сбросить карту";
 "wallet_connect_title" = "WalletConnect";
 "wallet_connect_subtitle" = "Подключение к Dapps";
-
+"wallet_connect_select_network" = "Выберите сеть";
