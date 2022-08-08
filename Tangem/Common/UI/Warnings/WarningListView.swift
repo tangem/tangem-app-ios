@@ -12,9 +12,9 @@ struct WarningListView: View {
     var warnings: WarningsContainer
     var warningButtonAction: (Int, WarningPriority, WarningButton) -> Void
     var spacing: CGFloat = 10
-    
+
     private let transition = AnyTransition.scale.combined(with: .opacity)
-    
+
     var body: some View {
         Group {
             ForEach(Array(warnings.criticals.enumerated()), id: \.element) { (i, item) in
@@ -37,7 +37,7 @@ struct WarningListView: View {
             }
         }
     }
-    
+
     private func buttonAction(at index: Int, priority: WarningPriority, button: WarningButton) {
         withAnimation {
             self.warningButtonAction(index, priority, button)
@@ -47,11 +47,11 @@ struct WarningListView: View {
 
 struct WarningListView_Previews: PreviewProvider {
     static let container: WarningsContainer = .init(
-        criticals: [ AppWarning(title: "Warning", message: "Blockchain is currently unavailable", priority: .critical, type: .permanent)],
+        criticals: [AppWarning(title: "Warning", message: "Blockchain is currently unavailable", priority: .critical, type: .permanent)],
         warnings: [AppWarning(title: "Attention!", message: "Something huuuuuge is going to happen!", priority: .warning, type: .permanent)],
         infos: [AppWarning(title: "Good news, everyone!", message: "New Tangem Cards available. Visit our web site to learn more", priority: .info, type: .temporary)]
     )
-    
+
     @ObservedObject static var warnings: WarningsContainer = container
     static var previews: some View {
         ScrollView {
@@ -59,9 +59,9 @@ struct WarningListView_Previews: PreviewProvider {
                 warningButtonAction(at: index, priority: priority)
             })
         }
-        
+
     }
-    
+
     static func warningButtonAction(at index: Int, priority: WarningPriority) {
         let warning: AppWarning
         switch priority {
@@ -72,7 +72,7 @@ struct WarningListView_Previews: PreviewProvider {
         case .warning:
             warning = warnings.warnings[index]
         }
-        
+
         container.remove(warning)
     }
 }

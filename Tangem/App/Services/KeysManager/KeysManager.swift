@@ -16,10 +16,11 @@ protocol KeysManager {
     var mercuryoSecret: String { get }
     var blockchainConfig: BlockchainSdkConfig { get }
     var shopifyShop: ShopifyShop { get }
+    var zendesk: ZendeskConfig { get }
 }
 
 private struct KeysManagerKey: InjectionKey {
-    static var currentValue: KeysManager = CommonKeysManager()
+    static var currentValue: KeysManager = try! CommonKeysManager()
 }
 
 extension InjectedValues {
