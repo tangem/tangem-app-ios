@@ -34,7 +34,7 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
         do {
             let transaction = try request.parameter(of: WalletConnectEthTransaction.self, at: 0)
 
-            guard let session = dataSource?.session(for: request, address: transaction.from) else {
+            guard let session = dataSource?.session(for: request) else {
                 delegate?.sendReject(for: request, with: WalletConnectServiceError.sessionNotFound, for: action)
                 return nil
             }
