@@ -48,8 +48,9 @@ class MainViewModel: ObservableObject {
 
     // MARK: Variables
     var isLoadingTokensBalance: Bool = false
+
     lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
-        isSingleCoinCard: !cardModel.cardInfo.isMultiWallet,
+        isSingleCoinCard: !cardModel.config.hasFeature(.manageTokens),
         tapOnCurrencySymbol: openCurrencySelection
     )
 
@@ -64,7 +65,7 @@ class MainViewModel: ObservableObject {
     private unowned let coordinator: MainRoutable
 
     public var canSend: Bool {
-        guard cardModel.config.features.contains(.signingSupported) else {
+        guard cardModel.config.hasFeature(.signing) else {
             return false
         }
 
@@ -145,7 +146,15 @@ class MainViewModel: ObservableObject {
     }
 
     var isMultiWalletMode: Bool {
-        cardModel.config.features.contains(.manageTokensAllowed)
+        cardModel.config.hasFeature(.manageTokens)
+    }
+
+    var canShowAddress: Bool {
+        cardModel.config.hasFeature(.showAddress)
+    }
+
+    var canShowSend: Bool {
+        cardModel.config.getFeatureAvailability(.signing).isHidden
     }
 
     init(cardModel: CardViewModel, coordinator: MainRoutable) {
@@ -396,10 +405,10 @@ class MainViewModel: ObservableObject {
     private func validateHashesCount() {
         let card = cardModel.cardInfo.card
 
-        guard cardModel.config.features.contains(.signedHashesCounterAvailable) else { return }
+        guard cardModel.config.hasFeature(.signedHashesCounter) else { return }
 
         guard cardModel.hasWallet else {
-            if cardModel.config.features.contains(.manageTokensAllowed) {
+            if cardModel.config.hasFeature(.manageTokens) {
                 warningsService.hideWarning(for: .multiWalletSignedHashes)
             } else {
                 warningsService.hideWarning(for: .numberOfSignedHashesIncorrect)
@@ -409,11 +418,11 @@ class MainViewModel: ObservableObject {
 
         if isHashesCounted { return }
 
-        if !cardModel.config.features.contains(.signedHashesCounterAvailable) { return }
+        if !cardModel.config.hasFeature(.signedHashesCounter) { return }
 
         if AppSettings.shared.validatedSignedHashesCards.contains(card.cardId) { return }
 
-        if cardModel.config.features.contains(.manageTokensAllowed) {
+        if cardModel.config.hasFeature(.manageTokens) {
             if cardModel.cardInfo.card.wallets.filter({ $0.totalSignedHashes ?? 0 > 0 }).count > 0 {
                 withAnimation {
                     warningsService.appendWarning(for: .multiWalletSignedHashes)
@@ -538,8 +547,8 @@ extension MainViewModel {
     }
 
     func openSellCrypto() {
-        if let disabledFeatureReason = cardModel.config.disabledFeatureReason {
-            error = AlertBuilder.makeDemoAlert()
+        if let disabledLocalizedReason = cardModel.config.getFeatureAvailability(.exchange).disabledLocalizedReason {
+            error = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
         }
 
@@ -551,17 +560,17 @@ extension MainViewModel {
     }
 
     func openBuyCrypto() {
-        if cardModel.cardInfo.card.isDemoCard  {
-            error = AlertBuilder.makeDemoAlert()
+        if let disabledLocalizedReason = cardModel.config.getFeatureAvailability(.exchange).disabledLocalizedReason {
+            error = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
         }
-        
+
         if let walletModel = cardModel.walletModels?.first,
            walletModel.wallet.blockchain == .ethereum(testnet: true),
            let token = walletModel.wallet.amounts.keys.compactMap({ $0.token }).first {
             testnetBuyCryptoService.buyCrypto(.erc20Token(token, walletManager: walletModel.walletManager, signer: cardModel.signer))
         }
-        
+
         if let url = buyCryptoURL {
             coordinator.openBuyCrypto(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
                 self?.sendAnalyticsEvent(.userBoughtCrypto)
