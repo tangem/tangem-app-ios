@@ -73,7 +73,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openMail(with dataCollector: EmailDataCollector, support: EmailSupport, emailType: EmailType) {
-        Analytics.log(.makeComment, params: [:])
+        Analytics.log(.makeCommentTapped)
         mailViewModel = MailViewModel(dataCollector: dataCollector, support: support, emailType: emailType)
     }
 
