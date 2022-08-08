@@ -90,13 +90,6 @@ extension Start2CoinConfig: UserWalletConfig {
         .full
     }
 
-    var features: Set<UserWalletFeature> {
-        var features = Set<UserWalletFeature>()
-        features.insert(.signingSupported)
-        features.insert(.signedHashesCounterAvailable)
-        return features
-    }
-
     var defaultCurve: EllipticCurve? {
         defaultBlockchain.curve
     }
@@ -127,10 +120,43 @@ extension Start2CoinConfig: UserWalletConfig {
     var persistentBlockchains: [StorageEntry]? {
         return nil
     }
-    
+
     var embeddedBlockchain: StorageEntry? {
         return defaultBlockchains.first
     }
-    
-    var disabledFeatureReason: String? { nil }
+
+    func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
+        switch feature {
+        case .signing:
+            return .available
+        case .signedHashesCounter:
+            return .available
+        case .accessCode:
+            return .unavailable
+        case .passcode:
+            return .unavailable
+        case .longHashes:
+            return .unavailable
+        case .backup:
+            return .unavailable
+        case .twinning:
+            return .unavailable
+        case .sendingToPayID:
+            return .unavailable
+        case .exchange:
+            return .unavailable
+        case .walletConnect:
+            return .unavailable
+        case .manageTokens:
+            return .unavailable
+        case .activation:
+            return .unavailable
+        case .tokensSearch:
+            return .unavailable
+        case .resetToFactory:
+            return .unavailable
+        case .showAddress:
+            return .available
+        }
+    }
 }
