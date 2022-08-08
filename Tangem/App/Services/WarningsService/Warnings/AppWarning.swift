@@ -52,6 +52,12 @@ struct AppWarning: Identifiable, Equatable, Hashable {
         self.blockchains = blockchains
         self.event = event
     }
-    
-    haser
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+
+    static func == (lhs: AppWarning, rhs: AppWarning) -> Bool {
+        lhs.id == rhs.id
+    }
 }
