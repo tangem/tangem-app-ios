@@ -35,6 +35,8 @@ struct DummyConfig: UserWalletConfig {
 
     var embeddedBlockchain: StorageEntry? { nil }
 
+    var warningEvents: [WarningEvent] { [] }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         return .available
     }

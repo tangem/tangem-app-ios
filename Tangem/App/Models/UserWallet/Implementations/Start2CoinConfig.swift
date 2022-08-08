@@ -125,6 +125,8 @@ extension Start2CoinConfig: UserWalletConfig {
         return defaultBlockchains.first
     }
 
+    var warningEvents: [WarningEvent] { getBaseWarningEvents(for: card) }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .signing:
@@ -156,6 +158,8 @@ extension Start2CoinConfig: UserWalletConfig {
         case .resetToFactory:
             return .unavailable
         case .showAddress:
+            return .available
+        case .withdrawal:
             return .available
         }
     }
