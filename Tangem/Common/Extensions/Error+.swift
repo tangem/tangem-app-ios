@@ -13,7 +13,7 @@ import SwiftUI
 extension Error {
     var detailedError: Error {
         if case let .underlying(uError, _) = self as? MoyaError,
-            case let .sessionTaskFailed(sessionError) = uError.asAFError {
+           case let .sessionTaskFailed(sessionError) = uError.asAFError {
             return sessionError
         }
         return self
@@ -30,13 +30,13 @@ extension Error {
     var alertBinder: AlertBinder {
         return AlertBinder(alert: alert, error: self)
     }
-    
+
     var alert: Alert {
         return Alert(title: Text(alertTitle),
                      message: Text(self.localizedDescription),
                      dismissButton: Alert.Button.default(Text(okButtonTitle)))
     }
-    
+
     var alertController: UIAlertController {
         let vc = UIAlertController(title: alertTitle, message: localizedDescription, preferredStyle: .alert)
         vc.addAction(UIAlertAction(title: okButtonTitle, style: .destructive, handler: nil))
