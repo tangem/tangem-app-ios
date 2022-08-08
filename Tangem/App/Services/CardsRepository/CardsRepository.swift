@@ -10,12 +10,10 @@ import Foundation
 import Combine
 
 protocol CardsRepository {
-    var lastScanResult: ScanResult { get set }
-    
     var didScanPublisher: PassthroughSubject<CardInfo, Never> { get }
-    
-    func scan(with batch: String?, _ completion: @escaping (Result<ScanResult, Error>) -> Void)
-    func scanPublisher(with batch: String?) ->  AnyPublisher<ScanResult, Error>
+
+    func scan(with batch: String?, _ completion: @escaping (Result<CardViewModel, Error>) -> Void)
+    func scanPublisher(with batch: String?) ->  AnyPublisher<CardViewModel, Error>
 }
 
 private struct CardsRepositoryKey: InjectionKey {
@@ -30,7 +28,7 @@ extension InjectedValues {
 }
 
 extension CardsRepository {
-    func scanPublisher(with batch: String? = nil) ->  AnyPublisher<ScanResult, Error> {
+    func scanPublisher(with batch: String? = nil) ->  AnyPublisher<CardViewModel, Error> {
         scanPublisher(with: batch)
     }
 }
