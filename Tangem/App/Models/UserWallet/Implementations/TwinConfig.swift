@@ -43,22 +43,6 @@ extension TwinConfig: UserWalletConfig {
         .lastLunh(4)
     }
 
-    var features: Set<UserWalletFeature> {
-        var features = Set<UserWalletFeature>()
-        features.insert(.sendingToPayIDAllowed)
-        features.insert(.exchangingAllowed)
-        features.insert(.signingSupported)
-        features.insert(.activation)
-        features.insert(.twinning)
-        features.insert(.signingSupported)
-
-        if twinData.pairPublicKey != nil {
-            features.insert(.settingPasscodeAllowed)
-        }
-
-        return features
-    }
-
     var defaultCurve: EllipticCurve? {
         defaultBlockchain.curve
     }
@@ -110,10 +94,47 @@ extension TwinConfig: UserWalletConfig {
     var persistentBlockchains: [StorageEntry]? {
         return nil
     }
-    
+
     var embeddedBlockchain: StorageEntry? {
         return defaultBlockchains.first
     }
-    
-    var disabledFeatureReason: String? { nil }
+
+    func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
+        switch feature {
+        case .accessCode:
+            return .unavailable
+        case .passcode:
+            if twinData.pairPublicKey != nil {
+                return .available
+            }
+
+            return .disabled()
+        case .signing:
+            return .available
+        case .longHashes:
+            return .unavailable
+        case .signedHashesCounter:
+            return .unavailable
+        case .backup:
+            return .unavailable
+        case .twinning:
+            return .available
+        case .sendingToPayID:
+            return .available
+        case .exchange:
+            return .available
+        case .walletConnect:
+            return .unavailable
+        case .manageTokens:
+            return .unavailable
+        case .activation:
+            return .available
+        case .tokensSearch:
+            return .unavailable
+        case .resetToFactory:
+            return .available
+        case .showAddress:
+            return .available
+        }
+    }
 }
