@@ -130,6 +130,18 @@ extension GenericConfig: UserWalletConfig {
         return nil
     }
 
+    var warningEvents: [WarningEvent] {
+        var warnings = getBaseWarningEvents(for: card)
+
+        if card.isTestnet {
+            warnings.append(.testnetCard)
+        } else if isDemoCard {
+            warnings.append(.demoCard)
+        }
+
+        return warnings
+    }
+
     func selectBlockchain(for dAppInfo: Session.DAppInfo) -> BlockchainNetwork? {
         guard hasFeature(.walletConnect) else { return nil }
 
@@ -203,11 +215,9 @@ extension GenericConfig: UserWalletConfig {
             return .available
         case .showAddress:
             return .available
+        case .withdrawal:
+            return .available
         }
-    }
-    
-    var shouldLogDemoActivated: Bool {
-        isDemoCard
     }
 }
 
