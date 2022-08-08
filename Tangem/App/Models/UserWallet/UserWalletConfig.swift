@@ -11,7 +11,7 @@ import TangemSdk
 import BlockchainSdk
 import WalletConnectSwift
 
-protocol UserWalletConfig: WalletConnectNetworkSelector, DemoPresentable {
+protocol UserWalletConfig: WalletConnectNetworkSelector, WarningsProvider {
     var emailConfig: EmailConfig { get }
     var touURL: URL? { get }
     var cardSetLabel: String? { get }
@@ -36,12 +36,26 @@ protocol UserWalletConfig: WalletConnectNetworkSelector, DemoPresentable {
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability
 }
 
-protocol DemoPresentable {
-    var shouldLogDemoActivated: Bool { get }
+protocol WarningsProvider {
+    var warningEvents: [WarningEvent] { get }
 }
 
-extension DemoPresentable {
-    var shouldLogDemoActivated: Bool { false }
+extension WarningsProvider {
+    func getBaseWarningEvents(for card: Card) -> [WarningEvent] {
+        var warnings: [WarningEvent] = []
+
+        if card.firmwareVersion.type != .sdk &&
+            card.attestation.status == .failed {
+            warnings.append(.failedToValidateCard)
+        }
+
+        if let remainingSignatures = card.wallets.first?.remainingSignatures,
+           remainingSignatures <= 10 {
+            warnings.append(.lowSignatures(count: remainingSignatures))
+        }
+
+        return warnings
+    }
 }
 
 protocol WalletConnectNetworkSelector {
