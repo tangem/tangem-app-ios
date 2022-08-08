@@ -17,7 +17,7 @@ struct NoteConfig {
     private var isDemoCard: Bool {
         DemoUtil().isDemoCard(cardId: card.cardId)
     }
-    
+
     init(card: Card, noteData: WalletData) {
         self.card = card
         self.noteData = noteData
@@ -45,16 +45,6 @@ extension NoteConfig: UserWalletConfig {
 
     var cardIdDisplayFormat: CardIdDisplayFormat {
         .full
-    }
-
-    var features: Set<UserWalletFeature> {
-        var features = Set<UserWalletFeature>()
-        features.insert(.sendingToPayIDAllowed)
-        features.insert(.exchangingAllowed)
-        features.insert(.signedHashesCounterAvailable)
-        features.insert(.activation)
-        features.insert(.signingSupported)
-        return features
     }
 
     var defaultCurve: EllipticCurve? {
@@ -91,14 +81,51 @@ extension NoteConfig: UserWalletConfig {
     var persistentBlockchains: [StorageEntry]? {
         return nil
     }
-    
+
     var embeddedBlockchain: StorageEntry? {
         return defaultBlockchains.first
     }
-    
-    var disabledFeatureReason: String? {
-        if isDemoCard {
-            return "alert_demo_feature_disabled".localized
+
+    func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
+        switch feature {
+        case .accessCode:
+            return .unavailable
+        case .passcode:
+            return .unavailable
+        case .signing:
+            return .available
+        case .longHashes:
+            return .unavailable
+        case .signedHashesCounter:
+            return .available
+        case .backup:
+            return .unavailable
+        case .twinning:
+            return .unavailable
+        case .sendingToPayID:
+            return .available
+        case .exchange:
+            if isDemoCard {
+                return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
+            }
+
+            return .available
+        case .walletConnect:
+            return .unavailable
+        case .manageTokens:
+            return .unavailable
+        case .activation:
+            return .available
+        case .tokensSearch:
+            return .unavailable
+        case .resetToFactory:
+            return .available
+        case .showAddress:
+            return .available
         }
+    }
+    
+    var shouldLogDemoActivated: Bool {
+        isDemoCard
     }
 }
