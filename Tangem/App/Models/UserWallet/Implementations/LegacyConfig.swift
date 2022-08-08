@@ -22,7 +22,7 @@ struct LegacyConfig {
 
     private var defaultToken: BlockchainSdk.Token? {
         guard let token = walletData.token else { return nil }
-        
+
         return .init(name: token.name,
                      symbol: token.symbol,
                      contractAddress: token.contractAddress,
@@ -52,27 +52,6 @@ extension LegacyConfig: UserWalletConfig {
         .full
     }
 
-    var features: Set<UserWalletFeature> {
-        var features = Set<UserWalletFeature>()
-        features.insert(.sendingToPayIDAllowed)
-        features.insert(.exchangingAllowed)
-
-        if card.supportedCurves.contains(.secp256k1) {
-            features.insert(.walletConnectAllowed)
-            features.insert(.manageTokensAllowed)
-            features.insert(.tokensSearch)
-        } else {
-            features.insert(.signedHashesCounterAvailable)
-        }
-
-        if card.firmwareVersion.doubleValue >= 2.28
-            || card.settings.securityDelay <= 15000 {
-            features.insert(.signingSupported)
-        }
-
-        return features
-    }
-
     var defaultCurve: EllipticCurve? {
         defaultBlockchain.curve
     }
@@ -90,7 +69,7 @@ extension LegacyConfig: UserWalletConfig {
     }
 
     var supportedBlockchains: Set<Blockchain> {
-        if features.contains(.manageTokensAllowed) {
+        if hasFeature(.manageTokens) {
             let allBlockchains = defaultBlockchain.isTestnet ? Blockchain.supportedTestnetBlockchains
                 : Blockchain.supportedBlockchains
 
@@ -111,15 +90,13 @@ extension LegacyConfig: UserWalletConfig {
     var persistentBlockchains: [StorageEntry]? {
         return nil
     }
-    
+
     var embeddedBlockchain: StorageEntry? {
         return defaultBlockchains.first
     }
 
-    var disabledFeatureReason: String? { nil }
-    
     func selectBlockchain(for dAppInfo: Session.DAppInfo) -> BlockchainNetwork? {
-        guard features.contains(.walletConnectAllowed) else { return nil }
+        guard hasFeature(.walletConnect) else { return nil }
 
         guard let blockchain = WalletConnectNetworkParserUtility.parse(dAppInfo: dAppInfo,
                                                                        isTestnet: defaultBlockchain.isTestnet) else {
@@ -129,5 +106,49 @@ extension LegacyConfig: UserWalletConfig {
         let derivationPath = blockchain.derivationPath(for: card.derivationStyle)
         let network = BlockchainNetwork(blockchain, derivationPath: derivationPath)
         return network
+    }
+
+    func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
+        switch feature {
+        case .accessCode:
+            return .disabled()
+        case .passcode:
+            return .disabled()
+        case .signing:
+            if card.firmwareVersion.doubleValue >= 2.28
+                || card.settings.securityDelay <= 15000 {
+                return .available
+            }
+
+            return .disabled()
+        case .longHashes:
+            return .unavailable
+        case .signedHashesCounter:
+            if card.supportedCurves.contains(.secp256k1) {
+                return .unavailable
+            } else {
+                return .available
+            }
+        case .backup:
+            return .unavailable
+        case .twinning:
+            return .unavailable
+        case .sendingToPayID:
+            return .available
+        case .exchange:
+            return .available
+        case .walletConnect, .manageTokens, .tokensSearch:
+            if card.supportedCurves.contains(.secp256k1) {
+                return .available
+            } else {
+                return .unavailable
+            }
+        case .activation:
+            return .unavailable
+        case .resetToFactory:
+            return .available
+        case .showAddress:
+            return .available
+        }
     }
 }
