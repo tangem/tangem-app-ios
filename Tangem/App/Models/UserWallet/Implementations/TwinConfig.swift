@@ -19,6 +19,10 @@ struct TwinConfig {
         Blockchain.from(blockchainName: walletData.blockchain, curve: card.supportedCurves[0])!
     }
 
+    private var isTestnet: Bool {
+        defaultBlockchain.isTestnet
+    }
+
     init(card: Card, walletData: WalletData, twinData: TwinCardInfo) {
         self.card = card
         self.walletData = walletData
@@ -99,6 +103,16 @@ extension TwinConfig: UserWalletConfig {
         return defaultBlockchains.first
     }
 
+    var warningEvents: [WarningEvent] {
+        var warnings = getBaseWarningEvents(for: card)
+
+        if isTestnet {
+            warnings.append(.testnetCard)
+        }
+
+        return warnings
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
@@ -134,6 +148,8 @@ extension TwinConfig: UserWalletConfig {
         case .resetToFactory:
             return .available
         case .showAddress:
+            return .available
+        case .withdrawal:
             return .available
         }
     }
