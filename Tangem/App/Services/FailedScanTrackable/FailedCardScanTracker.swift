@@ -23,7 +23,7 @@ class FailedCardScanTracker: EmailDataCollector, FailedScanTrackable {
         numberOfFailedAttempts >= 2
     }
 
-    private var numberOfFailedAttempts: Int = 0
+    private(set) var numberOfFailedAttempts: Int = 0
 
     func resetCounter() {
         numberOfFailedAttempts = 0
