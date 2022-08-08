@@ -9,8 +9,12 @@
 import Foundation
 
 enum EmailType {
-    case negativeRateAppFeedback, failedToScanCard, failedToSendTx, failedToPushTx, appFeedback(support: EmailSupport)
-    
+    case negativeRateAppFeedback
+    case failedToScanCard
+    case failedToSendTx
+    case failedToPushTx
+    case appFeedback(support: EmailSupport)
+
     var emailSubject: String {
         switch self {
         case .negativeRateAppFeedback: return "feedback_subject_rate_negative".localized
@@ -23,11 +27,11 @@ enum EmailType {
             case .start2coin:
                 return "feedback_subject_support".localized
             }
-            
+
         case .failedToPushTx: return  "feedback_subject_tx_push_failed".localized
         }
     }
-    
+
     var emailPreface: String {
         switch self {
         case .negativeRateAppFeedback: return "feedback_preface_rate_negative".localized
@@ -37,7 +41,7 @@ enum EmailType {
         case .failedToPushTx: return "feedback_preface_tx_push_failed".localized
         }
     }
-    
+
     var dataCollectionMessage: String {
         switch self {
         case .failedToScanCard: return ""
@@ -45,63 +49,89 @@ enum EmailType {
             return "feedback_data_collection_message".localized
         }
     }
-    
+
     var sentEmailAlertTitle: String {
         switch self {
         case .negativeRateAppFeedback: return "alert_negative_app_rate_sent_title".localized
         default: return "alert_app_feedback_sent_title".localized
         }
     }
-    
+
     var sentEmailAlertMessage: String {
         switch self {
         case .negativeRateAppFeedback: return "alert_negative_app_rate_sent_message".localized
         default: return "alert_app_feedback_sent_message".localized
         }
     }
-    
+
     var failedToSendAlertTitle: String {
         "alert_failed_to_send_email_title".localized
     }
-    
+
     func failedToSendAlertMessage(_ error: Error?) -> String {
         String(format: "alert_failed_to_send_email_message".localized, error?.localizedDescription ?? "Unknown error")
     }
-    
+
 }
 
 struct EmailCollectedData {
     let type: EmailCollectedDataType
     let data: String
-    
+
     static func separator(_ type: EmailCollectedDataType.SeparatorType) -> EmailCollectedData {
         EmailCollectedData(type: .separator(type), data: "")
     }
 }
 
 enum EmailCollectedDataType {
-    case logs, card(CardData), send(SendData), wallet(WalletData), error, separator(SeparatorType), token(TokenData)
-    
+    case logs
+    case card(CardData)
+    case send(SendData)
+    case wallet(WalletData)
+    case error
+    case separator(SeparatorType)
+    case token(TokenData)
+
     enum CardData: String {
-        case cardId = "Card ID", firmwareVersion = "Firmware version", cardBlockchain = "Card Blockchain", blockchain, derivationPath = "Derivation path", token
+        case cardId = "Card ID"
+        case firmwareVersion = "Firmware version"
+        case cardBlockchain = "Card Blockchain"
+        case blockchain
+        case derivationPath = "Derivation path"
+        case token
     }
-    
+
     enum SendData: String {
-        case sourceAddress = "Source address", destinationAddress = "Destination address", amount, fee, transactionHex = "Transaction HEX", pushingTxHash = "Pushing Transaction Hash", pushingFee = "Pushing Transaction New Fee"
+        case sourceAddress = "Source address"
+        case destinationAddress = "Destination address"
+        case amount
+        case fee
+        case transactionHex = "Transaction HEX"
+        case pushingTxHash = "Pushing Transaction Hash"
+        case pushingFee = "Pushing Transaction New Fee"
     }
-    
+
     enum WalletData: String {
-        case walletAddress = "Wallet address", explorerLink = "Explorer link", signedHashes = "Signed hashes", walletManagerHost = "Host", outputsCount = "Outputs count", derivationPath = "Derivation path"
+        case walletAddress = "Wallet address"
+        case explorerLink = "Explorer link"
+        case signedHashes = "Signed hashes"
+        case walletManagerHost = "Host"
+        case outputsCount = "Outputs count"
+        case derivationPath = "Derivation path"
     }
-    
+
     enum TokenData: String {
-        case contractAddress = "Contract address", name = "Name", tokens = "Tokens", id = "ID"
+        case contractAddress = "Contract address"
+        case name = "Name"
+        case tokens = "Tokens"
+        case id = "ID"
     }
-    
+
     enum SeparatorType: String {
-        case dashes = "--------", newLine = "\n"
+        case dashes = "--------"
+        case newLine = "\n"
     }
-    
+
     var title: String {
         switch self {
         case .logs: return "Logs: "
