@@ -58,7 +58,7 @@ class OnboardingCoordinator: CoordinatorObject {
 extension OnboardingCoordinator {
     struct Options {
         let input: OnboardingInput
-        let shouldOpenMainOnFinished: Bool
+        let shouldOpenMainOnFinish: Bool
     }
 }
 
@@ -92,7 +92,7 @@ extension OnboardingCoordinator: WalletOnboardingRoutable {
 extension OnboardingCoordinator: OnboardingRoutable {
     func onboardingDidFinish() {
         if let card = options.input.cardInput.cardModel,
-           options.shouldOpenMainOnFinished {
+           options.shouldOpenMainOnFinish {
             openMain(with: card)
         } else {
             closeOnboarding()
