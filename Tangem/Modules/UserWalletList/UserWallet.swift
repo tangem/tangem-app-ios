@@ -169,3 +169,13 @@ extension UserWallet {
         !isTangemNote
     }
 }
+
+extension UserWallet {
+    var isMultiCurrency: Bool {
+        if case .note = self.walletData {
+            return false
+        } else {
+            return true
+        }
+    }
+}
