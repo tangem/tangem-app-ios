@@ -45,7 +45,7 @@ struct AttentionView: View {
     private var mainInformationView: some View {
         VStack(alignment: .center, spacing: 14) {
             Text(viewModel.title)
-                .style(.title1(.bold), color: Colors.Text.primary1)
+                .style(.title1(.accent), color: Colors.Text.primary1)
 
             Text(viewModel.message)
                 .style(.callout(), color: Colors.Text.secondary)
