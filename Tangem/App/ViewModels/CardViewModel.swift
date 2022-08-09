@@ -26,6 +26,7 @@ class CardViewModel: Identifiable, ObservableObject {
     @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
     @Injected(\.scannedCardsRepository) private var scannedCardsRepository: ScannedCardsRepository
+    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
 
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
@@ -597,6 +598,9 @@ class CardViewModel: Identifiable, ObservableObject {
         }
 
         scannedCardsRepository.add(cardInfo)
+
+        let userWallet = self.userWallet
+        let _ = userWalletListService.save(userWallet)
     }
 
     // MARK: - Update
