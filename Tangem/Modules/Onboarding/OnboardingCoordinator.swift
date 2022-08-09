@@ -28,12 +28,15 @@ class OnboardingCoordinator: CoordinatorObject {
     // For non-dismissable presentation
     var onDismissalAttempt: () -> Void = {}
 
+    private var options: OnboardingCoordinator.Options!
+
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
 
     func start(with options: OnboardingCoordinator.Options) {
+        self.options = options
         let input = options.input
         switch input.steps {
         case .singleWallet:
@@ -55,6 +58,7 @@ class OnboardingCoordinator: CoordinatorObject {
 extension OnboardingCoordinator {
     struct Options {
         let input: OnboardingInput
+        let shouldOpenMainOnFinished: Bool
     }
 }
 
@@ -86,6 +90,23 @@ extension OnboardingCoordinator: WalletOnboardingRoutable {
 }
 
 extension OnboardingCoordinator: OnboardingRoutable {
+    func onboardingDidFinish() {
+        if let card = options.input.cardInput.cardModel,
+           options.shouldOpenMainOnFinished {
+            openMain(with: card)
+        } else {
+            closeOnboarding()
+        }
+    }
+
+    private func openMain(with cardModel: CardViewModel) {
+        Analytics.log(.mainPageEnter)
+        let coordinator = MainCoordinator(popToRootAction: popToRootAction)
+        let options = MainCoordinator.Options(cardModel: cardModel)
+        coordinator.start(with: options)
+        mainCoordinator = coordinator
+    }
+
     func closeOnboarding() {
         dismiss()
     }
