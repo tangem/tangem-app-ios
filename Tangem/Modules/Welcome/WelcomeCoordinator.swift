@@ -87,7 +87,7 @@ extension WelcomeCoordinator: WelcomeRoutable {
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
-        let options = OnboardingCoordinator.Options(input: input, shouldOpenMainOnFinished: false)
+        let options = OnboardingCoordinator.Options(input: input, shouldOpenMainOnFinish: false)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
     }
@@ -107,7 +107,7 @@ extension WelcomeCoordinator: WelcomeRoutable {
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        let options = OnboardingCoordinator.Options(input: input, shouldOpenMainOnFinished: true)
+        let options = OnboardingCoordinator.Options(input: input, shouldOpenMainOnFinish: true)
         coordinator.start(with: options)
         pushedOnboardingCoordinator = coordinator
     }
