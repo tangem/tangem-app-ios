@@ -254,10 +254,8 @@ class CardViewModel: Identifiable, ObservableObject {
     var userWallet: UserWallet {
         // [REDACTED_TODO_COMMENT]
         let walletData: DefaultWalletData
-        if cardInfo.card.cardPublicKey == Data(hex: "020B0988E56A5271614A147C9D3585AE73D72404C2B3C08FF44DBACD196C99FDCD") {
-            walletData = .note(WalletData(blockchain: "btc", token: nil))
-        } else if cardInfo.card.cardPublicKey == Data(hex: "038E78F458D1F868115D10D7A526E38DEE9FB18094FA1EF3DCFC701B8752C4E7F2") {
-            walletData = .note(WalletData(blockchain: "doge", token: nil))
+        if let cardWalletData = cardInfo.walletData, cardWalletData.blockchain != "ANY" {
+            walletData = .note(cardWalletData)
         } else {
             walletData = .none
         }
