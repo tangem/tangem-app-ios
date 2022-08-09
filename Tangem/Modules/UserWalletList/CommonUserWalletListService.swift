@@ -57,10 +57,13 @@ class CommonUserWalletListService: UserWalletListService {
         saveUserWallets(userWallets)
     }
 
-    func saveIfNeeded(_ userWallet: UserWallet) -> Bool {
+    func contains(_ userWallet: UserWallet) -> Bool {
+        let userWallets = savedUserWallets()
+        return userWallets.contains { $0.userWalletId == userWallet.userWalletId }
+    }
+
+    func save(_ userWallet: UserWallet) -> Bool {
         var userWallets = savedUserWallets()
-        guard !userWallets.contains(where: { $0.userWalletId == userWallet.userWalletId }) else {
-            return false
         }
 
         userWallets.append(userWallet)
