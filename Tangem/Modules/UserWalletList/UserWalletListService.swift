@@ -15,7 +15,8 @@ protocol UserWalletListService: AnyObject, Initializable {
     var selectedUserWalletId: Data? { get set }
 
     func deleteWallet(_ userWallet: UserWallet)
-    func saveIfNeeded(_ userWallet: UserWallet) -> Bool
+    func contains(_ userWallet: UserWallet) -> Bool
+    func save(_ userWallet: UserWallet) -> Bool
     func setName(_ userWallet: UserWallet, name: String)
 }
 
