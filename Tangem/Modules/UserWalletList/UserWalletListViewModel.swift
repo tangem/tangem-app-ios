@@ -147,6 +147,7 @@ final class UserWalletListViewModel: ObservableObject {
             } else {
                 singleCurrencyModels.append(newModel)
             }
+            newModel.getCardInfo()
         }
 
         if selectedUserWalletId == nil {
