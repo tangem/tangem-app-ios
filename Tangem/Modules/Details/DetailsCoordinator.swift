@@ -67,7 +67,7 @@ extension DetailsCoordinator: DetailsRoutable {
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
-        let options = OnboardingCoordinator.Options(input: input, shouldOpenMainOnFinished: false)
+        let options = OnboardingCoordinator.Options(input: input, shouldOpenMainOnFinish: false)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
     }
