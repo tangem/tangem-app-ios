@@ -417,6 +417,7 @@
 		DA5FAD8A27B27F7F00EE53AE /* SheetDragHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA5FAD8927B27F7F00EE53AE /* SheetDragHandler.swift */; };
 		DA64C36D27CCAD7E005B5E9A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = DA64C36F27CCAD7E005B5E9A /* InfoPlist.strings */; };
 		DA64C37327CCB176005B5E9A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = DA64C37527CCB176005B5E9A /* InfoPlist.strings */; };
+		DA90745228A2A36100D8D67C /* CardDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA90745128A2A36100D8D67C /* CardDTO.swift */; };
 		DAA0559928744E2400E4F7B9 /* MercuryoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA0559828744E2400E4F7B9 /* MercuryoService.swift */; };
 		DAA153BC2876CBFC002254D1 /* GeoResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA153BB2876CBFC002254D1 /* GeoResponse.swift */; };
 		DAA4ACBD289D10D30030E232 /* UserWalletListService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA4ACBC289D10D30030E232 /* UserWalletListService.swift */; };
@@ -1031,6 +1032,7 @@
 		DA64C37027CCAD7F005B5E9A /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		DA64C37427CCB176005B5E9A /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		DA64C37627CCB177005B5E9A /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		DA90745128A2A36100D8D67C /* CardDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardDTO.swift; sourceTree = "<group>"; };
 		DAA0559828744E2400E4F7B9 /* MercuryoService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MercuryoService.swift; sourceTree = "<group>"; };
 		DAA153BB2876CBFC002254D1 /* GeoResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeoResponse.swift; sourceTree = "<group>"; };
 		DAA4ACBC289D10D30030E232 /* UserWalletListService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletListService.swift; sourceTree = "<group>"; };
@@ -1318,6 +1320,7 @@
 				DAA153BA2876CBE2002254D1 /* Geo */,
 				B0EC11FF267386FC00137059 /* PendingTransaction.swift */,
 				B0F79C72268A2E98008C9B30 /* SavedCard.swift */,
+				DA90745128A2A36100D8D67C /* CardDTO.swift */,
 				5D96BD2727F60AC5000AA797 /* BlockchainNetwork.swift */,
 				5D4B8BC227EDD601002CE87C /* CardInfo.swift */,
 				5D5332B025F9091900D32CA5 /* TokenItem.swift */,
@@ -3400,6 +3403,7 @@
 				B0BA7BCB26C5684E00D7066F /* AddressQrBottomSheetView.swift in Sources */,
 				EF0F99B428902902008B01DF /* DefaultRowView.swift in Sources */,
 				5D49034F27BE84B20072C642 /* ExploreButton.swift in Sources */,
+				DA90745228A2A36100D8D67C /* CardDTO.swift in Sources */,
 				DA2A1BA528940B02007B7595 /* UserWalletListView.swift in Sources */,
 				DA4C84CD27DA2D6D00B76F91 /* AnimatableModifiers.swift in Sources */,
 				65B435FE2844BF7200DEAE1B /* AttributedTextView.swift in Sources */,
