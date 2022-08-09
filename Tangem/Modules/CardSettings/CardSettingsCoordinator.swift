@@ -54,6 +54,7 @@ extension CardSettingsCoordinator: CardSettingsRoutable {
     func openOnboarding(with input: OnboardingInput) {
         let dismissAction: Action = { [weak self] in
             self?.modalOnboardingCoordinator = nil
+            self?.popToRoot()
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
