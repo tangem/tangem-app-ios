@@ -115,7 +115,7 @@ final class UserWalletListViewModel: ObservableObject {
 
         let walletData: DefaultWalletData
 
-        if let cardInfoWalletData = cardInfo.walletData {
+        if let cardInfoWalletData = cardInfo.walletData, cardInfoWalletData.blockchain != "ANY" {
             walletData = .note(cardInfoWalletData)
         } else {
             walletData = .none
@@ -141,16 +141,8 @@ final class UserWalletListViewModel: ObservableObject {
         }
 
         if userWalletListService.save(userWallet) {
-            let isSingleCurrency: Bool
-            switch walletData {
-            case .note, .twin:
-                isSingleCurrency = true
-            default:
-                isSingleCurrency = false
-            }
-
             let newModel = CardViewModel(userWallet: userWallet)
-            if isSingleCurrency {
+            if userWallet.isMultiCurrency {
                 singleCurrencyModels.append(newModel)
             } else {
                 multiCurrencyModels.append(newModel)
