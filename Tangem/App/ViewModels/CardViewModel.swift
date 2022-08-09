@@ -309,7 +309,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
 
-    private lazy var totalSumBalanceViewModel: TotalSumBalanceViewModel = .init()
+    private lazy var totalSumBalanceViewModel: TotalSumBalanceViewModel = .init(isSingleCoinCard: !cardInfo.isMultiWallet) { }
 
     private var searchBlockchainsCancellable: AnyCancellable? = nil
     private var bag = Set<AnyCancellable>()
