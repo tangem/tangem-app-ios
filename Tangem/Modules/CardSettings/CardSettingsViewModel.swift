@@ -131,7 +131,7 @@ extension CardSettingsViewModel {
             alert = AlertBuilder.makeDemoAlert()
             return
         }
-        
+
         if cardModel.isTwinCard {
             prepareTwinOnboarding()
         } else {
