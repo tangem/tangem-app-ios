@@ -87,24 +87,27 @@ extension WelcomeCoordinator: WelcomeRoutable {
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
-        let options = OnboardingCoordinator.Options(input: input)
+        let options = OnboardingCoordinator.Options(input: input, shouldOpenMainOnFinish: false)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
     }
 
     func openOnboarding(with input: OnboardingInput) {
         let dismissAction: Action = { [weak self] in
-            if let card = input.cardInput.cardModel {
-                self?.openMain(with: card)
-            }
-        }
-
-        let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] _ in
             self?.pushedOnboardingCoordinator = nil
         }
 
+        let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
+            self?.navBarHidden = true
+            self?.pushedOnboardingCoordinator = nil
+
+            if options.newScan {
+                self?.welcomeViewModel?.scanCard()
+            }
+        }
+
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        let options = OnboardingCoordinator.Options(input: input)
+        let options = OnboardingCoordinator.Options(input: input, shouldOpenMainOnFinish: true)
         coordinator.start(with: options)
         pushedOnboardingCoordinator = coordinator
     }
