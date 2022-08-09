@@ -143,9 +143,9 @@ final class UserWalletListViewModel: ObservableObject {
         if userWalletListService.save(userWallet) {
             let newModel = CardViewModel(userWallet: userWallet)
             if userWallet.isMultiCurrency {
-                singleCurrencyModels.append(newModel)
-            } else {
                 multiCurrencyModels.append(newModel)
+            } else {
+                singleCurrencyModels.append(newModel)
             }
         }
 
