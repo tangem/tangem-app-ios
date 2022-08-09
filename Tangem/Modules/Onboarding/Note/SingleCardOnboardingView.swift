@@ -38,7 +38,7 @@ struct SingleCardOnboardingView: View {
                                                      isVisible: viewModel.isBackButtonVisible,
                                                      isEnabled: viewModel.isBackButtonEnabled,
                                                      hPadding: horizontalPadding) {
-                                              viewModel.popToRoot()
+                                              viewModel.closeOnboarding()
                                           }
                                       })
                                       .frame(size: viewModel.navbarSize)
@@ -98,7 +98,7 @@ struct SingleCardOnboardingView: View {
                     buttonsSettings: .init(main: viewModel.mainButtonSettings,
                                            supplement: viewModel.supplementButtonSettings)
                 ) {
-                    viewModel.popToRoot()
+                    viewModel.closeOnboarding()
                 }
                 .padding(.horizontal, 40)
             }
