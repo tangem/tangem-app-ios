@@ -58,7 +58,7 @@ extension MainCoordinator: MainRoutable {
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
-        let options = OnboardingCoordinator.Options(input: input)
+        let options = OnboardingCoordinator.Options(input: input, shouldOpenMainOnFinish: false)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
     }
@@ -89,7 +89,9 @@ extension MainCoordinator: MainRoutable {
 
     func openSend(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
         Analytics.log(.sendTokenTapped)
-        let coordinator = SendCoordinator()
+        let coordinator = SendCoordinator { [weak self] in
+            self?.sendCoordinator = nil
+        }
         let options = SendCoordinator.Options(amountToSend: amountToSend,
                                               destination: nil,
                                               blockchainNetwork: blockchainNetwork,
@@ -99,7 +101,9 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openSendToSell(amountToSend: Amount, destination: String, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
-        let coordinator = SendCoordinator()
+        let coordinator = SendCoordinator { [weak self] in
+            self?.sendCoordinator = nil
+        }
         let options = SendCoordinator.Options(amountToSend: amountToSend,
                                               destination: destination,
                                               blockchainNetwork: blockchainNetwork,
