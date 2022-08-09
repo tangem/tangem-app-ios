@@ -64,15 +64,28 @@ class CommonUserWalletListService: UserWalletListService {
 
     func save(_ userWallet: UserWallet) -> Bool {
         var userWallets = savedUserWallets()
+
+        if let index = userWallets.firstIndex(where: { $0.userWalletId == userWallet.userWalletId }) {
+            userWallets[index] = userWallet
+        } else {
+            userWallets.append(userWallet)
         }
 
-        userWallets.append(userWallet)
         saveUserWallets(userWallets)
 
+        let newModel = CardViewModel(userWallet: userWallet)
         if userWallet.isMultiCurrency {
-            multiCurrencyModels.append(.init(userWallet: userWallet))
+            if let index = multiCurrencyModels.firstIndex(where: { $0.userWallet.userWalletId == userWallet.userWalletId }) {
+                multiCurrencyModels[index] = newModel
+            } else {
+                multiCurrencyModels.append(newModel)
+            }
         } else {
-            singleCurrencyModels.append(.init(userWallet: userWallet))
+            if let index = singleCurrencyModels.firstIndex(where: { $0.userWallet.userWalletId == userWallet.userWalletId }) {
+                singleCurrencyModels[index] = newModel
+            } else {
+                singleCurrencyModels.append(newModel)
+            }
         }
 
         return true
