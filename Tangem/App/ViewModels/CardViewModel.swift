@@ -272,7 +272,7 @@ class CardViewModel: Identifiable, ObservableObject {
         )
     }
 
-    var cardImage: UIImage?
+    @Published var cardImage: UIImage?
 
     var subtitle: String {
         if cardInfo.twinCardInfo?.series.number != nil {
