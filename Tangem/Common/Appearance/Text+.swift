@@ -9,7 +9,7 @@
 import SwiftUI
 
 extension Text {
-    func style(_ font: Font, color: Color) -> Text {
-        self.font(font).foregroundColor(color)
+    func style(_ style: TypographyStyle, color: Color) -> Text {
+        font(style.font).foregroundColor(color)
     }
 }
