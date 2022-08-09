@@ -136,7 +136,11 @@ final class UserWalletListViewModel: ObservableObject {
 
         let userWallet = UserWallet(userWalletId: card.cardPublicKey, name: name, card: card, walletData: walletData, artwork: nil, keys: cardInfo.derivedKeys, isHDWalletAllowed: card.settings.isHDWalletAllowed)
 
-        if userWalletListService.saveIfNeeded(userWallet) {
+        if userWalletListService.contains(userWallet) {
+            return
+        }
+
+        if userWalletListService.save(userWallet) {
             let isSingleCurrency: Bool
             switch walletData {
             case .note, .twin:
