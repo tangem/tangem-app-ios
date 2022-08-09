@@ -116,13 +116,10 @@ extension WelcomeCoordinator: WelcomeRoutable {
         navBarHidden = false
         let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
             self?.navBarHidden = true
+            self?.mainCoordinator = nil
 
-            DispatchQueue.main.async {
-                self?.mainCoordinator = nil
-
-                if options.newScan {
-                    self?.welcomeViewModel?.scanCard()
-                }
+            if options.newScan {
+                self?.welcomeViewModel?.scanCard()
             }
         }
 
