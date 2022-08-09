@@ -18,21 +18,9 @@ struct OnboardingCoordinatorView: CoordinatorView {
                 .transition(.withoutOpacity)
                 .navigationBarTitle("", displayMode: .inline)
                 .navigationBarHidden(true)
+                .navigationLinks(links)
 
-            NavHolder()
-                .sheet(item: $coordinator.buyCryptoModel) {
-                    WebViewContainer(viewModel: $0)
-                }
-
-            NavHolder()
-                .sheet(item: $coordinator.accessCodeModel) {
-                    OnboardingAccessCodeView(viewModel: $0)
-                }
-
-            NavHolder()
-                .bottomSheet(item: $coordinator.addressQrBottomSheetContentViewVodel, viewModelSettings: .qr) {
-                    AddressQrBottomSheetContent(viewModel: $0)
-                }
+            sheets
         }
     }
 
@@ -45,5 +33,32 @@ struct OnboardingCoordinatorView: CoordinatorView {
         } else if let walletViewModel = coordinator.walletViewModel {
             WalletOnboardingView(viewModel: walletViewModel)
         }
+    }
+
+    @ViewBuilder
+    private var links: some View {
+        NavHolder()
+            .navigation(item: $coordinator.mainCoordinator) {
+                MainCoordinatorView(coordinator: $0)
+            }
+            .emptyNavigationLink()
+    }
+
+    @ViewBuilder
+    private var sheets: some View {
+        NavHolder()
+            .sheet(item: $coordinator.buyCryptoModel) {
+                WebViewContainer(viewModel: $0)
+            }
+
+        NavHolder()
+            .sheet(item: $coordinator.accessCodeModel) {
+                OnboardingAccessCodeView(viewModel: $0)
+            }
+
+        NavHolder()
+            .bottomSheet(item: $coordinator.addressQrBottomSheetContentViewVodel, viewModelSettings: .qr) {
+                AddressQrBottomSheetContent(viewModel: $0)
+            }
     }
 }
