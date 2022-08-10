@@ -104,8 +104,8 @@ extension CardSettingsViewModel {
     }
 
     func openResetCard() {
-        if cardModel.cardInfo.card.isDemoCard {
-            alert = AlertBuilder.makeDemoAlert()
+        if let disabledLocalizedReason = cardModel.config.getFeatureAvailability(.resetToFactory).disabledLocalizedReason {
+            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
         }
 
