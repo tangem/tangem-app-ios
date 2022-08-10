@@ -102,7 +102,7 @@ extension OnboardingCoordinator: OnboardingRoutable {
     func closeOnboarding() {
         dismiss()
     }
-    
+
     private func openMain(with cardModel: CardViewModel) {
         Analytics.log(.mainPageEnter)
         let coordinator = MainCoordinator(popToRootAction: popToRootAction)
