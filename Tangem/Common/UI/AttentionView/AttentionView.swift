@@ -43,15 +43,15 @@ struct AttentionView: View {
     private var informationViews: some View {
         VStack {
             Spacer()
-            
+
             mainInformationView
                 .layoutPriority(1)
-            
+
             Spacer()
-            
+
             VStack(spacing: 22) {
                 agreeView
-                
+
                 actionButton
             }
             .layoutPriority(1)
