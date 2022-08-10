@@ -309,6 +309,7 @@ class TokenDetailsViewModel: ObservableObject {
             title: title,
             message: "token_details_hide_alert_message".localized,
             primaryButton: .destructive(Text("token_details_hide_alert_hide")) { [weak self] in
+                Analytics.log(.removeTokenTapped)
                 self?.deleteToken()
             }
         )
@@ -383,10 +384,13 @@ extension TokenDetailsViewModel {
     }
 
     func openBuyCryptoIfPossible() {
+        Analytics.log(.buyTokenTapped)
         if tangemApiService.geoIpRegionCode == LanguageCode.ru {
             coordinator.openBankWarning {
+                Analytics.log(.p2pInstructionTapped, params: [.type: "yes"])
                 self.openBuyCrypto()
             } declineCallback: {
+                Analytics.log(.p2pInstructionTapped, params: [.type: "no"])
                 self.coordinator.openP2PTutorial()
             }
         } else {
@@ -401,6 +405,7 @@ extension TokenDetailsViewModel {
     }
 
     func openExplorer(at url: URL) {
+        Analytics.log(.exploreAddressTapped)
         coordinator.openExplorer(at: url, blockchainDisplayName: blockchainNetwork.blockchain.displayName)
     }
 
