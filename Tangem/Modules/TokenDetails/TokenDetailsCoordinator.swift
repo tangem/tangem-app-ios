@@ -72,6 +72,7 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
     }
 
     func openSend(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
+        Analytics.log(.sendTokenTapped)
         let coordinator = SendCoordinator { [weak self] in
             self?.sendCoordinator = nil
         }
