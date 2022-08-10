@@ -9,15 +9,9 @@
 import Foundation
 
 class CommonUserWalletListService: UserWalletListService {
-    var multiCurrencyModels: [CardViewModel] = []
-    var singleCurrencyModels: [CardViewModel] = []
-
-    var allModels: [CardViewModel] {
-        multiCurrencyModels + singleCurrencyModels
-    }
-
+    var models: [CardViewModel] = []
     var selectedModel: CardViewModel? {
-        return allModels.first {
+        return models.first {
             $0.userWallet.userWalletId == selectedUserWalletId
         }
     }
@@ -34,12 +28,9 @@ class CommonUserWalletListService: UserWalletListService {
 
     init() {
         let userWallets = savedUserWallets()
-        let cardViewModels = userWallets.map {
+        models = userWallets.map {
             CardViewModel(userWallet: $0)
         }
-
-        multiCurrencyModels = cardViewModels.filter { $0.userWallet.isMultiCurrency }
-        singleCurrencyModels = cardViewModels.filter { !$0.userWallet.isMultiCurrency }
     }
 
     func initialize() {
@@ -49,11 +40,8 @@ class CommonUserWalletListService: UserWalletListService {
     func deleteWallet(_ userWallet: UserWallet) {
         let userWalletId = userWallet.userWalletId
         var userWallets = savedUserWallets()
-        userWallets.removeAll {
-            $0.userWalletId == userWalletId
-        }
-        multiCurrencyModels.removeAll { $0.userWallet.userWalletId == userWalletId }
-        singleCurrencyModels.removeAll { $0.userWallet.userWalletId == userWalletId }
+        userWallets.removeAll { $0.userWalletId == userWalletId }
+        models.removeAll { $0.userWallet.userWalletId == userWalletId }
         saveUserWallets(userWallets)
     }
 
@@ -74,18 +62,10 @@ class CommonUserWalletListService: UserWalletListService {
         saveUserWallets(userWallets)
 
         let newModel = CardViewModel(userWallet: userWallet)
-        if userWallet.isMultiCurrency {
-            if let index = multiCurrencyModels.firstIndex(where: { $0.userWallet.userWalletId == userWallet.userWalletId }) {
-                multiCurrencyModels[index] = newModel
-            } else {
-                multiCurrencyModels.append(newModel)
-            }
+        if let index = models.firstIndex(where: { $0.userWallet.userWalletId == userWallet.userWalletId }) {
+            models[index] = newModel
         } else {
-            if let index = singleCurrencyModels.firstIndex(where: { $0.userWallet.userWalletId == userWallet.userWalletId }) {
-                singleCurrencyModels[index] = newModel
-            } else {
-                singleCurrencyModels.append(newModel)
-            }
+            models.append(newModel)
         }
 
         return true
@@ -100,7 +80,7 @@ class CommonUserWalletListService: UserWalletListService {
             }
         }
 
-        allModels.forEach {
+        models.forEach {
             if $0.userWallet.userWalletId == userWallet.userWalletId {
                 $0.cardInfo.name = name
             }
