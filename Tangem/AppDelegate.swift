@@ -41,10 +41,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UIScrollView.appearance().keyboardDismissMode = .onDrag
 
         if #available(iOS 14.0, *) {
+            UINavigationBar.appearance().tintColor = UIColor(Colors.Text.primary1)
             // iOS 14 doesn't have extra separators below the list by default.
         } else {
             // To remove only extra separators below the list:
             UITableView.appearance().tableFooterView = UIView()
+            UINavigationBar.appearance().tintColor = UIColor(named: "TextPrimary1")
         }
 
         configureFirebase()
