@@ -247,9 +247,9 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
 
     private func back() {
         if isFromMain {
-            closeOnboarding()
+            onboardingDidFinish()
         } else {
-            popToRoot()
+            closeOnboarding()
         }
     }
 
