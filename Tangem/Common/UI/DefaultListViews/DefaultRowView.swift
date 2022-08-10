@@ -33,8 +33,7 @@ struct DefaultRowView: View {
         Button(action: { action?() }) {
             HStack {
                 Text(title)
-                    .font(.body)
-                    .foregroundColor(Colors.Text.primary1)
+                    .style(Fonts.Regular.body, color: Colors.Text.primary1)
 
                 Spacer()
 
@@ -58,8 +57,7 @@ struct DefaultRowView: View {
             ActivityIndicatorView(style: .medium, color: .gray)
         case let .text(string):
             Text(string)
-                .font(.body)
-                .foregroundColor(Colors.Text.tertiary)
+                .style(Fonts.Regular.body, color: Colors.Text.tertiary)
                 .layoutPriority(1)
         }
     }
