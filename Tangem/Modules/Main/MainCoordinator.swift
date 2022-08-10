@@ -58,7 +58,7 @@ extension MainCoordinator: MainRoutable {
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
-        let options = OnboardingCoordinator.Options(input: input)
+        let options = OnboardingCoordinator.Options(input: input, shouldOpenMainOnFinish: false)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
     }
@@ -88,7 +88,10 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openSend(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
-        let coordinator = SendCoordinator()
+        Analytics.log(.sendTokenTapped)
+        let coordinator = SendCoordinator { [weak self] in
+            self?.sendCoordinator = nil
+        }
         let options = SendCoordinator.Options(amountToSend: amountToSend,
                                               destination: nil,
                                               blockchainNetwork: blockchainNetwork,
@@ -98,7 +101,9 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openSendToSell(amountToSend: Amount, destination: String, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
-        let coordinator = SendCoordinator()
+        let coordinator = SendCoordinator { [weak self] in
+            self?.sendCoordinator = nil
+        }
         let options = SendCoordinator.Options(amountToSend: amountToSend,
                                               destination: destination,
                                               blockchainNetwork: blockchainNetwork,
@@ -125,6 +130,7 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openSettings(cardModel: CardViewModel) {
+        Analytics.log(.settingsTapped)
         let dismissAction: Action = { [weak self] in
             self?.detailsCoordinator = nil
         }
@@ -137,6 +143,7 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openTokenDetails(cardModel: CardViewModel, blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType) {
+        Analytics.log(.tokenTapped)
         let dismissAction: Action = { [weak self] in
             self?.tokenDetailsCoordinator = nil
         }
@@ -155,6 +162,7 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openTokensList(with cardModel: CardViewModel) {
+        Analytics.log(.manageTokensTapped)
         let dismissAction: Action = { [weak self] in
             self?.tokenListCoordinator = nil
         }
