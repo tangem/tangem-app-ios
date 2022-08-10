@@ -11,12 +11,15 @@ import TangemSdk
 import BlockchainSdk
 import WalletConnectSwift
 
-protocol UserWalletConfig: WalletConnectNetworkSelector, WarningsProvider {
+protocol UserWalletConfig: WalletConnectNetworkSelector {
     var emailConfig: EmailConfig { get }
     var touURL: URL? { get }
     var cardSetLabel: String? { get }
     var cardIdDisplayFormat: CardIdDisplayFormat { get }
     var defaultCurve: EllipticCurve? { get }
+    var tangemSigner: TangemSigner { get }
+
+    var warningEvents: [WarningEvent] { get }
 
     var onboardingSteps: OnboardingSteps { get }
     var backupSteps: OnboardingSteps? { get }
@@ -36,11 +39,9 @@ protocol UserWalletConfig: WalletConnectNetworkSelector, WarningsProvider {
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability
 }
 
-protocol WarningsProvider {
-    var warningEvents: [WarningEvent] { get }
-}
+protocol BaseConfig {}
 
-extension WarningsProvider {
+extension BaseConfig {
     func getBaseWarningEvents(for card: Card) -> [WarningEvent] {
         var warnings: [WarningEvent] = []
 
@@ -49,9 +50,12 @@ extension WarningsProvider {
             warnings.append(.failedToValidateCard)
         }
 
-        if let remainingSignatures = card.wallets.first?.remainingSignatures,
-           remainingSignatures <= 10 {
-            warnings.append(.lowSignatures(count: remainingSignatures))
+        for wallet in card.wallets {
+            if let remainingSignatures = wallet.remainingSignatures,
+               remainingSignatures <= 10 {
+                warnings.append(.lowSignatures(count: remainingSignatures))
+                break
+            }
         }
 
         return warnings
