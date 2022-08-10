@@ -398,9 +398,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             alert = AlertBuilder.makeOkGotItAlert(message: "onboarding_backup_exit_warning".localized)
         default:
             if isFromMain {
-                closeOnboarding()
+                onboardingDidFinish()
             } else {
-                popToRoot()
+                closeOnboarding()
             }
 
             backupService.discardIncompletedBackup()
