@@ -284,11 +284,9 @@ class MainViewModel: ObservableObject {
             .store(in: &bag)
 
         warningsService.warningsUpdatePublisher
-            .sink { [unowned self] (locationUpdate) in
-                if case .main = locationUpdate {
-                    print("⚠️ Main view model fetching warnings")
-                    self.warnings = self.warningsService.warnings(for: .main)
-                }
+            .sink { [unowned self] in
+                print("⚠️ Main view model fetching warnings")
+                self.warnings = self.warningsService.warnings(for: .main)
             }
             .store(in: &bag)
 
