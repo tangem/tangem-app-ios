@@ -34,8 +34,7 @@ struct UserWalletListCellView: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(model.userWallet.name)
-                    .font(Font.subheadline.bold)
-                    .foregroundColor(isSelected ? Colors.Text.accent : Colors.Text.primary1)
+                    .style(Fonts.Bold.subheadline, color: isSelected ? Colors.Text.accent : Colors.Text.primary1)
 
                 Text(model.subtitle)
                     .font(Font.footnote)
