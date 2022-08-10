@@ -40,4 +40,6 @@ struct DummyConfig: UserWalletConfig {
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         return .available
     }
+
+    var tangemSigner: TangemSigner { .init(with: nil) }
 }
