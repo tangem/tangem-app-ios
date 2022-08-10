@@ -26,7 +26,7 @@ struct WelcomeView: View {
             .actionSheet(item: $viewModel.discardAlert, content: { $0.sheet })
 
             ScanTroubleshootingView(isPresented: $viewModel.showTroubleshootingView,
-                                    tryAgainAction: viewModel.scanCard,
+                                    tryAgainAction: viewModel.tryAgain,
                                     requestSupportAction: viewModel.requestSupport)
         }
         .alert(item: $viewModel.error, content: { $0.alert })
