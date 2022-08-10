@@ -164,6 +164,7 @@ class WalletConnectService: ObservableObject {
         }
 
         Analytics.logWcEvent(.error(error, action))
+        Analytics.log(.walletConnectInvalidRequest)
 
         if let wcError = error as? WalletConnectServiceError {
             switch wcError {
@@ -212,6 +213,7 @@ extension WalletConnectService: WalletConnectHandlerDelegate {
 
     func sendInvalid(_ request: Request) {
         Analytics.logWcEvent(.invalidRequest(json: request.jsonString))
+        Analytics.log(.walletConnectInvalidRequest)
         server.send(.invalid(request))
     }
 
@@ -253,6 +255,7 @@ extension WalletConnectService: WalletConnectSessionController {
             self.sessions.remove(at: index)
             self.save()
             Analytics.logWcEvent(.session(.disconnect, session.session.dAppInfo.peerMeta.url))
+            Analytics.log(.walletConnectSessionDisconnected)
         }
     }
 
@@ -392,6 +395,8 @@ extension WalletConnectService: ServerDelegate {
                     self.sessions.append(WalletConnectSession(wallet: wallet, session: session, status: .connected))
                     self.save()
                     Analytics.logWcEvent(.session(.connect, session.dAppInfo.peerMeta.url))
+                    Analytics.log(.walletConnectNewSession)
+                    Analytics.log(.walletConnectSuccessResponse)
                 }
             }
 
