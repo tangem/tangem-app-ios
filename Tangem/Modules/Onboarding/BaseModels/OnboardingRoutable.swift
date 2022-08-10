@@ -9,6 +9,6 @@
 import Foundation
 
 protocol OnboardingRoutable: AnyObject {
+    func onboardingDidFinish()
     func closeOnboarding()
-    func popToRoot()
 }
