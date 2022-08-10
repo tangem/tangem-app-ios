@@ -137,6 +137,7 @@ class CardViewModel: Identifiable, ObservableObject {
         self.cardInfo = cardInfo
         self.signer = .init(with: cardInfo.card)
         self.config = UserWalletConfigFactory(cardInfo).makeConfig()
+        warningsService.setupWarnings(for: cardInfo)
         updateCardPinSettings()
         updateCurrentSecurityOption()
     }
@@ -328,6 +329,7 @@ class CardViewModel: Identifiable, ObservableObject {
                                                        body: "initial_message_purge_wallet_body".localized)) { [weak self] result in
             switch result {
             case .success(let response):
+                Analytics.log(.factoryResetSuccess)
                 self?.tokenItemsRepository.removeAll(for: response.cardId)
                 self?.clearTwinPairKey()
                 // self.update(with: response)

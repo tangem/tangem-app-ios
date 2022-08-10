@@ -104,6 +104,11 @@ extension CardSettingsViewModel {
     }
 
     func openResetCard() {
+        if cardModel.cardInfo.card.isDemoCard {
+            alert = AlertBuilder.makeDemoAlert()
+            return
+        }
+
         if cardModel.config.hasFeature(.twinning) {
             prepareTwinOnboarding()
         } else {
