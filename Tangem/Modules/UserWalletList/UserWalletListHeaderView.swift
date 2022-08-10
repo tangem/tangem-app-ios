@@ -14,8 +14,7 @@ struct UserWalletListHeaderView: View {
 
     var body: some View {
         Text(name)
-            .font(Font.footnote.bold)
-            .foregroundColor(Colors.Text.tertiary)
+            .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(EdgeInsets(top: 12, leading: 16, bottom: 10, trailing: 16))
     }
