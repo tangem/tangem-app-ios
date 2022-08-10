@@ -18,8 +18,6 @@ protocol AppWarningsProviding: AnyObject {
     func warnings(for location: WarningsLocation) -> WarningsContainer
     func hideWarning(_ warning: AppWarning)
     func hideWarning(for event: WarningEvent)
-
-    func didSign(with card: Card)
 }
 
 private struct AppWarningsProvidingKey: InjectionKey {

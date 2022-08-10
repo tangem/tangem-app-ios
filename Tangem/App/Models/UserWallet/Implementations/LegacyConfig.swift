@@ -12,7 +12,7 @@ import BlockchainSdk
 import WalletConnectSwift
 
 /// V3 Config
-struct LegacyConfig {
+struct LegacyConfig: BaseConfig {
     private let card: Card
     private let walletData: WalletData
 
@@ -176,4 +176,6 @@ extension LegacyConfig: UserWalletConfig {
             return .available
         }
     }
+
+    var tangemSigner: TangemSigner { .init(with: card.cardId) }
 }
