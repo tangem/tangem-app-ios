@@ -11,7 +11,7 @@ import TangemSdk
 import BlockchainSdk
 import WalletConnectSwift
 
-struct GenericConfig {
+struct GenericConfig: BaseConfig {
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
 
     private let card: Card
@@ -217,6 +217,14 @@ extension GenericConfig: UserWalletConfig {
             return .available
         case .withdrawal:
             return .available
+        }
+    }
+
+    var tangemSigner: TangemSigner {
+        if let backupStatus = card.backupStatus, backupStatus.isActive {
+            return .init(with: nil)
+        } else {
+            return .init(with: card.cardId)
         }
     }
 }
