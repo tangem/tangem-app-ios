@@ -419,6 +419,7 @@
 		DA64C37327CCB176005B5E9A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = DA64C37527CCB176005B5E9A /* InfoPlist.strings */; };
 		DA90745228A2A36100D8D67C /* CardDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA90745128A2A36100D8D67C /* CardDTO.swift */; };
 		DAA0559928744E2400E4F7B9 /* MercuryoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA0559828744E2400E4F7B9 /* MercuryoService.swift */; };
+		DAA0850528A38A92000CD7FC /* CardDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA90745128A2A36100D8D67C /* CardDTO.swift */; };
 		DAA153BC2876CBFC002254D1 /* GeoResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA153BB2876CBFC002254D1 /* GeoResponse.swift */; };
 		DAA4ACBD289D10D30030E232 /* UserWalletListService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA4ACBC289D10D30030E232 /* UserWalletListService.swift */; };
 		DAA8F88A2888397700F14B9A /* ShopWebHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA8F8892888397700F14B9A /* ShopWebHelper.swift */; };
@@ -3640,6 +3641,7 @@
 				B0F7361D25F7B03900DD348F /* TwinCardsUtils.swift in Sources */,
 				DC0A57F42822B8A40031BECC /* InjectionKey.swift in Sources */,
 				5D44AB8A27F75C1A00464FD9 /* Card+.swift in Sources */,
+				DAA0850528A38A92000CD7FC /* CardDTO.swift in Sources */,
 				5DA2473C2799B0AC00DB4E4F /* AddressFormatter.swift in Sources */,
 				B01416B12632A93800D82A9C /* ImageCache.swift in Sources */,
 				B0CA5AC225F785FA0078F42F /* VerticalAlignment+.swift in Sources */,
