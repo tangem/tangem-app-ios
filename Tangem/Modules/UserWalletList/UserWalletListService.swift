@@ -7,11 +7,14 @@
 //
 
 import Foundation
+import enum TangemSdk.TangemSdkError
 
 protocol UserWalletListService: AnyObject, Initializable {
     var models: [CardViewModel] { get }
 
     var selectedUserWalletId: Data? { get set }
+
+    func tryToAccessBiometry(completion: @escaping (Result<Void, TangemSdkError>) -> Void)
 
     func deleteWallet(_ userWallet: UserWallet)
     func contains(_ userWallet: UserWallet) -> Bool
