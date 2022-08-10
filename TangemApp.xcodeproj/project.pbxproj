@@ -545,7 +545,7 @@
 		EF50A5A42881CEE30081C5BB /* XCAssets+Generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF50A5A32881CEE30081C5BB /* XCAssets+Generated.swift */; };
 		EF50A5B1288976140081C5BB /* View+ConditionalModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF50A5B0288976140081C5BB /* View+ConditionalModifiers.swift */; };
 		EF6691D2287ED86900773AA6 /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0FF8702866021B00B7CEAF /* AppEnvironment.swift */; };
-		EF74F50D289BF5AE001034D2 /* TypographyStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF74F50B289BF5AE001034D2 /* TypographyStyle.swift */; };
+		EF74F50D289BF5AE001034D2 /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF74F50B289BF5AE001034D2 /* Fonts.swift */; };
 		EF74F50E289BF5AE001034D2 /* Text+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF74F50C289BF5AE001034D2 /* Text+.swift */; };
 		EF7B9CEF286C6BD7004C33A9 /* CardSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CEE286C6BD7004C33A9 /* CardSettingsView.swift */; };
 		EF7B9CF1286C6BE2004C33A9 /* CardSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF0286C6BE2004C33A9 /* CardSettingsViewModel.swift */; };
@@ -1139,7 +1139,7 @@
 		EF50A5A32881CEE30081C5BB /* XCAssets+Generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "XCAssets+Generated.swift"; sourceTree = "<group>"; };
 		EF50A5B0288976140081C5BB /* View+ConditionalModifiers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "View+ConditionalModifiers.swift"; sourceTree = "<group>"; };
 		EF6CA24B2892D79900D7E4B1 /* AttentionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttentionViewModel.swift; sourceTree = "<group>"; };
-		EF74F50B289BF5AE001034D2 /* TypographyStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TypographyStyle.swift; sourceTree = "<group>"; };
+		EF74F50B289BF5AE001034D2 /* Fonts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
 		EF74F50C289BF5AE001034D2 /* Text+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Text+.swift"; sourceTree = "<group>"; };
 		EF7B9CEE286C6BD7004C33A9 /* CardSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsView.swift; sourceTree = "<group>"; };
 		EF7B9CF0286C6BE2004C33A9 /* CardSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsViewModel.swift; sourceTree = "<group>"; };
@@ -2663,7 +2663,7 @@
 		EF3EC51D289A7A1B0071BA7F /* Appearance */ = {
 			isa = PBXGroup;
 			children = (
-				EF74F50B289BF5AE001034D2 /* TypographyStyle.swift */,
+				EF74F50B289BF5AE001034D2 /* Fonts.swift */,
 				EF74F50C289BF5AE001034D2 /* Text+.swift */,
 			);
 			path = Appearance;
@@ -3189,7 +3189,7 @@
 				B03A9339259877790061FB2D /* WarningsContainer.swift in Sources */,
 				B0EC1200267386FC00137059 /* PendingTransaction.swift in Sources */,
 				B09BB85E259A075600B92000 /* CircleActionButton.swift in Sources */,
-				EF74F50D289BF5AE001034D2 /* TypographyStyle.swift in Sources */,
+				EF74F50D289BF5AE001034D2 /* Fonts.swift in Sources */,
 				5D341CCA27E4C5650028D8FC /* CoinItemViewModel.swift in Sources */,
 				B069F3B12631D57500ACFD19 /* ImageCache.swift in Sources */,
 				DAB1E62627B4E40D00C1F510 /* ShopOrderView.swift in Sources */,
