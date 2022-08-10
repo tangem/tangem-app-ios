@@ -22,14 +22,12 @@ struct ScanCardSettingsView: View {
 
             VStack(alignment: .center, spacing: 16) {
                 Text("scan_card_settings_title")
+                    .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                     .multilineTextAlignment(.center)
-                    .font(.title1.bold)
-                    .foregroundColor(Colors.Text.primary1)
 
                 Text("scan_card_settings_message")
+                    .style(Fonts.Regular.callout, color: Colors.Text.primary1)
                     .multilineTextAlignment(.center)
-                    .font(.callout)
-                    .foregroundColor(Colors.Text.primary1)
             }
 
             Spacer()
