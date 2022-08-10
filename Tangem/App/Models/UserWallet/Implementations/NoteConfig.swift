@@ -10,7 +10,7 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 
-struct NoteConfig {
+struct NoteConfig: BaseConfig {
     private let card: Card
     private let noteData: WalletData
 
@@ -142,4 +142,6 @@ extension NoteConfig: UserWalletConfig {
             return .available
         }
     }
+
+    var tangemSigner: TangemSigner { .init(with: card.cardId) }
 }
