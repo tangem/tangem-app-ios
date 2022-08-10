@@ -11,7 +11,7 @@ import Combine
 import TangemSdk
 
 protocol AppWarningsProviding: AnyObject {
-    var warningsUpdatePublisher: PassthroughSubject<WarningsLocation, Never> { get }
+    var warningsUpdatePublisher: CurrentValueSubject<Void, Never> { get }
 
     func setupWarnings(for cardInfo: CardInfo)
     func appendWarning(for event: WarningEvent)
