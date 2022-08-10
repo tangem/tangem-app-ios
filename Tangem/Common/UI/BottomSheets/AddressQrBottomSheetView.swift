@@ -14,6 +14,14 @@ struct AddressQrBottomSheetContentViewVodel: Identifiable {
     var shareAddress: String
     var address: String
     var qrNotice: String
+
+    func logCopyAddress() {
+        Analytics.log(.copyAddressTapped)
+    }
+
+    func logShareAddress() {
+        Analytics.log(.shareAddressTapped)
+    }
 }
 
 struct AddressQrBottomSheetContent: View {
@@ -37,6 +45,7 @@ struct AddressQrBottomSheetContent: View {
             HStack(spacing: 10) {
                 Button(action: {
                     showCheckmark = true
+                    viewModel.logCopyAddress()
                     UIPasteboard.general.string = viewModel.address
 
                     let notificationGenerator = UINotificationFeedbackGenerator()
@@ -85,6 +94,7 @@ struct AddressQrBottomSheetContent: View {
     }
 
     private func showShareSheet() {
+        viewModel.logShareAddress()
         let av = UIActivityViewController(activityItems: [viewModel.address], applicationActivities: nil)
         UIApplication.topViewController?.present(av, animated: true, completion: nil)
     }
