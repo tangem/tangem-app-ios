@@ -8,6 +8,7 @@
 
 import Foundation
 import Combine
+import TangemSdk
 
 class WelcomeCoordinator: CoordinatorObject {
     var dismissAction: Action
@@ -32,6 +33,8 @@ class WelcomeCoordinator: CoordinatorObject {
     // Fix ios13 navbar glitches
     @Published private(set) var navBarHidden: Bool = true
 
+    private let userWalletService = CommonUserWalletListService()
+
     // MARK: - Private
     private var welcomeLifecycleSubscription: AnyCancellable? = nil
 
@@ -54,7 +57,6 @@ class WelcomeCoordinator: CoordinatorObject {
     }
 
     func start(with options: WelcomeCoordinator.Options) {
-        let service = CommonUserWalletListService()
         welcomeViewModel = .init(coordinator: self)
         subscribeToWelcomeLifecycle()
 
@@ -62,8 +64,14 @@ class WelcomeCoordinator: CoordinatorObject {
             welcomeViewModel?.scanCard()
         }
 
-        if let selectedModel = service.selectedModel {
-            openMain(with: selectedModel)
+        userWalletService.tryToAccessBiometry { [weak self] result in
+            DispatchQueue.main.async {
+                guard case .success = result else { return }
+
+                if let selectedModel = self?.userWalletService.selectedModel {
+                    self?.openMain(with: selectedModel)
+                }
+            }
         }
     }
 
