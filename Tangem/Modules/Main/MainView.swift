@@ -126,8 +126,8 @@ struct MainView: View {
                                       showExplorerURL: $viewModel.showExplorerURL,
                                       walletModel: walletModel,
                                       payID: viewModel.cardModel.payId) {
-                                          viewModel.copyAddress()
-                                      }
+                        viewModel.copyAddress()
+                    }
                 }
             } else {
                 TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel)
