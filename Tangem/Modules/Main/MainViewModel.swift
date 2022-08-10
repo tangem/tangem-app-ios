@@ -229,6 +229,7 @@ class MainViewModel: ObservableObject {
         cardModel.getCardInfo()
         bind()
         cardModel.updateState()
+        showUserWalletSaveIfNeeded()
     }
 
     deinit {
@@ -375,14 +376,15 @@ class MainViewModel: ObservableObject {
     }
 
     func onScan() {
-        /*
-         DispatchQueue.main.async {
-            Analytics.log(.scanCardTapped)
-            self.totalSumBalanceViewModel.update(with: [])
-            self.coordinator.close(newScan: true)
-         }
-          */
-        self.coordinator.openUserWalletList()
+        if AppSettings.shared.saveUserWallets == true {
+            self.coordinator.openUserWalletList()
+        } else {
+            DispatchQueue.main.async {
+                Analytics.log(.scanCardTapped)
+                self.totalSumBalanceViewModel.update(with: [])
+                self.coordinator.close(newScan: true)
+            }
+        }
     }
 
     func sendTapped() {
@@ -612,6 +614,27 @@ class MainViewModel: ObservableObject {
         }
         let newTokens = walletModels.flatMap({ $0.tokenItemViewModels })
         totalSumBalanceViewModel.updateIfNeeded(with: newTokens)
+    }
+
+    private func showUserWalletSaveIfNeeded() {
+        if AppSettings.shared.saveUserWallets != nil {
+            return
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            self.error = AlertBinder(alert:
+                Alert(title: Text("Do you want to save cards in the app"),
+                      message: Text("Think about it..."),
+                      primaryButton: .cancel {
+                          AppSettings.shared.saveUserWallets = false
+                      },
+                      secondaryButton: .default(Text("OK")) { [weak self] in
+                          self?.coordinator.openUserWalletList()
+                          AppSettings.shared.saveUserWallets = true
+                      }
+                )
+            )
+        }
     }
 }
 
