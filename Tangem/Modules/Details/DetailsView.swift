@@ -49,10 +49,10 @@ struct DetailsView: View {
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text("wallet_connect_title")
-                            .style(.body(), color: Colors.Text.primary1)
+                            .style(Fonts.Regular.body, color: Colors.Text.primary1)
 
                         Text("wallet_connect_subtitle")
-                            .style(.footnote(), color: Colors.Text.tertiary)
+                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     }
                     .lineLimit(1)
 
@@ -137,7 +137,7 @@ struct DetailsView: View {
 
                     if let applicationInfoFooter = viewModel.applicationInfoFooter {
                         Text(applicationInfoFooter)
-                            .style(.footnote(), color: Colors.Text.tertiary)
+                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     }
                 }
 
