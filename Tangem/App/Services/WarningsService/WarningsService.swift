@@ -14,19 +14,10 @@ import BlockchainSdk
 class WarningsService {
     @Injected(\.rateAppService) var rateAppChecker: RateAppService
 
-    var warningsUpdatePublisher: PassthroughSubject<WarningsLocation, Never> = PassthroughSubject()
+    var warningsUpdatePublisher: CurrentValueSubject<Void, Never> = .init(())
 
-    private var mainWarnings: WarningsContainer = .init() {
-        didSet {
-            warningsUpdatePublisher.send(.main)
-        }
-    }
-
-    private var sendWarnings: WarningsContainer = .init() {
-        didSet {
-            warningsUpdatePublisher.send(.send)
-        }
-    }
+    private var mainWarnings: WarningsContainer = .init()
+    private var sendWarnings: WarningsContainer = .init()
 
     private var currentCardId: String = ""
 
@@ -126,12 +117,14 @@ extension WarningsService: AppWarningsProviding {
 
         mainWarnings = warningsForMain(for: cardInfo)
         sendWarnings = warningsForSend(for: cardInfo)
+        warningsUpdatePublisher.send(())
     }
 
     func didSign(with card: Card) {
         guard currentCardId == card.cardId else { return }
 
         addLowRemainingSignaturesWarningIfNeeded(in: mainWarnings, for: card)
+        warningsUpdatePublisher.send(())
     }
 
     func warnings(for location: WarningsLocation) -> WarningsContainer {
