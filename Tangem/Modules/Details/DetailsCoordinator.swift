@@ -67,16 +67,18 @@ extension DetailsCoordinator: DetailsRoutable {
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
-        let options = OnboardingCoordinator.Options(input: input)
+        let options = OnboardingCoordinator.Options(input: input, shouldOpenMainOnFinish: false)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
     }
 
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType) {
+        Analytics.log(.makeCommentTapped)
         mailViewModel = MailViewModel(dataCollector: dataCollector, recipient: recipient, emailType: emailType)
     }
 
     func openWalletConnect(with cardModel: CardViewModel) {
+        Analytics.log(.wcTapped)
         let coordinator = WalletConnectCoordinator()
         let options = WalletConnectCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
@@ -102,6 +104,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openSupportChat(cardId: String) {
+        Analytics.log(.chatTapped)
         supportChatViewModel = SupportChatViewModel(cardId: cardId)
     }
 
