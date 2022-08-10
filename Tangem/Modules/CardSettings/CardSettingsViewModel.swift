@@ -127,6 +127,11 @@ extension CardSettingsViewModel {
     }
 
     func openResetCard() {
+        if cardModel.cardInfo.card.isDemoCard {
+            alert = AlertBuilder.makeDemoAlert()
+            return
+        }
+
         if cardModel.isTwinCard {
             prepareTwinOnboarding()
         } else {
