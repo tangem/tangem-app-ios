@@ -650,6 +650,7 @@ class SendViewModel: ObservableObject {
                 } else {
                     if !isDemo {
                         if self.isSellingCrypto {
+                            Analytics.log(.transactionIsSent)
                             Analytics.log(event: .userSoldCrypto, with: [.currencyCode: self.blockchainNetwork.blockchain.currencySymbol])
                         } else {
                             Analytics.logTx(blockchainName: self.blockchainNetwork.blockchain.displayName)
