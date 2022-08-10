@@ -39,8 +39,8 @@ final class UserWalletListViewModel: ObservableObject {
     }
 
     func updateModels() {
-        multiCurrencyModels = userWalletListService.multiCurrencyModels
-        singleCurrencyModels = userWalletListService.singleCurrencyModels
+        multiCurrencyModels = userWalletListService.models.filter { $0.userWallet.isMultiCurrency }
+        singleCurrencyModels = userWalletListService.models.filter { !$0.userWallet.isMultiCurrency }
     }
 
     func onUserWalletTapped(_ userWallet: UserWallet) {
