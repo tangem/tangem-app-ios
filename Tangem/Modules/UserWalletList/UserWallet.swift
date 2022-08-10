@@ -56,7 +56,11 @@ extension UserWallet {
 
 extension UserWallet {
     var isTangemNote: Bool {
-        return card.cardId == Card.noteBtc.cardId || card.cardId == Card.noteDoge.cardId
+        if case .note = walletData {
+            return true
+        } else {
+            return false
+        }
     }
 
     var isTangemWallet: Bool {
