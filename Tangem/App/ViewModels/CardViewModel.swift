@@ -320,6 +320,7 @@ class CardViewModel: Identifiable, ObservableObject {
     init(cardInfo: CardInfo, savedCards: Bool = false) {
         self.cardInfo = cardInfo
         self.signer = .init(with: cardInfo.card)
+        warningsService.setupWarnings(for: cardInfo)
         updateCardPinSettings()
         updateCurrentSecurityOption()
         loadImage()
