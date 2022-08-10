@@ -9,8 +9,7 @@
 import Foundation
 
 protocol UserWalletListService: AnyObject, Initializable {
-    var multiCurrencyModels: [CardViewModel] { get }
-    var singleCurrencyModels: [CardViewModel] { get }
+    var models: [CardViewModel] { get }
 
     var selectedUserWalletId: Data? { get set }
 
