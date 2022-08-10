@@ -33,7 +33,7 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published public var cardInfo: CardInfo
     @Published var walletsBalanceState: WalletsBalanceState = .loaded
 
-    var signer: TangemSigner
+    var signer: TangemSigner { config.tangemSigner }
 
     private var walletBalanceSubscription: AnyCancellable? = nil
     private var cardPinSettings: CardPinSettings = CardPinSettings()
@@ -41,7 +41,7 @@ class CardViewModel: Identifiable, ObservableObject {
     private var migrated = false
     private var tangemSdk: TangemSdk { tangemSdkProvider.sdk }
 
-    let config: UserWalletConfig
+    private(set) var config: UserWalletConfig
 
     var availableSecurityOptions: [SecurityModeOption] {
         var options: [SecurityModeOption] = []
@@ -135,11 +135,11 @@ class CardViewModel: Identifiable, ObservableObject {
 
     init(cardInfo: CardInfo) {
         self.cardInfo = cardInfo
-        self.signer = .init(with: cardInfo.card)
         self.config = UserWalletConfigFactory(cardInfo).makeConfig()
         warningsService.setupWarnings(for: config)
         updateCardPinSettings()
         updateCurrentSecurityOption()
+        bind()
     }
 
 //    func loadPayIDInfo () {
@@ -391,7 +391,6 @@ class CardViewModel: Identifiable, ObservableObject {
     func update(with card: Card) {
         print("🟩 Updating Card view model with new Card")
         cardInfo.card = card
-        signer = .init(with: cardInfo.card)
         updateCardPinSettings()
         self.updateCurrentSecurityOption()
         updateModel()
@@ -400,7 +399,6 @@ class CardViewModel: Identifiable, ObservableObject {
     func update(with cardInfo: CardInfo) {
         print("🔷 Updating Card view model with new CardInfo")
         self.cardInfo = cardInfo
-        signer = .init(with: cardInfo.card)
         updateCardPinSettings()
         self.updateCurrentSecurityOption()
         updateModel()
@@ -740,6 +738,16 @@ class CardViewModel: Identifiable, ObservableObject {
         else {
             self.currentSecurityOption = .longTap
         }
+    }
+
+    private func bind() {
+        signer.signPublisher.sink { [unowned self] card in
+            self.cardInfo.card = card
+            self.config = UserWalletConfigFactory(cardInfo).makeConfig()
+            self.warningsService.setupWarnings(for: config)
+            // [REDACTED_TODO_COMMENT]
+        }
+        .store(in: &bag)
     }
 }
 
