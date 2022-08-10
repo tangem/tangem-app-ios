@@ -137,7 +137,7 @@ class CardViewModel: Identifiable, ObservableObject {
         self.cardInfo = cardInfo
         self.signer = .init(with: cardInfo.card)
         self.config = UserWalletConfigFactory(cardInfo).makeConfig()
-        warningsService.setupWarnings(for: cardInfo)
+        warningsService.setupWarnings(for: config)
         updateCardPinSettings()
         updateCurrentSecurityOption()
     }
