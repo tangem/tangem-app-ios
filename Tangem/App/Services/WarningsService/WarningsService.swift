@@ -60,8 +60,8 @@ extension WarningsService: AppWarningsProviding {
     func didSign(with card: Card) {
         guard currentCardId == card.cardId else { return }
 
-        addLowRemainingSignaturesWarningIfNeeded(in: mainWarnings, for: card)
-                warningsUpdatePublisher.send(())
+        //addLowRemainingSignaturesWarningIfNeeded(in: mainWarnings, for: card)
+        warningsUpdatePublisher.send(())
     }
 
     func warnings(for location: WarningsLocation) -> WarningsContainer {
