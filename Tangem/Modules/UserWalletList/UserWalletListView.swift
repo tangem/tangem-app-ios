@@ -28,7 +28,7 @@ struct UserWalletListView: View {
         VStack(spacing: 16) {
             #warning("l10n")
             Text("My Wallets")
-                .font(Font.body.bold)
+                .style(Fonts.Bold.body, color: Colors.Text.primary1)
 
             ScrollView(.vertical) {
                 VStack(spacing: 0) {
