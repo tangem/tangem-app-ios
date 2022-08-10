@@ -71,6 +71,7 @@ class DetailsViewModel: ObservableObject {
     }
 
     func prepareBackup() {
+        Analytics.log(.backupTapped)
         if let backupSteps = cardModel.config.backupSteps {
             let input = OnboardingInput(steps: backupSteps,
                                         cardInput: .cardModel(self.cardModel),
@@ -113,10 +114,12 @@ extension DetailsViewModel {
     }
 
     func openCardSettings() {
+        Analytics.log(.cardSettingsTapped)
         coordinator.openScanCardSettings()
     }
 
     func openAppSettings() {
+        Analytics.log(.appSettingsTapped)
         coordinator.openAppSettings()
     }
 
