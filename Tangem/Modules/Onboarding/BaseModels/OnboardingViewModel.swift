@@ -187,7 +187,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
     func goToNextStep() {
         if isOnboardingFinished {
             DispatchQueue.main.async {
-                self.closeOnboarding()
+                self.onboardingDidFinish()
             }
 
             onOnboardingFinished(for: input.cardInput.cardId)
@@ -221,11 +221,11 @@ class OnboardingViewModel<Step: OnboardingStep> {
 
 // MARK: - Navigation
 extension OnboardingViewModel {
-    func closeOnboarding() {
-        onboardingCoordinator.closeOnboarding()
+    func onboardingDidFinish() {
+        onboardingCoordinator.onboardingDidFinish()
     }
 
-    func popToRoot() {
-        onboardingCoordinator.popToRoot()
+    func closeOnboarding() {
+        onboardingCoordinator.closeOnboarding()
     }
 }
