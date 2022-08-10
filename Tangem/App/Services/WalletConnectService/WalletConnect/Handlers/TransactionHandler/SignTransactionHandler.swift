@@ -12,6 +12,7 @@ import BlockchainSdk
 import Combine
 
 class SignTransactionHandler: WalletConnectTransactionHandler {
+    private var signer: EthereumTransactionSigner!
 
     override var action: WalletConnectAction { .signTransaction }
 
@@ -23,13 +24,15 @@ class SignTransactionHandler: WalletConnectTransactionHandler {
 
     private func askToSign(in session: WalletConnectSession, request: Request, ethTransaction: WalletConnectEthTransaction) {
         buildTx(in: session, ethTransaction)
-            .flatMap { buildResponse -> AnyPublisher<String, Error> in
+            .flatMap { [weak self] buildResponse -> AnyPublisher<String, Error> in
                 let ethWalletModel = buildResponse.0
                 let tx = buildResponse.1
 
                 guard let txSigner = ethWalletModel.walletManager as? EthereumTransactionSigner else {
                     return .anyFail(error: WalletConnectServiceError.failedToFindSigner)
                 }
+
+                self?.signer = txSigner
 
                 return txSigner.sign(tx, signer: TangemSigner(with: session.wallet.cid))
             }
