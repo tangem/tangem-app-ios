@@ -7,9 +7,12 @@
 //
 
 import Foundation
+import CryptoKit
+import TangemSdk
 
 class CommonUserWalletListService: UserWalletListService {
     var models: [CardViewModel] = []
+
     var selectedModel: CardViewModel? {
         return models.first {
             $0.userWallet.userWalletId == selectedUserWalletId
@@ -26,10 +29,47 @@ class CommonUserWalletListService: UserWalletListService {
         }
     }
 
+    private let biometricStorage = BiometricsStorage()
+    private let keychainKey = "user_wallet_list_service"
+    private var encryptionKey: Data?
+
     init() {
         let userWallets = savedUserWallets()
         models = userWallets.map {
             CardViewModel(userWallet: $0)
+        }
+    }
+
+    func tryToAccessBiometry(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+        guard encryptionKey == nil else { return }
+
+        biometricStorage.get(keychainKey) { [weak self, keychainKey] result in
+            switch result {
+            case .success(let encryptionKey):
+                if let encryptionKey = encryptionKey {
+                    self?.encryptionKey = encryptionKey
+                    completion(.success(()))
+                    return
+                }
+            case .failure(let error):
+                print("Failed to get encryption key", error)
+                completion(.failure(error))
+                return
+            }
+
+            let newEncryptionKey = SymmetricKey(size: .bits256)
+            let newEncryptionKeyData = Data(hexString: newEncryptionKey.dataRepresentation.hexString) // WTF?
+
+            self?.biometricStorage.store(newEncryptionKeyData, forKey: keychainKey, overwrite: true) { [weak self] result in
+                switch result {
+                case .success:
+                    self?.encryptionKey = newEncryptionKeyData
+                    completion(.success(()))
+                case .failure(let error):
+                    print("Failed to save encryption key", error)
+                    completion(.failure(error))
+                }
+            }
         }
     }
 
