@@ -16,10 +16,6 @@ struct GenericConfig: BaseConfig {
 
     private let card: Card
 
-    private var isDemoCard: Bool {
-        DemoUtil().isDemoCard(cardId: card.cardId)
-    }
-
     private var _backupSteps: [WalletOnboardingStep] {
         if !card.settings.isBackupAllowed {
             return []
@@ -111,10 +107,6 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var persistentBlockchains: [StorageEntry]? {
-        guard isDemoCard else {
-            return nil
-        }
-
         let blockchains = DemoUtil().getDemoBlockchains(isTestnet: card.isTestnet)
 
         let entries: [StorageEntry] = blockchains.map {
@@ -135,8 +127,6 @@ extension GenericConfig: UserWalletConfig {
 
         if card.isTestnet {
             warnings.append(.testnetCard)
-        } else if isDemoCard {
-            warnings.append(.demoCard)
         }
 
         return warnings
@@ -180,10 +170,6 @@ extension GenericConfig: UserWalletConfig {
         case .signedHashesCounter:
             return .unavailable
         case .backup:
-            if isDemoCard {
-                return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
-            }
-
             if card.settings.isBackupAllowed, card.backupStatus == .noBackup {
                 return .available
             }
@@ -194,16 +180,8 @@ extension GenericConfig: UserWalletConfig {
         case .sendingToPayID:
             return .available
         case .exchange:
-            if isDemoCard {
-                return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
-            }
-
             return .available
         case .walletConnect:
-            if isDemoCard {
-                return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
-            }
-
             return .available
         case .manageTokens:
             return .available
