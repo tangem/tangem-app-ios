@@ -18,6 +18,6 @@ struct ShopOrderView: View {
         }
         .edgesIgnoringSafeArea(.all)
         .navigationBarHidden(true)
-        .navigationBarTitle("")
+        .navigationBarTitle("", displayMode: .inline)
     }
 }
