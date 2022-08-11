@@ -486,7 +486,7 @@ URL: %@";
 
 "token_details_hide_alert_title" = "Cкрыть %@";
 "token_details_hide_alert_hide" = "Скрыть";
-"token_details_hide_alert_message" = "Вы скрываете токен с главного экрана, но в любой момент сможете добавить его обратно.";
+"token_details_hide_alert_message" = "Вы скрываете токен с главного экрана, но в любой момент сможете добавить его обратно через страницу управления токенами.";
 "token_details_unable_hide_alert_title" = "Невозможно скрыть %@";
 "token_details_unable_hide_alert_message" = "Токен %@ является основной валютой в сети %@ и не может быть скрыт до тех пор, пока у вас в списке есть другие токены этой сети.";
 
