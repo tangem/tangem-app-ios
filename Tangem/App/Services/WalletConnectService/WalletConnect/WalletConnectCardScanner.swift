@@ -51,7 +51,7 @@ class WalletConnectCardScanner {
             throw WalletConnectServiceError.notValidCard
         }
 
-        guard let blockchainNetwork = config.selectBlockchain(for: dAppInfo) else {
+        guard let blockchainNetwork = config.selectNetwork(for: dAppInfo) else {
             throw WalletConnectServiceError.unsupportedNetwork
         }
 
