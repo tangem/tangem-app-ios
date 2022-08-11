@@ -22,7 +22,7 @@ struct UserWalletListCellView: View {
                 Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .frame(minHeight: 30, maxHeight: 30)
+                    .frame(maxWidth: 50, minHeight: 30, maxHeight: 30)
                     .overlay(selectedIcon.offset(x: 4, y: -4), alignment: .topTrailing)
             } else {
                 Color.tangemGrayLight4
