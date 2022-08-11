@@ -55,7 +55,8 @@ struct ShopView: View {
         .background(Color(UIColor.tangemBgGray).edgesIgnoringSafeArea(.all))
         .onAppear(perform: viewModel.didAppear)
         .navigationBarHidden(true)
-        .navigationBarTitle("") // HACK: Don't remove it, otherwise navigation title will NOT hide on iOS 13
+        .navigationBarTitle("", displayMode: .inline)
+        // HACK: Don't remove it, otherwise navigation title will NOT hide on iOS 13
         .keyboardAdaptive(animated: .constant(false))
         .alert(item: $viewModel.error) { $0.alert }
     }
