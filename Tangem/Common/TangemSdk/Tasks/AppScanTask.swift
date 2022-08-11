@@ -14,6 +14,7 @@ import BlockchainSdk
 
 struct AppScanTaskResponse {
     let card: Card
+    let name: String
     let walletData: WalletData?
     let twinIssuerData: Data?
     let isTangemNote: Bool // todo refactor
@@ -23,6 +24,7 @@ struct AppScanTaskResponse {
 
     func getCardInfo() -> CardInfo {
         return CardInfo(card: card,
+                        name: name,
                         walletData: walletData,
                         //                        artworkInfo: nil,
                         twinCardInfo: decodeTwinFile(from: self),
@@ -304,7 +306,19 @@ final class AppScanTask: CardSessionRunnable {
         let isNote = noteWalletData != nil
         let isWallet = card.firmwareVersion.doubleValue >= 4.39 && !isNote && card.settings.maxWalletsCount > 1
 
+
+
+        let name: String
+        if isWallet {
+            name = "Wallet"
+        } else if isNote {
+            name = "Note"
+        } else {
+            name = "Twin"
+        }
+
         completion(.success(AppScanTaskResponse(card: session.environment.card!,
+                                                name: name,
                                                 walletData: noteWalletData ?? session.environment.walletData,
                                                 twinIssuerData: twinIssuerData,
                                                 isTangemNote: noteWalletData != nil,
