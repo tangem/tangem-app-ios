@@ -15,6 +15,7 @@ class WelcomeViewModel: ObservableObject {
     @Injected(\.onboardingStepsSetupService) private var stepsSetupService: OnboardingStepsSetupService
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
+    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
 
     @Published var showTroubleshootingView: Bool = false
     @Published var isScanningCard: Bool = false
@@ -75,6 +76,19 @@ class WelcomeViewModel: ObservableObject {
             }
 
         subscription?.store(in: &bag)
+    }
+
+    func tryBiometricAuthentication() {
+        userWalletListService.tryToAccessBiometry { result in
+            if case .failure = result {
+                return
+            }
+
+            DispatchQueue.main.async { [weak self] in
+                guard let model = self?.userWalletListService.selectedModel else { return }
+                self?.coordinator.openMain(with: model)
+            }
+        }
     }
 
     func tryAgain() {
