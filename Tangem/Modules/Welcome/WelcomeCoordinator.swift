@@ -33,7 +33,7 @@ class WelcomeCoordinator: CoordinatorObject {
     // Fix ios13 navbar glitches
     @Published private(set) var navBarHidden: Bool = true
 
-    private let userWalletService = CommonUserWalletListService()
+    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
 
     // MARK: - Private
     private var welcomeLifecycleSubscription: AnyCancellable? = nil
@@ -64,11 +64,11 @@ class WelcomeCoordinator: CoordinatorObject {
             welcomeViewModel?.scanCard()
         }
 
-        userWalletService.tryToAccessBiometry { [weak self] result in
+        userWalletListService.tryToAccessBiometry { [weak self] result in
             DispatchQueue.main.async {
                 guard case .success = result else { return }
 
-                if let selectedModel = self?.userWalletService.selectedModel {
+                if let selectedModel = self?.userWalletListService.selectedModel {
                     self?.openMain(with: selectedModel)
                 }
             }
