@@ -539,6 +539,7 @@
 		EF0F99E3289177C6008B01DF /* InfoDictionaryUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0F99E2289177C6008B01DF /* InfoDictionaryUtils.swift */; };
 		EF0FF8712866021B00B7CEAF /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0FF8702866021B00B7CEAF /* AppEnvironment.swift */; };
 		EF0FF873286608BC00B7CEAF /* GoogleService-Info-Beta.plist in Resources */ = {isa = PBXBuildFile; fileRef = EF0FF8722866089200B7CEAF /* GoogleService-Info-Beta.plist */; };
+		EF105A9528A3E5AE000BFD71 /* WalletTokenListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF105A9428A3E5AE000BFD71 /* WalletTokenListView.swift */; };
 		EF3EC523289AB2DE0071BA7F /* TangemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */; };
 		EF4B41BB2864491B003911F6 /* TangemSkeletonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B41BA2864491B003911F6 /* TangemSkeletonModifier.swift */; };
 		EF4B41BD28644982003911F6 /* SkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B41BC28644982003911F6 /* SkeletonView.swift */; };
@@ -1131,6 +1132,7 @@
 		EF0F99E2289177C6008B01DF /* InfoDictionaryUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoDictionaryUtils.swift; sourceTree = "<group>"; };
 		EF0FF8702866021B00B7CEAF /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
 		EF0FF8722866089200B7CEAF /* GoogleService-Info-Beta.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info-Beta.plist"; sourceTree = "<group>"; };
+		EF105A9428A3E5AE000BFD71 /* WalletTokenListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTokenListView.swift; sourceTree = "<group>"; };
 		EF2EFDE12865C05D00798051 /* Production.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Production.xcconfig; sourceTree = "<group>"; };
 		EF2EFDE22865C07100798051 /* Beta.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Beta.xcconfig; sourceTree = "<group>"; };
 		EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemProvider.swift; sourceTree = "<group>"; };
@@ -2577,6 +2579,7 @@
 		DC66BBF6285A20FE00CDF765 /* Main */ = {
 			isa = PBXGroup;
 			children = (
+				EF105A9328A3E59F000BFD71 /* TokenList */,
 				DC295B5C2862E6DE006CB7B6 /* BackUpWarningView.swift */,
 				DC295B3B2861C19C006CB7B6 /* MainCoordinator.swift */,
 				DC295B3D2861C1AD006CB7B6 /* MainCoordinatorView.swift */,
@@ -2646,6 +2649,14 @@
 				EF08A0EE283D1914008BD923 /* Moya+.swift */,
 			);
 			path = Extensions;
+			sourceTree = "<group>";
+		};
+		EF105A9328A3E59F000BFD71 /* TokenList */ = {
+			isa = PBXGroup;
+			children = (
+				EF105A9428A3E5AE000BFD71 /* WalletTokenListView.swift */,
+			);
+			path = TokenList;
 			sourceTree = "<group>";
 		};
 		EF2EFDE02865BFE800798051 /* Configurations */ = {
@@ -3202,6 +3213,7 @@
 				B09BB883259A09CE00B92000 /* WarningEvent+.swift in Sources */,
 				EF74F50E289BF5AE001034D2 /* Text+.swift in Sources */,
 				DAC53CF827BE63830027147D /* StoriesTangemLogo.swift in Sources */,
+				EF105A9528A3E5AE000BFD71 /* WalletTokenListView.swift in Sources */,
 				DC295B4C2861D7CF006CB7B6 /* WalletConnectCoordinator.swift in Sources */,
 				DC0A5801282500460031BECC /* SellCryptoRequest.swift in Sources */,
 				5D09381425E6CB2D0049B8F0 /* HorizontalButtonStack.swift in Sources */,

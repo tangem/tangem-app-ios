@@ -48,6 +48,12 @@ class MainViewModel: ObservableObject {
         }
     }
 
+    lazy var walletTokenListViewModel = WalletTokenListViewModel(
+        cachedWallets: cardModel.walletModels ?? []
+    ) { [weak self] itemViewModel in
+        self?.openTokenDetails(itemViewModel)
+    }
+
     // MARK: Variables
     var isLoadingTokensBalance: Bool = false
     lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
@@ -217,10 +223,7 @@ class MainViewModel: ObservableObject {
     }
 
     var tokenItemViewModels: [TokenItemViewModel] {
-        guard let walletModels = cardModel.walletModels else { return [] }
-
-        return walletModels
-            .flatMap({ $0.tokenItemViewModels })
+        cardModel.walletModels?.flatMap({ $0.tokenItemViewModels }) ?? []
     }
 
     init(cardModel: CardViewModel, coordinator: MainRoutable) {
@@ -279,6 +282,14 @@ class MainViewModel: ObservableObject {
         cardModel
             .imageLoaderPublisher
             .weakAssignAnimated(to: \.image, on: self)
+            .store(in: &bag)
+
+        cardModel.objectWillChange.print("objectWillChange")
+            .sink(receiveValue: { [unowned self] _ in
+                self.walletTokenListViewModel.updateTokenViewModels(
+                    self.cardModel.walletModels?.flatMap { $0.tokenItemViewModels } ?? []
+                )
+            })
             .store(in: &bag)
 
         warningsService.warningsUpdatePublisher
