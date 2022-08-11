@@ -23,9 +23,10 @@ class Analytics {
             switch compatible {
             case .appsflyer, .firebase:
                 log(event: event, with: params)
-            case .amplitude:
-                let convertParams = params.reduce(into: [:]) { $0[$1.key.rawValue] = $1.value }
-                logAmplitude(event, params: convertParams)
+            case .amplitude: // [REDACTED_TODO_COMMENT]
+//                let convertParams = params.reduce(into: [:]) { $0[$1.key.rawValue] = $1.value }
+//                logAmplitude(event, params: convertParams)
+                break
             }
         }
     }
