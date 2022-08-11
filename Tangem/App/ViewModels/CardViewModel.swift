@@ -615,19 +615,19 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
 
-        tangemSdk.loadCardInfo(cardPublicKey: cardInfo.card.cardPublicKey, cardId: cardInfo.card.cardId) { [weak self] result in
-            guard let self = self else { return }
-
-            switch result {
-            case .success(let info):
-                guard let artwork = info.artwork else { return }
-
+        OnlineCardVerifier()
+            .getCardInfo(cardId: cardInfo.card.cardId, cardPublicKey: cardInfo.card.cardPublicKey)
+            .receive(on: DispatchQueue.main)
+            .sink { receivedCompletion in
+                if case .failure = receivedCompletion {
+                    self.cardInfo.artwork = .noArtwork
+                    self.warningsService.setupWarnings(for: self.cardInfo)
+                }
+            } receiveValue: { response in
+                guard let artwork = response.artwork else { return }
                 self.cardInfo.artwork = .artwork(artwork)
-            case .failure:
-                self.cardInfo.artwork = .noArtwork
-                self.warningsService.setupWarnings(for: self.cardInfo)
             }
-        }
+            .store(in: &bag)
     }
 
     func update(with card: Card) {
