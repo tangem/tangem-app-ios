@@ -121,17 +121,7 @@ final class UserWalletListViewModel: ObservableObject {
         }
         // [REDACTED_TODO_COMMENT]
 
-        let name: String
-        switch walletData {
-        case .note:
-            name = "Note"
-        case .v3:
-            name = "Wallet"
-        case .twin:
-            name = "Twin"
-        case .none:
-            name = "Wallet"
-        }
+        let name: String = cardModel.cardInfo.name
 
         let userWallet = UserWallet(userWalletId: card.cardPublicKey, name: name, card: card, walletData: walletData, artwork: nil, keys: cardInfo.derivedKeys, isHDWalletAllowed: card.settings.isHDWalletAllowed)
 
