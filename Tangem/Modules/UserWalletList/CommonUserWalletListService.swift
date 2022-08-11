@@ -145,16 +145,15 @@ class CommonUserWalletListService: UserWalletListService {
 
     private func savedUserWallets() -> [UserWallet] {
         do {
-            let data = AppSettings.shared.userWallets
-            var userWallets = try JSONDecoder().decode([UserWallet].self, from: data)
+            let userWalletsData = AppSettings.shared.userWallets
+            var userWallets = try JSONDecoder().decode([UserWallet].self, from: userWalletsData)
 
-            if let encryptionKey = encryptionKey {
-                let derivedKeysData = try secureStorage.get(derivedKeysStorageKey)
-                if let derivedKeysData = derivedKeysData {
-                    let derivedKeysList = try JSONDecoder().decode(UserWalletListDerivedKeys.self, from: derivedKeysData)
-                    for i in 0 ..< userWallets.count {
-                        userWallets[i].keys = derivedKeysList[userWallets[i].userWalletId] ?? [:]
-                    }
+            if let encryptionKey = encryptionKey,
+               let derivedKeysData = try secureStorage.get(derivedKeysStorageKey)
+            {
+                let derivedKeysList = try JSONDecoder().decode(UserWalletListDerivedKeys.self, from: derivedKeysData)
+                for i in 0 ..< userWallets.count {
+                    userWallets[i].keys = derivedKeysList[userWallets[i].userWalletId] ?? [:]
                 }
             }
 
@@ -170,8 +169,9 @@ class CommonUserWalletListService: UserWalletListService {
             let derivedKeys: UserWalletListDerivedKeys = userWallets.reduce(into: [:]) { partialResult, userWallet in
                 partialResult[userWallet.userWalletId] = userWallet.keys
             }
+            let derivedKeysData = try JSONEncoder().encode(derivedKeys)
 
-            try secureStorage.store(JSONEncoder().encode(derivedKeys), forKey: derivedKeysStorageKey, overwrite: true)
+            try secureStorage.store(derivedKeysData, forKey: derivedKeysStorageKey, overwrite: true)
 
             let userWalletsWithoutKeys: [UserWallet] = userWallets.map {
                 var userWalletWithoutKeys = $0
@@ -179,8 +179,8 @@ class CommonUserWalletListService: UserWalletListService {
                 return userWalletWithoutKeys
             }
 
-            let data = try JSONEncoder().encode(userWalletsWithoutKeys)
-            AppSettings.shared.userWallets = data
+            let userWalletsData = try JSONEncoder().encode(userWalletsWithoutKeys)
+            AppSettings.shared.userWallets = userWalletsData
         } catch {
             print(error)
         }
