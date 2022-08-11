@@ -57,10 +57,14 @@ private extension AppSettingsViewModel {
 
     func presentSavingWalletDeleteAlert() {
         let okButton = Alert.Button.destructive(Text("common_delete"), action: { [weak self] in
-            self?.disableSaveWallet()
+            withAnimation {
+                self?.disableSaveWallet()
+            }
         })
         let cancelButton = Alert.Button.cancel(Text("common_cancel"), action: { [weak self] in
-            self?.isSavingWallet = true
+            withAnimation {
+                self?.isSavingWallet = true
+            }
         })
 
         let alert = Alert(
@@ -77,11 +81,15 @@ private extension AppSettingsViewModel {
         guard shouldShowAlertOnDisableSaveAccessCodes else { return }
 
         let okButton = Alert.Button.destructive(Text("common_delete"), action: { [weak self] in
-            self?.disableSaveAccessCodes()
+            withAnimation {
+                self?.disableSaveAccessCodes()
+            }
         })
 
         let cancelButton = Alert.Button.cancel(Text("common_cancel"), action: { [weak self] in
-            self?.isSavingAccessCodes = true
+            withAnimation {
+                self?.isSavingAccessCodes = true
+            }
         })
 
         let alert = Alert(
