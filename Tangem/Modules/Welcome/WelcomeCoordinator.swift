@@ -62,14 +62,14 @@ class WelcomeCoordinator: CoordinatorObject {
 
         if options.shouldScan {
             welcomeViewModel?.scanCard()
-        }
+        } else {
+            userWalletListService.tryToAccessBiometry { [weak self] result in
+                DispatchQueue.main.async {
+                    guard case .success = result else { return }
 
-        userWalletListService.tryToAccessBiometry { [weak self] result in
-            DispatchQueue.main.async {
-                guard case .success = result else { return }
-
-                if let selectedModel = self?.userWalletListService.selectedModel {
-                    self?.openMain(with: selectedModel)
+                    if let selectedModel = self?.userWalletListService.selectedModel {
+                        self?.openMain(with: selectedModel)
+                    }
                 }
             }
         }
