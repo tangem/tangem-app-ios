@@ -11,17 +11,23 @@ import TangemSdk
 import BlockchainSdk
 import WalletConnectSwift
 
-protocol UserWalletConfig: WalletConnectNetworkSelector {
+protocol UserWalletConfig {
     var emailConfig: EmailConfig { get }
+
     var touURL: URL? { get }
+
     var cardSetLabel: String? { get }
+
     var cardIdDisplayFormat: CardIdDisplayFormat { get }
+
     var defaultCurve: EllipticCurve? { get }
+
     var tangemSigner: TangemSigner { get }
 
     var warningEvents: [WarningEvent] { get }
 
     var onboardingSteps: OnboardingSteps { get }
+
     var backupSteps: OnboardingSteps? { get }
 
     /// All blockchains supported by this user wallet.
@@ -37,44 +43,19 @@ protocol UserWalletConfig: WalletConnectNetworkSelector {
     var embeddedBlockchain: StorageEntry? { get }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability
-}
 
-protocol BaseConfig {}
+    func selectNetwork(for dAppInfo: Session.DAppInfo) -> BlockchainNetwork?
 
-extension BaseConfig {
-    func getBaseWarningEvents(for card: Card) -> [WarningEvent] {
-        var warnings: [WarningEvent] = []
-
-        if card.firmwareVersion.type != .sdk &&
-            card.attestation.status == .failed {
-            warnings.append(.failedToValidateCard)
-        }
-
-        for wallet in card.wallets {
-            if let remainingSignatures = wallet.remainingSignatures,
-               remainingSignatures <= 10 {
-                warnings.append(.lowSignatures(count: remainingSignatures))
-                break
-            }
-        }
-
-        return warnings
-    }
-}
-
-protocol WalletConnectNetworkSelector {
-    func selectBlockchain(for dAppInfo: Session.DAppInfo) -> BlockchainNetwork?
-}
-
-extension WalletConnectNetworkSelector {
-    func selectBlockchain(for dAppInfo: Session.DAppInfo) -> BlockchainNetwork? {
-        return nil
-    }
+    // func makeWalletModels(tokens: [StorageEntry], factory: WalletManagerFactory) -> [WalletModel]
 }
 
 extension UserWalletConfig {
     func hasFeature(_ feature: UserWalletFeature) -> Bool {
         getFeatureAvailability(feature).isAvailable
+    }
+
+    func selectNetwork(for dAppInfo: Session.DAppInfo) -> BlockchainNetwork? {
+        return nil
     }
 }
 
@@ -88,27 +69,3 @@ struct EmailConfig {
     }
 }
 
-struct UserWalletConfigFactory {
-    private let cardInfo: CardInfo
-
-    init(_ cardInfo: CardInfo) {
-        self.cardInfo = cardInfo
-    }
-
-    func makeConfig() -> UserWalletConfig {
-        switch cardInfo.walletData {
-        case .none:
-            return GenericConfig(card: cardInfo.card)
-        case .note(let noteData):
-            return NoteConfig(card: cardInfo.card, noteData: noteData)
-        case .twin(let walletData, let twinData):
-            return TwinConfig(card: cardInfo.card, walletData: walletData, twinData: twinData)
-        case .v3(let walletData):
-            if cardInfo.card.issuer.name.lowercased() == "start2coin" {
-                return Start2CoinConfig(card: cardInfo.card, walletData: walletData)
-            }
-
-            return LegacyConfig(card: cardInfo.card, walletData: walletData)
-        }
-    }
-}
