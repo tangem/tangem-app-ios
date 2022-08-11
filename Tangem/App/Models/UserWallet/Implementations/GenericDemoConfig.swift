@@ -1,5 +1,5 @@
 //
-//  GenericConfig.swift
+//  GenericDemoConfig.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -11,7 +11,7 @@ import TangemSdk
 import BlockchainSdk
 import WalletConnectSwift
 
-struct GenericConfig: BaseConfig {
+struct GenericDemoConfig: BaseConfig {
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
 
     private let card: Card
@@ -44,7 +44,7 @@ struct GenericConfig: BaseConfig {
     }
 }
 
-extension GenericConfig: UserWalletConfig {
+extension GenericDemoConfig: UserWalletConfig {
     var emailConfig: EmailConfig {
         .default
     }
@@ -107,15 +107,7 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var persistentBlockchains: [StorageEntry]? {
-        let blockchains = DemoUtil().getDemoBlockchains(isTestnet: card.isTestnet)
-
-        let entries: [StorageEntry] = blockchains.map {
-            let derivationPath = $0.derivationPath(for: card.derivationStyle)
-            let network = BlockchainNetwork($0, derivationPath: derivationPath)
-            return .init(blockchainNetwork: network, tokens: [])
-        }
-
-        return entries
+        return nil
     }
 
     var embeddedBlockchain: StorageEntry? {
@@ -127,6 +119,8 @@ extension GenericConfig: UserWalletConfig {
 
         if card.isTestnet {
             warnings.append(.testnetCard)
+        } else {
+            warnings.append(.demoCard)
         }
 
         return warnings
@@ -170,19 +164,15 @@ extension GenericConfig: UserWalletConfig {
         case .signedHashesCounter:
             return .unavailable
         case .backup:
-            if card.settings.isBackupAllowed, card.backupStatus == .noBackup {
-                return .available
-            }
-
-            return .disabled()
+            return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
         case .twinning:
             return .unavailable
         case .sendingToPayID:
             return .available
         case .exchange:
-            return .available
+            return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
         case .walletConnect:
-            return .available
+            return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
         case .manageTokens:
             return .available
         case .activation:
@@ -199,11 +189,7 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var tangemSigner: TangemSigner {
-        if let backupStatus = card.backupStatus, backupStatus.isActive {
-            return .init(with: nil)
-        } else {
-            return .init(with: card.cardId)
-        }
+        .init(with: card.cardId)
     }
 }
 
