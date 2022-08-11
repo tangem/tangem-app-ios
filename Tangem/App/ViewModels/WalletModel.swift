@@ -355,7 +355,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     }
 
     func getFiatBalance(for type: Amount.AmountType) -> String {
-        return getFiatFormatted(for: wallet.amounts[type]) ?? Decimal(0).currencyFormatted(code: AppSettings.shared.selectedCurrencyCode)
+        return getFiatFormatted(for: wallet.amounts[type]) ?? "–"
     }
 
     func startUpdatingTimer() {
