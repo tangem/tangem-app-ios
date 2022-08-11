@@ -11,6 +11,9 @@ import CryptoKit
 import TangemSdk
 
 class CommonUserWalletListService: UserWalletListService {
+    private typealias UserWalletDerivedKeys = [Data: [DerivationPath: ExtendedPublicKey]]
+    private typealias UserWalletListDerivedKeys = [Data: UserWalletDerivedKeys]
+
     var models: [CardViewModel] = []
 
     var selectedModel: CardViewModel? {
@@ -32,6 +35,9 @@ class CommonUserWalletListService: UserWalletListService {
     private let biometricStorage = BiometricsStorage()
     private let keychainKey = "user_wallet_list_service"
     private var encryptionKey: Data?
+
+    private let secureStorage = SecureStorage()
+    private let derivedKeysStorageKey = "user_wallet_list_derived_keys"
 
     init() {
         let userWallets = savedUserWallets()
@@ -132,7 +138,19 @@ class CommonUserWalletListService: UserWalletListService {
     private func savedUserWallets() -> [UserWallet] {
         do {
             let data = AppSettings.shared.userWallets
-            return try JSONDecoder().decode([UserWallet].self, from: data)
+            var userWallets = try JSONDecoder().decode([UserWallet].self, from: data)
+
+            if let encryptionKey = encryptionKey {
+                let derivedKeysData = try secureStorage.get(derivedKeysStorageKey)
+                if let derivedKeysData = derivedKeysData {
+                    let derivedKeysList = try JSONDecoder().decode(UserWalletListDerivedKeys.self, from: derivedKeysData)
+                    for i in 0 ..< userWallets.count {
+                        userWallets[i].keys = derivedKeysList[userWallets[i].userWalletId] ?? [:]
+                    }
+                }
+            }
+
+            return userWallets
         } catch {
             print(error)
             return []
@@ -141,7 +159,19 @@ class CommonUserWalletListService: UserWalletListService {
 
     private func saveUserWallets(_ userWallets: [UserWallet]) {
         do {
-            let data = try JSONEncoder().encode(userWallets)
+            let derivedKeys: UserWalletListDerivedKeys = userWallets.reduce(into: [:]) { partialResult, userWallet in
+                partialResult[userWallet.userWalletId] = userWallet.keys
+            }
+
+            try secureStorage.store(JSONEncoder().encode(derivedKeys), forKey: derivedKeysStorageKey, overwrite: true)
+
+            let userWalletsWithoutKeys: [UserWallet] = userWallets.map {
+                var userWalletWithoutKeys = $0
+                userWalletWithoutKeys.keys = [:]
+                return userWalletWithoutKeys
+            }
+
+            let data = try JSONEncoder().encode(userWalletsWithoutKeys)
             AppSettings.shared.userWallets = data
         } catch {
             print(error)
