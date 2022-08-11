@@ -45,7 +45,6 @@ final class UserWalletListViewModel: ObservableObject {
 
     func onUserWalletTapped(_ userWallet: UserWallet) {
         setSelectedWallet(userWallet)
-        self.coordinator.didTapUserWallet(userWallet: userWallet)
     }
 
     func addCard() {
@@ -148,9 +147,7 @@ final class UserWalletListViewModel: ObservableObject {
                 singleCurrencyModels.append(newModel)
             }
             newModel.getCardInfo()
-        }
 
-        if selectedUserWalletId == nil {
             setSelectedWallet(userWallet)
         }
     }
@@ -158,5 +155,6 @@ final class UserWalletListViewModel: ObservableObject {
     private func setSelectedWallet(_ userWallet: UserWallet) {
         self.selectedUserWalletId = userWallet.userWalletId
         userWalletListService.selectedUserWalletId = userWallet.userWalletId
+        self.coordinator.didTapUserWallet(userWallet: userWallet)
     }
 }
