@@ -21,8 +21,8 @@ struct WelcomeView: View {
                     searchTokens: viewModel.openTokensList
                 )
             }
+            .navigationBarTitle("", displayMode: .inline)
             .navigationBarHidden(true)
-            .navigationBarTitle("")
             .statusBar(hidden: true)
             .environment(\.colorScheme, viewModel.storiesModel.currentPage.colorScheme)
             .actionSheet(item: $viewModel.discardAlert, content: { $0.sheet })
