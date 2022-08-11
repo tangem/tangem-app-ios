@@ -12,6 +12,7 @@ import enum TangemSdk.TangemSdkError
 protocol UserWalletListService: AnyObject, Initializable {
     var models: [CardViewModel] { get }
 
+    var selectedModel: CardViewModel? { get }
     var selectedUserWalletId: Data? { get set }
 
     func tryToAccessBiometry(completion: @escaping (Result<Void, TangemSdkError>) -> Void)
