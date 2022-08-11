@@ -94,9 +94,9 @@ struct DetailsView: View {
                 viewModel.openCardSettings()
             }
 
-//            DefaultRowView(title: "details_row_title_app_settings".localized, isTappable: true) {
-//                viewModel.openAppSettings()
-//            }
+            DefaultRowView(title: "details_row_title_app_settings".localized) {
+                viewModel.openAppSettings()
+            }
 
             if viewModel.canCreateBackup {
                 DefaultRowView(title: "details_row_title_create_backup".localized) {
