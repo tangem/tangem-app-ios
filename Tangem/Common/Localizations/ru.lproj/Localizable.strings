@@ -212,8 +212,8 @@ This disclaimer was amended for the last time on October 1st, 2020.";
 "onboarding_button_shop" = "Получить новую карту";
 "onboarding_button_show_address_qr" = "Показать адрес кошелька";
 "onboarding_button_skip_backup" = "Пропустить";
-"onboarding_button_tap_first_card" = "Сканировать карту №1";
-"onboarding_button_tap_second_card" = "Сканировать карту №2";
+"onboarding_button_tap_first_card" = "Сканировать карту #1";
+"onboarding_button_tap_second_card" = "Сканировать карту #2";
 "onboarding_confetti_subtitle" = "Ваша карта активирована и готова к использованию";
 "onboarding_confetti_title" = "Готово!";
 "onboarding_create_subtitle" = "Давайте сгенерируем все ключи на вашей карте и создадим безопасный кошелек.";
@@ -486,7 +486,7 @@ URL: %@";
 
 "token_details_hide_alert_title" = "Cкрыть %@";
 "token_details_hide_alert_hide" = "Скрыть";
-"token_details_hide_alert_message" = "Вы скрываете токен с главного экрана, но в любой момент сможете добавить его обратно.";
+"token_details_hide_alert_message" = "Вы скрываете токен с главного экрана, но в любой момент сможете добавить его обратно через страницу управления токенами.";
 "token_details_unable_hide_alert_title" = "Невозможно скрыть %@";
 "token_details_unable_hide_alert_message" = "Токен %@ является основной валютой в сети %@ и не может быть скрыт до тех пор, пока у вас в списке есть другие токены этой сети.";
 
