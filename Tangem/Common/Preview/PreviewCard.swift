@@ -25,6 +25,7 @@ enum PreviewCard {
     var cardModel: CardViewModel {
         let card = Card.card
         let ci = CardInfo(card: card,
+                          name: "",
                           walletData: walletData,
                           //                              artworkInfo: nil,
                           twinCardInfo: twinInfo,
