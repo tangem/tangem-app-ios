@@ -34,7 +34,7 @@ class WelcomeCoordinator: CoordinatorObject {
     private var welcomeLifecycleSubscription: AnyCancellable? = nil
 
     private var lifecyclePublisher: AnyPublisher<Bool, Never> {
-        //Only modals, because the modal presentation will not trigger onAppear/onDissapear events
+        // Only modals, because the modal presentation will not trigger onAppear/onDissapear events
         var publishers: [AnyPublisher<Bool, Never>] = []
         publishers.append($mailViewModel.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
         publishers.append($shopCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
