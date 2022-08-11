@@ -1,5 +1,5 @@
 //
-//  NoteConfig.swift
+//  NoteDemoConfig.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,7 +10,7 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 
-struct NoteConfig: BaseConfig {
+struct NoteDemoConfig: BaseConfig {
     private let card: Card
     private let noteData: WalletData
 
@@ -30,7 +30,7 @@ struct NoteConfig: BaseConfig {
     }
 }
 
-extension NoteConfig: UserWalletConfig {
+extension NoteDemoConfig: UserWalletConfig {
     var emailConfig: EmailConfig {
         .default
     }
@@ -91,6 +91,8 @@ extension NoteConfig: UserWalletConfig {
 
         if isTestnet {
             warnings.append(.testnetCard)
+        } else {
+            warnings.append(.demoCard)
         }
 
         return warnings
@@ -115,9 +117,9 @@ extension NoteConfig: UserWalletConfig {
         case .sendingToPayID:
             return .available
         case .exchange:
-            return .available
+            return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
         case .walletConnect:
-            return .unavailable
+            return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
         case .manageTokens:
             return .unavailable
         case .activation:
@@ -125,7 +127,7 @@ extension NoteConfig: UserWalletConfig {
         case .tokensSearch:
             return .unavailable
         case .resetToFactory:
-            return .available
+            return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
         case .showAddress:
             return .available
         case .withdrawal:
