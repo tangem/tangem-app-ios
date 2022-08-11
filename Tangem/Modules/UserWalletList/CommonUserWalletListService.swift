@@ -34,7 +34,7 @@ class CommonUserWalletListService: UserWalletListService {
 
     private let biometricStorage = BiometricsStorage()
     private let keychainKey = "user_wallet_list_service"
-    private var encryptionKey: Data?
+    private var encryptionKey: SymmetricKey?
 
     private let secureStorage = SecureStorage()
     private let derivedKeysStorageKey = "user_wallet_list_derived_keys"
@@ -54,7 +54,7 @@ class CommonUserWalletListService: UserWalletListService {
             switch result {
             case .success(let encryptionKey):
                 if let encryptionKey = encryptionKey {
-                    self?.encryptionKey = encryptionKey
+                    self?.encryptionKey = SymmetricKey(data: encryptionKey)
                     self?.loadModels()
                     completion(.success(()))
                     return
@@ -72,7 +72,7 @@ class CommonUserWalletListService: UserWalletListService {
             self?.biometricStorage.store(newEncryptionKeyData, forKey: keychainKey, overwrite: true) { [weak self] result in
                 switch result {
                 case .success:
-                    self?.encryptionKey = newEncryptionKeyData
+                    self?.encryptionKey = SymmetricKey(data: newEncryptionKeyData)
                     completion(.success(()))
                 case .failure(let error):
                     print("Failed to save encryption key", error)
@@ -149,8 +149,10 @@ class CommonUserWalletListService: UserWalletListService {
             var userWallets = try JSONDecoder().decode([UserWallet].self, from: userWalletsData)
 
             if let encryptionKey = encryptionKey,
-               let derivedKeysData = try secureStorage.get(derivedKeysStorageKey)
+               let derivedKeysEncryptedData = try secureStorage.get(derivedKeysStorageKey)
             {
+                let derivedKeysData = try decrypt(derivedKeysEncryptedData, with: encryptionKey)
+
                 let derivedKeysList = try JSONDecoder().decode(UserWalletListDerivedKeys.self, from: derivedKeysData)
                 for i in 0 ..< userWallets.count {
                     userWallets[i].keys = derivedKeysList[userWallets[i].userWalletId] ?? [:]
@@ -165,13 +167,18 @@ class CommonUserWalletListService: UserWalletListService {
     }
 
     private func saveUserWallets(_ userWallets: [UserWallet]) {
+        guard let encryptionKey = encryptionKey else {
+            return
+        }
+
         do {
             let derivedKeys: UserWalletListDerivedKeys = userWallets.reduce(into: [:]) { partialResult, userWallet in
                 partialResult[userWallet.userWalletId] = userWallet.keys
             }
             let derivedKeysData = try JSONEncoder().encode(derivedKeys)
+            let derivedKeysDataEncrypted = try encrypt(derivedKeysData, with: encryptionKey)
 
-            try secureStorage.store(derivedKeysData, forKey: derivedKeysStorageKey, overwrite: true)
+            try secureStorage.store(derivedKeysDataEncrypted, forKey: derivedKeysStorageKey, overwrite: true)
 
             let userWalletsWithoutKeys: [UserWallet] = userWallets.map {
                 var userWalletWithoutKeys = $0
@@ -184,5 +191,17 @@ class CommonUserWalletListService: UserWalletListService {
         } catch {
             print(error)
         }
+    }
+
+    private func decrypt(_ data: Data, with key: SymmetricKey) throws -> Data {
+        let sealedBox = try ChaChaPoly.SealedBox(combined: data)
+        let decryptedData = try ChaChaPoly.open(sealedBox, using: key)
+        return decryptedData
+    }
+
+    private func encrypt(_ data: Data, with key: SymmetricKey) throws -> Data {
+        let sealedBox = try ChaChaPoly.seal(data, using: key)
+        let sealedData = sealedBox.combined
+        return sealedData
     }
 }
