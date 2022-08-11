@@ -14,10 +14,6 @@ struct NoteConfig: BaseConfig {
     private let card: Card
     private let noteData: WalletData
 
-    private var isDemoCard: Bool {
-        DemoUtil().isDemoCard(cardId: card.cardId)
-    }
-
     init(card: Card, noteData: WalletData) {
         self.card = card
         self.noteData = noteData
@@ -95,8 +91,6 @@ extension NoteConfig: UserWalletConfig {
 
         if isTestnet {
             warnings.append(.testnetCard)
-        } else if isDemoCard {
-            warnings.append(.demoCard)
         }
 
         return warnings
@@ -121,10 +115,6 @@ extension NoteConfig: UserWalletConfig {
         case .sendingToPayID:
             return .available
         case .exchange:
-            if isDemoCard {
-                return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
-            }
-
             return .available
         case .walletConnect:
             return .unavailable
