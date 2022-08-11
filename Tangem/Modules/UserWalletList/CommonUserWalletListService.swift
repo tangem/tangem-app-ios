@@ -40,10 +40,11 @@ class CommonUserWalletListService: UserWalletListService {
     private let derivedKeysStorageKey = "user_wallet_list_derived_keys"
 
     init() {
-        let userWallets = savedUserWallets()
-        models = userWallets.map {
-            CardViewModel(userWallet: $0)
-        }
+
+    }
+
+    func initialize() {
+
     }
 
     func tryToAccessBiometry(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
@@ -54,11 +55,13 @@ class CommonUserWalletListService: UserWalletListService {
             case .success(let encryptionKey):
                 if let encryptionKey = encryptionKey {
                     self?.encryptionKey = encryptionKey
+                    self?.loadModels()
                     completion(.success(()))
                     return
                 }
             case .failure(let error):
                 print("Failed to get encryption key", error)
+                self?.loadModels()
                 completion(.failure(error))
                 return
             }
@@ -75,12 +78,17 @@ class CommonUserWalletListService: UserWalletListService {
                     print("Failed to save encryption key", error)
                     completion(.failure(error))
                 }
+
+                self?.loadModels()
             }
         }
     }
 
-    func initialize() {
-
+    func loadModels() {
+        let userWallets = savedUserWallets()
+        models = userWallets.map {
+            CardViewModel(userWallet: $0)
+        }
     }
 
     func deleteWallet(_ userWallet: UserWallet) {
