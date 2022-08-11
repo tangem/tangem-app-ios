@@ -21,6 +21,7 @@ class MainViewModel: ObservableObject {
     @Injected(\.rateAppService) private var rateAppService: RateAppService
     @Injected(\.onboardingStepsSetupService) private var cardOnboardingStepSetupService: OnboardingStepsSetupService
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
 
     // MARK: - Published variables
 
@@ -619,14 +620,15 @@ class MainViewModel: ObservableObject {
             return
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [cardModel] in
             self.error = AlertBinder(alert:
                 Alert(title: Text("Do you want to save cards in the app"),
                       message: Text("Think about it..."),
                       primaryButton: .cancel {
                           AppSettings.shared.saveUserWallets = false
                       },
-                      secondaryButton: .default(Text("OK")) { [weak self] in
+                      secondaryButton: .default(Text("OK")) { [weak self, cardModel] in
+                          let _ = self?.userWalletListService.save(cardModel.userWallet)
                           self?.coordinator.openUserWalletList()
                           AppSettings.shared.saveUserWallets = true
                       }
