@@ -16,7 +16,7 @@ struct UserWallet: Identifiable, Codable {
     let card: Card
     let walletData: DefaultWalletData
     let artwork: ArtworkInfo?
-    let keys: [Data: [DerivationPath: ExtendedPublicKey]] // encrypted
+    var keys: [Data: [DerivationPath: ExtendedPublicKey]] // encrypted
     let isHDWalletAllowed: Bool
 }
 
