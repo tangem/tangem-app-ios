@@ -10,6 +10,18 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 
+class WalletManagerFactoryProvider {
+    @Injected(\.keysManager) private var keysManager: KeysManager
+
+    lazy var factory: WalletManagerFactory = {
+        .init(config: keysManager.blockchainConfig)
+    }()
+
+    init() {}
+}
+
+
+
 class WalletManagerAssembly {
     @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
     @Injected(\.keysManager) private var keysManager: KeysManager
@@ -104,19 +116,18 @@ class WalletManagerAssembly {
 
     /// Try to load native walletmanager from card
     private func makeNativeWalletManager(from cardInfo: CardInfo) -> WalletManager? {
-//        if let defaultBlockchain = cardInfo.defaultBlockchain {
-//            let network = BlockchainNetwork(defaultBlockchain, derivationPath: nil)
-//            let entry = StorageEntry(blockchainNetwork: network, tokens: [])
-//            if let cardWalletManager = makeWalletManagers(from: cardInfo, entries: [entry]).first {
-//                if let defaultToken = cardInfo.defaultToken {
-//                    cardWalletManager.addToken(defaultToken)
-//                }
-//
-//                return cardWalletManager
-//            }
-//
-//        }
-        return nil
+        if let defaultBlockchain = cardInfo.defaultBlockchain {
+            let network = BlockchainNetwork(defaultBlockchain, derivationPath: nil)
+            let entry = StorageEntry(blockchainNetwork: network, tokens: [])
+            if let cardWalletManager = makeWalletManagers(from: cardInfo, entries: [entry]).first {
+                if let defaultToken = cardInfo.defaultToken {
+                    cardWalletManager.addToken(defaultToken)
+                }
+
+                return cardWalletManager
+            }
+
+        }
     }
 }
 
@@ -152,21 +163,21 @@ extension WalletManagerAssembly {
     }
 
     // Make walletModel from walletManager
-    static private func makeWalletModels(walletManagers: [WalletManager],
-                                         derivationStyle: DerivationStyle,
-                                         isDemoCard: Bool) -> [WalletModel] {
-        return walletManagers.map { manager -> WalletModel in
-            var demoBalance: Decimal? = nil
-            if isDemoCard, let balance = items.predefinedDemoBalances[manager.wallet.blockchain] {
-                demoBalance = balance
-            }
-
-            let model = WalletModel(walletManager: manager,
-                                    derivationStyle: derivationStyle,
-                                    demoBalance: demoBalance)
-
-            model.initialize()
-            return model
-        }
-    }
+//    static private func makeWalletModels(walletManagers: [WalletManager],
+//                                         derivationStyle: DerivationStyle,
+//                                         isDemoCard: Bool) -> [WalletModel] {
+//        return walletManagers.map { manager -> WalletModel in
+//            var demoBalance: Decimal? = nil
+//            if isDemoCard, let balance = items.predefinedDemoBalances[manager.wallet.blockchain] {
+//                demoBalance = balance
+//            }
+//
+//            let model = WalletModel(walletManager: manager,
+//                                    derivationStyle: derivationStyle,
+//                                    demoBalance: demoBalance)
+//
+//            model.initialize()
+//            return model
+//        }
+//    }
 }
