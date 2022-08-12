@@ -97,9 +97,9 @@ extension DetailsCoordinator: DetailsRoutable {
         scanCardSettingsViewModel = ScanCardSettingsViewModel(coordinator: self)
     }
 
-    func openAppSettings() {
+    func openAppSettings(cardModel: CardViewModel) {
         let coordinator = AppSettingsCoordinator(popToRootAction: popToRootAction)
-        coordinator.start(with: .default)
+        coordinator.start(with: .default(cardModel: cardModel))
         appSettingsCoordinator = coordinator
     }
 
