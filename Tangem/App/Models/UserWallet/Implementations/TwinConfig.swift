@@ -112,7 +112,7 @@ extension TwinConfig: UserWalletConfig {
 
         return warnings
     }
-    
+
     // [REDACTED_TODO_COMMENT]
     var tangemSigner: TangemSigner { .init(with: card.cardId) }
 
@@ -156,22 +156,22 @@ extension TwinConfig: UserWalletConfig {
             return .available
         }
     }
-    
-    func makeWalletModels(for tokens: [StorageEntry], derivedKeys: [DerivationPath : ExtendedPublicKey]) -> [WalletModel] {
+
+    func makeWalletModels(for tokens: [StorageEntry], derivedKeys: [DerivationPath: ExtendedPublicKey]) -> [WalletModel] {
         guard let savedPairKey = twinData.pairPublicKey,
               let walletPublicKey = card.wallets.first?.publicKey else {
             return []
         }
-        
+
         do {
             let factory = WalletManagerFactoryProvider().factory
             let twinManager = try factory.makeTwinWalletManager(walletPublicKey: walletPublicKey,
                                                                 pairKey: savedPairKey,
                                                                 isTestnet: isTestnet)
-            
+
             let model = WalletModel(walletManager: twinManager,
                                     derivationStyle: card.derivationStyle)
-            
+
             model.initialize()
             return [model]
         } catch {
