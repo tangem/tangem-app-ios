@@ -46,8 +46,7 @@ protocol UserWalletConfig {
 
     func selectNetwork(for dAppInfo: Session.DAppInfo) -> BlockchainNetwork?
 
-    // [REDACTED_TODO_COMMENT]
-    func makeWalletModels(for tokens: [StorageEntry], derivedKeys: [DerivationPath: ExtendedPublicKey]) -> [WalletModel]
+    func makeWalletModels(for tokens: [StorageEntry], derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]) -> [WalletModel]
 }
 
 extension UserWalletConfig {
