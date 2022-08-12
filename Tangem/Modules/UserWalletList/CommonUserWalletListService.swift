@@ -162,17 +162,23 @@ class CommonUserWalletListService: UserWalletListService {
 
     private func savedUserWallets() -> [UserWallet] {
         do {
+            var userWallets: [UserWallet] = []
+
             let userWalletsData = AppSettings.shared.userWallets
-            var userWallets = try JSONDecoder().decode([UserWallet].self, from: userWalletsData)
+            if !userWalletsData.isEmpty {
+                userWallets = try JSONDecoder().decode([UserWallet].self, from: userWalletsData)
+            }
 
             if let encryptionKey = encryptionKey,
-               let derivedKeysEncryptedData = try secureStorage.get(derivedKeysStorageKey)
+               let derivedKeysEncryptedData = try secureStorage.get(derivedKeysStorageKey),
+               !derivedKeysEncryptedData.isEmpty
             {
                 let derivedKeysData = try decrypt(derivedKeysEncryptedData, with: encryptionKey)
-
-                let derivedKeysList = try JSONDecoder().decode(UserWalletListDerivedKeys.self, from: derivedKeysData)
-                for i in 0 ..< userWallets.count {
-                    userWallets[i].keys = derivedKeysList[userWallets[i].userWalletId] ?? [:]
+                if !derivedKeysData.isEmpty {
+                    let derivedKeysList = try JSONDecoder().decode(UserWalletListDerivedKeys.self, from: derivedKeysData)
+                    for i in 0 ..< userWallets.count {
+                        userWallets[i].keys = derivedKeysList[userWallets[i].userWalletId] ?? [:]
+                    }
                 }
             }
 
@@ -189,21 +195,33 @@ class CommonUserWalletListService: UserWalletListService {
         }
 
         do {
-            let derivedKeys: UserWalletListDerivedKeys = userWallets.reduce(into: [:]) { partialResult, userWallet in
-                partialResult[userWallet.userWalletId] = userWallet.keys
+            let derivedKeysEncryptedData: Data
+            let userWalletsData: Data
+
+            if userWallets.isEmpty {
+                derivedKeysEncryptedData = Data()
+                userWalletsData = Data()
+            } else {
+                let derivedKeys: UserWalletListDerivedKeys = userWallets.reduce(into: [:]) { partialResult, userWallet in
+                    partialResult[userWallet.userWalletId] = userWallet.keys
+                }
+                let derivedKeysData = try JSONEncoder().encode(derivedKeys)
+                derivedKeysEncryptedData = try encrypt(derivedKeysData, with: encryptionKey)
+
+                let userWalletsWithoutKeys: [UserWallet] = userWallets.map {
+                    var userWalletWithoutKeys = $0
+                    userWalletWithoutKeys.keys = [:]
+                    return userWalletWithoutKeys
+                }
+
+                userWalletsData = try JSONEncoder().encode(userWalletsWithoutKeys)
             }
-            let derivedKeysData = try JSONEncoder().encode(derivedKeys)
-            let derivedKeysDataEncrypted = try encrypt(derivedKeysData, with: encryptionKey)
 
-            try secureStorage.store(derivedKeysDataEncrypted, forKey: derivedKeysStorageKey, overwrite: true)
-
-            let userWalletsWithoutKeys: [UserWallet] = userWallets.map {
-                var userWalletWithoutKeys = $0
-                userWalletWithoutKeys.keys = [:]
-                return userWalletWithoutKeys
+            if derivedKeysEncryptedData.isEmpty {
+                try secureStorage.delete(derivedKeysStorageKey)
+            } else {
+                try secureStorage.store(derivedKeysEncryptedData, forKey: derivedKeysStorageKey, overwrite: true)
             }
-
-            let userWalletsData = try JSONEncoder().encode(userWalletsWithoutKeys)
             AppSettings.shared.userWallets = userWalletsData
         } catch {
             print(error)
