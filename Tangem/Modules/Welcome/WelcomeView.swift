@@ -13,7 +13,7 @@ struct WelcomeView: View {
 
     var body: some View {
         ZStack {
-            if AppSettings.shared.saveUserWallets == true {
+            if viewModel.shouldShowAuthenticationView {
                 authenticationView
             } else {
                 storiesView
