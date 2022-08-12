@@ -11,7 +11,7 @@ import TangemSdk
 import BlockchainSdk
 import WalletConnectSwift
 
-struct GenericConfig: BaseConfig, WalletModelBuilder {
+struct GenericConfig: BaseConfig {
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
 
     private let card: Card
@@ -206,11 +206,22 @@ extension GenericConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModels(for tokens: [StorageEntry], derivedKeys: [DerivationPath: ExtendedPublicKey]) -> [WalletModel] {
+    func makeWalletModels(for tokens: [StorageEntry], derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]) -> [WalletModel] {
+        let walletPublicKeys: [EllipticCurve: Data] = card.wallets.reduce(into: [:]) { partialResult, cardWallet in
+            partialResult[cardWallet.curve] = cardWallet.publicKey
+        }
+
+        let factory = WalletModelFactory()
+
         if card.settings.isHDWalletAllowed {
-            return makeMultipleWallets(entries: tokens, derivedKeys: derivedKeys)
+            return factory.makeMultipleWallets(seedKeys: walletPublicKeys,
+                                               entries: tokens,
+                                               derivedKeys: derivedKeys,
+                                               derivationStyle: card.derivationStyle)
         } else {
-            return makeMultipleWallets(entries: tokens)
+            return factory.makeMultipleWallets(walletPublicKeys: walletPublicKeys,
+                                               entries: tokens,
+                                               derivationStyle: card.derivationStyle)
         }
     }
 }
