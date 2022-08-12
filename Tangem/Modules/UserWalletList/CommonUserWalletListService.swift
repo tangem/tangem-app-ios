@@ -32,6 +32,10 @@ class CommonUserWalletListService: UserWalletListService {
         }
     }
 
+    var isEmpty: Bool {
+        savedUserWallets().isEmpty
+    }
+
     private let biometricStorage = BiometricsStorage()
     private let keychainKey = "user_wallet_list_service"
     private var encryptionKey: SymmetricKey?
@@ -48,7 +52,10 @@ class CommonUserWalletListService: UserWalletListService {
     }
 
     func tryToAccessBiometry(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        guard encryptionKey == nil else { return }
+        guard encryptionKey == nil else {
+            print("Encryption key already fetched, skipping biometric authentication")
+            return
+        }
 
         biometricStorage.get(keychainKey) { [weak self, keychainKey] result in
             switch result {
@@ -115,6 +122,10 @@ class CommonUserWalletListService: UserWalletListService {
 
         saveUserWallets(userWallets)
 
+        if userWallets.count == 1 {
+            selectedUserWalletId = userWallet.userWalletId
+        }
+
         let newModel = CardViewModel(userWallet: userWallet)
         if let index = models.firstIndex(where: { $0.userWallet.userWalletId == userWallet.userWalletId }) {
             models[index] = newModel
@@ -141,6 +152,12 @@ class CommonUserWalletListService: UserWalletListService {
         }
 
         saveUserWallets(userWallets)
+    }
+
+    func clear() {
+        let _ = saveUserWallets([])
+        selectedUserWalletId = nil
+        encryptionKey = nil
     }
 
     private func savedUserWallets() -> [UserWallet] {
