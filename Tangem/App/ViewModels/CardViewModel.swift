@@ -419,7 +419,7 @@ class CardViewModel: Identifiable, ObservableObject {
             self.state = .empty
         } else {
             print("⁉️ Recreating all wallet models for Card view model state")
-            self.state = .loaded(walletModel: WalletManagerAssembly.makeAllWalletModels(from: cardInfo))
+            self.state = .loaded(walletModel: makeAllWalletModels())
 
             // [REDACTED_TODO_COMMENT]
             // if !AppSettings.shared.cardsStartedActivation.contains(cardInfo.card.cardId) || cardInfo.isTangemWallet {
@@ -432,6 +432,11 @@ class CardViewModel: Identifiable, ObservableObject {
                 .store(in: &bag)
             //  }
         }
+    }
+
+    private func makeAllWalletModels() -> [WalletModel] {
+        let tokens = tokenItemsRepository.getItems(for: cardInfo.card.cardId)
+        return config.makeWalletModels(for: tokens, derivedKeys: cardInfo.derivedKeys)
     }
 
     private func updateModel() {
@@ -459,7 +464,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
         let unused: [StorageEntry] = config.supportedBlockchains
             .subtracting(currentBlockhains).map { StorageEntry(blockchainNetwork: .init($0, derivationPath: nil), tokens: []) }
-        let models = WalletManagerAssembly.makeWalletModels(from: cardInfo, entries: unused)
+        let models = config.makeWalletModels(for: unused, derivedKeys: cardInfo.derivedKeys)
         if models.isEmpty {
             return
         }
@@ -498,7 +503,7 @@ class CardViewModel: Identifiable, ObservableObject {
         if ethWalletModel == nil {
             shouldAddWalletManager = true
             let entry = StorageEntry(blockchainNetwork: network, tokens: [])
-            ethWalletModel = WalletManagerAssembly.makeWalletModels(from: cardInfo, entries: [entry]).first
+            ethWalletModel = config.makeWalletModels(for: [entry], derivedKeys: cardInfo.derivedKeys).first
         }
 
         guard let tokenFinder = ethWalletModel?.walletManager as? TokenFinder else {
@@ -591,7 +596,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 existingWalletModel.addTokens(entry.tokens)
                 existingWalletModel.update()
             } else {
-                let wm = WalletManagerAssembly.makeWalletModels(from: cardInfo, entries: [entry])
+                let wm = config.makeWalletModels(for: [entry], derivedKeys: cardInfo.derivedKeys)
                 newWalletModels.append(contentsOf: wm)
             }
         }
@@ -703,7 +708,7 @@ class CardViewModel: Identifiable, ObservableObject {
             .collect(publishers.count)
             .sink { [unowned self] migrationResults in
                 if migrationResults.contains(true) {
-                    self.state = .loaded(walletModel: WalletManagerAssembly.makeAllWalletModels(from: self.cardInfo))
+                    self.state = .loaded(walletModel: makeAllWalletModels())
                 }
                 completion()
             }
