@@ -20,26 +20,42 @@ struct AttentionView: View {
             VStack(alignment: .center, spacing: 0) {
                 ZStack {
                     Assets.attentionBg
+                        .resizable()
+                        .fixedSize(horizontal: false, vertical: true)
 
                     Assets.attentionRed
                         .offset(y: 30)
                 }
-                .padding(.bottom, 40)
+                .frame(
+                    minWidth: geometry.size.width,
+                    maxHeight: geometry.size.height * 0.5,
+                    alignment: .bottom
+                )
 
-                mainInformationView
-
-                Spacer(minLength: 0)
-
-                VStack(spacing: 22) {
-                    agreeView
-
-                    actionButton
-                }
+                informationViews
             }
-            .edgesIgnoringSafeArea(.top)
-            .padding(.bottom, 16)
         }
+        .edgesIgnoringSafeArea(.top)
+        .padding(.bottom, 16)
         .navigationBarTitle(Text(viewModel.navigationTitle), displayMode: .inline)
+    }
+
+    private var informationViews: some View {
+        VStack {
+            Spacer()
+
+            mainInformationView
+                .layoutPriority(1)
+
+            Spacer()
+
+            VStack(spacing: 22) {
+                agreeView
+
+                actionButton
+            }
+            .layoutPriority(1)
+        }
     }
 
     private var mainInformationView: some View {
@@ -50,7 +66,7 @@ struct AttentionView: View {
             Text(viewModel.message)
                 .style(Fonts.Regular.callout, color: Colors.Text.secondary)
                 .multilineTextAlignment(.center)
-                .padding(.horizontal, 46)
+                .padding(.horizontal, 16)
         }
     }
 
@@ -106,6 +122,6 @@ struct AttentionView_Previews: PreviewProvider {
         NavigationView {
             AttentionView(viewModel: viewModel)
         }
-        .deviceForPreview(.iPhone12Pro)
+        .previewGroup(withZoomed: false)
     }
 }
