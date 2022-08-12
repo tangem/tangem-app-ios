@@ -69,7 +69,7 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
             throw WalletConnectServiceError.networkNotFound(name: targetBlockchain.displayName)
         }
 
-        let availableWallet = WalletManagerAssembly.makeWalletModels(from: card, blockchainNetworks: [availableItem.blockchainNetwork])
+        let availableWallet = card.makeWalletModels(for: [availableItem])
             .filter { !$0.isCustom(.coin) }
             .first(where: { $0.wallet.blockchain == targetBlockchain })
             .map { $0.wallet }
