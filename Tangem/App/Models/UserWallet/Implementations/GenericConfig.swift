@@ -11,7 +11,7 @@ import TangemSdk
 import BlockchainSdk
 import WalletConnectSwift
 
-struct GenericConfig: BaseConfig {
+struct GenericConfig: BaseConfig, WalletModelBuilder {
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
 
     private let card: Card
@@ -145,6 +145,14 @@ extension GenericConfig: UserWalletConfig {
         return network
     }
 
+    var tangemSigner: TangemSigner {
+        if let backupStatus = card.backupStatus, backupStatus.isActive {
+            return .init(with: nil)
+        } else {
+            return .init(with: card.cardId)
+        }
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
@@ -198,11 +206,11 @@ extension GenericConfig: UserWalletConfig {
         }
     }
 
-    var tangemSigner: TangemSigner {
-        if let backupStatus = card.backupStatus, backupStatus.isActive {
-            return .init(with: nil)
+    func makeWalletModels(for tokens: [StorageEntry], derivedKeys: [DerivationPath: ExtendedPublicKey]) -> [WalletModel] {
+        if card.settings.isHDWalletAllowed {
+            return makeMultipleWallets(entries: tokens, derivedKeys: derivedKeys)
         } else {
-            return .init(with: card.cardId)
+            return makeMultipleWallets(entries: tokens)
         }
     }
 }

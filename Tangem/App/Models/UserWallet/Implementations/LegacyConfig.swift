@@ -12,7 +12,7 @@ import BlockchainSdk
 import WalletConnectSwift
 
 /// V3 Config
-struct LegacyConfig: BaseConfig {
+struct LegacyConfig: BaseConfig, WalletModelBuilder {
     private let card: Card
     private let walletData: WalletData
 
@@ -22,6 +22,10 @@ struct LegacyConfig: BaseConfig {
 
     private var isTestnet: Bool {
         defaultBlockchain.isTestnet
+    }
+
+    private var isMultiwallet: Bool {
+        card.supportedCurves.contains(.secp256k1)
     }
 
     private var defaultToken: BlockchainSdk.Token? {
@@ -118,6 +122,8 @@ extension LegacyConfig: UserWalletConfig {
         return warnings
     }
 
+    var tangemSigner: TangemSigner { .init(with: card.cardId) }
+
     func selectBlockchain(for dAppInfo: Session.DAppInfo) -> BlockchainNetwork? {
         guard hasFeature(.walletConnect) else { return nil }
 
@@ -147,7 +153,7 @@ extension LegacyConfig: UserWalletConfig {
         case .longHashes:
             return .unavailable
         case .signedHashesCounter:
-            if card.supportedCurves.contains(.secp256k1) {
+            if isMultiwallet {
                 return .unavailable
             } else {
                 return .available
@@ -161,7 +167,7 @@ extension LegacyConfig: UserWalletConfig {
         case .exchange:
             return .available
         case .walletConnect, .manageTokens, .tokensSearch:
-            if card.supportedCurves.contains(.secp256k1) {
+            if isMultiwallet {
                 return .available
             } else {
                 return .unavailable
@@ -177,5 +183,15 @@ extension LegacyConfig: UserWalletConfig {
         }
     }
 
-    var tangemSigner: TangemSigner { .init(with: card.cardId) }
+    func makeWalletModels(for tokens: [StorageEntry], derivedKeys: [DerivationPath: ExtendedPublicKey]) -> [WalletModel] {
+        if isMultiwallet {
+            return makeMultipleWallets(entries: tokens)
+        } else {
+            if let model = makeSingleWallet() {
+                return [model]
+            }
+
+            return []
+        }
+    }
 }
