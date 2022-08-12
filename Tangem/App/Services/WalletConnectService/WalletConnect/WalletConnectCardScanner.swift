@@ -55,8 +55,10 @@ class WalletConnectCardScanner {
             throw WalletConnectServiceError.unsupportedNetwork
         }
 
-        let walletModels = WalletManagerAssembly.makeAllWalletModels(from: cardInfo)
-        let wallet = walletModels
+        let cardModel = CardViewModel(cardInfo: cardInfo)
+        cardModel.updateState()
+
+        let wallet = cardModel.walletModels?
             .first(where: { $0.blockchainNetwork == blockchainNetwork })
             .map { $0.wallet }
 
