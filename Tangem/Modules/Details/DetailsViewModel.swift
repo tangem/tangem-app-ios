@@ -160,7 +160,7 @@ extension DetailsViewModel {
 
     func openAppSettings() {
         Analytics.log(.appSettingsTapped)
-        coordinator.openAppSettings()
+        coordinator.openAppSettings(cardModel: cardModel)
     }
 
     func openSupportChat() {

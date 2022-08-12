@@ -64,6 +64,9 @@ class AppSettings {
     @AppStorageCompat(StorageType.selectedUserWalletId)
     var selectedUserWalletId: Data = Data()
 
+    @AppStorageCompat(StorageType.saveAccessCodes)
+    var saveAccessCodes: Bool = false
+
     static let shared: AppSettings = { .init() }()
 
     private init() {}
