@@ -709,9 +709,13 @@ private extension SendViewModel {
             sendAmount = transaction.amount.description
             sendTotal = (transaction.amount + transaction.fee).description
 
-            sendTotalSubtitle = "send_total_subtitle_fiat_format".localized(
-                [totalInFiatFormatted.total, totalInFiatFormatted.fee]
-            )
+            if totalInFiatFormatted.total.isEmpty {
+                sendTotalSubtitle = "–"
+            } else {
+                sendTotalSubtitle = "send_total_subtitle_fiat_format".localized(
+                    [totalInFiatFormatted.total, totalInFiatFormatted.fee]
+                )
+            }
         }
 
         updateFee(amount: transaction.fee)
