@@ -21,18 +21,19 @@ struct WelcomeView: View {
                     searchTokens: viewModel.openTokensList
                 )
             }
-            .navigationBarTitle("", displayMode: .inline)
-            .navigationBarHidden(true)
-            .statusBar(hidden: true)
-            .environment(\.colorScheme, viewModel.storiesModel.currentPage.colorScheme)
-            .actionSheet(item: $viewModel.discardAlert, content: { $0.sheet })
 
             ScanTroubleshootingView(isPresented: $viewModel.showTroubleshootingView,
                                     tryAgainAction: viewModel.tryAgain,
                                     requestSupportAction: viewModel.requestSupport)
         }
+        .statusBar(hidden: true)
+        .navigationBarHidden(viewModel.navigationBarHidden)
+        .navigationBarTitle("", displayMode: .inline)
+        .environment(\.colorScheme, viewModel.storiesModel.currentPage.colorScheme)
+        .actionSheet(item: $viewModel.discardAlert, content: { $0.sheet })
         .alert(item: $viewModel.error, content: { $0.alert })
         .onAppear(perform: viewModel.onAppear)
+        .onDisappear(perform: viewModel.onDissappear)
     }
 }
 
