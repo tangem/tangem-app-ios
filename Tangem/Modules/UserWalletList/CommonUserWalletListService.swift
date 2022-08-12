@@ -36,7 +36,7 @@ class CommonUserWalletListService: UserWalletListService {
         savedUserWallets().isEmpty
     }
 
-    private let biometricStorage = BiometricsStorage()
+    private let biometricsStorage = BiometricsStorage()
     private let keychainKey = "user_wallet_list_service"
     private var encryptionKey: SymmetricKey?
 
@@ -57,7 +57,7 @@ class CommonUserWalletListService: UserWalletListService {
             return
         }
 
-        biometricStorage.get(keychainKey) { [weak self, keychainKey] result in
+        biometricsStorage.get(keychainKey) { [weak self, keychainKey] result in
             switch result {
             case .success(let encryptionKey):
                 if let encryptionKey = encryptionKey {
@@ -76,7 +76,7 @@ class CommonUserWalletListService: UserWalletListService {
             let newEncryptionKey = SymmetricKey(size: .bits256)
             let newEncryptionKeyData = Data(hexString: newEncryptionKey.dataRepresentation.hexString) // WTF?
 
-            self?.biometricStorage.store(newEncryptionKeyData, forKey: keychainKey, overwrite: true) { [weak self] result in
+            self?.biometricsStorage.store(newEncryptionKeyData, forKey: keychainKey, overwrite: true) { [weak self] result in
                 switch result {
                 case .success:
                     self?.encryptionKey = SymmetricKey(data: newEncryptionKeyData)
