@@ -10,7 +10,7 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 
-struct NoteDemoConfig: BaseConfig, WalletModelBuilder {
+struct NoteDemoConfig: BaseConfig {
     private let card: Card
     private let noteData: WalletData
 
@@ -137,9 +137,19 @@ extension NoteDemoConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModels(for tokens: [StorageEntry], derivedKeys: [DerivationPath: ExtendedPublicKey]) -> [WalletModel] {
-        if let model = makeSingleWallet() {
+    func makeWalletModels(for tokens: [StorageEntry], derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]) -> [WalletModel] {
+        guard let walletPublicKey = card.wallets.first(where: { $0.curve == defaultBlockchain.curve })?.publicKey else {
+            return []
+        }
+
+        let factory = WalletModelFactory()
+
+        if let model = factory.makeSingleWallet(walletPublicKey: walletPublicKey,
+                                                blockchain: defaultBlockchain,
+                                                token: nil,
+                                                derivationStyle: card.derivationStyle) {
             model.demoBalance = DemoUtil().getDemoBalance(for: defaultBlockchain)
+
             return [model]
         }
 
