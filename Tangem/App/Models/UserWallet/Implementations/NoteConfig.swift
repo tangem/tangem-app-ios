@@ -10,7 +10,7 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 
-struct NoteConfig: BaseConfig {
+struct NoteConfig: BaseConfig, WalletModelBuilder {
     private let card: Card
     private let noteData: WalletData
 
@@ -96,6 +96,8 @@ extension NoteConfig: UserWalletConfig {
         return warnings
     }
 
+    var tangemSigner: TangemSigner { .init(with: card.cardId) }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
@@ -133,5 +135,11 @@ extension NoteConfig: UserWalletConfig {
         }
     }
 
-    var tangemSigner: TangemSigner { .init(with: card.cardId) }
+    func makeWalletModels(for tokens: [StorageEntry], derivedKeys: [DerivationPath: ExtendedPublicKey]) -> [WalletModel] {
+        if let model = makeSingleWallet() {
+            return [model]
+        }
+
+        return []
+    }
 }
