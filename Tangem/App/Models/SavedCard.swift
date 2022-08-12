@@ -16,36 +16,54 @@ struct SavedCard: Codable { // [REDACTED_TODO_COMMENT]
     let wallets: [SavedCardWallet]
     var derivedKeys: [Data: [SavedExtendedPublicKey]] = [:]
 
-//    var isTestnet: Bool {
-//        guard let batchId = batchId else {
-//            return false // Old saved cards cannot be testnet
-//        }
-//
-//        if batchId == "99FF" {
-//            return cardId.starts(with: batchId.reversed())
-//        } else {
-//            return false
-//        }
-//    }
-
-    public var derivationStyle: DerivationStyle {
+    private var derivationStyle: DerivationStyle {
         guard let batchId = batchId else {
             return .legacy
         }
 
-        let isHdWalletAllowed = wallets.contains(where: { $0.isHdWalletAllowed })
         return Card.getDerivationStyle(for: batchId, isHdWalletAllowed: isHdWalletAllowed)
     }
 
-    func getDerivedKeys(for walletPublicKey: Data) -> [DerivationPath: ExtendedPublicKey] {
-        guard let derived = derivedKeys[walletPublicKey] else { return [:] }
+    private var isHdWalletAllowed: Bool {
+        wallets.contains(where: { $0.isHdWalletAllowed })
+    }
 
-        let dict: [DerivationPath: ExtendedPublicKey] = derived.reduce(into: [:]) {
-            $0[$1.derivationPath] = .init(publicKey: $1.compressedPublicKey,
-                                          chainCode: $1.chainCode)
+    func makeWalletModels(for tokens: [StorageEntry]) -> [WalletModel] {
+        let walletPublicKeys: [EllipticCurve: Data] = wallets.reduce(into: [:]) { partialResult, cardWallet in
+            partialResult[cardWallet.curve] = cardWallet.publicKey
         }
 
-        return dict
+        let factory = WalletModelFactory()
+
+        if isHdWalletAllowed {
+            return factory.makeMultipleWallets(seedKeys: walletPublicKeys,
+                                               entries: tokens,
+                                               derivedKeys: getDerivedKeys(),
+                                               derivationStyle: derivationStyle)
+        } else {
+            return factory.makeMultipleWallets(walletPublicKeys: walletPublicKeys,
+                                               entries: tokens,
+                                               derivationStyle: derivationStyle)
+        }
+    }
+
+    private func getDerivedKeys() -> [Data: [DerivationPath: ExtendedPublicKey]] {
+        var keys: [Data: [DerivationPath: ExtendedPublicKey]] = [:]
+
+        for wallet in wallets {
+            if let savedKeys = derivedKeys[wallet.publicKey] {
+                var derivations: [DerivationPath: ExtendedPublicKey] = [:]
+
+                for savedKey in savedKeys {
+                    derivations[savedKey.derivationPath] = .init(publicKey: savedKey.compressedPublicKey,
+                                                                 chainCode: savedKey.chainCode)
+                }
+
+                keys[wallet.publicKey] = derivations
+            }
+        }
+
+        return keys
     }
 
     static func savedCard(from cardInfo: CardInfo) -> SavedCard {
