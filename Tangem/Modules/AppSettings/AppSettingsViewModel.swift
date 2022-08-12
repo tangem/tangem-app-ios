@@ -12,8 +12,8 @@ import SwiftUI
 class AppSettingsViewModel: ObservableObject {
     // MARK: ViewState
 
-    @Published var isSavingWallet: Bool = true
-    @Published var isSavingAccessCodes: Bool = true
+    @Published var isSavingWallet: Bool
+    @Published var isSavingAccessCodes: Bool
     @Published var alert: AlertBinder?
     @Published var isBiometryAvailable: Bool = false
 
@@ -21,13 +21,21 @@ class AppSettingsViewModel: ObservableObject {
 
     private unowned let coordinator: AppSettingsRoutable
 
+    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
+
     // MARK: Properties
 
     private var bag: Set<AnyCancellable> = []
     private var shouldShowAlertOnDisableSaveAccessCodes: Bool = true
+    private let cardModel: CardViewModel
 
-    init(coordinator: AppSettingsRoutable) {
+    init(coordinator: AppSettingsRoutable, cardModel: CardViewModel) {
         self.coordinator = coordinator
+
+        let isSavingWallet = (AppSettings.shared.saveUserWallets == true)
+        self.isSavingWallet = isSavingWallet
+        self.isSavingAccessCodes = isSavingWallet && AppSettings.shared.saveAccessCodes
+        self.cardModel = cardModel
 
         bind()
         updateBiometricWarning()
@@ -40,32 +48,46 @@ private extension AppSettingsViewModel {
     func bind() {
         $isSavingWallet
             .dropFirst()
-            .filter { !$0 }
-            .sink(receiveValue: { [weak self] _ in
-                self?.presentSavingWalletDeleteAlert()
-            })
+            .sink { [weak self, cardModel] saveWallet in
+                if saveWallet {
+                    self?.userWalletListService.tryToAccessBiometry { result in
+                        if case .success = result {
+                            let _ = self?.userWalletListService.save(cardModel.userWallet)
+                            self?.setSaveWallets(true)
+                        } else {
+                            self?.setSaveWallets(false)
+                        }
+                    }
+                } else {
+                    self?.presentSavingWalletDeleteAlert()
+                }
+            }
             .store(in: &bag)
 
         $isSavingAccessCodes
             .dropFirst()
-            .filter { !$0 }
-            .sink(receiveValue: { [weak self] _ in
-                self?.presentSavingAccessCodesDeleteAlert()
-            })
+            .sink { [weak self] saveAccessCodes in
+                if saveAccessCodes {
+                    self?.setSaveAccessCodes(true)
+                } else {
+                    self?.presentSavingAccessCodesDeleteAlert()
+                }
+            }
             .store(in: &bag)
     }
 
     func presentSavingWalletDeleteAlert() {
-        let okButton = Alert.Button.destructive(Text("common_delete"), action: { [weak self] in
+        let okButton = Alert.Button.destructive(Text("common_delete")) { [weak self] in
             withAnimation {
-                self?.disableSaveWallet()
+                self?.setSaveWallets(false)
             }
-        })
-        let cancelButton = Alert.Button.cancel(Text("common_cancel"), action: { [weak self] in
+        }
+        let cancelButton = Alert.Button.cancel(Text("common_cancel")) { [weak self] in
             withAnimation {
+                self?.setSaveWallets(true)
                 self?.isSavingWallet = true
             }
-        })
+        }
 
         let alert = Alert(
             title: Text("common_attention"),
@@ -80,17 +102,17 @@ private extension AppSettingsViewModel {
     func presentSavingAccessCodesDeleteAlert() {
         guard shouldShowAlertOnDisableSaveAccessCodes else { return }
 
-        let okButton = Alert.Button.destructive(Text("common_delete"), action: { [weak self] in
+        let okButton = Alert.Button.destructive(Text("common_delete")) { [weak self] in
             withAnimation {
-                self?.disableSaveAccessCodes()
+                self?.setSaveAccessCodes(false)
             }
-        })
-
-        let cancelButton = Alert.Button.cancel(Text("common_cancel"), action: { [weak self] in
+        }
+        let cancelButton = Alert.Button.cancel(Text("common_cancel")) { [weak self] in
             withAnimation {
+                self?.setSaveAccessCodes(true)
                 self?.isSavingAccessCodes = true
             }
-        })
+        }
 
         let alert = Alert(
             title: Text("common_attention"),
@@ -102,18 +124,28 @@ private extension AppSettingsViewModel {
         self.alert = AlertBinder(alert: alert)
     }
 
-    func disableSaveWallet() {
-        // [REDACTED_TODO_COMMENT]
-        disableSaveAccessCodes()
+    func setSaveWallets(_ saveWallets: Bool) {
+        AppSettings.shared.saveUserWallets = saveWallets
+
+        if !saveWallets {
+            setSaveAccessCodes(false)
+            userWalletListService.clear()
+        }
     }
 
-    func disableSaveAccessCodes() {
-        // [REDACTED_TODO_COMMENT]
+    func setSaveAccessCodes(_ saveAccessCodes: Bool) {
+        AppSettings.shared.saveAccessCodes = saveAccessCodes
 
-        if isSavingAccessCodes {
+        if saveAccessCodes {
+            withAnimation {
+                isSavingWallet = true
+            }
+        } else {
             shouldShowAlertOnDisableSaveAccessCodes = false
             isSavingAccessCodes = false
             shouldShowAlertOnDisableSaveAccessCodes = true
+
+            // [REDACTED_TODO_COMMENT]
         }
     }
 
