@@ -23,6 +23,10 @@ class WelcomeViewModel: ObservableObject {
     @Published var discardAlert: ActionSheetBinder?
     @Published var storiesModel: StoriesViewModel = .init()
 
+    var shouldShowAuthenticationView: Bool {
+        AppSettings.shared.saveUserWallets == true && !userWalletListService.isEmpty
+    }
+
     private var storiesModelSubscription: AnyCancellable? = nil
     private var bag: Set<AnyCancellable> = []
     private var backupService: BackupService { backupServiceProvider.backupService }
@@ -80,7 +84,8 @@ class WelcomeViewModel: ObservableObject {
 
     func tryBiometricAuthentication() {
         userWalletListService.tryToAccessBiometry { result in
-            if case .failure = result {
+            if case .failure(let error) = result {
+                print("Failed to authenticate with biometry: \(error)")
                 return
             }
 
