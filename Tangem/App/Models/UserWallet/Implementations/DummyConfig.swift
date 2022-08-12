@@ -37,9 +37,13 @@ struct DummyConfig: UserWalletConfig {
 
     var warningEvents: [WarningEvent] { [] }
 
+    var tangemSigner: TangemSigner { .init(with: nil) }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         return .available
     }
 
-    var tangemSigner: TangemSigner { .init(with: nil) }
+    func makeWalletModels(for tokens: [StorageEntry], derivedKeys: [DerivationPath: ExtendedPublicKey]) -> [WalletModel] {
+        []
+    }
 }
