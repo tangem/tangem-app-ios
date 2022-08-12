@@ -12,7 +12,7 @@ import BlockchainSdk
 import WalletConnectSwift
 
 /// V3 Config
-struct LegacyConfig: BaseConfig, WalletModelBuilder {
+struct LegacyConfig: BaseConfig {
     private let card: Card
     private let walletData: WalletData
 
@@ -183,11 +183,26 @@ extension LegacyConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModels(for tokens: [StorageEntry], derivedKeys: [DerivationPath: ExtendedPublicKey]) -> [WalletModel] {
+    func makeWalletModels(for tokens: [StorageEntry], derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]) -> [WalletModel] {
+        let factory = WalletModelFactory()
+
         if isMultiwallet {
-            return makeMultipleWallets(entries: tokens)
+            let walletPublicKeys: [EllipticCurve: Data] = card.wallets.reduce(into: [:]) { partialResult, cardWallet in
+                partialResult[cardWallet.curve] = cardWallet.publicKey
+            }
+
+            return factory.makeMultipleWallets(walletPublicKeys: walletPublicKeys,
+                                               entries: tokens,
+                                               derivationStyle: card.derivationStyle)
         } else {
-            if let model = makeSingleWallet() {
+            guard let walletPublicKey = card.wallets.first(where: { $0.curve == defaultBlockchain.curve })?.publicKey else {
+                return []
+            }
+
+            if let model = factory.makeSingleWallet(walletPublicKey: walletPublicKey,
+                                                    blockchain: defaultBlockchain,
+                                                    token: nil,
+                                                    derivationStyle: card.derivationStyle) {
                 return [model]
             }
 

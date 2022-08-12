@@ -162,7 +162,7 @@ class MainViewModel: ObservableObject {
         self.coordinator = coordinator
         bind()
         cardModel.updateState()
-        warningsService.setupWarnings(for: cardModel.cardInfo)
+        warningsService.setupWarnings(for: cardModel.config)
         countHashes()
     }
 
