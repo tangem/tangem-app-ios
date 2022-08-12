@@ -57,12 +57,13 @@ class WelcomeCoordinator: CoordinatorObject {
     }
 
     func start(with options: WelcomeCoordinator.Options) {
-        welcomeViewModel = .init(coordinator: self)
+        let welcomeViewModel = WelcomeViewModel(coordinator: self)
+        self.welcomeViewModel = welcomeViewModel
         subscribeToWelcomeLifecycle()
 
         if options.shouldScan {
-            welcomeViewModel?.scanCard()
-        } else {
+            welcomeViewModel.scanCard()
+        } else if welcomeViewModel.shouldShowAuthenticationView {
             userWalletListService.tryToAccessBiometry { [weak self] result in
                 DispatchQueue.main.async {
                     guard case .success = result else { return }
