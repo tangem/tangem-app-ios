@@ -267,7 +267,7 @@ final class AppScanTask: CardSessionRunnable {
         // Force add blockchains for demo cards
         let config = GenericConfig(card: card)
         if let persistentBlockchains = config.persistentBlockchains {
-            tokenItemsRepository.append(config.defaultBlockchains, for: card.cardId)
+            tokenItemsRepository.append(persistentBlockchains, for: card.cardId)
         }
 
         let savedItems = tokenItemsRepository.getItems(for: card.cardId)

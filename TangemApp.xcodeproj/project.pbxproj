@@ -124,7 +124,7 @@
 		5DBBAB0D24D8547F00E78F1C /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0C24D8547F00E78F1C /* Colors.xcassets */; };
 		5DBBAB0F24D8617C00E78F1C /* CardRectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DBBAB0E24D8617C00E78F1C /* CardRectView.swift */; };
 		5DCC20BD2500FC58007B467E /* QRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DCC20BC2500FC58007B467E /* QRScannerView.swift */; };
-		5DD24B41274FAC2400BF80BE /* WalletManagerAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD24B40274FAC2400BF80BE /* WalletManagerAssembly.swift */; };
+		5DD24B41274FAC2400BF80BE /* WalletManagerFactoryProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD24B40274FAC2400BF80BE /* WalletManagerFactoryProvider.swift */; };
 		5DD4CB4E24FAAB1A008F23CC /* KeyboardAdaptive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD4CB4B24FAAB1A008F23CC /* KeyboardAdaptive.swift */; };
 		5DD4CB5024FAAB1A008F23CC /* KeyboardHeightPublisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD4CB4D24FAAB1A008F23CC /* KeyboardHeightPublisher.swift */; };
 		5DD4CB5424FAEE8B008F23CC /* AppCardIdFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DD4CB5324FAEE8B008F23CC /* AppCardIdFormatter.swift */; };
@@ -462,7 +462,7 @@
 		DC22535728A4F5BF0094F30C /* GenericDemoConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC22535628A4F5BF0094F30C /* GenericDemoConfig.swift */; };
 		DC22535928A4FD9C0094F30C /* UserWalletConfigFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC22535828A4FD9C0094F30C /* UserWalletConfigFactory.swift */; };
 		DC22535B28A4FDE90094F30C /* BaseConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC22535A28A4FDE90094F30C /* BaseConfig.swift */; };
-		DC22535D28A514030094F30C /* WalletModelBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC22535C28A514030094F30C /* WalletModelBuilder.swift */; };
+		DC22535D28A514030094F30C /* WalletModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC22535C28A514030094F30C /* WalletModelFactory.swift */; };
 		DC295B3A28615D03006CB7B6 /* NavHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B3928615D03006CB7B6 /* NavHolder.swift */; };
 		DC295B3C2861C19C006CB7B6 /* MainCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B3B2861C19C006CB7B6 /* MainCoordinator.swift */; };
 		DC295B3E2861C1AD006CB7B6 /* MainCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC295B3D2861C1AD006CB7B6 /* MainCoordinatorView.swift */; };
@@ -760,7 +760,7 @@
 		5DBFEA4D24DD642C0080D3DC /* Tangem.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Tangem.entitlements; sourceTree = "<group>"; };
 		5DCC20BC2500FC58007B467E /* QRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerView.swift; sourceTree = "<group>"; };
 		5DD1D62E25558975007910EF /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
-		5DD24B40274FAC2400BF80BE /* WalletManagerAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletManagerAssembly.swift; sourceTree = "<group>"; };
+		5DD24B40274FAC2400BF80BE /* WalletManagerFactoryProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletManagerFactoryProvider.swift; sourceTree = "<group>"; };
 		5DD4CB4B24FAAB1A008F23CC /* KeyboardAdaptive.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardAdaptive.swift; sourceTree = "<group>"; };
 		5DD4CB4C24FAAB1A008F23CC /* UIResponder+Current.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIResponder+Current.swift"; sourceTree = "<group>"; };
 		5DD4CB4D24FAAB1A008F23CC /* KeyboardHeightPublisher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardHeightPublisher.swift; sourceTree = "<group>"; };
@@ -1065,7 +1065,7 @@
 		DC22535628A4F5BF0094F30C /* GenericDemoConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericDemoConfig.swift; sourceTree = "<group>"; };
 		DC22535828A4FD9C0094F30C /* UserWalletConfigFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletConfigFactory.swift; sourceTree = "<group>"; };
 		DC22535A28A4FDE90094F30C /* BaseConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseConfig.swift; sourceTree = "<group>"; };
-		DC22535C28A514030094F30C /* WalletModelBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModelBuilder.swift; sourceTree = "<group>"; };
+		DC22535C28A514030094F30C /* WalletModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletModelFactory.swift; sourceTree = "<group>"; };
 		DC295B3928615D03006CB7B6 /* NavHolder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavHolder.swift; sourceTree = "<group>"; };
 		DC295B3B2861C19C006CB7B6 /* MainCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainCoordinator.swift; sourceTree = "<group>"; };
 		DC295B3D2861C1AD006CB7B6 /* MainCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainCoordinatorView.swift; sourceTree = "<group>"; };
@@ -1664,7 +1664,7 @@
 		5DFCCB6324C371AC0014A293 /* Common */ = {
 			isa = PBXGroup;
 			children = (
-				5DD24B40274FAC2400BF80BE /* WalletManagerAssembly.swift */,
+				5DD24B40274FAC2400BF80BE /* WalletManagerFactoryProvider.swift */,
 				EF3EC51D289A7A1B0071BA7F /* Appearance */,
 				DC5118672860B36C004FB954 /* Preview */,
 				5D5332CD25F90DA900D32CA5 /* Formatters */,
@@ -2556,7 +2556,7 @@
 				DC3B49F52893E51B00C207EA /* UserWalletConfig.swift */,
 				DC3B49F92893EEA600C207EA /* UserWalletConfigFeatures.swift */,
 				DC22535828A4FD9C0094F30C /* UserWalletConfigFactory.swift */,
-				DC22535C28A514030094F30C /* WalletModelBuilder.swift */,
+				DC22535C28A514030094F30C /* WalletModelFactory.swift */,
 			);
 			path = UserWallet;
 			sourceTree = "<group>";
@@ -3305,7 +3305,7 @@
 				5D5332B125F9091900D32CA5 /* TokenItem.swift in Sources */,
 				B085154F26D77C2400E1A836 /* TwinsOnboardingViewModel.swift in Sources */,
 				B0C4F77326F08CB50086D815 /* OnboardingCardFrameCalculator.swift in Sources */,
-				5DD24B41274FAC2400BF80BE /* WalletManagerAssembly.swift in Sources */,
+				5DD24B41274FAC2400BF80BE /* WalletManagerFactoryProvider.swift in Sources */,
 				B0AA865426DC90FF00287F80 /* WelcomeViewModel.swift in Sources */,
 				5D69E0E325016A10005CFFF4 /* TapSwitchTogglColoredToggleStyleeStyle.swift in Sources */,
 				DC7127AD2897ECA100F60F71 /* TwinConfig.swift in Sources */,
@@ -3314,7 +3314,7 @@
 				EF9CFC14288FECE100329BE0 /* ScanCardSettingsRoutable.swift in Sources */,
 				B0C807232620549F00F7DADE /* WalletConnectSessionItemView.swift in Sources */,
 				EFA580632893E6AA00110DB0 /* BiometricAuthorizationUtils.swift in Sources */,
-				DC22535D28A514030094F30C /* WalletModelBuilder.swift in Sources */,
+				DC22535D28A514030094F30C /* WalletModelFactory.swift in Sources */,
 				B069B6DB268AFEBA004E7928 /* BnbSignHandler.swift in Sources */,
 				EF7B9CF5286C7023004C33A9 /* CardSettingsCoordinator.swift in Sources */,
 				5DFB499A24E554140037E76F /* Card+Preview.swift in Sources */,
