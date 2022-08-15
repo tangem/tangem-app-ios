@@ -110,6 +110,8 @@ extension NoteDemoConfig: UserWalletConfig {
             return .unavailable
         case .passcode:
             return .unavailable
+        case .longTap:
+            return .unavailable
         case .signing:
             return .available
         case .longHashes:
@@ -140,6 +142,8 @@ extension NoteDemoConfig: UserWalletConfig {
             return .available
         case .hdWallets:
             return .unavailable
+        case .onlineImage:
+            return card.firmwareVersion.type == .release ? .available : .unavailable
         }
     }
 
