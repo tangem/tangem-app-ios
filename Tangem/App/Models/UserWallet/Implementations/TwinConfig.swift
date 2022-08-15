@@ -130,6 +130,8 @@ extension TwinConfig: UserWalletConfig {
             }
 
             return .disabled()
+        case .longTap:
+            return card.settings.isResettingUserCodesAllowed ? .available : .unavailable
         case .signing:
             return .available
         case .longHashes:
@@ -160,6 +162,8 @@ extension TwinConfig: UserWalletConfig {
             return .available
         case .hdWallets:
             return .unavailable
+        case .onlineImage:
+            return card.firmwareVersion.type == .release ? .available : .unavailable
         }
     }
 
