@@ -74,7 +74,6 @@ class PushTxViewModel: ObservableObject {
     let blockchainNetwork: BlockchainNetwork
     var transaction: BlockchainSdk.Transaction
 
-    lazy var emailDataCollector: PushScreenDataCollector = .init(pushTxViewModel: self)
     lazy var amountDecimal: String = { "\(walletModel.getFiat(for: amountToSend) ?? 0)" }()
     lazy var amount: String = { transaction.amount.description }()
     lazy var previousFee: String = { transaction.fee.description }()
@@ -84,7 +83,7 @@ class PushTxViewModel: ObservableObject {
     }
 
     private var bag: Set<AnyCancellable> = []
-
+    private var lastError: Error?
     @Published private var newTransaction: BlockchainSdk.Transaction?
 
     private unowned let coordinator: PushTxRoutable
@@ -139,8 +138,9 @@ class PushTxViewModel: ObservableObject {
                     if case .userCancelled = error.toTangemSdkError() {
                         return
                     }
-                    Analytics.logCardSdkError(error.toTangemSdkError(), for: .pushTx, card: cardViewModel.cardInfo.card, parameters: [.blockchain: walletModel.wallet.blockchain.displayName])
-                    emailDataCollector.lastError = error
+
+                    cardViewModel.logSdkError(error, action: .pushTx, parameters: [.blockchain: walletModel.wallet.blockchain.displayName])
+                    self.lastError = error
                     self.sendError = error.alertBinder
                 } else {
                     walletModel.startUpdatingTimer()
@@ -331,12 +331,22 @@ class PushTxViewModel: ObservableObject {
                                                                                        walletModel.getFiatFormatted(for: fee)!)
         }
     }
-
 }
 
 // MARK: - Navigation
 extension PushTxViewModel {
     func openMail() {
+        let emailDataCollector = PushScreenDataCollector(userWalletEmailData: cardViewModel.config.emailData,
+                                                         walletModel: walletModel,
+                                                         amountToSend: amountToSend,
+                                                         feeText: newFee,
+                                                         pushingFeeText: selectedFee?.description ?? .unknown,
+                                                         destination: transaction.destinationAddress,
+                                                         source: transaction.sourceAddress,
+                                                         amountText: amount,
+                                                         pushingTxHash: transaction.hash ?? .unknown,
+                                                         lastError: lastError)
+
         coordinator.openMail(with: emailDataCollector, recipient: cardViewModel.config.emailConfig.recipient)
     }
 
