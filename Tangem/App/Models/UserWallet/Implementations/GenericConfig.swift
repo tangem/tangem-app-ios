@@ -175,6 +175,8 @@ extension GenericConfig: UserWalletConfig {
             }
 
             return .disabled()
+        case .longTap:
+            return card.settings.isResettingUserCodesAllowed ? .available : .unavailable
         case .signing:
             return .available
         case .longHashes:
@@ -213,6 +215,8 @@ extension GenericConfig: UserWalletConfig {
             return .available
         case .hdWallets:
             return card.settings.isHDWalletAllowed ? .available : .unavailable
+        case .onlineImage:
+            return card.firmwareVersion.type == .release ? .available : .unavailable
         }
     }
 

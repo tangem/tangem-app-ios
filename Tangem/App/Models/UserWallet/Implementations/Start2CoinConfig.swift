@@ -149,6 +149,8 @@ extension Start2CoinConfig: UserWalletConfig {
             return .unavailable
         case .passcode:
             return .unavailable
+        case .longTap:
+            return card.settings.isResettingUserCodesAllowed ? .available : .unavailable
         case .longHashes:
             return .unavailable
         case .backup:
@@ -175,6 +177,8 @@ extension Start2CoinConfig: UserWalletConfig {
             return .available
         case .hdWallets:
             return .unavailable
+        case .onlineImage:
+            return card.firmwareVersion.type == .release ? .available : .unavailable
         }
     }
 
