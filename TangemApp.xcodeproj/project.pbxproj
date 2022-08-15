@@ -176,6 +176,8 @@
 		652B013A28319F9000F2E27A /* TotalSumBalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 652B013928319F9000F2E27A /* TotalSumBalanceViewModel.swift */; };
 		65339CE4289918E7006429EA /* ChangeObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65339CE3289918E7006429EA /* ChangeObserver.swift */; };
 		65339CE5289919CA006429EA /* ChangeObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65339CE3289918E7006429EA /* ChangeObserver.swift */; };
+		65469D3A28AA64520092138F /* ResizableSheetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65469D3928AA64520092138F /* ResizableSheetView.swift */; };
+		65469D3C28AA6B710092138F /* ResizableBottomSheetModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65469D3B28AA6B710092138F /* ResizableBottomSheetModifier.swift */; };
 		6563B8B92858B92A009A8A7D /* SupportChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6563B8B82858B92A009A8A7D /* SupportChatView.swift */; };
 		6563B8BB2859EA82009A8A7D /* SupportChatService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6563B8BA2859EA82009A8A7D /* SupportChatService.swift */; };
 		6596AD4928730F4900508D0A /* WarningBankCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6596AD4828730F4900508D0A /* WarningBankCardView.swift */; };
@@ -812,6 +814,8 @@
 		652B0135282C0A7800F2E27A /* TotalSumBalanceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalSumBalanceView.swift; sourceTree = "<group>"; };
 		652B013928319F9000F2E27A /* TotalSumBalanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalSumBalanceViewModel.swift; sourceTree = "<group>"; };
 		65339CE3289918E7006429EA /* ChangeObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeObserver.swift; sourceTree = "<group>"; };
+		65469D3928AA64520092138F /* ResizableSheetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResizableSheetView.swift; sourceTree = "<group>"; };
+		65469D3B28AA6B710092138F /* ResizableBottomSheetModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResizableBottomSheetModifier.swift; sourceTree = "<group>"; };
 		6563B8B82858B92A009A8A7D /* SupportChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportChatView.swift; sourceTree = "<group>"; };
 		6563B8BA2859EA82009A8A7D /* SupportChatService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportChatService.swift; sourceTree = "<group>"; };
 		6596AD4828730F4900508D0A /* WarningBankCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningBankCardView.swift; sourceTree = "<group>"; };
@@ -1720,10 +1724,12 @@
 				65B4DED5288357DC001524CF /* BottomSheetBaseController.swift */,
 				65B4DED728835BE4001524CF /* BottomSheetViewController.swift */,
 				65B4DED928835C82001524CF /* BottomSheetModifier.swift */,
+				65469D3B28AA6B710092138F /* ResizableBottomSheetModifier.swift */,
 				65D87498287DA0F6009D0448 /* BottomSheetSettings.swift */,
 				65B4DEDF2885334F001524CF /* View+BottomSheet.swift */,
 				65B4DEE12885719C001524CF /* BottomSheetWrappedView.swift */,
 				DA5FAD8927B27F7F00EE53AE /* SheetDragHandler.swift */,
+				65469D3928AA64520092138F /* ResizableSheetView.swift */,
 			);
 			path = BottomSheet;
 			sourceTree = "<group>";
@@ -3481,6 +3487,7 @@
 				5D3FEA2228058CB7001DF0E0 /* UIDevice+.swift in Sources */,
 				B0C4F77D26F0BFF90086D815 /* OnboardingMessagesView.swift in Sources */,
 				5D96BD2A27F60B0D000AA797 /* TokenIconView.swift in Sources */,
+				65469D3A28AA64520092138F /* ResizableSheetView.swift in Sources */,
 				5D43E2D72514D5B700697E5B /* CardOperationView.swift in Sources */,
 				DAC53CFA27BE63830027147D /* StoriesView.swift in Sources */,
 				5DE2038E24EE8A510044EF46 /* ActivityIndicatorView.swift in Sources */,
@@ -3525,6 +3532,7 @@
 				5D51037127C5360E0025EA55 /* ABIType.swift in Sources */,
 				65A1910A2833EA900023355D /* TokensView.swift in Sources */,
 				6596AD4928730F4900508D0A /* WarningBankCardView.swift in Sources */,
+				65469D3C28AA6B710092138F /* ResizableBottomSheetModifier.swift in Sources */,
 				5D9DCAEB25517FB50059799C /* CommonCardsRepository.swift in Sources */,
 				B05A645625E0F57B00F154B7 /* ScanTroublehootingView.swift in Sources */,
 				5D51036D27C535AB0025EA55 /* ABIEncoder.swift in Sources */,
