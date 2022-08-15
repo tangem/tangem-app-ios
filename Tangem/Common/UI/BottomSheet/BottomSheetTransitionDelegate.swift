@@ -66,4 +66,15 @@ class BottomSheetTransitionDelegate: NSObject, UIViewControllerTransitioningDele
     func interactionControllerForDismissal(using animator: UIViewControllerAnimatedTransitioning) -> UIViewControllerInteractiveTransitioning? {
         animator as? BottomSheetDismissalTransition
     }
+
+    func resize(withAction action: ResizeSheetAction) {
+        switch action {
+        case .increment(let value):
+            bottomSheetPresentationController?.incrementHeight(value: value)
+        case .decrement(let value):
+            bottomSheetPresentationController?.decrementHeight(value: value)
+        case .setNewValue(let value):
+            bottomSheetPresentationController?.updateHeightForPresentedView(with: value)
+        }
+    }
 }
