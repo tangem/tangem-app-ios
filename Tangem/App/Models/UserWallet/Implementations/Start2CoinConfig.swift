@@ -10,7 +10,7 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 
-struct Start2CoinConfig: BaseConfig {
+struct Start2CoinConfig {
     private let card: Card
     private let walletData: WalletData
 
@@ -125,16 +125,26 @@ extension Start2CoinConfig: UserWalletConfig {
         return defaultBlockchains.first
     }
 
-    var warningEvents: [WarningEvent] { getBaseWarningEvents(for: card) }
+    var warningEvents: [WarningEvent] {
+        WarningEventsFactory().makeWarningEvents(for: card)
+    }
 
     var tangemSigner: TangemSigner { .init(with: card.cardId) }
+
+    var emailData: [EmailCollectedData] {
+        CardEmailDataFactory().makeEmailData(for: card, walletData: walletData)
+    }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .signing:
             return .available
         case .signedHashesCounter:
-            return .available
+            if card.firmwareVersion.type == .release {
+                return .available
+            }
+
+            return .unavailable
         case .accessCode:
             return .unavailable
         case .passcode:
@@ -163,6 +173,8 @@ extension Start2CoinConfig: UserWalletConfig {
             return .available
         case .withdrawal:
             return .available
+        case .hdWallets:
+            return .unavailable
         }
     }
 
