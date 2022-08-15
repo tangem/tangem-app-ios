@@ -23,19 +23,19 @@ class DetailsViewModel: ObservableObject {
     @Published var error: AlertBinder?
 
     var canCreateBackup: Bool {
-        cardModel.config.hasFeature(.backup)
+        cardModel.canCreateBackup
     }
 
     var canTwin: Bool {
-        cardModel.config.hasFeature(.twinning)
+        cardModel.canTwin
     }
 
     var shouldShowWC: Bool {
-        return !cardModel.config.getFeatureAvailability(.walletConnect).isHidden
+        cardModel.shouldShowWC
     }
 
     var cardTouURL: URL? {
-        cardModel.config.touURL
+        cardModel.cardTouURL
     }
 
     var applicationInfoFooter: String? {
@@ -52,7 +52,7 @@ class DetailsViewModel: ObservableObject {
     }
 
     var isMultiWallet: Bool {
-        cardModel.config.hasFeature(.manageTokens)
+        cardModel.isMultiWallet
     }
 
     // MARK: - Private
@@ -69,13 +69,7 @@ class DetailsViewModel: ObservableObject {
 
     func prepareBackup() {
         Analytics.log(.backupTapped)
-        if let backupSteps = cardModel.config.backupSteps {
-            let input = OnboardingInput(steps: backupSteps,
-                                        cardInput: .cardModel(self.cardModel),
-                                        welcomeStep: nil,
-                                        currentStepIndex: 0,
-                                        isStandalone: true)
-
+        if let input = cardModel.backupInput {
             self.openOnboarding(with: input)
         }
     }
@@ -90,11 +84,11 @@ extension DetailsViewModel {
 
     func openMail() {
         let dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel,
-                                                         userWalletEmailData: cardModel.config.emailData)
+                                                         userWalletEmailData: cardModel.emailData)
 
         coordinator.openMail(with: dataCollector,
-                             recipient: cardModel.config.emailConfig.subject,
-                             emailType: .appFeedback(subject: cardModel.config.emailConfig.subject))
+                             recipient: cardModel.emailConfig.subject,
+                             emailType: .appFeedback(subject: cardModel.emailConfig.subject))
     }
 
     func openWalletConnect() {

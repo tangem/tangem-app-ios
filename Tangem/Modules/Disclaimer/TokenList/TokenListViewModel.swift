@@ -157,7 +157,9 @@ private extension TokenListViewModel {
     }
 
     func setupListDataLoader() -> ListDataLoader {
-        let loader = ListDataLoader(config: cardModel?.config ?? DummyConfig())
+        let supportedBlockchains = cardModel?.supportedBlockchains ?? Blockchain.supportedBlockchains
+        let networkIds = supportedBlockchains.map { $0.networkId }
+        let loader = ListDataLoader(networkIds: networkIds)
 
         loader.$items
             .map { [unowned self] items -> [CoinViewModel] in
@@ -214,7 +216,7 @@ private extension TokenListViewModel {
         if selected,
            case let .token(_, blockchain) = tokenItem,
            case .solana = blockchain,
-           !cardModel.config.hasFeature(.longHashes)
+           !cardModel.longHashesSupported
         {
             let okButton = Alert.Button.default(Text("common_ok".localized)) {
                 self.updateSelection(tokenItem)
@@ -369,7 +371,7 @@ private extension TokenListViewModel {
         if case let .token(_, blockchain) = tokenItem,
            case .solana = blockchain,
            let cardModel = cardModel,
-           !cardModel.config.hasFeature(.longHashes)
+           !cardModel.longHashesSupported
         {
             return false
         }
