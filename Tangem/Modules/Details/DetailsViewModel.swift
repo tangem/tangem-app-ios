@@ -16,8 +16,6 @@ class DetailsViewModel: ObservableObject {
     // MARK: - Dependencies
 
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
-    private let dataCollector: DetailsFeedbackDataCollector
-
 
     // MARK: - View State
 
@@ -65,7 +63,6 @@ class DetailsViewModel: ObservableObject {
     init(cardModel: CardViewModel, coordinator: DetailsRoutable) {
         self.cardModel = cardModel
         self.coordinator = coordinator
-        dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel)
 
         bind()
     }
@@ -92,6 +89,9 @@ extension DetailsViewModel {
     }
 
     func openMail() {
+        let dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel,
+                                                         userWalletEmailData: cardModel.config.emailData)
+
         coordinator.openMail(with: dataCollector,
                              recipient: cardModel.config.emailConfig.subject,
                              emailType: .appFeedback(subject: cardModel.config.emailConfig.subject))
@@ -124,7 +124,7 @@ extension DetailsViewModel {
     }
 
     func openSupportChat() {
-        coordinator.openSupportChat(cardId: cardModel.cardInfo.card.cardId)
+        coordinator.openSupportChat(cardId: cardModel.cardId)
     }
 
     func openSocialNetwork(network: SocialNetwork) {
