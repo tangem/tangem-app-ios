@@ -112,10 +112,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
     private var canBuy: Bool { exchangeService.canBuy("BTC", amountType: .coin, blockchain: .bitcoin(testnet: false)) }
 
     required init(input: OnboardingInput, coordinator: OnboardingTopupRoutable) {
-        guard let cardModel = input.cardInput.cardModel,
-              case let .twin(_, twinData) = cardModel.cardInfo.walletData else {
-            fatalError("Wrong card model passed to Twins onboarding view model")
-        }
+        let cardModel = input.cardInput.cardModel!
+        let twinData = cardModel.twinData!
 
         self.pairNumber = "\(twinData.series.pair.number)"
         self.twinInfo = twinData
