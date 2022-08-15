@@ -10,7 +10,7 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 
-struct NoteConfig: BaseConfig {
+struct NoteConfig {
     private let card: Card
     private let noteData: WalletData
 
@@ -87,7 +87,7 @@ extension NoteConfig: UserWalletConfig {
     }
 
     var warningEvents: [WarningEvent] {
-        var warnings = getBaseWarningEvents(for: card)
+        var warnings = WarningEventsFactory().makeWarningEvents(for: card)
 
         if isTestnet {
             warnings.append(.testnetCard)
@@ -97,6 +97,10 @@ extension NoteConfig: UserWalletConfig {
     }
 
     var tangemSigner: TangemSigner { .init(with: card.cardId) }
+
+    var emailData: [EmailCollectedData] {
+        CardEmailDataFactory().makeEmailData(for: card, walletData: noteData)
+    }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
@@ -109,7 +113,11 @@ extension NoteConfig: UserWalletConfig {
         case .longHashes:
             return .unavailable
         case .signedHashesCounter:
-            return .available
+            if card.firmwareVersion.type == .release {
+                return .available
+            }
+
+            return .unavailable
         case .backup:
             return .unavailable
         case .twinning:
@@ -132,6 +140,8 @@ extension NoteConfig: UserWalletConfig {
             return .available
         case .withdrawal:
             return .available
+        case .hdWallets:
+            return .unavailable
         }
     }
 
