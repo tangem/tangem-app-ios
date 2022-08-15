@@ -27,6 +27,7 @@ enum WarningType: String, Decodable {
 enum WarningsLocation: String, Decodable {
     case main
     case send
+    case manageTokens
 }
 
 struct AppWarning: Identifiable, Equatable, Hashable {
