@@ -135,7 +135,7 @@ class MainViewModel: ObservableObject {
     }
 
     var isBackupAllowed: Bool {
-        cardModel.cardInfo.card.settings.isBackupAllowed && cardModel.cardInfo.card.backupStatus == .noBackup
+        cardModel.config.hasFeature(.backup)
     }
 
     var tokenItemViewModels: [TokenItemViewModel] {
@@ -163,7 +163,7 @@ class MainViewModel: ObservableObject {
         bind()
         cardModel.updateState()
         warningsService.setupWarnings(for: cardModel.config)
-        countHashes()
+        validateHashesCount()
     }
 
     deinit {
@@ -262,7 +262,7 @@ class MainViewModel: ObservableObject {
     func getDataCollector(for feedbackCase: EmailFeedbackCase) -> EmailDataCollector {
         switch feedbackCase {
         case .negativeFeedback:
-            return NegativeFeedbackDataCollector(cardInfo: cardModel.cardInfo)
+            return NegativeFeedbackDataCollector(userWalletEmailData: cardModel.config.emailData)
         case .scanTroubleshooting:
             return failedCardScanTracker
         }
@@ -313,12 +313,6 @@ class MainViewModel: ObservableObject {
         }
     }
 
-    func countHashes() {
-        if cardModel.cardInfo.card.firmwareVersion.type == .release {
-            validateHashesCount()
-        }
-    }
-
     func onAppear() {}
 
     // MARK: Warning action handler
@@ -326,7 +320,7 @@ class MainViewModel: ObservableObject {
         guard let warning = warnings.warning(at: index, with: priority) else { return }
 
         func registerValidatedSignedHashesCard() {
-            AppSettings.shared.validatedSignedHashesCards.append(cardModel.cardInfo.card.cardId)
+            AppSettings.shared.validatedSignedHashesCards.append(cardModel.cardId)
         }
 
         // [REDACTED_TODO_COMMENT]
@@ -412,8 +406,6 @@ class MainViewModel: ObservableObject {
     }
 
     private func validateHashesCount() {
-        let card = cardModel.cardInfo.card
-
         guard cardModel.config.hasFeature(.signedHashesCounter) else { return }
 
         guard cardModel.hasWallet else {
@@ -429,15 +421,15 @@ class MainViewModel: ObservableObject {
 
         if !cardModel.config.hasFeature(.signedHashesCounter) { return }
 
-        if AppSettings.shared.validatedSignedHashesCards.contains(card.cardId) { return }
+        if AppSettings.shared.validatedSignedHashesCards.contains(cardModel.cardId) { return }
 
         if cardModel.config.hasFeature(.manageTokens) {
-            if cardModel.cardInfo.card.wallets.filter({ $0.totalSignedHashes ?? 0 > 0 }).count > 0 {
+            if cardModel.cardSignedHashes > 0 {
                 withAnimation {
                     warningsService.appendWarning(for: .multiWalletSignedHashes)
                 }
             } else {
-                AppSettings.shared.validatedSignedHashesCards.append(card.cardId)
+                AppSettings.shared.validatedSignedHashesCards.append(cardModel.cardId)
             }
             print("⚠️ Hashes counted")
             return
@@ -449,10 +441,7 @@ class MainViewModel: ObservableObject {
             }
         }
 
-        guard
-            let numberOfSignedHashes = card.wallets.first?.totalSignedHashes,
-            numberOfSignedHashes > 0
-        else { return }
+        guard cardModel.cardSignedHashes > 0  else { return }
 
         guard
             let validator = cardModel.walletModels?.first?.walletManager as? SignatureCountValidator
@@ -461,7 +450,7 @@ class MainViewModel: ObservableObject {
             return
         }
 
-        validator.validateSignatureCount(signedHashes: numberOfSignedHashes)
+        validator.validateSignatureCount(signedHashes: cardModel.cardSignedHashes)
             .subscribe(on: DispatchQueue.global())
             .receive(on: RunLoop.main)
             .handleEvents(receiveCancel: {
