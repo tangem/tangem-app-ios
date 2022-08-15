@@ -24,6 +24,7 @@ class CommonCardsRepository: CardsRepository {
     @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
     @Injected(\.scannedCardsRepository) private var scannedCardsRepository: ScannedCardsRepository
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
 
     var didScanPublisher: PassthroughSubject<CardInfo, Never> = .init()
 
@@ -69,6 +70,8 @@ class CommonCardsRepository: CardsRepository {
     private func processScan(_ cardInfo: CardInfo) -> CardViewModel {
         let interaction = INInteraction(intent: ScanTangemCardIntent(), response: nil)
         interaction.donate(completion: nil)
+
+        cardInfo.primaryCard.map { backupServiceProvider.backupService.setPrimaryCard($0) }
 
         let cm = CardViewModel(cardInfo: cardInfo)
         legacyCardMigrator.migrateIfNeeded(for: cardInfo.card.cardId, config: cm.config)

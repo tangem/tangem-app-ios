@@ -12,7 +12,7 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 
-struct SaltPayConfig: BaseConfig {
+struct SaltPayConfig {
     private let card: Card
     private let walletData: WalletData
 
@@ -78,9 +78,15 @@ extension SaltPayConfig: UserWalletConfig {
         defaultBlockchains.first
     }
 
-    var warningEvents: [WarningEvent] { getBaseWarningEvents(for: card) }
+    var warningEvents: [WarningEvent] {
+        WarningEventsFactory().makeWarningEvents(for: card)
+    }
 
     var tangemSigner: TangemSigner { .init(with: card.cardId) }
+
+    var emailData: [EmailCollectedData] {
+        CardEmailDataFactory().makeEmailData(for: card, walletData: walletData)
+    }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         .unavailable
