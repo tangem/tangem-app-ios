@@ -55,8 +55,11 @@ class AppSettings {
     @AppStorageCompat(StorageType.selectedCurrencyCode)
     var selectedCurrencyCode: String = "USD"
 
+    @AppStorageCompat(StorageType.askedToSaveUserWallets)
+    var askedToSaveUserWallets: Bool = false
+
     @AppStorageCompat(StorageType.saveUserWallets)
-    var saveUserWallets: Bool? = nil
+    var saveUserWallets: Bool = false
 
     @AppStorageCompat(StorageType.userWallets)
     var userWallets: Data = Data()
