@@ -151,7 +151,7 @@ class SendViewModel: ObservableObject {
     let amountToSend: Amount
 
     private(set) var isSellingCrypto: Bool
-    lazy var emailDataCollector: SendScreenDataCollector = .init(sendViewModel: self)
+    private var lastError: Error? = nil
     private var scannedQRCode: CurrentValueSubject<String?, Never> = .init(nil)
 
     @Published private var validatedXrpDestinationTag: UInt32? = nil
@@ -640,12 +640,11 @@ class SendViewModel: ObservableObject {
                         return
                     }
 
-                    Analytics.logCardSdkError(error.toTangemSdkError(),
-                                              for: .sendTx,
-                                              card: self.cardViewModel.cardInfo.card,
-                                              parameters: [.blockchain: self.walletModel.wallet.blockchain.displayName])
+                    self.cardViewModel.logSdkError(error,
+                                                   action: .sendTx,
+                                                   parameters: [.blockchain: self.walletModel.wallet.blockchain.displayName])
 
-                    self.emailDataCollector.lastError = error
+                    self.lastError = error
                     self.error = error.alertBinder
                 } else {
                     if !isDemo {
@@ -759,6 +758,14 @@ private extension SendViewModel {
 // MARK: - Navigation
 extension SendViewModel {
     func openMail() {
+        let emailDataCollector = SendScreenDataCollector(userWalletEmailData: cardViewModel.config.emailData,
+                                                         walletModel: walletModel,
+                                                         amountToSend: amountToSend,
+                                                         feeText: sendFee,
+                                                         destination: destination,
+                                                         amountText: amountText,
+                                                         lastError: lastError)
+
         coordinator.openMail(with: emailDataCollector, recipient: cardViewModel.config.emailConfig.recipient)
     }
 

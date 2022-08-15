@@ -39,6 +39,10 @@ struct DummyConfig: UserWalletConfig {
 
     var tangemSigner: TangemSigner { .init(with: nil) }
 
+    var emailData: [EmailCollectedData] {
+        []
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         return .available
     }

@@ -25,6 +25,7 @@ enum UserWalletFeature: Int {
     case resetToFactory
     case showAddress
     case withdrawal
+    case hdWallets
 }
 
 extension UserWalletFeature {
