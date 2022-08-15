@@ -42,6 +42,8 @@ protocol UserWalletConfig {
     /// Blockchain which embedded in the card.
     var embeddedBlockchain: StorageEntry? { get }
 
+    var emailData: [EmailCollectedData] { get }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability
 
     func selectNetwork(for dAppInfo: Session.DAppInfo) -> BlockchainNetwork?
