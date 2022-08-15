@@ -62,6 +62,8 @@ extension WarningsService: AppWarningsProviding {
             return mainWarnings
         case .send:
             return sendWarnings
+        case .manageTokens:
+            fatalError("not implemented")
         }
     }
 
