@@ -12,7 +12,7 @@ import BlockchainSdk
 import WalletConnectSwift
 
 /// V3 Config
-struct LegacyConfig: BaseConfig {
+struct LegacyConfig {
     private let card: Card
     private let walletData: WalletData
 
@@ -104,7 +104,7 @@ extension LegacyConfig: UserWalletConfig {
     }
 
     var warningEvents: [WarningEvent] {
-        var warnings = getBaseWarningEvents(for: card)
+        var warnings = WarningEventsFactory().makeWarningEvents(for: card)
 
         if !hasFeature(.signing) {
             warnings.append(.oldCard)
@@ -123,6 +123,10 @@ extension LegacyConfig: UserWalletConfig {
     }
 
     var tangemSigner: TangemSigner { .init(with: card.cardId) }
+
+    var emailData: [EmailCollectedData] {
+        CardEmailDataFactory().makeEmailData(for: card, walletData: walletData)
+    }
 
     func selectBlockchain(for dAppInfo: Session.DAppInfo) -> BlockchainNetwork? {
         guard hasFeature(.walletConnect) else { return nil }
@@ -153,7 +157,7 @@ extension LegacyConfig: UserWalletConfig {
         case .longHashes:
             return .unavailable
         case .signedHashesCounter:
-            if isMultiwallet {
+            if isMultiwallet || card.firmwareVersion.type != .release {
                 return .unavailable
             } else {
                 return .available
@@ -180,6 +184,8 @@ extension LegacyConfig: UserWalletConfig {
             return .available
         case .withdrawal:
             return .available
+        case .hdWallets:
+            return .unavailable
         }
     }
 

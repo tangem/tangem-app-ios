@@ -14,7 +14,7 @@ struct BlockchainNetwork: Codable, Hashable, Equatable {
     let blockchain: Blockchain
     let derivationPath: DerivationPath?
 
-    // Remove optional
+    // [REDACTED_TODO_COMMENT]
     init(_ blockchain: Blockchain, derivationPath: DerivationPath? = nil) {
         self.blockchain = blockchain
         self.derivationPath = derivationPath

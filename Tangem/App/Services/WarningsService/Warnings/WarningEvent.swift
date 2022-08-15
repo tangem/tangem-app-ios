@@ -19,9 +19,12 @@ enum WarningEvent: Equatable {
     case oldCard
     case devCard
     case lowSignatures(count: Int)
+    case legacyDerivation
 
     var locationsToDisplay: Set<WarningsLocation> {
         switch self {
+        case .legacyDerivation:
+            return [.manageTokens]
         case .testnetCard, .oldDeviceOldCard:
             return [.main, .send]
         default:
