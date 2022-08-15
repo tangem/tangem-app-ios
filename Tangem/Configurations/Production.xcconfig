@@ -9,15 +9,26 @@
 // Configuration settings file format documentation can be found at:
 // https://help.apple.com/xcode/#/dev745c5c974
 
+// Config name
 ENVIRONMENT_NAME = Production
 
+// Prefix from developer.apple.com, TEAM_ID in this case
+APP_ID_PREFIX = 4897UJ6D8C
+
 // Storage container name
-SUITE_NAME = group.$(PRODUCT_BUNDLE_IDENTIFIER)
+SUITE_NAME = group.com.tangem.Tangem
+
+// Will use in TangemApp as BUNDLE_IDENTIFIER
+APP_BUNDLE_IDENTIFIER = com.tangem.Tangem
+
+// Will use in TangemClip as BUNDLE_IDENTIFIER
+CLIP_BUNDLE_IDENTIFIER = $(APP_BUNDLE_IDENTIFIER).Clip
+
+// Will use in TangemClip as parent identifier
+PARENT_IDENTIFIER = $(APP_ID_PREFIX).$(APP_BUNDLE_IDENTIFIER)
 
 // Overriding (do NOT change key name)
 // app name
 PRODUCT_NAME = Tangem
-// bundle id
-PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem
 // app icon
 ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon_$(ENVIRONMENT_NAME)
