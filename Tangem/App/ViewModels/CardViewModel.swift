@@ -30,11 +30,32 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published var state: State = .created
     @Published var payId: PayIdStatus = .notSupported
     @Published private(set) var currentSecurityOption: SecurityModeOption = .longTap
-    @Published public var cardInfo: CardInfo
     @Published var walletsBalanceState: WalletsBalanceState = .loaded
 
     var signer: TangemSigner { config.tangemSigner }
+    var cardId: String { cardInfo.card.cardId }
 
+    var twinData: TwinCardInfo? {
+        if case let .twin(_, twinData) = cardInfo.walletData {
+            return twinData
+        }
+
+        return nil
+    }
+
+    var cardIdFormatted: String {
+        cardInfo.cardIdFormatted
+    }
+
+    var cardIssuer: String {
+        cardInfo.card.issuer.name
+    }
+
+    var cardSignedHashes: Int {
+        cardInfo.card.walletSignedHashes
+    }
+
+    private var cardInfo: CardInfo
     private var walletBalanceSubscription: AnyCancellable? = nil
     private var cardPinSettings: CardPinSettings = CardPinSettings()
     private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
@@ -59,6 +80,10 @@ class CardViewModel: Identifiable, ObservableObject {
         }
 
         return options
+    }
+
+    var hdWalletsSupported: Bool {
+        config.hasFeature(.hdWallets)
     }
 
     var walletModels: [WalletModel]? {
@@ -95,6 +120,10 @@ class CardViewModel: Identifiable, ObservableObject {
         return hasBalance
     }
 
+    var shoulShowLegacyDerivationAlert: Bool {
+        config.warningEvents.contains(where: { $0 == .legacyDerivation })
+    }
+
     var canExchangeCrypto: Bool { config.hasFeature(.exchange) }
 
     var cachedImage: UIImage? = nil
@@ -104,27 +133,16 @@ class CardViewModel: Identifiable, ObservableObject {
             return Just(cached).eraseToAnyPublisher()
         }
 
-        return $cardInfo
-            .filter { $0.artwork != .notLoaded }
-            .map { $0.imageLoadDTO }
-            .removeDuplicates()
-            .flatMap { [weak self] info -> AnyPublisher<UIImage, Never> in
-                guard let self = self else {
-                    return Just(UIImage()).eraseToAnyPublisher()
+        return self.imageLoader
+            .loadImage(cid: cardInfo.card.cardId,
+                       cardPublicKey: cardInfo.card.cardPublicKey,
+                       artworkInfo: cardInfo.artworkInfo)
+            .map { [weak self] (image, canBeCached) -> UIImage in
+                if canBeCached {
+                    self?.cachedImage = image
                 }
 
-                return self.imageLoader
-                    .loadImage(cid: info.cardId,
-                               cardPublicKey: info.cardPublicKey,
-                               artworkInfo: info.artwotkInfo)
-                    .map { [weak self] (image, canBeCached) -> UIImage in
-                        if canBeCached {
-                            self?.cachedImage = image
-                        }
-
-                        return image
-                    }
-                    .eraseToAnyPublisher()
+                return image
             }
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
@@ -366,6 +384,11 @@ class CardViewModel: Identifiable, ObservableObject {
         scannedCardsRepository.add(cardInfo)
     }
 
+    func getBlockchainNetwork(for blockchain: Blockchain, derivationPath: DerivationPath?) -> BlockchainNetwork {
+        let derivationPath = derivationPath ?? blockchain.derivationPath(for: cardInfo.card.derivationStyle)
+        return BlockchainNetwork(blockchain, derivationPath: derivationPath)
+    }
+
     // MARK: - Update
 
     func getCardInfo() {
@@ -388,11 +411,12 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
 
-    func update(with card: Card) {
+    func update(with card: Card, derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]] = [:]) {
         print("🟩 Updating Card view model with new Card")
         cardInfo.card = card
+        cardInfo.derivedKeys = derivedKeys
         updateCardPinSettings()
-        self.updateCurrentSecurityOption()
+        updateCurrentSecurityOption()
         updateModel()
     }
 
@@ -400,7 +424,7 @@ class CardViewModel: Identifiable, ObservableObject {
         print("🔷 Updating Card view model with new CardInfo")
         self.cardInfo = cardInfo
         updateCardPinSettings()
-        self.updateCurrentSecurityOption()
+        updateCurrentSecurityOption()
         updateModel()
     }
 
@@ -432,6 +456,10 @@ class CardViewModel: Identifiable, ObservableObject {
                 .store(in: &bag)
             //  }
         }
+    }
+
+    func logSdkError(_ error: Error, action: Analytics.Action, parameters: [Analytics.ParameterKey: Any] = [:]) {
+        Analytics.logCardSdkError(error.toTangemSdkError(), for: action, card: cardInfo.card, parameters: parameters)
     }
 
     private func makeAllWalletModels() -> [WalletModel] {
@@ -729,12 +757,12 @@ class CardViewModel: Identifiable, ObservableObject {
         .eraseToAnyPublisher()
     }
 
-    func updateCardPinSettings() {
+    private func updateCardPinSettings() {
         cardPinSettings.isPin1Default = !cardInfo.card.isAccessCodeSet
         cardInfo.card.isPasscodeSet.map { self.cardPinSettings.isPin2Default = !$0 }
     }
 
-    func updateCurrentSecurityOption() {
+    private func updateCurrentSecurityOption() {
         if !(cardPinSettings.isPin1Default ?? true) {
             self.currentSecurityOption = .accessCode
         } else if !(cardPinSettings.isPin2Default ?? true) {
