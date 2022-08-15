@@ -17,6 +17,11 @@ class BottomSheetPresentationController: UIPresentationController {
 
     private(set) lazy var tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onTap))
     private lazy var panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(onPan))
+    private var heightConstraint: NSLayoutConstraint?
+
+    private var maxHeight: CGFloat {
+        return UIScreen.main.bounds.height - (containerView?.safeAreaInsets.top ?? 0)
+    }
 
     private lazy var backgroundView: UIView = {
         let view = UIView()
@@ -111,6 +116,7 @@ class BottomSheetPresentationController: UIPresentationController {
 
         bottomSheetInteractiveDismissalTransition.bottomConstraint = bottomConstraint
         bottomSheetInteractiveDismissalTransition.heightConstraint = heightConstraint
+        self.heightConstraint = heightConstraint
 
         guard let transitionCoordinator = presentingViewController.transitionCoordinator else {
             return
@@ -152,6 +158,38 @@ class BottomSheetPresentationController: UIPresentationController {
         coordinator.animate(alongsideTransition: nil) { context in
             self.panGestureRecognizer.isEnabled = true
         }
+    }
+
+    func incrementHeight(value: CGFloat) {
+        let currentHeight = presentedView?.frame.height ?? 0
+        let incrementedHeight = currentHeight + value
+        createHeightAnimator(height: incrementedHeight > maxHeight ? maxHeight : incrementedHeight).startAnimation()
+    }
+
+    func decrementHeight(value: CGFloat) {
+        let currentHeight = presentedView?.frame.height ?? 0
+        createHeightAnimator(height: currentHeight - value).startAnimation()
+    }
+
+    func updateHeightForPresentedView(with newHeight: CGFloat) {
+        createHeightAnimator(height: newHeight > maxHeight ? maxHeight : newHeight).startAnimation()
+    }
+
+    private func createHeightAnimator(height: CGFloat) -> UIViewPropertyAnimator {
+        let propertyAnimator = UIViewPropertyAnimator(
+            duration: 0.15,
+            curve: .easeIn
+        )
+
+        heightConstraint?.constant = height
+        heightConstraint?.isActive = true
+
+        propertyAnimator.addAnimations {
+            self.heightConstraint?.constant = height
+            self.presentedView?.superview?.layoutIfNeeded()
+        }
+
+        return propertyAnimator
     }
 
     @objc private func onTap(_ gestureRecognizer: UITapGestureRecognizer) {
