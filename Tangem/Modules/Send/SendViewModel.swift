@@ -163,7 +163,7 @@ class SendViewModel: ObservableObject {
     private var lastClipboardChangeCount: Int?
 
     private lazy var payIDService: PayIDService? = {
-        if cardViewModel.config.hasFeature(.sendingToPayID),
+        if cardViewModel.canSendToPayId,
            let payIdService = PayIDService.make(from: blockchainNetwork.blockchain) {
             return payIdService
         }
@@ -758,7 +758,7 @@ private extension SendViewModel {
 // MARK: - Navigation
 extension SendViewModel {
     func openMail() {
-        let emailDataCollector = SendScreenDataCollector(userWalletEmailData: cardViewModel.config.emailData,
+        let emailDataCollector = SendScreenDataCollector(userWalletEmailData: cardViewModel.emailData,
                                                          walletModel: walletModel,
                                                          amountToSend: amountToSend,
                                                          feeText: sendFee,
@@ -766,7 +766,7 @@ extension SendViewModel {
                                                          amountText: amountText,
                                                          lastError: lastError)
 
-        coordinator.openMail(with: emailDataCollector, recipient: cardViewModel.config.emailConfig.recipient)
+        coordinator.openMail(with: emailDataCollector, recipient: cardViewModel.emailConfig.recipient)
     }
 
     func close() {
