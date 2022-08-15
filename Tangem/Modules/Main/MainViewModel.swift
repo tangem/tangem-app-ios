@@ -50,7 +50,7 @@ class MainViewModel: ObservableObject {
     var isLoadingTokensBalance: Bool = false
 
     lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
-        isSingleCoinCard: !cardModel.config.hasFeature(.manageTokens),
+        isSingleCoinCard: !cardModel.isMultiWallet,
         tapOnCurrencySymbol: openCurrencySelection
     )
 
@@ -65,7 +65,7 @@ class MainViewModel: ObservableObject {
     private unowned let coordinator: MainRoutable
 
     public var canSend: Bool {
-        guard cardModel.config.hasFeature(.signing) else {
+        guard cardModel.canSend else {
             return false
         }
 
@@ -135,7 +135,7 @@ class MainViewModel: ObservableObject {
     }
 
     var isBackupAllowed: Bool {
-        cardModel.config.hasFeature(.backup)
+        cardModel.canCreateBackup
     }
 
     var tokenItemViewModels: [TokenItemViewModel] {
@@ -146,15 +146,15 @@ class MainViewModel: ObservableObject {
     }
 
     var isMultiWalletMode: Bool {
-        cardModel.config.hasFeature(.manageTokens)
+        cardModel.isMultiWallet
     }
 
     var canShowAddress: Bool {
-        cardModel.config.hasFeature(.showAddress)
+        cardModel.canShowAddress
     }
 
     var canShowSend: Bool {
-        cardModel.config.hasFeature(.withdrawal)
+        cardModel.canShowSend
     }
 
     init(cardModel: CardViewModel, coordinator: MainRoutable) {
@@ -162,7 +162,7 @@ class MainViewModel: ObservableObject {
         self.coordinator = coordinator
         bind()
         cardModel.updateState()
-        warningsService.setupWarnings(for: cardModel.config)
+        cardModel.setupWarnings()
         validateHashesCount()
     }
 
@@ -262,7 +262,7 @@ class MainViewModel: ObservableObject {
     func getDataCollector(for feedbackCase: EmailFeedbackCase) -> EmailDataCollector {
         switch feedbackCase {
         case .negativeFeedback:
-            return NegativeFeedbackDataCollector(userWalletEmailData: cardModel.config.emailData)
+            return NegativeFeedbackDataCollector(userWalletEmailData: cardModel.emailData)
         case .scanTroubleshooting:
             return failedCardScanTracker
         }
@@ -377,13 +377,7 @@ class MainViewModel: ObservableObject {
     }
 
     func prepareForBackup() {
-        if let backupSteps = cardModel.config.backupSteps {
-            let input = OnboardingInput(steps: backupSteps,
-                                        cardInput: .cardModel(self.cardModel),
-                                        welcomeStep: nil,
-                                        currentStepIndex: 0,
-                                        isStandalone: true)
-
+        if let input = cardModel.backupInput {
             self.openOnboarding(with: input)
         }
     }
@@ -406,10 +400,10 @@ class MainViewModel: ObservableObject {
     }
 
     private func validateHashesCount() {
-        guard cardModel.config.hasFeature(.signedHashesCounter) else { return }
+        guard cardModel.canCountHashes else { return }
 
         guard cardModel.hasWallet else {
-            if cardModel.config.hasFeature(.manageTokens) {
+            if cardModel.isMultiWallet {
                 warningsService.hideWarning(for: .multiWalletSignedHashes)
             } else {
                 warningsService.hideWarning(for: .numberOfSignedHashesIncorrect)
@@ -419,11 +413,9 @@ class MainViewModel: ObservableObject {
 
         if isHashesCounted { return }
 
-        if !cardModel.config.hasFeature(.signedHashesCounter) { return }
-
         if AppSettings.shared.validatedSignedHashesCards.contains(cardModel.cardId) { return }
 
-        if cardModel.config.hasFeature(.manageTokens) {
+        if cardModel.isMultiWallet {
             if cardModel.cardSignedHashes > 0 {
                 withAnimation {
                     warningsService.appendWarning(for: .multiWalletSignedHashes)
@@ -545,7 +537,7 @@ extension MainViewModel {
     }
 
     func openSellCrypto() {
-        if let disabledLocalizedReason = cardModel.config.getFeatureAvailability(.exchange).disabledLocalizedReason {
+        if let disabledLocalizedReason = cardModel.getDisabledLocalizedReason(for: .exchange) {
             error = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
         }
@@ -558,7 +550,7 @@ extension MainViewModel {
     }
 
     func openBuyCrypto() {
-        if let disabledLocalizedReason = cardModel.config.getFeatureAvailability(.exchange).disabledLocalizedReason {
+        if let disabledLocalizedReason = cardModel.getDisabledLocalizedReason(for: .exchange) {
             error = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
         }
@@ -622,7 +614,7 @@ extension MainViewModel {
     func openMail(with emailFeedbackCase: EmailFeedbackCase) {
         let collector = getDataCollector(for: emailFeedbackCase)
         let type = emailFeedbackCase.emailType
-        coordinator.openMail(with: collector, emailType: type, recipient: cardModel.config.emailConfig.recipient)
+        coordinator.openMail(with: collector, emailType: type, recipient: cardModel.emailConfig.recipient)
     }
 
     func openQR() {
