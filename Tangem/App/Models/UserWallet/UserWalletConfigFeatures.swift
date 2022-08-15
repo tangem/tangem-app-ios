@@ -11,6 +11,7 @@ import Foundation
 enum UserWalletFeature: Int {
     case accessCode
     case passcode
+    case longTap
     case signing
     case longHashes
     case signedHashesCounter
@@ -26,6 +27,7 @@ enum UserWalletFeature: Int {
     case showAddress
     case withdrawal
     case hdWallets
+    case onlineImage
 }
 
 extension UserWalletFeature {
