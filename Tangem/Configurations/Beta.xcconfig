@@ -13,6 +13,7 @@ ENVIRONMENT_NAME = Beta
 
 // Storage container name
 SUITE_NAME = group.$(PRODUCT_BUNDLE_IDENTIFIER)
+CLIP_BUNDLE_IDENTIFIER = $(PRODUCT_BUNDLE_IDENTIFIER).Clip
 
 // Overriding (do NOT change key name)
 // app name
