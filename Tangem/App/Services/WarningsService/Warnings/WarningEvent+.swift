@@ -31,6 +31,8 @@ extension WarningEvent {
             return WarningsList.oldCard
         case .oldDeviceOldCard:
             return WarningsList.oldDeviceOldCard
+        case .legacyDerivation:
+            return WarningsList.legacyDerivation
         }
     }
 }
@@ -46,7 +48,8 @@ fileprivate struct WarningsList {
     static let failedToVerifyCard = AppWarning(title: "warning_failed_to_verify_card_title".localized, message: "warning_failed_to_verify_card_message".localized, priority: .critical, type: .permanent, event: .failedToValidateCard)
     static let multiWalletSignedHashes = AppWarning(title: "warning_important_security_info".localized, message: "warning_signed_tx_previously".localized, priority: .info, type: .temporary, location: [.main], event: .multiWalletSignedHashes)
     static let testnetCard = AppWarning(title: warningTitle, message: "warning_testnet_card_message".localized, priority: .critical, type: .permanent, location: [.main, .send], event: .testnetCard)
-    static let demoCard = AppWarning(title: warningTitle, message: "alert_demo_message".localized, priority: .critical, type: .permanent, location: [.main, .send], event: .testnetCard)
+    static let demoCard = AppWarning(title: warningTitle, message: "alert_demo_message".localized, priority: .critical, type: .permanent, location: [.main, .send], event: .demoCard)
+    static let legacyDerivation = AppWarning(title: warningTitle, message: "alert_manage_tokens_addresses_message".localized, priority: .critical, type: .permanent, location: [.manageTokens], event: .legacyDerivation)
     static func lowSignatures(count: Int) -> AppWarning {
         let message = String(format: "warning_low_signatures_format".localized, "\(count)")
         return AppWarning(title: warningTitle, message: message, priority: .critical, type: .permanent)
