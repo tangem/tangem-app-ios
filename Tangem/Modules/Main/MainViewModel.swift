@@ -616,11 +616,13 @@ class MainViewModel: ObservableObject {
     }
 
     private func showUserWalletSaveIfNeeded() {
-        if AppSettings.shared.saveUserWallets != nil {
+        if AppSettings.shared.askedToSaveUserWallets  {
             return
         }
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [cardModel] in
+        AppSettings.shared.askedToSaveUserWallets = true
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0) { [cardModel] in
             self.error = AlertBinder(alert:
                 Alert(title: Text("Do you want to save cards in the app"),
                       message: Text("Think about it..."),
