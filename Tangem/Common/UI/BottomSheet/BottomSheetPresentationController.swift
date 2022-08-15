@@ -18,6 +18,11 @@ class BottomSheetPresentationController: UIPresentationController {
     private(set) lazy var tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(onTap))
     private lazy var panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(onPan))
     private var heightConstraint: NSLayoutConstraint?
+    private var currentHeight: CGFloat = 0 {
+        didSet {
+            bottomSheetInteractiveDismissalTransition.updateCurrentHeight(height: currentHeight)
+        }
+    }
 
     private var maxHeight: CGFloat {
         return UIScreen.main.bounds.height - (containerView?.safeAreaInsets.top ?? 0)
@@ -161,18 +166,23 @@ class BottomSheetPresentationController: UIPresentationController {
     }
 
     func incrementHeight(value: CGFloat) {
-        let currentHeight = presentedView?.frame.height ?? 0
+        let currentHeight = self.currentHeight == 0 ? (presentedView?.frame.height ?? 0) : self.currentHeight
         let incrementedHeight = currentHeight + value
-        createHeightAnimator(height: incrementedHeight > maxHeight ? maxHeight : incrementedHeight).startAnimation()
+        let changedHeight = incrementedHeight > maxHeight ? maxHeight : incrementedHeight
+        self.currentHeight = changedHeight
+        createHeightAnimator(height: changedHeight).startAnimation()
     }
 
     func decrementHeight(value: CGFloat) {
-        let currentHeight = presentedView?.frame.height ?? 0
-        createHeightAnimator(height: currentHeight - value).startAnimation()
+        let currentHeight = self.currentHeight == 0 ? (presentedView?.frame.height ?? 0) : self.currentHeight
+        let changedHeight = currentHeight - value
+        self.currentHeight = changedHeight
+        createHeightAnimator(height: changedHeight).startAnimation()
     }
 
     func updateHeightForPresentedView(with newHeight: CGFloat) {
-        createHeightAnimator(height: newHeight > maxHeight ? maxHeight : newHeight).startAnimation()
+        self.currentHeight = newHeight > maxHeight ? maxHeight : newHeight
+        createHeightAnimator(height: currentHeight).startAnimation()
     }
 
     private func createHeightAnimator(height: CGFloat) -> UIViewPropertyAnimator {
@@ -210,8 +220,8 @@ class BottomSheetPresentationController: UIPresentationController {
         }
 
         let translation = gestureRecognizer.translation(in: presentedView)
-
-        let progress = translation.y / presentedView.frame.height
+        let currentHeight = currentHeight == 0 ? presentedView.frame.height : currentHeight
+        let progress = translation.y / currentHeight
 
         switch gestureRecognizer.state {
         case .began:
