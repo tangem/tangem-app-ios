@@ -1,5 +1,5 @@
 //
-//  BaseConfig.swift
+//  WarningEventsFactory.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,10 +9,8 @@
 import Foundation
 import TangemSdk
 
-protocol BaseConfig {}
-
-extension BaseConfig {
-    func getBaseWarningEvents(for card: Card) -> [WarningEvent] {
+struct WarningEventsFactory {
+    func makeWarningEvents(for card: Card) -> [WarningEvent] {
         var warnings: [WarningEvent] = []
 
         if card.firmwareVersion.type != .sdk &&
