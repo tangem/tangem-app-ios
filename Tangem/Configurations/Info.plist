@@ -2,12 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>SUITE_NAME</key>
-	<string>$(SUITE_NAME)</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>To share with chat support</string>
-	<key>ENVIRONMENT_NAME</key>
-	<string>$(ENVIRONMENT_NAME)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -39,6 +33,10 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>CLIP_BUNDLE_IDENTIFIER</key>
+	<string>$(CLIP_BUNDLE_IDENTIFIER)</string>
+	<key>ENVIRONMENT_NAME</key>
+	<string>$(ENVIRONMENT_NAME)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
@@ -47,6 +45,8 @@
 	<string>To Scan Smart Card</string>
 	<key>NSCameraUsageDescription</key>
 	<string>To Scan QR Code or take a photo for chat support</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>To share with chat support</string>
 	<key>NSUbiquitousContainers</key>
 	<dict>
 		<key>iCloud.com.tangem.TangemTap</key>
@@ -63,6 +63,10 @@
 	<array>
 		<string>ScanTangemCardIntent</string>
 	</array>
+	<key>PARENT_IDENTIFIER</key>
+	<string>$(PARENT_IDENTIFIER)</string>
+	<key>SUITE_NAME</key>
+	<string>$(SUITE_NAME)</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
