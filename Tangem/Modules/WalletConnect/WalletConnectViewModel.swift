@@ -19,11 +19,6 @@ class WalletConnectViewModel: ObservableObject {
     @Published var isServiceBusy: Bool = true
     @Published var sessions: [WalletConnectSession] = []
 
-    var canCreateWC: Bool {
-        cardModel.cardInfo.card.wallets.contains(where: { $0.curve == .secp256k1 })
-            && (cardModel.wallets?.contains(where: { $0.blockchain == .ethereum(testnet: false) || $0.blockchain == .ethereum(testnet: true) }) ?? false)
-    }
-
     private var hasWCInPasteboard: Bool {
         guard let copiedValue = UIPasteboard.general.string else {
             return false
