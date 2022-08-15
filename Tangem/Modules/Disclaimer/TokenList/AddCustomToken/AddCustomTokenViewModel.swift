@@ -106,7 +106,7 @@ class AddCustomTokenViewModel: ObservableObject {
 
             if case let .token(_, blockchain) = tokenItem,
                case .solana = blockchain,
-               !cardModel.config.hasFeature(.longHashes)
+               !cardModel.longHashesSupported
             {
                 throw TokenCreationErrors.tokensNotSupported
             }
@@ -178,7 +178,7 @@ class AddCustomTokenViewModel: ObservableObject {
     }
 
     private func getBlockchains(withTokenSupport: Bool) -> Set<Blockchain> {
-        let blockchains = cardModel.config.supportedBlockchains
+        let blockchains = cardModel.supportedBlockchains
 
         if withTokenSupport {
             let blockchainsWithTokens = blockchains.filter { $0.canHandleTokens }

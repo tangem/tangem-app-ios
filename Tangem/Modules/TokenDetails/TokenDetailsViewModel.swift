@@ -90,7 +90,7 @@ class TokenDetailsViewModel: ObservableObject {
     }
 
     var canSend: Bool {
-        guard card.config.hasFeature(.signing) else {
+        guard card.canSend else {
             return false
         }
 
@@ -348,7 +348,7 @@ extension TokenDetailsViewModel {
     }
 
     func openSellCrypto() {
-        if let disabledLocalizedReason = card.config.getFeatureAvailability(.exchange).disabledLocalizedReason {
+        if let disabledLocalizedReason = card.getDisabledLocalizedReason(for: .exchange) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
         }
@@ -361,7 +361,7 @@ extension TokenDetailsViewModel {
     }
 
     func openBuyCrypto() {
-        if let disabledLocalizedReason = card.config.getFeatureAvailability(.exchange).disabledLocalizedReason {
+        if let disabledLocalizedReason = card.getDisabledLocalizedReason(for: .exchange) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
         }

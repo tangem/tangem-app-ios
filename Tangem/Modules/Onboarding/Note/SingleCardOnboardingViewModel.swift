@@ -98,7 +98,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             сreateWallet()
         case .topup:
             if canBuyCrypto {
-                if let disabledLocalizedReason = cardModel.config.getFeatureAvailability(.exchange).disabledLocalizedReason {
+                if let disabledLocalizedReason = cardModel.getDisabledLocalizedReason(for: .exchange) {
                     alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason) {
                         DispatchQueue.main.async {
                             self.updateCardBalance()
@@ -136,7 +136,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
     private func сreateWallet() {
         isMainButtonBusy = true
-        let config = cardModel.config
 
         var subscription: AnyCancellable? = nil
 
@@ -164,9 +163,9 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         } receiveValue: { [weak self] (_, _) in
             guard let self = self else { return }
 
-            self.tokensRepo.append(config.defaultBlockchains, for: self.cardModel.cardId)
+            self.cardModel.appendDefaultBlockchains()
 
-            if config.hasFeature(.activation) {
+            if self.cardModel.supportActivation {
                 AppSettings.shared.cardsStartedActivation.append(self.cardModel.cardId)
             }
 

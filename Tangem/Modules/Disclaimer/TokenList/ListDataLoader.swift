@@ -22,7 +22,7 @@ class ListDataLoader {
     private(set) var canFetchMore = true
 
     // MARK: Input
-    private let config: UserWalletConfig
+    private let networkIds: [String]
 
     // MARK: Private
 
@@ -38,8 +38,8 @@ class ListDataLoader {
     private var cachedSearch: [String: [CoinModel]] = [:]
     private var lastSearchText = ""
 
-    init(config: UserWalletConfig) {
-        self.config = config
+    init(networkIds: [String]) {
+        self.networkIds = networkIds
     }
 
     func reset(_ searchText: String) {
@@ -79,8 +79,6 @@ class ListDataLoader {
 
 private extension ListDataLoader {
     func loadItems(_ searchText: String) -> AnyPublisher<[CoinModel], Never> {
-        let networkIds = config.supportedBlockchains.map { $0.networkId }
-
         let searchText = searchText.trimmed()
         let requestModel = CoinsListRequestModel(
             networkIds: networkIds,
