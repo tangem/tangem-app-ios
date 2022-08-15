@@ -307,7 +307,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             if NFCUtils.isPoorNfcQualityDevice {
                 self.alert = AlertBuilder.makeOldDeviceAlert()
             } else {
-                if let disabledLocalizedReason = input.cardInput.cardModel?.config.getFeatureAvailability(.backup).disabledLocalizedReason {
+                if let disabledLocalizedReason = input.cardInput.cardModel?.getDisabledLocalizedReason(for: .backup) {
                     alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
                 } else {
                     goToNextStep()

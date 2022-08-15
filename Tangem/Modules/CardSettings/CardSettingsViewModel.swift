@@ -27,7 +27,7 @@ class CardSettingsViewModel: ObservableObject {
     }
 
     var cardSignedHashes: String? {
-        if cardModel.config.hasFeature(.signedHashesCounter) {
+        if cardModel.canCountHashes {
             return "\(cardModel.cardSignedHashes)"
         }
 
@@ -35,7 +35,7 @@ class CardSettingsViewModel: ObservableObject {
     }
 
     var isResetToFactoryAvailable: Bool {
-        cardModel.config.hasFeature(.resetToFactory)
+        cardModel.isResetToFactoryAvailable
     }
 
     // MARK: Dependecies
@@ -103,12 +103,12 @@ extension CardSettingsViewModel {
     }
 
     func openResetCard() {
-        if let disabledLocalizedReason = cardModel.config.getFeatureAvailability(.resetToFactory).disabledLocalizedReason {
+        if let disabledLocalizedReason = cardModel.getDisabledLocalizedReason(for: .resetToFactory) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
         }
 
-        if cardModel.config.hasFeature(.twinning) {
+        if cardModel.canTwin {
             prepareTwinOnboarding()
         } else {
             coordinator.openResetCardToFactoryWarning { [weak self] in
