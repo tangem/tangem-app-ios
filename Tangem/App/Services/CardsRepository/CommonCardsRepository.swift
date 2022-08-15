@@ -31,7 +31,6 @@ class CommonCardsRepository: CardsRepository {
     private(set) var cards = [String: CardViewModel]()
 
     private var bag: Set<AnyCancellable> = .init()
-    private let legacyCardMigrator: LegacyCardMigrator = .init()
 
     deinit {
         print("CardsRepository deinit")
@@ -74,14 +73,14 @@ class CommonCardsRepository: CardsRepository {
         cardInfo.primaryCard.map { backupServiceProvider.backupService.setPrimaryCard($0) }
 
         let cm = CardViewModel(cardInfo: cardInfo)
-        legacyCardMigrator.migrateIfNeeded(for: cardInfo.card.cardId, config: cm.config)
+        cm.getLegacyMigrator()?.migrateIfNeeded()
         scannedCardsRepository.add(cardInfo)
         didScanPublisher.send(cardInfo)
         tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
 
-        Analytics.logScan(card: cardInfo.card, config: cm.config)
+        cm.logScan()
+        cm.didScan()
         cards[cardInfo.card.cardId] = cm
-        sdkProvider.didScan(cm.config)
         cm.getCardInfo()
         return cm
     }
@@ -89,22 +88,20 @@ class CommonCardsRepository: CardsRepository {
 
 
 /// Temporary solution to migrate default tokens of old miltiwallet cards to TokenItemsRepository. Remove at Q3-Q4'22
-fileprivate class LegacyCardMigrator {
+class LegacyCardMigrator {
     @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
     @Injected(\.scannedCardsRepository) private var scannedCardsRepository: ScannedCardsRepository
 
+    private let cardId: String
+    private let embeddedEntry: StorageEntry
+
+    init(cardId: String, embeddedEntry: StorageEntry) {
+        self.cardId = cardId
+        self.embeddedEntry = embeddedEntry
+    }
+
     // Save default blockchain and token to main tokens repo.
-    func migrateIfNeeded(for cardId: String, config: UserWalletConfig) {
-        // Migrate only multiwallet cards
-        guard config.hasFeature(.manageTokens) else {
-            return
-        }
-
-        // Check if we have anything to migrate. It's impossible to get default token without default blockchain
-        guard let embeddedEntry = config.embeddedBlockchain else {
-            return
-        }
-
+    func migrateIfNeeded() {
         // Migrate only known cards.
         guard scannedCardsRepository.cards.keys.contains(cardId) else {
             // Newly scanned card. Save and forgot.
