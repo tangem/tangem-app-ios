@@ -105,11 +105,7 @@ class WelcomeViewModel: ObservableObject {
     }
 
     private func processScannedCard(_ cardModel: CardViewModel, isWithAnimation: Bool) {
-        let input = OnboardingInput(steps: cardModel.config.onboardingSteps,
-                                    cardInput: .cardModel(cardModel),
-                                    welcomeStep: nil,
-                                    currentStepIndex: 0)
-
+        let input = cardModel.onboardingInput
         self.isScanningCard = false
 
         if input.steps.needOnboarding {
