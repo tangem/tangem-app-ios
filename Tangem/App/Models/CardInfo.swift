@@ -20,12 +20,6 @@ struct CardInfo {
     var derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]] = [:]
     var primaryCard: PrimaryCard? = nil
 
-    var imageLoadDTO: ImageLoadDTO {
-        ImageLoadDTO(cardId: card.cardId,
-                     cardPublicKey: card.cardPublicKey,
-                     artwotkInfo: artworkInfo)
-    }
-
     var cardIdFormatted: String {
         if case let .twin(_, twinData) = walletData {
             return AppTwinCardIdFormatter.format(cid: card.cardId, cardNumber: twinData.series.number)

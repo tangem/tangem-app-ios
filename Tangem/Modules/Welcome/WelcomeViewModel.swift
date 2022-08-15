@@ -105,8 +105,6 @@ class WelcomeViewModel: ObservableObject {
     }
 
     private func processScannedCard(_ cardModel: CardViewModel, isWithAnimation: Bool) {
-        cardModel.cardInfo.primaryCard.map { backupService.setPrimaryCard($0) }
-
         let input = OnboardingInput(steps: cardModel.config.onboardingSteps,
                                     cardInput: .cardModel(cardModel),
                                     welcomeStep: nil,
