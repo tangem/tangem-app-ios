@@ -43,6 +43,13 @@ class CommonUserWalletListService: UserWalletListService {
     private let secureStorage = SecureStorage()
     private let derivedKeysStorageKey = "user_wallet_list_derived_keys"
 
+    private var fileManager: FileManager {
+        FileManager.default
+    }
+    private var userWalletDirectoryUrl: URL {
+        fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent("user_wallets", isDirectory: true)
+    }
+
     init() {
 
     }
@@ -161,25 +168,39 @@ class CommonUserWalletListService: UserWalletListService {
     }
 
     private func savedUserWallets() -> [UserWallet] {
-        do {
-            var userWallets: [UserWallet] = []
+        let decoder = JSONDecoder()
 
-            let userWalletsData = AppSettings.shared.userWallets
-            if !userWalletsData.isEmpty {
-                userWallets = try JSONDecoder().decode([UserWallet].self, from: userWalletsData)
+        do {
+            let userWalletsPublicData = try Data(contentsOf: userWalletListPath())
+            var userWallets = try decoder.decode([UserWallet].self, from: userWalletsPublicData)
+
+            guard let encryptionKey = encryptionKey else {
+                return userWallets
             }
 
-            if let encryptionKey = encryptionKey,
-               let derivedKeysEncryptedData = try secureStorage.get(derivedKeysStorageKey),
-               !derivedKeysEncryptedData.isEmpty
-            {
-                let derivedKeysData = try decrypt(derivedKeysEncryptedData, with: encryptionKey)
-                if !derivedKeysData.isEmpty {
-                    let derivedKeysList = try JSONDecoder().decode(UserWalletListDerivedKeys.self, from: derivedKeysData)
-                    for i in 0 ..< userWallets.count {
-                        userWallets[i].keys = derivedKeysList[userWallets[i].userWalletId] ?? [:]
-                    }
+            let encryptionKeysDataEncrypted = try Data(contentsOf: userWalletEncryptionKeysPath())
+            let encryptionKeysData = try decrypt(encryptionKeysDataEncrypted, with: encryptionKey)
+            let encryptionKeys = try decoder.decode([Data: Data].self, from: encryptionKeysData)
+
+            for i in 0 ..< userWallets.count {
+                let userWallet = userWallets[i]
+
+                guard let userWalletEncryptionKeyData = encryptionKeys[userWallet.userWalletId] else {
+                    print("Failed to find encryption key for wallet", userWallet.userWalletId.hex)
+                    continue
                 }
+
+                let userWalletEncryptionKey = SymmetricKey(data: userWalletEncryptionKeyData)
+
+                let sensitiveInformationEncryptedData = try Data(contentsOf: userWalletPath(for: userWallet))
+                let sensitiveInformationData = try decrypt(sensitiveInformationEncryptedData, with: userWalletEncryptionKey)
+                let sensitiveInformation = try decoder.decode(UserWallet.SensitiveInformation.self, from: sensitiveInformationData)
+
+                var card = userWallet.card
+                card.wallets = sensitiveInformation.wallets
+                userWallets[i].card = card
+
+                userWallets[i].keys = sensitiveInformation.keys
             }
 
             return userWallets
@@ -190,42 +211,83 @@ class CommonUserWalletListService: UserWalletListService {
     }
 
     private func saveUserWallets(_ userWallets: [UserWallet]) {
-        guard let encryptionKey = encryptionKey else {
-            return
-        }
+        let encoder = JSONEncoder()
 
         do {
-            let derivedKeysEncryptedData: Data
-            let userWalletsData: Data
-
             if userWallets.isEmpty {
-                derivedKeysEncryptedData = Data()
-                userWalletsData = Data()
-            } else {
-                let derivedKeys: UserWalletListDerivedKeys = userWallets.reduce(into: [:]) { partialResult, userWallet in
-                    partialResult[userWallet.userWalletId] = userWallet.keys
-                }
-                let derivedKeysData = try JSONEncoder().encode(derivedKeys)
-                derivedKeysEncryptedData = try encrypt(derivedKeysData, with: encryptionKey)
-
-                let userWalletsWithoutKeys: [UserWallet] = userWallets.map {
-                    var userWalletWithoutKeys = $0
-                    userWalletWithoutKeys.keys = [:]
-                    return userWalletWithoutKeys
-                }
-
-                userWalletsData = try JSONEncoder().encode(userWalletsWithoutKeys)
+                try fileManager.removeItem(at: userWalletDirectoryUrl)
+                return
             }
 
-            if derivedKeysEncryptedData.isEmpty {
-                try secureStorage.delete(derivedKeysStorageKey)
-            } else {
-                try secureStorage.store(derivedKeysEncryptedData, forKey: derivedKeysStorageKey, overwrite: true)
+            try fileManager.createDirectory(at: userWalletDirectoryUrl, withIntermediateDirectories: true)
+
+            let userWalletsWithoutKeys: [UserWallet] = userWallets.map {
+                var userWalletWithoutKeys = $0
+                userWalletWithoutKeys.keys = [:]
+
+                var card = $0.card
+                card.wallets = []
+                userWalletWithoutKeys.card = card
+
+                return userWalletWithoutKeys
             }
-            AppSettings.shared.userWallets = userWalletsData
+
+            let publicData = try encoder.encode(userWalletsWithoutKeys)
+            try publicData.write(to: userWalletListPath(), options: .atomic)
+            try excludeFromBackup(url: userWalletListPath())
+
+
+            let encryptionKeys: [Data: Data] = Dictionary(userWallets.compactMap {
+                guard let encryptionKey = $0.encryptionKey else { return nil }
+                let encryptionKeyData = Data(hex: encryptionKey.dataRepresentation.hex) // WTF?
+                return ($0.userWalletId, encryptionKeyData)
+            }) { v1, _ in
+                v1
+            }
+
+            if let encryptionKey = encryptionKey {
+                let encryptionKeysPlain = try encoder.encode(encryptionKeys)
+                let encryptionKeysEncrypted = try encrypt(encryptionKeysPlain, with: encryptionKey)
+                try encryptionKeysEncrypted.write(to: userWalletEncryptionKeysPath(), options: .atomic)
+                try excludeFromBackup(url: userWalletEncryptionKeysPath())
+            }
+
+
+            for userWallet in userWallets {
+                guard let userWalletEncryptionKey = userWallet.encryptionKey else {
+                    print("User wallet \(userWallet.card.cardId) failed to generate encryption key")
+                    continue
+                }
+
+                let sensitiveInformation = UserWallet.SensitiveInformation(keys: userWallet.keys, wallets: userWallet.card.wallets)
+                let sensitiveDataEncoded = try encrypt(encoder.encode(sensitiveInformation), with: userWalletEncryptionKey)
+                let sensitiveDataPath = userWalletPath(for: userWallet)
+                try sensitiveDataEncoded.write(to: sensitiveDataPath, options: .atomic)
+                try excludeFromBackup(url: sensitiveDataPath)
+            }
         } catch {
             print(error)
         }
+    }
+
+    private func userWalletEncryptionKeysPath() -> URL {
+        userWalletDirectoryUrl.appendingPathComponent("encryption_keys.bin")
+    }
+
+    private func userWalletListPath() -> URL {
+        userWalletDirectoryUrl.appendingPathComponent("user_wallets.json")
+    }
+
+    private func userWalletPath(for userWallet: UserWallet) -> URL {
+        return userWalletDirectoryUrl.appendingPathComponent("user_wallet_\(userWallet.userWalletId.hex).bin")
+    }
+
+    private func excludeFromBackup(url originalUrl: URL) throws {
+        var url = originalUrl
+
+        var resourceValues = URLResourceValues()
+        resourceValues.isExcludedFromBackup = true
+        try url.setResourceValues(resourceValues)
     }
 
     private func decrypt(_ data: Data, with key: SymmetricKey) throws -> Data {
