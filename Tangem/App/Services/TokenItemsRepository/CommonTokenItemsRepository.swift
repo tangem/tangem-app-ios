@@ -13,8 +13,10 @@ import Network
 
 class CommonTokenItemsRepository {
     @Injected(\.persistentStorage) var persistanceStorage: PersistentStorageProtocol
+    @Injected(\.tangemApiService) var tangemApiService: TangemApiService
 
     private let lockQueue = DispatchQueue(label: "token_items_repo_queue")
+    private weak var subscriber: TokenItemsRepositoryChanges?
 
     init() {
         lockQueue.sync {
@@ -26,118 +28,61 @@ class CommonTokenItemsRepository {
         print("TokenItemsRepository deinit")
     }
 
-    func append(_ blockchains: [Blockchain], for cardId: String, style: DerivationStyle) {
-        let networks = blockchains.map {
-            BlockchainNetwork($0, derivationPath: $0.derivationPath(for: style))
-        }
+//    func append(_ blockchains: [Blockchain], for cardId: String, style: DerivationStyle) {
+//        let networks = blockchains.map {
+//            BlockchainNetwork($0, derivationPath: $0.derivationPath(for: style))
+//        }
+//
+//        append(networks, for: cardId)
+//    }
 
-        append(networks, for: cardId)
-    }
 
-    func append(_ entries: [StorageEntry], for cardId: String) {
-        lockQueue.sync {
-            var items = fetch(for: cardId)
-            var hasAppended: Bool = false
 
-            entries.forEach {
-                if items.tryAppend(entry: $0) {
-                    hasAppended = true
-                }
-            }
+//    func append(_ blockchainNetworks: [BlockchainNetwork], for cardId: String) {
+//        lockQueue.sync {
+//            var items = fetch(for: cardId)
+//            var hasAppended: Bool = false
+//
+//            blockchainNetworks.forEach {
+//                if items.tryAppend(blockchainNetwork: $0) {
+//                    hasAppended = true
+//                }
+//            }
+//
+//            if hasAppended {
+//                save(items, for: cardId)
+//            }
+//        }
+//    }
 
-            if hasAppended {
-                save(items, for: cardId)
-            }
-        }
-    }
+//    func append(_ tokens: [Token], blockchainNetwork: BlockchainNetwork, for cardId: String) {
+//        lockQueue.sync {
+//            var items = fetch(for: cardId)
+//            var hasAppended: Bool = false
+//
+//            tokens.forEach {
+//                if items.tryAppend(token: $0, in: blockchainNetwork) {
+//                    hasAppended = true
+//                }
+//            }
+//
+//            if hasAppended {
+//                save(items, for: cardId)
+//            }
+//        }
+//    }
 
-    func append(_ blockchainNetworks: [BlockchainNetwork], for cardId: String) {
-        lockQueue.sync {
-            var items = fetch(for: cardId)
-            var hasAppended: Bool = false
+//    func remove(_ blockchainNetwork: BlockchainNetwork, for cardId: String) {
+//        remove([blockchainNetwork], for: cardId)
+//    }
 
-            blockchainNetworks.forEach {
-                if items.tryAppend(blockchainNetwork: $0) {
-                    hasAppended = true
-                }
-            }
 
-            if hasAppended {
-                save(items, for: cardId)
-            }
-        }
-    }
 
-    func append(_ tokens: [Token], blockchainNetwork: BlockchainNetwork, for cardId: String) {
-        lockQueue.sync {
-            var items = fetch(for: cardId)
-            var hasAppended: Bool = false
+//    func remove(_ token: Token, blockchainNetwork: BlockchainNetwork, for cardId: String) {
+//        remove([token], blockchainNetwork: blockchainNetwork, for: cardId)
+//    }
 
-            tokens.forEach {
-                if items.tryAppend(token: $0, in: blockchainNetwork) {
-                    hasAppended = true
-                }
-            }
 
-            if hasAppended {
-                save(items, for: cardId)
-            }
-        }
-    }
-
-    func remove(_ blockchainNetwork: BlockchainNetwork, for cardId: String) {
-        remove([blockchainNetwork], for: cardId)
-    }
-
-    func remove(_ blockchainNetworks: [BlockchainNetwork], for cardId: String) {
-        lockQueue.sync {
-            var items = fetch(for: cardId)
-            var hasRemoved: Bool = false
-
-            blockchainNetworks.forEach {
-                if items.tryRemove(blockchainNetwork: $0) {
-                    hasRemoved = true
-                }
-            }
-
-            if hasRemoved {
-                save(items, for: cardId)
-            }
-        }
-    }
-
-    func remove(_ token: Token, blockchainNetwork: BlockchainNetwork, for cardId: String) {
-        remove([token], blockchainNetwork: blockchainNetwork, for: cardId)
-    }
-
-    func remove(_ tokens: [Token], blockchainNetwork: BlockchainNetwork, for cardId: String) {
-        lockQueue.sync {
-            var items = fetch(for: cardId)
-            var hasRemoved: Bool = false
-
-            tokens.forEach {
-                if items.tryRemove(token: $0, in: blockchainNetwork) {
-                    hasRemoved = true
-                }
-            }
-
-            if hasRemoved {
-                save(items, for: cardId)
-            }
-        }
-    }
-
-    func removeAll(for cardId: String) {
-        lockQueue.sync {
-            save([], for: cardId)
-        }
-    }
-
-    func getItems(for cardId: String) -> [StorageEntry] {
-        lockQueue.sync {
-            return fetch(for: cardId)
-        }
-    }
 
     private func migrate() {
         let wallets: [String: [LegacyStorageEntry]] = persistanceStorage.readAllWallets()
@@ -170,6 +115,79 @@ class CommonTokenItemsRepository {
         try? persistanceStorage.store(value: items, for: .wallets(cid: cardId))
     }
 }
+
+// MARK: - TokenItemsRepository
+
+extension CommonTokenItemsRepository: TokenItemsRepository {
+    func updateSubscriber(_ subscriber: TokenItemsRepositoryChanges) {
+        self.subscriber = subscriber
+    }
+    
+    func append(_ entries: [StorageEntry], for cardId: String) {
+        lockQueue.sync {
+            var items = fetch(for: cardId)
+            var hasAppended: Bool = false
+
+            entries.forEach {
+                if items.tryAppend(entry: $0) {
+                    hasAppended = true
+                }
+            }
+
+            if hasAppended {
+                save(items, for: cardId)
+            }
+        }
+    }
+    
+    func remove(_ blockchainNetworks: [BlockchainNetwork], for cardId: String) {
+        lockQueue.sync {
+            var items = fetch(for: cardId)
+            var hasRemoved: Bool = false
+
+            blockchainNetworks.forEach {
+                if items.tryRemove(blockchainNetwork: $0) {
+                    hasRemoved = true
+                }
+            }
+
+            if hasRemoved {
+                save(items, for: cardId)
+            }
+        }
+    }
+    
+    func remove(_ tokens: [Token], blockchainNetwork: BlockchainNetwork, for cardId: String) {
+        lockQueue.sync {
+            var items = fetch(for: cardId)
+            var hasRemoved: Bool = false
+
+            tokens.forEach {
+                if items.tryRemove(token: $0, in: blockchainNetwork) {
+                    hasRemoved = true
+                }
+            }
+
+            if hasRemoved {
+                save(items, for: cardId)
+            }
+        }
+    }
+
+    func removeAll(for cardId: String) {
+        lockQueue.sync {
+            save([], for: cardId)
+        }
+    }
+
+    func getItems(for cardId: String) -> [StorageEntry] {
+        lockQueue.sync {
+            return fetch(for: cardId)
+        }
+    }
+}
+
+// MARK: - Private extension Array
 
 fileprivate extension Array where Element == StorageEntry {
     mutating func tryAppend(entry: Element) -> Bool {
@@ -243,10 +261,6 @@ fileprivate extension Array where Element == StorageEntry {
 
         return false
     }
-}
-
-extension CommonTokenItemsRepository: TokenItemsRepository {
-
 }
 
 struct StorageEntry: Codable, Equatable {
