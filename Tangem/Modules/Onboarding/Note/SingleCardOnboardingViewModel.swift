@@ -28,7 +28,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
     override var subtitle: LocalizedStringKey {
         if currentStep == .topup {
-            if case .xrp = cardModel?.walletModels?.first?.blockchainNetwork.blockchain {
+            if case .xrp = cardModel.walletModels?.first?.blockchainNetwork.blockchain {
                 return "onboarding_topup_subtitle_xrp"
             }
             return super.subtitle
@@ -59,7 +59,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     private var scheduledUpdate: DispatchWorkItem?
 
     private var canBuyCrypto: Bool {
-        if let blockchain = cardModel?.wallets?.first?.blockchain,
+        if let blockchain = cardModel.wallets?.first?.blockchain,
            exchangeService.canBuy(blockchain.currencySymbol, amountType: .coin, blockchain: blockchain) {
             return true
         }
@@ -98,7 +98,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             сreateWallet()
         case .topup:
             if canBuyCrypto {
-                if let disabledLocalizedReason = cardModel?.config.getFeatureAvailability(.exchange).disabledLocalizedReason {
+                if let disabledLocalizedReason = cardModel.config.getFeatureAvailability(.exchange).disabledLocalizedReason {
                     alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason) {
                         DispatchQueue.main.async {
                             self.updateCardBalance()
@@ -136,14 +136,13 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
     private func сreateWallet() {
         isMainButtonBusy = true
-        let cardInfo = cardModel!.cardInfo // [REDACTED_TODO_COMMENT]
-        let config = cardModel!.config
+        let config = cardModel.config
 
         var subscription: AnyCancellable? = nil
 
         subscription = Deferred {
             Future { (promise: @escaping Future<Void, Error>.Promise) in
-                self.cardModel!.createWallet { result in
+                self.cardModel.createWallet { result in
                     switch result {
                     case .success:
                         promise(.success(()))
@@ -163,19 +162,20 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             }
             subscription.map { _ = self?.bag.remove($0) }
         } receiveValue: { [weak self] (_, _) in
+            guard let self = self else { return }
 
-            self?.tokensRepo.append(config.defaultBlockchains, for: cardInfo.card.cardId)
+            self.tokensRepo.append(config.defaultBlockchains, for: self.cardModel.cardId)
 
             if config.hasFeature(.activation) {
-                AppSettings.shared.cardsStartedActivation.append(cardInfo.card.cardId)
+                AppSettings.shared.cardsStartedActivation.append(self.cardModel.cardId)
             }
 
-            self?.cardModel?.updateState()
-            self?.walletCreatedWhileOnboarding = true
+            self.cardModel.updateState()
+            self.walletCreatedWhileOnboarding = true
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                self?.isMainButtonBusy = false
-                self?.goToNextStep()
+                self.isMainButtonBusy = false
+                self.goToNextStep()
             }
         }
 
@@ -185,7 +185,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     private func stepUpdate() {
         switch currentStep {
         case .topup:
-            if let walletModel = self.cardModel?.walletModels?.first {
+            if let walletModel = self.cardModel.walletModels?.first {
                 updateCardBalanceText(for: walletModel)
             }
 
