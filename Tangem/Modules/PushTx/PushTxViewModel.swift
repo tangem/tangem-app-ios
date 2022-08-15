@@ -336,7 +336,7 @@ class PushTxViewModel: ObservableObject {
 // MARK: - Navigation
 extension PushTxViewModel {
     func openMail() {
-        let emailDataCollector = PushScreenDataCollector(userWalletEmailData: cardViewModel.config.emailData,
+        let emailDataCollector = PushScreenDataCollector(userWalletEmailData: cardViewModel.emailData,
                                                          walletModel: walletModel,
                                                          amountToSend: amountToSend,
                                                          feeText: newFee,
@@ -347,7 +347,7 @@ extension PushTxViewModel {
                                                          pushingTxHash: transaction.hash ?? .unknown,
                                                          lastError: lastError)
 
-        coordinator.openMail(with: emailDataCollector, recipient: cardViewModel.config.emailConfig.recipient)
+        coordinator.openMail(with: emailDataCollector, recipient: cardViewModel.emailConfig.recipient)
     }
 
     func dismiss() {
