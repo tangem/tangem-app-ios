@@ -23,6 +23,7 @@ class BottomSheetDismissalTransition: NSObject {
     private var offsetAnimator: UIViewPropertyAnimator?
 
     private var interactiveDismissal: Bool = false
+    private var currentHeight: CGFloat = 0
 
     func start(moving presentedView: UIView, interactiveDismissal: Bool) {
         self.interactiveDismissal = interactiveDismissal
@@ -32,8 +33,10 @@ class BottomSheetDismissalTransition: NSObject {
         offsetAnimator?.stopAnimation(false)
         offsetAnimator?.finishAnimation(at: .start)
 
+        let currentHeight = self.currentHeight == 0 ? presentedView.frame.height : self.currentHeight
+
         heightAnimator = createHeightAnimator(
-            animating: presentedView, from: presentedView.frame.height
+            animating: presentedView, from: currentHeight
         )
 
         if !interactiveDismissal {
@@ -44,7 +47,8 @@ class BottomSheetDismissalTransition: NSObject {
     }
 
     func move(_ presentedView: UIView, using translation: CGFloat) {
-        let progress = translation / presentedView.frame.height
+        let currentHeight = self.currentHeight == 0 ? presentedView.frame.height : self.currentHeight
+        let progress = translation / currentHeight
 
         let stretchProgress = stretchProgress(basedOn: translation)
 
@@ -55,7 +59,8 @@ class BottomSheetDismissalTransition: NSObject {
     }
 
     func stop(moving presentedView: UIView, at translation: CGFloat, with velocity: CGPoint) {
-        let progress = translation / presentedView.frame.height
+        let currentHeight = self.currentHeight == 0 ? presentedView.frame.height : self.currentHeight
+        let progress = translation / currentHeight
 
         let stretchProgress = stretchProgress(basedOn: translation)
 
@@ -88,6 +93,10 @@ class BottomSheetDismissalTransition: NSObject {
 
         interactiveDismissal = false
     }
+
+    func updateCurrentHeight(height: CGFloat) {
+        currentHeight = height
+    }
 }
 
 // MARK: UIViewControllerAnimatedTransitioning
@@ -104,7 +113,9 @@ extension BottomSheetDismissalTransition: UIViewControllerAnimatedTransitioning 
 
         offsetAnimator?.stopAnimation(true)
 
-        let offset = presentedView.frame.height
+        let currentHeight = self.currentHeight == 0 ? presentedView.frame.height : self.currentHeight
+
+        let offset = currentHeight
         let offsetAnimator = createOffsetAnimator(animating: presentedView, to: offset)
 
         offsetAnimator.addCompletion { position in
@@ -140,7 +151,9 @@ extension BottomSheetDismissalTransition: UIViewControllerInteractiveTransitioni
 
         offsetAnimator?.stopAnimation(true)
 
-        let offset = presentedView.frame.height
+        let currentHeight = self.currentHeight == 0 ? presentedView.frame.height : self.currentHeight
+
+        let offset = currentHeight
         let offsetAnimator = createOffsetAnimator(animating: presentedView, to: offset)
 
         offsetAnimator.addCompletion { position in
@@ -189,7 +202,6 @@ extension BottomSheetDismissalTransition {
 
         propertyAnimator.addCompletion { position in
             self.heightConstraint?.constant = position == .end ? finalHeight : height
-            self.heightConstraint?.isActive = position == .end ? true : false
         }
 
         return propertyAnimator
