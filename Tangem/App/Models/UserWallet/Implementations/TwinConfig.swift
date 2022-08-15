@@ -10,7 +10,7 @@ import Foundation
 import TangemSdk
 import BlockchainSdk
 
-struct TwinConfig: BaseConfig {
+struct TwinConfig {
     private let card: Card
     private let walletData: WalletData
     private let twinData: TwinCardInfo
@@ -104,7 +104,7 @@ extension TwinConfig: UserWalletConfig {
     }
 
     var warningEvents: [WarningEvent] {
-        var warnings = getBaseWarningEvents(for: card)
+        var warnings = WarningEventsFactory().makeWarningEvents(for: card)
 
         if isTestnet {
             warnings.append(.testnetCard)
@@ -115,6 +115,10 @@ extension TwinConfig: UserWalletConfig {
 
     // [REDACTED_TODO_COMMENT]
     var tangemSigner: TangemSigner { .init(with: card.cardId) }
+
+    var emailData: [EmailCollectedData] {
+        CardEmailDataFactory().makeEmailData(for: card, walletData: walletData)
+    }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
@@ -154,6 +158,8 @@ extension TwinConfig: UserWalletConfig {
             return .available
         case .withdrawal:
             return .available
+        case .hdWallets:
+            return .unavailable
         }
     }
 

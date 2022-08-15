@@ -19,10 +19,10 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
 
     var walletModelUpdateCancellable: AnyCancellable?
 
-    var cardModel: CardViewModel?
+    var cardModel: CardViewModel
 
     var buyCryptoURL: URL? {
-        if let wallet = cardModel?.wallets?.first {
+        if let wallet = cardModel.wallets?.first {
             return exchangeService.getBuyUrl(currencySymbol: wallet.blockchain.currencySymbol,
                                              amountType: .coin,
                                              blockchain: wallet.blockchain,
@@ -35,33 +35,33 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
     var buyCryptoCloseUrl: String { exchangeService.successCloseUrl.removeLatestSlash() }
 
     private var shareAddress: String {
-        cardModel?.walletModels?.first?.shareAddressString(for: 0) ?? ""
+        cardModel.walletModels?.first?.shareAddressString(for: 0) ?? ""
     }
 
     private var walletAddress: String {
-        cardModel?.walletModels?.first?.displayAddress(for: 0) ?? ""
+        cardModel.walletModels?.first?.displayAddress(for: 0) ?? ""
     }
 
     private var qrNoticeMessage: String {
-        cardModel?.walletModels?.first?.getQRReceiveMessage() ?? ""
+        cardModel.walletModels?.first?.getQRReceiveMessage() ?? ""
     }
 
     private var refreshButtonDispatchWork: DispatchWorkItem?
     private unowned var coordinator: OnboardingTopupRoutable!
 
     required init(input: OnboardingInput, coordinator: OnboardingTopupRoutable) {
-        self.cardModel = input.cardInput.cardModel
+        self.cardModel = input.cardInput.cardModel!
         self.coordinator = coordinator
         super.init(input: input, onboardingCoordinator: coordinator)
 
-        if let walletModel = self.cardModel?.walletModels?.first {
+        if let walletModel = self.cardModel.walletModels?.first {
             updateCardBalanceText(for: walletModel)
         }
     }
 
     func updateCardBalance() {
         guard
-            let walletModel = cardModel?.walletModels?.first,
+            let walletModel = cardModel.walletModels?.first,
             walletModelUpdateCancellable == nil
         else { return }
 
