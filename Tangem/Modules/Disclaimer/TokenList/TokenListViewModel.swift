@@ -44,11 +44,7 @@ class TokenListViewModel: ObservableObject {
     }
 
     var shouldShowAlert: Bool {
-        guard let card = cardModel?.cardInfo.card else {
-            return false
-        }
-
-        return card.settings.isHDWalletAllowed && card.derivationStyle == .legacy
+        cardModel?.shoulShowLegacyDerivationAlert ?? false
     }
 
     var isSaveDisabled: Bool {
@@ -82,15 +78,14 @@ class TokenListViewModel: ObservableObject {
 
         isSaving = true
 
-        let cardDerivationStyle = cardModel.cardInfo.card.derivationStyle
         let itemsToRemove = pendingRemove.map {
-            ($0.amountType, $0.getDefaultBlockchainNetwork(for: cardDerivationStyle))
+            ($0.amountType, cardModel.getBlockchainNetwork(for: $0.blockchain, derivationPath: nil))
         }
 
         cardModel.remove(items: itemsToRemove)
 
         let itemsToAdd = pendingAdd.map {
-            ($0.amountType, $0.getDefaultBlockchainNetwork(for: cardDerivationStyle))
+            ($0.amountType, cardModel.getBlockchainNetwork(for: $0.blockchain, derivationPath: nil))
         }
 
         cardModel.add(items: itemsToAdd) { [weak self] result in
@@ -179,7 +174,7 @@ private extension TokenListViewModel {
             return false
         }
 
-        let network = tokenItem.getDefaultBlockchainNetwork(for: cardModel.cardInfo.card.derivationStyle)
+        let network = cardModel.getBlockchainNetwork(for: tokenItem.blockchain, derivationPath: nil)
         if let walletManager = cardModel.walletModels?.first(where: { $0.blockchainNetwork == network })?.walletManager {
             if let token = tokenItem.token {
                 return walletManager.cardTokens.contains(token)
@@ -196,7 +191,7 @@ private extension TokenListViewModel {
             return false
         }
 
-        let network = tokenItem.getDefaultBlockchainNetwork(for: cardModel.cardInfo.card.derivationStyle)
+        let network = cardModel.getBlockchainNetwork(for: tokenItem.blockchain, derivationPath: nil)
         return cardModel.canManage(amountType: tokenItem.amountType, blockchainNetwork: network)
     }
 
@@ -235,7 +230,7 @@ private extension TokenListViewModel {
 
         let alreadyAdded = isAdded(tokenItem)
 
-        let network = tokenItem.getDefaultBlockchainNetwork(for: cardModel.cardInfo.card.derivationStyle)
+        let network = cardModel.getBlockchainNetwork(for: tokenItem.blockchain, derivationPath: nil)
         let token = TokenItem.blockchain(network.blockchain)
 
         if alreadyAdded {
@@ -324,9 +319,11 @@ private extension TokenListViewModel {
                       secondaryButton: .cancel(cancelAction))
             )
         } else {
-            guard let cardModel = cardModel,
-                  let walletModel = cardModel.walletModels?.first(where: { $0.blockchainNetwork == tokenItem.getDefaultBlockchainNetwork(for: cardModel.cardInfo.card.derivationStyle) })
-            else {
+            guard let cardModel = cardModel else { return }
+
+            let network = cardModel.getBlockchainNetwork(for: tokenItem.blockchain, derivationPath: nil)
+
+            guard let walletModel = cardModel.walletModels?.first(where: { $0.blockchainNetwork == network }) else {
                 return
             }
 
@@ -348,13 +345,14 @@ private extension TokenListViewModel {
     }
 
     private func canRemove(tokenItem: TokenItem) -> Bool {
-        guard let cardModel = cardModel,
-              let walletModel = cardModel.walletModels?.first(where: { $0.blockchainNetwork == tokenItem.getDefaultBlockchainNetwork(for: cardModel.cardInfo.card.derivationStyle) })
-        else {
+        guard let cardModel = cardModel else { return false }
+
+        let network = cardModel.getBlockchainNetwork(for: tokenItem.blockchain, derivationPath: nil)
+
+        guard let walletModel = cardModel.walletModels?.first(where: { $0.blockchainNetwork == network })  else {
             return false
         }
 
-        let network = tokenItem.getDefaultBlockchainNetwork(for: cardModel.cardInfo.card.derivationStyle)
 
         let cardTokens: [TokenItem] = walletModel
             .walletManager

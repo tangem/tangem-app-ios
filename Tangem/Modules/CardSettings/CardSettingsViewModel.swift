@@ -19,20 +19,19 @@ class CardSettingsViewModel: ObservableObject {
     @Published var isChangeAccessCodeLoading: Bool = false
 
     var cardId: String {
-        cardModel.cardInfo.cardIdFormatted
+        cardModel.cardIdFormatted
     }
 
     var cardIssuer: String {
-        cardModel.cardInfo.card.issuer.name
+        cardModel.cardIssuer
     }
 
     var cardSignedHashes: String? {
-        guard cardModel.hasWallet,
-              cardModel.config.hasFeature(.signedHashesCounter) else {
-            return nil
+        if cardModel.config.hasFeature(.signedHashesCounter) {
+            return "\(cardModel.cardSignedHashes)"
         }
 
-        return "\(cardModel.cardInfo.card.walletSignedHashes)"
+        return nil
     }
 
     var isResetToFactoryAvailable: Bool {
