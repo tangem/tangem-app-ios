@@ -11,7 +11,7 @@ import TangemSdk
 import BlockchainSdk
 import WalletConnectSwift
 
-struct GenericDemoConfig: BaseConfig {
+struct GenericDemoConfig {
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
 
     private let card: Card
@@ -115,7 +115,7 @@ extension GenericDemoConfig: UserWalletConfig {
     }
 
     var warningEvents: [WarningEvent] {
-        var warnings = getBaseWarningEvents(for: card)
+        var warnings = WarningEventsFactory().makeWarningEvents(for: card)
 
         if card.isTestnet {
             warnings.append(.testnetCard)
@@ -141,6 +141,10 @@ extension GenericDemoConfig: UserWalletConfig {
 
     var tangemSigner: TangemSigner {
         .init(with: card.cardId)
+    }
+
+    var emailData: [EmailCollectedData] {
+        CardEmailDataFactory().makeEmailData(for: card, walletData: nil)
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
@@ -189,6 +193,8 @@ extension GenericDemoConfig: UserWalletConfig {
             return .available
         case .withdrawal:
             return .available
+        case .hdWallets:
+            return card.settings.isHDWalletAllowed ? .available : .unavailable
         }
     }
 
