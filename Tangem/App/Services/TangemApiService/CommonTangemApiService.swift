@@ -30,6 +30,14 @@ extension CommonTangemApiService: TangemApiService {
         return _geoIpRegionCode ?? fallbackRegionCode
     }
 
+    func loadTokens() -> AnyPublisher<[Data], Error> {
+        Just([]).setFailureType(to: Error.self).eraseToAnyPublisher()
+    }
+
+    func saveTokens(tokens: [Data]) -> AnyPublisher<Void, Error> {
+        Just(()).setFailureType(to: Error.self).eraseToAnyPublisher()
+    }
+
     func loadCoins(requestModel: CoinsListRequestModel) -> AnyPublisher<[CoinModel], Error> {
         provider
             .requestPublisher(TangemApiTarget(type: .coins(requestModel), authData: authData))
