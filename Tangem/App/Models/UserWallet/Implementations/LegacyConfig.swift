@@ -147,6 +147,8 @@ extension LegacyConfig: UserWalletConfig {
             return .disabled()
         case .passcode:
             return .disabled()
+        case .longTap:
+            return card.settings.isResettingUserCodesAllowed ? .available : .unavailable
         case .signing:
             if card.firmwareVersion.doubleValue >= 2.28
                 || card.settings.securityDelay <= 15000 {
@@ -186,6 +188,8 @@ extension LegacyConfig: UserWalletConfig {
             return .available
         case .hdWallets:
             return .unavailable
+        case .onlineImage:
+            return card.firmwareVersion.type == .release ? .available : .unavailable
         }
     }
 
