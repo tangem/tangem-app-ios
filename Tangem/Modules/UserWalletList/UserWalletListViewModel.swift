@@ -21,21 +21,27 @@ final class UserWalletListViewModel: ObservableObject {
     @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
 
     private unowned let coordinator: UserWalletListRoutable
-
     private var bag: Set<AnyCancellable> = []
+    private var initialized = false
 
     init(
         coordinator: UserWalletListRoutable
     ) {
         self.coordinator = coordinator
-
         updateModels()
+    }
 
-        for model in (multiCurrencyModels + singleCurrencyModels) {
-            model.getCardInfo()
+    func onAppear() {
+        if !initialized {
+            initialized = true
+
+            for model in (multiCurrencyModels + singleCurrencyModels) {
+                model.getCardInfo()
+                model.updateState()
+            }
+
+            selectedUserWalletId = userWalletListService.selectedUserWalletId
         }
-
-        selectedUserWalletId = userWalletListService.selectedUserWalletId
     }
 
     func updateModels() {
@@ -137,6 +143,7 @@ final class UserWalletListViewModel: ObservableObject {
                 singleCurrencyModels.append(newModel)
             }
             newModel.getCardInfo()
+            newModel.updateState()
 
             setSelectedWallet(userWallet)
         }
