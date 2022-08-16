@@ -59,6 +59,10 @@ extension GenericDemoConfig: UserWalletConfig {
         }
     }
 
+    var cardsCount: Int {
+        1
+    }
+
     var cardIdDisplayFormat: CardIdDisplayFormat {
         .full
     }
