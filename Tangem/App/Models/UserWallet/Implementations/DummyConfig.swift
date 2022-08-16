@@ -17,6 +17,10 @@ struct DummyConfig: UserWalletConfig {
 
     var cardSetLabel: String? { nil }
 
+    var cardsCount: Int {
+        1
+    }
+
     var cardIdDisplayFormat: CardIdDisplayFormat { .full }
 
     var features: Set<UserWalletFeature> { [] }
