@@ -30,8 +30,6 @@ class WelcomeCoordinator: CoordinatorObject {
 
     // MARK: - Helpers
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
-    // Fix ios13 navbar glitches
-    @Published private(set) var navBarHidden: Bool = true
 
     @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
 
@@ -39,15 +37,15 @@ class WelcomeCoordinator: CoordinatorObject {
     private var welcomeLifecycleSubscription: AnyCancellable? = nil
 
     private var lifecyclePublisher: AnyPublisher<Bool, Never> {
-        let p1 = $mailViewModel.dropFirst().map { $0 == nil }
-        let p2 = $disclaimerViewModel.dropFirst().map { $0 == nil }
-        let p3 = $shopCoordinator.dropFirst().map { $0 == nil }
-        let p4 = $modalOnboardingCoordinator.dropFirst().map { $0 == nil }
-        let p5 = $tokenListCoordinator.dropFirst().map { $0 == nil }
-        let p6 = $mailViewModel.dropFirst().map { $0 == nil }
-        let p7 = $disclaimerViewModel.dropFirst().map { $0 == nil }
+        // Only modals, because the modal presentation will not trigger onAppear/onDissapear events
+        var publishers: [AnyPublisher<Bool, Never>] = []
+        publishers.append($mailViewModel.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
+        publishers.append($shopCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
+        publishers.append($modalOnboardingCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
+        publishers.append($tokenListCoordinator.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
+        publishers.append($disclaimerViewModel.dropFirst().map { $0 == nil }.eraseToAnyPublisher())
 
-        return p1.merge(with: p2, p3, p4, p5, p6, p7)
+        return Publishers.MergeMany(publishers)
             .eraseToAnyPublisher()
     }
 
@@ -112,7 +110,6 @@ extension WelcomeCoordinator: WelcomeRoutable {
         }
 
         let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
-            self?.navBarHidden = true
             self?.pushedOnboardingCoordinator = nil
 
             if options.newScan {
@@ -127,9 +124,7 @@ extension WelcomeCoordinator: WelcomeRoutable {
     }
 
     func openMain(with cardModel: CardViewModel) {
-        navBarHidden = false
         let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
-            self?.navBarHidden = true
             self?.mainCoordinator = nil
 
             if options.newScan {
