@@ -10,6 +10,7 @@ import Foundation
 import BlockchainSdk
 import struct TangemSdk.DerivationPath
 import Network
+import Combine
 
 class CommonTokenItemsRepository {
     @Injected(\.persistentStorage) var persistanceStorage: PersistentStorageProtocol
@@ -17,6 +18,7 @@ class CommonTokenItemsRepository {
 
     private let lockQueue = DispatchQueue(label: "token_items_repo_queue")
     private weak var subscriber: TokenItemsRepositoryChanges?
+    private var saveTokensSubscribtion: AnyCancellable?
 
     init() {
         lockQueue.sync {
@@ -112,6 +114,40 @@ class CommonTokenItemsRepository {
     }
 
     private func save(_ items: [StorageEntry], for cardId: String) {
+        let tokenList: [UserTokenList.Token] = items.reduce(into: []) { result, entry in
+            let blockchain = entry.blockchainNetwork.blockchain
+            result += [UserTokenList.Token(
+                id: blockchain.id,
+                networkId: blockchain.networkId,
+                derivationPath: blockchain.derivationPath()?.rawPath,
+                name: blockchain.displayName,
+                symbol: blockchain.currencySymbol,
+                decimals: blockchain.decimalCount
+            )]
+
+            result += entry.tokens.map { token in
+                UserTokenList.Token(
+                    id: token.id,
+                    networkId: blockchain.networkId,
+                    derivationPath: blockchain.derivationPath()?.rawPath,
+                    name: token.name,
+                    symbol: token.symbol,
+                    decimals: token.decimalCount
+                )
+            }
+        }
+
+        let model = UserTokenList(version: 0, group: .none, sort: .manual, tokens: tokenList)
+
+        saveTokensSubscribtion = tangemApiService.saveTokens(
+            key: "C60EED645784E9402E192AF0E2C056D2D3C779F87F266D19A05AA77914EBA9F3",
+            tokens: model
+        ).sink(receiveCompletion: { completion in
+            print(completion)
+        }, receiveValue: { value in
+            print(value)
+        })
+
         try? persistanceStorage.store(value: items, for: .wallets(cid: cardId))
     }
 }
@@ -122,7 +158,7 @@ extension CommonTokenItemsRepository: TokenItemsRepository {
     func updateSubscriber(_ subscriber: TokenItemsRepositoryChanges) {
         self.subscriber = subscriber
     }
-    
+
     func append(_ entries: [StorageEntry], for cardId: String) {
         lockQueue.sync {
             var items = fetch(for: cardId)
@@ -139,7 +175,7 @@ extension CommonTokenItemsRepository: TokenItemsRepository {
             }
         }
     }
-    
+
     func remove(_ blockchainNetworks: [BlockchainNetwork], for cardId: String) {
         lockQueue.sync {
             var items = fetch(for: cardId)
@@ -156,7 +192,7 @@ extension CommonTokenItemsRepository: TokenItemsRepository {
             }
         }
     }
-    
+
     func remove(_ tokens: [Token], blockchainNetwork: BlockchainNetwork, for cardId: String) {
         lockQueue.sync {
             var items = fetch(for: cardId)
