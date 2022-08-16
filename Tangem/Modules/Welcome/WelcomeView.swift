@@ -37,7 +37,7 @@ struct WelcomeView: View {
         VStack(spacing: 0) {
             Spacer()
 
-            Image("tangemIcon")
+            Assets.tangemIcon
                 .renderingMode(.template)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
