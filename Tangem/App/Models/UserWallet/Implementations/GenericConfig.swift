@@ -59,6 +59,10 @@ extension GenericConfig: UserWalletConfig {
         }
     }
 
+    var cardsCount: Int {
+        card.backupStatus?.backupCardsCount ?? 1
+    }
+
     var cardIdDisplayFormat: CardIdDisplayFormat {
         .full
     }

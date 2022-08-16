@@ -78,7 +78,6 @@ class CommonCardsRepository: CardsRepository {
         didScanPublisher.send(cardInfo)
         tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
 
-        cm.logScan()
         cm.didScan()
         cards[cardInfo.card.cardId] = cm
         cm.getCardInfo()
