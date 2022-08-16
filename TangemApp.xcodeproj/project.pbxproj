@@ -437,6 +437,11 @@
 		DAC53CFE27BE63830027147D /* MeetTangemStoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC53CF327BE63830027147D /* MeetTangemStoryPage.swift */; };
 		DAC53CFF27BE63830027147D /* FinishStoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC53CF427BE63830027147D /* FinishStoryPage.swift */; };
 		DAC53D0027BE63830027147D /* Web3StoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC53CF527BE63830027147D /* Web3StoryPage.swift */; };
+		DADFAEEF28ABC83B0009A8AB /* UserWalletStorageAgreementCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DADFAEEA28ABC83B0009A8AB /* UserWalletStorageAgreementCoordinator.swift */; };
+		DADFAEF028ABC83B0009A8AB /* UserWalletStorageAgreementCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DADFAEEB28ABC83B0009A8AB /* UserWalletStorageAgreementCoordinatorView.swift */; };
+		DADFAEF128ABC83B0009A8AB /* UserWalletStorageAgreementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DADFAEEC28ABC83B0009A8AB /* UserWalletStorageAgreementView.swift */; };
+		DADFAEF228ABC83B0009A8AB /* UserWalletStorageAgreementViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DADFAEED28ABC83B0009A8AB /* UserWalletStorageAgreementViewModel.swift */; };
+		DADFAEF328ABC83B0009A8AB /* UserWalletStorageAgreementRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DADFAEEE28ABC83B0009A8AB /* UserWalletStorageAgreementRoutable.swift */; };
 		DAE6F76D2800011400411F45 /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAE6F76C2800011400411F45 /* AppError.swift */; };
 		DAFD691627CDEB7F00B36C71 /* CombinedExchangeService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAFD691527CDEB7F00B36C71 /* CombinedExchangeService.swift */; };
 		DC0A57D72822A3C80031BECC /* InjectionKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC0A57D42822A3C80031BECC /* InjectionKey.swift */; };
@@ -1072,6 +1077,11 @@
 		DAC53CF327BE63830027147D /* MeetTangemStoryPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeetTangemStoryPage.swift; sourceTree = "<group>"; };
 		DAC53CF427BE63830027147D /* FinishStoryPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FinishStoryPage.swift; sourceTree = "<group>"; };
 		DAC53CF527BE63830027147D /* Web3StoryPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Web3StoryPage.swift; sourceTree = "<group>"; };
+		DADFAEEA28ABC83B0009A8AB /* UserWalletStorageAgreementCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletStorageAgreementCoordinator.swift; sourceTree = "<group>"; };
+		DADFAEEB28ABC83B0009A8AB /* UserWalletStorageAgreementCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletStorageAgreementCoordinatorView.swift; sourceTree = "<group>"; };
+		DADFAEEC28ABC83B0009A8AB /* UserWalletStorageAgreementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletStorageAgreementView.swift; sourceTree = "<group>"; };
+		DADFAEED28ABC83B0009A8AB /* UserWalletStorageAgreementViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletStorageAgreementViewModel.swift; sourceTree = "<group>"; };
+		DADFAEEE28ABC83B0009A8AB /* UserWalletStorageAgreementRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletStorageAgreementRoutable.swift; sourceTree = "<group>"; };
 		DAE6F76C2800011400411F45 /* AppError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
 		DAFD691527CDEB7F00B36C71 /* CombinedExchangeService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CombinedExchangeService.swift; sourceTree = "<group>"; };
 		DC0A57D42822A3C80031BECC /* InjectionKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InjectionKey.swift; sourceTree = "<group>"; };
@@ -2394,6 +2404,18 @@
 			path = Pages;
 			sourceTree = "<group>";
 		};
+		DADFAED928ABC62D0009A8AB /* UserWalletStorageAggreement */ = {
+			isa = PBXGroup;
+			children = (
+				DADFAEEA28ABC83B0009A8AB /* UserWalletStorageAgreementCoordinator.swift */,
+				DADFAEEB28ABC83B0009A8AB /* UserWalletStorageAgreementCoordinatorView.swift */,
+				DADFAEEC28ABC83B0009A8AB /* UserWalletStorageAgreementView.swift */,
+				DADFAEED28ABC83B0009A8AB /* UserWalletStorageAgreementViewModel.swift */,
+				DADFAEEE28ABC83B0009A8AB /* UserWalletStorageAgreementRoutable.swift */,
+			);
+			path = UserWalletStorageAggreement;
+			sourceTree = "<group>";
+		};
 		DC0A57D32822A3AE0031BECC /* DI */ = {
 			isa = PBXGroup;
 			children = (
@@ -2674,6 +2696,7 @@
 			isa = PBXGroup;
 			children = (
 				DC66BBF6285A20FE00CDF765 /* Main */,
+				DADFAED928ABC62D0009A8AB /* UserWalletStorageAggreement */,
 				DA2A1B9D28940A38007B7595 /* UserWalletList */,
 				DA23788E27B250D3009795A8 /* Shop */,
 				B074BABF26779B14005D641B /* PushTx */,
@@ -3198,6 +3221,7 @@
 				EF3EC523289AB2DE0071BA7F /* TangemProvider.swift in Sources */,
 				5D96BD2827F60AC5000AA797 /* BlockchainNetwork.swift in Sources */,
 				B04FBC3A26CB98F000B397CE /* View+SizeReader.swift in Sources */,
+				DADFAEF228ABC83B0009A8AB /* UserWalletStorageAgreementViewModel.swift in Sources */,
 				5D06E040250A5D54004218D0 /* NSRegualrExpression+.swift in Sources */,
 				EF0F99B228902902008B01DF /* DefaultToggleRowView.swift in Sources */,
 				5D84DBED270E26B90013A813 /* WelcomeBackgroundView.swift in Sources */,
@@ -3328,6 +3352,7 @@
 				B018F304259204A200D8F89A /* WarningEvent.swift in Sources */,
 				65B4DED6288357DC001524CF /* BottomSheetBaseController.swift in Sources */,
 				EF9CFC13288FECE100329BE0 /* ScanCardSettingsViewModel.swift in Sources */,
+				DADFAEF028ABC83B0009A8AB /* UserWalletStorageAgreementCoordinatorView.swift in Sources */,
 				5D559BCC25406BB40009E0F6 /* AppFeaturesService.swift in Sources */,
 				5D39514D2556CDDF002CC452 /* MoonPayService.swift in Sources */,
 				EF0F99AA289028F8008B01DF /* AppSettingsCoordinator.swift in Sources */,
@@ -3347,6 +3372,7 @@
 				5DFB499A24E554140037E76F /* Card+Preview.swift in Sources */,
 				652B0136282C0A7800F2E27A /* TotalSumBalanceView.swift in Sources */,
 				B0C4F77926F092640086D815 /* WelcomeCardLayout.swift in Sources */,
+				DADFAEF328ABC83B0009A8AB /* UserWalletStorageAgreementRoutable.swift in Sources */,
 				B020FFB425DE7F9300EF422C /* DataCollectors.swift in Sources */,
 				DA23787C27B24222009795A8 /* ShopifyService.swift in Sources */,
 				DAC53D0027BE63830027147D /* Web3StoryPage.swift in Sources */,
@@ -3383,6 +3409,7 @@
 				5D00FCC72617387E004626DE /* PersonalSignHandler.swift in Sources */,
 				5D384B8B24FD154C00C2C92C /* PayIDService.swift in Sources */,
 				B0FAD00E26BAC51F00F45E88 /* CircledCheckmarkView.swift in Sources */,
+				DADFAEF128ABC83B0009A8AB /* UserWalletStorageAgreementView.swift in Sources */,
 				5D12D21325B60AA4006060A1 /* SearchBar.swift in Sources */,
 				DAA8F88A2888397700F14B9A /* ShopWebHelper.swift in Sources */,
 				DABA435627BFC41700718AC6 /* StoriesBottomButtons.swift in Sources */,
@@ -3454,6 +3481,7 @@
 				B0B8670326DF5AE1008DAA67 /* ModalSheetPreferenceKey.swift in Sources */,
 				DA23787B27B24222009795A8 /* ProductVariant.swift in Sources */,
 				B046EE182578D38E00EA38A5 /* SceneDelegate.swift in Sources */,
+				DADFAEEF28ABC83B0009A8AB /* UserWalletStorageAgreementCoordinator.swift in Sources */,
 				5D341CC827E340770028D8FC /* CoinItemView.swift in Sources */,
 				DC51186128609F71004FB954 /* CardOperationRoutable.swift in Sources */,
 				B0B8670626DF60E7008DAA67 /* CardStackAnimator.swift in Sources */,

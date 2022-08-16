@@ -89,6 +89,11 @@ struct MainCoordinatorView: CoordinatorView {
             }
 
         NavHolder()
+            .sheet(item: $coordinator.userWalletStorageAgreementCoordinator) {
+                UserWalletStorageAgreementView(viewModel: UserWalletStorageAgreementViewModel(coordinator: $0))
+            }
+
+        NavHolder()
             .bottomSheet(isPresented: $coordinator.userWalletListPresented, viewModelSettings: BottomSheetSettings(showClosedButton: false, contentBackgroundColor: UserWalletListView.sheetBackground)) {
                 if let userWalletListCoordinator = coordinator.userWalletListCoordinator {
                     UserWalletListView(viewModel: UserWalletListViewModel(coordinator: userWalletListCoordinator))

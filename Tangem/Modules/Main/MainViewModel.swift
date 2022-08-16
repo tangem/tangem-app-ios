@@ -624,22 +624,16 @@ class MainViewModel: ObservableObject {
 
         AppSettings.shared.askedToSaveUserWallets = true
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0) { [weak self] in
-            self?.error = AlertBinder(alert:
-                Alert(title: Text("Do you want to save cards in the app"),
-                      message: Text("Think about it..."),
-                      primaryButton: .cancel { self?.didRejectSavingUserWallets() },
-                      secondaryButton: .default(Text("OK")) { self?.didAgreeToSaveUserWallets() }
-                )
-            )
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+            self?.coordinator.openUserWalletSaveAcceptanceSheet()
         }
     }
 
-    private func didRejectSavingUserWallets() {
+    func didDeclineToSaveUserWallets() {
         AppSettings.shared.saveUserWallets = false
     }
 
-    private func didAgreeToSaveUserWallets() {
+    func didAgreeToSaveUserWallets() {
         userWalletListService.tryToAccessBiometry { [weak self, cardModel] result in
             if case let .failure(error) = result {
                 print("Failed to enable biometry: \(error)")
