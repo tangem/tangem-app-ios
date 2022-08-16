@@ -322,12 +322,6 @@ class CardViewModel: Identifiable, ObservableObject {
         self.signer = .init(with: cardInfo.card)
         updateCardPinSettings()
         updateCurrentSecurityOption()
-        loadImage()
-
-        if !savedCards {
-            return
-        }
-
 
         self
             .$walletsBalanceState
@@ -368,9 +362,6 @@ class CardViewModel: Identifiable, ObservableObject {
             .imageLoaderPublisher
             .weakAssignAnimated(to: \.cardImage, on: self)
             .store(in: &bag)
-
-
-        self.updateState()
     }
 
 //    func loadPayIDInfo () {
