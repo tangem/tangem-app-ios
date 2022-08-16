@@ -22,9 +22,10 @@ class WelcomeViewModel: ObservableObject {
     @Published var error: AlertBinder?
     @Published var discardAlert: ActionSheetBinder?
     @Published var storiesModel: StoriesViewModel = .init()
-    
-    //This screen seats on the navigation stack permanently. We should preserve the navigationBar state to fix the random hide/disappear events of navigationBar on iOS13 on other screens down the navigation hierarchy.
+
+    // This screen seats on the navigation stack permanently. We should preserve the navigationBar state to fix the random hide/disappear events of navigationBar on iOS13 on other screens down the navigation hierarchy.
     @Published var navigationBarHidden: Bool = false
+    @Published var showingAuthentication = false
 
     var shouldShowAuthenticationView: Bool {
         AppSettings.shared.saveUserWallets == true && !userWalletListService.isEmpty
@@ -86,14 +87,17 @@ class WelcomeViewModel: ObservableObject {
     }
 
     func tryBiometricAuthentication() {
-        userWalletListService.tryToAccessBiometry { result in
-            if case .failure(let error) = result {
-                print("Failed to authenticate with biometry: \(error)")
-                return
-            }
+        showingAuthentication = true
 
+        userWalletListService.tryToAccessBiometry { result in
             DispatchQueue.main.async { [weak self] in
+                if case .failure(let error) = result {
+                    print("Failed to authenticate with biometry: \(error)")
+                    return
+                }
+
                 guard let model = self?.userWalletListService.selectedModel else { return }
+                self?.showingAuthentication = false
                 self?.coordinator.openMain(with: model)
             }
         }
