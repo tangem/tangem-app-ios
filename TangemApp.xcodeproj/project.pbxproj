@@ -561,7 +561,6 @@
 		EFB4C1322837C51700E991C1 /* TextHint.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB4C1312837C51700E991C1 /* TextHint.swift */; };
 		EFC98EA22897CB3F00261D33 /* AttentionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC98EA02897CB3F00261D33 /* AttentionViewModel.swift */; };
 		EFC98EA32897CB3F00261D33 /* AttentionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFC98EA12897CB3F00261D33 /* AttentionView.swift */; };
-		EFCC66E128AA6FC500EC7757 /* UserTokenList.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFCC66E028AA6FC500EC7757 /* UserTokenList.swift */; };
 		F06BBA2FE022C3EF1F3B6513 /* Pods_Tangem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F3AA1BEE46AF490A6F95DA /* Pods_Tangem.framework */; };
 /* End PBXBuildFile section */
 
@@ -587,6 +586,13 @@
 			remoteGlobalIDString = B0D3600025F26C7400929564;
 			remoteInfo = TangemClip;
 		};
+		EFCC66C128AA2FDC00EC7757 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5D3F77BA24BF56D800E8695B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = B0D3600025F26C7400929564;
+			remoteInfo = TangemClip;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -598,6 +604,17 @@
 			files = (
 			);
 			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EFCC66C328AA2FDC00EC7757 /* Embed App Clips */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/AppClips";
+			dstSubfolderSpec = 16;
+			files = (
+				EFCC66C028AA2FDC00EC7757 /* TangemClip.app in Embed App Clips */,
+			);
+			name = "Embed App Clips";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -2769,11 +2786,13 @@
 				5D3F77C024BF56D800E8695B /* Resources */,
 				78515DF22ED176E83FF382BF /* [CP] Embed Pods Frameworks */,
 				B066823E26564ADB00CB86CF /* Embed App Extensions */,
+				EFCC66C328AA2FDC00EC7757 /* Embed App Clips */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				EF0FF86E2866015200B7CEAF /* PBXTargetDependency */,
+				EFCC66C228AA2FDC00EC7757 /* PBXTargetDependency */,
 			);
 			name = Tangem;
 			productName = "Tangem Tap";
@@ -2844,7 +2863,7 @@
 		5D3F77BA24BF56D800E8695B /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1250;
+				LastSwiftUpdateCheck = 1400;
 				LastUpgradeCheck = 1310;
 				ORGANIZATIONNAME = "Tangem AG";
 				TargetAttributes = {
@@ -3677,6 +3696,11 @@
 			target = B0D3600025F26C7400929564 /* TangemClip */;
 			targetProxy = EF0FF86D2866015200B7CEAF /* PBXContainerItemProxy */;
 		};
+		EFCC66C228AA2FDC00EC7757 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = B0D3600025F26C7400929564 /* TangemClip */;
+			targetProxy = EFCC66C128AA2FDC00EC7757 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
@@ -3893,7 +3917,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 3.27;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(inherited)";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(inherited)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -3923,7 +3947,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 3.27;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(inherited)";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(inherited)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -4036,6 +4060,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
 				CODE_SIGN_ENTITLEMENTS = TangemClip/TangemClip.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 302;
 				DEBUG_INFORMATION_FORMAT = dwarf;
@@ -4050,8 +4075,9 @@
 				);
 				MARKETING_VERSION = 3.27;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS -D CLIP";
-				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem.Clip;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(CLIP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -4080,8 +4106,9 @@
 				);
 				MARKETING_VERSION = 3.27;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS -D CLIP";
-				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem.Clip;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(CLIP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -4110,7 +4137,7 @@
 				);
 				MARKETING_VERSION = 3.27;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS -D CLIP";
-				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem.Clip;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(CLIP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
@@ -4196,7 +4223,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 3.27;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(inherited)";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(inherited)";
 				PROVISIONING_PROFILE_SPECIFIER = "Tangem App Development";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -4334,7 +4361,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 3.27;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(inherited)";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(inherited)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -4398,6 +4425,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = "$(inherited)";
 				CODE_SIGN_ENTITLEMENTS = TangemClip/TangemClip.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 302;
 				DEBUG_INFORMATION_FORMAT = dwarf;
@@ -4412,8 +4440,9 @@
 				);
 				MARKETING_VERSION = 3.27;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS -D CLIP";
-				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem.Clip;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(CLIP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -4497,7 +4526,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 3.27;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(inherited)";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(inherited)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -4579,8 +4608,9 @@
 				);
 				MARKETING_VERSION = 3.27;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS -D CLIP";
-				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem.Clip;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(CLIP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -4664,7 +4694,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 3.27;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(inherited)";
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(inherited)";
 				PROVISIONING_PROFILE_SPECIFIER = "Tangem App Development";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -4743,7 +4773,7 @@
 				);
 				MARKETING_VERSION = 3.27;
 				OTHER_SWIFT_FLAGS = "$(inherited) -D COCOAPODS -D CLIP";
-				PRODUCT_BUNDLE_IDENTIFIER = com.tangem.Tangem.Clip;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(CLIP_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
