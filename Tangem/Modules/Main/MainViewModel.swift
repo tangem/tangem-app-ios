@@ -624,20 +624,35 @@ class MainViewModel: ObservableObject {
 
         AppSettings.shared.askedToSaveUserWallets = true
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0) { [cardModel] in
-            self.error = AlertBinder(alert:
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0) { [weak self] in
+            self?.error = AlertBinder(alert:
                 Alert(title: Text("Do you want to save cards in the app"),
                       message: Text("Think about it..."),
-                      primaryButton: .cancel {
-                          AppSettings.shared.saveUserWallets = false
-                      },
-                      secondaryButton: .default(Text("OK")) { [weak self, cardModel] in
-                          let _ = self?.userWalletListService.save(cardModel.userWallet)
-                          self?.coordinator.openUserWalletList()
-                          AppSettings.shared.saveUserWallets = true
-                      }
+                      primaryButton: .cancel { self?.didRejectSavingUserWallets() },
+                      secondaryButton: .default(Text("OK")) { self?.didAgreeToSaveUserWallets() }
                 )
             )
+        }
+    }
+
+    private func didRejectSavingUserWallets() {
+        AppSettings.shared.saveUserWallets = false
+    }
+
+    private func didAgreeToSaveUserWallets() {
+        userWalletListService.tryToAccessBiometry { [weak self, cardModel] result in
+            if case let .failure(error) = result {
+                print("Failed to enable biometry: \(error)")
+                return
+            }
+
+            // Doesn't seem to work without the delay
+            let delay = 1.0
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                let _ = self?.userWalletListService.save(cardModel.userWallet)
+                self?.coordinator.openUserWalletList()
+                AppSettings.shared.saveUserWallets = true
+            }
         }
     }
 }
