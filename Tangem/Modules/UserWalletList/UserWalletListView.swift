@@ -39,8 +39,8 @@ struct UserWalletListView: View {
                     section("Single-currency", for: viewModel.singleCurrencyModels)
 
                     // [REDACTED_TODO_COMMENT]
-                    Spacer()
-                        .frame(height: 80)
+//                    Spacer()
+//                        .frame(height: 80)
                 }
             }
             .background(Colors.Background.primary)

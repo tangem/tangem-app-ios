@@ -62,15 +62,7 @@ class WelcomeCoordinator: CoordinatorObject {
         if options.shouldScan {
             welcomeViewModel.scanCard()
         } else if welcomeViewModel.shouldShowAuthenticationView {
-            userWalletListService.tryToAccessBiometry { [weak self] result in
-                DispatchQueue.main.async {
-                    guard case .success = result else { return }
-
-                    if let selectedModel = self?.userWalletListService.selectedModel {
-                        self?.openMain(with: selectedModel)
-                    }
-                }
-            }
+            welcomeViewModel.tryBiometricAuthentication()
         }
     }
 
