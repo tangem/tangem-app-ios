@@ -114,48 +114,19 @@ class CommonTokenItemsRepository {
     }
 
     private func save(_ items: [StorageEntry], for cardId: String) {
-        let tokenList: [UserTokenList.Token] = items.reduce(into: []) { result, entry in
-            let blockchain = entry.blockchainNetwork.blockchain
-            result += [UserTokenList.Token(
-                id: blockchain.id,
-                networkId: blockchain.networkId,
-                derivationPath: blockchain.derivationPath()?.rawPath,
-                name: blockchain.displayName,
-                symbol: blockchain.currencySymbol,
-                decimals: blockchain.decimalCount
-            )]
-
-            result += entry.tokens.map { token in
-                UserTokenList.Token(
-                    id: token.id,
-                    networkId: blockchain.networkId,
-                    derivationPath: blockchain.derivationPath()?.rawPath,
-                    name: token.name,
-                    symbol: token.symbol,
-                    decimals: token.decimalCount
-                )
-            }
+        do {
+            try persistanceStorage.store(value: items, for: .wallets(cid: cardId))
+            subscriber?.repositoryDidUpdates(entries: items)
+        } catch {
+            print("SAVING ERROR", error)
         }
-
-        let model = UserTokenList(version: 0, group: .none, sort: .manual, tokens: tokenList)
-
-        saveTokensSubscribtion = tangemApiService.saveTokens(
-            key: "[REDACTED_KEY]",
-            tokens: model
-        ).sink(receiveCompletion: { completion in
-            print(completion)
-        }, receiveValue: { value in
-            print(value)
-        })
-
-        try? persistanceStorage.store(value: items, for: .wallets(cid: cardId))
     }
 }
 
 // MARK: - TokenItemsRepository
 
 extension CommonTokenItemsRepository: TokenItemsRepository {
-    func updateSubscriber(_ subscriber: TokenItemsRepositoryChanges) {
+    func setSubscriber(_ subscriber: TokenItemsRepositoryChanges) {
         self.subscriber = subscriber
     }
 

@@ -25,12 +25,14 @@ class CommonTangemApiService {
     }
 }
 
+// MARK: - TangemApiService
+
 extension CommonTangemApiService: TangemApiService {
     var geoIpRegionCode: String {
         return _geoIpRegionCode ?? fallbackRegionCode
     }
 
-    func loadTokens(key: String) -> AnyPublisher<[UserTokenList.Token], Error> {
+    func loadTokens(key: String) -> AnyPublisher<UserTokenList, Error> {
         let target = TangemApiTarget(type: .getUserWalletTokens(key: key), authData: authData)
 
         return provider
@@ -38,20 +40,17 @@ extension CommonTangemApiService: TangemApiService {
             .filterSuccessfulStatusCodes()
             .map(UserTokenList.self)
             .eraseError()
-            .map { $0.tokens }
-            .print("loadTokens")
             .eraseToAnyPublisher()
     }
 
-    func saveTokens(key: String, tokens: UserTokenList) -> AnyPublisher<Void, Error> {
-        let target = TangemApiTarget(type: .saveUserWalletTokens(key: key, tokens: tokens), authData: authData)
+    func saveTokens(key: String, list: UserTokenList) -> AnyPublisher<Void, Error> {
+        let target = TangemApiTarget(type: .saveUserWalletTokens(key: key, list: list), authData: authData)
 
         return provider
             .requestPublisher(target)
             .filterSuccessfulStatusCodes()
             .eraseError()
-            .print("saveTokens")
-            .map { _ in Void() }
+            .mapVoid()
             .eraseToAnyPublisher()
     }
 

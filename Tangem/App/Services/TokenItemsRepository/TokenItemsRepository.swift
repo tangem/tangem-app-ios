@@ -9,6 +9,10 @@
 import Foundation
 import BlockchainSdk
 
+protocol TokenItemsRepositoryChanges: AnyObject {
+    func repositoryDidUpdates(entries: [StorageEntry])
+}
+
 protocol TokenItemsRepository {
     func append(_ entries: [StorageEntry], for cardId: String)
 
@@ -18,11 +22,7 @@ protocol TokenItemsRepository {
     func removeAll(for cardId: String)
     func getItems(for cardId: String) -> [StorageEntry]
 
-    func updateSubscriber(_ subscriber: TokenItemsRepositoryChanges)
-}
-
-protocol TokenItemsRepositoryChanges: AnyObject {
-    func repositoryDidUpdates(entries: [StorageEntry])
+    func setSubscriber(_ subscriber: TokenItemsRepositoryChanges)
 }
 
 extension TokenItemsRepository {
