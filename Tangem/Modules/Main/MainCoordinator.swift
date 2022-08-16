@@ -37,6 +37,7 @@ class MainCoordinator: CoordinatorObject {
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
     @Published var userWalletListPresented: Bool = false
+    @Published var userWalletStorageAgreementCoordinator: UserWalletStorageAgreementCoordinator?
 
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -201,6 +202,14 @@ extension MainCoordinator: MainRoutable {
                                                       urlActions: [:])
     }
 
+    func openUserWalletSaveAcceptanceSheet() {
+        let dismissAction: Action = { [weak self] in
+            self?.userWalletStorageAgreementCoordinator = nil
+        }
+
+        userWalletStorageAgreementCoordinator = .init(dismissAction: dismissAction, popToRootAction: { _ in }, router: self)
+    }
+
     func openUserWalletList() {
         let dismissAction: Action = { [weak self] in
             self?.userWalletListPresented = false
@@ -214,8 +223,18 @@ extension MainCoordinator: MainRoutable {
     func didTapUserWallet(userWallet: UserWallet) {
         start(with: .init(cardModel: .init(userWallet: userWallet)))
     }
+
+    func didAgreeToSaveUserWallets() {
+        userWalletStorageAgreementCoordinator = nil
+        mainViewModel?.didAgreeToSaveUserWallets()
+    }
+
+    func didDeclineToSaveUserWallets() {
+        userWalletStorageAgreementCoordinator = nil
+        mainViewModel?.didDeclineToSaveUserWallets()
+    }
 }
 
-extension MainCoordinator: UserWalletListCoordinatorRoutable {
+extension MainCoordinator: UserWalletListCoordinatorRoutable { }
 
-}
+extension MainCoordinator: UserWalletStorageAgreementCoordinatorRoutable { }
