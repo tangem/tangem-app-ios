@@ -14,7 +14,7 @@ class CommonTangemApiService {
     @Injected(\.cardsRepository) var cardsRepository: CardsRepository
 
     private let provider = TangemProvider<TangemApiTarget>()
-    private var bag: Set<AnyCancellable> = .init()
+    private var bag: Set<AnyCancellable> = []
 
     private let fallbackRegionCode = Locale.current.regionCode?.lowercased() ?? ""
     private var _geoIpRegionCode: String? = nil
@@ -30,12 +30,29 @@ extension CommonTangemApiService: TangemApiService {
         return _geoIpRegionCode ?? fallbackRegionCode
     }
 
-    func loadTokens() -> AnyPublisher<[Data], Error> {
-        Just([]).setFailureType(to: Error.self).eraseToAnyPublisher()
+    func loadTokens(key: String) -> AnyPublisher<[UserTokenList.Token], Error> {
+        let target = TangemApiTarget(type: .getUserWalletTokens(key: key), authData: authData)
+
+        return provider
+            .requestPublisher(target)
+            .filterSuccessfulStatusCodes()
+            .map(UserTokenList.self)
+            .eraseError()
+            .map { $0.tokens }
+            .print("loadTokens")
+            .eraseToAnyPublisher()
     }
 
-    func saveTokens(tokens: [Data]) -> AnyPublisher<Void, Error> {
-        Just(()).setFailureType(to: Error.self).eraseToAnyPublisher()
+    func saveTokens(key: String, tokens: UserTokenList) -> AnyPublisher<Void, Error> {
+        let target = TangemApiTarget(type: .saveUserWalletTokens(key: key, tokens: tokens), authData: authData)
+
+        return provider
+            .requestPublisher(target)
+            .filterSuccessfulStatusCodes()
+            .eraseError()
+            .print("saveTokens")
+            .map { _ in Void() }
+            .eraseToAnyPublisher()
     }
 
     func loadCoins(requestModel: CoinsListRequestModel) -> AnyPublisher<[CoinModel], Error> {
