@@ -230,7 +230,7 @@ class MainViewModel: ObservableObject {
         self.cardModel = cardModel
         self.coordinator = coordinator
         bind()
-        cardModel.updateState()
+//        cardModel.updateState()
         warningsService.setupWarnings(for: cardModel.cardInfo)
         countHashes()
     }
@@ -341,6 +341,8 @@ class MainViewModel: ObservableObject {
         if cardModel.state.canUpdate,
            let walletModels = cardModel.walletModels, !walletModels.isEmpty {
             Analytics.log(.mainPageRefresh)
+            walletTokenListViewModel.refreshTokens()
+
             refreshCancellable = cardModel.refresh()
                 .receive(on: RunLoop.main)
                 .sink { _ in
