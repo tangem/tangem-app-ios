@@ -9,9 +9,9 @@
 import SwiftUI
 
 enum ResizeSheetAction {
-    case increment(value: CGFloat)
-    case decrement(value: CGFloat)
-    case setNewValue(value: CGFloat)
+    case incrementSheetHeight(byValue: CGFloat)
+    case decrementSheetHeight(byValue: CGFloat)
+    case setNewSheetHeight(value: CGFloat)
 }
 
 protocol ResizableSheetView: View {
