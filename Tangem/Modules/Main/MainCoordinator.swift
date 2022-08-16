@@ -203,12 +203,12 @@ extension MainCoordinator: MainRoutable {
 
     func openUserWalletList() {
         let dismissAction: Action = { [weak self] in
-            self?.userWalletListCoordinator = nil
             self?.userWalletListPresented = false
+            self?.userWalletListCoordinator = nil
         }
 
-        userWalletListPresented = true
         userWalletListCoordinator = UserWalletListCoordinator(dismissAction: dismissAction, popToRootAction: { _ in }, router: self)
+        userWalletListPresented = true
     }
 
     func didTapUserWallet(userWallet: UserWallet) {
