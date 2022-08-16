@@ -35,6 +35,10 @@ extension SaltPayConfig: UserWalletConfig {
         nil
     }
 
+    var cardsCount: Int {
+        1
+    }
+
     var cardSetLabel: String? {
         nil
     }
