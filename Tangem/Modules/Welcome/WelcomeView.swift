@@ -13,7 +13,7 @@ struct WelcomeView: View {
 
     var body: some View {
         ZStack {
-            if viewModel.shouldShowAuthenticationView {
+            if viewModel.showingAuthentication {
                 authenticationView
             } else {
                 storiesView
