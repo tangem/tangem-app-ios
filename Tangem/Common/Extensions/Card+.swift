@@ -7,6 +7,7 @@
 //
 
 import TangemSdk
+import CryptoKit
 
 #if !CLIP
 import BlockchainSdk
@@ -69,6 +70,21 @@ extension Card {
 
     var walletCurves: [EllipticCurve] {
         wallets.compactMap { $0.curve }
+    }
+
+    var accountID: String {
+        let firstWalletPublicKey = cardPublicKey
+        let keyHash = firstWalletPublicKey.sha256()
+        let key = SymmetricKey(data: keyHash)
+        let message = "AccountID".data(using: .utf8)!
+        let accId = HMAC<SHA256>.authenticationCode(for: message, using: key)
+
+        let accIdData = Data(accId)
+        let accIdString = accIdData.hexString
+
+        // C60EED645784E9402E192AF0E2C056D2D3C779F87F266D19A05AA77914EBA9F3
+
+        return accIdString
     }
 
     #if !CLIP
