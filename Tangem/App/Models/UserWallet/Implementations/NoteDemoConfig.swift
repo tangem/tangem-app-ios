@@ -43,6 +43,10 @@ extension NoteDemoConfig: UserWalletConfig {
         nil
     }
 
+    var cardsCount: Int {
+        1
+    }
+
     var cardIdDisplayFormat: CardIdDisplayFormat {
         .full
     }
