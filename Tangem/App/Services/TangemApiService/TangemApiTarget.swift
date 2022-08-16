@@ -50,8 +50,8 @@ struct TangemApiTarget: TargetType {
             return .requestURLEncodable(pageModel)
         case .currencies, .geo, .getUserWalletTokens:
             return .requestPlain
-        case let .saveUserWalletTokens(_, tokenList):
-            return .requestJSONEncodable(tokenList)
+        case let .saveUserWalletTokens(_, list):
+            return .requestJSONEncodable(list)
         }
     }
 
@@ -67,7 +67,7 @@ extension TangemApiTarget {
         case coins(_ requestModel: CoinsListRequestModel)
         case geo
         case getUserWalletTokens(key: String)
-        case saveUserWalletTokens(key: String, tokens: UserTokenList)
+        case saveUserWalletTokens(key: String, list: UserTokenList)
     }
 
     struct AuthData {
