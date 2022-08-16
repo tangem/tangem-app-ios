@@ -49,7 +49,7 @@ class MainViewModel: ObservableObject {
     }
 
     lazy var walletTokenListViewModel = WalletTokenListViewModel(
-        cachedWallets: cardModel.walletModels ?? []
+        cardModel: cardModel
     ) { [weak self] itemViewModel in
         self?.openTokenDetails(itemViewModel)
     }
@@ -284,14 +284,6 @@ class MainViewModel: ObservableObject {
         cardModel
             .imageLoaderPublisher
             .weakAssignAnimated(to: \.image, on: self)
-            .store(in: &bag)
-
-        cardModel.objectWillChange.print("objectWillChange")
-            .sink(receiveValue: { [unowned self] _ in
-                self.walletTokenListViewModel.updateTokenViewModels(
-                    self.cardModel.walletModels?.flatMap { $0.tokenItemViewModels } ?? []
-                )
-            })
             .store(in: &bag)
 
         warningsService.warningsUpdatePublisher
