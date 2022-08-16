@@ -553,11 +553,8 @@ class CardViewModel: Identifiable, ObservableObject {
         Analytics.logCardSdkError(error.toTangemSdkError(), for: action, card: cardInfo.card, parameters: parameters)
     }
 
-    func logScan() {
-        Analytics.logScan(card: cardInfo.card, config: config)
-    }
-
     func didScan() {
+        Analytics.logScan(card: cardInfo.card, config: config)
         tangemSdkProvider.didScan(config)
     }
 
