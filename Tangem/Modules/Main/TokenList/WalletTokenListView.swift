@@ -11,76 +11,70 @@ import Combine
 
 enum ContentState<Data> {
     case loading
+    case empty
     case loaded(_ content: Data)
     case error(error: Error)
+
+    var isEmpty: Bool {
+        if case .empty = self {
+            return true
+        }
+
+        return false
+    }
 }
 
 protocol UserTokenListManager {
-    func subscribeToCurrentTokenList() -> AnyPublisher<UserTokenList, Error>
-    
-    func loadUserTokenList()
-    func saveUserTokens(tokens: [UserTokenList.Token])
+//    func subscribeToCurrentTokenList()
+
+    func loadUserTokenList() -> AnyPublisher<UserTokenList, Error>
+//    func saveUserTokens(tokens: [UserTokenList.Token])
 }
 
-struct CommonUserTokenListManager {
-    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-    
-    private var currentTokenListSubject = PassthroughSubject<UserTokenList, Error>()
-}
 
-extension CommonUserTokenListManager: UserTokenListManager {
-    func subscribeToCurrentTokenList() -> AnyPublisher<UserTokenList, Error> {
-        currentTokenListSubject.eraseToAnyPublisher()
-    }
-    
-    func saveUserTokens(tokens: [UserTokenList.Token]) {
-        <#code#>
-    }
-    
-    func loadUserTokenList() {
-        
-    }
-}
 
 class WalletTokenListViewModel: ObservableObject {
     // MARK: - ViewState
-
-//    [REDACTED_USERNAME] var tokenViewModels: [TokenItemViewModel] = []
     @Published var contentState: ContentState<[TokenItemViewModel]> = .loading
 
     // MARK: - Private
 
-    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     private let walletDidTap: (TokenItemViewModel) -> ()
     private let cardModel: CardViewModel
-    private let accountId: String
+
+    private let userTokenListManager: UserTokenListManager
 
     private var loadTokensSubscribtion: AnyCancellable?
+
+    private var cardInfo: CardInfo { cardModel.cardInfo }
+//    private var accountId: String { cardInfo.card.accountID }
 
     init(cardModel: CardViewModel, walletDidTap: @escaping (TokenItemViewModel) -> ()) {
         self.walletDidTap = walletDidTap
         self.cardModel = cardModel
-//        self.tokenViewModels =
-        self.accountId = cardModel.cardInfo.card.accountID
+//        self.cardInfo = cardModel.cardInfo
+//        self.accountId = cardModel.cardInfo.card.accountID
+
+        userTokenListManager = CommonUserTokenListManager(
+            accountId: cardModel.cardInfo.card.accountID,
+            cardId: cardModel.cardInfo.card.cardId
+        )
     }
 
     func tokenItemDidTap(_ wallet: TokenItemViewModel) {
         walletDidTap(wallet)
     }
 
-//    func updateTokenViewModels(_ models: [TokenItemViewModel]) {
-//        self.tokenViewModels = models
-//    }
+    func refreshTokens() {
+        loadTokensSubscribtion = userTokenListManager.loadUserTokenList()
+            .sink { [unowned self] completion in
+                guard case let .failure(error) = completion else {
+                    return
+                }
 
-    func onAppear() {
-        loadTokensSubscribtion = tangemApiService.loadTokens(key: accountId)
-            .sink { completion in
-                print(completion)
+                contentState = .error(error: error)
             } receiveValue: { [unowned self] list in
-                self.contentState = .loaded(
-                    cardModel.walletModels?.flatMap { $0.tokenItemViewModels } ?? []
-                )
-                print(list)
+                self.updateView(by: list)
             }
     }
 }
@@ -88,9 +82,14 @@ class WalletTokenListViewModel: ObservableObject {
 // MARK: - Private
 
 private extension WalletTokenListViewModel {
-    func bind() {
-//        tangemApiService.loadCoins(requestModel: <#T##CoinsListRequestModel#>)
-//        [REDACTED_TODO_COMMENT]
+    func updateView(by list: UserTokenList) {
+        cardModel.updateState()
+
+        if let models = cardModel.walletModels?.flatMap({ $0.tokenItemViewModels }), !models.isEmpty {
+            contentState = .loaded(models)
+        } else {
+            contentState = .empty
+        }
     }
 }
 
@@ -103,43 +102,71 @@ struct WalletTokenListView: View {
 
     // I hope will be redesign
     var body: some View {
-        Group {
-            switch viewModel.contentState {
-            case .loading:
-                ActivityIndicatorView()
+        if !viewModel.contentState.isEmpty {
+            VStack(alignment: .center, spacing: 0) {
+                Text("main_tokens".localized)
+                    .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding([.leading, .top], 16)
 
-            case let .loaded(viewModels):
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("main_tokens".localized)
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(Color.tangemTextGray)
-                        .padding([.leading, .top], 16)
+                content
+            }
+            .frame(maxWidth: .infinity)
+            .background(Colors.Background.plain)
+            .cornerRadius(14)
+            .padding(.horizontal, 16)
+            .onAppear(perform: viewModel.refreshTokens)
+        }
+    }
 
-                    ForEach(viewModels) { item in
-                        VStack {
-                            Button(action: { viewModel.tokenItemDidTap(item) }) {
-                                TokenItemView(item: item)
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 15)
-                                    .contentShape(Rectangle())
-                            }
-                            .buttonStyle(TangemTokenButtonStyle())
+    @ViewBuilder var content: some View {
+        switch viewModel.contentState {
+        case .loading:
+            ActivityIndicatorView(color: .gray)
+                .padding()
 
-                            if viewModels.last != item {
-                                Separator(height: 1, padding: 0, color: .tangemBgGray2)
-                                    .padding(.leading, 68)
-                            }
+        case .empty:
+            // Oops, user haven't added any tokens
+           break
+
+        case let .loaded(viewModels):
+            VStack(alignment: .leading, spacing: 6) {
+                ForEach(viewModels) { item in
+                    VStack {
+                        Button(action: { viewModel.tokenItemDidTap(item) }) {
+                            TokenItemView(item: item)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 15)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(TangemTokenButtonStyle())
+
+                        if viewModels.last != item {
+                            Separator(height: 1, padding: 0, color: .tangemBgGray2)
+                                .padding(.leading, 68)
                         }
                     }
                 }
-                .background(Color.white)
-                .cornerRadius(14)
-                .padding(.horizontal, 16)
-
-            case let .error(error):
-                Text(error.localizedDescription)
             }
+
+
+        case let .error(error):
+            Text(error.localizedDescription)
+                .padding()
         }
-        .onAppear(perform: viewModel.onAppear)
+    }
+}
+
+
+struct WalletTokenListViewModel_Preview: PreviewProvider {
+    static var previews: some View {
+        ZStack {
+            Colors.Background.secondary.edgesIgnoringSafeArea(.all)
+
+            WalletTokenListView(viewModel: WalletTokenListViewModel(cardModel: .init(cardInfo: .init(card: .card, isTangemNote: false, isTangemWallet: false)), walletDidTap: { _ in
+
+            }))
+        }
+        .previewLayout(.sizeThatFits)
     }
 }
