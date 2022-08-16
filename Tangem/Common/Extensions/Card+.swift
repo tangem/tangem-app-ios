@@ -72,9 +72,9 @@ extension Card {
         wallets.compactMap { $0.curve }
     }
 
+    #if !CLIP
     var accountID: String {
-        let firstWalletPublicKey = cardPublicKey
-        let keyHash = firstWalletPublicKey.sha256()
+        let keyHash = cardPublicKey.sha256()
         let key = SymmetricKey(data: keyHash)
         let message = "AccountID".data(using: .utf8)!
         let accId = HMAC<SHA256>.authenticationCode(for: message, using: key)
@@ -87,7 +87,6 @@ extension Card {
         return accIdString
     }
 
-    #if !CLIP
     var derivationStyle: DerivationStyle {
         Card.getDerivationStyle(for: batchId, isHdWalletAllowed: settings.isHDWalletAllowed)
     }
