@@ -16,6 +16,8 @@ protocol UserWalletConfig {
 
     var touURL: URL? { get }
 
+    var cardsCount: Int { get }
+
     var cardSetLabel: String? { get }
 
     var cardIdDisplayFormat: CardIdDisplayFormat { get }
