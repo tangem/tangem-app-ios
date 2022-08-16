@@ -543,6 +543,8 @@
 		EF3EC523289AB2DE0071BA7F /* TangemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */; };
 		EF4B41BB2864491B003911F6 /* TangemSkeletonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B41BA2864491B003911F6 /* TangemSkeletonModifier.swift */; };
 		EF4B41BD28644982003911F6 /* SkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B41BC28644982003911F6 /* SkeletonView.swift */; };
+		EF4BEF7F28AB872E00C5D1BE /* UserTokenList.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFCC66E028AA6FC500EC7757 /* UserTokenList.swift */; };
+		EF4BEF8128AB953E00C5D1BE /* CommonUserTokenListManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4BEF8028AB953E00C5D1BE /* CommonUserTokenListManager.swift */; };
 		EF50A5A42881CEE30081C5BB /* XCAssets+Generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF50A5A32881CEE30081C5BB /* XCAssets+Generated.swift */; };
 		EF50A5B1288976140081C5BB /* View+ConditionalModifiers.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF50A5B0288976140081C5BB /* View+ConditionalModifiers.swift */; };
 		EF6691D2287ED86900773AA6 /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF0FF8702866021B00B7CEAF /* AppEnvironment.swift */; };
@@ -612,7 +614,6 @@
 			dstPath = "$(CONTENTS_FOLDER_PATH)/AppClips";
 			dstSubfolderSpec = 16;
 			files = (
-				EFCC66C028AA2FDC00EC7757 /* TangemClip.app in Embed App Clips */,
 			);
 			name = "Embed App Clips";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1156,6 +1157,7 @@
 		EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemProvider.swift; sourceTree = "<group>"; };
 		EF4B41BA2864491B003911F6 /* TangemSkeletonModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TangemSkeletonModifier.swift; sourceTree = "<group>"; };
 		EF4B41BC28644982003911F6 /* SkeletonView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SkeletonView.swift; sourceTree = "<group>"; };
+		EF4BEF8028AB953E00C5D1BE /* CommonUserTokenListManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonUserTokenListManager.swift; sourceTree = "<group>"; };
 		EF50A5A32881CEE30081C5BB /* XCAssets+Generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "XCAssets+Generated.swift"; sourceTree = "<group>"; };
 		EF50A5B0288976140081C5BB /* View+ConditionalModifiers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "View+ConditionalModifiers.swift"; sourceTree = "<group>"; };
 		EF6CA24B2892D79900D7E4B1 /* AttentionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttentionViewModel.swift; sourceTree = "<group>"; };
@@ -2675,6 +2677,7 @@
 			isa = PBXGroup;
 			children = (
 				EF105A9428A3E5AE000BFD71 /* WalletTokenListView.swift */,
+				EF4BEF8028AB953E00C5D1BE /* CommonUserTokenListManager.swift */,
 			);
 			path = TokenList;
 			sourceTree = "<group>";
@@ -3211,7 +3214,7 @@
 				DC5118652860AA4F004FB954 /* ShopViewRoutable.swift in Sources */,
 				DCE7119F28784F6700969857 /* DisclaimerRoutable.swift in Sources */,
 				5D51037327C5371D0025EA55 /* EthereumAddress.swift in Sources */,
-				EFCC66E128AA6FC500EC7757 /* UserTokenList.swift in Sources */,
+				EF4BEF7F28AB872E00C5D1BE /* UserTokenList.swift in Sources */,
 				DC0A582C282555940031BECC /* CommonScannedCardsRepository.swift in Sources */,
 				DC0A5806282501530031BECC /* KeysManager.swift in Sources */,
 				DC66BBE32858E7A600CDF765 /* WelcomeRoutable.swift in Sources */,
@@ -3415,6 +3418,7 @@
 				DAC53CFE27BE63830027147D /* MeetTangemStoryPage.swift in Sources */,
 				B0BA7BC726C4F9A300D7066F /* OnboardingCircleButton.swift in Sources */,
 				B04BA23126F07ECE0036784C /* OnboardingTextButtonView.swift in Sources */,
+				EF4BEF8128AB953E00C5D1BE /* CommonUserTokenListManager.swift in Sources */,
 				5DF612A024E6D6C8001BF301 /* PendingTxView.swift in Sources */,
 				65C9FCB12864507600FDE63E /* MainViewModel.swift in Sources */,
 				B0C8A0D42562C86A00DEEAC7 /* View+PreviewDevice.swift in Sources */,
