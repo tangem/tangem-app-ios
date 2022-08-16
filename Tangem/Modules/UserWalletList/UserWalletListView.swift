@@ -53,6 +53,7 @@ struct UserWalletListView: View {
             .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt3, layout: .flexibleWidth))
         }
         .padding(16)
+        .onAppear(perform: viewModel.onAppear)
     }
 
     @ViewBuilder
