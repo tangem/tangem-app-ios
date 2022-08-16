@@ -69,11 +69,11 @@ class BottomSheetTransitionDelegate: NSObject, UIViewControllerTransitioningDele
 
     func resize(withAction action: ResizeSheetAction) {
         switch action {
-        case .increment(let value):
+        case .incrementSheetHeight(let value):
             bottomSheetPresentationController?.incrementHeight(by: value)
-        case .decrement(let value):
+        case .decrementSheetHeight(let value):
             bottomSheetPresentationController?.decrementHeight(by: value)
-        case .setNewValue(let value):
+        case .setNewSheetHeight(let value):
             bottomSheetPresentationController?.updateHeightForPresentedView(with: value)
         }
     }
