@@ -17,7 +17,7 @@ protocol TokenItemsRepository {
 
     func removeAll(for cardId: String)
     func getItems(for cardId: String) -> [StorageEntry]
-    
+
     func updateSubscriber(_ subscriber: TokenItemsRepositoryChanges)
 }
 
