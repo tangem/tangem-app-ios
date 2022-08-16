@@ -56,6 +56,10 @@ extension LegacyConfig: UserWalletConfig {
         nil
     }
 
+    var cardsCount: Int {
+        1
+    }
+
     var cardIdDisplayFormat: CardIdDisplayFormat {
         .full
     }
