@@ -165,7 +165,7 @@ class BottomSheetPresentationController: UIPresentationController {
         }
     }
 
-    func incrementHeight(value: CGFloat) {
+    func incrementHeight(by value: CGFloat) {
         let currentHeight = self.currentHeight == 0 ? (presentedView?.frame.height ?? 0) : self.currentHeight
         let incrementedHeight = currentHeight + value
         let changedHeight = incrementedHeight > maxHeight ? maxHeight : incrementedHeight
@@ -173,7 +173,7 @@ class BottomSheetPresentationController: UIPresentationController {
         createHeightAnimator(height: changedHeight).startAnimation()
     }
 
-    func decrementHeight(value: CGFloat) {
+    func decrementHeight(by value: CGFloat) {
         let currentHeight = self.currentHeight == 0 ? (presentedView?.frame.height ?? 0) : self.currentHeight
         let changedHeight = currentHeight - value
         self.currentHeight = changedHeight
@@ -191,7 +191,6 @@ class BottomSheetPresentationController: UIPresentationController {
             curve: .easeIn
         )
 
-        heightConstraint?.constant = height
         heightConstraint?.isActive = true
 
         propertyAnimator.addAnimations {
