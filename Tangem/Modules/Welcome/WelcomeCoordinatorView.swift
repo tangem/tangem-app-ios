@@ -22,8 +22,6 @@ struct WelcomeCoordinatorView: CoordinatorView {
 
                 sheets
             }
-            .navigationBarTitle("") // fix ios13 navbar glitches. We should change navbar's state before transition
-            .navigationBarHidden(coordinator.navBarHidden)
         }
         .navigationViewStyle(.stack)
     }
