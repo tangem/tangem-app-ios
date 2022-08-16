@@ -82,6 +82,10 @@ extension Start2CoinConfig: UserWalletConfig {
         makeTouURL()
     }
 
+    var cardsCount: Int {
+        1
+    }
+
     var cardSetLabel: String? {
         nil
     }
