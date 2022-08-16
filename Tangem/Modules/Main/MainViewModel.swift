@@ -230,6 +230,8 @@ class MainViewModel: ObservableObject {
         cardModel.getCardInfo()
         bind()
         cardModel.updateState()
+        warningsService.setupWarnings(for: cardModel.cardInfo)
+        countHashes()
         showUserWalletSaveIfNeeded()
     }
 
