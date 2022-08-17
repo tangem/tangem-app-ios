@@ -89,7 +89,7 @@ extension SaltPayConfig: UserWalletConfig {
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
-        .unavailable
+        .hidden
     }
 
     func makeWalletModels(for tokens: [StorageEntry], derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]) -> [WalletModel] {
