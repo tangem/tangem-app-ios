@@ -26,6 +26,7 @@ class AppSettingsViewModel: ObservableObject {
     // MARK: Properties
 
     private var bag: Set<AnyCancellable> = []
+    private var shouldShowAlertOnDisableSaveWallets: Bool = true
     private var shouldShowAlertOnDisableSaveAccessCodes: Bool = true
     private let cardModel: CardViewModel
 
@@ -77,6 +78,8 @@ private extension AppSettingsViewModel {
     }
 
     func presentSavingWalletDeleteAlert() {
+        guard shouldShowAlertOnDisableSaveWallets else { return }
+
         let okButton = Alert.Button.destructive(Text("common_delete")) { [weak self] in
             withAnimation {
                 self?.setSaveWallets(false)
@@ -128,6 +131,12 @@ private extension AppSettingsViewModel {
         AppSettings.shared.saveUserWallets = saveWallets
 
         if !saveWallets {
+            withAnimation {
+                shouldShowAlertOnDisableSaveWallets = false
+                isSavingWallet = false
+                shouldShowAlertOnDisableSaveWallets = true
+            }
+
             setSaveAccessCodes(false)
             userWalletListService.clear()
         }
@@ -136,16 +145,16 @@ private extension AppSettingsViewModel {
     func setSaveAccessCodes(_ saveAccessCodes: Bool) {
         AppSettings.shared.saveAccessCodes = saveAccessCodes
 
-        if saveAccessCodes {
-            withAnimation {
+        withAnimation {
+            if saveAccessCodes {
                 isSavingWallet = true
-            }
-        } else {
-            shouldShowAlertOnDisableSaveAccessCodes = false
-            isSavingAccessCodes = false
-            shouldShowAlertOnDisableSaveAccessCodes = true
+            } else {
+                shouldShowAlertOnDisableSaveAccessCodes = false
+                isSavingAccessCodes = false
+                shouldShowAlertOnDisableSaveAccessCodes = true
 
-            // [REDACTED_TODO_COMMENT]
+                // [REDACTED_TODO_COMMENT]
+            }
         }
     }
 
