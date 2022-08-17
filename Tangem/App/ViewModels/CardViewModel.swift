@@ -28,7 +28,6 @@ class CardViewModel: Identifiable, ObservableObject {
     @Injected(\.scannedCardsRepository) private var scannedCardsRepository: ScannedCardsRepository
 
     @Published var state: State = .created
-    @Published var payId: PayIdStatus = .notSupported
     @Published private(set) var currentSecurityOption: SecurityModeOption = .longTap
     @Published var walletsBalanceState: WalletsBalanceState = .loaded
 
@@ -157,10 +156,6 @@ class CardViewModel: Identifiable, ObservableObject {
         config.supportedBlockchains
     }
 
-    var canSendToPayId: Bool {
-        config.hasFeature(.sendingToPayID)
-    }
-
     var backupInput: OnboardingInput? {
         guard let backupSteps = config.backupSteps else { return nil }
 
@@ -238,58 +233,6 @@ class CardViewModel: Identifiable, ObservableObject {
         updateCurrentSecurityOption()
         bind()
     }
-
-//    func loadPayIDInfo () {
-//        guard featuresService?.canReceiveToPayId ?? false else {
-//            return
-//        }
-//
-//        payIDService?
-//            .loadPayIDInfo(for: cardInfo.card)
-//            .subscribe(on: DispatchQueue.global())
-//            .receive(on: DispatchQueue.main)
-//            .sink(receiveCompletion: { completion in
-//                    switch completion {
-//                    case .failure(let error):
-//                        print("payid load failed")
-//                        Analytics.log(error: error)
-//                        print(error.localizedDescription)
-//                    case .finished:
-//                        break
-//                    }}){ [unowned self] status in
-//                print("payid loaded")
-//                self.payId = status
-//            }
-//            .store(in: &bag)
-//    }
-
-//    func createPayID(_ payIDString: String, completion: @escaping (Result<Void, Error>) -> Void) { //todo: move to payidservice
-//        guard featuresService.canReceiveToPayId,
-//              !payIDString.isEmpty,
-//              let cid = cardId,
-//              let payIDService = self.payIDService,
-//              let cardPublicKey = cardInfo.card.cardPublicKey,
-//              let address = state.wallet?.address  else {
-//            completion(.failure(PayIdError.unknown))
-//            return
-//        }
-//
-//        let fullPayIdString = payIDString + "$payid.tangem.com"
-//        payIDService.createPayId(cid: cid, key: cardPublicKey,
-//                                 payId: fullPayIdString,
-//                                 address: address) { [weak self] result in
-//            switch result {
-//            case .success:
-//                UIPasteboard.general.string = fullPayIdString
-//                self?.payId = .created(payId: fullPayIdString)
-//                completion(.success(()))
-//            case .failure(let error):
-//                Analytics.log(error: error)
-//                completion(.failure(error))
-//            }
-//        }
-//
-//    }
 
     func setupWarnings() {
         warningsService.setupWarnings(for: config)
@@ -551,7 +494,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     func didScan() {
         Analytics.logScan(card: cardInfo.card, config: config)
-        tangemSdkProvider.didScan(config)
+        tangemSdkProvider.setup(with: config.sdkConfig)
     }
 
     func getDisabledLocalizedReason(for feature: UserWalletFeature) -> String? {
