@@ -31,6 +31,12 @@ struct TwinConfig {
 }
 
 extension TwinConfig: UserWalletConfig {
+    var sdkConfig: Config {
+        var config = TangemSdkConfigFactory().makeDefaultConfig()
+        config.cardIdDisplayFormat = .lastLunh(4)
+        return config
+    }
+
     var emailConfig: EmailConfig {
         .default
     }
@@ -45,10 +51,6 @@ extension TwinConfig: UserWalletConfig {
 
     var cardsCount: Int {
         2
-    }
-
-    var cardIdDisplayFormat: CardIdDisplayFormat {
-        .lastLunh(4)
     }
 
     var defaultCurve: EllipticCurve? {
@@ -146,16 +148,12 @@ extension TwinConfig: UserWalletConfig {
             return .unavailable
         case .twinning:
             return .available
-        case .sendingToPayID:
-            return .available
         case .exchange:
             return .available
         case .walletConnect:
             return .unavailable
         case .multiCurrency:
             return .unavailable
-        case .activation:
-            return .available
         case .tokensSearch:
             return .unavailable
         case .resetToFactory:
@@ -168,6 +166,8 @@ extension TwinConfig: UserWalletConfig {
             return .unavailable
         case .onlineImage:
             return card.firmwareVersion.type == .release ? .available : .unavailable
+        case .staking: return .available
+        case .topup: return .available
         }
     }
 
