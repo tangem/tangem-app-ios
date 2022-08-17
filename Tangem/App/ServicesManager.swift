@@ -23,15 +23,6 @@ class ServicesManager {
         walletConnectServiceProvider.initialize()
         supportChatService.initialize()
         tangemApiService.initialize()
-
-        bind()
-    }
-
-    private func bind() {
-        cardsRepository.didScanPublisher.sink { cardInfo in
-            // subscrive to scan here
-        }
-        .store(in: &bag)
     }
 }
 
