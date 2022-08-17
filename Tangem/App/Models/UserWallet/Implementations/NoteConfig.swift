@@ -105,33 +105,33 @@ extension NoteConfig: UserWalletConfig {
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
-            return .unavailable
+            return .hidden
         case .passcode:
-            return .unavailable
+            return .hidden
         case .longTap:
-            return card.settings.isResettingUserCodesAllowed ? .available : .unavailable
+            return card.settings.isResettingUserCodesAllowed ? .available : .hidden
         case .send:
             return .available
         case .longHashes:
-            return .unavailable
+            return .hidden
         case .signedHashesCounter:
             if card.firmwareVersion.type == .release {
                 return .available
             }
 
-            return .unavailable
+            return .hidden
         case .backup:
-            return .unavailable
+            return .hidden
         case .twinning:
-            return .unavailable
+            return .hidden
         case .exchange:
             return .available
         case .walletConnect:
-            return .unavailable
+            return .hidden
         case .multiCurrency:
-            return .unavailable
+            return .hidden
         case .tokensSearch:
-            return .unavailable
+            return .hidden
         case .resetToFactory:
             return .available
         case .receive:
@@ -139,11 +139,13 @@ extension NoteConfig: UserWalletConfig {
         case .withdrawal:
             return .available
         case .hdWallets:
-            return .unavailable
+            return .hidden
         case .onlineImage:
-            return card.firmwareVersion.type == .release ? .available : .unavailable
-        case .staking: return .available
-        case .topup: return .available
+            return card.firmwareVersion.type == .release ? .available : .hidden
+        case .staking:
+            return .available
+        case .topup:
+            return .available
         }
     }
 

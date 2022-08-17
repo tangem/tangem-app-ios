@@ -176,7 +176,7 @@ extension GenericConfig: UserWalletConfig {
 
             return .disabled()
         case .longTap:
-            return card.settings.isResettingUserCodesAllowed ? .available : .unavailable
+            return card.settings.isResettingUserCodesAllowed ? .available : .hidden
         case .send:
             return .available
         case .longHashes:
@@ -184,9 +184,9 @@ extension GenericConfig: UserWalletConfig {
                 return .available
             }
 
-            return .unavailable
+            return .hidden
         case .signedHashesCounter:
-            return .unavailable
+            return .hidden
         case .backup:
             if card.settings.isBackupAllowed, card.backupStatus == .noBackup {
                 return .available
@@ -194,7 +194,7 @@ extension GenericConfig: UserWalletConfig {
 
             return .disabled()
         case .twinning:
-            return .unavailable
+            return .hidden
         case .exchange:
             return .available
         case .walletConnect:
@@ -202,7 +202,7 @@ extension GenericConfig: UserWalletConfig {
         case .multiCurrency:
             return .available
         case .tokensSearch:
-            return .unavailable
+            return .hidden
         case .resetToFactory:
             return .available
         case .receive:
@@ -210,11 +210,13 @@ extension GenericConfig: UserWalletConfig {
         case .withdrawal:
             return .available
         case .hdWallets:
-            return card.settings.isHDWalletAllowed ? .available : .unavailable
+            return card.settings.isHDWalletAllowed ? .available : .hidden
         case .onlineImage:
-            return card.firmwareVersion.type == .release ? .available : .unavailable
-        case .staking: return .available
-        case .topup: return .available
+            return card.firmwareVersion.type == .release ? .available : .hidden
+        case .staking:
+            return .available
+        case .topup:
+            return .available
         }
     }
 
