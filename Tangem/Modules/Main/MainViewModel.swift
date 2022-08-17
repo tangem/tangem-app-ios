@@ -230,7 +230,7 @@ class MainViewModel: ObservableObject {
         self.cardModel = cardModel
         self.coordinator = coordinator
         bind()
-//        cardModel.updateState()
+        cardModel.updateState()
         warningsService.setupWarnings(for: cardModel.cardInfo)
         countHashes()
     }
@@ -338,28 +338,29 @@ class MainViewModel: ObservableObject {
     }
 
     func onRefresh(_ done: @escaping () -> Void) {
-        if cardModel.state.canUpdate,
-           let walletModels = cardModel.walletModels, !walletModels.isEmpty {
-            Analytics.log(.mainPageRefresh)
-            walletTokenListViewModel.refreshTokens()
+//        guard cardModel.state != .loading else {
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//                withAnimation {
+//                    done()
+//                }
+//            }
+//            return
+//        }
 
-            refreshCancellable = cardModel.refresh()
-                .receive(on: RunLoop.main)
-                .sink { _ in
-                    print("♻️ Wallet model loading state changed")
-                    withAnimation {
-                        done()
-                    }
-                } receiveValue: { _ in
+        // let walletModels = cardModel.walletModels, !walletModels.isEmpty
 
-                }
-        } else {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+        Analytics.log(.mainPageRefresh)
+        refreshCancellable = walletTokenListViewModel.refreshTokens()
+            .tryMap({ [unowned self] _ in
+                self.cardModel.refresh()
+            })
+            .receive(on: RunLoop.main)
+            .receiveCompletion { _ in
+                print("♻️ Wallet model loading state changed")
                 withAnimation {
                     done()
                 }
             }
-        }
     }
 
     func createWallet() {
