@@ -63,10 +63,6 @@ extension GenericDemoConfig: UserWalletConfig {
         1
     }
 
-    var cardIdDisplayFormat: CardIdDisplayFormat {
-        .full
-    }
-
     var defaultCurve: EllipticCurve? {
         return nil
     }
@@ -181,16 +177,12 @@ extension GenericDemoConfig: UserWalletConfig {
             return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
         case .twinning:
             return .unavailable
-        case .sendingToPayID:
-            return .available
         case .exchange:
             return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
         case .walletConnect:
             return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
         case .multiCurrency:
             return .available
-        case .activation:
-            return .unavailable
         case .tokensSearch:
             return .unavailable
         case .resetToFactory:
@@ -203,6 +195,8 @@ extension GenericDemoConfig: UserWalletConfig {
             return card.settings.isHDWalletAllowed ? .available : .unavailable
         case .onlineImage:
             return card.firmwareVersion.type == .release ? .available : .unavailable
+        case .staking: return .available
+        case .topup: return .available
         }
     }
 
