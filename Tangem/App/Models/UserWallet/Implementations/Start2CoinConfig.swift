@@ -144,39 +144,43 @@ extension Start2CoinConfig: UserWalletConfig {
                 return .available
             }
 
-            return .unavailable
+            return .hidden
         case .accessCode:
-            return .unavailable
+            return .hidden
         case .passcode:
-            return .unavailable
+            return .hidden
         case .longTap:
-            return card.settings.isResettingUserCodesAllowed ? .available : .unavailable
+            return card.settings.isResettingUserCodesAllowed ? .available : .hidden
         case .longHashes:
-            return .unavailable
+            return .hidden
         case .backup:
-            return .unavailable
+            return .hidden
         case .twinning:
-            return .unavailable
+            return .hidden
         case .exchange:
-            return .unavailable
+            return .hidden
         case .walletConnect:
-            return .unavailable
+            return .hidden
         case .multiCurrency:
-            return .unavailable
+            return .hidden
         case .tokensSearch:
-            return .unavailable
+            return .hidden
         case .resetToFactory:
-            return .unavailable
+            return .hidden
         case .receive:
             return .available
         case .withdrawal:
             return .available
         case .hdWallets:
-            return .unavailable
+            return .hidden
         case .onlineImage:
-            return card.firmwareVersion.type == .release ? .available : .unavailable
-        case .staking: return .available
-        case .topup: return .available
+            return card.firmwareVersion.type == .release ? .available : .hidden
+        case .staking:
+            return .available
+        case .topup:
+            return .available
+        case .hdWallets:
+            return .hidden
         }
     }
 
