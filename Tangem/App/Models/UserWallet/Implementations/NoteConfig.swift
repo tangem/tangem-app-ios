@@ -114,7 +114,7 @@ extension NoteConfig: UserWalletConfig {
             return .unavailable
         case .longTap:
             return card.settings.isResettingUserCodesAllowed ? .available : .unavailable
-        case .signing:
+        case .send:
             return .available
         case .longHashes:
             return .unavailable
@@ -134,7 +134,7 @@ extension NoteConfig: UserWalletConfig {
             return .available
         case .walletConnect:
             return .unavailable
-        case .manageTokens:
+        case .multiCurrency:
             return .unavailable
         case .activation:
             return .available
@@ -142,7 +142,7 @@ extension NoteConfig: UserWalletConfig {
             return .unavailable
         case .resetToFactory:
             return .available
-        case .showAddress:
+        case .receive:
             return .available
         case .withdrawal:
             return .available
