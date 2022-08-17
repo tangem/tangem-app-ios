@@ -21,8 +21,6 @@ struct DummyConfig: UserWalletConfig {
         1
     }
 
-    var features: Set<UserWalletFeature> { [] }
-
     var defaultCurve: EllipticCurve? { nil }
 
     var onboardingSteps: OnboardingSteps { .wallet([]) }
