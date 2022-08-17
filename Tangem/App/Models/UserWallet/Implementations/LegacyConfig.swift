@@ -60,10 +60,6 @@ extension LegacyConfig: UserWalletConfig {
         1
     }
 
-    var cardIdDisplayFormat: CardIdDisplayFormat {
-        .full
-    }
-
     var defaultCurve: EllipticCurve? {
         defaultBlockchain.curve
     }
@@ -172,8 +168,6 @@ extension LegacyConfig: UserWalletConfig {
             return .unavailable
         case .twinning:
             return .unavailable
-        case .sendingToPayID:
-            return .available
         case .exchange:
             return .available
         case .walletConnect, .multiCurrency, .tokensSearch:
@@ -182,8 +176,6 @@ extension LegacyConfig: UserWalletConfig {
             } else {
                 return .unavailable
             }
-        case .activation:
-            return .unavailable
         case .resetToFactory:
             return .available
         case .receive:
@@ -194,6 +186,8 @@ extension LegacyConfig: UserWalletConfig {
             return .unavailable
         case .onlineImage:
             return card.firmwareVersion.type == .release ? .available : .unavailable
+        case .staking: return .available
+        case .topup: return .available
         }
     }
 
