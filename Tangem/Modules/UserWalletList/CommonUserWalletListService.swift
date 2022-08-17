@@ -36,6 +36,8 @@ class CommonUserWalletListService: UserWalletListService {
         savedUserWallets().isEmpty
     }
 
+    private var userWallets: [UserWallet] = []
+
     private let biometricsStorage = BiometricsStorage()
     private let keychainKey = "user_wallet_list_service"
     private var encryptionKey: SymmetricKey?
@@ -73,7 +75,7 @@ class CommonUserWalletListService: UserWalletListService {
     }
 
     func loadModels() {
-        let userWallets = savedUserWallets()
+        self.userWallets = savedUserWallets()
         models = userWallets.map {
             CardViewModel(userWallet: $0)
         }
@@ -81,20 +83,16 @@ class CommonUserWalletListService: UserWalletListService {
 
     func deleteWallet(_ userWallet: UserWallet) {
         let userWalletId = userWallet.userWalletId
-        var userWallets = savedUserWallets()
         userWallets.removeAll { $0.userWalletId == userWalletId }
         models.removeAll { $0.userWallet.userWalletId == userWalletId }
         saveUserWallets(userWallets)
     }
 
     func contains(_ userWallet: UserWallet) -> Bool {
-        let userWallets = savedUserWallets()
-        return userWallets.contains { $0.userWalletId == userWallet.userWalletId }
+        userWallets.contains { $0.userWalletId == userWallet.userWalletId }
     }
 
     func save(_ userWallet: UserWallet) -> Bool {
-        var userWallets = savedUserWallets()
-
         if let index = userWallets.firstIndex(where: { $0.userWalletId == userWallet.userWalletId }) {
             userWallets[index] = userWallet
         } else {
@@ -118,8 +116,6 @@ class CommonUserWalletListService: UserWalletListService {
     }
 
     func setName(_ userWallet: UserWallet, name: String) {
-        var userWallets = savedUserWallets()
-
         for i in 0 ..< userWallets.count {
             if userWallets[i].userWalletId == userWallet.userWalletId {
                 userWallets[i].name = name
@@ -177,13 +173,20 @@ class CommonUserWalletListService: UserWalletListService {
     }
 
     private func savedUserWallets() -> [UserWallet] {
-        let decoder = JSONDecoder()
-
         do {
+            guard fileManager.fileExists(atPath: userWalletListPath().path) else {
+                return []
+            }
+
+            let decoder = JSONDecoder()
+
             let userWalletsPublicData = try Data(contentsOf: userWalletListPath())
             var userWallets = try decoder.decode([UserWallet].self, from: userWalletsPublicData)
 
-            guard let encryptionKey = encryptionKey else {
+            guard
+                let encryptionKey = encryptionKey,
+                fileManager.fileExists(atPath: userWalletEncryptionKeysPath().path)
+            else {
                 return userWallets
             }
 
