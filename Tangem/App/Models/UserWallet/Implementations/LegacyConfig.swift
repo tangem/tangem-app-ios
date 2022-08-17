@@ -81,7 +81,7 @@ extension LegacyConfig: UserWalletConfig {
     }
 
     var supportedBlockchains: Set<Blockchain> {
-        if hasFeature(.manageTokens) {
+        if hasFeature(.multiCurrency) {
             let allBlockchains = isTestnet ? Blockchain.supportedTestnetBlockchains
                 : Blockchain.supportedBlockchains
 
@@ -110,7 +110,7 @@ extension LegacyConfig: UserWalletConfig {
     var warningEvents: [WarningEvent] {
         var warnings = WarningEventsFactory().makeWarningEvents(for: card)
 
-        if !hasFeature(.signing) {
+        if !hasFeature(.send) {
             warnings.append(.oldCard)
         }
 
@@ -153,7 +153,7 @@ extension LegacyConfig: UserWalletConfig {
             return .disabled()
         case .longTap:
             return card.settings.isResettingUserCodesAllowed ? .available : .unavailable
-        case .signing:
+        case .send:
             if card.firmwareVersion.doubleValue >= 2.28
                 || card.settings.securityDelay <= 15000 {
                 return .available
@@ -176,7 +176,7 @@ extension LegacyConfig: UserWalletConfig {
             return .available
         case .exchange:
             return .available
-        case .walletConnect, .manageTokens, .tokensSearch:
+        case .walletConnect, .multiCurrency, .tokensSearch:
             if isMultiwallet {
                 return .available
             } else {
@@ -186,7 +186,7 @@ extension LegacyConfig: UserWalletConfig {
             return .unavailable
         case .resetToFactory:
             return .available
-        case .showAddress:
+        case .receive:
             return .available
         case .withdrawal:
             return .available
