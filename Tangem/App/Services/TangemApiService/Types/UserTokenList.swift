@@ -35,6 +35,7 @@ extension UserTokenList {
         let name: String
         let symbol: String
         let decimals: Int
+        let contractAddress: String?
     }
 
     enum GroupType: String, Codable {
