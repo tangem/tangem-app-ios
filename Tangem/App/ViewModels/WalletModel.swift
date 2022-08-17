@@ -106,7 +106,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
     private let derivationStyle: DerivationStyle
     private var isDemo: Bool { demoBalance != nil }
     private var latestUpdateTime: Date? = nil
-    private var updatePublisher: PassthroughSubject<Never, Never>?
+    private var updatePublisher: PassthroughSubject<Void, Error>?
 
     deinit {
         print("🗑 WalletModel deinit")
@@ -139,19 +139,18 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
             .$selectedCurrencyCode
             .dropFirst()
             .sink { [unowned self] _ in
-                self.loadRates()
+                self.loadRates { _ in }
             }
             .store(in: &bag)
     }
 
-    @discardableResult
-    func update(silent: Bool = false) -> AnyPublisher<Never, Never> {
+    func update(silent: Bool = false) -> AnyPublisher<Void, Error> {
         if let updatePublisher = updatePublisher {
             return updatePublisher.eraseToAnyPublisher()
         }
 
         // Keep this before the async call
-        let newUpdatePublisher = PassthroughSubject<Never, Never>()
+        let newUpdatePublisher = PassthroughSubject<Void, Error>()
         self.updatePublisher = newUpdatePublisher
 
         DispatchQueue.main.async {
@@ -182,16 +181,18 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
 
                     print("🔄 Finished updating wallet model for \(self.wallet.blockchain)")
 
-                    if case let .failure(error) = result {
+                    switch result {
+                    case let .failure(error):
                         if case let .noAccount(noAccountMessage) = (error as? WalletError) {
                             self.state = .noAccount(message: noAccountMessage)
-                            self.loadRates()
+                            self.loadRates { result in }
                         } else {
                             self.state = .failed(error: error.detailedError)
                             self.displayState = .readyForDisplay
                             Analytics.log(error: error)
                         }
-                    } else {
+
+                    case .success(_):
                         self.latestUpdateTime = Date()
 
                         if let demoBalance = self.demoBalance {
@@ -202,12 +203,20 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
                             self.state = .idle
                         }
 
-                        self.loadRates()
-                    }
+                        self.loadRates { result in
+                            print("🔄 Finished loading rates in wallet model for \(self.wallet.blockchain)")
 
-                    self.updateBalanceViewModel(with: self.wallet)
-                    self.updatePublisher?.send(completion: .finished)
-                    self.updatePublisher = nil
+                            switch result {
+                            case .success:
+                                self.updatePublisher?.send(completion: .finished)
+                            case let .failure(error):
+                                self.updatePublisher?.send(completion: .failure(error))
+                            }
+
+                            self.updateBalanceViewModel(with: self.wallet)
+                            self.updatePublisher = nil
+                        }
+                    }
                 }
             }
         }
@@ -367,7 +376,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
             .autoconnect()
             .sink() { [weak self] _ in
                 print("⏰ Updating timer alarm ‼️ Wallet model will be updated")
-                self?.update()
+                _ = self?.update()
                 self?.updateTimer?.cancel()
             }
     }
@@ -423,13 +432,13 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
         updateTokenItemViewModels()
     }
 
-    private func loadRates() {
+    private func loadRates(result: @escaping (Result<Void, Error>) -> Void) {
         let currenciesToExchange = [walletManager.wallet.blockchain.currencyId] + walletManager.cardTokens.compactMap { $0.id }
 
-        loadRates(for: Array(currenciesToExchange))
+        loadRates(for: Array(currenciesToExchange), result: result)
     }
 
-    private func loadRates(for currenciesToExchange: [String]) {
+    private func loadRates(for currenciesToExchange: [String], result: @escaping (Result<Void, Error>) -> Void) {
         tangemApiService
             .loadRates(for: currenciesToExchange)
             .receive(on: DispatchQueue.main)
@@ -443,6 +452,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
                     self.displayState = .readyForDisplay
                     self.updateBalanceViewModel(with: self.wallet)
                     print(error.localizedDescription)
+                    result(.failure(error))
                 case .finished:
                     break
                 }
@@ -455,7 +465,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
                 self.displayState = .readyForDisplay
                 self.rates = rates
                 self.updateBalanceViewModel(with: self.wallet)
-
+                result(.success(()))
             }
             .store(in: &bag)
     }
