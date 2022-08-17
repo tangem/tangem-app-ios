@@ -530,23 +530,18 @@ class CardViewModel: Identifiable, ObservableObject {
 
     func updateState() {
         print("‼️ Updating Card view model state")
-        let hasWallets = !cardInfo.card.wallets.isEmpty
 
-        if !hasWallets {
+        if cardInfo.card.wallets.isEmpty {
             self.state = .empty
         } else {
             print("⁉️ Recreating all wallet models for Card view model state")
             self.state = .loaded(walletModel: WalletManagerAssembly.makeAllWalletModels(from: cardInfo))
 
-            if !AppSettings.shared.cardsStartedActivation.contains(cardInfo.card.cardId) || cardInfo.isTangemWallet {
-                update()
-                    .sink { _ in
-
-                    } receiveValue: { _ in
-
-                    }
-                    .store(in: &bag)
-            }
+//            if !AppSettings.shared.cardsStartedActivation.contains(cardInfo.card.cardId) || cardInfo.isTangemWallet {
+//                update()
+//                    .sink()
+//                    .store(in: &bag)
+//            }
         }
     }
 
