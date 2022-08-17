@@ -165,10 +165,12 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
             self.cardModel.appendDefaultBlockchains()
 
-            if self.cardModel.supportActivation {
-                AppSettings.shared.cardsStartedActivation.append(self.cardModel.cardId)
+            if case let .singleWallet(steps) = self.input.steps {
+                if steps.contains(.topup) {
+                    AppSettings.shared.cardsStartedActivation.append(self.cardModel.cardId)
+                }
             }
-
+            
             self.cardModel.updateState()
             self.walletCreatedWhileOnboarding = true
 
