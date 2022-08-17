@@ -148,7 +148,7 @@ extension LegacyConfig: UserWalletConfig {
         case .passcode:
             return .disabled()
         case .longTap:
-            return card.settings.isResettingUserCodesAllowed ? .available : .unavailable
+            return card.settings.isResettingUserCodesAllowed ? .available : .hidden
         case .send:
             if card.firmwareVersion.doubleValue >= 2.28
                 || card.settings.securityDelay <= 15000 {
@@ -157,24 +157,24 @@ extension LegacyConfig: UserWalletConfig {
 
             return .disabled()
         case .longHashes:
-            return .unavailable
+            return .hidden
         case .signedHashesCounter:
             if isMultiwallet || card.firmwareVersion.type != .release {
-                return .unavailable
+                return .hidden
             } else {
                 return .available
             }
         case .backup:
-            return .unavailable
+            return .hidden
         case .twinning:
-            return .unavailable
+            return .hidden
         case .exchange:
             return .available
         case .walletConnect, .multiCurrency, .tokensSearch:
             if isMultiwallet {
                 return .available
             } else {
-                return .unavailable
+                return .hidden
             }
         case .resetToFactory:
             return .available
@@ -183,11 +183,13 @@ extension LegacyConfig: UserWalletConfig {
         case .withdrawal:
             return .available
         case .hdWallets:
-            return .unavailable
+            return .hidden
         case .onlineImage:
-            return card.firmwareVersion.type == .release ? .available : .unavailable
-        case .staking: return .available
-        case .topup: return .available
+            return card.firmwareVersion.type == .release ? .available : .hidden
+        case .staking:
+            return .available
+        case .topup:
+            return .available
         }
     }
 
