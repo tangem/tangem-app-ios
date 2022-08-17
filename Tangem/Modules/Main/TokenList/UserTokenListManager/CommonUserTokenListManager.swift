@@ -17,7 +17,6 @@ class CommonUserTokenListManager {
     private let accountId: String
     private let cardId: String
 
-//    private var loadTokensBag: AnyCancellable?
     private var saveTokensCancellable: AnyCancellable?
 
     init(accountId: String, cardId: String) {
@@ -31,7 +30,7 @@ class CommonUserTokenListManager {
 // MARK: - UserTokenListManager
 
 extension CommonUserTokenListManager: UserTokenListManager {
-    func loadUserTokenList() -> AnyPublisher<UserTokenList, Error> {
+    func loadAndSaveUserTokenList() -> AnyPublisher<UserTokenList, Error> {
         tangemApiService.loadTokens(key: accountId)
             .handleEvents(receiveOutput: { [weak self] list in
                 self?.saveTokenListInRepository(list: list)
@@ -52,7 +51,8 @@ extension CommonUserTokenListManager: TokenItemsRepositoryChanges {
                 derivationPath: blockchain.derivationPath()?.rawPath,
                 name: blockchain.displayName,
                 symbol: blockchain.currencySymbol,
-                decimals: blockchain.decimalCount
+                decimals: blockchain.decimalCount,
+                contractAddress: nil
             )]
 
             result += entry.tokens.map { token in
@@ -62,7 +62,8 @@ extension CommonUserTokenListManager: TokenItemsRepositoryChanges {
                     derivationPath: blockchain.derivationPath()?.rawPath,
                     name: token.name,
                     symbol: token.symbol,
-                    decimals: token.decimalCount
+                    decimals: token.decimalCount,
+                    contractAddress: token.contractAddress
                 )
             }
         }
@@ -88,7 +89,7 @@ private extension CommonUserTokenListManager {
                 return Token(
                     name: token.name,
                     symbol: token.symbol,
-                    contractAddress: token.derivationPath ?? "contractAddress",
+                    contractAddress: token.contractAddress ?? "contractAddress",
                     decimalCount: token.decimals,
                     id: token.id
                 )
