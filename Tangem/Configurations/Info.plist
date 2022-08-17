@@ -48,7 +48,7 @@
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>To share with chat support</string>
 	<key>NSFaceIDUsageDescription</key>
-	<string>NEED YOUR FACES</string>
+	<string>Face ID is required to save cards</string>
 	<key>NSUbiquitousContainers</key>
 	<dict>
 		<key>iCloud.com.tangem.TangemTap</key>
