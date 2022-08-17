@@ -66,7 +66,7 @@ class MainViewModel: ObservableObject {
     private var bag = Set<AnyCancellable>()
     private var isHashesCounted = false
     private var isProcessingNewCard = false
-    private var refreshCancellable: AnyCancellable? = nil
+//    private var refreshCancellable: AnyCancellable? = nil
     private lazy var testnetBuyCryptoService: TestnetBuyCryptoService = .init()
 
     private unowned let coordinator: MainRoutable
@@ -230,7 +230,7 @@ class MainViewModel: ObservableObject {
         self.cardModel = cardModel
         self.coordinator = coordinator
         bind()
-        cardModel.updateState()
+//        cardModel.updateState()
         warningsService.setupWarnings(for: cardModel.cardInfo)
         countHashes()
     }
@@ -338,29 +338,24 @@ class MainViewModel: ObservableObject {
     }
 
     func onRefresh(_ done: @escaping () -> Void) {
-//        guard cardModel.state != .loading else {
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-//                withAnimation {
-//                    done()
-//                }
-//            }
-//            return
-//        }
-
-        // let walletModels = cardModel.walletModels, !walletModels.isEmpty
-
-        Analytics.log(.mainPageRefresh)
-        refreshCancellable = walletTokenListViewModel.refreshTokens()
-            .tryMap({ [unowned self] _ in
-                self.cardModel.refresh()
-            })
-            .receive(on: RunLoop.main)
-            .receiveCompletion { _ in
-                print("♻️ Wallet model loading state changed")
+        guard cardModel.state.canUpdate else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 withAnimation {
                     done()
                 }
             }
+            return
+        }
+
+        // let walletModels = cardModel.walletModels, !walletModels.isEmpty
+
+        Analytics.log(.mainPageRefresh)
+        walletTokenListViewModel.refreshTokens(result: { result in
+            print("♻️ Wallet model loading state changed with result", result)
+            withAnimation {
+                done()
+            }
+        })
     }
 
     func createWallet() {
@@ -686,9 +681,14 @@ extension MainViewModel {
               let token = walletModel.tokenItemViewModels.first?.amountType.token else {
             if let url = buyCryptoURL {
                 coordinator.openBuyCrypto(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
-                    self?.sendAnalyticsEvent(.userBoughtCrypto)
+                    guard let self = self else { return }
+
+                    self.sendAnalyticsEvent(.userBoughtCrypto)
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                        self?.cardModel.update()
+                        self.cardModel
+                            .update(showProgressLoading: true)
+                            .sink()
+                            .store(in: &self.bag)
                     }
                 }
             }
