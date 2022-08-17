@@ -19,6 +19,7 @@ struct UserWallet: Identifiable, Codable {
     let artwork: ArtworkInfo?
     var keys: [Data: [DerivationPath: ExtendedPublicKey]] // encrypted
     let isHDWalletAllowed: Bool
+    let accessCode: Data?
 }
 
 enum DefaultWalletData: Codable {
@@ -69,7 +70,8 @@ extension UserWallet {
             isTangemNote: isTangemNote,
             isTangemWallet: isTangemWallet,
             derivedKeys: keys,
-            primaryCard: nil
+            primaryCard: nil,
+            accessCode: accessCode
         )
     }
 }
