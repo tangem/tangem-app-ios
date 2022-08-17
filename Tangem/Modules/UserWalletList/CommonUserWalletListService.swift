@@ -61,39 +61,13 @@ class CommonUserWalletListService: UserWalletListService {
     func tryToAccessBiometry(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
         guard encryptionKey == nil else {
             print("Encryption key already fetched, skipping biometric authentication")
+            completion(.success(()))
             return
         }
 
-        biometricsStorage.get(keychainKey) { [weak self, keychainKey] result in
-            switch result {
-            case .success(let encryptionKey):
-                if let encryptionKey = encryptionKey {
-                    self?.encryptionKey = SymmetricKey(data: encryptionKey)
-                    self?.loadModels()
-                    completion(.success(()))
-                    return
-                }
-            case .failure(let error):
-                print("Failed to get encryption key", error)
-                self?.loadModels()
-                completion(.failure(error))
-                return
-            }
-
-            let newEncryptionKey = SymmetricKey(size: .bits256)
-            let newEncryptionKeyData = Data(hexString: newEncryptionKey.dataRepresentation.hexString) // WTF?
-
-            self?.biometricsStorage.store(newEncryptionKeyData, forKey: keychainKey, overwrite: true) { [weak self] result in
-                switch result {
-                case .success:
-                    self?.encryptionKey = SymmetricKey(data: newEncryptionKeyData)
-                    completion(.success(()))
-                case .failure(let error):
-                    print("Failed to save encryption key", error)
-                    completion(.failure(error))
-                }
-
-                self?.loadModels()
+        tryToAccessBiometryInternal { result in
+            DispatchQueue.main.async {
+                completion(result)
             }
         }
     }
@@ -165,6 +139,41 @@ class CommonUserWalletListService: UserWalletListService {
         let _ = saveUserWallets([])
         selectedUserWalletId = nil
         encryptionKey = nil
+    }
+
+    private func tryToAccessBiometryInternal(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+        biometricsStorage.get(keychainKey) { [weak self, keychainKey] result in
+            switch result {
+            case .success(let encryptionKey):
+                if let encryptionKey = encryptionKey {
+                    self?.encryptionKey = SymmetricKey(data: encryptionKey)
+                    self?.loadModels()
+                    completion(.success(()))
+                    return
+                }
+            case .failure(let error):
+                print("Failed to get encryption key", error)
+                self?.loadModels()
+                completion(.failure(error))
+                return
+            }
+
+            let newEncryptionKey = SymmetricKey(size: .bits256)
+            let newEncryptionKeyData = Data(hexString: newEncryptionKey.dataRepresentation.hexString) // WTF?
+
+            self?.biometricsStorage.store(newEncryptionKeyData, forKey: keychainKey, overwrite: true) { [weak self] result in
+                switch result {
+                case .success:
+                    self?.encryptionKey = SymmetricKey(data: newEncryptionKeyData)
+                    completion(.success(()))
+                case .failure(let error):
+                    print("Failed to save encryption key", error)
+                    completion(.failure(error))
+                }
+
+                self?.loadModels()
+            }
+        }
     }
 
     private func savedUserWallets() -> [UserWallet] {
