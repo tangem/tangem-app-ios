@@ -44,7 +44,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     var isMultiWallet: Bool {
-        config.hasFeature(.manageTokens)
+        config.hasFeature(.multiCurrency)
     }
 
     var emailData: [EmailCollectedData] {
@@ -134,7 +134,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     var canSend: Bool {
-        config.hasFeature(.signing)
+        config.hasFeature(.send)
     }
 
     var hasWallet: Bool {
@@ -145,12 +145,8 @@ class CardViewModel: Identifiable, ObservableObject {
         config.cardSetLabel
     }
 
-    var supportActivation: Bool {
-        config.hasFeature(.activation)
-    }
-
     var canShowAddress: Bool {
-        config.hasFeature(.showAddress)
+        config.hasFeature(.receive)
     }
 
     var canShowSend: Bool {
@@ -563,7 +559,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func getLegacyMigrator() -> LegacyCardMigrator? {
-        guard config.hasFeature(.manageTokens) else {
+        guard config.hasFeature(.multiCurrency) else {
             return nil
         }
 
