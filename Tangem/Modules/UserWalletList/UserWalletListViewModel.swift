@@ -128,8 +128,9 @@ final class UserWalletListViewModel: ObservableObject {
         // [REDACTED_TODO_COMMENT]
 
         let name: String = cardModel.cardInfo.name
+        let accessCode = cardInfo.accessCode
 
-        let userWallet = UserWallet(userWalletId: card.cardPublicKey, name: name, card: card, walletData: walletData, artwork: nil, keys: cardInfo.derivedKeys, isHDWalletAllowed: card.settings.isHDWalletAllowed)
+        let userWallet = UserWallet(userWalletId: card.cardPublicKey, name: name, card: card, walletData: walletData, artwork: nil, keys: cardInfo.derivedKeys, isHDWalletAllowed: card.settings.isHDWalletAllowed, accessCode: accessCode)
 
         if userWalletListService.contains(userWallet) {
             return
