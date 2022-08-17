@@ -56,10 +56,6 @@ class SendViewModel: ObservableObject {
         shoudShowFeeSelector || shoudShowFeeIncludeSelector
     }
 
-    var isPayIdSupported: Bool {
-        payIDService != nil
-    }
-
     var hasAdditionalInputFields: Bool {
         additionalInputFields != .none
     }
@@ -161,15 +157,6 @@ class SendViewModel: ObservableObject {
     private var blockchainNetwork: BlockchainNetwork
 
     private var lastClipboardChangeCount: Int?
-
-    private lazy var payIDService: PayIDService? = {
-        if cardViewModel.canSendToPayId,
-           let payIdService = PayIDService.make(from: blockchainNetwork.blockchain) {
-            return payIdService
-        }
-
-        return nil
-    }()
 
     private unowned let coordinator: SendRoutable
 
@@ -493,7 +480,7 @@ class SendViewModel: ObservableObject {
             return
         }
 
-        if payIDService?.validate(input) ?? false || validateAddress(input) {
+        if validateAddress(input) {
             validatedClipboard = input
         }
     }
@@ -513,42 +500,13 @@ class SendViewModel: ObservableObject {
             return
         }
 
-        if isPayIdSupported,
-           let payIdService = self.payIDService,
-           payIdService.validate(destination) {
-            payIdService.resolve(destination) { [weak self] result in
-                switch result {
-                case .success(let resolvedDetails):
-                    if let address = resolvedDetails.address,
-                       self?.validateAddress(address) ?? false {
-                        self?.validatedDestination = resolvedDetails.address
-                        self?.destinationTagStr = resolvedDetails.tag ?? ""
-                        self?.destinationHint = TextHint(isError: false,
-                                                         message: address)
-                        self?.setAdditionalInputVisibility(for: address)
-                    } else {
-                        self?.destinationHint = TextHint(isError: true,
-                                                         message: "send_validation_invalid_address".localized)
-                        self?.setAdditionalInputVisibility(for: nil)
-
-                    }
-                case .failure(let error):
-                    self?.destinationHint = TextHint(isError: true,
-                                                     message: error.localizedDescription)
-                    self?.setAdditionalInputVisibility(for: nil)
-                }
-
-            }
-
+        if validateAddress(destination) {
+            validatedDestination = destination
+            setAdditionalInputVisibility(for: destination)
         } else {
-            if validateAddress(destination) {
-                validatedDestination = destination
-                setAdditionalInputVisibility(for: destination)
-            } else {
-                destinationHint = TextHint(isError: true,
-                                           message: "send_validation_invalid_address".localized)
-                setAdditionalInputVisibility(for: nil)
-            }
+            destinationHint = TextHint(isError: true,
+                                       message: "send_validation_invalid_address".localized)
+            setAdditionalInputVisibility(for: nil)
         }
     }
 
