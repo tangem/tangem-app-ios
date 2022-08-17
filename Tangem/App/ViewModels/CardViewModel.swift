@@ -266,7 +266,8 @@ class CardViewModel: Identifiable, ObservableObject {
                      walletData: walletData,
                      artwork: cardInfo.artworkInfo,
                      keys: cardInfo.derivedKeys,
-                     isHDWalletAllowed: cardInfo.card.settings.isHDWalletAllowed
+                     isHDWalletAllowed: cardInfo.card.settings.isHDWalletAllowed,
+                     accessCode: cardInfo.accessCode
         )
     }
 
