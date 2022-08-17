@@ -47,10 +47,6 @@ extension NoteDemoConfig: UserWalletConfig {
         1
     }
 
-    var cardIdDisplayFormat: CardIdDisplayFormat {
-        .full
-    }
-
     var defaultCurve: EllipticCurve? {
         defaultBlockchain.curve
     }
@@ -126,16 +122,12 @@ extension NoteDemoConfig: UserWalletConfig {
             return .unavailable
         case .twinning:
             return .unavailable
-        case .sendingToPayID:
-            return .available
         case .exchange:
             return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
         case .walletConnect:
             return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
         case .multiCurrency:
             return .unavailable
-        case .activation:
-            return .available
         case .tokensSearch:
             return .unavailable
         case .resetToFactory:
@@ -148,6 +140,8 @@ extension NoteDemoConfig: UserWalletConfig {
             return .unavailable
         case .onlineImage:
             return card.firmwareVersion.type == .release ? .available : .unavailable
+        case .staking: return .available
+        case .topup: return .available
         }
     }
 

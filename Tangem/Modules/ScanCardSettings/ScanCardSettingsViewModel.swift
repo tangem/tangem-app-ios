@@ -45,7 +45,7 @@ extension ScanCardSettingsViewModel {
 
 extension ScanCardSettingsViewModel {
     func scan(completion: @escaping (Result<CardInfo, Error>) -> Void) {
-        sdkProvider.prepareScan()
+        sdkProvider.setup(with: TangemSdkConfigFactory().makeDefaultConfig())
         sdkProvider.sdk.startSession(with: AppScanTask(targetBatch: nil)) { result in
             switch result {
             case let .failure(error):
