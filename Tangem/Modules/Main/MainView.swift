@@ -124,8 +124,7 @@ struct MainView: View {
                     AddressDetailView(showQr: $viewModel.showQR,
                                       selectedAddressIndex: $viewModel.selectedAddressIndex,
                                       showExplorerURL: $viewModel.showExplorerURL,
-                                      walletModel: walletModel,
-                                      payID: viewModel.cardModel.payId) {
+                                      walletModel: walletModel) {
                         viewModel.copyAddress()
                     }
                 }
