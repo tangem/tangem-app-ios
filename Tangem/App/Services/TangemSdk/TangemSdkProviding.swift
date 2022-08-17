@@ -12,11 +12,7 @@ import TangemSdk
 protocol TangemSdkProviding {
     var sdk: TangemSdk { get }
 
-    func prepareScan()
-
-    #if !CLIP
-    func didScan(_ config: UserWalletConfig)
-    #endif
+    func setup(with config: Config)
 }
 
 private struct TangemSdkProviderKey: InjectionKey {
