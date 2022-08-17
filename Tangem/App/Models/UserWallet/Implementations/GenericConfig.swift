@@ -63,10 +63,6 @@ extension GenericConfig: UserWalletConfig {
         card.backupStatus?.backupCardsCount ?? 1
     }
 
-    var cardIdDisplayFormat: CardIdDisplayFormat {
-        .full
-    }
-
     var defaultCurve: EllipticCurve? {
         return nil
     }
@@ -199,15 +195,11 @@ extension GenericConfig: UserWalletConfig {
             return .disabled()
         case .twinning:
             return .unavailable
-        case .sendingToPayID:
-            return .available
         case .exchange:
             return .available
         case .walletConnect:
             return .available
         case .multiCurrency:
-            return .available
-        case .activation:
             return .available
         case .tokensSearch:
             return .unavailable
@@ -221,6 +213,8 @@ extension GenericConfig: UserWalletConfig {
             return card.settings.isHDWalletAllowed ? .available : .unavailable
         case .onlineImage:
             return card.firmwareVersion.type == .release ? .available : .unavailable
+        case .staking: return .available
+        case .topup: return .available
         }
     }
 
