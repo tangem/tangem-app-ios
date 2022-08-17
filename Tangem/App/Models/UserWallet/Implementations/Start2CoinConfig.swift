@@ -90,10 +90,6 @@ extension Start2CoinConfig: UserWalletConfig {
         nil
     }
 
-    var cardIdDisplayFormat: CardIdDisplayFormat {
-        .full
-    }
-
     var defaultCurve: EllipticCurve? {
         defaultBlockchain.curve
     }
@@ -161,15 +157,11 @@ extension Start2CoinConfig: UserWalletConfig {
             return .unavailable
         case .twinning:
             return .unavailable
-        case .sendingToPayID:
-            return .unavailable
         case .exchange:
             return .unavailable
         case .walletConnect:
             return .unavailable
         case .multiCurrency:
-            return .unavailable
-        case .activation:
             return .unavailable
         case .tokensSearch:
             return .unavailable
@@ -183,6 +175,8 @@ extension Start2CoinConfig: UserWalletConfig {
             return .unavailable
         case .onlineImage:
             return card.firmwareVersion.type == .release ? .available : .unavailable
+        case .staking: return .available
+        case .topup: return .available
         }
     }
 
