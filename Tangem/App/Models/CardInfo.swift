@@ -23,6 +23,7 @@ struct CardInfo {
     var isTangemWallet: Bool
     var derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]] = [:]
     var primaryCard: PrimaryCard? = nil
+    var accessCode: Data?
 
     var imageLoadDTO: ImageLoadDTO {
         ImageLoadDTO(cardId: card.cardId,
