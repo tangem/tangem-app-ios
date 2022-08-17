@@ -9,6 +9,10 @@
 import SwiftUI
 import Combine
 
+enum CommonError: Error {
+    case masterReleased
+}
+
 enum ContentState<Data> {
     case loading
     case empty
@@ -21,75 +25,6 @@ enum ContentState<Data> {
         }
 
         return false
-    }
-}
-
-protocol UserTokenListManager {
-//    func subscribeToCurrentTokenList()
-
-    func loadUserTokenList() -> AnyPublisher<UserTokenList, Error>
-//    func saveUserTokens(tokens: [UserTokenList.Token])
-}
-
-
-
-class WalletTokenListViewModel: ObservableObject {
-    // MARK: - ViewState
-    @Published var contentState: ContentState<[TokenItemViewModel]> = .loading
-
-    // MARK: - Private
-
-    private let walletDidTap: (TokenItemViewModel) -> ()
-    private let cardModel: CardViewModel
-
-    private let userTokenListManager: UserTokenListManager
-
-    private var loadTokensSubscribtion: AnyCancellable?
-
-    private var cardInfo: CardInfo { cardModel.cardInfo }
-//    private var accountId: String { cardInfo.card.accountID }
-
-    init(cardModel: CardViewModel, walletDidTap: @escaping (TokenItemViewModel) -> ()) {
-        self.walletDidTap = walletDidTap
-        self.cardModel = cardModel
-//        self.cardInfo = cardModel.cardInfo
-//        self.accountId = cardModel.cardInfo.card.accountID
-
-        userTokenListManager = CommonUserTokenListManager(
-            accountId: cardModel.cardInfo.card.accountID,
-            cardId: cardModel.cardInfo.card.cardId
-        )
-    }
-
-    func tokenItemDidTap(_ wallet: TokenItemViewModel) {
-        walletDidTap(wallet)
-    }
-
-    func refreshTokens() {
-        loadTokensSubscribtion = userTokenListManager.loadUserTokenList()
-            .sink { [unowned self] completion in
-                guard case let .failure(error) = completion else {
-                    return
-                }
-
-                contentState = .error(error: error)
-            } receiveValue: { [unowned self] list in
-                self.updateView(by: list)
-            }
-    }
-}
-
-// MARK: - Private
-
-private extension WalletTokenListViewModel {
-    func updateView(by list: UserTokenList) {
-        cardModel.updateState()
-
-        if let models = cardModel.walletModels?.flatMap({ $0.tokenItemViewModels }), !models.isEmpty {
-            contentState = .loaded(models)
-        } else {
-            contentState = .empty
-        }
     }
 }
 
@@ -115,7 +50,7 @@ struct WalletTokenListView: View {
             .background(Colors.Background.plain)
             .cornerRadius(14)
             .padding(.horizontal, 16)
-            .onAppear(perform: viewModel.refreshTokens)
+            .onAppear(perform: viewModel.onAppear)
         }
     }
 
@@ -127,7 +62,7 @@ struct WalletTokenListView: View {
 
         case .empty:
             // Oops, user haven't added any tokens
-           break
+            EmptyView()
 
         case let .loaded(viewModels):
             VStack(alignment: .leading, spacing: 6) {
