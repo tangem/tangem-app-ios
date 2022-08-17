@@ -12,6 +12,8 @@ import BlockchainSdk
 import WalletConnectSwift
 
 protocol UserWalletConfig {
+    var sdkConfig: Config { get }
+
     var emailConfig: EmailConfig { get }
 
     var touURL: URL? { get }
@@ -19,8 +21,6 @@ protocol UserWalletConfig {
     var cardsCount: Int { get }
 
     var cardSetLabel: String? { get }
-
-    var cardIdDisplayFormat: CardIdDisplayFormat { get }
 
     var defaultCurve: EllipticCurve? { get }
 
@@ -54,6 +54,10 @@ protocol UserWalletConfig {
 }
 
 extension UserWalletConfig {
+    var sdkConfig: Config {
+        TangemSdkConfigFactory().makeDefaultConfig()
+    }
+
     func hasFeature(_ feature: UserWalletFeature) -> Bool {
         getFeatureAvailability(feature).isAvailable
     }
