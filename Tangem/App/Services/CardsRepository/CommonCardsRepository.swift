@@ -26,8 +26,6 @@ class CommonCardsRepository: CardsRepository {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
 
-    var didScanPublisher: PassthroughSubject<CardInfo, Never> = .init()
-
     private(set) var cards = [String: CardViewModel]()
 
     private var bag: Set<AnyCancellable> = .init()
@@ -38,7 +36,7 @@ class CommonCardsRepository: CardsRepository {
 
     func scan(with batch: String? = nil, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
-        sdkProvider.prepareScan()
+        sdkProvider.setup(with: TangemSdkConfigFactory().makeDefaultConfig())
         sdkProvider.sdk.startSession(with: AppScanTask(targetBatch: batch)) { [unowned self] result in
             switch result {
             case .failure(let error):
@@ -75,7 +73,6 @@ class CommonCardsRepository: CardsRepository {
         let cm = CardViewModel(cardInfo: cardInfo)
         cm.getLegacyMigrator()?.migrateIfNeeded()
         scannedCardsRepository.add(cardInfo)
-        didScanPublisher.send(cardInfo)
         tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
 
         cm.didScan()
