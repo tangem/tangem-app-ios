@@ -167,7 +167,7 @@ extension GenericDemoConfig: UserWalletConfig {
             return .disabled()
         case .longTap:
             return .unavailable
-        case .signing:
+        case .send:
             return .available
         case .longHashes:
             if card.firmwareVersion.doubleValue >= 4.52 {
@@ -187,15 +187,15 @@ extension GenericDemoConfig: UserWalletConfig {
             return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
         case .walletConnect:
             return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
-        case .manageTokens:
+        case .multiCurrency:
             return .available
         case .activation:
-            return .available
+            return .unavailable
         case .tokensSearch:
             return .unavailable
         case .resetToFactory:
             return .available
-        case .showAddress:
+        case .receive:
             return .available
         case .withdrawal:
             return .available
