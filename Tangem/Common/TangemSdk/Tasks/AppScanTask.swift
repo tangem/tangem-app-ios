@@ -21,17 +21,18 @@ struct AppScanTaskResponse {
     let isTangemWallet: Bool
     let derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]
     let primaryCard: PrimaryCard?
+    let accessCode: Data?
 
     func getCardInfo() -> CardInfo {
         return CardInfo(card: card,
                         name: name,
                         walletData: walletData,
-                        //                        artworkInfo: nil,
                         twinCardInfo: decodeTwinFile(from: self),
                         isTangemNote: isTangemNote,
                         isTangemWallet: isTangemWallet,
                         derivedKeys: derivedKeys,
-                        primaryCard: primaryCard)
+                        primaryCard: primaryCard,
+                        accessCode: accessCode)
     }
 
     private func decodeTwinFile(from response: AppScanTaskResponse) -> TwinCardInfo? {
@@ -305,8 +306,8 @@ final class AppScanTask: CardSessionRunnable {
         let card = session.environment.card!
         let isNote = noteWalletData != nil
         let isWallet = card.firmwareVersion.doubleValue >= 4.39 && !isNote && card.settings.maxWalletsCount > 1
-
-
+//        let accessCode = session.environment.accessCode.value
+        let accessCode: Data? = nil
 
         let name: String
         if isWallet {
@@ -324,6 +325,7 @@ final class AppScanTask: CardSessionRunnable {
                                                 isTangemNote: noteWalletData != nil,
                                                 isTangemWallet: isWallet,
                                                 derivedKeys: derivedKeys,
-                                                primaryCard: primaryCard)))
+                                                primaryCard: primaryCard,
+                                                accessCode: accessCode)))
     }
 }
