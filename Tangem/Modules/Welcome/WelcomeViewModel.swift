@@ -89,17 +89,15 @@ class WelcomeViewModel: ObservableObject {
     func tryBiometricAuthentication() {
         showingAuthentication = true
 
-        userWalletListService.tryToAccessBiometry { result in
-            DispatchQueue.main.async { [weak self] in
-                if case .failure(let error) = result {
-                    print("Failed to authenticate with biometry: \(error)")
-                    return
-                }
-
-                guard let model = self?.userWalletListService.selectedModel else { return }
-                self?.showingAuthentication = false
-                self?.coordinator.openMain(with: model)
+        userWalletListService.tryToAccessBiometry { [weak self] result in
+            if case .failure(let error) = result {
+                print("Failed to authenticate with biometry: \(error)")
+                return
             }
+
+            guard let model = self?.userWalletListService.selectedModel else { return }
+            self?.showingAuthentication = false
+            self?.coordinator.openMain(with: model)
         }
     }
 
