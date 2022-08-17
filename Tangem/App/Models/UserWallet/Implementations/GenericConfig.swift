@@ -181,7 +181,7 @@ extension GenericConfig: UserWalletConfig {
             return .disabled()
         case .longTap:
             return card.settings.isResettingUserCodesAllowed ? .available : .unavailable
-        case .signing:
+        case .send:
             return .available
         case .longHashes:
             if card.firmwareVersion.doubleValue >= 4.52 {
@@ -205,7 +205,7 @@ extension GenericConfig: UserWalletConfig {
             return .available
         case .walletConnect:
             return .available
-        case .manageTokens:
+        case .multiCurrency:
             return .available
         case .activation:
             return .available
@@ -213,7 +213,7 @@ extension GenericConfig: UserWalletConfig {
             return .unavailable
         case .resetToFactory:
             return .available
-        case .showAddress:
+        case .receive:
             return .available
         case .withdrawal:
             return .available
