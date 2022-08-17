@@ -93,7 +93,8 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
 
-        if let v3WalletData = session.environment.walletData {
+        if let v3WalletData = session.environment.walletData,
+           v3WalletData.blockchain != "ANY" {
             self.walletData = .v3(v3WalletData)
         }
 
