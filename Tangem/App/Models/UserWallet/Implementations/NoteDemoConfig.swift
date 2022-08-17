@@ -116,7 +116,7 @@ extension NoteDemoConfig: UserWalletConfig {
             return .unavailable
         case .longTap:
             return .unavailable
-        case .signing:
+        case .send:
             return .available
         case .longHashes:
             return .unavailable
@@ -132,7 +132,7 @@ extension NoteDemoConfig: UserWalletConfig {
             return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
         case .walletConnect:
             return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
-        case .manageTokens:
+        case .multiCurrency:
             return .unavailable
         case .activation:
             return .available
@@ -140,7 +140,7 @@ extension NoteDemoConfig: UserWalletConfig {
             return .unavailable
         case .resetToFactory:
             return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
-        case .showAddress:
+        case .receive:
             return .available
         case .withdrawal:
             return .available
