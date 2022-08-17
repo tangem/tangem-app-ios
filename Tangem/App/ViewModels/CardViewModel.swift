@@ -310,57 +310,47 @@ class CardViewModel: Identifiable, ObservableObject {
 //
 //    }
 
-    func update() -> AnyPublisher<Never, Never> {
+
+    /// What this method do?
+    /// 1. `tryMigrateTokens` once, work with boolean switcher
+    /// 2. Call `update` for each `walletModels` in the `state`
+    /// 3. Update the `walletsBalanceState` to `.inProgress` if needed and `.loaded` when the update completed
+    func update(showProgressLoading: Bool) -> AnyPublisher<Void, Error> {
         guard state.canUpdate else {
             return Empty().eraseToAnyPublisher()
         }
 
-        observeBalanceLoading()
-
         return tryMigrateTokens()
-            .flatMap { [weak self] in
-                Publishers
-                    .MergeMany(self?.state.walletModels?.map { $0.update() } ?? [])
-                    .collect()
-                    .ignoreOutput()
-                    .eraseToAnyPublisher()
+            .tryMap { [weak self] _ ->  AnyPublisher<Void, Error> in
+                guard let self = self else {
+                    throw CommonError.masterReleased
+                }
+
+                return self.observeBalanceLoading(showProgressLoading: showProgressLoading)
             }
+            .switchToLatest()
             .eraseToAnyPublisher()
     }
 
-    func refresh() -> AnyPublisher<Never, Never> {
-        guard state.canUpdate else {
-            return Empty().eraseToAnyPublisher()
-        }
-
-        observeBalanceLoading(showProgressLoading: false)
-
-        return tryMigrateTokens()
-            .flatMap { [weak self] in
-                Publishers
-                    .MergeMany(self?.state.walletModels?.map { $0.update() } ?? [])
-                    .collect()
-                    .ignoreOutput()
-                    .eraseToAnyPublisher()
-            }
-            .eraseToAnyPublisher()
-    }
-
-    func observeBalanceLoading(showProgressLoading: Bool = true) {
+    func observeBalanceLoading(showProgressLoading: Bool = true) -> AnyPublisher<Void, Error> {
         guard let walletModels = self.state.walletModels else {
-            return
+            return Just(()).setFailureType(to: Error.self).eraseToAnyPublisher()
         }
 
         if showProgressLoading {
             self.walletsBalanceState = .inProgress
         }
 
-        walletBalanceSubscription = Publishers.MergeMany(walletModels.map({ $0.update() }))
+        // walletBalanceSubscription =
+        return Publishers.MergeMany(walletModels.map({ $0.update() }))
             .collect()
+            .mapVoid()
             .receive(on: RunLoop.main)
-            .sink { [unowned self] _ in
-                self.walletsBalanceState = .loaded
-            }
+            .handleEvents(receiveCompletion: { [weak self] _ in
+                self?.walletsBalanceState = .loaded
+            })
+            .eraseToAnyPublisher()
+
     }
 
     // MARK: - Security
@@ -528,7 +518,9 @@ class CardViewModel: Identifiable, ObservableObject {
         cardInfo.twinCardInfo?.pairPublicKey = nil
     }
 
-    func updateState() {
+    // [REDACTED_TODO_COMMENT]
+    // state will remove
+    func updateState(shouldUpdate: Bool = true) {
         print("‼️ Updating Card view model state")
 
         if cardInfo.card.wallets.isEmpty {
@@ -537,11 +529,12 @@ class CardViewModel: Identifiable, ObservableObject {
             print("⁉️ Recreating all wallet models for Card view model state")
             self.state = .loaded(walletModel: WalletManagerAssembly.makeAllWalletModels(from: cardInfo))
 
-//            if !AppSettings.shared.cardsStartedActivation.contains(cardInfo.card.cardId) || cardInfo.isTangemWallet {
-//                update()
-//                    .sink()
-//                    .store(in: &bag)
-//            }
+            if shouldUpdate,
+               (!AppSettings.shared.cardsStartedActivation.contains(cardInfo.card.cardId) || cardInfo.isTangemWallet) {
+                update(showProgressLoading: true)
+                    .sink()
+                    .store(in: &bag)
+            }
         }
     }
 
