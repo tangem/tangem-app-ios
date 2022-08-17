@@ -165,6 +165,7 @@ extension MainCoordinator: MainRoutable {
         Analytics.log(.manageTokensTapped)
         let dismissAction: Action = { [weak self] in
             self?.tokenListCoordinator = nil
+            self?.mainViewModel?.onRefresh {}
         }
 
         let coordinator = TokenListCoordinator(dismissAction: dismissAction)
