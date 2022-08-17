@@ -107,29 +107,29 @@ extension NoteDemoConfig: UserWalletConfig {
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
-            return .unavailable
+            return .hidden
         case .passcode:
-            return .unavailable
+            return .hidden
         case .longTap:
-            return .unavailable
+            return .hidden
         case .send:
             return .available
         case .longHashes:
-            return .unavailable
+            return .hidden
         case .signedHashesCounter:
-            return .unavailable
+            return .hidden
         case .backup:
-            return .unavailable
+            return .hidden
         case .twinning:
-            return .unavailable
+            return .hidden
         case .exchange:
             return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
         case .walletConnect:
             return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
         case .multiCurrency:
-            return .unavailable
+            return .hidden
         case .tokensSearch:
-            return .unavailable
+            return .hidden
         case .resetToFactory:
             return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
         case .receive:
@@ -137,11 +137,13 @@ extension NoteDemoConfig: UserWalletConfig {
         case .withdrawal:
             return .available
         case .hdWallets:
-            return .unavailable
+            return .hidden
         case .onlineImage:
-            return card.firmwareVersion.type == .release ? .available : .unavailable
-        case .staking: return .available
-        case .topup: return .available
+            return card.firmwareVersion.type == .release ? .available : .hidden
+        case .staking:
+            return .available
+        case .topup:
+            return .available
         }
     }
 
