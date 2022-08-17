@@ -21,8 +21,6 @@ struct DummyConfig: UserWalletConfig {
         1
     }
 
-    var cardIdDisplayFormat: CardIdDisplayFormat { .full }
-
     var features: Set<UserWalletFeature> { [] }
 
     var defaultCurve: EllipticCurve? { nil }
