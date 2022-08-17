@@ -162,7 +162,7 @@ extension GenericDemoConfig: UserWalletConfig {
 
             return .disabled()
         case .longTap:
-            return .unavailable
+            return .hidden
         case .send:
             return .available
         case .longHashes:
@@ -170,13 +170,13 @@ extension GenericDemoConfig: UserWalletConfig {
                 return .available
             }
 
-            return .unavailable
+            return .hidden
         case .signedHashesCounter:
-            return .unavailable
+            return .hidden
         case .backup:
             return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
         case .twinning:
-            return .unavailable
+            return .hidden
         case .exchange:
             return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
         case .walletConnect:
@@ -184,7 +184,7 @@ extension GenericDemoConfig: UserWalletConfig {
         case .multiCurrency:
             return .available
         case .tokensSearch:
-            return .unavailable
+            return .hidden
         case .resetToFactory:
             return .available
         case .receive:
@@ -192,11 +192,13 @@ extension GenericDemoConfig: UserWalletConfig {
         case .withdrawal:
             return .available
         case .hdWallets:
-            return card.settings.isHDWalletAllowed ? .available : .unavailable
+            return card.settings.isHDWalletAllowed ? .available : .hidden
         case .onlineImage:
-            return card.firmwareVersion.type == .release ? .available : .unavailable
-        case .staking: return .available
-        case .topup: return .available
+            return card.firmwareVersion.type == .release ? .available : .hidden
+        case .staking:
+            return .available
+        case .topup:
+            return .available
         }
     }
 
