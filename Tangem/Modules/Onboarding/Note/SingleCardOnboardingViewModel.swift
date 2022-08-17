@@ -170,7 +170,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
                     AppSettings.shared.cardsStartedActivation.append(self.cardModel.cardId)
                 }
             }
-            
+
             self.cardModel.updateState()
             self.walletCreatedWhileOnboarding = true
 
