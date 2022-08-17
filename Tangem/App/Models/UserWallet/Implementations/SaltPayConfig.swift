@@ -43,10 +43,6 @@ extension SaltPayConfig: UserWalletConfig {
         nil
     }
 
-    var cardIdDisplayFormat: CardIdDisplayFormat {
-        .full
-    }
-
     var defaultCurve: EllipticCurve? {
         defaultBlockchain.curve
     }
