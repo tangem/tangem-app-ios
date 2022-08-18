@@ -53,6 +53,10 @@ extension TwinConfig: UserWalletConfig {
         2
     }
 
+    var cardName: String {
+        "Twin"
+    }
+
     var defaultCurve: EllipticCurve? {
         defaultBlockchain.curve
     }
