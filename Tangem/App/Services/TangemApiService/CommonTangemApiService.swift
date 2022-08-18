@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import Moya
 
+
 class CommonTangemApiService {
     @Injected(\.cardsRepository) var cardsRepository: CardsRepository
 
@@ -32,24 +33,26 @@ extension CommonTangemApiService: TangemApiService {
         return _geoIpRegionCode ?? fallbackRegionCode
     }
 
-    func loadTokens(key: String) -> AnyPublisher<UserTokenList, Error> {
+    func loadTokens(key: String) -> AnyPublisher<UserTokenList, TangemAPIError> {
         let target = TangemApiTarget(type: .getUserWalletTokens(key: key), authData: authData)
 
         return provider
             .requestPublisher(target)
             .filterSuccessfulStatusCodes()
             .map(UserTokenList.self)
-            .eraseError()
+            .mapError { error in
+                return TangemAPIError.statusCode(error.response?.statusCode ?? error.errorCode)
+            }
             .eraseToAnyPublisher()
     }
 
-    func saveTokens(key: String, list: UserTokenList) -> AnyPublisher<Void, Error> {
+    func saveTokens(key: String, list: UserTokenList) -> AnyPublisher<Void, TangemAPIError> {
         let target = TangemApiTarget(type: .saveUserWalletTokens(key: key, list: list), authData: authData)
 
         return provider
             .requestPublisher(target)
             .filterSuccessfulStatusCodes()
-            .eraseError()
+            .mapError { TangemAPIError.statusCode($0.errorCode) }
             .mapVoid()
             .eraseToAnyPublisher()
     }

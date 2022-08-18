@@ -72,7 +72,7 @@ class WalletTokenListViewModel: ObservableObject {
 
                 case let .failure(error):
                     loadingError = error
-
+                    contentState = .error(error: error)
                     // Call callback result to close "Pull-to-refresh" animating
                     result(.failure(error))
                 }
