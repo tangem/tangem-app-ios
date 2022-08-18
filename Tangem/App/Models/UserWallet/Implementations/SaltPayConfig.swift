@@ -43,6 +43,10 @@ extension SaltPayConfig: UserWalletConfig {
         nil
     }
 
+    var cardName: String {
+        "TODO"
+    }
+
     var defaultCurve: EllipticCurve? {
         defaultBlockchain.curve
     }
