@@ -60,6 +60,10 @@ extension LegacyConfig: UserWalletConfig {
         1
     }
 
+    var cardName: String {
+        "TODO"
+    }
+
     var defaultCurve: EllipticCurve? {
         defaultBlockchain.curve
     }
