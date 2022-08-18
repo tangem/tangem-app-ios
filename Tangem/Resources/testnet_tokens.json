@@ -455,6 +455,17 @@
             ]
         },
         {
+            "id": "Optimism",
+            "symbol": "OP",
+            "name": "Optimism",
+            "networks":
+            [
+                {
+                    "networkId": "optimism/test"
+                }
+            ]
+        },
+        {
             "id": "Wrapped Fantom-WFTM",
             "symbol": "WFTM",
             "name": "Wrapped Fantom",
