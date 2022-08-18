@@ -30,7 +30,6 @@ class MainViewModel: ObservableObject {
     @Published var showSelectWalletSheet: Bool = false
     @Published var isScanning: Bool = false
     @Published var isCreatingWallet: Bool = false
-    @Published var image: UIImage? = nil
     @Published var selectedAddressIndex: Int = 0
     @Published var showExplorerURL: URL? = nil
     @Published var showQR: Bool = false
@@ -224,6 +223,10 @@ class MainViewModel: ObservableObject {
             .flatMap({ $0.tokenItemViewModels })
     }
 
+    var image: UIImage? {
+        cardModel.cardImage
+    }
+
     init(cardModel: CardViewModel, coordinator: MainRoutable) {
         self.cardModel = cardModel
         self.coordinator = coordinator
@@ -279,11 +282,6 @@ class MainViewModel: ObservableObject {
                 self.updateTotalBalanceTokenListIfNeeded()
                 self.objectWillChange.send()
             }
-            .store(in: &bag)
-
-        cardModel
-            .imageLoaderPublisher
-            .weakAssignAnimated(to: \.image, on: self)
             .store(in: &bag)
 
         warningsService.warningsUpdatePublisher
