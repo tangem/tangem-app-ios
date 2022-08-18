@@ -61,9 +61,6 @@ class AppSettings {
     @AppStorageCompat(StorageType.saveUserWallets)
     var saveUserWallets: Bool = false
 
-    @AppStorageCompat(StorageType.userWallets)
-    var userWallets: Data = Data()
-
     @AppStorageCompat(StorageType.selectedUserWalletId)
     var selectedUserWalletId: Data = Data()
 
