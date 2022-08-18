@@ -14,38 +14,11 @@ struct AddressDetailView: View {
     @Binding var selectedAddressIndex: Int
     @Binding var showExplorerURL: URL?
     var walletModel: WalletModel
-    var payID: PayIdStatus
 
     let copyAddress: () -> Void
 
-    var showPayIdBlock: Bool {
-        switch payID {
-        case .notSupported:
-            return false
-        default:
-            return true
-        }
-    }
-
-    var isPayIdCreated: Bool {
-        switch payID {
-        case .created:
-            return true
-        default:
-            return false
-        }
-    }
-
     var showAddressSelector: Bool {
         return walletModel.wallet.addresses.count > 1
-    }
-
-    var payIdText: String {
-        if case let .created(text) = payID {
-            return text
-        } else {
-            return ""
-        }
     }
 
     var pickerViews: [Text] {
@@ -99,49 +72,6 @@ struct AddressDetailView: View {
             }
             .padding(.horizontal, 24.0)
             .padding(.vertical, 16.0)
-            if showPayIdBlock {
-                Color.tangemGrayLight5
-                    .frame(width: nil, height: 1.0, alignment: .center)
-                    .padding(.horizontal, 24.0)
-                    .padding(.top, 8.0)
-                HStack {
-                    Image("payId")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 96.0, height: 19.0)
-                    Spacer(minLength: 8)
-
-                    if !isPayIdCreated {
-                        Button(action: {
-                            // self.showCreatePayID = true //[REDACTED_TODO_COMMENT]
-                        }) {
-                            HStack {
-                                Text("wallet_address_button_create_payid")
-                                    .font(Font.system(size: 14.0, weight: .bold, design: .default))
-                                    .multilineTextAlignment(.leading)
-                                    .lineLimit(1)
-                                    .foregroundColor(Color.tangemGrayDark6)
-                                Image(systemName: "chevron.right")
-                                    .font(Font.system(size: 14.0, weight: .bold, design: .default))
-                                    .foregroundColor(Color.tangemGrayDark6)
-
-                            }
-                        }
-                    } else {
-                        Text(payIdText)
-                            .font(Font.system(size: 14.0, weight: .medium, design: .default))
-                            .fixedSize(horizontal: false, vertical: true)
-                            .foregroundColor(Color.tangemGrayDark)
-                            .onTapGesture {
-                                UIPasteboard.general.string = self.payIdText
-                                // [REDACTED_TODO_COMMENT]
-                            }
-                    }
-                }
-                .padding(.horizontal, 24.0)
-                .padding(.bottom, 16.0)
-                .padding(.top, 17.0)
-            }
         }
         .background(Color.white)
         .cornerRadius(6.0)
@@ -157,7 +87,6 @@ struct AddressDetailView_Previews: PreviewProvider {
                               selectedAddressIndex: .constant(0),
                               showExplorerURL: .constant(nil),
                               walletModel: PreviewCard.v4.cardModel.walletModels!.first!,
-                              payID: .notCreated,
                               copyAddress: {})
         }
     }
