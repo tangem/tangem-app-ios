@@ -38,7 +38,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
             return super.title
         }
 
-        if twinInfo.series.number != 1 {
+        if twinData.series.number != 1 {
             switch currentStep {
             case .first, .third:
                 return TwinsOnboardingStep.second.title
@@ -57,7 +57,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
             return super.mainButtonTitle
         }
 
-        if twinInfo.series.number != 1 {
+        if twinData.series.number != 1 {
             switch currentStep {
             case .first, .third:
                 return TwinsOnboardingStep.second.mainButtonTitle
@@ -105,7 +105,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
     }
 
     private var stackCalculator: StackCalculator = .init()
-    private var twinInfo: TwinCardInfo
+    private var twinData: TwinData
     private var stepUpdatesSubscription: AnyCancellable?
     private let twinsService: TwinsWalletCreationUtil
 
@@ -113,11 +113,11 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
 
     required init(input: OnboardingInput, coordinator: OnboardingTopupRoutable) {
         let cardModel = input.cardInput.cardModel!
-        let twinData = cardModel.twinData!
+        let twinData = input.twinData!
 
         self.pairNumber = "\(twinData.series.pair.number)"
-        self.twinInfo = twinData
-        self.twinsService = .init(card: cardModel)
+        self.twinData = twinData
+        self.twinsService = .init(card: cardModel, twinData: twinData)
 
         super.init(input: input, coordinator: coordinator)
         if case let .twins(steps) = input.steps {
@@ -137,7 +137,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
             retwinMode = true // [REDACTED_TODO_COMMENT]
         }
 
-        twinsService.setupTwins(for: twinInfo)
         bind()
         loadSecondTwinImage()
 
@@ -179,8 +178,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         case .done, .success, .alert:
             goToNextStep()
         case .first:
-            if !retwinMode, !(AppSettings.shared.cardsStartedActivation.contains(twinInfo.cid)) {
-                AppSettings.shared.cardsStartedActivation.append(twinInfo.cid)
+            if !retwinMode, !(AppSettings.shared.cardsStartedActivation.contains(cardModel.cardId)) {
+                AppSettings.shared.cardsStartedActivation.append(cardModel.cardId)
             }
 
             if twinsService.step.value != .first {
@@ -296,7 +295,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
     }
 
     private func loadSecondTwinImage() {
-        imageLoader.loadTwinImage(for: twinInfo.series.pair.number)
+        imageLoader.loadTwinImage(for: twinData.series.pair.number)
             .zip($cardImage.compactMap { $0 })
             .receive(on: DispatchQueue.main)
             .sink { [weak self] (paired, main) in
