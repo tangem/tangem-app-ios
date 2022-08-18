@@ -15,6 +15,6 @@ class TangemSdkProvider: TangemSdkProviding {
     func setup(with config: Config) {
         sdk.config = config
         // [REDACTED_TODO_COMMENT]
-        config.attestationMode = .offline
+        sdk.config.attestationMode = .offline
     }
 }
