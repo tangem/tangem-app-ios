@@ -66,8 +66,8 @@ extension CommonUserTokenListManager: TokenItemsRepositoryChanges {
 
 private extension CommonUserTokenListManager {
     func loadUserTokenList(result: @escaping (Result<UserTokenList, Error>) -> Void) {
-        self.loadTokensCancellable = self.tangemApiService
-            .loadTokens(key: self.accountId)
+        self.loadTokensCancellable = tangemApiService
+            .loadTokens(key: accountId)
             .sink(receiveCompletion: { [unowned self] completion in
                 guard case let .failure(error) = completion else { return }
 
@@ -88,7 +88,7 @@ private extension CommonUserTokenListManager {
         let list = UserTokenList(tokens: tokens)
 
         saveTokensCancellable = tangemApiService.saveTokens(key: accountId, list: list)
-            .receiveCompletion { [unowned self] completion in
+            .receiveCompletion { completion in
                 switch completion {
                 case let .failure(error):
                     result(.failure(error))
