@@ -179,8 +179,6 @@ extension Start2CoinConfig: UserWalletConfig {
             return .available
         case .topup:
             return .available
-        case .hdWallets:
-            return .hidden
         }
     }
 
