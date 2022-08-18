@@ -145,7 +145,7 @@ struct MainView: View {
                     .padding(.bottom, 6)
             }
 
-                            WalletTokenListView(viewModel: viewModel.walletTokenListViewModel)
+            WalletTokenListView(viewModel: viewModel.walletTokenListViewModel)
 
             AddTokensView(action: viewModel.openTokensList)
                 .padding(.horizontal, 16)
