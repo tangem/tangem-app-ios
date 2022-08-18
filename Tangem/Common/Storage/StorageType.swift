@@ -31,7 +31,6 @@ enum StorageType: String {
     case didDisplayMainScreenStories = "tangem_tap_did_display_main_screen_stories"
     case askedToSaveUserWallets = "tangem_asked_to_save_user_wallets"
     case saveUserWallets = "tangem_save_user_wallets"
-    case userWallets = "tangem_user_wallets"
     case selectedUserWalletId = "tangem_selected_user_wallet_id"
     case saveAccessCodes = "tangem_save_access_codes"
 
