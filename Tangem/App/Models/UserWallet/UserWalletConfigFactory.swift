@@ -33,7 +33,7 @@ struct UserWalletConfigFactory {
             }
         case .twin(let walletData, let twinData):
             return TwinConfig(card: cardInfo.card, walletData: walletData, twinData: twinData)
-        case .v3(let walletData):
+        case .legacy(let walletData):
             if cardInfo.card.issuer.name.lowercased() == "start2coin" {
                 return Start2CoinConfig(card: cardInfo.card, walletData: walletData)
             }
