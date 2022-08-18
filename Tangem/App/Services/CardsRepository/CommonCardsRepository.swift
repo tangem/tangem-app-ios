@@ -24,13 +24,11 @@ class CommonCardsRepository: CardsRepository {
     @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
     @Injected(\.scannedCardsRepository) private var scannedCardsRepository: ScannedCardsRepository
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-
-    var didScanPublisher: PassthroughSubject<CardInfo, Never> = .init()
+    @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
 
     private(set) var cards = [String: CardViewModel]()
 
     private var bag: Set<AnyCancellable> = .init()
-    private let legacyCardMigrator: LegacyCardMigrator = .init()
 
     deinit {
         print("CardsRepository deinit")
@@ -38,14 +36,13 @@ class CommonCardsRepository: CardsRepository {
 
     func scan(with batch: String? = nil, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
-        sdkProvider.prepareScan()
+        sdkProvider.setup(with: TangemSdkConfigFactory().makeDefaultConfig())
         sdkProvider.sdk.startSession(with: AppScanTask(targetBatch: batch)) { [unowned self] result in
             switch result {
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .scan)
                 completion(.failure(error))
             case .success(let response):
-                Analytics.logScan(card: response.card)
                 completion(.success(processScan(response.getCardInfo())))
             }
         }
@@ -71,13 +68,14 @@ class CommonCardsRepository: CardsRepository {
         let interaction = INInteraction(intent: ScanTangemCardIntent(), response: nil)
         interaction.donate(completion: nil)
 
-        legacyCardMigrator.migrateIfNeeded(for: cardInfo)
-        scannedCardsRepository.add(cardInfo)
-        sdkProvider.didScan(cardInfo.card)
-        didScanPublisher.send(cardInfo)
-        tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
+        cardInfo.primaryCard.map { backupServiceProvider.backupService.setPrimaryCard($0) }
 
         let cm = CardViewModel(cardInfo: cardInfo)
+        cm.getLegacyMigrator()?.migrateIfNeeded()
+        scannedCardsRepository.add(cardInfo)
+        tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
+
+        cm.didScan()
         cards[cardInfo.card.cardId] = cm
         return cm
     }
@@ -85,24 +83,20 @@ class CommonCardsRepository: CardsRepository {
 
 
 /// Temporary solution to migrate default tokens of old miltiwallet cards to TokenItemsRepository. Remove at Q3-Q4'22
-fileprivate class LegacyCardMigrator {
+class LegacyCardMigrator {
     @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
     @Injected(\.scannedCardsRepository) private var scannedCardsRepository: ScannedCardsRepository
 
+    private let cardId: String
+    private let embeddedEntry: StorageEntry
+
+    init(cardId: String, embeddedEntry: StorageEntry) {
+        self.cardId = cardId
+        self.embeddedEntry = embeddedEntry
+    }
+
     // Save default blockchain and token to main tokens repo.
-    func migrateIfNeeded(for cardInfo: CardInfo) {
-        let cardId = cardInfo.card.cardId
-
-        // Migrate only multiwallet cards
-        guard cardInfo.isMultiWallet else {
-            return
-        }
-
-        // Check if we have anything to migrate. It's impossible to get default token without default blockchain
-        guard let entry = cardInfo.defaultStorageEntry else {
-            return
-        }
-
+    func migrateIfNeeded() {
         // Migrate only known cards.
         guard scannedCardsRepository.cards.keys.contains(cardId) else {
             // Newly scanned card. Save and forgot.
@@ -116,7 +110,7 @@ fileprivate class LegacyCardMigrator {
         }
 
         var entries = tokenItemsRepository.getItems(for: cardId)
-        entries.insert(entry, at: 0)
+        entries.insert(embeddedEntry, at: 0)
 
         // We need to preserve order of token items
         tokenItemsRepository.removeAll(for: cardId)
