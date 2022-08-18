@@ -9,25 +9,6 @@
 import SwiftUI
 import Combine
 
-enum CommonError: Error {
-    case masterReleased
-}
-
-enum ContentState<Data> {
-    case loading
-    case empty
-    case loaded(_ content: Data)
-    case error(error: Error)
-
-    var isEmpty: Bool {
-        if case .empty = self {
-            return true
-        }
-
-        return false
-    }
-}
-
 struct WalletTokenListView: View {
     @ObservedObject private var viewModel: WalletTokenListViewModel
 
@@ -84,7 +65,6 @@ struct WalletTokenListView: View {
                 }
             }
 
-
         case let .error(error):
             Text(error.localizedDescription)
                 .padding()
@@ -92,15 +72,16 @@ struct WalletTokenListView: View {
     }
 }
 
-
 struct WalletTokenListViewModel_Preview: PreviewProvider {
     static var previews: some View {
         ZStack {
             Colors.Background.secondary.edgesIgnoringSafeArea(.all)
 
-            WalletTokenListView(viewModel: WalletTokenListViewModel(cardModel: .init(cardInfo: .init(card: .card, isTangemNote: false, isTangemWallet: false)), walletDidTap: { _ in
+            WalletTokenListView(viewModel: WalletTokenListViewModel(
+                cardModel: .init(cardInfo: .init(card: .card, isTangemNote: false, isTangemWallet: false)),
+                walletDidTap: { _ in
 
-            }))
+                }))
         }
         .previewLayout(.sizeThatFits)
     }
