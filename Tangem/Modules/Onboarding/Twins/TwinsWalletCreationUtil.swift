@@ -20,12 +20,12 @@ class TwinsWalletCreationUtil {
 
     /// Determines is user start twin wallet creation from Twin card with first number
     var isStartedFromFirstNumber: Bool {
-        guard let twin = twinInfo else { return true }
+        guard let twin = twinData else { return true }
         return twin.series.number == 1
     }
 
     var stepCardNumber: Int {
-        guard let twin = twinInfo else { return 1 }
+        guard let twin = twinData else { return 1 }
 
         let series = twin.series
 
@@ -42,7 +42,7 @@ class TwinsWalletCreationUtil {
     private let twinFileEncoder: TwinCardFileEncoder = TwinCardTlvFileEncoder()
     private var firstTwinCid: String = ""
     // private var secondTwinCid: String = ""
-    private var twinInfo: TwinCardInfo?
+    private var twinData: TwinData?
     private let card: CardViewModel
 
     private var firstTwinPublicKey: Data?
@@ -52,8 +52,10 @@ class TwinsWalletCreationUtil {
     private(set) var occuredError = PassthroughSubject<Error, Never>()
     private(set) var isServiceBusy = CurrentValueSubject<Bool, Never>(false)
 
-    init(card: CardViewModel) {
+    init(card: CardViewModel, twinData: TwinData) {
         self.card = card
+        self.twinData = twinData
+        firstTwinCid = card.cardId
     }
 
     func executeCurrentStep() {
@@ -68,13 +70,6 @@ class TwinsWalletCreationUtil {
         case .done:
             step.send(.done)
         }
-    }
-
-    func setupTwins(for twin: TwinCardInfo) {
-        if twin.cid == firstTwinCid /* , twin.pairCid == secondTwinCid */ { return }
-
-        twinInfo = twin
-        firstTwinCid = twin.cid
     }
 
     func resetSteps() {
