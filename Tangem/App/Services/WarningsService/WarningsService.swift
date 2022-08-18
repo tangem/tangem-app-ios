@@ -19,8 +19,6 @@ class WarningsService {
     private var mainWarnings: WarningsContainer = .init()
     private var sendWarnings: WarningsContainer = .init()
 
-    private var currentCardId: String = ""
-
     init() {}
 
     deinit {
@@ -30,9 +28,6 @@ class WarningsService {
 
 extension WarningsService: AppWarningsProviding {
     func setupWarnings(for config: UserWalletConfig) {
-
-        // currentCardId = cardInfo.card.cardId
-
         let main = WarningsContainer()
         let send = WarningsContainer()
 
