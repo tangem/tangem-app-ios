@@ -82,8 +82,6 @@ extension Card {
         let accIdData = Data(accId)
         let accIdString = accIdData.hexString
 
-        // [REDACTED_KEY]
-
         return accIdString
     }
 
