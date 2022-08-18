@@ -9,6 +9,7 @@
 import Foundation
 import WalletConnectSwift
 import Combine
+import BlockchainSdk
 
 class SwitchChainHandler: TangemWalletConnectRequestHandler {
     @Injected(\.scannedCardsRepository) private var scannedCardsRepo: ScannedCardsRepository
@@ -57,7 +58,7 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
             throw WalletConnectServiceError.cardNotFound
         }
 
-        let supportedBlockchains = SupportedTokenItems().blockchains(for: [.secp256k1], isTestnet: card.isTestnet)
+        let supportedBlockchains = Blockchain.supportedBlockchains.union(Blockchain.supportedTestnetBlockchains)
 
         guard let targetBlockchain = supportedBlockchains.first(where: { $0.chainId == chainId }) else {
             throw WalletConnectServiceError.unsupportedNetwork
@@ -68,7 +69,7 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
             throw WalletConnectServiceError.networkNotFound(name: targetBlockchain.displayName)
         }
 
-        let availableWallet = WalletManagerAssembly.makeWalletModels(from: card, blockchainNetworks: [availableItem.blockchainNetwork])
+        let availableWallet = card.makeWalletModels(for: [availableItem])
             .filter { !$0.isCustom(.coin) }
             .first(where: { $0.wallet.blockchain == targetBlockchain })
             .map { $0.wallet }
