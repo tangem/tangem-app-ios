@@ -72,9 +72,9 @@ extension DetailsCoordinator: DetailsRoutable {
         modalOnboardingCoordinator = coordinator
     }
 
-    func openMail(with dataCollector: EmailDataCollector, support: EmailSupport, emailType: EmailType) {
+    func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType) {
         Analytics.log(.makeCommentTapped)
-        mailViewModel = MailViewModel(dataCollector: dataCollector, support: support, emailType: emailType)
+        mailViewModel = MailViewModel(dataCollector: dataCollector, recipient: recipient, emailType: emailType)
     }
 
     func openWalletConnect(with cardModel: CardViewModel) {
