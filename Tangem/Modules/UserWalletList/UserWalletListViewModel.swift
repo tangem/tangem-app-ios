@@ -14,6 +14,7 @@ final class UserWalletListViewModel: ObservableObject {
     @Published var selectedUserWalletId: Data?
     @Published var multiCurrencyModels: [CardViewModel] = []
     @Published var singleCurrencyModels: [CardViewModel] = []
+    @Published var isScanningCard = false
 
     // MARK: - Dependencies
 
@@ -54,9 +55,12 @@ final class UserWalletListViewModel: ObservableObject {
     }
 
     func addCard() {
+        isScanningCard = true
+
         cardsRepository.scanPublisher()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
+                self?.isScanningCard = false
 //                if case let .failure(error) = completion {
 //                    print("Failed to scan card: \(error)")
 //                    self?.isScanningCard = false
