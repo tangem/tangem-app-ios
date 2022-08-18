@@ -27,11 +27,9 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     }
 
     override var subtitle: LocalizedStringKey {
-        if currentStep == .topup {
-            if case .xrp = cardModel.walletModels?.first?.blockchainNetwork.blockchain {
-                return "onboarding_topup_subtitle_xrp"
-            }
-            return super.subtitle
+        if currentStep == .topup,
+           case .xrp = cardModel.walletModels?.first?.blockchainNetwork.blockchain {
+            return "onboarding_topup_subtitle_xrp"
         } else {
             return super.subtitle
         }
@@ -165,10 +163,8 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
             self.cardModel.appendDefaultBlockchains()
 
-            if case let .singleWallet(steps) = self.input.steps {
-                if steps.contains(.topup) {
-                    AppSettings.shared.cardsStartedActivation.append(self.cardModel.cardId)
-                }
+            if case let .singleWallet(steps) = self.input.steps, steps.contains(.topup) {
+                AppSettings.shared.cardsStartedActivation.append(self.cardModel.cardId)
             }
 
             self.cardModel.updateState()
