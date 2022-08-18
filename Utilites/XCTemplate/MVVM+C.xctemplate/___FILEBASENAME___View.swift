@@ -15,3 +15,11 @@ struct ___VARIABLE_moduleName:identifier___View: View {
         }
     }
 }
+
+struct ___VARIABLE_moduleName:identifier___View_Preview: PreviewProvider {
+    static let viewModel = ___VARIABLE_moduleName: identifier___ViewModel(coordinator: ___VARIABLE_moduleName:identifier___Coordinator())
+
+    static var previews: some View {
+        ___VARIABLE_moduleName: identifier___View(viewModel: viewModel)
+    }
+}
