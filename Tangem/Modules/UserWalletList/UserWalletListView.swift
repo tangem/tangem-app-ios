@@ -25,34 +25,39 @@ struct UserWalletListView: View {
     }
 
     var body: some View {
-        VStack(spacing: 16) {
-            #warning("l10n")
-            Text("My Wallets")
-                .style(Fonts.Bold.body, color: Colors.Text.primary1)
+        ZStack {
+            VStack(spacing: 16) {
+                #warning("l10n")
+                Text("My Wallets")
+                    .style(Fonts.Bold.body, color: Colors.Text.primary1)
 
-            ScrollView(.vertical) {
-                VStack(spacing: 0) {
-                    #warning("l10n")
-                    section("Multi-currency", for: viewModel.multiCurrencyModels)
+                ScrollView(.vertical) {
+                    VStack(spacing: 0) {
+                        #warning("l10n")
+                        section("Multi-currency", for: viewModel.multiCurrencyModels)
 
-                    #warning("l10n")
-                    section("Single-currency", for: viewModel.singleCurrencyModels)
-
-                    // [REDACTED_TODO_COMMENT]
-//                    Spacer()
-//                        .frame(height: 80)
+                        #warning("l10n")
+                        section("Single-currency", for: viewModel.singleCurrencyModels)
+                    }
                 }
-            }
-            .background(Colors.Background.primary)
-            .cornerRadius(14)
+                .background(Colors.Background.primary)
+                .cornerRadius(14)
 
-            #warning("l10n")
-            TangemButton(title: "Add new card", systemImage: "plus") {
-                viewModel.addCard()
+                #warning("l10n")
+                TangemButton(title: "Add new card", systemImage: "plus") {
+                    viewModel.addCard()
+                }
+                .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt3, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
             }
-            .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt3, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
+
+            ScanTroubleshootingView(isPresented: $viewModel.showTroubleshootingView,
+                                    tryAgainAction: viewModel.tryAgain,
+                                    requestSupportAction: viewModel.requestSupport)
         }
         .padding(16)
+        .alert(item: $viewModel.error) {
+            $0.alert
+        }
         .onAppear(perform: viewModel.onAppear)
     }
 
