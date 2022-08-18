@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 protocol SendRoutable: AnyObject {
-    func openMail(with dataCollector: EmailDataCollector)
+    func openMail(with dataCollector: EmailDataCollector, recipient: String)
     func closeModule()
     func openQRScanner(with codeBinding: Binding<String>)
 }
