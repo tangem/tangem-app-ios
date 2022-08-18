@@ -34,14 +34,6 @@ class CardViewModel: Identifiable, ObservableObject {
     var signer: TangemSigner { config.tangemSigner }
     var cardId: String { cardInfo.card.cardId }
 
-    var twinData: TwinCardInfo? {
-        if case let .twin(_, twinData) = cardInfo.walletData {
-            return twinData
-        }
-
-        return nil
-    }
-
     var isMultiWallet: Bool {
         config.hasFeature(.multiCurrency)
     }
@@ -162,6 +154,7 @@ class CardViewModel: Identifiable, ObservableObject {
         return OnboardingInput(steps: backupSteps,
                                cardInput: .cardModel(self),
                                welcomeStep: nil,
+                               twinData: nil,
                                currentStepIndex: 0,
                                isStandalone: true)
     }
@@ -170,8 +163,23 @@ class CardViewModel: Identifiable, ObservableObject {
         OnboardingInput(steps: config.onboardingSteps,
                         cardInput: .cardModel(self),
                         welcomeStep: nil,
+                        twinData: cardInfo.walletData.twinData,
                         currentStepIndex: 0)
     }
+
+    var twinInput: OnboardingInput? {
+        guard config.hasFeature(.twinning) else { return nil }
+
+
+        return OnboardingInput(
+            steps: .twins(TwinsOnboardingStep.twinningSteps),
+            cardInput: .cardModel(self),
+            welcomeStep: nil,
+            twinData: cardInfo.walletData.twinData,
+            currentStepIndex: 0,
+            isStandalone: true)
+    }
+
 
     var isResetToFactoryAvailable: Bool {
         config.hasFeature(.resetToFactory)
@@ -460,7 +468,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     func clearTwinPairKey() { // [REDACTED_TODO_COMMENT]
         if case let .twin(walletData, twinData) = cardInfo.walletData {
-            let newData = TwinCardInfo(cid: twinData.cid, series: twinData.series)
+            let newData = TwinData(series: twinData.series)
             cardInfo.walletData = .twin(walletData, newData)
         }
     }
@@ -572,12 +580,18 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
 
-        guard let ethBlockchain = config.supportedBlockchains.first(where: { $0.chainId == 1 }) else {
+        guard let ethBlockchain = config.supportedBlockchains.first(where: {
+            if case .ethereum = $0 {
+                return true
+            }
+
+            return false
+        }) else {
             return
         }
 
         var shouldAddWalletManager = false
-        let network = BlockchainNetwork(ethBlockchain, derivationPath: nil)
+        let network = getBlockchainNetwork(for: ethBlockchain, derivationPath: nil)
         var ethWalletModel = walletModels?.first(where: { $0.blockchainNetwork == network })
 
         if ethWalletModel == nil {
