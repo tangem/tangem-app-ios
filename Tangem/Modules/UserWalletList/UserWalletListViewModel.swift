@@ -15,11 +15,14 @@ final class UserWalletListViewModel: ObservableObject {
     @Published var multiCurrencyModels: [CardViewModel] = []
     @Published var singleCurrencyModels: [CardViewModel] = []
     @Published var isScanningCard = false
+    @Published var error: AlertBinder?
+    @Published var showTroubleshootingView: Bool = false
 
     // MARK: - Dependencies
 
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
+    @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
 
     private unowned let coordinator: UserWalletListRoutable
     private var bag: Set<AnyCancellable> = []
@@ -60,29 +63,39 @@ final class UserWalletListViewModel: ObservableObject {
         cardsRepository.scanPublisher()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
-                self?.isScanningCard = false
-//                if case let .failure(error) = completion {
-//                    print("Failed to scan card: \(error)")
-//                    self?.isScanningCard = false
-//                    self?.failedCardScanTracker.recordFailure()
+                if case let .failure(error) = completion {
+                    print("Failed to scan card: \(error)")
+                    self?.isScanningCard = false
+                    self?.failedCardScanTracker.recordFailure()
 
-//                    if self?.failedCardScanTracker.shouldDisplayAlert ?? false {
-//                        self?.showTroubleshootingView = true
-//                    } else {
-//                        switch error.toTangemSdkError() {
-//                        case .unknownError, .cardVerificationFailed:
-//                            self?.error = error.alertBinder
-//                        default:
-//                            break
-//                        }
-//                    }
-//                }
-//                subscription.map { _ = self?.bag.remove($0) }
+                    if self?.failedCardScanTracker.shouldDisplayAlert ?? false {
+                        self?.showTroubleshootingView = true
+                    } else {
+                        switch error.toTangemSdkError() {
+                        case .unknownError, .cardVerificationFailed:
+                            self?.error = error.alertBinder
+                        default:
+                            break
+                        }
+                    }
+                }
             } receiveValue: { [weak self] cardModel in
-//                self?.failedCardScanTracker.resetCounter()
+                self?.isScanningCard = false
+                self?.failedCardScanTracker.resetCounter()
                 self?.processScannedCard(cardModel)
             }
             .store(in: &bag)
+    }
+
+    func tryAgain() {
+        Analytics.log(.tryAgainTapped)
+        addCard()
+    }
+
+    func requestSupport() {
+        Analytics.log(.supportTapped)
+        failedCardScanTracker.resetCounter()
+        coordinator.openMail(with: failedCardScanTracker)
     }
 
     func editWallet(_ userWallet: UserWallet) {
