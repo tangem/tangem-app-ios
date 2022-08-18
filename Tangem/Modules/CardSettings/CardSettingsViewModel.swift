@@ -74,15 +74,9 @@ private extension CardSettingsViewModel {
     }
 
     func prepareTwinOnboarding() {
-        let input = OnboardingInput(
-            steps: .twins(TwinsOnboardingStep.twinningSteps),
-            cardInput: .cardModel(self.cardModel),
-            welcomeStep: nil,
-            currentStepIndex: 0,
-            isStandalone: true
-        )
-
-        self.coordinator.openOnboarding(with: input)
+        if let twinInput = cardModel.twinInput {
+            coordinator.openOnboarding(with: twinInput)
+        }
     }
 }
 

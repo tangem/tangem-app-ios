@@ -185,6 +185,7 @@ private extension WelcomeViewModel {
         let input = OnboardingInput(steps: .wallet(WalletOnboardingStep.resumeBackupSteps),
                                     cardInput: .cardId(primaryCardId),
                                     welcomeStep: nil,
+                                    twinData: nil,
                                     currentStepIndex: 0,
                                     isStandalone: true)
 

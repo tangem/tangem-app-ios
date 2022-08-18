@@ -15,10 +15,12 @@ struct DemoUtil {
     }
 
     func getDemoBlockchains(isTestnet: Bool) -> [Blockchain] {
-        [.bitcoin(testnet: isTestnet),
-         .ethereum(testnet: isTestnet),
-         .dogecoin,
-         .solana(testnet: isTestnet)]
+        [
+            .bitcoin(testnet: isTestnet),
+            .ethereum(testnet: isTestnet),
+            .dogecoin,
+            .solana(testnet: isTestnet),
+        ]
     }
 
     func getDemoBalance(for blockchain: Blockchain) -> Decimal {
