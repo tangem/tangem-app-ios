@@ -29,7 +29,6 @@ enum DefaultWalletData: Codable {
 
 struct AppScanTaskResponse {
     let card: Card
-    let name: String
     let walletData: DefaultWalletData
     let derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]
     let primaryCard: PrimaryCard?
@@ -38,7 +37,7 @@ struct AppScanTaskResponse {
     func getCardInfo() -> CardInfo {
         return CardInfo(card: card,
                         walletData: walletData,
-                        name: name,
+                        name: "",
                         derivedKeys: derivedKeys,
                         primaryCard: primaryCard,
                         accessCode: accessCode)
@@ -308,26 +307,8 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func complete(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        // TODO
-        let card = session.environment.card!
-//        let isNote = noteWalletData != nil
-//        let isWallet = card.firmwareVersion.doubleValue >= 4.39 && !isNote && card.settings.maxWalletsCount > 1
-        ////        let accessCode = session.environment.accessCode.value
         let accessCode: Data? = nil
-
-        let name: String = "TEST"
-//        if isWallet {
-//            name = "Wallet"
-//        } else if isNote {
-//            name = "Note"
-//        } else {
-//            name = "Twin"
-//        }
-
-
-
         completion(.success(AppScanTaskResponse(card: session.environment.card!,
-                                                name: name,
                                                 walletData: walletData,
                                                 derivedKeys: derivedKeys,
                                                 primaryCard: primaryCard,
