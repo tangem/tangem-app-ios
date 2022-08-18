@@ -110,7 +110,8 @@ private extension ListDataLoader {
             .map { [weak self] models -> [CoinModel] in
                 guard let self = self else { return [] }
 
-                guard let searchText = searchText else { return models }
+                guard let searchText = searchText,
+                      !searchText.isEmpty else { return models }
 
                 if let cachedSearch = self.cachedSearch[searchText] {
                     return cachedSearch
@@ -137,7 +138,7 @@ private extension ListDataLoader {
     }
 
     func loadCoinsFromLocalJsonPublisher(requestModel: CoinsListRequestModel) -> AnyPublisher<[CoinModel], Never> {
-        SupportedTokenItems().loadCoins(requestModel: requestModel)
+        TestnetTokensRepository().loadCoins(requestModel: requestModel)
             .handleEvents(receiveOutput: { [weak self] output in
                 self?.cached = output
             })
