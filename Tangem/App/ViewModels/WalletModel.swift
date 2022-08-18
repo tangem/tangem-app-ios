@@ -144,6 +144,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
             .store(in: &bag)
     }
 
+    @discardableResult
     func update(silent: Bool = false) -> AnyPublisher<Void, Error> {
         if let updatePublisher = updatePublisher {
             return updatePublisher.eraseToAnyPublisher()
@@ -181,11 +182,27 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
 
                     print("🔄 Finished updating wallet model for \(self.wallet.blockchain)")
 
+                    let loadRatesCompletionHandler: ((Result<Void, Error>) -> Void) = { [weak self] result in
+                        guard let self = self else { return }
+
+                        print("🔄 Finished loading rates in wallet model for \(self.wallet.blockchain)")
+
+                        switch result {
+                        case .success:
+                            self.updatePublisher?.send(completion: .finished)
+                        case let .failure(error):
+                            self.updatePublisher?.send(completion: .failure(error))
+                        }
+
+                        self.updateBalanceViewModel(with: self.wallet)
+                        self.updatePublisher = nil
+                    }
+
                     switch result {
                     case let .failure(error):
                         if case let .noAccount(noAccountMessage) = (error as? WalletError) {
                             self.state = .noAccount(message: noAccountMessage)
-                            self.loadRates { result in }
+                            self.loadRates(result: loadRatesCompletionHandler)
                         } else {
                             self.state = .failed(error: error.detailedError)
                             self.displayState = .readyForDisplay
@@ -203,19 +220,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
                             self.state = .idle
                         }
 
-                        self.loadRates { result in
-                            print("🔄 Finished loading rates in wallet model for \(self.wallet.blockchain)")
-
-                            switch result {
-                            case .success:
-                                self.updatePublisher?.send(completion: .finished)
-                            case let .failure(error):
-                                self.updatePublisher?.send(completion: .failure(error))
-                            }
-
-                            self.updateBalanceViewModel(with: self.wallet)
-                            self.updatePublisher = nil
-                        }
+                        self.loadRates(result: loadRatesCompletionHandler)
                     }
                 }
             }
@@ -376,7 +381,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
             .autoconnect()
             .sink() { [weak self] _ in
                 print("⏰ Updating timer alarm ‼️ Wallet model will be updated")
-                _ = self?.update()
+                self?.update()
                 self?.updateTimer?.cancel()
             }
     }

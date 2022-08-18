@@ -13,7 +13,6 @@ struct TangemApiTarget: TargetType {
     let type: TargetType
     let authData: AuthData?
 
-    // https://api.tangem-tech.com/v1/user-wallets/:key/
     var baseURL: URL { URL(string: "https://api.tangem-tech.com/v1")! }
 
     var path: String {
