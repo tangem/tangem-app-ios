@@ -50,7 +50,7 @@ struct UserWalletListView: View {
             TangemButton(title: "Add new card", systemImage: "plus") {
                 viewModel.addCard()
             }
-            .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt3, layout: .flexibleWidth))
+            .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt3, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
         }
         .padding(16)
         .onAppear(perform: viewModel.onAppear)
