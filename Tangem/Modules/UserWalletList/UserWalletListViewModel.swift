@@ -126,9 +126,37 @@ final class UserWalletListViewModel: ObservableObject {
     }
 
     func deleteUserWallet(_ userWallet: UserWallet) {
+        let userWalletId = userWallet.userWalletId
+        let models = userWalletListService.models
+
+        let newSelectedUserWallet: UserWallet?
+
+        if userWalletId == selectedUserWalletId,
+           let deletedUserWalletIndex = models.firstIndex(where: { $0.userWallet.userWalletId == userWalletId })
+        {
+            if deletedUserWalletIndex != (models.count - 1) {
+                newSelectedUserWallet = models[deletedUserWalletIndex + 1].userWallet
+            } else if deletedUserWalletIndex != 0 {
+                newSelectedUserWallet = models[deletedUserWalletIndex - 1].userWallet
+            } else {
+                newSelectedUserWallet = nil
+            }
+        } else {
+            newSelectedUserWallet = nil
+        }
+
         userWalletListService.deleteWallet(userWallet)
         multiCurrencyModels.removeAll { $0.userWallet.userWalletId == userWallet.userWalletId }
         singleCurrencyModels.removeAll { $0.userWallet.userWalletId == userWallet.userWalletId }
+
+        if let newSelectedUserWallet = newSelectedUserWallet {
+            setSelectedWallet(newSelectedUserWallet)
+        }
+
+        if userWalletListService.isEmpty {
+            AppSettings.shared.saveUserWallets = false
+            coordinator.popToRoot()
+        }
     }
 
     private func processScannedCard(_ cardModel: CardViewModel) {
