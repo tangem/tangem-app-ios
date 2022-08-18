@@ -124,7 +124,7 @@ class CommonUserWalletListService: UserWalletListService {
 
         models.forEach {
             if $0.userWallet.userWalletId == userWallet.userWalletId {
-                $0.cardInfo.name = name
+                $0.setName(name)
             }
         }
 
