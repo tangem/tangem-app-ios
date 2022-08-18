@@ -78,7 +78,7 @@ struct WalletTokenListViewModel_Preview: PreviewProvider {
             Colors.Background.secondary.edgesIgnoringSafeArea(.all)
 
             WalletTokenListView(viewModel: WalletTokenListViewModel(
-                cardModel: .init(cardInfo: .init(card: .card, isTangemNote: false, isTangemWallet: false)),
+                cardModel: .init(cardInfo: .init(card: .card, walletData: .none)),
                 walletDidTap: { _ in
 
                 }))

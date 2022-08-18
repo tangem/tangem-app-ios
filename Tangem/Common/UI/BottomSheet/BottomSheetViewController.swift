@@ -38,14 +38,14 @@ class BottomSheetViewController<Content: View>: BottomSheetBaseController {
         contentView.view.translatesAutoresizingMaskIntoConstraints = false
         contentView.view.backgroundColor = contentBackgroundColor
         bottomAnchor = contentView.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        
+
         NSLayoutConstraint.activate([
             bottomAnchor,
             contentView.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             contentView.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             contentView.view.topAnchor.constraint(equalTo: view.topAnchor),
         ])
-        
+
         keyboardSubscription = Publishers
             .keyboardInfo
             .receive(on: RunLoop.main)
