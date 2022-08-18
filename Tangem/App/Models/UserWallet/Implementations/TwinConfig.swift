@@ -13,7 +13,7 @@ import BlockchainSdk
 struct TwinConfig {
     private let card: Card
     private let walletData: WalletData
-    private let twinData: TwinCardInfo
+    private let twinData: TwinData
 
     private var defaultBlockchain: Blockchain {
         Blockchain.from(blockchainName: walletData.blockchain, curve: card.supportedCurves[0])!
@@ -23,7 +23,7 @@ struct TwinConfig {
         defaultBlockchain.isTestnet
     }
 
-    init(card: Card, walletData: WalletData, twinData: TwinCardInfo) {
+    init(card: Card, walletData: WalletData, twinData: TwinData) {
         self.card = card
         self.walletData = walletData
         self.twinData = twinData
