@@ -33,6 +33,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     var signer: TangemSigner { config.tangemSigner }
     var cardId: String { cardInfo.card.cardId }
+    var accountID: String { cardInfo.card.accountID }
 
     var isMultiWallet: Bool {
         config.hasFeature(.multiCurrency)
@@ -79,7 +80,6 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private var cardInfo: CardInfo
-    private var walletBalanceSubscription: AnyCancellable? = nil
     private var cardPinSettings: CardPinSettings = CardPinSettings()
     private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
     private var migrated = false
@@ -225,9 +225,7 @@ class CardViewModel: Identifiable, ObservableObject {
                     self?.cachedImage = image
                 }
 
-                        return image
-                    }
-                    .eraseToAnyPublisher()
+                return image
             }
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
@@ -244,89 +242,28 @@ class CardViewModel: Identifiable, ObservableObject {
         bind()
     }
 
-//    func loadPayIDInfo () {
-//        guard featuresService?.canReceiveToPayId ?? false else {
-//            return
-//        }
-//
-//        payIDService?
-//            .loadPayIDInfo(for: cardInfo.card)
-//            .subscribe(on: DispatchQueue.global())
-//            .receive(on: DispatchQueue.main)
-//            .sink(receiveCompletion: { completion in
-//                    switch completion {
-//                    case .failure(let error):
-//                        print("payid load failed")
-//                        Analytics.log(error: error)
-//                        print(error.localizedDescription)
-//                    case .finished:
-//                        break
-//                    }}){ [unowned self] status in
-//                print("payid loaded")
-//                self.payId = status
-//            }
-//            .store(in: &bag)
-//    }
-
-//    func createPayID(_ payIDString: String, completion: @escaping (Result<Void, Error>) -> Void) { //todo: move to payidservice
-//        guard featuresService.canReceiveToPayId,
-//              !payIDString.isEmpty,
-//              let cid = cardInfo.card.cardId,
-//              let payIDService = self.payIDService,
-//              let cardPublicKey = cardInfo.card.cardPublicKey,
-//              let address = state.wallet?.address  else {
-//            completion(.failure(PayIdError.unknown))
-//            return
-//        }
-//
-//        let fullPayIdString = payIDString + "$payid.tangem.com"
-//        payIDService.createPayId(cid: cid, key: cardPublicKey,
-//                                 payId: fullPayIdString,
-//                                 address: address) { [weak self] result in
-//            switch result {
-//            case .success:
-//                UIPasteboard.general.string = fullPayIdString
-//                self?.payId = .created(payId: fullPayIdString)
-//                completion(.success(()))
-//            case .failure(let error):
-//                Analytics.log(error: error)
-//                completion(.failure(error))
-//            }
-//        }
-//
-//    }
-
-    func update() -> AnyPublisher<Never, Never> {
-        guard state.canUpdate else {
-            return Empty().eraseToAnyPublisher()
-        }
-
-        return tryMigrateTokens()
-            .flatMap { [weak self] in
-                Publishers
-                    .MergeMany(self?.state.walletModels?.map { $0.update() } ?? [])
-                    .collect()
-                    .ignoreOutput()
-                    .eraseToAnyPublisher()
-            }
-            .eraseToAnyPublisher()
+    func setupWarnings() {
+        warningsService.setupWarnings(for: config)
     }
 
-    func refresh() -> AnyPublisher<Never, Never> {
+    /// What this method do?
+    /// 1. `tryMigrateTokens` once, work with boolean switcher
+    /// 2. Call `update` for each `walletModels` in the `state`
+    /// 3. Update the `walletsBalanceState` to `.inProgress` if needed and `.loaded` when the update completed
+    func update(showProgressLoading: Bool) -> AnyPublisher<Void, Error> {
         guard state.canUpdate else {
             return Empty().eraseToAnyPublisher()
         }
 
-        observeBalanceLoading(showProgressLoading: false)
-
         return tryMigrateTokens()
-            .flatMap { [weak self] in
-                Publishers
-                    .MergeMany(self?.state.walletModels?.map { $0.update() } ?? [])
-                    .collect()
-                    .ignoreOutput()
-                    .eraseToAnyPublisher()
+            .tryMap { [weak self] _ ->  AnyPublisher<Void, Error> in
+                guard let self = self else {
+                    throw CommonError.masterReleased
+                }
+
+                return self.observeBalanceLoading(showProgressLoading: showProgressLoading)
             }
+            .switchToLatest()
             .eraseToAnyPublisher()
     }
 
@@ -339,14 +276,18 @@ class CardViewModel: Identifiable, ObservableObject {
             self.walletsBalanceState = .inProgress
         }
 
-        // walletBalanceSubscription =
         return Publishers.MergeMany(walletModels.map({ $0.update() }))
             .collect()
             .mapVoid()
             .receive(on: RunLoop.main)
-            .sink { [unowned self] _ in
-                self.walletsBalanceState = .loaded
-            }
+            .handleEvents(receiveCompletion: { [weak self] _ in
+                self?.walletsBalanceState = .loaded
+            })
+            .eraseToAnyPublisher()
+    }
+
+    func appendDefaultBlockchains() {
+        tokenItemsRepository.append(config.defaultBlockchains, for: cardId)
     }
 
     // MARK: - Security
@@ -532,13 +473,11 @@ class CardViewModel: Identifiable, ObservableObject {
 
             // [REDACTED_TODO_COMMENT]
             // if !AppSettings.shared.cardsStartedActivation.contains(cardId) || cardInfo.isTangemWallet {
-            update()
-                .sink { _ in
-
-                } receiveValue: { _ in
-
-                }
-                .store(in: &bag)
+            if shouldUpdate {
+                update(showProgressLoading: true)
+                    .sink()
+                    .store(in: &bag)
+            }
             //  }
         }
     }
