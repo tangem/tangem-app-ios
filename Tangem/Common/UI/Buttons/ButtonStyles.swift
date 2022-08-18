@@ -134,7 +134,7 @@ enum ButtonColorStyle {
 
     var indicatorColor: UIColor {
         switch self {
-        case .transparentWhite, .grayAlt, .grayAlt2: return .tangemGrayDark6
+        case .transparentWhite, .grayAlt, .grayAlt2, .grayAlt3: return .tangemGrayDark6
         default: return .white
         }
     }
