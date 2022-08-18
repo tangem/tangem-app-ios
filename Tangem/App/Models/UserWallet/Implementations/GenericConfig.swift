@@ -63,6 +63,10 @@ extension GenericConfig: UserWalletConfig {
         card.backupStatus?.backupCardsCount ?? 1
     }
 
+    var cardName: String {
+        "Wallet"
+    }
+
     var defaultCurve: EllipticCurve? {
         return nil
     }
