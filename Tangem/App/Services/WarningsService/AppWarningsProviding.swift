@@ -13,13 +13,11 @@ import TangemSdk
 protocol AppWarningsProviding: AnyObject {
     var warningsUpdatePublisher: CurrentValueSubject<Void, Never> { get }
 
-    func setupWarnings(for cardInfo: CardInfo)
+    func setupWarnings(for config: UserWalletConfig)
     func appendWarning(for event: WarningEvent)
     func warnings(for location: WarningsLocation) -> WarningsContainer
     func hideWarning(_ warning: AppWarning)
     func hideWarning(for event: WarningEvent)
-
-    func didSign(with card: Card)
 }
 
 private struct AppWarningsProvidingKey: InjectionKey {
