@@ -216,7 +216,14 @@ extension MainCoordinator: MainRoutable {
             self?.userWalletListCoordinator = nil
         }
 
-        userWalletListCoordinator = UserWalletListCoordinator(dismissAction: dismissAction, popToRootAction: { _ in }, router: self)
+        let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] _ in
+            self?.userWalletListPresented = false
+            self?.userWalletListCoordinator = nil
+
+            self?.popToRoot()
+        }
+
+        userWalletListCoordinator = UserWalletListCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction, router: self)
         userWalletListPresented = true
     }
 
