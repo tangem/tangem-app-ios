@@ -22,18 +22,6 @@ struct UserWallet: Identifiable, Codable {
     let accessCode: Data?
 }
 
-enum DefaultWalletData: Codable {
-    case note(WalletData)
-    case v3(WalletData)
-    case twin(TwinData)
-    case none
-}
-
-struct TwinData: Codable {
-    let cardId: String
-    var pairPublicKey: Data?
-}
-
 extension UserWallet {
     struct SensitiveInformation: Codable {
         let keys: [Data: [DerivationPath: ExtendedPublicKey]]
@@ -55,20 +43,11 @@ extension UserWallet {
     }
 
     func cardInfo() -> CardInfo {
-        let cardInfoWalletData: WalletData?
-        if case let .note(wd) = walletData {
-            cardInfoWalletData = wd
-        } else {
-            cardInfoWalletData = nil
-        }
         return CardInfo(
             card: card,
+            walletData: walletData,
             name: self.name,
-            walletData: cardInfoWalletData,
             artwork: artwork == nil ? .noArtwork : .artwork(artwork!),
-            twinCardInfo: nil,
-            isTangemNote: isTangemNote,
-            isTangemWallet: isTangemWallet,
             derivedKeys: keys,
             primaryCard: nil,
             accessCode: accessCode
