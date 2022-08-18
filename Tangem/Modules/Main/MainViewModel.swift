@@ -19,7 +19,6 @@ class MainViewModel: ObservableObject {
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
     @Injected(\.rateAppService) private var rateAppService: RateAppService
-    @Injected(\.onboardingStepsSetupService) private var cardOnboardingStepSetupService: OnboardingStepsSetupService
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
 
@@ -29,7 +28,6 @@ class MainViewModel: ObservableObject {
     @Published var showTradeSheet: Bool = false
     @Published var showSelectWalletSheet: Bool = false
     @Published var isScanning: Bool = false
-    @Published var isCreatingWallet: Bool = false
     @Published var selectedAddressIndex: Int = 0
     @Published var showExplorerURL: URL? = nil
     @Published var showQR: Bool = false
@@ -50,8 +48,9 @@ class MainViewModel: ObservableObject {
 
     // MARK: Variables
     var isLoadingTokensBalance: Bool = false
+
     lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
-        isSingleCoinCard: !cardModel.cardInfo.isMultiWallet,
+        isSingleCoinCard: !cardModel.isMultiWallet,
         tapOnCurrencySymbol: openCurrencySelection
     )
 
@@ -65,55 +64,8 @@ class MainViewModel: ObservableObject {
 
     private unowned let coordinator: MainRoutable
 
-    public var canCreateTwinWallet: Bool {
-        if isTwinCard {
-            if cardModel.isNotPairedTwin {
-                let wallets = cardModel.wallets?.count ?? 0
-                if wallets > 0 {
-                    return cardModel.isSuccesfullyLoaded
-                } else {
-                    return true
-                }
-            }
-        }
-
-        return true
-    }
-
-    public var hasMultipleButtons: Bool {
-        if canCreateWallet {
-            return true
-        }
-
-        if !canCreateWallet
-            && canBuyCrypto
-            && !cardModel.cardInfo.isMultiWallet  {
-            return true
-        }
-
-        if !cardModel.cardInfo.isMultiWallet,
-           (!canCreateWallet || (cardModel.isTwinCard && cardModel.hasBalance)) {
-            return true
-        }
-
-        return false
-    }
-
-
-    public var canCreateWallet: Bool {
-        if isTwinCard {
-            return cardModel.canCreateTwinCard
-        }
-
-        if case .empty = cardModel.state {
-            return true
-        }
-
-        return false
-    }
-
     public var canSend: Bool {
-        guard cardModel.canSign else {
+        guard cardModel.canSend else {
             return false
         }
 
@@ -182,38 +134,8 @@ class MainViewModel: ObservableObject {
         cardModel.walletModels?.first?.outgoingPendingTransactions ?? []
     }
 
-    var cardNumber: Int? {
-        if let twinNumber = cardModel.cardInfo.twinCardInfo?.series.number {
-            return twinNumber
-        }
-
-        if cardModel.cardInfo.isTangemWallet,
-           let backupStatus = cardModel.cardInfo.card.backupStatus, case .active = backupStatus {
-            return 1
-        }
-
-        return nil
-    }
-
-    var totalCards: Int? {
-        if cardModel.cardInfo.twinCardInfo?.series.number != nil {
-            return 2
-        }
-
-        if cardModel.cardInfo.isTangemWallet,
-           let backupStatus = cardModel.cardInfo.card.backupStatus, case let .active(backupCards) = backupStatus {
-            return backupCards + 1
-        }
-
-        return nil
-    }
-
-    var isTwinCard: Bool {
-        cardModel.isTwinCard
-    }
-
     var isBackupAllowed: Bool {
-        cardModel.cardInfo.card.settings.isBackupAllowed && cardModel.cardInfo.card.backupStatus == .noBackup
+        cardModel.canCreateBackup
     }
 
     var tokenItemViewModels: [TokenItemViewModel] {
@@ -221,6 +143,18 @@ class MainViewModel: ObservableObject {
 
         return walletModels
             .flatMap({ $0.tokenItemViewModels })
+    }
+
+    var isMultiWalletMode: Bool {
+        cardModel.isMultiWallet
+    }
+
+    var canShowAddress: Bool {
+        cardModel.canShowAddress
+    }
+
+    var canShowSend: Bool {
+        cardModel.canShowSend
     }
 
     var image: UIImage? {
@@ -233,8 +167,8 @@ class MainViewModel: ObservableObject {
         cardModel.getCardInfo()
         bind()
         cardModel.updateState()
-        warningsService.setupWarnings(for: cardModel.cardInfo)
-        countHashes()
+        cardModel.setupWarnings()
+        validateHashesCount()
         showUserWalletSaveIfNeeded()
     }
 
@@ -329,7 +263,7 @@ class MainViewModel: ObservableObject {
     func getDataCollector(for feedbackCase: EmailFeedbackCase) -> EmailDataCollector {
         switch feedbackCase {
         case .negativeFeedback:
-            return NegativeFeedbackDataCollector(cardInfo: cardModel.cardInfo)
+            return NegativeFeedbackDataCollector(userWalletEmailData: cardModel.emailData)
         case .scanTroubleshooting:
             return failedCardScanTracker
         }
@@ -354,22 +288,6 @@ class MainViewModel: ObservableObject {
                 withAnimation {
                     done()
                 }
-            }
-        }
-    }
-
-    func createWallet() {
-        self.isCreatingWallet = true
-        cardModel.createWallet() { [weak self] result in
-            defer { self?.isCreatingWallet = false }
-            switch result {
-            case .success:
-                break
-            case .failure(let error):
-                if case .userCancelled = error.toTangemSdkError() {
-                    return
-                }
-                self?.setError(error.alertBinder)
             }
         }
     }
@@ -400,12 +318,6 @@ class MainViewModel: ObservableObject {
         }
     }
 
-    func countHashes() {
-        if cardModel.cardInfo.card.firmwareVersion.type == .release {
-            validateHashesCount()
-        }
-    }
-
     func onAppear() {}
 
     // MARK: Warning action handler
@@ -413,14 +325,13 @@ class MainViewModel: ObservableObject {
         guard let warning = warnings.warning(at: index, with: priority) else { return }
 
         func registerValidatedSignedHashesCard() {
-            AppSettings.shared.validatedSignedHashesCards.append(cardModel.cardInfo.card.cardId)
+            AppSettings.shared.validatedSignedHashesCards.append(cardModel.cardId)
         }
 
-        var hideWarning = true
         // [REDACTED_TODO_COMMENT]
         switch button {
         case .okGotIt:
-            if warning.event == .numberOfSignedHashesIncorrect {
+            if case .numberOfSignedHashesIncorrect = warning.event {
                 registerValidatedSignedHashesCard()
             }
         case .rateApp:
@@ -434,7 +345,7 @@ class MainViewModel: ObservableObject {
             rateAppService.userReactToRateAppWarning(isPositive: false)
             openMail(with: .negativeFeedback)
         case .learnMore:
-            if warning.event == .multiWalletSignedHashes {
+            if case .multiWalletSignedHashes = warning.event {
                 error = AlertBinder(alert: Alert(title: Text(warning.title),
                                                  message: Text("alert_signed_hashes_message"),
                                                  primaryButton: .cancel(),
@@ -448,9 +359,7 @@ class MainViewModel: ObservableObject {
             }
         }
 
-        if hideWarning {
-            warningsService.hideWarning(warning)
-        }
+        warningsService.hideWarning(warning)
     }
 
     func tradeCryptoAction() {
@@ -473,34 +382,9 @@ class MainViewModel: ObservableObject {
     }
 
     func prepareForBackup() {
-        cardOnboardingStepSetupService
-            .backupSteps(cardModel.cardInfo)
-            .sink { [weak self] completion in
-                guard let self = self else {
-                    return
-                }
-                switch completion {
-                case .failure(let error):
-                    Analytics.log(error: error)
-                    print("Failed to load image for new card")
-                    self.error = error.alertBinder
-                case .finished:
-                    break
-                }
-            } receiveValue: { [weak self] steps in
-                guard let self = self else {
-                    return
-                }
-
-                let input = OnboardingInput(steps: steps,
-                                            cardInput: .cardModel(self.cardModel),
-                                            welcomeStep: nil,
-                                            currentStepIndex: 0,
-                                            isStandalone: true)
-
-                self.openOnboarding(with: input)
-            }
-            .store(in: &bag)
+        if let input = cardModel.backupInput {
+            self.openOnboarding(with: input)
+        }
     }
 
     func copyAddress() {
@@ -521,28 +405,28 @@ class MainViewModel: ObservableObject {
     }
 
     private func validateHashesCount() {
-        let card = cardModel.cardInfo.card
+        guard cardModel.canCountHashes else { return }
+
         guard cardModel.hasWallet else {
-            cardModel.cardInfo.isMultiWallet ? warningsService.hideWarning(for: .multiWalletSignedHashes)
-                : warningsService.hideWarning(for: .numberOfSignedHashesIncorrect)
+            if cardModel.isMultiWallet {
+                warningsService.hideWarning(for: .multiWalletSignedHashes)
+            } else {
+                warningsService.hideWarning(for: .numberOfSignedHashesIncorrect)
+            }
             return
         }
 
         if isHashesCounted { return }
 
-        if card.isTwinCard { return }
+        if AppSettings.shared.validatedSignedHashesCards.contains(cardModel.cardId) { return }
 
-        if card.isDemoCard { return }
-
-        if AppSettings.shared.validatedSignedHashesCards.contains(card.cardId) { return }
-
-        if cardModel.cardInfo.isMultiWallet {
-            if cardModel.cardInfo.card.wallets.filter({ $0.totalSignedHashes ?? 0 > 0 }).count > 0 {
+        if cardModel.isMultiWallet {
+            if cardModel.cardSignedHashes > 0 {
                 withAnimation {
                     warningsService.appendWarning(for: .multiWalletSignedHashes)
                 }
             } else {
-                AppSettings.shared.validatedSignedHashesCards.append(card.cardId)
+                AppSettings.shared.validatedSignedHashesCards.append(cardModel.cardId)
             }
             print("⚠️ Hashes counted")
             return
@@ -554,10 +438,7 @@ class MainViewModel: ObservableObject {
             }
         }
 
-        guard
-            let numberOfSignedHashes = card.wallets.first?.totalSignedHashes,
-            numberOfSignedHashes > 0
-        else { return }
+        guard cardModel.cardSignedHashes > 0  else { return }
 
         guard
             let validator = cardModel.walletModels?.first?.walletManager as? SignatureCountValidator
@@ -566,7 +447,7 @@ class MainViewModel: ObservableObject {
             return
         }
 
-        validator.validateSignatureCount(signedHashes: numberOfSignedHashes)
+        validator.validateSignatureCount(signedHashes: cardModel.cardSignedHashes)
             .subscribe(on: DispatchQueue.global())
             .receive(on: RunLoop.main)
             .handleEvents(receiveCancel: {
@@ -694,8 +575,8 @@ extension MainViewModel {
     }
 
     func openSellCrypto() {
-        if cardModel.cardInfo.card.isDemoCard {
-            error = AlertBuilder.makeDemoAlert()
+        if let disabledLocalizedReason = cardModel.getDisabledLocalizedReason(for: .exchange) {
+            error = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
         }
 
@@ -707,27 +588,25 @@ extension MainViewModel {
     }
 
     func openBuyCrypto() {
-        if cardModel.cardInfo.card.isDemoCard  {
-            error = AlertBuilder.makeDemoAlert()
+        if let disabledLocalizedReason = cardModel.getDisabledLocalizedReason(for: .exchange) {
+            error = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
         }
 
-        guard cardModel.cardInfo.isTestnet, !cardModel.cardInfo.isMultiWallet,
-              let walletModel = cardModel.walletModels?.first,
-              walletModel.wallet.blockchain == .ethereum(testnet: true),
-              let token = walletModel.tokenItemViewModels.first?.amountType.token else {
-            if let url = buyCryptoURL {
-                coordinator.openBuyCrypto(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
-                    self?.sendAnalyticsEvent(.userBoughtCrypto)
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                        self?.cardModel.update()
-                    }
+        if let walletModel = cardModel.walletModels?.first,
+           walletModel.wallet.blockchain == .ethereum(testnet: true),
+           let token = walletModel.wallet.amounts.keys.compactMap({ $0.token }).first {
+            testnetBuyCryptoService.buyCrypto(.erc20Token(token, walletManager: walletModel.walletManager, signer: cardModel.signer))
+        }
+
+        if let url = buyCryptoURL {
+            coordinator.openBuyCrypto(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
+                self?.sendAnalyticsEvent(.userBoughtCrypto)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    self?.cardModel.update()
                 }
             }
-            return
         }
-
-        testnetBuyCryptoService.buyCrypto(.erc20Token(token, walletManager: walletModel.walletManager, signer: cardModel.signer))
     }
 
     func openBuyCryptoIfPossible() {
@@ -773,7 +652,7 @@ extension MainViewModel {
     func openMail(with emailFeedbackCase: EmailFeedbackCase) {
         let collector = getDataCollector(for: emailFeedbackCase)
         let type = emailFeedbackCase.emailType
-        coordinator.openMail(with: collector, emailType: type)
+        coordinator.openMail(with: collector, emailType: type, recipient: cardModel.emailConfig.recipient)
     }
 
     func openQR() {

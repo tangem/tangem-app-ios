@@ -1,5 +1,5 @@
 //
-//  TwinCardInfo.swift
+//  TwinData.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum TwinCardSeries: String, CaseIterable {
+enum TwinCardSeries: String, Codable, CaseIterable {
     case cb61 = "CB61"
     case cb62 = "CB62"
     case cb64 = "CB64"
@@ -35,8 +35,7 @@ enum TwinCardSeries: String, CaseIterable {
     }
 }
 
-struct TwinCardInfo {
-    let cid: String
+struct TwinData: Codable {
     let series: TwinCardSeries
     var pairPublicKey: Data?
 }

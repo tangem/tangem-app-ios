@@ -11,7 +11,7 @@ import Combine
 
 protocol UserWalletListCoordinatorRoutable: AnyObject {
     func didTapUserWallet(userWallet: UserWallet)
-    func openMail(with dataCollector: EmailDataCollector, emailType: EmailType)
+    func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String)
 }
 
 class UserWalletListCoordinator: CoordinatorObject {
@@ -48,7 +48,7 @@ class UserWalletListCoordinator: CoordinatorObject {
     func openMail(with dataCollector: EmailDataCollector) {
         dismissAction()
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-            self.router?.openMail(with: dataCollector, emailType: .failedToScanCard)
+            self.router?.openMail(with: dataCollector, emailType: .failedToScanCard, recipient: EmailConfig.default.recipient)
         }
     }
 }
