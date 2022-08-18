@@ -14,24 +14,17 @@ import BlockchainSdk
 
 enum DefaultWalletData {
     case note(WalletData)
-    case v3(WalletData)
-    case twin(WalletData, TwinCardInfo)
+    case legacy(WalletData)
+    case twin(WalletData, TwinData)
     case none
 
-    #if !CLIP
-    var blockchainID: String? {
-        switch self {
-        case .note(let walletData):
-            return walletData.blockchain
-        case .v3(let walletData):
-            return walletData.blockchain
-        case .twin(let walletData, _):
-            return walletData.blockchain
-        case .none:
-            return nil
+    var twinData: TwinData? {
+        if case let .twin(_, data) = self {
+            return data
         }
+
+        return nil
     }
-    #endif
 }
 
 struct AppScanTaskResponse {
@@ -93,9 +86,9 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
 
-        if let v3WalletData = session.environment.walletData,
-           v3WalletData.blockchain != "ANY" {
-            self.walletData = .v3(v3WalletData)
+        if let legacyWalletData = session.environment.walletData,
+           legacyWalletData.blockchain != "ANY" {
+            self.walletData = .legacy(legacyWalletData)
         }
 
         self.readExtra(card, session: session, completion: completion)
@@ -192,7 +185,7 @@ final class AppScanTask: CardSessionRunnable {
         }
     }
 
-    private func decodeTwinFile(from card: Card, twinIssuerData: Data) -> TwinCardInfo {
+    private func decodeTwinFile(from card: Card, twinIssuerData: Data) -> TwinData {
         var pairPublicKey: Data?
 
         if let walletPubKey = card.wallets.first?.publicKey, twinIssuerData.count == 129 {
@@ -203,9 +196,8 @@ final class AppScanTask: CardSessionRunnable {
             }
         }
 
-        return TwinCardInfo(cid: card.cardId,
-                            series: TwinCardSeries.series(for: card.cardId)!,
-                            pairPublicKey: pairPublicKey)
+        return TwinData(series: TwinCardSeries.series(for: card.cardId)!,
+                        pairPublicKey: pairPublicKey)
     }
 
     private func appendWalletsIfNeeded(session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
