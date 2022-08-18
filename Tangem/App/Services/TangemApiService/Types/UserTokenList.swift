@@ -8,7 +8,7 @@
 
 import Foundation
 
-/// API Model for `user-tokens/:key/` routing
+/// The API model for the`user-tokens/:key/` routing
 struct UserTokenList: Codable {
     let version: Int
     let group: GroupType
