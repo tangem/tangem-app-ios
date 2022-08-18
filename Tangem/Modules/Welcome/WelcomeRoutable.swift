@@ -11,7 +11,7 @@ import Foundation
 protocol WelcomeRoutable: AnyObject {
     func openTokensList()
     func openOnboardingModal(with input: OnboardingInput)
-    func openMail(with dataCollector: EmailDataCollector)
+    func openMail(with dataCollector: EmailDataCollector, recipient: String)
     func openDisclaimer()
     func openShop()
     func openOnboarding(with input: OnboardingInput)

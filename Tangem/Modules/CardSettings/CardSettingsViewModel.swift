@@ -10,8 +10,6 @@ import SwiftUI
 import Combine
 
 class CardSettingsViewModel: ObservableObject {
-    @Injected(\.onboardingStepsSetupService) private var onboardingStepsSetupService: OnboardingStepsSetupService
-
     // MARK: ViewState
 
     @Published var hasSingleSecurityMode: Bool = false
@@ -21,31 +19,23 @@ class CardSettingsViewModel: ObservableObject {
     @Published var isChangeAccessCodeLoading: Bool = false
 
     var cardId: String {
-        let cardId = cardModel.cardInfo.card.cardId
-        if cardModel.isTwinCard {
-            return AppTwinCardIdFormatter.format(
-                cid: cardId,
-                cardNumber: cardModel.cardInfo.twinCardInfo?.series.number
-            )
-        }
-
-        return AppCardIdFormatter(cid: cardId).formatted()
+        cardModel.cardIdFormatted
     }
 
     var cardIssuer: String {
-        cardModel.cardInfo.card.issuer.name
+        cardModel.cardIssuer
     }
 
     var cardSignedHashes: String? {
-        guard cardModel.hasWallet, !cardModel.isTwinCard else {
-            return nil
+        if cardModel.canCountHashes {
+            return "\(cardModel.cardSignedHashes)"
         }
 
-        return "\(cardModel.cardInfo.card.walletSignedHashes)"
+        return nil
     }
 
     var isResetToFactoryAvailable: Bool {
-        !cardModel.cardInfo.isSaltPay && !cardModel.isStart2CoinCard
+        cardModel.isResetToFactoryAvailable
     }
 
     // MARK: Dependecies
@@ -84,29 +74,9 @@ private extension CardSettingsViewModel {
     }
 
     func prepareTwinOnboarding() {
-        onboardingStepsSetupService.twinRecreationSteps(for: cardModel.cardInfo)
-            .sink { completion in
-                guard case let .failure(error) = completion else {
-                    return
-                }
-
-                Analytics.log(error: error)
-                print("Failed to load image for new card")
-                self.alert = error.alertBinder
-            } receiveValue: { [weak self] steps in
-                guard let self = self else { return }
-
-                let input = OnboardingInput(
-                    steps: steps,
-                    cardInput: .cardModel(self.cardModel),
-                    welcomeStep: nil,
-                    currentStepIndex: 0,
-                    isStandalone: true
-                )
-
-                self.coordinator.openOnboarding(with: input)
-            }
-            .store(in: &bag)
+        if let twinInput = cardModel.twinInput {
+            coordinator.openOnboarding(with: twinInput)
+        }
     }
 }
 
@@ -127,12 +97,12 @@ extension CardSettingsViewModel {
     }
 
     func openResetCard() {
-        if cardModel.cardInfo.card.isDemoCard {
-            alert = AlertBuilder.makeDemoAlert()
+        if let disabledLocalizedReason = cardModel.getDisabledLocalizedReason(for: .resetToFactory) {
+            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
         }
 
-        if cardModel.isTwinCard {
+        if cardModel.canTwin {
             prepareTwinOnboarding()
         } else {
             coordinator.openResetCardToFactoryWarning { [weak self] in
