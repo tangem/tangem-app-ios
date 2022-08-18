@@ -67,6 +67,10 @@ extension GenericDemoConfig: UserWalletConfig {
         return nil
     }
 
+    var cardName: String {
+        "Wallet"
+    }
+
     var onboardingSteps: OnboardingSteps {
         if card.wallets.isEmpty {
             return .wallet([.createWallet] + _backupSteps)
