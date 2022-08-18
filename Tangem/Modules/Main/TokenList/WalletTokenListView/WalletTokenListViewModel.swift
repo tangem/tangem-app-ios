@@ -26,8 +26,8 @@ class WalletTokenListViewModel: ObservableObject {
         self.cardModel = cardModel
 
         userTokenListManager = CommonUserTokenListManager(
-            accountId: cardModel.cardInfo.card.accountID,
-            cardId: cardModel.cardInfo.card.cardId
+            accountId: cardModel.accountID,
+            cardId: cardModel.cardId
         )
     }
 
