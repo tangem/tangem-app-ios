@@ -160,22 +160,22 @@ final class UserWalletListViewModel: ObservableObject {
     }
 
     private func processScannedCard(_ cardModel: CardViewModel) {
-        let cardInfo = cardModel.cardInfo
-        let card = cardInfo.card
-
-        let walletData: DefaultWalletData
-
-        if let cardInfoWalletData = cardInfo.walletData, cardInfoWalletData.blockchain != "ANY" {
-            walletData = .note(cardInfoWalletData)
-        } else {
-            walletData = .none
-        }
+//        let cardInfo = cardModel.cardInfo
+//        let card = cardInfo.card
+//
+//        let walletData: DefaultWalletData
+//
+//        if let cardInfoWalletData = cardInfo.walletData, cardInfoWalletData.blockchain != "ANY" {
+//            walletData = .note(cardInfoWalletData)
+//        } else {
+//            walletData = .none
+//        }
         // [REDACTED_TODO_COMMENT]
+        let card = cardModel.card
 
-        let name: String = cardModel.cardInfo.name
-        let accessCode = cardInfo.accessCode
+        let name: String = "NAME"
 
-        let userWallet = UserWallet(userWalletId: card.cardPublicKey, name: name, card: card, walletData: walletData, artwork: nil, keys: cardInfo.derivedKeys, isHDWalletAllowed: card.settings.isHDWalletAllowed, accessCode: accessCode)
+        let userWallet = UserWallet(userWalletId: card.cardPublicKey, name: name, card: card, walletData: cardModel.walletData, artwork: nil, keys: cardModel.derivedKeys, isHDWalletAllowed: card.settings.isHDWalletAllowed, accessCode: cardModel.accessCode)
 
         if userWalletListService.contains(userWallet) {
             return
