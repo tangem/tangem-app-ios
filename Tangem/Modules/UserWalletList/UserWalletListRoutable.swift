@@ -10,4 +10,5 @@ import Foundation
 
 protocol UserWalletListRoutable: AnyObject {
     func didTapUserWallet(userWallet: UserWallet)
+    func openMail(with dataCollector: EmailDataCollector)
 }
