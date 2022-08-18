@@ -90,6 +90,10 @@ extension Start2CoinConfig: UserWalletConfig {
         nil
     }
 
+    var cardName: String {
+        "TODO"
+    }
+
     var defaultCurve: EllipticCurve? {
         defaultBlockchain.curve
     }
