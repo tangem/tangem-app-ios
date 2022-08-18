@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// API Model for `user-tokens/:key/` routing
 struct UserTokenList: Codable {
     let version: Int
     let group: GroupType
@@ -31,10 +32,10 @@ extension UserTokenList {
     struct Token: Codable {
         let id: String?
         let networkId: String
-        let derivationPath: String?
         let name: String
         let symbol: String
         let decimals: Int
+        let derivationPath: String?
         let contractAddress: String?
     }
 
