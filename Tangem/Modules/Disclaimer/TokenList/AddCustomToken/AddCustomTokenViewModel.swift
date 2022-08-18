@@ -106,7 +106,7 @@ class AddCustomTokenViewModel: ObservableObject {
 
             if case let .token(_, blockchain) = tokenItem,
                case .solana = blockchain,
-               !cardModel.cardInfo.card.canSupportSolanaTokens
+               !cardModel.longHashesSupported
             {
                 throw TokenCreationErrors.tokensNotSupported
             }
@@ -122,8 +122,7 @@ class AddCustomTokenViewModel: ObservableObject {
             amountType = .coin
         }
 
-        let derivationStyle = cardModel.cardInfo.card.derivationStyle
-        let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath ?? blockchain.derivationPath(for: derivationStyle))
+        let blockchainNetwork = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: derivationPath)
 
         cardModel.add(items: [(amountType, blockchainNetwork)]) { [weak self] result in
             guard let self = self else { return }
@@ -179,14 +178,11 @@ class AddCustomTokenViewModel: ObservableObject {
     }
 
     private func getBlockchains(withTokenSupport: Bool) -> Set<Blockchain> {
-        let cardInfo = cardModel.cardInfo
-
-        let supportedTokenItems = SupportedTokenItems()
-        let blockchains = supportedTokenItems.blockchains(for: cardInfo.card.walletCurves, isTestnet: cardInfo.isTestnet)
+        let blockchains = cardModel.supportedBlockchains
 
         if withTokenSupport {
-            let blockchainsWithTokens = supportedTokenItems.blockchainsWithTokens(isTestnet: cardInfo.isTestnet)
-            let evmBlockchains = supportedTokenItems.evmBlockchains(isTestnet: cardInfo.isTestnet)
+            let blockchainsWithTokens = blockchains.filter { $0.canHandleTokens }
+            let evmBlockchains = blockchains.filter { $0.isEvm }
             let blockchainsToDisplay = blockchainsWithTokens.union(evmBlockchains)
             return blockchains.filter { blockchainsToDisplay.contains($0) }
         } else {
@@ -195,20 +191,19 @@ class AddCustomTokenViewModel: ObservableObject {
     }
 
     private func updateDerivationPaths() {
-        let derivationStyle = cardModel.cardInfo.card.derivationStyle
-
         let defaultItem = ("custom_token_derivation_path_default".localized, "")
 
         let evmBlockchains = getBlockchains(withTokenSupport: false).filter { $0.isEvm }
         let evmDerivationPaths: [(String, String)]
-        if !cardModel.cardInfo.card.settings.isHDWalletAllowed {
+        if !cardModel.hdWalletsSupported {
             evmDerivationPaths = []
         } else {
             evmDerivationPaths = evmBlockchains
                 .compactMap {
-                    guard let derivationPath = $0.derivationPath(for: derivationStyle) else {
+                    guard let derivationPath = cardModel.getBlockchainNetwork(for: $0, derivationPath: nil).derivationPath else {
                         return nil
                     }
+
                     let derivationPathFormatted = derivationPath.rawPath
                     let description = "\($0.displayName) (\(derivationPathFormatted))"
                     return (description, derivationPathFormatted)
@@ -297,18 +292,15 @@ class AddCustomTokenViewModel: ObservableObject {
     }
 
     private func checkLocalStorage() throws {
-        let derivationStyle = cardModel.cardInfo.card.derivationStyle
-        let cardId = cardModel.cardInfo.card.cardId
-
         guard let blockchain = try? enteredBlockchain() else {
             return
         }
 
-        let cardTokenItems = tokenItemsRepository.getItems(for: cardId)
+        let cardTokenItems = tokenItemsRepository.getItems(for: cardModel.cardId)
         let checkingContractAddress = !contractAddress.isEmpty
-        let derivationPath = try? enteredDerivationPath() ?? blockchain.derivationPath(for: derivationStyle)
+        let derivationPath = try? enteredDerivationPath()
 
-        let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath)
+        let blockchainNetwork = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: derivationPath)
 
         if let networkItem = cardTokenItems.first(where: { $0.blockchainNetwork == blockchainNetwork }) {
             if !checkingContractAddress {
