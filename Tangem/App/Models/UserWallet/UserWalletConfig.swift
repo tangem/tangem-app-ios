@@ -22,6 +22,8 @@ protocol UserWalletConfig {
 
     var cardSetLabel: String? { get }
 
+    var cardName: String { get }
+
     var defaultCurve: EllipticCurve? { get }
 
     var tangemSigner: TangemSigner { get }
