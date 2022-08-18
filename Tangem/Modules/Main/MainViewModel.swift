@@ -48,9 +48,7 @@ class MainViewModel: ObservableObject {
         }
     }
 
-    lazy var walletTokenListViewModel = WalletTokenListViewModel(
-        cardModel: cardModel
-    ) { [weak self] itemViewModel in
+    lazy var walletTokenListViewModel = WalletTokenListViewModel(cardModel: cardModel) { [weak self] itemViewModel in
         self?.openTokenDetails(itemViewModel)
     }
 
@@ -66,7 +64,7 @@ class MainViewModel: ObservableObject {
     private var bag = Set<AnyCancellable>()
     private var isHashesCounted = false
     private var isProcessingNewCard = false
-//    private var refreshCancellable: AnyCancellable? = nil
+
     private lazy var testnetBuyCryptoService: TestnetBuyCryptoService = .init()
 
     private unowned let coordinator: MainRoutable
@@ -230,7 +228,7 @@ class MainViewModel: ObservableObject {
         self.cardModel = cardModel
         self.coordinator = coordinator
         bind()
-//        cardModel.updateState()
+
         warningsService.setupWarnings(for: cardModel.cardInfo)
         countHashes()
     }
@@ -257,16 +255,16 @@ class MainViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        cardModel
-            .$state
-            .compactMap { $0.walletModels }
-            .flatMap { Publishers.MergeMany($0.map { $0.objectWillChange }).collect($0.count) }
-            .receive(on: DispatchQueue.main)
-            .sink { [unowned self] _ in
-                print("⚠️ Wallet model will change")
-                self.objectWillChange.send()
-            }
-            .store(in: &bag)
+//        cardModel
+//            .$state
+//            .compactMap { $0.walletModels }
+//            .flatMap { Publishers.MergeMany($0.map { $0.objectWillChange }).collect($0.count) }
+//            .receive(on: DispatchQueue.main)
+//            .sink { [unowned self] _ in
+//                print("⚠️ Wallet model will change")
+//                self.objectWillChange.send()
+//            }
+//            .store(in: &bag)
 
         cardModel
             .$state
@@ -347,8 +345,6 @@ class MainViewModel: ObservableObject {
             return
         }
 
-        // let walletModels = cardModel.walletModels, !walletModels.isEmpty
-
         Analytics.log(.mainPageRefresh)
         walletTokenListViewModel.refreshTokens(result: { result in
             print("♻️ Wallet model loading state changed with result", result)
@@ -412,7 +408,7 @@ class MainViewModel: ObservableObject {
             AppSettings.shared.validatedSignedHashesCards.append(cardModel.cardInfo.card.cardId)
         }
 
-        var hideWarning = true
+        let hideWarning = true
         // [REDACTED_TODO_COMMENT]
         switch button {
         case .okGotIt:
