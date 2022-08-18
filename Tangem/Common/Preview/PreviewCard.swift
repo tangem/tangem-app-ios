@@ -46,9 +46,9 @@ enum PreviewCard {
     var walletData: DefaultWalletData {
         switch self {
         case .ethereum:
-            return .v3(WalletData(blockchain: "ETH", token: nil))
+            return .legacy(WalletData(blockchain: "ETH", token: nil))
         case .stellar:
-            return .v3(WalletData(blockchain: "XLM", token: nil))
+            return .legacy(WalletData(blockchain: "XLM", token: nil))
         case .cardanoNote:
             return .note(WalletData(blockchain: "ADA", token: nil))
         case .ethEmptyNote:
@@ -56,7 +56,7 @@ enum PreviewCard {
         case .cardanoNoteEmptyWallet:
             return .note(WalletData(blockchain: "ADA", token: nil))
         case .twin:
-            return .twin(WalletData(blockchain: "BTC", token: nil), TwinCardInfo(cid: "CB64000000006522", series: .cb64, pairPublicKey: nil))
+            return .twin(WalletData(blockchain: "BTC", token: nil), TwinData(series: .cb64, pairPublicKey: nil))
         default:
             return .none
         }
