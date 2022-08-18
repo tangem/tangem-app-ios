@@ -47,6 +47,10 @@ extension NoteDemoConfig: UserWalletConfig {
         1
     }
 
+    var cardName: String {
+        "Note"
+    }
+
     var defaultCurve: EllipticCurve? {
         defaultBlockchain.curve
     }
