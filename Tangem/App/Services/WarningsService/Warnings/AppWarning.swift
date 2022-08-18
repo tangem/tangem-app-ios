@@ -27,9 +27,11 @@ enum WarningType: String, Decodable {
 enum WarningsLocation: String, Decodable {
     case main
     case send
+    case manageTokens
 }
 
-struct AppWarning: Decodable, Hashable {
+struct AppWarning: Identifiable, Equatable, Hashable {
+    let id: UUID = .init()
     let title: String
     let message: String
     let priority: WarningPriority
@@ -50,5 +52,13 @@ struct AppWarning: Decodable, Hashable {
         self.location = location
         self.blockchains = blockchains
         self.event = event
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+
+    static func == (lhs: AppWarning, rhs: AppWarning) -> Bool {
+        lhs.id == rhs.id
     }
 }

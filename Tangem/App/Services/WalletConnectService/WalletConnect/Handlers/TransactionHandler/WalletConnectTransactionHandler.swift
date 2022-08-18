@@ -60,7 +60,8 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
         }
 
         let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: wallet.derivationPath)
-        let walletModels = WalletManagerAssembly.makeWalletModels(from: card, blockchainNetworks: [blockchainNetwork])
+        let entry = StorageEntry(blockchainNetwork: blockchainNetwork, tokens: [])
+        let walletModels = card.makeWalletModels(for: [entry])
 
         guard let walletModel = walletModels.first(where: { $0.wallet.address.lowercased() == transaction.from.lowercased() }) else {
             let error = WalletConnectServiceError.failedToBuildTx(code: .wrongAddress)

@@ -90,7 +90,7 @@ class TokenDetailsViewModel: ObservableObject {
     }
 
     var canSend: Bool {
-        guard card.canSign else {
+        guard card.canSend else {
             return false
         }
 
@@ -348,8 +348,8 @@ extension TokenDetailsViewModel {
     }
 
     func openSellCrypto() {
-        if card.cardInfo.card.isDemoCard {
-            alert = AlertBuilder.makeDemoAlert()
+        if let disabledLocalizedReason = card.getDisabledLocalizedReason(for: .exchange) {
+            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
         }
 
@@ -361,28 +361,26 @@ extension TokenDetailsViewModel {
     }
 
     func openBuyCrypto() {
-        if card.cardInfo.card.isDemoCard {
-            alert = AlertBuilder.makeDemoAlert()
+        if let disabledLocalizedReason = card.getDisabledLocalizedReason(for: .exchange) {
+            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
         }
 
-        guard card.isTestnet, let token = amountType.token,
-              case .ethereum(testnet: true) = blockchainNetwork.blockchain else {
-            if let url = buyCryptoUrl {
-                coordinator.openBuyCrypto(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
-                    self?.sendAnalyticsEvent(.userBoughtCrypto)
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                        self?.walletModel?.update(silent: true)
-                    }
+        if let walletModel = self.walletModel,
+           let token = amountType.token,
+           blockchainNetwork.blockchain == .ethereum(testnet: true) {
+            testnetBuyCryptoService.buyCrypto(.erc20Token(token, walletManager: walletModel.walletManager, signer: card.signer))
+            return
+        }
+
+        if let url = buyCryptoUrl {
+            coordinator.openBuyCrypto(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
+                self?.sendAnalyticsEvent(.userBoughtCrypto)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    self?.walletModel?.update(silent: true)
                 }
             }
-            return
         }
-
-        guard let model = walletModel else { return }
-
-
-        testnetBuyCryptoService.buyCrypto(.erc20Token(token, walletManager: model.walletManager, signer: card.signer))
     }
 
     func openBuyCryptoIfPossible() {

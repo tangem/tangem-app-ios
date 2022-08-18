@@ -99,12 +99,13 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
         return .init(wallet.blockchain, derivationPath: wallet.publicKey.derivationPath)
     }
 
+    var isDemo: Bool { demoBalance != nil }
+    public var demoBalance: Decimal?
+
     let walletManager: WalletManager
     private var bag = Set<AnyCancellable>()
     private var updateTimer: AnyCancellable? = nil
-    private let demoBalance: Decimal?
     private let derivationStyle: DerivationStyle
-    private var isDemo: Bool { demoBalance != nil }
     private var latestUpdateTime: Date? = nil
     private var updatePublisher: PassthroughSubject<Void, Error>?
 
@@ -112,9 +113,8 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
         print("🗑 WalletModel deinit")
     }
 
-    init(walletManager: WalletManager, derivationStyle: DerivationStyle, demoBalance: Decimal? = nil) {
+    init(walletManager: WalletManager, derivationStyle: DerivationStyle) {
         self.walletManager = walletManager
-        self.demoBalance = demoBalance
         self.derivationStyle = derivationStyle
 
         updateBalanceViewModel(with: walletManager.wallet)
