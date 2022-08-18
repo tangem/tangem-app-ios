@@ -165,7 +165,7 @@ class MainViewModel: ObservableObject {
         self.cardModel = cardModel
         self.coordinator = coordinator
         bind()
-
+        cardModel.updateState()
         cardModel.setupWarnings()
         validateHashesCount()
     }
@@ -568,9 +568,9 @@ extension MainViewModel {
                 self.sendAnalyticsEvent(.userBoughtCrypto)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                     self.cardModel
-                            .update(showProgressLoading: true)
-                            .sink()
-                            .store(in: &self.bag)
+                        .update(showProgressLoading: true)
+                        .sink()
+                        .store(in: &self.bag)
                 }
             }
         }
