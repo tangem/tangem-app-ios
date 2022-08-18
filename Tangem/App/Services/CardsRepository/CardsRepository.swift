@@ -10,8 +10,6 @@ import Foundation
 import Combine
 
 protocol CardsRepository {
-    var didScanPublisher: PassthroughSubject<CardInfo, Never> { get }
-
     func scan(with batch: String?, _ completion: @escaping (Result<CardViewModel, Error>) -> Void)
     func scanPublisher(with batch: String?) ->  AnyPublisher<CardViewModel, Error>
 }
