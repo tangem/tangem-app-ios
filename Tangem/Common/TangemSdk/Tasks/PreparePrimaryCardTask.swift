@@ -64,11 +64,12 @@ class PreparePrimaryCardTask: CardSessionRunnable {
             return
         }
 
-        let blockchains = SupportedTokenItems().predefinedBlockchains(isDemo: card.isDemoCard, testnet: card.isTestnet)
+        let config = GenericConfig(card: card)
+        let blockchainNetworks = config.defaultBlockchains.map { $0.blockchainNetwork }
 
-        let derivations: [Data: [DerivationPath]] = blockchains.reduce(into: [:]) { partialResult, blockchain in
-            if let wallet = session.environment.card?.wallets.first(where: { $0.curve == blockchain.curve }),
-               let path = blockchain.derivationPath(for: card.derivationStyle) {
+        let derivations: [Data: [DerivationPath]] = blockchainNetworks.reduce(into: [:]) { partialResult, blockchainNetwork in
+            if let wallet = session.environment.card?.wallets.first(where: { $0.curve == blockchainNetwork.blockchain.curve }),
+               let path = blockchainNetwork.derivationPath {
                 partialResult[wallet.publicKey, default: []].append(path)
             }
         }
