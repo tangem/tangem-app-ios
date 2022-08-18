@@ -12,8 +12,6 @@ import Moya
 
 
 class CommonTangemApiService {
-    @Injected(\.cardsRepository) var cardsRepository: CardsRepository
-
     private let provider = TangemProvider<TangemApiTarget>()
     private var bag: Set<AnyCancellable> = []
 
