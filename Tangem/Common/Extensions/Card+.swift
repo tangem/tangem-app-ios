@@ -82,8 +82,6 @@ extension Card {
         let accIdData = Data(accId)
         let accIdString = accIdData.hexString
 
-        // C60EED645784E9402E192AF0E2C056D2D3C779F87F266D19A05AA77914EBA9F3
-
         return accIdString
     }
 
