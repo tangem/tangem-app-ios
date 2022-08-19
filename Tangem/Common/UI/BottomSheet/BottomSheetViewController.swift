@@ -39,8 +39,7 @@ class BottomSheetViewController<Content: View>: BottomSheetBaseController {
         contentView.view.backgroundColor = contentBackgroundColor
         view.backgroundColor = contentBackgroundColor
 
-        let bottomConstraint = contentView.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        bottomConstraint.priority = .defaultLow
+        bottomConstraint = contentView.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
 
         NSLayoutConstraint.activate([
             bottomConstraint,
