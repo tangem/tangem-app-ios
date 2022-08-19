@@ -1,5 +1,5 @@
 //
-//  BottomSheetModifier.swift
+//  ResizableBottomSheetModifier.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import SwiftUI
 import UIKit
 
-struct BottomSheetModifier<ContentView: View>: ViewModifier {
+struct ResizableBottomSheetModifier<ContentView: ResizableSheetView>: ViewModifier {
     @Binding private var isPresented: Bool
     @State private var bottomSheetViewController: BottomSheetBaseController?
 
@@ -47,7 +47,12 @@ struct BottomSheetModifier<ContentView: View>: ViewModifier {
         }
 
         if isPresented {
-            let wrappedView = BottomSheetWrappedView(content: contentView(),
+            var view = contentView()
+            view.updateHeight = { action in
+                self.bottomSheetViewController?.resize(withAction: action)
+            }
+
+            let wrappedView = BottomSheetWrappedView(content: view,
                                                      settings: viewModelSettings) {
                 bottomSheetViewController?.dismiss(animated: true)
             }
