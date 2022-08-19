@@ -35,7 +35,7 @@ struct WelcomeView: View {
         VStack(spacing: 0) {
             Spacer()
 
-            Assets.tangemIcon
+            Assets.tangemIconBig
                 .renderingMode(.template)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
@@ -54,13 +54,13 @@ struct WelcomeView: View {
             Spacer()
 
             #warning("TOUCH ID?")
-            TangemButton(title: "Auth with Face ID") {
+            TangemButton(title: "Unlock with Face ID") {
                 viewModel.tryBiometricAuthentication()
             }
             .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt3, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
             .padding(.bottom, 11)
 
-            TangemButton(title: "Auth with card", image: "tangemIcon", iconPosition: .trailing) {
+            TangemButton(title: "Unlock with card", image: "tangemIconWhite", iconPosition: .trailing) {
                 viewModel.scanCard()
             }
             .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
