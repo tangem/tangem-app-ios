@@ -32,7 +32,7 @@ struct ScanCardSettingsView: View {
 
             Spacer()
 
-            TangemButton(title: "scan_card_settings_button", image: "tangemIcon", iconPosition: .trailing) {
+            TangemButton(title: "scan_card_settings_button", image: "tangemIconWhite", iconPosition: .trailing) {
                 viewModel.scanCard()
             }
             .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth, isLoading: viewModel.isLoading))
