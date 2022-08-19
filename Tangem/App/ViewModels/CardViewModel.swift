@@ -310,10 +310,10 @@ class CardViewModel: Identifiable, ObservableObject {
     private var bag = Set<AnyCancellable>()
 
     convenience init(userWallet: UserWallet) {
-        self.init(cardInfo: userWallet.cardInfo(), savedCards: true)
+        self.init(cardInfo: userWallet.cardInfo())
     }
 
-    init(cardInfo: CardInfo, savedCards: Bool = false) {
+    init(cardInfo: CardInfo) {
         self.cardInfo = cardInfo
         self.config = UserWalletConfigFactory(cardInfo).makeConfig()
         updateCardPinSettings()
