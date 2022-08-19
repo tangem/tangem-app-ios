@@ -253,14 +253,23 @@ class CardViewModel: Identifiable, ObservableObject {
     var userWallet: UserWallet {
         let walletData: DefaultWalletData = cardInfo.walletData
 
-        return .init(userWalletId: cardInfo.card.cardPublicKey,
-                     name: cardInfo.name,
-                     card: cardInfo.card,
-                     walletData: walletData,
-                     artwork: cardInfo.artworkInfo,
-                     keys: cardInfo.derivedKeys,
-                     isHDWalletAllowed: cardInfo.card.settings.isHDWalletAllowed,
-                     accessCode: cardInfo.accessCode
+        let name: String
+        if !cardInfo.name.isEmpty {
+            name = cardInfo.name
+        } else {
+            let factory = UserWalletConfigFactory(cardInfo)
+            name = factory.makeConfig().cardName
+        }
+
+        return UserWallet(
+            userWalletId: cardInfo.card.cardPublicKey,
+            name: name,
+            card: cardInfo.card,
+            walletData: walletData,
+            artwork: cardInfo.artworkInfo,
+            keys: cardInfo.derivedKeys,
+            isHDWalletAllowed: cardInfo.card.settings.isHDWalletAllowed,
+            accessCode: cardInfo.accessCode
         )
     }
 
