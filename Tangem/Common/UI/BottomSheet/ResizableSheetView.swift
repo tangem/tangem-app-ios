@@ -15,7 +15,8 @@ enum ResizeSheetAction {
 }
 
 protocol ResizableSheetView: View {
-    func updateHeight(callback: @escaping ((ResizeSheetAction) -> ()))
+    typealias ResizeCallback = ((ResizeSheetAction) -> ())
+    func setResizeCallback(_ callback: @escaping ResizeCallback)
 }
 
 struct BottomSheetEmptyView: ResizableSheetView {
@@ -23,5 +24,5 @@ struct BottomSheetEmptyView: ResizableSheetView {
         EmptyView()
     }
 
-    func updateHeight(callback: @escaping ((ResizeSheetAction) -> ())) { }
+    func setResizeCallback(_ callback: @escaping ResizeCallback) { }
 }
