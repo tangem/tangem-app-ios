@@ -2405,6 +2405,7 @@
 				DC0A5848282C07750031BECC /* WalletConnectService */,
 				DA23786A27B241C2009795A8 /* ShopifyService */,
 				DC0A582A282555590031BECC /* ScannedCardsRepository */,
+				EF4BEF8428ACF0FD00C5D1BE /* UserTokenListManager */,
 				DC0A582728252F9D0031BECC /* TokenItemsRepository */,
 				DC0A582428252CFC0031BECC /* FailedScanTrackable */,
 				DC0A582128252AFD0031BECC /* WarningsService */,
@@ -2725,7 +2726,6 @@
 			isa = PBXGroup;
 			children = (
 				EF4BEF8528ACF22100C5D1BE /* WalletTokenListView */,
-				EF4BEF8428ACF0FD00C5D1BE /* UserTokenListManager */,
 			);
 			path = TokenList;
 			sourceTree = "<group>";
