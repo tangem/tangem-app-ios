@@ -95,7 +95,7 @@ struct AttentionView: View {
     }
 
     private var actionButton: some View {
-        TangemButton(title: viewModel.buttonTitle, image: "tangemIcon", iconPosition: .trailing) {
+        TangemButton(title: viewModel.buttonTitle, image: "tangemIconWhite", iconPosition: .trailing) {
             viewModel.mainButtonAction()
         }
         .buttonStyle(TangemButtonStyle(
