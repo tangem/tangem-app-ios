@@ -79,7 +79,7 @@ class BottomSheetTransitionDelegate: NSObject, UIViewControllerTransitioningDele
             if value > 0 {
                 bottomSheetPresentationController?.incrementHeight(by: value)
             } else if value < 0 {
-                bottomSheetPresentationController?.decrementHeight(by: value)
+                bottomSheetPresentationController?.decrementHeight(by: abs(value))
             }
         }
     }
