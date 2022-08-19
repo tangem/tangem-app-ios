@@ -354,11 +354,6 @@ class CardViewModel: Identifiable, ObservableObject {
                 }
             }
             .store(in: &bag)
-
-        self
-            .imageLoaderPublisher
-            .weakAssignAnimated(to: \.cardImage, on: self)
-            .store(in: &bag)
     }
 
     func setupWarnings() {
@@ -558,12 +553,14 @@ class CardViewModel: Identifiable, ObservableObject {
 
     func getCardInfo() {
         if case .artwork = cardInfo.artwork {
+            loadCardImage()
             return
         }
 
         cardInfo.artwork = .notLoaded
         guard config.hasFeature(.onlineImage) else {
             cardInfo.artwork = .noArtwork
+            loadCardImage()
             return
         }
 
@@ -575,6 +572,8 @@ class CardViewModel: Identifiable, ObservableObject {
                     self.cardInfo.artwork = .noArtwork
                     self.warningsService.setupWarnings(for: self.config)
                 }
+
+                self.loadCardImage()
             } receiveValue: { response in
                 guard let artwork = response.artwork else { return }
                 self.cardInfo.artwork = .artwork(artwork)
@@ -999,6 +998,12 @@ class CardViewModel: Identifiable, ObservableObject {
             // [REDACTED_TODO_COMMENT]
         }
         .store(in: &bag)
+    }
+
+    private func loadCardImage() {
+        imageLoaderPublisher
+            .weakAssignAnimated(to: \.cardImage, on: self)
+            .store(in: &bag)
     }
 }
 
