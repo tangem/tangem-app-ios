@@ -24,7 +24,7 @@ final class UserWalletListViewModel: ObservableObject {
     @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
 
-    var updateHeight: ((ResizeSheetAction) -> ())?
+    var bottomSheetHeightUpdateCallback: ((ResizeSheetAction) -> ())?
 
     private unowned let coordinator: UserWalletListRoutable
     private var bag: Set<AnyCancellable> = []
@@ -147,6 +147,8 @@ final class UserWalletListViewModel: ObservableObject {
             newSelectedUserWallet = nil
         }
 
+        let oldModelSections = [multiCurrencyModels, singleCurrencyModels]
+
         userWalletListService.deleteWallet(userWallet)
         multiCurrencyModels.removeAll { $0.userWallet.userWalletId == userWallet.userWalletId }
         singleCurrencyModels.removeAll { $0.userWallet.userWalletId == userWallet.userWalletId }
@@ -159,7 +161,7 @@ final class UserWalletListViewModel: ObservableObject {
             AppSettings.shared.saveUserWallets = false
             coordinator.popToRoot()
         } else {
-            updateHeight?(.decrementSheetHeight(byValue: 100))
+            updateHeight(oldModelSections: oldModelSections)
         }
     }
 
@@ -171,6 +173,8 @@ final class UserWalletListViewModel: ObservableObject {
         if userWalletListService.contains(userWallet) {
             return
         }
+
+        let oldModelSections = [multiCurrencyModels, singleCurrencyModels]
 
         if userWalletListService.save(cardModel.userWallet) {
             let newModel = CardViewModel(userWallet: userWallet)
@@ -184,7 +188,7 @@ final class UserWalletListViewModel: ObservableObject {
 
             setSelectedWallet(userWallet)
 
-            updateHeight?(.incrementSheetHeight(byValue: 100))
+            updateHeight(oldModelSections: oldModelSections)
         }
     }
 
@@ -192,5 +196,22 @@ final class UserWalletListViewModel: ObservableObject {
         self.selectedUserWalletId = userWallet.userWalletId
         userWalletListService.selectedUserWalletId = userWallet.userWalletId
         self.coordinator.didTapUserWallet(userWallet: userWallet)
+    }
+
+    private func updateHeight(oldModelSections: [[CardViewModel]]) {
+        let newModelSections = [multiCurrencyModels, singleCurrencyModels]
+
+        let cellHeight = 67
+        let headerHeight = 37
+
+        let oldNumberOfModels = oldModelSections.reduce(into: 0) { $0 += $1.count }
+        let newNumberOfModels = newModelSections.reduce(into: 0) { $0 += $1.count }
+
+        let oldNumberOfSections = oldModelSections.filter { !$0.isEmpty }.count
+        let newNumberOfSections = newModelSections.filter { !$0.isEmpty }.count
+
+        let heightDifference = cellHeight * (newNumberOfModels - oldNumberOfModels) + headerHeight * (newNumberOfSections - oldNumberOfSections)
+
+        bottomSheetHeightUpdateCallback?(.changeHeight(byValue: Double(heightDifference)))
     }
 }
