@@ -75,6 +75,12 @@ class BottomSheetTransitionDelegate: NSObject, UIViewControllerTransitioningDele
             bottomSheetPresentationController?.decrementHeight(by: value)
         case .setNewSheetHeight(let value):
             bottomSheetPresentationController?.updateHeightForPresentedView(with: value)
+        case .changeHeight(let value):
+            if value > 0 {
+                bottomSheetPresentationController?.incrementHeight(by: value)
+            } else if value < 0 {
+                bottomSheetPresentationController?.decrementHeight(by: value)
+            }
         }
     }
 }
