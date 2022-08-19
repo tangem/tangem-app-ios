@@ -54,27 +54,3 @@ extension UserWallet {
         )
     }
 }
-
-extension UserWallet {
-    var isTangemNote: Bool {
-        if case .note = walletData {
-            return true
-        } else {
-            return false
-        }
-    }
-
-    var isTangemWallet: Bool {
-        !isTangemNote
-    }
-}
-
-extension UserWallet {
-    var isMultiCurrency: Bool {
-        if case .note = self.walletData {
-            return false
-        } else {
-            return true
-        }
-    }
-}

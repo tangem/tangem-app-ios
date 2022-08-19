@@ -49,8 +49,8 @@ final class UserWalletListViewModel: ObservableObject {
     }
 
     func updateModels() {
-        multiCurrencyModels = userWalletListService.models.filter { $0.userWallet.isMultiCurrency }
-        singleCurrencyModels = userWalletListService.models.filter { !$0.userWallet.isMultiCurrency }
+        multiCurrencyModels = userWalletListService.models.filter { $0.isMultiWallet }
+        singleCurrencyModels = userWalletListService.models.filter { !$0.isMultiWallet }
     }
 
     func onUserWalletTapped(_ userWallet: UserWallet) {
@@ -174,7 +174,7 @@ final class UserWalletListViewModel: ObservableObject {
 
         if userWalletListService.save(userWallet) {
             let newModel = CardViewModel(userWallet: userWallet)
-            if userWallet.isMultiCurrency {
+            if newModel.isMultiWallet {
                 multiCurrencyModels.append(newModel)
             } else {
                 singleCurrencyModels.append(newModel)
