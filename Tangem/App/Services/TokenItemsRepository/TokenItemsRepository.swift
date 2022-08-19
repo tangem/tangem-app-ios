@@ -8,12 +8,16 @@
 
 import Foundation
 import BlockchainSdk
+import Combine
 
 protocol TokenItemsRepositoryChanges: AnyObject {
     func repositoryDidUpdates(entries: [StorageEntry])
 }
 
 protocol TokenItemsRepository {
+    func createManager(userWalletId: String, cardId: String)
+    func loadAndSaveUserTokenList() -> AnyPublisher<UserTokenList, Error>
+
     func getItems(for cardId: String) -> [StorageEntry]
     func setSubscriber(_ subscriber: TokenItemsRepositoryChanges)
 

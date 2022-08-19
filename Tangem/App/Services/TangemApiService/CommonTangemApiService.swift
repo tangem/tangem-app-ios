@@ -10,7 +10,6 @@ import Foundation
 import Combine
 import Moya
 
-
 class CommonTangemApiService {
     private let provider = TangemProvider<TangemApiTarget>()
     private var bag: Set<AnyCancellable> = []
@@ -38,6 +37,7 @@ extension CommonTangemApiService: TangemApiService {
             .requestPublisher(target)
             .filterSuccessfulStatusCodes()
             .map(UserTokenList.self)
+            .print("loadTokens")
             .mapError { error in
                 return TangemAPIError.statusCode(error.response?.statusCode ?? error.errorCode)
             }
