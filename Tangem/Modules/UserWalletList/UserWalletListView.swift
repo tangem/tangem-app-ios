@@ -30,7 +30,7 @@ struct UserWalletListView: ResizableSheetView {
         ZStack {
             VStack(spacing: 16) {
                 #warning("l10n")
-                Text("My Wallets")
+                Text("My wallets")
                     .style(Fonts.Bold.body, color: Colors.Text.primary1)
 
                 ScrollView(.vertical) {
@@ -46,7 +46,7 @@ struct UserWalletListView: ResizableSheetView {
                 .cornerRadius(14)
 
                 #warning("l10n")
-                TangemButton(title: "Add new card", systemImage: "plus") {
+                TangemButton(title: "Add new wallet", image: "tangemIconBlack", iconPosition: .trailing) {
                     viewModel.addCard()
                 }
                 .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt3, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
