@@ -10,12 +10,15 @@ import Foundation
 import BlockchainSdk
 import struct TangemSdk.DerivationPath
 import Network
+import Combine
 
 class CommonTokenItemsRepository {
     @Injected(\.persistentStorage) var persistanceStorage: PersistentStorageProtocol
 
     private let lockQueue = DispatchQueue(label: "token_items_repo_queue")
     private weak var subscriber: TokenItemsRepositoryChanges?
+
+    private var userTokenListManager: UserTokenListManager?
 
     init() {
         lockQueue.sync {
@@ -31,6 +34,31 @@ class CommonTokenItemsRepository {
 // MARK: - TokenItemsRepository
 
 extension CommonTokenItemsRepository: TokenItemsRepository {
+    // [REDACTED_TODO_COMMENT]
+    // [REDACTED_INFO]
+    func createManager(userWalletId: String, cardId: String) {
+        userTokenListManager = CommonUserTokenListManager(userWalletId: userWalletId, cardId: cardId)
+    }
+
+    func loadAndSaveUserTokenList() -> AnyPublisher<UserTokenList, Error> {
+        guard let userTokenListManager = userTokenListManager else {
+            assertionFailure("UserTokenListManager not created")
+            return Fail(error: CommonError.notFound).eraseToAnyPublisher()
+        }
+
+        return userTokenListManager.loadAndSaveUserTokenList()
+    }
+
+    func getItems(for cardId: String) -> [StorageEntry] {
+        lockQueue.sync {
+            return fetch(for: cardId)
+        }
+    }
+
+    func setSubscriber(_ subscriber: TokenItemsRepositoryChanges) {
+        self.subscriber = subscriber
+    }
+
     func append(_ blockchains: [Blockchain], for cardId: String, style: DerivationStyle) {
         let networks = blockchains.map {
             BlockchainNetwork($0, derivationPath: $0.derivationPath(for: style))
@@ -136,16 +164,6 @@ extension CommonTokenItemsRepository: TokenItemsRepository {
         lockQueue.sync {
             save([], for: cardId)
         }
-    }
-
-    func getItems(for cardId: String) -> [StorageEntry] {
-        lockQueue.sync {
-            return fetch(for: cardId)
-        }
-    }
-
-    func setSubscriber(_ subscriber: TokenItemsRepositoryChanges) {
-        self.subscriber = subscriber
     }
 }
 
