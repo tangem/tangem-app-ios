@@ -8,7 +8,9 @@
 
 import SwiftUI
 
-struct UserWalletListView: View {
+struct UserWalletListView: ResizableSheetView {
+    var updateHeight: ((ResizeSheetAction) -> ())?
+
     @ObservedObject private var viewModel: UserWalletListViewModel
 
     static var sheetBackground: Color {
@@ -59,6 +61,9 @@ struct UserWalletListView: View {
             $0.alert
         }
         .onAppear(perform: viewModel.onAppear)
+        .onAppear {
+            viewModel.updateHeight = updateHeight
+        }
     }
 
     @ViewBuilder
