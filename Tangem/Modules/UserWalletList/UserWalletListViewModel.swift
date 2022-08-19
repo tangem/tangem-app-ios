@@ -166,17 +166,13 @@ final class UserWalletListViewModel: ObservableObject {
     private func processScannedCard(_ cardModel: CardViewModel) {
         let card = cardModel.card
 
-        var userWallet = UserWallet(userWalletId: card.cardPublicKey, name: "", card: card, walletData: cardModel.walletData, artwork: nil, keys: cardModel.derivedKeys, isHDWalletAllowed: card.settings.isHDWalletAllowed, accessCode: cardModel.accessCode)
+        let userWallet = UserWallet(userWalletId: card.cardPublicKey, name: "", card: card, walletData: cardModel.walletData, artwork: nil, keys: cardModel.derivedKeys, isHDWalletAllowed: card.settings.isHDWalletAllowed, accessCode: cardModel.accessCode)
 
         if userWalletListService.contains(userWallet) {
             return
         }
 
-        let cardInfo = userWallet.cardInfo()
-        let factory = UserWalletConfigFactory(cardInfo)
-        userWallet.name = factory.makeConfig().cardName
-
-        if userWalletListService.save(userWallet) {
+        if userWalletListService.save(cardModel.userWallet) {
             let newModel = CardViewModel(userWallet: userWallet)
             if newModel.isMultiWallet {
                 multiCurrencyModels.append(newModel)
