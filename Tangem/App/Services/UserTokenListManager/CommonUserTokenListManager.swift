@@ -12,19 +12,19 @@ import BlockchainSdk
 
 class CommonUserTokenListManager {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-    @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
+//    [REDACTED_USERNAME](\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
 
-    private let accountId: String
+    private let userWalletId: String
     private let cardId: String
 
     private var loadTokensCancellable: AnyCancellable?
     private var saveTokensCancellable: AnyCancellable?
 
-    init(accountId: String, cardId: String) {
-        self.accountId = accountId
+    init(userWalletId: String, cardId: String) {
+        self.userWalletId = userWalletId
         self.cardId = cardId
 
-        tokenItemsRepository.setSubscriber(self)
+//        tokenItemsRepository.setSubscriber(self)
     }
 }
 
@@ -49,6 +49,13 @@ extension CommonUserTokenListManager: UserTokenListManager {
         }
         .eraseToAnyPublisher()
     }
+    
+    func saveTokenListInRepository(entries: [StorageEntry]) {
+        let tokens = mapToTokens(entries: entries)
+        let list = UserTokenList(tokens: tokens)
+
+        saveTokensCancellable = tangemApiService.saveTokens(key: userWalletId, list: list).sink()
+    }
 }
 
 // MARK: - TokenItemsRepositoryChanges
@@ -58,7 +65,7 @@ extension CommonUserTokenListManager: TokenItemsRepositoryChanges {
         let tokens = mapToTokens(entries: entries)
         let list = UserTokenList(tokens: tokens)
 
-        saveTokensCancellable = tangemApiService.saveTokens(key: accountId, list: list).sink()
+        saveTokensCancellable = tangemApiService.saveTokens(key: userWalletId, list: list).sink()
     }
 }
 
@@ -67,7 +74,7 @@ extension CommonUserTokenListManager: TokenItemsRepositoryChanges {
 private extension CommonUserTokenListManager {
     func loadUserTokenList(result: @escaping (Result<UserTokenList, Error>) -> Void) {
         self.loadTokensCancellable = tangemApiService
-            .loadTokens(key: accountId)
+            .loadTokens(key: userWalletId)
             .sink(receiveCompletion: { [unowned self] completion in
                 guard case let .failure(error) = completion else { return }
 
@@ -77,7 +84,8 @@ private extension CommonUserTokenListManager {
                     result(.failure(error as Error))
                 }
 
-            }, receiveValue: { list in
+            }, receiveValue: { [unowned self] list in
+                saveTokenListInRepository(list: list)
                 result(.success(list))
             })
     }
@@ -87,7 +95,7 @@ private extension CommonUserTokenListManager {
         let tokens = mapToTokens(entries: entries)
         let list = UserTokenList(tokens: tokens)
 
-        saveTokensCancellable = tangemApiService.saveTokens(key: accountId, list: list)
+        saveTokensCancellable = tangemApiService.saveTokens(key: userWalletId, list: list)
             .receiveCompletion { completion in
                 switch completion {
                 case let .failure(error):
@@ -125,6 +133,7 @@ private extension CommonUserTokenListManager {
             )
         }
 
+//        tokenItemsRepository.removeAll(for: cardId)
         tokenItemsRepository.append(entries, for: cardId)
     }
 
