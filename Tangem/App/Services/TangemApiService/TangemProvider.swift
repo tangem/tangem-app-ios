@@ -20,7 +20,7 @@ class TangemProvider<Target: TargetType>: MoyaProvider<Target> {
 extension URLSessionConfiguration {
     static let defaultConfiguration: URLSessionConfiguration = {
         let configuration = URLSessionConfiguration.default
-        configuration.timeoutIntervalForRequest = 10
+        configuration.timeoutIntervalForRequest = 30
         configuration.timeoutIntervalForResource = 30
         return configuration
     }()
