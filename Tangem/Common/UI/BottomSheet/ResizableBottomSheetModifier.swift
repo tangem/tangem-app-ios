@@ -47,8 +47,9 @@ struct ResizableBottomSheetModifier<ContentView: ResizableSheetView>: ViewModifi
         }
 
         if isPresented {
-            var view = contentView()
-            view.updateHeight = { action in
+            let view = contentView()
+
+            view.updateHeight { action in
                 self.bottomSheetViewController?.resize(withAction: action)
             }
 
