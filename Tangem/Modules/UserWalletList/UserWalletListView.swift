@@ -9,7 +9,9 @@
 import SwiftUI
 
 struct UserWalletListView: ResizableSheetView {
-    var updateHeight: ((ResizeSheetAction) -> ())?
+    func setResizeCallback(_ callback: @escaping ResizeCallback) {
+        viewModel.bottomSheetHeightUpdateCallback = callback
+    }
 
     @ObservedObject private var viewModel: UserWalletListViewModel
 
@@ -61,9 +63,6 @@ struct UserWalletListView: ResizableSheetView {
             $0.alert
         }
         .onAppear(perform: viewModel.onAppear)
-        .onAppear {
-            viewModel.updateHeight = updateHeight
-        }
     }
 
     @ViewBuilder
