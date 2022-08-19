@@ -23,14 +23,14 @@ extension Card {
     }
 
     #if !CLIP
-    var accountID: String {
+    var userWalletId: String {
         if wallets.isEmpty {
             assertionFailure("Wallet not found")
         }
 
         let keyHash = (wallets.first?.publicKey ?? cardPublicKey).sha256()
         let key = SymmetricKey(data: keyHash)
-        let message = "AccountID".data(using: .utf8)!
+        let message = Constants.messageForWalletID.data(using: .utf8)!
         let accId = HMAC<SHA256>.authenticationCode(for: message, using: key)
 
         let accIdData = Data(accId)
