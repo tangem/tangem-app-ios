@@ -39,7 +39,7 @@ class CommonUserWalletListService: UserWalletListService {
     private var userWallets: [UserWallet] = []
 
     private let biometricsStorage = BiometricsStorage()
-    private let keychainKey = "user_wallet_list_service"
+    private let encryptionKeyStorageKey = "user_wallet_encryption_key"
     private var encryptionKey: SymmetricKey?
 
     private let secureStorage = SecureStorage()
@@ -136,19 +136,19 @@ class CommonUserWalletListService: UserWalletListService {
         selectedUserWalletId = nil
         encryptionKey = nil
         do {
-            try biometricsStorage.delete(keychainKey)
+            try biometricsStorage.delete(encryptionKeyStorageKey)
         } catch {
             print("Failed to delete user wallet list encryption key: \(error)")
         }
     }
 
     private func tryToAccessBiometryInternal(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        BiometricsUtil.requestAccess(localizedReason: "SOME REASON") { [weak self, keychainKey] result in
+        BiometricsUtil.requestAccess(localizedReason: "SOME REASON") { [weak self, encryptionKeyStorageKey] result in
             switch result {
             case .failure(let error):
                 completion(.failure(error))
             case .success(let context):
-                self?.biometricsStorage.get(keychainKey, context: context) { [weak self] result in
+                self?.biometricsStorage.get(encryptionKeyStorageKey, context: context) { [weak self] result in
                     switch result {
                     case .success(let encryptionKey):
                         if let encryptionKey = encryptionKey {
@@ -167,7 +167,7 @@ class CommonUserWalletListService: UserWalletListService {
                     let newEncryptionKey = SymmetricKey(size: .bits256)
                     let newEncryptionKeyData = Data(hexString: newEncryptionKey.dataRepresentation.hexString) // WTF?
 
-                    self?.biometricsStorage.store(newEncryptionKeyData, forKey: keychainKey, overwrite: true, context: context) { [weak self] result in
+                    self?.biometricsStorage.store(newEncryptionKeyData, forKey: encryptionKeyStorageKey, overwrite: true, context: context) { [weak self] result in
                         switch result {
                         case .success:
                             self?.encryptionKey = SymmetricKey(data: newEncryptionKeyData)
