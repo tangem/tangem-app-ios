@@ -12,6 +12,7 @@ enum ResizeSheetAction {
     case incrementSheetHeight(byValue: CGFloat)
     case decrementSheetHeight(byValue: CGFloat)
     case setNewSheetHeight(value: CGFloat)
+    case changeHeight(byValue: CGFloat)
 }
 
 protocol ResizableSheetView: View {
