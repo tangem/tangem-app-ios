@@ -53,13 +53,7 @@ private extension AppSettingsViewModel {
                 if saveWallet {
                     self?.userWalletListService.tryToAccessBiometry { result in
                         if case .success = result {
-                            var userWallet = cardModel.userWallet
-
-                            let cardInfo = userWallet.cardInfo()
-                            let factory = UserWalletConfigFactory(cardInfo)
-                            userWallet.name = factory.makeConfig().cardName
-
-                            let _ = self?.userWalletListService.save(userWallet)
+                            let _ = self?.userWalletListService.save(cardModel.userWallet)
                             self?.setSaveWallets(true)
                         } else {
                             self?.setSaveWallets(false)
