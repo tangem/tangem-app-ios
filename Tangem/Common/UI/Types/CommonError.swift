@@ -10,4 +10,5 @@ import Foundation
 
 enum CommonError: Error {
     case masterReleased
+    case notFound
 }
