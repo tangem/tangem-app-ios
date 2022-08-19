@@ -135,6 +135,11 @@ class CommonUserWalletListService: UserWalletListService {
         let _ = saveUserWallets([])
         selectedUserWalletId = nil
         encryptionKey = nil
+        do {
+            try biometricsStorage.delete(keychainKey)
+        } catch {
+            print("Failed to delete user wallet list encryption key: \(error)")
+        }
     }
 
     private func tryToAccessBiometryInternal(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
