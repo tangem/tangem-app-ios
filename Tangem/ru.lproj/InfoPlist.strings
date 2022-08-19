@@ -1,4 +1,4 @@
 NFCReaderUsageDescription = "Для сканирования смарт-карты";
 NSCameraUsageDescription = "Для сканирования QR кода или отправки фото в поддержку";
 NSPhotoLibraryUsageDescription = "Для отправки в службу поддержки";
-NSFaceIDUsageDescription = "Face ID is required to save cards";
+NSFaceIDUsageDescription = "Use Face Id to allow save your card in the app";
