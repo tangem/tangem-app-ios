@@ -29,7 +29,7 @@ struct UserWalletStorageAgreementView: View {
                     .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                     .multilineTextAlignment(.center)
 
-                Text("Save your Wallet feature allows you to use your wallet with biometric auth without tapping your card to the phone to gain access.")
+                Text("Save your Wallet feature allows you to use your wallet with biometric auth without tapping your card to the phone to gain access")
                     .style(Fonts.Regular.callout, color: Colors.Text.secondary)
                     .multilineTextAlignment(.center)
             }
@@ -44,7 +44,7 @@ struct UserWalletStorageAgreementView: View {
                 TangemButton(title: "Decline", action: viewModel.decline)
                     .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt3, layout: .flexibleWidth))
 
-                Text("Keep notice, making a transaction with your funds will still require card tapping.")
+                Text("Keep notice, making a transaction with your funds will still require card tapping")
                     .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                     .multilineTextAlignment(.center)
             }
