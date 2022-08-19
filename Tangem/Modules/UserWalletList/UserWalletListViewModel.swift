@@ -24,6 +24,8 @@ final class UserWalletListViewModel: ObservableObject {
     @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
 
+    var updateHeight: ((ResizeSheetAction) -> ())?
+
     private unowned let coordinator: UserWalletListRoutable
     private var bag: Set<AnyCancellable> = []
     private var initialized = false
@@ -156,6 +158,8 @@ final class UserWalletListViewModel: ObservableObject {
         if userWalletListService.isEmpty {
             AppSettings.shared.saveUserWallets = false
             coordinator.popToRoot()
+        } else {
+            updateHeight?(.decrementSheetHeight(byValue: 100))
         }
     }
 
@@ -183,6 +187,8 @@ final class UserWalletListViewModel: ObservableObject {
             newModel.updateState()
 
             setSelectedWallet(userWallet)
+
+            updateHeight?(.incrementSheetHeight(byValue: 100))
         }
     }
 
