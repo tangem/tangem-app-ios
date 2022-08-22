@@ -343,7 +343,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
         }
 
         walletManager.removeToken(token)
-        CommonTokenItemsRepository(cardId: cardId).remove([token], blockchainNetwork: blockchainNetwork)
+        CommonTokenItemsRepository(key: cardId).remove([token], blockchainNetwork: blockchainNetwork)
         updateTokensViewModels()
         return true
     }
