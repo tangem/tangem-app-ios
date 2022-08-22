@@ -14,7 +14,6 @@ import BlockchainSdk
 class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, ObservableObject {
     @Injected(\.cardImageLoader) private var imageLoader: CardImageLoaderProtocol
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
-    @Injected(\.tokenItemsRepository) private var tokensRepo: TokenItemsRepository
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
 
     @Published var thirdCardSettings: AnimatedViewSettings = .zero
@@ -619,7 +618,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
 
     private func addDefaultTokens(for card: Card) {
         let config = GenericConfig(card: card)
-        tokensRepo.append(config.defaultBlockchains, for: card.cardId)
+        CommonTokenItemsRepository(key: card.cardId).append(config.defaultBlockchains)
     }
 }
 
