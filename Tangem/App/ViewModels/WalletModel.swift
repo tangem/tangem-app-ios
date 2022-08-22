@@ -11,7 +11,6 @@ import Combine
 import BlockchainSdk
 
 class WalletModel: ObservableObject, Identifiable, Initializable {
-    @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     @Published var state: State = .created
@@ -344,7 +343,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
         }
 
         walletManager.removeToken(token)
-        tokenItemsRepository.remove(token, blockchainNetwork: blockchainNetwork, for: cardId)
+        CommonTokenItemsRepository(key: cardId).remove([token], blockchainNetwork: blockchainNetwork)
         updateTokensViewModels()
         return true
     }
