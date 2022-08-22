@@ -14,7 +14,6 @@ import BlockchainSdk
 
 class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardingStep>, ObservableObject {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
-    @Injected(\.tokenItemsRepository) private var tokensRepo: TokenItemsRepository
 
     @Published var isCardScanned: Bool = true
 
