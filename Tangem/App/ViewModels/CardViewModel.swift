@@ -84,7 +84,6 @@ class CardViewModel: Identifiable, ObservableObject {
     private var migrated = false
     private var tangemSdk: TangemSdk { tangemSdkProvider.sdk }
     private var config: UserWalletConfig
-    private let tokenItemsRepository: TokenItemsRepository
     // [REDACTED_TODO_COMMENT]
     private let userTokenListManager: UserTokenListManager
 
@@ -239,7 +238,6 @@ class CardViewModel: Identifiable, ObservableObject {
     init(cardInfo: CardInfo) {
         self.cardInfo = cardInfo
         self.config = UserWalletConfigFactory(cardInfo).makeConfig()
-        tokenItemsRepository = CommonTokenItemsRepository(key: cardInfo.card.cardId)
         userTokenListManager = CommonUserTokenListManager(
             userWalletId: cardInfo.card.userWalletId,
             cardId: cardInfo.card.cardId
@@ -295,7 +293,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func appendDefaultBlockchains() {
-        tokenItemsRepository.append(config.defaultBlockchains)
+        userTokenListManager.append(entries: config.defaultBlockchains)
     }
 
     // MARK: - Security
@@ -381,7 +379,7 @@ class CardViewModel: Identifiable, ObservableObject {
             switch result {
             case .success(let response):
                 Analytics.log(.factoryResetSuccess)
-                self?.tokenItemsRepository.removeAll()
+                self?.userTokenListManager.clearRepository(result: completion)
                 self?.clearTwinPairKey()
                 // self.update(with: response)
                 completion(.success(()))
@@ -517,7 +515,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func makeAllWalletModels() -> [WalletModel] {
-        let tokens = tokenItemsRepository.getItems()
+        let tokens = userTokenListManager.syncGetEntriesFromRepository()
         return config.makeWalletModels(for: tokens, derivedKeys: cardInfo.derivedKeys)
     }
 
@@ -560,7 +558,7 @@ class CardViewModel: Identifiable, ObservableObject {
                     let notEmptyWallets = models.filter { !$0.wallet.isEmpty }
                     if !notEmptyWallets.isEmpty {
                         let itemsToAdd = notEmptyWallets.map { $0.blockchainNetwork }
-                        self.tokenItemsRepository.append(itemsToAdd)
+                        self.userTokenListManager.append(networks: itemsToAdd) // [REDACTED_TODO_COMMENT]
                         self.updateLoadedState(with: notEmptyWallets)
                     }
                 } receiveValue: { _ in
@@ -608,13 +606,16 @@ class CardViewModel: Identifiable, ObservableObject {
             case .success(let tokensAdded):
                 if tokensAdded {
                     let tokens = ethWalletModel!.walletManager.cardTokens
-                    self.tokenItemsRepository.append(tokens, blockchainNetwork: network)
-
-                    if shouldAddWalletManager {
-                        self.stateUpdateQueue.sync {
-                            self.state = .loaded(walletModel: self.walletModels! + [ethWalletModel!])
+                    let entry = StorageEntry(blockchainNetwork: network, tokens: tokens)
+                    // [REDACTED_TODO_COMMENT]
+                    self.userTokenListManager.append(entries: [entry]) { [weak self] result in
+                        if shouldAddWalletManager {
+                            self?.stateUpdateQueue.sync {
+                                let models = (self?.walletModels ?? []) + [ethWalletModel!]
+                                self?.state = .loaded(walletModel: models)
+                            }
+                            ethWalletModel!.update()
                         }
-                        ethWalletModel!.update()
                     }
                 }
             case .failure(let error):
@@ -626,49 +627,49 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
 
-    func add(items: [(Amount.AmountType, BlockchainNetwork)], completion: @escaping (Result<Void, Error>) -> Void) {
-        var entries: [StorageEntry] = []
-
-        items.forEach { item in
-            if let index = entries.firstIndex(where: { $0.blockchainNetwork == item.1 }) {
-                if let token = item.0.token, !entries[index].tokens.contains(token) {
-                    entries[index].tokens.append(token)
-                }
-            } else {
-                let tokens = item.0.token.map { [$0] } ?? []
-                entries.append(StorageEntry(blockchainNetwork: item.1, tokens: tokens))
-            }
-        }
-
-        tokenItemsRepository.append(entries)
-
-        if hdWalletsSupported {
-            var newDerivationPaths: [Data: [DerivationPath]] = [:]
-
-            entries.forEach { entry in
-                if let path = entry.blockchainNetwork.derivationPath,
-                   let publicKey = cardInfo.card.wallets.first(where: { $0.curve == entry.blockchainNetwork.blockchain.curve })?.publicKey,
-                   cardInfo.derivedKeys[publicKey]?[path] == nil {
-                    newDerivationPaths[publicKey, default: []].append(path)
-                }
-            }
-
-            if newDerivationPaths.isEmpty {
-                finishAddingTokens(entries, completion: completion)
-                return
-            }
-
-            deriveKeys(derivationPaths: newDerivationPaths) { result in
+    func add(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
+        userTokenListManager.append(entries: entries) { [weak self] result in
+            self?.deriveIfNeeded(entries: entries) { result in
                 switch result {
                 case .success:
-                    self.finishAddingTokens(entries, completion: completion)
+                    self?.finishAddingTokens(entries, completion: completion)
                 case .failure(let error):
                     completion(.failure(error))
                 }
             }
-        } else {
-            finishAddingTokens(entries, completion: completion)
         }
+    }
+
+    private func deriveIfNeeded(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
+        guard hdWalletsSupported else {
+            completion(.success(()))
+            return
+        }
+
+        var newDerivationPaths: [Data: [DerivationPath]] = [:]
+
+        entries.forEach { entry in
+            if let path = entry.blockchainNetwork.derivationPath,
+               let publicKey = cardInfo.card.wallets.first(where: { $0.curve == entry.blockchainNetwork.blockchain.curve })?.publicKey,
+               cardInfo.derivedKeys[publicKey]?[path] == nil {
+                newDerivationPaths[publicKey, default: []].append(path)
+            }
+        }
+
+        if newDerivationPaths.isEmpty {
+            finishAddingTokens(entries, completion: completion)
+            return
+        }
+
+        deriveKeys(derivationPaths: newDerivationPaths) { result in
+            switch result {
+            case .success:
+                self.finishAddingTokens(entries, completion: completion)
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+
     }
 
     private func finishAddingTokens(_ entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
@@ -730,11 +731,16 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func removeBlockchain(_ blockchainNetwork: BlockchainNetwork) {
-        tokenItemsRepository.remove([blockchainNetwork])
-
-        stateUpdateQueue.sync {
-            if let walletModels = self.walletModels {
-                state = .loaded(walletModel: walletModels.filter { $0.blockchainNetwork != blockchainNetwork })
+        userTokenListManager.remove(blockchain: blockchainNetwork) { [weak self] result in
+            switch result {
+            case .success:
+                self?.stateUpdateQueue.sync {
+                    if let walletModels = self?.walletModels {
+                        self?.state = .loaded(walletModel: walletModels.filter { $0.blockchainNetwork != blockchainNetwork })
+                    }
+                }
+            case let .failure(error):
+                print("RemoveBlockchain error \(error)")
             }
         }
     }
@@ -753,26 +759,24 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
 
-    private func tryMigrateTokens(completion: @escaping () -> Void) {
+    private func tryMigrateTokens() -> AnyPublisher<Void, Error>  {
         if migrated {
-            completion()
-            return
+            return .just
         }
 
         migrated = true
 
-        let items = tokenItemsRepository.getItems()
+        let items = userTokenListManager.syncGetEntriesFromRepository()
         let itemsWithCustomTokens = items.filter { item in
             return item.tokens.contains(where: { $0.isCustom })
         }
 
         if itemsWithCustomTokens.isEmpty {
-            completion()
-            return
+            return .just
         }
 
         let publishers = itemsWithCustomTokens.flatMap { item in
-            item.tokens.filter { $0.isCustom }.map { token -> AnyPublisher<Bool, Never> in
+            item.tokens.filter { $0.isCustom }.map { token -> AnyPublisher<Bool, Error> in
                 let requestModel = CoinsListRequestModel(
                     contractAddress: token.contractAddress,
                     networkIds: [item.blockchainNetwork.blockchain.networkId]
@@ -780,41 +784,38 @@ class CardViewModel: Identifiable, ObservableObject {
 
                 return tangemApiService
                     .loadCoins(requestModel: requestModel)
-                    .replaceError(with: [])
-                    .map { [unowned self] models -> Bool in
-                        if let updatedTokem = models.first?.items.compactMap({ $0.token }).first {
-                            self.tokenItemsRepository.append([updatedTokem], blockchainNetwork: item.blockchainNetwork)
-                            return true
+                    .tryMap { models -> AnyPublisher<Bool, Error> in
+                        Future<Bool, Error> { promise in
+                            guard let updatedToken = models.first?.items.compactMap({ $0.token }).first else {
+                                promise(.success(false))
+                                return
+                            }
+
+                            let entry = StorageEntry(blockchainNetwork: item.blockchainNetwork, token: updatedToken)
+                            self.userTokenListManager.append(entries: [entry]) { result in
+                                switch result {
+                                case .success:
+                                    promise(.success(true))
+                                case let .failure(error):
+                                    promise(.failure(error))
+                                }
+                            }
                         }
-                        return false
+                        .eraseToAnyPublisher()
                     }
+                    .switchToLatest()
                     .eraseToAnyPublisher()
             }
         }
 
-        Publishers.MergeMany(publishers)
-            .collect(publishers.count)
-            .sink { [unowned self] migrationResults in
+        return Publishers.MergeMany(publishers)
+            .collect()
+            .tryMap { [unowned self] migrationResults in
                 if migrationResults.contains(true) {
-                    self.state = .loaded(walletModel: makeAllWalletModels())
+                    updateState(shouldUpdate: false)
                 }
-                completion()
             }
-            .store(in: &bag)
-    }
-
-    private func tryMigrateTokens() -> AnyPublisher<Void, Never> {
-        Future { [weak self] promise in
-            guard let self = self else {
-                promise(.success(()))
-                return
-            }
-
-            self.tryMigrateTokens {
-                promise(.success(()))
-            }
-        }
-        .eraseToAnyPublisher()
+            .eraseToAnyPublisher()
     }
 
     private func updateCardPinSettings() {
@@ -873,5 +874,11 @@ extension CardViewModel {
     enum WalletsBalanceState {
         case inProgress
         case loaded
+    }
+}
+
+extension Publisher where Output == Void, Failure == Error {
+    static var just: AnyPublisher<Void, Error> {
+        Just(()).setFailureType(to: Error.self).eraseToAnyPublisher()
     }
 }
