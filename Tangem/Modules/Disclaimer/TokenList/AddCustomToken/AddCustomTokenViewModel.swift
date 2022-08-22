@@ -114,16 +114,10 @@ class AddCustomTokenViewModel: ObservableObject {
             return
         }
 
-        let amountType: Amount.AmountType
-        if let token = tokenItem.token {
-            amountType = .token(value: token)
-        } else {
-            amountType = .coin
-        }
-
         let blockchainNetwork = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: derivationPath)
+        let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: tokenItem.token)
 
-        cardModel.add(items: [(amountType, blockchainNetwork)]) { [weak self] result in
+        cardModel.add(entries: [entry]) { [weak self] result in
             guard let self = self else { return }
 
             switch result {
