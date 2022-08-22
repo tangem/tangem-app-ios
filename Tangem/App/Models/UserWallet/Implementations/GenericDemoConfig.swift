@@ -107,7 +107,15 @@ extension GenericDemoConfig: UserWalletConfig {
     }
 
     var persistentBlockchains: [StorageEntry]? {
-        return nil
+        let blockchains = DemoUtil().getDemoBlockchains(isTestnet: card.isTestnet)
+
+        let entries: [StorageEntry] = blockchains.map {
+            let derivationPath = $0.derivationPath(for: card.derivationStyle)
+            let network = BlockchainNetwork($0, derivationPath: derivationPath)
+            return .init(blockchainNetwork: network, tokens: [])
+        }
+
+        return entries
     }
 
     var embeddedBlockchain: StorageEntry? {
