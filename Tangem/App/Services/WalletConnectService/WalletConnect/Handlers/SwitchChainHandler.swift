@@ -13,7 +13,6 @@ import BlockchainSdk
 
 class SwitchChainHandler: TangemWalletConnectRequestHandler {
     @Injected(\.scannedCardsRepository) private var scannedCardsRepo: ScannedCardsRepository
-    @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
 
     var action: WalletConnectAction { .switchChain }
 
@@ -64,7 +63,7 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
             throw WalletConnectServiceError.unsupportedNetwork
         }
 
-        let availableItems = tokenItemsRepository.getItems(for: oldWalletInfo.cid)
+        let availableItems = CommonTokenItemsRepository(key: oldWalletInfo.cid).getItems()
         guard let availableItem = availableItems.first(where: { $0.blockchainNetwork.blockchain.chainId == chainId }) else {
             throw WalletConnectServiceError.networkNotFound(name: targetBlockchain.displayName)
         }
