@@ -15,7 +15,7 @@ class BottomSheetViewController<Content: View>: BottomSheetBaseController {
 
     private let contentView: UIHostingController<Content>
     private var keyboardSubscription: AnyCancellable?
-    private var bottomAnchor: NSLayoutConstraint!
+    private var bottomConstraint: NSLayoutConstraint!
 
     init(isPresented: Binding<Bool>,
          content: Content) {
@@ -37,21 +37,23 @@ class BottomSheetViewController<Content: View>: BottomSheetBaseController {
 
         contentView.view.translatesAutoresizingMaskIntoConstraints = false
         contentView.view.backgroundColor = contentBackgroundColor
-        bottomAnchor = contentView.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        
+        view.backgroundColor = contentBackgroundColor
+
+        bottomConstraint = contentView.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+
         NSLayoutConstraint.activate([
-            bottomAnchor,
+            bottomConstraint,
             contentView.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             contentView.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             contentView.view.topAnchor.constraint(equalTo: view.topAnchor),
         ])
-        
+
         keyboardSubscription = Publishers
             .keyboardInfo
             .receive(on: RunLoop.main)
             .sink(receiveValue: { [weak self] info in
                 guard let self = self else { return }
-                self.bottomAnchor.constant = -info.0
+                self.bottomConstraint.constant = -info.0
                 self.view.superview?.layoutIfNeeded()
             })
     }
