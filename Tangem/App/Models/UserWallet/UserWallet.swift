@@ -30,6 +30,10 @@ extension UserWallet {
 }
 
 extension UserWallet {
+    var isLocked: Bool {
+        card.wallets.isEmpty
+    }
+
     var encryptionKey: SymmetricKey? {
         guard let firstWalletPublicKey = card.wallets.first?.publicKey else { return nil }
 
