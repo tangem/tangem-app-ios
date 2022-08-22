@@ -43,15 +43,17 @@ struct UserWalletListCellView: View {
 
             Spacer()
 
-            VStack(alignment: .trailing, spacing: 2) {
-                Text(model.totalBalance ?? "999.99")
-                    .font(Font.subheadline)
-                    .foregroundColor(Colors.Text.primary1)
-                    .skeletonable(isShown: model.totalBalanceLoading)
+            if !model.isUserWalletLocked {
+                VStack(alignment: .trailing, spacing: 2) {
+                    Text(model.totalBalance ?? "999.99")
+                        .font(Font.subheadline)
+                        .foregroundColor(Colors.Text.primary1)
+                        .skeletonable(isShown: model.totalBalanceLoading)
 
-                Text(model.numberOfTokens ?? "")
-                    .font(Font.footnote)
-                    .foregroundColor(Colors.Text.tertiary)
+                    Text(model.numberOfTokens ?? "")
+                        .font(Font.footnote)
+                        .foregroundColor(Colors.Text.tertiary)
+                }
             }
         }
         .padding(16)
