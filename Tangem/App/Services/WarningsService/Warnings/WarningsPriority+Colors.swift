@@ -16,7 +16,7 @@ extension WarningPriority {
         case .critical: return .tangemCritical
         }
     }
-    
+
     var messageColor: Color {
         switch self {
         case .info: return .tangemGrayDark

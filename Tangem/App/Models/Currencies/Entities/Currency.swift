@@ -14,7 +14,7 @@ extension CurrenciesResponse {
         let code: String
         let name: String
         let unit: String
-        
+
         var description: String {
             let localizedName = Locale.current.localizedString(forCurrencyCode: code)?.capitalizingFirstLetter() ?? name
             return "\(localizedName) (\(code)) — \(unit)"
