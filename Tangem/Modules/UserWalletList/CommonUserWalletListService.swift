@@ -229,43 +229,36 @@ class CommonUserWalletListService: UserWalletListService {
     }
 
     private func tryToAccessBiometryInternal(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        BiometricsUtil.requestAccess(localizedReason: "SOME REASON") { [weak self, encryptionKeyStorageKey] result in
+        biometricsStorage.get(encryptionKeyStorageKey) { [weak self, encryptionKeyStorageKey] result in
             switch result {
-            case .failure(let error):
-                completion(.failure(error))
-            case .success(let context):
-                self?.biometricsStorage.get(encryptionKeyStorageKey, context: context) { [weak self] result in
-                    switch result {
-                    case .success(let encryptionKey):
-                        if let encryptionKey = encryptionKey {
-                            self?.unlockingMethod = .biometry(encryptionKey: SymmetricKey(data: encryptionKey))
-                            self?.loadModels()
-                            completion(.success(()))
-                            return
-                        }
-                    case .failure(let error):
-                        print("Failed to get encryption key", error)
-                        self?.loadModels()
-                        completion(.failure(error))
-                        return
-                    }
-
-                    let newEncryptionKey = SymmetricKey(size: .bits256)
-                    let newEncryptionKeyData = Data(hexString: newEncryptionKey.dataRepresentation.hexString) // WTF?
-
-                    self?.biometricsStorage.store(newEncryptionKeyData, forKey: encryptionKeyStorageKey, overwrite: true, context: context) { [weak self] result in
-                        switch result {
-                        case .success:
-                            self?.unlockingMethod = .biometry(encryptionKey: SymmetricKey(data: newEncryptionKey))
-                            completion(.success(()))
-                        case .failure(let error):
-                            print("Failed to save encryption key", error)
-                            completion(.failure(error))
-                        }
-
-                        self?.loadModels()
-                    }
+            case .success(let encryptionKey):
+                if let encryptionKey = encryptionKey {
+                    self?.unlockingMethod = .biometry(encryptionKey: SymmetricKey(data: encryptionKey))
+                    self?.loadModels()
+                    completion(.success(()))
+                    return
                 }
+            case .failure(let error):
+                print("Failed to get encryption key", error)
+                self?.loadModels()
+                completion(.failure(error))
+                return
+            }
+
+            let newEncryptionKey = SymmetricKey(size: .bits256)
+            let newEncryptionKeyData = Data(hexString: newEncryptionKey.dataRepresentation.hexString) // WTF?
+
+            self?.biometricsStorage.store(newEncryptionKeyData, forKey: encryptionKeyStorageKey, overwrite: true) { [weak self] result in
+                switch result {
+                case .success:
+                    self?.unlockingMethod = .biometry(encryptionKey: SymmetricKey(data: newEncryptionKey))
+                    completion(.success(()))
+                case .failure(let error):
+                    print("Failed to save encryption key", error)
+                    completion(.failure(error))
+                }
+
+                self?.loadModels()
             }
         }
     }
