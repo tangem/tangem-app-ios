@@ -18,11 +18,11 @@ extension CGSize {
     static func * (lhs: CGSize, rhs: CGFloat) -> CGSize {
         .init(width: lhs.width * rhs, height: lhs.height * rhs)
     }
-    
+
     static func + (left: CGSize, right: CGSize) -> CGSize {
         return CGSize(width: left.width + right.width, height: left.height + right.height)
     }
-    
+
     /**
      * ...
      * a += b
@@ -30,7 +30,7 @@ extension CGSize {
     static func += (left: inout CGSize, right: CGSize) {
         left = left + right
     }
-    
+
     /**
      * ...
      * a - b
@@ -38,7 +38,7 @@ extension CGSize {
     static func - (left: CGSize, right: CGSize) -> CGSize {
         return CGSize(width: left.width - right.width, height: left.height - right.height)
     }
-    
+
     /**
      * ...
      * a -= b
