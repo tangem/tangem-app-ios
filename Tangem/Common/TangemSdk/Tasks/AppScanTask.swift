@@ -56,8 +56,6 @@ final class AppScanTask: CardSessionRunnable {
     private var derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]] = [:]
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
     #if !CLIP
-    @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
-
     init(targetBatch: String? = nil) {
         self.targetBatch = targetBatch
     }
@@ -257,13 +255,15 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
 
+        let tokenItemsRepository = CommonTokenItemsRepository(key: card.cardId)
+
         // Force add blockchains for demo cards
         let config = GenericConfig(card: card)
-//        if let persistentBlockchains = config.persistentBlockchains {
-//            tokenItemsRepository.append(persistentBlockchains, for: card.cardId)
-//        }
+        if let persistentBlockchains = config.persistentBlockchains {
+            tokenItemsRepository.append(persistentBlockchains)
+        }
 
-        let savedItems = tokenItemsRepository.getItems(for: card.cardId)
+        let savedItems = tokenItemsRepository.getItems()
 
         var derivations: [Data: Set<DerivationPath>] = [:]
         savedItems.forEach { item in
