@@ -11,14 +11,17 @@ import BlockchainSdk
 
 struct PendingTransaction: Hashable, Identifiable {
     var id: Int { hashValue }
-    
-    enum Direction {
-        case incoming
-        case outgoing
-    }
+
     let amountType: Amount.AmountType
     let destination: String
     let transferAmount: String
     let canBePushed: Bool
     let direction: Direction
+}
+
+extension PendingTransaction {
+    enum Direction {
+        case incoming
+        case outgoing
+    }
 }
