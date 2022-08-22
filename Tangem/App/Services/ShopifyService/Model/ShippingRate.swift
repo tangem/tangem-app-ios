@@ -11,7 +11,7 @@ struct ShippingRate {
     let handle: String
     let title: String
     let amount: Decimal
-    
+
     init(_ shippingRate: Storefront.ShippingRate) {
         self.handle = shippingRate.handle
         self.title = shippingRate.title
