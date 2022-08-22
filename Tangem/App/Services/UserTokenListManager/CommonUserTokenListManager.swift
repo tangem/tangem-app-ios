@@ -9,10 +9,14 @@
 import Foundation
 import Combine
 import BlockchainSdk
+import TangemSdk
 
 class CommonUserTokenListManager {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-//    [REDACTED_USERNAME](\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
+
+
+    /// I use `var` because the repository will be updated after migration
+    private var tokenItemsRepository: TokenItemsRepository
 
     private let userWalletId: String
     private let cardId: String
@@ -24,7 +28,7 @@ class CommonUserTokenListManager {
         self.userWalletId = userWalletId
         self.cardId = cardId
 
-//        tokenItemsRepository.setSubscriber(self)
+        tokenItemsRepository = CommonTokenItemsRepository(key: cardId)
     }
 }
 
@@ -49,7 +53,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
         }
         .eraseToAnyPublisher()
     }
-    
+
     func saveTokenListInRepository(entries: [StorageEntry]) {
         let tokens = mapToTokens(entries: entries)
         let list = UserTokenList(tokens: tokens)
@@ -75,23 +79,28 @@ private extension CommonUserTokenListManager {
     func loadUserTokenList(result: @escaping (Result<UserTokenList, Error>) -> Void) {
         self.loadTokensCancellable = tangemApiService
             .loadTokens(key: userWalletId)
-            .sink(receiveCompletion: { [unowned self] completion in
+            .sink { [unowned self] completion in
                 guard case let .failure(error) = completion else { return }
 
-                if error.statusCode == 404 {
-                    saveAllTokenFromRepositoryInBackend(result: result)
+                if error.code == .notFound {
+                    migrateAndUpdateTokensInBackend(result: result)
                 } else {
                     result(.failure(error as Error))
                 }
-
-            }, receiveValue: { [unowned self] list in
+            } receiveValue: { [unowned self] list in
                 saveTokenListInRepository(list: list)
                 result(.success(list))
-            })
+            }
     }
 
-    func saveAllTokenFromRepositoryInBackend(result: @escaping (Result<UserTokenList, Error>) -> Void) {
-        let entries = tokenItemsRepository.getItems(for: cardId)
+    func migrateAndUpdateTokensInBackend(result: @escaping (Result<UserTokenList, Error>) -> Void) {
+        let entries = tokenItemsRepository.getItems()
+        tokenItemsRepository.removeAll()
+
+        // Recreate the repository for new key
+        tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId)
+        tokenItemsRepository.append(entries)
+
         let tokens = mapToTokens(entries: entries)
         let list = UserTokenList(tokens: tokens)
 
@@ -108,12 +117,16 @@ private extension CommonUserTokenListManager {
 
     func saveTokenListInRepository(list: UserTokenList) {
         let networks = Dictionary(grouping: list.tokens, by: { $0.networkId })
-        let entries = networks.compactMap { key, tokens -> StorageEntry? in
-            guard let blockchainNetwork = getBlockchainNetwork(from: key) else {
+        let entries = networks.compactMap { networkId, tokens -> StorageEntry? in
+            guard let blockchain = Blockchain(from: networkId) else {
+                assertionFailure("Blockchain for networkId \(networkId) not found)")
                 return nil
             }
 
-            let entryTokens = tokens.compactMap { token -> Token? in
+            let derivationRawValue = tokens.first { $0.derivationPath != nil }?.derivationPath
+            print("derivationRawValue", derivationRawValue as Any)
+
+            let tokens = tokens.compactMap { token -> BlockchainSdk.Token? in
                 guard let contractAddress = token.contractAddress else {
                     return nil
                 }
@@ -127,23 +140,15 @@ private extension CommonUserTokenListManager {
                 )
             }
 
+            let derivationPath = try? DerivationPath(rawPath: derivationRawValue ?? "")
+            let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath)
             return StorageEntry(
                 blockchainNetwork: blockchainNetwork,
-                tokens: entryTokens
+                tokens: tokens
             )
         }
 
-//        tokenItemsRepository.removeAll(for: cardId)
-        tokenItemsRepository.append(entries, for: cardId)
-    }
-
-    func getBlockchainNetwork(from networkId: String?) -> BlockchainNetwork? {
-        guard let networkId = networkId,
-              let blockchain = Blockchain(from: networkId) else {
-            return nil
-        }
-
-        return BlockchainNetwork(blockchain)
+        tokenItemsRepository.append(entries)
     }
 
     func mapToTokens(entries: [StorageEntry]) -> [UserTokenList.Token] {
