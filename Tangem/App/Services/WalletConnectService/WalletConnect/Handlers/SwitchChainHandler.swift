@@ -63,7 +63,7 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
             throw WalletConnectServiceError.unsupportedNetwork
         }
 
-        let availableItems = CommonTokenItemsRepository(cardId: oldWalletInfo.cid).getItems()
+        let availableItems = CommonTokenItemsRepository(key: oldWalletInfo.cid).getItems()
         guard let availableItem = availableItems.first(where: { $0.blockchainNetwork.blockchain.chainId == chainId }) else {
             throw WalletConnectServiceError.networkNotFound(name: targetBlockchain.displayName)
         }
