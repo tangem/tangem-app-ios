@@ -226,6 +226,7 @@ class MainViewModel: ObservableObject {
 
         cardModel
             .$walletsBalanceState
+            .dropFirst()
             .receive(on: RunLoop.main)
             .sink(receiveValue: { [unowned self] state in
                 switch state {
