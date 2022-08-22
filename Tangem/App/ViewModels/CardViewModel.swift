@@ -85,6 +85,8 @@ class CardViewModel: Identifiable, ObservableObject {
     private var tangemSdk: TangemSdk { tangemSdkProvider.sdk }
     private var config: UserWalletConfig
     private let tokenItemsRepository: TokenItemsRepository
+    // [REDACTED_TODO_COMMENT]
+    private let userTokenListManager: UserTokenListManager
 
     var availableSecurityOptions: [SecurityModeOption] {
         var options: [SecurityModeOption] = []
@@ -238,6 +240,10 @@ class CardViewModel: Identifiable, ObservableObject {
         self.cardInfo = cardInfo
         self.config = UserWalletConfigFactory(cardInfo).makeConfig()
         tokenItemsRepository = CommonTokenItemsRepository(key: cardInfo.card.cardId)
+        userTokenListManager = CommonUserTokenListManager(
+            userWalletId: cardInfo.card.userWalletId,
+            cardId: cardInfo.card.cardId
+        )
 
         updateCardPinSettings()
         updateCurrentSecurityOption()
