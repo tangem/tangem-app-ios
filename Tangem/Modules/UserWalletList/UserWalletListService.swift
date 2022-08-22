@@ -18,6 +18,8 @@ protocol UserWalletListService: AnyObject, Initializable {
     var isEmpty: Bool { get }
 
     func tryToAccessBiometry(completion: @escaping (Result<Void, TangemSdkError>) -> Void)
+    func unlockWithCard(_ userWallet: UserWallet, completion: @escaping (Result<Void, TangemSdkError>) -> Void)
+    func unlockWithCard(completion: @escaping (Result<Void, TangemSdkError>) -> Void)
 
     func deleteWallet(_ userWallet: UserWallet)
     func contains(_ userWallet: UserWallet) -> Bool
