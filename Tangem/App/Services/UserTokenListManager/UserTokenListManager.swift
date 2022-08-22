@@ -7,14 +7,25 @@
 //
 
 import Combine
+import BlockchainSdk
 
 protocol UserTokenListManager {
-    func append(entry: [StorageEntry], completion: (Result<Void, Error>) -> Void)
+    func append(entries: [StorageEntry], result: @escaping (Result<Void, Error>) -> Void)
+    func remove(blockchain: BlockchainNetwork, result: @escaping (Result<Void, Error>) -> Void)
+    func remove(tokens: [Token], in blockchain: BlockchainNetwork, result: @escaping (Result<Void, Error>) -> Void)
+
     func loadAndSaveUserTokenList() -> AnyPublisher<UserTokenList, Error>
+    func syncGetEntriesFromRepository() -> [StorageEntry]
+    func clearRepository(result: @escaping (Result<Void, Error>) -> Void)
 }
 
 extension UserTokenListManager {
-    func append(entry: [StorageEntry], completion: (Result<Void, Error>) -> Void = { _ in }) {
-        append(entry: entry, completion: completion)
+    func append(entries: [StorageEntry]) {
+        append(entries: entries, result: { _ in })
+    }
+
+    func append(networks: [BlockchainNetwork], result: @escaping (Result<Void, Error>) -> Void = { _ in }) {
+        let entries = networks.map { StorageEntry(blockchainNetwork: $0, tokens: []) }
+        append(entries: entries, result: result)
     }
 }

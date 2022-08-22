@@ -85,10 +85,13 @@ class TokenListViewModel: ObservableObject {
         cardModel.remove(items: itemsToRemove)
 
         let itemsToAdd = pendingAdd.map {
-            ($0.amountType, cardModel.getBlockchainNetwork(for: $0.blockchain, derivationPath: nil))
+            StorageEntry(
+                blockchainNetwork: cardModel.getBlockchainNetwork(for: $0.blockchain, derivationPath: nil),
+                token: $0.amountType.token
+            )
         }
 
-        cardModel.add(items: itemsToAdd) { [weak self] result in
+        cardModel.add(entries: itemsToAdd) { [weak self] result in
             self?.isSaving = false
 
             switch result {
