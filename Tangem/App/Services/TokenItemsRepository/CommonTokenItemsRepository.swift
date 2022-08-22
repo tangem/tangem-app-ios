@@ -143,20 +143,20 @@ fileprivate extension Array where Element == StorageEntry {
             return false
         }
 
-        // We already have blockchainNetwork in storage
+        // We already have the blockchainNetwork in storage
         var appended: Bool = false
 
-        // Add new tokens in StorageEntry
+        // Add new tokens in the existing StorageEntry
         entry.tokens.forEach { token in
             if !self[existingIndex].tokens.contains(token) {
-                // If we haven't token append
+                // Token hasn't been append
                 self[existingIndex].tokens.append(token)
                 appended = true
 
             } else if let savedTokenIndex = self[existingIndex].tokens.firstIndex(of: token),
                       self[existingIndex].tokens[savedTokenIndex].id == nil,
                       token.id != nil {
-                // If we have savedToken without id we should update this token
+                // Token has been saved without id. Just update this token
 
                 self[existingIndex].tokens[savedTokenIndex] = token // upgrade custom token
                 appended = true
