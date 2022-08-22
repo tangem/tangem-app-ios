@@ -21,7 +21,7 @@ class SupportedTokenItems {
             .solana(testnet: false): 3.246,
         ]
     }()
-    
+
     private lazy var blockchains: Set<Blockchain> = {
         [
             .ethereum(testnet: false),
@@ -45,6 +45,7 @@ class SupportedTokenItems {
             .fantom(testnet: false),
             .tron(testnet: false),
             .arbitrum(testnet: false),
+            .gnosis,
         ]
     }()
 
@@ -60,36 +61,36 @@ class SupportedTokenItems {
             .avalanche(testnet: true),
             .solana(testnet: true),
             .fantom(testnet: true),
-           // .polkadot(testnet: true),
+            // .polkadot(testnet: true),
             .tron(testnet: true),
             .arbitrum(testnet: true),
         ]
     }()
-    
-    func predefinedBlockchains(isDemo: Bool) -> [Blockchain] {
+
+    func predefinedBlockchains(isDemo: Bool, testnet: Bool) -> [Blockchain] {
         if isDemo {
             return Array(predefinedDemoBalances.keys)
         }
-        
-        return [.ethereum(testnet: false), .bitcoin(testnet: false)]
+
+        return [.ethereum(testnet: testnet), .bitcoin(testnet: testnet)]
     }
-    
+
     func blockchains(for curves: [EllipticCurve], isTestnet: Bool?) -> Set<Blockchain> {
         let allBlockchains = isTestnet.map { $0 ? testnetBlockchains : blockchains }
-        ?? testnetBlockchains.union(blockchains)
+            ?? testnetBlockchains.union(blockchains)
         return allBlockchains.filter { curves.contains($0.curve) }
     }
-    
+
     func blockchainsWithTokens(isTestnet: Bool) -> Set<Blockchain> {
         let blockchains = isTestnet ? testnetBlockchains : blockchains
         return blockchains.filter { $0.canHandleTokens }
     }
-    
+
     func evmBlockchains(isTestnet: Bool) -> Set<Blockchain> {
         let blockchains = isTestnet ? testnetBlockchains : blockchains
         return blockchains.filter { $0.isEvm }
     }
-    
+
     func loadTestnetCoins(supportedCurves: [EllipticCurve]) -> AnyPublisher<[CoinModel], Error> {
         readTestnetList()
             .map { list in
@@ -100,7 +101,7 @@ class SupportedTokenItems {
             }
             .eraseToAnyPublisher()
     }
-    
+
     private func readTestnetList() -> AnyPublisher<CoinsResponse, Error> {
         Just(())
             .receive(on: DispatchQueue.global())
@@ -126,14 +127,14 @@ private extension CoinModel {
         let filteredItems = items.filter { item in
             supportedCurves.contains(item.blockchain.curve)
         }
-        
+
         if filteredItems.isEmpty {
             return nil
         }
-        
+
         return makeCopy(with: filteredItems)
     }
-    
+
     private func makeCopy(with items: [TokenItem]) -> CoinModel {
         CoinModel(id: id, name: name, symbol: symbol, imageURL: imageURL, items: items)
     }

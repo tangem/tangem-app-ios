@@ -57,7 +57,7 @@ extension View {
     func onAnimationCompleted<Value: VectorArithmetic>(for value: Value, completion: @escaping () -> Void) -> some View {
         return modifier(AnimationCompletionObserverModifier(observedValue: value, completion: completion))
     }
-    
+
     @ViewBuilder
     func onAnimationCompleted<Value: VectorArithmetic>(forOptional value: Value?, completion: @escaping () -> Void) -> some View {
         if let value = value {
