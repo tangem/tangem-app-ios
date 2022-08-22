@@ -100,6 +100,19 @@ class WelcomeViewModel: ObservableObject {
         }
     }
 
+    func unlockWithCard() {
+        userWalletListService.unlockWithCard { [weak self] result in
+            if case .failure(let error) = result {
+                print("Failed to authenticate with biometry: \(error)")
+                return
+            }
+
+            guard let model = self?.userWalletListService.selectedModel else { return }
+            self?.showingAuthentication = false
+            self?.coordinator.openMain(with: model)
+        }
+    }
+
     func tryAgain() {
         Analytics.log(.tryAgainTapped)
         scanCard()
