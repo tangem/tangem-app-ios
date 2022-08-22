@@ -10,29 +10,29 @@ import TangemSdk
 
 class WriteIssuerDataTask: CardSessionRunnable {
     var message: Message? { Message(header: "twin_process_creating_wallet".localized) }
-    
+
     private let pairPubKey: Data
     private let keys: KeyPair
-    
+
     private var signedPubKeyHash: Data!
     private var command: WriteIssuerDataCommand? = nil
-    
+
     init(pairPubKey: Data, keys: KeyPair) {
         self.pairPubKey = pairPubKey
         self.keys = keys
     }
-    
+
     func run(in session: CardSession, completion: @escaping CompletionResult<SuccessResponse>) {
         guard let card = session.environment.card else {
             completion(.failure(.missingPreflightRead))
             return
         }
-        
+
         guard let publicKey = card.wallets.first?.publicKey else {
             completion(.failure(.cardError))
             return
         }
-        
+
         let sign = SignHashCommand(hash: pairPubKey.sha256(), walletPublicKey: publicKey)
         sign.run(in: session) { (result) in
             switch result {
@@ -44,7 +44,7 @@ class WriteIssuerDataTask: CardSessionRunnable {
             }
         }
     }
-    
+
     private func readIssuerCounter(in session: CardSession, completion: @escaping CompletionResult<SuccessResponse>) {
         let readCommand = ReadIssuerDataCommand()
         readCommand.run(in: session) { (result) in
@@ -56,28 +56,28 @@ class WriteIssuerDataTask: CardSessionRunnable {
             }
         }
     }
-    
+
     private func writeIssuerData(in session: CardSession, counter: Int?, completion: @escaping CompletionResult<SuccessResponse>) {
         guard let cardId = session.environment.card?.cardId else {
             completion(.failure(.cardError))
             return
         }
-        
+
         let dataToSign = pairPubKey + signedPubKeyHash
         let newCounter = (counter ?? 0) + 1
-        
-       
+
+
         guard let hashes = try? FileHashHelper.prepareHash(for: cardId, fileData: dataToSign, fileCounter: newCounter, privateKey: keys.privateKey),
               let signature = hashes.finalizingSignature
         else {
             completion(.failure(.signHashesNotAvailable))
             return
         }
-        
+
         command = WriteIssuerDataCommand(issuerData: dataToSign,
-                                             issuerDataSignature: signature,
-                                             issuerDataCounter: newCounter,
-                                             issuerPublicKey: keys.publicKey)
+                                         issuerDataSignature: signature,
+                                         issuerDataCounter: newCounter,
+                                         issuerPublicKey: keys.publicKey)
         command!.run(in: session) { (result) in
             switch result {
             case .success(let response):
