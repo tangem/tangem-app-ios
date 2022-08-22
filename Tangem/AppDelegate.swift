@@ -9,12 +9,12 @@
 import UIKit
 import Firebase
 import AppsFlyerLib
+import Amplitude
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-    
     var loadingView: UIView? = nil
-    
+
     func addLoadingView() {
         if let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) {
             let view = UIView(frame: window.bounds)
@@ -28,7 +28,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             loadingView = view
         }
     }
-    
+
     func removeLoadingView() {
         loadingView?.removeFromSuperview()
         loadingView = nil
@@ -46,41 +46,26 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             // To remove only extra separators below the list:
             UITableView.appearance().tableFooterView = UIView()
         }
-        
-        AppsFlyerLib.shared().appsFlyerDevKey = CommonKeysManager().appsFlyerDevKey
-        AppsFlyerLib.shared().appleAppID = "1354868448"
-        NotificationCenter.default.addObserver(self, selector: NSSelectorFromString("sendLaunch"),
-                                               name: UIApplication.didBecomeActiveNotification, object: nil)
 
-        #if RELEASE
-        FirebaseApp.configure()
-        #else
-        AppsFlyerLib.shared().isDebug = true
-        #endif
-        
-        let userPrefs = UserPrefsService()
-        userPrefs.numberOfLaunches += 1
-        print("Launch number:", userPrefs.numberOfLaunches)
-        
+        configureFirebase()
+        configureAppsFlyer()
+        configureAmplitude()
+
+        AppSettings.shared.numberOfLaunches += 1
         return true
     }
-    
-    // SceneDelegate support - start AppsFlyer SDK
-    @objc func sendLaunch() {
-        AppsFlyerLib.shared().start()
-    }
-    
+
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
-        
+
         guard
             userActivity.activityType == NSUserActivityTypeBrowsingWeb,
             let url = userActivity.webpageURL
         else {
             return false
         }
-        
+
         print("User continue with activity url: \(url)")
-        
+
         return true
     }
 
@@ -96,5 +81,44 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the user discards a scene session.
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
+    }
+
+    func applicationDidBecomeActive(_ application: UIApplication) {
+        guard AppEnvironment.current == .production else { return }
+
+        AppsFlyerLib.shared().start()
+    }
+}
+
+private extension AppDelegate {
+    func configureFirebase() {
+        let plistName = "GoogleService-Info-\(AppEnvironment.current.rawValue.capitalizingFirstLetter())"
+
+        guard let filePath = Bundle.main.path(forResource: plistName, ofType: "plist"),
+              let options = FirebaseOptions(contentsOfFile: filePath) else {
+            assertionFailure("GoogleService-Info.plist not found")
+            return
+        }
+
+        FirebaseApp.configure(options: options)
+    }
+
+    func configureAppsFlyer() {
+        guard AppEnvironment.current == .production else { return }
+
+        AppsFlyerLib.shared().appsFlyerDevKey = try! CommonKeysManager().appsFlyerDevKey
+        AppsFlyerLib.shared().appleAppID = "1354868448"
+        #if DEBUG
+        AppsFlyerLib.shared().isDebug = true
+        #else
+        AppsFlyerLib.shared().isDebug = false
+        #endif
+    }
+
+    func configureAmplitude() {
+        guard AppEnvironment.current == .production else { return }
+
+        Amplitude.instance().trackingSessionEvents = true
+        Amplitude.instance().initializeApiKey(try! CommonKeysManager().amplitudeApiKey)
     }
 }

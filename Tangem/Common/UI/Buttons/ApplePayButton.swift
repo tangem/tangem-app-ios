@@ -10,7 +10,7 @@ import PassKit
 
 struct ApplePayButton: UIViewRepresentable {
     let action: () -> Void
-    
+
     func makeUIView(context: Context) -> some UIView {
         let button = PKPaymentButton(paymentButtonType: .buy, paymentButtonStyle: .black)
         button.addTarget(
@@ -20,21 +20,21 @@ struct ApplePayButton: UIViewRepresentable {
         )
         return button
     }
-    
+
     func updateUIView(_ uiView: UIViewType, context: Context) {
     }
-    
+
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
     }
-    
+
     class Coordinator {
         let button: ApplePayButton
-        
+
         init(_ button: ApplePayButton) {
             self.button = button
         }
-        
+
         @objc
         func didTapButton() {
             button.action()
