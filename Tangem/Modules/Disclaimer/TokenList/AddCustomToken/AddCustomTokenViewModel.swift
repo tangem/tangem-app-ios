@@ -15,7 +15,6 @@ import enum TangemSdk.TangemSdkError
 class AddCustomTokenViewModel: ObservableObject {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
-    @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
 
     weak var cardModel: CardViewModel!
 
@@ -296,7 +295,8 @@ class AddCustomTokenViewModel: ObservableObject {
             return
         }
 
-        let cardTokenItems = tokenItemsRepository.getItems(for: cardModel.cardId)
+        let tokenItemsRepository = CommonTokenItemsRepository(cardId: cardModel.cardId)
+        let cardTokenItems = tokenItemsRepository.getItems()
         let checkingContractAddress = !contractAddress.isEmpty
         let derivationPath = try? enteredDerivationPath()
 
