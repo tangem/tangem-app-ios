@@ -2,7 +2,24 @@
 	"coinMarketCapKey": "",
 	"moonPayApiKey": "",
 	"moonPayApiSecretKey": "",
+	"mercuryoWidgetId": "",
+	"mercuryoSecret": "",
 	"blockchairApiKey": "",
 	"blockcypherTokens": ["","",""],
-	"infuraProjectId": ""
+	"infuraProjectId": "",
+	"appsFlyerDevKey": "",
+	"amplitudeApiKey": "",
+	"cryptoAPIsApiKey": "",
+	"zendesk": {
+		"zendeskApiKey": "",
+		"zendeskAppId": "",
+		"zendeskClientId": "",
+		"zendeskUrl": ""
+	},
+	"shopifyShop": {
+		"domain": "",
+		"storefrontApiKey": "",
+		"storefrontApiKeyAndroid": "",
+		"merchantID": ""
+	}
 }
