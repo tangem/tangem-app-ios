@@ -9,9 +9,9 @@
 import SwiftUI
 
 struct CameraAccessDeniedModifier: ViewModifier {
-    
+
     @Binding var isDisplayed: Bool
-    
+
     func body(content: Content) -> some View {
         content
             .alert(isPresented: $isDisplayed) {
@@ -24,7 +24,7 @@ struct CameraAccessDeniedModifier: ViewModifier {
             }
     }
 }
-    
+
 extension View {
     func cameraAccessDeniedAlert(_ isDisplayed: Binding<Bool>) -> some View {
         self.modifier(CameraAccessDeniedModifier(isDisplayed: isDisplayed))

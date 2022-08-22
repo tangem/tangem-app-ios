@@ -12,6 +12,6 @@ struct CoinsResponse: Codable {
     let total: Int
     let imageHost: URL?
     let coins: [CoinsResponse.Coin]
-    
+
     static let baseURL: URL = .init(string: "https://s3.eu-central-1.amazonaws.com/tangem.api/")!
 }
