@@ -177,6 +177,10 @@ class CommonUserWalletListService: UserWalletListService {
     }
 
     func save(_ userWallet: UserWallet) -> Bool {
+        if userWallets.isEmpty {
+            selectedUserWalletId = userWallet.userWalletId
+        }
+
         if let index = userWallets.firstIndex(where: { $0.userWalletId == userWallet.userWalletId }) {
             userWallets[index] = userWallet
         } else {
@@ -185,9 +189,6 @@ class CommonUserWalletListService: UserWalletListService {
 
         saveUserWallets(userWallets)
 
-        if userWallets.count == 1 {
-            selectedUserWalletId = userWallet.userWalletId
-        }
 
         let newModel = CardViewModel(userWallet: userWallet)
         if let index = models.firstIndex(where: { $0.userWallet.userWalletId == userWallet.userWalletId }) {
@@ -217,6 +218,7 @@ class CommonUserWalletListService: UserWalletListService {
 
     func clear() {
         let _ = saveUserWallets([])
+        userWallets = []
         selectedUserWalletId = nil
         unlockingMethod = nil
         do {
@@ -330,7 +332,9 @@ class CommonUserWalletListService: UserWalletListService {
 
         do {
             if userWallets.isEmpty {
-                try fileManager.removeItem(at: userWalletDirectoryUrl)
+                if fileManager.fileExists(atPath: userWalletDirectoryUrl.path) {
+                    try fileManager.removeItem(at: userWalletDirectoryUrl)
+                }
                 return
             }
 
@@ -381,7 +385,7 @@ class CommonUserWalletListService: UserWalletListService {
                 try excludeFromBackup(url: sensitiveDataPath)
             }
         } catch {
-            print(error)
+            print("Failed to save user wallets", error)
         }
     }
 
