@@ -12,25 +12,21 @@ import BlockchainSdk
 class CommonKeysManager {
     private let keysFileName = "config"
     private let keys: Keys
-    
-    init() {
-        do {
-            let keys = try JsonUtils.readBundleFile(with: keysFileName, type: Keys.self)
-            
-            if keys.blockchairApiKey.isEmpty ||
-                keys.blockcypherTokens.isEmpty ||
-                keys.infuraProjectId.isEmpty {
-                throw NSError(domain: "Empty keys in config file", code: -9998, userInfo: nil)
-            }
-            
-            if keys.blockcypherTokens.first(where: { $0.isEmpty }) != nil {
-                throw NSError(domain: "One of blockcypher tokens is empty", code: -10001, userInfo: nil)
-            }
-            
-            self.keys = keys
-        } catch {
-            self.keys = Keys.empty
+
+    init() throws {
+        let keys = try JsonUtils.readBundleFile(with: keysFileName, type: CommonKeysManager.Keys.self)
+
+        if keys.blockchairApiKey.isEmpty ||
+            keys.blockcypherTokens.isEmpty ||
+            keys.infuraProjectId.isEmpty {
+            throw NSError(domain: "Empty keys in config file", code: -9998, userInfo: nil)
         }
+
+        if keys.blockcypherTokens.first(where: { $0.isEmpty }) != nil {
+            throw NSError(domain: "One of blockcypher tokens is empty", code: -10001, userInfo: nil)
+        }
+
+        self.keys = keys
     }
 }
 
@@ -38,28 +34,36 @@ extension CommonKeysManager: KeysManager {
     var appsFlyerDevKey: String {
         keys.appsFlyerDevKey
     }
-    
+
     var moonPayKeys: MoonPayKeys {
         MoonPayKeys(apiKey: keys.moonPayApiKey, secretApiKey: keys.moonPayApiSecretKey)
     }
-    
+
     var mercuryoWidgetId: String {
         keys.mercuryoWidgetId
     }
-    
+
     var mercuryoSecret: String {
         keys.mercuryoSecret
     }
-    
+
     var blockchainConfig: BlockchainSdkConfig {
         BlockchainSdkConfig(blockchairApiKey: keys.blockchairApiKey,
                             blockcypherTokens: keys.blockcypherTokens,
                             infuraProjectId: keys.infuraProjectId,
                             tronGridApiKey: keys.tronGridApiKey)
     }
-    
+
     var shopifyShop: ShopifyShop {
         keys.shopifyShop
+    }
+
+    var zendesk: ZendeskConfig {
+        keys.zendesk
+    }
+
+    var amplitudeApiKey: String {
+        keys.amplitudeApiKey
     }
 }
 
@@ -73,13 +77,9 @@ extension CommonKeysManager {
         let blockcypherTokens: [String]
         let infuraProjectId: String
         let appsFlyerDevKey: String
+        let amplitudeApiKey: String
         let tronGridApiKey: String
         let shopifyShop: ShopifyShop
-        
-        fileprivate static var empty: Keys {
-            .init(moonPayApiKey: "", moonPayApiSecretKey: "", mercuryoWidgetId: "", mercuryoSecret: "", blockchairApiKey: "",
-                  blockcypherTokens: [], infuraProjectId: "", appsFlyerDevKey: "", tronGridApiKey: "",
-                  shopifyShop: .init(domain: "", storefrontApiKey: "", merchantID: ""))
-        }
+        let zendesk: ZendeskConfig
     }
 }

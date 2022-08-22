@@ -8,12 +8,13 @@
 
 import Foundation
 import SwiftUI
+import Combine
 
 extension View {
-	func toAnyView() -> AnyView {
-		AnyView(self)
-	}
-    
+    func toAnyView() -> AnyView {
+        AnyView(self)
+    }
+
     @ViewBuilder func tintCompat(_ color: Color) -> some View {
         if #available(iOS 15.0, *) {
             self.tint(color)
@@ -21,7 +22,7 @@ extension View {
             self
         }
     }
-    
+
     @ViewBuilder func toggleStyleCompat(_ color: Color) -> some View {
         if #available(iOS 15.0, *) {
             self.tint(color)
@@ -31,7 +32,7 @@ extension View {
             self
         }
     }
-    
+
     @ViewBuilder func searchableCompat(text: Binding<String>) -> some View {
         if #available(iOS 15.0, *) {
             self.searchable(text: text, placement: .navigationBarDrawer(displayMode: .always))
@@ -39,7 +40,7 @@ extension View {
             self
         }
     }
-    
+
     @ViewBuilder func ignoresKeyboard() -> some View {
         if #available(iOS 14.0, *) {
             self.ignoresSafeArea(.keyboard)
@@ -47,7 +48,7 @@ extension View {
             self
         }
     }
-    
+
     @ViewBuilder func ignoresBottomArea() -> some View {
         if #available(iOS 14.0, *) {
             self.ignoresSafeArea(.container, edges: .bottom)
@@ -55,12 +56,21 @@ extension View {
             self.edgesIgnoringSafeArea(.bottom)
         }
     }
-    
+
     @ViewBuilder func `if`<Content: View>(_ condition: Bool, transform: (Self) -> Content) -> some View {
         if condition {
             transform(self)
         } else {
             self
+        }
+    }
+
+    @_disfavoredOverload
+    @ViewBuilder public func onChange<V>(of value: V, perform action: @escaping (V) -> Void) -> some View where V: Equatable {
+        if #available(iOS 14, *) {
+            onChange(of: value, perform: action)
+        } else {
+            modifier(ChangeObserver(newValue: value, action: action))
         }
     }
 }
