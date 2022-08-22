@@ -95,7 +95,7 @@ class LegacyCardMigrator {
         self.cardId = cardId
         self.embeddedEntry = embeddedEntry
 
-        tokenItemsRepository = CommonTokenItemsRepository(cardId: cardId)
+        tokenItemsRepository = CommonTokenItemsRepository(key: cardId)
     }
 
     // Save default blockchain and token to main tokens repo.
