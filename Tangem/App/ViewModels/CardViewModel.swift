@@ -237,7 +237,7 @@ class CardViewModel: Identifiable, ObservableObject {
     init(cardInfo: CardInfo) {
         self.cardInfo = cardInfo
         self.config = UserWalletConfigFactory(cardInfo).makeConfig()
-        tokenItemsRepository = CommonTokenItemsRepository(cardId: cardInfo.card.cardId)
+        tokenItemsRepository = CommonTokenItemsRepository(key: cardInfo.card.cardId)
 
         updateCardPinSettings()
         updateCurrentSecurityOption()
