@@ -9,9 +9,6 @@
 import Combine
 
 class WalletTokenListViewModel: ObservableObject {
-    // [REDACTED_TODO_COMMENT]
-    @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
-
     // MARK: - ViewState
     @Published var contentState: ContentState<[TokenItemViewModel]> = .loading
     @Published var loadingError: Error?
