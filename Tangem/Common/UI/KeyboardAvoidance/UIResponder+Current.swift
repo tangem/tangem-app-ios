@@ -6,8 +6,8 @@
 ////  Copyright © 2020 Vadim Bulavin. All rights reserved.
 ////
 //
-//import Foundation
-//import UIKit
+// import Foundation
+// import UIKit
 //
 ////// From https://stackoverflow.com/a/14135456/6870041
 ////extension UIResponder {
