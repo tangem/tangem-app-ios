@@ -23,7 +23,7 @@ class CardViewModel: Identifiable, ObservableObject {
     @Injected(\.cardImageLoader) var imageLoader: CardImageLoaderProtocol
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
-    @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
+//    [REDACTED_USERNAME](\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
     @Injected(\.scannedCardsRepository) private var scannedCardsRepository: ScannedCardsRepository
 
@@ -85,6 +85,7 @@ class CardViewModel: Identifiable, ObservableObject {
     private var migrated = false
     private var tangemSdk: TangemSdk { tangemSdkProvider.sdk }
     private var config: UserWalletConfig
+    private let tokenItemsRepository: TokenItemsRepository
 
     var availableSecurityOptions: [SecurityModeOption] {
         var options: [SecurityModeOption] = []
@@ -237,6 +238,8 @@ class CardViewModel: Identifiable, ObservableObject {
     init(cardInfo: CardInfo) {
         self.cardInfo = cardInfo
         self.config = UserWalletConfigFactory(cardInfo).makeConfig()
+        tokenItemsRepository = CommonTokenItemsRepository(cardId: cardInfo.card.cardId)
+
         updateCardPinSettings()
         updateCurrentSecurityOption()
         bind()
@@ -300,7 +303,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func appendDefaultBlockchains() {
-        tokenItemsRepository.append(config.defaultBlockchains, for: cardId)
+        tokenItemsRepository.append(config.defaultBlockchains)
     }
 
     // MARK: - Security
@@ -386,7 +389,7 @@ class CardViewModel: Identifiable, ObservableObject {
             switch result {
             case .success(let response):
                 Analytics.log(.factoryResetSuccess)
-                self?.tokenItemsRepository.removeAll(for: response.cardId)
+                self?.tokenItemsRepository.removeAll()
                 self?.clearTwinPairKey()
                 // self.update(with: response)
                 completion(.success(()))
@@ -523,7 +526,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func makeAllWalletModels() -> [WalletModel] {
-        let tokens = tokenItemsRepository.getItems(for: cardId)
+        let tokens = tokenItemsRepository.getItems()
         return config.makeWalletModels(for: tokens, derivedKeys: cardInfo.derivedKeys)
     }
 
@@ -566,7 +569,7 @@ class CardViewModel: Identifiable, ObservableObject {
                     let notEmptyWallets = models.filter { !$0.wallet.isEmpty }
                     if !notEmptyWallets.isEmpty {
                         let itemsToAdd = notEmptyWallets.map { $0.blockchainNetwork }
-                        self.tokenItemsRepository.append(itemsToAdd, for: self.cardId)
+                        self.tokenItemsRepository.append(itemsToAdd)
                         self.updateLoadedState(with: notEmptyWallets)
                     }
                 } receiveValue: { _ in
@@ -614,7 +617,7 @@ class CardViewModel: Identifiable, ObservableObject {
             case .success(let tokensAdded):
                 if tokensAdded {
                     let tokens = ethWalletModel!.walletManager.cardTokens
-                    self.tokenItemsRepository.append(tokens, blockchainNetwork: network, for: self.cardId)
+                    self.tokenItemsRepository.append(tokens, blockchainNetwork: network)
 
                     if shouldAddWalletManager {
                         self.stateUpdateQueue.sync {
@@ -646,7 +649,7 @@ class CardViewModel: Identifiable, ObservableObject {
             }
         }
 
-        tokenItemsRepository.append(entries, for: cardId)
+        tokenItemsRepository.append(entries)
 
         if hdWalletsSupported {
             var newDerivationPaths: [Data: [DerivationPath]] = [:]
@@ -736,7 +739,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func removeBlockchain(_ blockchainNetwork: BlockchainNetwork) {
-        tokenItemsRepository.remove([blockchainNetwork], for: cardId)
+        tokenItemsRepository.remove([blockchainNetwork])
 
         stateUpdateQueue.sync {
             if let walletModels = self.walletModels {
@@ -766,8 +769,8 @@ class CardViewModel: Identifiable, ObservableObject {
         }
 
         migrated = true
-        let cardId = cardId
-        let items = tokenItemsRepository.getItems(for: cardId)
+
+        let items = tokenItemsRepository.getItems()
         let itemsWithCustomTokens = items.filter { item in
             return item.tokens.contains(where: { $0.isCustom })
         }
@@ -789,7 +792,7 @@ class CardViewModel: Identifiable, ObservableObject {
                     .replaceError(with: [])
                     .map { [unowned self] models -> Bool in
                         if let updatedTokem = models.first?.items.compactMap({ $0.token }).first {
-                            self.tokenItemsRepository.append([updatedTokem], blockchainNetwork: item.blockchainNetwork, for: cardId)
+                            self.tokenItemsRepository.append([updatedTokem], blockchainNetwork: item.blockchainNetwork)
                             return true
                         }
                         return false
