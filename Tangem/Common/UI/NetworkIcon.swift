@@ -13,22 +13,22 @@ struct NetworkIcon: View {
     let imageName: String
     let isMainIndicatorVisible: Bool
     var size: CGSize = .init(width: 20, height: 20)
-    
+
     var body: some View {
         Image(imageName)
             .resizable()
             .frame(width: size.width, height: size.height)
             .overlay(indicatorOverlay)
     }
-    
+
     @ViewBuilder
     private var indicatorOverlay: some View {
         if isMainIndicatorVisible {
-            let indicatorSize: CGSize = .init(width: size.width/3, height: size.height/3)
+            let indicatorSize: CGSize = .init(width: size.width / 3, height: size.height / 3)
             MainNetworkIndicator()
                 .frame(width: indicatorSize.width, height: indicatorSize.height)
-                .offset(x: size.width/2 - indicatorSize.width/2,
-                        y: -size.height/2 + indicatorSize.height/2)
+                .offset(x: size.width / 2 - indicatorSize.width / 2,
+                        y: -size.height / 2 + indicatorSize.height / 2)
         } else {
             EmptyView()
         }
@@ -37,7 +37,7 @@ struct NetworkIcon: View {
 
 fileprivate struct MainNetworkIndicator: View {
     let borderPadding: CGFloat = 1.5
-    
+
     var body: some View {
         Circle()
             .foregroundColor(.tangemGreen2)
