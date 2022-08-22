@@ -85,15 +85,17 @@ class CommonCardsRepository: CardsRepository {
 
 /// Temporary solution to migrate default tokens of old miltiwallet cards to TokenItemsRepository. Remove at Q3-Q4'22
 class LegacyCardMigrator {
-    @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
     @Injected(\.scannedCardsRepository) private var scannedCardsRepository: ScannedCardsRepository
 
     private let cardId: String
     private let embeddedEntry: StorageEntry
+    private let tokenItemsRepository: TokenItemsRepository
 
     init(cardId: String, embeddedEntry: StorageEntry) {
         self.cardId = cardId
         self.embeddedEntry = embeddedEntry
+
+        self.tokenItemsRepository = CommonTokenItemsRepository(cardId: cardId)
     }
 
     // Save default blockchain and token to main tokens repo.
@@ -110,12 +112,12 @@ class LegacyCardMigrator {
             return
         }
 
-        var entries = tokenItemsRepository.getItems(for: cardId)
+        var entries = tokenItemsRepository.getItems()
         entries.insert(embeddedEntry, at: 0)
 
         // We need to preserve order of token items
-        tokenItemsRepository.removeAll(for: cardId)
-        tokenItemsRepository.append(entries, for: cardId)
+        tokenItemsRepository.removeAll()
+        tokenItemsRepository.append(entries)
 
         AppSettings.shared.migratedCardsWithDefaultTokens.append(cardId)
     }
