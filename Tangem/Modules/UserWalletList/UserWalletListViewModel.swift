@@ -193,9 +193,30 @@ final class UserWalletListViewModel: ObservableObject {
     }
 
     private func setSelectedWallet(_ userWallet: UserWallet) {
-        self.selectedUserWalletId = userWallet.userWalletId
-        userWalletListService.selectedUserWalletId = userWallet.userWalletId
-        self.coordinator.didTapUserWallet(userWallet: userWallet)
+        guard selectedUserWalletId != userWallet.userWalletId else {
+            return
+        }
+
+        userWalletListService.unlockWithCard(userWallet) { [weak self] result in
+            guard case .success = result else {
+                return
+            }
+
+            guard let selectedModel = self?.userWalletListService.models.first(where: { $0.userWallet.userWalletId == userWallet.userWalletId }) else {
+                return
+            }
+
+            let userWallet = selectedModel.userWallet
+
+            selectedModel.getCardInfo()
+            selectedModel.updateState()
+
+            self?.updateModels()
+
+            self?.selectedUserWalletId = userWallet.userWalletId
+            self?.userWalletListService.selectedUserWalletId = userWallet.userWalletId
+            self?.coordinator.didTapUserWallet(userWallet: userWallet)
+        }
     }
 
     private func updateHeight(oldModelSections: [[CardViewModel]]) {
