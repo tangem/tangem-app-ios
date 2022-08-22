@@ -17,7 +17,7 @@ struct WalletConnectEthTransaction: Codable {
     let gasLimit: String?
     let gasPrice: String?
     let nonce: String?
-    
+
     var description: String {
         return """
         to: \(to),
