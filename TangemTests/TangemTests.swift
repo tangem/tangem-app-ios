@@ -7,10 +7,10 @@
 //
 
 import XCTest
+import TangemSdk
 @testable import Tangem
 
 class TangemTests: XCTestCase {
-
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
     }
@@ -19,21 +19,16 @@ class TangemTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-	func testParseConfig() throws {
-		XCTAssertNoThrow(try KeysManager())
-        XCTAssertNoThrow(try FeaturesConfigManager())
-	}
-	
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+    func testParseConfig() throws {
+        XCTAssertNoThrow(try CommonKeysManager())
     }
 
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+    func testDemoCardIds() throws {
+        let cardIdRegex = try! NSRegularExpression(pattern: "[A-Z]{2}\\d{14}")
+        for demoCardId in Card.demoCardIds {
+            let range = NSRange(location: 0, length: demoCardId.count)
+            let match = cardIdRegex.firstMatch(in: demoCardId, options: [], range: range)
+            XCTAssertTrue(match != nil, "Demo Card ID \(demoCardId) is invalid")
         }
     }
-
 }

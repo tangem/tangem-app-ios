@@ -10,36 +10,35 @@ import Foundation
 import StoreKit
 
 class CommonRateAppService {
-    private var userPrefsService: UserPrefsService = .init()
     private(set) var shouldShowRateAppWarning: Bool = false
     private let positiveBalanceTimeThreshold: TimeInterval = 3600 * 24 * 3
     private let positiveBalanceLaunchThreshold: Int = 3
-    
+
     init() {
-        if userPrefsService.didUserRespondToRateApp {
+        if AppSettings.shared.didUserRespondToRateApp {
             return
         }
-        
-        let numberOfLaunches = userPrefsService.numberOfLaunches
+
+        let numberOfLaunches = AppSettings.shared.numberOfLaunches
 
         guard
-            let positiveBalanceDate = userPrefsService.positiveBalanceAppearanceDate,
-            let positiveBalanceLaunch = userPrefsService.positiveBalanceAppearanceLaunch
+            let positiveBalanceDate = AppSettings.shared.positiveBalanceAppearanceDate,
+            let positiveBalanceLaunch = AppSettings.shared.positiveBalanceAppearanceLaunch
         else { return }
-        
+
         guard
             (Date().timeIntervalSince1970 - positiveBalanceDate.timeIntervalSince1970) > positiveBalanceTimeThreshold,
             (numberOfLaunches - positiveBalanceLaunch) >= positiveBalanceLaunchThreshold
         else { return }
-        
-        guard let dismissAtLaunch = userPrefsService.dismissRateAppAtLaunch else {
+
+        guard let dismissAtLaunch = AppSettings.shared.dismissRateAppAtLaunch else {
             shouldShowRateAppWarning = true
             return
         }
 
         shouldShowRateAppWarning = (numberOfLaunches - dismissAtLaunch) >= 20
     }
-    
+
     deinit {
         print("RateAppService deinit")
     }
@@ -47,27 +46,27 @@ class CommonRateAppService {
 
 extension CommonRateAppService: RateAppService {
     var shouldCheckBalanceForRateApp: Bool {
-        !(userPrefsService.didUserRespondToRateApp ||
-            userPrefsService.positiveBalanceAppearanceLaunch != nil)
+        !(AppSettings.shared.didUserRespondToRateApp ||
+            AppSettings.shared.positiveBalanceAppearanceLaunch != nil)
     }
-    
+
     func dismissRateAppWarning() {
-        userPrefsService.dismissRateAppAtLaunch = userPrefsService.numberOfLaunches
+        AppSettings.shared.dismissRateAppAtLaunch = AppSettings.shared.numberOfLaunches
         shouldShowRateAppWarning = false
     }
-    
+
     func userReactToRateAppWarning(isPositive: Bool) {
-        userPrefsService.didUserRespondToRateApp = true
+        AppSettings.shared.didUserRespondToRateApp = true
         shouldShowRateAppWarning = false
         if isPositive {
             SKStoreReviewController.requestReview()
         }
     }
-    
+
     func registerPositiveBalanceDate() {
-        guard userPrefsService.positiveBalanceAppearanceDate == nil else { return }
-        
-        userPrefsService.positiveBalanceAppearanceDate = Date()
-        userPrefsService.positiveBalanceAppearanceLaunch = userPrefsService.numberOfLaunches
+        guard AppSettings.shared.positiveBalanceAppearanceDate == nil else { return }
+
+        AppSettings.shared.positiveBalanceAppearanceDate = Date()
+        AppSettings.shared.positiveBalanceAppearanceLaunch = AppSettings.shared.numberOfLaunches
     }
 }
