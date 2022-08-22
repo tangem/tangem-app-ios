@@ -26,7 +26,7 @@ enum ItemPosition: Equatable {
     case middle
     case last
     case single
-    
+
     fileprivate var startOffset: CGFloat {
         switch self {
         case .single, .first:
@@ -35,7 +35,7 @@ enum ItemPosition: Equatable {
             return 0
         }
     }
-    
+
     fileprivate var isLast: Bool {
         switch self {
         case .single, .last:
@@ -44,7 +44,7 @@ enum ItemPosition: Equatable {
             return false
         }
     }
-    
+
     init(with index: Int, total: Int) {
         if total == 1 {
             self = .single
@@ -60,27 +60,27 @@ enum ItemPosition: Equatable {
 
 fileprivate struct LineShape: Shape {
     let position: ItemPosition
-    
+
     func path(in rect: CGRect) -> Path {
         var path = Path()
-        
+
         let style = StrokeStyle(lineWidth: 1.4,
                                 lineCap: .round,
                                 lineJoin: .bevel,
                                 miterLimit: 0.0,
                                 dash: [],
                                 dashPhase: 0.0)
-        
+
         let startPoint = CGPoint(x: rect.midX, y: rect.minY - position.startOffset)
         let startCurvePoint = CGPoint(x: rect.midX, y: rect.minY)
         let endCurvePoint = CGPoint(x: rect.maxX, y: rect.midY)
         let bottomPoint = position.isLast ? startCurvePoint : CGPoint(x: rect.midX, y: rect.maxY)
-      
-        
+
+
         path.move(to: startPoint)
         path.addLine(to: bottomPoint)
         path.move(to: startCurvePoint)
-        path.addQuadCurve(to: endCurvePoint, control: CGPoint(x: rect.midX, y:rect.midY))
+        path.addQuadCurve(to: endCurvePoint, control: CGPoint(x: rect.midX, y: rect.midY))
 
         return path.strokedPath(style)
     }
@@ -88,15 +88,15 @@ fileprivate struct LineShape: Shape {
 
 fileprivate struct TriangleShape: Shape {
     let size: CGFloat = 6
-    
+
     func path(in rect: CGRect) -> Path {
         var path = Path()
-   
+
         let startPoint = CGPoint(x: rect.maxX + 1, y: rect.midY)
         path.move(to: startPoint)
-        
-        path.addLine(to: CGPoint(x: startPoint.x - size, y: startPoint.y - size/2))
-        path.addLine(to: CGPoint(x: startPoint.x - size, y: startPoint.y + size/2))
+
+        path.addLine(to: CGPoint(x: startPoint.x - size, y: startPoint.y - size / 2))
+        path.addLine(to: CGPoint(x: startPoint.x - size, y: startPoint.y + size / 2))
         path.closeSubpath()
 
         return path
