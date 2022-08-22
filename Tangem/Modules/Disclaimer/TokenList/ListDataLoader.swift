@@ -89,7 +89,7 @@ private extension ListDataLoader {
         )
 
         // If testnet then use local coins from testnet_tokens.json file.
-        if networkIds.contains(Blockchain.testnetId) {
+        if networkIds.contains(where: { $0.contains(Blockchain.testnetId) }) {
             return loadTestnetItems(requestModel)
         }
 
