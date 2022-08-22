@@ -1,5 +1,5 @@
 //
-//  BottomSheetView.swift
+//  AddressQrBottomSheetContent.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,54 +9,67 @@
 import SwiftUI
 import Combine
 
-struct AddressQrBottomSheetContent: View {
-    
+struct AddressQrBottomSheetContentViewVodel: Identifiable {
+    let id: UUID = .init()
     var shareAddress: String
     var address: String
     var qrNotice: String
 
+    func logCopyAddress() {
+        Analytics.log(.copyAddressTapped)
+    }
+
+    func logShareAddress() {
+        Analytics.log(.shareAddressTapped)
+    }
+}
+
+struct AddressQrBottomSheetContent: View {
+    let viewModel: AddressQrBottomSheetContentViewVodel
+
     @State private var showCheckmark = false
-    
+
     var body: some View {
         VStack(spacing: 0) {
-            Image(uiImage: QrCodeGenerator.generateQRCode(from: shareAddress))
+            Image(uiImage: QrCodeGenerator.generateQRCode(from: viewModel.shareAddress))
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(size: .init(width: 206, height: 206))
                 .padding(.top, 49)
                 .padding(.bottom, 30)
-            Text(qrNotice)
+            Text(viewModel.qrNotice)
                 .frame(maxWidth: 225)
                 .font(.system(size: 18, weight: .regular))
                 .multilineTextAlignment(.center)
                 .foregroundColor(.tangemGrayDark)
             HStack(spacing: 10) {
                 Button(action: {
-                        showCheckmark = true
-                    UIPasteboard.general.string = address
-                    
+                    showCheckmark = true
+                    viewModel.logCopyAddress()
+                    UIPasteboard.general.string = viewModel.address
+
                     let notificationGenerator = UINotificationFeedbackGenerator()
                     notificationGenerator.notificationOccurred(.success)
-                    
+
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-                            showCheckmark = false
+                        showCheckmark = false
                     }
-                    
+
                 }, label: {
-                    HStack{
-                        Text(address)
+                    HStack {
+                        Text(viewModel.address)
                             .lineLimit(1)
                             .truncationMode(.middle)
                             .frame(maxWidth: 100)
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundColor(.tangemGrayDark6)
-                        
+
                         Group {
-                        showCheckmark ?
-                            Image(systemName: "checkmark")
-                            .id("1")
-                            : Image(systemName: "doc.on.clipboard")
-                            .id("2")
+                            showCheckmark ?
+                                Image(systemName: "checkmark")
+                                .id("1")
+                                : Image(systemName: "doc.on.clipboard")
+                                .id("2")
                         }
                         .frame(width: 18, height: 18)
                         .foregroundColor(.tangemGreen)
@@ -78,21 +91,21 @@ struct AddressQrBottomSheetContent: View {
             .padding(.top, 30)
             .padding(.bottom, 50)
         }
-        
     }
-    
+
     private func showShareSheet() {
-        let av = UIActivityViewController(activityItems: [address], applicationActivities: nil)
+        viewModel.logShareAddress()
+        let av = UIActivityViewController(activityItems: [viewModel.address], applicationActivities: nil)
         UIApplication.topViewController?.present(av, animated: true, completion: nil)
     }
-    
+
 }
 
 
 struct AddressQrBottomSheetPreviewView: View {
-    
+
     @ObservedObject var model: BottomSheetPreviewProvider
-    
+
     var body: some View {
         ZStack {
             Button(action: {
@@ -101,30 +114,30 @@ struct AddressQrBottomSheetPreviewView: View {
                 Text("Show bottom sheet")
                     .padding()
             })
-            BottomSheetView(
-                isPresented: model.$isBottomSheetPresented,
-                hideBottomSheetCallback: {
-                    model.isBottomSheetPresented = false
-                }, content: {
-                    AddressQrBottomSheetContent(shareAddress: "eth:0x01232483902f903678a098bce",
-                                                address: "0x01232483902f903678a098bce",
-                                                qrNotice: "BTC")
-                })
+            NavHolder()
+                .bottomSheet(isPresented: $model.isBottomSheetPresented, viewModelSettings: .qr) {
+                    AddressQrBottomSheetContent(viewModel: .init(shareAddress: "eth:0x01232483902f903678a098bce",
+                                                                 address: "0x01232483902f903678a098bce",
+                                                                 qrNotice: "BTC"))
+                }
         }
-        
+
     }
 }
 
 struct AddressQrBottomSheet_Previews: PreviewProvider {
-    
+
     static var previews: some View {
         AddressQrBottomSheetPreviewView(model: BottomSheetPreviewProvider())
             .previewGroup(devices: [.iPhoneX], withZoomed: false)
-        
-        AddressQrBottomSheetContent(shareAddress: "eth:0x01232483902f903678a098bce",
-                                    address: "0x01232483902f903678a098bce",
-                                    qrNotice: "BTC")
+
+        AddressQrBottomSheetContent(viewModel: .init(shareAddress: "eth:0x01232483902f903678a098bce",
+                                                     address: "0x01232483902f903678a098bce",
+                                                     qrNotice: "BTC"))
     }
-    
+
 }
 
+class BottomSheetPreviewProvider: ObservableObject {
+    @Published var isBottomSheetPresented: Bool = false
+}
