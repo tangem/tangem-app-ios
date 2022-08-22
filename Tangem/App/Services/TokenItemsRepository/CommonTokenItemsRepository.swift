@@ -15,10 +15,10 @@ class CommonTokenItemsRepository {
     @Injected(\.persistentStorage) var persistanceStorage: PersistentStorageProtocol
 
     private let lockQueue = DispatchQueue(label: "token_items_repo_queue")
-    private let cardId: String
+    private let key: String
 
-    init(cardId: String) {
-        self.cardId = cardId
+    init(key: String) {
+        self.key = key
 
         lockQueue.sync { migrate() }
     }
@@ -33,7 +33,7 @@ class CommonTokenItemsRepository {
 extension CommonTokenItemsRepository: TokenItemsRepository {
     func append(_ entries: [StorageEntry]) {
         lockQueue.sync {
-            var items = fetch(for: cardId)
+            var items = fetch(for: key)
             var hasAppended: Bool = false
 
             entries.forEach {
@@ -43,14 +43,14 @@ extension CommonTokenItemsRepository: TokenItemsRepository {
             }
 
             if hasAppended {
-                save(items, for: cardId)
+                save(items, for: key)
             }
         }
     }
 
     func remove(_ blockchainNetworks: [BlockchainNetwork]) {
         lockQueue.sync {
-            var items = fetch(for: cardId)
+            var items = fetch(for: key)
             var hasRemoved: Bool = false
 
             blockchainNetworks.forEach {
@@ -60,14 +60,14 @@ extension CommonTokenItemsRepository: TokenItemsRepository {
             }
 
             if hasRemoved {
-                save(items, for: cardId)
+                save(items, for: key)
             }
         }
     }
 
     func remove(_ tokens: [Token], blockchainNetwork: BlockchainNetwork) {
         lockQueue.sync {
-            var items = fetch(for: cardId)
+            var items = fetch(for: key)
             var hasRemoved: Bool = false
 
             tokens.forEach {
@@ -77,20 +77,20 @@ extension CommonTokenItemsRepository: TokenItemsRepository {
             }
 
             if hasRemoved {
-                save(items, for: cardId)
+                save(items, for: key)
             }
         }
     }
 
     func removeAll() {
         lockQueue.sync {
-            save([], for: cardId)
+            save([], for: key)
         }
     }
 
     func getItems() -> [StorageEntry] {
         lockQueue.sync {
-            return fetch(for: cardId)
+            return fetch(for: key)
         }
     }
 }
@@ -152,12 +152,10 @@ fileprivate extension Array where Element == StorageEntry {
                 // Token hasn't been append
                 self[existingIndex].tokens.append(token)
                 appended = true
-
             } else if let savedTokenIndex = self[existingIndex].tokens.firstIndex(of: token),
                       self[existingIndex].tokens[savedTokenIndex].id == nil,
                       token.id != nil {
                 // Token has been saved without id. Just update this token
-
                 self[existingIndex].tokens[savedTokenIndex] = token // upgrade custom token
                 appended = true
             }
