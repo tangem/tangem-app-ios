@@ -38,9 +38,7 @@ extension CommonTangemApiService: TangemApiService {
             .filterSuccessfulStatusCodes()
             .map(UserTokenList.self)
             .print("loadTokens")
-            .mapError { error in
-                return TangemAPIError.statusCode(error.response?.statusCode ?? error.errorCode)
-            }
+            .mapTangemAPIError()
             .eraseToAnyPublisher()
     }
 
@@ -50,7 +48,7 @@ extension CommonTangemApiService: TangemApiService {
         return provider
             .requestPublisher(target)
             .filterSuccessfulStatusCodes()
-            .mapError { TangemAPIError.statusCode($0.errorCode) }
+            .mapTangemAPIError()
             .mapVoid()
             .eraseToAnyPublisher()
     }
@@ -130,5 +128,22 @@ extension CommonTangemApiService: TangemApiService {
 
     func setAuthData(_ authData: TangemApiTarget.AuthData) {
         self.authData = authData
+    }
+}
+
+extension Publisher where Failure == MoyaError {
+    func mapTangemAPIError() -> Publishers.MapError<Self, TangemAPIError> {
+        mapError { error in
+            guard let body = error.response?.data else {
+                return TangemAPIError(code: .unknown)
+            }
+
+            let decoder = JSONDecoder()
+            do {
+                return try decoder.decode(TangemAPIError.self, from: body)
+            } catch {
+                return TangemAPIError(code: .decode)
+            }
+        }
     }
 }
