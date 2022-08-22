@@ -188,7 +188,7 @@ fileprivate extension Array where Element == StorageEntry {
 
 struct StorageEntry: Hashable, Codable, Equatable {
     let blockchainNetwork: BlockchainNetwork
-    let tokens: [BlockchainSdk.Token]
+    var tokens: [BlockchainSdk.Token]
 }
 
 // MARK: - Legacy storage
