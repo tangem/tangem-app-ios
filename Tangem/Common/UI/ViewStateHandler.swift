@@ -14,14 +14,14 @@ struct ViewStateHandler: UIViewControllerRepresentable {
     let onWillAppear: (() -> Void)?
     let onDidAppear: (() -> Void)?
     let onWillDisappear: (() -> Void)?
-    
+
     func makeUIViewController(context: UIViewControllerRepresentableContext<ViewStateHandler>) -> UIViewController {
         context.coordinator
     }
 
     func updateUIViewController(_ uiViewController: UIViewController, context: UIViewControllerRepresentableContext<ViewStateHandler>) {
     }
-    
+
     func makeCoordinator() -> ViewStateHandler.Coordinator {
         Coordinator(onWillAppear: onWillAppear, onDidAppear: onDidAppear, onWillDisappear: onWillDisappear)
     }
@@ -41,7 +41,7 @@ struct ViewStateHandler: UIViewControllerRepresentable {
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
         }
-        
+
         override func viewWillAppear(_ animated: Bool) {
             super.viewWillAppear(animated)
             onWillAppear?()
@@ -51,7 +51,7 @@ struct ViewStateHandler: UIViewControllerRepresentable {
             super.viewDidAppear(animated)
             onDidAppear?()
         }
-        
+
         override func viewWillDisappear(_ animated: Bool) {
             super.viewWillDisappear(animated)
             onWillDisappear?()
@@ -97,11 +97,11 @@ extension View {
     func onWillDisappear(_ perform: @escaping () -> Void) -> some View {
         self.modifier(WillDisappearModifier(callback: perform))
     }
-    
+
     func onWillAppear(_ perform: @escaping () -> Void) -> some View {
         self.modifier(WillAppearModifier(callback: perform))
     }
-    
+
     func onDidAppear(_ perform: @escaping () -> Void) -> some View {
         self.modifier(DidAppearModifier(callback: perform))
     }
