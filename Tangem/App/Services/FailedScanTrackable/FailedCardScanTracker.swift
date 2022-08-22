@@ -10,25 +10,25 @@ import Foundation
 
 class FailedCardScanTracker: EmailDataCollector, FailedScanTrackable {
     @Injected(\.loggerProvider) var loggerProvider: LoggerProviding
-    
+
     var dataForEmail: String {
         "----------\n" + DeviceInfoProvider.info()
     }
-    
+
     var attachment: Data? {
         loggerProvider.logger.scanLogFileData
     }
-    
+
     var shouldDisplayAlert: Bool {
         numberOfFailedAttempts >= 2
     }
-    
-    private var numberOfFailedAttempts: Int = 0
-    
+
+    private(set) var numberOfFailedAttempts: Int = 0
+
     func resetCounter() {
         numberOfFailedAttempts = 0
     }
-    
+
     func recordFailure() {
         numberOfFailedAttempts += 1
     }
