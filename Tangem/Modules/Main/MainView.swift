@@ -184,7 +184,7 @@ struct MainView: View {
                     }
                 }
 
-                if viewModel.isMultiWalletMode {
+                if !viewModel.isMultiWalletMode {
                     bottomButtons
                         .frame(width: geometry.size.width)
                 }
