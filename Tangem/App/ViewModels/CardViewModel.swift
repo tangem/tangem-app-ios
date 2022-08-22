@@ -280,24 +280,17 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     var subtitle: String {
-        // [REDACTED_TODO_COMMENT]
-//        if cardInfo.twinCardInfo?.series.number != nil {
-//            return "2 Cards"
-//        }
-//
-//        if cardInfo.isTangemWallet {
-//            let numberOfCards: Int
-//            if let backupStatus = cardInfo.card.backupStatus, case let .active(backupCards) = backupStatus {
-//                numberOfCards = backupCards
-//            } else {
-//                numberOfCards = 1
-//            }
-//            return "\(numberOfCards) Cards"
-//        }
-//
-//        let defaultBlockchain = cardInfo.defaultBlockchain
-//        return defaultBlockchain?.displayName ?? ""
-        return "Subtitle"
+        if let embeddedBlockchain = config.embeddedBlockchain {
+            return embeddedBlockchain.blockchainNetwork.blockchain.displayName
+        }
+
+        let count = config.cardsCount
+        switch count {
+        case 1:
+            return "\(count) Card"
+        default:
+            return "\(count) Cards"
+        }
     }
 
     var numberOfTokens: String? {
