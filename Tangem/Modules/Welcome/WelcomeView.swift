@@ -61,7 +61,7 @@ struct WelcomeView: View {
             .padding(.bottom, 11)
 
             TangemButton(title: "Unlock with card", image: "tangemIconWhite", iconPosition: .trailing) {
-                viewModel.scanCard()
+                viewModel.unlockWithCard()
             }
             .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
         }
