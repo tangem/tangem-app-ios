@@ -19,7 +19,7 @@ enum ButtonLayout {
     case custom(size: CGSize)
     case flexibleWidth
     case flexible
-    
+
     var idealWidth: CGFloat? {
         switch self {
         case .small:
@@ -40,7 +40,7 @@ enum ButtonLayout {
             return nil
         }
     }
-    
+
     var maxWidth: CGFloat? {
         switch self {
         case .flexibleWidth:
@@ -49,7 +49,7 @@ enum ButtonLayout {
             return nil
         }
     }
-    
+
     var height: CGFloat? {
         switch self {
         case .thinHorizontal:
@@ -62,7 +62,7 @@ enum ButtonLayout {
             return defaultHeight
         }
     }
-    
+
     var alignment: Alignment {
         switch self {
         case .smallVertical:
@@ -71,7 +71,7 @@ enum ButtonLayout {
             return .horizontal
         }
     }
-    
+
     private var defaultHeight: CGFloat {
         Constants.isSmallScreen ? 44 : 50
     }
@@ -91,7 +91,7 @@ enum ButtonColorStyle {
     case transparentWhite
     case grayAlt
     case grayAlt2
-    
+
     var bgColor: Color {
         switch self {
         case .green: return .tangemGreen
@@ -102,7 +102,7 @@ enum ButtonColorStyle {
         case .grayAlt2: return .tangemBgGray3
         }
     }
-    
+
     var bgPressedColor: Color {
         switch self {
         case .green: return .tangemGreen1
@@ -111,14 +111,14 @@ enum ButtonColorStyle {
         case .transparentWhite: return .clear
         }
     }
-    
+
     var fgColor: Color {
         switch self {
         case .transparentWhite, .grayAlt, .grayAlt2: return .tangemGrayDark6
         default: return .white
         }
     }
-    
+
     var fgPressedColor: Color {
         switch self {
         case .transparentWhite:
@@ -127,7 +127,7 @@ enum ButtonColorStyle {
             return fgColor
         }
     }
-    
+
     var indicatorColor: UIColor {
         switch self {
         case .transparentWhite, .grayAlt, .grayAlt2: return .tangemGrayDark6
@@ -155,7 +155,7 @@ struct TangemButtonStyle: ButtonStyle {
             Color.clear
         }
     }
-    
+
     @ViewBuilder private var disabledOverlay: some View {
         if isDisabled  {
             Color.white.opacity(0.4)
@@ -163,7 +163,7 @@ struct TangemButtonStyle: ButtonStyle {
             Color.clear
         }
     }
-    
+
     @ViewBuilder private func label(for configuration: Configuration) -> some View {
         if layout.alignment == .vertical {
             VStack(alignment: .center, spacing: 0) {
@@ -177,7 +177,7 @@ struct TangemButtonStyle: ButtonStyle {
             .padding(.horizontal, paddings)
         }
     }
-    
+
     func makeBody(configuration: Configuration) -> some View {
         label(for: configuration)
             .font(font)
@@ -212,14 +212,14 @@ struct ButtonStyles_Previews: PreviewProvider {
             TangemButton(title: "Tangem custom button", action: {})
                 .buttonStyle(TangemButtonStyle(layout: .custom(size: CGSize(width: 175,
                                                                             height: 44)),
-                                               font: .system(size: 18)))
-            
+                    font: .system(size: 18)))
+
             TangemButton(title: "Tangem custom button", action: {})
                 .buttonStyle(TangemButtonStyle(layout: .customWidth(234),
                                                font: .system(size: 18)))
-            
-            
-            Button(action:{}){ Text("Tap in!") }
+
+
+            Button(action: {}) { Text("Tap in!") }
                 .buttonStyle(TangemButtonStyle())
 
             Button(action: {}) { Text("Tap in!") }
@@ -232,16 +232,16 @@ struct ButtonStyles_Previews: PreviewProvider {
 
             Button(action: {}) { Text("No. Go to shop") }
                 .buttonStyle(TangemButtonStyle(colorStyle: .black, isDisabled: true))
-            
+
             Button(action: {}) { Text("Go to shop") }
                 .buttonStyle(TangemButtonStyle(colorStyle: .transparentWhite,
                                                layout: .flexibleWidth))
-            
+
             Button(action: {}) { Text("Go to shop") }
                 .buttonStyle(TangemButtonStyle(colorStyle: .transparentWhite,
                                                layout: .flexibleWidth,
                                                isDisabled: true))
-            
+
             Button(action: {}) { Text("Go to shop") }
                 .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt,
                                                layout: .flexibleWidth,
