@@ -65,6 +65,9 @@ Carthage/Build
 # macOS
 .DS_Store
 
+# Fastlane
 fastlane/test_output/
-
 fastlane/report.xml
+
+# Generated
+Tangem/Assets/XCAssets+Generated.swift

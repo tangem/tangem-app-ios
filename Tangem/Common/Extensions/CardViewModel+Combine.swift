@@ -10,7 +10,7 @@ import Foundation
 import Combine
 
 extension CardViewModel {
-    
+
     func createWallet() -> AnyPublisher<Void, Error> {
         Deferred {
             Future { [weak self] promise in
@@ -18,7 +18,7 @@ extension CardViewModel {
                     promise(.failure("Uninitialized"))
                     return
                 }
-                
+
                 self.createWallet { result in
                     switch result {
                     case .success:
@@ -31,5 +31,5 @@ extension CardViewModel {
         }
         .eraseToAnyPublisher()
     }
-    
+
 }
