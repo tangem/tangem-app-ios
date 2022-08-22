@@ -140,7 +140,7 @@ fileprivate extension Array where Element == StorageEntry {
     mutating func add(entry: StorageEntry) -> Bool {
         guard let existingIndex = firstIndex(where: { $0.blockchainNetwork == entry.blockchainNetwork }) else {
             append(entry)
-            return false
+            return true
         }
 
         // We already have the blockchainNetwork in storage
