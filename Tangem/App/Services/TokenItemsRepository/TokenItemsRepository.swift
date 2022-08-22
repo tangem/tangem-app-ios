@@ -10,10 +10,6 @@ import Foundation
 import BlockchainSdk
 import Combine
 
-protocol TokenItemsRepositoryChanges: AnyObject {
-    func repositoryDidUpdates(entries: [StorageEntry])
-}
-
 protocol TokenItemsRepository {
     func append(_ entries: [StorageEntry])
 
