@@ -60,9 +60,9 @@ enum PayIdNetwork: String {
 
 enum PayIdTarget: TargetType {
     case address(payId: String, network: PayIdNetwork)
-    case getPayId(cid: String, cardPublicKey:Data)
-    case createPayId(cid: String, cardPublicKey:Data, payId: String, address: String, network: PayIdNetwork)
-    
+    case getPayId(cid: String, cardPublicKey: Data)
+    case createPayId(cid: String, cardPublicKey: Data, payId: String, address: String, network: PayIdNetwork)
+
     var baseURL: URL {
         switch self {
         case .address(let payId, _):
@@ -74,7 +74,7 @@ enum PayIdTarget: TargetType {
             return URL(string: "https://payid.tangem.com")!
         }
     }
-    
+
     var path: String {
         switch self {
         case .address(let payId, _):
@@ -85,7 +85,7 @@ enum PayIdTarget: TargetType {
             return ""
         }
     }
-    
+
     var method: Moya.Method {
         switch self {
         case .address:
@@ -96,39 +96,39 @@ enum PayIdTarget: TargetType {
             return .post
         }
     }
-    
+
     var sampleData: Data {
         return Data()
     }
-    
+
     var task: Task {
         switch self {
         case .address:
             return .requestPlain
         case .getPayId(let cid, let cardPublicKey):
-            return .requestParameters(parameters: ["cid" : cid,
-                                                   "key" : cardPublicKey.hexString], encoding: URLEncoding.default)
+            return .requestParameters(parameters: ["cid": cid,
+                                                   "key": cardPublicKey.hexString], encoding: URLEncoding.default)
         case .createPayId(let cid, let cardPublicKey, let payId, let address, let network):
-            return .requestParameters(parameters: ["cid" : cid,
-                                                   "key" : cardPublicKey.hexString,
-                                                   "payid" : payId,
-                                                   "address" : address,
-                                                   "network" : network.rawValue
-            ], encoding: URLEncoding.default)
+            return .requestParameters(parameters: ["cid": cid,
+                                                   "key": cardPublicKey.hexString,
+                                                   "payid": payId,
+                                                   "address": address,
+                                                   "network": network.rawValue,
+                ], encoding: URLEncoding.default)
         }
     }
-    
+
     public var headers: [String: String]? {
         switch self {
         case .address(_, let network):
-            return ["Accept" : "application/\(network.rawValue.lowercased())-mainnet+json",
-                "PayID-Version" : "1.0"]
+            return ["Accept": "application/\(network.rawValue.lowercased())-mainnet+json",
+                    "PayID-Version": "1.0"]
         default:
             return nil
         }
-        
+
     }
-    
+
 }
 
 struct GetPayIdResponse: Codable {
@@ -141,12 +141,12 @@ struct CreatePayIdResponse: Codable {
 
 class PayIDService {
     let network: PayIdNetwork
-    let payIdProvider = MoyaProvider<PayIdTarget>(/*plugins: [NetworkLoggerPlugin()]*/)
-    
+    let payIdProvider = TangemProvider<PayIdTarget>( /* plugins: [NetworkLoggerPlugin()] */ )
+
     internal init(network: PayIdNetwork) {
         self.network = network
     }
-    
+
     static func make(from blockchain: Blockchain) -> PayIDService? {
         switch blockchain {
         case .binance(let testnet):
@@ -186,13 +186,13 @@ class PayIDService {
         }
         return nil
     }
-    
-    
-    func loadPayIDInfo (for card: Card) -> AnyPublisher<PayIdStatus, Error> {
+
+
+    func loadPayIDInfo(for card: Card) -> AnyPublisher<PayIdStatus, Error> {
         return loadPayId(cid: card.cardId, key: card.cardPublicKey)
     }
-    
-    
+
+
     private func loadPayId(cid: String, key: Data) -> AnyPublisher<PayIdStatus, Error> {
         return payIdProvider
             .requestPublisher(.getPayId(cid: cid, cardPublicKey: key))
@@ -204,7 +204,7 @@ class PayIDService {
                 }
                 throw PayIdError.emptyResponse
             }
-            .tryCatch{ error -> AnyPublisher<PayIdStatus, Error> in
+            .tryCatch { error -> AnyPublisher<PayIdStatus, Error> in
                 if let moyaError = error as? MoyaError,
                    case let .statusCode(response) = moyaError {
                     if response.statusCode == 404 {
@@ -218,13 +218,13 @@ class PayIDService {
                         }
                     }
                 }
-                
+
                 throw error
             }
             .subscribe(on: DispatchQueue.global())
             .eraseToAnyPublisher()
     }
-    
+
     func createPayId(cid: String, key: Data, payId: String, address: String, completion: @escaping (Result<Bool, Error>) -> Void) {
         payIdProvider.request(.createPayId(cid: cid, cardPublicKey: key, payId: payId, address: address, network: self.network)) { moyaResult in
             DispatchQueue.main.async {
@@ -248,15 +248,15 @@ class PayIDService {
             }
         }
     }
-    
+
     func validate(_ address: String) -> Bool {
         let lowercased = address.lowercased()
         let regex = NSRegularExpression("^[a-z0-9!#@%&*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#@%&*+/=?^_`{|}~-]+)*\\$(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z-]*[a-z0-9])?|(?:[0-9]{1,3}\\.){3}[0-9]{1,3})$")
-        
+
         guard regex.matches(lowercased) else {
             return false
         }
-        
+
         let addressParts = lowercased.split(separator: "$")
         if addressParts.count != 2 {
             return false
@@ -268,9 +268,9 @@ class PayIDService {
             return false
         }
     }
-    
+
     func resolve(_ payId: String, completion: @escaping (Result<PayIdAddressDetails, Error>) -> Void) {
-        payIdProvider.request(.address(payId: payId, network: self.network)) {[weak self] moyaResult in
+        payIdProvider.request(.address(payId: payId, network: self.network)) { [weak self] moyaResult in
             guard let self = self else { return }
             switch moyaResult {
             case .success(let response):
@@ -292,7 +292,7 @@ class PayIDService {
                 } else {
                     completion(.failure("payid_service_error_loading".localized))
                 }
-                
+
             case .failure(let error):
                 Analytics.log(error: error)
                 let err = "PayID request failed. \(error.localizedDescription)"
