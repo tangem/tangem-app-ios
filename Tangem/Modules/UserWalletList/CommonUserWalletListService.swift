@@ -70,14 +70,14 @@ class CommonUserWalletListService: UserWalletListService {
 
     }
 
-    func tryToAccessBiometry(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+    func unlockWithBiometry(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
         if case .biometry = unlockingMethod {
             print("Encryption key already fetched, skipping biometric authentication")
             completion(.success(()))
             return
         }
 
-        tryToAccessBiometryInternal { result in
+        unlockWithBiometryInternal { result in
             DispatchQueue.main.async {
                 completion(result)
             }
@@ -136,7 +136,15 @@ class CommonUserWalletListService: UserWalletListService {
     private func processScannedCard(_ cardModel: CardViewModel) {
         let card = cardModel.card
 
-        let userWallet = UserWallet(userWalletId: card.cardPublicKey, name: "", card: card, walletData: cardModel.walletData, artwork: nil, keys: cardModel.derivedKeys, isHDWalletAllowed: card.settings.isHDWalletAllowed)
+        let userWallet = UserWallet(
+            userWalletId: card.cardPublicKey,
+            name: "",
+            card: card,
+            walletData: cardModel.walletData,
+            artwork: nil,
+            keys: cardModel.derivedKeys,
+            isHDWalletAllowed: card.settings.isHDWalletAllowed
+        )
 
         if let encryptionKey = userWallet.encryptionKey {
             self.unlockingMethod = .userWallet(id: userWallet.userWalletId, encryptionKey: encryptionKey)
@@ -163,13 +171,6 @@ class CommonUserWalletListService: UserWalletListService {
         models = userWallets.map {
             CardViewModel(userWallet: $0)
         }
-    }
-
-    func deleteWallet(_ userWallet: UserWallet) {
-        let userWalletId = userWallet.userWalletId
-        userWallets.removeAll { $0.userWalletId == userWalletId }
-        models.removeAll { $0.userWallet.userWalletId == userWalletId }
-        saveUserWallets(userWallets)
     }
 
     func contains(_ userWallet: UserWallet) -> Bool {
@@ -216,6 +217,13 @@ class CommonUserWalletListService: UserWalletListService {
         saveUserWallets(userWallets)
     }
 
+    func deleteWallet(_ userWallet: UserWallet) {
+        let userWalletId = userWallet.userWalletId
+        userWallets.removeAll { $0.userWalletId == userWalletId }
+        models.removeAll { $0.userWallet.userWalletId == userWalletId }
+        saveUserWallets(userWallets)
+    }
+
     func clear() {
         let _ = saveUserWallets([])
         userWallets = []
@@ -228,7 +236,7 @@ class CommonUserWalletListService: UserWalletListService {
         }
     }
 
-    private func tryToAccessBiometryInternal(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+    private func unlockWithBiometryInternal(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
         biometricsStorage.get(encryptionKeyStorageKey) { [weak self, encryptionKeyStorageKey] result in
             switch result {
             case .success(let encryptionKey):
