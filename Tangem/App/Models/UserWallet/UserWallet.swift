@@ -19,7 +19,6 @@ struct UserWallet: Identifiable, Codable {
     let artwork: ArtworkInfo?
     var keys: [Data: [DerivationPath: ExtendedPublicKey]] // encrypted
     let isHDWalletAllowed: Bool
-    let accessCode: Data?
 }
 
 extension UserWallet {
@@ -53,8 +52,7 @@ extension UserWallet {
             name: self.name,
             artwork: artwork == nil ? .noArtwork : .artwork(artwork!),
             derivedKeys: keys,
-            primaryCard: nil,
-            accessCode: accessCode
+            primaryCard: nil
         )
     }
 }
