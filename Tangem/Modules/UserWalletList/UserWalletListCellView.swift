@@ -48,7 +48,6 @@ struct UserWalletListCellView: View {
                     Text(model.totalBalance ?? "999.99")
                         .font(Font.subheadline)
                         .foregroundColor(Colors.Text.primary1)
-                        .skeletonable(isShown: model.totalBalanceLoading)
 
                     Text(model.numberOfTokens ?? "")
                         .font(Font.footnote)
