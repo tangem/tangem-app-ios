@@ -87,11 +87,43 @@ class WelcomeViewModel: ObservableObject {
 
     func unlockWithBiometry() {
         showingAuthentication = true
-        userWalletListService.unlockWithBiometry(completion: didFinishUnlocking)
     }
 
     func unlockWithCard() {
-        userWalletListService.unlockWithCard(completion: didFinishUnlocking)
+        isScanningCard = true
+        Analytics.log(.scanCardTapped)
+        var subscription: AnyCancellable? = nil
+
+        subscription = cardsRepository.scanPublisher()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                if case let .failure(error) = completion {
+                    print("Failed to scan card: \(error)")
+                    self?.isScanningCard = false
+                    self?.failedCardScanTracker.recordFailure()
+
+                    if self?.failedCardScanTracker.shouldDisplayAlert ?? false {
+                        self?.showTroubleshootingView = true
+                    } else {
+                        switch error.toTangemSdkError() {
+                        case .unknownError, .cardVerificationFailed:
+                            self?.error = error.alertBinder
+                        default:
+                            break
+                        }
+                    }
+                }
+                subscription.map { _ = self?.bag.remove($0) }
+            } receiveValue: { [weak self] cardModel in
+                guard let self = self else { return }
+
+                let numberOfFailedAttempts = self.failedCardScanTracker.numberOfFailedAttempts
+                self.failedCardScanTracker.resetCounter()
+                Analytics.log(numberOfFailedAttempts == 0 ? .firstScan : .secondScan)
+                self.userWalletListService.unlockWithCard(cardModel.userWallet, completion: self.didFinishUnlocking)
+            }
+
+        subscription?.store(in: &bag)
     }
 
     func tryAgain() {
