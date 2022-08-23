@@ -746,17 +746,29 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func removeToken(_ token: BlockchainSdk.Token, blockchainNetwork: BlockchainNetwork) {
-        if let walletModel = walletModels?.first(where: { $0.blockchainNetwork == blockchainNetwork }) {
-            let isRemoved = walletModel.removeToken(token, for: cardId)
+        guard let walletModel = walletModels?.first(where: { $0.blockchainNetwork == blockchainNetwork }) else {
+            return
+        }
 
-            if isRemoved {
-                stateUpdateQueue.sync {
-                    if let walletModels = self.walletModels {
-                        state = .loaded(walletModel: walletModels)
-                    }
-                }
+        userTokenListManager.remove(tokens: [token], in: blockchainNetwork) { [weak self] result in
+            switch result {
+            case .success:
+                _ = walletModel.removeToken(token)
+                self?.updateState(shouldUpdate: false)
+            case let .failure(error):
+                print("Remove token error \(error)")
             }
         }
+//
+//        let isRemoved = walletModel.removeToken(token)
+//
+//        if isRemoved {
+//            stateUpdateQueue.sync {
+//                if let walletModels = self.walletModels {
+//                    state = .loaded(walletModel: walletModels)
+//                }
+//            }
+//        }
     }
 
     private func tryMigrateTokens() -> AnyPublisher<Void, Error>  {
