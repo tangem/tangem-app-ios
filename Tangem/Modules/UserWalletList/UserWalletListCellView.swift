@@ -9,6 +9,8 @@
 import SwiftUI
 
 struct UserWalletListCellView: View {
+    static let hardcodedHeight = 67.0
+
     @ObservedObject var model: CardViewModel
     let isSelected: Bool
     let didTapUserWallet: (UserWallet) -> Void
@@ -55,7 +57,8 @@ struct UserWalletListCellView: View {
                 }
             }
         }
-        .padding(16)
+        .padding(.horizontal, 16)
+        .frame(height: Self.hardcodedHeight)
         .contentShape(Rectangle())
         .background(Colors.Background.primary)
         .onTapGesture {

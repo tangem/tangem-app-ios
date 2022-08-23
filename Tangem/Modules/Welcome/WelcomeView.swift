@@ -14,7 +14,7 @@ struct WelcomeView: View {
     var body: some View {
         ZStack {
             if viewModel.showingAuthentication {
-                authenticationView
+                unlockView
             } else {
                 storiesView
             }
@@ -31,7 +31,7 @@ struct WelcomeView: View {
         .onDisappear(perform: viewModel.onDissappear)
     }
 
-    var authenticationView: some View {
+    var unlockView: some View {
         VStack(spacing: 0) {
             Spacer()
 
@@ -55,7 +55,7 @@ struct WelcomeView: View {
 
             #warning("TOUCH ID?")
             TangemButton(title: "Unlock with Face ID") {
-                viewModel.tryBiometricAuthentication()
+                viewModel.unlockWithBiometry()
             }
             .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt3, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
             .padding(.bottom, 11)
