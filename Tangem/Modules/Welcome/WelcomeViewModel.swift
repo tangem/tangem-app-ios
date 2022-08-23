@@ -87,30 +87,11 @@ class WelcomeViewModel: ObservableObject {
 
     func unlockWithBiometry() {
         showingAuthentication = true
-
-        userWalletListService.unlockWithBiometry { [weak self] result in
-            if case .failure(let error) = result {
-                print("Failed to authenticate with biometry: \(error)")
-                return
-            }
-
-            guard let model = self?.userWalletListService.selectedModel else { return }
-            self?.showingAuthentication = false
-            self?.coordinator.openMain(with: model)
-        }
+        userWalletListService.unlockWithBiometry(completion: didFinishUnlocking)
     }
 
     func unlockWithCard() {
-        userWalletListService.unlockWithCard { [weak self] result in
-            if case .failure(let error) = result {
-                print("Failed to authenticate with biometry: \(error)")
-                return
-            }
-
-            guard let model = self?.userWalletListService.selectedModel else { return }
-            self?.showingAuthentication = false
-            self?.coordinator.openMain(with: model)
-        }
+        userWalletListService.unlockWithCard(completion: didFinishUnlocking)
     }
 
     func tryAgain() {
@@ -148,6 +129,17 @@ class WelcomeViewModel: ObservableObject {
         } else {
             openMain(with: input)
         }
+    }
+
+    private func didFinishUnlocking(_ result: Result<Void, TangemSdkError>) {
+        if case .failure(let error) = result {
+            print("Failed to unlock user wallets: \(error)")
+            return
+        }
+
+        guard let model = userWalletListService.selectedModel else { return }
+        showingAuthentication = false
+        coordinator.openMain(with: model)
     }
 }
 
