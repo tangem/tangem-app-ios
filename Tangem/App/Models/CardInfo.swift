@@ -20,7 +20,6 @@ struct CardInfo {
     var artwork: CardArtwork = .notLoaded
     var derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]] = [:]
     var primaryCard: PrimaryCard? = nil
-    var accessCode: Data?
 
     var cardIdFormatted: String {
         if case let .twin(_, twinData) = walletData {
