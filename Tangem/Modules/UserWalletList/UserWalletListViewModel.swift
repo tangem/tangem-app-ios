@@ -60,33 +60,9 @@ final class UserWalletListViewModel: ObservableObject {
     }
 
     func addCard() {
-        isScanningCard = true
-
-        cardsRepository.scanPublisher()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
-                if case let .failure(error) = completion {
-                    print("Failed to scan card: \(error)")
-                    self?.isScanningCard = false
-                    self?.failedCardScanTracker.recordFailure()
-
-                    if self?.failedCardScanTracker.shouldDisplayAlert ?? false {
-                        self?.showTroubleshootingView = true
-                    } else {
-                        switch error.toTangemSdkError() {
-                        case .unknownError, .cardVerificationFailed:
-                            self?.error = error.alertBinder
-                        default:
-                            break
-                        }
-                    }
-                }
-            } receiveValue: { [weak self] cardModel in
-                self?.isScanningCard = false
-                self?.failedCardScanTracker.resetCounter()
-                self?.processScannedCard(cardModel)
-            }
-            .store(in: &bag)
+        scanCardInternal { [weak self] cardModel in
+            self?.processScannedCard(cardModel)
+        }
     }
 
     func tryAgain() {
@@ -163,6 +139,37 @@ final class UserWalletListViewModel: ObservableObject {
         }
     }
 
+    private func scanCardInternal(_ completion: @escaping (CardViewModel) -> Void) {
+        isScanningCard = true
+
+        cardsRepository.scanPublisher()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                if case let .failure(error) = completion {
+                    print("Failed to scan card: \(error)")
+                    self?.isScanningCard = false
+                    self?.failedCardScanTracker.recordFailure()
+
+                    if self?.failedCardScanTracker.shouldDisplayAlert ?? false {
+                        self?.showTroubleshootingView = true
+                    } else {
+                        switch error.toTangemSdkError() {
+                        case .unknownError, .cardVerificationFailed:
+                            self?.error = error.alertBinder
+                        default:
+                            break
+                        }
+                    }
+                }
+            } receiveValue: { [weak self] cardModel in
+                self?.isScanningCard = false
+                self?.failedCardScanTracker.resetCounter()
+
+                completion(cardModel)
+            }
+            .store(in: &bag)
+    }
+
     private func processScannedCard(_ cardModel: CardViewModel) {
         let card = cardModel.card
 
@@ -214,49 +221,26 @@ final class UserWalletListViewModel: ObservableObject {
             return
         }
 
-        cardsRepository.scanPublisher()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] completion in
-                if case let .failure(error) = completion {
-                    print("Failed to scan card: \(error)")
-                    self?.isScanningCard = false
-                    self?.failedCardScanTracker.recordFailure()
-
-                    if self?.failedCardScanTracker.shouldDisplayAlert ?? false {
-                        self?.showTroubleshootingView = true
-                    } else {
-                        switch error.toTangemSdkError() {
-                        case .unknownError, .cardVerificationFailed:
-                            self?.error = error.alertBinder
-                        default:
-                            break
-                        }
-                    }
+        scanCardInternal { [weak self] cardModel in
+            self?.userWalletListService.unlockWithCard(cardModel.userWallet) { result in
+                guard case .success = result else {
+                    return
                 }
-            } receiveValue: { [weak self] cardModel in
-                self?.isScanningCard = false
-                self?.failedCardScanTracker.resetCounter()
 
-                self?.userWalletListService.unlockWithCard(cardModel.userWallet) { result in
-                    guard case .success = result else {
-                        return
-                    }
-
-                    guard let selectedModel = self?.userWalletListService.models.first(where: { $0.userWallet.userWalletId == userWallet.userWalletId }) else {
-                        return
-                    }
-
-                    let userWallet = selectedModel.userWallet
-
-                    selectedModel.getCardInfo()
-                    selectedModel.updateState()
-
-                    self?.updateModels()
-
-                    completion(userWallet)
+                guard let selectedModel = self?.userWalletListService.models.first(where: { $0.userWallet.userWalletId == userWallet.userWalletId }) else {
+                    return
                 }
+
+                let userWallet = selectedModel.userWallet
+
+                selectedModel.getCardInfo()
+                selectedModel.updateState()
+
+                self?.updateModels()
+
+                completion(userWallet)
             }
-            .store(in: &bag)
+        }
     }
 
     private func updateHeight(oldModelSections: [[CardViewModel]]) {
