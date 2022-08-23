@@ -64,7 +64,7 @@ class PreparePrimaryCardTask: CardSessionRunnable {
             return
         }
 
-        let config = GenericConfig(card: card)
+        let config = GenericConfig(card: CardDTO(card: card))
         let blockchainNetworks = config.defaultBlockchains.map { $0.blockchainNetwork }
 
         let derivations: [Data: [DerivationPath]] = blockchainNetworks.reduce(into: [:]) { partialResult, blockchainNetwork in
