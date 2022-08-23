@@ -27,7 +27,7 @@ class WelcomeViewModel: ObservableObject {
     @Published var showingAuthentication = false
 
     var shouldShowAuthenticationView: Bool {
-        AppSettings.shared.saveUserWallets == true && !userWalletListService.isEmpty
+        AppSettings.shared.saveUserWallets && !userWalletListService.isEmpty
     }
 
     private var storiesModelSubscription: AnyCancellable? = nil
@@ -88,7 +88,7 @@ class WelcomeViewModel: ObservableObject {
     func tryBiometricAuthentication() {
         showingAuthentication = true
 
-        userWalletListService.tryToAccessBiometry { [weak self] result in
+        userWalletListService.unlockWithBiometry { [weak self] result in
             if case .failure(let error) = result {
                 print("Failed to authenticate with biometry: \(error)")
                 return
