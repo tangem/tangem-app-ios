@@ -39,8 +39,7 @@ struct AppScanTaskResponse {
                         walletData: walletData,
                         name: "",
                         derivedKeys: derivedKeys,
-                        primaryCard: primaryCard,
-                        accessCode: accessCode)
+                        primaryCard: primaryCard)
     }
 }
 
