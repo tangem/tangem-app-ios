@@ -46,11 +46,18 @@ extension UserWallet {
     }
 
     func cardInfo() -> CardInfo {
+        let cardArtwork: CardArtwork
+        if let artwork = artwork {
+            cardArtwork = .artwork(artwork)
+        } else {
+            cardArtwork = .noArtwork
+        }
+
         return CardInfo(
             card: card,
             walletData: walletData,
             name: self.name,
-            artwork: artwork == nil ? .noArtwork : .artwork(artwork!),
+            artwork: cardArtwork,
             derivedKeys: keys,
             primaryCard: nil
         )
