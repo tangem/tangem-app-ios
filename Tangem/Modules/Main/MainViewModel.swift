@@ -498,7 +498,7 @@ class MainViewModel: ObservableObject {
     }
 
     private func showUserWalletSaveIfNeeded() {
-        if AppSettings.shared.askedToSaveUserWallets  {
+        if AppSettings.shared.askedToSaveUserWallets || !BiometricsUtil.isAvailable {
             return
         }
 
