@@ -31,6 +31,7 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published private(set) var currentSecurityOption: SecurityModeOption = .longTap
     @Published var walletsBalanceState: WalletsBalanceState = .loaded
     @Published var totalBalance: String? = nil
+    @Published var cardImage: UIImage?
 
     var signer: TangemSigner { config.tangemSigner }
     var cardId: String { cardInfo.card.cardId }
@@ -267,8 +268,6 @@ class CardViewModel: Identifiable, ObservableObject {
         )
     }
 
-    @Published var cardImage: UIImage?
-
     var isUserWalletLocked: Bool {
         return userWallet.isLocked
     }
@@ -303,7 +302,6 @@ class CardViewModel: Identifiable, ObservableObject {
         return "\(numberOfTokens) tokens"
     }
 
-
     private lazy var totalSumBalanceViewModel: TotalSumBalanceViewModel = .init(isSingleCoinCard: !isMultiWallet) { }
 
     private var searchBlockchainsCancellable: AnyCancellable? = nil
@@ -321,32 +319,6 @@ class CardViewModel: Identifiable, ObservableObject {
         updateCardPinSettings()
         updateCurrentSecurityOption()
         bind()
-
-        self
-            .$walletsBalanceState
-            .receive(on: RunLoop.main)
-            .sink { [unowned self] state in
-                switch state {
-                case .inProgress:
-                    break
-                case .loaded:
-                    // Delay for hide skeleton
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        self.updateTotalBalanceTokenList()
-                    }
-                }
-            }
-            .store(in: &bag)
-
-        totalSumBalanceViewModel
-            .$totalFiatValueString
-            .sink { [unowned self] newValue in
-                withAnimation(nil) {
-                    let newTotalBalance = newValue.string
-                    self.totalBalance = newTotalBalance.isEmpty ? nil : newTotalBalance
-                }
-            }
-            .store(in: &bag)
     }
 
     func setupWarnings() {
@@ -948,23 +920,15 @@ class CardViewModel: Identifiable, ObservableObject {
         .eraseToAnyPublisher()
     }
 
-    private func loadImage() {
-        imageLoader.loadImage(cid: userWallet.card.cardId, cardPublicKey: userWallet.card.cardPublicKey, artworkInfo: userWallet.artwork)
-            .sink { [weak self] (image, _) in
-                self?.cardImage = image
-            }
-            .store(in: &bag)
-    }
-
     private func updateTotalBalanceTokenList() {
         guard let walletModels = self.walletModels else {
             self.totalSumBalanceViewModel.update(with: [])
             return
         }
 
-        let newTokens = walletModels.flatMap { $0.tokenItemViewModels }
+        let tokenItemViewModels = walletModels.flatMap { $0.tokenItemViewModels }
         totalSumBalanceViewModel.beginUpdates()
-        totalSumBalanceViewModel.update(with: newTokens)
+        totalSumBalanceViewModel.update(with: tokenItemViewModels)
     }
 
     private func updateCardPinSettings() {
@@ -988,9 +952,36 @@ class CardViewModel: Identifiable, ObservableObject {
             self.cardInfo.card = CardDTO(card: card)
             self.config = UserWalletConfigFactory(cardInfo).makeConfig()
             self.warningsService.setupWarnings(for: config)
-            // [REDACTED_TODO_COMMENT]
+
+            let userWallet = self.userWallet
+            let _ = userWalletListService.save(userWallet)
         }
         .store(in: &bag)
+
+        $walletsBalanceState
+            .receive(on: RunLoop.main)
+            .sink { [unowned self] state in
+                switch state {
+                case .inProgress:
+                    break
+                case .loaded:
+                    // Delay to hide skeleton
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                        self.updateTotalBalanceTokenList()
+                    }
+                }
+            }
+            .store(in: &bag)
+
+        totalSumBalanceViewModel
+            .$totalFiatValueString
+            .sink { [unowned self] newValue in
+                withAnimation(nil) {
+                    let newTotalBalance = newValue.string
+                    self.totalBalance = newTotalBalance.isEmpty ? nil : newTotalBalance
+                }
+            }
+            .store(in: &bag)
     }
 
     private func loadCardImage() {
