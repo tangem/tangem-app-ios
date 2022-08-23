@@ -83,7 +83,7 @@ class TwinsWalletCreationUtil {
             switch result {
             case .success(let response):
                 self.card.clearTwinPairKey()
-                self.card.update(with: response.card)
+                self.card.update(with: CardDTO(card: response.card))
                 self.firstTwinPublicKey = response.createWalletResponse.wallet.publicKey
                 self.step.send(.second)
             case .failure(let error):

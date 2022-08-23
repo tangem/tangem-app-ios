@@ -23,7 +23,7 @@ enum PreviewCard {
     case tangemWalletEmpty
 
     var cardModel: CardViewModel {
-        let card = Card.card
+        let card = CardDTO(card: Card.card)
         let ci = CardInfo(card: card, walletData: walletData, name: "Name")
         let vm = CardViewModel(cardInfo: ci)
         #if !CLIP
