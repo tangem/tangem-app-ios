@@ -62,7 +62,7 @@ class WelcomeCoordinator: CoordinatorObject {
         if options.shouldScan {
             welcomeViewModel.scanCard()
         } else if welcomeViewModel.shouldShowAuthenticationView {
-            welcomeViewModel.tryBiometricAuthentication()
+            welcomeViewModel.unlockWithBiometry()
         }
     }
 
