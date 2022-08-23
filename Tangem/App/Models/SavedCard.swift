@@ -21,7 +21,7 @@ struct SavedCard: Codable { // [REDACTED_TODO_COMMENT]
             return .legacy
         }
 
-        return Card.getDerivationStyle(for: batchId, isHdWalletAllowed: isHdWalletAllowed)
+        return CardDTO.getDerivationStyle(for: batchId, isHdWalletAllowed: isHdWalletAllowed)
     }
 
     private var isHdWalletAllowed: Bool {
