@@ -40,7 +40,7 @@ class Analytics {
         #endif
     }
 
-    static func logScan(card: Card, config: UserWalletConfig) {
+    static func logScan(card: CardDTO, config: UserWalletConfig) {
         log(event: .cardIsScanned, with: collectCardData(card))
 
         if DemoUtil().isDemoCard(cardId: card.cardId) {
@@ -66,7 +66,7 @@ class Analytics {
         #endif
     }
 
-    static func logCardSdkError(_ error: TangemSdkError, for action: Action, card: Card, parameters: [ParameterKey: Any] = [:]) {
+    static func logCardSdkError(_ error: TangemSdkError, for action: Action, card: CardDTO, parameters: [ParameterKey: Any] = [:]) {
         logCardSdkError(error, for: action, parameters: collectCardData(card, additionalParams: parameters))
     }
 
@@ -157,7 +157,7 @@ class Analytics {
         #endif
     }
 
-    private static func collectCardData(_ card: Card, additionalParams: [ParameterKey: Any] = [:]) -> [ParameterKey: Any] {
+    private static func collectCardData(_ card: CardDTO, additionalParams: [ParameterKey: Any] = [:]) -> [ParameterKey: Any] {
         var params = additionalParams
         params[.batchId] = card.batchId
         params[.firmware] = card.firmwareVersion.stringValue
