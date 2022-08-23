@@ -54,16 +54,12 @@ struct WelcomeView: View {
             Spacer()
 
             #warning("TOUCH ID?")
-            TangemButton(title: "Unlock with Face ID") {
-                viewModel.unlockWithBiometry()
-            }
-            .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt3, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
-            .padding(.bottom, 11)
+            TangemButton(title: "Unlock with Face ID", action: viewModel.unlockWithBiometry)
+                .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt3, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
+                .padding(.bottom, 11)
 
-            TangemButton(title: "Unlock with card", image: "tangemIconWhite", iconPosition: .trailing) {
-                viewModel.unlockWithCard()
-            }
-            .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
+            TangemButton(title: "Unlock with card", image: "tangemIconWhite", iconPosition: .trailing, action: viewModel.unlockWithCard)
+                .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
         }
         .padding()
     }
