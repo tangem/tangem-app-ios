@@ -32,4 +32,5 @@ enum StorageType: String {
 
     // Temp migrated cards storage. Remove with LegacyCardMigrator
     case migratedCardsWithDefaultTokens = "tangem_migrated_cards_default_tokens"
+    case migratedTokenRepository = "tangem_migrated_token_repository"
 }
