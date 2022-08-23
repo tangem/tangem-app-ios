@@ -118,7 +118,11 @@ extension DetailsViewModel {
     }
 
     func openSupportChat() {
-        coordinator.openSupportChat(cardId: cardModel.cardId)
+        let dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel,
+                                                         userWalletEmailData: cardModel.emailData)
+
+        coordinator.openSupportChat(cardId: cardModel.cardId,
+                                    dataCollector: dataCollector)
     }
 
     func openSocialNetwork(network: SocialNetwork) {
