@@ -85,67 +85,11 @@ class CommonUserWalletListService: UserWalletListService {
     }
 
     func unlockWithCard(_ userWallet: UserWallet, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        if !userWallet.isLocked {
-            completion(.success(()))
-            return
-        }
-
-        unlockWithCard(completion: completion)
+        processScannedCard(userWallet)
+        completion(.success(()))
     }
 
-    func unlockWithCard(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        if case .biometry = unlockingMethod {
-            completion(.success(()))
-            return
-        }
-
-        cardsRepository.scanPublisher()
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] result in
-                if case let .failure(error) = result {
-//                    print("Failed to scan card: \(error)")
-//                    self?.isScanningCard = false
-//                    self?.failedCardScanTracker.recordFailure()
-
-//                    if self?.failedCardScanTracker.shouldDisplayAlert ?? false {
-//                        self?.showTroubleshootingView = true
-//                    } else {
-//                        switch error.toTangemSdkError() {
-//                        case .unknownError, .cardVerificationFailed:
-//                            self?.error = error.alertBinder
-//                        default:
-//                            break
-//                        }
-//                    }
-                }
-                switch result {
-                case .failure(let error):
-                    completion(.failure(error.toTangemSdkError()))
-                case .finished:
-                    break
-                }
-            } receiveValue: { [weak self] cardModel in
-//                self?.isScanningCard = false
-//                self?.failedCardScanTracker.resetCounter()
-                self?.processScannedCard(cardModel)
-                completion(.success(()))
-            }
-            .store(in: &bag)
-    }
-
-    private func processScannedCard(_ cardModel: CardViewModel) {
-        let card = cardModel.card
-
-        let userWallet = UserWallet(
-            userWalletId: card.cardPublicKey,
-            name: "",
-            card: card,
-            walletData: cardModel.walletData,
-            artwork: nil,
-            keys: cardModel.derivedKeys,
-            isHDWalletAllowed: card.settings.isHDWalletAllowed
-        )
-
+    private func processScannedCard(_ userWallet: UserWallet) {
         if let encryptionKey = userWallet.encryptionKey {
             self.unlockingMethod = .userWallet(id: userWallet.userWalletId, encryptionKey: encryptionKey)
         } else {
@@ -162,7 +106,7 @@ class CommonUserWalletListService: UserWalletListService {
             }
 
             userWallets[userWalletIndex] = userWallet
-            models[userWalletIndex] = cardModel
+            models[userWalletIndex] = CardViewModel(userWallet: userWallet)
         }
     }
 
