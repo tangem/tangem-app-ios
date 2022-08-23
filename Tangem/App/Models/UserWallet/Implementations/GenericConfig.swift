@@ -14,7 +14,7 @@ import WalletConnectSwift
 struct GenericConfig {
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
 
-    private let card: Card
+    private let card: CardDTO
 
     private var _backupSteps: [WalletOnboardingStep] {
         if !card.settings.isBackupAllowed {
@@ -39,7 +39,7 @@ struct GenericConfig {
         return steps
     }
 
-    init(card: Card) {
+    init(card: CardDTO) {
         self.card = card
     }
 }
@@ -249,7 +249,7 @@ fileprivate extension Card.BackupStatus {
     }
 }
 
-fileprivate extension Card {
+fileprivate extension CardDTO {
     var isTestnet: Bool {
         if batchId == "99FF" {
             return cardId.starts(with: batchId.reversed())
