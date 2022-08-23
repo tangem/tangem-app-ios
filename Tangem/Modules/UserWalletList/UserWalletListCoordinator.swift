@@ -47,7 +47,9 @@ class UserWalletListCoordinator: CoordinatorObject {
 
     func openMail(with dataCollector: EmailDataCollector) {
         dismissAction()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+
+        let dismissingDelay = 0.6
+        DispatchQueue.main.asyncAfter(deadline: .now() + dismissingDelay) {
             self.router?.openMail(with: dataCollector, emailType: .failedToScanCard, recipient: EmailConfig.default.recipient)
         }
     }
