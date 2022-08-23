@@ -20,9 +20,10 @@ struct UserWalletStorageAgreementView: View {
         VStack(spacing: 0) {
             Spacer()
 
-            VStack(spacing: 14) {
-                biometryImage
+            biometryImage
+                .padding(.bottom, 28)
 
+            VStack(spacing: 14) {
                 newFeatureBadge
 
                 Text("Would you like to keep wallet on this device?")
