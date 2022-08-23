@@ -11,10 +11,10 @@ import TangemSdk
 import BlockchainSdk
 
 struct NoteDemoConfig {
-    private let card: Card
+    private let card: CardDTO
     private let noteData: WalletData
 
-    init(card: Card, noteData: WalletData) {
+    init(card: CardDTO, noteData: WalletData) {
         self.card = card
         self.noteData = noteData
     }
