@@ -36,7 +36,7 @@ class CardViewModel: Identifiable, ObservableObject {
     var signer: TangemSigner { config.tangemSigner }
     var cardId: String { cardInfo.card.cardId }
 
-    var card: Card {
+    var card: CardDTO {
         cardInfo.card
     }
 
@@ -491,7 +491,7 @@ class CardViewModel: Identifiable, ObservableObject {
                                                        body: "initial_message_create_wallet_body".localized)) { [weak self] result in
             switch result {
             case .success(let card):
-                self?.update(with: card)
+                self?.update(with: CardDTO(card: card))
                 completion(.success(()))
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .createWallet, card: card)
@@ -589,7 +589,7 @@ class CardViewModel: Identifiable, ObservableObject {
             .store(in: &bag)
     }
 
-    func update(with card: Card, derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]] = [:]) {
+    func update(with card: CardDTO, derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]] = [:]) {
         print("🟩 Updating Card view model with new Card")
         cardInfo.card = card
         cardInfo.derivedKeys = derivedKeys
@@ -1000,7 +1000,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private func bind() {
         signer.signPublisher.sink { [unowned self] card in
-            self.cardInfo.card = card
+            self.cardInfo.card = CardDTO(card: card)
             self.config = UserWalletConfigFactory(cardInfo).makeConfig()
             self.warningsService.setupWarnings(for: config)
             // [REDACTED_TODO_COMMENT]
