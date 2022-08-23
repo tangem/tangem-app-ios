@@ -10,7 +10,7 @@ import Foundation
 import TangemSdk
 
 struct WarningEventsFactory {
-    func makeWarningEvents(for card: Card) -> [WarningEvent] {
+    func makeWarningEvents(for card: CardDTO) -> [WarningEvent] {
         var warnings: [WarningEvent] = []
 
         if card.firmwareVersion.type != .sdk &&
