@@ -49,7 +49,6 @@ class CommonUserWalletListService: UserWalletListService {
     private var unlockingMethod: UnlockingMethod?
 
     private let secureStorage = SecureStorage()
-    private let derivedKeysStorageKey = "user_wallet_list_derived_keys"
 
     private var fileManager: FileManager {
         FileManager.default
@@ -85,14 +84,10 @@ class CommonUserWalletListService: UserWalletListService {
     }
 
     func unlockWithCard(_ userWallet: UserWallet, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        processScannedCard(userWallet)
-        completion(.success(()))
-    }
-
-    private func processScannedCard(_ userWallet: UserWallet) {
         if let encryptionKey = userWallet.encryptionKey {
             self.unlockingMethod = .userWallet(id: userWallet.userWalletId, encryptionKey: encryptionKey)
         } else {
+            completion(.failure(TangemSdkError.cardError))
             return
         }
 
@@ -102,12 +97,15 @@ class CommonUserWalletListService: UserWalletListService {
             loadModels()
         } else {
             guard let userWalletIndex = userWallets.firstIndex(where: { $0.userWalletId == userWallet.userWalletId }) else {
+                completion(.failure(TangemSdkError.cardError))
                 return
             }
 
             userWallets[userWalletIndex] = userWallet
             models[userWalletIndex] = CardViewModel(userWallet: userWallet)
         }
+
+        completion(.success(()))
     }
 
     func loadModels() {
