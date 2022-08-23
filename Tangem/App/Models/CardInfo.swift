@@ -14,7 +14,7 @@ import BlockchainSdk
 #endif
 
 struct CardInfo {
-    var card: Card
+    var card: CardDTO
     var walletData: DefaultWalletData
     var name: String // [REDACTED_TODO_COMMENT]
     var artwork: CardArtwork = .notLoaded

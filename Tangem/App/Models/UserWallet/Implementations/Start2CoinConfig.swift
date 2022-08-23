@@ -11,7 +11,7 @@ import TangemSdk
 import BlockchainSdk
 
 struct Start2CoinConfig {
-    private let card: Card
+    private let card: CardDTO
     private let walletData: WalletData
 
     private var defaultBlockchain: Blockchain {
@@ -66,7 +66,7 @@ struct Start2CoinConfig {
         }
     }
 
-    init(card: Card, walletData: WalletData) {
+    init(card: CardDTO, walletData: WalletData) {
         self.card = card
         self.walletData = walletData
     }
