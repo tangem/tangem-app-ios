@@ -40,10 +40,6 @@ class CardViewModel: Identifiable, ObservableObject {
         cardInfo.card
     }
 
-    var accessCode: Data? {
-        cardInfo.accessCode
-    }
-
     var derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]] {
         cardInfo.derivedKeys
     }
@@ -268,8 +264,7 @@ class CardViewModel: Identifiable, ObservableObject {
             walletData: walletData,
             artwork: cardInfo.artworkInfo,
             keys: cardInfo.derivedKeys,
-            isHDWalletAllowed: cardInfo.card.settings.isHDWalletAllowed,
-            accessCode: cardInfo.accessCode
+            isHDWalletAllowed: cardInfo.card.settings.isHDWalletAllowed
         )
     }
 
