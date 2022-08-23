@@ -9,10 +9,6 @@
 import SwiftUI
 
 struct UserWalletListView: ResizableSheetView {
-    func setResizeCallback(_ callback: @escaping ResizeCallback) {
-        viewModel.bottomSheetHeightUpdateCallback = callback
-    }
-
     @ObservedObject private var viewModel: UserWalletListViewModel
 
     static var sheetBackground: Color {
@@ -26,6 +22,10 @@ struct UserWalletListView: ResizableSheetView {
 
     init(viewModel: UserWalletListViewModel) {
         self.viewModel = viewModel
+    }
+
+    func setResizeCallback(_ callback: @escaping ResizeCallback) {
+        viewModel.bottomSheetHeightUpdateCallback = callback
     }
 
     var body: some View {
@@ -88,19 +88,13 @@ struct UserWalletListView: ResizableSheetView {
                         Button(role: .destructive) {
                             viewModel.deleteUserWallet(models[i].userWallet)
                         } label: {
-                            HStack {
-                                Text("Delete")
-                                Image(systemName: "trash")
-                            }
+                            deleteButtonLabel()
                         }
                     } else {
                         Button {
                             viewModel.deleteUserWallet(models[i].userWallet)
                         } label: {
-                            HStack {
-                                Text("Delete")
-                                Image(systemName: "trash")
-                            }
+                            deleteButtonLabel()
                         }
                     }
                 }
@@ -110,6 +104,14 @@ struct UserWalletListView: ResizableSheetView {
                         .padding(.leading, 78)
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    private func deleteButtonLabel() -> some View {
+        HStack {
+            Text("Delete")
+            Image(systemName: "trash")
         }
     }
 }
