@@ -10,6 +10,8 @@ import Foundation
 import SwiftUI
 
 struct UserWalletListHeaderView: View {
+    static let hardcodedHeight = 37.0
+
     let name: String
 
     var body: some View {
@@ -17,5 +19,6 @@ struct UserWalletListHeaderView: View {
             .style(Fonts.Bold.footnote, color: Colors.Text.tertiary)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(EdgeInsets(top: 12, leading: 16, bottom: 10, trailing: 16))
+            .frame(height: Self.hardcodedHeight)
     }
 }
