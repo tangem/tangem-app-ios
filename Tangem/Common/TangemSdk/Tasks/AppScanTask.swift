@@ -35,7 +35,7 @@ struct AppScanTaskResponse {
     let accessCode: Data?
 
     func getCardInfo() -> CardInfo {
-        return CardInfo(card: card,
+        return CardInfo(card: CardDTO(card: card),
                         walletData: walletData,
                         name: "",
                         derivedKeys: derivedKeys,
@@ -261,7 +261,7 @@ final class AppScanTask: CardSessionRunnable {
         let tokenItemsRepository = CommonTokenItemsRepository(key: card.cardId)
 
         // Force add blockchains for demo cards
-        let config = GenericConfig(card: card)
+        let config = GenericConfig(card: CardDTO(card: card))
         if let persistentBlockchains = config.persistentBlockchains {
             tokenItemsRepository.append(persistentBlockchains)
         }
