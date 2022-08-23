@@ -32,7 +32,6 @@ struct AppScanTaskResponse {
     let walletData: DefaultWalletData
     let derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]
     let primaryCard: PrimaryCard?
-    let accessCode: Data?
 
     func getCardInfo() -> CardInfo {
         return CardInfo(card: CardDTO(card: card),
@@ -306,11 +305,9 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func complete(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        let accessCode: Data? = nil
         completion(.success(AppScanTaskResponse(card: session.environment.card!,
                                                 walletData: walletData,
                                                 derivedKeys: derivedKeys,
-                                                primaryCard: primaryCard,
-                                                accessCode: accessCode)))
+                                                primaryCard: primaryCard)))
     }
 }
