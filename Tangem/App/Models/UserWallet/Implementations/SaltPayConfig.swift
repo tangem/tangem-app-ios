@@ -13,10 +13,10 @@ import TangemSdk
 import BlockchainSdk
 
 struct SaltPayConfig {
-    private let card: Card
+    private let card: CardDTO
     private let walletData: WalletData
 
-    init(card: Card, walletData: WalletData) {
+    init(card: CardDTO, walletData: WalletData) {
         self.card = card
         self.walletData = walletData
     }
