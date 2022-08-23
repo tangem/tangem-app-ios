@@ -13,8 +13,8 @@ struct UserWalletListCellView: View {
     let isSelected: Bool
     let didTapUserWallet: (UserWallet) -> Void
 
-    private let selectedIconSize: CGSize = .init(width: 14, height: 14)
-    private let selectedIconBorderWidth: Double = 2
+    private let selectionIconSize: CGSize = .init(width: 14, height: 14)
+    private let selectionIconBorderWidth: Double = 2
 
     var body: some View {
         HStack(spacing: 12) {
@@ -23,7 +23,7 @@ struct UserWalletListCellView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(maxWidth: 50, minHeight: 30, maxHeight: 30)
-                    .overlay(selectedIcon.offset(x: 4, y: -4), alignment: .topTrailing)
+                    .overlay(selectionIcon.offset(x: 4, y: -4), alignment: .topTrailing)
             } else {
                 Color.tangemGrayLight4
                     .transition(.opacity)
@@ -45,7 +45,7 @@ struct UserWalletListCellView: View {
 
             if !model.isUserWalletLocked {
                 VStack(alignment: .trailing, spacing: 2) {
-                    Text(model.totalBalance ?? "999.99")
+                    Text(model.totalBalance ?? "")
                         .font(Font.subheadline)
                         .foregroundColor(Colors.Text.primary1)
 
@@ -64,16 +64,16 @@ struct UserWalletListCellView: View {
     }
 
     @ViewBuilder
-    private var selectedIcon: some View {
+    private var selectionIcon: some View {
         if isSelected {
             Image(systemName: "checkmark.circle.fill")
                 .resizable()
-                .frame(width: selectedIconSize.width, height: selectedIconSize.height)
+                .frame(width: selectionIconSize.width, height: selectionIconSize.height)
                 .foregroundColor(Colors.Text.accent)
                 .background(
                     Colors.Background.primary
                         .clipShape(Circle())
-                        .frame(size: selectedIconSize + CGSize(width: 2 * selectedIconBorderWidth, height: 2 * selectedIconBorderWidth))
+                        .frame(size: selectionIconSize + CGSize(width: 2 * selectionIconBorderWidth, height: 2 * selectionIconBorderWidth))
                 )
         }
     }
