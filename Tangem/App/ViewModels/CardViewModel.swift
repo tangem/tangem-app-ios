@@ -31,7 +31,6 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published private(set) var currentSecurityOption: SecurityModeOption = .longTap
     @Published var walletsBalanceState: WalletsBalanceState = .loaded
     @Published var totalBalance: String? = nil
-    @Published var totalBalanceLoading = true
 
     var signer: TangemSigner { config.tangemSigner }
     var cardId: String { cardInfo.card.cardId }
@@ -345,15 +344,6 @@ class CardViewModel: Identifiable, ObservableObject {
                 withAnimation(nil) {
                     let newTotalBalance = newValue.string
                     self.totalBalance = newTotalBalance.isEmpty ? nil : newTotalBalance
-                }
-            }
-            .store(in: &bag)
-
-        totalSumBalanceViewModel
-            .$isLoading
-            .sink { isLoading in
-                withAnimation(nil) {
-                    self.totalBalanceLoading = isLoading
                 }
             }
             .store(in: &bag)
