@@ -11,7 +11,7 @@ import TangemSdk
 import BlockchainSdk
 
 struct TwinConfig {
-    private let card: Card
+    private let card: CardDTO
     private let walletData: WalletData
     private let twinData: TwinData
 
@@ -23,7 +23,7 @@ struct TwinConfig {
         defaultBlockchain.isTestnet
     }
 
-    init(card: Card, walletData: WalletData, twinData: TwinData) {
+    init(card: CardDTO, walletData: WalletData, twinData: TwinData) {
         self.card = card
         self.walletData = walletData
         self.twinData = twinData
