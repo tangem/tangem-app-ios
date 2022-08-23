@@ -25,7 +25,7 @@ struct GenericConfig {
 
         steps.append(.backupIntro)
 
-        if !backupServiceProvider.backupService.primaryCardIsSet {
+        if !card.wallets.isEmpty && !backupServiceProvider.backupService.primaryCardIsSet {
             steps.append(.scanPrimaryCard)
         }
 
