@@ -13,7 +13,7 @@ import WalletConnectSwift
 
 /// V3 Config
 struct LegacyConfig {
-    private let card: Card
+    private let card: CardDTO
     private let walletData: WalletData
 
     private var defaultBlockchain: Blockchain {
@@ -37,7 +37,7 @@ struct LegacyConfig {
                      decimalCount: token.decimals)
     }
 
-    init(card: Card, walletData: WalletData) {
+    init(card: CardDTO, walletData: WalletData) {
         self.card = card
         self.walletData = walletData
     }
