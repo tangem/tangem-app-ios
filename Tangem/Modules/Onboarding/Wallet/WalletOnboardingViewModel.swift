@@ -494,10 +494,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                                                                     body: "initial_message_create_wallet_body".localized)) { [weak self] result in
                     switch result {
                     case .success(let result):
-                        self?.addDefaultTokens(for: result.card)
+                        self?.addDefaultTokens(for: CardDTO(card: result.card))
 
                         if let cardModel = self?.input.cardInput.cardModel {
-                            cardModel.update(with: result.card, derivedKeys: result.derivedKeys)
+                            cardModel.update(with: CardDTO(card: result.card), derivedKeys: result.derivedKeys)
                         }
 
                         self?.backupService.setPrimaryCard(result.primaryCard)
@@ -579,9 +579,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                         switch result {
                         case .success(let updatedCard):
                             if updatedCard.cardId == self.backupService.primaryCardId {
-                                self.input.cardInput.cardModel?.update(with: updatedCard)
+                                self.input.cardInput.cardModel?.update(with: CardDTO(card: updatedCard))
                             } else { // add tokens for backup cards
-                                self.addDefaultTokens(for: updatedCard)
+                                self.addDefaultTokens(for: CardDTO(card: updatedCard))
                             }
                             promise(.success(()))
                         case .failure(let error):
@@ -616,7 +616,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         }
     }
 
-    private func addDefaultTokens(for card: Card) {
+    private func addDefaultTokens(for card: CardDTO) {
         let config = GenericConfig(card: card)
         CommonTokenItemsRepository(key: card.cardId).append(config.defaultBlockchains)
     }
