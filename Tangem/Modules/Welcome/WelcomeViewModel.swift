@@ -85,7 +85,7 @@ class WelcomeViewModel: ObservableObject {
         subscription?.store(in: &bag)
     }
 
-    func tryBiometricAuthentication() {
+    func unlockWithBiometry() {
         showingAuthentication = true
 
         userWalletListService.unlockWithBiometry { [weak self] result in
