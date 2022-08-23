@@ -101,16 +101,14 @@ final class UserWalletListViewModel: ObservableObject {
     }
 
     func editWallet(_ userWallet: UserWallet) {
-        let vc: UIAlertController = UIAlertController(title: "Rename Wallet", message: nil, preferredStyle: .alert)
-        let cancelAction = UIAlertAction(title: "common_cancel".localized, style: .cancel) { _ in
-
-        }
-        vc.addAction(cancelAction)
+        #warning("l10n")
+        let alert = UIAlertController(title: "Rename Wallet", message: nil, preferredStyle: .alert)
+        let cancelAction = UIAlertAction(title: "common_cancel".localized, style: .cancel) { _ in }
+        alert.addAction(cancelAction)
 
         var nameTextField: UITextField?
-        vc.addTextField { textField in
+        alert.addTextField { textField in
             nameTextField = textField
-            #warning("l10n")
             nameTextField?.placeholder = "Wallet name"
             nameTextField?.text = userWallet.name
             nameTextField?.clearButtonMode = .whileEditing
@@ -122,9 +120,9 @@ final class UserWalletListViewModel: ObservableObject {
             self?.userWalletListService.setName(userWallet, name: name)
             self?.updateModels()
         }
-        vc.addAction(acceptButton)
+        alert.addAction(acceptButton)
 
-        UIApplication.modalFromTop(vc)
+        UIApplication.modalFromTop(alert)
     }
 
     func deleteUserWallet(_ userWallet: UserWallet) {
@@ -168,7 +166,15 @@ final class UserWalletListViewModel: ObservableObject {
     private func processScannedCard(_ cardModel: CardViewModel) {
         let card = cardModel.card
 
-        let userWallet = UserWallet(userWalletId: card.cardPublicKey, name: "", card: card, walletData: cardModel.walletData, artwork: nil, keys: cardModel.derivedKeys, isHDWalletAllowed: card.settings.isHDWalletAllowed)
+        let userWallet = UserWallet(
+            userWalletId: card.cardPublicKey,
+            name: "",
+            card: card,
+            walletData: cardModel.walletData,
+            artwork: nil,
+            keys: cardModel.derivedKeys,
+            isHDWalletAllowed: card.settings.isHDWalletAllowed
+        )
 
         if userWalletListService.contains(userWallet) {
             return
