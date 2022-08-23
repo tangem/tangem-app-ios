@@ -58,6 +58,7 @@ class WelcomeViewModel: ObservableObject {
 
     func unlockWithBiometry() {
         showingAuthentication = true
+        userWalletListService.unlockWithBiometry(completion: self.didFinishUnlocking)
     }
 
     func unlockWithCard() {
