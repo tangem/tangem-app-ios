@@ -14,7 +14,7 @@ struct UserWallet: Identifiable, Codable {
     var id = UUID()
     let userWalletId: Data
     var name: String
-    var card: Card
+    var card: CardDTO
     let walletData: DefaultWalletData
     let artwork: ArtworkInfo?
     var keys: [Data: [DerivationPath: ExtendedPublicKey]] // encrypted
