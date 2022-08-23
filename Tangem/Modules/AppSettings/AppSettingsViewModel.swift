@@ -51,7 +51,7 @@ private extension AppSettingsViewModel {
             .dropFirst()
             .sink { [weak self, cardModel] saveWallet in
                 if saveWallet {
-                    self?.userWalletListService.tryToAccessBiometry { result in
+                    self?.userWalletListService.unlockWithBiometry { result in
                         if case .success = result {
                             let _ = self?.userWalletListService.save(cardModel.userWallet)
                             self?.setSaveWallets(true)
