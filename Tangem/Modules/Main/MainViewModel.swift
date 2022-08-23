@@ -294,7 +294,7 @@ class MainViewModel: ObservableObject {
     }
 
     func onScan() {
-        if AppSettings.shared.saveUserWallets == true {
+        if AppSettings.shared.saveUserWallets {
             self.coordinator.openUserWalletList()
         } else {
             DispatchQueue.main.async {
@@ -504,7 +504,8 @@ class MainViewModel: ObservableObject {
 
         AppSettings.shared.askedToSaveUserWallets = true
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+        let delay = 1.0
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
             self?.coordinator.openUserWalletSaveAcceptanceSheet()
         }
     }
@@ -514,7 +515,7 @@ class MainViewModel: ObservableObject {
     }
 
     func didAgreeToSaveUserWallets() {
-        userWalletListService.tryToAccessBiometry { [weak self, cardModel] result in
+        userWalletListService.unlockWithBiometry { [weak self, cardModel] result in
             if case let .failure(error) = result {
                 print("Failed to enable biometry: \(error)")
                 return
