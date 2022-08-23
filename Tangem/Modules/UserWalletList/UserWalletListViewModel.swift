@@ -228,8 +228,8 @@ final class UserWalletListViewModel: ObservableObject {
     private func updateHeight(oldModelSections: [[CardViewModel]]) {
         let newModelSections = [multiCurrencyModels, singleCurrencyModels]
 
-        let cellHeight = 67
-        let headerHeight = 37
+        let cellHeight = UserWalletListCellView.hardcodedHeight
+        let headerHeight = UserWalletListHeaderView.hardcodedHeight
 
         let oldNumberOfModels = oldModelSections.reduce(into: 0) { $0 += $1.count }
         let newNumberOfModels = newModelSections.reduce(into: 0) { $0 += $1.count }
@@ -237,8 +237,8 @@ final class UserWalletListViewModel: ObservableObject {
         let oldNumberOfSections = oldModelSections.filter { !$0.isEmpty }.count
         let newNumberOfSections = newModelSections.filter { !$0.isEmpty }.count
 
-        let heightDifference = cellHeight * (newNumberOfModels - oldNumberOfModels) + headerHeight * (newNumberOfSections - oldNumberOfSections)
+        let heightDifference = cellHeight * Double(newNumberOfModels - oldNumberOfModels) + headerHeight * Double(newNumberOfSections - oldNumberOfSections)
 
-        bottomSheetHeightUpdateCallback?(.changeHeight(byValue: Double(heightDifference)))
+        bottomSheetHeightUpdateCallback?(.changeHeight(byValue: heightDifference))
     }
 }
