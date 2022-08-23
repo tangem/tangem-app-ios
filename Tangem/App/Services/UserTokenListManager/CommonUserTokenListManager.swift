@@ -27,7 +27,12 @@ class CommonUserTokenListManager {
         self.userWalletId = userWalletId
         self.cardId = cardId
 
-        tokenItemsRepository = CommonTokenItemsRepository(key: cardId)
+        if AppSettings.shared.migratedTokenRepository {
+            tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId)
+        } else {
+            assertionFailure("Need to migrate repository")
+            tokenItemsRepository = CommonTokenItemsRepository(key: cardId)
+        }
     }
 }
 
@@ -121,14 +126,15 @@ private extension CommonUserTokenListManager {
     // MARK: - Migration
 
     func migrateAndUpdateTokensInBackend(result: @escaping (Result<UserTokenList, Error>) -> Void) {
-        let entries = tokenItemsRepository.getItems()
-        tokenItemsRepository.removeAll()
+        let oldRepository = CommonTokenItemsRepository(key: cardId)
+        let oldEntries = CommonTokenItemsRepository(key: cardId).getItems()
+        oldRepository.removeAll()
 
-        // Recreate the repository for new key
-        tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId)
-        tokenItemsRepository.append(entries)
+        // Save a old entries in new repository
+        tokenItemsRepository.append(oldEntries)
+        AppSettings.shared.migratedTokenRepository = true
 
-        let tokens = mapToTokens(entries: entries)
+        let tokens = mapToTokens(entries: oldEntries)
         let list = UserTokenList(tokens: tokens)
 
         saveTokensCancellable = tangemApiService.saveTokens(key: userWalletId, list: list)

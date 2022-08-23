@@ -130,20 +130,3 @@ extension CommonTangemApiService: TangemApiService {
         self.authData = authData
     }
 }
-
-extension Publisher where Failure == MoyaError {
-    func mapTangemAPIError() -> Publishers.MapError<Self, TangemAPIError> {
-        mapError { error in
-            guard let body = error.response?.data else {
-                return TangemAPIError(code: .unknown)
-            }
-
-            let decoder = JSONDecoder()
-            do {
-                return try decoder.decode(TangemAPIError.self, from: body)
-            } catch {
-                return TangemAPIError(code: .decode)
-            }
-        }
-    }
-}

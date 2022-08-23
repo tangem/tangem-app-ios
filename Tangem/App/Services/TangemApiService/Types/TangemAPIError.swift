@@ -8,6 +8,10 @@
 
 import Foundation
 
+struct TangemBaseAPIError: Decodable {
+    let error: TangemAPIError
+}
+
 struct TangemAPIError: Decodable, Error, LocalizedError {
     let code: ErrorCode
     let description: String?
