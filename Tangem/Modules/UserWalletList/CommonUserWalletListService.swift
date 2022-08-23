@@ -136,7 +136,7 @@ class CommonUserWalletListService: UserWalletListService {
     private func processScannedCard(_ cardModel: CardViewModel) {
         let card = cardModel.card
 
-        let userWallet = UserWallet(userWalletId: card.cardPublicKey, name: "", card: card, walletData: cardModel.walletData, artwork: nil, keys: cardModel.derivedKeys, isHDWalletAllowed: card.settings.isHDWalletAllowed, accessCode: cardModel.accessCode)
+        let userWallet = UserWallet(userWalletId: card.cardPublicKey, name: "", card: card, walletData: cardModel.walletData, artwork: nil, keys: cardModel.derivedKeys, isHDWalletAllowed: card.settings.isHDWalletAllowed)
 
         if let encryptionKey = userWallet.encryptionKey {
             self.unlockingMethod = .userWallet(id: userWallet.userWalletId, encryptionKey: encryptionKey)
