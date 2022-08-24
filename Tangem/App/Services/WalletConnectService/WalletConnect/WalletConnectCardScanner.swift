@@ -56,9 +56,9 @@ class WalletConnectCardScanner {
         }
 
         let cardModel = CardViewModel(cardInfo: cardInfo)
-        cardModel.updateState()
+        cardModel.updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: true)
 
-        let wallet = cardModel.walletModels?
+        let wallet = cardModel.walletModels
             .first(where: { $0.blockchainNetwork == blockchainNetwork })
             .map { $0.wallet }
 
