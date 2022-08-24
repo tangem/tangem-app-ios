@@ -12,27 +12,29 @@ import BlockchainSdk
 import TangemSdk
 
 class CommonUserTokenListManager {
+    @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    @Injected(\.scannedCardsRepository) var scannedCardsRepository: ScannedCardsRepository
 
     /// I use `var` because the repository will be updated after migration
     private var tokenItemsRepository: TokenItemsRepository
 
-    private let userWalletId: String
-    private let cardId: String
+    private let cardInfo: CardInfo
+    private let config: UserWalletConfig
 
     private var loadTokensCancellable: AnyCancellable?
     private var saveTokensCancellable: AnyCancellable?
 
-    init(userWalletId: String, cardId: String) {
-        self.userWalletId = userWalletId
-        self.cardId = cardId
+    private var card: Card { cardInfo.card }
+    private var cardId: String { card.cardId }
+    private var userWalletId: String { card.userWalletId }
+    private var derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]] { cardInfo.derivedKeys }
 
-        if AppSettings.shared.migratedTokenRepository {
-            tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId)
-        } else {
-            assertionFailure("Need to migrate repository")
-            tokenItemsRepository = CommonTokenItemsRepository(key: cardId)
-        }
+    init(config: UserWalletConfig, cardInfo: CardInfo) {
+        self.config = config
+        self.cardInfo = cardInfo
+
+        tokenItemsRepository = CommonTokenItemsRepository(key: cardInfo.card.userWalletId)
     }
 }
 
@@ -146,6 +148,56 @@ private extension CommonUserTokenListManager {
                     result(.success(list))
                 }
             }
+    }
+
+    // MARK: - Derivation
+
+    func deriveIfNeeded(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
+        guard config.hasFeature(.hdWallets) else {
+            completion(.success(()))
+            return
+        }
+
+        let newDerivationPaths: [Data: [DerivationPath]] = entries.reduce(into: [:]) { result, entry in
+            if let path = entry.blockchainNetwork.derivationPath,
+               let publicKey = card.wallets.first(where: { $0.curve == entry.blockchainNetwork.blockchain.curve })?.publicKey,
+               derivedKeys[publicKey]?[path] == nil {
+                result[publicKey, default: []].append(path)
+            }
+        }
+
+        if newDerivationPaths.isEmpty {
+            completion(.success(()))
+            return
+        }
+
+        deriveKeys(derivationPaths: newDerivationPaths, completion: completion)
+    }
+
+    func deriveKeys(derivationPaths: [Data: [DerivationPath]], completion: @escaping (Result<Void, Error>) -> Void) {
+        let task = DeriveMultipleWalletPublicKeysTask(derivationPaths)
+        tangemSdkProvider.sdk.startSession(with: task, cardId: cardId) { [weak self, card] result in
+            switch result {
+            case .success(let newDerivations):
+                self?.updateDerivations(with: newDerivations)
+                completion(.success(()))
+            case .failure(let error):
+                Analytics.logCardSdkError(error, for: .purgeWallet, card: card)
+                completion(.failure(error))
+            }
+        }
+    }
+
+    func updateDerivations(with newDerivations: [Data: [DerivationPath: ExtendedPublicKey]]) {
+        var cardInfo = self.cardInfo
+
+        for newKey in newDerivations {
+            for newDerivation in newKey.value {
+                cardInfo.derivedKeys[newKey.key, default: [:]][newDerivation.key] = newDerivation.value
+            }
+        }
+
+        scannedCardsRepository.add(cardInfo)
     }
 
     // MARK: - Mapping
