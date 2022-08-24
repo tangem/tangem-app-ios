@@ -40,7 +40,19 @@ class UserWalletListCoordinator: CoordinatorObject {
     func start(with options: Options) {
 
     }
+}
 
+// MARK: - Options
+
+extension UserWalletListCoordinator {
+    enum Options {
+
+    }
+}
+
+// MARK: - UserWalletListRoutable
+
+extension UserWalletListCoordinator: UserWalletListRoutable {
     func didTapUserWallet(userWallet: UserWallet) {
         router?.didTapUserWallet(userWallet: userWallet)
     }
@@ -54,15 +66,3 @@ class UserWalletListCoordinator: CoordinatorObject {
         }
     }
 }
-
-// MARK: - Options
-
-extension UserWalletListCoordinator {
-    enum Options {
-
-    }
-}
-
-// MARK: - UserWalletListRoutable
-
-extension UserWalletListCoordinator: UserWalletListRoutable {}
