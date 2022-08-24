@@ -193,7 +193,7 @@ extension LegacyConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModels(for tokens: [StorageEntry], derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]) -> [WalletModel] {
+    func makeWalletModel(for token: StorageEntry, derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]) throws -> WalletModel {
         let factory = WalletModelFactory()
 
         if isMultiwallet {
@@ -201,22 +201,18 @@ extension LegacyConfig: UserWalletConfig {
                 partialResult[cardWallet.curve] = cardWallet.publicKey
             }
 
-            return factory.makeMultipleWallets(walletPublicKeys: walletPublicKeys,
-                                               entries: tokens,
-                                               derivationStyle: card.derivationStyle)
+            return try factory.makeMultipleWallet(walletPublicKeys: walletPublicKeys,
+                                                  entry: token,
+                                                  derivationStyle: card.derivationStyle)
         } else {
             guard let walletPublicKey = card.wallets.first(where: { $0.curve == defaultBlockchain.curve })?.publicKey else {
-                return []
+                throw CommonError.noData
             }
 
-            if let model = factory.makeSingleWallet(walletPublicKey: walletPublicKey,
-                                                    blockchain: defaultBlockchain,
-                                                    token: nil,
-                                                    derivationStyle: card.derivationStyle) {
-                return [model]
-            }
-
-            return []
+            return try factory.makeSingleWallet(walletPublicKey: walletPublicKey,
+                                                blockchain: defaultBlockchain,
+                                                token: nil,
+                                                derivationStyle: card.derivationStyle)
         }
     }
 }
