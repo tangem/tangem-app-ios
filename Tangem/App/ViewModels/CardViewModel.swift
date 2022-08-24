@@ -653,16 +653,14 @@ class CardViewModel: Identifiable, ObservableObject {
         tokenItemsRepository.append(entries)
 
         if hdWalletsSupported {
-
             var shouldDerive: Bool = false
 
             for entry in entries {
                 if let path = entry.blockchainNetwork.derivationPath,
-                   let wallet = cardInfo.card.wallets.first(where: { $0.curve == entry.blockchainNetwork.blockchain.curve }) {
-                    if wallet.derivedKeys[path] == nil {
-                        shouldDerive = true
-                        break
-                    }
+                   let wallet = cardInfo.card.wallets.first(where: { $0.curve == entry.blockchainNetwork.blockchain.curve }),
+                   !wallet.derivedKeys.keys.contains(path) {
+                    shouldDerive = true
+                    break
                 }
             }
 
