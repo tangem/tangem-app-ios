@@ -180,7 +180,7 @@ private extension TokenListViewModel {
         }
 
         let network = cardModel.getBlockchainNetwork(for: tokenItem.blockchain, derivationPath: nil)
-        if let walletManager = cardModel.walletModels?.first(where: { $0.blockchainNetwork == network })?.walletManager {
+        if let walletManager = cardModel.walletModels.first(where: { $0.blockchainNetwork == network })?.walletManager {
             if let token = tokenItem.token {
                 return walletManager.cardTokens.contains(token)
             }
@@ -328,7 +328,7 @@ private extension TokenListViewModel {
 
             let network = cardModel.getBlockchainNetwork(for: tokenItem.blockchain, derivationPath: nil)
 
-            guard let walletModel = cardModel.walletModels?.first(where: { $0.blockchainNetwork == network }) else {
+            guard let walletModel = cardModel.walletModels.first(where: { $0.blockchainNetwork == network }) else {
                 return
             }
 
@@ -354,7 +354,7 @@ private extension TokenListViewModel {
 
         let network = cardModel.getBlockchainNetwork(for: tokenItem.blockchain, derivationPath: nil)
 
-        guard let walletModel = cardModel.walletModels?.first(where: { $0.blockchainNetwork == network })  else {
+        guard let walletModel = cardModel.walletModels.first(where: { $0.blockchainNetwork == network })  else {
             return false
         }
 
