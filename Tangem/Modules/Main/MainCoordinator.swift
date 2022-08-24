@@ -23,7 +23,6 @@ class MainCoordinator: CoordinatorObject {
     @Published var detailsCoordinator: DetailsCoordinator? = nil
     @Published var tokenListCoordinator: TokenListCoordinator? = nil
     @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
-    @Published var userWalletListCoordinator: UserWalletListCoordinator?
 
     // MARK: - Child view models
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
@@ -32,6 +31,7 @@ class MainCoordinator: CoordinatorObject {
     @Published var mailViewModel: MailViewModel? = nil
     @Published var addressQrBottomSheetContentViewVodel: AddressQrBottomSheetContentViewVodel? = nil
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
+    @Published var userWalletListViewModel: UserWalletListViewModel?
     @Published var userWalletStorageAgreementViewModel: UserWalletStorageAgreementViewModel?
 
     // MARK: - Helpers
@@ -207,24 +207,15 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openUserWalletList() {
-        let dismissAction: Action = { [weak self] in
-            self?.userWalletListPresented = false
-            self?.userWalletListCoordinator = nil
-        }
-
-        let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] _ in
-            self?.userWalletListPresented = false
-            self?.userWalletListCoordinator = nil
-
-            self?.popToRoot()
-        }
-
-        userWalletListCoordinator = UserWalletListCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction, router: self)
-        userWalletListPresented = true
+        userWalletListViewModel = UserWalletListViewModel(coordinator: self)
     }
 }
 
-extension MainCoordinator: UserWalletListCoordinatorRoutable {
+extension MainCoordinator: UserWalletListRoutable {
+    func dismissUserWalletList() {
+        self.userWalletListViewModel = nil
+    }
+
     func didTapUserWallet(userWallet: UserWallet) {
         start(with: .init(cardModel: .init(userWallet: userWallet)))
     }
