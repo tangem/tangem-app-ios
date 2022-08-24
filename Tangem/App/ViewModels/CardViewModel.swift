@@ -510,8 +510,8 @@ class CardViewModel: Identifiable, ObservableObject {
         return BlockchainNetwork(blockchain, derivationPath: derivationPath)
     }
 
-    func setName(_ name: String) {
-        cardInfo.name = name
+    func setUserWallet(_ userWallet: UserWallet) {
+        cardInfo = userWallet.cardInfo()
     }
 
     // MARK: - Update
