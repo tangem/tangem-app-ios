@@ -113,9 +113,11 @@ private extension CommonTokenItemsRepository {
 
             let newData: [StorageEntry] = blockchains.map { blockchain in
                 let tokens = groupedTokens[blockchain]?.map { $0.newToken } ?? []
-                return StorageEntry(blockchainNetwork: BlockchainNetwork(blockchain,
-                                                                         derivationPath: blockchain.derivationPath(for: .legacy)),
-                                    tokens: tokens)
+                let network = BlockchainNetwork(
+                    blockchain,
+                    derivationPath: blockchain.derivationPath(for: .legacy)
+                )
+                return StorageEntry(blockchainNetwork: network, tokens: tokens)
             }
 
             save(newData, for: cardId)
