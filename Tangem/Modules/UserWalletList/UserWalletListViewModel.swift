@@ -165,7 +165,13 @@ final class UserWalletListViewModel: ObservableObject {
                 self?.isScanningCard = false
                 self?.failedCardScanTracker.resetCounter()
 
-                completion(cardModel)
+                let onboardingInput = cardModel.onboardingInput
+                if onboardingInput.steps.needOnboarding {
+                    cardModel.updateState()
+                    self?.openOnboarding(with: onboardingInput)
+                } else {
+                    completion(cardModel)
+                }
             }
             .store(in: &bag)
     }
@@ -241,6 +247,10 @@ final class UserWalletListViewModel: ObservableObject {
                 completion(userWallet)
             }
         }
+    }
+
+    private func openOnboarding(with input: OnboardingInput) {
+        coordinator.openOnboarding(with: input)
     }
 
     private func updateHeight(oldModelSections: [[CardViewModel]]) {
