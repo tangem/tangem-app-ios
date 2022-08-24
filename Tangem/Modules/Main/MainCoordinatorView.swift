@@ -94,8 +94,8 @@ struct MainCoordinatorView: CoordinatorView {
             }
 
         NavHolder()
-            .resizableBottomSheet(isPresented: $coordinator.userWalletListPresented, viewModelSettings: BottomSheetSettings(showClosedButton: false, contentBackgroundColor: UserWalletListView.sheetBackground)) {
-                UserWalletListView(viewModel: UserWalletListViewModel(coordinator: coordinator.userWalletListCoordinator!))
+            .resizableBottomSheet(item: $coordinator.userWalletListViewModel, viewModelSettings: BottomSheetSettings(showClosedButton: false, contentBackgroundColor: UserWalletListView.sheetBackground)) {
+                UserWalletListView(viewModel: $0)
             }
     }
 }
