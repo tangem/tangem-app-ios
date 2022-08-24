@@ -89,8 +89,8 @@ struct MainCoordinatorView: CoordinatorView {
             }
 
         NavHolder()
-            .sheet(item: $coordinator.userWalletStorageAgreementCoordinator) {
-                UserWalletStorageAgreementView(viewModel: UserWalletStorageAgreementViewModel(coordinator: $0))
+            .sheet(item: $coordinator.userWalletStorageAgreementViewModel) {
+                UserWalletStorageAgreementView(viewModel: $0)
             }
 
         NavHolder()
