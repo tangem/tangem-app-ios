@@ -12,6 +12,7 @@ import Combine
 protocol UserWalletListCoordinatorRoutable: AnyObject {
     func didTapUserWallet(userWallet: UserWallet)
     func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String)
+    func openOnboarding(with input: OnboardingInput)
 }
 
 class UserWalletListCoordinator: CoordinatorObject {
@@ -52,6 +53,11 @@ class UserWalletListCoordinator: CoordinatorObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + dismissingDelay) {
             self.router?.openMail(with: dataCollector, emailType: .failedToScanCard, recipient: EmailConfig.default.recipient)
         }
+    }
+
+    func openOnboarding(with input: OnboardingInput) {
+        dismissAction()
+        router?.openOnboarding(with: input)
     }
 }
 
