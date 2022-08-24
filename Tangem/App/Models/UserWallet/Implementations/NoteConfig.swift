@@ -149,7 +149,7 @@ extension NoteConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModels(for tokens: [StorageEntry], derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]) -> [WalletModel] {
+    func makeWalletModels(for tokens: [StorageEntry]) -> [WalletModel] {
         guard let walletPublicKey = card.wallets.first(where: { $0.curve == defaultBlockchain.curve })?.publicKey else {
             return []
         }
