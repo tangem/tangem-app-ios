@@ -33,7 +33,7 @@ class AppSettingsViewModel: ObservableObject {
     init(coordinator: AppSettingsRoutable, cardModel: CardViewModel) {
         self.coordinator = coordinator
 
-        let isSavingWallet = (AppSettings.shared.saveUserWallets == true)
+        let isSavingWallet = AppSettings.shared.saveUserWallets
         self.isSavingWallet = isSavingWallet
         self.isSavingAccessCodes = isSavingWallet && AppSettings.shared.saveAccessCodes
         self.cardModel = cardModel
