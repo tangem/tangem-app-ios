@@ -207,7 +207,7 @@ extension MainCoordinator: MainRoutable {
             self?.userWalletStorageAgreementCoordinator = nil
         }
 
-        userWalletStorageAgreementCoordinator = .init(dismissAction: dismissAction, popToRootAction: { _ in }, router: self)
+        userWalletStorageAgreementCoordinator = .init(dismissAction: dismissAction, router: self)
     }
 
     func openUserWalletList() {
