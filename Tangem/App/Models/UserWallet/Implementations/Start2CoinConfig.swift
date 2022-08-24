@@ -90,8 +90,8 @@ extension Start2CoinConfig: UserWalletConfig {
         nil
     }
 
+    #warning("l10n")
     var cardName: String {
-        #warning("l10n")
         "TODO"
     }
 
