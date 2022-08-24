@@ -12,4 +12,5 @@ protocol UserWalletListRoutable: AnyObject {
     func popToRoot()
     func didTapUserWallet(userWallet: UserWallet)
     func openMail(with dataCollector: EmailDataCollector)
+    func openOnboarding(with input: OnboardingInput)
 }
