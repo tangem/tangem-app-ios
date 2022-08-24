@@ -238,10 +238,7 @@ class CardViewModel: Identifiable, ObservableObject {
     init(cardInfo: CardInfo) {
         self.cardInfo = cardInfo
         self.config = UserWalletConfigFactory(cardInfo).makeConfig()
-        userTokenListManager = CommonUserTokenListManager(
-            userWalletId: cardInfo.card.userWalletId,
-            cardId: cardInfo.card.cardId
-        )
+        userTokenListManager = CommonUserTokenListManager(config: config, cardInfo: cardInfo)
 
         updateCardPinSettings()
         updateCurrentSecurityOption()
@@ -390,31 +387,6 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
 
-    func deriveKeys(derivationPaths:  [Data: [DerivationPath]], completion: @escaping (Result<Void, Error>) -> Void) {
-        let card = self.cardInfo.card
-
-        tangemSdk.startSession(with: DeriveMultipleWalletPublicKeysTask(derivationPaths), cardId: card.cardId) { [weak self] result in
-            switch result {
-            case .success(let newDerivations):
-                self?.updateDerivations(with: newDerivations)
-                completion(.success(()))
-            case .failure(let error):
-                Analytics.logCardSdkError(error, for: .purgeWallet, card: card)
-                completion(.failure(error))
-            }
-        }
-    }
-
-    func updateDerivations(with newDerivations: [Data: [DerivationPath: ExtendedPublicKey]]) {
-        for newKey in newDerivations {
-            for newDerivation in newKey.value {
-                self.cardInfo.derivedKeys[newKey.key, default: [:]][newDerivation.key] = newDerivation.value
-            }
-        }
-
-        scannedCardsRepository.add(cardInfo)
-    }
-
     func getBlockchainNetwork(for blockchain: Blockchain, derivationPath: DerivationPath?) -> BlockchainNetwork {
         let derivationPath = derivationPath ?? blockchain.derivationPath(for: cardInfo.card.derivationStyle)
         return BlockchainNetwork(blockchain, derivationPath: derivationPath)
@@ -516,7 +488,9 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private func makeAllWalletModels() -> [WalletModel] {
         let tokens = userTokenListManager.syncGetEntriesFromRepository()
-        return config.makeWalletModels(for: tokens, derivedKeys: cardInfo.derivedKeys)
+        return tokens.compactMap {
+            try? config.makeWalletModel(for: $0, derivedKeys: cardInfo.derivedKeys)
+        }
     }
 
     private func updateModel() {
@@ -544,7 +518,10 @@ class CardViewModel: Identifiable, ObservableObject {
 
         let unused: [StorageEntry] = config.supportedBlockchains
             .subtracting(currentBlockhains).map { StorageEntry(blockchainNetwork: .init($0, derivationPath: nil), tokens: []) }
-        let models = config.makeWalletModels(for: unused, derivedKeys: cardInfo.derivedKeys)
+        let models = unused.compactMap {
+            try? config.makeWalletModel(for: $0, derivedKeys: cardInfo.derivedKeys)
+        }
+
         if models.isEmpty {
             return
         }
@@ -589,7 +566,7 @@ class CardViewModel: Identifiable, ObservableObject {
         if ethWalletModel == nil {
             shouldAddWalletManager = true
             let entry = StorageEntry(blockchainNetwork: network, tokens: [])
-            ethWalletModel = config.makeWalletModels(for: [entry], derivedKeys: cardInfo.derivedKeys).first
+            ethWalletModel = try? config.makeWalletModel(for: entry, derivedKeys: cardInfo.derivedKeys)
         }
 
         guard let tokenFinder = ethWalletModel?.walletManager as? TokenFinder else {
@@ -597,7 +574,6 @@ class CardViewModel: Identifiable, ObservableObject {
             self.searchBlockchains()
             return
         }
-
 
         tokenFinder.findErc20Tokens(knownTokens: []) { [weak self] result in
             guard let self = self else { return }
@@ -629,64 +605,25 @@ class CardViewModel: Identifiable, ObservableObject {
 
     func add(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
         userTokenListManager.append(entries: entries) { [weak self] result in
-            self?.deriveIfNeeded(entries: entries) { result in
-                switch result {
-                case .success:
-                    self?.finishAddingTokens(entries, completion: completion)
-                case .failure(let error):
-                    completion(.failure(error))
-                }
-            }
-        }
-    }
-
-    private func deriveIfNeeded(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
-        guard hdWalletsSupported else {
-            completion(.success(()))
-            return
-        }
-
-        var newDerivationPaths: [Data: [DerivationPath]] = [:]
-
-        entries.forEach { entry in
-            if let path = entry.blockchainNetwork.derivationPath,
-               let publicKey = cardInfo.card.wallets.first(where: { $0.curve == entry.blockchainNetwork.blockchain.curve })?.publicKey,
-               cardInfo.derivedKeys[publicKey]?[path] == nil {
-                newDerivationPaths[publicKey, default: []].append(path)
-            }
-        }
-
-        if newDerivationPaths.isEmpty {
-            finishAddingTokens(entries, completion: completion)
-            return
-        }
-
-        deriveKeys(derivationPaths: newDerivationPaths) { result in
             switch result {
             case .success:
-                self.finishAddingTokens(entries, completion: completion)
+                self?.finishAddingTokens(entries, completion: completion)
             case .failure(let error):
                 completion(.failure(error))
             }
         }
-
     }
 
-    private func finishAddingTokens(_ entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
-        guard let walletModels = self.walletModels else {
-            completion(.success(()))
-            return
-        }
-
+    func finishAddingTokens(_ entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
+        let walletModels = self.walletModels ?? []
         var newWalletModels: [WalletModel] = []
 
         entries.forEach { entry in
             if let existingWalletModel = walletModels.first(where: { $0.blockchainNetwork == entry.blockchainNetwork }) {
                 existingWalletModel.addTokens(entry.tokens)
                 existingWalletModel.update()
-            } else {
-                let wm = config.makeWalletModels(for: [entry], derivedKeys: cardInfo.derivedKeys)
-                newWalletModels.append(contentsOf: wm)
+            } else if let walletModel = try? config.makeWalletModel(for: entry, derivedKeys: cardInfo.derivedKeys) {
+                newWalletModels.append(walletModel)
             }
         }
 
@@ -886,11 +823,5 @@ extension CardViewModel {
     enum WalletsBalanceState {
         case inProgress
         case loaded
-    }
-}
-
-extension Publisher where Output == Void, Failure == Error {
-    static var just: AnyPublisher<Void, Error> {
-        Just(()).setFailureType(to: Error.self).eraseToAnyPublisher()
     }
 }
