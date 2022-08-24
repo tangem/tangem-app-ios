@@ -17,7 +17,7 @@ class WalletTokenListViewModel: ObservableObject {
 
     private let walletDidTap: (TokenItemViewModel) -> ()
     private let cardModel: CardViewModel
-    private let userTokenListManager: UserTokenListManager
+//    private let userTokenListManager: UserTokenListManager
 
     private var loadTokensSubscribtion: AnyCancellable?
 
@@ -25,10 +25,13 @@ class WalletTokenListViewModel: ObservableObject {
         self.walletDidTap = walletDidTap
         self.cardModel = cardModel
 
-        userTokenListManager = CommonUserTokenListManager(
-            userWalletId: cardModel.userWalletId,
-            cardId: cardModel.cardId
-        )
+//        cardModel.$state
+//            .compactMap { $0.walletModels }
+
+//        userTokenListManager = CommonUserTokenListManager(
+//            userWalletId: cardModel.userWalletId,
+//            cardId: cardModel.cardId
+//        )
     }
 
     func tokenItemDidTap(_ wallet: TokenItemViewModel) {
