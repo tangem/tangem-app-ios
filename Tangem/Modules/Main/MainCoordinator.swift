@@ -226,11 +226,15 @@ extension MainCoordinator: MainRoutable {
         userWalletListCoordinator = UserWalletListCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction, router: self)
         userWalletListPresented = true
     }
+}
 
+extension MainCoordinator: UserWalletListCoordinatorRoutable {
     func didTapUserWallet(userWallet: UserWallet) {
         start(with: .init(cardModel: .init(userWallet: userWallet)))
     }
+}
 
+extension MainCoordinator: UserWalletStorageAgreementCoordinatorRoutable {
     func didAgreeToSaveUserWallets() {
         userWalletStorageAgreementCoordinator = nil
         mainViewModel?.didAgreeToSaveUserWallets()
@@ -241,7 +245,3 @@ extension MainCoordinator: MainRoutable {
         mainViewModel?.didDeclineToSaveUserWallets()
     }
 }
-
-extension MainCoordinator: UserWalletListCoordinatorRoutable { }
-
-extension MainCoordinator: UserWalletStorageAgreementCoordinatorRoutable { }
