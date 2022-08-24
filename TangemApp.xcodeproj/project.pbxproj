@@ -413,7 +413,6 @@
 		DA64C37327CCB176005B5E9A /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = DA64C37527CCB176005B5E9A /* InfoPlist.strings */; };
 		DA90745228A2A36100D8D67C /* CardDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA90745128A2A36100D8D67C /* CardDTO.swift */; };
 		DA99E87228AE53020023577A /* UserWalletStorageAgreementRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DADFAEEE28ABC83B0009A8AB /* UserWalletStorageAgreementRoutable.swift */; };
-		DA99E87428AE6D330023577A /* UserWalletStorageAgreementCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DADFAEEB28ABC83B0009A8AB /* UserWalletStorageAgreementCoordinatorView.swift */; };
 		DAA0559928744E2400E4F7B9 /* MercuryoService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA0559828744E2400E4F7B9 /* MercuryoService.swift */; };
 		DAA0850528A38A92000CD7FC /* CardDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA90745128A2A36100D8D67C /* CardDTO.swift */; };
 		DAA153BC2876CBFC002254D1 /* GeoResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAA153BB2876CBFC002254D1 /* GeoResponse.swift */; };
@@ -433,7 +432,6 @@
 		DAC53CFE27BE63830027147D /* MeetTangemStoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC53CF327BE63830027147D /* MeetTangemStoryPage.swift */; };
 		DAC53CFF27BE63830027147D /* FinishStoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC53CF427BE63830027147D /* FinishStoryPage.swift */; };
 		DAC53D0027BE63830027147D /* Web3StoryPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAC53CF527BE63830027147D /* Web3StoryPage.swift */; };
-		DADFAEEF28ABC83B0009A8AB /* UserWalletStorageAgreementCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DADFAEEA28ABC83B0009A8AB /* UserWalletStorageAgreementCoordinator.swift */; };
 		DADFAEF128ABC83B0009A8AB /* UserWalletStorageAgreementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DADFAEEC28ABC83B0009A8AB /* UserWalletStorageAgreementView.swift */; };
 		DADFAEF228ABC83B0009A8AB /* UserWalletStorageAgreementViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DADFAEED28ABC83B0009A8AB /* UserWalletStorageAgreementViewModel.swift */; };
 		DAE6F76D2800011400411F45 /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DAE6F76C2800011400411F45 /* AppError.swift */; };
@@ -1083,8 +1081,6 @@
 		DAC53CF327BE63830027147D /* MeetTangemStoryPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeetTangemStoryPage.swift; sourceTree = "<group>"; };
 		DAC53CF427BE63830027147D /* FinishStoryPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FinishStoryPage.swift; sourceTree = "<group>"; };
 		DAC53CF527BE63830027147D /* Web3StoryPage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Web3StoryPage.swift; sourceTree = "<group>"; };
-		DADFAEEA28ABC83B0009A8AB /* UserWalletStorageAgreementCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletStorageAgreementCoordinator.swift; sourceTree = "<group>"; };
-		DADFAEEB28ABC83B0009A8AB /* UserWalletStorageAgreementCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletStorageAgreementCoordinatorView.swift; sourceTree = "<group>"; };
 		DADFAEEC28ABC83B0009A8AB /* UserWalletStorageAgreementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletStorageAgreementView.swift; sourceTree = "<group>"; };
 		DADFAEED28ABC83B0009A8AB /* UserWalletStorageAgreementViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletStorageAgreementViewModel.swift; sourceTree = "<group>"; };
 		DADFAEEE28ABC83B0009A8AB /* UserWalletStorageAgreementRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletStorageAgreementRoutable.swift; sourceTree = "<group>"; };
@@ -2429,8 +2425,6 @@
 		DADFAED928ABC62D0009A8AB /* UserWalletStorageAggreement */ = {
 			isa = PBXGroup;
 			children = (
-				DADFAEEA28ABC83B0009A8AB /* UserWalletStorageAgreementCoordinator.swift */,
-				DADFAEEB28ABC83B0009A8AB /* UserWalletStorageAgreementCoordinatorView.swift */,
 				DADFAEEC28ABC83B0009A8AB /* UserWalletStorageAgreementView.swift */,
 				DADFAEED28ABC83B0009A8AB /* UserWalletStorageAgreementViewModel.swift */,
 				DADFAEEE28ABC83B0009A8AB /* UserWalletStorageAgreementRoutable.swift */,
@@ -3527,7 +3521,6 @@
 				B0B8670326DF5AE1008DAA67 /* ModalSheetPreferenceKey.swift in Sources */,
 				DA23787B27B24222009795A8 /* ProductVariant.swift in Sources */,
 				B046EE182578D38E00EA38A5 /* SceneDelegate.swift in Sources */,
-				DADFAEEF28ABC83B0009A8AB /* UserWalletStorageAgreementCoordinator.swift in Sources */,
 				5D341CC827E340770028D8FC /* CoinItemView.swift in Sources */,
 				DC51186128609F71004FB954 /* CardOperationRoutable.swift in Sources */,
 				B0B8670626DF60E7008DAA67 /* CardStackAnimator.swift in Sources */,
@@ -3559,7 +3552,6 @@
 				DC66BC14285C44AD00CDF765 /* TokenListRoutable.swift in Sources */,
 				B0A9E93F25921D21007B6D36 /* WarningView.swift in Sources */,
 				DC295B402861C27D006CB7B6 /* TokenDetailsCoordinator.swift in Sources */,
-				DA99E87428AE6D330023577A /* UserWalletStorageAgreementCoordinatorView.swift in Sources */,
 				5D78D118261DFEBA00F98B18 /* PurgeWalletsAndReadResponse.swift in Sources */,
 				EF0F99E128917003008B01DF /* SocialNetwork.swift in Sources */,
 				B0AA865226DC90E600287F80 /* WelcomeView.swift in Sources */,
