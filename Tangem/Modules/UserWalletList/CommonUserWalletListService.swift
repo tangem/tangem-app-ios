@@ -95,14 +95,12 @@ class CommonUserWalletListService: UserWalletListService {
 
         if userWallets.isEmpty {
             loadModels()
-        } else {
-            guard let userWalletIndex = userWallets.firstIndex(where: { $0.userWalletId == userWallet.userWalletId }) else {
-                completion(.failure(TangemSdkError.cardError))
-                return
-            }
-
+        } else if let userWalletIndex = userWallets.firstIndex(where: { $0.userWalletId == userWallet.userWalletId }) {
             userWallets[userWalletIndex] = userWallet
             models[userWalletIndex] = CardViewModel(userWallet: userWallet)
+        } else {
+            completion(.failure(TangemSdkError.cardError))
+            return
         }
 
         completion(.success(()))
