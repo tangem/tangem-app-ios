@@ -49,7 +49,7 @@ struct UserWalletListView: ResizableSheetView {
 
                 #warning("l10n")
                 TangemButton(title: "Add new wallet", image: "tangemIconBlack", iconPosition: .trailing) {
-                    viewModel.addCard()
+                    viewModel.addUserWallet()
                 }
                 .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt3, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
             }
@@ -71,37 +71,42 @@ struct UserWalletListView: ResizableSheetView {
             UserWalletListHeaderView(name: header)
 
             ForEach(0 ..< models.count, id: \.self) { i in
-                UserWalletListCellView(model: models[i], isSelected: viewModel.selectedUserWalletId == models[i].userWallet.userWalletId) { userWallet in
-                    viewModel.onUserWalletTapped(userWallet)
-                }
-                .contextMenu {
-                    Button {
-                        viewModel.editWallet(models[i].userWallet)
-                    } label: {
-                        HStack {
-                            Text("Rename")
-                            Image(systemName: "pencil")
-                        }
-                    }
-
-                    if #available(iOS 15.0, *) {
-                        Button(role: .destructive) {
-                            viewModel.deleteUserWallet(models[i].userWallet)
-                        } label: {
-                            deleteButtonLabel()
-                        }
-                    } else {
-                        Button {
-                            viewModel.deleteUserWallet(models[i].userWallet)
-                        } label: {
-                            deleteButtonLabel()
-                        }
-                    }
-                }
+                cell(for: models[i])
 
                 if i != (models.count - 1) {
                     Separator(height: 0.5, padding: 0, color: Colors.Stroke.primary)
                         .padding(.leading, 78)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func cell(for model: CardViewModel) -> some View {
+        UserWalletListCellView(model: model, isSelected: viewModel.selectedUserWalletId == model.userWallet.userWalletId) { userWallet in
+            viewModel.onUserWalletTapped(userWallet)
+        }
+        .contextMenu {
+            Button {
+                viewModel.editUserWallet(model.userWallet)
+            } label: {
+                HStack {
+                    Text("Rename")
+                    Image(systemName: "pencil")
+                }
+            }
+
+            if #available(iOS 15.0, *) {
+                Button(role: .destructive) {
+                    viewModel.deleteUserWallet(model.userWallet)
+                } label: {
+                    deleteButtonLabel()
+                }
+            } else {
+                Button {
+                    viewModel.deleteUserWallet(model.userWallet)
+                } label: {
+                    deleteButtonLabel()
                 }
             }
         }
