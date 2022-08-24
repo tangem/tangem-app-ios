@@ -249,7 +249,6 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
 
-
         guard let card = session.environment.card else {
             completion(.failure(.missingPreflightRead))
             return
