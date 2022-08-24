@@ -77,11 +77,14 @@ struct WalletTokenListViewModel_Preview: PreviewProvider {
         ZStack {
             Colors.Background.secondary.edgesIgnoringSafeArea(.all)
 
-            WalletTokenListView(viewModel: WalletTokenListViewModel(
-                cardModel: .init(cardInfo: .init(card: .card, walletData: .none)),
-                walletDidTap: { _ in
-
-                }))
+//            WalletTokenListView(viewModel: WalletTokenListViewModel(
+//                userTokenListManager: UserTokenListManager,
+//                walletListManager: <#T##WalletListManager#>,
+//                walletDidTap: <#T##(TokenItemViewModel) -> ()#>
+//                ,
+//                walletDidTap: { _ in
+//
+//                }))
         }
         .previewLayout(.sizeThatFits)
     }

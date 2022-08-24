@@ -15,23 +15,21 @@ class WalletTokenListViewModel: ObservableObject {
 
     // MARK: - Private
 
+    private let userTokenListManager: UserTokenListManager
+    private let walletListManager: WalletListManager
     private let walletDidTap: (TokenItemViewModel) -> ()
-    private let cardModel: CardViewModel
-//    private let userTokenListManager: UserTokenListManager
 
     private var loadTokensSubscribtion: AnyCancellable?
+    private var subscribeWalletModelsBag: AnyCancellable?
 
-    init(cardModel: CardViewModel, walletDidTap: @escaping (TokenItemViewModel) -> ()) {
+    init(
+        userTokenListManager: UserTokenListManager,
+        walletListManager: WalletListManager,
+        walletDidTap: @escaping (TokenItemViewModel) -> ()
+    ) {
+        self.userTokenListManager = userTokenListManager
+        self.walletListManager = walletListManager
         self.walletDidTap = walletDidTap
-        self.cardModel = cardModel
-
-//        cardModel.$state
-//            .compactMap { $0.walletModels }
-
-//        userTokenListManager = CommonUserTokenListManager(
-//            userWalletId: cardModel.userWalletId,
-//            cardId: cardModel.cardId
-//        )
     }
 
     func tokenItemDidTap(_ wallet: TokenItemViewModel) {
@@ -50,26 +48,17 @@ class WalletTokenListViewModel: ObservableObject {
 
         // 1. Load and save tokens from API if it recieved succesefully
         loadTokensSubscribtion = userTokenListManager.loadAndSaveUserTokenList()
-            .tryMap { [weak self] list -> AnyPublisher<Void, Error> in
-                guard let self = self else {
-                    throw CommonError.masterReleased
-                }
-
-                // Just update state with recreate walletModels without any another updates
-                self.cardModel.updateState(shouldUpdate: false)
-                // Show exist wallet models with the skeletons
-                self.updateView()
+            .tryMap { [unowned self] list -> AnyPublisher<Void, Error> in
+                // Just update wallet models from repository
+                self.walletListManager.updateWalletModels()
 
                 // Update walletModels with capturing the AnyPublisher response
-                return self.cardModel.update(showProgressLoading: false)
+                return self.walletListManager.reloadAllWalletModels()
             }
             .switchToLatest()
             .receiveCompletion { [unowned self] completion in
                 switch completion {
                 case .finished:
-                    // Show exist wallet models with the actual information
-                    updateView()
-
                     // Call callback result to close "Pull-to-refresh" animating
                     result(.success(()))
 
@@ -86,11 +75,15 @@ class WalletTokenListViewModel: ObservableObject {
 // MARK: - Private
 
 private extension WalletTokenListViewModel {
-    func updateView() {
-        if let models = cardModel.walletModels?.flatMap({ $0.tokenItemViewModels }), !models.isEmpty {
-            contentState = .loaded(models)
-        } else {
-            contentState = .empty
-        }
+    func bind() {
+        subscribeWalletModelsBag = walletListManager.subscribeWalletModels()
+            .map { $0.flatMap({ $0.tokenItemViewModels }) }
+            .receiveValue { [unowned self] itemsViewModel in
+                if !itemsViewModel.isEmpty {
+                    contentState = .empty
+                } else {
+                    contentState = .loaded(itemsViewModel)
+                }
+            }
     }
 }
