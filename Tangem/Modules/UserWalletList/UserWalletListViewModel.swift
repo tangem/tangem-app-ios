@@ -98,8 +98,10 @@ final class UserWalletListViewModel: ObservableObject {
         }
 
         let acceptButton = UIAlertAction(title: "common_ok".localized, style: .default) { [weak self, nameTextField] _ in
-            let name = nameTextField?.text ?? ""
-            self?.userWalletListService.setName(userWallet, name: name)
+            var newUserWallet = userWallet
+            newUserWallet.name = nameTextField?.text ?? ""
+
+            let _ = self?.userWalletListService.save(newUserWallet)
             self?.updateModels()
         }
         alert.addAction(acceptButton)
@@ -129,7 +131,7 @@ final class UserWalletListViewModel: ObservableObject {
 
         let oldModelSections = [multiCurrencyModels, singleCurrencyModels]
 
-        userWalletListService.deleteWallet(userWallet)
+        userWalletListService.delete(userWallet)
         multiCurrencyModels.removeAll { $0.userWallet.userWalletId == userWallet.userWalletId }
         singleCurrencyModels.removeAll { $0.userWallet.userWalletId == userWallet.userWalletId }
 
