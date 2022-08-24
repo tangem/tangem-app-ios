@@ -76,3 +76,9 @@ public extension Publisher {
         map { _ in }
     }
 }
+
+extension Publisher where Output == Void, Failure == Error {
+    static var just: AnyPublisher<Void, Error> {
+        Just(()).setFailureType(to: Error.self).eraseToAnyPublisher()
+    }
+}

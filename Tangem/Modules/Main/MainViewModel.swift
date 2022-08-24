@@ -165,7 +165,7 @@ class MainViewModel: ObservableObject {
         self.cardModel = cardModel
         self.coordinator = coordinator
         bind()
-        cardModel.updateState()
+//        cardModel.updateState()
         cardModel.setupWarnings()
         validateHashesCount()
     }

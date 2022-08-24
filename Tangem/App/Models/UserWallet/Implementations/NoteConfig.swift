@@ -149,20 +149,15 @@ extension NoteConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModels(for tokens: [StorageEntry], derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]) -> [WalletModel] {
+    func makeWalletModel(for token: StorageEntry, derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]) throws -> WalletModel {
         guard let walletPublicKey = card.wallets.first(where: { $0.curve == defaultBlockchain.curve })?.publicKey else {
-            return []
+            throw CommonError.noData
         }
 
         let factory = WalletModelFactory()
-
-        if let model = factory.makeSingleWallet(walletPublicKey: walletPublicKey,
-                                                blockchain: defaultBlockchain,
-                                                token: nil,
-                                                derivationStyle: card.derivationStyle) {
-            return [model]
-        }
-
-        return []
+        return try factory.makeSingleWallet(walletPublicKey: walletPublicKey,
+                                            blockchain: defaultBlockchain,
+                                            token: nil,
+                                            derivationStyle: card.derivationStyle)
     }
 }

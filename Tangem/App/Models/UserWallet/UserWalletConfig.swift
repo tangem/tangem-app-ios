@@ -50,7 +50,7 @@ protocol UserWalletConfig {
 
     func selectNetwork(for dAppInfo: Session.DAppInfo) -> BlockchainNetwork?
 
-    func makeWalletModels(for tokens: [StorageEntry], derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]) -> [WalletModel]
+    func makeWalletModel(for token: StorageEntry, derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]) throws -> WalletModel
 }
 
 extension UserWalletConfig {
