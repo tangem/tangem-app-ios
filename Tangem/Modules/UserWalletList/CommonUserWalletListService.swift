@@ -130,7 +130,6 @@ class CommonUserWalletListService: UserWalletListService {
 
         saveUserWallets(userWallets)
 
-
         let newModel = CardViewModel(userWallet: userWallet)
         if let index = models.firstIndex(where: { $0.userWallet.userWalletId == userWallet.userWalletId }) {
             models[index] = newModel
