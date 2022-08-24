@@ -59,7 +59,7 @@ final class UserWalletListViewModel: ObservableObject {
         setSelectedWallet(userWallet)
     }
 
-    func addCard() {
+    func addUserWallet() {
         scanCardInternal { [weak self] cardModel in
             self?.processScannedCard(cardModel)
         }
@@ -67,7 +67,7 @@ final class UserWalletListViewModel: ObservableObject {
 
     func tryAgain() {
         Analytics.log(.tryAgainTapped)
-        addCard()
+        addUserWallet()
     }
 
     func requestSupport() {
@@ -82,7 +82,7 @@ final class UserWalletListViewModel: ObservableObject {
         }
     }
 
-    func editWallet(_ userWallet: UserWallet) {
+    func editUserWallet(_ userWallet: UserWallet) {
         #warning("l10n")
         let alert = UIAlertController(title: "Rename Wallet", message: nil, preferredStyle: .alert)
         let cancelAction = UIAlertAction(title: "common_cancel".localized, style: .cancel) { _ in }
