@@ -323,7 +323,7 @@ extension WalletConnectService: ServerDelegate {
         let isSelectChainAvailable = wallet.blockchain.isEvm
 
         let cardModel = CardViewModel(cardInfo: cardInfo)
-        cardModel.updateState()
+        cardModel.updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: true)
 
         let onAccept = {
             self.sessions.filter {
@@ -341,7 +341,7 @@ extension WalletConnectService: ServerDelegate {
         }
 
         let onSelectChain: (BlockchainNetwork) -> Void = { selectedNetwork in
-            let wallet = cardModel.walletModels! // [REDACTED_TODO_COMMENT]
+            let wallet = cardModel.walletModels
                 .filter { !$0.isCustom(.coin) }
                 .first(where: { $0.wallet.blockchain == selectedNetwork.blockchain })
                 .map { $0.wallet }!
@@ -363,7 +363,7 @@ extension WalletConnectService: ServerDelegate {
         }
 
         let onSelectChainRequested = {
-            let availableChains = cardModel.walletModels! // [REDACTED_TODO_COMMENT]
+            let availableChains = cardModel.walletModels
                 .filter { $0.blockchainNetwork.blockchain.isEvm }
                 .filter { !$0.isCustom(.coin) }
                 .map { $0.blockchainNetwork }
