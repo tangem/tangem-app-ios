@@ -130,33 +130,17 @@ class CommonUserWalletListService: UserWalletListService {
 
         saveUserWallets(userWallets)
 
-        let newModel = CardViewModel(userWallet: userWallet)
         if let index = models.firstIndex(where: { $0.userWallet.userWalletId == userWallet.userWalletId }) {
-            models[index] = newModel
+            models[index].setUserWallet(userWallet)
         } else {
+            let newModel = CardViewModel(userWallet: userWallet)
             models.append(newModel)
         }
 
         return true
     }
 
-    func setName(_ userWallet: UserWallet, name: String) {
-        for i in 0 ..< userWallets.count {
-            if userWallets[i].userWalletId == userWallet.userWalletId {
-                userWallets[i].name = name
-            }
-        }
-
-        models.forEach {
-            if $0.userWallet.userWalletId == userWallet.userWalletId {
-                $0.setName(name)
-            }
-        }
-
-        saveUserWallets(userWallets)
-    }
-
-    func deleteWallet(_ userWallet: UserWallet) {
+    func delete(_ userWallet: UserWallet) {
         let userWalletId = userWallet.userWalletId
         userWallets.removeAll { $0.userWalletId == userWalletId }
         models.removeAll { $0.userWallet.userWalletId == userWalletId }
