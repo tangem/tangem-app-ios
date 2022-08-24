@@ -60,8 +60,8 @@ extension LegacyConfig: UserWalletConfig {
         1
     }
 
+    #warning("l10n")
     var cardName: String {
-        #warning("l10n")
         "TODO"
     }
 
