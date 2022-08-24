@@ -32,12 +32,12 @@ class MainCoordinator: CoordinatorObject {
     @Published var mailViewModel: MailViewModel? = nil
     @Published var addressQrBottomSheetContentViewVodel: AddressQrBottomSheetContentViewVodel? = nil
     @Published var warningBankCardViewModel: WarningBankCardViewModel? = nil
+    @Published var userWalletStorageAgreementViewModel: UserWalletStorageAgreementViewModel?
 
     // MARK: - Helpers
     @Published var modalOnboardingCoordinatorKeeper: Bool = false
 
     @Published var userWalletListPresented: Bool = false
-    @Published var userWalletStorageAgreementCoordinator: UserWalletStorageAgreementCoordinator?
 
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
         self.dismissAction = dismissAction
@@ -203,11 +203,7 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openUserWalletSaveAcceptanceSheet() {
-        let dismissAction: Action = { [weak self] in
-            self?.userWalletStorageAgreementCoordinator = nil
-        }
-
-        userWalletStorageAgreementCoordinator = .init(dismissAction: dismissAction, router: self)
+        userWalletStorageAgreementViewModel = UserWalletStorageAgreementViewModel(coordinator: self)
     }
 
     func openUserWalletList() {
@@ -234,14 +230,14 @@ extension MainCoordinator: UserWalletListCoordinatorRoutable {
     }
 }
 
-extension MainCoordinator: UserWalletStorageAgreementCoordinatorRoutable {
-    func didAgreeToSaveUserWallets() {
-        userWalletStorageAgreementCoordinator = nil
+extension MainCoordinator: UserWalletStorageAgreementRoutable {
+    func didAgree() {
+        userWalletStorageAgreementViewModel = nil
         mainViewModel?.didAgreeToSaveUserWallets()
     }
 
-    func didDeclineToSaveUserWallets() {
-        userWalletStorageAgreementCoordinator = nil
+    func didDecline() {
+        userWalletStorageAgreementViewModel = nil
         mainViewModel?.didDeclineToSaveUserWallets()
     }
 }
