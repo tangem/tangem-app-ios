@@ -30,7 +30,7 @@ class UserWalletStorageAgreementCoordinator: CoordinatorObject {
 
     required init(
         dismissAction: @escaping Action,
-        popToRootAction: @escaping ParamsAction<PopToRootOptions>,
+        popToRootAction: @escaping ParamsAction<PopToRootOptions> = { _ in },
         router: UserWalletStorageAgreementCoordinatorRoutable
     ) {
         self.dismissAction = dismissAction
