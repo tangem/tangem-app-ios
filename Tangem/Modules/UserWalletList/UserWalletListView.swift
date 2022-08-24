@@ -115,9 +115,3 @@ struct UserWalletListView: ResizableSheetView {
         }
     }
 }
-
-struct UserWalletListView_Previews: PreviewProvider {
-    static var previews: some View {
-        UserWalletListView(viewModel: .init(coordinator: UserWalletListCoordinator()))
-    }
-}

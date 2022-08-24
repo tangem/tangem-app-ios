@@ -395,8 +395,6 @@
 		DA23789227B250F6009795A8 /* ShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA23789127B250F6009795A8 /* ShopView.swift */; };
 		DA2A1B9B2893DA3C007B7595 /* UserWalletListHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2A1B9A2893DA3C007B7595 /* UserWalletListHeaderView.swift */; };
 		DA2A1B9C2893F085007B7595 /* XCAssets+Generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF50A5A32881CEE30081C5BB /* XCAssets+Generated.swift */; };
-		DA2A1BA328940B02007B7595 /* UserWalletListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2A1B9E28940B02007B7595 /* UserWalletListCoordinator.swift */; };
-		DA2A1BA428940B02007B7595 /* UserWalletListCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2A1B9F28940B02007B7595 /* UserWalletListCoordinatorView.swift */; };
 		DA2A1BA528940B02007B7595 /* UserWalletListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2A1BA028940B02007B7595 /* UserWalletListView.swift */; };
 		DA2A1BA628940B02007B7595 /* UserWalletListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2A1BA128940B02007B7595 /* UserWalletListViewModel.swift */; };
 		DA2A1BA728940B02007B7595 /* UserWalletListRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2A1BA228940B02007B7595 /* UserWalletListRoutable.swift */; };
@@ -1044,8 +1042,6 @@
 		DA23788F27B250EB009795A8 /* ShopViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopViewModel.swift; sourceTree = "<group>"; };
 		DA23789127B250F6009795A8 /* ShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShopView.swift; sourceTree = "<group>"; };
 		DA2A1B9A2893DA3C007B7595 /* UserWalletListHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletListHeaderView.swift; sourceTree = "<group>"; };
-		DA2A1B9E28940B02007B7595 /* UserWalletListCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletListCoordinator.swift; sourceTree = "<group>"; };
-		DA2A1B9F28940B02007B7595 /* UserWalletListCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletListCoordinatorView.swift; sourceTree = "<group>"; };
 		DA2A1BA028940B02007B7595 /* UserWalletListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletListView.swift; sourceTree = "<group>"; };
 		DA2A1BA128940B02007B7595 /* UserWalletListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletListViewModel.swift; sourceTree = "<group>"; };
 		DA2A1BA228940B02007B7595 /* UserWalletListRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletListRoutable.swift; sourceTree = "<group>"; };
@@ -2373,8 +2369,6 @@
 		DA2A1B9D28940A38007B7595 /* UserWalletList */ = {
 			isa = PBXGroup;
 			children = (
-				DA2A1B9E28940B02007B7595 /* UserWalletListCoordinator.swift */,
-				DA2A1B9F28940B02007B7595 /* UserWalletListCoordinatorView.swift */,
 				DA2A1BA128940B02007B7595 /* UserWalletListViewModel.swift */,
 				DA2A1BA028940B02007B7595 /* UserWalletListView.swift */,
 				DA5FA738288FE1010002717F /* UserWalletListCellView.swift */,
@@ -3248,7 +3242,6 @@
 				DAA0559928744E2400E4F7B9 /* MercuryoService.swift in Sources */,
 				B0C4F77F26F0C0BF0086D815 /* TransitionWithoutOpacity.swift in Sources */,
 				DC0A57D92822A3C80031BECC /* InjectedWrapper.swift in Sources */,
-				DA2A1BA328940B02007B7595 /* UserWalletListCoordinator.swift in Sources */,
 				DC7DA8192844EAFF00AD6DBD /* WelcomeCoordinator.swift in Sources */,
 				5D384B9124FD4E1800C2C92C /* String+.swift in Sources */,
 				5DD4CB4E24FAAB1A008F23CC /* KeyboardAdaptive.swift in Sources */,
@@ -3651,7 +3644,6 @@
 				6596AD4928730F4900508D0A /* WarningBankCardView.swift in Sources */,
 				65469D3C28AA6B710092138F /* ResizableBottomSheetModifier.swift in Sources */,
 				5D9DCAEB25517FB50059799C /* CommonCardsRepository.swift in Sources */,
-				DA2A1BA428940B02007B7595 /* UserWalletListCoordinatorView.swift in Sources */,
 				B05A645625E0F57B00F154B7 /* ScanTroublehootingView.swift in Sources */,
 				5D51036D27C535AB0025EA55 /* ABIEncoder.swift in Sources */,
 				65B4DEC72881A95A001524CF /* BottomSheetTransitionDelegate.swift in Sources */,
