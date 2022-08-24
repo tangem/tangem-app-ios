@@ -287,12 +287,13 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     var numberOfTokens: String? {
-        let tokenRepository = CommonTokenItemsRepository(key: userWallet.card.cardId)
-        let tokenItems = tokenRepository.getItems()
+        guard let walletModels = state.walletModels else {
+            return nil
+        }
 
         let numberOfBlockchainsPerItem = 1
-        let numberOfTokens = tokenItems.reduce(0) { sum, tokenItem in
-            sum + numberOfBlockchainsPerItem + tokenItem.tokens.count
+        let numberOfTokens = walletModels.reduce(0) { sum, walletModel in
+            sum + numberOfBlockchainsPerItem + walletModel.tokenViewModels.count
         }
 
         if numberOfTokens == 0 {
