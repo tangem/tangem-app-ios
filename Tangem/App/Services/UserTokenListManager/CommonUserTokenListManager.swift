@@ -16,9 +16,7 @@ class CommonUserTokenListManager {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.scannedCardsRepository) var scannedCardsRepository: ScannedCardsRepository
 
-    /// I use `var` because the repository will be updated after migration
-    private var tokenItemsRepository: TokenItemsRepository
-
+    private let tokenItemsRepository: TokenItemsRepository
     private let cardInfo: CardInfo
     private let config: UserWalletConfig
 
