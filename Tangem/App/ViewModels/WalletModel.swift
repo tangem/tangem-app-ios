@@ -329,6 +329,10 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
         return wallet.getExploreURL(for: wallet.addresses[index].value)
     }
 
+    func getTokens() -> [Token] {
+        walletManager.cardTokens
+    }
+
     func addTokens(_ tokens: [Token]) {
         latestUpdateTime = nil
 
