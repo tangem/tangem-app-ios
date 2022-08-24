@@ -210,32 +210,27 @@ extension GenericDemoConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModels(for tokens: [StorageEntry], derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]) -> [WalletModel] {
-        let models: [WalletModel]
-
+    func makeWalletModel(for token: StorageEntry, derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]) throws -> WalletModel {
         let walletPublicKeys: [EllipticCurve: Data] = card.wallets.reduce(into: [:]) { partialResult, cardWallet in
             partialResult[cardWallet.curve] = cardWallet.publicKey
         }
 
         let factory = WalletModelFactory()
+        let model: WalletModel
 
         if card.settings.isHDWalletAllowed {
-            models = factory.makeMultipleWallets(seedKeys: walletPublicKeys,
-                                                 entries: tokens,
-                                                 derivedKeys: derivedKeys,
-                                                 derivationStyle: card.derivationStyle)
+            model = try factory.makeMultipleWallet(seedKeys: walletPublicKeys,
+                                                   entry: token,
+                                                   derivedKeys: derivedKeys,
+                                                   derivationStyle: card.derivationStyle)
         } else {
-            models = factory.makeMultipleWallets(walletPublicKeys: walletPublicKeys,
-                                                 entries: tokens,
-                                                 derivationStyle: card.derivationStyle)
+            model = try factory.makeMultipleWallet(walletPublicKeys: walletPublicKeys,
+                                                   entry: token,
+                                                   derivationStyle: card.derivationStyle)
         }
 
-
-        for model in models {
-            model.demoBalance = DemoUtil().getDemoBalance(for: model.wallet.blockchain)
-        }
-
-        return models
+        model.demoBalance = DemoUtil().getDemoBalance(for: model.wallet.blockchain)
+        return model
     }
 }
 
