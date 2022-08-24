@@ -10,6 +10,7 @@ import Foundation
 
 protocol UserWalletListRoutable: AnyObject {
     func popToRoot()
+    func dismissUserWalletList()
     func didTapUserWallet(userWallet: UserWallet)
-    func openMail(with dataCollector: EmailDataCollector)
+    func openMail(with dataCollector: EmailDataCollector, emailType: EmailType, recipient: String)
 }
