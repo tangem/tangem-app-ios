@@ -17,7 +17,6 @@ struct CardInfo {
     var card: Card
     var walletData: DefaultWalletData
     var artwork: CardArtwork = .notLoaded
-    var derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]] = [:]
     var primaryCard: PrimaryCard? = nil
 
     var cardIdFormatted: String {
