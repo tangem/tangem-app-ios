@@ -24,6 +24,7 @@ class MainCoordinator: CoordinatorObject {
     @Published var tokenListCoordinator: TokenListCoordinator? = nil
     @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
     @Published var userWalletListCoordinator: UserWalletListCoordinator?
+    @Published var pushedOnboardingCoordinator: OnboardingCoordinator? = nil
 
     // MARK: - Child view models
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
@@ -225,6 +226,21 @@ extension MainCoordinator: MainRoutable {
 
         userWalletListCoordinator = UserWalletListCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction, router: self)
         userWalletListPresented = true
+    }
+
+    func openOnboarding(with input: OnboardingInput) {
+        let dismissAction: Action = { [weak self] in
+            self?.pushedOnboardingCoordinator = nil
+        }
+
+        let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
+            self?.pushedOnboardingCoordinator = nil
+        }
+
+        let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+        let options = OnboardingCoordinator.Options(input: input, shouldOpenMainOnFinish: true)
+        coordinator.start(with: options)
+        pushedOnboardingCoordinator = coordinator
     }
 
     func didTapUserWallet(userWallet: UserWallet) {
