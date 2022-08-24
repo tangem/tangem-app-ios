@@ -1621,6 +1621,7 @@
 				5D49035127BE9D550072C642 /* Data+.swift */,
 				EF50A5B0288976140081C5BB /* View+ConditionalModifiers.swift */,
 				EF07F3AC289D43580065549C /* List+.swift */,
+				EFF034AB28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -2718,7 +2719,6 @@
 				DCE5C66D28898BB6000C7F67 /* CommonTangemApiService.swift */,
 				DA5970EB27FC1C1B0050387C /* TangemApiTarget.swift */,
 				EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */,
-				EFF034AB28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift */,
 			);
 			path = TangemApiService;
 			sourceTree = "<group>";
