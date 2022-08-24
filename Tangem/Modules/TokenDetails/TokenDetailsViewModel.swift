@@ -25,7 +25,7 @@ class TokenDetailsViewModel: ObservableObject {
     }
 
     var walletModel: WalletModel? {
-        return card.walletModels?.first(where: { $0.blockchainNetwork == blockchainNetwork })
+        return card.walletModels.first(where: { $0.blockchainNetwork == blockchainNetwork })
     }
 
     var incomingTransactions: [PendingTransaction] {
