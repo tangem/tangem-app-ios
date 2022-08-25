@@ -120,6 +120,7 @@ struct TwinsOnboardingView: View {
                     subtitle: viewModel.subtitle,
                     buttonsSettings: .init(main: viewModel.mainButtonSettings,
                                            supplement: viewModel.supplementButtonSettings),
+                    infoText: nil,
                     titleAction: {
 //                        guard viewModel.assembly.isPreview else { return }
 
