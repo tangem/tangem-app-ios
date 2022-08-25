@@ -22,9 +22,7 @@ protocol UserWalletListService: AnyObject, Initializable {
 
     func contains(_ userWallet: UserWallet) -> Bool
     func save(_ userWallet: UserWallet) -> Bool
-    func setName(_ userWallet: UserWallet, name: String)
-    func deleteWallet(_ userWallet: UserWallet)
-
+    func delete(_ userWallet: UserWallet)
     func clear()
 }
 
