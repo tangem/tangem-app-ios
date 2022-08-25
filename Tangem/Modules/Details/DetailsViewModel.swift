@@ -114,7 +114,7 @@ extension DetailsViewModel {
 
     func openAppSettings() {
         Analytics.log(.appSettingsTapped)
-        coordinator.openAppSettings(cardModel: cardModel)
+        coordinator.openAppSettings(userWallet: cardModel.userWallet)
     }
 
     func openSupportChat() {
