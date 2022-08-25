@@ -13,6 +13,10 @@ private let infoDictionary = Bundle.main.infoDictionary ?? [:]
 enum AppEnvironment: String {
     case beta = "Beta"
     case production = "Production"
+
+    var isTestnet: Bool  {
+        false // [REDACTED_TODO_COMMENT]
+    }
 }
 
 extension AppEnvironment {
