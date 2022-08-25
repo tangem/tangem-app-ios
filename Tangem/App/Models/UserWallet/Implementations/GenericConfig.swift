@@ -9,7 +9,6 @@
 import Foundation
 import TangemSdk
 import BlockchainSdk
-import WalletConnectSwift
 
 struct GenericConfig {
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
@@ -132,19 +131,6 @@ extension GenericConfig: UserWalletConfig {
         CardEmailDataFactory().makeEmailData(for: card, walletData: nil)
     }
 
-    func selectBlockchain(for dAppInfo: Session.DAppInfo) -> BlockchainNetwork? {
-        guard hasFeature(.walletConnect) else { return nil }
-
-        guard let blockchain = WalletConnectNetworkParserUtility.parse(dAppInfo: dAppInfo,
-                                                                       isTestnet: card.isTestnet) else {
-            return nil
-        }
-
-        let derivationPath = blockchain.derivationPath(for: card.derivationStyle)
-        let network = BlockchainNetwork(blockchain, derivationPath: derivationPath)
-        return network
-    }
-
     var tangemSigner: TangemSigner {
         if let backupStatus = card.backupStatus, backupStatus.isActive {
             return .init(with: nil)
@@ -212,7 +198,7 @@ extension GenericConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModel(for token: StorageEntry, derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]) throws -> WalletModel {
+    func makeWalletModel(for token: StorageEntry) throws -> WalletModel {
         let walletPublicKeys: [EllipticCurve: Data] = card.wallets.reduce(into: [:]) { partialResult, cardWallet in
             partialResult[cardWallet.curve] = cardWallet.publicKey
         }
