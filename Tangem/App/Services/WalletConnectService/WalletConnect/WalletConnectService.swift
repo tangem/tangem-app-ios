@@ -306,7 +306,7 @@ extension WalletConnectService: ServerDelegate {
 
         do {
             let walletInfo = try getWalletInfo(for: session.dAppInfo)
-            askForConnect(walletInfo: walletInfo, dAppInfo: session.dAppInfo, server: server, completion: completion)
+            askToConnect(walletInfo: walletInfo, dAppInfo: session.dAppInfo, server: server, completion: completion)
         } catch {
             handle(error, delay: 0.5)
             failureCompletion()
@@ -326,7 +326,7 @@ extension WalletConnectService: ServerDelegate {
         let blockchainNetwork = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: nil)
 
         let wallet = cardModel.walletModels?
-            .first(where: { $0.blockchainNetwork == blockchainNetwork })
+            .first { $0.blockchainNetwork == blockchainNetwork }
             .map { $0.wallet }
 
         guard let wallet = wallet else {
@@ -341,7 +341,7 @@ extension WalletConnectService: ServerDelegate {
                           blockchain: blockchainNetwork.blockchain)
     }
 
-    private func askForConnect(walletInfo: WalletInfo, dAppInfo: Session.DAppInfo, server: Server, completion: @escaping (Session.WalletInfo) -> Void) {
+    private func askToConnect(walletInfo: WalletInfo, dAppInfo: Session.DAppInfo, server: Server, completion: @escaping (Session.WalletInfo) -> Void) {
         self.wallet = walletInfo
 
         let peerMeta = dAppInfo.peerMeta
@@ -351,7 +351,7 @@ extension WalletConnectService: ServerDelegate {
             message += "\n\n" + description
         }
 
-        let isSelectChainAvailable = walletInfo.blockchain.isEvm
+        let isSelectedChainAvailable = walletInfo.blockchain.isEvm
 
         let onAccept = {
             self.sessions.filter {
@@ -407,7 +407,7 @@ extension WalletConnectService: ServerDelegate {
                                                            message: message,
                                                            onAcceptAction: onAccept,
                                                            onReject: onReject,
-                                                           extraTitle: isSelectChainAvailable ? "wallet_connect_select_network".localized : nil,
+                                                           extraTitle: isSelectedChainAvailable ? "wallet_connect_select_network".localized : nil,
                                                            onExtra: onSelectChainRequested),
                           delay: 0.5)
     }
