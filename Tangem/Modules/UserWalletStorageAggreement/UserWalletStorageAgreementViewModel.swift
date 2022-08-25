@@ -9,7 +9,7 @@
 import Combine
 import SwiftUI
 
-final class UserWalletStorageAgreementViewModel: ObservableObject {
+final class UserWalletStorageAgreementViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
     // MARK: - Dependencies
