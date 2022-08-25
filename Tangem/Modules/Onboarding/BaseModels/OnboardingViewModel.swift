@@ -60,6 +60,13 @@ class OnboardingViewModel<Step: OnboardingStep> {
         return currentStep.subtitle
     }
 
+    var titleLineLimit: Int? {
+        switch self {
+        default:
+            return 1
+        }
+    }
+
     var mainButtonSettings: TangemButtonSettings {
         .init(
             title: mainButtonTitle,
@@ -118,6 +125,10 @@ class OnboardingViewModel<Step: OnboardingStep> {
 
     var isBackButtonEnabled: Bool {
         true
+    }
+
+    var isSkipButtonVisible: Bool {
+        false
     }
 
     var isSupplementButtonVisible: Bool { currentStep.isSupplementButtonVisible }
@@ -179,6 +190,8 @@ class OnboardingViewModel<Step: OnboardingStep> {
 
     func backButtonAction() {}
 
+    func skipCurrentStep() { }
+
     func fireConfetti() {
         if !confettiFired {
             shouldFireConfetti = true
@@ -208,6 +221,23 @@ class OnboardingViewModel<Step: OnboardingStep> {
             currentStepIndex = newIndex
 
             setupCardsSettings(animated: true, isContainerSetup: false)
+
+            if newIndex == (steps.count - 1) {
+                fireConfetti()
+            }
+        }
+    }
+
+    func goToStep(_ step: Step) {
+        guard let newIndex = steps.firstIndex(of: step) else {
+            print("Failed to find step", step)
+            return
+        }
+
+        withAnimation {
+            currentStepIndex = newIndex
+
+            setupCardsSettings(animated: true, isContainerSetup: false)
         }
     }
 
@@ -221,6 +251,28 @@ class OnboardingViewModel<Step: OnboardingStep> {
 
     func setupCardsSettings(animated: Bool, isContainerSetup: Bool) {
         fatalError("Not implemented")
+    }
+
+    func saveUserWallet() {
+        didAskToSaveUserWallets()
+
+        userWalletListService.unlockWithBiometry { [weak self] result in
+            switch result {
+            case .failure(let error):
+                if case .userCancelled = error {
+                    return
+                }
+                print("Failed to get access to biometry", error)
+            case .success:
+                AppSettings.shared.saveUserWallets = true
+                self?.saveUserWalletIfNeeded()
+            }
+            self?.goToNextStep()
+        }
+    }
+
+    func didAskToSaveUserWallets() {
+        AppSettings.shared.askedToSaveUserWallets = true
     }
 
     private func saveUserWalletIfNeeded() {
