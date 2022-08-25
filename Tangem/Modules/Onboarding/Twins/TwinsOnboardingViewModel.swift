@@ -199,6 +199,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
             } else {
                 supplementButtonAction()
             }
+        case .saveUserWallet:
+            saveUserWallet()
         }
     }
 
