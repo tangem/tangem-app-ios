@@ -28,15 +28,15 @@ class AppSettingsViewModel: ObservableObject {
     private var bag: Set<AnyCancellable> = []
     private var shouldShowAlertOnDisableSaveWallets: Bool = true
     private var shouldShowAlertOnDisableSaveAccessCodes: Bool = true
-    private let cardModel: CardViewModel
+    private let userWallet: UserWallet
 
-    init(coordinator: AppSettingsRoutable, cardModel: CardViewModel) {
+    init(coordinator: AppSettingsRoutable, userWallet: UserWallet) {
         self.coordinator = coordinator
 
-        let isSavingWallet = (AppSettings.shared.saveUserWallets == true)
+        let isSavingWallet = AppSettings.shared.saveUserWallets
         self.isSavingWallet = isSavingWallet
         self.isSavingAccessCodes = isSavingWallet && AppSettings.shared.saveAccessCodes
-        self.cardModel = cardModel
+        self.userWallet = userWallet
 
         bind()
         updateBiometricWarning()
@@ -49,11 +49,11 @@ private extension AppSettingsViewModel {
     func bind() {
         $isSavingWallet
             .dropFirst()
-            .sink { [weak self, cardModel] saveWallet in
+            .sink { [weak self, userWallet] saveWallet in
                 if saveWallet {
                     self?.userWalletListService.unlockWithBiometry { result in
                         if case .success = result {
-                            let _ = self?.userWalletListService.save(cardModel.userWallet)
+                            let _ = self?.userWalletListService.save(userWallet)
                             self?.setSaveWallets(true)
                         } else {
                             self?.setSaveWallets(false)
