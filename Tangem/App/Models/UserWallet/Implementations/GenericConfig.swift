@@ -25,7 +25,7 @@ struct GenericConfig {
 
         steps.append(.backupIntro)
 
-        if !backupServiceProvider.backupService.primaryCardIsSet {
+        if !card.wallets.isEmpty && !backupServiceProvider.backupService.primaryCardIsSet {
             steps.append(.scanPrimaryCard)
         }
 
@@ -215,6 +215,10 @@ extension GenericConfig: UserWalletConfig {
     func makeWalletModel(for token: StorageEntry, derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]) throws -> WalletModel {
         let walletPublicKeys: [EllipticCurve: Data] = card.wallets.reduce(into: [:]) { partialResult, cardWallet in
             partialResult[cardWallet.curve] = cardWallet.publicKey
+        }
+
+        let derivedKeys: [EllipticCurve: [DerivationPath: ExtendedPublicKey]] = card.wallets.reduce(into: [:]) { partialResult, cardWallet in
+            partialResult[cardWallet.curve] = cardWallet.derivedKeys
         }
 
         let factory = WalletModelFactory()
