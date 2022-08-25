@@ -30,6 +30,8 @@ class WalletTokenListViewModel: ObservableObject {
         self.userTokenListManager = userTokenListManager
         self.walletListManager = walletListManager
         self.walletDidTap = walletDidTap
+
+        bind()
     }
 
     func tokenItemDidTap(_ wallet: TokenItemViewModel) {
@@ -37,10 +39,10 @@ class WalletTokenListViewModel: ObservableObject {
     }
 
     func onAppear() {
-        refreshTokens { _ in }
+        refreshTokens()
     }
 
-    func refreshTokens(result: @escaping (Result<Void, Error>) -> Void) {
+    func refreshTokens(result: @escaping (Result<Void, Error>) -> Void = { _ in }) {
         // 1. Load and save tokens from API if it recieved succesefully
         // 2. Show list from API throught creates WalletModels in CardModel
         // 3. Update rates for each wallet model with skeleton
@@ -52,6 +54,8 @@ class WalletTokenListViewModel: ObservableObject {
                 // Just update wallet models from repository
                 self.walletListManager.updateWalletModels()
 
+//                self.updateView()
+
                 // Update walletModels with capturing the AnyPublisher response
                 return self.walletListManager.reloadAllWalletModels()
             }
@@ -59,6 +63,7 @@ class WalletTokenListViewModel: ObservableObject {
             .receiveCompletion { [unowned self] completion in
                 switch completion {
                 case .finished:
+                    self.updateView()
                     // Call callback result to close "Pull-to-refresh" animating
                     result(.success(()))
 
@@ -70,20 +75,64 @@ class WalletTokenListViewModel: ObservableObject {
                 }
             }
     }
+//    var bag: Set<AnyCancellable> = []
 }
 
 // MARK: - Private
 
 private extension WalletTokenListViewModel {
+    func updateView() {
+        let itemsViewModel = walletListManager.getWalletModels().flatMap { $0.tokenItemViewModels }
+
+        contentState = itemsViewModel.isEmpty ? .empty : .loaded(itemsViewModel)
+    }
+
     func bind() {
         subscribeWalletModelsBag = walletListManager.subscribeWalletModels()
-            .map { $0.flatMap({ $0.tokenItemViewModels }) }
-            .receiveValue { [unowned self] itemsViewModel in
-                if !itemsViewModel.isEmpty {
-                    contentState = .empty
-                } else {
-                    contentState = .loaded(itemsViewModel)
-                }
+            .print("WalletModels")
+            .receiveValue { [unowned self] _ in
+                self.updateView()
             }
+
+//            .map {
+//                $0.reduce([]) { $0 + $1.tokenItemViewModels }
+//            }
+//            .print("WalletModels")
+//            .flatMap { [unowned self] walletModels -> AnyPublisher<[TokenItemViewModel], Never> in
+//                let publishers = walletModels.forEach { walletModel in
+//                    walletModel.$tokenItemViewModels.receiveValue { models in
+//                        print("models", walletModel.state, models.count)
+//                    }
+//                    .store(in: &bag)
+//                }
+
+//                let publishers: [AnyPublisher<[TokenItemViewModel], Never>] = models.reduce([]) {
+//                    $0 + $1.$tokenItemViewModels.eraseToAnyPublisher()
+//                }
+//                let publishers = walletModels.map { walletModel in
+//                    walletModel.$tokenItemViewModels
+//                        .collect(walletModel.tokenItemViewModels.count)
+//                        .map { $0.reduce([], +) }
+//                }
+//
+//                return Publishers.MergeMany(publishers)
+//                    .collect(publishers.count) //
+//                    .map { $0.reduce([], +) }
+//                    .eraseToAnyPublisher()
+
+//                return models.publisher
+//                    .flatMap(\.tokenItemViewModels.publisher)
+//                    .collect()
+//                    .eraseToAnyPublisher()
+//            }
+//            .print("MergeMany")
+//            .receiveValue { [unowned self] itemsViewModel in
+//                print("itemsViewModel", itemsViewModel.map { $0.blockchainNetwork.blockchain.displayName })
+//                if itemsViewModel.isEmpty {
+//                    contentState = .empty
+//                } else {
+//                    contentState = .loaded(itemsViewModel)
+//                }
+//            }
     }
 }
