@@ -8,13 +8,14 @@
 
 import SwiftUI
 
-enum WalletOnboardingStep {
+enum WalletOnboardingStep: Equatable {
     case welcome
     case createWallet
     case scanPrimaryCard
     case backupIntro
     case selectBackupCards
     case backupCards
+    case saveUserWallet
     case success
 
     var navbarTitle: LocalizedStringKey {
@@ -22,6 +23,8 @@ enum WalletOnboardingStep {
         case .welcome: return ""
         case .createWallet, .backupIntro: return "onboarding_getting_started"
         case .scanPrimaryCard, .selectBackupCards, .backupCards: return "onboarding_navbar_title_creating_backup"
+            #warning("l10n")
+        case .saveUserWallet: return "Save your wallet"
         case .success: return "common_done"
         }
     }
@@ -65,6 +68,8 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         case .backupIntro: return "onboarding_title_backup_card"
         case .selectBackupCards: return "onboarding_title_no_backup_cards"
         case .backupCards: return ""
+            #warning("l10n")
+        case .saveUserWallet: return "Would you like to keep wallet on this device?"
         case .success: return successTitle
         }
     }
@@ -77,7 +82,18 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         case .backupIntro: return "onboarding_subtitle_backup_card"
         case .selectBackupCards: return "onboarding_subtitle_no_backup_cards"
         case .backupCards: return ""
+            #warning("l10n")
+        case .saveUserWallet: return "Save your Wallet feature allows you to use your wallet with biometric auth without tapping your card to the phone to gain access"
         case .success: return "onboarding_subtitle_success_backup"
+        }
+    }
+
+    var titleLineLimit: Int? {
+        switch self {
+        case .saveUserWallet:
+            return nil
+        default:
+            return 1
         }
     }
 
@@ -98,6 +114,8 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
         case .backupIntro: return "onboarding_button_backup_now"
         case .selectBackupCards: return "onboarding_button_add_backup_card"
         case .backupCards: return ""
+            #warning("l10n")
+        case .saveUserWallet: return "Allow to link wallet"
         case .success: return "onboarding_button_continue_wallet"
         }
     }
@@ -126,6 +144,16 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
 
     var checkmarkText: LocalizedStringKey? {
         return nil
+    }
+
+    var infoText: LocalizedStringKey? {
+        switch self {
+        case .saveUserWallet:
+            #warning("l10n")
+            return "Keep notice, making a transaction with your funds will still require card tapping"
+        default:
+            return nil
+        }
     }
 }
 
