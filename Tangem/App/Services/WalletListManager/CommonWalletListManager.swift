@@ -19,6 +19,7 @@ class CommonWalletListManager {
     /// Bool flag for migration custom token to token form our API
     private var migrated = false
     private var walletModels = CurrentValueSubject<[WalletModel], Never>([])
+    private var entriesRequriedDerivaton: [StorageEntry] = []
 
     init(config: UserWalletConfig, cardInfo: CardInfo, userTokenListManager: UserTokenListManager) {
         self.config = config
@@ -31,7 +32,7 @@ class CommonWalletListManager {
 
 extension CommonWalletListManager: WalletListManager {
     func subscribeWalletModels() -> AnyPublisher<[WalletModel], Never> {
-        walletModels.eraseToAnyPublisher()
+        walletModels.dropFirst().eraseToAnyPublisher()
     }
 
     func getWalletModels() -> [WalletModel] {
@@ -54,8 +55,17 @@ extension CommonWalletListManager: WalletListManager {
         // Update tokens
         entries.forEach { entry in
             if let walletModel = walletModels.first(where: { $0.blockchainNetwork == entry.blockchainNetwork }) {
-                walletModel.addTokens(entry.tokens)
-                // [REDACTED_TODO_COMMENT]
+                entry.tokens.forEach { token in
+                    if !walletModel.getTokens().contains(token) {
+                        walletModel.addTokens(entry.tokens)
+                    }
+                }
+
+                walletModel.getTokens().forEach { token in
+                    if !entry.tokens.contains(token) {
+                        walletModel.removeToken(token)
+                    }
+                }
             }
         }
 
@@ -64,7 +74,13 @@ extension CommonWalletListManager: WalletListManager {
                 !walletModels.contains(where: { $0.blockchainNetwork == entry.blockchainNetwork })
             }
             .compactMap { entry in
-                try? config.makeWalletModel(for: entry, derivedKeys: cardInfo.derivedKeys)
+                do {
+                    return try config.makeWalletModel(for: entry, derivedKeys: cardInfo.derivedKeys)
+                } catch {
+                    print("‼️ makeWalletModel error \(error)")
+                    entriesRequriedDerivaton.append(entry)
+                    return nil
+                }
             }
 
         walletModels.removeAll(where: { walletModel in
@@ -74,7 +90,7 @@ extension CommonWalletListManager: WalletListManager {
         walletModels.append(contentsOf: walletModelsToAdd)
 
         walletModels.forEach {
-            print("⁉️ Update walletModels for \($0.blockchainNetwork.blockchain.displayName)")
+            print("⁉️ Update walletModel for \($0.blockchainNetwork.blockchain.displayName)")
         }
 
         self.walletModels.send(walletModels)
@@ -82,7 +98,7 @@ extension CommonWalletListManager: WalletListManager {
 
     func reloadAllWalletModels() -> AnyPublisher<Void, Error> {
         guard !getWalletModels().isEmpty else {
-            assertionFailure("WalletModels is empty")
+            print("‼️ WalletModels is empty")
             return Empty().eraseToAnyPublisher()
         }
 
@@ -106,7 +122,7 @@ extension CommonWalletListManager: WalletListManager {
     }
 
     func removeToken(_ token: BlockchainSdk.Token, blockchainNetwork: BlockchainNetwork) {
-        _ = getWalletModels().first(where: { $0.blockchainNetwork == blockchainNetwork })?.removeToken(token)
+        getWalletModels().first(where: { $0.blockchainNetwork == blockchainNetwork })?.removeToken(token)
         updateWalletModels()
     }
 }
@@ -135,7 +151,7 @@ private extension CommonWalletListManager {
     func observeBalanceLoading() -> AnyPublisher<Void, Error> {
         Publishers
             .MergeMany(getWalletModels().map({ $0.update() }))
-            .collect()
+            .collect(getWalletModels().count)
             .mapVoid()
             .eraseToAnyPublisher()
     }
