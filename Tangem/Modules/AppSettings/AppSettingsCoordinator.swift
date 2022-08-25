@@ -28,8 +28,8 @@ class AppSettingsCoordinator: CoordinatorObject {
 
     func start(with options: Options) {
         switch options {
-        case .default(let cardModel):
-            rootViewModel = AppSettingsViewModel(coordinator: self, cardModel: cardModel)
+        case .default(let userWallet):
+            rootViewModel = AppSettingsViewModel(coordinator: self, userWallet: userWallet)
         }
     }
 }
@@ -38,7 +38,7 @@ class AppSettingsCoordinator: CoordinatorObject {
 
 extension AppSettingsCoordinator {
     enum Options {
-        case `default`(cardModel: CardViewModel)
+        case `default`(userWallet: UserWallet)
     }
 }
 
