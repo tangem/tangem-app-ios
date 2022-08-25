@@ -20,7 +20,7 @@ struct UserWalletStorageAgreementView: View {
         VStack(spacing: 0) {
             Spacer()
 
-            biometryImage
+            BiometryLogoImage()
                 .padding(.bottom, 28)
 
             VStack(spacing: 14) {
@@ -51,10 +51,6 @@ struct UserWalletStorageAgreementView: View {
             }
         }
         .padding()
-    }
-
-    private var biometryImage: some View {
-        Assets.Biometry.faceId
     }
 
     private var newFeatureBadge: some View {
