@@ -179,12 +179,25 @@ private extension CommonUserTokenListManager {
         deriveKeys(derivationPaths: newDerivationPaths, completion: completion)
     }
 
-    func deriveKeys(derivationPaths: [Data: [DerivationPath]], completion: @escaping (Result<Void, Error>) -> Void) {
-        let task = DeriveMultipleWalletPublicKeysTask(derivationPaths)
-        tangemSdkProvider.sdk.startSession(with: task, cardId: cardId) { [weak self, card] result in
+    func deriveKeys(completion: @escaping (Result<Void, Error>) -> Void) {
+        let card = self.cardInfo.card
+        let entries = tokenItemsRepository.getItems()
+        var derivations: [EllipticCurve: [DerivationPath]] = [:]
+
+        for entry in entries {
+            if let path = entry.blockchainNetwork.derivationPath {
+                derivations[entry.blockchainNetwork.blockchain.curve, default: []].append(path)
+            }
+        }
+
+        tangemSdkProvider.sdk.config.defaultDerivationPaths = derivations
+        tangemSdkProvider.sdk.startSession(with: ScanTask(), cardId: card.cardId) { [weak self] result in
+            guard let self = self else { return }
+
             switch result {
-            case .success(let newDerivations):
-                self?.updateDerivations(with: newDerivations)
+            case .success(let card):
+                self.update(with: card)
+                self.scannedCardsRepository.add(self.cardInfo) // For WC
                 completion(.success(()))
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .purgeWallet, card: card)
