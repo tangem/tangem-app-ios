@@ -109,6 +109,8 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             }
         case .successTopup:
             fallthrough
+        case .saveUserWallet:
+            saveUserWallet()
         case .success:
             goToNextStep()
         }

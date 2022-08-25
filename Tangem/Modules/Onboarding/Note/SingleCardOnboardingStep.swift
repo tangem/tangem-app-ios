@@ -8,17 +8,18 @@
 
 import SwiftUI
 
-enum SingleCardOnboardingStep: CaseIterable {
+enum SingleCardOnboardingStep: CaseIterable, Equatable {
     case welcome
     case createWallet
     case topup
     case successTopup
+    case saveUserWallet
     case success
 
     var hasProgressStep: Bool {
         switch self {
         case .createWallet, .topup: return true
-        case .welcome, .successTopup, .success: return false
+        case .welcome, .successTopup, .saveUserWallet, .success: return false
         }
     }
 
@@ -26,7 +27,7 @@ enum SingleCardOnboardingStep: CaseIterable {
         switch self {
         case .createWallet: return Image("onboarding.create.wallet")
         case .topup: return Image("onboarding.topup")
-        case .welcome, .successTopup, .success: return nil
+        case .welcome, .successTopup, .saveUserWallet, .success: return nil
         }
     }
 
@@ -67,14 +68,14 @@ enum SingleCardOnboardingStep: CaseIterable {
 
     var balanceStackOpacity: Double {
         switch self {
-        case .welcome, .createWallet, .success: return 0
+        case .welcome, .createWallet, .saveUserWallet, .success: return 0
         case .topup, .successTopup: return 1
         }
     }
 
     func cardBackgroundFrame(containerSize: CGSize) -> CGSize {
         switch self {
-        case .welcome, .success: return .zero
+        case .welcome, .saveUserWallet, .success: return .zero
         case .createWallet:
             let diameter = SingleCardOnboardingCardsLayout.main.frame(for: self, containerSize: containerSize).height * 1.317
             return .init(width: diameter, height: diameter)
@@ -87,7 +88,7 @@ enum SingleCardOnboardingStep: CaseIterable {
 
     func cardBackgroundCornerRadius(containerSize: CGSize) -> CGFloat {
         switch self {
-        case .welcome, .success: return 0
+        case .welcome, .saveUserWallet, .success: return 0
         case .createWallet: return cardBackgroundFrame(containerSize: containerSize).height / 2
         case .topup, .successTopup: return 8
         }
@@ -102,6 +103,8 @@ extension SingleCardOnboardingStep: OnboardingMessagesProvider {
         case .welcome: return WelcomeStep.welcome.title
         case .createWallet: return "onboarding_create_title"
         case .topup: return "onboarding_topup_title"
+            #warning("l10n")
+        case .saveUserWallet: return "Would you like to keep wallet on this device?"
         case .successTopup: return "onboarding_confetti_title"
         case .success: return successTitle
         }
@@ -112,11 +115,21 @@ extension SingleCardOnboardingStep: OnboardingMessagesProvider {
         case .welcome: return WelcomeStep.welcome.subtitle
         case .createWallet: return "onboarding_create_subtitle"
         case .topup: return "onboarding_topup_subtitle"
+            #warning("l10n")
+        case .saveUserWallet: return "Save your Wallet feature allows you to use your wallet with biometric auth without tapping your card to the phone to gain access"
         case .successTopup: return "onboarding_confetti_subtitle"
         case .success: return "onboarding_confetti_subtitle"
         }
     }
 
+    var titleLineLimit: Int? {
+        switch self {
+        case .saveUserWallet:
+            return nil
+        default:
+            return 1
+        }
+    }
     var messagesOffset: CGSize {
         return .zero
 //        switch self {
@@ -133,6 +146,8 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
         case .topup: return "onboarding_button_buy_crypto"
         case .successTopup: return "common_continue"
         case .welcome: return WelcomeStep.welcome.mainButtonTitle
+            #warning("l10n")
+        case .saveUserWallet: return "Allow to link wallet"
         case .success: return successButtonTitle
         }
     }
@@ -140,7 +155,7 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
     var isSupplementButtonVisible: Bool {
         switch self {
         case .welcome, .topup: return true
-        case .successTopup, .success, .createWallet: return false
+        case .successTopup, .success, .createWallet, .saveUserWallet: return false
         }
     }
 
@@ -149,7 +164,7 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
         case .welcome: return WelcomeStep.welcome.supplementButtonTitle
         case .createWallet: return "onboarding_button_how_it_works"
         case .topup: return "onboarding_button_show_address_qr"
-        case .successTopup, .success: return ""
+        case .successTopup, .saveUserWallet, .success: return ""
         }
     }
 
@@ -157,6 +172,15 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
         return nil
     }
 
+    var infoText: LocalizedStringKey? {
+        switch self {
+        case .saveUserWallet:
+            #warning("l10n")
+            return "Keep notice, making a transaction with your funds will still require card tapping"
+        default:
+            return nil
+        }
+    }
 }
 
 extension SingleCardOnboardingStep: OnboardingProgressStepIndicatable {
