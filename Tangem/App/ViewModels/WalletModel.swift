@@ -354,15 +354,14 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
         return true
     }
 
-    func removeToken(_ token: Token) -> Bool {
+    func removeToken(_ token: Token) {
         guard canRemove(amountType: .token(value: token)) else {
             assertionFailure("Delete token isn't possible")
-            return false
+            return
         }
 
         walletManager.removeToken(token)
         updateTokensViewModels()
-        return true
     }
 
     func getBalance(for type: Amount.AmountType) -> String {
