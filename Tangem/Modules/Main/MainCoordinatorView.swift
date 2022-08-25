@@ -92,13 +92,13 @@ struct MainCoordinatorView: CoordinatorView {
             }
 
         NavHolder()
-            .sheet(item: $coordinator.userWalletStorageAgreementCoordinator) {
-                UserWalletStorageAgreementView(viewModel: UserWalletStorageAgreementViewModel(coordinator: $0))
+            .sheet(item: $coordinator.userWalletStorageAgreementViewModel) {
+                UserWalletStorageAgreementView(viewModel: $0)
             }
 
         NavHolder()
-            .resizableBottomSheet(isPresented: $coordinator.userWalletListPresented, viewModelSettings: BottomSheetSettings(showClosedButton: false, contentBackgroundColor: UserWalletListView.sheetBackground)) {
-                UserWalletListView(viewModel: UserWalletListViewModel(coordinator: coordinator.userWalletListCoordinator!))
+            .resizableBottomSheet(item: $coordinator.userWalletListViewModel, viewModelSettings: BottomSheetSettings(showClosedButton: false, contentBackgroundColor: UserWalletListView.sheetBackground)) {
+                UserWalletListView(viewModel: $0)
             }
     }
 }
