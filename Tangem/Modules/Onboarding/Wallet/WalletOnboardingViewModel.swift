@@ -88,6 +88,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         }
     }
 
+    override var titleLineLimit: Int? {
+        return currentStep.titleLineLimit
+    }
+
     override var mainButtonSettings: TangemButtonSettings {
         .init(
             title: mainButtonTitle,
@@ -141,9 +145,20 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         }
     }
 
+    override var isSkipButtonVisible: Bool {
+        currentStep == .saveUserWallet
+    }
+
     override var isSupplementButtonVisible: Bool {
-        if currentStep == .backupIntro && input.isStandalone {
+        switch currentStep {
+        case .backupIntro:
+            if input.isStandalone {
+                return false
+            }
+        case .saveUserWallet:
             return false
+        default:
+            break
         }
 
         return super.isSupplementButtonVisible
@@ -175,6 +190,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         }
     }
 
+    var infoText: LocalizedStringKey? {
+        currentStep.infoText
+    }
+
     var backupCardsAddedCount: Int {
         return backupService.addedBackupCardsCount
     }
@@ -186,11 +205,19 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         }
     }
 
+    var isCircleVisible: Bool {
+        currentStep != .saveUserWallet
+    }
+
     var isInfoPagerVisible: Bool {
         switch currentStep {
         case .backupIntro: return true
         default: return false
         }
+    }
+
+    var isBiometryLogoVisible: Bool {
+        currentStep == .saveUserWallet
     }
 
     private var primaryCardStackIndex: Int {
@@ -316,6 +343,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             addBackupCard()
         case .backupCards:
             backupCard()
+        case .saveUserWallet:
+            saveUserWallet()
         case .success:
             goToNextStep()
         }
@@ -326,7 +355,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         case .createWallet:
             break
         case .backupIntro:
-            jumpToLatestStep()
+            goToStep(.saveUserWallet)
             Analytics.log(.backupLaterTapped)
         case .selectBackupCards:
             if backupCardsAddedCount < 2 {
@@ -372,6 +401,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             settings.opacity = backupCardsAddedCount > 1 ? settings.opacity : 0.0
             thirdCardSettings = .init(targetSettings: settings,
                                       intermediateSettings: ((backupCardsAddedCount > 1 && secondBackupCardStackIndex == backupCardsAddedCount && animated) ? prehideSettings : nil))
+        case .saveUserWallet:
+            mainCardSettings = .zero
+            supplementCardSettings = .zero
+            thirdCardSettings = .zero
         default:
             mainCardSettings = WalletOnboardingCardLayout.origin.animSettings(at: currentStep, in: containerSize, fanStackCalculator: fanStackCalculator, animated: animated)
             supplementCardSettings = WalletOnboardingCardLayout.firstBackup.animSettings(at: currentStep, in: containerSize, fanStackCalculator: fanStackCalculator, animated: animated)
@@ -406,6 +439,16 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         }
     }
 
+    override func skipCurrentStep() {
+        switch currentStep {
+        case .saveUserWallet:
+            didAskToSaveUserWallets()
+            goToNextStep()
+        default:
+            break
+        }
+    }
+
     private func saveAccessCode(_ code: String) {
         do {
             try backupService.setAccessCode(code)
@@ -428,7 +471,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         case .backupCards:
             if backupServiceState == .finished {
                 Analytics.log(.backupFinish)
-                fireConfetti()
                 self.goToNextStep()
             } else {
                 setupCardsSettings(animated: true, isContainerSetup: false)
