@@ -47,8 +47,8 @@ struct SavedCard: Codable { // [REDACTED_TODO_COMMENT]
         }
     }
 
-    private func getDerivedKeys() -> [Data: [DerivationPath: ExtendedPublicKey]] {
-        var keys: [Data: [DerivationPath: ExtendedPublicKey]] = [:]
+    private func getDerivedKeys() -> [EllipticCurve: [DerivationPath: ExtendedPublicKey]] {
+        var keys: [EllipticCurve: [DerivationPath: ExtendedPublicKey]] = [:]
 
         for wallet in wallets {
             if let savedKeys = derivedKeys[wallet.publicKey] {
@@ -59,7 +59,7 @@ struct SavedCard: Codable { // [REDACTED_TODO_COMMENT]
                                                                  chainCode: savedKey.chainCode)
                 }
 
-                keys[wallet.publicKey] = derivations
+                keys[wallet.curve] = derivations
             }
         }
 
@@ -71,10 +71,15 @@ struct SavedCard: Codable { // [REDACTED_TODO_COMMENT]
             .init(publicKey: $0.publicKey, curve: $0.curve, chainCode: $0.chainCode)
         }
 
-        let keys: [Data: [SavedExtendedPublicKey]] = cardInfo.derivedKeys.mapValues { derivations in
-            return derivations.reduce(into: []) {
-                $0.append(.init(from: $1.key, key: $1.value))
+
+        var keys: [Data: [SavedExtendedPublicKey]] = [:]
+
+        for wallet in cardInfo.card.wallets {
+            let savedKeys: [SavedExtendedPublicKey] = wallet.derivedKeys.map {
+                .init(from: $0.key, key: $0.value)
             }
+
+            keys[wallet.publicKey] = savedKeys
         }
 
         return .init(cardId: cardInfo.card.cardId, batchId: cardInfo.card.batchId, wallets: wallets, derivedKeys: keys)
