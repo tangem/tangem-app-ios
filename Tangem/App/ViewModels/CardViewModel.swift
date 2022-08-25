@@ -24,13 +24,13 @@ class CardViewModel: Identifiable, ObservableObject {
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
-    @Injected(\.scannedCardsRepository) private var scannedCardsRepository: ScannedCardsRepository
 
     @Published var state: State = .created
     @Published private(set) var currentSecurityOption: SecurityModeOption = .longTap
     @Published var walletsBalanceState: WalletsBalanceState = .loaded
 
     var signer: TangemSigner { config.tangemSigner }
+
     var cardId: String { cardInfo.card.cardId }
 
     var isMultiWallet: Bool {
@@ -75,6 +75,15 @@ class CardViewModel: Identifiable, ObservableObject {
 
     var canCountHashes: Bool {
         config.hasFeature(.signedHashesCounter)
+    }
+
+    var supportsWalletConnect: Bool {
+        config.hasFeature(.walletConnect)
+    }
+
+    // Temp for WC. Migrate to userWalletId?
+    var secp256k1SeedKey: Data? {
+        cardInfo.card.wallets.first(where: { $0.curve == .secp256k1 })?.publicKey
     }
 
     private var cardInfo: CardInfo
@@ -417,7 +426,6 @@ class CardViewModel: Identifiable, ObservableObject {
             switch result {
             case .success(let card):
                 self.update(with: card)
-                self.scannedCardsRepository.add(self.cardInfo) // For WC
                 completion(.success(()))
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .purgeWallet, card: card)
