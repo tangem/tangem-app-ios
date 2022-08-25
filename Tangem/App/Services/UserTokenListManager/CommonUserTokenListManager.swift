@@ -26,7 +26,6 @@ class CommonUserTokenListManager {
     private var card: Card { cardInfo.card }
     private var cardId: String { card.cardId }
     private var userWalletId: String { card.userWalletId }
-    private var derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]] { cardInfo.derivedKeys }
 
     init(config: UserWalletConfig, cardInfo: CardInfo) {
         self.config = config
@@ -39,12 +38,19 @@ class CommonUserTokenListManager {
 // MARK: - UserTokenListManager
 
 extension CommonUserTokenListManager: UserTokenListManager {
-    func append(entries: [StorageEntry], result: @escaping (Result<Void, Error>) -> Void) {
+    func append(entries: [StorageEntry], result: @escaping (Result<Card?, Error>) -> Void) {
         tokenItemsRepository.append(entries)
-        updateTokensOnServer { [weak self] updateResult in
-            switch updateResult {
-            case .success:
-                self?.deriveIfNeeded(entries: entries, completion: result)
+        deriveIfNeeded(entries: entries) { [weak self] deriveResult in
+            switch deriveResult {
+            case let .success(card):
+                self?.updateTokensOnServer { updateResult in
+                    switch updateResult {
+                    case .success:
+                        result(.success(card))
+                    case .failure(let error):
+                        result(.failure(error))
+                    }
+                }
             case .failure(let error):
                 result(.failure(error))
             }
@@ -157,29 +163,32 @@ private extension CommonUserTokenListManager {
 
     // MARK: - Derivation
 
-    func deriveIfNeeded(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
+    func deriveIfNeeded(entries: [StorageEntry], completion: @escaping (Result<Card?, Error>) -> Void) {
         guard config.hasFeature(.hdWallets) else {
-            completion(.success(()))
+            completion(.success(nil))
             return
         }
 
-        let newDerivationPaths: [Data: [DerivationPath]] = entries.reduce(into: [:]) { result, entry in
+        var shouldDerive: Bool = false
+
+        for entry in entries {
             if let path = entry.blockchainNetwork.derivationPath,
-               let publicKey = card.wallets.first(where: { $0.curve == entry.blockchainNetwork.blockchain.curve })?.publicKey,
-               derivedKeys[publicKey]?[path] == nil {
-                result[publicKey, default: []].append(path)
+               let wallet = cardInfo.card.wallets.first(where: { $0.curve == entry.blockchainNetwork.blockchain.curve }),
+               !wallet.derivedKeys.keys.contains(path) {
+                shouldDerive = true
+                break
             }
         }
 
-        if newDerivationPaths.isEmpty {
-            completion(.success(()))
+        guard shouldDerive else {
+            completion(.success(nil))
             return
         }
 
-        deriveKeys(derivationPaths: newDerivationPaths, completion: completion)
+        deriveKeys(completion: completion)
     }
 
-    func deriveKeys(completion: @escaping (Result<Void, Error>) -> Void) {
+    func deriveKeys(completion: @escaping (Result<Card?, Error>) -> Void) {
         let card = self.cardInfo.card
         let entries = tokenItemsRepository.getItems()
         var derivations: [EllipticCurve: [DerivationPath]] = [:]
@@ -196,26 +205,14 @@ private extension CommonUserTokenListManager {
 
             switch result {
             case .success(let card):
-                self.update(with: card)
+//                self.update(with: card)
                 self.scannedCardsRepository.add(self.cardInfo) // For WC
-                completion(.success(()))
+                completion(.success(card))
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .purgeWallet, card: card)
                 completion(.failure(error))
             }
         }
-    }
-
-    func updateDerivations(with newDerivations: [Data: [DerivationPath: ExtendedPublicKey]]) {
-        var cardInfo = self.cardInfo
-
-        for newKey in newDerivations {
-            for newDerivation in newKey.value {
-                cardInfo.derivedKeys[newKey.key, default: [:]][newDerivation.key] = newDerivation.value
-            }
-        }
-
-        scannedCardsRepository.add(cardInfo)
     }
 
     // MARK: - Mapping
