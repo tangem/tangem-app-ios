@@ -64,7 +64,7 @@ class PersistentStorage {
             print(error)
         }
     }
-    
+
     private func clean() {
         let key = PersistentStorageKey.cards
         let documentPath = self.documentPath(for: key.path)
