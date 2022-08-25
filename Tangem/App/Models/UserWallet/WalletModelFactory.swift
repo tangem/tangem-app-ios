@@ -62,7 +62,7 @@ class WalletModelFactory {
 
     func makeMultipleWallets(seedKeys: [EllipticCurve: Data],
                              entries: [StorageEntry],
-                             derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]],
+                             derivedKeys: [EllipticCurve: [DerivationPath: ExtendedPublicKey]],
                              derivationStyle: DerivationStyle) -> [WalletModel] {
         entries.compactMap { entry in
             do {
@@ -78,9 +78,9 @@ class WalletModelFactory {
                             entry: StorageEntry,
                             derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]],
                             derivationStyle: DerivationStyle) throws -> WalletModel {
-        guard let seedKey = seedKeys[entry.blockchainNetwork.blockchain.curve],
+        guard let seedKey = seedKeys[curve],
               let derivationPath = entry.blockchainNetwork.derivationPath,
-              let derivedWalletKeys = derivedKeys[seedKey],
+              let derivedWalletKeys = derivedKeys[curve],
               let derivedKey = derivedWalletKeys[derivationPath] else {
             throw CommonError.noData
         }
