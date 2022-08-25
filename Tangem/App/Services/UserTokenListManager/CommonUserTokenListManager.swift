@@ -41,7 +41,14 @@ class CommonUserTokenListManager {
 extension CommonUserTokenListManager: UserTokenListManager {
     func append(entries: [StorageEntry], result: @escaping (Result<Void, Error>) -> Void) {
         tokenItemsRepository.append(entries)
-        updateTokensOnServer(result: result)
+        updateTokensOnServer { [weak self] updateResult in
+            switch updateResult {
+            case .success:
+                self?.deriveIfNeeded(entries: entries, completion: result)
+            case .failure(let error):
+                result(.failure(error))
+            }
+        }
     }
 
     func remove(blockchain: BlockchainNetwork, result: @escaping (Result<Void, Error>) -> Void) {
