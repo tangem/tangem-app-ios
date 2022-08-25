@@ -312,7 +312,9 @@ class MainViewModel: ObservableObject {
         }
     }
 
-    func onAppear() {}
+    func onAppear() {
+        walletTokenListViewModel.onAppear()
+    }
 
     // MARK: Warning action handler
     func warningButtonAction(at index: Int, priority: WarningPriority, button: WarningButton) {
