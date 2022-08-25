@@ -31,7 +31,6 @@ struct WalletTokenListView: View {
             .background(Colors.Background.plain)
             .cornerRadius(14)
             .padding(.horizontal, 16)
-            .onAppear(perform: viewModel.onAppear)
         }
     }
 
