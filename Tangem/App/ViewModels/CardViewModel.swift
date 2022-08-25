@@ -577,6 +577,7 @@ extension CardViewModel {
         userTokenListManager.append(entries: entries) { [weak self] result in
             switch result {
             case .success:
+                completion(.success(()))
                 self?.walletListManager.updateWalletModels()
             case .failure(let error):
                 completion(.failure(error))
