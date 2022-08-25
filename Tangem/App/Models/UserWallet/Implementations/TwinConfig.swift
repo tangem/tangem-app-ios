@@ -173,7 +173,7 @@ extension TwinConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModel(for token: StorageEntry, derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]) throws -> WalletModel {
+    func makeWalletModel(for token: StorageEntry) throws -> WalletModel {
         guard let savedPairKey = twinData.pairPublicKey,
               let walletPublicKey = card.wallets.first?.publicKey else {
             throw CommonError.noData

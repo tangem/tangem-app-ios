@@ -92,7 +92,7 @@ extension SaltPayConfig: UserWalletConfig {
         .hidden
     }
 
-    func makeWalletModel(for token: StorageEntry, derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]) throws -> WalletModel {
+    func makeWalletModel(for token: StorageEntry) throws -> WalletModel {
         guard let walletPublicKey = card.wallets.first(where: { $0.curve == defaultBlockchain.curve })?.publicKey else {
             throw CommonError.noData
         }
