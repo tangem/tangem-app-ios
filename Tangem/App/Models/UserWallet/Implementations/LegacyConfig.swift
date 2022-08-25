@@ -9,7 +9,6 @@
 import Foundation
 import TangemSdk
 import BlockchainSdk
-import WalletConnectSwift
 
 /// V3 Config
 struct LegacyConfig {
@@ -126,19 +125,6 @@ extension LegacyConfig: UserWalletConfig {
 
     var emailData: [EmailCollectedData] {
         CardEmailDataFactory().makeEmailData(for: card, walletData: walletData)
-    }
-
-    func selectBlockchain(for dAppInfo: Session.DAppInfo) -> BlockchainNetwork? {
-        guard hasFeature(.walletConnect) else { return nil }
-
-        guard let blockchain = WalletConnectNetworkParserUtility.parse(dAppInfo: dAppInfo,
-                                                                       isTestnet: isTestnet) else {
-            return nil
-        }
-
-        let derivationPath = blockchain.derivationPath(for: card.derivationStyle)
-        let network = BlockchainNetwork(blockchain, derivationPath: derivationPath)
-        return network
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
