@@ -75,7 +75,7 @@ extension CommonWalletListManager: WalletListManager {
             }
             .compactMap { entry in
                 do {
-                    return try config.makeWalletModel(for: entry, derivedKeys: cardInfo.derivedKeys)
+                    return try config.makeWalletModel(for: entry)
                 } catch {
                     print("‼️ makeWalletModel error \(error)")
                     entriesRequriedDerivaton.append(entry)
@@ -84,13 +84,18 @@ extension CommonWalletListManager: WalletListManager {
             }
 
         walletModels.removeAll(where: { walletModel in
-            !entries.contains(where: { $0.blockchainNetwork == walletModel.blockchainNetwork })
+            print("‼️ WalletModel did remove \(walletModel.blockchainNetwork.blockchain.displayName)")
+            return !entries.contains(where: { $0.blockchainNetwork == walletModel.blockchainNetwork })
         })
 
         walletModels.append(contentsOf: walletModelsToAdd)
 
         walletModels.forEach {
             print("⁉️ Update walletModel for \($0.blockchainNetwork.blockchain.displayName)")
+        }
+
+        entries.forEach { entry in
+            print("curve", entry.blockchainNetwork.blockchain.curve)
         }
 
         self.walletModels.send(walletModels)
@@ -128,13 +133,6 @@ extension CommonWalletListManager: WalletListManager {
 }
 
 private extension CommonWalletListManager {
-    func makeAllWalletModels() -> [WalletModel] {
-        let tokens = userTokenListManager.syncGetEntriesFromRepository()
-        return tokens.compactMap {
-            try? config.makeWalletModel(for: $0, derivedKeys: cardInfo.derivedKeys)
-        }
-    }
-
     func reloadAllWalletModelsPublisher() -> AnyPublisher<Void, Error> {
         tryMigrateTokens()
             .tryMap { [weak self] _ ->  AnyPublisher<Void, Error> in
