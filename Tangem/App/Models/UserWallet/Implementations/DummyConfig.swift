@@ -47,7 +47,7 @@ struct DummyConfig: UserWalletConfig {
         return .available
     }
 
-    func makeWalletModel(for token: StorageEntry, derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]) throws -> WalletModel {
+    func makeWalletModel(for token: StorageEntry) throws -> WalletModel {
         throw CommonError.unimplemented
     }
 }
