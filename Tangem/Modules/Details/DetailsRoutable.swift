@@ -16,7 +16,7 @@ protocol DetailsRoutable: AnyObject {
     func openDisclaimer()
     func openCardTOU(url: URL)
     func openScanCardSettings()
-    func openAppSettings(cardModel: CardViewModel)
+    func openAppSettings(userWallet: UserWallet)
     func openSupportChat(cardId: String, dataCollector: EmailDataCollector)
     func openInSafari(url: URL)
 }
