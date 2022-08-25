@@ -59,7 +59,7 @@ final class UserWalletListViewModel: ObservableObject {
         setSelectedWallet(userWallet)
     }
 
-    func addCard() {
+    func addUserWallet() {
         scanCardInternal { [weak self] cardModel in
             self?.processScannedCard(cardModel)
         }
@@ -67,16 +67,22 @@ final class UserWalletListViewModel: ObservableObject {
 
     func tryAgain() {
         Analytics.log(.tryAgainTapped)
-        addCard()
+        addUserWallet()
     }
 
     func requestSupport() {
         Analytics.log(.supportTapped)
         failedCardScanTracker.resetCounter()
-        coordinator.openMail(with: failedCardScanTracker)
+
+        coordinator.dismissUserWalletList()
+
+        let dismissingDelay = 0.6
+        DispatchQueue.main.asyncAfter(deadline: .now() + dismissingDelay) {
+            self.coordinator.openMail(with: self.failedCardScanTracker, emailType: .failedToScanCard, recipient: EmailConfig.default.recipient)
+        }
     }
 
-    func editWallet(_ userWallet: UserWallet) {
+    func editUserWallet(_ userWallet: UserWallet) {
         #warning("l10n")
         let alert = UIAlertController(title: "Rename Wallet", message: nil, preferredStyle: .alert)
         let cancelAction = UIAlertAction(title: "common_cancel".localized, style: .cancel) { _ in }
@@ -92,8 +98,10 @@ final class UserWalletListViewModel: ObservableObject {
         }
 
         let acceptButton = UIAlertAction(title: "common_ok".localized, style: .default) { [weak self, nameTextField] _ in
-            let name = nameTextField?.text ?? ""
-            self?.userWalletListService.setName(userWallet, name: name)
+            var newUserWallet = userWallet
+            newUserWallet.name = nameTextField?.text ?? ""
+
+            let _ = self?.userWalletListService.save(newUserWallet)
             self?.updateModels()
         }
         alert.addAction(acceptButton)
@@ -123,7 +131,7 @@ final class UserWalletListViewModel: ObservableObject {
 
         let oldModelSections = [multiCurrencyModels, singleCurrencyModels]
 
-        userWalletListService.deleteWallet(userWallet)
+        userWalletListService.delete(userWallet)
         multiCurrencyModels.removeAll { $0.userWallet.userWalletId == userWallet.userWalletId }
         singleCurrencyModels.removeAll { $0.userWallet.userWalletId == userWallet.userWalletId }
 
@@ -250,7 +258,9 @@ final class UserWalletListViewModel: ObservableObject {
     }
 
     private func openOnboarding(with input: OnboardingInput) {
-        coordinator.openOnboarding(with: input)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            self.coordinator.openOnboarding(with: input)
+        }
     }
 
     private func updateHeight(oldModelSections: [[CardViewModel]]) {
