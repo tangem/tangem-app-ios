@@ -12,48 +12,23 @@ import BlockchainSdk
 
 protocol UserWalletModelOutput: AnyObject {
     func userWalletModelRequestUpdate(walletsBalanceState: CardViewModel.WalletsBalanceState)
-    func userWalletModelDidUpdate(card: Card)
-}
-
-protocol UserWalletModelProtocol {
-    func loadAndSaveUserTokenList() -> AnyPublisher<UserTokenList, Error>
-    func subscribeWalletModels() -> AnyPublisher<[WalletModel], Never>
-
-    func updateModel(with card: Card)
-    func getWalletModels() -> [WalletModel]
-
-    func add(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void)
-    func canManage(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool
-    func remove(items: [(Amount.AmountType, BlockchainNetwork)])
-    func clearRepository(result: @escaping (Result<Void, Error>) -> Void)
-
-    // Proxy from CardViewModel
-    func getUserWalletId() -> String
-    func appendDefaultBlockchains()
-    func updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: Bool)
 }
 
 class UserWalletModel {
-    private var cardInfo: CardInfo
-    private var config: UserWalletConfig
     private weak var output: UserWalletModelOutput?
 
-    /// This managers will be recreated in `updateModel()` method
     /// Public until managers factory
-    var userTokenListManager: UserTokenListManager
-    var walletListManager: WalletListManager
+    let userTokenListManager: UserTokenListManager
+    let walletListManager: WalletListManager
 
-    private var userWalletId: String { cardInfo.card.userWalletId }
     private var reloadAllWalletModelsBag: AnyCancellable?
 
-    init(cardInfo: CardInfo) {
-        self.cardInfo = cardInfo
-        self.config = UserWalletConfigFactory(cardInfo).makeConfig()
+    init(config: UserWalletConfig, userWalletId: String, output: UserWalletModelOutput?) {
+        self.output = output
 
-        userTokenListManager = CommonUserTokenListManager(config: config, cardInfo: cardInfo)
+        userTokenListManager = CommonUserTokenListManager(config: config, userWalletId: userWalletId)
         walletListManager = CommonWalletListManager(
             config: config,
-            cardInfo: cardInfo,
             userTokenListManager: userTokenListManager
         )
     }
@@ -62,25 +37,13 @@ class UserWalletModel {
 // MARK: - UserWalletModelProtocol
 
 extension UserWalletModel: UserWalletModelProtocol {
-    func updateModel(with card: Card) {
-        print("🟩 Updating UserWalletModel with new Card \(card.cardId)")
+    func updateUserWalletModel(with config: UserWalletConfig) {
+        print("🟩 Updating UserWalletModel with new config \(config)")
 
-        output?.userWalletModelDidUpdate(card: card)
-        cardInfo.card = card // [REDACTED_TODO_COMMENT]
-        config = UserWalletConfigFactory(cardInfo).makeConfig()
+        walletListManager.update(config: config)
+        userTokenListManager.update(config: config)
 
-        userTokenListManager = CommonUserTokenListManager(config: config, cardInfo: cardInfo)
-        walletListManager = CommonWalletListManager(
-            config: config,
-            cardInfo: cardInfo,
-            userTokenListManager: userTokenListManager
-        )
-
-        updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: true)
-    }
-
-    func loadAndSaveUserTokenList() -> AnyPublisher<UserTokenList, Error> {
-        userTokenListManager.loadAndSaveUserTokenList()
+//        updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: true)
     }
 
     func getWalletModels() -> [WalletModel] {
@@ -91,22 +54,26 @@ extension UserWalletModel: UserWalletModelProtocol {
         walletListManager.subscribeWalletModels()
     }
 
-    func clearRepository(result: @escaping (Result<Void, Error>) -> Void) {
+    func clearRepository(result: @escaping (Result<UserTokenList, Error>) -> Void) {
         userTokenListManager.clearRepository(result: result)
     }
 
     // MARK: - Proxy from CardViewModel
 
-    func getUserWalletId() -> String {
-        userWalletId
-    }
-
-    func add(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
-        append(entries: entries, completion: completion)
+    func add(entries: [StorageEntry], completion: @escaping (Result<UserTokenList, Error>) -> Void) {
+        append(entries: entries) { [weak self] appendingCompletion in
+            switch appendingCompletion {
+            case .success(let list):
+                self?.updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: true)
+                completion(.success(list))
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
     }
 
     func canManage(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool {
-        return walletListManager.canManage(amountType: amountType, blockchainNetwork: blockchainNetwork)
+        walletListManager.canManage(amountType: amountType, blockchainNetwork: blockchainNetwork)
     }
 
     func remove(items: [(Amount.AmountType, BlockchainNetwork)]) {
@@ -127,19 +94,6 @@ extension UserWalletModel: UserWalletModelProtocol {
         case let .token(token):
             removeToken(token, blockchainNetwork: blockchainNetwork)
         case .reserve: break
-        }
-    }
-
-    func appendDefaultBlockchains() {
-        userTokenListManager.append(entries: config.defaultBlockchains) { [weak self] result in
-            switch result {
-            case let .success(card):
-                if let card = card {
-                    self?.updateModel(with: card)
-                }
-            case let .failure(error):
-                print("Append defaultBlockchains error: \(error)")
-            }
         }
     }
 
@@ -169,20 +123,8 @@ extension UserWalletModel: UserWalletModelProtocol {
 // MARK: - Wallet models Operations
 
 private extension UserWalletModel {
-    func append(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
-        userTokenListManager.append(entries: entries) { [weak self] result in
-            switch result {
-            case let .success(card):
-                if let card = card {
-                    self?.updateModel(with: card)
-                } else {
-                    self?.walletListManager.updateWalletModels()
-                }
-                completion(.success(()))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+    func append(entries: [StorageEntry], completion: @escaping (Result<UserTokenList, Error>) -> Void) {
+        userTokenListManager.append(entries: entries, result: completion)
     }
 
     private func removeBlockchain(_ blockchainNetwork: BlockchainNetwork) {
