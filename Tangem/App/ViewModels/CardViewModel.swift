@@ -77,6 +77,15 @@ class CardViewModel: Identifiable, ObservableObject {
         config.hasFeature(.signedHashesCounter)
     }
 
+    var supportsWalletConnect: Bool {
+        config.hasFeature(.walletConnect)
+    }
+
+    // Temp for WC. Migrate to userWalletId?
+    var secp256k1SeedKey: Data? {
+        cardInfo.card.wallets.first(where: { $0.curve == .secp256k1 })?.publicKey
+    }
+
     private var cardInfo: CardInfo
     private var cardPinSettings: CardPinSettings = CardPinSettings()
     private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
@@ -401,7 +410,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
             switch result {
             case .success(let info):
-                self.cardInfo.artwork =  info.artwork.map { .artwork($0) } ?? .noArtwork
+                self.cardInfo.artwork = info.artwork.map { .artwork($0) } ?? .noArtwork
             case .failure:
                 self.cardInfo.artwork = .noArtwork
                 self.warningsService.setupWarnings(for: self.config)
@@ -594,8 +603,9 @@ extension CardViewModel {
             case let .success(card):
                 if let card = card {
                     self?.update(with: card)
+                } else {
+                    self?.walletListManager.updateWalletModels()
                 }
-                self?.walletListManager.updateWalletModels()
                 completion(.success(()))
             case .failure(let error):
                 completion(.failure(error))
