@@ -70,6 +70,7 @@ enum WalletConnectAction: String {
 class WalletConnectService: ObservableObject {
     var isServiceBusy: CurrentValueSubject<Bool, Never> = .init(false)
     var cardModel: CardViewModel
+    var cardModel: CardViewModel
 
     @Published private(set) var sessions: [WalletConnectSession] = .init()
     var sessionsPublisher: Published<[WalletConnectSession]>.Publisher { $sessions }
@@ -94,9 +95,14 @@ class WalletConnectService: ObservableObject {
         server.register(handler: SignTypedDataHandler(delegate: self, dataSource: self))
         server.register(handler: SwitchChainHandler(delegate: self, dataSource: self))
         restore()
+        restore()
     }
 
     deinit {
+        print("WalletConnectService deinit")
+    }
+
+    private deinit {
         print("WalletConnectService deinit")
     }
 
@@ -407,7 +413,7 @@ extension WalletConnectService: ServerDelegate {
                                                            message: message,
                                                            onAcceptAction: onAccept,
                                                            onReject: onReject,
-                                                           extraTitle: isSelectedChainAvailable ? "wallet_connect_select_network".localized : nil,
+                                                           extraTitle: isSelectededChainAvailable ? "wallet_connect_select_network".localized : nil,
                                                            onExtra: onSelectChainRequested),
                           delay: 0.5)
     }
