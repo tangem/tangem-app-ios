@@ -25,7 +25,7 @@ struct UserWalletConfigFactory {
             } else {
                 return GenericConfig(card: cardInfo.card)
             }
-        case .note(let noteData):
+        case .file(let noteData):
             if isDemo {
                 return NoteDemoConfig(card: cardInfo.card, noteData: noteData)
             } else {
