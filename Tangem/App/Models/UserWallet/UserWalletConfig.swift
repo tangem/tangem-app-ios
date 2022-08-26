@@ -9,7 +9,6 @@
 import Foundation
 import TangemSdk
 import BlockchainSdk
-import WalletConnectSwift
 
 protocol UserWalletConfig {
     var sdkConfig: Config { get }
@@ -50,9 +49,7 @@ protocol UserWalletConfig {
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability
 
-    func selectNetwork(for dAppInfo: Session.DAppInfo) -> BlockchainNetwork?
-
-    func makeWalletModels(for tokens: [StorageEntry], derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]) -> [WalletModel]
+    func makeWalletModels(for tokens: [StorageEntry]) -> [WalletModel]
 }
 
 extension UserWalletConfig {
@@ -62,10 +59,6 @@ extension UserWalletConfig {
 
     func hasFeature(_ feature: UserWalletFeature) -> Bool {
         getFeatureAvailability(feature).isAvailable
-    }
-
-    func selectNetwork(for dAppInfo: Session.DAppInfo) -> BlockchainNetwork? {
-        return nil
     }
 }
 
