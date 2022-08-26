@@ -145,7 +145,9 @@ struct MainView: View {
                     .padding(.bottom, 6)
             }
 
-            WalletTokenListView(viewModel: viewModel.walletTokenListViewModel)
+            if let walletTokenListViewModel = viewModel.walletTokenListViewModel {
+                WalletTokenListView(viewModel: walletTokenListViewModel)
+            }
 
             AddTokensView(action: viewModel.openTokensList)
                 .padding(.horizontal, 16)
