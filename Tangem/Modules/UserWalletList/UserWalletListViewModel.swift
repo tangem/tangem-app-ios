@@ -179,16 +179,7 @@ final class UserWalletListViewModel: ObservableObject {
     }
 
     private func processScannedCard(_ cardModel: CardViewModel) {
-        let card = cardModel.card
-
-        let userWallet = UserWallet(
-            userWalletId: card.cardPublicKey,
-            name: "",
-            card: card,
-            walletData: cardModel.walletData,
-            artwork: nil,
-            isHDWalletAllowed: card.settings.isHDWalletAllowed
-        )
+        let userWallet = cardModel.userWallet
 
         if userWalletListService.contains(userWallet) {
             return
