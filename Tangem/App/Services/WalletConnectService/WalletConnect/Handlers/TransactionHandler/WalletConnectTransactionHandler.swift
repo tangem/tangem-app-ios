@@ -53,7 +53,7 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
         let wallet = session.wallet
         let blockchain = wallet.blockchain
 
-        guard let walletModel = dataSource?.cardModel.walletModels?.first(where: { $0.wallet.address.lowercased() == transaction.from.lowercased() }) else {
+        guard let walletModel = dataSource?.cardModel.walletModels.first(where: { $0.wallet.address.lowercased() == transaction.from.lowercased() }) else {
             let error = WalletConnectServiceError.failedToBuildTx(code: .wrongAddress)
             Analytics.log(error: error)
             return .anyFail(error: error)
