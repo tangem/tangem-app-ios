@@ -12,8 +12,7 @@ import Combine
 class CommonWalletListManager {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    private let config: UserWalletConfig
-    private let cardInfo: CardInfo
+    private var config: UserWalletConfig
     private let userTokenListManager: UserTokenListManager
 
     /// Bool flag for migration custom token to token form our API
@@ -21,9 +20,8 @@ class CommonWalletListManager {
     private var walletModels = CurrentValueSubject<[WalletModel], Never>([])
     private var entriesRequriedDerivaton: [StorageEntry] = []
 
-    init(config: UserWalletConfig, cardInfo: CardInfo, userTokenListManager: UserTokenListManager) {
+    init(config: UserWalletConfig, userTokenListManager: UserTokenListManager) {
         self.config = config
-        self.cardInfo = cardInfo
         self.userTokenListManager = userTokenListManager
     }
 }
@@ -31,6 +29,10 @@ class CommonWalletListManager {
 // MARK: - WalletListManager
 
 extension CommonWalletListManager: WalletListManager {
+    func update(config: UserWalletConfig) {
+        self.config = config
+    }
+
     func subscribeWalletModels() -> AnyPublisher<[WalletModel], Never> {
         walletModels.dropFirst().eraseToAnyPublisher()
     }
@@ -42,12 +44,12 @@ extension CommonWalletListManager: WalletListManager {
     func updateWalletModels() {
         print("‼️ Updating Wallet models")
 
-        guard !cardInfo.card.wallets.isEmpty else {
-            print("‼️ Wallets in the card is empty")
-
-            self.walletModels.send([])
-            return
-        }
+//        guard !cardInfo.card.wallets.isEmpty else {
+//            print("‼️ Wallets in the card is empty")
+//
+//            self.walletModels.send([])
+//            return
+//        }
 
         var walletModels = getWalletModels()
         let entries = userTokenListManager.syncGetEntriesFromRepository()
@@ -90,13 +92,15 @@ extension CommonWalletListManager: WalletListManager {
 
         walletModels.append(contentsOf: walletModelsToAdd)
 
-        walletModels.forEach {
-            print("⁉️ Update walletModel for \($0.blockchainNetwork.blockchain.displayName)")
+        let blockchains = walletModels.map {
+            var text = "blockchain: \($0.blockchainNetwork.blockchain.displayName)"
+            if !$0.getTokens().isEmpty {
+                text += ", tokens: \($0.getTokens().map { $0.name }.joined(separator: ", "))"
+            }
+            return text
         }
 
-        entries.forEach { entry in
-            print("curve", entry.blockchainNetwork.blockchain.curve)
-        }
+        print("✅ Actual List of WalletModels [\(blockchains.joined(separator: ", "))]")
 
         self.walletModels.send(walletModels)
     }
