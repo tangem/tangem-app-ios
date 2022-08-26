@@ -68,6 +68,18 @@ class CardViewModel: Identifiable, ObservableObject {
         cardInfo.card.walletSignedHashes
     }
 
+    var artworkInfo: ArtworkInfo? {
+        cardInfo.artworkInfo
+    }
+
+    var name: String {
+        cardInfo.name
+    }
+
+    var defaultName: String {
+        config.cardName
+    }
+
     var canCreateBackup: Bool {
         config.hasFeature(.backup)
     }
@@ -252,24 +264,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     var userWallet: UserWallet {
-        let walletData: DefaultWalletData = cardInfo.walletData
-
-        let name: String
-        if !cardInfo.name.isEmpty {
-            name = cardInfo.name
-        } else {
-            let factory = UserWalletConfigFactory(cardInfo)
-            name = factory.makeConfig().cardName
-        }
-
-        return UserWallet(
-            userWalletId: cardInfo.card.cardPublicKey,
-            name: name,
-            card: cardInfo.card,
-            walletData: walletData,
-            artwork: cardInfo.artworkInfo,
-            isHDWalletAllowed: cardInfo.card.settings.isHDWalletAllowed
-        )
+        UserWalletFactory().userWallet(from: self)
     }
 
     var isUserWalletLocked: Bool {
