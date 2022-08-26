@@ -29,6 +29,7 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published var walletsBalanceState: WalletsBalanceState = .loaded
 
     var signer: TangemSigner { config.tangemSigner }
+
     var cardId: String { cardInfo.card.cardId }
 
     var isMultiWallet: Bool {
