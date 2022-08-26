@@ -240,8 +240,6 @@ class CommonUserWalletListService: UserWalletListService {
                 var card = userWallet.card
                 card.wallets = sensitiveInformation.wallets
                 userWallets[i].card = card
-
-                userWallets[i].keys = sensitiveInformation.keys
             }
 
             return userWallets
@@ -266,7 +264,6 @@ class CommonUserWalletListService: UserWalletListService {
 
             let userWalletsWithoutKeys: [UserWallet] = userWallets.map {
                 var userWalletWithoutKeys = $0
-                userWalletWithoutKeys.keys = [:]
 
                 var card = $0.card
                 card.wallets = []
@@ -302,7 +299,7 @@ class CommonUserWalletListService: UserWalletListService {
                     continue
                 }
 
-                let sensitiveInformation = UserWallet.SensitiveInformation(keys: userWallet.keys, wallets: userWallet.card.wallets)
+                let sensitiveInformation = UserWallet.SensitiveInformation(wallets: userWallet.card.wallets)
                 let sensitiveDataEncoded = try encrypt(encoder.encode(sensitiveInformation), with: userWalletEncryptionKey)
                 let sensitiveDataPath = userWalletPath(for: userWallet)
                 try sensitiveDataEncoded.write(to: sensitiveDataPath, options: .atomic)

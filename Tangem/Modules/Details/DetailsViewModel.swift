@@ -51,6 +51,10 @@ class DetailsViewModel: ObservableObject {
         )
     }
 
+    deinit {
+        print("DetailsViewModel deinit")
+    }
+
     var isMultiWallet: Bool {
         cardModel.isMultiWallet
     }
