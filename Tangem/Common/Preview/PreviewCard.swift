@@ -50,11 +50,11 @@ enum PreviewCard {
         case .stellar:
             return .legacy(WalletData(blockchain: "XLM", token: nil))
         case .cardanoNote:
-            return .note(WalletData(blockchain: "ADA", token: nil))
+            return .file(WalletData(blockchain: "ADA", token: nil))
         case .ethEmptyNote:
-            return .note(WalletData(blockchain: "ETH", token: nil))
+            return .file(WalletData(blockchain: "ETH", token: nil))
         case .cardanoNoteEmptyWallet:
-            return .note(WalletData(blockchain: "ADA", token: nil))
+            return .file(WalletData(blockchain: "ADA", token: nil))
         case .twin:
             return .twin(WalletData(blockchain: "BTC", token: nil), TwinData(series: .cb64, pairPublicKey: nil))
         default:
