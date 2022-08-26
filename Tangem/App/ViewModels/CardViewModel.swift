@@ -25,13 +25,11 @@ class CardViewModel: Identifiable, ObservableObject {
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
 
-//    [REDACTED_USERNAME] var state: State = .created
     @Published private(set) var currentSecurityOption: SecurityModeOption = .longTap
     @Published var walletsBalanceState: WalletsBalanceState = .loaded
 
     var signer: TangemSigner { config.tangemSigner }
     var cardId: String { cardInfo.card.cardId }
-    var userWalletId: String { cardInfo.card.userWalletId }
 
     var isMultiWallet: Bool {
         config.hasFeature(.multiCurrency)
@@ -86,16 +84,14 @@ class CardViewModel: Identifiable, ObservableObject {
         cardInfo.card.wallets.first(where: { $0.curve == .secp256k1 })?.publicKey
     }
 
+    // Tempopary public, need refactoring
+    var userWalletModel: UserWalletModel?
+
     private var cardInfo: CardInfo
     private var cardPinSettings: CardPinSettings = CardPinSettings()
     private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
-//    private var migrated = false
     private var tangemSdk: TangemSdk { tangemSdkProvider.sdk }
     private var config: UserWalletConfig
-
-    /// This managers will be recreated in `updateModel()` method
-    var userTokenListManager: UserTokenListManager
-    var walletListManager: WalletListManager
 
     var availableSecurityOptions: [SecurityModeOption] {
         var options: [SecurityModeOption] = []
@@ -120,7 +116,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     var walletModels: [WalletModel] {
-        walletListManager.getWalletModels()
+        userWalletModel?.getWalletModels() ?? []
     }
 
     var wallets: [Wallet] {
@@ -240,12 +236,9 @@ class CardViewModel: Identifiable, ObservableObject {
         self.cardInfo = cardInfo
         self.config = UserWalletConfigFactory(cardInfo).makeConfig()
 
-        userTokenListManager = CommonUserTokenListManager(config: config, cardInfo: cardInfo)
-        walletListManager = CommonWalletListManager(
-            config: config,
-            cardInfo: cardInfo,
-            userTokenListManager: userTokenListManager
-        )
+        if cardInfo.card.hasWallets {
+            userWalletModel = UserWalletModel(cardInfo: cardInfo)
+        }
 
         updateCardPinSettings()
         updateCurrentSecurityOption()
@@ -256,47 +249,8 @@ class CardViewModel: Identifiable, ObservableObject {
         warningsService.setupWarnings(for: config)
     }
 
-    /// What this method do?
-    /// 1. `tryMigrateTokens` once, work with boolean switcher
-    /// 2. Call `update` for every `walletModels`
-    /// 3. Update the `walletsBalanceState` to `.inProgress` if needed and `.loaded` when the update completed
-    func updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: Bool) {
-        if showProgressLoading {
-            self.walletsBalanceState = .inProgress
-        }
-
-        // Create new walletModel if needed
-        walletListManager.updateWalletModels()
-
-        walletListManager
-            .reloadAllWalletModels()
-            .receive(on: RunLoop.main)
-            .receiveCompletion { [weak self] _ in
-                if showProgressLoading {
-                    self?.walletsBalanceState = .loaded
-                }
-            }
-            .store(in: &bag)
-    }
-
-    func subscribeWalletModels() -> AnyPublisher<[WalletModel], Never> {
-        walletListManager.subscribeWalletModels()
-    }
-
-    func appendDefaultBlockchains() {
-        userTokenListManager.append(entries: config.defaultBlockchains) { [weak self] result in
-            switch result {
-            case let .success(card):
-                if let card = card {
-                    self?.update(with: card)
-                }
-            case let .failure(error):
-                print("Append defaultBlockchains error: \(error)")
-            }
-        }
-    }
-
     // MARK: - Security
+
     func changeSecurityOption(_ option: SecurityModeOption, completion: @escaping (Result<Void, Error>) -> Void) {
         switch option {
         case .accessCode:
@@ -380,7 +334,7 @@ class CardViewModel: Identifiable, ObservableObject {
             switch result {
             case .success:
                 Analytics.log(.factoryResetSuccess)
-                self?.userTokenListManager.clearRepository(result: completion)
+                self?.userWalletModel?.clearRepository(result: completion)
                 self?.clearTwinPairKey()
                 // self.update(with: response)
                 completion(.success(()))
@@ -470,14 +424,14 @@ class CardViewModel: Identifiable, ObservableObject {
         updateCurrentSecurityOption()
 
         warningsService.setupWarnings(for: config)
-        userTokenListManager = CommonUserTokenListManager(config: config, cardInfo: cardInfo)
-        walletListManager = CommonWalletListManager(
-            config: config,
-            cardInfo: cardInfo,
-            userTokenListManager: userTokenListManager
-        )
+//        userTokenListManager = CommonUserTokenListManager(config: config, cardInfo: cardInfo)
+//        walletListManager = CommonWalletListManager(
+//            config: config,
+//            cardInfo: cardInfo,
+//            userTokenListManager: userTokenListManager
+//        )
 
-        updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: true)
+//        updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: true)
     }
 
     private func searchBlockchains() {
@@ -509,7 +463,8 @@ class CardViewModel: Identifiable, ObservableObject {
                         StorageEntry(blockchainNetwork: $0.blockchainNetwork, tokens: [])
                     }
 
-                    self.add(entries: entries) { result in } // [REDACTED_TODO_COMMENT]
+                    // [REDACTED_TODO_COMMENT]
+                    self.userWalletModel?.add(entries: entries) { result in }
                 }
             }
     }
@@ -555,7 +510,8 @@ class CardViewModel: Identifiable, ObservableObject {
                 if tokensAdded, shouldAddWalletManager {
                     let tokens = ethWalletModel.walletManager.cardTokens
                     let entry = StorageEntry(blockchainNetwork: network, tokens: tokens)
-                    self.add(entries: [entry], completion: { _ in }) // [REDACTED_TODO_COMMENT]
+                    // [REDACTED_TODO_COMMENT]
+                    self.userWalletModel?.add(entries: [entry]) { _ in }
                 }
             case .failure(let error):
                 print(error)
@@ -584,111 +540,62 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private func bind() {
         signer.signPublisher.sink { [unowned self] card in
-            self.cardInfo.card = card
-            self.config = UserWalletConfigFactory(cardInfo).makeConfig()
-            self.warningsService.setupWarnings(for: config)
+            self.update(with: card)
             // [REDACTED_TODO_COMMENT]
         }
         .store(in: &bag)
     }
 }
 
-// MARK: - Wallet models Operations
+// MARK: - Proxy for User Wallet Model
 
 extension CardViewModel {
-    /// Tempopary public
+    var userWalletId: String {
+        guard let userWalletModel = userWalletModel else {
+            assertionFailure("UserWalletModel not created")
+            return ""
+        }
+
+        return userWalletModel.getUserWalletId()
+    }
+
+    func appendDefaultBlockchains() {
+        userWalletModel?.appendDefaultBlockchains()
+    }
+
+    func updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: Bool) {
+        userWalletModel?.updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: showProgressLoading)
+    }
+
+    func subscribeWalletModels() -> AnyPublisher<[WalletModel], Never> {
+        guard let userWalletModel = userWalletModel else {
+            assertionFailure("UserWalletModel not created")
+            return Just([]).eraseToAnyPublisher()
+        }
+
+        return userWalletModel.subscribeWalletModels()
+    }
+
     func add(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
-        userTokenListManager.append(entries: entries) { [weak self] result in
-            switch result {
-            case let .success(card):
-                if let card = card {
-                    self?.update(with: card)
-                } else {
-                    self?.walletListManager.updateWalletModels()
-                }
-                completion(.success(()))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+        userWalletModel?.add(entries: entries, completion: completion)
     }
 
-    /// Tempopary public
     func canManage(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool {
-        return walletListManager.canManage(amountType: amountType, blockchainNetwork: blockchainNetwork)
-    }
-
-    /// Tempopary public
-    func remove(items: [(Amount.AmountType, BlockchainNetwork)]) {
-        items.forEach {
-            remove(amountType: $0.0, blockchainNetwork: $0.1)
+        guard let userWalletModel = userWalletModel else {
+            assertionFailure("UserWalletModel not created")
+            return false
         }
+
+        return userWalletModel.canManage(amountType: amountType, blockchainNetwork: blockchainNetwork)
     }
 
-    /// Tempopary public
-    func remove(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) {
-        guard walletListManager.canRemove(amountType: amountType, blockchainNetwork: blockchainNetwork) else {
-            assertionFailure("\(blockchainNetwork.blockchain) can't be remove")
+    func remove(items: [(Amount.AmountType, BlockchainNetwork)]) {
+        guard let userWalletModel = userWalletModel else {
+            assertionFailure("UserWalletModel not created")
             return
         }
 
-        switch amountType {
-        case .coin:
-            removeBlockchain(blockchainNetwork)
-        case let .token(token):
-            removeToken(token, blockchainNetwork: blockchainNetwork)
-        case .reserve: break
-        }
-    }
-
-    private func removeBlockchain(_ blockchainNetwork: BlockchainNetwork) {
-        userTokenListManager.remove(blockchain: blockchainNetwork) { [weak self] result in
-            switch result {
-            case .success:
-                self?.walletListManager.updateWalletModels()
-            case let .failure(error):
-                print("Remove blockchainNetwork error \(error)")
-            }
-        }
-    }
-
-    private func removeToken(_ token: BlockchainSdk.Token, blockchainNetwork: BlockchainNetwork) {
-        userTokenListManager.remove(tokens: [token], in: blockchainNetwork) { [weak self] result in
-            switch result {
-            case .success:
-                self?.walletListManager.removeToken(token, blockchainNetwork: blockchainNetwork)
-                self?.walletListManager.updateWalletModels()
-            //                _ = walletModel.removeToken(token)
-            //                self?.updateState(shouldUpdate: false)
-            case let .failure(error):
-                print("Remove token error \(error)")
-            }
-        }
-    }
-}
-
-extension CardViewModel {
-    enum State {
-        case created
-        case empty
-        case loaded(walletModel: [WalletModel])
-
-        var walletModels: [WalletModel]? {
-            switch self {
-            case .loaded(let models):
-                return models
-            default:
-                return nil
-            }
-        }
-        var canUpdate: Bool {
-            switch self {
-            case .loaded:
-                return true
-            default:
-                return false
-            }
-        }
+        userWalletModel.remove(items: items)
     }
 }
 
