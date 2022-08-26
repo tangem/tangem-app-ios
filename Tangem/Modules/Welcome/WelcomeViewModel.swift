@@ -150,7 +150,6 @@ class WelcomeViewModel: ObservableObject {
         }
 
         guard let model = userWalletListService.selectedModel else { return }
-        showingAuthentication = false
         coordinator.openMain(with: model)
     }
 }
