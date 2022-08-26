@@ -322,13 +322,11 @@ This disclaimer was amended for the last time on October 1st, 2020.";
 "wallet_button_topup" = "Купить";
 "wallet_button_trade" = "Обменять";
 "wallet_choice_wallet_option_title" = "Что отправить?";
-"wallet_connect_alert_sign_message" = "Запрос на подпись сообщения
-картой %@
+"wallet_connect_alert_sign_message" = "Запрос на подпись сообщения.
 
 %@";
 "wallet_connect_bnb_sign_message" = "Dapp %@, запрос на
 подпись транзакции с BNB.
-Карта: %@
 
 %@";
 "wallet_connect_bnb_trade_order_message" = "Торговый ордер на %@
@@ -340,11 +338,8 @@ This disclaimer was amended for the last time on October 1st, 2020.";
 К: %@
 Сумма: %@";
 "wallet_connect_bnb_transaction_signed" = "Транзакция с BNB успешно подписана и отправлена ​​в Dapp.";
-"wallet_connect_card_not_found" = "Не удалось найти заданную карту";
-"wallet_connect_card_number" = "Карта: %@";
 "wallet_connect_clipboard_alert" = "Буфер обмена содержит код WalletConnect. Использовать скопированное значение или отсканировать QR-код?";
-"wallet_connect_create_tx_message" = "Карта: %@
-Запрос на создание транзакции для %@
+"wallet_connect_create_tx_message" = "Запрос на создание транзакции для %@
 %@
 
 Сумма: %@
@@ -364,8 +359,7 @@ This disclaimer was amended for the last time on October 1st, 2020.";
 "wallet_connect_no_sessions_title" = "Упс. Нет сессий.";
 "wallet_connect_paste_from_clipboard" = "Вставить из буфера обмена";
 "wallet_connect_personal_sign_message" = "Сообщение для %@:\n";
-"wallet_connect_request_session_start" = "Запрос на открытие сессии для карты с идентификатором %@
-для
+"wallet_connect_request_session_start" = "Запрос на открытие сессии для
 %@
 
 СЕТЬ: %@
