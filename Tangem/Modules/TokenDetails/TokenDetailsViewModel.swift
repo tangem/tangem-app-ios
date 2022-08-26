@@ -280,10 +280,7 @@ class TokenDetailsViewModel: ObservableObject {
 
         /// Added the delay to display the deletion in the main screen
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            self.card.remove(
-                amountType: self.amountType,
-                blockchainNetwork: walletModel.blockchainNetwork
-            )
+            self.card.remove(items: [(self.amountType, walletModel.blockchainNetwork)])
         }
     }
 
