@@ -261,17 +261,16 @@ class CommonUserWalletListService: UserWalletListService {
 
             try fileManager.createDirectory(at: userWalletDirectoryUrl, withIntermediateDirectories: true)
 
-            let userWalletsWithoutKeys: [UserWallet] = userWallets.map {
-                var userWalletWithoutKeys = $0
-
+            let userWalletsWithoutSensitiveInformation: [UserWallet] = userWallets.map {
                 var card = $0.card
                 card.wallets = []
-                userWalletWithoutKeys.card = card
 
+                var userWalletWithoutKeys = $0
+                userWalletWithoutKeys.card = card
                 return userWalletWithoutKeys
             }
 
-            let publicData = try encoder.encode(userWalletsWithoutKeys)
+            let publicData = try encoder.encode(userWalletsWithoutSensitiveInformation)
             let publicDataEncoded = try encrypt(publicData, with: publicDataEncryptionKey())
             try publicDataEncoded.write(to: userWalletListPath(), options: .atomic)
             try excludeFromBackup(url: userWalletListPath())
