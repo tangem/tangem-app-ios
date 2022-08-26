@@ -12,8 +12,6 @@ import Combine
 import WalletConnectSwift
 
 class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
-    @Injected(\.scannedCardsRepository) private var scannedCardsRepo: ScannedCardsRepository
-
     unowned var delegate: WalletConnectHandlerDelegate?
     unowned var dataSource: WalletConnectHandlerDataSource?
 
@@ -55,15 +53,7 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
         let wallet = session.wallet
         let blockchain = wallet.blockchain
 
-        guard let card = scannedCardsRepo.cards[wallet.cid] else {
-            return .anyFail(error: WalletConnectServiceError.cardNotFound)
-        }
-
-        let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: wallet.derivationPath)
-        let entry = StorageEntry(blockchainNetwork: blockchainNetwork, tokens: [])
-        let walletModels = card.makeWalletModels(for: [entry])
-
-        guard let walletModel = walletModels.first(where: { $0.wallet.address.lowercased() == transaction.from.lowercased() }) else {
+        guard let walletModel = dataSource?.cardModel.walletModels?.first(where: { $0.wallet.address.lowercased() == transaction.from.lowercased() }) else {
             let error = WalletConnectServiceError.failedToBuildTx(code: .wrongAddress)
             Analytics.log(error: error)
             return .anyFail(error: error)
@@ -120,7 +110,6 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
 
                         var m = ""
                         m += String(format: "wallet_connect_create_tx_message".localized,
-                                    AppCardIdFormatter(cid: wallet.cid).formatted(),
                                     dApp.peerMeta.name,
                                     dApp.peerMeta.url.absoluteString,
                                     valueAmount.description,
