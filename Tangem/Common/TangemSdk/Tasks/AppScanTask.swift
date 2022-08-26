@@ -251,7 +251,12 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
 
-        let tokenItemsRepository = CommonTokenItemsRepository(key: card.cardId)
+        guard !card.wallets.isEmpty else {
+            self.runScanTask(session, completion)
+            return
+        }
+
+        let tokenItemsRepository = CommonTokenItemsRepository(key: card.userWalletId)
 
         // Force add blockchains for demo cards
         let config = GenericConfig(card: card)
