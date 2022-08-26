@@ -15,53 +15,40 @@ class CommonUserTokenListManager {
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
+    private var config: UserWalletConfig
+
+    private var userWalletId: String
     private let tokenItemsRepository: TokenItemsRepository
-    private let cardInfo: CardInfo
-    private let config: UserWalletConfig
 
     private var loadTokensCancellable: AnyCancellable?
     private var saveTokensCancellable: AnyCancellable?
 
-    private var card: Card { cardInfo.card }
-    private var cardId: String { card.cardId }
-    private var userWalletId: String { card.userWalletId }
-
-    init(config: UserWalletConfig, cardInfo: CardInfo) {
+    init(config: UserWalletConfig, userWalletId: String) {
         self.config = config
-        self.cardInfo = cardInfo
+        self.userWalletId = userWalletId
 
-        tokenItemsRepository = CommonTokenItemsRepository(key: cardInfo.card.userWalletId)
+        tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId)
     }
 }
 
 // MARK: - UserTokenListManager
 
 extension CommonUserTokenListManager: UserTokenListManager {
-    func append(entries: [StorageEntry], result: @escaping (Result<Card?, Error>) -> Void) {
-        tokenItemsRepository.append(entries)
-        deriveIfNeeded(entries: entries) { [weak self] deriveResult in
-            switch deriveResult {
-            case let .success(card):
-                self?.updateTokensOnServer { updateResult in
-                    switch updateResult {
-                    case .success:
-                        result(.success(card))
-                    case .failure(let error):
-                        result(.failure(error))
-                    }
-                }
-            case .failure(let error):
-                result(.failure(error))
-            }
-        }
+    func update(config: UserWalletConfig) {
+        self.config = config
     }
 
-    func remove(blockchain: BlockchainNetwork, result: @escaping (Result<Void, Error>) -> Void) {
+    func append(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void) {
+        tokenItemsRepository.append(entries)
+        updateTokensOnServer(result: result)
+    }
+
+    func remove(blockchain: BlockchainNetwork, result: @escaping (Result<UserTokenList, Error>) -> Void) {
         tokenItemsRepository.remove([blockchain])
         updateTokensOnServer(result: result)
     }
 
-    func remove(tokens: [BlockchainSdk.Token], in blockchain: BlockchainNetwork, result: @escaping (Result<Void, Error>) -> Void) {
+    func remove(tokens: [BlockchainSdk.Token], in blockchain: BlockchainNetwork, result: @escaping (Result<UserTokenList, Error>) -> Void) {
         tokenItemsRepository.remove(tokens, blockchainNetwork: blockchain)
         updateTokensOnServer(result: result)
     }
@@ -70,7 +57,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
         tokenItemsRepository.getItems()
     }
 
-    func clearRepository(result: @escaping (Result<Void, Error>) -> Void) {
+    func clearRepository(result: @escaping (Result<UserTokenList, Error>) -> Void) {
         tokenItemsRepository.removeAll()
         updateTokensOnServer(result: result)
     }
@@ -108,7 +95,7 @@ private extension CommonUserTokenListManager {
                 guard case let .failure(error) = completion else { return }
 
                 if error.code == .notFound {
-                    migrateAndUpdateTokensInBackend(result: result)
+                    updateTokensOnServer(result: result)
                 } else {
                     result(.failure(error as Error))
                 }
@@ -118,7 +105,7 @@ private extension CommonUserTokenListManager {
             }
     }
 
-    func updateTokensOnServer(result: @escaping (Result<Void, Error>) -> Void) {
+    func updateTokensOnServer(result: @escaping (Result<UserTokenList, Error>) -> Void) {
         let entries = tokenItemsRepository.getItems()
         let tokens = mapToTokens(entries: entries)
         let list = UserTokenList(tokens: tokens)
@@ -128,7 +115,7 @@ private extension CommonUserTokenListManager {
             .receiveCompletion { completion in
                 switch completion {
                 case .finished:
-                    result(.success(()))
+                    result(.success(list))
                 case let .failure(error):
                     result(.failure(error))
                 }
@@ -137,78 +124,28 @@ private extension CommonUserTokenListManager {
 
     // MARK: - Migration
 
-    func migrateAndUpdateTokensInBackend(result: @escaping (Result<UserTokenList, Error>) -> Void) {
-        let oldRepository = CommonTokenItemsRepository(key: cardId)
-        let oldEntries = CommonTokenItemsRepository(key: cardId).getItems()
-        oldRepository.removeAll()
-
-        // Save a old entries in new repository
-        tokenItemsRepository.append(oldEntries)
-        AppSettings.shared.migratedTokenRepository = true
-
-        let tokens = mapToTokens(entries: oldEntries)
-        let list = UserTokenList(tokens: tokens)
-
-        saveTokensCancellable = tangemApiService.saveTokens(key: userWalletId, list: list)
-            .receiveCompletion { completion in
-                switch completion {
-                case let .failure(error):
-                    result(.failure(error))
-                case .finished:
-                    result(.success(list))
-                }
-            }
-    }
-
-    // MARK: - Derivation
-
-    func deriveIfNeeded(entries: [StorageEntry], completion: @escaping (Result<Card?, Error>) -> Void) {
-        guard config.hasFeature(.hdWallets) else {
-            completion(.success(nil))
-            return
-        }
-
-        var shouldDerive: Bool = false
-
-        for entry in entries {
-            if let path = entry.blockchainNetwork.derivationPath,
-               let wallet = cardInfo.card.wallets.first(where: { $0.curve == entry.blockchainNetwork.blockchain.curve }),
-               !wallet.derivedKeys.keys.contains(path) {
-                shouldDerive = true
-                break
-            }
-        }
-
-        guard shouldDerive else {
-            completion(.success(nil))
-            return
-        }
-
-        deriveKeys(completion: completion)
-    }
-
-    func deriveKeys(completion: @escaping (Result<Card?, Error>) -> Void) {
-        let card = self.cardInfo.card
-        let entries = tokenItemsRepository.getItems()
-        var derivations: [EllipticCurve: [DerivationPath]] = [:]
-
-        for entry in entries {
-            if let path = entry.blockchainNetwork.derivationPath {
-                derivations[entry.blockchainNetwork.blockchain.curve, default: []].append(path)
-            }
-        }
-
-        tangemSdkProvider.sdk.config.defaultDerivationPaths = derivations
-        tangemSdkProvider.sdk.startSession(with: ScanTask(), cardId: card.cardId) { result in
-            switch result {
-            case .success(let card):
-                completion(.success(card))
-            case .failure(let error):
-                Analytics.logCardSdkError(error, for: .purgeWallet, card: card)
-                completion(.failure(error))
-            }
-        }
-    }
+//    func migrateAndUpdateTokensInBackend(result: @escaping (Result<UserTokenList, Error>) -> Void) {
+//        let oldRepository = CommonTokenItemsRepository(key: cardId)
+//        let oldEntries = CommonTokenItemsRepository(key: cardId).getItems()
+//        oldRepository.removeAll()
+//
+//        // Save a old entries in new repository
+//        tokenItemsRepository.append(oldEntries)
+//        AppSettings.shared.migratedTokenRepository = true
+//
+//        let tokens = mapToTokens(entries: oldEntries)
+//        let list = UserTokenList(tokens: tokens)
+//
+//        saveTokensCancellable = tangemApiService.saveTokens(key: userWalletId, list: list)
+//            .receiveCompletion { completion in
+//                switch completion {
+//                case let .failure(error):
+//                    result(.failure(error))
+//                case .finished:
+//                    result(.success(list))
+//                }
+//            }
+//    }
 
     // MARK: - Mapping
 
