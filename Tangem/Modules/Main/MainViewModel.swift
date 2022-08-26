@@ -163,6 +163,7 @@ class MainViewModel: ObservableObject {
 //        cardModel.updateState()
         cardModel.setupWarnings()
         validateHashesCount()
+        updateWalletTokenListViewModel()
     }
 
     deinit {
