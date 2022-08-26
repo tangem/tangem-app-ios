@@ -14,7 +14,6 @@ import TangemSdk
 class CommonUserTokenListManager {
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-    @Injected(\.scannedCardsRepository) var scannedCardsRepository: ScannedCardsRepository
 
     private let tokenItemsRepository: TokenItemsRepository
     private let cardInfo: CardInfo
@@ -200,13 +199,9 @@ private extension CommonUserTokenListManager {
         }
 
         tangemSdkProvider.sdk.config.defaultDerivationPaths = derivations
-        tangemSdkProvider.sdk.startSession(with: ScanTask(), cardId: card.cardId) { [weak self] result in
-            guard let self = self else { return }
-
+        tangemSdkProvider.sdk.startSession(with: ScanTask(), cardId: card.cardId) { result in
             switch result {
             case .success(let card):
-//                self.update(with: card)
-                self.scannedCardsRepository.add(self.cardInfo) // For WC
                 completion(.success(card))
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .purgeWallet, card: card)
