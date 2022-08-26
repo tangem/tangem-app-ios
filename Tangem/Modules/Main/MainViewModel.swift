@@ -46,12 +46,7 @@ class MainViewModel: ObservableObject {
         }
     }
 
-    lazy var walletTokenListViewModel = WalletTokenListViewModel(
-        userTokenListManager: cardModel.userTokenListManager,
-        walletListManager: cardModel.walletListManager
-    ) { [weak self] itemViewModel in
-        self?.openTokenDetails(itemViewModel)
-    }
+    var walletTokenListViewModel: WalletTokenListViewModel?
 
     // MARK: Variables
     var isLoadingTokensBalance: Bool = false
@@ -175,6 +170,7 @@ class MainViewModel: ObservableObject {
     }
 
     // MARK: - Functions
+
     func bind() {
         cardModel
             .objectWillChange
@@ -271,18 +267,32 @@ class MainViewModel: ObservableObject {
         }
     }
 
+    func updateWalletTokenListViewModel() {
+        guard let userWalletModel = cardModel.userWalletModel else {
+            assertionFailure("User Wallet Model not created")
+            return
+        }
+
+        walletTokenListViewModel = WalletTokenListViewModel(
+            userTokenListManager: userWalletModel.userTokenListManager,
+            walletListManager: userWalletModel.walletListManager
+        ) { [weak self] itemViewModel in
+            self?.openTokenDetails(itemViewModel)
+        }
+    }
+
     func onRefresh(_ done: @escaping () -> Void) {
-//        guard cardModel.state.canUpdate else {
-//            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-//                withAnimation {
-//                    done()
-//                }
-//            }
-//            return
-//        }
+        guard !cardModel.walletModels.isEmpty else {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                withAnimation {
+                    done()
+                }
+            }
+            return
+        }
 
         Analytics.log(.mainPageRefresh)
-        walletTokenListViewModel.refreshTokens(result: { result in
+        walletTokenListViewModel?.refreshTokens(result: { result in
             print("♻️ Wallet model loading state changed with result", result)
             withAnimation {
                 done()
@@ -313,7 +323,7 @@ class MainViewModel: ObservableObject {
     }
 
     func onAppear() {
-        walletTokenListViewModel.onAppear()
+        walletTokenListViewModel?.onAppear()
     }
 
     // MARK: Warning action handler
