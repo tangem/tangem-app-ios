@@ -16,7 +16,7 @@ class CommonUserWalletListService: UserWalletListService {
 
     private enum UnlockingMethod {
         case biometry(encryptionKey: SymmetricKey)
-        case userWallet(id: Data, encryptionKey: SymmetricKey)
+        case card(id: Data, encryptionKey: SymmetricKey)
     }
 
     var models: [CardViewModel] = []
@@ -85,7 +85,7 @@ class CommonUserWalletListService: UserWalletListService {
 
     func unlockWithCard(_ userWallet: UserWallet, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
         if let encryptionKey = userWallet.encryptionKey {
-            self.unlockingMethod = .userWallet(id: userWallet.userWalletId, encryptionKey: encryptionKey)
+            self.unlockingMethod = .card(id: userWallet.userWalletId, encryptionKey: encryptionKey)
         } else {
             completion(.failure(TangemSdkError.cardError))
             return
@@ -222,7 +222,7 @@ class CommonUserWalletListService: UserWalletListService {
 
                 let userWalletEncryptionKey: SymmetricKey
 
-                if case let .userWallet(id, encryptionKey) = self.unlockingMethod,
+                if case let .card(id, encryptionKey) = self.unlockingMethod,
                    userWallet.userWalletId == id
                 {
                     userWalletEncryptionKey = encryptionKey
