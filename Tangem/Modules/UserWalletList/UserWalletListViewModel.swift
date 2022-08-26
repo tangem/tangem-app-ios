@@ -187,7 +187,6 @@ final class UserWalletListViewModel: ObservableObject {
             card: card,
             walletData: cardModel.walletData,
             artwork: nil,
-            keys: cardModel.derivedKeys,
             isHDWalletAllowed: card.settings.isHDWalletAllowed
         )
 
