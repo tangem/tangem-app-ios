@@ -7,6 +7,7 @@
 //
 
 import TangemSdk
+import CryptoKit
 
 #if !CLIP
 import BlockchainSdk
@@ -19,6 +20,17 @@ extension CardDTO {
 
     var walletCurves: [EllipticCurve] {
         wallets.compactMap { $0.curve }
+    }
+
+    var userWalletId: Data {
+        guard let firstWalletPublicKey = wallets.first?.publicKey else { return Data() }
+
+        let keyHash = firstWalletPublicKey.getSha256()
+        let key = SymmetricKey(data: keyHash)
+        let message = "AccountID".data(using: .utf8)!
+        let code = HMAC<SHA256>.authenticationCode(for: message, using: key)
+
+        return Data(code)
     }
 
     #if !CLIP

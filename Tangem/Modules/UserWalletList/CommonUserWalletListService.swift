@@ -16,7 +16,7 @@ class CommonUserWalletListService: UserWalletListService {
 
     private enum UnlockingMethod {
         case biometry(encryptionKey: SymmetricKey)
-        case userWallet(id: Data, encryptionKey: SymmetricKey)
+        case card(id: Data, encryptionKey: SymmetricKey)
     }
 
     var models: [CardViewModel] = []
@@ -47,8 +47,6 @@ class CommonUserWalletListService: UserWalletListService {
     private let encryptionKeyStorageKey = "user_wallet_encryption_key"
 
     private var unlockingMethod: UnlockingMethod?
-
-    private let secureStorage = SecureStorage()
 
     private var fileManager: FileManager {
         FileManager.default
@@ -85,7 +83,7 @@ class CommonUserWalletListService: UserWalletListService {
 
     func unlockWithCard(_ userWallet: UserWallet, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
         if let encryptionKey = userWallet.encryptionKey {
-            self.unlockingMethod = .userWallet(id: userWallet.userWalletId, encryptionKey: encryptionKey)
+            self.unlockingMethod = .card(id: userWallet.userWalletId, encryptionKey: encryptionKey)
         } else {
             completion(.failure(TangemSdkError.cardError))
             return
@@ -177,7 +175,7 @@ class CommonUserWalletListService: UserWalletListService {
             }
 
             let newEncryptionKey = SymmetricKey(size: .bits256)
-            let newEncryptionKeyData = Data(hexString: newEncryptionKey.dataRepresentation.hexString) // WTF?
+            let newEncryptionKeyData = newEncryptionKey.dataRepresentationWithHexConversion
 
             self?.biometricsStorage.store(newEncryptionKeyData, forKey: encryptionKeyStorageKey, overwrite: true) { [weak self] result in
                 switch result {
@@ -202,7 +200,8 @@ class CommonUserWalletListService: UserWalletListService {
 
             let decoder = JSONDecoder()
 
-            let userWalletsPublicData = try Data(contentsOf: userWalletListPath())
+            let userWalletsPublicDataEncrypted = try Data(contentsOf: userWalletListPath())
+            let userWalletsPublicData = try decrypt(userWalletsPublicDataEncrypted, with: publicDataEncryptionKey())
             var userWallets = try decoder.decode([UserWallet].self, from: userWalletsPublicData)
 
             let encryptionKeys: [Data: Data]
@@ -222,7 +221,7 @@ class CommonUserWalletListService: UserWalletListService {
 
                 let userWalletEncryptionKey: SymmetricKey
 
-                if case let .userWallet(id, encryptionKey) = self.unlockingMethod,
+                if case let .card(id, encryptionKey) = self.unlockingMethod,
                    userWallet.userWalletId == id
                 {
                     userWalletEncryptionKey = encryptionKey
@@ -240,8 +239,6 @@ class CommonUserWalletListService: UserWalletListService {
                 var card = userWallet.card
                 card.wallets = sensitiveInformation.wallets
                 userWallets[i].card = card
-
-                userWallets[i].keys = sensitiveInformation.keys
             }
 
             return userWallets
@@ -264,25 +261,24 @@ class CommonUserWalletListService: UserWalletListService {
 
             try fileManager.createDirectory(at: userWalletDirectoryUrl, withIntermediateDirectories: true)
 
-            let userWalletsWithoutKeys: [UserWallet] = userWallets.map {
-                var userWalletWithoutKeys = $0
-                userWalletWithoutKeys.keys = [:]
-
+            let userWalletsWithoutSensitiveInformation: [UserWallet] = userWallets.map {
                 var card = $0.card
                 card.wallets = []
-                userWalletWithoutKeys.card = card
 
+                var userWalletWithoutKeys = $0
+                userWalletWithoutKeys.card = card
                 return userWalletWithoutKeys
             }
 
-            let publicData = try encoder.encode(userWalletsWithoutKeys)
-            try publicData.write(to: userWalletListPath(), options: .atomic)
+            let publicData = try encoder.encode(userWalletsWithoutSensitiveInformation)
+            let publicDataEncoded = try encrypt(publicData, with: publicDataEncryptionKey())
+            try publicDataEncoded.write(to: userWalletListPath(), options: .atomic)
             try excludeFromBackup(url: userWalletListPath())
 
 
             let encryptionKeys: [Data: Data] = Dictionary(userWallets.compactMap {
                 guard let encryptionKey = $0.encryptionKey else { return nil }
-                let encryptionKeyData = Data(hex: encryptionKey.dataRepresentation.hex) // WTF?
+                let encryptionKeyData = encryptionKey.dataRepresentationWithHexConversion
                 return ($0.userWalletId, encryptionKeyData)
             }) { v1, _ in
                 v1
@@ -302,7 +298,7 @@ class CommonUserWalletListService: UserWalletListService {
                     continue
                 }
 
-                let sensitiveInformation = UserWallet.SensitiveInformation(keys: userWallet.keys, wallets: userWallet.card.wallets)
+                let sensitiveInformation = UserWallet.SensitiveInformation(wallets: userWallet.card.wallets)
                 let sensitiveDataEncoded = try encrypt(encoder.encode(sensitiveInformation), with: userWalletEncryptionKey)
                 let sensitiveDataPath = userWalletPath(for: userWallet)
                 try sensitiveDataEncoded.write(to: sensitiveDataPath, options: .atomic)
@@ -313,12 +309,27 @@ class CommonUserWalletListService: UserWalletListService {
         }
     }
 
+    private func publicDataEncryptionKey() throws -> SymmetricKey {
+        let keychainKey = "user_wallet_public_data_encryption_key"
+        let secureStorage = SecureStorage()
+
+        let encryptionKeyData = try secureStorage.get(keychainKey)
+        if let encryptionKeyData = encryptionKeyData {
+            let symmetricKey: SymmetricKey = .init(data: encryptionKeyData)
+            return symmetricKey
+        }
+
+        let newEncryptionKey = SymmetricKey(size: .bits256)
+        try secureStorage.store(newEncryptionKey.dataRepresentationWithHexConversion, forKey: keychainKey)
+        return newEncryptionKey
+    }
+
     private func userWalletEncryptionKeysPath() -> URL {
         userWalletDirectoryUrl.appendingPathComponent("encryption_keys.bin")
     }
 
     private func userWalletListPath() -> URL {
-        userWalletDirectoryUrl.appendingPathComponent("user_wallets.json")
+        userWalletDirectoryUrl.appendingPathComponent("user_wallets.bin")
     }
 
     private func userWalletPath(for userWallet: UserWallet) -> URL {
