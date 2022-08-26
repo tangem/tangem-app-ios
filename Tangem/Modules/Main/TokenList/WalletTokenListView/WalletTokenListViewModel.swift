@@ -54,8 +54,6 @@ class WalletTokenListViewModel: ObservableObject {
                 // Just update wallet models from repository
                 self.walletListManager.updateWalletModels()
 
-//                self.updateView()
-
                 // Update walletModels with capturing the AnyPublisher response
                 return self.walletListManager.reloadAllWalletModels()
             }
