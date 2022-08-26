@@ -63,17 +63,18 @@ class WalletModelFactory {
 
     func makeMultipleWallets(seedKeys: [EllipticCurve: Data],
                              entries: [StorageEntry],
-                             derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]],
+                             derivedKeys: [EllipticCurve: [DerivationPath: ExtendedPublicKey]],
                              derivationStyle: DerivationStyle) -> [WalletModel] {
         let factory = WalletManagerFactoryProvider().factory
 
         var models: [WalletModel] = []
 
         for entry in entries {
+            let curve = entry.blockchainNetwork.blockchain.curve
             do {
-                if let seedKey = seedKeys[entry.blockchainNetwork.blockchain.curve],
+                if let seedKey = seedKeys[curve],
                    let derivationPath = entry.blockchainNetwork.derivationPath,
-                   let derivedWalletKeys = derivedKeys[seedKey],
+                   let derivedWalletKeys = derivedKeys[curve],
                    let derivedKey = derivedWalletKeys[derivationPath] {
 
                     let walletManager = try factory.makeWalletManager(blockchain: entry.blockchainNetwork.blockchain,
