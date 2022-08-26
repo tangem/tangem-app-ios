@@ -13,7 +13,7 @@ import BlockchainSdk
 #endif
 
 enum DefaultWalletData: Codable {
-    case note(WalletData)
+    case file(WalletData)
     case legacy(WalletData)
     case twin(WalletData, TwinData)
     case none
@@ -145,7 +145,7 @@ final class AppScanTask: CardSessionRunnable {
                     return
                 }
 
-                self.walletData = .note(walletData)
+                self.walletData = .file(walletData)
                 self.runScanTask(session, completion)
             case .failure(let error):
                 switch error {
