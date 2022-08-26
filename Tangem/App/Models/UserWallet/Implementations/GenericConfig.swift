@@ -9,7 +9,6 @@
 import Foundation
 import TangemSdk
 import BlockchainSdk
-import WalletConnectSwift
 
 struct GenericConfig {
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
@@ -25,7 +24,7 @@ struct GenericConfig {
 
         steps.append(.backupIntro)
 
-        if !backupServiceProvider.backupService.primaryCardIsSet {
+        if !card.wallets.isEmpty && !backupServiceProvider.backupService.primaryCardIsSet {
             steps.append(.scanPrimaryCard)
         }
 
@@ -136,19 +135,6 @@ extension GenericConfig: UserWalletConfig {
         CardEmailDataFactory().makeEmailData(for: card, walletData: nil)
     }
 
-    func selectBlockchain(for dAppInfo: Session.DAppInfo) -> BlockchainNetwork? {
-        guard hasFeature(.walletConnect) else { return nil }
-
-        guard let blockchain = WalletConnectNetworkParserUtility.parse(dAppInfo: dAppInfo,
-                                                                       isTestnet: card.isTestnet) else {
-            return nil
-        }
-
-        let derivationPath = blockchain.derivationPath(for: card.derivationStyle)
-        let network = BlockchainNetwork(blockchain, derivationPath: derivationPath)
-        return network
-    }
-
     var tangemSigner: TangemSigner {
         if let backupStatus = card.backupStatus, backupStatus.isActive {
             return .init(with: nil)
@@ -216,9 +202,13 @@ extension GenericConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModels(for tokens: [StorageEntry], derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]) -> [WalletModel] {
+    func makeWalletModels(for tokens: [StorageEntry]) -> [WalletModel] {
         let walletPublicKeys: [EllipticCurve: Data] = card.wallets.reduce(into: [:]) { partialResult, cardWallet in
             partialResult[cardWallet.curve] = cardWallet.publicKey
+        }
+
+        let derivedKeys: [EllipticCurve: [DerivationPath: ExtendedPublicKey]] = card.wallets.reduce(into: [:]) { partialResult, cardWallet in
+            partialResult[cardWallet.curve] = cardWallet.derivedKeys
         }
 
         let factory = WalletModelFactory()
