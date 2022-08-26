@@ -17,13 +17,11 @@ struct UserWallet: Identifiable, Codable {
     var card: CardDTO
     let walletData: DefaultWalletData
     let artwork: ArtworkInfo?
-    var keys: [Data: [DerivationPath: ExtendedPublicKey]] // encrypted
     let isHDWalletAllowed: Bool
 }
 
 extension UserWallet {
     struct SensitiveInformation: Codable {
-        let keys: [Data: [DerivationPath: ExtendedPublicKey]]
         let wallets: [Card.Wallet]
     }
 }
@@ -58,7 +56,6 @@ extension UserWallet {
             walletData: walletData,
             name: self.name,
             artwork: cardArtwork,
-            derivedKeys: keys,
             primaryCard: nil
         )
     }
