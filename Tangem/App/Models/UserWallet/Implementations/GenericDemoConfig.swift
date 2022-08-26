@@ -205,10 +205,6 @@ extension GenericDemoConfig: UserWalletConfig {
             partialResult[cardWallet.curve] = cardWallet.derivedKeys
         }
 
-        let derivedKeys: [EllipticCurve: [DerivationPath: ExtendedPublicKey]] = card.wallets.reduce(into: [:]) { partialResult, cardWallet in
-            partialResult[cardWallet.curve] = cardWallet.derivedKeys
-        }
-
         let factory = WalletModelFactory()
         let model: WalletModel
 
