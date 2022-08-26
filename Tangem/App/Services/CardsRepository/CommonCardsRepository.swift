@@ -22,9 +22,9 @@ import Intents
 
 class CommonCardsRepository: CardsRepository {
     @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
-    @Injected(\.scannedCardsRepository) private var scannedCardsRepository: ScannedCardsRepository
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
+    @Injected(\.walletConnectServiceProvider) private var walletConnectServiceProvider: WalletConnectServiceProviding
 
     private(set) var cards = [String: CardViewModel]()
 
@@ -72,9 +72,8 @@ class CommonCardsRepository: CardsRepository {
 
         let cm = CardViewModel(cardInfo: cardInfo)
         cm.getLegacyMigrator()?.migrateIfNeeded()
-        scannedCardsRepository.add(cardInfo)
         tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
-
+        walletConnectServiceProvider.initialize(with: cm)
         cm.didScan()
         cards[cardInfo.card.cardId] = cm
         return cm
@@ -84,8 +83,6 @@ class CommonCardsRepository: CardsRepository {
 
 /// Temporary solution to migrate default tokens of old miltiwallet cards to TokenItemsRepository. Remove at Q3-Q4'22
 class LegacyCardMigrator {
-    @Injected(\.scannedCardsRepository) private var scannedCardsRepository: ScannedCardsRepository
-
     private let cardId: String
     private let embeddedEntry: StorageEntry
     private let tokenItemsRepository: TokenItemsRepository
@@ -99,13 +96,6 @@ class LegacyCardMigrator {
 
     // Save default blockchain and token to main tokens repo.
     func migrateIfNeeded() {
-        // Migrate only known cards.
-        guard scannedCardsRepository.cards.keys.contains(cardId) else {
-            // Newly scanned card. Save and forgot.
-            AppSettings.shared.migratedCardsWithDefaultTokens.append(cardId)
-            return
-        }
-
         // Migrate only once.
         guard !AppSettings.shared.migratedCardsWithDefaultTokens.contains(cardId) else {
             return
