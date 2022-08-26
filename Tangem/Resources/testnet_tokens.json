@@ -455,7 +455,18 @@
                     "decimalCount": 18
                 }
             ]
-        }
+        },
+        {
+            "id": "polkadot",
+            "symbol": "DOT",
+            "name": "Polkadot",
+            "networks":
+            [
+                {
+                    "networkId": "polkadot/test"
+                }
+            ]
+        },
     ],
     "total": 0,
     "imageHost": "https://s3.eu-central-1.amazonaws.com/tangem.api/coins/"
