@@ -28,6 +28,14 @@ struct NoteConfig {
     private var isTestnet: Bool {
         defaultBlockchain.isTestnet
     }
+
+    private var userWalletSavingSteps: [WalletOnboardingStep] {
+        if !BiometricsUtil.isAvailable {
+            return []
+        }
+
+        return [.saveUserWallet]
+    }
 }
 
 extension NoteConfig: UserWalletConfig {
@@ -57,13 +65,13 @@ extension NoteConfig: UserWalletConfig {
 
     var onboardingSteps: OnboardingSteps {
         if card.wallets.isEmpty {
-            return .singleWallet([.createWallet, .topup, .successTopup])
+            return .singleWallet([.createWallet, .topup, .successTopup, .saveUserWallet, .success])
         } else {
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
                 return .singleWallet([])
             }
 
-            return .singleWallet([.topup, .successTopup])
+            return .singleWallet([.topup, .successTopup, .saveUserWallet, .success])
         }
     }
 
