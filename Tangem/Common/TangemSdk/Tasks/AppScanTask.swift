@@ -13,7 +13,7 @@ import BlockchainSdk
 #endif
 
 enum DefaultWalletData: Codable {
-    case note(WalletData)
+    case file(WalletData)
     case legacy(WalletData)
     case twin(WalletData, TwinData)
     case none
@@ -30,14 +30,12 @@ enum DefaultWalletData: Codable {
 struct AppScanTaskResponse {
     let card: Card
     let walletData: DefaultWalletData
-    let derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]
     let primaryCard: PrimaryCard?
 
     func getCardInfo() -> CardInfo {
         return CardInfo(card: CardDTO(card: card),
                         walletData: walletData,
                         name: "",
-                        derivedKeys: derivedKeys,
                         primaryCard: primaryCard)
     }
 }
@@ -54,7 +52,6 @@ final class AppScanTask: CardSessionRunnable {
     private let targetBatch: String?
     private var walletData: DefaultWalletData = .none
     private var primaryCard: PrimaryCard? = nil
-    private var derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]] = [:]
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
     #if !CLIP
     init(targetBatch: String? = nil) {
@@ -148,7 +145,7 @@ final class AppScanTask: CardSessionRunnable {
                     return
                 }
 
-                self.walletData = .note(walletData)
+                self.walletData = .file(walletData)
                 self.runScanTask(session, completion)
             case .failure(let error):
                 switch error {
@@ -266,11 +263,11 @@ final class AppScanTask: CardSessionRunnable {
 
         let savedItems = tokenItemsRepository.getItems()
 
-        var derivations: [Data: Set<DerivationPath>] = [:]
+        var derivations: [EllipticCurve: [DerivationPath]] = [:]
         savedItems.forEach { item in
             if let wallet = card.wallets.first(where: { $0.curve == item.blockchainNetwork.blockchain.curve }),
                let path = item.blockchainNetwork.derivationPath {
-                derivations[wallet.publicKey, default: []].insert(path)
+                derivations[wallet.curve, default: []].append(path)
             }
         }
 
@@ -279,16 +276,10 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
 
-        DeriveMultipleWalletPublicKeysTask(derivations.mapValues { Array($0) })
-            .run(in: session) { result in
-                switch result {
-                case .success(let derivedKeys):
-                    self.derivedKeys = derivedKeys
-                    self.runScanTask(session, completion)
-                case .failure(let error):
-                    completion(.failure(error))
-                }
-            }
+        var sdkConfig = session.environment.config
+        sdkConfig.defaultDerivationPaths = derivations
+        session.updateConfig(with: sdkConfig)
+        self.runScanTask(session, completion)
         #endif
     }
 
@@ -307,7 +298,6 @@ final class AppScanTask: CardSessionRunnable {
     private func complete(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
         completion(.success(AppScanTaskResponse(card: session.environment.card!,
                                                 walletData: walletData,
-                                                derivedKeys: derivedKeys,
                                                 primaryCard: primaryCard)))
     }
 }
