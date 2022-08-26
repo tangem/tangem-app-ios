@@ -555,6 +555,7 @@ class CardViewModel: Identifiable, ObservableObject {
         updateCardPinSettings()
         updateCurrentSecurityOption()
         updateModel()
+        saveUserWallet()
     }
 
     func update(with cardInfo: CardInfo) {
@@ -563,6 +564,7 @@ class CardViewModel: Identifiable, ObservableObject {
         updateCardPinSettings()
         updateCurrentSecurityOption()
         updateModel()
+        saveUserWallet()
     }
 
     func clearTwinPairKey() { // [REDACTED_TODO_COMMENT]
@@ -955,9 +957,7 @@ class CardViewModel: Identifiable, ObservableObject {
             self.cardInfo.card = CardDTO(card: card) // [REDACTED_TODO_COMMENT]
             self.config = UserWalletConfigFactory(cardInfo).makeConfig()
             self.warningsService.setupWarnings(for: config)
-
-            let userWallet = self.userWallet
-            let _ = userWalletListService.save(userWallet)
+            self.saveUserWallet()
         }
         .store(in: &bag)
 
@@ -991,6 +991,11 @@ class CardViewModel: Identifiable, ObservableObject {
         imageLoaderPublisher
             .weakAssignAnimated(to: \.cardImage, on: self)
             .store(in: &bag)
+    }
+
+    private func saveUserWallet() {
+        let userWallet = self.userWallet
+        let _ = userWalletListService.save(userWallet)
     }
 }
 
