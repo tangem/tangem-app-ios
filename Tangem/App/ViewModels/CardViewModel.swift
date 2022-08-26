@@ -24,7 +24,6 @@ class CardViewModel: Identifiable, ObservableObject {
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
-    @Injected(\.scannedCardsRepository) private var scannedCardsRepository: ScannedCardsRepository
     @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
 
     @Published var state: State = .created
@@ -34,14 +33,11 @@ class CardViewModel: Identifiable, ObservableObject {
     @Published var cardImage: UIImage?
 
     var signer: TangemSigner { config.tangemSigner }
+
     var cardId: String { cardInfo.card.cardId }
 
     var card: CardDTO {
         cardInfo.card
-    }
-
-    var derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]] {
-        cardInfo.derivedKeys
     }
 
     var walletData: DefaultWalletData {
@@ -90,6 +86,15 @@ class CardViewModel: Identifiable, ObservableObject {
 
     var canCountHashes: Bool {
         config.hasFeature(.signedHashesCounter)
+    }
+
+    var supportsWalletConnect: Bool {
+        config.hasFeature(.walletConnect)
+    }
+
+    // Temp for WC. Migrate to userWalletId?
+    var secp256k1SeedKey: Data? {
+        cardInfo.card.wallets.first(where: { $0.curve == .secp256k1 })?.publicKey
     }
 
     private var cardInfo: CardInfo
@@ -263,7 +268,6 @@ class CardViewModel: Identifiable, ObservableObject {
             card: cardInfo.card,
             walletData: walletData,
             artwork: cardInfo.artworkInfo,
-            keys: cardInfo.derivedKeys,
             isHDWalletAllowed: cardInfo.card.settings.isHDWalletAllowed
         )
     }
@@ -477,32 +481,30 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
 
-    func deriveKeys(derivationPaths:  [Data: [DerivationPath]], completion: @escaping (Result<Void, Error>) -> Void) {
+    func deriveKeys(completion: @escaping (Result<Void, Error>) -> Void) {
         let card = self.cardInfo.card
+        let entries = tokenItemsRepository.getItems()
+        var derivations: [EllipticCurve: [DerivationPath]] = [:]
 
-        tangemSdk.startSession(with: DeriveMultipleWalletPublicKeysTask(derivationPaths), cardId: card.cardId) { [weak self] result in
+        for entry in entries {
+            if let path = entry.blockchainNetwork.derivationPath {
+                derivations[entry.blockchainNetwork.blockchain.curve, default: []].append(path)
+            }
+        }
+
+        tangemSdk.config.defaultDerivationPaths = derivations
+        tangemSdk.startSession(with: ScanTask(), cardId: card.cardId) { [weak self] result in
+            guard let self = self else { return }
+
             switch result {
-            case .success(let newDerivations):
-                self?.updateDerivations(with: newDerivations)
+            case .success(let card):
+                self.update(with: CardDTO(card: card))
                 completion(.success(()))
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .purgeWallet, card: card)
                 completion(.failure(error))
             }
         }
-    }
-
-    func updateDerivations(with newDerivations: [Data: [DerivationPath: ExtendedPublicKey]]) {
-        for newKey in newDerivations {
-            for newDerivation in newKey.value {
-                self.cardInfo.derivedKeys[newKey.key, default: [:]][newDerivation.key] = newDerivation.value
-            }
-        }
-
-        scannedCardsRepository.add(cardInfo)
-
-        let userWallet = self.userWallet
-        let _ = userWalletListService.save(userWallet)
     }
 
     func getBlockchainNetwork(for blockchain: Blockchain, derivationPath: DerivationPath?) -> BlockchainNetwork {
@@ -546,10 +548,10 @@ class CardViewModel: Identifiable, ObservableObject {
             .store(in: &bag)
     }
 
-    func update(with card: CardDTO, derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]] = [:]) {
+    func update(with card: CardDTO) {
         print("🟩 Updating Card view model with new Card")
-        cardInfo.card = card
-        cardInfo.derivedKeys = derivedKeys
+        cardInfo.card = card // [REDACTED_TODO_COMMENT]
+        config = UserWalletConfigFactory(cardInfo).makeConfig()
         updateCardPinSettings()
         updateCurrentSecurityOption()
         updateModel()
@@ -621,7 +623,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private func makeAllWalletModels() -> [WalletModel] {
         let tokens = tokenItemsRepository.getItems()
-        return config.makeWalletModels(for: tokens, derivedKeys: cardInfo.derivedKeys)
+        return config.makeWalletModels(for: tokens)
     }
 
     private func updateModel() {
@@ -649,7 +651,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
         let unused: [StorageEntry] = config.supportedBlockchains
             .subtracting(currentBlockhains).map { StorageEntry(blockchainNetwork: .init($0, derivationPath: nil), tokens: []) }
-        let models = config.makeWalletModels(for: unused, derivedKeys: cardInfo.derivedKeys)
+        let models = config.makeWalletModels(for: unused)
         if models.isEmpty {
             return
         }
@@ -694,7 +696,7 @@ class CardViewModel: Identifiable, ObservableObject {
         if ethWalletModel == nil {
             shouldAddWalletManager = true
             let entry = StorageEntry(blockchainNetwork: network, tokens: [])
-            ethWalletModel = config.makeWalletModels(for: [entry], derivedKeys: cardInfo.derivedKeys).first
+            ethWalletModel = config.makeWalletModels(for: [entry]).first
         }
 
         guard let tokenFinder = ethWalletModel?.walletManager as? TokenFinder else {
@@ -746,22 +748,23 @@ class CardViewModel: Identifiable, ObservableObject {
         tokenItemsRepository.append(entries)
 
         if hdWalletsSupported {
-            var newDerivationPaths: [Data: [DerivationPath]] = [:]
+            var shouldDerive: Bool = false
 
-            entries.forEach { entry in
+            for entry in entries {
                 if let path = entry.blockchainNetwork.derivationPath,
-                   let publicKey = cardInfo.card.wallets.first(where: { $0.curve == entry.blockchainNetwork.blockchain.curve })?.publicKey,
-                   cardInfo.derivedKeys[publicKey]?[path] == nil {
-                    newDerivationPaths[publicKey, default: []].append(path)
+                   let wallet = cardInfo.card.wallets.first(where: { $0.curve == entry.blockchainNetwork.blockchain.curve }),
+                   !wallet.derivedKeys.keys.contains(path) {
+                    shouldDerive = true
+                    break
                 }
             }
 
-            if newDerivationPaths.isEmpty {
+            if !shouldDerive {
                 finishAddingTokens(entries, completion: completion)
                 return
             }
 
-            deriveKeys(derivationPaths: newDerivationPaths) { result in
+            deriveKeys() { result in
                 switch result {
                 case .success:
                     self.finishAddingTokens(entries, completion: completion)
@@ -787,7 +790,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 existingWalletModel.addTokens(entry.tokens)
                 existingWalletModel.update()
             } else {
-                let wm = config.makeWalletModels(for: [entry], derivedKeys: cardInfo.derivedKeys)
+                let wm = config.makeWalletModels(for: [entry])
                 newWalletModels.append(contentsOf: wm)
             }
         }
@@ -949,7 +952,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private func bind() {
         signer.signPublisher.sink { [unowned self] card in
-            self.cardInfo.card = CardDTO(card: card)
+            self.cardInfo.card = CardDTO(card: card) // [REDACTED_TODO_COMMENT]
             self.config = UserWalletConfigFactory(cardInfo).makeConfig()
             self.warningsService.setupWarnings(for: config)
 

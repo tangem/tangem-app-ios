@@ -497,7 +497,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                         self?.addDefaultTokens(for: CardDTO(card: result.card))
 
                         if let cardModel = self?.input.cardInput.cardModel {
-                            cardModel.update(with: CardDTO(card: result.card), derivedKeys: result.derivedKeys)
+                            cardModel.update(with: CardDTO(card: result.card))
                         }
 
                         self?.backupService.setPrimaryCard(result.primaryCard)
