@@ -23,6 +23,10 @@ extension Card {
     }
 
     #if !CLIP
+    var hasWallets: Bool {
+        !wallets.isEmpty
+    }
+
     var userWalletId: String {
         if wallets.isEmpty {
             assertionFailure("Wallet not found, use CardViewModel for create wallet")
