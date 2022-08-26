@@ -177,7 +177,7 @@ class CommonUserWalletListService: UserWalletListService {
             }
 
             let newEncryptionKey = SymmetricKey(size: .bits256)
-            let newEncryptionKeyData = Data(hexString: newEncryptionKey.dataRepresentation.hexString) // WTF?
+            let newEncryptionKeyData = newEncryptionKey.dataRepresentationWithHexConversion
 
             self?.biometricsStorage.store(newEncryptionKeyData, forKey: encryptionKeyStorageKey, overwrite: true) { [weak self] result in
                 switch result {
@@ -279,7 +279,7 @@ class CommonUserWalletListService: UserWalletListService {
 
             let encryptionKeys: [Data: Data] = Dictionary(userWallets.compactMap {
                 guard let encryptionKey = $0.encryptionKey else { return nil }
-                let encryptionKeyData = Data(hex: encryptionKey.dataRepresentation.hex) // WTF?
+                let encryptionKeyData = encryptionKey.dataRepresentationWithHexConversion
                 return ($0.userWalletId, encryptionKeyData)
             }) { v1, _ in
                 v1
