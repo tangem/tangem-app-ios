@@ -91,6 +91,12 @@ class TokenListViewModel: ObservableObject {
             )
         }
 
+        guard !itemsToAdd.isEmpty else {
+            closeModule()
+            Analytics.log(.tokenListSave)
+            return
+        }
+
         cardModel.add(entries: itemsToAdd) { [weak self] result in
             self?.isSaving = false
 
