@@ -550,7 +550,7 @@ class CardViewModel: Identifiable, ObservableObject {
         updateCardPinSettings()
         updateCurrentSecurityOption()
         updateModel()
-        saveUserWallet()
+        updateUserWallet()
     }
 
     func update(with cardInfo: CardInfo) {
@@ -559,7 +559,7 @@ class CardViewModel: Identifiable, ObservableObject {
         updateCardPinSettings()
         updateCurrentSecurityOption()
         updateModel()
-        saveUserWallet()
+        updateUserWallet()
     }
 
     func clearTwinPairKey() { // [REDACTED_TODO_COMMENT]
@@ -952,7 +952,7 @@ class CardViewModel: Identifiable, ObservableObject {
             self.cardInfo.card = CardDTO(card: card) // [REDACTED_TODO_COMMENT]
             self.config = UserWalletConfigFactory(cardInfo).makeConfig()
             self.warningsService.setupWarnings(for: config)
-            self.saveUserWallet()
+            self.updateUserWallet()
         }
         .store(in: &bag)
 
@@ -988,9 +988,11 @@ class CardViewModel: Identifiable, ObservableObject {
             .store(in: &bag)
     }
 
-    private func saveUserWallet() {
+    private func updateUserWallet() {
         let userWallet = self.userWallet
-        let _ = userWalletListService.save(userWallet)
+        if userWalletListService.contains(userWallet) {
+            let _ = userWalletListService.save(userWallet)
+        }
     }
 }
 
