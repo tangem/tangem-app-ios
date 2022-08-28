@@ -107,7 +107,7 @@ class LegacyCardMigrator {
 
         // We need to preserve order of token items
         tokenItemsRepository.removeAll()
-        tokenItemsRepository.append(entries)
+        tokenItemsRepository.update(entries)
 
         AppSettings.shared.migratedCardsWithDefaultTokens.append(cardId)
     }
