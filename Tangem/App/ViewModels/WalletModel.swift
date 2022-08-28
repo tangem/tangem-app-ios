@@ -362,6 +362,7 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
 
         walletManager.removeToken(token)
         updateTokensViewModels()
+        updateTokenItemViewModels()
     }
 
     func getBalance(for type: Amount.AmountType) -> String {
