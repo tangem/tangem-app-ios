@@ -15,16 +15,13 @@ class CommonUserTokenListManager {
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    private var config: UserWalletConfig
-
     private var userWalletId: String
-    private let tokenItemsRepository: TokenItemsRepository
+    private var tokenItemsRepository: TokenItemsRepository
 
     private var loadTokensCancellable: AnyCancellable?
     private var saveTokensCancellable: AnyCancellable?
 
     init(config: UserWalletConfig, userWalletId: String) {
-        self.config = config
         self.userWalletId = userWalletId
 
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId)
@@ -34,8 +31,9 @@ class CommonUserTokenListManager {
 // MARK: - UserTokenListManager
 
 extension CommonUserTokenListManager: UserTokenListManager {
-    func update(config: UserWalletConfig) {
-        self.config = config
+    func update(userWalletId: String) {
+        self.userWalletId = userWalletId
+        tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId)
     }
 
     func append(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void) {
@@ -100,7 +98,7 @@ private extension CommonUserTokenListManager {
                     result(.failure(error as Error))
                 }
             } receiveValue: { [unowned self] list in
-                tokenItemsRepository.append(mapToEntries(list: list))
+                tokenItemsRepository.update(mapToEntries(list: list))
                 result(.success(list))
             }
     }
@@ -185,7 +183,6 @@ private extension CommonUserTokenListManager {
             }
 
             let derivationRawValue = tokens.first { $0.derivationPath != nil }?.derivationPath
-            print("derivationRawValue", derivationRawValue as Any)
 
             let tokens = tokens.compactMap { token -> BlockchainSdk.Token? in
                 guard let contractAddress = token.contractAddress else {
