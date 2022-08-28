@@ -37,8 +37,8 @@ extension CommonTangemApiService: TangemApiService {
             .requestPublisher(target)
             .filterSuccessfulStatusCodes()
             .map(UserTokenList.self)
-            .print("loadTokens")
             .mapTangemAPIError()
+            .retry(3)
             .eraseToAnyPublisher()
     }
 
