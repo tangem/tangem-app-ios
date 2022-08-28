@@ -14,7 +14,7 @@ extension Publisher where Failure == MoyaError {
     func mapTangemAPIError() -> Publishers.MapError<Self, TangemAPIError> {
         mapError { error in
             guard let body = error.response?.data else {
-                return TangemAPIError(code: .unknown)
+                return TangemAPIError(code: .unknown, description: error.localizedDescription)
             }
 
             let decoder = JSONDecoder()
