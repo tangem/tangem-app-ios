@@ -17,6 +17,7 @@ class TokenDetailsViewModel: ObservableObject {
     @Published var alert: AlertBinder? = nil
     @Published var showTradeSheet: Bool = false
     @Published var isRefreshing: Bool = false
+    @Published var isHiddingInProcess: Bool = false
 
     let card: CardViewModel
 
@@ -24,9 +25,7 @@ class TokenDetailsViewModel: ObservableObject {
         return walletModel?.wallet
     }
 
-    var walletModel: WalletModel? {
-        return card.walletModels.first(where: { $0.blockchainNetwork == blockchainNetwork })
-    }
+    var walletModel: WalletModel?
 
     var incomingTransactions: [PendingTransaction] {
         walletModel?.incomingPendingTransactions.filter { $0.amountType == amountType } ?? []
@@ -134,7 +133,6 @@ class TokenDetailsViewModel: ObservableObject {
     let amountType: Amount.AmountType
     let blockchainNetwork: BlockchainNetwork
 
-    private let dismissalRequestSubject = PassthroughSubject<Void, Never>()
     private var bag = Set<AnyCancellable>()
     private var rentWarningSubscription: AnyCancellable?
     private var refreshCancellable: AnyCancellable? = nil
@@ -150,6 +148,8 @@ class TokenDetailsViewModel: ObservableObject {
         self.blockchainNetwork = blockchainNetwork
         self.amountType = amountType
         self.coordinator = coordinator
+
+        walletModel = card.walletModels.first(where: { $0.blockchainNetwork == blockchainNetwork })
 
         bind()
     }
@@ -219,12 +219,6 @@ class TokenDetailsViewModel: ObservableObject {
                 self.showExplorerURL = nil
             }
             .store(in: &bag)
-
-        dismissalRequestSubject
-            .sink { [unowned self] _ in
-                self.dismiss()
-            }
-            .store(in: &bag)
     }
 
     func onRefresh(_ done: @escaping () -> Void) {
@@ -276,11 +270,14 @@ class TokenDetailsViewModel: ObservableObject {
             return
         }
 
-        dismissalRequestSubject.send(())
+        isHiddingInProcess = true
 
+        // [REDACTED_TODO_COMMENT]
         /// Added the delay to display the deletion in the main screen
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            self.card.remove(items: [(self.amountType, walletModel.blockchainNetwork)])
+        let item = UserWalletModel.RemoveItem(amount: amountType, blockchainNetwork: walletModel.blockchainNetwork)
+        card.remove(items: [item]) { [weak self] result in
+            self?.isHiddingInProcess = false
+            self?.dismiss()
         }
     }
 

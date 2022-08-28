@@ -10,7 +10,7 @@ import Combine
 import struct BlockchainSdk.Token
 
 protocol UserTokenListManager {
-    func update(config: UserWalletConfig)
+    func update(userWalletId: String)
 
     /// If in result card not nil should update cardModel
     func append(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void)
