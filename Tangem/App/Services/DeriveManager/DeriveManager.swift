@@ -13,43 +13,38 @@ struct DeriveManager {
 
     private let config: UserWalletConfig
     private let cardInfo: CardInfo
-    private let tokenItemsRepository: TokenItemsRepository
 
-    init(config: UserWalletConfig, cardInfo: CardInfo, userWalletId: String) {
+    init(config: UserWalletConfig, cardInfo: CardInfo) {
         self.config = config
         self.cardInfo = cardInfo
-
-        tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId)
     }
 
-    func deriveIfNeeded(entries: [StorageEntry], completion: @escaping (Result<Card?, Error>) -> Void) {
+    func deriveIfNeeded(entries: [StorageEntry], completion: @escaping (Result<Card?, TangemSdkError>) -> Void) {
         guard config.hasFeature(.hdWallets) else {
             completion(.success(nil))
             return
         }
 
-        var shouldDerive: Bool = false
-
-        for entry in entries {
-            if let path = entry.blockchainNetwork.derivationPath,
-               let wallet = cardInfo.card.wallets.first(where: { $0.curve == entry.blockchainNetwork.blockchain.curve }),
-               !wallet.derivedKeys.keys.contains(path) {
-                shouldDerive = true
-                break
+        let nonDeriveEntries = entries.compactMap { entry -> StorageEntry? in
+            guard let path = entry.blockchainNetwork.derivationPath,
+                  let wallet = cardInfo.card.wallets.first(where: { $0.curve == entry.blockchainNetwork.blockchain.curve }),
+                  !wallet.derivedKeys.keys.contains(path) else {
+                return nil
             }
+
+            return entry
         }
 
-        guard shouldDerive else {
+        guard !nonDeriveEntries.isEmpty else {
             completion(.success(nil))
             return
         }
 
-        deriveKeys(completion: completion)
+        deriveKeys(entries: nonDeriveEntries, completion: completion)
     }
 
-    private func deriveKeys(completion: @escaping (Result<Card?, Error>) -> Void) {
+    private func deriveKeys(entries: [StorageEntry], completion: @escaping (Result<Card?, TangemSdkError>) -> Void) {
         let card = cardInfo.card
-        let entries = tokenItemsRepository.getItems()
         var derivations: [EllipticCurve: [DerivationPath]] = [:]
 
         for entry in entries {
