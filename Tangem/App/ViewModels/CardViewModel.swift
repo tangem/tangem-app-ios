@@ -85,8 +85,8 @@ class CardViewModel: Identifiable, ObservableObject {
         cardInfo.card.wallets.first(where: { $0.curve == .secp256k1 })?.publicKey
     }
 
-    // Tempopary public, need refactoring
-    var userWalletModel: UserWalletModel?
+    // Separate UserWalletModel and CardViewModel
+    var userWalletModel: UserWalletModelProtocol?
 
     private var cardInfo: CardInfo
     private var cardPinSettings: CardPinSettings = CardPinSettings()
@@ -260,6 +260,15 @@ class CardViewModel: Identifiable, ObservableObject {
         userWalletModel?.add(entries: config.defaultBlockchains) { _ in }
     }
 
+    func deriveNonDerivedTokens() {
+        guard let userWalletModel = userWalletModel else {
+            assertionFailure("UserWalletModel not created")
+            return
+        }
+
+        add(entries: userWalletModel.getNonDerivationEntries()) { _ in }
+    }
+
     // MARK: - Security
 
     func changeSecurityOption(_ option: SecurityModeOption, completion: @escaping (Result<Void, Error>) -> Void) {
@@ -347,8 +356,6 @@ class CardViewModel: Identifiable, ObservableObject {
                 Analytics.log(.factoryResetSuccess)
                 self?.userWalletModel?.clearRepository(result: completion)
                 self?.clearTwinPairKey()
-            // self.update(with: response)
-//                completion(.success(()))
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .purgeWallet, card: card)
                 completion(.failure(error))
@@ -385,8 +392,13 @@ class CardViewModel: Identifiable, ObservableObject {
 
     func update(with card: Card) {
         print("🟩 Updating Card view model with new Card")
+        let oldKeys = cardInfo.card.wallets.map { $0.derivedKeys }
+        let newKeys = card.wallets.map { $0.derivedKeys }
+        print("‼️ Updating Card view model deriveKeys \(oldKeys == newKeys)")
+
         cardInfo.card = card // [REDACTED_TODO_COMMENT]
         config = UserWalletConfigFactory(cardInfo).makeConfig()
+
         updateModel()
     }
 
@@ -567,19 +579,36 @@ extension CardViewModel {
         return userWalletModel.subscribeWalletModels()
     }
 
-    func add(entries: [StorageEntry], completion: @escaping (Result<UserTokenList, Error>) -> Void) {
-        let userWalletId = cardInfo.card.userWalletId
+    func subscribeNonDerivationEntries() -> AnyPublisher<[StorageEntry], Never> {
+        guard let userWalletModel = userWalletModel else {
+            assertionFailure("UserWalletModel not created")
+            return Just([]).eraseToAnyPublisher()
+        }
 
-        let deriveManager = DeriveManager(config: config, cardInfo: cardInfo, userWalletId: userWalletId)
+        return userWalletModel.subscribeNonDerivationEntries()
+    }
+
+    func add(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
+        let deriveManager = DeriveManager(config: config, cardInfo: cardInfo)
         deriveManager.deriveIfNeeded(entries: entries) { [weak self] result in
             switch result {
             case let .success(card):
                 if let card = card {
                     self?.update(with: card)
                 }
-                self?.userWalletModel?.add(entries: entries, completion: completion)
+
+                self?.userWalletModel?.add(entries: entries) { addingCompletion in
+                    switch addingCompletion {
+                    case .success:
+                        completion(.success(()))
+                    case let .failure(error):
+                        completion(.failure(error))
+                    }
+                }
             case let .failure(error):
-                assertionFailure("Derivation is failed \(error)")
+                if !error.isUserCancelled {
+                    assertionFailure("Derivation is failed \(error)")
+                }
             }
         }
     }
@@ -593,13 +622,13 @@ extension CardViewModel {
         return userWalletModel.canManage(amountType: amountType, blockchainNetwork: blockchainNetwork)
     }
 
-    func remove(items: [(Amount.AmountType, BlockchainNetwork)]) {
+    func remove(items: [UserWalletModel.RemoveItem], completion: @escaping (Result<Void, Error>) -> Void) {
         guard let userWalletModel = userWalletModel else {
             assertionFailure("UserWalletModel not created")
             return
         }
 
-        userWalletModel.remove(items: items)
+        userWalletModel.remove(items: items, completion: completion)
     }
 }
 
