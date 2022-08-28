@@ -6,7 +6,6 @@
 //  Copyright © 2022 Tangem AG. All rights reserved.
 //
 
-import TangemSdk
 import Combine
 import BlockchainSdk
 
@@ -38,12 +37,8 @@ class UserWalletModel {
 
 extension UserWalletModel: UserWalletModelProtocol {
     func updateUserWalletModel(with config: UserWalletConfig) {
-        print("🟩 Updating UserWalletModel with new config \(config)")
-
+        print("🟩 Updating UserWalletModel with new config")
         walletListManager.update(config: config)
-        userTokenListManager.update(config: config)
-
-//        updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: true)
     }
 
     func getWalletModels() -> [WalletModel] {
@@ -54,47 +49,16 @@ extension UserWalletModel: UserWalletModelProtocol {
         walletListManager.subscribeWalletModels()
     }
 
+    func getNonDerivationEntries() -> [StorageEntry] {
+        walletListManager.getNonDerivationEntries()
+    }
+
+    func subscribeNonDerivationEntries() -> AnyPublisher<[StorageEntry], Never> {
+        walletListManager.subscribeNonDerivationEntries()
+    }
+
     func clearRepository(result: @escaping (Result<UserTokenList, Error>) -> Void) {
         userTokenListManager.clearRepository(result: result)
-    }
-
-    // MARK: - Proxy from CardViewModel
-
-    func add(entries: [StorageEntry], completion: @escaping (Result<UserTokenList, Error>) -> Void) {
-        append(entries: entries) { [weak self] appendingCompletion in
-            switch appendingCompletion {
-            case .success(let list):
-                self?.updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: true)
-                completion(.success(list))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
-    }
-
-    func canManage(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool {
-        walletListManager.canManage(amountType: amountType, blockchainNetwork: blockchainNetwork)
-    }
-
-    func remove(items: [(Amount.AmountType, BlockchainNetwork)]) {
-        items.forEach {
-            remove(amountType: $0.0, blockchainNetwork: $0.1)
-        }
-    }
-
-    func remove(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) {
-        guard walletListManager.canRemove(amountType: amountType, blockchainNetwork: blockchainNetwork) else {
-            assertionFailure("\(blockchainNetwork.blockchain) can't be remove")
-            return
-        }
-
-        switch amountType {
-        case .coin:
-            removeBlockchain(blockchainNetwork)
-        case let .token(token):
-            removeToken(token, blockchainNetwork: blockchainNetwork)
-        case .reserve: break
-        }
     }
 
     /// What this method do?
@@ -118,37 +82,96 @@ extension UserWalletModel: UserWalletModelProtocol {
                 }
             }
     }
+
+    func add(entries: [StorageEntry], completion: @escaping (Result<UserTokenList, Error>) -> Void) {
+        /// Sync update entries in repository and async update entries on server
+        userTokenListManager.append(entries: entries, result: completion)
+
+        updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: true)
+    }
+
+    func canManage(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool {
+        walletListManager.canManage(amountType: amountType, blockchainNetwork: blockchainNetwork)
+    }
+
+    func remove(items: [RemoveItem], completion: @escaping (Result<Void, Error>) -> Void) {
+        let workGroup = DispatchGroup()
+        var error: Error?
+
+        items.forEach { item in
+            workGroup.enter()
+            remove(item: item) { result in
+                workGroup.leave()
+
+                if case let .failure(err) = result {
+                    error = err
+                }
+            }
+        }
+
+        workGroup.notify(queue: .main) {
+            if let error = error {
+                completion(.failure(error))
+            } else {
+                completion(.success(()))
+            }
+        }
+    }
 }
 
 // MARK: - Wallet models Operations
 
 private extension UserWalletModel {
-    func append(entries: [StorageEntry], completion: @escaping (Result<UserTokenList, Error>) -> Void) {
-        userTokenListManager.append(entries: entries, result: completion)
-    }
+    func remove(item: RemoveItem, completion: @escaping (Result<UserTokenList, Error>) -> Void) {
+        guard walletListManager.canRemove(amountType: item.amount, blockchainNetwork: item.blockchainNetwork) else {
+            assertionFailure("\(item.blockchainNetwork.blockchain) can't be remove")
+            return
+        }
 
-    private func removeBlockchain(_ blockchainNetwork: BlockchainNetwork) {
-        userTokenListManager.remove(blockchain: blockchainNetwork) { [weak self] result in
-            switch result {
-            case .success:
-                self?.walletListManager.updateWalletModels()
-            case let .failure(error):
-                print("Remove blockchainNetwork error \(error)")
-            }
+        switch item.amount {
+        case .coin:
+            removeBlockchain(item.blockchainNetwork, completion: completion)
+        case let .token(token):
+            removeToken(token, in: item.blockchainNetwork, completion: completion)
+        case .reserve: break
         }
     }
 
-    private func removeToken(_ token: BlockchainSdk.Token, blockchainNetwork: BlockchainNetwork) {
-        userTokenListManager.remove(tokens: [token], in: blockchainNetwork) { [weak self] result in
+    func removeBlockchain(_ blockchainNetwork: BlockchainNetwork, completion: @escaping (Result<UserTokenList, Error>) -> Void) {
+        userTokenListManager.remove(blockchain: blockchainNetwork) { result in
             switch result {
-            case .success:
-                self?.walletListManager.removeToken(token, blockchainNetwork: blockchainNetwork)
-                self?.walletListManager.updateWalletModels()
-            //                _ = walletModel.removeToken(token)
-            //                self?.updateState(shouldUpdate: false)
+            case let .success(list):
+                print("Remove blockchainNetwork \(blockchainNetwork.blockchain.displayName) success")
+                completion(.success(list))
             case let .failure(error):
-                print("Remove token error \(error)")
+                print("Remove blockchainNetwork \(blockchainNetwork.blockchain.displayName) error \(error)")
+                completion(.failure(error))
             }
         }
+
+        walletListManager.updateWalletModels()
+    }
+
+    func removeToken(_ token: Token, in blockchainNetwork: BlockchainNetwork, completion: @escaping (Result<UserTokenList, Error>) -> Void) {
+        userTokenListManager.remove(tokens: [token], in: blockchainNetwork) { result in
+            switch result {
+            case let .success(list):
+                print("Remove token \(token.name) success")
+                completion(.success(list))
+            case let .failure(error):
+                print("Remove token \(token.name) error \(error)")
+                completion(.failure(error))
+            }
+        }
+
+        walletListManager.removeToken(token, blockchainNetwork: blockchainNetwork)
+        walletListManager.updateWalletModels()
+    }
+}
+
+extension UserWalletModel {
+    struct RemoveItem {
+        let amount: Amount.AmountType
+        let blockchainNetwork: BlockchainNetwork
     }
 }
