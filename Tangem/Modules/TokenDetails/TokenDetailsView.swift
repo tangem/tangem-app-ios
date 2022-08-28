@@ -136,11 +136,16 @@ struct TokenDetailsView: View {
         .alert(item: $viewModel.alert) { $0.alert }
     }
 
+    @ViewBuilder
     private var trailingButton: some View {
-        Button(action: viewModel.onRemove) {
-            Text("wallet_hide_token")
-                .foregroundColor(.tangemGrayDark6)
-                .font(.system(size: 17))
+        if viewModel.isHiddingInProcess {
+            ActivityIndicatorView(settings: .init(style: .medium, color: .gray))
+        } else {
+            Button(action: viewModel.onRemove) {
+                Text("wallet_hide_token")
+                    .foregroundColor(.tangemGrayDark6)
+                    .font(.system(size: 17))
+            }
         }
     }
 }
