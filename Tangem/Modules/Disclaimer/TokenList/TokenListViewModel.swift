@@ -76,13 +76,28 @@ class TokenListViewModel: ObservableObject {
             return
         }
 
+        let finishedAction: (Result<Void, Error>) -> Void = { [weak self] result in
+            self?.isSaving = false
+
+            switch result {
+            case .success:
+                self?.closeModule()
+                Analytics.log(.tokenListSave)
+            case .failure(let error):
+                self?.alert = error.alertBinder
+            }
+        }
+
         isSaving = true
 
         let itemsToRemove = pendingRemove.map {
-            ($0.amountType, cardModel.getBlockchainNetwork(for: $0.blockchain, derivationPath: nil))
+            UserWalletModel.RemoveItem(
+                amount: $0.amountType,
+                blockchainNetwork: cardModel.getBlockchainNetwork(for: $0.blockchain, derivationPath: nil)
+            )
         }
 
-        cardModel.remove(items: itemsToRemove)
+        cardModel.remove(items: itemsToRemove, completion: finishedAction)
 
         let itemsToAdd = pendingAdd.map {
             StorageEntry(
@@ -93,23 +108,10 @@ class TokenListViewModel: ObservableObject {
 
         guard !itemsToAdd.isEmpty else {
             closeModule()
-            Analytics.log(.tokenListSave)
             return
         }
 
-        cardModel.add(entries: itemsToAdd) { [weak self] result in
-            self?.isSaving = false
-
-            switch result {
-            case .success:
-                self?.closeModule()
-                Analytics.log(.tokenListSave)
-            case .failure(let error):
-                if case TangemSdkError.userCancelled = error {} else {
-                    self?.alert = error.alertBinder
-                }
-            }
-        }
+        cardModel.add(entries: itemsToAdd, completion: finishedAction)
     }
 
     func onAppear() {
