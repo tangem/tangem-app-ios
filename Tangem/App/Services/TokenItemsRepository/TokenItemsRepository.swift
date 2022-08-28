@@ -11,6 +11,7 @@ import BlockchainSdk
 import Combine
 
 protocol TokenItemsRepository {
+    func update(_ entries: [StorageEntry])
     func append(_ entries: [StorageEntry])
 
     func remove(_ blockchainNetworks: [BlockchainNetwork])
