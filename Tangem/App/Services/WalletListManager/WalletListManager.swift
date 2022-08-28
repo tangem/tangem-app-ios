@@ -15,6 +15,9 @@ protocol WalletListManager {
     func getWalletModels() -> [WalletModel]
     func subscribeWalletModels() -> AnyPublisher<[WalletModel], Never>
 
+    func getNonDerivationEntries() -> [StorageEntry]
+    func subscribeNonDerivationEntries() -> AnyPublisher<[StorageEntry], Never>
+
     /// Check new tokens in the respository and add if needed
     func updateWalletModels()
 

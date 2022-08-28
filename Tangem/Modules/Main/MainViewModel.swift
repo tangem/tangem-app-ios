@@ -32,6 +32,7 @@ class MainViewModel: ObservableObject {
     @Published var showExplorerURL: URL? = nil
     @Published var showQR: Bool = false
     @Published var isOnboardingModal: Bool = true
+    @Published var isShowNonDerivationButton: Bool = false
 
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
@@ -160,7 +161,7 @@ class MainViewModel: ObservableObject {
         self.cardModel = cardModel
         self.coordinator = coordinator
         bind()
-//        cardModel.updateState()
+
         cardModel.setupWarnings()
         validateHashesCount()
         updateWalletTokenListViewModel()
@@ -189,17 +190,6 @@ class MainViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-//        cardModel
-//            .$state
-//            .compactMap { $0.walletModels }
-//            .flatMap { Publishers.MergeMany($0.map { $0.objectWillChange }).collect($0.count) }
-//            .receive(on: DispatchQueue.main)
-//            .sink { [unowned self] _ in
-//                print("⚠️ Wallet model will change")
-//                self.objectWillChange.send()
-//            }
-//            .store(in: &bag)
-
         cardModel.subscribeWalletModels()
             .flatMap { Publishers.MergeMany($0.map { $0.objectWillChange }).collect($0.count) }
             .debounce(for: .seconds(0.5), scheduler: RunLoop.main)
@@ -208,6 +198,12 @@ class MainViewModel: ObservableObject {
                 if self.isLoadingTokensBalance { return }
                 self.updateTotalBalanceTokenListIfNeeded()
                 self.objectWillChange.send()
+            }
+            .store(in: &bag)
+
+        cardModel.subscribeNonDerivationEntries()
+            .sink { [unowned self] entries in
+                updateNonDerivationWarningView(entries: entries)
             }
             .store(in: &bag)
 
@@ -325,6 +321,10 @@ class MainViewModel: ObservableObject {
 
     func onAppear() {
         walletTokenListViewModel?.onAppear()
+    }
+
+    func deriveNonDerivedTokens() {
+        cardModel.deriveNonDerivedTokens()
     }
 
     // MARK: Warning action handler
@@ -488,6 +488,10 @@ class MainViewModel: ObservableObject {
     private func updateTotalBalanceTokenListIfNeeded() {
         let newTokens = cardModel.walletModels.flatMap({ $0.tokenItemViewModels })
         totalSumBalanceViewModel.updateIfNeeded(with: newTokens)
+    }
+
+    private func updateNonDerivationWarningView(entries: [StorageEntry]) {
+        isShowNonDerivationButton = !entries.isEmpty
     }
 }
 

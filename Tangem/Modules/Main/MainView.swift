@@ -170,6 +170,15 @@ struct MainView: View {
                             backupWarningView
                         }
 
+                        if viewModel.isShowNonDerivationButton {
+                            Button(action: viewModel.deriveNonDerivedTokens) {
+                                Text("DeriveNonDerivedTokens")
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(Color.purple)
+                            }
+                        }
+
                         WarningListView(warnings: viewModel.warnings, warningButtonAction: {
                             viewModel.warningButtonAction(at: $0, priority: $1, button: $2)
                         })
