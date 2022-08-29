@@ -71,7 +71,6 @@ class CommonCardsRepository: CardsRepository {
         cardInfo.primaryCard.map { backupServiceProvider.backupService.setPrimaryCard($0) }
 
         let cm = CardViewModel(cardInfo: cardInfo)
-        cm.getLegacyMigrator()?.migrateIfNeeded()
         tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
         walletConnectServiceProvider.initialize(with: cm)
         cm.didScan()
