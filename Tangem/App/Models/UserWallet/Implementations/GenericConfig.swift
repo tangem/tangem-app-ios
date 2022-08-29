@@ -198,7 +198,7 @@ extension GenericConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModels(for tokens: [StorageEntry]) -> [WalletModel] {
+    func makeWalletModel(for token: StorageEntry) throws -> WalletModel {
         let walletPublicKeys: [EllipticCurve: Data] = card.wallets.reduce(into: [:]) { partialResult, cardWallet in
             partialResult[cardWallet.curve] = cardWallet.publicKey
         }
@@ -208,16 +208,15 @@ extension GenericConfig: UserWalletConfig {
         }
 
         let factory = WalletModelFactory()
-
         if card.settings.isHDWalletAllowed {
-            return factory.makeMultipleWallets(seedKeys: walletPublicKeys,
-                                               entries: tokens,
-                                               derivedKeys: derivedKeys,
-                                               derivationStyle: card.derivationStyle)
+            return try factory.makeMultipleWallet(seedKeys: walletPublicKeys,
+                                                  entry: token,
+                                                  derivedKeys: derivedKeys,
+                                                  derivationStyle: card.derivationStyle)
         } else {
-            return factory.makeMultipleWallets(walletPublicKeys: walletPublicKeys,
-                                               entries: tokens,
-                                               derivationStyle: card.derivationStyle)
+            return try factory.makeMultipleWallet(walletPublicKeys: walletPublicKeys,
+                                                  entry: token,
+                                                  derivationStyle: card.derivationStyle)
         }
     }
 }
