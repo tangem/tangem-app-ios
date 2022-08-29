@@ -173,26 +173,21 @@ extension TwinConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModels(for tokens: [StorageEntry]) -> [WalletModel] {
+    func makeWalletModel(for token: StorageEntry) throws -> WalletModel {
         guard let savedPairKey = twinData.pairPublicKey,
               let walletPublicKey = card.wallets.first?.publicKey else {
-            return []
+            throw CommonError.noData
         }
 
-        do {
-            let factory = WalletManagerFactoryProvider().factory
-            let twinManager = try factory.makeTwinWalletManager(walletPublicKey: walletPublicKey,
-                                                                pairKey: savedPairKey,
-                                                                isTestnet: isTestnet)
+        let factory = WalletManagerFactoryProvider().factory
+        let twinManager = try factory.makeTwinWalletManager(walletPublicKey: walletPublicKey,
+                                                            pairKey: savedPairKey,
+                                                            isTestnet: isTestnet)
 
-            let model = WalletModel(walletManager: twinManager,
-                                    derivationStyle: card.derivationStyle)
+        let model = WalletModel(walletManager: twinManager,
+                                derivationStyle: card.derivationStyle)
 
-            model.initialize()
-            return [model]
-        } catch {
-            print(error)
-            return []
-        }
+        model.initialize()
+        return model
     }
 }
