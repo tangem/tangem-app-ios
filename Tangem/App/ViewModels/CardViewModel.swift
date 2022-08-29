@@ -157,8 +157,6 @@ class CardViewModel: Identifiable, ObservableObject {
         config.supportedBlockchains
     }
 
-    var userWalletId: String { cardInfo.card.userWalletId }
-
     var backupInput: OnboardingInput? {
         guard let backupSteps = config.backupSteps else { return nil }
 
@@ -240,14 +238,7 @@ class CardViewModel: Identifiable, ObservableObject {
         self.cardInfo = cardInfo
         self.config = UserWalletConfigFactory(cardInfo).makeConfig()
 
-        if cardInfo.card.hasWallets {
-            userWalletModel = UserWalletModel(
-                config: config,
-                userWalletId: cardInfo.card.userWalletId,
-                output: self
-            )
-        }
-
+        createUserWalletModelIfNeeded()
         updateCardPinSettings()
         updateCurrentSecurityOption()
         bind()
@@ -429,25 +420,13 @@ class CardViewModel: Identifiable, ObservableObject {
         config.getFeatureAvailability(feature).disabledLocalizedReason
     }
 
-    func getLegacyMigrator() -> LegacyCardMigrator? {
-        guard config.hasFeature(.multiCurrency) else {
-            return nil
-        }
-
-        // Check if we have anything to migrate. It's impossible to get default token without default blockchain
-        guard let embeddedEntry = config.embeddedBlockchain else {
-            return nil
-        }
-
-        return .init(cardId: cardId, embeddedEntry: embeddedEntry)
-    }
-
     private func updateModel() {
         print("🔶 Updating Card view model")
         updateCardPinSettings()
         updateCurrentSecurityOption()
 
         warningsService.setupWarnings(for: config)
+        createUserWalletModelIfNeeded()
         userWalletModel?.updateUserWalletModel(with: config)
     }
 
@@ -561,6 +540,16 @@ class CardViewModel: Identifiable, ObservableObject {
             // [REDACTED_TODO_COMMENT]
         }
         .store(in: &bag)
+    }
+
+    private func createUserWalletModelIfNeeded() {
+        guard userWalletModel == nil, cardInfo.card.hasWallets else { return }
+
+        userWalletModel = UserWalletModel(
+            config: config,
+            userWalletId: cardInfo.card.userWalletId,
+            output: self
+        )
     }
 }
 
