@@ -39,7 +39,7 @@ struct DemoUtil {
     }
 }
 
-private extension DemoUtil {
+extension DemoUtil {
     var demoCardIds: [String] {
         [
             // === Development ===
