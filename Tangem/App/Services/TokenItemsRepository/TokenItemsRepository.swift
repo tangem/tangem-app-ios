@@ -8,7 +8,6 @@
 
 import Foundation
 import BlockchainSdk
-import Combine
 
 protocol TokenItemsRepository {
     func update(_ entries: [StorageEntry])
