@@ -16,7 +16,7 @@ class CommonTokenItemsRepository {
     @Injected(\.persistentStorage) var persistanceStorage: PersistentStorageProtocol
 
     private let lockQueue = DispatchQueue(label: "token_items_repo_queue")
-    private let key: String
+    let key: String
 
     init(key: String) {
         self.key = key
