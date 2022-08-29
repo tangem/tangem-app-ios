@@ -31,6 +31,12 @@ class CommonTokenItemsRepository {
 // MARK: - TokenItemsRepository
 
 extension CommonTokenItemsRepository: TokenItemsRepository {
+    func update(_ entries: [StorageEntry]) {
+        lockQueue.sync {
+            save(entries, for: key)
+        }
+    }
+
     func append(_ entries: [StorageEntry]) {
         lockQueue.sync {
             var items = fetch(for: key)
