@@ -521,19 +521,6 @@ class CardViewModel: Identifiable, ObservableObject {
         config.getFeatureAvailability(feature).disabledLocalizedReason
     }
 
-    func getLegacyMigrator() -> LegacyCardMigrator? {
-        guard config.hasFeature(.multiCurrency) else {
-            return nil
-        }
-
-        // Check if we have anything to migrate. It's impossible to get default token without default blockchain
-        guard let embeddedEntry = config.embeddedBlockchain else {
-            return nil
-        }
-
-        return .init(cardId: cardId, embeddedEntry: embeddedEntry)
-    }
-
     private func makeAllWalletModels() -> [WalletModel] {
         let tokens = tokenItemsRepository.getItems()
         return config.makeWalletModels(for: tokens)
