@@ -310,8 +310,10 @@ final class AppScanTask: CardSessionRunnable {
             legacyCardMigrator.migrateIfNeeded()
         }
 
-        let tokenMigrator = TokenItemsRepositoryMigrator(cardId: card.cardId, userWalletId: card.userWalletId)
-        tokenMigrator.migrate()
+        if card.hasWallets {
+            let tokenMigrator = TokenItemsRepositoryMigrator(cardId: card.cardId, userWalletId: card.userWalletId)
+            tokenMigrator.migrate()
+        }
     }
     #endif
 }
