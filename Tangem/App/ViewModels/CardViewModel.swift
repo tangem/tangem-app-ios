@@ -32,6 +32,7 @@ class CardViewModel: Identifiable, ObservableObject {
     var signer: TangemSigner { config.tangemSigner }
 
     var cardId: String { cardInfo.card.cardId }
+    var userWalletId: String { cardInfo.card.userWalletId }
 
     var isMultiWallet: Bool {
         config.hasFeature(.multiCurrency)
@@ -246,7 +247,7 @@ class CardViewModel: Identifiable, ObservableObject {
     init(cardInfo: CardInfo) {
         self.cardInfo = cardInfo
         self.config = UserWalletConfigFactory(cardInfo).makeConfig()
-        tokenItemsRepository = CommonTokenItemsRepository(key: cardInfo.card.cardId)
+        tokenItemsRepository = CommonTokenItemsRepository(key: cardInfo.card.userWalletId)
 
         updateCardPinSettings()
         updateCurrentSecurityOption()
@@ -747,7 +748,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private func removeToken(_ token: BlockchainSdk.Token, blockchainNetwork: BlockchainNetwork) {
         if let walletModel = walletModels?.first(where: { $0.blockchainNetwork == blockchainNetwork }) {
-            let isRemoved = walletModel.removeToken(token, for: cardId)
+            let isRemoved = walletModel.removeToken(token, for: userWalletId)
 
             if isRemoved {
                 stateUpdateQueue.sync {
