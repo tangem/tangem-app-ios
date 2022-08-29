@@ -12,7 +12,6 @@ import Foundation
 struct LegacyCardMigrator {
     private let cardId: String
     private let embeddedEntry: StorageEntry
-    private let tokenItemsRepository: TokenItemsRepository
 
     init?(cardId: String, config: UserWalletConfig) {
         guard config.hasFeature(.multiCurrency) else {
@@ -26,9 +25,6 @@ struct LegacyCardMigrator {
 
         self.cardId = cardId
         self.embeddedEntry = embeddedEntry
-
-        // Only in this case we work with the repository for cardId
-        self.tokenItemsRepository = CommonTokenItemsRepository(key: cardId)
     }
 
     // Save default blockchain and token to main tokens repo.
@@ -38,6 +34,8 @@ struct LegacyCardMigrator {
             return
         }
 
+        // Only in this case we work with the repository for cardId
+        let tokenItemsRepository = CommonTokenItemsRepository(key: cardId)
         var entries = tokenItemsRepository.getItems()
         entries.insert(embeddedEntry, at: 0)
 
