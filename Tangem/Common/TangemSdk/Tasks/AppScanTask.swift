@@ -299,4 +299,13 @@ final class AppScanTask: CardSessionRunnable {
                                                 walletData: walletData,
                                                 primaryCard: primaryCard)))
     }
+    
+    private func migrate(card: Card) {
+        let config = UserWalletConfigFactory(CardInfo(card: card, walletData: walletData)).makeConfig()
+        if let legacyCardMigrator = LegacyCardMigrator(cardId: card.cardId, config: config) {
+            legacyCardMigrator.migrateIfNeeded()
+        }
+        
+        let tokenMigrator = TokenItemsRepositoryMigrator(cardId: card.cardId, userWalletId: card.userWalletId)
+    }
 }
