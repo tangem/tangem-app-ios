@@ -18,6 +18,8 @@ struct TokenItemsRepositoryMigrator {
     }
 
     func migrate() {
+//        print(AppSettings.shared.migrationOnWalletIdTokenRepositoryCards)
+        AppSettings.shared.migrationOnWalletIdTokenRepositoryCards.removeAll(where: { $0 == cardId })
         guard !AppSettings.shared.migrationOnWalletIdTokenRepositoryCards.contains(cardId) else {
             print("TokenRepository for cardId: \(cardId) already has been migrated on user wallet id")
             return
@@ -31,7 +33,7 @@ struct TokenItemsRepositoryMigrator {
         let newRepository = CommonTokenItemsRepository(key: userWalletId)
         newRepository.append(oldEntries)
         print("newRepository", newRepository.getItems())
-        print("TokenRepository for cardId: \(cardId) successfully migrates on userWalletId: \(userWalletId)")
+        print("TokenRepository for cardId: \(cardId) successfully migrates to userWalletId: \(userWalletId)")
         AppSettings.shared.migrationOnWalletIdTokenRepositoryCards.append(cardId)
     }
 }
