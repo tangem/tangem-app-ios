@@ -7,7 +7,7 @@
 //
 
 import Combine
-import struct BlockchainSdk.Token
+import BlockchainSdk
 
 protocol UserTokenListManager {
     func update(userWalletId: String)
