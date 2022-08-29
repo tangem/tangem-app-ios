@@ -19,4 +19,6 @@ enum Constants {
     static var isSmallScreen: Bool {
         UIScreen.main.bounds.width < 375 || UIScreen.main.bounds.height < 650
     }
+
+    static let messageForWalletID = "UserWalletID"
 }
