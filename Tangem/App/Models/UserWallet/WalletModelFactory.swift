@@ -47,33 +47,6 @@ class WalletModelFactory {
         return model
     }
 
-    func makeMultipleWallets(walletPublicKeys: [EllipticCurve: Data],
-                             entries: [StorageEntry],
-                             derivationStyle: DerivationStyle) -> [WalletModel] {
-        entries.compactMap { entry in
-            do {
-                return try makeMultipleWallet(walletPublicKeys: walletPublicKeys, entry: entry, derivationStyle: derivationStyle)
-            } catch {
-                print(error)
-                return nil
-            }
-        }
-    }
-
-    func makeMultipleWallets(seedKeys: [EllipticCurve: Data],
-                             entries: [StorageEntry],
-                             derivedKeys: [EllipticCurve: [DerivationPath: ExtendedPublicKey]],
-                             derivationStyle: DerivationStyle) -> [WalletModel] {
-        entries.compactMap { entry in
-            do {
-                return try makeMultipleWallet(seedKeys: seedKeys, entry: entry, derivedKeys: derivedKeys, derivationStyle: derivationStyle)
-            } catch {
-                print(error)
-                return nil
-            }
-        }
-    }
-
     func makeMultipleWallet(seedKeys: [EllipticCurve: Data],
                             entry: StorageEntry,
                             derivedKeys: [EllipticCurve: [DerivationPath: ExtendedPublicKey]],
