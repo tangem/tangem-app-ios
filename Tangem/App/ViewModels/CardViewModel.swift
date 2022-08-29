@@ -536,7 +536,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private func makeAllWalletModels() -> [WalletModel] {
         let tokens = tokenItemsRepository.getItems()
-        return config.makeWalletModels(for: tokens)
+        return tokens.compactMap { try? config.makeWalletModel(for: $0) }
     }
 
     private func updateModel() {
@@ -564,7 +564,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
         let unused: [StorageEntry] = config.supportedBlockchains
             .subtracting(currentBlockhains).map { StorageEntry(blockchainNetwork: .init($0, derivationPath: nil), tokens: []) }
-        let models = config.makeWalletModels(for: unused)
+        let models = unused.compactMap { try? config.makeWalletModel(for: $0) }
         if models.isEmpty {
             return
         }
@@ -609,7 +609,7 @@ class CardViewModel: Identifiable, ObservableObject {
         if ethWalletModel == nil {
             shouldAddWalletManager = true
             let entry = StorageEntry(blockchainNetwork: network, tokens: [])
-            ethWalletModel = config.makeWalletModels(for: [entry]).first
+            ethWalletModel = try? config.makeWalletModel(for: entry)
         }
 
         guard let tokenFinder = ethWalletModel?.walletManager as? TokenFinder else {
@@ -702,9 +702,8 @@ class CardViewModel: Identifiable, ObservableObject {
             if let existingWalletModel = walletModels.first(where: { $0.blockchainNetwork == entry.blockchainNetwork }) {
                 existingWalletModel.addTokens(entry.tokens)
                 existingWalletModel.update()
-            } else {
-                let wm = config.makeWalletModels(for: [entry])
-                newWalletModels.append(contentsOf: wm)
+            } else if let walletModel = try? config.makeWalletModel(for: entry) {
+                newWalletModels.append(walletModel)
             }
         }
 
