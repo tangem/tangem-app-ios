@@ -55,6 +55,9 @@ class AppSettings {
     @AppStorageCompat(StorageType.selectedCurrencyCode)
     var selectedCurrencyCode: String = "USD"
 
+    @AppStorageCompat(StorageType.migratedTokenRepositoryOnWalletId)
+    var migratedTokenRepositoryOnWalletId: Bool = false
+
     static let shared: AppSettings = { .init() }()
 
     private init() {}
