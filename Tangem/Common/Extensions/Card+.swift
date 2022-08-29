@@ -11,6 +11,7 @@ import CryptoKit
 
 #if !CLIP
 import BlockchainSdk
+import CryptoKit
 #endif
 
 extension Card {
@@ -28,9 +29,8 @@ extension Card {
     }
 
     var userWalletId: String {
-        guard hasWallets else {
+        if !hasWallets {
             assertionFailure("Wallet not found, use CardViewModel for create wallet")
-            return
         }
 
         let keyHash = (wallets.first?.publicKey ?? cardPublicKey).sha256()
