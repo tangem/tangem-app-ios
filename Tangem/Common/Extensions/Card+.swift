@@ -28,8 +28,9 @@ extension Card {
     }
 
     var userWalletId: String {
-        if wallets.isEmpty {
+        guard hasWallets else {
             assertionFailure("Wallet not found, use CardViewModel for create wallet")
+            return
         }
 
         let keyHash = (wallets.first?.publicKey ?? cardPublicKey).sha256()
