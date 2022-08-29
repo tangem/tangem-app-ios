@@ -61,16 +61,12 @@ extension UserWalletModel: UserWalletModelProtocol {
         userTokenListManager.clearRepository(result: result)
     }
 
-    /// What this method do?
-    /// 1. `tryMigrateTokens` once, work with boolean switcher
-    /// 2. Call `update` for every `walletModels`
-    /// 3. Update the `walletsBalanceState` to `.inProgress` if needed and `.loaded` when the update completed
     func updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: Bool) {
         if showProgressLoading {
             output?.userWalletModelRequestUpdate(walletsBalanceState: .inProgress)
         }
 
-        // Create new walletModel if needed
+        // Update walletModel list for current storage state
         walletListManager.updateWalletModels()
 
         reloadAllWalletModelsBag = walletListManager
