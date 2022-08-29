@@ -35,7 +35,7 @@ struct ScanCardWarningView: View {
             Assets.scanCardIcon
 
             Circle()
-                .fill(Color.orange)
+                .fill(Colors.Text.attention)
                 .padding(3)
                 .background(Colors.Background.primary)
                 .frame(width: 12, height: 12)
