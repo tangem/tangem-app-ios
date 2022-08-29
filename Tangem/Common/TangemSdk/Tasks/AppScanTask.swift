@@ -109,7 +109,10 @@ final class AppScanTask: CardSessionRunnable {
                 deriveKeysIfNeeded(session, completion)
                 return
             }
-
+        } else {
+            #if !CLIP
+            migrate(card: card)
+            #endif
         }
 
         self.runScanTask(session, completion)
@@ -246,13 +249,13 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
 
-
         guard let card = session.environment.card else {
             completion(.failure(.missingPreflightRead))
             return
         }
 
-        let tokenItemsRepository = CommonTokenItemsRepository(key: card.cardId)
+        migrate(card: card)
+        let tokenItemsRepository = CommonTokenItemsRepository(key: card.userWalletId)
 
         // Force add blockchains for demo cards
         let config = GenericConfig(card: card)
@@ -299,13 +302,16 @@ final class AppScanTask: CardSessionRunnable {
                                                 walletData: walletData,
                                                 primaryCard: primaryCard)))
     }
-    
+
+    #if !CLIP
     private func migrate(card: Card) {
         let config = UserWalletConfigFactory(CardInfo(card: card, walletData: walletData)).makeConfig()
         if let legacyCardMigrator = LegacyCardMigrator(cardId: card.cardId, config: config) {
             legacyCardMigrator.migrateIfNeeded()
         }
-        
+
         let tokenMigrator = TokenItemsRepositoryMigrator(cardId: card.cardId, userWalletId: card.userWalletId)
+        tokenMigrator.migrate()
     }
+    #endif
 }
