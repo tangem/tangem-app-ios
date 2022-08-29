@@ -41,7 +41,7 @@ extension Card {
         let accIdData = Data(accId)
         let accIdString = accIdData.hexString
 
-        return accIdString
+        return accIdString + "3"
     }
 
     var derivationStyle: DerivationStyle {
