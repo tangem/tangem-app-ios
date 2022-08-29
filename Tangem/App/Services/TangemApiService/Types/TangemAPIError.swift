@@ -28,12 +28,14 @@ struct TangemAPIError: Decodable, Error, LocalizedError {
 
 extension TangemAPIError {
     enum ErrorCode: Int, Decodable {
+        // Internal errors
         case unknown = -1
-        case decode
+        case decode = -2
 
+        // Server-side errors
         case notFound = 404
 
-        /// The description for local errors
+        /// The description for local errors, for server errors description will be gotten from api
         var description: String? {
             switch self {
             case .notFound:

@@ -582,6 +582,7 @@
 		EFF034B128B6523F00F70FF7 /* CommonWalletListManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFF034B028B6523F00F70FF7 /* CommonWalletListManager.swift */; };
 		EFFC860D28BCE87700F863CE /* TokenItemsRepositoryMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFC860B28BCE87700F863CE /* TokenItemsRepositoryMigrator.swift */; };
 		EFFC860E28BCE87700F863CE /* LegacyCardMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFC860C28BCE87700F863CE /* LegacyCardMigrator.swift */; };
+		EFFC861328BCF6C500F863CE /* StorageEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFC861228BCF6C500F863CE /* StorageEntry.swift */; };
 		EFFE2CE928B8E0B300B9F279 /* UserWalletModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFE2CE828B8E0B300B9F279 /* UserWalletModelProtocol.swift */; };
 		EFFE2CEC28B8E1B000B9F279 /* DeriveManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFE2CEB28B8E1B000B9F279 /* DeriveManager.swift */; };
 		F06BBA2FE022C3EF1F3B6513 /* Pods_Tangem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F3AA1BEE46AF490A6F95DA /* Pods_Tangem.framework */; };
@@ -1219,6 +1220,7 @@
 		EFF034B028B6523F00F70FF7 /* CommonWalletListManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonWalletListManager.swift; sourceTree = "<group>"; };
 		EFFC860B28BCE87700F863CE /* TokenItemsRepositoryMigrator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenItemsRepositoryMigrator.swift; sourceTree = "<group>"; };
 		EFFC860C28BCE87700F863CE /* LegacyCardMigrator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyCardMigrator.swift; sourceTree = "<group>"; };
+		EFFC861228BCF6C500F863CE /* StorageEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageEntry.swift; sourceTree = "<group>"; };
 		EFFE2CE828B8E0B300B9F279 /* UserWalletModelProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletModelProtocol.swift; sourceTree = "<group>"; };
 		EFFE2CEB28B8E1B000B9F279 /* DeriveManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeriveManager.swift; sourceTree = "<group>"; };
 		F3B96D298A039D2A8811CEF0 /* Pods-Tangem Tap.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap.release.xcconfig"; path = "Target Support Files/Pods-Tangem Tap/Pods-Tangem Tap.release.xcconfig"; sourceTree = "<group>"; };
@@ -2561,6 +2563,7 @@
 			children = (
 				DC0A582828252FEB0031BECC /* TokenItemsRepository.swift */,
 				5D6784C225EB8EF000149995 /* CommonTokenItemsRepository.swift */,
+				EFFC861228BCF6C500F863CE /* StorageEntry.swift */,
 			);
 			path = TokenItemsRepository;
 			sourceTree = "<group>";
@@ -3393,6 +3396,7 @@
 				DC3B49FA2893EEA600C207EA /* UserWalletConfigFeatures.swift in Sources */,
 				DAFD691627CDEB7F00B36C71 /* CombinedExchangeService.swift in Sources */,
 				DC295B3A28615D03006CB7B6 /* NavHolder.swift in Sources */,
+				EFFC861328BCF6C500F863CE /* StorageEntry.swift in Sources */,
 				B0E9E2FF2679DA8000269C7A /* AmountView.swift in Sources */,
 				DC51185C2860925A004FB954 /* WalletConnectRoutable.swift in Sources */,
 				DC295B522861D9BC006CB7B6 /* SecurityModeCoordinator.swift in Sources */,
