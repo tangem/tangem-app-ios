@@ -120,31 +120,6 @@ private extension CommonUserTokenListManager {
             }
     }
 
-    // MARK: - Migration
-
-//    func migrateAndUpdateTokensInBackend(result: @escaping (Result<UserTokenList, Error>) -> Void) {
-//        let oldRepository = CommonTokenItemsRepository(key: cardId)
-//        let oldEntries = CommonTokenItemsRepository(key: cardId).getItems()
-//        oldRepository.removeAll()
-//
-//        // Save a old entries in new repository
-//        tokenItemsRepository.append(oldEntries)
-//        AppSettings.shared.migratedTokenRepository = true
-//
-//        let tokens = mapToTokens(entries: oldEntries)
-//        let list = UserTokenList(tokens: tokens)
-//
-//        saveTokensCancellable = tangemApiService.saveTokens(key: userWalletId, list: list)
-//            .receiveCompletion { completion in
-//                switch completion {
-//                case let .failure(error):
-//                    result(.failure(error))
-//                case .finished:
-//                    result(.success(list))
-//                }
-//            }
-//    }
-
     // MARK: - Mapping
 
     func mapToTokens(entries: [StorageEntry]) -> [UserTokenList.Token] {
