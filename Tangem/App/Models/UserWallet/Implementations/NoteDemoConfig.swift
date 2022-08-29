@@ -147,22 +147,17 @@ extension NoteDemoConfig: UserWalletConfig {
         }
     }
 
-    func makeWalletModels(for tokens: [StorageEntry]) -> [WalletModel] {
+    func makeWalletModel(for token: StorageEntry) throws -> WalletModel {
         guard let walletPublicKey = card.wallets.first(where: { $0.curve == defaultBlockchain.curve })?.publicKey else {
-            return []
+            throw CommonError.noData
         }
 
         let factory = WalletModelFactory()
-
-        if let model = factory.makeSingleWallet(walletPublicKey: walletPublicKey,
-                                                blockchain: defaultBlockchain,
-                                                token: nil,
-                                                derivationStyle: card.derivationStyle) {
-            model.demoBalance = DemoUtil().getDemoBalance(for: defaultBlockchain)
-
-            return [model]
-        }
-
-        return []
+        let model = try factory.makeSingleWallet(walletPublicKey: walletPublicKey,
+                                                 blockchain: defaultBlockchain,
+                                                 token: nil,
+                                                 derivationStyle: card.derivationStyle)
+        model.demoBalance = DemoUtil().getDemoBalance(for: defaultBlockchain)
+        return model
     }
 }
