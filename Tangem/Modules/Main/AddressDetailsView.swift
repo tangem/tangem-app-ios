@@ -86,7 +86,7 @@ struct AddressDetailView_Previews: PreviewProvider {
             AddressDetailView(showQr: .constant(false),
                               selectedAddressIndex: .constant(0),
                               showExplorerURL: .constant(nil),
-                              walletModel: PreviewCard.v4.cardModel.walletModels!.first!,
+                              walletModel: PreviewCard.v4.cardModel.walletModels.first!,
                               copyAddress: {})
         }
     }
