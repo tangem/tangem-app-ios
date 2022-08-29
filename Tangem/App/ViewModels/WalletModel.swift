@@ -336,14 +336,14 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
         return true
     }
 
-    func removeToken(_ token: Token, for cardId: String) -> Bool {
+    func removeToken(_ token: Token, for userWalletId: String) -> Bool {
         guard canRemove(amountType: .token(value: token)) else {
             assertionFailure("Delete token isn't possible")
             return false
         }
 
         walletManager.removeToken(token)
-        CommonTokenItemsRepository(key: cardId).remove([token], blockchainNetwork: blockchainNetwork)
+        CommonTokenItemsRepository(key: userWalletId).remove([token], blockchainNetwork: blockchainNetwork)
         updateTokensViewModels()
         return true
     }

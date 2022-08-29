@@ -15,7 +15,7 @@ class CommonTokenItemsRepository {
     @Injected(\.persistentStorage) var persistanceStorage: PersistentStorageProtocol
 
     private let lockQueue = DispatchQueue(label: "token_items_repo_queue")
-    private let key: String
+    let key: String
 
     init(key: String) {
         self.key = key
@@ -31,12 +31,6 @@ class CommonTokenItemsRepository {
 // MARK: - TokenItemsRepository
 
 extension CommonTokenItemsRepository: TokenItemsRepository {
-    func update(_ entries: [StorageEntry]) {
-        lockQueue.sync {
-            save(entries, for: key)
-        }
-    }
-
     func append(_ entries: [StorageEntry]) {
         lockQueue.sync {
             var items = fetch(for: key)
