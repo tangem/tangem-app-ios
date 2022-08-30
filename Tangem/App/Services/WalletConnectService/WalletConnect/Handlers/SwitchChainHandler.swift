@@ -57,7 +57,7 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
             throw WalletConnectServiceError.unsupportedNetwork
         }
 
-        let availableWallet = dataSource?.cardModel.walletModels?
+        let availableWallet = dataSource?.cardModel.walletModels
             .filter { !$0.isCustom(.coin) }
             .first(where: { $0.wallet.blockchain == targetBlockchain })
             .map { $0.wallet }
