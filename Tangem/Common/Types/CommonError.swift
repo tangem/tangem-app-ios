@@ -11,5 +11,5 @@ import Foundation
 enum CommonError: Error {
     case masterReleased
     case noData
-    case unimplemented
+    case notImplemented
 }
