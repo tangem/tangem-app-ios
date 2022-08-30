@@ -21,10 +21,6 @@ struct WelcomeView: View {
                     searchTokens: viewModel.openTokensList
                 )
             }
-
-            ScanTroubleshootingView(isPresented: $viewModel.showTroubleshootingView,
-                                    tryAgainAction: viewModel.tryAgain,
-                                    requestSupportAction: viewModel.requestSupport)
         }
         .statusBar(hidden: true)
         .navigationBarHidden(viewModel.navigationBarHidden)
@@ -34,6 +30,11 @@ struct WelcomeView: View {
         .alert(item: $viewModel.error, content: { $0.alert })
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDissappear)
+        .background(
+            ScanTroubleshootingView(isPresented: $viewModel.showTroubleshootingView,
+                                    tryAgainAction: viewModel.tryAgain,
+                                    requestSupportAction: viewModel.requestSupport)
+        )
     }
 }
 
