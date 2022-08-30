@@ -38,11 +38,8 @@ struct GenericConfig {
         return steps
     }
 
-    private var userWalletSavingSteps: [WalletOnboardingStep] {
-        if !BiometricsUtil.isAvailable {
-            return []
-        }
-
+    var userWalletSavingSteps: [WalletOnboardingStep] {
+        guard needUserWalletSavingSteps else { return [] }
         return [.saveUserWallet]
     }
 
