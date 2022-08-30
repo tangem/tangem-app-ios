@@ -64,6 +64,9 @@ struct TwinsOnboardingView: View {
                                               .padding(.horizontal, 16)
                                               .opacity(viewModel.isFromMain ? 1.0 : 0.0)
 
+                                          SkipButton(isVisible: viewModel.isSkipButtonVisible) {
+                                              viewModel.skipCurrentStep()
+                                          }
                                       })
                                       .offset(x: 0, y: -geom.size.height / 2 + (isNavbarVisible ? viewModel.navbarSize.height / 2 : 0))
                                       .opacity(isNavbarVisible ? 1.0 : 0.0)
@@ -106,6 +109,10 @@ struct TwinsOnboardingView: View {
                                                cardImage: viewModel.firstTwinImage,
                                                cardScanned: viewModel.displayTwinImages)
                         }
+
+                        if viewModel.isBiometryLogoVisible {
+                            BiometryLogoImage()
+                        }
                     }
                     .frame(size: geom.size)
                 }
@@ -118,9 +125,10 @@ struct TwinsOnboardingView: View {
                 OnboardingTextButtonView(
                     title: viewModel.title,
                     subtitle: viewModel.subtitle,
+                    titleLineLimit: viewModel.titleLineLimit,
                     buttonsSettings: .init(main: viewModel.mainButtonSettings,
                                            supplement: viewModel.supplementButtonSettings),
-                    infoText: nil,
+                    infoText: viewModel.infoText,
                     titleAction: {
 //                        guard viewModel.assembly.isPreview else { return }
 
