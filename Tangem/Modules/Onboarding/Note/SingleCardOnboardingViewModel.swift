@@ -27,7 +27,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
     override var subtitle: LocalizedStringKey {
         if currentStep == .topup,
-           case .xrp = cardModel.walletModels?.first?.blockchainNetwork.blockchain {
+           case .xrp = cardModel.walletModels.first?.blockchainNetwork.blockchain {
             return "onboarding_topup_subtitle_xrp"
         } else {
             return super.subtitle
@@ -56,7 +56,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     private var scheduledUpdate: DispatchWorkItem?
 
     private var canBuyCrypto: Bool {
-        if let blockchain = cardModel.wallets?.first?.blockchain,
+        if let blockchain = cardModel.wallets.first?.blockchain,
            exchangeService.canBuy(blockchain.currencySymbol, amountType: .coin, blockchain: blockchain) {
             return true
         }
@@ -181,7 +181,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     private func stepUpdate() {
         switch currentStep {
         case .topup:
-            if let walletModel = self.cardModel.walletModels?.first {
+            if let walletModel = self.cardModel.walletModels.first {
                 updateCardBalanceText(for: walletModel)
             }
 
