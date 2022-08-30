@@ -203,12 +203,12 @@ extension GenericConfig: UserWalletConfig {
             partialResult[cardWallet.curve] = cardWallet.publicKey
         }
 
-        let derivedKeys: [EllipticCurve: [DerivationPath: ExtendedPublicKey]] = card.wallets.reduce(into: [:]) { partialResult, cardWallet in
-            partialResult[cardWallet.curve] = cardWallet.derivedKeys
-        }
-
         let factory = WalletModelFactory()
         if card.settings.isHDWalletAllowed {
+            let derivedKeys: [EllipticCurve: [DerivationPath: ExtendedPublicKey]] = card.wallets.reduce(into: [:]) { partialResult, cardWallet in
+                partialResult[cardWallet.curve] = cardWallet.derivedKeys
+            }
+
             return try factory.makeMultipleWallet(seedKeys: walletPublicKeys,
                                                   entry: token,
                                                   derivedKeys: derivedKeys,
