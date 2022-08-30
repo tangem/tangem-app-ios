@@ -127,11 +127,11 @@ class MainViewModel: ObservableObject {
     }
 
     var incomingTransactions: [PendingTransaction] {
-        cardModel.walletModels?.first?.incomingPendingTransactions ?? []
+        cardModel.walletModels.first?.incomingPendingTransactions ?? []
     }
 
     var outgoingTransactions: [PendingTransaction] {
-        cardModel.walletModels?.first?.outgoingPendingTransactions ?? []
+        cardModel.walletModels.first?.outgoingPendingTransactions ?? []
     }
 
     var isBackupAllowed: Bool {
@@ -139,10 +139,7 @@ class MainViewModel: ObservableObject {
     }
 
     var tokenItemViewModels: [TokenItemViewModel] {
-        guard let walletModels = cardModel.walletModels else { return [] }
-
-        return walletModels
-            .flatMap({ $0.tokenItemViewModels })
+        cardModel.walletModels.flatMap({ $0.tokenItemViewModels })
     }
 
     var isMultiWalletMode: Bool {
@@ -270,8 +267,7 @@ class MainViewModel: ObservableObject {
     }
 
     func onRefresh(_ done: @escaping () -> Void) {
-        if cardModel.state.canUpdate,
-           let walletModels = cardModel.walletModels, !walletModels.isEmpty {
+        if cardModel.state.canUpdate, !cardModel.walletModels.isEmpty {
             Analytics.log(.mainPageRefresh)
             refreshCancellable = cardModel.refresh()
                 .receive(on: RunLoop.main)
@@ -385,7 +381,7 @@ class MainViewModel: ObservableObject {
 
     func copyAddress() {
         Analytics.log(.copyAddressTapped)
-        if let walletModel = cardModel.walletModels?.first {
+        if let walletModel = cardModel.walletModels.first {
             UIPasteboard.general.string = walletModel.displayAddress(for: selectedAddressIndex)
         }
     }
@@ -395,7 +391,7 @@ class MainViewModel: ObservableObject {
     private func checkPositiveBalance() {
         guard rateAppService.shouldCheckBalanceForRateApp else { return }
 
-        guard cardModel.walletModels?.first(where: { !$0.wallet.isEmpty }) != nil else { return }
+        guard cardModel.walletModels.first(where: { !$0.wallet.isEmpty }) != nil else { return }
 
         rateAppService.registerPositiveBalanceDate()
     }
@@ -437,7 +433,7 @@ class MainViewModel: ObservableObject {
         guard cardModel.cardSignedHashes > 0  else { return }
 
         guard
-            let validator = cardModel.walletModels?.first?.walletManager as? SignatureCountValidator
+            let validator = cardModel.walletModels.first?.walletManager as? SignatureCountValidator
         else {
             showUntrustedCardAlert()
             return
@@ -472,23 +468,12 @@ class MainViewModel: ObservableObject {
     }
 
     private func updateTotalBalanceTokenList() {
-        guard let walletModels = cardModel.walletModels
-        else {
-            self.totalSumBalanceViewModel.update(with: [])
-            return
-        }
-
-        let newTokens = walletModels.flatMap({ $0.tokenItemViewModels })
+        let newTokens = cardModel.walletModels.flatMap({ $0.tokenItemViewModels })
         totalSumBalanceViewModel.update(with: newTokens)
     }
 
     private func updateTotalBalanceTokenListIfNeeded() {
-        guard let walletModels = cardModel.walletModels
-        else {
-            self.totalSumBalanceViewModel.update(with: [])
-            return
-        }
-        let newTokens = walletModels.flatMap({ $0.tokenItemViewModels })
+        let newTokens = cardModel.walletModels.flatMap({ $0.tokenItemViewModels })
         totalSumBalanceViewModel.updateIfNeeded(with: newTokens)
     }
 }
@@ -522,13 +507,13 @@ extension MainViewModel {
     }
 
     func openSend(for amountToSend: Amount) {
-        guard let blockchainNetwork = cardModel.walletModels?.first?.blockchainNetwork else { return }
+        guard let blockchainNetwork = cardModel.walletModels.first?.blockchainNetwork else { return }
 
         coordinator.openSend(amountToSend: amountToSend, blockchainNetwork: blockchainNetwork, cardViewModel: cardModel)
     }
 
     func openSendToSell(with request: SellCryptoRequest) {
-        guard let blockchainNetwork = cardModel.walletModels?.first?.blockchainNetwork else { return }
+        guard let blockchainNetwork = cardModel.walletModels.first?.blockchainNetwork else { return }
 
         let amount = Amount(with: blockchainNetwork.blockchain, value: request.amount)
         coordinator.openSendToSell(amountToSend: amount,
@@ -556,7 +541,7 @@ extension MainViewModel {
             return
         }
 
-        if let walletModel = cardModel.walletModels?.first,
+        if let walletModel = cardModel.walletModels.first,
            walletModel.wallet.blockchain == .ethereum(testnet: true),
            let token = walletModel.wallet.amounts.keys.compactMap({ $0.token }).first {
             testnetBuyCryptoService.buyCrypto(.erc20Token(token, walletManager: walletModel.walletManager, signer: cardModel.signer))
@@ -588,7 +573,7 @@ extension MainViewModel {
     }
 
     func openPushTx(for index: Int) {
-        guard let firstWalletModel = cardModel.walletModels?.first else { return }
+        guard let firstWalletModel = cardModel.walletModels.first else { return }
 
         let tx = firstWalletModel.wallet.pendingOutgoingTransactions[index]
         coordinator.openPushTx(for: tx, blockchainNetwork: firstWalletModel.blockchainNetwork, card: cardModel)
@@ -619,7 +604,7 @@ extension MainViewModel {
     }
 
     func openQR() {
-        guard let firstWalletModel = cardModel.walletModels?.first  else { return }
+        guard let firstWalletModel = cardModel.walletModels.first  else { return }
 
         let shareAddress = firstWalletModel.shareAddressString(for: selectedAddressIndex)
         let address = firstWalletModel.displayAddress(for: selectedAddressIndex)
