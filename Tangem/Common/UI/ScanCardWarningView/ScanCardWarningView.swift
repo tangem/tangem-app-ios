@@ -14,10 +14,10 @@ struct ScanCardWarningView: View {
             icon
 
             VStack(alignment: .leading, spacing: 2) {
-                Text("Отсканируйте карту")
+                Text("Scan your card")
                     .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
-                Text("Для доступа ко всем сетям вам нужно выполнить сканирование карты.")
+                Text("To access all the networks, you need to scan the card.")
                     .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
             }
 
@@ -48,7 +48,7 @@ struct ScanCardWarningView_Preview: PreviewProvider {
     static var previews: some View {
         ZStack {
             Colors.Background.secondary
-            
+
             ScanCardWarningView()
                 .padding()
         }
