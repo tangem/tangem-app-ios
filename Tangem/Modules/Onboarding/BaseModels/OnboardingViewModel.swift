@@ -278,7 +278,8 @@ class OnboardingViewModel<Step: OnboardingStep> {
     private func saveUserWalletIfNeeded() {
         guard
             AppSettings.shared.saveUserWallets,
-            let userWallet = input.cardInput.cardModel?.userWallet
+            let userWallet = input.cardInput.cardModel?.userWallet,
+            !userWalletListService.contains(userWallet)
         else {
             return
         }
