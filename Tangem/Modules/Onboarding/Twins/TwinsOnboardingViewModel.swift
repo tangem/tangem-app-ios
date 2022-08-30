@@ -52,6 +52,10 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         return super.title
     }
 
+    override var titleLineLimit: Int? {
+        return currentStep.titleLineLimit
+    }
+
     override var mainButtonTitle: LocalizedStringKey {
         if !isInitialAnimPlayed {
             return super.mainButtonTitle
@@ -75,6 +79,10 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         return super.mainButtonTitle
     }
 
+    override var isSkipButtonVisible: Bool {
+        currentStep == .saveUserWallet
+    }
+
     override var isOnboardingFinished: Bool {
         if case .intro = currentStep, steps.count == 1 {
             return true
@@ -90,6 +98,14 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         default:
             return currentStep.isSupplementButtonVisible
         }
+    }
+
+    var infoText: LocalizedStringKey? {
+        currentStep.infoText
+    }
+
+    var isBiometryLogoVisible: Bool {
+        currentStep == .saveUserWallet
     }
 
     override var mainButtonSettings: TangemButtonSettings {
@@ -208,11 +224,21 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         super.goToNextStep()
 
         switch currentStep {
-        case .done, .success:
+        case .success:
             withAnimation {
                 refreshButtonState = .doneCheckmark
                 fireConfetti()
             }
+        default:
+            break
+        }
+    }
+
+    override func skipCurrentStep() {
+        switch currentStep {
+        case .saveUserWallet:
+            didAskToSaveUserWallets()
+            goToNextStep()
         default:
             break
         }
