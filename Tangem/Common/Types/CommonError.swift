@@ -9,7 +9,7 @@
 import Foundation
 
 enum CommonError: Error {
-    case masterReleased
+    case objectReleased
     case noData
     case notImplemented
 }
