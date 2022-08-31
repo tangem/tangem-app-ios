@@ -48,6 +48,6 @@ struct DummyConfig: UserWalletConfig {
     }
 
     func makeWalletModel(for token: StorageEntry) throws -> WalletModel {
-        throw CommonError.unimplemented
+        throw CommonError.notImplemented
     }
 }
