@@ -117,12 +117,12 @@ class CardViewModel: Identifiable, ObservableObject {
         config.hasFeature(.hdWallets)
     }
 
-    var walletModels: [WalletModel]? {
-        state.walletModels
+    var walletModels: [WalletModel] {
+        state.walletModels ?? []
     }
 
-    var wallets: [Wallet]? {
-        walletModels?.map { $0.wallet }
+    var wallets: [Wallet] {
+        walletModels.map { $0.wallet }
     }
 
     var canSetLongTap: Bool {
@@ -536,7 +536,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private func makeAllWalletModels() -> [WalletModel] {
         let tokens = tokenItemsRepository.getItems()
-        return config.makeWalletModels(for: tokens)
+        return tokens.compactMap { try? config.makeWalletModel(for: $0) }
     }
 
     private func updateModel() {
@@ -558,13 +558,11 @@ class CardViewModel: Identifiable, ObservableObject {
 
         searchBlockchainsCancellable = nil
 
-        guard let currentBlockhains = wallets?.map({ $0.blockchain }) else {
-            return
-        }
+        let currentBlockhains = wallets.map({ $0.blockchain })
 
         let unused: [StorageEntry] = config.supportedBlockchains
             .subtracting(currentBlockhains).map { StorageEntry(blockchainNetwork: .init($0, derivationPath: nil), tokens: []) }
-        let models = config.makeWalletModels(for: unused)
+        let models = unused.compactMap { try? config.makeWalletModel(for: $0) }
         if models.isEmpty {
             return
         }
@@ -604,12 +602,12 @@ class CardViewModel: Identifiable, ObservableObject {
 
         var shouldAddWalletManager = false
         let network = getBlockchainNetwork(for: ethBlockchain, derivationPath: nil)
-        var ethWalletModel = walletModels?.first(where: { $0.blockchainNetwork == network })
+        var ethWalletModel = walletModels.first(where: { $0.blockchainNetwork == network })
 
         if ethWalletModel == nil {
             shouldAddWalletManager = true
             let entry = StorageEntry(blockchainNetwork: network, tokens: [])
-            ethWalletModel = config.makeWalletModels(for: [entry]).first
+            ethWalletModel = try? config.makeWalletModel(for: entry)
         }
 
         guard let tokenFinder = ethWalletModel?.walletManager as? TokenFinder else {
@@ -630,7 +628,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
                     if shouldAddWalletManager {
                         self.stateUpdateQueue.sync {
-                            self.state = .loaded(walletModel: self.walletModels! + [ethWalletModel!])
+                            self.state = .loaded(walletModel: self.walletModels + [ethWalletModel!])
                         }
                         ethWalletModel!.update()
                     }
@@ -691,20 +689,14 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func finishAddingTokens(_ entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
-        guard let walletModels = self.walletModels else {
-            completion(.success(()))
-            return
-        }
-
         var newWalletModels: [WalletModel] = []
 
         entries.forEach { entry in
             if let existingWalletModel = walletModels.first(where: { $0.blockchainNetwork == entry.blockchainNetwork }) {
                 existingWalletModel.addTokens(entry.tokens)
                 existingWalletModel.update()
-            } else {
-                let wm = config.makeWalletModels(for: [entry])
-                newWalletModels.append(contentsOf: wm)
+            } else if let walletModel = try? config.makeWalletModel(for: entry) {
+                newWalletModels.append(walletModel)
             }
         }
 
@@ -714,7 +706,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func canManage(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool {
-        if let walletModel = walletModels?.first(where: { $0.blockchainNetwork == blockchainNetwork }) {
+        if let walletModel = walletModels.first(where: { $0.blockchainNetwork == blockchainNetwork }) {
             return walletModel.canRemove(amountType: amountType)
         }
 
@@ -722,7 +714,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func canRemove(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool {
-        if let walletModel = walletModels?.first(where: { $0.blockchainNetwork == blockchainNetwork }) {
+        if let walletModel = walletModels.first(where: { $0.blockchainNetwork == blockchainNetwork }) {
             return walletModel.canRemove(amountType: amountType)
         }
 
@@ -759,14 +751,12 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func removeToken(_ token: BlockchainSdk.Token, blockchainNetwork: BlockchainNetwork) {
-        if let walletModel = walletModels?.first(where: { $0.blockchainNetwork == blockchainNetwork }) {
+        if let walletModel = walletModels.first(where: { $0.blockchainNetwork == blockchainNetwork }) {
             let isRemoved = walletModel.removeToken(token, for: cardId)
 
             if isRemoved {
                 stateUpdateQueue.sync {
-                    if let walletModels = self.walletModels {
-                        state = .loaded(walletModel: walletModels)
-                    }
+                    state = .loaded(walletModel: walletModels)
                 }
             }
         }
