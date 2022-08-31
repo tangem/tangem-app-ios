@@ -81,8 +81,8 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         return false
     }
 
-    required init(input: OnboardingInput, coordinator: OnboardingTopupRoutable) {
-        super.init(input: input, coordinator: coordinator)
+    required init(input: OnboardingInput, saveUserWalletOnFinish: Bool, coordinator: OnboardingTopupRoutable) {
+        super.init(input: input, saveUserWalletOnFinish: saveUserWalletOnFinish, coordinator: coordinator)
 
         if case let .singleWallet(steps) = input.steps {
             self.steps = steps
@@ -107,8 +107,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     override func skipCurrentStep() {
         switch currentStep {
         case .saveUserWallet:
-            didAskToSaveUserWallets()
-            goToNextStep()
+            skipSaveUserWallet()
         default:
             break
         }
