@@ -126,6 +126,17 @@
             ]
         },
         {
+            "id": "Optimism",
+            "symbol": "OP",
+            "name": "Optimism",
+            "networks":
+            [
+                {
+                    "networkId": "optimism/test"
+                }
+            ]
+        },
+        {
             "id": "tether",
             "symbol": "USDT",
             "name": "Tether USD",
@@ -451,17 +462,6 @@
                     "networkId": "fantom/test",
                     "contractAddress": "0x91ea991bd52EE3C40EdA2509701d905e1Ee54074",
                     "decimalCount": 18
-                }
-            ]
-        },
-        {
-            "id": "Optimism",
-            "symbol": "OP",
-            "name": "Optimism",
-            "networks":
-            [
-                {
-                    "networkId": "optimism/test"
                 }
             ]
         },
