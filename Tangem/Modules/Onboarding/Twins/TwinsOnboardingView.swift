@@ -169,6 +169,7 @@ struct TwinsOnboardingView: View {
 struct TwinsOnboardingView_Previews: PreviewProvider {
     static var previews: some View {
         TwinsOnboardingView(viewModel: TwinsOnboardingViewModel(input: PreviewData.previewTwinOnboardingInput,
+                                                                saveUserWalletOnFinish: false,
                                                                 coordinator: OnboardingCoordinator()))
     }
 }
