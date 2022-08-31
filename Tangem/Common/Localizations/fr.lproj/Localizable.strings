@@ -506,3 +506,5 @@ URL: %@";
 "wallet_connect_title" = "WalletConnect";
 "wallet_connect_subtitle" = "Сonnect to Dapps";
 "wallet_connect_select_network" = "Select network";
+"main_scan_card_warning_view_title" = "Scan your card";
+"main_scan_card_warning_view_subtitle" = "To access all the networks, you need to scan the card.";
