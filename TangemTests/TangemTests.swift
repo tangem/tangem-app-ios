@@ -25,7 +25,7 @@ class TangemTests: XCTestCase {
 
     func testDemoCardIds() throws {
         let cardIdRegex = try! NSRegularExpression(pattern: "[A-Z]{2}\\d{14}")
-        for demoCardId in Card.demoCardIds {
+        for demoCardId in DemoUtil().demoCardIds {
             let range = NSRange(location: 0, length: demoCardId.count)
             let match = cardIdRegex.firstMatch(in: demoCardId, options: [], range: range)
             XCTAssertTrue(match != nil, "Demo Card ID \(demoCardId) is invalid")
