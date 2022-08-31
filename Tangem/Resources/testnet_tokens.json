@@ -115,6 +115,17 @@
             ]
         },
         {
+            "id": "polkadot",
+            "symbol": "DOT",
+            "name": "Polkadot",
+            "networks":
+            [
+                {
+                    "networkId": "polkadot/test"
+                }
+            ]
+        },
+        {
             "id": "tether",
             "symbol": "USDT",
             "name": "Tether USD",
@@ -453,17 +464,6 @@
                     "networkId": "fantom/test",
                     "contractAddress": "0xf1277d1Ed8AD466beddF92ef448A132661956621",
                     "decimalCount": 18
-                }
-            ]
-        },
-        {
-            "id": "polkadot",
-            "symbol": "DOT",
-            "name": "Polkadot",
-            "networks":
-            [
-                {
-                    "networkId": "polkadot/test"
                 }
             ]
         },
