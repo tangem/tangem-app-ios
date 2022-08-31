@@ -620,6 +620,16 @@ extension CardViewModel {
 
         userWalletModel.remove(items: items, completion: completion)
     }
+
+    private func createUserWalletModelIfNeeded() {
+        guard userWalletModel == nil, cardInfo.card.hasWallets else { return }
+
+        userWalletModel = UserWalletModel(
+            config: config,
+            userWalletId: cardInfo.card.userWalletId,
+            output: self
+        )
+    }
 }
 
 extension CardViewModel: UserWalletModelOutput {
