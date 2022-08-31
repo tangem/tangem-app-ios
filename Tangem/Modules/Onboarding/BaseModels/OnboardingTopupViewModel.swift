@@ -49,10 +49,10 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
     private var refreshButtonDispatchWork: DispatchWorkItem?
     private unowned var coordinator: OnboardingTopupRoutable!
 
-    required init(input: OnboardingInput, coordinator: OnboardingTopupRoutable) {
+    required init(input: OnboardingInput, saveUserWalletOnFinish: Bool, coordinator: OnboardingTopupRoutable) {
         self.cardModel = input.cardInput.cardModel!
         self.coordinator = coordinator
-        super.init(input: input, onboardingCoordinator: coordinator)
+        super.init(input: input, saveUserWalletOnFinish: saveUserWalletOnFinish, onboardingCoordinator: coordinator)
 
         if let walletModel = self.cardModel.walletModels?.first {
             updateCardBalanceText(for: walletModel)
