@@ -355,7 +355,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         case .createWallet:
             break
         case .backupIntro:
-            goToStep(.saveUserWallet)
+            goToStep(steps.contains(.saveUserWallet) ?.saveUserWallet : .success)
             Analytics.log(.backupLaterTapped)
         case .selectBackupCards:
             if backupCardsAddedCount < 2 {
