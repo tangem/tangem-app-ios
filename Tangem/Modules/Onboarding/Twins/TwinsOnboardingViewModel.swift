@@ -127,7 +127,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
 
     private var canBuy: Bool { exchangeService.canBuy("BTC", amountType: .coin, blockchain: .bitcoin(testnet: false)) }
 
-    required init(input: OnboardingInput, coordinator: OnboardingTopupRoutable) {
+    required init(input: OnboardingInput, saveUserWalletOnFinish: Bool, coordinator: OnboardingTopupRoutable) {
         let cardModel = input.cardInput.cardModel!
         let twinData = input.twinData!
 
@@ -135,7 +135,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         self.twinData = twinData
         self.twinsService = .init(card: cardModel, twinData: twinData)
 
-        super.init(input: input, coordinator: coordinator)
+        super.init(input: input, saveUserWalletOnFinish: saveUserWalletOnFinish, coordinator: coordinator)
         if case let .twins(steps) = input.steps {
             self.steps = steps
 
@@ -237,8 +237,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
     override func skipCurrentStep() {
         switch currentStep {
         case .saveUserWallet:
-            didAskToSaveUserWallets()
-            goToNextStep()
+            skipSaveUserWallet()
         default:
             break
         }
