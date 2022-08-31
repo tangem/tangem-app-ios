@@ -547,9 +547,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private func updateLoadedState(with newWalletModels: [WalletModel]) {
         stateUpdateQueue.sync {
-            if let existingWalletModels = self.walletModels {
-                state = .loaded(walletModel: (existingWalletModels + newWalletModels))
-            }
+            state = .loaded(walletModel: (walletModels + newWalletModels))
         }
     }
 
@@ -744,9 +742,7 @@ class CardViewModel: Identifiable, ObservableObject {
         tokenItemsRepository.remove([blockchainNetwork])
 
         stateUpdateQueue.sync {
-            if let walletModels = self.walletModels {
-                state = .loaded(walletModel: walletModels.filter { $0.blockchainNetwork != blockchainNetwork })
-            }
+            state = .loaded(walletModel: walletModels.filter { $0.blockchainNetwork != blockchainNetwork })
         }
     }
 
