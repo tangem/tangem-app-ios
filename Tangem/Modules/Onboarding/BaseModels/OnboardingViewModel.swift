@@ -138,12 +138,14 @@ class OnboardingViewModel<Step: OnboardingStep> {
     var isFromMain: Bool = false
     private(set) var containerSize: CGSize = .zero
     unowned let onboardingCoordinator: OnboardingRoutable
+    private let saveUserWalletOnFinish: Bool
 
     @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
 
-    init(input: OnboardingInput, onboardingCoordinator: OnboardingRoutable) {
+    init(input: OnboardingInput, saveUserWalletOnFinish: Bool, onboardingCoordinator: OnboardingRoutable) {
         self.input = input
         self.onboardingCoordinator = onboardingCoordinator
+        self.saveUserWalletOnFinish = saveUserWalletOnFinish
         isFromMain = input.isStandalone
         isNavBarVisible = input.isStandalone
 
@@ -207,7 +209,9 @@ class OnboardingViewModel<Step: OnboardingStep> {
 
             onOnboardingFinished(for: input.cardInput.cardId)
 
-            saveUserWalletIfNeeded()
+            if saveUserWalletOnFinish {
+                saveUserWalletIfNeeded()
+            }
 
             return
         }
@@ -251,6 +255,11 @@ class OnboardingViewModel<Step: OnboardingStep> {
 
     func setupCardsSettings(animated: Bool, isContainerSetup: Bool) {
         fatalError("Not implemented")
+    }
+
+    func skipSaveUserWallet() {
+        didAskToSaveUserWallets()
+        goToNextStep()
     }
 
     func saveUserWallet() {
