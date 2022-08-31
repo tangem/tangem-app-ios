@@ -167,6 +167,7 @@ extension Blockchain {
             .tron(testnet: false),
             .arbitrum(testnet: false),
             .gnosis,
+            .dash(testnet: false),
         ]
     }()
 
