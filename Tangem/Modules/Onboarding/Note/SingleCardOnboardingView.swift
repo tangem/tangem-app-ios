@@ -123,6 +123,7 @@ struct SingleCardOnboardingView: View {
 struct OnboardingView_Previews: PreviewProvider {
     static var previews: some View {
         SingleCardOnboardingView(viewModel: .init(input: PreviewData.previewNoteCardOnboardingInput,
+                                                  saveUserWalletOnFinish: false,
                                                   coordinator: OnboardingCoordinator()))
     }
 }
