@@ -175,9 +175,8 @@ class MainViewModel: ObservableObject {
             .sink { [unowned self] in
                 print("⚠️ Card model will change")
                 self.objectWillChange.send()
-                guard let walletModels = self.cardModel.walletModels else { return }
 
-                if walletModels.isEmpty {
+                if cardModel.walletModels.isEmpty {
                     self.totalSumBalanceViewModel.update(with: [])
                 } else if !self.isLoadingTokensBalance {
                     self.updateTotalBalanceTokenListIfNeeded()
