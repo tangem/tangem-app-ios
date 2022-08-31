@@ -506,3 +506,5 @@ URL: %@";
 "wallet_connect_title" = "WalletConnect";
 "wallet_connect_subtitle" = "Подключение к Dapps";
 "wallet_connect_select_network" = "Выберите сеть";
+"main_scan_card_warning_view_title" = "Отсканируйте карту";
+"main_scan_card_warning_view_subtitle" = "Чтобы получить доступ ко всем сетям, вам необходимо отсканировать карту.";
