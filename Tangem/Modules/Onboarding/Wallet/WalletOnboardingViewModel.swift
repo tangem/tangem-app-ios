@@ -263,9 +263,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     private var backupService: BackupService { backupServiceProvider.backupService }
     private unowned var coordinator: WalletOnboardingRoutable!
 
-    init(input: OnboardingInput, coordinator: WalletOnboardingRoutable) {
+    init(input: OnboardingInput, saveUserWalletOnFinish: Bool, coordinator: WalletOnboardingRoutable) {
         self.coordinator = coordinator
-        super.init(input: input, onboardingCoordinator: coordinator)
+        super.init(input: input, saveUserWalletOnFinish: saveUserWalletOnFinish, onboardingCoordinator: coordinator)
 
         if case let .wallet(steps) = input.steps {
             self.steps = steps
@@ -442,8 +442,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     override func skipCurrentStep() {
         switch currentStep {
         case .saveUserWallet:
-            didAskToSaveUserWallets()
-            goToNextStep()
+            skipSaveUserWallet()
         default:
             break
         }
