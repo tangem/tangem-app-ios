@@ -58,7 +58,7 @@ extension UserWalletConfig {
     }
 
     var needUserWalletSavingSteps: Bool {
-        return BiometricsUtil.isAvailable
+        return BiometricsUtil.isAvailable && !AppSettings.shared.saveUserWallets
     }
 
     func hasFeature(_ feature: UserWalletFeature) -> Bool {
