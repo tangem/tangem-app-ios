@@ -201,14 +201,14 @@ extension GenericDemoConfig: UserWalletConfig {
             partialResult[cardWallet.curve] = cardWallet.publicKey
         }
 
-        let derivedKeys: [EllipticCurve: [DerivationPath: ExtendedPublicKey]] = card.wallets.reduce(into: [:]) { partialResult, cardWallet in
-            partialResult[cardWallet.curve] = cardWallet.derivedKeys
-        }
-
         let factory = WalletModelFactory()
         let model: WalletModel
 
         if card.settings.isHDWalletAllowed {
+            let derivedKeys: [EllipticCurve: [DerivationPath: ExtendedPublicKey]] = card.wallets.reduce(into: [:]) { partialResult, cardWallet in
+                partialResult[cardWallet.curve] = cardWallet.derivedKeys
+            }
+
             model = try factory.makeMultipleWallet(seedKeys: walletPublicKeys,
                                                    entry: token,
                                                    derivedKeys: derivedKeys,
