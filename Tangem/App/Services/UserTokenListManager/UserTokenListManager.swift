@@ -12,7 +12,6 @@ import BlockchainSdk
 protocol UserTokenListManager {
     func update(userWalletId: String)
 
-    /// If in result card not nil should update cardModel
     func append(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void)
     func remove(blockchain: BlockchainNetwork, result: @escaping (Result<UserTokenList, Error>) -> Void)
     func remove(tokens: [Token], in blockchain: BlockchainNetwork, result: @escaping (Result<UserTokenList, Error>) -> Void)
