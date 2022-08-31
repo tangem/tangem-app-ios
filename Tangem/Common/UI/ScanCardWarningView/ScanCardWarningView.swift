@@ -14,10 +14,10 @@ struct ScanCardWarningView: View {
             icon
 
             VStack(alignment: .leading, spacing: 2) {
-                Text("Scan your card")
+                Text("main_scan_card_warning_view_title".localized)
                     .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
-                Text("To access all the networks, you need to scan the card.")
+                Text("main_scan_card_warning_view_subtitle".localized)
                     .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
             }
 
