@@ -9,25 +9,28 @@
 import SwiftUI
 
 struct ScanCardWarningView: View {
+    let action: () -> Void
     var body: some View {
-        HStack(alignment: .center, spacing: 10) {
-            icon
+        Button(action: action) {
+            HStack(alignment: .center, spacing: 10) {
+                icon
 
-            VStack(alignment: .leading, spacing: 2) {
-                Text("main_scan_card_warning_view_title".localized)
-                    .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("main_scan_card_warning_view_title".localized)
+                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
-                Text("main_scan_card_warning_view_subtitle".localized)
-                    .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                    Text("main_scan_card_warning_view_subtitle".localized)
+                        .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                }
+
+                Assets.chevron
             }
-
-            Assets.chevron
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+            .background(Colors.Background.primary)
+            .cornerRadius(14)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, 16)
-        .padding(.vertical, 10)
-        .background(Colors.Background.primary)
-        .cornerRadius(14)
     }
 
     private var icon: some View {
@@ -49,8 +52,7 @@ struct ScanCardWarningView_Preview: PreviewProvider {
         ZStack {
             Colors.Background.secondary
 
-            ScanCardWarningView()
-                .padding()
+            ScanCardWarningView {}.padding()
         }
     }
 }
