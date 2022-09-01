@@ -94,7 +94,6 @@ class WalletConnectService: ObservableObject {
         server.register(handler: SignTypedDataHandler(delegate: self, dataSource: self))
         server.register(handler: SwitchChainHandler(delegate: self, dataSource: self))
         restore()
-        restore()
     }
 
     deinit {
