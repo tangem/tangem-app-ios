@@ -35,29 +35,9 @@ extension View {
         }
     }
 
-    func resizableBottomSheet<Item, Content: ResizableSheetView>(item: Binding<Item?>,
-                                                                 viewModelSettings: BottomSheetSettings,
-                                                                 contentView: @escaping (Item) -> Content) -> some View {
-        let isPresented = Binding {
-            item.wrappedValue != nil
-        } set: { value in
-            if !value {
-                item.wrappedValue = nil
-            }
-        }
-
-        return resizableBottomSheet(isPresented: isPresented, viewModelSettings: viewModelSettings) {
-            if let unwrapedItem = item.wrappedValue {
-                return contentView(unwrapedItem)
-            } else {
-                return BottomSheetEmptyView() as! Content
-            }
-        }
-    }
-
     func resizableBottomSheet<Content: ResizableSheetView>(isPresented: Binding<Bool>,
                                                            viewModelSettings: BottomSheetSettings,
-                                                           contentView: @escaping () -> Content) -> some View {
+                                                           @ViewBuilder contentView: @escaping () -> Content) -> some View {
         self.modifier(ResizableBottomSheetModifier(isPresented: isPresented, viewModelSettings: viewModelSettings, contentView: contentView))
     }
 }
