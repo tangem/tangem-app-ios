@@ -7,7 +7,6 @@
 //
 
 import TangemSdk
-import CryptoKit
 
 #if !CLIP
 import BlockchainSdk
@@ -41,7 +40,7 @@ extension Card {
         let accIdData = Data(accId)
         let accIdString = accIdData.hexString
 
-        return accIdString + "3"
+        return accIdString
     }
 
     var derivationStyle: DerivationStyle {
