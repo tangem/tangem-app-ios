@@ -8,9 +8,6 @@
 
 import Foundation
 import BlockchainSdk
-import struct TangemSdk.DerivationPath
-import Network
-import Combine
 
 class CommonTokenItemsRepository {
     @Injected(\.persistentStorage) var persistanceStorage: PersistentStorageProtocol
