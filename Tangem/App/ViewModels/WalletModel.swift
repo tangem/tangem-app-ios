@@ -206,9 +206,10 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
                             self.state = .failed(error: error.detailedError)
                             self.displayState = .readyForDisplay
                             Analytics.log(error: error)
+                            self.updatePublisher?.send(completion: .failure(error))
                         }
 
-                    case .success(_):
+                    case .success:
                         self.latestUpdateTime = Date()
 
                         if let demoBalance = self.demoBalance {
