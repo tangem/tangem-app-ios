@@ -47,7 +47,10 @@ extension CommonWalletListManager: WalletListManager {
     }
 
     func subscribeNonDerivationEntries() -> AnyPublisher<[StorageEntry], Never> {
-        entriesWithoutDerivation.dropFirst().eraseToAnyPublisher()
+        entriesWithoutDerivation
+            .dropFirst()
+            .removeDuplicates()
+            .eraseToAnyPublisher()
     }
 
     func updateWalletModels() {
@@ -110,7 +113,7 @@ extension CommonWalletListManager: WalletListManager {
     func reloadAllWalletModels() -> AnyPublisher<Void, Error> {
         guard !getWalletModels().isEmpty else {
             print("‼️ WalletModels is empty")
-            return Empty().eraseToAnyPublisher()
+            return .just
         }
 
         return reloadAllWalletModelsPublisher()
@@ -143,17 +146,18 @@ private extension CommonWalletListManager {
         tryMigrateTokens()
             .tryMap { [weak self] _ ->  AnyPublisher<Void, Error> in
                 guard let self = self else {
-                    throw CommonError.masterReleased
+                    throw CommonError.objectReleased
                 }
 
-                return self.observeBalanceLoading()
+                return self.updateWalletModelsPublisher()
             }
             .switchToLatest()
             .eraseToAnyPublisher()
     }
 
-    func observeBalanceLoading() -> AnyPublisher<Void, Error> {
+    func updateWalletModelsPublisher() -> AnyPublisher<Void, Error> {
         let publishers = getWalletModels().map { $0.update() }
+
         return Publishers
             .MergeMany(publishers)
             .collect(publishers.count)
@@ -184,7 +188,7 @@ private extension CommonWalletListManager {
         }
 
         return Publishers.MergeMany(publishers)
-            .collect()
+            .collect(publishers.count)
             .handleEvents(receiveOutput: { [weak self] migrationResults in
                 if migrationResults.contains(true) {
                     self?.updateWalletModels()
