@@ -74,7 +74,7 @@ extension Blockchain {
         case .arbitrum: return "arbitrum-one"
         case .dash: return "dash"
         case .gnosis: return "xdai"
-        case .optimism: return "optimism"
+        case .optimism: return "optimistic-ethereum"
         }
     }
 
@@ -117,7 +117,7 @@ extension Blockchain {
         case .arbitrum: return "arbitrum-one"
         case .dash: return "dash"
         case .gnosis: return "xdai"
-        case .optimism: return "optimism"
+        case .optimism: return "optimistic-ethereum"
         }
     }
 
@@ -171,6 +171,7 @@ extension Blockchain {
             .arbitrum(testnet: false),
             .gnosis,
             .dash(testnet: false),
+            .optimism(testnet: false),
         ]
     }()
 
@@ -189,6 +190,7 @@ extension Blockchain {
             .polkadot(testnet: true),
             .tron(testnet: true),
             .arbitrum(testnet: true),
+            .optimism(testnet: true),
         ]
     }()
 }
