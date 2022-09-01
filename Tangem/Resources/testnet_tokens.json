@@ -126,6 +126,17 @@
             ]
         },
         {
+            "id": "Optimism",
+            "symbol": "OP",
+            "name": "Optimism",
+            "networks":
+            [
+                {
+                    "networkId": "optimism/test"
+                }
+            ]
+        },
+        {
             "id": "tether",
             "symbol": "USDT",
             "name": "Tether USD",
