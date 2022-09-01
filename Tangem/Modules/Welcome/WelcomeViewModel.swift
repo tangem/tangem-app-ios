@@ -143,7 +143,7 @@ class WelcomeViewModel: ObservableObject {
         }
     }
 
-    private func didFinishUnlocking(_ result: Result<Void, TangemSdkError>) {
+    private func didFinishUnlocking(_ result: Result<Void, Error>) {
         if case .failure(let error) = result {
             print("Failed to unlock user wallets: \(error)")
             return
