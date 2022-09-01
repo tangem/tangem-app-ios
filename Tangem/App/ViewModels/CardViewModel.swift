@@ -264,7 +264,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     var userWallet: UserWallet {
-        UserWalletFactory().userWallet(from: self)
+        _userWallet
     }
 
     var isUserWalletLocked: Bool {
@@ -306,15 +306,18 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private var searchBlockchainsCancellable: AnyCancellable? = nil
     private var bag = Set<AnyCancellable>()
+    private var _userWallet: UserWallet! // [REDACTED_TODO_COMMENT]
 
     convenience init(userWallet: UserWallet) {
         self.init(cardInfo: userWallet.cardInfo())
+        _userWallet = userWallet
     }
 
     init(cardInfo: CardInfo) {
         self.cardInfo = cardInfo
         self.config = UserWalletConfigFactory(cardInfo).makeConfig()
-        tokenItemsRepository = CommonTokenItemsRepository(key: cardInfo.card.cardId)
+        self.tokenItemsRepository = CommonTokenItemsRepository(key: cardInfo.card.cardId)
+        self._userWallet = UserWalletFactory().userWallet(from: self)
 
         updateCardPinSettings()
         updateCurrentSecurityOption()
@@ -510,6 +513,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     func setUserWallet(_ userWallet: UserWallet) {
         cardInfo = userWallet.cardInfo()
+        _userWallet = userWallet
     }
 
     // MARK: - Update
