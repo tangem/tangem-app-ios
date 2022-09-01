@@ -10,8 +10,8 @@ import Combine
 
 class WalletTokenListViewModel: ObservableObject {
     // MARK: - ViewState
+
     @Published var contentState: ContentState<[TokenItemViewModel]> = .loading
-    @Published var loadingError: Error?
 
     // MARK: - Private
 
@@ -50,6 +50,7 @@ class WalletTokenListViewModel: ObservableObject {
 
         // 1. Load and save tokens from API if it recieved succesefully
         loadTokensSubscribtion = userTokenListManager.loadAndSaveUserTokenList()
+            .replaceError(with: UserTokenList(tokens: []))
             .tryMap { [unowned self] list -> AnyPublisher<Void, Error> in
                 // Just update wallet models from repository
                 self.walletListManager.updateWalletModels()
@@ -58,22 +59,21 @@ class WalletTokenListViewModel: ObservableObject {
                 return self.walletListManager.reloadAllWalletModels()
             }
             .switchToLatest()
+            .print("loadTokensSubscribtion")
             .receiveCompletion { [unowned self] completion in
                 switch completion {
                 case .finished:
-                    self.updateView()
                     // Call callback result to close "Pull-to-refresh" animating
                     result(.success(()))
 
                 case let .failure(error):
-                    loadingError = error
-                    contentState = .error(error: error)
                     // Call callback result to close "Pull-to-refresh" animating
                     result(.failure(error))
                 }
+
+                updateView()
             }
     }
-//    var bag: Set<AnyCancellable> = []
 }
 
 // MARK: - Private
@@ -87,7 +87,6 @@ private extension WalletTokenListViewModel {
 
     func bind() {
         subscribeWalletModelsBag = walletListManager.subscribeWalletModels()
-            .print("WalletModels")
             .receiveValue { [unowned self] _ in
                 self.updateView()
             }
