@@ -170,13 +170,9 @@ struct MainView: View {
                             backupWarningView
                         }
 
-                        if viewModel.isShowNonDerivationButton {
-                            Button(action: viewModel.deriveNonDerivedTokens) {
-                                Text("DeriveNonDerivedTokens")
-                                    .frame(maxWidth: .infinity)
-                                    .padding()
-                                    .background(Color.purple)
-                            }
+                        if viewModel.isScanCardWarningViewVisible {
+                            ScanCardWarningView(action: viewModel.deriveNonDerivedTokens)
+                                .padding(.horizontal, 16)
                         }
 
                         WarningListView(warnings: viewModel.warnings, warningButtonAction: {
