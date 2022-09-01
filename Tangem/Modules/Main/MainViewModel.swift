@@ -32,7 +32,7 @@ class MainViewModel: ObservableObject {
     @Published var showExplorerURL: URL? = nil
     @Published var showQR: Bool = false
     @Published var isOnboardingModal: Bool = true
-    @Published var isShowNonDerivationButton: Bool = false
+    @Published var isScanCardWarningViewVisible: Bool = false
 
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
@@ -278,15 +278,6 @@ class MainViewModel: ObservableObject {
     }
 
     func onRefresh(_ done: @escaping () -> Void) {
-        guard !cardModel.walletModels.isEmpty else {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                withAnimation {
-                    done()
-                }
-            }
-            return
-        }
-
         Analytics.log(.mainPageRefresh)
         walletTokenListViewModel?.refreshTokens(result: { result in
             print("♻️ Wallet model loading state changed with result", result)
@@ -490,7 +481,7 @@ class MainViewModel: ObservableObject {
     }
 
     private func updateNonDerivationWarningView(entries: [StorageEntry]) {
-        isShowNonDerivationButton = !entries.isEmpty
+        isScanCardWarningViewVisible = !entries.isEmpty
     }
 }
 
