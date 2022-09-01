@@ -268,7 +268,9 @@ class OnboardingViewModel<Step: OnboardingStep> {
         userWalletListService.unlockWithBiometry { [weak self] result in
             switch result {
             case .failure(let error):
-                if case .userCancelled = error {
+                if let tangemSdkError = error as? TangemSdkError,
+                   case .userCancelled = tangemSdkError
+                {
                     return
                 }
                 print("Failed to get access to biometry", error)
