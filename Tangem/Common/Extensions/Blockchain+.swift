@@ -41,7 +41,7 @@ extension Blockchain {
         case "arbitrum", "arbitrum-one": self = .arbitrum(testnet: isTestnet)
         case "dash": self = .dash(testnet: isTestnet)
         case "xdai": self = .gnosis
-        case "optimism": self = .optimism(testnet: isTestnet)
+        case "optimistic-ethereum": self = .optimism(testnet: isTestnet)
         default:
             print("⚠️⚠️⚠️ Failed to map network ID \"\(stringId)\"")
             return nil
