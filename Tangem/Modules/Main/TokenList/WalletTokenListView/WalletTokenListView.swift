@@ -70,21 +70,3 @@ struct WalletTokenListView: View {
         }
     }
 }
-
-struct WalletTokenListViewModel_Preview: PreviewProvider {
-    static var previews: some View {
-        ZStack {
-            Colors.Background.secondary.edgesIgnoringSafeArea(.all)
-
-//            WalletTokenListView(viewModel: WalletTokenListViewModel(
-//                userTokenListManager: UserTokenListManager,
-//                walletListManager: <#T##WalletListManager#>,
-//                walletDidTap: <#T##(TokenItemViewModel) -> ()#>
-//                ,
-//                walletDidTap: { _ in
-//
-//                }))
-        }
-        .previewLayout(.sizeThatFits)
-    }
-}
