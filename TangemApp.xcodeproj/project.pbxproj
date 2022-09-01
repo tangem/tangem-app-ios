@@ -1507,6 +1507,7 @@
 		5D958E1224F513C1006BD932 /* UI */ = {
 			isa = PBXGroup;
 			children = (
+				EF661E2328BF40B3005769E5 /* ScanCardWarningView */,
 				EFA580642893F89000110DB0 /* AttentionView */,
 				EF9CFC3A2890233100329BE0 /* DefaultListViews */,
 				65B4DEC52881A948001524CF /* BottomSheet */,
@@ -3434,6 +3435,7 @@
 				5DDFC2072812B7AB005976FE /* RatesResponse.swift in Sources */,
 				B0D76D4525D4E4560073FA98 /* AddCustomTokenView.swift in Sources */,
 				5D6784C325EB8EF000149995 /* CommonTokenItemsRepository.swift in Sources */,
+				EF661E2528BF40B3005769E5 /* ScanCardWarningView.swift in Sources */,
 				B0C4F76F26F08AB40086D815 /* TwinsOnboardingStep.swift in Sources */,
 				65B4DED828835BE4001524CF /* BottomSheetViewController.swift in Sources */,
 				B018F304259204A200D8F89A /* WarningEvent.swift in Sources */,
