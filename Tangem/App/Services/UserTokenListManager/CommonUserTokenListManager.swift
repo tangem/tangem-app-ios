@@ -63,7 +63,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
     func loadAndSaveUserTokenList() -> AnyPublisher<UserTokenList, Error> {
         Future<UserTokenList, Error> { [weak self] promise in
             guard let self = self else {
-                promise(.failure(CommonError.masterReleased))
+                promise(.failure(CommonError.objectReleased))
                 return
             }
 
