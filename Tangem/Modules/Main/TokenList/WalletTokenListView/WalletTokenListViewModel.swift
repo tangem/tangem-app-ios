@@ -44,11 +44,9 @@ class WalletTokenListViewModel: ObservableObject {
 
     func refreshTokens(result: @escaping (Result<Void, Error>) -> Void = { _ in }) {
         // 1. Load and save tokens from API if it recieved succesefully
-        // 2. Show list from API throught creates WalletModels in CardModel
+        // 2. Show walletModel list from local repository
         // 3. Update rates for each wallet model with skeleton
         // 4. Profit. Show actual information
-
-        // 1. Load and save tokens from API if it recieved succesefully
         loadTokensSubscribtion = userTokenListManager.loadAndSaveUserTokenList()
             .replaceError(with: UserTokenList(tokens: []))
             .tryMap { [unowned self] list -> AnyPublisher<Void, Error> in
@@ -59,7 +57,6 @@ class WalletTokenListViewModel: ObservableObject {
                 return self.walletListManager.reloadAllWalletModels()
             }
             .switchToLatest()
-            .print("loadTokensSubscribtion")
             .receiveCompletion { [unowned self] completion in
                 switch completion {
                 case .finished:
@@ -90,46 +87,5 @@ private extension WalletTokenListViewModel {
             .receiveValue { [unowned self] _ in
                 self.updateView()
             }
-
-//            .map {
-//                $0.reduce([]) { $0 + $1.tokenItemViewModels }
-//            }
-//            .print("WalletModels")
-//            .flatMap { [unowned self] walletModels -> AnyPublisher<[TokenItemViewModel], Never> in
-//                let publishers = walletModels.forEach { walletModel in
-//                    walletModel.$tokenItemViewModels.receiveValue { models in
-//                        print("models", walletModel.state, models.count)
-//                    }
-//                    .store(in: &bag)
-//                }
-
-//                let publishers: [AnyPublisher<[TokenItemViewModel], Never>] = models.reduce([]) {
-//                    $0 + $1.$tokenItemViewModels.eraseToAnyPublisher()
-//                }
-//                let publishers = walletModels.map { walletModel in
-//                    walletModel.$tokenItemViewModels
-//                        .collect(walletModel.tokenItemViewModels.count)
-//                        .map { $0.reduce([], +) }
-//                }
-//
-//                return Publishers.MergeMany(publishers)
-//                    .collect(publishers.count) //
-//                    .map { $0.reduce([], +) }
-//                    .eraseToAnyPublisher()
-
-//                return models.publisher
-//                    .flatMap(\.tokenItemViewModels.publisher)
-//                    .collect()
-//                    .eraseToAnyPublisher()
-//            }
-//            .print("MergeMany")
-//            .receiveValue { [unowned self] itemsViewModel in
-//                print("itemsViewModel", itemsViewModel.map { $0.blockchainNetwork.blockchain.displayName })
-//                if itemsViewModel.isEmpty {
-//                    contentState = .empty
-//                } else {
-//                    contentState = .loaded(itemsViewModel)
-//                }
-//            }
     }
 }
