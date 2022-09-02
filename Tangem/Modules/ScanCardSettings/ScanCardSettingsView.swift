@@ -32,7 +32,7 @@ struct ScanCardSettingsView: View {
                             .multilineTextAlignment(.center)
                     }
                 }
-                .padding(.horizontal, 16)
+                .padding(.horizontal, 40)
             }
 
             TangemButton(title: "scan_card_settings_button", image: "tangemIcon", iconPosition: .trailing) {
@@ -45,5 +45,14 @@ struct ScanCardSettingsView: View {
         .alert(item: $viewModel.alert) { $0.alert }
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("card_settings_title", displayMode: .inline)
+    }
+}
+
+struct ScanCardSettingsView_Preview: PreviewProvider {
+    static let viewModel = ScanCardSettingsViewModel(coordinator: DetailsCoordinator())
+
+    static var previews: some View {
+        ScanCardSettingsView(viewModel: viewModel)
+            .deviceForPreview(.iPhone7)
     }
 }
