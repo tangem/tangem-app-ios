@@ -106,7 +106,7 @@ enum SecurityModeOption: String, CaseIterable, Identifiable, Equatable {
         case .accessCode:
             return "details_manage_security_access_code".localized
         case .longTap:
-            return "details_manage_security_long_tap_storter".localized
+            return "details_manage_security_long_tap_shorter".localized
         case .passCode:
             return "details_manage_security_passcode".localized
         }
