@@ -126,13 +126,13 @@
             ]
         },
         {
-            "id": "Optimism",
+            "id": "optimistic-ethereum",
             "symbol": "OP",
             "name": "Optimism",
             "networks":
             [
                 {
-                    "networkId": "optimism/test"
+                    "networkId": "optimistic-ethereum/test"
                 }
             ]
         },
