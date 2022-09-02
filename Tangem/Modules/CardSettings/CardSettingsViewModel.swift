@@ -68,7 +68,7 @@ class CardSettingsViewModel: ObservableObject {
 private extension CardSettingsViewModel {
     func bind() {
         cardModel.$currentSecurityOption
-            .map { $0.title }
+            .map { $0.titleForDetails }
             .weakAssign(to: \.securityModeTitle, on: self)
             .store(in: &bag)
     }
