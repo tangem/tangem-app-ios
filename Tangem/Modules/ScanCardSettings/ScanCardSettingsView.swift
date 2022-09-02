@@ -28,7 +28,7 @@ struct ScanCardSettingsView: View {
                             .multilineTextAlignment(.center)
 
                         Text("scan_card_settings_message")
-                            .style(Fonts.Regular.callout, color: Colors.Text.primary1)
+                            .style(Fonts.Regular.callout, color: Colors.Text.secondary)
                             .multilineTextAlignment(.center)
                     }
                 }
