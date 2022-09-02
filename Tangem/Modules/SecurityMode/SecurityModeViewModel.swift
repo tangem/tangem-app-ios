@@ -100,7 +100,7 @@ enum SecurityModeOption: String, CaseIterable, Identifiable, Equatable {
             return "details_manage_security_passcode".localized
         }
     }
-    
+
     var titleForDetails: String {
         switch self {
         case .accessCode:

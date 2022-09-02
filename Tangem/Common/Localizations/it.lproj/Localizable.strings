@@ -81,6 +81,7 @@ Tangem is the only hardware wallet to offer signature count protection.";
 "details_manage_security_access_code" = "Codice di accesso";
 "details_manage_security_access_code_description" = "Prima di scansionare la carta sarà necessario inserire il codice di accesso corretto";
 "details_manage_security_long_tap" = "Mantenimento della carta";
+"details_manage_security_long_tap_storter" = "Mantenimento della carta";
 "details_manage_security_long_tap_description" = "Questo meccanismo protegge dagli avvicinamenti senza contatto sulla carta. Attiva un ritardo tra la ricezione e l'esecuzione di un comando. Dopo la prima transazione firmata, questo telefono verrà associato alla carta e le transazioni verranno firmate immediatamente.";
 "details_manage_security_passcode" = "Password";
 "details_manage_security_passcode_description" = "Dovrai inserire una password prima di eseguire qualsiasi comando che modifichi lo stato della carta.";
