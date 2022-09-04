@@ -26,7 +26,7 @@ struct CardView: View {
                 Color.tangemGrayLight4
                     .transition(.opacity)
                     .opacity(0.5)
-                    .frame(width: width, height: 190, alignment: .center)
+                    .frame(width: 358, height: 225, alignment: .center)
                     .cornerRadius(6)
                     .padding(.vertical, verticalPadding)
             }
