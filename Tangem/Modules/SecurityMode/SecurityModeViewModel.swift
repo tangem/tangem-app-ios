@@ -101,6 +101,17 @@ enum SecurityModeOption: String, CaseIterable, Identifiable, Equatable {
         }
     }
 
+    var titleForDetails: String {
+        switch self {
+        case .accessCode:
+            return "details_manage_security_access_code".localized
+        case .longTap:
+            return "details_manage_security_long_tap_shorter".localized
+        case .passCode:
+            return "details_manage_security_passcode".localized
+        }
+    }
+
     var subtitle: String {
         switch self {
         case .accessCode:
