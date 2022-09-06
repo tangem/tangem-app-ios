@@ -22,6 +22,7 @@ class AppSettingsViewModel: ObservableObject {
     private unowned let coordinator: AppSettingsRoutable
 
     @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
+    @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
 
     // MARK: Properties
 
@@ -153,7 +154,7 @@ private extension AppSettingsViewModel {
                 isSavingAccessCodes = false
                 shouldShowAlertOnDisableSaveAccessCodes = true
 
-                // [REDACTED_TODO_COMMENT]
+                sdkProvider.sdk.deleteSavedAccessCodes()
             }
         }
     }
