@@ -491,6 +491,7 @@ class CardViewModel: Identifiable, ObservableObject {
             }
         }
 
+        tangemSdk.config = TangemSdkConfigFactory().makeDefaultConfig()
         tangemSdk.config.defaultDerivationPaths = derivations
         tangemSdk.startSession(with: ScanTask(), cardId: card.cardId) { [weak self] result in
             guard let self = self else { return }
