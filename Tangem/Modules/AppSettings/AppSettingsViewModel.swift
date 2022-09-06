@@ -148,7 +148,9 @@ private extension AppSettingsViewModel {
 
         withAnimation {
             if saveAccessCodes {
-                isSavingWallet = true
+                if !isSavingWallet {
+                    isSavingWallet = true
+                }
             } else {
                 shouldShowAlertOnDisableSaveAccessCodes = false
                 isSavingAccessCodes = false

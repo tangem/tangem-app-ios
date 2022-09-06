@@ -276,6 +276,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
                 print("Failed to get access to biometry", error)
             case .success:
                 AppSettings.shared.saveUserWallets = true
+                AppSettings.shared.saveAccessCodes = true
                 self?.saveUserWalletIfNeeded()
             }
             self?.goToNextStep()
