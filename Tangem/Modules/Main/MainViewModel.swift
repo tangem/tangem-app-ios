@@ -527,6 +527,7 @@ class MainViewModel: ObservableObject {
                 let _ = self?.userWalletListService.save(cardModel.userWallet)
                 self?.coordinator.openUserWalletList()
                 AppSettings.shared.saveUserWallets = true
+                AppSettings.shared.saveAccessCodes = true
             }
         }
     }
