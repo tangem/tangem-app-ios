@@ -27,7 +27,7 @@ class WelcomeViewModel: ObservableObject {
     @Published var showingAuthentication = false
 
     var shouldShowAuthenticationView: Bool {
-        AppSettings.shared.saveUserWallets && !userWalletListService.isEmpty
+        AppSettings.shared.saveUserWallets && !userWalletListService.isEmpty && BiometricsUtil.isAvailable
     }
 
     private var storiesModelSubscription: AnyCancellable? = nil
