@@ -38,15 +38,15 @@ extension CommonWalletListManager: WalletListManager {
         walletModels.value
     }
 
-    func subscribeWalletModels() -> AnyPublisher<[WalletModel], Never> {
+    func subscribeToWalletModels() -> AnyPublisher<[WalletModel], Never> {
         walletModels.dropFirst().eraseToAnyPublisher()
     }
 
-    func getNonDerivationEntries() -> [StorageEntry] {
+    func getEntriesWithoutDerivation() -> [StorageEntry] {
         entriesWithoutDerivation.value
     }
 
-    func subscribeNonDerivationEntries() -> AnyPublisher<[StorageEntry], Never> {
+    func subscribeToEntriesWithoutDerivation() -> AnyPublisher<[StorageEntry], Never> {
         entriesWithoutDerivation
             .dropFirst()
             .removeDuplicates()
@@ -57,7 +57,7 @@ extension CommonWalletListManager: WalletListManager {
         print("‼️ Updating Wallet models")
 
         var walletModels = getWalletModels()
-        let entries = userTokenListManager.syncGetEntriesFromRepository()
+        let entries = userTokenListManager.getEntriesFromRepository()
         log(entires: entries)
 
         // Update tokens
@@ -93,15 +93,14 @@ extension CommonWalletListManager: WalletListManager {
                 }
             }
 
-        walletModels.removeAll(where: { walletModel in
+        walletModels.removeAll { walletModel in
             if !entries.contains(where: { $0.blockchainNetwork == walletModel.blockchainNetwork }) {
                 print("‼️ WalletModel will be removed \(walletModel.blockchainNetwork.blockchain.displayName)")
                 return true
             }
 
             return false
-        })
-
+        }
 
         walletModels.append(contentsOf: walletModelsToAdd)
         log(walletModels: walletModels)
@@ -110,7 +109,7 @@ extension CommonWalletListManager: WalletListManager {
         self.walletModels.send(walletModels)
     }
 
-    func reloadAllWalletModels() -> AnyPublisher<Void, Error> {
+    func reloadWalletModels() -> AnyPublisher<Void, Error> {
         guard !getWalletModels().isEmpty else {
             print("‼️ WalletModels is empty")
             return .just
@@ -172,7 +171,7 @@ private extension CommonWalletListManager {
 
         migrated = true
 
-        let items = userTokenListManager.syncGetEntriesFromRepository()
+        let items = userTokenListManager.getEntriesFromRepository()
         let itemsWithCustomTokens = items.filter { item in
             return item.tokens.contains(where: { $0.isCustom })
         }

@@ -20,12 +20,12 @@ struct TokenItemsRepositoryMigrator {
     func migrate() {
         let oldRepository = CommonTokenItemsRepository(key: cardId)
         let oldEntries = oldRepository.getItems()
-        oldRepository.removeAll()
 
         // Save a old entries in new repository
         let newRepository = CommonTokenItemsRepository(key: userWalletId)
         newRepository.append(oldEntries)
 
+        oldRepository.removeAll()
         print("TokenRepository for cardId: \(cardId) successfully migrates to userWalletId: \(userWalletId)")
     }
 }
