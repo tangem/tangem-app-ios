@@ -18,10 +18,6 @@ struct WelcomeView: View {
             } else {
                 storiesView
             }
-
-            ScanTroubleshootingView(isPresented: $viewModel.showTroubleshootingView,
-                                    tryAgainAction: viewModel.tryAgain,
-                                    requestSupportAction: viewModel.requestSupport)
         }
         .navigationBarHidden(viewModel.navigationBarHidden)
         .navigationBarTitle("", displayMode: .inline)
@@ -29,6 +25,11 @@ struct WelcomeView: View {
         .alert(item: $viewModel.error, content: { $0.alert })
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDissappear)
+        .background(
+            ScanTroubleshootingView(isPresented: $viewModel.showTroubleshootingView,
+                                    tryAgainAction: viewModel.tryAgain,
+                                    requestSupportAction: viewModel.requestSupport)
+        )
     }
 
     var unlockView: some View {
