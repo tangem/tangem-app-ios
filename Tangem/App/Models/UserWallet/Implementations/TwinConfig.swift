@@ -73,21 +73,32 @@ extension TwinConfig: UserWalletConfig {
         if card.wallets.isEmpty { // twin without created wallet. Start onboarding
             steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
             steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
+            steps.append(contentsOf: userWalletSavingSteps)
+            steps.append(TwinsOnboardingStep.success)
             return .twins(steps)
         } else { // twin with created wallet
             if twinData.pairPublicKey == nil { // is not twinned
                 steps.append(contentsOf: TwinsOnboardingStep.twinningProcessSteps)
                 steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
+                steps.append(contentsOf: userWalletSavingSteps)
+                steps.append(TwinsOnboardingStep.success)
                 return .twins(steps)
             } else { // is twinned
                 if AppSettings.shared.cardsStartedActivation.contains(card.cardId) { // card is in onboarding process, go to topup
                     steps.append(contentsOf: TwinsOnboardingStep.topupSteps)
+                    steps.append(contentsOf: userWalletSavingSteps)
+                    steps.append(TwinsOnboardingStep.success)
                     return .twins(steps)
                 } else { // unknown twin, ready to use, go to main
                     return .twins(steps)
                 }
             }
         }
+    }
+
+    var userWalletSavingSteps: [TwinsOnboardingStep] {
+        guard needUserWalletSavingSteps else { return [] }
+        return [.saveUserWallet]
     }
 
     var backupSteps: OnboardingSteps? {
