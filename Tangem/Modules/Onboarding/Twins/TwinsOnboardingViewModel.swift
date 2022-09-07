@@ -52,6 +52,10 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         return super.title
     }
 
+    override var titleLineLimit: Int? {
+        return currentStep.titleLineLimit
+    }
+
     override var mainButtonTitle: LocalizedStringKey {
         if !isInitialAnimPlayed {
             return super.mainButtonTitle
@@ -75,6 +79,10 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         return super.mainButtonTitle
     }
 
+    override var isSkipButtonVisible: Bool {
+        currentStep == .saveUserWallet
+    }
+
     override var isOnboardingFinished: Bool {
         if case .intro = currentStep, steps.count == 1 {
             return true
@@ -90,6 +98,14 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         default:
             return currentStep.isSupplementButtonVisible
         }
+    }
+
+    var infoText: LocalizedStringKey? {
+        currentStep.infoText
+    }
+
+    var isBiometryLogoVisible: Bool {
+        currentStep == .saveUserWallet
     }
 
     override var mainButtonSettings: TangemButtonSettings {
@@ -111,7 +127,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
 
     private var canBuy: Bool { exchangeService.canBuy("BTC", amountType: .coin, blockchain: .bitcoin(testnet: false)) }
 
-    required init(input: OnboardingInput, coordinator: OnboardingTopupRoutable) {
+    required init(input: OnboardingInput, saveUserWalletOnFinish: Bool, coordinator: OnboardingTopupRoutable) {
         let cardModel = input.cardInput.cardModel!
         let twinData = input.twinData!
 
@@ -119,7 +135,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         self.twinData = twinData
         self.twinsService = .init(card: cardModel, twinData: twinData)
 
-        super.init(input: input, coordinator: coordinator)
+        super.init(input: input, saveUserWalletOnFinish: saveUserWalletOnFinish, coordinator: coordinator)
         if case let .twins(steps) = input.steps {
             self.steps = steps
 
@@ -199,6 +215,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
             } else {
                 supplementButtonAction()
             }
+        case .saveUserWallet:
+            saveUserWallet()
         }
     }
 
@@ -206,11 +224,20 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         super.goToNextStep()
 
         switch currentStep {
-        case .done, .success:
+        case .success:
             withAnimation {
                 refreshButtonState = .doneCheckmark
                 fireConfetti()
             }
+        default:
+            break
+        }
+    }
+
+    override func skipCurrentStep() {
+        switch currentStep {
+        case .saveUserWallet:
+            skipSaveUserWallet()
         default:
             break
         }
