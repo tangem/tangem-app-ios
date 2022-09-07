@@ -119,7 +119,7 @@ class SendViewModel: ObservableObject {
     let cardViewModel: CardViewModel
 
     var walletModel: WalletModel {
-        return cardViewModel.walletModels!.first(where: { $0.blockchainNetwork == blockchainNetwork })!
+        return cardViewModel.walletModels.first(where: { $0.blockchainNetwork == blockchainNetwork })!
     }
 
     var bag = Set<AnyCancellable>()
