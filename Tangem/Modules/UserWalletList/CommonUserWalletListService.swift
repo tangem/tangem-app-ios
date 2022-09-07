@@ -12,9 +12,6 @@ import LocalAuthentication
 import TangemSdk
 
 class CommonUserWalletListService: UserWalletListService {
-    private typealias UserWalletDerivedKeys = [Data: [DerivationPath: ExtendedPublicKey]]
-    private typealias UserWalletListDerivedKeys = [Data: UserWalletDerivedKeys]
-
     var models: [CardViewModel] = []
 
     var selectedModel: CardViewModel? {
