@@ -163,49 +163,47 @@ struct DetailsFeedbackDataCollector: EmailDataCollector {
     var dataForEmail: String {
         var dataToFormat = userWalletEmailData
 
-        if let walletModels = cardModel.walletModels {
-            for walletModel in walletModels {
-                dataToFormat.append(.separator(.dashes))
-                dataToFormat.append(EmailCollectedData(type: .card(.blockchain), data: walletModel.wallet.blockchain.displayName))
+        for walletModel in cardModel.walletModels {
+            dataToFormat.append(.separator(.dashes))
+            dataToFormat.append(EmailCollectedData(type: .card(.blockchain), data: walletModel.wallet.blockchain.displayName))
 
-                let derivationPath = walletModel.wallet.publicKey.derivationPath
-                dataToFormat.append(EmailCollectedData(type: .wallet(.derivationPath), data: derivationPath?.rawPath ?? "[default]"))
+            let derivationPath = walletModel.wallet.publicKey.derivationPath
+            dataToFormat.append(EmailCollectedData(type: .wallet(.derivationPath), data: derivationPath?.rawPath ?? "[default]"))
 
-                if let outputsDescription = walletModel.walletManager.outputsCount?.description {
-                    dataToFormat.append(EmailCollectedData(type: .wallet(.outputsCount), data: outputsDescription))
+            if let outputsDescription = walletModel.walletManager.outputsCount?.description {
+                dataToFormat.append(EmailCollectedData(type: .wallet(.outputsCount), data: outputsDescription))
+            }
+
+            let tokens = walletModel.tokenItemViewModels.compactMap { $0.amountType.token }
+
+            if !tokens.isEmpty {
+                dataToFormat.append(EmailCollectedData(type: .token(.tokens), data: ""))
+            }
+
+            for token in tokens {
+                dataToFormat.append(EmailCollectedData(type: .token(.id), data: token.id ?? "[custom token]"))
+                dataToFormat.append(EmailCollectedData(type: .token(.name), data: token.name))
+                dataToFormat.append(EmailCollectedData(type: .token(.contractAddress), data: token.contractAddress))
+            }
+
+            dataToFormat.append(EmailCollectedData(type: .wallet(.walletManagerHost), data: walletModel.walletManager.currentHost))
+            if walletModel.addressNames.count > 1 {
+                var explorerLinks = "Multiple explorers links: "
+                var addresses = "Multiple addresses: "
+                let suffix = " ; \n"
+                walletModel.addressNames.enumerated().forEach {
+                    let namePrefix = $0.element + " - "
+                    addresses += namePrefix + walletModel.displayAddress(for: $0.offset) + suffix
+                    explorerLinks += namePrefix + (walletModel.exploreURL(for: $0.offset)?.absoluteString ?? "") + suffix
                 }
+                explorerLinks.removeLast(suffix.count)
+                addresses.removeLast(suffix.count)
 
-                let tokens = walletModel.tokenItemViewModels.compactMap { $0.amountType.token }
-
-                if !tokens.isEmpty {
-                    dataToFormat.append(EmailCollectedData(type: .token(.tokens), data: ""))
-                }
-
-                for token in tokens {
-                    dataToFormat.append(EmailCollectedData(type: .token(.id), data: token.id ?? "[custom token]"))
-                    dataToFormat.append(EmailCollectedData(type: .token(.name), data: token.name))
-                    dataToFormat.append(EmailCollectedData(type: .token(.contractAddress), data: token.contractAddress))
-                }
-
-                dataToFormat.append(EmailCollectedData(type: .wallet(.walletManagerHost), data: walletModel.walletManager.currentHost))
-                if walletModel.addressNames.count > 1 {
-                    var explorerLinks = "Multiple explorers links: "
-                    var addresses = "Multiple addresses: "
-                    let suffix = " ; \n"
-                    walletModel.addressNames.enumerated().forEach {
-                        let namePrefix = $0.element + " - "
-                        addresses += namePrefix + walletModel.displayAddress(for: $0.offset) + suffix
-                        explorerLinks += namePrefix + (walletModel.exploreURL(for: $0.offset)?.absoluteString ?? "") + suffix
-                    }
-                    explorerLinks.removeLast(suffix.count)
-                    addresses.removeLast(suffix.count)
-
-                    dataToFormat.append(EmailCollectedData(type: .wallet(.walletAddress), data: addresses))
-                    dataToFormat.append(EmailCollectedData(type: .wallet(.explorerLink), data: explorerLinks))
-                } else if walletModel.addressNames.count == 1 {
-                    dataToFormat.append(EmailCollectedData(type: .wallet(.walletAddress), data: walletModel.displayAddress(for: 0)))
-                    dataToFormat.append(EmailCollectedData(type: .wallet(.explorerLink), data: walletModel.exploreURL(for: 0)?.absoluteString ?? ""))
-                }
+                dataToFormat.append(EmailCollectedData(type: .wallet(.walletAddress), data: addresses))
+                dataToFormat.append(EmailCollectedData(type: .wallet(.explorerLink), data: explorerLinks))
+            } else if walletModel.addressNames.count == 1 {
+                dataToFormat.append(EmailCollectedData(type: .wallet(.walletAddress), data: walletModel.displayAddress(for: 0)))
+                dataToFormat.append(EmailCollectedData(type: .wallet(.explorerLink), data: walletModel.exploreURL(for: 0)?.absoluteString ?? ""))
             }
         }
 

@@ -14,84 +14,61 @@ class WalletModelFactory {
     func makeSingleWallet(walletPublicKey: Data,
                           blockchain: Blockchain,
                           token: BlockchainSdk.Token?,
-                          derivationStyle: DerivationStyle) -> WalletModel? {
-        do {
-            let factory = WalletManagerFactoryProvider().factory
-            let walletManager = try factory.makeWalletManager(blockchain: blockchain,
-                                                              walletPublicKey: walletPublicKey)
-            if let token = token {
-                walletManager.addTokens([token])
-            }
-
-            let model = WalletModel(walletManager: walletManager,
-                                    derivationStyle: derivationStyle)
-
-            model.initialize()
-            return model
-        } catch {
-            print(error)
-            return nil
+                          derivationStyle: DerivationStyle) throws -> WalletModel {
+        let factory = WalletManagerFactoryProvider().factory
+        let walletManager = try factory.makeWalletManager(blockchain: blockchain,
+                                                          walletPublicKey: walletPublicKey)
+        if let token = token {
+            walletManager.addTokens([token])
         }
+
+        let model = WalletModel(walletManager: walletManager,
+                                derivationStyle: derivationStyle)
+
+        model.initialize()
+        return model
     }
 
-    func makeMultipleWallets(walletPublicKeys: [EllipticCurve: Data],
-                             entries: [StorageEntry],
-                             derivationStyle: DerivationStyle) -> [WalletModel] {
-        let factory = WalletManagerFactoryProvider().factory
-
-        var models: [WalletModel] = []
-
-        for entry in entries {
-            do {
-                if let walletPublicKey = walletPublicKeys[entry.blockchainNetwork.blockchain.curve] {
-                    let walletManager = try factory.makeWalletManager(blockchain: entry.blockchainNetwork.blockchain,
-                                                                      walletPublicKey: walletPublicKey)
-
-                    walletManager.addTokens(entry.tokens)
-
-                    let model = WalletModel(walletManager: walletManager, derivationStyle: derivationStyle)
-                    model.initialize()
-                    models.append(model)
-                }
-            } catch {
-                print(error)
-            }
+    func makeMultipleWallet(walletPublicKeys: [EllipticCurve: Data],
+                            entry: StorageEntry,
+                            derivationStyle: DerivationStyle) throws -> WalletModel {
+        guard let walletPublicKey = walletPublicKeys[entry.blockchainNetwork.blockchain.curve] else {
+            throw CommonError.noData
         }
 
-        return models
+        let factory = WalletManagerFactoryProvider().factory
+        let walletManager = try factory.makeWalletManager(blockchain: entry.blockchainNetwork.blockchain,
+                                                          walletPublicKey: walletPublicKey)
+
+        walletManager.addTokens(entry.tokens)
+
+        let model = WalletModel(walletManager: walletManager, derivationStyle: derivationStyle)
+        model.initialize()
+        return model
     }
 
-    func makeMultipleWallets(seedKeys: [EllipticCurve: Data],
-                             entries: [StorageEntry],
-                             derivedKeys: [EllipticCurve: [DerivationPath: ExtendedPublicKey]],
-                             derivationStyle: DerivationStyle) -> [WalletModel] {
-        let factory = WalletManagerFactoryProvider().factory
+    func makeMultipleWallet(seedKeys: [EllipticCurve: Data],
+                            entry: StorageEntry,
+                            derivedKeys: [EllipticCurve: [DerivationPath: ExtendedPublicKey]],
+                            derivationStyle: DerivationStyle) throws -> WalletModel {
+        let curve = entry.blockchainNetwork.blockchain.curve
 
-        var models: [WalletModel] = []
-
-        for entry in entries {
-            let curve = entry.blockchainNetwork.blockchain.curve
-            do {
-                if let seedKey = seedKeys[curve],
-                   let derivationPath = entry.blockchainNetwork.derivationPath,
-                   let derivedWalletKeys = derivedKeys[curve],
-                   let derivedKey = derivedWalletKeys[derivationPath] {
-
-                    let walletManager = try factory.makeWalletManager(blockchain: entry.blockchainNetwork.blockchain,
-                                                                      seedKey: seedKey,
-                                                                      derivedKey: derivedKey,
-                                                                      derivation: .custom(derivationPath))
-                    walletManager.addTokens(entry.tokens)
-
-                    let model = WalletModel(walletManager: walletManager, derivationStyle: derivationStyle)
-                    model.initialize()
-                    models.append(model)
-                }
-            } catch {
-                print(error)
-            }
+        guard let seedKey = seedKeys[curve],
+              let derivationPath = entry.blockchainNetwork.derivationPath,
+              let derivedWalletKeys = derivedKeys[curve],
+              let derivedKey = derivedWalletKeys[derivationPath] else {
+            throw CommonError.noData
         }
 
-        return models
+        let factory = WalletManagerFactoryProvider().factory
+        let walletManager = try factory.makeWalletManager(blockchain: entry.blockchainNetwork.blockchain,
+                                                          seedKey: seedKey,
+                                                          derivedKey: derivedKey,
+                                                          derivation: .custom(derivationPath))
+        walletManager.addTokens(entry.tokens)
+
+        let model = WalletModel(walletManager: walletManager, derivationStyle: derivationStyle)
+        model.initialize()
+        return model
     }
 }
