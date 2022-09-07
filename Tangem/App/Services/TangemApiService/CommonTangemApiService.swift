@@ -30,7 +30,7 @@ extension CommonTangemApiService: TangemApiService {
         return _geoIpRegionCode ?? fallbackRegionCode
     }
 
-    func loadTokens(key: String) -> AnyPublisher<UserTokenList, TangemAPIError> {
+    func loadTokens(for key: String) -> AnyPublisher<UserTokenList, TangemAPIError> {
         let target = TangemApiTarget(type: .getUserWalletTokens(key: key), authData: authData)
 
         return provider
@@ -42,7 +42,7 @@ extension CommonTangemApiService: TangemApiService {
             .eraseToAnyPublisher()
     }
 
-    func saveTokens(key: String, list: UserTokenList) -> AnyPublisher<Void, TangemAPIError> {
+    func saveTokens(list: UserTokenList, for key: String) -> AnyPublisher<Void, TangemAPIError> {
         let target = TangemApiTarget(type: .saveUserWalletTokens(key: key, list: list), authData: authData)
 
         return provider
