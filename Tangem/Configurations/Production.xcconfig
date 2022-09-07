@@ -10,7 +10,7 @@
 // https://help.apple.com/xcode/#/dev745c5c974
 
 // Config name
-ENVIRONMENT_NAME = Alpha
+ENVIRONMENT_NAME = Production
 
 // Prefix from developer.apple.com, TEAM_ID in this case
 APP_ID_PREFIX = 4897UJ6D8C
