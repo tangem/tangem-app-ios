@@ -13,13 +13,12 @@ protocol UserWalletModelOutput: AnyObject {
     func userWalletModelRequestUpdate(walletsBalanceState: CardViewModel.WalletsBalanceState)
 }
 
-class UserWalletModel {
-    private weak var output: UserWalletModelOutput?
-
+class CommonUserWalletModel {
     /// Public until managers factory
     let userTokenListManager: UserTokenListManager
     let walletListManager: WalletListManager
 
+    private weak var output: UserWalletModelOutput?
     private var reloadAllWalletModelsBag: AnyCancellable?
 
     init(config: UserWalletConfig, userWalletId: String, output: UserWalletModelOutput?) {
@@ -33,9 +32,9 @@ class UserWalletModel {
     }
 }
 
-// MARK: - UserWalletModelProtocol
+// MARK: - UserWalletModel
 
-extension UserWalletModel: UserWalletModelProtocol {
+extension CommonUserWalletModel: UserWalletModel {
     func updateUserWalletModel(with config: UserWalletConfig) {
         print("🟩 Updating UserWalletModel with new config")
         walletListManager.update(config: config)
@@ -45,16 +44,16 @@ extension UserWalletModel: UserWalletModelProtocol {
         walletListManager.getWalletModels()
     }
 
-    func subscribeWalletModels() -> AnyPublisher<[WalletModel], Never> {
-        walletListManager.subscribeWalletModels()
+    func subscribeToWalletModels() -> AnyPublisher<[WalletModel], Never> {
+        walletListManager.subscribeToWalletModels()
     }
 
-    func getNonDerivationEntries() -> [StorageEntry] {
-        walletListManager.getNonDerivationEntries()
+    func getEntriesWithoutDerivation() -> [StorageEntry] {
+        walletListManager.getEntriesWithoutDerivation()
     }
 
-    func subscribeNonDerivationEntries() -> AnyPublisher<[StorageEntry], Never> {
-        walletListManager.subscribeNonDerivationEntries()
+    func subscribeToEntriesWithoutDerivation() -> AnyPublisher<[StorageEntry], Never> {
+        walletListManager.subscribeToEntriesWithoutDerivation()
     }
 
     func clearRepository(result: @escaping (Result<UserTokenList, Error>) -> Void) {
@@ -70,13 +69,17 @@ extension UserWalletModel: UserWalletModelProtocol {
         walletListManager.updateWalletModels()
 
         reloadAllWalletModelsBag = walletListManager
-            .reloadAllWalletModels()
+            .reloadWalletModels()
             .receive(on: RunLoop.main)
             .receiveCompletion { [weak self] _ in
                 if showProgressLoading {
                     self?.output?.userWalletModelRequestUpdate(walletsBalanceState: .loaded)
                 }
             }
+    }
+
+    func update(entries: [StorageEntry], completion: @escaping (Result<UserTokenList, Error>) -> Void) {
+        userTokenListManager.update(entries: entries, result: completion)
     }
 
     func add(entries: [StorageEntry], completion: @escaping (Result<UserTokenList, Error>) -> Void) {
@@ -90,34 +93,6 @@ extension UserWalletModel: UserWalletModelProtocol {
         walletListManager.canManage(amountType: amountType, blockchainNetwork: blockchainNetwork)
     }
 
-    func remove(items: [RemoveItem], completion: @escaping (Result<Void, Error>) -> Void) {
-        let workGroup = DispatchGroup()
-        var error: Error?
-
-        items.forEach { item in
-            workGroup.enter()
-            remove(item: item) { result in
-                workGroup.leave()
-
-                if case let .failure(err) = result {
-                    error = err
-                }
-            }
-        }
-
-        workGroup.notify(queue: .main) {
-            if let error = error {
-                completion(.failure(error))
-            } else {
-                completion(.success(()))
-            }
-        }
-    }
-}
-
-// MARK: - Wallet models Operations
-
-private extension UserWalletModel {
     func remove(item: RemoveItem, completion: @escaping (Result<UserTokenList, Error>) -> Void) {
         guard walletListManager.canRemove(amountType: item.amount, blockchainNetwork: item.blockchainNetwork) else {
             assertionFailure("\(item.blockchainNetwork.blockchain) can't be remove")
@@ -132,7 +107,11 @@ private extension UserWalletModel {
         case .reserve: break
         }
     }
+}
 
+// MARK: - Wallet models Operations
+
+private extension CommonUserWalletModel {
     func removeBlockchain(_ blockchainNetwork: BlockchainNetwork, completion: @escaping (Result<UserTokenList, Error>) -> Void) {
         userTokenListManager.remove(blockchain: blockchainNetwork) { result in
             switch result {
@@ -165,7 +144,7 @@ private extension UserWalletModel {
     }
 }
 
-extension UserWalletModel {
+extension CommonUserWalletModel {
     struct RemoveItem {
         let amount: Amount.AmountType
         let blockchainNetwork: BlockchainNetwork

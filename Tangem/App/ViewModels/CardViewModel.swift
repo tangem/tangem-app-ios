@@ -87,7 +87,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     // Separate UserWalletModel and CardViewModel
-    var userWalletModel: UserWalletModelProtocol?
+    var userWalletModel: UserWalletModel?
 
     private var cardInfo: CardInfo
     private var cardPinSettings: CardPinSettings = CardPinSettings()
@@ -252,13 +252,13 @@ class CardViewModel: Identifiable, ObservableObject {
         userWalletModel?.add(entries: config.defaultBlockchains) { _ in }
     }
 
-    func deriveNonDerivedTokens() {
+    func deriveEntriesWithoutDerivation() {
         guard let userWalletModel = userWalletModel else {
             assertionFailure("UserWalletModel not created")
             return
         }
 
-        add(entries: userWalletModel.getNonDerivationEntries()) { _ in }
+        add(entries: userWalletModel.getEntriesWithoutDerivation()) { _ in }
     }
 
     // MARK: - Security
@@ -528,8 +528,7 @@ class CardViewModel: Identifiable, ObservableObject {
             self.currentSecurityOption = .accessCode
         } else if !(cardPinSettings.isPin2Default ?? true) {
             self.currentSecurityOption = .passCode
-        }
-        else {
+        } else {
             self.currentSecurityOption = .longTap
         }
     }
@@ -545,7 +544,7 @@ class CardViewModel: Identifiable, ObservableObject {
     private func createUserWalletModelIfNeeded() {
         guard userWalletModel == nil, cardInfo.card.hasWallets else { return }
 
-        userWalletModel = UserWalletModel(
+        userWalletModel = CommonUserWalletModel(
             config: config,
             userWalletId: cardInfo.card.userWalletId,
             output: self
@@ -566,21 +565,21 @@ extension CardViewModel {
             return Just([]).eraseToAnyPublisher()
         }
 
-        return userWalletModel.subscribeWalletModels()
+        return userWalletModel.subscribeToWalletModels()
     }
 
-    func subscribeNonDerivationEntries() -> AnyPublisher<[StorageEntry], Never> {
+    func subscribeToEntriesWithoutDerivation() -> AnyPublisher<[StorageEntry], Never> {
         guard let userWalletModel = userWalletModel else {
             assertionFailure("UserWalletModel not created")
             return Just([]).eraseToAnyPublisher()
         }
 
-        return userWalletModel.subscribeNonDerivationEntries()
+        return userWalletModel.subscribeToEntriesWithoutDerivation()
     }
 
     func add(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
-        let deriveManager = DeriveManager(config: config, cardInfo: cardInfo)
-        deriveManager.deriveIfNeeded(entries: entries) { [weak self] result in
+        let derivationManager = DerivationManager(config: config, cardInfo: cardInfo)
+        derivationManager.deriveIfNeeded(entries: entries) { [weak self] result in
             switch result {
             case let .success(card):
                 if let card = card {
@@ -596,9 +595,30 @@ extension CardViewModel {
                     }
                 }
             case let .failure(error):
-                if !error.isUserCancelled {
-                    assertionFailure("Derivation is failed \(error)")
+                completion(.failure(error))
+            }
+        }
+    }
+
+    func update(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
+        let derivationManager = DerivationManager(config: config, cardInfo: cardInfo)
+        derivationManager.deriveIfNeeded(entries: entries) { [weak self] result in
+            switch result {
+            case let .success(card):
+                if let card = card {
+                    self?.update(with: card)
                 }
+
+                self?.userWalletModel?.update(entries: entries) { addingCompletion in
+                    switch addingCompletion {
+                    case .success:
+                        completion(.success(()))
+                    case let .failure(error):
+                        completion(.failure(error))
+                    }
+                }
+            case let .failure(error):
+                completion(.failure(error))
             }
         }
     }
@@ -612,13 +632,13 @@ extension CardViewModel {
         return userWalletModel.canManage(amountType: amountType, blockchainNetwork: blockchainNetwork)
     }
 
-    func remove(items: [UserWalletModel.RemoveItem], completion: @escaping (Result<Void, Error>) -> Void) {
+    func remove(item: CommonUserWalletModel.RemoveItem, completion: @escaping (Result<UserTokenList, Error>) -> Void) {
         guard let userWalletModel = userWalletModel else {
             assertionFailure("UserWalletModel not created")
             return
         }
 
-        userWalletModel.remove(items: items, completion: completion)
+        userWalletModel.remove(item: item, completion: completion)
     }
 }
 
