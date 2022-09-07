@@ -17,25 +17,26 @@ class WalletTokenListViewModel: ObservableObject {
 
     private let userTokenListManager: UserTokenListManager
     private let walletListManager: WalletListManager
-    private let walletDidTap: (TokenItemViewModel) -> ()
+    private let didTapWallet: (TokenItemViewModel) -> ()
 
     private var loadTokensSubscribtion: AnyCancellable?
     private var subscribeWalletModelsBag: AnyCancellable?
+    private var subscribeToTokenItemViewModelsChangesBag: AnyCancellable?
 
     init(
         userTokenListManager: UserTokenListManager,
         walletListManager: WalletListManager,
-        walletDidTap: @escaping (TokenItemViewModel) -> ()
+        didTapWallet: @escaping (TokenItemViewModel) -> ()
     ) {
         self.userTokenListManager = userTokenListManager
         self.walletListManager = walletListManager
-        self.walletDidTap = walletDidTap
+        self.didTapWallet = didTapWallet
 
         bind()
     }
 
     func tokenItemDidTap(_ wallet: TokenItemViewModel) {
-        walletDidTap(wallet)
+        didTapWallet(wallet)
     }
 
     func onAppear() {
@@ -54,10 +55,10 @@ class WalletTokenListViewModel: ObservableObject {
                 self.walletListManager.updateWalletModels()
 
                 // Update walletModels with capturing the AnyPublisher response
-                return self.walletListManager.reloadAllWalletModels()
+                return self.walletListManager.reloadWalletModels()
             }
             .switchToLatest()
-            .receiveCompletion { [unowned self] completion in
+            .receiveCompletion { completion in
                 switch completion {
                 case .finished:
                     // Call callback result to close "Pull-to-refresh" animating
@@ -67,8 +68,6 @@ class WalletTokenListViewModel: ObservableObject {
                     // Call callback result to close "Pull-to-refresh" animating
                     result(.failure(error))
                 }
-
-                updateView()
             }
     }
 }
@@ -83,7 +82,17 @@ private extension WalletTokenListViewModel {
     }
 
     func bind() {
-        subscribeWalletModelsBag = walletListManager.subscribeWalletModels()
+        subscribeWalletModelsBag = walletListManager.subscribeToWalletModels()
+            .receiveValue { [unowned self] wallets in
+                self.subscribeToTokenItemViewModelsChanges(wallets: wallets)
+                self.updateView()
+            }
+    }
+
+    func subscribeToTokenItemViewModelsChanges(wallets: [WalletModel]) {
+        let publishers = wallets.map { $0.$tokenItemViewModels }
+        subscribeToTokenItemViewModelsChangesBag = Publishers.MergeMany(publishers)
+            .collect(publishers.count)
             .receiveValue { [unowned self] _ in
                 self.updateView()
             }

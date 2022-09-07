@@ -1,5 +1,5 @@
 //
-//  UserWalletModelProtocol.swift
+//  UserWalletModel.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -9,7 +9,7 @@
 import BlockchainSdk
 import Combine
 
-protocol UserWalletModelProtocol {
+protocol UserWalletModel {
     /// Public until managers factory
     var userTokenListManager: UserTokenListManager { get }
     var walletListManager: WalletListManager { get }
@@ -17,14 +17,15 @@ protocol UserWalletModelProtocol {
     func updateUserWalletModel(with config: UserWalletConfig)
 
     func getWalletModels() -> [WalletModel]
-    func subscribeWalletModels() -> AnyPublisher<[WalletModel], Never>
+    func subscribeToWalletModels() -> AnyPublisher<[WalletModel], Never>
 
-    func getNonDerivationEntries() -> [StorageEntry]
-    func subscribeNonDerivationEntries() -> AnyPublisher<[StorageEntry], Never>
+    func getEntriesWithoutDerivation() -> [StorageEntry]
+    func subscribeToEntriesWithoutDerivation() -> AnyPublisher<[StorageEntry], Never>
 
     func canManage(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool
+    func update(entries: [StorageEntry], completion: @escaping (Result<UserTokenList, Error>) -> Void)
     func add(entries: [StorageEntry], completion: @escaping (Result<UserTokenList, Error>) -> Void)
-    func remove(items: [UserWalletModel.RemoveItem], completion: @escaping (Result<Void, Error>) -> Void)
+    func remove(item: CommonUserWalletModel.RemoveItem, completion: @escaping (Result<UserTokenList, Error>) -> Void)
     func clearRepository(result: @escaping (Result<UserTokenList, Error>) -> Void)
 
     func updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: Bool)

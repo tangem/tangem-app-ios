@@ -272,10 +272,8 @@ class TokenDetailsViewModel: ObservableObject {
 
         isHiddingInProcess = true
 
-        // [REDACTED_TODO_COMMENT]
-        /// Added the delay to display the deletion in the main screen
-        let item = UserWalletModel.RemoveItem(amount: amountType, blockchainNetwork: walletModel.blockchainNetwork)
-        card.remove(items: [item]) { [weak self] result in
+        let item = CommonUserWalletModel.RemoveItem(amount: amountType, blockchainNetwork: walletModel.blockchainNetwork)
+        card.remove(item: item) { [weak self] result in
             self?.isHiddingInProcess = false
             self?.dismiss()
         }
