@@ -49,20 +49,27 @@ struct WalletOnboardingView: View {
                 GeometryReader { geom in
                     let size = geom.size
                     ZStack(alignment: .center) {
-                        Circle()
-                            .foregroundColor(.tangemBgGray)
-                            .frame(size: viewModel.isInitialAnimPlayed ? currentStep.backgroundFrameSize(in: size) : .zero)
-                            .offset(viewModel.isInitialAnimPlayed ? currentStep.backgroundOffset(in: size) : .zero)
+                        if viewModel.isCircleVisible {
+                            Circle()
+                                .foregroundColor(.tangemBgGray)
+                                .frame(size: viewModel.isInitialAnimPlayed ? currentStep.backgroundFrameSize(in: size) : .zero)
+                                .offset(viewModel.isInitialAnimPlayed ? currentStep.backgroundOffset(in: size) : .zero)
+                        }
 
                         // Navbar is added to ZStack instead of VStack because of wrong animation when container changed
                         // and cards jumps instead of smooth transition
                         NavigationBar(title: viewModel.navbarTitle,
                                       settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear),
-                                      leftButtons: {
+                                      leftItems: {
                                           BackButton(height: viewModel.navbarSize.height,
                                                      isVisible: viewModel.isBackButtonVisible,
                                                      isEnabled: viewModel.isBackButtonEnabled) {
                                               viewModel.backButtonAction()
+                                          }
+                                      },
+                                      rightItems: {
+                                          SkipButton(isVisible: viewModel.isSkipButtonVisible) {
+                                              viewModel.skipCurrentStep()
                                           }
                                       })
                                       .offset(x: 0, y: -geom.size.height / 2 + (isNavbarVisible ? viewModel.navbarSize.height / 2 + 4 : 0))
@@ -117,6 +124,10 @@ struct WalletOnboardingView: View {
                                 .zIndex(150)
                                 .transition(.opacity)
                         }
+
+                        if viewModel.isBiometryLogoVisible {
+                            BiometryLogoImage()
+                        }
                     }
                     .position(x: size.width / 2, y: size.height / 2)
 //                    .overlay(Color.red.opacity(0.3))
@@ -127,9 +138,11 @@ struct WalletOnboardingView: View {
                 OnboardingTextButtonView(
                     title: viewModel.title,
                     subtitle: viewModel.subtitle,
+                    titleLineLimit: viewModel.titleLineLimit,
                     textOffset: currentStep.messagesOffset,
                     buttonsSettings: .init(main: viewModel.mainButtonSettings,
-                                           supplement: viewModel.supplementButtonSettings)
+                                           supplement: viewModel.supplementButtonSettings),
+                    infoText: viewModel.infoText
 
                 ) {
                     viewModel.closeOnboarding()
@@ -154,7 +167,7 @@ struct WalletOnboardingView: View {
 struct WalletOnboardingView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            WalletOnboardingView(viewModel: .init(input: PreviewData.previewWalletOnboardingInput, coordinator: OnboardingCoordinator()))
+            WalletOnboardingView(viewModel: .init(input: PreviewData.previewWalletOnboardingInput, saveUserWalletOnFinish: false, coordinator: OnboardingCoordinator()))
                 .navigationBarHidden(true)
         }
     }

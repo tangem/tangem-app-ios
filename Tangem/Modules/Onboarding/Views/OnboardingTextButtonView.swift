@@ -50,9 +50,11 @@ struct OnboardingTextButtonView: View {
 
     let title: LocalizedStringKey
     let subtitle: LocalizedStringKey
+    var titleLineLimit: Int? = 1
     var textOffset: CGSize = .zero
 //    let buttonsSettings: ButtonsSettings
     let buttonsSettings: OnboardingBottomButtonsSettings
+    let infoText: LocalizedStringKey?
     let titleAction: (() -> Void)?
     var checkmarkText: LocalizedStringKey? = nil
     var isCheckmarkChecked: Binding<Bool> = .constant(false)
@@ -82,14 +84,27 @@ struct OnboardingTextButtonView: View {
                 .buttonStyle(TangemButtonStyle(colorStyle: settings.color,
                                                layout: settings.size,
                                                isDisabled: !settings.isEnabled))
+                .overlay(infoTextView)
             }
+        }
+    }
+
+    @ViewBuilder
+    var infoTextView: some View {
+        if let infoText = infoText {
+            Text(infoText)
+                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 16)
         }
     }
 
     var body: some View {
         VStack(spacing: 0) {
             OnboardingMessagesView(title: title,
-                                   subtitle: subtitle) {
+                                   subtitle: subtitle,
+                                   titleLineLimit: titleLineLimit
+            ) {
                 titleAction?()
             }
             .frame(alignment: .top)
@@ -150,6 +165,7 @@ struct OnboardingTextButtonView_Previews: PreviewProvider {
                 iconPosition: .leading
             )
             ),
+            infoText: nil,
             titleAction: { },
             checkmarkText: "I understand",
             isCheckmarkChecked: $isChecked

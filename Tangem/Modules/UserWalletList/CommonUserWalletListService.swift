@@ -8,17 +8,10 @@
 
 import CryptoKit
 import Combine
+import LocalAuthentication
 import TangemSdk
 
 class CommonUserWalletListService: UserWalletListService {
-    private typealias UserWalletDerivedKeys = [Data: [DerivationPath: ExtendedPublicKey]]
-    private typealias UserWalletListDerivedKeys = [Data: UserWalletDerivedKeys]
-
-    private enum UnlockingMethod {
-        case biometry(encryptionKey: SymmetricKey)
-        case card(id: Data, encryptionKey: SymmetricKey)
-    }
-
     var models: [CardViewModel] = []
 
     var selectedModel: CardViewModel? {
@@ -43,10 +36,9 @@ class CommonUserWalletListService: UserWalletListService {
 
     private var userWallets: [UserWallet] = []
 
-    private let biometricsStorage = BiometricsStorage()
-    private let encryptionKeyStorageKey = "user_wallet_encryption_key"
+    private var encryptionKeyByUserWalletId: [Data: SymmetricKey] = [:]
 
-    private var unlockingMethod: UnlockingMethod?
+    private let encryptionKeyStorage = UserWalletEncryptionKeyStorage()
 
     private var fileManager: FileManager {
         FileManager.default
@@ -56,6 +48,11 @@ class CommonUserWalletListService: UserWalletListService {
     }
 
     private var bag: Set<AnyCancellable> = []
+
+    #warning("l10n")
+    private var localizedBiometricsReason: String {
+        "Reason"
+    }
 
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
 
@@ -67,23 +64,27 @@ class CommonUserWalletListService: UserWalletListService {
 
     }
 
-    func unlockWithBiometry(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        if case .biometry = unlockingMethod {
-            print("Encryption key already fetched, skipping biometric authentication")
-            completion(.success(()))
-            return
-        }
+    func unlockWithBiometry(completion: @escaping (Result<Void, Error>) -> Void) {
+        BiometricsUtil.requestAccess(localizedReason: localizedBiometricsReason) { [weak self] biometryResult in
+            guard let self = self else { return }
 
-        unlockWithBiometryInternal { result in
+            let internalResult: Result<Void, Error>
+            switch biometryResult {
+            case .failure(let error):
+                internalResult = .failure(error)
+            case .success(let context):
+                internalResult = self.unlockWithBiometryInternal(context: context)
+            }
+
             DispatchQueue.main.async {
-                completion(result)
+                completion(internalResult)
             }
         }
     }
 
-    func unlockWithCard(_ userWallet: UserWallet, completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+    func unlockWithCard(_ userWallet: UserWallet, completion: @escaping (Result<Void, Error>) -> Void) {
         if let encryptionKey = userWallet.encryptionKey {
-            self.unlockingMethod = .card(id: userWallet.userWalletId, encryptionKey: encryptionKey)
+            self.encryptionKeyByUserWalletId[userWallet.userWalletId] = encryptionKey
         } else {
             completion(.failure(TangemSdkError.cardError))
             return
@@ -105,7 +106,7 @@ class CommonUserWalletListService: UserWalletListService {
     }
 
     func loadModels() {
-        self.userWallets = savedUserWallets()
+        userWallets = savedUserWallets()
         models = userWallets.map {
             CardViewModel(userWallet: $0)
         }
@@ -126,6 +127,8 @@ class CommonUserWalletListService: UserWalletListService {
             userWallets.append(userWallet)
         }
 
+        encryptionKeyStorage.add(userWallet)
+
         saveUserWallets(userWallets)
 
         if let index = models.firstIndex(where: { $0.userWallet.userWalletId == userWallet.userWalletId }) {
@@ -140,56 +143,27 @@ class CommonUserWalletListService: UserWalletListService {
 
     func delete(_ userWallet: UserWallet) {
         let userWalletId = userWallet.userWalletId
+        encryptionKeyByUserWalletId[userWalletId] = nil
         userWallets.removeAll { $0.userWalletId == userWalletId }
         models.removeAll { $0.userWallet.userWalletId == userWalletId }
+
+        encryptionKeyStorage.delete(userWallet)
         saveUserWallets(userWallets)
     }
 
     func clear() {
         let _ = saveUserWallets([])
+        encryptionKeyByUserWalletId = [:]
         userWallets = []
+        models = []
         selectedUserWalletId = nil
-        unlockingMethod = nil
-        do {
-            try biometricsStorage.delete(encryptionKeyStorageKey)
-        } catch {
-            print("Failed to delete user wallet list encryption key: \(error)")
-        }
+        encryptionKeyStorage.clear()
     }
 
-    private func unlockWithBiometryInternal(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
-        biometricsStorage.get(encryptionKeyStorageKey) { [weak self, encryptionKeyStorageKey] result in
-            switch result {
-            case .success(let encryptionKey):
-                if let encryptionKey = encryptionKey {
-                    self?.unlockingMethod = .biometry(encryptionKey: SymmetricKey(data: encryptionKey))
-                    self?.loadModels()
-                    completion(.success(()))
-                    return
-                }
-            case .failure(let error):
-                print("Failed to get encryption key", error)
-                self?.loadModels()
-                completion(.failure(error))
-                return
-            }
-
-            let newEncryptionKey = SymmetricKey(size: .bits256)
-            let newEncryptionKeyData = newEncryptionKey.dataRepresentationWithHexConversion
-
-            self?.biometricsStorage.store(newEncryptionKeyData, forKey: encryptionKeyStorageKey, overwrite: true) { [weak self] result in
-                switch result {
-                case .success:
-                    self?.unlockingMethod = .biometry(encryptionKey: SymmetricKey(data: newEncryptionKey))
-                    completion(.success(()))
-                case .failure(let error):
-                    print("Failed to save encryption key", error)
-                    completion(.failure(error))
-                }
-
-                self?.loadModels()
-            }
-        }
+    private func unlockWithBiometryInternal(context: LAContext) -> Result<Void, Error> {
+        encryptionKeyByUserWalletId = encryptionKeyStorage.fetch(using: context)
+        loadModels()
+        return .success(())
     }
 
     private func savedUserWallets() -> [UserWallet] {
@@ -204,29 +178,13 @@ class CommonUserWalletListService: UserWalletListService {
             let userWalletsPublicData = try decrypt(userWalletsPublicDataEncrypted, with: publicDataEncryptionKey())
             var userWallets = try decoder.decode([UserWallet].self, from: userWalletsPublicData)
 
-            let encryptionKeys: [Data: Data]
-
-            if case let .biometry(encryptionKey) = unlockingMethod,
-               fileManager.fileExists(atPath: userWalletEncryptionKeysPath().path)
-            {
-                let encryptionKeysDataEncrypted = try Data(contentsOf: userWalletEncryptionKeysPath())
-                let encryptionKeysData = try decrypt(encryptionKeysDataEncrypted, with: encryptionKey)
-                encryptionKeys = try decoder.decode([Data: Data].self, from: encryptionKeysData)
-            } else {
-                encryptionKeys = [:]
-            }
-
             for i in 0 ..< userWallets.count {
                 let userWallet = userWallets[i]
 
                 let userWalletEncryptionKey: SymmetricKey
 
-                if case let .card(id, encryptionKey) = self.unlockingMethod,
-                   userWallet.userWalletId == id
-                {
+                if let encryptionKey = encryptionKeyByUserWalletId[userWallet.userWalletId] {
                     userWalletEncryptionKey = encryptionKey
-                } else if let userWalletEncryptionKeyData = encryptionKeys[userWallet.userWalletId] {
-                    userWalletEncryptionKey = SymmetricKey(data: userWalletEncryptionKeyData)
                 } else {
                     print("Failed to find encryption key for wallet", userWallet.userWalletId.hex)
                     continue
@@ -275,23 +233,6 @@ class CommonUserWalletListService: UserWalletListService {
             try publicDataEncoded.write(to: userWalletListPath(), options: .atomic)
             try excludeFromBackup(url: userWalletListPath())
 
-
-            let encryptionKeys: [Data: Data] = Dictionary(userWallets.compactMap {
-                guard let encryptionKey = $0.encryptionKey else { return nil }
-                let encryptionKeyData = encryptionKey.dataRepresentationWithHexConversion
-                return ($0.userWalletId, encryptionKeyData)
-            }) { v1, _ in
-                v1
-            }
-
-            if case let .biometry(encryptionKey) = unlockingMethod {
-                let encryptionKeysPlain = try encoder.encode(encryptionKeys)
-                let encryptionKeysEncrypted = try encrypt(encryptionKeysPlain, with: encryptionKey)
-                try encryptionKeysEncrypted.write(to: userWalletEncryptionKeysPath(), options: .atomic)
-                try excludeFromBackup(url: userWalletEncryptionKeysPath())
-            }
-
-
             for userWallet in userWallets {
                 guard let userWalletEncryptionKey = userWallet.encryptionKey else {
                     print("User wallet \(userWallet.card.cardId) failed to generate encryption key")
@@ -322,10 +263,6 @@ class CommonUserWalletListService: UserWalletListService {
         let newEncryptionKey = SymmetricKey(size: .bits256)
         try secureStorage.store(newEncryptionKey.dataRepresentationWithHexConversion, forKey: keychainKey)
         return newEncryptionKey
-    }
-
-    private func userWalletEncryptionKeysPath() -> URL {
-        userWalletDirectoryUrl.appendingPathComponent("encryption_keys.bin")
     }
 
     private func userWalletListPath() -> URL {

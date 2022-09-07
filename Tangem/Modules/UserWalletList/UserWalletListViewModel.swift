@@ -173,7 +173,13 @@ final class UserWalletListViewModel: ObservableObject {
                 self?.isScanningCard = false
                 self?.failedCardScanTracker.resetCounter()
 
-                completion(cardModel)
+                let onboardingInput = cardModel.onboardingInput
+                if onboardingInput.steps.needOnboarding {
+                    cardModel.updateState()
+                    self?.openOnboarding(with: onboardingInput)
+                } else {
+                    completion(cardModel)
+                }
             }
             .store(in: &bag)
     }
@@ -238,6 +244,12 @@ final class UserWalletListViewModel: ObservableObject {
 
                 completion(userWallet)
             }
+        }
+    }
+
+    private func openOnboarding(with input: OnboardingInput) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            self.coordinator.openOnboarding(with: input)
         }
     }
 
