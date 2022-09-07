@@ -87,7 +87,7 @@ extension Blockchain {
         case .arbitrum(let testnet):
             return Blockchain.ethereum(testnet: testnet).id
         case .optimism(let testnet):
-            return Blockchain.optimism(testnet: testnet).codingKey
+            return "optimism"
         default:
             return id
         }
