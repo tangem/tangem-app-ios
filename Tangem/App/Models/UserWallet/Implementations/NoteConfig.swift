@@ -57,18 +57,23 @@ extension NoteConfig: UserWalletConfig {
 
     var onboardingSteps: OnboardingSteps {
         if card.wallets.isEmpty {
-            return .singleWallet([.createWallet, .topup, .successTopup])
+            return .singleWallet([.createWallet, .topup, .successTopup] + userWalletSavingSteps + [.success])
         } else {
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
                 return .singleWallet([])
             }
 
-            return .singleWallet([.topup, .successTopup])
+            return .singleWallet([.topup, .successTopup] + userWalletSavingSteps + [.success])
         }
     }
 
     var backupSteps: OnboardingSteps? {
         nil
+    }
+
+    var userWalletSavingSteps: [SingleCardOnboardingStep] {
+        guard needUserWalletSavingSteps else { return [] }
+        return [.saveUserWallet]
     }
 
     var supportedBlockchains: Set<Blockchain> {
