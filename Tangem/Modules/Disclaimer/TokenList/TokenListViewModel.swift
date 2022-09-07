@@ -72,11 +72,40 @@ class TokenListViewModel: ObservableObject {
     }
 
     func saveChanges() {
-        guard let cardModel = cardModel else {
+        guard let cardModel = cardModel,
+              let userWalletModel = cardModel.userWalletModel else {
+            closeModule()
             return
         }
 
-        let finishedAction: (Result<Void, Error>) -> Void = { [weak self] result in
+        var alreadySaved = userWalletModel.userTokenListManager.getEntriesFromRepository()
+
+        pendingRemove.forEach { tokenItem in
+            switch tokenItem {
+            case let .blockchain(blockchain):
+                alreadySaved.removeAll { $0.blockchainNetwork.blockchain.id == blockchain.id }
+            case let .token(token, blockchain):
+                if let index = alreadySaved.firstIndex(where: { $0.blockchainNetwork.blockchain.id == blockchain.id }) {
+                    alreadySaved[index].tokens.removeAll { $0.id == token.id }
+                }
+            }
+        }
+
+        pendingAdd.forEach { tokenItem in
+            switch tokenItem {
+            case let .blockchain(blockchain):
+                let network = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: nil)
+                let entry = StorageEntry(blockchainNetwork: network, tokens: [])
+                alreadySaved.append(entry)
+            case let .token(token, blockchain):
+                let network = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: nil)
+                let entry = StorageEntry(blockchainNetwork: network, token: token)
+                alreadySaved.append(entry)
+            }
+        }
+
+        isSaving = true
+        cardModel.update(entries: alreadySaved) { [weak self] result in
             self?.isSaving = false
 
             switch result {
@@ -87,31 +116,6 @@ class TokenListViewModel: ObservableObject {
                 self?.alert = error.alertBinder
             }
         }
-
-        isSaving = true
-
-        let itemsToRemove = pendingRemove.map {
-            UserWalletModel.RemoveItem(
-                amount: $0.amountType,
-                blockchainNetwork: cardModel.getBlockchainNetwork(for: $0.blockchain, derivationPath: nil)
-            )
-        }
-
-        cardModel.remove(items: itemsToRemove, completion: finishedAction)
-
-        let itemsToAdd = pendingAdd.map {
-            StorageEntry(
-                blockchainNetwork: cardModel.getBlockchainNetwork(for: $0.blockchain, derivationPath: nil),
-                token: $0.amountType.token
-            )
-        }
-
-        guard !itemsToAdd.isEmpty else {
-            closeModule()
-            return
-        }
-
-        cardModel.add(entries: itemsToAdd, completion: finishedAction)
     }
 
     func onAppear() {
