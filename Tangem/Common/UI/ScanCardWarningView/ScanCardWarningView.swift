@@ -10,6 +10,7 @@ import SwiftUI
 
 struct ScanCardWarningView: View {
     let action: () -> Void
+
     var body: some View {
         Button(action: action) {
             HStack(alignment: .center, spacing: 10) {
