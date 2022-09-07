@@ -139,7 +139,7 @@ struct MainView: View {
     @ViewBuilder
     var multiWalletContent: some View {
         Group {
-            if !viewModel.tokenItemViewModels.isEmpty {
+            if !viewModel.tokenListIsEmpty {
                 TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel)
                     .padding(.horizontal, 16)
                     .padding(.bottom, 6)
@@ -170,8 +170,8 @@ struct MainView: View {
                             backupWarningView
                         }
 
-                        if viewModel.isScanCardWarningViewVisible {
-                            ScanCardWarningView(action: viewModel.deriveNonDerivedTokens)
+                        if viewModel.isLackDerivationWarningViewVisible {
+                            ScanCardWarningView(action: viewModel.deriveEntriesWithoutDerivation)
                                 .padding(.horizontal, 16)
                         }
 

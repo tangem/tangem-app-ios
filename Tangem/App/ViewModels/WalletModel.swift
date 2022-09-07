@@ -186,6 +186,8 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
 
                         print("🔄 Finished loading rates in wallet model for \(self.wallet.blockchain)")
 
+                        self.updateBalanceViewModel(with: self.wallet)
+
                         switch result {
                         case .success:
                             self.updatePublisher?.send(completion: .finished)
@@ -193,7 +195,6 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
                             self.updatePublisher?.send(completion: .failure(error))
                         }
 
-                        self.updateBalanceViewModel(with: self.wallet)
                         self.updatePublisher = nil
                     }
 
