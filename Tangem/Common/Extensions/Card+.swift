@@ -27,7 +27,7 @@ extension CardDTO {
 
         let keyHash = firstWalletPublicKey.getSha256()
         let key = SymmetricKey(data: keyHash)
-        let message = "AccountID".data(using: .utf8)!
+        let message = "UserWalletID".data(using: .utf8)!
         let code = HMAC<SHA256>.authenticationCode(for: message, using: key)
 
         return Data(code)
