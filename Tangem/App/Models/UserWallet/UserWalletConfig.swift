@@ -49,7 +49,7 @@ protocol UserWalletConfig {
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability
 
-    func makeWalletModels(for tokens: [StorageEntry]) -> [WalletModel]
+    func makeWalletModel(for token: StorageEntry) throws -> WalletModel
 }
 
 extension UserWalletConfig {
