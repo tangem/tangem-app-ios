@@ -913,11 +913,6 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func updateTotalBalanceTokenList() {
-        guard let walletModels = self.walletModels else {
-            self.totalSumBalanceViewModel.update(with: [])
-            return
-        }
-
         let tokenItemViewModels = walletModels.flatMap { $0.tokenItemViewModels }
         totalSumBalanceViewModel.beginUpdates()
         totalSumBalanceViewModel.update(with: tokenItemViewModels)
