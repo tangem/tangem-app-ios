@@ -586,7 +586,7 @@
 		EFFC860E28BCE87700F863CE /* LegacyCardMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFC860C28BCE87700F863CE /* LegacyCardMigrator.swift */; };
 		EFFC861328BCF6C500F863CE /* StorageEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFC861228BCF6C500F863CE /* StorageEntry.swift */; };
 		EFFE2CE928B8E0B300B9F279 /* UserWalletModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFE2CE828B8E0B300B9F279 /* UserWalletModelProtocol.swift */; };
-		EFFE2CEC28B8E1B000B9F279 /* DeriveManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFE2CEB28B8E1B000B9F279 /* DeriveManager.swift */; };
+		EFFE2CEC28B8E1B000B9F279 /* DerivationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFFE2CEB28B8E1B000B9F279 /* DerivationManager.swift */; };
 		F06BBA2FE022C3EF1F3B6513 /* Pods_Tangem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 10F3AA1BEE46AF490A6F95DA /* Pods_Tangem.framework */; };
 /* End PBXBuildFile section */
 
@@ -1226,7 +1226,7 @@
 		EFFC860C28BCE87700F863CE /* LegacyCardMigrator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyCardMigrator.swift; sourceTree = "<group>"; };
 		EFFC861228BCF6C500F863CE /* StorageEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageEntry.swift; sourceTree = "<group>"; };
 		EFFE2CE828B8E0B300B9F279 /* UserWalletModelProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletModelProtocol.swift; sourceTree = "<group>"; };
-		EFFE2CEB28B8E1B000B9F279 /* DeriveManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeriveManager.swift; sourceTree = "<group>"; };
+		EFFE2CEB28B8E1B000B9F279 /* DerivationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DerivationManager.swift; sourceTree = "<group>"; };
 		F3B96D298A039D2A8811CEF0 /* Pods-Tangem Tap.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem Tap.release.xcconfig"; path = "Target Support Files/Pods-Tangem Tap/Pods-Tangem Tap.release.xcconfig"; sourceTree = "<group>"; };
 		F53CBE3ACFB9A989F5FE398D /* Pods-TangemClip.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemClip.debug(production).xcconfig"; path = "Target Support Files/Pods-TangemClip/Pods-TangemClip.debug(production).xcconfig"; sourceTree = "<group>"; };
 		F60138EF52D91E1A088F9C27 /* Pods-TangemTests.debug(beta).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TangemTests.debug(beta).xcconfig"; path = "Target Support Files/Pods-TangemTests/Pods-TangemTests.debug(beta).xcconfig"; sourceTree = "<group>"; };
@@ -2421,7 +2421,7 @@
 			isa = PBXGroup;
 			children = (
 				EFFC860A28BCE87700F863CE /* Migrators */,
-				EFFE2CEA28B8E1A700B9F279 /* DeriveManager */,
+				EFFE2CEA28B8E1A700B9F279 /* DerivationManager */,
 				EF7BD10E28B8B318001B2D59 /* UserWalletModel */,
 				DCE5C66A28898B4D000C7F67 /* TangemApiService */,
 				65C9FCB82869CBF200FDE63E /* SupportChatService */,
@@ -2912,12 +2912,12 @@
 			path = Migrators;
 			sourceTree = "<group>";
 		};
-		EFFE2CEA28B8E1A700B9F279 /* DeriveManager */ = {
+		EFFE2CEA28B8E1A700B9F279 /* DerivationManager */ = {
 			isa = PBXGroup;
 			children = (
-				EFFE2CEB28B8E1B000B9F279 /* DeriveManager.swift */,
+				EFFE2CEB28B8E1B000B9F279 /* DerivationManager.swift */,
 			);
-			path = DeriveManager;
+			path = DerivationManager;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -3372,7 +3372,7 @@
 				EF4BEF7F28AB872E00C5D1BE /* UserTokenList.swift in Sources */,
 				DC0A5806282501530031BECC /* KeysManager.swift in Sources */,
 				DC66BBE32858E7A600CDF765 /* WelcomeRoutable.swift in Sources */,
-				EFFE2CEC28B8E1B000B9F279 /* DeriveManager.swift in Sources */,
+				EFFE2CEC28B8E1B000B9F279 /* DerivationManager.swift in Sources */,
 				DCE7E02C287BF92400063EEC /* SwitchChainHandler.swift in Sources */,
 				B09BB865259A075600B92000 /* TextInputField.swift in Sources */,
 				B037B1EE256E747F0022EFFF /* TwinsFinalizeWalletCreationTask.swift in Sources */,
