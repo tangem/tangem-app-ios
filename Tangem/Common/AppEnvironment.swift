@@ -39,7 +39,7 @@ extension AppEnvironment {
 
         return identifier
     }
-    
+
     var isTestnet: Bool  {
         self == .alpha
     }
