@@ -34,12 +34,21 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         }
     }
 
+    override var titleLineLimit: Int? {
+        return currentStep.titleLineLimit
+    }
+
     override var mainButtonTitle: LocalizedStringKey {
         if case .topup = currentStep, !canBuyCrypto {
             return "onboarding_button_receive_crypto"
         }
 
         return super.mainButtonTitle
+    }
+
+
+    override var isSkipButtonVisible: Bool {
+        currentStep == .saveUserWallet
     }
 
     override var isSupplementButtonVisible: Bool {
@@ -49,6 +58,14 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         default:
             return currentStep.isSupplementButtonVisible
         }
+    }
+
+    var infoText: LocalizedStringKey? {
+        currentStep.infoText
+    }
+
+    var isBiometryLogoVisible: Bool {
+        currentStep == .saveUserWallet
     }
 
     private var previewUpdateCounter: Int = 0
@@ -64,8 +81,8 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         return false
     }
 
-    required init(input: OnboardingInput, coordinator: OnboardingTopupRoutable) {
-        super.init(input: input, coordinator: coordinator)
+    required init(input: OnboardingInput, saveUserWalletOnFinish: Bool, coordinator: OnboardingTopupRoutable) {
+        super.init(input: input, saveUserWalletOnFinish: saveUserWalletOnFinish, coordinator: coordinator)
 
         if case let .singleWallet(steps) = input.steps {
             self.steps = steps
@@ -85,6 +102,15 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     override func goToNextStep() {
         super.goToNextStep()
         stepUpdate()
+    }
+
+    override func skipCurrentStep() {
+        switch currentStep {
+        case .saveUserWallet:
+            skipSaveUserWallet()
+        default:
+            break
+        }
     }
 
     override func mainButtonAction() {
@@ -108,7 +134,9 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
                 supplementButtonAction()
             }
         case .successTopup:
-            fallthrough
+            goToNextStep()
+        case .saveUserWallet:
+            saveUserWallet()
         case .success:
             goToNextStep()
         }
@@ -124,11 +152,17 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
     }
 
     override func setupCardsSettings(animated: Bool, isContainerSetup: Bool) {
-        mainCardSettings = .init(targetSettings: SingleCardOnboardingCardsLayout.main.cardAnimSettings(for: currentStep,
-                                                                                                       containerSize: containerSize,
-                                                                                                       animated: animated),
-                                 intermediateSettings: nil)
-        supplementCardSettings = .init(targetSettings: SingleCardOnboardingCardsLayout.supplementary.cardAnimSettings(for: currentStep, containerSize: containerSize, animated: animated), intermediateSettings: nil)
+        switch currentStep {
+        case .saveUserWallet:
+            mainCardSettings = .zero
+            supplementCardSettings = .zero
+        default:
+            mainCardSettings = .init(targetSettings: SingleCardOnboardingCardsLayout.main.cardAnimSettings(for: currentStep,
+                                                                                                           containerSize: containerSize,
+                                                                                                           animated: animated),
+                                     intermediateSettings: nil)
+            supplementCardSettings = .init(targetSettings: SingleCardOnboardingCardsLayout.supplementary.cardAnimSettings(for: currentStep, containerSize: containerSize, animated: animated), intermediateSettings: nil)
+        }
     }
 
     private func сreateWallet() {
@@ -198,7 +232,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             withAnimation {
                 refreshButtonState = .doneCheckmark
             }
-            fallthrough
         case .success:
             fireConfetti()
         default:
