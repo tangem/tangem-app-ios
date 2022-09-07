@@ -23,6 +23,7 @@ class MainCoordinator: CoordinatorObject {
     @Published var detailsCoordinator: DetailsCoordinator? = nil
     @Published var tokenListCoordinator: TokenListCoordinator? = nil
     @Published var modalOnboardingCoordinator: OnboardingCoordinator? = nil
+    @Published var pushedOnboardingCoordinator: OnboardingCoordinator? = nil
 
     // MARK: - Child view models
     @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
@@ -60,7 +61,7 @@ extension MainCoordinator: MainRoutable {
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
-        let options = OnboardingCoordinator.Options(input: input, shouldOpenMainOnFinish: false)
+        let options = OnboardingCoordinator.Options(input: input, shouldOpenMainOnFinish: false, saveUserWalletOnFinish: false)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
     }
@@ -212,6 +213,23 @@ extension MainCoordinator: MainRoutable {
 extension MainCoordinator: UserWalletListRoutable {
     func dismissUserWalletList() {
         self.userWalletListViewModel = nil
+    }
+
+    func openOnboarding(with input: OnboardingInput) {
+        dismissUserWalletList()
+
+        let dismissAction: Action = { [weak self] in
+            self?.pushedOnboardingCoordinator = nil
+        }
+
+        let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
+            self?.pushedOnboardingCoordinator = nil
+        }
+
+        let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+        let options = OnboardingCoordinator.Options(input: input, shouldOpenMainOnFinish: true, saveUserWalletOnFinish: true)
+        coordinator.start(with: options)
+        pushedOnboardingCoordinator = coordinator
     }
 
     func didTapUserWallet(userWallet: UserWallet) {
