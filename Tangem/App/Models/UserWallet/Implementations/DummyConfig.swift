@@ -49,7 +49,7 @@ struct DummyConfig: UserWalletConfig {
         return .available
     }
 
-    func makeWalletModels(for tokens: [StorageEntry]) -> [WalletModel] {
-        []
+    func makeWalletModel(for token: StorageEntry) throws -> WalletModel {
+        throw CommonError.notImplemented
     }
 }
