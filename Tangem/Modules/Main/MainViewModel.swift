@@ -32,7 +32,7 @@ class MainViewModel: ObservableObject {
     @Published var showExplorerURL: URL? = nil
     @Published var showQR: Bool = false
     @Published var isOnboardingModal: Bool = true
-    @Published var isScanCardWarningViewVisible: Bool = false
+    @Published var isLackDerivationWarningViewVisible: Bool = false
 
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
@@ -141,8 +141,8 @@ class MainViewModel: ObservableObject {
         cardModel.canCreateBackup
     }
 
-    var tokenItemViewModels: [TokenItemViewModel] {
-        cardModel.walletModels.flatMap({ $0.tokenItemViewModels })
+    var tokenListIsEmpty: Bool {
+        walletTokenListViewModel?.contentState.isEmpty ?? true
     }
 
     var isMultiWalletMode: Bool {
@@ -200,9 +200,9 @@ class MainViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        cardModel.subscribeNonDerivationEntries()
+        cardModel.subscribeToEntriesWithoutDerivation()
             .sink { [unowned self] entries in
-                updateNonDerivationWarningView(entries: entries)
+                updateLackDerivationWarningView(entries: entries)
             }
             .store(in: &bag)
 
@@ -279,12 +279,12 @@ class MainViewModel: ObservableObject {
 
     func onRefresh(_ done: @escaping () -> Void) {
         Analytics.log(.mainPageRefresh)
-        walletTokenListViewModel?.refreshTokens(result: { result in
+        walletTokenListViewModel?.refreshTokens { result in
             print("♻️ Wallet model loading state changed with result", result)
             withAnimation {
                 done()
             }
-        })
+        }
     }
 
     func onScan() {
@@ -313,8 +313,8 @@ class MainViewModel: ObservableObject {
         walletTokenListViewModel?.onAppear()
     }
 
-    func deriveNonDerivedTokens() {
-        cardModel.deriveNonDerivedTokens()
+    func deriveEntriesWithoutDerivation() {
+        cardModel.deriveEntriesWithoutDerivation()
     }
 
     // MARK: Warning action handler
@@ -480,8 +480,8 @@ class MainViewModel: ObservableObject {
         totalSumBalanceViewModel.updateIfNeeded(with: newTokens)
     }
 
-    private func updateNonDerivationWarningView(entries: [StorageEntry]) {
-        isScanCardWarningViewVisible = !entries.isEmpty
+    private func updateLackDerivationWarningView(entries: [StorageEntry]) {
+        isLackDerivationWarningViewVisible = !entries.isEmpty
     }
 }
 
