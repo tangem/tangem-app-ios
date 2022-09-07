@@ -24,13 +24,18 @@ struct ArrowBack: View {
     }
 }
 
+fileprivate enum DefaultNavigationBarSettings {
+    static let color = Color.tangemGrayDark6
+    static let padding = 16.0
+}
+
 struct BackButton: View {
 
     let height: CGFloat
     let isVisible: Bool
     let isEnabled: Bool
-    var color: Color = .tangemGrayDark6
-    var hPadding: CGFloat = 16
+    var color: Color = DefaultNavigationBarSettings.color
+    var hPadding: CGFloat = DefaultNavigationBarSettings.padding
     let action: () -> Void
 
     var body: some View {
@@ -49,6 +54,19 @@ struct BackButton: View {
         .padding(.horizontal, hPadding)
     }
 
+}
+
+struct SkipButton: View {
+    let isVisible: Bool
+    let action: () -> Void
+
+    var body: some View {
+        #warning("l10n")
+        Button("Skip", action: action)
+            .opacity(isVisible ? 1.0 : 0.0)
+            .foregroundColor(DefaultNavigationBarSettings.color)
+            .padding(.horizontal, DefaultNavigationBarSettings.padding)
+    }
 }
 
 struct NavigationBar<LeftButtons: View, RightButtons: View>: View {
