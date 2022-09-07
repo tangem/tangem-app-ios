@@ -48,6 +48,6 @@ extension UserTokenList {
     enum SortType: String, Codable {
         case balance
         case manual
-        case marketcap
+        case marketCap = "marketcap"
     }
 }

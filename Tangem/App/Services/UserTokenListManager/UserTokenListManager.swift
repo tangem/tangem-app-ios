@@ -12,11 +12,12 @@ import BlockchainSdk
 protocol UserTokenListManager {
     func update(userWalletId: String)
 
+    func update(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void)
     func append(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void)
     func remove(blockchain: BlockchainNetwork, result: @escaping (Result<UserTokenList, Error>) -> Void)
     func remove(tokens: [Token], in blockchain: BlockchainNetwork, result: @escaping (Result<UserTokenList, Error>) -> Void)
 
     func loadAndSaveUserTokenList() -> AnyPublisher<UserTokenList, Error>
-    func syncGetEntriesFromRepository() -> [StorageEntry]
+    func getEntriesFromRepository() -> [StorageEntry]
     func clearRepository(result: @escaping (Result<UserTokenList, Error>) -> Void)
 }
