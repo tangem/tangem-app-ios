@@ -12,7 +12,7 @@ struct CardView: View {
     var image: UIImage?
     var width: CGFloat
     var cardSetLabel: String?
-    
+
     private let walletImageAspectRatio = 1.5888252149
 
     var body: some View {
