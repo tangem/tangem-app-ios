@@ -13,16 +13,16 @@ protocol WalletListManager {
     func update(config: UserWalletConfig)
 
     func getWalletModels() -> [WalletModel]
-    func subscribeWalletModels() -> AnyPublisher<[WalletModel], Never>
+    func subscribeToWalletModels() -> AnyPublisher<[WalletModel], Never>
 
-    func getNonDerivationEntries() -> [StorageEntry]
-    func subscribeNonDerivationEntries() -> AnyPublisher<[StorageEntry], Never>
+    func getEntriesWithoutDerivation() -> [StorageEntry]
+    func subscribeToEntriesWithoutDerivation() -> AnyPublisher<[StorageEntry], Never>
 
     /// Check new tokens in the respository and add if needed
     func updateWalletModels()
 
     /// Call method update in every wallet model
-    func reloadAllWalletModels() -> AnyPublisher<Void, Error>
+    func reloadWalletModels() -> AnyPublisher<Void, Error>
 
     func canManage(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool
     func canRemove(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool
