@@ -22,6 +22,7 @@ class AppSettingsViewModel: ObservableObject {
     private unowned let coordinator: AppSettingsRoutable
 
     @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
+    @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
 
     // MARK: Properties
 
@@ -147,13 +148,15 @@ private extension AppSettingsViewModel {
 
         withAnimation {
             if saveAccessCodes {
-                isSavingWallet = true
+                if !isSavingWallet {
+                    isSavingWallet = true
+                }
             } else {
                 shouldShowAlertOnDisableSaveAccessCodes = false
                 isSavingAccessCodes = false
                 shouldShowAlertOnDisableSaveAccessCodes = true
 
-                // [REDACTED_TODO_COMMENT]
+                sdkProvider.sdk.deleteSavedAccessCodes()
             }
         }
     }

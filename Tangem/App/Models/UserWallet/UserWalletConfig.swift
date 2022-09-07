@@ -57,6 +57,10 @@ extension UserWalletConfig {
         TangemSdkConfigFactory().makeDefaultConfig()
     }
 
+    var needUserWalletSavingSteps: Bool {
+        return BiometricsUtil.isAvailable && !AppSettings.shared.saveUserWallets
+    }
+
     func hasFeature(_ feature: UserWalletFeature) -> Bool {
         getFeatureAvailability(feature).isAvailable
     }
