@@ -33,12 +33,16 @@ struct SingleCardOnboardingView: View {
 
                         NavigationBar(title: "onboarding_navbar_activating_card",
                                       settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear),
-                                      leftButtons: {
+                                      leftItems: {
                                           BackButton(height: viewModel.navbarSize.height,
                                                      isVisible: viewModel.isBackButtonVisible,
                                                      isEnabled: viewModel.isBackButtonEnabled,
                                                      hPadding: horizontalPadding) {
                                               viewModel.closeOnboarding()
+                                          }
+                                      }, rightItems: {
+                                          SkipButton(isVisible: viewModel.isSkipButtonVisible) {
+                                              viewModel.skipCurrentStep()
                                           }
                                       })
                                       .frame(size: viewModel.navbarSize)
@@ -84,6 +88,10 @@ struct SingleCardOnboardingView: View {
                                                size: .huge)
                             .offset(y: 8)
                             .opacity(currentStep.successCircleOpacity)
+
+                        if viewModel.isBiometryLogoVisible {
+                            BiometryLogoImage()
+                        }
                     }
                     .position(x: size.width / 2, y: size.height / 2)
                 }
@@ -94,9 +102,11 @@ struct SingleCardOnboardingView: View {
                 OnboardingTextButtonView(
                     title: viewModel.title,
                     subtitle: viewModel.subtitle,
+                    titleLineLimit: viewModel.titleLineLimit,
                     textOffset: currentStep.messagesOffset,
                     buttonsSettings: .init(main: viewModel.mainButtonSettings,
-                                           supplement: viewModel.supplementButtonSettings)
+                                           supplement: viewModel.supplementButtonSettings),
+                    infoText: viewModel.infoText
                 ) {
                     viewModel.closeOnboarding()
                 }
@@ -113,6 +123,7 @@ struct SingleCardOnboardingView: View {
 struct OnboardingView_Previews: PreviewProvider {
     static var previews: some View {
         SingleCardOnboardingView(viewModel: .init(input: PreviewData.previewNoteCardOnboardingInput,
+                                                  saveUserWalletOnFinish: false,
                                                   coordinator: OnboardingCoordinator()))
     }
 }
