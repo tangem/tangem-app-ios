@@ -12,7 +12,6 @@ import BlockchainSdk
 import TangemSdk
 
 class CommonUserTokenListManager {
-    @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     private var userWalletId: String
@@ -36,6 +35,11 @@ extension CommonUserTokenListManager: UserTokenListManager {
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId)
     }
 
+    func update(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void) {
+        tokenItemsRepository.update(entries)
+        updateTokensOnServer(result: result)
+    }
+
     func append(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void) {
         tokenItemsRepository.append(entries)
         updateTokensOnServer(result: result)
@@ -51,7 +55,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
         updateTokensOnServer(result: result)
     }
 
-    func syncGetEntriesFromRepository() -> [StorageEntry] {
+    func getEntriesFromRepository() -> [StorageEntry] {
         tokenItemsRepository.getItems()
     }
 
@@ -88,7 +92,7 @@ private extension CommonUserTokenListManager {
 
     func loadUserTokenList(result: @escaping (Result<UserTokenList, Error>) -> Void) {
         self.loadTokensCancellable = tangemApiService
-            .loadTokens(key: userWalletId)
+            .loadTokens(for: userWalletId)
             .sink { [unowned self] completion in
                 guard case let .failure(error) = completion else { return }
 
@@ -109,7 +113,7 @@ private extension CommonUserTokenListManager {
         let list = UserTokenList(tokens: tokens)
 
         saveTokensCancellable = tangemApiService
-            .saveTokens(key: userWalletId, list: list)
+            .saveTokens(list: list, for: userWalletId)
             .receiveCompletion { completion in
                 switch completion {
                 case .finished:
