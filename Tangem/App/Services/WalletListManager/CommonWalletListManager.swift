@@ -85,7 +85,9 @@ extension CommonWalletListManager: WalletListManager {
             }
             .compactMap { entry in
                 do {
-                    return try config.makeWalletModel(for: entry)
+                    let walletModel = try config.makeWalletModel(for: entry)
+                    print("✅ Make WalletModel for \(entry) success")
+                    return walletModel
                 } catch {
                     print("‼️ Make WalletModel error catch \(error)")
                     nonDeriveEntries.append(entry)
@@ -214,7 +216,7 @@ private extension CommonWalletListManager {
 
                 return Future<Bool, Never> { promise in
                     let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: token)
-                    self.userTokenListManager.append(entries: [entry]) { result in
+                    self.userTokenListManager.update(.append([entry])) { result in
                         switch result {
                         case .success:
                             promise(.success(true))
