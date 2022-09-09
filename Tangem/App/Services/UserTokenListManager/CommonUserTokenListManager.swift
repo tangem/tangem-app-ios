@@ -8,8 +8,10 @@
 
 import Foundation
 import Combine
-import BlockchainSdk
-import TangemSdk
+
+import enum BlockchainSdk.Blockchain
+import struct BlockchainSdk.Token
+import struct TangemSdk.DerivationPath
 
 class CommonUserTokenListManager {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
@@ -35,24 +37,17 @@ extension CommonUserTokenListManager: UserTokenListManager {
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId)
     }
 
-    func update(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void) {
-        tokenItemsRepository.update(entries)
-        updateTokensOnServer(result: result)
-    }
-
-    func append(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void) {
-        tokenItemsRepository.append(entries)
-        updateTokensOnServer(result: result)
-    }
-
-    func remove(blockchain: BlockchainNetwork, result: @escaping (Result<UserTokenList, Error>) -> Void) {
-        tokenItemsRepository.remove([blockchain])
-        updateTokensOnServer(result: result)
-    }
-
-    func remove(tokens: [BlockchainSdk.Token], in blockchain: BlockchainNetwork, result: @escaping (Result<UserTokenList, Error>) -> Void) {
-        tokenItemsRepository.remove(tokens, blockchainNetwork: blockchain)
-        updateTokensOnServer(result: result)
+    func update(_ type: UpdateType, result: @escaping (Result<UserTokenList, Error>) -> Void) {
+        switch type {
+        case let .rewrite(entries):
+            update(entries: entries, result: result)
+        case let .append(entries):
+            append(entries: entries, result: result)
+        case let .removeBlockchain(blockchain):
+            remove(blockchain: blockchain, result: result)
+        case let .removeToken(token, network):
+            remove(token: token, in: network, result: result)
+        }
     }
 
     func getEntriesFromRepository() -> [StorageEntry] {
@@ -87,6 +82,25 @@ extension CommonUserTokenListManager: UserTokenListManager {
 // MARK: - Private
 
 private extension CommonUserTokenListManager {
+    func update(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void) {
+        tokenItemsRepository.update(entries)
+        updateTokensOnServer(result: result)
+    }
+
+    func append(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void) {
+        tokenItemsRepository.append(entries)
+        updateTokensOnServer(result: result)
+    }
+
+    func remove(blockchain: BlockchainNetwork, result: @escaping (Result<UserTokenList, Error>) -> Void) {
+        tokenItemsRepository.remove([blockchain])
+        updateTokensOnServer(result: result)
+    }
+
+    func remove(token: Token, in blockchain: BlockchainNetwork, result: @escaping (Result<UserTokenList, Error>) -> Void) {
+        tokenItemsRepository.remove([token], blockchainNetwork: blockchain)
+        updateTokensOnServer(result: result)
+    }
 
     // MARK: - Requests
 
@@ -135,7 +149,7 @@ private extension CommonUserTokenListManager {
                 name: blockchain.displayName,
                 symbol: blockchain.currencySymbol,
                 decimals: blockchain.decimalCount,
-                derivationPath: blockchain.derivationPath()?.rawPath,
+                derivationPath: entry.blockchainNetwork.derivationPath,
                 contractAddress: nil
             )]
 
@@ -146,7 +160,7 @@ private extension CommonUserTokenListManager {
                     name: token.name,
                     symbol: token.symbol,
                     decimals: token.decimalCount,
-                    derivationPath: blockchain.derivationPath()?.rawPath,
+                    derivationPath: entry.blockchainNetwork.derivationPath,
                     contractAddress: token.contractAddress
                 )
             }
@@ -154,37 +168,42 @@ private extension CommonUserTokenListManager {
     }
 
     func mapToEntries(list: UserTokenList) -> [StorageEntry] {
-        let networks = Dictionary(grouping: list.tokens, by: { $0.networkId })
-        let entries = networks.compactMap { networkId, tokens -> StorageEntry? in
-            guard let blockchain = Blockchain(from: networkId) else {
-                assertionFailure("Blockchain for networkId \(networkId) not found)")
-                return nil
-            }
-
-            let derivationRawValue = tokens.first { $0.derivationPath != nil }?.derivationPath
-
-            let tokens = tokens.compactMap { token -> BlockchainSdk.Token? in
-                guard let contractAddress = token.contractAddress else {
+        let blockchains = list.tokens
+            .filter { $0.contractAddress == nil }
+            .compactMap { token -> BlockchainNetwork? in
+                guard let blockchain = Blockchain(from: token.networkId) else {
                     return nil
                 }
 
-                return Token(
-                    name: token.name,
-                    symbol: token.symbol,
-                    contractAddress: contractAddress,
-                    decimalCount: token.decimals,
-                    id: token.id
-                )
+                return BlockchainNetwork(blockchain, derivationPath: token.derivationPath)
             }
 
-            let derivationPath = try? DerivationPath(rawPath: derivationRawValue ?? "")
-            let blockchainNetwork = BlockchainNetwork(blockchain, derivationPath: derivationPath)
+        let entries: [StorageEntry] = blockchains.map { network in
             return StorageEntry(
-                blockchainNetwork: blockchainNetwork,
-                tokens: tokens
+                blockchainNetwork: network,
+                tokens: list.tokens
+                    .filter { $0.contractAddress != nil && $0.networkId == network.blockchain.networkId }
+                    .map { token in
+                        Token(
+                            name: token.name,
+                            symbol: token.symbol,
+                            contractAddress: token.contractAddress!,
+                            decimalCount: token.decimals,
+                            id: token.id
+                        )
+                    }
             )
         }
 
         return entries
+    }
+}
+
+extension CommonUserTokenListManager {
+    enum UpdateType {
+        case rewrite(_ entries: [StorageEntry])
+        case append(_ entries: [StorageEntry])
+        case removeBlockchain(_ blockchain: BlockchainNetwork)
+        case removeToken(_ token: Token, in: BlockchainNetwork)
     }
 }

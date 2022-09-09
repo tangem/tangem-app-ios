@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import struct TangemSdk.DerivationPath
 
 /// The API model for the`user-tokens/:key/` routing
 struct UserTokenList: Codable {
@@ -35,7 +36,7 @@ extension UserTokenList {
         let name: String
         let symbol: String
         let decimals: Int
-        let derivationPath: String?
+        let derivationPath: DerivationPath?
         let contractAddress: String?
     }
 
