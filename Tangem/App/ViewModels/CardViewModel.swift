@@ -249,7 +249,11 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func appendDefaultBlockchains() {
-        userWalletModel?.add(entries: config.defaultBlockchains) { _ in }
+        add(entries: config.defaultBlockchains) { [weak self] _ in
+            self?.userWalletModel?.updateAllWalletModelsWithCallUpdateInWalletModel(
+                showProgressLoading: true
+            )
+        }
     }
 
     func deriveEntriesWithoutDerivation() {
@@ -258,7 +262,22 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
 
-        add(entries: userWalletModel.getEntriesWithoutDerivation()) { _ in }
+        let derivationManager = DerivationManager(config: config, cardInfo: cardInfo)
+        derivationManager.deriveIfNeeded(
+            entries: userWalletModel.getEntriesWithoutDerivation()
+        ) { [weak self] result in
+            switch result {
+            case let .success(card):
+                if let card = card {
+                    self?.update(with: card)
+                }
+                self?.userWalletModel?.updateAllWalletModelsWithCallUpdateInWalletModel(
+                    showProgressLoading: true
+                )
+            case .failure:
+                print("Derivation error")
+            }
+        }
     }
 
     // MARK: - Security
@@ -386,7 +405,7 @@ class CardViewModel: Identifiable, ObservableObject {
         print("🟩 Updating Card view model with new Card")
         let oldKeys = cardInfo.card.wallets.map { $0.derivedKeys }
         let newKeys = card.wallets.map { $0.derivedKeys }
-        print("‼️ Updating Card view model deriveKeys \(oldKeys == newKeys)")
+        print("‼️ Updating Card view model with update derivationKeys: \(oldKeys == newKeys)")
 
         cardInfo.card = card // [REDACTED_TODO_COMMENT]
         config = UserWalletConfigFactory(cardInfo).makeConfig()
@@ -577,7 +596,7 @@ extension CardViewModel {
         return userWalletModel.subscribeToEntriesWithoutDerivation()
     }
 
-    func add(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
+    func add(entries: [StorageEntry], completion: @escaping (Result<UserTokenList, Error>) -> Void) {
         let derivationManager = DerivationManager(config: config, cardInfo: cardInfo)
         derivationManager.deriveIfNeeded(entries: entries) { [weak self] result in
             switch result {
@@ -586,41 +605,29 @@ extension CardViewModel {
                     self?.update(with: card)
                 }
 
-                self?.userWalletModel?.add(entries: entries) { addingCompletion in
-                    switch addingCompletion {
-                    case .success:
-                        completion(.success(()))
-                    case let .failure(error):
-                        completion(.failure(error))
-                    }
-                }
+                self?.userWalletModel?.append(entries: entries, result: completion)
             case let .failure(error):
                 completion(.failure(error))
             }
         }
     }
 
-    func update(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
-        let derivationManager = DerivationManager(config: config, cardInfo: cardInfo)
-        derivationManager.deriveIfNeeded(entries: entries) { [weak self] result in
+    //         userWalletModel?.updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: true)
+
+    func update(entries: [StorageEntry], completion: @escaping (Result<UserTokenList, Error>) -> Void) {
+        let derivationManager = DerivationManager(config: self.config, cardInfo: self.cardInfo)
+        derivationManager.deriveIfNeeded(entries: entries, completion: { [weak self] result in
             switch result {
             case let .success(card):
                 if let card = card {
                     self?.update(with: card)
                 }
 
-                self?.userWalletModel?.update(entries: entries) { addingCompletion in
-                    switch addingCompletion {
-                    case .success:
-                        completion(.success(()))
-                    case let .failure(error):
-                        completion(.failure(error))
-                    }
-                }
+                self?.userWalletModel?.update(entries: entries, result: completion)
             case let .failure(error):
                 completion(.failure(error))
             }
-        }
+        })
     }
 
     func canManage(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool {
