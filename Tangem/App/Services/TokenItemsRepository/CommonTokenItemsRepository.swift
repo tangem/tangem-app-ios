@@ -144,7 +144,7 @@ private extension CommonTokenItemsRepository {
 
 fileprivate extension Array where Element == StorageEntry {
     mutating func add(entry: StorageEntry) -> Bool {
-        guard let existingIndex = firstIndex(where: { $0.blockchainNetwork == entry.blockchainNetwork }) else {
+        guard let existingIndex = firstIndex(where: { $0.blockchainNetwork.blockchain == entry.blockchainNetwork.blockchain }) else {
             append(entry)
             return true
         }
@@ -171,7 +171,7 @@ fileprivate extension Array where Element == StorageEntry {
     }
 
     mutating func tryRemove(token: Token, in blockchainNetwork: BlockchainNetwork) -> Bool {
-        if let existingIndex = firstIndex(where: { $0.blockchainNetwork == blockchainNetwork }) {
+        if let existingIndex = firstIndex(where: { $0.blockchainNetwork.blockchain == blockchainNetwork.blockchain }) {
             if let tokenIndex = self[existingIndex].tokens.firstIndex(where: { $0 == token }) {
                 self[existingIndex].tokens.remove(at: tokenIndex)
                 return true
@@ -182,7 +182,7 @@ fileprivate extension Array where Element == StorageEntry {
     }
 
     mutating func tryRemove(blockchainNetwork: BlockchainNetwork) -> Bool {
-        if let existingIndex = firstIndex(where: { $0.blockchainNetwork == blockchainNetwork }) {
+        if let existingIndex = firstIndex(where: { $0.blockchainNetwork.blockchain == blockchainNetwork.blockchain }) {
             remove(at: existingIndex)
             return true
         }
