@@ -58,7 +58,7 @@ class WalletTokenListViewModel: ObservableObject {
                 return self.walletListManager.reloadWalletModels()
             }
             .switchToLatest()
-            .receiveCompletion { completion in
+            .receiveCompletion { [unowned self] completion in
                 switch completion {
                 case .finished:
                     // Call callback result to close "Pull-to-refresh" animating
@@ -68,6 +68,8 @@ class WalletTokenListViewModel: ObservableObject {
                     // Call callback result to close "Pull-to-refresh" animating
                     result(.failure(error))
                 }
+
+                updateView()
             }
     }
 }
@@ -90,7 +92,7 @@ private extension WalletTokenListViewModel {
     }
 
     func subscribeToTokenItemViewModelsChanges(wallets: [WalletModel]) {
-        let publishers = wallets.map { $0.$tokenItemViewModels }
+        let publishers = wallets.map { $0.objectWillChange }
         subscribeToTokenItemViewModelsChangesBag = Publishers.MergeMany(publishers)
             .collect(publishers.count)
             .receiveValue { [unowned self] _ in
