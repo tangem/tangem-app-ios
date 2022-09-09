@@ -287,6 +287,10 @@ class MainViewModel: ObservableObject {
         }
     }
 
+    func updateWalletModels() {
+        cardModel.userWalletModel?.updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: true)
+    }
+
     func onScan() {
         DispatchQueue.main.async {
             Analytics.log(.scanCardTapped)
@@ -310,7 +314,7 @@ class MainViewModel: ObservableObject {
     }
 
     func onAppear() {
-        walletTokenListViewModel?.onAppear()
+//        walletTokenListViewModel?.onAppear()
     }
 
     func deriveEntriesWithoutDerivation() {
