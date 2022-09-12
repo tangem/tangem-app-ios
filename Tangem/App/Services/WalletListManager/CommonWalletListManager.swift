@@ -86,10 +86,10 @@ extension CommonWalletListManager: WalletListManager {
             .compactMap { entry in
                 do {
                     let walletModel = try config.makeWalletModel(for: entry)
-                    print("✅ Make WalletModel for \(entry) success")
+                    print("✅ Make WalletModel for \(entry.blockchainNetwork.blockchain.displayName) success")
                     return walletModel
                 } catch {
-                    print("‼️ Make WalletModel error catch \(error)")
+                    print("‼️ Make WalletModel for \(entry.blockchainNetwork.blockchain.displayName) catch error: \(error)")
                     nonDeriveEntries.append(entry)
                     return nil
                 }
