@@ -396,11 +396,11 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func update(with card: Card) {
-        print("🟩 Updating CardViewModel with new Card")
+        print("🔄 Updating CardViewModel with new Card")
         let oldKeys = cardInfo.card.wallets.map { $0.derivedKeys }
         let newKeys = card.wallets.map { $0.derivedKeys }
-        print("‼️ Updating Config with update derivationKeys",
-              "oldKeys: \(oldKeys.map { $0.keys.map { $0.rawPath }})",
+        print("🔄 Updating Config with update derivationKeys \n",
+              "oldKeys: \(oldKeys.map { $0.keys.map { $0.rawPath }})\n",
               "newKeys: \(newKeys.map { $0.keys.map { $0.rawPath }})")
 
         cardInfo.card = card // [REDACTED_TODO_COMMENT]
@@ -410,7 +410,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func update(with cardInfo: CardInfo) {
-        print("🔷 Updating Card view model with new CardInfo")
+        print("🔄 Updating Card view model with new CardInfo")
         self.cardInfo = cardInfo
         updateModel()
     }
@@ -436,7 +436,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func updateModel() {
-        print("🔶 Updating Card view model")
+        print("🔄 Updating Card view model")
         updateCardPinSettings()
         updateCurrentSecurityOption()
 
