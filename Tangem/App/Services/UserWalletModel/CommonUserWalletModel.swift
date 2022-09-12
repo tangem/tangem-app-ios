@@ -16,7 +16,7 @@ protocol UserWalletModelOutput: AnyObject {
 class CommonUserWalletModel {
     /// Public until managers factory
     let userTokenListManager: UserTokenListManager
-    let walletListManager: WalletListManager
+    private let walletListManager: WalletListManager
 
     private weak var output: UserWalletModelOutput?
     private var reloadAllWalletModelsBag: AnyCancellable?
@@ -36,7 +36,7 @@ class CommonUserWalletModel {
 
 extension CommonUserWalletModel: UserWalletModel {
     func updateUserWalletModel(with config: UserWalletConfig) {
-        print("🟩 Updating UserWalletModel with new config")
+        print("🔄 Updating UserWalletModel with new config")
         walletListManager.update(config: config)
     }
 
