@@ -59,23 +59,8 @@ extension CommonUserTokenListManager: UserTokenListManager {
         updateTokensOnServer(result: result)
     }
 
-    func loadAndSaveUserTokenList() -> AnyPublisher<UserTokenList, Error> {
-        Future<UserTokenList, Error> { [weak self] promise in
-            guard let self = self else {
-                promise(.failure(CommonError.objectReleased))
-                return
-            }
-
-            self.loadUserTokenList { result in
-                switch result {
-                case let .success(list):
-                    promise(.success(list))
-                case let .failure(error):
-                    promise(.failure(error))
-                }
-            }
-        }
-        .eraseToAnyPublisher()
+    func loadAndSaveUserTokenList(result: @escaping (Result<UserTokenList, Error>) -> Void) {
+        loadUserTokenList(result: result)
     }
 }
 
