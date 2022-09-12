@@ -20,7 +20,6 @@ class WalletTokenListViewModel: ObservableObject {
     private let didTapWallet: (TokenItemViewModel) -> ()
 
     private var isFirstTimeOnAppear: Bool = true
-    private var loadTokensSubscribtion: AnyCancellable?
     private var subscribeWalletModelsBag: AnyCancellable?
     private var subscribeToTokenItemViewModelsChangesBag: AnyCancellable?
 
@@ -48,10 +47,6 @@ class WalletTokenListViewModel: ObservableObject {
     }
 
     func refreshTokens(result: @escaping (Result<Void, Error>) -> Void = { _ in }) {
-        // 1. Load and save tokens from API if it recieved succesefully
-        // 2. Show walletModel list from local repository
-        // 3. Update rates for each wallet model with skeleton
-        // 4. Profit. Show actual information
         userTokenListManager.loadAndSaveUserTokenList { [weak self] _ in
             self?.userWalletModel.updateAndReloadWalletModels(showProgressLoading: true, result: result)
         }
