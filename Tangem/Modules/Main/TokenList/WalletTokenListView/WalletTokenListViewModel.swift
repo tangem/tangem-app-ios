@@ -53,7 +53,7 @@ class WalletTokenListViewModel: ObservableObject {
         // 3. Update rates for each wallet model with skeleton
         // 4. Profit. Show actual information
         userTokenListManager.loadAndSaveUserTokenList { [weak self] _ in
-            self?.userWalletModel.updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: true, result: result)
+            self?.userWalletModel.updateAndReloadWalletModels(showProgressLoading: true, result: result)
         }
     }
 }
