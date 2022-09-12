@@ -174,21 +174,6 @@ class MainViewModel: ObservableObject {
     // MARK: - Functions
 
     func bind() {
-        cardModel
-            .objectWillChange
-            .receive(on: DispatchQueue.main)
-            .sink { [unowned self] in
-                print("⚠️ Card model will change")
-                self.objectWillChange.send()
-
-                if cardModel.walletModels.isEmpty {
-                    self.totalSumBalanceViewModel.update(with: [])
-                } else if !self.isLoadingTokensBalance {
-                    self.updateTotalBalanceTokenListIfNeeded()
-                }
-            }
-            .store(in: &bag)
-
         cardModel.subscribeWalletModels()
             .flatMap { Publishers.MergeMany($0.map { $0.objectWillChange }).collect($0.count) }
             .debounce(for: .seconds(0.5), scheduler: RunLoop.main)
@@ -271,7 +256,7 @@ class MainViewModel: ObservableObject {
 
         walletTokenListViewModel = WalletTokenListViewModel(
             userTokenListManager: userWalletModel.userTokenListManager,
-            walletListManager: userWalletModel.walletListManager
+            userWalletModel: userWalletModel
         ) { [weak self] itemViewModel in
             self?.openTokenDetails(itemViewModel)
         }
@@ -314,7 +299,7 @@ class MainViewModel: ObservableObject {
     }
 
     func onAppear() {
-//        walletTokenListViewModel?.onAppear()
+        walletTokenListViewModel?.onAppear()
     }
 
     func deriveEntriesWithoutDerivation() {

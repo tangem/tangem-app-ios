@@ -16,20 +16,21 @@ class WalletTokenListViewModel: ObservableObject {
     // MARK: - Private
 
     private let userTokenListManager: UserTokenListManager
-    private let walletListManager: WalletListManager
+    private let userWalletModel: UserWalletModel
     private let didTapWallet: (TokenItemViewModel) -> ()
 
+    private var isFirstTimeOnAppear: Bool = true
     private var loadTokensSubscribtion: AnyCancellable?
     private var subscribeWalletModelsBag: AnyCancellable?
     private var subscribeToTokenItemViewModelsChangesBag: AnyCancellable?
 
     init(
         userTokenListManager: UserTokenListManager,
-        walletListManager: WalletListManager,
+        userWalletModel: UserWalletModel,
         didTapWallet: @escaping (TokenItemViewModel) -> ()
     ) {
         self.userTokenListManager = userTokenListManager
-        self.walletListManager = walletListManager
+        self.userWalletModel = userWalletModel
         self.didTapWallet = didTapWallet
 
         bind()
@@ -40,7 +41,10 @@ class WalletTokenListViewModel: ObservableObject {
     }
 
     func onAppear() {
-        refreshTokens()
+        if isFirstTimeOnAppear {
+            refreshTokens()
+            isFirstTimeOnAppear = false
+        }
     }
 
     func refreshTokens(result: @escaping (Result<Void, Error>) -> Void = { _ in }) {
@@ -48,29 +52,9 @@ class WalletTokenListViewModel: ObservableObject {
         // 2. Show walletModel list from local repository
         // 3. Update rates for each wallet model with skeleton
         // 4. Profit. Show actual information
-        loadTokensSubscribtion = userTokenListManager.loadAndSaveUserTokenList()
-            .replaceError(with: UserTokenList(tokens: []))
-            .tryMap { [unowned self] list -> AnyPublisher<Void, Error> in
-                // Just update wallet models from repository
-                self.walletListManager.updateWalletModels()
-
-                // Update walletModels with capturing the AnyPublisher response
-                return self.walletListManager.reloadWalletModels()
-            }
-            .switchToLatest()
-            .receiveCompletion { [unowned self] completion in
-                switch completion {
-                case .finished:
-                    // Call callback result to close "Pull-to-refresh" animating
-                    result(.success(()))
-
-                case let .failure(error):
-                    // Call callback result to close "Pull-to-refresh" animating
-                    result(.failure(error))
-                }
-
-                updateView()
-            }
+        userTokenListManager.loadAndSaveUserTokenList { [weak self] _ in
+            self?.userWalletModel.updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: true, result: result)
+        }
     }
 }
 
@@ -78,13 +62,13 @@ class WalletTokenListViewModel: ObservableObject {
 
 private extension WalletTokenListViewModel {
     func updateView() {
-        let itemsViewModel = walletListManager.getWalletModels().flatMap { $0.tokenItemViewModels }
+        let itemsViewModel = userWalletModel.getWalletModels().flatMap { $0.tokenItemViewModels }
 
         contentState = itemsViewModel.isEmpty ? .empty : .loaded(itemsViewModel)
     }
 
     func bind() {
-        subscribeWalletModelsBag = walletListManager.subscribeToWalletModels()
+        subscribeWalletModelsBag = userWalletModel.subscribeToWalletModels()
             .receiveValue { [unowned self] wallets in
                 self.subscribeToTokenItemViewModelsChanges(wallets: wallets)
                 self.updateView()
