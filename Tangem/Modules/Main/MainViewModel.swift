@@ -58,6 +58,7 @@ class MainViewModel: ObservableObject {
     )
 
     let cardModel: CardViewModel
+    let userWalletModel: UserWalletModel?
 
     private var bag = Set<AnyCancellable>()
     private var isHashesCounted = false
@@ -159,6 +160,7 @@ class MainViewModel: ObservableObject {
 
     init(cardModel: CardViewModel, coordinator: MainRoutable) {
         self.cardModel = cardModel
+        self.userWalletModel = cardModel.userWalletModel
         self.coordinator = coordinator
         bind()
 
@@ -270,10 +272,6 @@ class MainViewModel: ObservableObject {
                 done()
             }
         }
-    }
-
-    func updateWalletModels() {
-        cardModel.userWalletModel?.updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: true)
     }
 
     func onScan() {
@@ -549,7 +547,7 @@ extension MainViewModel {
 
                 self.sendAnalyticsEvent(.userBoughtCrypto)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    self.cardModel.updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: true)
+                    self.userWalletModel?.updateAndReloadWalletModels(showProgressLoading: true)
                 }
             }
         }
