@@ -250,9 +250,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     func appendDefaultBlockchains() {
         add(entries: config.defaultBlockchains) { [weak self] _ in
-            self?.userWalletModel?.updateAllWalletModelsWithCallUpdateInWalletModel(
-                showProgressLoading: true
-            )
+            self?.userWalletModel?.updateAllWalletModelsWithCallUpdateInWalletModel()
         }
     }
 
@@ -271,9 +269,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 if let card = card {
                     self?.update(with: card)
                 }
-                self?.userWalletModel?.updateAllWalletModelsWithCallUpdateInWalletModel(
-                    showProgressLoading: true
-                )
+                self?.userWalletModel?.updateAllWalletModelsWithCallUpdateInWalletModel()
             case .failure:
                 print("Derivation error")
             }
@@ -402,10 +398,12 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func update(with card: Card) {
-        print("🟩 Updating Card view model with new Card")
+        print("🟩 Updating CardViewModel with new Card")
         let oldKeys = cardInfo.card.wallets.map { $0.derivedKeys }
         let newKeys = card.wallets.map { $0.derivedKeys }
-        print("‼️ Updating Card view model with update derivationKeys: \(oldKeys == newKeys)")
+        print("‼️ Updating Config with update derivationKeys",
+              "oldKeys: \(oldKeys.map { $0.keys.map { $0.rawPath }})",
+              "newKeys: \(newKeys.map { $0.keys.map { $0.rawPath }})")
 
         cardInfo.card = card // [REDACTED_TODO_COMMENT]
         config = UserWalletConfigFactory(cardInfo).makeConfig()
@@ -612,10 +610,8 @@ extension CardViewModel {
         }
     }
 
-    //         userWalletModel?.updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: true)
-
     func update(entries: [StorageEntry], completion: @escaping (Result<UserTokenList, Error>) -> Void) {
-        let derivationManager = DerivationManager(config: self.config, cardInfo: self.cardInfo)
+        let derivationManager = DerivationManager(config: config, cardInfo: cardInfo)
         derivationManager.deriveIfNeeded(entries: entries, completion: { [weak self] result in
             switch result {
             case let .success(card):
