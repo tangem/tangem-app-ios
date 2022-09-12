@@ -13,7 +13,7 @@ protocol UserTokenListManager {
     func update(userWalletId: Data)
     func update(_ type: CommonUserTokenListManager.UpdateType, result: @escaping (Result<UserTokenList, Error>) -> Void)
 
-    func loadAndSaveUserTokenList() -> AnyPublisher<UserTokenList, Error>
+    func loadAndSaveUserTokenList(result: @escaping (Result<UserTokenList, Error>) -> Void)
     func getEntriesFromRepository() -> [StorageEntry]
     func clearRepository(result: @escaping (Result<UserTokenList, Error>) -> Void)
 }
