@@ -27,7 +27,7 @@ extension Card {
         !wallets.isEmpty
     }
 
-    var userWalletId: String {
+    var userWalletId: Data {
         if !hasWallets {
             assertionFailure("Wallet not found, use CardViewModel for create wallet")
         }
@@ -37,10 +37,7 @@ extension Card {
         let message = Constants.messageForWalletID.data(using: .utf8)!
         let accId = HMAC<SHA256>.authenticationCode(for: message, using: key)
 
-        let accIdData = Data(accId)
-        let accIdString = accIdData.hexString
-
-        return accIdString
+        return Data(accId)
     }
 
     var derivationStyle: DerivationStyle {
