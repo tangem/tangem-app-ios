@@ -21,7 +21,7 @@ class CommonUserWalletModel {
     private weak var output: UserWalletModelOutput?
     private var reloadAllWalletModelsBag: AnyCancellable?
 
-    init(config: UserWalletConfig, userWalletId: String, output: UserWalletModelOutput?) {
+    init(config: UserWalletConfig, userWalletId: Data, output: UserWalletModelOutput?) {
         self.output = output
 
         userTokenListManager = CommonUserTokenListManager(config: config, userWalletId: userWalletId)
