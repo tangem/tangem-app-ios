@@ -9,7 +9,7 @@
 import Combine
 import SwiftUI
 
-final class UserWalletListViewModel: ObservableObject {
+final class UserWalletListViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
     @Published var selectedUserWalletId: Data?
     @Published var multiCurrencyModels: [CardViewModel] = []
