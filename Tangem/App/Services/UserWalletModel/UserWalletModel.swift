@@ -12,7 +12,6 @@ import Combine
 protocol UserWalletModel {
     /// Public until managers factory
     var userTokenListManager: UserTokenListManager { get }
-    var walletListManager: WalletListManager { get }
 
     func updateUserWalletModel(with config: UserWalletConfig)
 
@@ -28,5 +27,11 @@ protocol UserWalletModel {
     func remove(item: CommonUserWalletModel.RemoveItem, completion: @escaping (Result<UserTokenList, Error>) -> Void)
     func clearRepository(result: @escaping (Result<UserTokenList, Error>) -> Void)
 
-    func updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: Bool)
+    func updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: Bool, result: @escaping (Result<Void, Error>) -> Void)
+}
+
+extension UserWalletModel {
+    func updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading show: Bool = true) {
+        updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: show, result: { _ in })
+    }
 }
