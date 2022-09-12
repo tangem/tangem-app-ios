@@ -10,9 +10,9 @@ import Foundation
 
 struct TokenItemsRepositoryMigrator {
     private let cardId: String
-    private let userWalletId: String
+    private let userWalletId: Data
 
-    init(cardId: String, userWalletId: String) {
+    init(cardId: String, userWalletId: Data) {
         self.cardId = cardId
         self.userWalletId = userWalletId
     }
@@ -22,7 +22,7 @@ struct TokenItemsRepositoryMigrator {
         let oldEntries = oldRepository.getItems()
 
         // Save a old entries in new repository
-        let newRepository = CommonTokenItemsRepository(key: userWalletId)
+        let newRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
         newRepository.append(oldEntries)
 
         oldRepository.removeAll()
