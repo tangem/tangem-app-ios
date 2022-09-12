@@ -82,6 +82,10 @@ extension CommonUserWalletModel: UserWalletModel {
                 }
             }
     }
+    
+    func canManage(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool {
+        walletListManager.canManage(amountType: amountType, blockchainNetwork: blockchainNetwork)
+    }
 
     func update(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void) {
         userTokenListManager.update(.rewrite(entries), result: result)
@@ -89,10 +93,6 @@ extension CommonUserWalletModel: UserWalletModel {
 
     func append(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void) {
         userTokenListManager.update(.append(entries), result: result)
-    }
-
-    func canManage(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool {
-        walletListManager.canManage(amountType: amountType, blockchainNetwork: blockchainNetwork)
     }
 
     func remove(item: RemoveItem, completion: @escaping (Result<UserTokenList, Error>) -> Void) {
