@@ -62,6 +62,7 @@ struct UserWalletListView: ResizableSheetView {
         .alert(item: $viewModel.error) {
             $0.alert
         }
+        .background(Self.sheetBackground.edgesIgnoringSafeArea(.all))
         .onAppear(perform: viewModel.onAppear)
     }
 
