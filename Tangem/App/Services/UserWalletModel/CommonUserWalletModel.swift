@@ -90,13 +90,13 @@ extension CommonUserWalletModel: UserWalletModel {
     func update(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void) {
         userTokenListManager.update(.rewrite(entries), result: result)
 
-        updateAndReloadWalletModels(showProgressLoading: true, result: { _ in })
+        updateAndReloadWalletModels(showProgressLoading: true)
     }
 
     func append(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void) {
         userTokenListManager.update(.append(entries), result: result)
 
-        updateAndReloadWalletModels(showProgressLoading: true, result: { _ in })
+        updateAndReloadWalletModels(showProgressLoading: true)
     }
 
     func remove(item: RemoveItem, result: @escaping (Result<UserTokenList, Error>) -> Void) {
