@@ -201,7 +201,7 @@ struct MainView: View {
         .navigationBarTitle("wallet_title", displayMode: .inline)
         .navigationBarItems(leading: scanNavigationButton,
                             trailing: settingsNavigationButton)
-        .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
+        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .onAppear {
             viewModel.onAppear()
         }
