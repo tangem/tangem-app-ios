@@ -16,25 +16,25 @@ import struct TangemSdk.DerivationPath
 class CommonUserTokenListManager {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    private var userWalletId: String
+    private var userWalletId: Data
     private var tokenItemsRepository: TokenItemsRepository
 
     private var loadTokensCancellable: AnyCancellable?
     private var saveTokensCancellable: AnyCancellable?
 
-    init(config: UserWalletConfig, userWalletId: String) {
+    init(config: UserWalletConfig, userWalletId: Data) {
         self.userWalletId = userWalletId
 
-        tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId)
+        tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
     }
 }
 
 // MARK: - UserTokenListManager
 
 extension CommonUserTokenListManager: UserTokenListManager {
-    func update(userWalletId: String) {
+    func update(userWalletId: Data) {
         self.userWalletId = userWalletId
-        tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId)
+        tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
     }
 
     func update(_ type: UpdateType, result: @escaping (Result<UserTokenList, Error>) -> Void) {
@@ -106,7 +106,7 @@ private extension CommonUserTokenListManager {
 
     func loadUserTokenList(result: @escaping (Result<UserTokenList, Error>) -> Void) {
         self.loadTokensCancellable = tangemApiService
-            .loadTokens(for: userWalletId)
+            .loadTokens(for: userWalletId.hexString)
             .sink { [unowned self] completion in
                 guard case let .failure(error) = completion else { return }
 
@@ -127,7 +127,7 @@ private extension CommonUserTokenListManager {
         let list = UserTokenList(tokens: tokens)
 
         saveTokensCancellable = tangemApiService
-            .saveTokens(list: list, for: userWalletId)
+            .saveTokens(list: list, for: userWalletId.hexString)
             .receiveCompletion { completion in
                 switch completion {
                 case .finished:
