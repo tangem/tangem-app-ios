@@ -30,7 +30,7 @@ class CommonWalletListManager {
 
 extension CommonWalletListManager: WalletListManager {
     func update(config: UserWalletConfig) {
-        print("‼️ Updating WalletListManager with new config")
+        print("🔄 Updating WalletListManager with new config")
         self.config = config
     }
 
@@ -54,7 +54,7 @@ extension CommonWalletListManager: WalletListManager {
     }
 
     func updateWalletModels() {
-        print("‼️ Updating Wallet models")
+        print("🔄 Updating Wallet models")
 
         var walletModels = getWalletModels()
         let entries = userTokenListManager.getEntriesFromRepository()
