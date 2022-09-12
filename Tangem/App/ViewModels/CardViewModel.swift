@@ -249,9 +249,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func appendDefaultBlockchains() {
-        add(entries: config.defaultBlockchains) { [weak self] _ in
-            self?.userWalletModel?.updateAllWalletModelsWithCallUpdateInWalletModel()
-        }
+        add(entries: config.defaultBlockchains) { _ in }
     }
 
     func deriveEntriesWithoutDerivation() {
@@ -269,7 +267,7 @@ class CardViewModel: Identifiable, ObservableObject {
                 if let card = card {
                     self?.update(with: card)
                 }
-                self?.userWalletModel?.updateAllWalletModelsWithCallUpdateInWalletModel()
+                self?.userWalletModel?.updateAndReloadWalletModels()
             case .failure:
                 print("Derivation error")
             }
@@ -572,10 +570,6 @@ class CardViewModel: Identifiable, ObservableObject {
 // MARK: - Proxy for User Wallet Model
 
 extension CardViewModel {
-    func updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: Bool) {
-        userWalletModel?.updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: showProgressLoading)
-    }
-
     func subscribeWalletModels() -> AnyPublisher<[WalletModel], Never> {
         guard let userWalletModel = userWalletModel else {
             assertionFailure("UserWalletModel not created")
@@ -635,13 +629,13 @@ extension CardViewModel {
         return userWalletModel.canManage(amountType: amountType, blockchainNetwork: blockchainNetwork)
     }
 
-    func remove(item: CommonUserWalletModel.RemoveItem, completion: @escaping (Result<UserTokenList, Error>) -> Void) {
+    func remove(item: CommonUserWalletModel.RemoveItem, result: @escaping (Result<UserTokenList, Error>) -> Void) {
         guard let userWalletModel = userWalletModel else {
             assertionFailure("UserWalletModel not created")
             return
         }
 
-        userWalletModel.remove(item: item, completion: completion)
+        userWalletModel.remove(item: item, result: result)
     }
 }
 
