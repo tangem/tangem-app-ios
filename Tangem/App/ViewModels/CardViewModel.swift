@@ -31,7 +31,7 @@ class CardViewModel: Identifiable, ObservableObject {
     var signer: TangemSigner { config.tangemSigner }
 
     var cardId: String { cardInfo.card.cardId }
-    var userWalletId: String { cardInfo.card.userWalletId }
+    var userWalletId: Data { cardInfo.card.userWalletId }
 
     var isMultiWallet: Bool {
         config.hasFeature(.multiCurrency)
