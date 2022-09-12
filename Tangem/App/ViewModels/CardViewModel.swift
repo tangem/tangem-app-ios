@@ -195,12 +195,11 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     var isSuccesfullyLoaded: Bool {
-        // [REDACTED_TODO_COMMENT]
-        !walletModels.isEmpty && walletModels.allSatisfy { $0.state.isSuccesfullyLoaded }
+        walletModels.allConforms { $0.state.isSuccesfullyLoaded }
     }
 
     var hasBalance: Bool {
-        walletModels.contains { $0.hasBalance } // Check it, maybe should use allSatisfy
+        walletModels.contains { $0.hasBalance }
     }
 
     var shoulShowLegacyDerivationAlert: Bool {
