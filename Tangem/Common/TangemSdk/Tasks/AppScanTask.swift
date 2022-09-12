@@ -255,7 +255,7 @@ final class AppScanTask: CardSessionRunnable {
         }
 
         migrate(card: card)
-        let tokenItemsRepository = CommonTokenItemsRepository(key: card.userWalletId)
+        let tokenItemsRepository = CommonTokenItemsRepository(key: card.userWalletId.hexString)
 
         // Force add blockchains for demo cards
         let config = GenericConfig(card: card)
