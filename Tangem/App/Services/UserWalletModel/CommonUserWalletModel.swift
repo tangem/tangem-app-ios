@@ -60,7 +60,7 @@ extension CommonUserWalletModel: UserWalletModel {
         userTokenListManager.clearRepository(result: result)
     }
 
-    func updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: Bool) {
+    func updateAllWalletModelsWithCallUpdateInWalletModel(showProgressLoading: Bool, result: @escaping (Result<Void, Error>) -> Void) {
         if showProgressLoading {
             output?.userWalletModelRequestUpdate(walletsBalanceState: .inProgress)
         }
@@ -71,9 +71,14 @@ extension CommonUserWalletModel: UserWalletModel {
         reloadAllWalletModelsBag = walletListManager
             .reloadWalletModels()
             .receive(on: RunLoop.main)
-            .receiveCompletion { [weak self] _ in
-                if showProgressLoading {
-                    self?.output?.userWalletModelRequestUpdate(walletsBalanceState: .loaded)
+            .receiveCompletion { [weak self] completion in
+                self?.output?.userWalletModelRequestUpdate(walletsBalanceState: .loaded)
+
+                switch completion {
+                case .finished:
+                    result(.success(()))
+                case let .failure(error):
+                    result(.failure(error))
                 }
             }
     }
