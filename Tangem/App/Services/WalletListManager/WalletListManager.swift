@@ -22,7 +22,7 @@ protocol WalletListManager {
     func updateWalletModels()
 
     /// Call method update in every wallet model
-    func reloadWalletModels() -> AnyPublisher<Void, Error>
+    func reloadWalletModels() -> AnyPublisher<Void, Never>
 
     func canManage(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool
     func canRemove(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool
