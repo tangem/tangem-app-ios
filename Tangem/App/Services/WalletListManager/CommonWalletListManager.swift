@@ -111,7 +111,7 @@ extension CommonWalletListManager: WalletListManager {
         self.walletModels.send(walletModels)
     }
 
-    func reloadWalletModels() -> AnyPublisher<Void, Error> {
+    func reloadWalletModels() -> AnyPublisher<Void, Never> {
         guard !getWalletModels().isEmpty else {
             print("‼️ WalletModels is empty")
             return .just
@@ -143,21 +143,20 @@ extension CommonWalletListManager: WalletListManager {
 }
 
 private extension CommonWalletListManager {
-    func reloadAllWalletModelsPublisher() -> AnyPublisher<Void, Error> {
+    func reloadAllWalletModelsPublisher() -> AnyPublisher<Void, Never> {
         tryMigrateTokens()
-            .tryMap { [weak self] _ ->  AnyPublisher<Void, Error> in
+            .flatMap { [weak self] _ -> AnyPublisher<Void, Never> in
                 guard let self = self else {
-                    throw CommonError.objectReleased
+                    return .just
                 }
 
                 return self.updateWalletModelsPublisher()
             }
-            .switchToLatest()
             .eraseToAnyPublisher()
     }
 
-    func updateWalletModelsPublisher() -> AnyPublisher<Void, Error> {
-        let publishers = getWalletModels().map { $0.update() }
+    func updateWalletModelsPublisher() -> AnyPublisher<Void, Never> {
+        let publishers = getWalletModels().map { $0.update().replaceError(with: (())) }
 
         return Publishers
             .MergeMany(publishers)
