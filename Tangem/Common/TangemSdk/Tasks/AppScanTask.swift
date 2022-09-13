@@ -109,10 +109,6 @@ final class AppScanTask: CardSessionRunnable {
                 deriveKeysIfNeeded(session, completion)
                 return
             }
-        } else {
-            #if !CLIP
-            migrate(card: card)
-            #endif
         }
 
         self.runScanTask(session, completion)
@@ -298,7 +294,16 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func complete(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        completion(.success(AppScanTaskResponse(card: session.environment.card!,
+        guard let card = session.environment.card else {
+            completion(.failure(.missingPreflightRead))
+            return
+        }
+
+        #if !CLIP
+        migrate(card: card)
+        #endif
+
+        completion(.success(AppScanTaskResponse(card: card,
                                                 walletData: walletData,
                                                 primaryCard: primaryCard)))
     }
