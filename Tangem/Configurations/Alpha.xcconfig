@@ -1,5 +1,5 @@
 //
-//  Beta.xcconfig
+//  Alpha.xcconfig
 //  TangemApp
 //
 //  Created by [REDACTED_AUTHOR]
@@ -10,13 +10,13 @@
 // https://help.apple.com/xcode/#/dev745c5c974
 
 // Config name
-ENVIRONMENT_NAME = Beta
+ENVIRONMENT_NAME = Alpha
 
 // Prefix from developer.apple.com, TEAM_ID in this case
 APP_ID_PREFIX = 4897UJ6D8C
 
 // Will use in TangemApp as BUNDLE_IDENTIFIER
-APP_BUNDLE_IDENTIFIER = com.tangem.TangemBeta
+APP_BUNDLE_IDENTIFIER = com.tangem.TangemAlpha
 
 // Storage container name
 SUITE_NAME = group.$(APP_BUNDLE_IDENTIFIER)
