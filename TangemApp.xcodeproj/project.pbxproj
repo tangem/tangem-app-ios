@@ -560,6 +560,7 @@
 		EF7B9CF1286C6BE2004C33A9 /* CardSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF0286C6BE2004C33A9 /* CardSettingsViewModel.swift */; };
 		EF7B9CF5286C7023004C33A9 /* CardSettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF4286C7023004C33A9 /* CardSettingsCoordinator.swift */; };
 		EF7B9CF7286C702E004C33A9 /* CardSettingsCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF6286C702E004C33A9 /* CardSettingsCoordinatorView.swift */; };
+		EF98BDF428D0743400D51719 /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = EF98BDF628D0743400D51719 /* Localizable.stringsdict */; };
 		EF9C52B3287C77A10015D540 /* CardSettingsRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF7B9CF2286C6C7A004C33A9 /* CardSettingsRoutable.swift */; };
 		EF9CFC12288FECE100329BE0 /* ScanCardSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9CFC0D288FECE100329BE0 /* ScanCardSettingsView.swift */; };
 		EF9CFC13288FECE100329BE0 /* ScanCardSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF9CFC0E288FECE100329BE0 /* ScanCardSettingsViewModel.swift */; };
@@ -1180,6 +1181,11 @@
 		EF7B9CF2286C6C7A004C33A9 /* CardSettingsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsRoutable.swift; sourceTree = "<group>"; };
 		EF7B9CF4286C7023004C33A9 /* CardSettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsCoordinator.swift; sourceTree = "<group>"; };
 		EF7B9CF6286C702E004C33A9 /* CardSettingsCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardSettingsCoordinatorView.swift; sourceTree = "<group>"; };
+		EF98BDF528D0743400D51719 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = en; path = en.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		EF98BDF728D0743600D51719 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = fr; path = fr.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		EF98BDF828D0743C00D51719 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = de; path = de.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		EF98BDF928D0743C00D51719 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = it; path = it.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		EF98BDFA28D0743D00D51719 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ru; path = ru.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		EF9CFC0D288FECE100329BE0 /* ScanCardSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanCardSettingsView.swift; sourceTree = "<group>"; };
 		EF9CFC0E288FECE100329BE0 /* ScanCardSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanCardSettingsViewModel.swift; sourceTree = "<group>"; };
 		EF9CFC0F288FECE100329BE0 /* ScanCardSettingsRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScanCardSettingsRoutable.swift; sourceTree = "<group>"; };
@@ -1297,6 +1303,7 @@
 			isa = PBXGroup;
 			children = (
 				5D383E4124D95BA600C9BFF6 /* Localizable.strings */,
+				EF98BDF628D0743400D51719 /* Localizable.stringsdict */,
 			);
 			path = Localizations;
 			sourceTree = "<group>";
@@ -2960,6 +2967,7 @@
 				5D3F77CF24BF56DC00E8695B /* Preview Assets.xcassets in Resources */,
 				5D5CE1A82625FF00009023EC /* config_dev.json in Resources */,
 				5D3F77CC24BF56DC00E8695B /* Assets.xcassets in Resources */,
+				EF98BDF428D0743400D51719 /* Localizable.stringsdict in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3802,6 +3810,18 @@
 				DA64C37627CCB177005B5E9A /* ru */,
 			);
 			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		EF98BDF628D0743400D51719 /* Localizable.stringsdict */ = {
+			isa = PBXVariantGroup;
+			children = (
+				EF98BDF528D0743400D51719 /* en */,
+				EF98BDF728D0743600D51719 /* fr */,
+				EF98BDF828D0743C00D51719 /* de */,
+				EF98BDF928D0743C00D51719 /* it */,
+				EF98BDFA28D0743D00D51719 /* ru */,
+			);
+			name = Localizable.stringsdict;
 			sourceTree = "<group>";
 		};
 		EFFC861928BD055C00F863CE /* Intents.intentdefinition */ = {
