@@ -36,7 +36,7 @@ struct ScanCardWarningView: View {
 
     private var icon: some View {
         ZStack(alignment: .topTrailing) {
-            Assets.scanCardIcon
+            Assets.tangemCircleGrayIcon
 
             Circle()
                 .fill(Colors.Text.attention)
