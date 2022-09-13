@@ -86,6 +86,8 @@ extension Blockchain {
         switch self {
         case .arbitrum(let testnet):
             return Blockchain.ethereum(testnet: testnet).id
+        case .optimism:
+            return "optimism"
         default:
             return id
         }
