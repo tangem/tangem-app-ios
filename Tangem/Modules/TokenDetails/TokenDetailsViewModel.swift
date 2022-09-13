@@ -17,7 +17,7 @@ class TokenDetailsViewModel: ObservableObject {
     @Published var alert: AlertBinder? = nil
     @Published var showTradeSheet: Bool = false
     @Published var isRefreshing: Bool = false
-    @Published var isHiddingInProcess: Bool = false
+    @Published var isHidingInProcess: Bool = false
 
     let card: CardViewModel
 
@@ -270,11 +270,11 @@ class TokenDetailsViewModel: ObservableObject {
             return
         }
 
-        isHiddingInProcess = true
+        isHidingInProcess = true
 
         let item = CommonUserWalletModel.RemoveItem(amount: amountType, blockchainNetwork: walletModel.blockchainNetwork)
         card.remove(item: item) { [weak self] result in
-            self?.isHiddingInProcess = false
+            self?.isHidingInProcess = false
             self?.dismiss()
         }
     }
