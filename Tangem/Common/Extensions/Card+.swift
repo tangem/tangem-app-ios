@@ -35,9 +35,9 @@ extension Card {
         let keyHash = (wallets.first?.publicKey ?? cardPublicKey).sha256()
         let key = SymmetricKey(data: keyHash)
         let message = Constants.messageForWalletID.data(using: .utf8)!
-        let accId = HMAC<SHA256>.authenticationCode(for: message, using: key)
+        let authenticationCode = HMAC<SHA256>.authenticationCode(for: message, using: key)
 
-        return Data(accId)
+        return Data(authenticationCode)
     }
 
     var derivationStyle: DerivationStyle {
