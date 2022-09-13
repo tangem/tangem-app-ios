@@ -21,6 +21,8 @@ struct TokenItemsRepositoryMigrator {
         let oldRepository = CommonTokenItemsRepository(key: cardId)
         let oldEntries = oldRepository.getItems()
 
+        guard !oldEntries.isEmpty else { return }
+
         // Save a old entries in new repository
         let newRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
         newRepository.append(oldEntries)
