@@ -248,7 +248,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     }
 
     private func openOnboarding(with input: OnboardingInput) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+        DispatchQueue.main.async {
             self.coordinator.openOnboarding(with: input)
         }
     }
