@@ -138,7 +138,7 @@ struct TokenDetailsView: View {
 
     @ViewBuilder
     private var trailingButton: some View {
-        if viewModel.isHiddingInProcess {
+        if viewModel.isHidingInProcess {
             ActivityIndicatorView(settings: .init(style: .medium, color: .gray))
         } else {
             Button(action: viewModel.onRemove) {
