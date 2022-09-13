@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>721920782444-ceesk1ei7lobjoepcbmjsum6c2k66s0m.apps.googleusercontent.com</string>
+	<string>721920782444-hr9jap0m7e6ni67nhc2blcrr1ttjfifu.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.721920782444-ceesk1ei7lobjoepcbmjsum6c2k66s0m</string>
+	<string>com.googleusercontent.apps.721920782444-hr9jap0m7e6ni67nhc2blcrr1ttjfifu</string>
 	<key>API_KEY</key>
 	<string>AIzaSyBa8_s2ZBe5IYILNVAopx86LC03H_Qzp_k</string>
 	<key>GCM_SENDER_ID</key>
@@ -13,7 +13,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.tangem.TangemBeta</string>
+	<string>com.tangem.TangemAlpha</string>
 	<key>PROJECT_ID</key>
 	<string>tangemapp</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,7 +29,7 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:721920782444:ios:6e7f20a5ba4f23523f2849</string>
+	<string>1:721920782444:ios:0e5fe9d4f38b447f3f2849</string>
 	<key>DATABASE_URL</key>
 	<string>https://tangemapp.firebaseio.com</string>
 </dict>
