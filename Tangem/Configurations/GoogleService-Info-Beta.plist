@@ -3,21 +3,21 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>784419083193-qrf0ng1j2dnheacb26d01ca31aa2lv1s.apps.googleusercontent.com</string>
+	<string>721920782444-ceesk1ei7lobjoepcbmjsum6c2k66s0m.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.784419083193-qrf0ng1j2dnheacb26d01ca31aa2lv1s</string>
+	<string>com.googleusercontent.apps.721920782444-ceesk1ei7lobjoepcbmjsum6c2k66s0m</string>
 	<key>API_KEY</key>
-	<string>AIzaSyAM693c8L_F7Hq3IUkDgLmr2AWB4tvssJ0</string>
+	<string>AIzaSyBa8_s2ZBe5IYILNVAopx86LC03H_Qzp_k</string>
 	<key>GCM_SENDER_ID</key>
-	<string>784419083193</string>
+	<string>721920782444</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.tangem.TangemBeta</string>
 	<key>PROJECT_ID</key>
-	<string>tangem-beta</string>
+	<string>tangemapp</string>
 	<key>STORAGE_BUCKET</key>
-	<string>tangem-beta.appspot.com</string>
+	<string>tangemapp.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -29,8 +29,8 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:784419083193:ios:512f6633cf145b3e4cdc68</string>
+	<string>1:721920782444:ios:6e7f20a5ba4f23523f2849</string>
 	<key>DATABASE_URL</key>
-	<string>https://tangem-beta.firebaseio.com</string>
+	<string>https://tangemapp.firebaseio.com</string>
 </dict>
 </plist>
