@@ -180,7 +180,6 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
     private func getGasLimit(for amount: Amount, destination: String, data: String?, txSender: EthereumGasLoader) -> AnyPublisher<Int, Error> {
         return txSender.getGasLimit(amount: amount, destination: destination)
             .map { Int($0) }
-            .setFailureType(to: Error.self)
             .eraseToAnyPublisher()
     }
 }
