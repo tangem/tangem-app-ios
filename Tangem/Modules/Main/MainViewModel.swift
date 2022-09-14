@@ -171,7 +171,7 @@ class MainViewModel: ObservableObject {
 
         cardModel.setupWarnings()
         validateHashesCount()
-        updateWalletTokenListViewModel()
+        userWalletModel?.updateAndReloadWalletModels(showProgressLoading: true)
         showUserWalletSaveIfNeeded()
     }
 
@@ -197,21 +197,6 @@ class MainViewModel: ObservableObject {
             .sink { [unowned self] entries in
                 updateLackDerivationWarningView(entries: entries)
             }
-            .store(in: &bag)
-
-        cardModel
-            .$state
-            .compactMap { $0.walletModels }
-            .flatMap { Publishers.MergeMany($0.map { $0.objectWillChange }).collect($0.count) }
-            .debounce(for: .seconds(0.5), scheduler: RunLoop.main)
-            .receive(on: DispatchQueue.main)
-            .sink { [unowned self] _ in
-                if self.isLoadingTokensBalance { return }
-                self.updateTotalBalanceTokenListIfNeeded()
-                self.objectWillChange.send()
-            }
-            .imageLoaderPublisher
-            .weakAssignAnimated(to: \.image, on: self)
             .store(in: &bag)
 
         warningsService.warningsUpdatePublisher
@@ -489,6 +474,8 @@ class MainViewModel: ObservableObject {
 
     private func updateLackDerivationWarningView(entries: [StorageEntry]) {
         isLackDerivationWarningViewVisible = !entries.isEmpty
+    }
+
     private func showUserWalletSaveIfNeeded() {
         if AppSettings.shared.askedToSaveUserWallets || !BiometricsUtil.isAvailable {
             return
