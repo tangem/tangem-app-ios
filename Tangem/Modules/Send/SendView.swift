@@ -16,9 +16,7 @@ struct SendView: View {
     @ObservedObject var viewModel: SendViewModel
 
     private var addressHint: String {
-        viewModel.isPayIdSupported ?
-            "send_destination_hint".localized :
-            "send_destination_hint_address".localized
+        "send_destination_hint_address".localized
     }
 
     var body: some View {
