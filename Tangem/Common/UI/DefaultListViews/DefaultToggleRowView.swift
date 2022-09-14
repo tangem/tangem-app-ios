@@ -22,8 +22,8 @@ struct DefaultToggleRowView: View {
     var body: some View {
         HStack {
             Text(title)
-                .font(.body)
-                .foregroundColor(isEnabled ? Colors.Text.primary1 : Colors.Text.disabled)
+                .style(Fonts.Regular.body,
+                       color: isEnabled ? Colors.Text.primary1 : Colors.Text.disabled)
 
             Spacer()
 
@@ -32,5 +32,11 @@ struct DefaultToggleRowView: View {
                 .toggleStyleCompat(Colors.Control.checked)
                 .disabled(!isEnabled)
         }
+    }
+}
+
+struct DefaultToggleRowViewPreview: PreviewProvider {
+    static var previews: some View {
+        DefaultToggleRowView(title: "Title", isEnabled: true, isOn: .constant(true))
     }
 }
