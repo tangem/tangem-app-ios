@@ -171,7 +171,7 @@ class MainViewModel: ObservableObject {
 
         cardModel.setupWarnings()
         validateHashesCount()
-        userWalletModel?.updateAndReloadWalletModels(showProgressLoading: true)
+        updateWalletTokenListViewModel()
         showUserWalletSaveIfNeeded()
     }
 
