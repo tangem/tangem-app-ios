@@ -7,7 +7,7 @@
 //
 
 import Foundation
-#if !CLIP
+#if !CLIP // [REDACTED_TODO_COMMENT]
 import FirebaseAnalytics
 import FirebaseCrashlytics
 import AppsFlyerLib
@@ -40,10 +40,10 @@ class Analytics {
         #endif
     }
 
-    static func logScan(card: Card) {
+    static func logScan(card: Card, config: UserWalletConfig) {
         log(event: .cardIsScanned, with: collectCardData(card))
 
-        if card.isDemoCard {
+        if DemoUtil().isDemoCard(cardId: card.cardId) {
             log(event: .demoActivated, with: [.cardId: card.cardId])
         }
     }

@@ -17,6 +17,7 @@ class TokenDetailsViewModel: ObservableObject {
     @Published var alert: AlertBinder? = nil
     @Published var showTradeSheet: Bool = false
     @Published var isRefreshing: Bool = false
+    @Published var isHidingInProcess: Bool = false
 
     let card: CardViewModel
 
@@ -24,9 +25,7 @@ class TokenDetailsViewModel: ObservableObject {
         return walletModel?.wallet
     }
 
-    var walletModel: WalletModel? {
-        return card.walletModels?.first(where: { $0.blockchainNetwork == blockchainNetwork })
-    }
+    var walletModel: WalletModel?
 
     var incomingTransactions: [PendingTransaction] {
         walletModel?.incomingPendingTransactions.filter { $0.amountType == amountType } ?? []
@@ -90,7 +89,7 @@ class TokenDetailsViewModel: ObservableObject {
     }
 
     var canSend: Bool {
-        guard card.canSign else {
+        guard card.canSend else {
             return false
         }
 
@@ -134,7 +133,6 @@ class TokenDetailsViewModel: ObservableObject {
     let amountType: Amount.AmountType
     let blockchainNetwork: BlockchainNetwork
 
-    private let dismissalRequestSubject = PassthroughSubject<Void, Never>()
     private var bag = Set<AnyCancellable>()
     private var rentWarningSubscription: AnyCancellable?
     private var refreshCancellable: AnyCancellable? = nil
@@ -150,6 +148,8 @@ class TokenDetailsViewModel: ObservableObject {
         self.blockchainNetwork = blockchainNetwork
         self.amountType = amountType
         self.coordinator = coordinator
+
+        walletModel = card.walletModels.first(where: { $0.blockchainNetwork == blockchainNetwork })
 
         bind()
     }
@@ -219,12 +219,6 @@ class TokenDetailsViewModel: ObservableObject {
                 self.showExplorerURL = nil
             }
             .store(in: &bag)
-
-        dismissalRequestSubject
-            .sink { [unowned self] _ in
-                self.dismiss()
-            }
-            .store(in: &bag)
     }
 
     func onRefresh(_ done: @escaping () -> Void) {
@@ -276,14 +270,12 @@ class TokenDetailsViewModel: ObservableObject {
             return
         }
 
-        dismissalRequestSubject.send(())
+        isHidingInProcess = true
 
-        /// Added the delay to display the deletion in the main screen
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            self.card.remove(
-                amountType: self.amountType,
-                blockchainNetwork: walletModel.blockchainNetwork
-            )
+        let item = CommonUserWalletModel.RemoveItem(amount: amountType, blockchainNetwork: walletModel.blockchainNetwork)
+        card.remove(item: item) { [weak self] result in
+            self?.isHidingInProcess = false
+            self?.dismiss()
         }
     }
 
@@ -348,8 +340,8 @@ extension TokenDetailsViewModel {
     }
 
     func openSellCrypto() {
-        if card.cardInfo.card.isDemoCard {
-            alert = AlertBuilder.makeDemoAlert()
+        if let disabledLocalizedReason = card.getDisabledLocalizedReason(for: .exchange) {
+            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
         }
 
@@ -361,28 +353,26 @@ extension TokenDetailsViewModel {
     }
 
     func openBuyCrypto() {
-        if card.cardInfo.card.isDemoCard {
-            alert = AlertBuilder.makeDemoAlert()
+        if let disabledLocalizedReason = card.getDisabledLocalizedReason(for: .exchange) {
+            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
         }
 
-        guard card.isTestnet, let token = amountType.token,
-              case .ethereum(testnet: true) = blockchainNetwork.blockchain else {
-            if let url = buyCryptoUrl {
-                coordinator.openBuyCrypto(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
-                    self?.sendAnalyticsEvent(.userBoughtCrypto)
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                        self?.walletModel?.update(silent: true)
-                    }
+        if let walletModel = self.walletModel,
+           let token = amountType.token,
+           blockchainNetwork.blockchain == .ethereum(testnet: true) {
+            testnetBuyCryptoService.buyCrypto(.erc20Token(token, walletManager: walletModel.walletManager, signer: card.signer))
+            return
+        }
+
+        if let url = buyCryptoUrl {
+            coordinator.openBuyCrypto(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
+                self?.sendAnalyticsEvent(.userBoughtCrypto)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    self?.walletModel?.update(silent: true)
                 }
             }
-            return
         }
-
-        guard let model = walletModel else { return }
-
-
-        testnetBuyCryptoService.buyCrypto(.erc20Token(token, walletManager: model.walletManager, signer: card.signer))
     }
 
     func openBuyCryptoIfPossible() {

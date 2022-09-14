@@ -3,7 +3,7 @@ platform :ios, '13.0'
 project 'TangemApp.xcodeproj'
 
 def common_pods
-   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-157'
+   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-160'
    #pod 'TangemSdk', :path => '../tangem-sdk-ios'
    pod 'KeychainSwift', '~> 19.0'
 end
@@ -94,6 +94,11 @@ post_install do |installer|
 			if Gem::Version.new('9.0') > Gem::Version.new(config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'])
 				config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '9.0'
 			end
+      if target.respond_to?(:product_type) and target.product_type == "com.apple.product-type.bundle"
+        target.build_configurations.each do |config|
+            config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
+        end
+      end
 		end
 	end
 end

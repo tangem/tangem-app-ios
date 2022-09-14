@@ -14,7 +14,6 @@ import BlockchainSdk
 class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, ObservableObject {
     @Injected(\.cardImageLoader) private var imageLoader: CardImageLoaderProtocol
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
-    @Injected(\.tokenItemsRepository) private var tokensRepo: TokenItemsRepository
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
 
     @Published var thirdCardSettings: AnimatedViewSettings = .zero
@@ -307,8 +306,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             if NFCUtils.isPoorNfcQualityDevice {
                 self.alert = AlertBuilder.makeOldDeviceAlert()
             } else {
-                if input.cardInput.cardModel?.cardInfo.card.isDemoCard ?? false {
-                    self.alert = AlertBuilder.makeDemoAlert()
+                if let disabledLocalizedReason = input.cardInput.cardModel?.getDisabledLocalizedReason(for: .backup) {
+                    alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
                 } else {
                     goToNextStep()
                 }
@@ -452,8 +451,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             .first()
             .sink(receiveCompletion: { [weak self] completion in
                 if case .failure(let error) = completion {
-                    if let card = self?.input.cardInput.cardModel?.cardInfo.card {
-                        Analytics.logCardSdkError(error.toTangemSdkError(), for: .preparePrimary, card: card)
+                    if let cardModel = self?.input.cardInput.cardModel {
+                        cardModel.logSdkError(error, action: .preparePrimary)
                     }
                     self?.isMainButtonBusy = false
                     print(error)
@@ -471,8 +470,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             .sink(
                 receiveCompletion: { [weak self] completion in
                     if case .failure(let error) = completion {
-                        if let card = self?.input.cardInput.cardModel?.cardInfo.card {
-                            Analytics.logCardSdkError(error.toTangemSdkError(), for: .readPrimary, card: card)
+                        if let cardModel = self?.input.cardInput.cardModel {
+                            cardModel.logSdkError(error, action: .readPrimary)
                         }
                         print("Failed to read origin card: \(error)")
                         self?.isMainButtonBusy = false
@@ -495,10 +494,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                                                                     body: "initial_message_create_wallet_body".localized)) { [weak self] result in
                     switch result {
                     case .success(let result):
-                        self?.addTokens(for: cardId, style: result.card.derivationStyle)
+                        self?.addDefaultTokens(for: result.card)
 
                         if let cardModel = self?.input.cardInput.cardModel {
-                            cardModel.cardInfo.derivedKeys = result.derivedKeys
                             cardModel.update(with: result.card)
                         }
 
@@ -557,8 +555,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             .sink(receiveCompletion: { [weak self] completion in
                 if case let .failure(error) = completion {
                     print("Failed to add backup card. Reason: \(error)")
-                    if let card = self?.input.cardInput.cardModel?.cardInfo.card {
-                        Analytics.logCardSdkError(error.toTangemSdkError(), for: .addbackup, card: card)
+                    if let cardModel = self?.input.cardInput.cardModel {
+                        cardModel.logSdkError(error, action: .addbackup)
                     }
                     self?.isMainButtonBusy = false
                 }
@@ -581,11 +579,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                         switch result {
                         case .success(let updatedCard):
                             if updatedCard.cardId == self.backupService.primaryCardId {
-                                self.input.cardInput.cardModel?.cardInfo.card = updatedCard
-                                self.input.cardInput.cardModel?.updateCardPinSettings()
-                                self.input.cardInput.cardModel?.updateCurrentSecurityOption()
+                                self.input.cardInput.cardModel?.update(with: updatedCard)
                             } else { // add tokens for backup cards
-                                self.addTokens(for: updatedCard.cardId, style: updatedCard.derivationStyle)
+                                self.addDefaultTokens(for: updatedCard)
                             }
                             promise(.success(()))
                         case .failure(let error):
@@ -599,8 +595,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
                     print("Failed to proceed backup. Reason: \(error)")
-                    if let card = self?.input.cardInput.cardModel?.cardInfo.card {
-                        Analytics.logCardSdkError(error.toTangemSdkError(), for: .proceedBackup, card: card)
+                    if let cardModel = self?.input.cardInput.cardModel {
+                        cardModel.logSdkError(error, action: .proceedBackup)
                     }
                     self?.isMainButtonBusy = false
                 }
@@ -620,11 +616,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         }
     }
 
-    private func addTokens(for cardId: String, style: DerivationStyle) {
-        let isDemo = input.cardInput.cardModel?.cardInfo.card.isDemoCard ?? false
-        let testnet = input.cardInput.cardModel?.cardInfo.isTestnet ?? false
-        let blockchains = SupportedTokenItems().predefinedBlockchains(isDemo: isDemo, testnet: testnet)
-        self.tokensRepo.append(blockchains, for: cardId, style: style)
+    private func addDefaultTokens(for card: Card) {
+        let config = GenericConfig(card: card)
+        CommonTokenItemsRepository(key: card.userWalletId.hexString).append(config.defaultBlockchains)
     }
 }
 
