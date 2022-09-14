@@ -57,7 +57,7 @@ extension GenericConfig: UserWalletConfig {
             return nil
         }
 
-        return String.localizedStringWithFormat("cards_count".localized, backupCardsCount)
+        return String.localizedStringWithFormat("cards_count".localized, backupCardsCount + 1)
     }
 
     var cardsCount: Int {
