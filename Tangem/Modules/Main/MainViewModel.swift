@@ -73,19 +73,19 @@ class MainViewModel: ObservableObject {
             return false
         }
 
-        guard let wallet = wallets.first else {
+        guard let wallet = wallets?.first else {
             return false
         }
 
         return wallet.canSend(amountType: .coin)
     }
 
-    var wallets: [Wallet] {
+    var wallets: [Wallet]? {
         cardModel.wallets
     }
 
     var currenyCode: String {
-        wallets.first?.blockchain.currencySymbol ?? .unknown
+        wallets?.first?.blockchain.currencySymbol ?? .unknown
     }
 
     var canBuyCrypto: Bool {
@@ -101,7 +101,7 @@ class MainViewModel: ObservableObject {
     }
 
     var buyCryptoURL: URL? {
-        if let wallet = wallets.first {
+        if let wallet = wallets?.first {
             let blockchain = wallet.blockchain
             if blockchain.isTestnet {
                 return blockchain.testnetFaucetURL
@@ -116,7 +116,7 @@ class MainViewModel: ObservableObject {
     }
 
     var sellCryptoURL: URL? {
-        if let wallet = wallets.first {
+        if let wallet = wallets?.first {
             return exchangeService.getSellUrl(currencySymbol: wallet.blockchain.currencySymbol,
                                               amountType: .coin,
                                               blockchain: wallet.blockchain,
@@ -287,7 +287,7 @@ class MainViewModel: ObservableObject {
     }
 
     func sendTapped() {
-        guard let wallet = wallets.first else {
+        guard let wallet = wallets?.first else {
             return
         }
 
@@ -581,7 +581,7 @@ extension MainViewModel {
 
     func openExplorer(at url: URL) {
         Analytics.log(.exploreAddressTapped)
-        let blockchainName = wallets.first?.blockchain.displayName ?? ""
+        let blockchainName = wallets?.first?.blockchain.displayName ?? ""
         coordinator.openExplorer(at: url, blockchainDisplayName: blockchainName)
     }
 
