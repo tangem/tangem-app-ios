@@ -12,47 +12,30 @@ import TangemSdk
 import BlockchainSdk
 #endif
 
+enum DefaultWalletData {
+    case note(WalletData)
+    case legacy(WalletData)
+    case twin(WalletData, TwinData)
+    case none
+
+    var twinData: TwinData? {
+        if case let .twin(_, data) = self {
+            return data
+        }
+
+        return nil
+    }
+}
+
 struct AppScanTaskResponse {
     let card: Card
-    let walletData: WalletData?
-    let twinIssuerData: Data?
-    let isTangemNote: Bool // todo refactor
-    let isTangemWallet: Bool
-    let derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]]
+    let walletData: DefaultWalletData
     let primaryCard: PrimaryCard?
 
     func getCardInfo() -> CardInfo {
         return CardInfo(card: card,
                         walletData: walletData,
-                        //                        artworkInfo: nil,
-                        twinCardInfo: decodeTwinFile(from: self),
-                        isTangemNote: isTangemNote,
-                        isTangemWallet: isTangemWallet,
-                        derivedKeys: derivedKeys,
                         primaryCard: primaryCard)
-    }
-
-    private func decodeTwinFile(from response: AppScanTaskResponse) -> TwinCardInfo? {
-        guard
-            card.isTwinCard,
-            let series: TwinCardSeries = .series(for: card.cardId)
-        else {
-            return nil
-        }
-
-        var pairPublicKey: Data?
-
-        if let walletPubKey = card.wallets.first?.publicKey, let fullData = twinIssuerData, fullData.count == 129 {
-            let pairPubKey = fullData[0 ..< 65]
-            let signature = fullData[65 ..< fullData.count]
-            if (try? Secp256k1Signature(with: signature).verify(with: walletPubKey, message: pairPubKey)) ?? false {
-                pairPublicKey = pairPubKey
-            }
-        }
-
-        return TwinCardInfo(cid: response.card.cardId,
-                            series: series,
-                            pairPublicKey: pairPublicKey)
     }
 }
 
@@ -66,14 +49,10 @@ enum AppScanTaskError: String, Error, LocalizedError {
 
 final class AppScanTask: CardSessionRunnable {
     private let targetBatch: String?
-    private var twinIssuerData: Data? = nil
-    private var noteWalletData: WalletData? = nil
+    private var walletData: DefaultWalletData = .none
     private var primaryCard: PrimaryCard? = nil
-    private var derivedKeys: [Data: [DerivationPath: ExtendedPublicKey]] = [:]
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
     #if !CLIP
-    @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
-
     init(targetBatch: String? = nil) {
         self.targetBatch = targetBatch
     }
@@ -102,11 +81,16 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
 
+        if let legacyWalletData = session.environment.walletData,
+           legacyWalletData.blockchain != "ANY" {
+            self.walletData = .legacy(legacyWalletData)
+        }
+
         self.readExtra(card, session: session, completion: completion)
     }
 
     private func readExtra(_ card: Card, session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        if card.isTwinCard {
+        if TwinCardSeries.series(for: card.cardId) != nil {
             readTwin(card, session: session, completion: completion)
             return
         }
@@ -125,19 +109,13 @@ final class AppScanTask: CardSessionRunnable {
                 deriveKeysIfNeeded(session, completion)
                 return
             }
-
         }
 
         self.runScanTask(session, completion)
     }
 
     private func readNote(_ card: Card, session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        // self.noteWalletData = WalletData(blockchain: "BTC") //for test without file
-        // self.runAttestation(session, completion)
-        // return
-
         func exit() {
-            self.noteWalletData = nil
             self.deriveKeysIfNeeded(session, completion)
         }
 
@@ -165,7 +143,7 @@ final class AppScanTask: CardSessionRunnable {
                     return
                 }
 
-                self.noteWalletData = walletData
+                self.walletData = .note(walletData)
                 self.runScanTask(session, completion)
             case .failure(let error):
                 switch error {
@@ -183,7 +161,11 @@ final class AppScanTask: CardSessionRunnable {
         readIssuerDataCommand.run(in: session) { (result) in
             switch result {
             case .success(let response):
-                self.twinIssuerData = response.issuerData
+
+                if let walletData = session.environment.walletData {
+                    let twinData = self.decodeTwinFile(from: card, twinIssuerData: response.issuerData)
+                    self.walletData = .twin(walletData, twinData)
+                }
 
                 guard session.environment.card != nil else {
                     completion(.failure(.missingPreflightRead))
@@ -195,6 +177,21 @@ final class AppScanTask: CardSessionRunnable {
                 completion(.failure(error))
             }
         }
+    }
+
+    private func decodeTwinFile(from card: Card, twinIssuerData: Data) -> TwinData {
+        var pairPublicKey: Data?
+
+        if let walletPubKey = card.wallets.first?.publicKey, twinIssuerData.count == 129 {
+            let pairPubKey = twinIssuerData[0 ..< 65]
+            let signature = twinIssuerData[65 ..< twinIssuerData.count]
+            if (try? Secp256k1Signature(with: signature).verify(with: walletPubKey, message: pairPubKey)) ?? false {
+                pairPublicKey = pairPubKey
+            }
+        }
+
+        return TwinData(series: TwinCardSeries.series(for: card.cardId)!,
+                        pairPublicKey: pairPublicKey)
     }
 
     private func appendWalletsIfNeeded(session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
@@ -248,24 +245,27 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
 
-
         guard let card = session.environment.card else {
             completion(.failure(.missingPreflightRead))
             return
         }
 
-        if card.isDemoCard { // Force add blockchains for demo cards
-            let demoBlockchains = SupportedTokenItems().predefinedBlockchains(isDemo: true, testnet: false)
-            tokenItemsRepository.append(demoBlockchains, for: card.cardId, style: card.derivationStyle)
+        migrate(card: card)
+        let tokenItemsRepository = CommonTokenItemsRepository(key: card.userWalletId.hexString)
+
+        // Force add blockchains for demo cards
+        let config = GenericConfig(card: card)
+        if let persistentBlockchains = config.persistentBlockchains {
+            tokenItemsRepository.append(persistentBlockchains)
         }
 
-        let savedItems = tokenItemsRepository.getItems(for: card.cardId)
+        let savedItems = tokenItemsRepository.getItems()
 
-        var derivations: [Data: Set<DerivationPath>] = [:]
+        var derivations: [EllipticCurve: [DerivationPath]] = [:]
         savedItems.forEach { item in
             if let wallet = card.wallets.first(where: { $0.curve == item.blockchainNetwork.blockchain.curve }),
                let path = item.blockchainNetwork.derivationPath {
-                derivations[wallet.publicKey, default: []].insert(path)
+                derivations[wallet.curve, default: []].append(path)
             }
         }
 
@@ -274,16 +274,10 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
 
-        DeriveMultipleWalletPublicKeysTask(derivations.mapValues { Array($0) })
-            .run(in: session) { result in
-                switch result {
-                case .success(let derivedKeys):
-                    self.derivedKeys = derivedKeys
-                    self.runScanTask(session, completion)
-                case .failure(let error):
-                    completion(.failure(error))
-                }
-            }
+        var sdkConfig = session.environment.config
+        sdkConfig.defaultDerivationPaths = derivations
+        session.updateConfig(with: sdkConfig)
+        self.runScanTask(session, completion)
         #endif
     }
 
@@ -300,16 +294,31 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func complete(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        let card = session.environment.card!
-        let isNote = noteWalletData != nil
-        let isWallet = card.firmwareVersion.doubleValue >= 4.39 && !isNote && card.settings.maxWalletsCount > 1
+        guard let card = session.environment.card else {
+            completion(.failure(.missingPreflightRead))
+            return
+        }
 
-        completion(.success(AppScanTaskResponse(card: session.environment.card!,
-                                                walletData: noteWalletData ?? session.environment.walletData,
-                                                twinIssuerData: twinIssuerData,
-                                                isTangemNote: noteWalletData != nil,
-                                                isTangemWallet: isWallet,
-                                                derivedKeys: derivedKeys,
+        #if !CLIP
+        migrate(card: card)
+        #endif
+
+        completion(.success(AppScanTaskResponse(card: card,
+                                                walletData: walletData,
                                                 primaryCard: primaryCard)))
     }
+
+    #if !CLIP
+    private func migrate(card: Card) {
+        let config = UserWalletConfigFactory(CardInfo(card: card, walletData: walletData)).makeConfig()
+        if let legacyCardMigrator = LegacyCardMigrator(cardId: card.cardId, config: config) {
+            legacyCardMigrator.migrateIfNeeded()
+        }
+
+        if card.hasWallets {
+            let tokenMigrator = TokenItemsRepositoryMigrator(cardId: card.cardId, userWalletId: card.userWalletId)
+            tokenMigrator.migrate()
+        }
+    }
+    #endif
 }
