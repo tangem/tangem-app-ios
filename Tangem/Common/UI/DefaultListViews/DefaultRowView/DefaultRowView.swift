@@ -9,30 +9,18 @@
 import SwiftUI
 
 struct DefaultRowView: View {
-    let title: String
-    let detailsType: DetailsType?
-    let action: (() -> Void)?
+    private let viewModel: DefaultRowViewModel
 
-    private var isTappable: Bool { action != nil }
-
-    /// - Parameters:
-    ///   - title: Leading one line title
-    ///   - details: Trailing one line text
-    ///   - action: If the `action` is set that the row will be tappable and have chevron icon
-    init(
-        title: String,
-        detailsType: DetailsType? = .none,
-        action: (() -> Void)? = nil
-    ) {
-        self.title = title
-        self.detailsType = detailsType
-        self.action = action
+    init(viewModel: DefaultRowViewModel) {
+        self.viewModel = viewModel
     }
 
+    private var isTappable: Bool { viewModel.action != nil }
+
     var body: some View {
-        Button(action: { action?() }) {
+        Button(action: { viewModel.action?() }) {
             HStack {
-                Text(title)
+                Text(viewModel.title)
                     .style(Fonts.Regular.body, color: Colors.Text.primary1)
 
                 Spacer()
@@ -50,7 +38,7 @@ struct DefaultRowView: View {
 
     @ViewBuilder
     private var detailsView: some View {
-        switch detailsType {
+        switch viewModel.detailsType {
         case .none:
             EmptyView()
         case .loader:
@@ -60,12 +48,5 @@ struct DefaultRowView: View {
                 .style(Fonts.Regular.body, color: Colors.Text.tertiary)
                 .layoutPriority(1)
         }
-    }
-}
-
-extension DefaultRowView {
-    enum DetailsType {
-        case text(_ string: String)
-        case loader
     }
 }
