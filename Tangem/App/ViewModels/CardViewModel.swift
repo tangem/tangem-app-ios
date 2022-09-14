@@ -276,10 +276,6 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     var numberOfTokens: String? {
-        guard let walletModels = state.walletModels else {
-            return nil
-        }
-
         let numberOfBlockchainsPerItem = 1
         let numberOfTokens = walletModels.reduce(0) { sum, walletModel in
             sum + numberOfBlockchainsPerItem + walletModel.tokenViewModels.count
@@ -335,7 +331,7 @@ class CardViewModel: Identifiable, ObservableObject {
             switch result {
             case let .success(card):
                 if let card = card {
-                    self?.update(with: card)
+                    self?.update(with: CardDTO(card: card))
                 }
                 self?.userWalletModel?.updateAndReloadWalletModels()
             case .failure:
@@ -642,7 +638,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private func bind() {
         signer.signPublisher.sink { [unowned self] card in
-            self.update(with: card)
+            self.update(with: CardDTO(card: card))
             // [REDACTED_TODO_COMMENT]
             self.cardInfo.card = CardDTO(card: card) // [REDACTED_TODO_COMMENT]
             self.config = UserWalletConfigFactory(cardInfo).makeConfig()
@@ -660,7 +656,8 @@ class CardViewModel: Identifiable, ObservableObject {
                 case .loaded:
                     // Delay to hide skeleton
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        self.updateTotalBalanceTokenList()
+//                        self.updateTotalBalanceTokenList()
+                        // [REDACTED_TODO_COMMENT]
                     }
                 }
             }
@@ -728,7 +725,7 @@ extension CardViewModel {
             switch result {
             case let .success(card):
                 if let card = card {
-                    self?.update(with: card)
+                    self?.update(with: CardDTO(card: card))
                 }
 
                 self?.userWalletModel?.append(entries: entries, result: completion)
@@ -744,7 +741,7 @@ extension CardViewModel {
             switch result {
             case let .success(card):
                 if let card = card {
-                    self?.update(with: card)
+                    self?.update(with: CardDTO(card: card))
                 }
 
                 self?.userWalletModel?.update(entries: entries, result: completion)
