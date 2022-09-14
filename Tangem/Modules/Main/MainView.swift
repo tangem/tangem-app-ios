@@ -48,7 +48,7 @@ struct MainView: View {
     }
 
     var shouldShowBalanceView: Bool {
-        if let walletModel = viewModel.cardModel.walletModels?.first {
+        if let walletModel = viewModel.cardModel.walletModels.first {
             switch walletModel.state {
             case .idle, .loading, .failed:
                 return true
@@ -61,7 +61,7 @@ struct MainView: View {
     }
 
     var noAccountView: MessageView? {
-        if let walletModel = viewModel.cardModel.walletModels?.first {
+        if let walletModel = viewModel.cardModel.walletModels.first {
             switch walletModel.state {
             case .noAccount(let message):
                 return MessageView(title: "wallet_error_no_account".localized, subtitle: message, type: .error)
@@ -103,6 +103,59 @@ struct MainView: View {
         .padding(.bottom, 6)
     }
 
+    @ViewBuilder
+    var singleWalletContent: some View {
+        Group {
+            ForEach(pendingTransactionViews) { $0 }
+                .padding(.horizontal, 16.0)
+
+            if viewModel.canShowAddress {
+                if shouldShowBalanceView {
+                    BalanceView(
+                        balanceViewModel: viewModel.cardModel.walletModels.first!.balanceViewModel,
+                        tokenViewModels: viewModel.cardModel.walletModels.first!.tokenViewModels
+                    )
+                    .padding(.horizontal, 16.0)
+                } else if let noAccountView = noAccountView {
+                    noAccountView
+                }
+
+                if let walletModel = viewModel.cardModel.walletModels.first {
+                    AddressDetailView(showQr: $viewModel.showQR,
+                                      selectedAddressIndex: $viewModel.selectedAddressIndex,
+                                      showExplorerURL: $viewModel.showExplorerURL,
+                                      walletModel: walletModel) {
+                        viewModel.copyAddress()
+                    }
+                }
+            } else {
+                TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 6)
+            }
+        }
+    }
+
+    @ViewBuilder
+    var multiWalletContent: some View {
+        Group {
+            if !viewModel.tokenListIsEmpty {
+                TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 6)
+            }
+
+            if let walletTokenListViewModel = viewModel.walletTokenListViewModel {
+                WalletTokenListView(viewModel: walletTokenListViewModel)
+            }
+
+            AddTokensView(action: viewModel.openTokensList)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 8)
+                .padding(.top, 6)
+        }
+    }
+
     var body: some View {
         GeometryReader { geometry in
             ZStack {
@@ -110,12 +163,16 @@ struct MainView: View {
                     VStack(spacing: 8.0) {
                         CardView(image: viewModel.image,
                                  width: geometry.size.width - 32,
-                                 currentCardNumber: viewModel.cardNumber,
-                                 totalCards: viewModel.totalCards)
+                                 cardSetLabel: viewModel.cardModel.cardSetLabel)
                             .fixedSize(horizontal: false, vertical: true)
 
                         if viewModel.isBackupAllowed {
                             backupWarningView
+                        }
+
+                        if viewModel.isLackDerivationWarningViewVisible {
+                            ScanCardWarningView(action: viewModel.deriveEntriesWithoutDerivation)
+                                .padding(.horizontal, 16)
                         }
 
                         WarningListView(warnings: viewModel.warnings, warningButtonAction: {
@@ -123,64 +180,18 @@ struct MainView: View {
                         })
                         .padding(.horizontal, 16)
 
-                        if !viewModel.cardModel.cardInfo.isMultiWallet {
-                            ForEach(pendingTransactionViews) { $0 }
-                                .padding(.horizontal, 16.0)
-                        }
 
-                        if viewModel.cardModel.cardInfo.isSaltPay {
-                            TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel)
-                                .padding(.horizontal, 16)
-                                .padding(.bottom, 6)
-
-                        } else if viewModel.cardModel.cardInfo.isMultiWallet {
-
-                            if !viewModel.tokenItemViewModels.isEmpty {
-                                TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel)
-                                    .padding(.horizontal, 16)
-                                    .padding(.bottom, 6)
-                            }
-
-                            TokensView(items: viewModel.tokenItemViewModels, action: viewModel.openTokenDetails)
-
-                            AddTokensView(action: viewModel.openTokensList)
-                                .padding(.horizontal, 16)
-                                .padding(.bottom, 8)
-                                .padding(.top, 6)
-
+                        if viewModel.isMultiWalletMode {
+                            multiWalletContent
                         } else {
-                            if shouldShowBalanceView {
-                                BalanceView(
-                                    balanceViewModel: viewModel.cardModel.walletModels!.first!.balanceViewModel,
-                                    tokenViewModels: viewModel.cardModel.walletModels!.first!.tokenViewModels
-                                )
-                                .padding(.horizontal, 16.0)
-                            } else if let noAccountView = noAccountView {
-                                noAccountView
-                            }
-
-                            if let walletModel = viewModel.cardModel.walletModels?.first {
-                                if viewModel.cardModel.cardInfo.card.isTwinCard,
-                                   viewModel.cardModel.cardInfo.twinCardInfo?.pairPublicKey == nil {
-                                    EmptyView()
-                                } else {
-                                    AddressDetailView(showQr: $viewModel.showQR,
-                                                      selectedAddressIndex: $viewModel.selectedAddressIndex,
-                                                      showExplorerURL: $viewModel.showExplorerURL,
-                                                      walletModel: walletModel,
-                                                      payID: viewModel.cardModel.payId) {
-                                        viewModel.copyAddress()
-                                    }
-                                }
-                            }
+                            singleWalletContent
                         }
 
-
-                        Color.clear.frame(width: 10, height: viewModel.hasMultipleButtons ? 116 : 58, alignment: .center)
+                        Color.clear.frame(width: 10, height: 58, alignment: .center)
                     }
                 }
 
-                if !viewModel.cardModel.cardInfo.isSaltPay {
+                if !viewModel.isMultiWalletMode {
                     bottomButtons
                         .frame(width: geometry.size.width)
                 }
@@ -190,21 +201,13 @@ struct MainView: View {
         .navigationBarTitle("wallet_title", displayMode: .inline)
         .navigationBarItems(leading: scanNavigationButton,
                             trailing: settingsNavigationButton)
-        .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
+        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .onAppear {
             viewModel.onAppear()
         }
         .navigationBarHidden(false)
         .ignoresKeyboard()
         .alert(item: $viewModel.error) { $0.alert }
-    }
-
-    var createWalletButton: some View {
-        TangemButton(title: viewModel.isTwinCard ? "wallet_button_create_twin_wallet" : "wallet_button_create_wallet",
-                     systemImage: "arrow.right") { viewModel.createWallet()  }
-            .buttonStyle(TangemButtonStyle(layout: .flexibleWidth,
-                                           isDisabled: !viewModel.canCreateWallet || !viewModel.canCreateTwinWallet,
-                                           isLoading: viewModel.isCreatingWallet))
     }
 
     var sendButton: some View {
@@ -253,19 +256,11 @@ struct MainView: View {
 
             VStack {
                 HStack(alignment: .center) {
-
-                    if viewModel.canCreateWallet {
-                        createWalletButton
-                    }
-
-                    if !viewModel.canCreateWallet
-                        && viewModel.canBuyCrypto
-                        && !(viewModel.cardModel.cardInfo.isMultiWallet)  {
+                    if viewModel.canBuyCrypto {
                         exchangeCryptoButton
                     }
 
-                    if let cardModel = viewModel.cardModel, !cardModel.cardInfo.isMultiWallet,
-                       (!viewModel.canCreateWallet || (cardModel.isTwinCard && cardModel.hasBalance)) {
+                    if viewModel.canShowSend {
                         sendButton
                     }
                 }

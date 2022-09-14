@@ -17,19 +17,19 @@ struct WarningListView: View {
 
     var body: some View {
         Group {
-            ForEach(Array(warnings.criticals.enumerated()), id: \.element) { (i, item) in
+            ForEach(Array(warnings.criticals.enumerated()), id: \.element.id) { (i, item) in
                 WarningView(warning: warnings.criticals[i], buttonAction: { b in
                     self.buttonAction(at: i, priority: .critical, button: b)
                 })
                 .transition(transition)
             }
-            ForEach(Array(warnings.warnings.enumerated()), id: \.element) { (i, item) in
+            ForEach(Array(warnings.warnings.enumerated()), id: \.element.id) { (i, item) in
                 WarningView(warning: warnings.warnings[i], buttonAction: { b in
                     self.buttonAction(at: i, priority: .warning, button: b)
                 })
                 .transition(transition)
             }
-            ForEach(Array(warnings.infos.enumerated()), id: \.element) { (i, item) in
+            ForEach(Array(warnings.infos.enumerated()), id: \.element.id) { (i, item) in
                 WarningView(warning: warnings.infos[i], buttonAction: { b in
                     self.buttonAction(at: i, priority: .info, button: b)
                 })
