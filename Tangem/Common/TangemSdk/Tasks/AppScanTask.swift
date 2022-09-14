@@ -246,16 +246,17 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
 
-        guard let card = session.environment.card else {
+        guard let plainCard = session.environment.card else {
             completion(.failure(.missingPreflightRead))
             return
         }
 
+        let card = CardDTO(card: plainCard)
         migrate(card: card)
         let tokenItemsRepository = CommonTokenItemsRepository(key: card.userWalletId.hexString)
 
         // Force add blockchains for demo cards
-        let config = GenericConfig(card: CardDTO(card: card))
+        let config = GenericConfig(card: card)
         if let persistentBlockchains = config.persistentBlockchains {
             tokenItemsRepository.append(persistentBlockchains)
         }
@@ -301,7 +302,7 @@ final class AppScanTask: CardSessionRunnable {
         }
 
         #if !CLIP
-        migrate(card: card)
+        migrate(card: CardDTO(card: card))
         #endif
 
         completion(.success(AppScanTaskResponse(card: card,
@@ -310,8 +311,8 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     #if !CLIP
-    private func migrate(card: Card) {
-        let config = UserWalletConfigFactory(CardInfo(card: card, walletData: walletData)).makeConfig()
+    private func migrate(card: CardDTO) {
+        let config = UserWalletConfigFactory(CardInfo(card: card, walletData: walletData, name: "")).makeConfig()
         if let legacyCardMigrator = LegacyCardMigrator(cardId: card.cardId, config: config) {
             legacyCardMigrator.migrateIfNeeded()
         }
