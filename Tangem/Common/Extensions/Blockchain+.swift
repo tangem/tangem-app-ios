@@ -123,17 +123,6 @@ extension Blockchain {
         }
     }
 
-    var currencyId: String {
-        switch self {
-        case .arbitrum(let testnet):
-            return Blockchain.ethereum(testnet: testnet).id
-         case .optimism:
-             return "optimism"
-        default:
-            return id
-        }
-    }
-
     var rawStringId: String {
         var name = "\(self)".lowercased()
 
