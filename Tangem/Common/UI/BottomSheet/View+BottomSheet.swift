@@ -34,4 +34,10 @@ extension View {
             }
         }
     }
+
+    func resizableBottomSheet<Content: ResizableSheetView>(isPresented: Binding<Bool>,
+                                                           viewModelSettings: BottomSheetSettings,
+                                                           @ViewBuilder contentView: @escaping () -> Content) -> some View {
+        self.modifier(ResizableBottomSheetModifier(isPresented: isPresented, viewModelSettings: viewModelSettings, contentView: contentView))
+    }
 }
