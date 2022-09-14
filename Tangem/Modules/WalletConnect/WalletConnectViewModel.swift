@@ -19,17 +19,12 @@ class WalletConnectViewModel: ObservableObject {
     @Published var isServiceBusy: Bool = true
     @Published var sessions: [WalletConnectSession] = []
 
-    var canCreateWC: Bool {
-        cardModel.cardInfo.card.wallets.contains(where: { $0.curve == .secp256k1 })
-            && (cardModel.wallets?.contains(where: { $0.blockchain == .ethereum(testnet: false) || $0.blockchain == .ethereum(testnet: true) }) ?? false)
-    }
-
     private var hasWCInPasteboard: Bool {
         guard let copiedValue = UIPasteboard.general.string else {
             return false
         }
 
-        let canHandle = walletConnectProvider.service.canHandle(url: copiedValue)
+        let canHandle = walletConnectProvider.service?.canHandle(url: copiedValue) ?? false
         if canHandle {
             self.copiedValue = copiedValue
         }
@@ -48,12 +43,16 @@ class WalletConnectViewModel: ObservableObject {
         self.coordinator = coordinator
     }
 
+    deinit {
+        print("WalletConnectViewModel deinit")
+    }
+
     func onAppear() {
         bind()
     }
 
     func disconnectSession(at index: Int) {
-        walletConnectProvider.service.disconnectSession(at: index)
+        walletConnectProvider.service?.disconnectSession(at: index)
         withAnimation {
             self.objectWillChange.send()
         }
@@ -67,8 +66,8 @@ class WalletConnectViewModel: ObservableObject {
     }
 
     func openSession() {
-        if cardModel.cardInfo.card.isDemoCard {
-            alert = AlertBuilder.makeDemoAlert()
+        if let disabledLocalizedReason = cardModel.getDisabledLocalizedReason(for: .walletConnect) {
+            alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
         }
 
@@ -90,14 +89,14 @@ class WalletConnectViewModel: ObservableObject {
         //                }
         //                .store(in: &bag)
 
-        walletConnectProvider.service.isServiceBusy
+        walletConnectProvider.service?.isServiceBusy
             .receive(on: DispatchQueue.main)
             .sink { [weak self] (isServiceBusy) in
                 self?.isServiceBusy = isServiceBusy
             }
             .store(in: &bag)
 
-        walletConnectProvider.service.sessionsPublisher
+        walletConnectProvider.service?.sessionsPublisher
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] in
                 guard let self = self else { return }
@@ -109,7 +108,8 @@ class WalletConnectViewModel: ObservableObject {
         scannedQRCode
             .compactMap { $0 }
             .sink { [unowned self] qrCodeString in
-                if !self.walletConnectProvider.service.handle(url: qrCodeString) {
+                if let service = self.walletConnectProvider.service,
+                   !service.handle(url: qrCodeString) {
                     self.alert = WalletConnectServiceError.failedToConnect.alertBinder
                 }
             }

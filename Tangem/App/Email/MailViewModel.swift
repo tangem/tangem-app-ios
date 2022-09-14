@@ -12,6 +12,6 @@ struct MailViewModel: Identifiable {
     let id: UUID = .init()
 
     let dataCollector: EmailDataCollector
-    let support: EmailSupport
+    let recipient: String
     let emailType: EmailType
 }
