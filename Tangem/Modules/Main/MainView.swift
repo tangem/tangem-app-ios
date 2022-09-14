@@ -18,7 +18,7 @@ struct MainView: View {
 
     var sendChoiceButtons: [ActionSheet.Button] {
         let symbols = viewModel
-            .wallets
+            .wallets?
             .first?
             .amounts
             .filter { $0.key != .reserve && $0.value.value > 0 }
