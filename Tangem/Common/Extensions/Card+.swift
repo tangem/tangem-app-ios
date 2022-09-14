@@ -23,17 +23,6 @@ extension CardDTO {
         wallets.compactMap { $0.curve }
     }
 
-    var userWalletId: Data {
-        guard let firstWalletPublicKey = wallets.first?.publicKey else { return Data() }
-
-        let keyHash = firstWalletPublicKey.getSha256()
-        let key = SymmetricKey(data: keyHash)
-        let message = "UserWalletID".data(using: .utf8)!
-        let code = HMAC<SHA256>.authenticationCode(for: message, using: key)
-
-        return Data(code)
-    }
-
     #if !CLIP
     var hasWallets: Bool {
         !wallets.isEmpty
