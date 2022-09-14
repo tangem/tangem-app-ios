@@ -136,7 +136,7 @@ class WelcomeViewModel: ObservableObject {
         self.isScanningCard = false
 
         if input.steps.needOnboarding {
-            cardModel.updateState()
+            cardModel.userWalletModel?.updateAndReloadWalletModels(showProgressLoading: true)
             openOnboarding(with: input)
         } else {
             openMain(with: input)
