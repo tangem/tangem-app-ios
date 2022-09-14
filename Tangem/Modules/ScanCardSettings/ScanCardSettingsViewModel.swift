@@ -33,7 +33,6 @@ extension ScanCardSettingsViewModel {
             case let .success(cardInfo):
                 let cardModel = CardViewModel(cardInfo: cardInfo)
                 cardModel.didScan() // [REDACTED_TODO_COMMENT]
-                cardModel.updateState()
                 self?.coordinator.openCardSettings(cardModel: cardModel)
             case let .failure(error):
                 self?.showErrorAlert(error: error)
