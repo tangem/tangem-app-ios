@@ -12,7 +12,6 @@ import Combine
 class ServicesManager {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
-    @Injected(\.walletConnectServiceProvider) private var walletConnectServiceProvider: WalletConnectServiceProviding
     @Injected(\.supportChatService) private var supportChatService: SupportChatServiceProtocol
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
@@ -20,18 +19,8 @@ class ServicesManager {
 
     func initialize() {
         exchangeService.initialize()
-        walletConnectServiceProvider.initialize()
         supportChatService.initialize()
         tangemApiService.initialize()
-
-        bind()
-    }
-
-    private func bind() {
-        cardsRepository.didScanPublisher.sink { cardInfo in
-            // subscrive to scan here
-        }
-        .store(in: &bag)
     }
 }
 
