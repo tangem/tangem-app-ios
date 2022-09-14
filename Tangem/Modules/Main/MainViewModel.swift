@@ -32,6 +32,7 @@ class MainViewModel: ObservableObject {
     @Published var showExplorerURL: URL? = nil
     @Published var showQR: Bool = false
     @Published var isOnboardingModal: Bool = true
+    @Published var isLackDerivationWarningViewVisible: Bool = false
 
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
@@ -46,6 +47,8 @@ class MainViewModel: ObservableObject {
         }
     }
 
+    var walletTokenListViewModel: WalletTokenListViewModel?
+
     // MARK: Variables
     var isLoadingTokensBalance: Bool = false
 
@@ -55,11 +58,12 @@ class MainViewModel: ObservableObject {
     )
 
     let cardModel: CardViewModel
+    let userWalletModel: UserWalletModel?
 
     private var bag = Set<AnyCancellable>()
     private var isHashesCounted = false
     private var isProcessingNewCard = false
-    private var refreshCancellable: AnyCancellable? = nil
+
     private lazy var testnetBuyCryptoService: TestnetBuyCryptoService = .init()
 
     private unowned let coordinator: MainRoutable
@@ -142,8 +146,8 @@ class MainViewModel: ObservableObject {
         cardModel.canCreateBackup
     }
 
-    var tokenItemViewModels: [TokenItemViewModel] {
-        cardModel.walletModels.flatMap({ $0.tokenItemViewModels })
+    var tokenListIsEmpty: Bool {
+        walletTokenListViewModel?.contentState.isEmpty ?? true
     }
 
     var isMultiWalletMode: Bool {
@@ -160,11 +164,13 @@ class MainViewModel: ObservableObject {
 
     init(cardModel: CardViewModel, coordinator: MainRoutable) {
         self.cardModel = cardModel
+        self.userWalletModel = cardModel.userWalletModel
         self.coordinator = coordinator
         bind()
-        cardModel.updateState()
+
         cardModel.setupWarnings()
         validateHashesCount()
+        updateWalletTokenListViewModel()
     }
 
     deinit {
@@ -172,36 +178,9 @@ class MainViewModel: ObservableObject {
     }
 
     // MARK: - Functions
+
     func bind() {
-        cardModel
-            .objectWillChange
-            .receive(on: DispatchQueue.main)
-            .sink { [unowned self] in
-                print("⚠️ Card model will change")
-                self.objectWillChange.send()
-
-                if cardModel.walletModels.isEmpty {
-                    self.totalSumBalanceViewModel.update(with: [])
-                } else if !self.isLoadingTokensBalance {
-                    self.updateTotalBalanceTokenListIfNeeded()
-                }
-            }
-            .store(in: &bag)
-
-        cardModel
-            .$state
-            .compactMap { $0.walletModels }
-            .flatMap { Publishers.MergeMany($0.map { $0.objectWillChange }).collect($0.count) }
-            .receive(on: DispatchQueue.main)
-            .sink { [unowned self] _ in
-                print("⚠️ Wallet model will change")
-                self.objectWillChange.send()
-            }
-            .store(in: &bag)
-
-        cardModel
-            .$state
-            .compactMap { $0.walletModels }
+        cardModel.subscribeWalletModels()
             .flatMap { Publishers.MergeMany($0.map { $0.objectWillChange }).collect($0.count) }
             .debounce(for: .seconds(0.5), scheduler: RunLoop.main)
             .receive(on: DispatchQueue.main)
@@ -209,6 +188,12 @@ class MainViewModel: ObservableObject {
                 if self.isLoadingTokensBalance { return }
                 self.updateTotalBalanceTokenListIfNeeded()
                 self.objectWillChange.send()
+            }
+            .store(in: &bag)
+
+        cardModel.subscribeToEntriesWithoutDerivation()
+            .sink { [unowned self] entries in
+                updateLackDerivationWarningView(entries: entries)
             }
             .store(in: &bag)
 
@@ -269,24 +254,26 @@ class MainViewModel: ObservableObject {
         }
     }
 
-    func onRefresh(_ done: @escaping () -> Void) {
-        if cardModel.state.canUpdate, !cardModel.walletModels.isEmpty {
-            Analytics.log(.mainPageRefresh)
-            refreshCancellable = cardModel.refresh()
-                .receive(on: RunLoop.main)
-                .sink { _ in
-                    print("♻️ Wallet model loading state changed")
-                    withAnimation {
-                        done()
-                    }
-                } receiveValue: { _ in
+    func updateWalletTokenListViewModel() {
+        guard let userWalletModel = cardModel.userWalletModel else {
+            assertionFailure("User Wallet Model not created")
+            return
+        }
 
-                }
-        } else {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                withAnimation {
-                    done()
-                }
+        walletTokenListViewModel = WalletTokenListViewModel(
+            userTokenListManager: userWalletModel.userTokenListManager,
+            userWalletModel: userWalletModel
+        ) { [weak self] itemViewModel in
+            self?.openTokenDetails(itemViewModel)
+        }
+    }
+
+    func onRefresh(_ done: @escaping () -> Void) {
+        Analytics.log(.mainPageRefresh)
+        walletTokenListViewModel?.refreshTokens { result in
+            print("♻️ Wallet model loading state changed with result", result)
+            withAnimation {
+                done()
             }
         }
     }
@@ -313,7 +300,13 @@ class MainViewModel: ObservableObject {
         }
     }
 
-    func onAppear() {}
+    func onAppear() {
+        walletTokenListViewModel?.onAppear()
+    }
+
+    func deriveEntriesWithoutDerivation() {
+        cardModel.deriveEntriesWithoutDerivation()
+    }
 
     // MARK: Warning action handler
     func warningButtonAction(at index: Int, priority: WarningPriority, button: WarningButton) {
@@ -433,11 +426,9 @@ class MainViewModel: ObservableObject {
             }
         }
 
-        guard cardModel.cardSignedHashes > 0  else { return }
+        guard cardModel.cardSignedHashes > 0 else { return }
 
-        guard
-            let validator = cardModel.walletModels.first?.walletManager as? SignatureCountValidator
-        else {
+        guard let validator = cardModel.walletModels.first?.walletManager as? SignatureCountValidator else {
             showUntrustedCardAlert()
             return
         }
@@ -478,6 +469,10 @@ class MainViewModel: ObservableObject {
     private func updateTotalBalanceTokenListIfNeeded() {
         let newTokens = cardModel.walletModels.flatMap({ $0.tokenItemViewModels })
         totalSumBalanceViewModel.updateIfNeeded(with: newTokens)
+    }
+
+    private func updateLackDerivationWarningView(entries: [StorageEntry]) {
+        isLackDerivationWarningViewVisible = !entries.isEmpty
     }
 }
 
@@ -552,9 +547,11 @@ extension MainViewModel {
 
         if let url = buyCryptoURL {
             coordinator.openBuyCrypto(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
-                self?.sendAnalyticsEvent(.userBoughtCrypto)
+                guard let self = self else { return }
+
+                self.sendAnalyticsEvent(.userBoughtCrypto)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    self?.cardModel.update()
+                    self.userWalletModel?.updateAndReloadWalletModels(showProgressLoading: true)
                 }
             }
         }
