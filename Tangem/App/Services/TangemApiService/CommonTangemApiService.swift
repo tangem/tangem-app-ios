@@ -11,10 +11,8 @@ import Combine
 import Moya
 
 class CommonTangemApiService {
-    @Injected(\.cardsRepository) var cardsRepository: CardsRepository
-
     private let provider = TangemProvider<TangemApiTarget>()
-    private var bag: Set<AnyCancellable> = .init()
+    private var bag: Set<AnyCancellable> = []
 
     private let fallbackRegionCode = Locale.current.regionCode?.lowercased() ?? ""
     private var _geoIpRegionCode: String? = nil
@@ -25,9 +23,34 @@ class CommonTangemApiService {
     }
 }
 
+// MARK: - TangemApiService
+
 extension CommonTangemApiService: TangemApiService {
     var geoIpRegionCode: String {
         return _geoIpRegionCode ?? fallbackRegionCode
+    }
+
+    func loadTokens(for key: String) -> AnyPublisher<UserTokenList, TangemAPIError> {
+        let target = TangemApiTarget(type: .getUserWalletTokens(key: key), authData: authData)
+
+        return provider
+            .requestPublisher(target)
+            .filterSuccessfulStatusCodes()
+            .map(UserTokenList.self)
+            .mapTangemAPIError()
+            .retry(3)
+            .eraseToAnyPublisher()
+    }
+
+    func saveTokens(list: UserTokenList, for key: String) -> AnyPublisher<Void, TangemAPIError> {
+        let target = TangemApiTarget(type: .saveUserWalletTokens(key: key, list: list), authData: authData)
+
+        return provider
+            .requestPublisher(target)
+            .filterSuccessfulStatusCodes()
+            .mapTangemAPIError()
+            .mapVoid()
+            .eraseToAnyPublisher()
     }
 
     func loadCoins(requestModel: CoinsListRequestModel) -> AnyPublisher<[CoinModel], Error> {
