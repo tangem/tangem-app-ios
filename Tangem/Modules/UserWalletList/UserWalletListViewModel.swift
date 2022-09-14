@@ -43,7 +43,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
             for model in (multiCurrencyModels + singleCurrencyModels) {
                 model.getCardInfo()
-                model.updateState()
+                model.userWalletModel?.updateAndReloadWalletModels(showProgressLoading: true)
             }
 
             selectedUserWalletId = userWalletListService.selectedUserWalletId
@@ -175,7 +175,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
                 let onboardingInput = cardModel.onboardingInput
                 if onboardingInput.steps.needOnboarding {
-                    cardModel.updateState()
+                    cardModel.userWalletModel?.updateAndReloadWalletModels(showProgressLoading: true)
                     self?.openOnboarding(with: onboardingInput)
                 } else {
                     completion(cardModel)
@@ -201,7 +201,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                 singleCurrencyModels.append(newModel)
             }
             newModel.getCardInfo()
-            newModel.updateState()
+            newModel.userWalletModel?.updateAndReloadWalletModels(showProgressLoading: true)
 
             setSelectedWallet(userWallet)
 
@@ -238,7 +238,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                 let userWallet = selectedModel.userWallet
 
                 selectedModel.getCardInfo()
-                selectedModel.updateState()
+                selectedModel.userWalletModel?.updateAndReloadWalletModels(showProgressLoading: true)
 
                 self?.updateModels()
 
