@@ -74,7 +74,7 @@ extension Blockchain {
         case .arbitrum: return "arbitrum-one"
         case .dash: return "dash"
         case .gnosis: return "xdai"
-        case .optimism: return "optimism"
+        case .optimism: return "optimistic-ethereum"
         }
     }
 
@@ -84,10 +84,8 @@ extension Blockchain {
 
     var currencyId: String {
         switch self {
-        case .arbitrum(let testnet):
+        case .arbitrum(let testnet), .optimism(let testnet):
             return Blockchain.ethereum(testnet: testnet).id
-        case .optimism:
-            return "optimism"
         default:
             return id
         }
