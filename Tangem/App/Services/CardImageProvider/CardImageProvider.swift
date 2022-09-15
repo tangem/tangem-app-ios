@@ -18,15 +18,13 @@ class CardImageProvider {
     @Injected(\.cardImageLoader) private var imageLoader: CardImageLoaderProtocol
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
 
-    private let config: UserWalletConfig
+    private let isSupportOnlineImage: Bool
     private let cardId: String
     private let cardPublicKey: Data
-    private let cardArtwork: CardArtwork?
+    private let cardArtwork: CardArtwork
 
-    private var cachedImage: UIImage? = nil
-
-    init(config: UserWalletConfig, cardId: String, cardPublicKey: Data, cardArtwork: CardArtwork?) {
-        self.config = config
+    init(isSupportOnlineImage: Bool, cardId: String, cardPublicKey: Data, cardArtwork: CardArtwork) {
+        self.isSupportOnlineImage = isSupportOnlineImage
         self.cardId = cardId
         self.cardPublicKey = cardPublicKey
         self.cardArtwork = cardArtwork
@@ -35,57 +33,38 @@ class CardImageProvider {
 
 extension CardImageProvider: CardImageProviding {
     func loadImage() -> AnyPublisher<UIImage, Never> {
-        if let cached = cachedImage {
-            return Just(cached).eraseToAnyPublisher()
-        }
-        
+        loadImage(cardArtwork: cardArtwork)
+    }
+
+    private func loadImage(cardArtwork: CardArtwork) -> AnyPublisher<UIImage, Never> {
         switch cardArtwork {
         case let .artwork(artworkInfo):
             return self.loadImage(artworkInfo: artworkInfo)
         case .noArtwork:
-            return Just(cached).eraseToAnyPublisher()
+            return self.loadImage(artworkInfo: nil)
         case .notLoaded:
             return loadArtworkInfo()
-                .flatMap { [weak self] artworkInfo -> AnyPublisher<UIImage, Never> in
+                .flatMap { [weak self] cardArtwork -> AnyPublisher<UIImage, Never> in
                     guard let self = self else {
                         return Just(UIImage(named: "dark_card")!).eraseToAnyPublisher()
                     }
 
-                    
+                    return self.loadImage(cardArtwork: cardArtwork)
                 }
                 .eraseToAnyPublisher()
         }
-
-        guard case let .artwork(artworkInfo) = artworkInfo else {
-            return
-        }
-
-        return loadImage(artworkInfo: artworkInfo)
-    }
-    
-    private func loadImage(artworkInfo: ArtworkInfo?) -> AnyPublisher<UIImage, Never> {
-        
     }
 
     private func loadImage(artworkInfo: ArtworkInfo?) -> AnyPublisher<UIImage, Never> {
-        imageLoader.loadImage(cid: cardId,
-                              cardPublicKey: cardPublicKey,
-                              artworkInfo: artworkInfo)
-            .map { [weak self] image, canBeCached in
-                if canBeCached {
-                    self?.cachedImage = image
-                }
-
-                return image
-            }
+        imageLoader.loadImage(cid: cardId, cardPublicKey: cardPublicKey, artworkInfo: artworkInfo)
             .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
 }
 
 private extension CardImageProvider {
-    func loadArtworkInfo() -> AnyPublisher<CardArtwork?, Never> {
-        guard config.hasFeature(.onlineImage) else {
+    func loadArtworkInfo() -> AnyPublisher<CardArtwork, Never> {
+        guard isSupportOnlineImage else {
             return Just(.noArtwork).eraseToAnyPublisher()
         }
 
@@ -99,10 +78,8 @@ private extension CardImageProvider {
                 switch result {
                 case .success(let info):
                     promise(.success(info.artwork.map { .artwork($0) } ?? .noArtwork))
-//                    self.cardInfo.artwork = info.artwork.map { .artwork($0) } ?? .noArtwork
                 case .failure:
                     promise(.success(.noArtwork))
-//                    self.warningsService.setupWarnings(for: self.config)
                 }
             }
         }
