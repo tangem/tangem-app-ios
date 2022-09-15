@@ -116,7 +116,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         let newSelectedUserWallet: UserWallet?
 
         if userWalletId == selectedUserWalletId,
-           let deletedUserWalletIndex = models.firstIndex(where: { $0.userWallet.userWalletId == userWalletId })
+           let deletedUserWalletIndex = models.firstIndex(where: { $0.userWallet?.userWalletId == userWalletId })
         {
             if deletedUserWalletIndex != (models.count - 1) {
                 newSelectedUserWallet = models[deletedUserWalletIndex + 1].userWallet
@@ -132,8 +132,8 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         let oldModelSections = [multiCurrencyModels, singleCurrencyModels]
 
         userWalletListService.delete(userWallet)
-        multiCurrencyModels.removeAll { $0.userWallet.userWalletId == userWallet.userWalletId }
-        singleCurrencyModels.removeAll { $0.userWallet.userWalletId == userWallet.userWalletId }
+        multiCurrencyModels.removeAll { $0.userWallet?.userWalletId == userWallet.userWalletId }
+        singleCurrencyModels.removeAll { $0.userWallet?.userWalletId == userWallet.userWalletId }
 
         if let newSelectedUserWallet = newSelectedUserWallet {
             setSelectedWallet(newSelectedUserWallet)
@@ -185,7 +185,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     }
 
     private func processScannedCard(_ cardModel: CardViewModel) {
-        let userWallet = cardModel.userWallet
+        guard let userWallet = cardModel.userWallet else { return }
 
         if userWalletListService.contains(userWallet) {
             return
@@ -193,7 +193,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
         let oldModelSections = [multiCurrencyModels, singleCurrencyModels]
 
-        if userWalletListService.save(cardModel.userWallet) {
+        if userWalletListService.save(userWallet) {
             let newModel = CardViewModel(userWallet: userWallet)
             if newModel.isMultiWallet {
                 multiCurrencyModels.append(newModel)
@@ -226,16 +226,19 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         }
 
         scanCardInternal { [weak self] cardModel in
-            self?.userWalletListService.unlockWithCard(cardModel.userWallet) { result in
+            guard let userWallet = cardModel.userWallet else { return }
+
+            self?.userWalletListService.unlockWithCard(userWallet) { result in
                 guard case .success = result else {
                     return
                 }
 
-                guard let selectedModel = self?.userWalletListService.models.first(where: { $0.userWallet.userWalletId == userWallet.userWalletId }) else {
+                guard
+                    let selectedModel = self?.userWalletListService.models.first(where: { $0.userWallet?.userWalletId == userWallet.userWalletId }),
+                    let userWallet = selectedModel.userWallet
+                else {
                     return
                 }
-
-                let userWallet = selectedModel.userWallet
 
                 selectedModel.getCardInfo()
                 selectedModel.userWalletModel?.updateAndReloadWalletModels(showProgressLoading: true)
