@@ -277,7 +277,7 @@ struct MainView_Previews: PreviewProvider {
             MainView(viewModel: .init(cardModel: PreviewCard.stellar.cardModel,
                                       userWalletModel: PreviewCard.stellar.cardModel.userWalletModel!,
                                       cardImageProvider: CardImageProvider(
-                                          isSupportOnlineImage: PreviewCard.stellar.cardModel.isSupportOnlineImage,
+                                          supportsOnlineImage: PreviewCard.stellar.cardModel.supportsOnlineImage,
                                           cardId: PreviewCard.stellar.cardModel.cardId,
                                           cardPublicKey: PreviewCard.stellar.cardModel.cardPublicKey
                                       ),
