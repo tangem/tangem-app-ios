@@ -138,7 +138,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
         // [REDACTED_TODO_COMMENT]
         if let cardModel = input.cardInput.cardModel {
             cardImageProvider = CardImageProvider(
-                isSupportOnlineImage: cardModel.isSupportOnlineImage,
+                supportsOnlineImage: cardModel.supportsOnlineImage,
                 cardId: cardModel.cardId,
                 cardPublicKey: cardModel.cardPublicKey
             )
