@@ -84,12 +84,12 @@ struct UserWalletListView: ResizableSheetView {
 
     @ViewBuilder
     private func cell(for model: CardViewModel) -> some View {
-        UserWalletListCellView(model: model, isSelected: viewModel.selectedUserWalletId == model.userWallet.userWalletId) { userWallet in
+        UserWalletListCellView(model: model, isSelected: viewModel.selectedUserWalletId == model.userWallet?.userWalletId) { userWallet in
             viewModel.onUserWalletTapped(userWallet)
         }
         .contextMenu {
             Button {
-                viewModel.editUserWallet(model.userWallet)
+                viewModel.editUserWallet(model.userWallet!)
             } label: {
                 HStack {
                     Text("Rename")
@@ -99,13 +99,13 @@ struct UserWalletListView: ResizableSheetView {
 
             if #available(iOS 15.0, *) {
                 Button(role: .destructive) {
-                    viewModel.deleteUserWallet(model.userWallet)
+                    viewModel.deleteUserWallet(model.userWallet!)
                 } label: {
                     deleteButtonLabel()
                 }
             } else {
                 Button {
-                    viewModel.deleteUserWallet(model.userWallet)
+                    viewModel.deleteUserWallet(model.userWallet!)
                 } label: {
                     deleteButtonLabel()
                 }
