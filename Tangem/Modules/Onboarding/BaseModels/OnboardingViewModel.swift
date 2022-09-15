@@ -135,17 +135,19 @@ class OnboardingViewModel<Step: OnboardingStep> {
         isNavBarVisible = input.isStandalone
 
         loadImage(
+            supportsOnlineImage: input.cardInput.cardModel?.supportsOnlineImage ?? false,
             cardId: input.cardInput.cardModel?.cardId,
             cardPublicKey: input.cardInput.cardModel?.cardPublicKey
         )
     }
 
-    private func loadImage(cardId: String?, cardPublicKey: Data?) {
+    private func loadImage(supportsOnlineImage: Bool, cardId: String?, cardPublicKey: Data?) {
         guard let cardId = cardId, let cardPublicKey = cardPublicKey else {
             return
         }
 
-        CardImageProvider().loadImage(cardId: cardId, cardPublicKey: cardPublicKey)
+        CardImageProvider(supportsOnlineImage: supportsOnlineImage)
+            .loadImage(cardId: cardId, cardPublicKey: cardPublicKey)
             .sink { [weak self] image in
                 withAnimation {
                     self?.cardImage = image
