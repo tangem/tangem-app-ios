@@ -17,13 +17,13 @@ struct CardImageProvider {
     @Injected(\.cardImageLoader) private var imageLoader: CardImageLoaderProtocol
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
 
-    private let isSupportOnlineImage: Bool
+    private let supportsOnlineImage: Bool
     private let cardId: String
     private let cardPublicKey: Data
     private let defaultImage = UIImage(named: "dark_card")!
 
-    init(isSupportOnlineImage: Bool = true, cardId: String, cardPublicKey: Data) {
-        self.isSupportOnlineImage = isSupportOnlineImage
+    init(supportsOnlineImage: Bool = true, cardId: String, cardPublicKey: Data) {
+        self.supportsOnlineImage = supportsOnlineImage
         self.cardId = cardId
         self.cardPublicKey = cardPublicKey
     }
@@ -68,7 +68,7 @@ extension CardImageProvider: CardImageProviding {
 
 private extension CardImageProvider {
     func loadArtworkInfo() -> AnyPublisher<CardArtwork, Never> {
-        guard isSupportOnlineImage else {
+        guard supportsOnlineImage else {
             return Just(.noArtwork).eraseToAnyPublisher()
         }
 
