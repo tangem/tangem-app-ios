@@ -274,7 +274,14 @@ struct MainView: View {
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            MainView(viewModel: .init(cardModel: PreviewCard.stellar.cardModel, coordinator: MainCoordinator()))
+            MainView(viewModel: .init(cardModel: PreviewCard.stellar.cardModel,
+                                      userWalletModel: PreviewCard.stellar.cardModel.userWalletModel!,
+                                      cardImageProvider: CardImageProvider(
+                                          cardId: PreviewCard.stellar.cardModel.cardId,
+                                          cardPublicKey: PreviewCard.stellar.cardModel.cardPublicKey,
+                                          artworkInfo: PreviewCard.stellar.cardModel.artworkInfo
+                                      ),
+                                      coordinator: MainCoordinator()))
         }
         .previewGroup(devices: [.iPhone12ProMax])
         .navigationViewStyle(StackNavigationViewStyle())
