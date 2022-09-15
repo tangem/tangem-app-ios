@@ -127,7 +127,6 @@ class OnboardingViewModel<Step: OnboardingStep> {
     var isFromMain: Bool = false
     private(set) var containerSize: CGSize = .zero
     unowned let onboardingCoordinator: OnboardingRoutable
-    private let cardImageProvider: CardImageProviding?
 
     init(input: OnboardingInput, onboardingCoordinator: OnboardingRoutable) {
         self.input = input
@@ -135,22 +134,18 @@ class OnboardingViewModel<Step: OnboardingStep> {
         isFromMain = input.isStandalone
         isNavBarVisible = input.isStandalone
 
-        // [REDACTED_TODO_COMMENT]
-        if let cardModel = input.cardInput.cardModel {
-            cardImageProvider = CardImageProvider(
-                supportsOnlineImage: cardModel.supportsOnlineImage,
-                cardId: cardModel.cardId,
-                cardPublicKey: cardModel.cardPublicKey
-            )
-        } else {
-            cardImageProvider = nil
-        }
-
-        loadImage()
+        loadImage(
+            cardId: input.cardInput.cardModel?.cardId,
+            cardPublicKey: input.cardInput.cardModel?.cardPublicKey
+        )
     }
 
-    private func loadImage() {
-        cardImageProvider?.loadImage()
+    private func loadImage(cardId: String?, cardPublicKey: Data?) {
+        guard let cardId = cardId, let cardPublicKey = cardPublicKey else {
+            return
+        }
+
+        CardImageProvider().loadImage(cardId: cardId, cardPublicKey: cardPublicKey)
             .sink { [weak self] image in
                 withAnimation {
                     self?.cardImage = image

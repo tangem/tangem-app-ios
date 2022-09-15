@@ -255,8 +255,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
 
     private func loadImageForRestoredbackup(cardId: String, cardPublicKey: Data) {
-        CardImageProvider(cardId: cardId, cardPublicKey: cardPublicKey)
-            .loadImage()
+        CardImageProvider()
+            .loadImage(cardId: cardId, cardPublicKey: cardPublicKey)
             .weakAssign(to: \.cardImage, on: self)
             .store(in: &bag)
     }
