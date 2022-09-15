@@ -17,6 +17,7 @@ class CardViewModel: ObservableObject {
     @Published var state: State = .created
 
     @Published var cardInfo: CardInfo
+    @Published var cardArtwork: CardArtwork
     @Published var isLoadingArtwork: Bool = false
     @Published private(set) var loadingBalancesCounter: Int = 0 {
         didSet {
@@ -36,11 +37,12 @@ class CardViewModel: ObservableObject {
 
     init(cardInfo: CardInfo) {
         self.cardInfo = cardInfo
+        self.cardArtwork = .notLoaded
     }
 
     func getCardInfo() {
         guard cardInfo.card.firmwareVersion.type == .release else {
-            cardInfo.artwork = .noArtwork
+            cardArtwork = .noArtwork
             return
         }
 
@@ -48,13 +50,13 @@ class CardViewModel: ObservableObject {
             switch result {
             case .success(let info):
                 guard let artwork = info.artwork else {
-                    self?.cardInfo.artwork = .noArtwork
+                    self?.cardArtwork = .noArtwork
                     return
                 }
 
-                self?.cardInfo.artwork = .artwork(artwork)
+                self?.cardArtwork = .artwork(artwork)
             case .failure:
-                self?.cardInfo.artwork = .noArtwork
+                self?.cardArtwork = .noArtwork
                 print("Failed to validate card")
             }
         }
