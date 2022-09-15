@@ -260,7 +260,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             .loadImage(cid: cardId,
                        cardPublicKey: cardPublicKey,
                        artworkInfo: nil)
-            .map { $0.image }
             .weakAssign(to: \.cardImage, on: self)
             .store(in: &bag)
     }
