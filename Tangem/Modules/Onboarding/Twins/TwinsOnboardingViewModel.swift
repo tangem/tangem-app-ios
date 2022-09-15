@@ -296,6 +296,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
 
     private func loadSecondTwinImage() {
         imageLoader.loadTwinImage(for: twinData.series.pair.number)
+            .replaceError(with: UIImage(named: "dark_card")!)
             .zip($cardImage.compactMap { $0 })
             .receive(on: DispatchQueue.main)
             .sink { [weak self] (paired, main) in
