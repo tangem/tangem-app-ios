@@ -25,9 +25,6 @@ struct TangemSdkConfigFactory {
         config.filter.issuerFilter = .deny(["TTM BANK"])
         config.allowUntrustedCards = true
 
-        let saveAccessCodes = AppSettings.shared.saveAccessCodes
-        config.accessCodeRequestPolicy = saveAccessCodes ? .alwaysWithBiometrics : .default
-
         return config
     }
 }
