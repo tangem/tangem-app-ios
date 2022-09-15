@@ -11,7 +11,7 @@ import Combine
 import TangemSdk
 
 protocol CardImageLoaderProtocol {
-    func loadImage(cid: String, cardPublicKey: Data, artworkInfo: ArtworkInfo?) -> AnyPublisher<ImageResponse, Never>
+    func loadImage(cid: String, cardPublicKey: Data, artworkInfo: ArtworkInfo?) -> AnyPublisher<UIImage, Never>
     func loadImage(byNdefLink link: String) -> AnyPublisher<UIImage, Never>
     func loadTwinImage(for number: Int) -> AnyPublisher<UIImage, Never>
 }
