@@ -241,13 +241,13 @@ final class AppScanTask: CardSessionRunnable {
         self.runScanTask(session, completion)
         return
         #else
-        guard session.environment.card?.settings.isHDWalletAllowed == true else {
-            self.runScanTask(session, completion)
+        guard let plainCard = session.environment.card else {
+            completion(.failure(.missingPreflightRead))
             return
         }
 
-        guard let plainCard = session.environment.card else {
-            completion(.failure(.missingPreflightRead))
+        guard !plainCard.wallets.isEmpty, plainCard.settings.isHDWalletAllowed else {
+            self.runScanTask(session, completion)
             return
         }
 
