@@ -13,6 +13,8 @@ import TangemSdk
 import BlockchainSdk
 
 struct SaltPayConfig {
+    @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
+
     private let card: Card
     private let walletData: WalletData
 
@@ -23,6 +25,25 @@ struct SaltPayConfig {
 
     private var defaultBlockchain: Blockchain {
         return Blockchain.from(blockchainName: walletData.blockchain, curve: card.supportedCurves[0])!
+    }
+
+    private var _backupSteps: [WalletOnboardingStep] {
+        var steps: [WalletOnboardingStep] = .init()
+
+        steps.append(.backupIntro)
+
+        if !card.wallets.isEmpty && !backupServiceProvider.backupService.primaryCardIsSet {
+            steps.append(.scanPrimaryCard)
+        }
+
+        if backupServiceProvider.backupService.addedBackupCardsCount < BackupService.maxBackupCardsCount {
+            steps.append(.selectBackupCards)
+        }
+
+        steps.append(.backupCards)
+        steps.append(.success)
+
+        return steps
     }
 }
 
@@ -56,7 +77,7 @@ extension SaltPayConfig: UserWalletConfig {
     }
 
     var backupSteps: OnboardingSteps? {
-        return nil
+        return .wallet(_backupSteps)
     }
 
     var supportedBlockchains: Set<Blockchain> {

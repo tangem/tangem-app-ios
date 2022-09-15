@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import TangemSdk
+import BlockchainSdk
 
 struct UserWalletConfigFactory {
     private let cardInfo: CardInfo
@@ -23,6 +25,10 @@ struct UserWalletConfigFactory {
             if isDemo {
                 return GenericDemoConfig(card: cardInfo.card)
             } else {
+                if (cardInfo.card.cardId == "AC03000000070529") || (cardInfo.card.cardId == "AC03000000070537")  {
+                    let token = Token(name: "Dai Stablecoin", symbol: "xDAI", contractAddress: "0x9c58bacc331c9aa871afd802db6379a98e80cedb", decimals: 18)
+                    return SaltPayConfig(card: cardInfo.card, walletData: WalletData(blockchain: Blockchain.gnosis.id, token: token))
+                }
                 return GenericConfig(card: cardInfo.card)
             }
         case .note(let noteData):
