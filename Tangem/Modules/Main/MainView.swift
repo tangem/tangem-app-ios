@@ -276,11 +276,6 @@ struct MainView_Previews: PreviewProvider {
         NavigationView {
             MainView(viewModel: .init(cardModel: PreviewCard.stellar.cardModel,
                                       userWalletModel: PreviewCard.stellar.cardModel.userWalletModel!,
-                                      cardImageProvider: CardImageProvider(
-                                          supportsOnlineImage: PreviewCard.stellar.cardModel.supportsOnlineImage,
-                                          cardId: PreviewCard.stellar.cardModel.cardId,
-                                          cardPublicKey: PreviewCard.stellar.cardModel.cardPublicKey
-                                      ),
                                       coordinator: MainCoordinator()))
         }
         .previewGroup(devices: [.iPhone12ProMax])
