@@ -507,7 +507,9 @@ class MainViewModel: ObservableObject {
             // Doesn't seem to work without the delay
             let delay = 1.0
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                let _ = self?.userWalletListService.save(cardModel.userWallet)
+                guard let userWallet = cardModel.userWallet else { return }
+
+                let _ = self?.userWalletListService.save(userWallet)
                 self?.coordinator.openUserWalletList()
                 AppSettings.shared.saveUserWallets = true
                 AppSettings.shared.saveAccessCodes = true
