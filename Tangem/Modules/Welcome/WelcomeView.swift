@@ -30,6 +30,7 @@ struct WelcomeView: View {
         .alert(item: $viewModel.error, content: { $0.alert })
         .onAppear(perform: viewModel.onAppear)
         .onDisappear(perform: viewModel.onDissappear)
+        .alert(item: $viewModel.saltPayAlertError, content: { $0.alert })
         .background(
             ScanTroubleshootingView(isPresented: $viewModel.showTroubleshootingView,
                                     tryAgainAction: viewModel.tryAgain,
