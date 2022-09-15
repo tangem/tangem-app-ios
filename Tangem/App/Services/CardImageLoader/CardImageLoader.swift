@@ -10,8 +10,6 @@ import Foundation
 import Combine
 import TangemSdk
 
-typealias ImageResponse = (image: UIImage, canBeCached: Bool)
-
 class CardImageLoader {
     private var networkService: NetworkService = .init()
 
