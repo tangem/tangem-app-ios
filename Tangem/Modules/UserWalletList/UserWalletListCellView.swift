@@ -35,7 +35,7 @@ struct UserWalletListCellView: View {
             }
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(model.userWallet.name)
+                Text(model.userWallet!.name)
                     .style(Fonts.Bold.subheadline, color: isSelected ? Colors.Text.accent : Colors.Text.primary1)
 
                 Text(model.subtitle)
@@ -62,7 +62,7 @@ struct UserWalletListCellView: View {
         .contentShape(Rectangle())
         .background(Colors.Background.primary)
         .onTapGesture {
-            didTapUserWallet(model.userWallet)
+            didTapUserWallet(model.userWallet!)
         }
     }
 
