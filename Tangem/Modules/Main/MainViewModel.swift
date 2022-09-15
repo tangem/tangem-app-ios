@@ -256,6 +256,10 @@ class MainViewModel: ObservableObject {
             assertionFailure("User Wallet Model not created")
             return
         }
+        
+        guard cardModel.isMultiWallet else {
+            return
+        }
 
         walletTokenListViewModel = WalletTokenListViewModel(
             userTokenListManager: userWalletModel.userTokenListManager,
