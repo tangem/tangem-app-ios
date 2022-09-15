@@ -13,6 +13,10 @@ protocol UserWalletModel {
     /// Public until managers factory
     var userTokenListManager: UserTokenListManager { get }
 
+    var userWallet: UserWallet { get }
+
+    func setUserWallet(_ userWallet: UserWallet)
+
     func updateUserWalletModel(with config: UserWalletConfig)
 
     func getWalletModels() -> [WalletModel]
