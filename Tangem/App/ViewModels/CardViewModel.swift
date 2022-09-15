@@ -18,7 +18,6 @@ struct CardPinSettings {
     var isPin2Default: Bool? = nil
 }
 
-
 class CardViewModel: Identifiable, ObservableObject {
     // MARK: Services
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding

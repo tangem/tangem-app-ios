@@ -301,7 +301,8 @@ class MainViewModel: ObservableObject {
 
     func onAppear() {
         walletTokenListViewModel?.onAppear()
-        CardImageProvider().loadImage(cardId: cardModel.cardId, cardPublicKey: cardModel.cardPublicKey)
+        CardImageProvider(supportsOnlineImage: cardModel.supportsOnlineImage)
+            .loadImage(cardId: cardModel.cardId, cardPublicKey: cardModel.cardPublicKey)
             .weakAssignAnimated(to: \.image, on: self)
             .store(in: &bag)
     }
