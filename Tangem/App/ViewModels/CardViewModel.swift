@@ -33,7 +33,7 @@ class CardViewModel: Identifiable, ObservableObject {
     var cardId: String { cardInfo.card.cardId }
     var userWalletId: Data { cardInfo.card.userWalletId }
     var cardPublicKey: Data { cardInfo.card.cardPublicKey }
-    var cardArtwork: CardArtwork { cardInfo.artwork }
+
     var isSupportOnlineImage: Bool {
         config.hasFeature(.onlineImage)
     }

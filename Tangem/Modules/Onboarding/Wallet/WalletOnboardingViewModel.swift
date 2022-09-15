@@ -12,7 +12,6 @@ import TangemSdk
 import BlockchainSdk
 
 class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, ObservableObject {
-    @Injected(\.cardImageLoader) private var imageLoader: CardImageLoaderProtocol
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
 
@@ -256,10 +255,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
 
     private func loadImageForRestoredbackup(cardId: String, cardPublicKey: Data) {
-        imageLoader
-            .loadImage(cid: cardId,
-                       cardPublicKey: cardPublicKey,
-                       artworkInfo: nil)
+        CardImageProvider(cardId: cardId, cardPublicKey: cardPublicKey)
+            .loadImage()
             .weakAssign(to: \.cardImage, on: self)
             .store(in: &bag)
     }
