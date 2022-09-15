@@ -58,7 +58,8 @@ class MainViewModel: ObservableObject {
     )
 
     let cardModel: CardViewModel
-    let userWalletModel: UserWalletModel?
+    private let userWalletModel: UserWalletModel?
+    private let cardImageProvider: CardImageProviding
 
     private var bag = Set<AnyCancellable>()
     private var isHashesCounted = false
@@ -158,9 +159,15 @@ class MainViewModel: ObservableObject {
         cardModel.canShowSend
     }
 
-    init(cardModel: CardViewModel, coordinator: MainRoutable) {
+    init(
+        cardModel: CardViewModel,
+        userWalletModel: UserWalletModel,
+        cardImageProvider: CardImageProviding,
+        coordinator: MainRoutable
+    ) {
         self.cardModel = cardModel
-        self.userWalletModel = cardModel.userWalletModel
+        self.userWalletModel = userWalletModel
+        self.cardImageProvider = cardImageProvider
         self.coordinator = coordinator
         bind()
 
@@ -191,11 +198,6 @@ class MainViewModel: ObservableObject {
             .sink { [unowned self] entries in
                 updateLackDerivationWarningView(entries: entries)
             }
-            .store(in: &bag)
-
-        cardModel
-            .imageLoaderPublisher
-            .weakAssignAnimated(to: \.image, on: self)
             .store(in: &bag)
 
         warningsService.warningsUpdatePublisher
@@ -255,7 +257,7 @@ class MainViewModel: ObservableObject {
             assertionFailure("User Wallet Model not created")
             return
         }
-        
+
         guard cardModel.isMultiWallet else {
             return
         }
@@ -302,6 +304,9 @@ class MainViewModel: ObservableObject {
 
     func onAppear() {
         walletTokenListViewModel?.onAppear()
+        cardImageProvider.loadImage()
+            .weakAssignAnimated(to: \.image, on: self)
+            .store(in: &bag)
     }
 
     func deriveEntriesWithoutDerivation() {
