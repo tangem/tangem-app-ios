@@ -75,7 +75,6 @@ class CommonCardsRepository: CardsRepository {
         walletConnectServiceProvider.initialize(with: cm)
         cm.didScan()
         cards[cardInfo.card.cardId] = cm
-        cm.getCardInfo()
         return cm
     }
 }
