@@ -117,8 +117,9 @@ extension DetailsViewModel {
     }
 
     func openAppSettings() {
+        guard let userWallet = cardModel.userWallet else { return }
         Analytics.log(.appSettingsTapped)
-        coordinator.openAppSettings(userWallet: cardModel.userWallet)
+        coordinator.openAppSettings(userWallet: userWallet)
     }
 
     func openSupportChat() {
