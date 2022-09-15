@@ -16,7 +16,7 @@ class CommonUserWalletListService: UserWalletListService {
 
     var selectedModel: CardViewModel? {
         return models.first {
-            $0.userWallet.userWalletId == selectedUserWalletId
+            $0.userWallet?.userWalletId == selectedUserWalletId
         }
     }
 
@@ -131,7 +131,7 @@ class CommonUserWalletListService: UserWalletListService {
 
         saveUserWallets(userWallets)
 
-        if let index = models.firstIndex(where: { $0.userWallet.userWalletId == userWallet.userWalletId }) {
+        if let index = models.firstIndex(where: { $0.userWallet?.userWalletId == userWallet.userWalletId }) {
             models[index].setUserWallet(userWallet)
         } else {
             let newModel = CardViewModel(userWallet: userWallet)
@@ -145,7 +145,7 @@ class CommonUserWalletListService: UserWalletListService {
         let userWalletId = userWallet.userWalletId
         encryptionKeyByUserWalletId[userWalletId] = nil
         userWallets.removeAll { $0.userWalletId == userWalletId }
-        models.removeAll { $0.userWallet.userWalletId == userWalletId }
+        models.removeAll { $0.userWallet?.userWalletId == userWalletId }
 
         encryptionKeyStorage.delete(userWallet)
         saveUserWallets(userWallets)
