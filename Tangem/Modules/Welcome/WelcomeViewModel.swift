@@ -63,8 +63,14 @@ class WelcomeViewModel: ObservableObject {
 
     func unlockWithCard() {
         scanCardInternal { [weak self] cardModel in
-            guard let self = self else { return }
-            self.userWalletListService.unlockWithCard(cardModel.userWallet, completion: self.didFinishUnlocking)
+            guard
+                let self = self,
+                let userWallet = cardModel.userWallet
+            else {
+                return
+            }
+
+            self.userWalletListService.unlockWithCard(userWallet, completion: self.didFinishUnlocking)
         }
     }
 
