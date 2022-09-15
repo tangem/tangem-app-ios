@@ -16,15 +16,17 @@ protocol UserWalletModelOutput: AnyObject {
 class CommonUserWalletModel {
     /// Public until managers factory
     let userTokenListManager: UserTokenListManager
+    private(set) var userWallet: UserWallet
     private let walletListManager: WalletListManager
 
     private weak var output: UserWalletModelOutput?
     private var reloadAllWalletModelsBag: AnyCancellable?
 
-    init(config: UserWalletConfig, userWalletId: Data, output: UserWalletModelOutput?) {
+    init(config: UserWalletConfig, userWallet: UserWallet, output: UserWalletModelOutput?) {
         self.output = output
+        self.userWallet = userWallet
 
-        userTokenListManager = CommonUserTokenListManager(config: config, userWalletId: userWalletId)
+        userTokenListManager = CommonUserTokenListManager(config: config, userWalletId: userWallet.userWalletId)
         walletListManager = CommonWalletListManager(
             config: config,
             userTokenListManager: userTokenListManager
@@ -35,6 +37,10 @@ class CommonUserWalletModel {
 // MARK: - UserWalletModel
 
 extension CommonUserWalletModel: UserWalletModel {
+    func setUserWallet(_ userWallet: UserWallet) {
+        self.userWallet = userWallet
+    }
+
     func updateUserWalletModel(with config: UserWalletConfig) {
         print("🔄 Updating UserWalletModel with new config")
         walletListManager.update(config: config)
