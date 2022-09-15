@@ -140,8 +140,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
             cardImageProvider = CardImageProvider(
                 isSupportOnlineImage: cardModel.isSupportOnlineImage,
                 cardId: cardModel.cardId,
-                cardPublicKey: cardModel.cardPublicKey,
-                cardArtwork: cardModel.cardArtwork
+                cardPublicKey: cardModel.cardPublicKey
             )
         } else {
             cardImageProvider = nil
