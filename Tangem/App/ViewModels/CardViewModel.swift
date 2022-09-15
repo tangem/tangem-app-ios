@@ -516,11 +516,33 @@ class CardViewModel: Identifiable, ObservableObject {
 
     func didScan() {
         Analytics.logScan(card: cardInfo.card, config: config)
-        tangemSdkProvider.setup(with: config.sdkConfig)
+        onAppear()
+    }
+
+    func onAppear() {
+        updateConfig()
     }
 
     func getDisabledLocalizedReason(for feature: UserWalletFeature) -> String? {
         config.getFeatureAvailability(feature).disabledLocalizedReason
+    }
+
+    private func updateConfig() {
+        var config = config.sdkConfig
+        if AppSettings.shared.saveAccessCodes {
+            var hasCode = false
+            if card.isAccessCodeSet {
+                hasCode = true
+            }
+            if let isPasscodeSet = card.isPasscodeSet, isPasscodeSet {
+                hasCode = true
+            }
+            if hasCode {
+                config.accessCodeRequestPolicy = .alwaysWithBiometrics
+            }
+        }
+
+        tangemSdkProvider.setup(with: config)
     }
 
     private func updateModel() {
