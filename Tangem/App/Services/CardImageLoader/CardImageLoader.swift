@@ -15,6 +15,7 @@ typealias ImageResponse = (image: UIImage, canBeCached: Bool)
 class CardImageLoader {
     private var networkService: NetworkService = .init()
     private var defaultImage: UIImage { .init(named: "dark_card")! }
+    private var cache: [String: UIImage] = [:]
 
     private var cacheConfiguration: URLSessionConfiguration {
         let configuration = URLSessionConfiguration.default
@@ -113,18 +114,25 @@ extension CardImageLoader {
 }
 
 extension CardImageLoader: CardImageLoaderProtocol {
-    func loadImage(cid: String, cardPublicKey: Data, artworkInfo: ArtworkInfo?) -> AnyPublisher<ImageResponse, Never> {
+    func loadImage(cid: String, cardPublicKey: Data, artworkInfo: ArtworkInfo?) -> AnyPublisher<UIImage, Never> {
         let prefix = String(cid.prefix(4)).uppercased()
 
         if let series = TwinCardSeries.allCases.first(where: { prefix.elementsEqual($0.rawValue.uppercased()) }) {
+            let number = "\(series.number)"
+            if let image = cache[number] {
+                return Just(image).eraseToAnyPublisher()
+            }
+
             return loadTwinImageWithError(for: series.number)
-                .map { ($0, true) }
-                .replaceError(with: (defaultImage, false))
+                .handleEvents(receiveOutput: { [weak self] image in
+                    self?.cache[number] = image
+                })
+                .replaceError(with: defaultImage)
                 .eraseToAnyPublisher()
         }
 
         guard let artworkId = artworkInfo?.id else {
-            return Just((defaultImage, false)).eraseToAnyPublisher()
+            return Just(defaultImage).eraseToAnyPublisher()
         }
 
         let endpoint = TangemEndpoint.artwork(cid: cid,
@@ -133,9 +141,15 @@ extension CardImageLoader: CardImageLoaderProtocol {
 
         networkService = .init(configuration: cacheConfiguration)
 
+        if let image = cache[cid] {
+            return Just(image).eraseToAnyPublisher()
+        }
+
         return loadImage(at: endpoint)
-            .map { ($0, true) }
-            .replaceError(with: (defaultImage, false))
+            .handleEvents(receiveOutput: { [weak self] image in
+                self?.cache[cid] = image
+            })
+            .replaceError(with: defaultImage)
             .eraseToAnyPublisher()
     }
 
