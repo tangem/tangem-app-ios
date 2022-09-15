@@ -74,7 +74,7 @@ extension Blockchain {
         case .arbitrum: return "arbitrum-one"
         case .dash: return "dash"
         case .gnosis: return "xdai"
-        case .optimism: return "optimistic-ethereum"
+        case .optimism: return "optimism"
         }
     }
 
