@@ -10,5 +10,6 @@ import UIKit
 import Combine
 
 protocol CardImageProviding {
-    func loadImage() -> AnyPublisher<UIImage, Never>
+    func loadImage(cardId: String, cardPublicKey: Data) -> AnyPublisher<UIImage, Never>
+    func loadTwinImage(for number: Int) -> AnyPublisher<UIImage, Never>
 }
