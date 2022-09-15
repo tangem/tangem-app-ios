@@ -10,8 +10,6 @@ import SwiftUI
 import Combine
 
 class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, ObservableObject {
-    @Injected(\.cardImageLoader) var imageLoader: CardImageLoaderProtocol
-
     @Published var firstTwinImage: UIImage?
     @Published var secondTwinImage: UIImage?
     @Published var pairNumber: String
@@ -139,8 +137,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
 
         bind()
         loadSecondTwinImage()
-
-
     }
 
     override func setupContainer(with size: CGSize) {
@@ -295,8 +291,8 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
     }
 
     private func loadSecondTwinImage() {
-        imageLoader.loadTwinImage(for: twinData.series.pair.number)
-            .replaceError(with: UIImage(named: "dark_card")!)
+        CardImageProvider()
+            .loadTwinImage(for: twinData.series.pair.number)
             .zip($cardImage.compactMap { $0 })
             .receive(on: DispatchQueue.main)
             .sink { [weak self] (paired, main) in
