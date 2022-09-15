@@ -9,6 +9,7 @@
 import Combine
 import SwiftUI
 import TangemSdk
+import stellarsdk
 
 class WelcomeViewModel: ObservableObject {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
@@ -20,6 +21,7 @@ class WelcomeViewModel: ObservableObject {
     @Published var error: AlertBinder?
     @Published var discardAlert: ActionSheetBinder?
     @Published var storiesModel: StoriesViewModel = .init()
+    @Published var saltPayAlertError: AlertBinder? = nil
 
     // This screen seats on the navigation stack permanently. We should preserve the navigationBar state to fix the random hide/disappear events of navigationBar on iOS13 on other screens down the navigation hierarchy.
     @Published var navigationBarHidden: Bool = false
@@ -73,7 +75,11 @@ class WelcomeViewModel: ObservableObject {
                 let numberOfFailedAttempts = self?.failedCardScanTracker.numberOfFailedAttempts ?? 0
                 self?.failedCardScanTracker.resetCounter()
                 Analytics.log(numberOfFailedAttempts == 0 ? .firstScan : .secondScan)
-                self?.processScannedCard(cardModel, isWithAnimation: true)
+                if cardModel.isSaltPay {
+                    self?.processScannedSaltPayCard(cardModel)
+                } else {
+                    self?.processScannedCard(cardModel, isWithAnimation: true)
+                }
             }
 
         subscription?.store(in: &bag)
@@ -115,6 +121,21 @@ class WelcomeViewModel: ObservableObject {
             openMain(with: input)
         }
     }
+
+    private func processScannedSaltPayCard(_ cardModel: CardViewModel) {
+        if cardModel.walletCreated {
+            if cardModel.backUpCreated {
+                processScannedCard(cardModel, isWithAnimation: true)
+            } else {
+                if let backupInput = cardModel.backupInput  {
+                    openSaltPayOnboarding(with: backupInput)
+                }
+            }
+        } else {
+            saltPayAlertError = AlertBinder(alert: Alert(title: Text("saltpay_backup_warning".localized), message: Text("saltpay_backup_warning".localized), dismissButton: nil))
+            isScanningCard = false
+        }
+    }
 }
 
 // MARK: - Navigation
@@ -149,6 +170,10 @@ extension WelcomeViewModel {
         if let card = input.cardInput.cardModel {
             coordinator.openMain(with: card)
         }
+    }
+
+    func openSaltPayOnboarding(with input: OnboardingInput) {
+        coordinator.openSaltPayOnboarding(with: input)
     }
 }
 
