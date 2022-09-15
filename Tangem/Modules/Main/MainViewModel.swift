@@ -59,7 +59,6 @@ class MainViewModel: ObservableObject {
 
     let cardModel: CardViewModel
     private let userWalletModel: UserWalletModel?
-    private let cardImageProvider: CardImageProviding
 
     private var bag = Set<AnyCancellable>()
     private var isHashesCounted = false
@@ -162,12 +161,10 @@ class MainViewModel: ObservableObject {
     init(
         cardModel: CardViewModel,
         userWalletModel: UserWalletModel,
-        cardImageProvider: CardImageProviding,
         coordinator: MainRoutable
     ) {
         self.cardModel = cardModel
         self.userWalletModel = userWalletModel
-        self.cardImageProvider = cardImageProvider
         self.coordinator = coordinator
         bind()
 
@@ -304,7 +301,7 @@ class MainViewModel: ObservableObject {
 
     func onAppear() {
         walletTokenListViewModel?.onAppear()
-        cardImageProvider.loadImage()
+        CardImageProvider().loadImage(cardId: cardModel.cardId, cardPublicKey: cardModel.cardPublicKey)
             .weakAssignAnimated(to: \.image, on: self)
             .store(in: &bag)
     }
