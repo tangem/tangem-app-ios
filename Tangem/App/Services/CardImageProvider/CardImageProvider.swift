@@ -17,20 +17,31 @@ struct CardImageProvider {
     @Injected(\.cardImageLoader) private var imageLoader: CardImageLoaderProtocol
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
 
+    private let supportsOnlineImage: Bool
     private let defaultImage = UIImage(named: "dark_card")!
 
-    init() {}
+    init(supportsOnlineImage: Bool = true) {
+        self.supportsOnlineImage = supportsOnlineImage
+    }
 }
 
 extension CardImageProvider: CardImageProviding {
     func loadImage(cardId: String, cardPublicKey: Data) -> AnyPublisher<UIImage, Never> {
-        loadImage(cardId: cardId, cardPublicKey: cardPublicKey, cardArtwork: CardImageProvider.cardArtworkCache[cardId] ?? .notLoaded)
+        guard supportsOnlineImage else {
+            return Just(defaultImage).eraseToAnyPublisher()
+        }
+
+        return loadImage(cardId: cardId, cardPublicKey: cardPublicKey, cardArtwork: CardImageProvider.cardArtworkCache[cardId] ?? .notLoaded)
             .replaceError(with: defaultImage)
             .eraseToAnyPublisher()
     }
 
     func loadTwinImage(for number: Int) -> AnyPublisher<UIImage, Never> {
-        loadTwinImage(number: number)
+        guard supportsOnlineImage else {
+            return Just(defaultImage).eraseToAnyPublisher()
+        }
+
+        return loadTwinImage(number: number)
             .replaceError(with: defaultImage)
             .eraseToAnyPublisher()
     }
