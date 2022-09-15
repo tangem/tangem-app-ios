@@ -17,63 +17,62 @@ struct CardImageProvider {
     @Injected(\.cardImageLoader) private var imageLoader: CardImageLoaderProtocol
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
 
-    private let supportsOnlineImage: Bool
-    private let cardId: String
-    private let cardPublicKey: Data
     private let defaultImage = UIImage(named: "dark_card")!
 
-    init(supportsOnlineImage: Bool = true, cardId: String, cardPublicKey: Data) {
-        self.supportsOnlineImage = supportsOnlineImage
-        self.cardId = cardId
-        self.cardPublicKey = cardPublicKey
-    }
+    init() {}
 }
 
 extension CardImageProvider: CardImageProviding {
-    func loadImage() -> AnyPublisher<UIImage, Never> {
-        loadImage(cardArtwork: CardImageProvider.cardArtworkCache[cardId] ?? .notLoaded)
+    func loadImage(cardId: String, cardPublicKey: Data) -> AnyPublisher<UIImage, Never> {
+        loadImage(cardId: cardId, cardPublicKey: cardPublicKey, cardArtwork: CardImageProvider.cardArtworkCache[cardId] ?? .notLoaded)
             .replaceError(with: defaultImage)
             .eraseToAnyPublisher()
     }
 
-    private func loadImage(cardArtwork: CardArtwork) -> AnyPublisher<UIImage, Error> {
+    func loadTwinImage(for number: Int) -> AnyPublisher<UIImage, Never> {
+        loadTwinImage(number: number)
+            .replaceError(with: defaultImage)
+            .eraseToAnyPublisher()
+    }
+}
+
+private extension CardImageProvider {
+    func loadImage(cardId: String, cardPublicKey: Data, cardArtwork: CardArtwork) -> AnyPublisher<UIImage, Error> {
+        if let number = getTwinNumberFor(for: cardId) {
+            return loadTwinImage(number: number)
+        }
+
         switch cardArtwork {
         case let .artwork(artworkInfo):
-            return loadImage(artworkInfo: artworkInfo)
+            return loadImage(cardId: cardId, cardPublicKey: cardPublicKey, artworkInfo: artworkInfo)
         case .noArtwork:
-            return loadImage(artworkInfo: nil)
+            return .justWithError(output: defaultImage)
         case .notLoaded:
-            return loadArtworkInfo()
+            return loadArtworkInfo(cardId: cardId, cardPublicKey: cardPublicKey)
                 .tryMap { cardArtwork -> AnyPublisher<UIImage, Error> in
                     CardImageProvider.cardArtworkCache[cardId] = cardArtwork
-                    return loadImage(cardArtwork: cardArtwork)
+                    return loadImage(cardId: cardId, cardPublicKey: cardPublicKey, cardArtwork: cardArtwork)
                 }
                 .switchToLatest()
                 .eraseToAnyPublisher()
         }
     }
 
-    private func loadImage(artworkInfo: ArtworkInfo?) -> AnyPublisher<UIImage, Error> {
+    func loadImage(cardId: String, cardPublicKey: Data, artworkInfo: ArtworkInfo?) -> AnyPublisher<UIImage, Error> {
         if let number = getTwinNumberFor(for: cardId) {
             return loadTwinImage(number: number)
         }
 
         if let artworkInfo = artworkInfo {
-            return loadImage(artworkInfo: artworkInfo)
+            return loadImage(cardId: cardId, cardPublicKey: cardPublicKey, artworkInfo: artworkInfo)
         }
 
         return .justWithError(output: defaultImage)
     }
-}
 
-private extension CardImageProvider {
-    func loadArtworkInfo() -> AnyPublisher<CardArtwork, Never> {
-        guard supportsOnlineImage else {
-            return Just(.noArtwork).eraseToAnyPublisher()
-        }
-
+    func loadArtworkInfo(cardId: String, cardPublicKey: Data) -> AnyPublisher<CardArtwork, Never> {
         return Future { promise in
-            tangemSdkProvider.sdk.loadCardInfo(cardPublicKey: self.cardPublicKey, cardId: self.cardId) { result in
+            tangemSdkProvider.sdk.loadCardInfo(cardPublicKey: cardPublicKey, cardId: cardId) { result in
                 switch result {
                 case .success(let info):
                     promise(.success(info.artwork.map { .artwork($0) } ?? .noArtwork))
@@ -85,7 +84,7 @@ private extension CardImageProvider {
         .eraseToAnyPublisher()
     }
 
-    func loadImage(artworkInfo: ArtworkInfo) -> AnyPublisher<UIImage, Error> {
+    func loadImage(cardId: String, cardPublicKey: Data, artworkInfo: ArtworkInfo) -> AnyPublisher<UIImage, Error> {
         if let image = CardImageProvider.imageCache[cardId] {
             return .justWithError(output: image)
         }
@@ -99,7 +98,7 @@ private extension CardImageProvider {
     }
 
     func loadTwinImage(number: Int) -> AnyPublisher<UIImage, Error> {
-        let cacheKey = cardId + "_\(number)"
+        let cacheKey = "twin_\(number)"
 
         if let image = CardImageProvider.imageCache[cacheKey] {
             return .justWithError(output: image)
