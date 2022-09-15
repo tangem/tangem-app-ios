@@ -15,5 +15,6 @@ protocol WelcomeRoutable: AnyObject {
     func openDisclaimer()
     func openShop()
     func openOnboarding(with input: OnboardingInput)
+    func openSaltPayOnboarding(with input: OnboardingInput)
     func openMain(with cardModel: CardViewModel)
 }
