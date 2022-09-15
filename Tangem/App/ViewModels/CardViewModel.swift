@@ -84,6 +84,18 @@ class CardViewModel: Identifiable, ObservableObject {
         config.hasFeature(.walletConnect)
     }
 
+    var isSaltPay: Bool {
+        (config is SaltPayConfig)
+    }
+
+    var walletCreated: Bool {
+        !cardInfo.card.wallets.isEmpty
+    }
+
+    var backUpCreated: Bool {
+        (cardInfo.card.backupStatus ?? .noBackup) != .noBackup
+    }
+
     // Temp for WC. Migrate to userWalletId?
     var secp256k1SeedKey: Data? {
         cardInfo.card.wallets.first(where: { $0.curve == .secp256k1 })?.publicKey
@@ -379,6 +391,28 @@ class CardViewModel: Identifiable, ObservableObject {
 
     func getDisabledLocalizedReason(for feature: UserWalletFeature) -> String? {
         config.getFeatureAvailability(feature).disabledLocalizedReason
+    }
+
+    func getLegacyMigrator() -> LegacyCardMigrator? {
+        guard config.hasFeature(.multiCurrency) else {
+            return nil
+        }
+
+        // Check if we have anything to migrate. It's impossible to get default token without default blockchain
+        guard let embeddedEntry = config.embeddedBlockchain else {
+            return nil
+        }
+
+        return .init(cardId: cardId, embeddedEntry: embeddedEntry)
+    }
+
+    private func makeAllWalletModels() -> [WalletModel] {
+        if isSaltPay {
+            let token = config.defaultBlockchains
+            return token.compactMap { try? config.makeWalletModel(for: $0) }
+        }
+        let tokens = tokenItemsRepository.getItems()
+        return tokens.compactMap { try? config.makeWalletModel(for: $0) }
     }
 
     private func updateModel() {
