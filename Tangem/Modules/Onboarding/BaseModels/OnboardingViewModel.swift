@@ -127,6 +127,17 @@ class OnboardingViewModel<Step: OnboardingStep> {
     var isFromMain: Bool = false
     private(set) var containerSize: CGSize = .zero
     unowned let onboardingCoordinator: OnboardingRoutable
+    private lazy var cardImageProvider: CardImageProviding? = {
+        guard let cardModel = input.cardInput.cardModel else {
+            return nil
+        }
+
+        return CardImageProvider(
+            cardId: cardModel.cardId,
+            cardPublicKey: cardModel.cardPublicKey,
+            artworkInfo: cardModel.artworkInfo
+        )
+    }()
 
     init(input: OnboardingInput, onboardingCoordinator: OnboardingRoutable) {
         self.input = input
@@ -134,12 +145,11 @@ class OnboardingViewModel<Step: OnboardingStep> {
         isFromMain = input.isStandalone
         isNavBarVisible = input.isStandalone
 
-        input.cardInput.cardModel.map { loadImage(for: $0) }
+        loadImage()
     }
 
-    private func loadImage(for cardModel: CardViewModel) {
-        cardModel
-            .imageLoaderPublisher
+    private func loadImage() {
+        cardImageProvider?.loadImage()
             .sink { [weak self] image in
                 withAnimation {
                     self?.cardImage = image
