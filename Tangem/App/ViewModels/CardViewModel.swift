@@ -357,26 +357,6 @@ class CardViewModel: Identifiable, ObservableObject {
 
     // MARK: - Update
 
-    func getCardInfo() {
-        cardInfo.artwork = .notLoaded
-        guard config.hasFeature(.onlineImage) else {
-            cardInfo.artwork = .noArtwork
-            return
-        }
-
-        tangemSdk.loadCardInfo(cardPublicKey: cardInfo.card.cardPublicKey, cardId: cardId) { [weak self] result in
-            guard let self = self else { return }
-
-            switch result {
-            case .success(let info):
-                self.cardInfo.artwork = info.artwork.map { .artwork($0) } ?? .noArtwork
-            case .failure:
-                self.cardInfo.artwork = .noArtwork
-                self.warningsService.setupWarnings(for: self.config)
-            }
-        }
-    }
-
     func update(with card: Card) {
         print("🔄 Updating CardViewModel with new Card")
         let oldKeys = cardInfo.card.wallets.map { $0.derivedKeys }
