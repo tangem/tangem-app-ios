@@ -42,7 +42,7 @@ class MainCoordinator: CoordinatorObject {
 
     func start(with options: MainCoordinator.Options) {
         let cardImageProvider = CardImageProvider(
-            isSupportOnlineImage: options.cardModel.isSupportOnlineImage,
+            supportsOnlineImage: options.cardModel.supportsOnlineImage,
             cardId: options.cardModel.cardId,
             cardPublicKey: options.cardModel.cardPublicKey
         )
