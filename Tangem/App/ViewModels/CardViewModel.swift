@@ -34,7 +34,7 @@ class CardViewModel: Identifiable, ObservableObject {
     var signer: TangemSigner { config.tangemSigner }
 
     var cardId: String { cardInfo.card.cardId }
-    var userWalletId: Data { cardInfo.card.userWalletId }
+    var userWalletId: Data? { userWalletModel?.userWallet.userWalletId }
 
     var card: CardDTO {
         cardInfo.card
@@ -253,12 +253,12 @@ class CardViewModel: Identifiable, ObservableObject {
             .eraseToAnyPublisher()
     }
 
-    var userWallet: UserWallet {
-        _userWallet
+    var userWallet: UserWallet? {
+        userWalletModel?.userWallet
     }
 
     var isUserWalletLocked: Bool {
-        return userWallet.isLocked
+        return userWallet?.isLocked ?? false
     }
 
     var subtitle: String {
@@ -292,19 +292,16 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private var searchBlockchainsCancellable: AnyCancellable? = nil
     private var bag = Set<AnyCancellable>()
-    private var _userWallet: UserWallet! // [REDACTED_TODO_COMMENT]
 
     convenience init(userWallet: UserWallet) {
-        self.init(cardInfo: userWallet.cardInfo())
-        _userWallet = userWallet
+        self.init(cardInfo: userWallet.cardInfo(), userWallet: userWallet)
     }
 
-    init(cardInfo: CardInfo) {
+    init(cardInfo: CardInfo, userWallet: UserWallet? = nil) {
         self.cardInfo = cardInfo
         self.config = UserWalletConfigFactory(cardInfo).makeConfig()
-        self._userWallet = UserWalletFactory().userWallet(from: self)
 
-        createUserWalletModelIfNeeded()
+        createUserWalletModelIfNeeded(userWallet)
         updateCardPinSettings()
         updateCurrentSecurityOption()
         bind()
@@ -441,7 +438,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     func setUserWallet(_ userWallet: UserWallet) {
         cardInfo = userWallet.cardInfo()
-        _userWallet = userWallet
+        userWalletModel?.setUserWallet(userWallet)
     }
 
     // MARK: - Update
@@ -703,18 +700,19 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func updateUserWallet() {
-        let userWallet = self.userWallet
+        guard let userWallet = self.userWallet else { return }
+
         if userWalletListService.contains(userWallet) {
             let _ = userWalletListService.save(userWallet)
         }
     }
 
-    private func createUserWalletModelIfNeeded() {
+    private func createUserWalletModelIfNeeded(_ userWallet: UserWallet? = nil) {
         guard userWalletModel == nil, cardInfo.card.hasWallets else { return }
 
         userWalletModel = CommonUserWalletModel(
             config: config,
-            userWalletId: cardInfo.card.userWalletId,
+            userWallet: userWallet ?? UserWalletFactory().userWallet(from: self),
             output: self
         )
     }
