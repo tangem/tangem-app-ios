@@ -244,7 +244,7 @@ final class AppScanTask: CardSessionRunnable {
             completion(.failure(.missingPreflightRead))
             return
         }
-        
+
         guard !card.wallets.isEmpty, card.settings.isHDWalletAllowed else {
             self.runScanTask(session, completion)
             return
