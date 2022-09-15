@@ -41,7 +41,18 @@ class MainCoordinator: CoordinatorObject {
     }
 
     func start(with options: MainCoordinator.Options) {
-        mainViewModel = MainViewModel(cardModel: options.cardModel, coordinator: self)
+        let cardImageProvider = CardImageProvider(
+            cardId: options.cardModel.cardId,
+            cardPublicKey: options.cardModel.cardPublicKey,
+            artworkInfo: options.cardModel.artworkInfo
+        )
+
+        mainViewModel = MainViewModel(
+            cardModel: options.cardModel,
+            userWalletModel: options.cardModel.userWalletModel!,
+            cardImageProvider: cardImageProvider,
+            coordinator: self
+        )
     }
 }
 
