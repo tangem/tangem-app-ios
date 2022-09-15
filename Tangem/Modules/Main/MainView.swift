@@ -279,8 +279,7 @@ struct MainView_Previews: PreviewProvider {
                                       cardImageProvider: CardImageProvider(
                                           isSupportOnlineImage: PreviewCard.stellar.cardModel.isSupportOnlineImage,
                                           cardId: PreviewCard.stellar.cardModel.cardId,
-                                          cardPublicKey: PreviewCard.stellar.cardModel.cardPublicKey,
-                                          cardArtwork: PreviewCard.stellar.cardModel.cardArtwork
+                                          cardPublicKey: PreviewCard.stellar.cardModel.cardPublicKey
                                       ),
                                       coordinator: MainCoordinator()))
         }
