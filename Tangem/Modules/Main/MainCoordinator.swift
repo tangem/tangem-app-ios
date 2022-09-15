@@ -44,8 +44,7 @@ class MainCoordinator: CoordinatorObject {
         let cardImageProvider = CardImageProvider(
             isSupportOnlineImage: options.cardModel.isSupportOnlineImage,
             cardId: options.cardModel.cardId,
-            cardPublicKey: options.cardModel.cardPublicKey,
-            cardArtwork: options.cardModel.cardArtwork
+            cardPublicKey: options.cardModel.cardPublicKey
         )
 
         mainViewModel = MainViewModel(
