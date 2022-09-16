@@ -53,12 +53,14 @@ class MainViewModel: ObservableObject {
     var isLoadingTokensBalance: Bool = false
 
     lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
+        userWalletModel: userWalletModel,
+        totalBalanceManager: TotalBalanceManager(userWalletModel: userWalletModel),
         isSingleCoinCard: !cardModel.isMultiWallet,
         tapOnCurrencySymbol: openCurrencySelection
     )
 
     let cardModel: CardViewModel
-    let userWalletModel: UserWalletModel?
+    private let userWalletModel: UserWalletModel
 
     private var bag = Set<AnyCancellable>()
     private var isHashesCounted = false
@@ -158,9 +160,9 @@ class MainViewModel: ObservableObject {
         cardModel.canShowSend
     }
 
-    init(cardModel: CardViewModel, coordinator: MainRoutable) {
+    init(cardModel: CardViewModel, userWalletModel: UserWalletModel, coordinator: MainRoutable) {
         self.cardModel = cardModel
-        self.userWalletModel = cardModel.userWalletModel
+        self.userWalletModel = userWalletModel
         self.coordinator = coordinator
         bind()
 
@@ -176,17 +178,6 @@ class MainViewModel: ObservableObject {
     // MARK: - Functions
 
     func bind() {
-        cardModel.subscribeWalletModels()
-            .flatMap { Publishers.MergeMany($0.map { $0.objectWillChange }).collect($0.count) }
-            .debounce(for: .seconds(0.5), scheduler: RunLoop.main)
-            .receive(on: DispatchQueue.main)
-            .sink { [unowned self] _ in
-                if self.isLoadingTokensBalance { return }
-                self.updateTotalBalanceTokenListIfNeeded()
-                self.objectWillChange.send()
-            }
-            .store(in: &bag)
-
         cardModel.subscribeToEntriesWithoutDerivation()
             .sink { [unowned self] entries in
                 updateLackDerivationWarningView(entries: entries)
@@ -205,24 +196,6 @@ class MainViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        cardModel
-            .$walletsBalanceState
-            .dropFirst()
-            .receive(on: RunLoop.main)
-            .sink(receiveValue: { [unowned self] state in
-                switch state {
-                case .inProgress:
-                    self.totalSumBalanceViewModel.beginUpdates()
-                    self.isLoadingTokensBalance = true
-                case .loaded:
-                    // Delay for hide skeleton
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                        self.checkPositiveBalance()
-                        self.isLoadingTokensBalance = false
-                        self.updateTotalBalanceTokenList()
-                    }
-                }
-            }).store(in: &bag)
 
         $showExplorerURL
             .compactMap { $0 }
@@ -251,11 +224,6 @@ class MainViewModel: ObservableObject {
     }
 
     func updateWalletTokenListViewModel() {
-        guard let userWalletModel = cardModel.userWalletModel else {
-            assertionFailure("User Wallet Model not created")
-            return
-        }
-        
         guard cardModel.isMultiWallet else {
             return
         }
@@ -270,8 +238,8 @@ class MainViewModel: ObservableObject {
 
     func onRefresh(_ done: @escaping () -> Void) {
         Analytics.log(.mainPageRefresh)
-        walletTokenListViewModel?.refreshTokens { result in
-            print("♻️ Wallet model loading state changed with result", result)
+        walletTokenListViewModel?.refreshTokens {
+            print("♻️ RefreshTokens success")
             withAnimation {
                 done()
             }
@@ -302,6 +270,7 @@ class MainViewModel: ObservableObject {
 
     func onAppear() {
         walletTokenListViewModel?.onAppear()
+//        totalSumBalanceViewModel.updateBalance()
     }
 
     func deriveEntriesWithoutDerivation() {
@@ -384,14 +353,6 @@ class MainViewModel: ObservableObject {
 
     // MARK: - Private functions
 
-    private func checkPositiveBalance() {
-        guard rateAppService.shouldCheckBalanceForRateApp else { return }
-
-        guard cardModel.walletModels.first(where: { !$0.wallet.isEmpty }) != nil else { return }
-
-        rateAppService.registerPositiveBalanceDate()
-    }
-
     private func validateHashesCount() {
         guard cardModel.canCountHashes else { return }
 
@@ -459,16 +420,6 @@ class MainViewModel: ObservableObject {
 
         self.error = error
         return
-    }
-
-    private func updateTotalBalanceTokenList() {
-        let newTokens = cardModel.walletModels.flatMap({ $0.tokenItemViewModels })
-        totalSumBalanceViewModel.update(with: newTokens)
-    }
-
-    private func updateTotalBalanceTokenListIfNeeded() {
-        let newTokens = cardModel.walletModels.flatMap({ $0.tokenItemViewModels })
-        totalSumBalanceViewModel.updateIfNeeded(with: newTokens)
     }
 
     private func updateLackDerivationWarningView(entries: [StorageEntry]) {
@@ -551,7 +502,7 @@ extension MainViewModel {
 
                 self.sendAnalyticsEvent(.userBoughtCrypto)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    self.userWalletModel?.updateAndReloadWalletModels(showProgressLoading: true)
+                    self.userWalletModel.updateAndReloadWalletModels(showProgressLoading: true)
                 }
             }
         }
