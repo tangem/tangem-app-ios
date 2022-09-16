@@ -96,6 +96,10 @@ class MainViewModel: ObservableObject {
         cardModel.canExchangeCrypto && sellCryptoURL != nil
     }
 
+    var cardsCountLabel: String? {
+        cardModel.cardSetLabel
+    }
+
     var buyCryptoURL: URL? {
         if let wallet = wallets?.first {
             let blockchain = wallet.blockchain
@@ -255,7 +259,7 @@ class MainViewModel: ObservableObject {
             assertionFailure("User Wallet Model not created")
             return
         }
-        
+
         guard cardModel.isMultiWallet else {
             return
         }
