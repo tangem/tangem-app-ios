@@ -9,8 +9,9 @@
 import SwiftUI
 import Combine
 
-
 class TotalSumBalanceViewModel: ObservableObject {
+    // MARK: - ViewState
+
     @Published var isLoading: Bool = true
     @Published var totalFiatValueString: NSAttributedString = NSAttributedString(string: "")
     @Published var hasError: Bool = false
@@ -18,6 +19,8 @@ class TotalSumBalanceViewModel: ObservableObject {
     /// If we have a note or any single coin wallet that we should show this balance
     @Published var singleWalletBalance: String?
 
+    // MARK: - Private
+    
     @Injected(\.rateAppService) private var rateAppService: RateAppService
     private let tapOnCurrencySymbol: () -> ()
     private let isSingleCoinCard: Bool
@@ -60,7 +63,7 @@ class TotalSumBalanceViewModel: ObservableObject {
                     .map { $0.$tokenItemViewModels }
                     .combineLatest()
                     .map { $0.reduce([], +) }
-                    // Update balance only all models succesfullyLoaded
+                    // Update total balance only after all models succesfully loaded
                     .filter { $0.allConforms { $0.state.isSuccesfullyLoaded } }
             }
             .switchToLatest()
