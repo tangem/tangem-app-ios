@@ -132,7 +132,7 @@ class WelcomeViewModel: ObservableObject {
                 }
             }
         } else {
-            saltPayAlertError = AlertBinder(alert: Alert(title: Text("saltpay_backup_warning".localized), message: Text("saltpay_backup_warning".localized), dismissButton: nil))
+            saltPayAlertError = AlertBinder(alert: Alert(title: Text("saltpay_title_backup_warning".localized), message: Text("saltpay_backup_warning".localized), dismissButton: nil))
             isScanningCard = false
         }
     }
