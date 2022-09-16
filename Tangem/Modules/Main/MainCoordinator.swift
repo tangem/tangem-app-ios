@@ -41,7 +41,12 @@ class MainCoordinator: CoordinatorObject {
     }
 
     func start(with options: MainCoordinator.Options) {
-        mainViewModel = MainViewModel(cardModel: options.cardModel, coordinator: self)
+        guard let userWalletModel = options.cardModel.userWalletModel else {
+            assertionFailure("UserWalletModel not created")
+            return
+        }
+
+        mainViewModel = MainViewModel(cardModel: options.cardModel, userWalletModel: userWalletModel, coordinator: self)
     }
 }
 
