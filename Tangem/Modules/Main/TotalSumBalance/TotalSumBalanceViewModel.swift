@@ -29,10 +29,11 @@ class TotalSumBalanceViewModel: ObservableObject {
 
     private var bag: Set<AnyCancellable> = []
 
-    init(userWalletModel: UserWalletModel,
-         totalBalanceManager: TotalBalanceProviding,
-         isSingleCoinCard: Bool,
-         tapOnCurrencySymbol: @escaping () -> ()
+    init(
+        userWalletModel: UserWalletModel,
+        totalBalanceManager: TotalBalanceProviding,
+        isSingleCoinCard: Bool,
+        tapOnCurrencySymbol: @escaping () -> ()
     ) {
         self.userWalletModel = userWalletModel
         self.totalBalanceManager = totalBalanceManager
@@ -44,6 +45,12 @@ class TotalSumBalanceViewModel: ObservableObject {
 
     func updateBalance() {
         totalBalanceManager.updateTotalBalance()
+    }
+
+    func updateForSingleCoinCard(tokenModels: [TokenItemViewModel]) {
+        guard isSingleCoinCard else { return }
+
+        singleWalletBalance = tokenModels.first?.balance
     }
 
     func didTapOnCurrencySymbol() {
@@ -69,8 +76,10 @@ class TotalSumBalanceViewModel: ObservableObject {
             .switchToLatest()
             // Hack with delay until rebuild the "update flow" in WalletModel
             .delay(for: 0.2, scheduler: DispatchQueue.main)
-            .mapVoid()
-            .sink { [unowned self] _ in
+            .sink { [unowned self] walletModels in
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    self.updateForSingleCoinCard(tokenModels: walletModels)
+                }
                 updateBalance()
             }
             .store(in: &bag)
@@ -94,13 +103,6 @@ class TotalSumBalanceViewModel: ObservableObject {
             .filter { !$0 }
             .debounce(for: 0.5, scheduler: DispatchQueue.main)
             .weakAssignAnimated(to: \.isLoading, on: self)
-            .store(in: &bag)
-
-        guard isSingleCoinCard else { return }
-
-        userWalletModel.subscribeToWalletModels()
-            .compactMap { $0.first?.tokenItemViewModels.first?.balance }
-            .weakAssign(to: \.singleWalletBalance, on: self)
             .store(in: &bag)
     }
 
