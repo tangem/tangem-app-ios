@@ -27,11 +27,11 @@ protocol UserWalletModel {
     func remove(item: CommonUserWalletModel.RemoveItem, result: @escaping (Result<UserTokenList, Error>) -> Void)
     func clearRepository(result: @escaping (Result<UserTokenList, Error>) -> Void)
 
-    func updateAndReloadWalletModels(showProgressLoading: Bool, completion: @escaping () -> Void)
+    func updateAndReloadWalletModels(completion: @escaping () -> Void)
 }
 
 extension UserWalletModel {
-    func updateAndReloadWalletModels(showProgressLoading show: Bool = true) {
-        updateAndReloadWalletModels(showProgressLoading: show, completion: {})
+    func updateAndReloadWalletModels() {
+        updateAndReloadWalletModels(completion: {})
     }
 }
