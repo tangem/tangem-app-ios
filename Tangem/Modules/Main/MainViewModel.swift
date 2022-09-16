@@ -277,9 +277,6 @@ class MainViewModel: ObservableObject {
         } else {
             userWalletModel.updateAndReloadWalletModels(completion: done)
         }
-        } else {
-            userWalletModel.updateAndReloadWalletModels(completion: done)
-        }
     }
 
     func onScan() {
