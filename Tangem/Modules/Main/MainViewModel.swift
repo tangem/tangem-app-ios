@@ -502,7 +502,7 @@ extension MainViewModel {
 
                 self.sendAnalyticsEvent(.userBoughtCrypto)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                    self.userWalletModel.updateAndReloadWalletModels(showProgressLoading: true)
+                    self.userWalletModel.updateAndReloadWalletModels()
                 }
             }
         }
