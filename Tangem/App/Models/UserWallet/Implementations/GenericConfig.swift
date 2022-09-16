@@ -53,7 +53,7 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var cardSetLabel: String? {
-        String.localizedStringWithFormat("card_label_card_count".localized, cardsCount + 1)
+        String.localizedStringWithFormat("card_label_card_count".localized, cardsCount)
     }
 
     var cardsCount: Int {
