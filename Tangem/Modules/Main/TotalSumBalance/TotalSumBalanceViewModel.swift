@@ -9,92 +9,6 @@
 import SwiftUI
 import Combine
 
-enum ValueState<Value> {
-    case loading
-    case loaded(_ value: Value)
-
-    var isLoading: Bool {
-        if case .loading = self {
-            return true
-        }
-
-        return false
-    }
-
-    var value: Value? {
-        if case .loaded(let value) = self {
-            return value
-        }
-
-        return nil
-    }
-}
-
-extension TotalBalanceManager {
-    struct TotalBalance {
-        let balance: Decimal
-        let currency: CurrenciesResponse.Currency
-        let hasError: Bool
-    }
-}
-
-protocol TotalBalanceManagable {
-    func subscribeToTotalBalance() -> AnyPublisher<ValueState<TotalBalanceManager.TotalBalance>, Never>
-    func updateTotalBalance()
-}
-
-class TotalBalanceManager {
-    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-    private let userWalletModel: UserWalletModel
-    private let totalBalanceSubject = CurrentValueSubject<ValueState<TotalBalance>, Never>(.loading)
-    private var refreshSubscription: AnyCancellable?
-
-    init(userWalletModel: UserWalletModel) {
-        self.userWalletModel = userWalletModel
-    }
-}
-
-extension TotalBalanceManager: TotalBalanceManagable {
-    func subscribeToTotalBalance() -> AnyPublisher<ValueState<TotalBalance>, Never> {
-        totalBalanceSubject.eraseToAnyPublisher()
-    }
-
-    func updateTotalBalance() {
-        totalBalanceSubject.send(.loading)
-        loadCurrenciesAndUpdateBalance()
-    }
-}
-
-private extension TotalBalanceManager {
-    func loadCurrenciesAndUpdateBalance() {
-        let tokenItemViewModels = userWalletModel.getWalletModels().flatMap { $0.tokenItemViewModels }
-
-        refreshSubscription = tangemApiService.loadCurrencies()
-            .tryMap { currencies -> TotalBalance in
-                guard let currency = currencies.first(where: { $0.code == AppSettings.shared.selectedCurrencyCode }) else {
-                    throw CommonError.noData
-                }
-
-                var hasError: Bool = false
-                var balance: Decimal = 0.0
-
-                for token in tokenItemViewModels {
-                    if token.state.isSuccesfullyLoaded {
-                        balance += token.fiatValue
-                    }
-
-                    if token.rate.isEmpty || !token.state.isSuccesfullyLoaded {
-                        hasError = true
-                    }
-                }
-
-                return TotalBalance(balance: balance, currency: currency, hasError: hasError)
-            }
-            .receiveValue { [unowned self] balance in
-                self.totalBalanceSubject.send(.loaded(balance))
-            }
-    }
-}
 
 class TotalSumBalanceViewModel: ObservableObject {
     @Published var isLoading: Bool = true
@@ -108,13 +22,12 @@ class TotalSumBalanceViewModel: ObservableObject {
     private let tapOnCurrencySymbol: () -> ()
     private let isSingleCoinCard: Bool
     private let userWalletModel: UserWalletModel
-    private let totalBalanceManager: TotalBalanceManagable
+    private let totalBalanceManager: TotalBalanceProviding
 
-    private var subscribeToSuccessLoadedBag: AnyCancellable?
     private var bag: Set<AnyCancellable> = []
 
     init(userWalletModel: UserWalletModel,
-         totalBalanceManager: TotalBalanceManagable,
+         totalBalanceManager: TotalBalanceProviding,
          isSingleCoinCard: Bool,
          tapOnCurrencySymbol: @escaping () -> ()
     ) {
@@ -139,6 +52,26 @@ class TotalSumBalanceViewModel: ObservableObject {
     }
 
     private func bind() {
+        userWalletModel.subscribeToWalletModels()
+            .map { [unowned self] walletModels in
+                isLoading = true
+
+                return walletModels
+                    .map { $0.$tokenItemViewModels }
+                    .combineLatest()
+                    .map { $0.reduce([], +) }
+                    // Update balance only all models succesfullyLoaded
+                    .filter { $0.allConforms { $0.state.isSuccesfullyLoaded } }
+            }
+            .switchToLatest()
+            // Hack with delay until rebuild the "update flow" in WalletModel
+            .delay(for: 0.2, scheduler: DispatchQueue.main)
+            .mapVoid()
+            .sink { [unowned self] _ in
+                updateBalance()
+            }
+            .store(in: &bag)
+
         totalBalanceManager.subscribeToTotalBalance()
             .compactMap { $0.value }
             .map { [unowned self] balance in
@@ -155,33 +88,9 @@ class TotalSumBalanceViewModel: ObservableObject {
 
         totalBalanceManager.subscribeToTotalBalance()
             .map { $0.isLoading }
-            .filter { $0 }
-            .weakAssignAnimated(to: \.isLoading, on: self)
-            .store(in: &bag)
-
-        totalBalanceManager.subscribeToTotalBalance()
-            .map { $0.isLoading }
             .filter { !$0 }
-            .delay(for: 0.2, scheduler: DispatchQueue.main)
+            .debounce(for: 0.5, scheduler: DispatchQueue.main)
             .weakAssignAnimated(to: \.isLoading, on: self)
-            .store(in: &bag)
-
-        userWalletModel.subscribeToWalletModels()
-//            .flatMap { walletModels in
-//                Publishers
-//                    .MergeMany(walletModels.map { $0.$balanceViewModel })
-//                    .collect(walletModels.count)
-//                    .filter { $0.allConforms { $0?.state.isSuccesfullyLoaded ?? false } }
-//                    .map { walletModels.flatMap { $0.balanceViewModel } }
-//            }
-//            .filter { $0.allConforms { $0?.state.isSuccesfullyLoaded ?? false } }
-//            .debounce(for: .seconds(0.5), scheduler: RunLoop.main)
-//            .removeDuplicates()
-            .print("updateBalance")
-            .sink { [unowned self] walletModels in
-                subscribeToSuccessLoaded(walletModels: walletModels)
-//                updateBalance()
-            }
             .store(in: &bag)
 
         guard isSingleCoinCard else { return }
@@ -190,16 +99,6 @@ class TotalSumBalanceViewModel: ObservableObject {
             .compactMap { $0.first?.tokenItemViewModels.first?.balance }
             .weakAssign(to: \.singleWalletBalance, on: self)
             .store(in: &bag)
-    }
-
-    private func subscribeToSuccessLoaded(walletModels: [WalletModel]) {
-        subscribeToSuccessLoadedBag = Publishers
-            .MergeMany(walletModels.map { $0.$balanceViewModel })
-            .collect(walletModels.count)
-            .print("updateBalance")
-            .sink { [unowned self] _ in
-                updateBalance()
-            }
     }
 
     private func addAttributeForBalance(_ balance: Decimal, withCurrencyCode: String) -> NSAttributedString {
