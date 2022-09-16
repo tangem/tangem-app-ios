@@ -35,7 +35,6 @@ public extension Publisher {
     }
 }
 
-@available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public extension Swift.Collection where Element: Publisher {
     /// Projects a `Collection` of `Publisher`s onto a type-erased publisher that chains `combineLatest` calls on
     /// the inner publishers. This is a variadic overload on Combine’s variants that top out at arity three.
@@ -52,7 +51,7 @@ public extension Swift.Collection where Element: Publisher {
 }
 
 // MARK: - Private helpers
-@available(OSX 10.15, iOS 13.0, tvOS 13.0, watchOS 6.0, *)
+
 /// CombineLatest an array of input publishers in four-somes.
 ///
 /// - parameter input: An array of publishers
