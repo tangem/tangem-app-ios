@@ -21,6 +21,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
 
     private var stackCalculator: StackCalculator = .init()
     private var fanStackCalculator: FanStackCalculator = .init()
+    private var accessCode: String? = nil
+    private var cardIds: [String]? = nil
     private var stepPublisher: AnyCancellable?
 
 //    override var isBackButtonVisible: Bool {
@@ -448,9 +450,40 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         }
     }
 
+    override func saveUserWalletIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
+        var config = TangemSdkConfigFactory().makeDefaultConfig()
+        config.accessCodeRequestPolicy = .alwaysWithBiometrics
+        tangemSdkProvider.setup(with: config)
+
+        super.saveUserWalletIfNeeded { [weak self] result in
+            guard let self = self else {
+                completion(.failure(TangemSdkError.biometricsUnavailable))
+                return
+            }
+
+            switch result {
+            case .failure:
+                completion(result)
+            case .success:
+                if AppSettings.shared.saveAccessCodes,
+                   let accessCode = self.accessCode,
+                   let cardIds = self.cardIds
+                {
+                    self.tangemSdk.saveAccessCode(accessCode, for: cardIds, completion: completion)
+                } else {
+                    completion(.success(()))
+                }
+            }
+        }
+    }
+
     private func saveAccessCode(_ code: String) {
         do {
             try backupService.setAccessCode(code)
+
+            self.accessCode = code
+            self.cardIds = backupService.allCardIds
+
             Analytics.log(backupService.addedBackupCardsCount == 0 ? .cardCodeSave : .backupCardSave)
             Analytics.log(.createAccessCode)
             stackCalculator.setupNumberOfCards(1 + backupCardsAddedCount)
