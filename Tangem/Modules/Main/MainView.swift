@@ -48,7 +48,7 @@ struct MainView: View {
     }
 
     var shouldShowBalanceView: Bool {
-        if let walletModel = viewModel.cardModel.walletModels.first {
+        if let walletModel = viewModel.singleWalletModel {
             switch walletModel.state {
             case .idle, .loading, .failed:
                 return true
@@ -61,7 +61,7 @@ struct MainView: View {
     }
 
     var noAccountView: MessageView? {
-        if let walletModel = viewModel.cardModel.walletModels.first {
+        if let walletModel = viewModel.singleWalletModel {
             switch walletModel.state {
             case .noAccount(let message):
                 return MessageView(title: "wallet_error_no_account".localized, subtitle: message, type: .error)
@@ -110,17 +110,17 @@ struct MainView: View {
                 .padding(.horizontal, 16.0)
 
             if viewModel.canShowAddress {
-                if shouldShowBalanceView {
+                if shouldShowBalanceView, let singleWalletModel = viewModel.singleWalletModel {
                     BalanceView(
-                        balanceViewModel: viewModel.cardModel.walletModels.first!.balanceViewModel,
-                        tokenViewModels: viewModel.cardModel.walletModels.first!.tokenViewModels
+                        balanceViewModel: singleWalletModel.balanceViewModel,
+                        tokenViewModels: singleWalletModel.tokenViewModels
                     )
                     .padding(.horizontal, 16.0)
                 } else if let noAccountView = noAccountView {
                     noAccountView
                 }
 
-                if let walletModel = viewModel.cardModel.walletModels.first {
+                if let walletModel = viewModel.singleWalletModel {
                     AddressDetailView(showQr: $viewModel.showQR,
                                       selectedAddressIndex: $viewModel.selectedAddressIndex,
                                       showExplorerURL: $viewModel.showExplorerURL,
@@ -163,7 +163,7 @@ struct MainView: View {
                     VStack(spacing: 8.0) {
                         CardView(image: viewModel.image,
                                  width: geometry.size.width - 32,
-                                 cardSetLabel: viewModel.cardModel.cardSetLabel)
+                                 cardSetLabel: viewModel.cardSetLabel)
                             .fixedSize(horizontal: false, vertical: true)
 
                         if viewModel.isBackupAllowed {
