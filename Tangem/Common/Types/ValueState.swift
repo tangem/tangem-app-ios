@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// A simple enum to wrap a value to two states
 enum ValueState<Value> {
     case loading
     case loaded(_ value: Value)
