@@ -33,6 +33,7 @@ class MainViewModel: ObservableObject {
     @Published var showQR: Bool = false
     @Published var isOnboardingModal: Bool = true
     @Published var isLackDerivationWarningViewVisible: Bool = false
+    @Published var singleWalletModel: WalletModel? = nil
 
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
@@ -59,7 +60,9 @@ class MainViewModel: ObservableObject {
         tapOnCurrencySymbol: openCurrencySelection
     )
 
-    let cardModel: CardViewModel
+    var cardSetLabel: String? { cardModel.cardSetLabel }
+
+    private let cardModel: CardViewModel
     private let userWalletModel: UserWalletModel
 
     private var bag = Set<AnyCancellable>()
@@ -164,7 +167,11 @@ class MainViewModel: ObservableObject {
         self.cardModel = cardModel
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
+
+        // [REDACTED_TODO_COMMENT]
+        // separate on two ViewModels for multi and single wallet
         bind()
+        singleWalletBind()
 
         cardModel.setupWarnings()
         validateHashesCount()
@@ -214,6 +221,24 @@ class MainViewModel: ObservableObject {
             .store(in: &bag)
     }
 
+    func singleWalletBind() {
+        guard !isMultiWalletMode else { return }
+
+        userWalletModel.subscribeToWalletModels()
+            .map { walletModels in
+                walletModels
+                    .map { $0.objectWillChange }
+                    .combineLatest()
+                    .map { _ in walletModels }
+            }
+            .switchToLatest()
+            .receive(on: DispatchQueue.main)
+            .sink { [unowned self] walletModels in
+                singleWalletModel = walletModels.first
+            }
+            .store(in: &bag)
+    }
+
     func getDataCollector(for feedbackCase: EmailFeedbackCase) -> EmailDataCollector {
         switch feedbackCase {
         case .negativeFeedback:
@@ -238,18 +263,21 @@ class MainViewModel: ObservableObject {
 
     func onRefresh(_ done: @escaping () -> Void) {
         Analytics.log(.mainPageRefresh)
-        walletTokenListViewModel?.refreshTokens {
-            print("♻️ RefreshTokens success")
-            withAnimation {
-                done()
+        if cardModel.isMultiWallet {
+            walletTokenListViewModel?.refreshTokens {
+                print("♻️ RefreshTokens success")
+                withAnimation {
+                    done()
+                }
             }
+        } else {
+            userWalletModel.updateAndReloadWalletModels(completion: done)
         }
     }
 
     func onScan() {
         DispatchQueue.main.async {
             Analytics.log(.scanCardTapped)
-//            self.totalSumBalanceViewModel.update(with: [])
             self.coordinator.close(newScan: true)
         }
     }
@@ -269,8 +297,11 @@ class MainViewModel: ObservableObject {
     }
 
     func onAppear() {
-        walletTokenListViewModel?.onAppear()
-//        totalSumBalanceViewModel.updateBalance()
+        if cardModel.isMultiWallet {
+            walletTokenListViewModel?.onAppear()
+        } else {
+            userWalletModel.updateAndReloadWalletModels()
+        }
     }
 
     func deriveEntriesWithoutDerivation() {
