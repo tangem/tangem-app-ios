@@ -138,6 +138,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
     private let saveUserWalletOnFinish: Bool
 
     @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
+    @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
 
     init(input: OnboardingInput, saveUserWalletOnFinish: Bool, onboardingCoordinator: OnboardingRoutable) {
         self.input = input
@@ -147,6 +148,15 @@ class OnboardingViewModel<Step: OnboardingStep> {
         isNavBarVisible = input.isStandalone
 
         input.cardInput.cardModel.map { loadImage(for: $0) }
+
+        var config = TangemSdkConfigFactory().makeDefaultConfig()
+        config.accessCodeRequestPolicy = .default
+        tangemSdkProvider.setup(with: config)
+    }
+
+    deinit {
+        let config = TangemSdkConfigFactory().makeDefaultConfig()
+        tangemSdkProvider.setup(with: config)
     }
 
     private func loadImage(for cardModel: CardViewModel) {
@@ -200,14 +210,25 @@ class OnboardingViewModel<Step: OnboardingStep> {
 
     func goToNextStep() {
         if isOnboardingFinished {
-            DispatchQueue.main.async {
-                self.onboardingDidFinish()
+            let completion: (Result<Void, TangemSdkError>) -> Void = { [weak self] result in
+                guard let self = self else { return }
+
+                switch result {
+                case .failure(let error):
+                    print("Failed to complete onboarding", error)
+                case .success:
+                    DispatchQueue.main.async {
+                        self.onboardingDidFinish()
+                    }
+
+                    self.onOnboardingFinished(for: self.input.cardInput.cardId)
+                }
             }
 
-            onOnboardingFinished(for: input.cardInput.cardId)
-
             if saveUserWalletOnFinish {
-                saveUserWalletIfNeeded()
+                saveUserWalletIfNeeded(completion: completion)
+            } else {
+                completion(.success(()))
             }
 
             return
@@ -271,12 +292,19 @@ class OnboardingViewModel<Step: OnboardingStep> {
                     return
                 }
                 print("Failed to get access to biometry", error)
+                self?.goToNextStep()
             case .success:
                 AppSettings.shared.saveUserWallets = true
                 AppSettings.shared.saveAccessCodes = true
-                self?.saveUserWalletIfNeeded()
+                self?.saveUserWalletIfNeeded { result in
+                    switch result {
+                    case .failure(let error):
+                        print("Failed to save user wallet", error)
+                    case .success:
+                        self?.goToNextStep()
+                    }
+                }
             }
-            self?.goToNextStep()
         }
     }
 
@@ -284,18 +312,21 @@ class OnboardingViewModel<Step: OnboardingStep> {
         AppSettings.shared.askedToSaveUserWallets = true
     }
 
-    private func saveUserWalletIfNeeded() {
+    func saveUserWalletIfNeeded(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
         guard
             AppSettings.shared.saveUserWallets,
             let userWallet = input.cardInput.cardModel?.userWallet,
             !userWalletListService.contains(userWallet)
         else {
+            completion(.success(()))
             return
         }
 
         if userWalletListService.save(userWallet) {
             userWalletListService.selectedUserWalletId = userWallet.userWalletId
         }
+
+        completion(.success(()))
     }
 }
 
