@@ -54,7 +54,7 @@ class MainViewModel: ObservableObject {
 
     lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
         userWalletModel: userWalletModel,
-        totalBalanceManager: TotalBalanceManager(userWalletModel: userWalletModel),
+        totalBalanceManager: TotalBalanceProvider(userWalletModel: userWalletModel),
         isSingleCoinCard: !cardModel.isMultiWallet,
         tapOnCurrencySymbol: openCurrencySelection
     )
@@ -249,7 +249,7 @@ class MainViewModel: ObservableObject {
     func onScan() {
         DispatchQueue.main.async {
             Analytics.log(.scanCardTapped)
-            self.totalSumBalanceViewModel.update(with: [])
+//            self.totalSumBalanceViewModel.update(with: [])
             self.coordinator.close(newScan: true)
         }
     }
