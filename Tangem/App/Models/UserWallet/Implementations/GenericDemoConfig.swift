@@ -53,11 +53,7 @@ extension GenericDemoConfig: UserWalletConfig {
     }
 
     var cardSetLabel: String? {
-        guard let backupCardsCount = card.backupStatus?.backupCardsCount else {
-            return nil
-        }
-
-        return String.localizedStringWithFormat("card_label_card_count".localized, backupCardsCount + 1)
+        String.localizedStringWithFormat("card_label_card_count".localized, cardsCount + 1)
     }
 
     var cardsCount: Int {
