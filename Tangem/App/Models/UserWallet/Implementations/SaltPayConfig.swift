@@ -14,6 +14,7 @@ import BlockchainSdk
 
 struct SaltPayConfig {
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
+    @Injected(\.loggerProvider) var loggerProvider: LoggerProviding
 
     private let card: Card
     private let walletData: WalletData
@@ -48,6 +49,23 @@ struct SaltPayConfig {
 }
 
 extension SaltPayConfig: UserWalletConfig {
+    var sdkConfig: Config {
+        var config = Config()
+        config.filter.allowedCardTypes = [.release, .sdk]
+        config.logConfig = Log.Config.custom(logLevel: Log.Level.allCases,
+                                             loggers: [loggerProvider.logger, ConsoleLogger()])
+        config.filter.batchIdFilter = .deny(["0027", // todo: tangem tags
+                                             "0030",
+                                             "0031",
+                                             "0035"])
+
+        config.filter.cardIdFilter = .allow([])
+
+        config.filter.issuerFilter = .deny(["TTM BANK"])
+        config.allowUntrustedCards = true
+        return config
+    }
+
     var emailConfig: EmailConfig {
         .default
     }
