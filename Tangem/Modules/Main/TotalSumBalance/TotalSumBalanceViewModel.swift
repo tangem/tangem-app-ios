@@ -77,14 +77,12 @@ class TotalSumBalanceViewModel: ObservableObject {
             // Hack with delay until rebuild the "update flow" in WalletModel
             .delay(for: 0.2, scheduler: DispatchQueue.main)
             .sink { [unowned self] walletModels in
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                    self.updateForSingleCoinCard(tokenModels: walletModels)
-                }
+                updateForSingleCoinCard(tokenModels: walletModels)
                 updateBalance()
             }
             .store(in: &bag)
 
-        totalBalanceManager.subscribeToTotalBalance()
+        totalBalanceManager.totalBalancePublisher()
             .compactMap { $0.value }
             .map { [unowned self] balance in
                 addAttributeForBalance(balance.balance, withCurrencyCode: balance.currency.code)
@@ -92,13 +90,13 @@ class TotalSumBalanceViewModel: ObservableObject {
             .weakAssign(to: \.totalFiatValueString, on: self)
             .store(in: &bag)
 
-        totalBalanceManager.subscribeToTotalBalance()
+        totalBalanceManager.totalBalancePublisher()
             .compactMap { $0.value?.hasError }
             .removeDuplicates()
             .weakAssign(to: \.hasError, on: self)
             .store(in: &bag)
 
-        totalBalanceManager.subscribeToTotalBalance()
+        totalBalanceManager.totalBalancePublisher()
             .map { $0.isLoading }
             .filter { !$0 }
             .debounce(for: 0.5, scheduler: DispatchQueue.main)
