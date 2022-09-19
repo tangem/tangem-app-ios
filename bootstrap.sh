@@ -27,7 +27,7 @@ echo "✅ Dependencies succesfully installed"
 echo "🚀 Running SwiftFormat"
 mint run swiftformat@0.49.11 . --config .swiftformat
 
-echo "🚀 Running SwiftFormat"
+echo "🚀 Running SwiftGen"
 mint run swiftgen@6.5.1 config run --config swiftgen.yml 
 
 echo "Bootstrap competed 🎉"
