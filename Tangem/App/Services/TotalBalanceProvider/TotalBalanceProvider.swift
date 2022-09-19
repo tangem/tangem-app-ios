@@ -12,7 +12,7 @@ import Foundation
 class TotalBalanceProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     private let userWalletModel: UserWalletModel
-    private let totalBalanceSubject = CurrentValueSubject<ValueState<TotalBalance>, Never>(.loading)
+    private let totalBalanceSubject = CurrentValueSubject<LoadingValue<TotalBalance>, Never>(.loading)
     private var refreshSubscription: AnyCancellable?
 
     init(userWalletModel: UserWalletModel) {
@@ -23,7 +23,7 @@ class TotalBalanceProvider {
 // MARK: - TotalBalanceProviding
 
 extension TotalBalanceProvider: TotalBalanceProviding {
-    func subscribeToTotalBalance() -> AnyPublisher<ValueState<TotalBalance>, Never> {
+    func totalBalancePublisher() -> AnyPublisher<LoadingValue<TotalBalance>, Never> {
         totalBalanceSubject.eraseToAnyPublisher()
     }
 
