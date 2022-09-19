@@ -60,8 +60,6 @@ class MainViewModel: ObservableObject {
         tapOnCurrencySymbol: openCurrencySelection
     )
 
-    var cardSetLabel: String? { cardModel.cardSetLabel }
-
     private let cardModel: CardViewModel
     private let userWalletModel: UserWalletModel
     private let cardImageProvider: CardImageProviding
