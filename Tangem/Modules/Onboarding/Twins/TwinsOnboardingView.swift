@@ -111,7 +111,7 @@ struct TwinsOnboardingView: View {
                         }
 
                         if viewModel.isBiometryLogoVisible {
-                            BiometryLogoImage()
+                            BiometryLogoImage.image
                         }
                     }
                     .frame(size: geom.size)
