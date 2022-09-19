@@ -12,13 +12,17 @@ import SwiftUI
 final class UserWalletStorageAgreementViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
+    let showButtons: Bool
+
     // MARK: - Dependencies
 
     private unowned let coordinator: UserWalletStorageAgreementRoutable
 
     init(
+        showButtons: Bool,
         coordinator: UserWalletStorageAgreementRoutable
     ) {
+        self.showButtons = showButtons
         self.coordinator = coordinator
     }
 
