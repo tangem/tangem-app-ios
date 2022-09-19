@@ -23,7 +23,7 @@ struct WarningBankCardView: View {
                 .padding(30)
 
             Text("russian_bank_card_warning_subtitle".localized)
-                .frame(minHeight: 1)
+                .fixedSize(horizontal: false, vertical: true)
                 .font(.system(size: 15, weight: .regular))
                 .padding(.top, 50)
                 .padding([.horizontal, .bottom], 30)
