@@ -46,7 +46,12 @@ class MainCoordinator: CoordinatorObject {
             return
         }
 
-        mainViewModel = MainViewModel(cardModel: options.cardModel, userWalletModel: userWalletModel, coordinator: self)
+        mainViewModel = MainViewModel(
+            cardModel: options.cardModel,
+            userWalletModel: userWalletModel,
+            cardImageProvider: CardImageProvider(supportsOnlineImage: options.cardModel.supportsOnlineImage),
+            coordinator: self
+        )
     }
 }
 
