@@ -8,8 +8,6 @@
 
 import Foundation
 import BlockchainSdk
-import struct TangemSdk.DerivationPath
-import Network
 
 class CommonTokenItemsRepository {
     @Injected(\.persistentStorage) var persistanceStorage: PersistentStorageProtocol
@@ -31,6 +29,12 @@ class CommonTokenItemsRepository {
 // MARK: - TokenItemsRepository
 
 extension CommonTokenItemsRepository: TokenItemsRepository {
+    func update(_ entries: [StorageEntry]) {
+        lockQueue.sync {
+            save(entries, for: key)
+        }
+    }
+
     func append(_ entries: [StorageEntry]) {
         lockQueue.sync {
             var items = fetch(for: key)
@@ -112,9 +116,11 @@ private extension CommonTokenItemsRepository {
 
             let newData: [StorageEntry] = blockchains.map { blockchain in
                 let tokens = groupedTokens[blockchain]?.map { $0.newToken } ?? []
-                return StorageEntry(blockchainNetwork: BlockchainNetwork(blockchain,
-                                                                         derivationPath: blockchain.derivationPath(for: .legacy)),
-                                    tokens: tokens)
+                let network = BlockchainNetwork(
+                    blockchain,
+                    derivationPath: blockchain.derivationPath(for: .legacy)
+                )
+                return StorageEntry(blockchainNetwork: network, tokens: tokens)
             }
 
             save(newData, for: cardId)
@@ -183,11 +189,6 @@ fileprivate extension Array where Element == StorageEntry {
 
         return false
     }
-}
-
-struct StorageEntry: Hashable, Codable, Equatable {
-    let blockchainNetwork: BlockchainNetwork
-    var tokens: [BlockchainSdk.Token]
 }
 
 // MARK: - Legacy storage
