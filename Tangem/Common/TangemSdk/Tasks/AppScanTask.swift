@@ -109,7 +109,6 @@ final class AppScanTask: CardSessionRunnable {
                 deriveKeysIfNeeded(session, completion)
                 return
             }
-
         }
 
         self.runScanTask(session, completion)
@@ -241,18 +240,18 @@ final class AppScanTask: CardSessionRunnable {
         self.runScanTask(session, completion)
         return
         #else
-        guard session.environment.card?.settings.isHDWalletAllowed == true else {
-            self.runScanTask(session, completion)
-            return
-        }
-
-
         guard let card = session.environment.card else {
             completion(.failure(.missingPreflightRead))
             return
         }
 
-        let tokenItemsRepository = CommonTokenItemsRepository(key: card.cardId)
+        guard !card.wallets.isEmpty, card.settings.isHDWalletAllowed else {
+            self.runScanTask(session, completion)
+            return
+        }
+
+        migrate(card: card)
+        let tokenItemsRepository = CommonTokenItemsRepository(key: card.userWalletId.hexString)
 
         // Force add blockchains for demo cards
         let config = GenericConfig(card: card)
@@ -295,8 +294,31 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func complete(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        completion(.success(AppScanTaskResponse(card: session.environment.card!,
+        guard let card = session.environment.card else {
+            completion(.failure(.missingPreflightRead))
+            return
+        }
+
+        #if !CLIP
+        migrate(card: card)
+        #endif
+
+        completion(.success(AppScanTaskResponse(card: card,
                                                 walletData: walletData,
                                                 primaryCard: primaryCard)))
     }
+
+    #if !CLIP
+    private func migrate(card: Card) {
+        let config = UserWalletConfigFactory(CardInfo(card: card, walletData: walletData)).makeConfig()
+        if let legacyCardMigrator = LegacyCardMigrator(cardId: card.cardId, config: config) {
+            legacyCardMigrator.migrateIfNeeded()
+        }
+
+        if card.hasWallets {
+            let tokenMigrator = TokenItemsRepositoryMigrator(cardId: card.cardId, userWalletId: card.userWalletId)
+            tokenMigrator.migrate()
+        }
+    }
+    #endif
 }
