@@ -10,6 +10,15 @@ import SwiftUI
 
 struct BiometryLogoImage: View {
     var body: some View {
-        Assets.Biometry.faceId
+        switch BiometricAuthorizationUtils.biometryType {
+        case .faceID:
+            Assets.Biometry.faceId
+        case .touchID:
+            Assets.Biometry.touchId
+        case .none:
+            EmptyView()
+        @unknown default:
+            EmptyView()
+        }
     }
 }
