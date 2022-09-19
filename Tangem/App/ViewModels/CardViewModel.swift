@@ -20,7 +20,6 @@ struct CardPinSettings {
 
 class CardViewModel: Identifiable, ObservableObject {
     // MARK: Services
-    @Injected(\.cardImageLoader) var imageLoader: CardImageLoaderProtocol
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
@@ -31,6 +30,11 @@ class CardViewModel: Identifiable, ObservableObject {
 
     var cardId: String { cardInfo.card.cardId }
     var userWalletId: Data { cardInfo.card.userWalletId }
+    var cardPublicKey: Data { cardInfo.card.cardPublicKey }
+
+    var supportsOnlineImage: Bool {
+        config.hasFeature(.onlineImage)
+    }
 
     var isMultiWallet: Bool {
         config.hasFeature(.multiCurrency)
@@ -207,28 +211,6 @@ class CardViewModel: Identifiable, ObservableObject {
 
     var canExchangeCrypto: Bool { config.hasFeature(.exchange) }
 
-    var cachedImage: UIImage? = nil
-
-    var imageLoaderPublisher: AnyPublisher<UIImage, Never> {
-        if let cached = cachedImage {
-            return Just(cached).eraseToAnyPublisher()
-        }
-
-        return self.imageLoader
-            .loadImage(cid: cardId,
-                       cardPublicKey: cardInfo.card.cardPublicKey,
-                       artworkInfo: cardInfo.artworkInfo)
-            .map { [weak self] (image, canBeCached) -> UIImage in
-                if canBeCached {
-                    self?.cachedImage = image
-                }
-
-                return image
-            }
-            .receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
-    }
-
     private var searchBlockchainsCancellable: AnyCancellable? = nil
     private var bag = Set<AnyCancellable>()
 
@@ -372,26 +354,6 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     // MARK: - Update
-
-    func getCardInfo() {
-        cardInfo.artwork = .notLoaded
-        guard config.hasFeature(.onlineImage) else {
-            cardInfo.artwork = .noArtwork
-            return
-        }
-
-        tangemSdk.loadCardInfo(cardPublicKey: cardInfo.card.cardPublicKey, cardId: cardId) { [weak self] result in
-            guard let self = self else { return }
-
-            switch result {
-            case .success(let info):
-                self.cardInfo.artwork = info.artwork.map { .artwork($0) } ?? .noArtwork
-            case .failure:
-                self.cardInfo.artwork = .noArtwork
-                self.warningsService.setupWarnings(for: self.config)
-            }
-        }
-    }
 
     func update(with card: Card) {
         print("🔄 Updating CardViewModel with new Card")
