@@ -13,6 +13,8 @@ struct CardView: View {
     var width: CGFloat
     var cardSetLabel: String?
 
+    private let walletImageAspectRatio = 1.5888252149
+
     var body: some View {
         ZStack(alignment: .bottomLeading) {
             if let image = image {
@@ -26,7 +28,7 @@ struct CardView: View {
                 Color.tangemGrayLight4
                     .transition(.opacity)
                     .opacity(0.5)
-                    .frame(width: width, height: 190, alignment: .center)
+                    .frame(minWidth: width, maxWidth: width, minHeight: width / walletImageAspectRatio, alignment: .center)
                     .cornerRadius(6)
                     .padding(.vertical, verticalPadding)
             }
