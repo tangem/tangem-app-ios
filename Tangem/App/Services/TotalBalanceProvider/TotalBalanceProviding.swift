@@ -9,6 +9,6 @@
 import Combine
 
 protocol TotalBalanceProviding {
-    func subscribeToTotalBalance() -> AnyPublisher<ValueState<TotalBalanceProvider.TotalBalance>, Never>
+    func totalBalancePublisher() -> AnyPublisher<LoadingValue<TotalBalanceProvider.TotalBalance>, Never>
     func updateTotalBalance()
 }
