@@ -18,36 +18,60 @@ struct UserWalletStorageAgreementView: View {
     #warning("l10n")
     var body: some View {
         VStack(spacing: 0) {
+            if viewModel.showButtons {
+                HStack {
+                    Spacer()
+
+                    Button("Skip", action: viewModel.decline)
+                        .foregroundColor(Colors.Text.primary1)
+                }
+            }
+
             Spacer()
 
-            BiometryLogoImage()
-                .padding(.bottom, 28)
+            VStack(spacing: 0) {
+                BiometryLogoImage.image
 
-            VStack(spacing: 14) {
-                newFeatureBadge
+                FlexibleSpacer(maxHeight: 28)
 
-                Text("Would you like to keep wallet on this device?")
+                Text("Would you like to use Face ID?")
                     .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                     .multilineTextAlignment(.center)
 
-                Text("Save your Wallet feature allows you to use your wallet with biometric auth without tapping your card to the phone to gain access")
-                    .style(Fonts.Regular.callout, color: Colors.Text.secondary)
-                    .multilineTextAlignment(.center)
+                FlexibleSpacer(maxHeight: 28)
+
+                newFeatureBadge
             }
-            .padding(.horizontal, 39)
 
             Spacer()
 
-            VStack(spacing: 10) {
-                TangemButton(title: "Accept", action: viewModel.accept)
-                    .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
+            VStack(spacing: 0) {
+                FeatureDescriptionView(
+                    icon: BiometryLogoImage.image,
+                    title: "Access the app",
+                    description: "Log into the app and watch your balance without scanning the card"
+                )
 
-                TangemButton(title: "Decline", action: viewModel.decline)
-                    .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt3, layout: .flexibleWidth))
+                FlexibleSpacer(maxHeight: 28)
 
-                Text("Keep notice, making a transaction with your funds will still require card tapping")
-                    .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                    .multilineTextAlignment(.center)
+                FeatureDescriptionView(
+                    icon: Assets.lock,
+                    title: "Access code",
+                    description: "Face ID will be requested instead of the access code for interactions with your wallet"
+                )
+            }
+
+            Spacer()
+
+            if viewModel.showButtons {
+                VStack(spacing: 10) {
+                    TangemButton(title: "Allow to link wallet", action: viewModel.accept)
+                        .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
+
+                    Text("Keep notice, making a transaction with your funds will still require card tapping")
+                        .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
+                        .multilineTextAlignment(.center)
+                }
             }
         }
         .padding()
@@ -60,5 +84,49 @@ struct UserWalletStorageAgreementView: View {
             .padding(.horizontal, 10)
             .background(Colors.Text.accent.opacity(0.12))
             .cornerRadius(8)
+    }
+}
+
+fileprivate extension UserWalletStorageAgreementView {
+    struct FlexibleSpacer: View {
+        let maxHeight: CGFloat
+
+        var body: some View {
+            Spacer()
+                .frame(maxHeight: maxHeight)
+        }
+    }
+
+    struct FeatureDescriptionView: View {
+        let icon: Image
+        let title: String
+        let description: String
+
+        private let iconSize: Double = 42
+
+        var body: some View {
+            HStack(spacing: 16) {
+                Colors.Background.secondary
+                    .frame(width: iconSize, height: iconSize)
+                    .cornerRadius(iconSize / 2)
+                    .overlay(
+                        icon
+                            .resizable()
+                            .renderingMode(.template)
+                            .foregroundColor(Colors.Text.primary1)
+                            .padding(.all, 11)
+                    )
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(title)
+                        .style(Fonts.Bold.callout, color: Colors.Text.primary1)
+
+                    Text(description)
+                        .style(Fonts.Regular.subheadline, color: Colors.Text.secondary)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 16)
+        }
     }
 }
