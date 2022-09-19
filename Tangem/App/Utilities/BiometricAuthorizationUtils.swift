@@ -24,6 +24,13 @@ enum BiometricAuthorizationUtils {
 
         return .available
     }
+
+    static var biometryType: LABiometryType {
+        let context = LAContext()
+        var error: NSError?
+        let canEvaluatePolicy = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
+        return context.biometryType
+    }
 }
 
 extension BiometricAuthorizationUtils {
