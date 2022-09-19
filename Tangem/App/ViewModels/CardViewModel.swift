@@ -700,7 +700,9 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func updateUserWallet() {
-        guard let userWallet = self.userWallet else { return }
+        let userWallet = UserWalletFactory().userWallet(from: self)
+
+        userWalletModel?.setUserWallet(userWallet)
 
         if userWalletListService.contains(userWallet) {
             let _ = userWalletListService.save(userWallet)
