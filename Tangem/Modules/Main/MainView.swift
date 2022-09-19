@@ -139,13 +139,15 @@ struct MainView: View {
     @ViewBuilder
     var multiWalletContent: some View {
         Group {
-            if !viewModel.tokenItemViewModels.isEmpty {
+            if !viewModel.tokenListIsEmpty {
                 TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel)
                     .padding(.horizontal, 16)
                     .padding(.bottom, 6)
             }
 
-            TokensView(items: viewModel.tokenItemViewModels, action: viewModel.openTokenDetails)
+            if let walletTokenListViewModel = viewModel.walletTokenListViewModel {
+                WalletTokenListView(viewModel: walletTokenListViewModel)
+            }
 
             AddTokensView(action: viewModel.openTokensList)
                 .padding(.horizontal, 16)
@@ -161,11 +163,16 @@ struct MainView: View {
                     VStack(spacing: 8.0) {
                         CardView(image: viewModel.image,
                                  width: geometry.size.width - 32,
-                                 cardSetLabel: viewModel.cardModel.cardSetLabel)
+                                 cardSetLabel: viewModel.cardsCountLabel)
                             .fixedSize(horizontal: false, vertical: true)
 
                         if viewModel.isBackupAllowed {
                             backupWarningView
+                        }
+
+                        if viewModel.isLackDerivationWarningViewVisible {
+                            ScanCardWarningView(action: viewModel.deriveEntriesWithoutDerivation)
+                                .padding(.horizontal, 16)
                         }
 
                         WarningListView(warnings: viewModel.warnings, warningButtonAction: {
@@ -194,7 +201,7 @@ struct MainView: View {
         .navigationBarTitle("wallet_title", displayMode: .inline)
         .navigationBarItems(leading: scanNavigationButton,
                             trailing: settingsNavigationButton)
-        .background(Color.tangemBgGray.edgesIgnoringSafeArea(.all))
+        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .onAppear {
             viewModel.onAppear()
         }
