@@ -175,7 +175,7 @@ class MainViewModel: ObservableObject {
         // [REDACTED_TODO_COMMENT]
         // separate on two ViewModels for multi and single wallet
         bind()
-        singleWalletBind()
+        bindSingleWallet()
 
         cardModel.setupWarnings()
         validateHashesCount()
@@ -225,7 +225,7 @@ class MainViewModel: ObservableObject {
             .store(in: &bag)
     }
 
-    func singleWalletBind() {
+    func bindSingleWallet() {
         guard !isMultiWalletMode else { return }
 
         userWalletModel.subscribeToWalletModels()
