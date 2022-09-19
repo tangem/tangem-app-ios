@@ -8,17 +8,17 @@
 
 import SwiftUI
 
-struct BiometryLogoImage: View {
-    var body: some View {
+struct BiometryLogoImage {
+    static var image: Image {
         switch BiometricAuthorizationUtils.biometryType {
         case .faceID:
-            Assets.Biometry.faceId
+            return Assets.Biometry.faceId
         case .touchID:
-            Assets.Biometry.touchId
+            return Assets.Biometry.touchId
         case .none:
-            EmptyView()
+            return Image(name: "")
         @unknown default:
-            EmptyView()
+            return Image(name: "")
         }
     }
 }
