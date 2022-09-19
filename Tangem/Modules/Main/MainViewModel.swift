@@ -167,7 +167,11 @@ class MainViewModel: ObservableObject {
         cardModel.canShowSend
     }
 
-    init(cardModel: CardViewModel, userWalletModel: UserWalletModel, coordinator: MainRoutable) {
+    init(
+        cardModel: CardViewModel,
+        userWalletModel: UserWalletModel,
+        coordinator: MainRoutable
+    ) {
         self.cardModel = cardModel
         self.userWalletModel = userWalletModel
         self.coordinator = coordinator
@@ -193,11 +197,6 @@ class MainViewModel: ObservableObject {
             .sink { [unowned self] entries in
                 updateLackDerivationWarningView(entries: entries)
             }
-            .store(in: &bag)
-
-        cardModel
-            .imageLoaderPublisher
-            .weakAssignAnimated(to: \.image, on: self)
             .store(in: &bag)
 
         warningsService.warningsUpdatePublisher
@@ -277,6 +276,9 @@ class MainViewModel: ObservableObject {
         } else {
             userWalletModel.updateAndReloadWalletModels(completion: done)
         }
+        } else {
+            userWalletModel.updateAndReloadWalletModels(completion: done)
+        }
     }
 
     func onScan() {
@@ -306,6 +308,10 @@ class MainViewModel: ObservableObject {
         } else {
             userWalletModel.updateAndReloadWalletModels()
         }
+        CardImageProvider(supportsOnlineImage: cardModel.supportsOnlineImage)
+            .loadImage(cardId: cardModel.cardId, cardPublicKey: cardModel.cardPublicKey)
+            .weakAssignAnimated(to: \.image, on: self)
+            .store(in: &bag)
     }
 
     func deriveEntriesWithoutDerivation() {
