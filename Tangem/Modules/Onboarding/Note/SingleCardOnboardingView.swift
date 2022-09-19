@@ -90,7 +90,7 @@ struct SingleCardOnboardingView: View {
                             .opacity(currentStep.successCircleOpacity)
 
                         if viewModel.isBiometryLogoVisible {
-                            BiometryLogoImage()
+                            BiometryLogoImage.image
                         }
                     }
                     .position(x: size.width / 2, y: size.height / 2)
