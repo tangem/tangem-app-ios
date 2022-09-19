@@ -64,6 +64,7 @@ class MainViewModel: ObservableObject {
 
     private let cardModel: CardViewModel
     private let userWalletModel: UserWalletModel
+    private let cardImageProvider: CardImageProviding
 
     private var bag = Set<AnyCancellable>()
     private var isHashesCounted = false
@@ -170,10 +171,12 @@ class MainViewModel: ObservableObject {
     init(
         cardModel: CardViewModel,
         userWalletModel: UserWalletModel,
+        cardImageProvider: CardImageProviding,
         coordinator: MainRoutable
     ) {
         self.cardModel = cardModel
         self.userWalletModel = userWalletModel
+        self.cardImageProvider = cardImageProvider
         self.coordinator = coordinator
 
         // [REDACTED_TODO_COMMENT]
@@ -276,9 +279,6 @@ class MainViewModel: ObservableObject {
         } else {
             userWalletModel.updateAndReloadWalletModels(completion: done)
         }
-        } else {
-            userWalletModel.updateAndReloadWalletModels(completion: done)
-        }
     }
 
     func onScan() {
@@ -308,7 +308,8 @@ class MainViewModel: ObservableObject {
         } else {
             userWalletModel.updateAndReloadWalletModels()
         }
-        CardImageProvider(supportsOnlineImage: cardModel.supportsOnlineImage)
+
+        cardImageProvider
             .loadImage(cardId: cardModel.cardId, cardPublicKey: cardModel.cardPublicKey)
             .weakAssignAnimated(to: \.image, on: self)
             .store(in: &bag)
