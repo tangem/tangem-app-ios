@@ -12,8 +12,8 @@ import SwiftUI
 final class UserWalletListViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
     @Published var selectedUserWalletId: Data?
-    @Published var multiCurrencyModels: [CardViewModel] = []
-    @Published var singleCurrencyModels: [CardViewModel] = []
+    @Published var multiCurrencyModels: [UserWalletListCellViewModel] = []
+    @Published var singleCurrencyModels: [UserWalletListCellViewModel] = []
     @Published var isScanningCard = false
     @Published var error: AlertBinder?
     @Published var showTroubleshootingView: Bool = false
@@ -42,8 +42,8 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             initialized = true
 
             for model in (multiCurrencyModels + singleCurrencyModels) {
-                model.getCardInfo()
-                model.userWalletModel?.updateAndReloadWalletModels(showProgressLoading: true)
+                model.updateTotalBalance()
+                model.loadImage()
             }
 
             selectedUserWalletId = userWalletListService.selectedUserWalletId
@@ -51,12 +51,15 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     }
 
     func updateModels() {
-        multiCurrencyModels = userWalletListService.models.filter { $0.isMultiWallet }
-        singleCurrencyModels = userWalletListService.models.filter { !$0.isMultiWallet }
-    }
+        multiCurrencyModels = userWalletListService.models
+            .filter { $0.isMultiWallet }
+            .compactMap { $0.userWalletModel }
+            .map(mapToUserWalletListCellViewModel(userWalletModel:))
 
-    func onUserWalletTapped(_ userWallet: UserWallet) {
-        setSelectedWallet(userWallet)
+        singleCurrencyModels = userWalletListService.models
+            .filter { !$0.isMultiWallet }
+            .compactMap { $0.userWalletModel }
+            .map(mapToUserWalletListCellViewModel(userWalletModel:))
     }
 
     func addUserWallet() {
@@ -82,7 +85,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         }
     }
 
-    func editUserWallet(_ userWallet: UserWallet) {
+    func editUserWallet(_ viewModel: UserWalletListCellViewModel) {
         #warning("l10n")
         let alert = UIAlertController(title: "Rename Wallet", message: nil, preferredStyle: .alert)
         let cancelAction = UIAlertAction(title: "common_cancel".localized, style: .cancel) { _ in }
@@ -92,13 +95,13 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         alert.addTextField { textField in
             nameTextField = textField
             nameTextField?.placeholder = "Wallet name"
-            nameTextField?.text = userWallet.name
+            nameTextField?.text = viewModel.name
             nameTextField?.clearButtonMode = .whileEditing
             nameTextField?.autocapitalizationType = .sentences
         }
 
         let acceptButton = UIAlertAction(title: "common_ok".localized, style: .default) { [weak self, nameTextField] _ in
-            var newUserWallet = userWallet
+            var newUserWallet = viewModel.userWallet
             newUserWallet.name = nameTextField?.text ?? ""
 
             let _ = self?.userWalletListService.save(newUserWallet)
@@ -109,14 +112,13 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         UIApplication.modalFromTop(alert)
     }
 
-    func deleteUserWallet(_ userWallet: UserWallet) {
-        let userWalletId = userWallet.userWalletId
+    func deleteUserWallet(_ viewModel: UserWalletListCellViewModel) {
         let models = userWalletListService.models
 
         let newSelectedUserWallet: UserWallet?
 
-        if userWalletId == selectedUserWalletId,
-           let deletedUserWalletIndex = models.firstIndex(where: { $0.userWallet?.userWalletId == userWalletId })
+        if viewModel.userWalletId == selectedUserWalletId,
+           let deletedUserWalletIndex = models.firstIndex(where: { $0.userWallet?.userWalletId == viewModel.userWalletId })
         {
             if deletedUserWalletIndex != (models.count - 1) {
                 newSelectedUserWallet = models[deletedUserWalletIndex + 1].userWallet
@@ -131,9 +133,9 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
         let oldModelSections = [multiCurrencyModels, singleCurrencyModels]
 
-        userWalletListService.delete(userWallet)
-        multiCurrencyModels.removeAll { $0.userWallet?.userWalletId == userWallet.userWalletId }
-        singleCurrencyModels.removeAll { $0.userWallet?.userWalletId == userWallet.userWalletId }
+        userWalletListService.delete(viewModel.userWallet)
+        multiCurrencyModels.removeAll { $0.userWalletId == viewModel.userWalletId }
+        singleCurrencyModels.removeAll { $0.userWalletId == viewModel.userWalletId }
 
         if let newSelectedUserWallet = newSelectedUserWallet {
             setSelectedWallet(newSelectedUserWallet)
@@ -175,7 +177,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
                 let onboardingInput = cardModel.onboardingInput
                 if onboardingInput.steps.needOnboarding {
-                    cardModel.userWalletModel?.updateAndReloadWalletModels(showProgressLoading: true)
+                    cardModel.userWalletModel?.updateAndReloadWalletModels()
                     self?.openOnboarding(with: onboardingInput)
                 } else {
                     completion(cardModel)
@@ -195,13 +197,17 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
         if userWalletListService.save(userWallet) {
             let newModel = CardViewModel(userWallet: userWallet)
-            if newModel.isMultiWallet {
-                multiCurrencyModels.append(newModel)
-            } else {
-                singleCurrencyModels.append(newModel)
+
+            if let cellModel = newModel.userWalletModel.map(mapToUserWalletListCellViewModel(userWalletModel:)) {
+
+                if newModel.isMultiWallet {
+                    multiCurrencyModels.append(cellModel)
+                } else {
+                    singleCurrencyModels.append(cellModel)
+                }
+
+                cellModel.updateTotalBalance()
             }
-            newModel.getCardInfo()
-            newModel.userWalletModel?.updateAndReloadWalletModels(showProgressLoading: true)
 
             setSelectedWallet(userWallet)
 
@@ -240,8 +246,9 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                     return
                 }
 
-                selectedModel.getCardInfo()
-                selectedModel.userWalletModel?.updateAndReloadWalletModels(showProgressLoading: true)
+                // [REDACTED_TODO_COMMENT]
+//                selectedModel.getCardInfo()
+//                selectedModel.userWalletModel?.updateAndReloadWalletModels(showProgressLoading: true)
 
                 self?.updateModels()
 
@@ -256,7 +263,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         }
     }
 
-    private func updateHeight(oldModelSections: [[CardViewModel]]) {
+    private func updateHeight(oldModelSections: [[UserWalletListCellViewModel]]) {
         let newModelSections = [multiCurrencyModels, singleCurrencyModels]
 
         let cellHeight = UserWalletListCellView.hardcodedHeight
@@ -271,5 +278,49 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         let heightDifference = cellHeight * Double(newNumberOfModels - oldNumberOfModels) + headerHeight * Double(newNumberOfSections - oldNumberOfSections)
 
         bottomSheetHeightUpdateCallback?(.changeHeight(byValue: heightDifference))
+    }
+
+    private func getNumberOfTokens(for userWallet: UserWallet) -> String? {
+        let numberOfBlockchainsPerItem = 1
+        let items = CommonTokenItemsRepository(key: userWallet.userWalletId.hexString).getItems()
+        let numberOfTokens = items.reduce(0) { sum, walletModel in
+            sum + numberOfBlockchainsPerItem + walletModel.tokens.count
+        }
+
+        if numberOfTokens == 0 {
+            return nil
+        }
+
+        return "\(numberOfTokens) tokens"
+    }
+
+    private func mapToUserWalletListCellViewModel(userWalletModel: UserWalletModel) -> UserWalletListCellViewModel {
+        let userWallet = userWalletModel.userWallet
+        let config = UserWalletConfigFactory(userWallet.cardInfo()).makeConfig()
+        let subtitle: String = {
+            if let embeddedBlockchain = config.embeddedBlockchain {
+                return embeddedBlockchain.blockchainNetwork.blockchain.displayName
+            }
+
+            let count = config.cardsCount
+            switch count {
+            case 1:
+                return "\(count) Card"
+            default:
+                return "\(count) Cards"
+            }
+        }()
+
+        return UserWalletListCellViewModel(
+            userWallet: userWallet,
+            subtitle: subtitle,
+            numberOfTokens: getNumberOfTokens(for: userWallet),
+            isUserWalletLocked: userWallet.isLocked,
+            isSelected: selectedUserWalletId == userWallet.userWalletId,
+            totalBalanceProvider: TotalBalanceProvider(userWalletModel: userWalletModel),
+            cardImageProvider: CardImageProvider()
+        ) { [weak self] in
+            self?.setSelectedWallet(userWallet)
+        }
     }
 }
