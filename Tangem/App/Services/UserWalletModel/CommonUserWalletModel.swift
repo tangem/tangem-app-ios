@@ -17,12 +17,28 @@ class CommonUserWalletModel {
 
     private var reloadAllWalletModelsBag: AnyCancellable?
 
+    convenience init(config: UserWalletConfig, userWallet: UserWallet) {
+        let userTokenListManager = CommonUserTokenListManager(config: config, userWalletId: userWallet.userWalletId)
+        let walletListManager = CommonWalletListManager(
+            config: config,
+            userTokenListManager: userTokenListManager
+        )
+
+        self.init(
+            userTokenListManager: userTokenListManager,
+            walletListManager: walletListManager,
+            userWallet: userWallet
+        )
+    }
+
     init(
         userTokenListManager: UserTokenListManager,
-        walletListManager: WalletListManager
+        walletListManager: WalletListManager,
+        userWallet: UserWallet
     ) {
         self.userTokenListManager = userTokenListManager
         self.walletListManager = walletListManager
+        self.userWallet = userWallet
     }
 }
 
