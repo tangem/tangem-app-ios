@@ -20,7 +20,6 @@ struct CardPinSettings {
 
 class CardViewModel: Identifiable, ObservableObject {
     // MARK: Services
-    @Injected(\.cardImageLoader) var imageLoader: CardImageLoaderProtocol
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
@@ -42,6 +41,12 @@ class CardViewModel: Identifiable, ObservableObject {
 
     var walletData: DefaultWalletData {
         cardInfo.walletData
+    }
+
+    var cardPublicKey: Data { cardInfo.card.cardPublicKey }
+
+    var supportsOnlineImage: Bool {
+        config.hasFeature(.onlineImage)
     }
 
     var isMultiWallet: Bool {
@@ -69,7 +74,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     var artworkInfo: ArtworkInfo? {
-        cardInfo.artworkInfo
+        CardImageProvider().cardArtwork(for: cardInfo.card.cardId)?.artworkInfo
     }
 
     var name: String {
@@ -232,26 +237,6 @@ class CardViewModel: Identifiable, ObservableObject {
     var canExchangeCrypto: Bool { config.hasFeature(.exchange) }
 
     var cachedImage: UIImage? = nil
-
-    var imageLoaderPublisher: AnyPublisher<UIImage, Never> {
-        if let cached = cachedImage {
-            return Just(cached).eraseToAnyPublisher()
-        }
-
-        return self.imageLoader
-            .loadImage(cid: cardId,
-                       cardPublicKey: cardInfo.card.cardPublicKey,
-                       artworkInfo: cardInfo.artworkInfo)
-            .map { [weak self] (image, canBeCached) -> UIImage in
-                if canBeCached {
-                    self?.cachedImage = image
-                }
-
-                return image
-            }
-            .receive(on: RunLoop.main)
-            .eraseToAnyPublisher()
-    }
 
     var userWallet: UserWallet? {
         userWalletModel?.userWallet
@@ -694,7 +679,8 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func loadCardImage() {
-        imageLoaderPublisher
+        CardImageProvider(supportsOnlineImage: supportsOnlineImage)
+            .loadImage(cardId: cardId, cardPublicKey: cardPublicKey)
             .weakAssignAnimated(to: \.cardImage, on: self)
             .store(in: &bag)
     }
