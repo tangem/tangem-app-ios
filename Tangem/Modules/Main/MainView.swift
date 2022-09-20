@@ -48,7 +48,7 @@ struct MainView: View {
     }
 
     var shouldShowBalanceView: Bool {
-        if let walletModel = viewModel.cardModel.walletModels.first {
+        if let walletModel = viewModel.singleWalletModel {
             switch walletModel.state {
             case .idle, .loading, .failed:
                 return true
@@ -61,7 +61,7 @@ struct MainView: View {
     }
 
     var noAccountView: MessageView? {
-        if let walletModel = viewModel.cardModel.walletModels.first {
+        if let walletModel = viewModel.singleWalletModel {
             switch walletModel.state {
             case .noAccount(let message):
                 return MessageView(title: "wallet_error_no_account".localized, subtitle: message, type: .error)
@@ -110,17 +110,17 @@ struct MainView: View {
                 .padding(.horizontal, 16.0)
 
             if viewModel.canShowAddress {
-                if shouldShowBalanceView {
+                if shouldShowBalanceView, let singleWalletModel = viewModel.singleWalletModel {
                     BalanceView(
-                        balanceViewModel: viewModel.cardModel.walletModels.first!.balanceViewModel,
-                        tokenViewModels: viewModel.cardModel.walletModels.first!.tokenViewModels
+                        balanceViewModel: singleWalletModel.balanceViewModel,
+                        tokenViewModels: singleWalletModel.tokenViewModels
                     )
                     .padding(.horizontal, 16.0)
                 } else if let noAccountView = noAccountView {
                     noAccountView
                 }
 
-                if let walletModel = viewModel.cardModel.walletModels.first {
+                if let walletModel = viewModel.singleWalletModel {
                     AddressDetailView(showQr: $viewModel.showQR,
                                       selectedAddressIndex: $viewModel.selectedAddressIndex,
                                       showExplorerURL: $viewModel.showExplorerURL,
@@ -276,6 +276,7 @@ struct MainView_Previews: PreviewProvider {
         NavigationView {
             MainView(viewModel: .init(cardModel: PreviewCard.stellar.cardModel,
                                       userWalletModel: PreviewCard.stellar.cardModel.userWalletModel!,
+                                      cardImageProvider: CardImageProvider(),
                                       coordinator: MainCoordinator()))
         }
         .previewGroup(devices: [.iPhone12ProMax])
