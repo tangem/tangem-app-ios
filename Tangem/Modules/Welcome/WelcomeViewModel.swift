@@ -30,6 +30,19 @@ class WelcomeViewModel: ObservableObject {
         AppSettings.shared.saveUserWallets && !userWalletListService.isEmpty && BiometricsUtil.isAvailable
     }
 
+    var unlockWithBiometryLocalizationKey: LocalizedStringKey {
+        switch BiometricAuthorizationUtils.biometryType {
+        case .faceID:
+            return "welcome_unlock_face_id"
+        case .touchID:
+            return "welcome_unlock_touch_id"
+        case .none:
+            return ""
+        @unknown default:
+            return ""
+        }
+    }
+
     private var storiesModelSubscription: AnyCancellable? = nil
     private var bag: Set<AnyCancellable> = []
     private var backupService: BackupService { backupServiceProvider.backupService }
