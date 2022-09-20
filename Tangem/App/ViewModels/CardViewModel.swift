@@ -252,12 +252,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
 
         let count = config.cardsCount
-        switch count {
-        case 1:
-            return "\(count) Card"
-        default:
-            return "\(count) Cards"
-        }
+        return String.localizedStringWithFormat("card_label_card_count".localized, count)
     }
 
     var numberOfTokens: String? {
@@ -270,7 +265,7 @@ class CardViewModel: Identifiable, ObservableObject {
             return nil
         }
 
-        return "\(numberOfTokens) tokens"
+        return String.localizedStringWithFormat("token_count".localized, numberOfTokens)
     }
 
     private lazy var totalSumBalanceViewModel: TotalSumBalanceViewModel = .init(isSingleCoinCard: !isMultiWallet) { }
