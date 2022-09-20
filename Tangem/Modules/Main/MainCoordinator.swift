@@ -41,9 +41,15 @@ class MainCoordinator: CoordinatorObject {
     }
 
     func start(with options: MainCoordinator.Options) {
+        guard let userWalletModel = options.cardModel.userWalletModel else {
+            assertionFailure("UserWalletModel not created")
+            return
+        }
+
         mainViewModel = MainViewModel(
             cardModel: options.cardModel,
-            userWalletModel: options.cardModel.userWalletModel!,
+            userWalletModel: userWalletModel,
+            cardImageProvider: CardImageProvider(supportsOnlineImage: options.cardModel.supportsOnlineImage),
             coordinator: self
         )
     }
