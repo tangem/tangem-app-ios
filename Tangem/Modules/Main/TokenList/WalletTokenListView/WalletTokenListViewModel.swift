@@ -46,9 +46,9 @@ class WalletTokenListViewModel: ObservableObject {
         }
     }
 
-    func refreshTokens(result: @escaping (Result<Void, Error>) -> Void = { _ in }) {
+    func refreshTokens(completion: @escaping () -> Void = {}) {
         userTokenListManager.loadAndSaveUserTokenList { [weak self] _ in
-            self?.userWalletModel.updateAndReloadWalletModels(showProgressLoading: true, result: result)
+            self?.userWalletModel.updateAndReloadWalletModels(completion: completion)
         }
     }
 }
