@@ -112,11 +112,16 @@ struct TokenDetailsView: View {
                             AlertCardView(title: "common_warning".localized, message: existentialDepositWarning)
                         }
 
+                        if let oldDeviceRestrictionWarning = viewModel.oldDeviceRestrictionWarning {
+                            AlertCardView(title: "common_warning".localized, message: oldDeviceRestrictionWarning)
+                        }
+
                         if let solanaRentWarning = viewModel.solanaRentWarning {
                             AlertCardView(title: "common_warning".localized, message: solanaRentWarning)
                         }
                     }
                     .padding(.horizontal, 16)
+                    .padding(.bottom, 32)
                     .frame(width: geometry.size.width)
                 }
             }
