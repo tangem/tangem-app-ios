@@ -287,7 +287,6 @@ class MainViewModel: ObservableObject {
         } else {
             DispatchQueue.main.async {
                 Analytics.log(.scanCardTapped)
-                self.totalSumBalanceViewModel.update(with: [])
                 self.coordinator.close(newScan: true)
             }
         }
