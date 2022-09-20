@@ -163,7 +163,7 @@ struct MainView: View {
                     VStack(spacing: 8.0) {
                         CardView(image: viewModel.image,
                                  width: geometry.size.width - 32,
-                                 cardSetLabel: viewModel.cardModel.cardSetLabel)
+                                 cardSetLabel: viewModel.cardsCountLabel)
                             .fixedSize(horizontal: false, vertical: true)
 
                         if viewModel.isBackupAllowed {
@@ -274,7 +274,9 @@ struct MainView: View {
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            MainView(viewModel: .init(cardModel: PreviewCard.stellar.cardModel, coordinator: MainCoordinator()))
+            MainView(viewModel: .init(cardModel: PreviewCard.stellar.cardModel,
+                                      userWalletModel: PreviewCard.stellar.cardModel.userWalletModel!,
+                                      coordinator: MainCoordinator()))
         }
         .previewGroup(devices: [.iPhone12ProMax])
         .navigationViewStyle(StackNavigationViewStyle())
