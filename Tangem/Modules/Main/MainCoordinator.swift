@@ -45,7 +45,11 @@ class MainCoordinator: CoordinatorObject {
 
     func start(with options: MainCoordinator.Options) {
         options.cardModel.onAppear()
-        mainViewModel = MainViewModel(cardModel: options.cardModel, coordinator: self)
+        mainViewModel = MainViewModel(
+            cardModel: options.cardModel,
+            userWalletModel: options.cardModel.userWalletModel!,
+            coordinator: self
+        )
     }
 }
 
