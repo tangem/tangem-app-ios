@@ -67,14 +67,14 @@ struct UserWalletListView: ResizableSheetView {
     }
 
     @ViewBuilder
-    private func section(_ header: String, for models: [CardViewModel]) -> some View {
-        if !models.isEmpty {
+    private func section(_ header: String, for viewModels: [UserWalletListCellViewModel]) -> some View {
+        if !viewModels.isEmpty {
             UserWalletListHeaderView(name: header)
 
-            ForEach(0 ..< models.count, id: \.self) { i in
-                cell(for: models[i])
+            ForEach(viewModels, id: \.userWalletId) { viewModel in
+                cell(for: viewModel)
 
-                if i != (models.count - 1) {
+                if viewModel.userWalletId != viewModels.last?.userWalletId {
                     Separator(height: 0.5, padding: 0, color: Colors.Stroke.primary)
                         .padding(.leading, 78)
                 }
@@ -83,34 +83,32 @@ struct UserWalletListView: ResizableSheetView {
     }
 
     @ViewBuilder
-    private func cell(for model: CardViewModel) -> some View {
-        UserWalletListCellView(model: model, isSelected: viewModel.selectedUserWalletId == model.userWallet?.userWalletId) { userWallet in
-            viewModel.onUserWalletTapped(userWallet)
-        }
-        .contextMenu {
-            Button {
-                viewModel.editUserWallet(model.userWallet!)
-            } label: {
-                HStack {
-                    Text("Rename")
-                    Image(systemName: "pencil")
-                }
-            }
-
-            if #available(iOS 15.0, *) {
-                Button(role: .destructive) {
-                    viewModel.deleteUserWallet(model.userWallet!)
-                } label: {
-                    deleteButtonLabel()
-                }
-            } else {
+    private func cell(for viewModel: UserWalletListCellViewModel) -> some View {
+        UserWalletListCellView(viewModel: viewModel)
+            .contextMenu {
                 Button {
-                    viewModel.deleteUserWallet(model.userWallet!)
+                    self.viewModel.editUserWallet(viewModel)
                 } label: {
-                    deleteButtonLabel()
+                    HStack {
+                        Text("Rename")
+                        Image(systemName: "pencil")
+                    }
+                }
+
+                if #available(iOS 15.0, *) {
+                    Button(role: .destructive) {
+                        self.viewModel.deleteUserWallet(viewModel)
+                    } label: {
+                        deleteButtonLabel()
+                    }
+                } else {
+                    Button {
+                        self.viewModel.deleteUserWallet(viewModel)
+                    } label: {
+                        deleteButtonLabel()
+                    }
                 }
             }
-        }
     }
 
     @ViewBuilder
