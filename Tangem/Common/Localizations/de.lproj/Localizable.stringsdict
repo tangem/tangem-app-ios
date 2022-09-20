@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>card_label_card_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@VARIABLE@</string>
+		<key>VARIABLE</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>d</string>
+			<key>zero</key>
+			<string>%d card</string>
+			<key>one</key>
+			<string>%d card</string>
+			<key>two</key>
+			<string>%d cards</string>
+			<key>few</key>
+			<string>%d cards</string>
+			<key>many</key>
+			<string>%d cards</string>
+			<key>other</key>
+			<string>%d cards</string>
+		</dict>
+	</dict>
+</dict>
+</plist>
