@@ -15,14 +15,13 @@ struct UserWalletStorageAgreementView: View {
         self.viewModel = viewModel
     }
 
-    #warning("l10n")
     var body: some View {
         VStack(spacing: 0) {
             if viewModel.showButtons {
                 HStack {
                     Spacer()
 
-                    Button("Skip", action: viewModel.decline)
+                    Button("common_skip", action: viewModel.decline)
                         .foregroundColor(Colors.Text.primary1)
                 }
             }
@@ -34,7 +33,7 @@ struct UserWalletStorageAgreementView: View {
 
                 FlexibleSpacer(maxHeight: 28)
 
-                Text("Would you like to use Face ID?")
+                Text("save_user_wallet_agreement_header".localized(BiometricAuthorizationUtils.biometryType.name))
                     .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                     .multilineTextAlignment(.center)
 
@@ -48,16 +47,16 @@ struct UserWalletStorageAgreementView: View {
             VStack(spacing: 0) {
                 FeatureDescriptionView(
                     icon: BiometryLogoImage.image,
-                    title: "Access the app",
-                    description: "Log into the app and watch your balance without scanning the card"
+                    title: "save_user_wallet_agreement_access_title".localized,
+                    description: "save_user_wallet_agreement_access_description".localized
                 )
 
                 FlexibleSpacer(maxHeight: 28)
 
                 FeatureDescriptionView(
                     icon: Assets.lock,
-                    title: "Access code",
-                    description: "Face ID will be requested instead of the access code for interactions with your wallet"
+                    title: "save_user_wallet_agreement_code_title".localized,
+                    description: "save_user_wallet_agreement_code_description".localized(BiometricAuthorizationUtils.biometryType.name)
                 )
             }
 
@@ -65,10 +64,10 @@ struct UserWalletStorageAgreementView: View {
 
             if viewModel.showButtons {
                 VStack(spacing: 10) {
-                    TangemButton(title: "Allow to link wallet", action: viewModel.accept)
+                    TangemButton(title: BiometricAuthorizationUtils.allowButtonLocalizationKey, action: viewModel.accept)
                         .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
 
-                    Text("Keep notice, making a transaction with your funds will still require card tapping")
+                    Text("save_user_wallet_agreement_notice".localized)
                         .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
                         .multilineTextAlignment(.center)
                 }
@@ -78,7 +77,7 @@ struct UserWalletStorageAgreementView: View {
     }
 
     private var newFeatureBadge: some View {
-        Text("New feature")
+        Text("save_user_wallet_agreement_new_feature".localized)
             .style(Fonts.Bold.caption1, color: Colors.Text.accent)
             .padding(.vertical, 4)
             .padding(.horizontal, 10)

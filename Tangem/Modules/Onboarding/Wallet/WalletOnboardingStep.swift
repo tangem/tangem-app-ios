@@ -114,8 +114,7 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
         case .backupIntro: return "onboarding_button_backup_now"
         case .selectBackupCards: return "onboarding_button_add_backup_card"
         case .backupCards: return ""
-            #warning("l10n")
-        case .saveUserWallet: return "Allow to link wallet"
+        case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonLocalizationKey
         case .success: return "onboarding_button_continue_wallet"
         }
     }
@@ -149,8 +148,7 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
     var infoText: LocalizedStringKey? {
         switch self {
         case .saveUserWallet:
-            #warning("l10n")
-            return "Keep notice, making a transaction with your funds will still require card tapping"
+            return "save_user_wallet_agreement_notice"
         default:
             return nil
         }
