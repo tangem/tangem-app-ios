@@ -28,6 +28,7 @@ class MainViewModel: ObservableObject {
     @Published var showTradeSheet: Bool = false
     @Published var showSelectWalletSheet: Bool = false
     @Published var isScanning: Bool = false
+    @Published var image: UIImage? = nil
     @Published var selectedAddressIndex: Int = 0
     @Published var showExplorerURL: URL? = nil
     @Published var showQR: Bool = false
@@ -58,7 +59,7 @@ class MainViewModel: ObservableObject {
     )
 
     let cardModel: CardViewModel
-    let userWalletModel: UserWalletModel?
+    private let userWalletModel: UserWalletModel?
 
     private var bag = Set<AnyCancellable>()
     private var isHashesCounted = false
@@ -94,6 +95,10 @@ class MainViewModel: ObservableObject {
 
     var canSellCrypto: Bool {
         cardModel.canExchangeCrypto && sellCryptoURL != nil
+    }
+
+    var cardsCountLabel: String? {
+        cardModel.cardSetLabel
     }
 
     var buyCryptoURL: URL? {
@@ -158,13 +163,13 @@ class MainViewModel: ObservableObject {
         cardModel.canShowSend
     }
 
-    var image: UIImage? {
-        cardModel.cardImage
-    }
-
-    init(cardModel: CardViewModel, coordinator: MainRoutable) {
+    init(
+        cardModel: CardViewModel,
+        userWalletModel: UserWalletModel,
+        coordinator: MainRoutable
+    ) {
         self.cardModel = cardModel
-        self.userWalletModel = cardModel.userWalletModel
+        self.userWalletModel = userWalletModel
         self.coordinator = coordinator
         cardModel.getCardInfo()
         bind()
@@ -307,6 +312,10 @@ class MainViewModel: ObservableObject {
 
     func onAppear() {
         walletTokenListViewModel?.onAppear()
+        CardImageProvider(supportsOnlineImage: cardModel.supportsOnlineImage)
+            .loadImage(cardId: cardModel.cardId, cardPublicKey: cardModel.cardPublicKey)
+            .weakAssignAnimated(to: \.image, on: self)
+            .store(in: &bag)
     }
 
     func deriveEntriesWithoutDerivation() {
