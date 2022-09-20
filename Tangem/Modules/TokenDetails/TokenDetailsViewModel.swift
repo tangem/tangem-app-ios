@@ -8,6 +8,7 @@
 import SwiftUI
 import BlockchainSdk
 import Combine
+import TangemSdk
 
 class TokenDetailsViewModel: ObservableObject {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
@@ -93,6 +94,10 @@ class TokenDetailsViewModel: ObservableObject {
             return false
         }
 
+        guard canSignLongTransactions else {
+            return false
+        }
+
         return wallet?.canSend(amountType: self.amountType) ?? false
     }
 
@@ -125,6 +130,14 @@ class TokenDetailsViewModel: ObservableObject {
         return String(format: "warning_existential_deposit_message".localized, blockchainName, existentialDepositAmount)
     }
 
+    var oldDeviceRestrictionWarning: String? {
+        if canSignLongTransactions {
+            return nil
+        }
+
+        return "token_details_transaction_length_warning".localized
+    }
+
     var title: String {
         if let token = amountType.token {
             return token.name
@@ -155,6 +168,17 @@ class TokenDetailsViewModel: ObservableObject {
 
     private var currencySymbol: String {
         amountType.token?.symbol ?? blockchainNetwork.blockchain.currencySymbol
+    }
+
+    private var canSignLongTransactions: Bool {
+        if let blockchain = walletModel?.blockchainNetwork.blockchain,
+           NFCUtils.isPoorNfcQualityDevice,
+           case .solana = blockchain
+        {
+            return false
+        } else {
+            return true
+        }
     }
 
     init(cardModel: CardViewModel, blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType, coordinator: TokenDetailsRoutable) {
