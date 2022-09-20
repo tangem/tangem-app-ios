@@ -239,9 +239,9 @@ class CardViewModel: Identifiable, ObservableObject {
         userWalletModel?.userWallet
     }
 
-    var isUserWalletLocked: Bool {
-        return userWallet?.isLocked ?? false
-    }
+//    var isUserWalletLocked: Bool {
+//        return userWallet?.isLocked ?? false
+//    }
 
     var subtitle: String {
         if let embeddedBlockchain = config.embeddedBlockchain {
@@ -256,21 +256,6 @@ class CardViewModel: Identifiable, ObservableObject {
             return "\(count) Cards"
         }
     }
-
-    var numberOfTokens: String? {
-        let numberOfBlockchainsPerItem = 1
-        let numberOfTokens = walletModels.reduce(0) { sum, walletModel in
-            sum + numberOfBlockchainsPerItem + walletModel.tokenViewModels.count
-        }
-
-        if numberOfTokens == 0 {
-            return nil
-        }
-
-        return "\(numberOfTokens) tokens"
-    }
-
-    private lazy var totalSumBalanceViewModel: TotalSumBalanceViewModel = .init(isSingleCoinCard: !isMultiWallet) { }
 
     private var searchBlockchainsCancellable: AnyCancellable? = nil
     private var bag = Set<AnyCancellable>()
@@ -424,41 +409,6 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     // MARK: - Update
-
-    func getCardInfo() {
-        if case .artwork = cardInfo.artwork {
-            loadCardImage()
-            return
-        }
-
-        tangemSdk.loadCardInfo(cardPublicKey: cardInfo.card.cardPublicKey, cardId: cardId) { [weak self] result in
-            guard let self = self else { return }
-
-            switch result {
-            case .success(let info):
-                self.cardInfo.artwork = info.artwork.map { .artwork($0) } ?? .noArtwork
-            case .failure:
-                self.cardInfo.artwork = .noArtwork
-                self.warningsService.setupWarnings(for: self.config)
-            }
-        }
-
-        OnlineCardVerifier()
-            .getCardInfo(cardId: cardInfo.card.cardId, cardPublicKey: cardInfo.card.cardPublicKey)
-            .receive(on: DispatchQueue.main)
-            .sink { receivedCompletion in
-                if case .failure = receivedCompletion {
-                    self.cardInfo.artwork = .noArtwork
-                    self.warningsService.setupWarnings(for: self.config)
-                }
-
-                self.loadCardImage()
-            } receiveValue: { response in
-                guard let artwork = response.artwork else { return }
-                self.cardInfo.artwork = .artwork(artwork)
-            }
-            .store(in: &bag)
-    }
 
     func update(with card: CardDTO) {
         print("🔄 Updating CardViewModel with new Card")
@@ -641,58 +591,9 @@ class CardViewModel: Identifiable, ObservableObject {
         signer.signPublisher.sink { [unowned self] card in
             self.update(with: CardDTO(card: card))
             // [REDACTED_TODO_COMMENT]
-            self.cardInfo.card = CardDTO(card: card) // [REDACTED_TODO_COMMENT]
-            self.config = UserWalletConfigFactory(cardInfo).makeConfig()
-            self.warningsService.setupWarnings(for: config)
             self.updateUserWallet()
         }
         .store(in: &bag)
-
-        $walletsBalanceState
-            .receive(on: RunLoop.main)
-            .sink { [unowned self] state in
-                switch state {
-                case .inProgress:
-                    break
-                case .loaded:
-                    // Delay to hide skeleton
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-//                        self.updateTotalBalanceTokenList()
-                        // [REDACTED_TODO_COMMENT]
-                    }
-                }
-            }
-            .store(in: &bag)
-
-        totalSumBalanceViewModel
-            .$totalFiatValueString
-            .sink { [unowned self] newValue in
-                withAnimation(nil) {
-                    let newTotalBalance = newValue.string
-                    self.totalBalance = newTotalBalance.isEmpty ? nil : newTotalBalance
-                }
-            }
-            .store(in: &bag)
-    }
-            }
-            .store(in: &bag)
-    }
-
-    private func loadCardImage() {
-        CardImageProvider(supportsOnlineImage: supportsOnlineImage)
-            .loadImage(cardId: cardId, cardPublicKey: cardPublicKey)
-            .weakAssignAnimated(to: \.cardImage, on: self)
-            .store(in: &bag)
-    }
-
-    private func updateUserWallet() {
-        let userWallet = UserWalletFactory().userWallet(from: self)
-
-    private func loadCardImage() {
-        CardImageProvider(supportsOnlineImage: supportsOnlineImage)
-            .loadImage(cardId: cardId, cardPublicKey: cardPublicKey)
-            .weakAssignAnimated(to: \.cardImage, on: self)
-            .store(in: &bag)
     }
 
     private func updateUserWallet() {
@@ -717,7 +618,8 @@ class CardViewModel: Identifiable, ObservableObject {
 
         userWalletModel = CommonUserWalletModel(
             userTokenListManager: userTokenListManager,
-            walletListManager: walletListManager
+            walletListManager: walletListManager,
+            userWallet: userWallet!
         )
     }
 }
