@@ -54,12 +54,15 @@ extension SaltPayConfig: UserWalletConfig {
         config.filter.allowedCardTypes = [.release, .sdk]
         config.logConfig = Log.Config.custom(logLevel: Log.Level.allCases,
                                              loggers: [loggerProvider.logger, ConsoleLogger()])
-        config.filter.batchIdFilter = .deny(["0027", // todo: tangem tags
+        config.filter.batchIdFilter = .deny(["0027",
                                              "0030",
                                              "0031",
                                              "0035"])
 
-        config.filter.cardIdFilter = .allow([])
+        config.filter.cardIdFilter = .allow(["AC03000000070529", "AC03000000070537"])
+
+        config.filter.localizedDescription = "Это ошибка, которой пока нет"
+
 
         config.filter.issuerFilter = .deny(["TTM BANK"])
         config.allowUntrustedCards = true

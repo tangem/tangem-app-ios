@@ -225,6 +225,10 @@ class CardViewModel: Identifiable, ObservableObject {
         updateCardPinSettings()
         updateCurrentSecurityOption()
         bind()
+//        [REDACTED_TODO_COMMENT]
+        if isSaltPay {
+            appendDefaultBlockchains()
+        }
     }
 
     func setupWarnings() {
@@ -392,15 +396,6 @@ class CardViewModel: Identifiable, ObservableObject {
     func getDisabledLocalizedReason(for feature: UserWalletFeature) -> String? {
         config.getFeatureAvailability(feature).disabledLocalizedReason
     }
-
-//    private func makeAllWalletModels() -> [WalletModel] {
-//        if isSaltPay {
-//            let token = config.defaultBlockchains
-//            return token.compactMap { try? config.makeWalletModel(for: $0) }
-//        }
-//        let tokens = tokenItemsRepository.getItems()
-//        return tokens.compactMap { try? config.makeWalletModel(for: $0) }
-//    }
 
     private func updateModel() {
         print("🔄 Updating Card view model")
