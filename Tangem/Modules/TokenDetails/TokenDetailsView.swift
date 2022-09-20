@@ -108,6 +108,10 @@ struct TokenDetailsView: View {
                             AlertCardView(title: "", message: sendBlockedReason)
                         }
 
+                        if let existentialDepositWarning = viewModel.existentialDepositWarning {
+                            AlertCardView(title: "common_warning".localized, message: existentialDepositWarning)
+                        }
+
                         if let solanaRentWarning = viewModel.solanaRentWarning {
                             AlertCardView(title: "common_warning".localized, message: solanaRentWarning)
                         }
