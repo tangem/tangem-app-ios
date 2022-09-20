@@ -112,8 +112,8 @@ struct TokenDetailsView: View {
                             AlertCardView(title: "common_warning".localized, message: existentialDepositWarning)
                         }
 
-                        if let oldDeviceRestrictionWarning = viewModel.oldDeviceRestrictionWarning {
-                            AlertCardView(title: "common_warning".localized, message: oldDeviceRestrictionWarning)
+                        if let transactionLengthWarning = viewModel.transactionLengthWarning {
+                            AlertCardView(title: "common_warning".localized, message: transactionLengthWarning)
                         }
 
                         if let solanaRentWarning = viewModel.solanaRentWarning {
