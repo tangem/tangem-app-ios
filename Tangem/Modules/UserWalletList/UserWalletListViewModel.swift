@@ -83,15 +83,14 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     }
 
     func editUserWallet(_ userWallet: UserWallet) {
-        #warning("l10n")
-        let alert = UIAlertController(title: "Rename Wallet", message: nil, preferredStyle: .alert)
+        let alert = UIAlertController(title: "user_wallet_list_rename_popup_title".localized, message: nil, preferredStyle: .alert)
         let cancelAction = UIAlertAction(title: "common_cancel".localized, style: .cancel) { _ in }
         alert.addAction(cancelAction)
 
         var nameTextField: UITextField?
         alert.addTextField { textField in
             nameTextField = textField
-            nameTextField?.placeholder = "Wallet name"
+            nameTextField?.placeholder = "user_wallet_list_rename_popup_placeholder".localized
             nameTextField?.text = userWallet.name
             nameTextField?.clearButtonMode = .whileEditing
             nameTextField?.autocapitalizationType = .sentences
