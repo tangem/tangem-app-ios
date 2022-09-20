@@ -44,10 +44,9 @@ class MainCoordinator: CoordinatorObject {
     }
 
     func start(with options: MainCoordinator.Options) {
-        options.cardModel.onAppear()
         mainViewModel = MainViewModel(
             cardModel: options.cardModel,
-            userWalletModel: userWalletModel,
+            userWalletModel: options.cardModel.userWalletModel!,
             cardImageProvider: CardImageProvider(supportsOnlineImage: options.cardModel.supportsOnlineImage),
             coordinator: self
         )
