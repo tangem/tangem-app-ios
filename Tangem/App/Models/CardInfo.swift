@@ -16,7 +16,6 @@ import BlockchainSdk
 struct CardInfo {
     var card: Card
     var walletData: DefaultWalletData
-    var artwork: CardArtwork = .notLoaded
     var primaryCard: PrimaryCard? = nil
 
     var cardIdFormatted: String {
@@ -26,19 +25,6 @@ struct CardInfo {
             return AppCardIdFormatter(cid: card.cardId).formatted()
         }
     }
-
-    var artworkInfo: ArtworkInfo? {
-        switch artwork {
-        case .notLoaded, .noArtwork: return nil
-        case .artwork(let artwork): return artwork
-        }
-    }
-}
-
-enum CardArtwork: Equatable {
-    case notLoaded
-    case noArtwork
-    case artwork(ArtworkInfo)
 }
 
 struct ImageLoadDTO: Equatable {
