@@ -190,8 +190,7 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
         case .second: return "onboarding_button_tap_second_card"
         case .topup: return "onboarding_button_buy_crypto"
         case .done: return "common_continue"
-            #warning("l10n")
-        case .saveUserWallet: return "Allow to link wallet"
+        case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonLocalizationKey
         case .success: return successButtonTitle
         case .alert: return "common_continue"
         }
@@ -226,8 +225,7 @@ extension TwinsOnboardingStep: OnboardingButtonsInfoProvider {
     var infoText: LocalizedStringKey? {
         switch self {
         case .saveUserWallet:
-            #warning("l10n")
-            return "Keep notice, making a transaction with your funds will still require card tapping"
+            return "save_user_wallet_agreement_notice"
         default:
             return nil
         }
