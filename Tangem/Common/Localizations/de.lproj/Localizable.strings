@@ -508,3 +508,4 @@ URL: %@";
 "wallet_connect_select_network" = "Select network";
 "main_scan_card_warning_view_title" = "Scan your card";
 "main_scan_card_warning_view_subtitle" = "To access all the networks you need to scan the card";
+"warning_existential_deposit_message" = "%@ network has a concept of Existential Deposit. If your account drops below %@ it will be deactivated and any remaining funds will be destroyed.";
