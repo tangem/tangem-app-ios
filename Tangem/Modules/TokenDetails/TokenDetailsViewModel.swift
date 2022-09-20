@@ -111,6 +111,20 @@ class TokenDetailsViewModel: ObservableObject {
         return nil
     }
 
+    var existentialDepositWarning: String? {
+        guard
+            let blockchain = walletModel?.blockchainNetwork.blockchain,
+            let existentialDepositProvider = walletModel?.walletManager as? ExistentialDepositProvider
+        else {
+            return nil
+        }
+
+        let blockchainName = blockchain.displayName
+        let existentialDepositAmount = existentialDepositProvider.existentialDeposit.description
+
+        return String(format: "warning_existential_deposit_message".localized, blockchainName, existentialDepositAmount)
+    }
+
     var title: String {
         if let token = amountType.token {
             return token.name
