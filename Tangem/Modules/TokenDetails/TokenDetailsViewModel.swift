@@ -130,7 +130,7 @@ class TokenDetailsViewModel: ObservableObject {
         return String(format: "warning_existential_deposit_message".localized, blockchainName, existentialDepositAmount)
     }
 
-    var oldDeviceRestrictionWarning: String? {
+    var transactionLengthWarning: String? {
         if canSignLongTransactions {
             return nil
         }
