@@ -58,7 +58,7 @@ class MainViewModel: ObservableObject {
     )
 
     let cardModel: CardViewModel
-    let userWalletModel: UserWalletModel?
+    private let userWalletModel: UserWalletModel?
 
     private var bag = Set<AnyCancellable>()
     private var isHashesCounted = false
@@ -94,6 +94,10 @@ class MainViewModel: ObservableObject {
 
     var canSellCrypto: Bool {
         cardModel.canExchangeCrypto && sellCryptoURL != nil
+    }
+
+    var cardsCountLabel: String? {
+        cardModel.cardSetLabel
     }
 
     var buyCryptoURL: URL? {
@@ -158,9 +162,13 @@ class MainViewModel: ObservableObject {
         cardModel.canShowSend
     }
 
-    init(cardModel: CardViewModel, coordinator: MainRoutable) {
+    init(
+        cardModel: CardViewModel,
+        userWalletModel: UserWalletModel,
+        coordinator: MainRoutable
+    ) {
         self.cardModel = cardModel
-        self.userWalletModel = cardModel.userWalletModel
+        self.userWalletModel = userWalletModel
         self.coordinator = coordinator
         bind()
 
@@ -191,11 +199,6 @@ class MainViewModel: ObservableObject {
             .sink { [unowned self] entries in
                 updateLackDerivationWarningView(entries: entries)
             }
-            .store(in: &bag)
-
-        cardModel
-            .imageLoaderPublisher
-            .weakAssignAnimated(to: \.image, on: self)
             .store(in: &bag)
 
         warningsService.warningsUpdatePublisher
@@ -256,6 +259,10 @@ class MainViewModel: ObservableObject {
             return
         }
 
+        guard cardModel.isMultiWallet else {
+            return
+        }
+
         walletTokenListViewModel = WalletTokenListViewModel(
             userTokenListManager: userWalletModel.userTokenListManager,
             userWalletModel: userWalletModel
@@ -298,6 +305,10 @@ class MainViewModel: ObservableObject {
 
     func onAppear() {
         walletTokenListViewModel?.onAppear()
+        CardImageProvider(supportsOnlineImage: cardModel.supportsOnlineImage)
+            .loadImage(cardId: cardModel.cardId, cardPublicKey: cardModel.cardPublicKey)
+            .weakAssignAnimated(to: \.image, on: self)
+            .store(in: &bag)
     }
 
     func deriveEntriesWithoutDerivation() {
