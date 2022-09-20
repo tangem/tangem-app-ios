@@ -200,7 +200,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
                 AppSettings.shared.cardsStartedActivation.append(self.cardModel.cardId)
             }
 
-            self.cardModel.userWalletModel?.updateAndReloadWalletModels(showProgressLoading: true)
+            self.cardModel.userWalletModel?.updateAndReloadWalletModels()
             self.walletCreatedWhileOnboarding = true
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
