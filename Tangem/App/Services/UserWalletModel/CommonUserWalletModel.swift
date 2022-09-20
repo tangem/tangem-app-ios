@@ -9,26 +9,19 @@
 import Combine
 import BlockchainSdk
 
-protocol UserWalletModelOutput: AnyObject {
-    func userWalletModelRequestUpdate(walletsBalanceState: CardViewModel.WalletsBalanceState)
-}
-
 class CommonUserWalletModel {
     /// Public until managers factory
     let userTokenListManager: UserTokenListManager
     private let walletListManager: WalletListManager
 
-    private weak var output: UserWalletModelOutput?
     private var reloadAllWalletModelsBag: AnyCancellable?
 
-    init(config: UserWalletConfig, userWalletId: Data, output: UserWalletModelOutput?) {
-        self.output = output
-
-        userTokenListManager = CommonUserTokenListManager(config: config, userWalletId: userWalletId)
-        walletListManager = CommonWalletListManager(
-            config: config,
-            userTokenListManager: userTokenListManager
-        )
+    init(
+        userTokenListManager: UserTokenListManager,
+        walletListManager: WalletListManager
+    ) {
+        self.userTokenListManager = userTokenListManager
+        self.walletListManager = walletListManager
     }
 }
 
@@ -60,26 +53,15 @@ extension CommonUserWalletModel: UserWalletModel {
         userTokenListManager.clearRepository(result: result)
     }
 
-    func updateAndReloadWalletModels(showProgressLoading: Bool, result: @escaping (Result<Void, Error>) -> Void) {
-        if showProgressLoading {
-            output?.userWalletModelRequestUpdate(walletsBalanceState: .inProgress)
-        }
-
+    func updateAndReloadWalletModels(completion: @escaping () -> Void) {
         // Update walletModel list for current storage state
         walletListManager.updateWalletModels()
 
         reloadAllWalletModelsBag = walletListManager
             .reloadWalletModels()
             .receive(on: RunLoop.main)
-            .receiveCompletion { [weak self] completion in
-                self?.output?.userWalletModelRequestUpdate(walletsBalanceState: .loaded)
-
-                switch completion {
-                case .finished:
-                    result(.success(()))
-                case let .failure(error):
-                    result(.failure(error))
-                }
+            .receiveCompletion { _ in
+                completion()
             }
     }
 
@@ -90,13 +72,13 @@ extension CommonUserWalletModel: UserWalletModel {
     func update(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void) {
         userTokenListManager.update(.rewrite(entries), result: result)
 
-        updateAndReloadWalletModels(showProgressLoading: true)
+        updateAndReloadWalletModels()
     }
 
     func append(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void) {
         userTokenListManager.update(.append(entries), result: result)
 
-        updateAndReloadWalletModels(showProgressLoading: true)
+        updateAndReloadWalletModels()
     }
 
     func remove(item: RemoveItem, result: @escaping (Result<UserTokenList, Error>) -> Void) {
