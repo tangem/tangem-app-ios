@@ -146,8 +146,7 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
         case .topup: return "onboarding_button_buy_crypto"
         case .successTopup: return "common_continue"
         case .welcome: return WelcomeStep.welcome.mainButtonTitle
-            #warning("l10n")
-        case .saveUserWallet: return "Allow to link wallet"
+        case .saveUserWallet: return BiometricAuthorizationUtils.allowButtonLocalizationKey
         case .success: return successButtonTitle
         }
     }
@@ -175,8 +174,7 @@ extension SingleCardOnboardingStep: OnboardingButtonsInfoProvider {
     var infoText: LocalizedStringKey? {
         switch self {
         case .saveUserWallet:
-            #warning("l10n")
-            return "Keep notice, making a transaction with your funds will still require card tapping"
+            return "save_user_wallet_agreement_notice"
         default:
             return nil
         }
