@@ -26,9 +26,6 @@ class CardViewModel: Identifiable, ObservableObject {
     @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
 
     @Published private(set) var currentSecurityOption: SecurityModeOption = .longTap
-    @Published var walletsBalanceState: WalletsBalanceState = .loaded
-    @Published var totalBalance: String? = nil
-    @Published var cardImage: UIImage?
 
     var signer: TangemSigner { config.tangemSigner }
 
@@ -677,6 +674,19 @@ class CardViewModel: Identifiable, ObservableObject {
             }
             .store(in: &bag)
     }
+            }
+            .store(in: &bag)
+    }
+
+    private func loadCardImage() {
+        CardImageProvider(supportsOnlineImage: supportsOnlineImage)
+            .loadImage(cardId: cardId, cardPublicKey: cardPublicKey)
+            .weakAssignAnimated(to: \.cardImage, on: self)
+            .store(in: &bag)
+    }
+
+    private func updateUserWallet() {
+        let userWallet = UserWalletFactory().userWallet(from: self)
 
     private func loadCardImage() {
         CardImageProvider(supportsOnlineImage: supportsOnlineImage)
@@ -698,10 +708,16 @@ class CardViewModel: Identifiable, ObservableObject {
     private func createUserWalletModelIfNeeded(_ userWallet: UserWallet? = nil) {
         guard userWalletModel == nil, cardInfo.card.hasWallets else { return }
 
-        userWalletModel = CommonUserWalletModel(
+        // [REDACTED_TODO_COMMENT]
+        let userTokenListManager = CommonUserTokenListManager(config: config, userWalletId: cardInfo.card.userWalletId)
+        let walletListManager = CommonWalletListManager(
             config: config,
-            userWallet: userWallet ?? UserWalletFactory().userWallet(from: self),
-            output: self
+            userTokenListManager: userTokenListManager
+        )
+
+        userWalletModel = CommonUserWalletModel(
+            userTokenListManager: userTokenListManager,
+            walletListManager: walletListManager
         )
     }
 }
@@ -775,12 +791,6 @@ extension CardViewModel {
         }
 
         userWalletModel.remove(item: item, result: result)
-    }
-}
-
-extension CardViewModel: UserWalletModelOutput {
-    func userWalletModelRequestUpdate(walletsBalanceState: WalletsBalanceState) {
-        self.walletsBalanceState = walletsBalanceState
     }
 }
 
