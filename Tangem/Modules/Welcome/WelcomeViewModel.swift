@@ -113,6 +113,7 @@ class WelcomeViewModel: ObservableObject {
     private func processScannedCard(_ cardModel: CardViewModel, isWithAnimation: Bool) {
         let input = cardModel.onboardingInput
         self.isScanningCard = false
+        backupService.skipCompatibilityChecks = false
 
         if input.steps.needOnboarding {
             cardModel.userWalletModel?.updateAndReloadWalletModels()
@@ -123,6 +124,8 @@ class WelcomeViewModel: ObservableObject {
     }
 
     private func processScannedSaltPayCard(_ cardModel: CardViewModel) {
+        backupService.skipCompatibilityChecks = true
+
         if cardModel.walletCreated {
             if cardModel.backUpCreated {
                 processScannedCard(cardModel, isWithAnimation: true)
