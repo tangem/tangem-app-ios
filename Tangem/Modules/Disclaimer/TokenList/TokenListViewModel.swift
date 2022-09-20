@@ -95,12 +95,19 @@ class TokenListViewModel: ObservableObject {
             switch tokenItem {
             case let .blockchain(blockchain):
                 let network = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: nil)
-                let entry = StorageEntry(blockchainNetwork: network, tokens: [])
-                alreadySaved.append(entry)
+                if !alreadySaved.contains(where: { $0.blockchainNetwork == network }) {
+                    let entry = StorageEntry(blockchainNetwork: network, tokens: [])
+                    alreadySaved.append(entry)
+                }
             case let .token(token, blockchain):
                 let network = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: nil)
-                let entry = StorageEntry(blockchainNetwork: network, token: token)
-                alreadySaved.append(entry)
+
+                if let entry = alreadySaved.firstIndex(where: { $0.blockchainNetwork == network }) {
+                    alreadySaved[entry].tokens.append(token)
+                } else {
+                    let entry = StorageEntry(blockchainNetwork: network, token: token)
+                    alreadySaved.append(entry)
+                }
             }
         }
 
