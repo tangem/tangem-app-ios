@@ -43,10 +43,13 @@ struct UserWalletListView: ResizableSheetView {
                 .background(Colors.Background.primary)
                 .cornerRadius(14)
 
-                TangemButton(title: "user_wallet_list_add_button", image: "tangemIconBlack", iconPosition: .trailing) {
-                    viewModel.addUserWallet()
+                if !viewModel.isUnlocked {
+                    TangemButton(title: viewModel.unlockAllButtonLocalizationKey, action: viewModel.unlockAllWallets)
+                        .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
                 }
-                .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt3, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
+
+                TangemButton(title: "user_wallet_list_add_button", image: "tangemIconBlack", iconPosition: .trailing, action: viewModel.addUserWallet)
+                    .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt3, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
             }
 
             ScanTroubleshootingView(isPresented: $viewModel.showTroubleshootingView,
