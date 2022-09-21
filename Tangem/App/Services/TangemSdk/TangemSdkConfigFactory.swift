@@ -24,6 +24,29 @@ struct TangemSdkConfigFactory {
 
         config.filter.issuerFilter = .deny(["TTM BANK"])
         config.allowUntrustedCards = true
+        #warning("[REDACTED_TODO_COMMENT]")
+        #warning("[REDACTED_TODO_COMMENT]")
+        #warning("[REDACTED_TODO_COMMENT]")
+        #warning("[REDACTED_TODO_COMMENT]")
+        #warning("[REDACTED_TODO_COMMENT]")
+        #warning("[REDACTED_TODO_COMMENT]")
+        #warning("[REDACTED_TODO_COMMENT]")
+        #warning("[REDACTED_TODO_COMMENT]")
+        #warning("[REDACTED_TODO_COMMENT]")
+        #warning("[REDACTED_TODO_COMMENT]")
+        #warning("[REDACTED_TODO_COMMENT]")
+        #warning("[REDACTED_TODO_COMMENT]")
+        #warning("[REDACTED_TODO_COMMENT]")
+        #warning("[REDACTED_TODO_COMMENT]")
+        #warning("[REDACTED_TODO_COMMENT]")
+        #warning("[REDACTED_TODO_COMMENT]")
+        #warning("[REDACTED_TODO_COMMENT]")
+        #warning("[REDACTED_TODO_COMMENT]")
+        #warning("[REDACTED_TODO_COMMENT]")
+        #warning("[REDACTED_TODO_COMMENT]")
+        #warning("[REDACTED_TODO_COMMENT]")
+        #warning("[REDACTED_TODO_COMMENT]")
+        config.attestationMode = .offline
 
         return config
     }
