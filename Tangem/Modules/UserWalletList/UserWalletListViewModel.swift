@@ -26,6 +26,23 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
     var bottomSheetHeightUpdateCallback: ((ResizeSheetAction) -> ())?
 
+    var unlockAllButtonLocalizationKey: LocalizedStringKey {
+        switch BiometricAuthorizationUtils.biometryType {
+        case .faceID:
+            return "user_wallet_list_unlock_all_face_id"
+        case .touchID:
+            return "user_wallet_list_unlock_all_touch_id"
+        case .none:
+            return ""
+        @unknown default:
+            return ""
+        }
+    }
+
+    var isUnlocked: Bool {
+        userWalletListService.isUnlocked
+    }
+
     private unowned let coordinator: UserWalletListRoutable
     private var bag: Set<AnyCancellable> = []
     private var initialized = false
@@ -57,6 +74,13 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
     func onUserWalletTapped(_ userWallet: UserWallet) {
         setSelectedWallet(userWallet)
+    }
+
+    func unlockAllWallets() {
+        userWalletListService.unlockWithBiometry { [weak self] result in
+            #warning("[REDACTED_TODO_COMMENT]")
+            self?.updateModels()
+        }
     }
 
     func addUserWallet() {
