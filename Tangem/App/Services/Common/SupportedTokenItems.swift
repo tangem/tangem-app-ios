@@ -46,6 +46,8 @@ class SupportedTokenItems {
             .tron(testnet: false),
             .arbitrum(testnet: false),
             .gnosis,
+            .ethereumPoW(testnet: false),
+            .ethereumFair,
         ]
     }()
 
@@ -64,6 +66,8 @@ class SupportedTokenItems {
             // .polkadot(testnet: true),
             .tron(testnet: true),
             .arbitrum(testnet: true),
+            .ethereumPoW(testnet: true),
+            .ethereumFair,
         ]
     }()
 
