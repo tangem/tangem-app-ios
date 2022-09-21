@@ -35,7 +35,8 @@ struct UserWalletListCellView: View {
             }
 
             VStack(alignment: .leading, spacing: 2) {
-                Text(model.userWallet!.name)
+                #warning("TODO")
+                Text(model.userWallet?.name ?? "")
                     .style(Fonts.Bold.subheadline, color: isSelected ? Colors.Text.accent : Colors.Text.primary1)
 
                 Text(model.subtitle)
@@ -55,6 +56,8 @@ struct UserWalletListCellView: View {
                         .font(Font.footnote)
                         .foregroundColor(Colors.Text.tertiary)
                 }
+            } else {
+                lockIcon
             }
         }
         .padding(.horizontal, 16)
@@ -79,5 +82,14 @@ struct UserWalletListCellView: View {
                         .frame(size: selectionIconSize + CGSize(width: 2 * selectionIconBorderWidth, height: 2 * selectionIconBorderWidth))
                 )
         }
+    }
+
+    @ViewBuilder
+    private var lockIcon: some View {
+        Assets.lock
+            .padding(.horizontal, 14)
+            .padding(.vertical, 7)
+            .background(Colors.Background.secondary)
+            .cornerRadius(10)
     }
 }
