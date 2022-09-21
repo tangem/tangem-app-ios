@@ -17,6 +17,8 @@ protocol UserWalletListService: AnyObject, Initializable {
 
     var isEmpty: Bool { get }
 
+    var isUnlocked: Bool { get }
+
     func unlockWithBiometry(completion: @escaping (Result<Void, Error>) -> Void)
     func unlockWithCard(_ userWallet: UserWallet, completion: @escaping (Result<Void, Error>) -> Void)
 
