@@ -67,7 +67,6 @@ class SupportedTokenItems {
             .tron(testnet: true),
             .arbitrum(testnet: true),
             .ethereumPoW(testnet: true),
-            .ethereumFair,
         ]
     }()
 
