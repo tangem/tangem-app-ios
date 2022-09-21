@@ -527,6 +527,8 @@ URL: %@";
 "user_wallet_list_multi_header" = "Multi-currency";
 "user_wallet_list_single_header" = "Single-currency";
 "user_wallet_list_add_button" = "Add new wallet";
+"user_wallet_list_unlock_all_face_id" = "Unlock all with Face ID";
+"user_wallet_list_unlock_all_touch_id" = "Unlock all with Touch ID";
 "user_wallet_list_rename" = "Rename";
 "user_wallet_list_rename_popup_title" = "Rename Wallet";
 "user_wallet_list_rename_popup_placeholder" = "Wallet name";
