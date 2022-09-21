@@ -527,6 +527,8 @@ URL: %@";
 "user_wallet_list_multi_header" = "Мультивалютные";
 "user_wallet_list_single_header" = "Одновалютные";
 "user_wallet_list_add_button" = "Добавить новый кошелек";
+"user_wallet_list_unlock_all_face_id" = "Разблокировать все с Face ID";
+"user_wallet_list_unlock_all_touch_id" = "Разблокировать все с Touch ID";
 "user_wallet_list_rename" = "Переименовать";
 "user_wallet_list_rename_popup_title" = "Переименование кошелька";
 "user_wallet_list_rename_popup_placeholder" = "Имя кошелька";
