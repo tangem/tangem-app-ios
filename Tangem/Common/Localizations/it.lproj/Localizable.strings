@@ -510,3 +510,4 @@ URL: %@";
 "main_scan_card_warning_view_subtitle" = "To access all the networks you need to scan the card";
 "warning_existential_deposit_message" = "%@ network has a concept of Existential Deposit. If your account drops below %@ it will be deactivated and any remaining funds will be destroyed.";
 "wallet_connect_error_unsupported_dapp" = "Connection with this Dapp cannot be established due to its technical implementation.";
+"token_details_transaction_length_warning" = "iPhone 7/7+ cannot sign a transaction on this network due to system restrictions. Please use a different phone to complete this operation.";
