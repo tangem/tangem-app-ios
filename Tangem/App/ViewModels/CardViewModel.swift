@@ -25,7 +25,6 @@ class CardViewModel: Identifiable, ObservableObject {
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
 
     @Published private(set) var currentSecurityOption: SecurityModeOption = .longTap
-    @Published var walletsBalanceState: WalletsBalanceState = .loaded
 
     var signer: TangemSigner { config.tangemSigner }
 
@@ -520,10 +519,16 @@ class CardViewModel: Identifiable, ObservableObject {
     private func createUserWalletModelIfNeeded() {
         guard userWalletModel == nil, cardInfo.card.hasWallets else { return }
 
-        userWalletModel = CommonUserWalletModel(
+        // [REDACTED_TODO_COMMENT]
+        let userTokenListManager = CommonUserTokenListManager(config: config, userWalletId: cardInfo.card.userWalletId)
+        let walletListManager = CommonWalletListManager(
             config: config,
-            userWalletId: cardInfo.card.userWalletId,
-            output: self
+            userTokenListManager: userTokenListManager
+        )
+
+        userWalletModel = CommonUserWalletModel(
+            userTokenListManager: userTokenListManager,
+            walletListManager: walletListManager
         )
     }
 }
@@ -597,12 +602,6 @@ extension CardViewModel {
         }
 
         userWalletModel.remove(item: item, result: result)
-    }
-}
-
-extension CardViewModel: UserWalletModelOutput {
-    func userWalletModelRequestUpdate(walletsBalanceState: WalletsBalanceState) {
-        self.walletsBalanceState = walletsBalanceState
     }
 }
 

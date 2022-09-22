@@ -186,6 +186,10 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
 
                         print("🔄 Finished loading rates in wallet model for \(self.wallet.blockchain)")
 
+                        if !silent {
+                            self.state = .idle
+                        }
+
                         self.updateBalanceViewModel(with: self.wallet)
 
                         switch result {
@@ -215,10 +219,6 @@ class WalletModel: ObservableObject, Identifiable, Initializable {
 
                         if let demoBalance = self.demoBalance {
                             self.walletManager.wallet.add(coinValue: demoBalance)
-                        }
-
-                        if !silent {
-                            self.state = .idle
                         }
 
                         self.loadRates(result: loadRatesCompletionHandler)
