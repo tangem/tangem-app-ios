@@ -97,9 +97,14 @@ class AddCustomTokenViewModel: ObservableObject {
         let blockchain: Blockchain
         let derivationPath: DerivationPath?
         do {
-            tokenItem = try enteredTokenItem()
             blockchain = try enteredBlockchain()
             derivationPath = try enteredDerivationPath()
+
+            if let foundStandardTokenItem = self.foundStandardToken?.items.first(where: { $0.blockchain == blockchain }) {
+                tokenItem = foundStandardTokenItem
+            } else {
+                tokenItem = try enteredTokenItem()
+            }
 
             if case let .token(_, blockchain) = tokenItem,
                case .solana = blockchain,
