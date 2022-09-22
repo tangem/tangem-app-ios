@@ -35,7 +35,7 @@ class AddCustomTokenViewModel: ObservableObject {
     @Published var isLoading = false
 
     var canEnterTokenDetails: Bool {
-        foundStandardToken == nil && selectedBlockchainSupportsTokens
+        selectedBlockchainSupportsTokens
     }
 
     var showDerivationPaths: Bool {
@@ -59,34 +59,34 @@ class AddCustomTokenViewModel: ObservableObject {
         self.coordinator = coordinator
         self.cardModel = cardModel
 
-        Publishers.CombineLatest3(
-            $blockchainsPicker.map { $0.selection }.removeDuplicates(),
-            $contractAddress.removeDuplicates(),
-            $derivationsPicker.map { $0.selection }.removeDuplicates()
-        )
-        .dropFirst()
-        .debounce(for: 0.5, scheduler: RunLoop.main)
-        .flatMap { [unowned self] (blockchainName, contractAddress, derivationPath) -> AnyPublisher<[CoinModel], Never> in
-            self.isLoading = true
+        $contractAddress.removeDuplicates()
+            .dropFirst()
+            .debounce(for: 0.5, scheduler: RunLoop.main)
+            .flatMap { [unowned self] contractAddress -> AnyPublisher<[CoinModel], Never> in
+                self.isLoading = true
 
-            guard !contractAddress.isEmpty else {
-                return Just([])
-                    .eraseToAnyPublisher()
+                guard !contractAddress.isEmpty else {
+                    return Just([])
+                        .eraseToAnyPublisher()
+                }
+
+                return self.findToken(contractAddress: contractAddress)
             }
-
-            return self.findToken(contractAddress: contractAddress)
-        }
-        .receive(on: RunLoop.main)
-        .sink { [unowned self] currencyModels in
-            self.didFinishTokenSearch(currencyModels)
-        }
-        .store(in: &bag)
-
-        $blockchainsPicker.map { $0.selection }
-            .sink { [unowned self] newBlockchainName in
-                self.didChangeBlockchain(newBlockchainName)
+            .receive(on: RunLoop.main)
+            .sink { [unowned self] currencyModels in
+                self.didFinishTokenSearch(currencyModels)
             }
             .store(in: &bag)
+
+        Publishers.CombineLatest(
+            $blockchainsPicker.map { $0.selection }.removeDuplicates(),
+            $derivationsPicker.map { $0.selection }.removeDuplicates()
+        )
+        .debounce(for: 0.1, scheduler: RunLoop.main)
+        .sink { [unowned self] (newBlockchainName, _) in
+            self.didChangeBlockchain(newBlockchainName)
+        }
+        .store(in: &bag)
     }
 
     func createToken() {
@@ -96,11 +96,7 @@ class AddCustomTokenViewModel: ObservableObject {
         let blockchain: Blockchain
         let derivationPath: DerivationPath?
         do {
-            if let foundStandardTokenItem = self.foundStandardToken?.items.first {
-                tokenItem = foundStandardTokenItem
-            } else {
-                tokenItem = try enteredTokenItem()
-            }
+            tokenItem = try enteredTokenItem()
             blockchain = try enteredBlockchain()
             derivationPath = try enteredDerivationPath()
 
@@ -156,7 +152,7 @@ class AddCustomTokenViewModel: ObservableObject {
         decimals = ""
     }
 
-    private func updateBlockchains(_ blockchains: Set<Blockchain>) {
+    private func updateBlockchains(_ blockchains: Set<Blockchain>, newSelectedBlockchain: Blockchain? = nil) {
         let defaultItem = ("custom_token_network_input_not_selected".localized, "")
 
         let newBlockchains = [defaultItem] + blockchains.sorted {
@@ -169,7 +165,9 @@ class AddCustomTokenViewModel: ObservableObject {
         })
 
         var newBlockchainName = self.blockchainsPicker.selection
-        if blockchains.count == 1, let firstBlockchain = blockchains.first {
+        if let newSelectedBlockchain = newSelectedBlockchain {
+            newBlockchainName = newSelectedBlockchain.codingKey
+        } else if blockchains.count == 1, let firstBlockchain = blockchains.first {
             newBlockchainName = firstBlockchain.codingKey
         } else if blockchainByName[blockchainsPicker.selection] == nil {
             newBlockchainName = ""
@@ -343,8 +341,6 @@ class AddCustomTokenViewModel: ObservableObject {
     }
 
     private func didFinishTokenSearch(_ currencyModels: [CoinModel]) {
-        warningContainer.removeAll()
-        addButtonDisabled = false
         isLoading = false
 
         let previouslyFoundStandardToken = foundStandardToken
@@ -353,13 +349,8 @@ class AddCustomTokenViewModel: ObservableObject {
             partialResult.union(currencyModel.items.map { $0.blockchain })
         }
 
-        let blockchains: Set<Blockchain>
-        if !currencyModelBlockchains.isEmpty {
-            blockchains = currencyModelBlockchains
-        } else {
-            blockchains = getBlockchains(withTokenSupport: true)
-        }
-        updateBlockchains(blockchains)
+        let blockchains = getBlockchains(withTokenSupport: true)
+        updateBlockchains(blockchains, newSelectedBlockchain: currencyModelBlockchains.first)
 
         self.foundStandardToken = currencyModels.first
 
@@ -377,24 +368,7 @@ class AddCustomTokenViewModel: ObservableObject {
             name = ""
         }
 
-        do {
-            try checkLocalStorage()
-
-            if currencyModels.isEmpty,
-               let blockchain = try? enteredBlockchain(),
-               let _ = try? enteredContractAddress(in: blockchain)
-            {
-                throw TokenSearchError.failedToFindToken
-            }
-        } catch {
-            let tokenSearchError = error as? TokenSearchError
-            addButtonDisabled = tokenSearchError?.preventsFromAdding ?? false
-            warningContainer.removeAll()
-
-            if let tokenSearchError = tokenSearchError {
-                warningContainer.add(tokenSearchError.appWarning)
-            }
-        }
+        validate()
     }
 
     private func didChangeBlockchain(_ newBlockchainName: String) {
@@ -408,6 +382,31 @@ class AddCustomTokenViewModel: ObservableObject {
         }
 
         blockchainHasDifferentDerivationPaths = blockchainHasDerivationPaths
+
+        validate()
+    }
+
+    private func validate() {
+        addButtonDisabled = false
+        warningContainer.removeAll()
+
+        do {
+            try checkLocalStorage()
+
+            if foundStandardToken != nil,
+               let blockchain = try? enteredBlockchain(),
+               let _ = try? enteredContractAddress(in: blockchain)
+            {
+                throw TokenSearchError.failedToFindToken
+            }
+        } catch {
+            let tokenSearchError = error as? TokenSearchError
+            addButtonDisabled = tokenSearchError?.preventsFromAdding ?? false
+
+            if let tokenSearchError = tokenSearchError {
+                warningContainer.add(tokenSearchError.appWarning)
+            }
+        }
     }
 }
 
