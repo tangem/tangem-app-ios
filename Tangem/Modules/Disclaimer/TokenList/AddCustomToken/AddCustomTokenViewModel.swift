@@ -97,14 +97,9 @@ class AddCustomTokenViewModel: ObservableObject {
         let blockchain: Blockchain
         let derivationPath: DerivationPath?
         do {
+            tokenItem = try enteredTokenItem()
             blockchain = try enteredBlockchain()
             derivationPath = try enteredDerivationPath()
-
-            if let foundStandardTokenItem = self.foundStandardToken?.items.first(where: { $0.blockchain == blockchain }) {
-                tokenItem = foundStandardTokenItem
-            } else {
-                tokenItem = try enteredTokenItem()
-            }
 
             if case let .token(_, blockchain) = tokenItem,
                case .solana = blockchain,
@@ -253,11 +248,14 @@ class AddCustomTokenViewModel: ObservableObject {
                 throw TokenCreationErrors.invalidDecimals(precision: maxDecimalNumber)
             }
 
+            let foundStandardTokenItem = foundStandardToken?.items.first(where: { $0.blockchain == blockchain }) ?? foundStandardToken?.items.first
+
             let token = Token(
                 name: name,
                 symbol: symbol.uppercased(),
                 contractAddress: enteredContractAddress,
-                decimalCount: decimals
+                decimalCount: decimals,
+                id: foundStandardTokenItem?.id
             )
 
             return .token(token, blockchain)
