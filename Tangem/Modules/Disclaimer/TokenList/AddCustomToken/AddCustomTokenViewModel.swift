@@ -52,6 +52,7 @@ class AddCustomTokenViewModel: ObservableObject {
 
     private var bag: Set<AnyCancellable> = []
     private var blockchainByName: [String: Blockchain] = [:]
+    private var derivationPathByBlockchainName: [String: DerivationPath] = [:]
     private var foundStandardToken: CoinModel?
     private unowned let coordinator: AddCustomTokenRoutable
 
@@ -163,6 +164,10 @@ class AddCustomTokenViewModel: ObservableObject {
         self.blockchainByName = Dictionary(uniqueKeysWithValues: blockchains.map {
             ($0.codingKey, $0)
         })
+        self.derivationPathByBlockchainName = Dictionary(uniqueKeysWithValues: blockchains.compactMap {
+            guard let derivationPath = $0.derivationPath() else { return nil }
+            return ($0.codingKey, derivationPath)
+        })
 
         var newBlockchainName = self.blockchainsPicker.selection
         if let newSelectedBlockchain = newSelectedBlockchain {
@@ -208,8 +213,9 @@ class AddCustomTokenViewModel: ObservableObject {
                         return nil
                     }
                     let derivationPathFormatted = derivationPath.rawPath
+                    let blockchainName = $0.codingKey
                     let description = "\($0.displayName) (\(derivationPathFormatted))"
-                    return (description, derivationPathFormatted)
+                    return (description, blockchainName)
                 }
                 .sorted {
                     $0.0 < $1.0
@@ -280,18 +286,8 @@ class AddCustomTokenViewModel: ObservableObject {
             return nil
         }
 
-        let rawPath = derivationsPicker.selection
-        if !rawPath.isEmpty {
-            let derivationPath = try? DerivationPath(rawPath: rawPath)
-
-            if derivationPath == nil {
-                throw TokenCreationErrors.invalidDerivationPath
-            }
-
-            return derivationPath
-        } else {
-            return nil
-        }
+        let blockchainName = derivationsPicker.selection
+        return derivationPathByBlockchainName[blockchainName]
     }
 
     private func checkLocalStorage() throws {
