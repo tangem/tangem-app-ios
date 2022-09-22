@@ -526,3 +526,4 @@ URL: %@";
 "wallet_connect_title" = "WalletConnect";
 "wallet_connect_subtitle" = "Подключение к Dapps";
 "wallet_connect_select_network" = "Выберите сеть";
+"wallet_connect_error_unsupported_dapp" = "Cоединение с этим Dapp сервисом не может быть установлено из-за его технической реализации.";
