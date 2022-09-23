@@ -248,7 +248,7 @@ class AddCustomTokenViewModel: ObservableObject {
                 throw TokenCreationErrors.invalidDecimals(precision: maxDecimalNumber)
             }
 
-            let foundStandardTokenItem = foundStandardToken?.items.first(where: { $0.blockchain == blockchain }) ?? foundStandardToken?.items.first
+            let foundStandardTokenItem = foundStandardToken?.items.first(where: { $0.blockchain == blockchain })
 
             let token = Token(
                 name: name,
