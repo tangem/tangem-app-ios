@@ -138,8 +138,8 @@
         },
         {
             "id": "optimistic-ethereum",
-            "symbol": "OP",
-            "name": "Optimism",
+            "symbol": "ETH",
+            "name": "Optimistic Ethereum",
             "networks":
             [
                 {
