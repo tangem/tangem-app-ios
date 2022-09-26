@@ -16,46 +16,6 @@ import MessageUI
 struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
 
-//    var pendingTransactionViews: [PendingTxView] {
-//        let incTx = viewModel.incomingTransactions.map {
-//            PendingTxView(pendingTx: $0)
-//        }
-//
-//        let outgTx = viewModel.outgoingTransactions.enumerated().map { (index, pendingTx) -> PendingTxView in
-//            PendingTxView(pendingTx: pendingTx) {
-//                viewModel.openPushTx(for: index)
-//            }
-//        }
-//
-//        return incTx + outgTx
-//    }
-
-//    var shouldShowBalanceView: Bool {
-//        if let walletModel = viewModel.singleWalletModel {
-//            switch walletModel.state {
-//            case .idle, .loading, .failed:
-//                return true
-//            default:
-//                return false
-//            }
-//        }
-//
-//        return false
-//    }
-
-//    var noAccountView: MessageView? {
-//        if let walletModel = viewModel.singleWalletModel {
-//            switch walletModel.state {
-//            case .noAccount(let message):
-//                return MessageView(title: "wallet_error_no_account".localized, subtitle: message, type: .error)
-//            default:
-//                return nil
-//            }
-//        }
-//
-//        return nil
-//    }
-
     var body: some View {
         GeometryReader { geometry in
             ZStack {
@@ -81,10 +41,10 @@ struct MainView: View {
                         .padding(.horizontal, 16)
 
 
-                        if viewModel.isMultiWalletMode {
-                            multiWalletContent
-                        } else {
-                            singleWalletContent
+                        if let viewModel = viewModel.multiWalletContentViewModel {
+                            MultiWalletContentView(viewModel: viewModel)
+                        } else if let viewModel = viewModel.singleWalletContentViewModel {
+                            SingleWalletContentView(viewModel: viewModel)
                         }
 
                         Color.clear.frame(width: 10, height: 58, alignment: .center)
@@ -138,20 +98,6 @@ struct MainView: View {
         })
         .padding(.horizontal, 16)
         .padding(.bottom, 6)
-    }
-
-    @ViewBuilder
-    var singleWalletContent: some View {
-        if let viewModel = viewModel.singleWalletContentViewModel {
-            SingleWalletContentView(viewModel: viewModel)
-        }
-    }
-
-    @ViewBuilder
-    var multiWalletContent: some View {
-        if let viewModel = viewModel.multiWalletContentViewModel {
-            MultiWalletContentView(viewModel: viewModel)
-        }
     }
 
     var sendButton: some View {
