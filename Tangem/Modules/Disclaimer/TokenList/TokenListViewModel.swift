@@ -44,7 +44,7 @@ class TokenListViewModel: ObservableObject {
     }
 
     var shouldShowAlert: Bool {
-        cardModel?.shoulShowLegacyDerivationAlert ?? false
+        cardModel?.shouldShowLegacyDerivationAlert ?? false
     }
 
     var isSaveDisabled: Bool {
@@ -406,6 +406,18 @@ private extension TokenListViewModel {
 
     private func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool, tokenItem: TokenItem) {
         Analytics.log(tokenIsSelected ? .tokenSwitchOn : .tokenSwitchOff, params: [.tokenName: "\(tokenItem.name) \(tokenItem.symbol)"])
+    }
+
+    private func showErrorAlert(error: Error) {
+        let dismissButton = Alert.Button.default(Text("common_ok".localized)) { [weak self] in
+            self?.closeModule()
+        }
+
+        let alert = Alert(title: Text("common_error".localized),
+                          message: Text(error.localizedDescription),
+                          dismissButton: dismissButton)
+
+        self.alert = AlertBinder(alert: alert)
     }
 }
 
