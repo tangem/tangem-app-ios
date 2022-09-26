@@ -3,7 +3,7 @@ platform :ios, '13.0'
 project 'TangemApp.xcodeproj'
 
 def common_pods
-   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'biometry-additional-1'
+   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :branch => '1943-user-wallets-additional-stuff'
    #pod 'TangemSdk', :path => '../tangem-sdk-ios'
    pod 'KeychainSwift', '~> 19.0'
 end

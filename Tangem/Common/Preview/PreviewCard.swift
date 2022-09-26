@@ -25,7 +25,8 @@ enum PreviewCard {
     var cardModel: CardViewModel {
         let card = CardDTO(card: Card.card)
         let ci = CardInfo(card: card, walletData: walletData, name: "Name")
-        let vm = CardViewModel(cardInfo: ci)
+        let config = UserWalletConfigFactory(ci).makeConfig()
+        let vm = CardViewModel(cardInfo: ci, config: config)
         #if !CLIP
         let walletModels: [WalletModel]
         if let blockchain = blockchain {
