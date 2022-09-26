@@ -97,7 +97,7 @@ struct TokenDetailsView: View {
                             BalanceAddressView(walletModel: walletModel,
                                                amountType: viewModel.amountType,
                                                isRefreshing: viewModel.isRefreshing,
-                                               showExplorerURL: $viewModel.showExplorerURL)
+                                               showExplorerURL: viewModel.showExplorerURL)
                         }
 
                         bottomButtons
