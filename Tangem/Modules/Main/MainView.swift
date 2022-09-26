@@ -16,145 +16,45 @@ import MessageUI
 struct MainView: View {
     @ObservedObject var viewModel: MainViewModel
 
-    var sendChoiceButtons: [ActionSheet.Button] {
-        let symbols = viewModel
-            .wallets?
-            .first?
-            .amounts
-            .filter { $0.key != .reserve && $0.value.value > 0 }
-            .values
-            .map { $0.self }
+//    var pendingTransactionViews: [PendingTxView] {
+//        let incTx = viewModel.incomingTransactions.map {
+//            PendingTxView(pendingTx: $0)
+//        }
+//
+//        let outgTx = viewModel.outgoingTransactions.enumerated().map { (index, pendingTx) -> PendingTxView in
+//            PendingTxView(pendingTx: pendingTx) {
+//                viewModel.openPushTx(for: index)
+//            }
+//        }
+//
+//        return incTx + outgTx
+//    }
 
-        let buttons = symbols?.map { amount in
-            return ActionSheet.Button.default(Text(amount.currencySymbol)) {
-                viewModel.openSend(for: Amount(with: amount, value: 0))
-            }
-        }
-        return buttons ?? []
-    }
+//    var shouldShowBalanceView: Bool {
+//        if let walletModel = viewModel.singleWalletModel {
+//            switch walletModel.state {
+//            case .idle, .loading, .failed:
+//                return true
+//            default:
+//                return false
+//            }
+//        }
+//
+//        return false
+//    }
 
-    var pendingTransactionViews: [PendingTxView] {
-        let incTx = viewModel.incomingTransactions.map {
-            PendingTxView(pendingTx: $0)
-        }
-
-        let outgTx = viewModel.outgoingTransactions.enumerated().map { (index, pendingTx) -> PendingTxView in
-            PendingTxView(pendingTx: pendingTx) {
-                viewModel.openPushTx(for: index)
-            }
-        }
-
-        return incTx + outgTx
-    }
-
-    var shouldShowBalanceView: Bool {
-        if let walletModel = viewModel.singleWalletModel {
-            switch walletModel.state {
-            case .idle, .loading, .failed:
-                return true
-            default:
-                return false
-            }
-        }
-
-        return false
-    }
-
-    var noAccountView: MessageView? {
-        if let walletModel = viewModel.singleWalletModel {
-            switch walletModel.state {
-            case .noAccount(let message):
-                return MessageView(title: "wallet_error_no_account".localized, subtitle: message, type: .error)
-            default:
-                return nil
-            }
-        }
-
-        return nil
-    }
-
-    var scanNavigationButton: some View {
-        Button(action: viewModel.onScan,
-               label: {
-                   Image("wallets")
-                       .foregroundColor(Color.black)
-                       .frame(width: 44, height: 44)
-                       .offset(x: -11, y: 0)
-               })
-               .buttonStyle(PlainButtonStyle())
-    }
-
-    var settingsNavigationButton: some View {
-        Button(action: viewModel.openSettings,
-               label: { Image("verticalDots")
-                   .foregroundColor(Color.tangemGrayDark6)
-                   .frame(width: 44.0, height: 44.0, alignment: .center)
-                   .offset(x: 11, y: 0)
-               })
-               .accessibility(label: Text("voice_over_open_card_details"))
-               .padding(0.0)
-    }
-
-    var backupWarningView: some View {
-        BackUpWarningButton(tapAction: {
-            viewModel.prepareForBackup()
-        })
-        .padding(.horizontal, 16)
-        .padding(.bottom, 6)
-    }
-
-    @ViewBuilder
-    var singleWalletContent: some View {
-        Group {
-            ForEach(pendingTransactionViews) { $0 }
-                .padding(.horizontal, 16.0)
-
-            if viewModel.canShowAddress {
-                if shouldShowBalanceView, let singleWalletModel = viewModel.singleWalletModel {
-                    BalanceView(
-                        balanceViewModel: singleWalletModel.balanceViewModel,
-                        tokenViewModels: singleWalletModel.tokenViewModels
-                    )
-                    .padding(.horizontal, 16.0)
-                } else if let noAccountView = noAccountView {
-                    noAccountView
-                }
-
-                if let walletModel = viewModel.singleWalletModel {
-                    AddressDetailView(showQr: $viewModel.showQR,
-                                      selectedAddressIndex: $viewModel.selectedAddressIndex,
-                                      showExplorerURL: $viewModel.showExplorerURL,
-                                      walletModel: walletModel) {
-                        viewModel.copyAddress()
-                    }
-                }
-            } else {
-                TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 6)
-            }
-        }
-    }
-
-    @ViewBuilder
-    var multiWalletContent: some View {
-        Group {
-            if !viewModel.tokenListIsEmpty {
-                TotalSumBalanceView(viewModel: viewModel.totalSumBalanceViewModel)
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 6)
-            }
-
-            if let walletTokenListViewModel = viewModel.walletTokenListViewModel {
-                WalletTokenListView(viewModel: walletTokenListViewModel)
-            }
-
-            AddTokensView(action: viewModel.openTokensList)
-                .padding(.horizontal, 16)
-                .padding(.bottom, 8)
-                .padding(.top, 6)
-        }
-    }
+//    var noAccountView: MessageView? {
+//        if let walletModel = viewModel.singleWalletModel {
+//            switch walletModel.state {
+//            case .noAccount(let message):
+//                return MessageView(title: "wallet_error_no_account".localized, subtitle: message, type: .error)
+//            default:
+//                return nil
+//            }
+//        }
+//
+//        return nil
+//    }
 
     var body: some View {
         GeometryReader { geometry in
@@ -210,6 +110,50 @@ struct MainView: View {
         .alert(item: $viewModel.error) { $0.alert }
     }
 
+    var scanNavigationButton: some View {
+        Button(action: viewModel.onScan,
+               label: {
+                   Image("wallets")
+                       .foregroundColor(Color.black)
+                       .frame(width: 44, height: 44)
+                       .offset(x: -11, y: 0)
+               })
+               .buttonStyle(PlainButtonStyle())
+    }
+
+    var settingsNavigationButton: some View {
+        Button(action: viewModel.openSettings,
+               label: { Image("verticalDots")
+                   .foregroundColor(Color.tangemGrayDark6)
+                   .frame(width: 44.0, height: 44.0, alignment: .center)
+                   .offset(x: 11, y: 0)
+               })
+               .accessibility(label: Text("voice_over_open_card_details"))
+               .padding(0.0)
+    }
+
+    var backupWarningView: some View {
+        BackUpWarningButton(tapAction: {
+            viewModel.prepareForBackup()
+        })
+        .padding(.horizontal, 16)
+        .padding(.bottom, 6)
+    }
+
+    @ViewBuilder
+    var singleWalletContent: some View {
+        if let viewModel = viewModel.singleWalletContentViewModel {
+            SingleWalletContentView(viewModel: viewModel)
+        }
+    }
+
+    @ViewBuilder
+    var multiWalletContent: some View {
+        if let viewModel = viewModel.multiWalletContentViewModel {
+            MultiWalletContentView(viewModel: viewModel)
+        }
+    }
+
     var sendButton: some View {
         TangemButton(title: "wallet_button_send",
                      systemImage: "arrow.right",
@@ -222,7 +166,18 @@ struct MainView: View {
                             buttons: sendChoiceButtons + [ActionSheet.Button.cancel()])
 
             }
+    }
 
+    var sendChoiceButtons: [ActionSheet.Button] {
+        let symbols = viewModel.wallets.first?.amounts
+            .filter { $0.key != .reserve && $0.value.value > 0 }
+            .values.map { $0.self } ?? []
+
+        return symbols.map { amount in
+            return ActionSheet.Button.default(Text(amount.currencySymbol)) {
+                viewModel.openSend(for: Amount(with: amount, value: 0))
+            }
+        }
     }
 
     @ViewBuilder
