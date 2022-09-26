@@ -18,6 +18,7 @@ protocol UserWalletModel {
     func getWalletModels() -> [WalletModel]
     func subscribeToWalletModels() -> AnyPublisher<[WalletModel], Never>
 
+    func getSavedEntries() -> [StorageEntry]
     func getEntriesWithoutDerivation() -> [StorageEntry]
     func subscribeToEntriesWithoutDerivation() -> AnyPublisher<[StorageEntry], Never>
 
