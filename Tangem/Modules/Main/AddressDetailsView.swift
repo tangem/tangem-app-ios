@@ -10,12 +10,25 @@ import Foundation
 import SwiftUI
 
 struct AddressDetailView: View {
-    @Binding var showQr: Bool
     @Binding var selectedAddressIndex: Int
-    @Binding var showExplorerURL: URL?
-    var walletModel: WalletModel
 
+    let walletModel: WalletModel
     let copyAddress: () -> Void
+    let showQr: () -> Void
+    let showExplorerURL: (URL?) -> Void
+
+    init(selectedAddressIndex: Binding<Int>,
+         walletModel: WalletModel,
+         copyAddress: @escaping () -> Void,
+         showQr: @escaping () -> Void,
+         showExplorerURL: @escaping (URL?) -> Void
+    ) {
+        _selectedAddressIndex = selectedAddressIndex
+        self.walletModel = walletModel
+        self.copyAddress = copyAddress
+        self.showQr = showQr
+        self.showExplorerURL = showExplorerURL
+    }
 
     var showAddressSelector: Bool {
         return walletModel.wallet.addresses.count > 1
@@ -47,8 +60,7 @@ struct AddressDetailView: View {
                         .foregroundColor(Color.tangemGrayDark)
 
                     ExploreButton(url: walletModel.exploreURL(for: selectedAddressIndex),
-                                  urlBinding: $showExplorerURL)
-
+                                  showExplorerURL: showExplorerURL)
                 }
 
                 Spacer()
@@ -62,7 +74,7 @@ struct AddressDetailView: View {
                                    isDisabled: false)
                     .accessibility(label: Text("voice_over_copy_address"))
 
-                CircleActionButton(action: { self.showQr = true },
+                CircleActionButton(action: showQr,
                                    backgroundColor: .tangemBgGray,
                                    imageName: "qrcode",
                                    isSystemImage: true,
@@ -83,11 +95,11 @@ struct AddressDetailView_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
             Color.tangemBgGray
-            AddressDetailView(showQr: .constant(false),
-                              selectedAddressIndex: .constant(0),
-                              showExplorerURL: .constant(nil),
+            AddressDetailView(selectedAddressIndex: .constant(0),
                               walletModel: PreviewCard.v4.cardModel.walletModels.first!,
-                              copyAddress: {})
+                              copyAddress: {},
+                              showQr: {},
+                              showExplorerURL: { _ in })
         }
     }
 }
