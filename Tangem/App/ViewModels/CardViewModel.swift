@@ -239,10 +239,6 @@ class CardViewModel: Identifiable, ObservableObject {
         userWalletModel?.userWallet
     }
 
-//    var isUserWalletLocked: Bool {
-//        return userWallet?.isLocked ?? false
-//    }
-
     var subtitle: String {
         if let embeddedBlockchain = config.embeddedBlockchain {
             return embeddedBlockchain.blockchainNetwork.blockchain.displayName
@@ -261,14 +257,20 @@ class CardViewModel: Identifiable, ObservableObject {
     private var bag = Set<AnyCancellable>()
 
     convenience init(userWallet: UserWallet) {
-        self.init(cardInfo: userWallet.cardInfo(), userWallet: userWallet)
+        let cardInfo = userWallet.cardInfo()
+        let config = UserWalletConfigFactory(cardInfo).makeConfig()
+
+        self.init(cardInfo: userWallet.cardInfo(), config: config)
     }
 
-    init(cardInfo: CardInfo, userWallet: UserWallet? = nil) {
+    init(
+        cardInfo: CardInfo,
+        config: UserWalletConfig
+    ) {
         self.cardInfo = cardInfo
-        self.config = UserWalletConfigFactory(cardInfo).makeConfig()
+        self.config = config
 
-        createUserWalletModelIfNeeded(userWallet)
+        createUserWalletModelIfNeeded()
         updateCardPinSettings()
         updateCurrentSecurityOption()
         bind()
@@ -606,8 +608,9 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
 
-    private func createUserWalletModelIfNeeded(_ userWallet: UserWallet? = nil) {
+    private func createUserWalletModelIfNeeded() {
         guard userWalletModel == nil, cardInfo.card.hasWallets else { return }
+        let userWallet = UserWalletFactory().userWallet(from: cardInfo, config: config)
 
         // [REDACTED_TODO_COMMENT]
         let userTokenListManager = CommonUserTokenListManager(config: config, userWalletId: cardInfo.card.userWalletId)
@@ -619,7 +622,7 @@ class CardViewModel: Identifiable, ObservableObject {
         userWalletModel = CommonUserWalletModel(
             userTokenListManager: userTokenListManager,
             walletListManager: walletListManager,
-            userWallet: userWallet!
+            userWallet: userWallet
         )
     }
 }
