@@ -243,7 +243,7 @@ DEPENDENCIES:
   - stellar-ios-mac-sdk
   - SwiftCBOR
   - SwiftyJSON
-  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `biometry-additional-1`)
+  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, branch `1943-user-wallets-additional-stuff`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.7.0`)
   - web3swift (from `https://github.com/tangem/web3swift.git`, tag `2.2.9`)
   - ZendeskAnswerBotSDK (~> 2.2.0)
@@ -322,8 +322,8 @@ EXTERNAL SOURCES:
     :git: https://github.com/tangem/Solana.Swift
     :tag: add-external-signer-1
   TangemSdk:
+    :branch: 1943-user-wallets-additional-stuff
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: biometry-additional-1
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.7.0
@@ -354,8 +354,8 @@ CHECKOUT OPTIONS:
     :git: https://github.com/tangem/Solana.Swift
     :tag: add-external-signer-1
   TangemSdk:
+    :commit: fe46475945ac680e6abed63c0b4ce70407cb8c92
     :git: https://github.com/Tangem/tangem-sdk-ios.git
-    :tag: biometry-additional-1
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.7.0
@@ -421,6 +421,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: e21bbf00990ccf8d6a531142e1b6e06d2eefbead
+PODFILE CHECKSUM: f1f05de29ff1b9652e01a74fe759045de5b6bedc
 
 COCOAPODS: 1.11.3
