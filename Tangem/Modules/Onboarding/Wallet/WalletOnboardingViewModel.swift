@@ -501,10 +501,11 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
 
                         self?.backupService.setPrimaryCard(result.primaryCard)
                         promise(.success(()))
-                        self?.prepareTask = nil
                     case .failure(let error):
                         promise(.failure(error))
                     }
+                    
+                    self?.prepareTask = nil
                 }
             }
         }
