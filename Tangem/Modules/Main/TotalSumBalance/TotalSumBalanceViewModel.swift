@@ -21,7 +21,8 @@ class TotalSumBalanceViewModel: ObservableObject {
 
     // MARK: - Private
 
-    @Injected(\.rateAppService) private var rateAppService: RateAppService
+    @Injected(\.rateAppService)
+    private var rateAppService: RateAppService
     private let tapOnCurrencySymbol: () -> ()
     private let isSingleCoinCard: Bool
     private let userWalletModel: UserWalletModel
