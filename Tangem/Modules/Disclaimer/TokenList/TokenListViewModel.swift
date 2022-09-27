@@ -117,16 +117,26 @@ class TokenListViewModel: ObservableObject {
 
             switch result {
             case .success:
-                self?.closeModule()
-                Analytics.log(.tokenListSave)
+                self?.tokenListDidSave()
             case .failure(let error):
                 if let sdkError = error as? TangemSdkError, sdkError.isUserCancelled {
+                    return
+                }
+
+                /// Don't show alert if we have an error due to sync in API
+                if error is TangemAPIError {
+                    self?.tokenListDidSave()
                     return
                 }
 
                 self?.alert = error.alertBinder
             }
         }
+    }
+    
+    func tokenListDidSave() {
+        Analytics.log(.tokenListSave)
+        closeModule()
     }
 
     func onAppear() {
