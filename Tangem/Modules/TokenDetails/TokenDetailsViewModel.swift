@@ -155,8 +155,6 @@ class TokenDetailsViewModel: ObservableObject {
     }
 
     @Published var solanaRentWarning: String? = nil
-    @Published var showExplorerURL: URL? = nil
-
     let amountType: Amount.AmountType
     let blockchainNetwork: BlockchainNetwork
 
@@ -249,14 +247,12 @@ class TokenDetailsViewModel: ObservableObject {
                 self?.objectWillChange.send()
             }
             .store(in: &bag)
+    }
 
-        $showExplorerURL
-            .compactMap { $0 }
-            .sink { [unowned self] url in
-                self.openExplorer(at: url)
-                self.showExplorerURL = nil
-            }
-            .store(in: &bag)
+    func showExplorerURL(url: URL?) {
+        guard let url = url else { return }
+
+        self.openExplorer(at: url)
     }
 
     func onRefresh(_ done: @escaping () -> Void) {
