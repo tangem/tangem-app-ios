@@ -25,7 +25,6 @@ protocol UserWalletModel {
     func update(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void)
     func append(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void)
     func remove(item: CommonUserWalletModel.RemoveItem, result: @escaping (Result<UserTokenList, Error>) -> Void)
-    func clearRepository(result: @escaping (Result<UserTokenList, Error>) -> Void)
 
     func updateAndReloadWalletModels(completion: @escaping () -> Void)
 }
