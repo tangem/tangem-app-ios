@@ -447,6 +447,14 @@ class SendViewModel: ObservableObject {
                 }
             }
             .store(in: &bag)
+
+        $destinationHint
+            .sink { [weak self] hint in
+                guard let self = self else { return }
+                if hint == nil {
+                    self.transaction = nil
+                }
+            }.store(in: &bag)
     }
 
     func onAppear() {
