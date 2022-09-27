@@ -340,6 +340,9 @@ class SendViewModel: ObservableObject {
                            $isFeeIncluded)
             .sink { [unowned self] (amount, destination, fee, isFeeIncluded) in
                 guard let amount = amount, let destination = destination, let fee = fee else {
+                    if (destination?.isEmpty == false) || destination == nil {
+                        self.transaction = nil
+                    }
                     return
                 }
 
@@ -447,14 +450,6 @@ class SendViewModel: ObservableObject {
                 }
             }
             .store(in: &bag)
-
-        $destinationHint
-            .sink { [weak self] hint in
-                guard let self = self else { return }
-                if hint == nil {
-                    self.transaction = nil
-                }
-            }.store(in: &bag)
     }
 
     func onAppear() {
