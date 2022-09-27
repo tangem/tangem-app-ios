@@ -324,7 +324,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
 
-    func resetToFactory(completion: @escaping (Result<Void, Error>) -> Void) {
+    func resetToFactory(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
         let card = self.cardInfo.card
         tangemSdk.startSession(with: ResetToFactorySettingsTask(),
                                cardId: cardId,
