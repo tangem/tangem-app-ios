@@ -133,7 +133,7 @@ class TokenListViewModel: ObservableObject {
             }
         }
     }
-    
+
     func tokenListDidSave() {
         Analytics.log(.tokenListSave)
         closeModule()
