@@ -194,6 +194,8 @@ class OnboardingViewModel<Step: OnboardingStep> {
 
     func goToNextStep() {
         if isOnboardingFinished {
+            input.cardInput.cardModel?.appendDefaultBlockchains()
+
             DispatchQueue.main.async {
                 self.onboardingDidFinish()
             }
