@@ -504,7 +504,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                     case .failure(let error):
                         promise(.failure(error))
                     }
-                    
+
                     self?.prepareTask = nil
                 }
             }
