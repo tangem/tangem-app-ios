@@ -78,14 +78,21 @@ class MultiWalletContentViewModel: ObservableObject {
 private extension MultiWalletContentViewModel {
     func bind() {
         userWalletModel.subscribeToWalletModels()
+            .sink { [unowned self] wallets in
+                updateView(wallets: wallets)
+            }
+            .store(in: &bag)
+
+        userWalletModel.subscribeToWalletModels()
             .map { wallets in
                 wallets
                     .map { $0.$tokenItemViewModels }
                     .combineLatest()
+                    .map { _ in wallets }
             }
             .switchToLatest()
             .sink { [unowned self] wallets in
-                updateView()
+                updateView(wallets: wallets)
             }
             .store(in: &bag)
 
@@ -95,8 +102,8 @@ private extension MultiWalletContentViewModel {
             .store(in: &bag)
     }
 
-    func updateView() {
-        let itemsViewModel = userWalletModel.getWalletModels().flatMap { $0.tokenItemViewModels }
+    func updateView(wallets: [WalletModel]) {
+        let itemsViewModel = wallets.flatMap { $0.tokenItemViewModels }
 
         tokenListIsEmpty = itemsViewModel.isEmpty
         contentState = .loaded(itemsViewModel)
