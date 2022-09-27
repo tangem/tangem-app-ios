@@ -33,6 +33,10 @@ extension CommonUserWalletModel: UserWalletModel {
         walletListManager.update(config: config)
     }
 
+    func getSavedEntries() -> [StorageEntry] {
+        userTokenListManager.getEntriesFromRepository()
+    }
+
     func getWalletModels() -> [WalletModel] {
         walletListManager.getWalletModels()
     }
