@@ -103,6 +103,7 @@ fileprivate struct PickerInputWithTitle: View {
                 .id(model.id)
                 .modifier(PickerStyleModifier())
                 .disabled(!model.isEnabled)
+                .modifier(PickerAlignmentModifier())
 
                 Spacer()
             }
@@ -110,6 +111,19 @@ fileprivate struct PickerInputWithTitle: View {
         .padding(.horizontal)
         .padding(.vertical, 8)
         .background(backgroundColor)
+    }
+}
+
+// MARK: - Modifiers
+
+fileprivate struct PickerAlignmentModifier: ViewModifier {
+    func body(content: Content) -> some View {
+        if #available(iOS 16, *) {
+            content
+                .padding(.leading, -12)
+        } else {
+            content
+        }
     }
 }
 
