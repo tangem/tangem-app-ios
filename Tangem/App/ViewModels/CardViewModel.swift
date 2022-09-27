@@ -324,7 +324,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
 
-    func resetToFactory(completion: @escaping (Result<UserTokenList, Error>) -> Void) {
+    func resetToFactory(completion: @escaping (Result<Void, Error>) -> Void) {
         let card = self.cardInfo.card
         tangemSdk.startSession(with: ResetToFactorySettingsTask(),
                                cardId: cardId,
@@ -334,6 +334,7 @@ class CardViewModel: Identifiable, ObservableObject {
             case .success:
                 Analytics.log(.factoryResetSuccess)
                 self?.clearTwinPairKey()
+                completion(.success(()))
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .purgeWallet, card: card)
                 completion(.failure(error))
