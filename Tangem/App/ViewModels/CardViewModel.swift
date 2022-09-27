@@ -238,15 +238,9 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
 
-        let derivationManager = DerivationManager(config: config, cardInfo: cardInfo)
-        derivationManager.deriveIfNeeded(
-            entries: userWalletModel.getEntriesWithoutDerivation()
-        ) { [weak self] result in
+        derive(entries: userWalletModel.getEntriesWithoutDerivation()) { [weak self] result in
             switch result {
-            case let .success(card):
-                if let card = card {
-                    self?.update(with: card)
-                }
+            case .success:
                 self?.userWalletModel?.updateAndReloadWalletModels()
             case .failure:
                 print("Derivation error")
@@ -554,14 +548,9 @@ extension CardViewModel {
     }
 
     func add(entries: [StorageEntry], completion: @escaping (Result<UserTokenList, Error>) -> Void) {
-        let derivationManager = DerivationManager(config: config, cardInfo: cardInfo)
-        derivationManager.deriveIfNeeded(entries: entries) { [weak self] result in
+        derive(entries: entries) { [weak self] result in
             switch result {
-            case let .success(card):
-                if let card = card {
-                    self?.update(with: card)
-                }
-
+            case .success:
                 self?.userWalletModel?.append(entries: entries, result: completion)
             case let .failure(error):
                 completion(.failure(error))
@@ -570,15 +559,27 @@ extension CardViewModel {
     }
 
     func update(entries: [StorageEntry], completion: @escaping (Result<UserTokenList, Error>) -> Void) {
+        derive(entries: entries) { [weak self] result in
+            switch result {
+            case .success:
+                self?.userWalletModel?.update(entries: entries, result: completion)
+            case let .failure(error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    func derive(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
         let derivationManager = DerivationManager(config: config, cardInfo: cardInfo)
-        derivationManager.deriveIfNeeded(entries: entries, completion: { [weak self] result in
+        let alreadySaved = userWalletModel?.getSavedEntries() ?? []
+        derivationManager.deriveIfNeeded(entries: alreadySaved + entries, completion: { [weak self] result in
             switch result {
             case let .success(card):
                 if let card = card {
                     self?.update(with: card)
                 }
 
-                self?.userWalletModel?.update(entries: entries, result: completion)
+                completion(.success(()))
             case let .failure(error):
                 completion(.failure(error))
             }
