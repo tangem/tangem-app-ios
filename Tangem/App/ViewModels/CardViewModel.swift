@@ -205,7 +205,7 @@ class CardViewModel: Identifiable, ObservableObject {
         walletModels.contains { $0.hasBalance }
     }
 
-    var shoulShowLegacyDerivationAlert: Bool {
+    var shouldShowLegacyDerivationAlert: Bool {
         config.warningEvents.contains(where: { $0 == .legacyDerivation })
     }
 
