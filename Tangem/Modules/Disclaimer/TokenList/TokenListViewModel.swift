@@ -44,7 +44,7 @@ class TokenListViewModel: ObservableObject {
     }
 
     var shouldShowAlert: Bool {
-        cardModel?.shoulShowLegacyDerivationAlert ?? false
+        cardModel?.shouldShowLegacyDerivationAlert ?? false
     }
 
     var isSaveDisabled: Bool {

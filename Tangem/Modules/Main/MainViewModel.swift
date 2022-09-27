@@ -13,8 +13,7 @@ import BlockchainSdk
 import TangemSdk
 
 class MainViewModel: ObservableObject {
-    // MARK: Dependencies -
-    @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
+    // MARK: - Dependencies
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
@@ -26,14 +25,13 @@ class MainViewModel: ObservableObject {
     @Published var error: AlertBinder?
     @Published var showTradeSheet: Bool = false
     @Published var showSelectWalletSheet: Bool = false
-    @Published var isScanning: Bool = false
     @Published var image: UIImage? = nil
-    @Published var selectedAddressIndex: Int = 0
-    @Published var showExplorerURL: URL? = nil
-    @Published var showQR: Bool = false
     @Published var isOnboardingModal: Bool = true
+
+    @Published var singleWalletContentViewModel: SingleWalletContentViewModel?
+    @Published var multiWalletContentViewModel: MultiWalletContentViewModel?
+
     @Published var isLackDerivationWarningViewVisible: Bool = false
-    @Published var singleWalletModel: WalletModel? = nil
 
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
@@ -48,17 +46,7 @@ class MainViewModel: ObservableObject {
         }
     }
 
-    var walletTokenListViewModel: WalletTokenListViewModel?
-
-    // MARK: Variables
-    var isLoadingTokensBalance: Bool = false
-
-    lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
-        userWalletModel: userWalletModel,
-        totalBalanceManager: TotalBalanceProvider(userWalletModel: userWalletModel),
-        isSingleCoinCard: !cardModel.isMultiWallet,
-        tapOnCurrencySymbol: openCurrencySelection
-    )
+    // MARK: - Private
 
     private let cardModel: CardViewModel
     private let userWalletModel: UserWalletModel
@@ -68,7 +56,7 @@ class MainViewModel: ObservableObject {
     private var isHashesCounted = false
     private var isProcessingNewCard = false
 
-    private lazy var testnetBuyCryptoService: TestnetBuyCryptoService = .init()
+    private lazy var testnetBuyCryptoService = TestnetBuyCryptoService()
 
     private unowned let coordinator: MainRoutable
 
@@ -77,19 +65,19 @@ class MainViewModel: ObservableObject {
             return false
         }
 
-        guard let wallet = wallets?.first else {
+        guard let wallet = wallets.first else {
             return false
         }
 
         return wallet.canSend(amountType: .coin)
     }
 
-    var wallets: [Wallet]? {
+    var wallets: [Wallet] {
         cardModel.wallets
     }
 
     var currenyCode: String {
-        wallets?.first?.blockchain.currencySymbol ?? .unknown
+        wallets.first?.blockchain.currencySymbol ?? .unknown
     }
 
     var canBuyCrypto: Bool {
@@ -105,7 +93,7 @@ class MainViewModel: ObservableObject {
     }
 
     var buyCryptoURL: URL? {
-        if let wallet = wallets?.first {
+        if let wallet = wallets.first {
             let blockchain = wallet.blockchain
             if blockchain.isTestnet {
                 return blockchain.testnetFaucetURL
@@ -120,7 +108,7 @@ class MainViewModel: ObservableObject {
     }
 
     var sellCryptoURL: URL? {
-        if let wallet = wallets?.first {
+        if let wallet = wallets.first {
             return exchangeService.getSellUrl(currencySymbol: wallet.blockchain.currencySymbol,
                                               amountType: .coin,
                                               blockchain: wallet.blockchain,
@@ -138,28 +126,12 @@ class MainViewModel: ObservableObject {
         exchangeService.sellRequestUrl.removeLatestSlash()
     }
 
-    var incomingTransactions: [PendingTransaction] {
-        cardModel.walletModels.first?.incomingPendingTransactions ?? []
-    }
-
-    var outgoingTransactions: [PendingTransaction] {
-        cardModel.walletModels.first?.outgoingPendingTransactions ?? []
-    }
-
     var isBackupAllowed: Bool {
         cardModel.canCreateBackup
     }
 
-    var tokenListIsEmpty: Bool {
-        walletTokenListViewModel?.contentState.isEmpty ?? true
-    }
-
     var isMultiWalletMode: Bool {
         cardModel.isMultiWallet
-    }
-
-    var canShowAddress: Bool {
-        cardModel.canShowAddress
     }
 
     var canShowSend: Bool {
@@ -177,14 +149,10 @@ class MainViewModel: ObservableObject {
         self.cardImageProvider = cardImageProvider
         self.coordinator = coordinator
 
-        // [REDACTED_TODO_COMMENT]
-        // separate on two ViewModels for multi and single wallet
         bind()
-        bindSingleWallet()
-
+        updateContent()
         cardModel.setupWarnings()
         validateHashesCount()
-        updateWalletTokenListViewModel()
     }
 
     deinit {
@@ -194,53 +162,29 @@ class MainViewModel: ObservableObject {
     // MARK: - Functions
 
     func bind() {
-        cardModel.subscribeToEntriesWithoutDerivation()
-            .sink { [unowned self] entries in
-                updateLackDerivationWarningView(entries: entries)
-            }
-            .store(in: &bag)
-
         warningsService.warningsUpdatePublisher
             .sink { [unowned self] in
                 print("⚠️ Main view model fetching warnings")
                 self.warnings = self.warningsService.warnings(for: .main)
             }
             .store(in: &bag)
-
-
-        $showExplorerURL
-            .compactMap { $0 }
-            .sink { [unowned self] url in
-                self.openExplorer(at: url)
-                self.showExplorerURL = nil
-            }
-            .store(in: &bag)
-
-        $showQR
-            .filter { $0 == true }
-            .sink { [unowned self] _ in
-                self.openQR()
-                self.showQR = false
-            }
-            .store(in: &bag)
     }
 
-    func bindSingleWallet() {
-        guard !isMultiWalletMode else { return }
-
-        userWalletModel.subscribeToWalletModels()
-            .map { walletModels in
-                walletModels
-                    .map { $0.objectWillChange }
-                    .combineLatest()
-                    .map { _ in walletModels }
-            }
-            .switchToLatest()
-            .receive(on: DispatchQueue.main)
-            .sink { [unowned self] walletModels in
-                singleWalletModel = walletModels.first
-            }
-            .store(in: &bag)
+    func updateContent() {
+        if cardModel.isMultiWallet {
+            multiWalletContentViewModel = MultiWalletContentViewModel(
+                cardModel: cardModel,
+                userWalletModel: userWalletModel,
+                userTokenListManager: userWalletModel.userTokenListManager,
+                output: self
+            )
+        } else {
+            singleWalletContentViewModel = SingleWalletContentViewModel(
+                cardModel: cardModel,
+                userWalletModel: userWalletModel,
+                output: self
+            )
+        }
     }
 
     func getDataCollector(for feedbackCase: EmailFeedbackCase) -> EmailDataCollector {
@@ -252,30 +196,18 @@ class MainViewModel: ObservableObject {
         }
     }
 
-    func updateWalletTokenListViewModel() {
-        guard cardModel.isMultiWallet else {
-            return
-        }
-
-        walletTokenListViewModel = WalletTokenListViewModel(
-            userTokenListManager: userWalletModel.userTokenListManager,
-            userWalletModel: userWalletModel
-        ) { [weak self] itemViewModel in
-            self?.openTokenDetails(itemViewModel)
-        }
-    }
-
     func onRefresh(_ done: @escaping () -> Void) {
         Analytics.log(.mainPageRefresh)
-        if cardModel.isMultiWallet {
-            walletTokenListViewModel?.refreshTokens {
-                print("♻️ RefreshTokens success")
-                withAnimation {
-                    done()
-                }
+        if let singleWalletContentViewModel = singleWalletContentViewModel {
+            singleWalletContentViewModel.onRefresh {
+                withAnimation { done() }
             }
-        } else {
-            userWalletModel.updateAndReloadWalletModels(completion: done)
+        }
+
+        if let multiWalletContentViewModel = multiWalletContentViewModel {
+            multiWalletContentViewModel.onRefresh {
+                withAnimation { done() }
+            }
         }
     }
 
@@ -287,7 +219,7 @@ class MainViewModel: ObservableObject {
     }
 
     func sendTapped() {
-        guard let wallet = wallets?.first else {
+        guard let wallet = wallets.first else {
             return
         }
 
@@ -301,11 +233,8 @@ class MainViewModel: ObservableObject {
     }
 
     func onAppear() {
-        if cardModel.isMultiWallet {
-            walletTokenListViewModel?.onAppear()
-        } else {
-            userWalletModel.updateAndReloadWalletModels()
-        }
+        singleWalletContentViewModel?.onAppear()
+        multiWalletContentViewModel?.onAppear()
 
         cardImageProvider
             .loadImage(cardId: cardModel.cardId, cardPublicKey: cardModel.cardPublicKey)
@@ -384,13 +313,6 @@ class MainViewModel: ObservableObject {
         }
     }
 
-    func copyAddress() {
-        Analytics.log(.copyAddressTapped)
-        if let walletModel = cardModel.walletModels.first {
-            UIPasteboard.general.string = walletModel.displayAddress(for: selectedAddressIndex)
-        }
-    }
-
     // MARK: - Private functions
 
     private func validateHashesCount() {
@@ -459,7 +381,6 @@ class MainViewModel: ObservableObject {
         }
 
         self.error = error
-        return
     }
 
     private func updateLackDerivationWarningView(entries: [StorageEntry]) {
@@ -484,15 +405,10 @@ extension MainViewModel {
 }
 
 // MARK: - Navigation
+
 extension MainViewModel {
     func openSettings() {
         coordinator.openSettings(cardModel: cardModel)
-    }
-
-    func openTokenDetails(_ tokenItem: TokenItemViewModel) {
-        coordinator.openTokenDetails(cardModel: cardModel,
-                                     blockchainNetwork: tokenItem.blockchainNetwork,
-                                     amountType: tokenItem.amountType)
     }
 
     func openSend(for amountToSend: Amount) {
@@ -563,29 +479,8 @@ extension MainViewModel {
         }
     }
 
-    func openPushTx(for index: Int) {
-        guard let firstWalletModel = cardModel.walletModels.first else { return }
-
-        let tx = firstWalletModel.wallet.pendingOutgoingTransactions[index]
-        coordinator.openPushTx(for: tx, blockchainNetwork: firstWalletModel.blockchainNetwork, card: cardModel)
-    }
-
-    func openExplorer(at url: URL) {
-        Analytics.log(.exploreAddressTapped)
-        let blockchainName = wallets?.first?.blockchain.displayName ?? ""
-        coordinator.openExplorer(at: url, blockchainDisplayName: blockchainName)
-    }
-
     func openOnboarding(with input: OnboardingInput) {
         coordinator.openOnboardingModal(with: input)
-    }
-
-    func openCurrencySelection() {
-        coordinator.openCurrencySelection(autoDismiss: true)
-    }
-
-    func openTokensList() {
-        coordinator.openTokensList(with: cardModel)
     }
 
     func openMail(with emailFeedbackCase: EmailFeedbackCase) {
@@ -593,14 +488,43 @@ extension MainViewModel {
         let type = emailFeedbackCase.emailType
         coordinator.openMail(with: collector, emailType: type, recipient: cardModel.emailConfig.recipient)
     }
+}
 
-    func openQR() {
-        guard let firstWalletModel = cardModel.walletModels.first  else { return }
+// MARK: - SingleWalletContentViewModelOutput
 
-        let shareAddress = firstWalletModel.shareAddressString(for: selectedAddressIndex)
-        let address = firstWalletModel.displayAddress(for: selectedAddressIndex)
-        let qrNotice = firstWalletModel.getQRReceiveMessage()
+extension MainViewModel: SingleWalletContentViewModelOutput {
+    func openPushTx(for index: Int, walletModel: WalletModel) {
+        let tx = walletModel.wallet.pendingOutgoingTransactions[index]
+        coordinator.openPushTx(for: tx, blockchainNetwork: walletModel.blockchainNetwork, card: cardModel)
+    }
 
+    func openQR(shareAddress: String, address: String, qrNotice: String) {
         coordinator.openQR(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
+    }
+
+    func showExplorerURL(url: URL?, walletModel: WalletModel) {
+        guard let url = url else { return }
+
+        Analytics.log(.exploreAddressTapped)
+        let blockchainName = walletModel.blockchainNetwork.blockchain.displayName
+        coordinator.openExplorer(at: url, blockchainDisplayName: blockchainName)
+    }
+
+    func openCurrencySelection() {
+        coordinator.openCurrencySelection(autoDismiss: true)
+    }
+}
+
+// MARK: - MultiWalletContentViewModelOutput
+
+extension MainViewModel: MultiWalletContentViewModelOutput {
+    func openTokensList() {
+        coordinator.openTokensList(with: cardModel)
+    }
+
+    func openTokenDetails(_ tokenItem: TokenItemViewModel) {
+        coordinator.openTokenDetails(cardModel: cardModel,
+                                     blockchainNetwork: tokenItem.blockchainNetwork,
+                                     amountType: tokenItem.amountType)
     }
 }
