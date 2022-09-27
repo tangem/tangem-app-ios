@@ -111,7 +111,9 @@ extension CardSettingsViewModel {
                     case .success:
                         self?.coordinator.resetCardDidFinish()
                     case let .failure(error):
-                        self?.alert = error.alertBinder
+                        if !error.isUserCancelled {
+                            self?.alert = error.alertBinder
+                        }
                     }
                 }
             }
