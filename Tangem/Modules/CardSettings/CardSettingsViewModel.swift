@@ -111,7 +111,7 @@ extension CardSettingsViewModel {
                     case .success:
                         self?.coordinator.resetCardDidFinish()
                     case let .failure(error):
-                        print("ResetCardToFactoryWarning error", error)
+                        self?.alert = error.alertBinder
                     }
                 }
             }
