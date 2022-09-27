@@ -339,7 +339,6 @@ class CardViewModel: Identifiable, ObservableObject {
             switch result {
             case .success:
                 Analytics.log(.factoryResetSuccess)
-                self?.userWalletModel?.clearRepository(result: completion)
                 self?.clearTwinPairKey()
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .purgeWallet, card: card)
