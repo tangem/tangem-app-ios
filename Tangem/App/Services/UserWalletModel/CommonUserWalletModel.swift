@@ -49,10 +49,6 @@ extension CommonUserWalletModel: UserWalletModel {
         walletListManager.subscribeToEntriesWithoutDerivation()
     }
 
-    func clearRepository(result: @escaping (Result<UserTokenList, Error>) -> Void) {
-        userTokenListManager.clearRepository(result: result)
-    }
-
     func updateAndReloadWalletModels(completion: @escaping () -> Void) {
         // Update walletModel list for current storage state
         walletListManager.updateWalletModels()
