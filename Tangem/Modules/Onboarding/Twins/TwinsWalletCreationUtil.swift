@@ -138,6 +138,7 @@ class TwinsWalletCreationUtil {
 
             switch result {
             case .success(let response):
+                self.card.appendDefaultBlockchains()
                 self.card.update(with: response.getCardInfo())
                 self.step.send(.done)
             case .failure(let error):
@@ -164,8 +165,13 @@ class TwinsWalletCreationUtil {
         Message(header: String(format: scanMessageKey.localized, AppTwinCardIdFormatter.format(cid: cardId, cardNumber: stepCardNumber)))
     }
 
+//    private func appendDefaultBlockchains(cardInfo: CardInfo) {
+//        guard case let .twin(walletData, twinData) = cardInfo.walletData else { return }
+//        let config = TwinConfig(card: cardInfo.card, walletData: walletData, twinData: twinData)
+//        let repository = CommonTokenItemsRepository(key: cardInfo.card.userWalletId.hexString)
+//        repository.append(config.defaultBlockchains)
+//    }
 }
-
 
 extension TwinsWalletCreationUtil {
     enum CreationStep {
