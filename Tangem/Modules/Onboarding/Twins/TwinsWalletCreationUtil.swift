@@ -20,14 +20,11 @@ class TwinsWalletCreationUtil {
 
     /// Determines is user start twin wallet creation from Twin card with first number
     var isStartedFromFirstNumber: Bool {
-        guard let twin = twinData else { return true }
-        return twin.series.number == 1
+        twinData.series.number == 1
     }
 
     var stepCardNumber: Int {
-        guard let twin = twinData else { return 1 }
-
-        let series = twin.series
+        let series = twinData.series
 
         switch step.value {
         case .first, .third, .done:
@@ -42,7 +39,7 @@ class TwinsWalletCreationUtil {
     private let twinFileEncoder: TwinCardFileEncoder = TwinCardTlvFileEncoder()
     private var firstTwinCid: String = ""
     // private var secondTwinCid: String = ""
-    private var twinData: TwinData?
+    private var twinData: TwinData
     private let card: CardViewModel
 
     private var firstTwinPublicKey: Data?
@@ -138,8 +135,8 @@ class TwinsWalletCreationUtil {
 
             switch result {
             case .success(let response):
-                self.card.appendDefaultBlockchains()
                 self.card.update(with: response.getCardInfo())
+                self.card.appendDefaultBlockchains()
                 self.step.send(.done)
             case .failure(let error):
                 self.occuredError.send(error)
@@ -164,13 +161,6 @@ class TwinsWalletCreationUtil {
     private func initialMessage(for cardId: String) -> Message {
         Message(header: String(format: scanMessageKey.localized, AppTwinCardIdFormatter.format(cid: cardId, cardNumber: stepCardNumber)))
     }
-
-//    private func appendDefaultBlockchains(cardInfo: CardInfo) {
-//        guard case let .twin(walletData, twinData) = cardInfo.walletData else { return }
-//        let config = TwinConfig(card: cardInfo.card, walletData: walletData, twinData: twinData)
-//        let repository = CommonTokenItemsRepository(key: cardInfo.card.userWalletId.hexString)
-//        repository.append(config.defaultBlockchains)
-//    }
 }
 
 extension TwinsWalletCreationUtil {
