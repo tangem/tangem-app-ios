@@ -108,8 +108,6 @@ class WelcomeViewModel: ObservableObject {
         let input = cardModel.onboardingInput
         self.isScanningCard = false
 
-        return openMain(with: input)
-
         if input.steps.needOnboarding {
             cardModel.userWalletModel?.updateAndReloadWalletModels()
             openOnboarding(with: input)
