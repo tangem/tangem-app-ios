@@ -168,6 +168,12 @@ class MainViewModel: ObservableObject {
                 self.warnings = self.warningsService.warnings(for: .main)
             }
             .store(in: &bag)
+
+        userWalletModel.subscribeToEntriesWithoutDerivation()
+            .sink { [unowned self] entries in
+                self.updateLackDerivationWarningView(entries: entries)
+            }
+            .store(in: &bag)
     }
 
     func updateContent() {
