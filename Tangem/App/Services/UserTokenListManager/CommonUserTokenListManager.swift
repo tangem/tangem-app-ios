@@ -21,8 +21,10 @@ class CommonUserTokenListManager {
 
     private var loadTokensCancellable: AnyCancellable?
     private var saveTokensCancellable: AnyCancellable?
+    private let isSupportTokenSynchronisation: Bool
 
     init(config: UserWalletConfig, userWalletId: Data) {
+        self.isSupportTokenSynchronisation = config.hasFeature(.multiCurrency)
         self.userWalletId = userWalletId
 
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
@@ -110,6 +112,11 @@ private extension CommonUserTokenListManager {
         let entries = tokenItemsRepository.getItems()
         let tokens = mapToTokens(entries: entries)
         let list = UserTokenList(tokens: tokens)
+
+        guard isSupportTokenSynchronisation else {
+            result(.success(list))
+            return
+        }
 
         saveTokensCancellable = tangemApiService
             .saveTokens(list: list, for: userWalletId.hexString)
