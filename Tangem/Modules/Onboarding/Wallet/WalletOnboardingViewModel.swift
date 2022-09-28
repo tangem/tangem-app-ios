@@ -446,6 +446,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         stepPublisher = preparePrimaryCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
             .first()
+            .mapVoid()
             .sink(receiveCompletion: { [weak self] completion in
                 if case .failure(let error) = completion {
                     if let cardModel = self?.input.cardInput.cardModel {
@@ -464,6 +465,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         stepPublisher = readPrimaryCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
             .first()
+            .mapVoid()
             .sink(
                 receiveCompletion: { [weak self] completion in
                     if case .failure(let error) = completion {
@@ -530,7 +532,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         .eraseToAnyPublisher()
     }
 
-    private func processPrimaryCardScan(_ result: (Void, Notification)) {
+    private func processPrimaryCardScan() {
         isMainButtonBusy = false
         goToNextStep()
     }
@@ -581,9 +583,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                         case .success(let updatedCard):
                             if updatedCard.cardId == self.backupService.primaryCardId {
                                 self.input.cardInput.cardModel?.update(with: updatedCard)
-                            } else { // add tokens for backup cards
-                                self.addDefaultTokens(for: updatedCard)
                             }
+
                             promise(.success(()))
                         case .failure(let error):
                             promise(.failure(error))
@@ -619,7 +620,20 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
 
     private func addDefaultTokens(for card: Card) {
         let config = GenericConfig(card: card)
-        CommonTokenItemsRepository(key: card.userWalletId.hexString).append(config.defaultBlockchains)
+        let repository = CommonTokenItemsRepository(key: card.userWalletId.hexString)
+        repository.append(config.defaultBlockchains)
+
+        let savedItems = repository.getItems()
+
+        var derivations: [EllipticCurve: [DerivationPath]] = [:]
+        savedItems.forEach { item in
+            if let wallet = card.wallets.first(where: { $0.curve == item.blockchainNetwork.blockchain.curve }),
+               let path = item.blockchainNetwork.derivationPath {
+                derivations[wallet.curve, default: []].append(path)
+            }
+        }
+
+        tangemSdk.config.defaultDerivationPaths = derivations
     }
 }
 
