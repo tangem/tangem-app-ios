@@ -32,6 +32,7 @@ struct ScanCardWarningView: View {
             .background(Colors.Background.primary)
             .cornerRadius(14)
         }
+        .buttonStyle(PlainButtonStyle())
     }
 
     private var icon: some View {

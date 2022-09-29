@@ -50,7 +50,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
         case let .removeToken(token, network):
             tokenItemsRepository.remove([token], blockchainNetwork: network)
         }
-        
+
         if hasTokenSynchronization {
             updateTokensOnServer(result: result)
         } else {
@@ -108,7 +108,7 @@ private extension CommonUserTokenListManager {
                 }
             }
     }
-    
+
     func getUserTokenList() -> UserTokenList {
         let entries = tokenItemsRepository.getItems()
         let tokens = mapToTokens(entries: entries)
