@@ -340,6 +340,9 @@ class SendViewModel: ObservableObject {
                            $isFeeIncluded)
             .sink { [unowned self] (amount, destination, fee, isFeeIncluded) in
                 guard let amount = amount, let destination = destination, let fee = fee else {
+                    if (destination?.isEmpty == false) || destination == nil {
+                        self.transaction = nil
+                    }
                     return
                 }
 
