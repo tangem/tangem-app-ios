@@ -33,6 +33,8 @@ class CommonUserTokenListManager {
 
 extension CommonUserTokenListManager: UserTokenListManager {
     func update(userWalletId: Data) {
+        guard self.userWalletId != userWalletId else { return }
+
         self.userWalletId = userWalletId
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
     }
