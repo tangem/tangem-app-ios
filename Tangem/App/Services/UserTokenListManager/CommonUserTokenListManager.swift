@@ -21,8 +21,10 @@ class CommonUserTokenListManager {
 
     private var loadTokensCancellable: AnyCancellable?
     private var saveTokensCancellable: AnyCancellable?
+    private let hasTokenSynchronization: Bool
 
     init(config: UserWalletConfig, userWalletId: Data) {
+        self.hasTokenSynchronization = config.hasFeature(.multiCurrency)
         self.userWalletId = userWalletId
 
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
@@ -40,13 +42,19 @@ extension CommonUserTokenListManager: UserTokenListManager {
     func update(_ type: UpdateType, result: @escaping (Result<UserTokenList, Error>) -> Void) {
         switch type {
         case let .rewrite(entries):
-            update(entries: entries, result: result)
+            tokenItemsRepository.update(entries)
         case let .append(entries):
-            append(entries: entries, result: result)
+            tokenItemsRepository.append(entries)
         case let .removeBlockchain(blockchain):
-            remove(blockchain: blockchain, result: result)
+            tokenItemsRepository.remove([blockchain])
         case let .removeToken(token, network):
-            remove(token: token, in: network, result: result)
+            tokenItemsRepository.remove([token], blockchainNetwork: network)
+        }
+        
+        if hasTokenSynchronization {
+            updateTokensOnServer(result: result)
+        } else {
+            result(.success(getUserTokenList()))
         }
     }
 
@@ -67,26 +75,6 @@ extension CommonUserTokenListManager: UserTokenListManager {
 // MARK: - Private
 
 private extension CommonUserTokenListManager {
-    func update(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void) {
-        tokenItemsRepository.update(entries)
-        updateTokensOnServer(result: result)
-    }
-
-    func append(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void) {
-        tokenItemsRepository.append(entries)
-        updateTokensOnServer(result: result)
-    }
-
-    func remove(blockchain: BlockchainNetwork, result: @escaping (Result<UserTokenList, Error>) -> Void) {
-        tokenItemsRepository.remove([blockchain])
-        updateTokensOnServer(result: result)
-    }
-
-    func remove(token: Token, in blockchain: BlockchainNetwork, result: @escaping (Result<UserTokenList, Error>) -> Void) {
-        tokenItemsRepository.remove([token], blockchainNetwork: blockchain)
-        updateTokensOnServer(result: result)
-    }
-
     // MARK: - Requests
 
     func loadUserTokenList(result: @escaping (Result<UserTokenList, Error>) -> Void) {
@@ -107,9 +95,7 @@ private extension CommonUserTokenListManager {
     }
 
     func updateTokensOnServer(result: @escaping (Result<UserTokenList, Error>) -> Void) {
-        let entries = tokenItemsRepository.getItems()
-        let tokens = mapToTokens(entries: entries)
-        let list = UserTokenList(tokens: tokens)
+        let list = getUserTokenList()
 
         saveTokensCancellable = tangemApiService
             .saveTokens(list: list, for: userWalletId.hexString)
@@ -121,6 +107,12 @@ private extension CommonUserTokenListManager {
                     result(.failure(error))
                 }
             }
+    }
+    
+    func getUserTokenList() -> UserTokenList {
+        let entries = tokenItemsRepository.getItems()
+        let tokens = mapToTokens(entries: entries)
+        return UserTokenList(tokens: tokens)
     }
 
     // MARK: - Mapping
