@@ -566,8 +566,7 @@ extension CardViewModel {
     func derive(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
         let derivationManager = DerivationManager(config: config, cardInfo: cardInfo)
         let alreadySaved = userWalletModel?.getSavedEntries() ?? []
-        // entries
-        derivationManager.deriveIfNeeded(entries: alreadySaved, completion: { [weak self] result in
+        derivationManager.deriveIfNeeded(entries: alreadySaved + entries, completion: { [weak self] result in
             switch result {
             case let .success(card):
                 if let card = card {
