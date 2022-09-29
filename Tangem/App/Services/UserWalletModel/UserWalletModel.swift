@@ -14,6 +14,7 @@ protocol UserWalletModel {
     var userTokenListManager: UserTokenListManager { get }
 
     func updateUserWalletModel(with config: UserWalletConfig)
+    func update(userWalletId: Data)
 
     func getWalletModels() -> [WalletModel]
     func subscribeToWalletModels() -> AnyPublisher<[WalletModel], Never>
