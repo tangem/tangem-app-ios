@@ -21,10 +21,10 @@ class CommonUserTokenListManager {
 
     private var loadTokensCancellable: AnyCancellable?
     private var saveTokensCancellable: AnyCancellable?
-    private let isSupportTokenSynchronisation: Bool
+    private let hasTokenSynchronization: Bool
 
     init(config: UserWalletConfig, userWalletId: Data) {
-        self.isSupportTokenSynchronisation = config.hasFeature(.multiCurrency)
+        self.hasTokenSynchronization = config.hasFeature(.multiCurrency)
         self.userWalletId = userWalletId
 
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
@@ -51,7 +51,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
             tokenItemsRepository.remove([token], blockchainNetwork: network)
         }
         
-        if isSupportTokenSynchronisation {
+        if hasTokenSynchronization {
             updateTokensOnServer(result: result)
         } else {
             result(.success(getUserTokenList()))
