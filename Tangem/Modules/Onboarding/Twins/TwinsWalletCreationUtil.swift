@@ -80,8 +80,9 @@ class TwinsWalletCreationUtil {
             switch result {
             case .success(let response):
                 self.card.clearTwinPairKey()
-                self.card.update(with: response.card)
                 self.firstTwinPublicKey = response.createWalletResponse.wallet.publicKey
+                self.card.update(with: response.card)
+                self.card.appendDefaultBlockchains()
                 self.step.send(.second)
             case .failure(let error):
                 self.occuredError.send(error)
@@ -108,6 +109,8 @@ class TwinsWalletCreationUtil {
             case .success(let response):
                 self.secondTwinPublicKey = response.createWalletResponse.wallet.publicKey
                 self.twinPairCardId = response.createWalletResponse.cardId
+                self.card.update(with: response.card)
+                self.card.appendDefaultBlockchains()
                 self.step.send(.third)
             case .failure(let error):
                 self.occuredError.send(error)
@@ -136,7 +139,6 @@ class TwinsWalletCreationUtil {
             switch result {
             case .success(let response):
                 self.card.update(with: response.getCardInfo())
-                self.card.appendDefaultBlockchains()
                 self.step.send(.done)
             case .failure(let error):
                 self.occuredError.send(error)
