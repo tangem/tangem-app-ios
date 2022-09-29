@@ -67,6 +67,7 @@ struct MultiWalletContentView: View {
                                 .contentShape(Rectangle())
                         }
                         .buttonStyle(TangemTokenButtonStyle())
+                        .disabled(item.state == .notDerivation)
 
                         if viewModels.last != item {
                             Separator(height: 1, padding: 0, color: .tangemBgGray2)
