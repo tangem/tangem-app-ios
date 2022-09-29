@@ -46,12 +46,18 @@ class CommonUserWalletModel {
 
 extension CommonUserWalletModel: UserWalletModel {
     func setUserWallet(_ userWallet: UserWallet) {
+        print("🔄 Updating UserWalletModel with new userWalletId")
         self.userWallet = userWallet
+        userTokenListManager.update(userWalletId: userWallet.userWalletId)
     }
 
     func updateUserWalletModel(with config: UserWalletConfig) {
         print("🔄 Updating UserWalletModel with new config")
         walletListManager.update(config: config)
+    }
+
+    func getSavedEntries() -> [StorageEntry] {
+        userTokenListManager.getEntriesFromRepository()
     }
 
     func getWalletModels() -> [WalletModel] {
@@ -68,10 +74,6 @@ extension CommonUserWalletModel: UserWalletModel {
 
     func subscribeToEntriesWithoutDerivation() -> AnyPublisher<[StorageEntry], Never> {
         walletListManager.subscribeToEntriesWithoutDerivation()
-    }
-
-    func clearRepository(result: @escaping (Result<UserTokenList, Error>) -> Void) {
-        userTokenListManager.clearRepository(result: result)
     }
 
     func updateAndReloadWalletModels(completion: @escaping () -> Void) {
