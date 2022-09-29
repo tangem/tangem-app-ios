@@ -187,7 +187,7 @@ extension TwinConfig: UserWalletConfig {
         let model = WalletModel(walletManager: twinManager,
                                 derivationStyle: card.derivationStyle)
 
-        model.initialize()
+//        model.initialize()
         return model
     }
 }
