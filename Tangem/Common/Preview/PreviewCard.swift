@@ -36,7 +36,6 @@ enum PreviewCard {
             walletModels = []
         }
 
-//        walletModels.forEach { $0.initialize() }
         // [REDACTED_TODO_COMMENT]
 //        vm.state = .loaded(walletModel: walletModels)
         #endif
