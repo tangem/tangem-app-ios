@@ -192,17 +192,8 @@ class CardViewModel: Identifiable, ObservableObject {
             isStandalone: true)
     }
 
-
     var isResetToFactoryAvailable: Bool {
         config.hasFeature(.resetToFactory)
-    }
-
-    var isSuccesfullyLoaded: Bool {
-        walletModels.allConforms { $0.state.isSuccesfullyLoaded }
-    }
-
-    var hasBalance: Bool {
-        walletModels.contains { $0.hasBalance }
     }
 
     var shouldShowLegacyDerivationAlert: Bool {
@@ -417,21 +408,23 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
 
-        searchBlockchainsCancellable = Publishers.MergeMany(models.map { $0.update() })
-            .collect()
-            .receiveCompletion { [weak self] _ in
-                guard let self = self else { return }
+        searchBlockchainsCancellable = Publishers.MergeMany(
+            models.map { $0.update(silent: false) }
+        )
+        .collect()
+        .receiveCompletion { [weak self] _ in
+            guard let self = self else { return }
 
-                let notEmptyWallets = models.filter { !$0.wallet.isEmpty }
-                if !notEmptyWallets.isEmpty {
-                    let entries = notEmptyWallets.map {
-                        StorageEntry(blockchainNetwork: $0.blockchainNetwork, tokens: [])
-                    }
-
-                    // [REDACTED_TODO_COMMENT]
-                    self.add(entries: entries) { _ in }
+            let notEmptyWallets = models.filter { !$0.wallet.isEmpty }
+            if !notEmptyWallets.isEmpty {
+                let entries = notEmptyWallets.map {
+                    StorageEntry(blockchainNetwork: $0.blockchainNetwork, tokens: [])
                 }
+
+                // [REDACTED_TODO_COMMENT]
+                self.add(entries: entries) { _ in }
             }
+        }
     }
 
     private func searchTokens() {
@@ -573,7 +566,8 @@ extension CardViewModel {
     func derive(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
         let derivationManager = DerivationManager(config: config, cardInfo: cardInfo)
         let alreadySaved = userWalletModel?.getSavedEntries() ?? []
-        derivationManager.deriveIfNeeded(entries: alreadySaved + entries, completion: { [weak self] result in
+        // entries
+        derivationManager.deriveIfNeeded(entries: alreadySaved, completion: { [weak self] result in
             switch result {
             case let .success(card):
                 if let card = card {
