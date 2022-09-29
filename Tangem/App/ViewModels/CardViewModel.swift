@@ -227,7 +227,7 @@ class CardViewModel: Identifiable, ObservableObject {
         walletModels.contains { $0.hasBalance }
     }
 
-    var shoulShowLegacyDerivationAlert: Bool {
+    var shouldShowLegacyDerivationAlert: Bool {
         config.warningEvents.contains(where: { $0 == .legacyDerivation })
     }
 
@@ -281,7 +281,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func appendDefaultBlockchains() {
-        add(entries: config.defaultBlockchains) { _ in }
+        userWalletModel?.append(entries: config.defaultBlockchains) { _ in }
     }
 
     func deriveEntriesWithoutDerivation() {
@@ -290,15 +290,9 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
 
-        let derivationManager = DerivationManager(config: config, cardInfo: cardInfo)
-        derivationManager.deriveIfNeeded(
-            entries: userWalletModel.getEntriesWithoutDerivation()
-        ) { [weak self] result in
+        derive(entries: userWalletModel.getEntriesWithoutDerivation()) { [weak self] result in
             switch result {
-            case let .success(card):
-                if let card = card {
-                    self?.update(with: CardDTO(card: card))
-                }
+            case .success:
                 self?.userWalletModel?.updateAndReloadWalletModels()
             case .failure:
                 print("Derivation error")
@@ -382,7 +376,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
 
-    func resetToFactory(completion: @escaping (Result<UserTokenList, Error>) -> Void) {
+    func resetToFactory(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
         let card = self.cardInfo.card
         tangemSdk.startSession(with: ResetToFactorySettingsTask(),
                                cardId: cardId,
@@ -391,8 +385,8 @@ class CardViewModel: Identifiable, ObservableObject {
             switch result {
             case .success:
                 Analytics.log(.factoryResetSuccess)
-                self?.userWalletModel?.clearRepository(result: completion)
                 self?.clearTwinPairKey()
+                completion(.success(()))
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .purgeWallet, card: card)
                 completion(.failure(error))
@@ -484,6 +478,7 @@ class CardViewModel: Identifiable, ObservableObject {
         warningsService.setupWarnings(for: config)
         createUserWalletModelIfNeeded()
         userWalletModel?.updateUserWalletModel(with: config)
+        userWalletModel?.update(userWalletId: userWalletId)
     }
 
     private func searchBlockchains() {
@@ -649,14 +644,9 @@ extension CardViewModel {
     }
 
     func add(entries: [StorageEntry], completion: @escaping (Result<UserTokenList, Error>) -> Void) {
-        let derivationManager = DerivationManager(config: config, cardInfo: cardInfo)
-        derivationManager.deriveIfNeeded(entries: entries) { [weak self] result in
+        derive(entries: entries) { [weak self] result in
             switch result {
-            case let .success(card):
-                if let card = card {
-                    self?.update(with: CardDTO(card: card))
-                }
-
+            case .success:
                 self?.userWalletModel?.append(entries: entries, result: completion)
             case let .failure(error):
                 completion(.failure(error))
@@ -665,15 +655,27 @@ extension CardViewModel {
     }
 
     func update(entries: [StorageEntry], completion: @escaping (Result<UserTokenList, Error>) -> Void) {
+        derive(entries: entries) { [weak self] result in
+            switch result {
+            case .success:
+                self?.userWalletModel?.update(entries: entries, result: completion)
+            case let .failure(error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    func derive(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
         let derivationManager = DerivationManager(config: config, cardInfo: cardInfo)
-        derivationManager.deriveIfNeeded(entries: entries, completion: { [weak self] result in
+        let alreadySaved = userWalletModel?.getSavedEntries() ?? []
+        derivationManager.deriveIfNeeded(entries: alreadySaved + entries, completion: { [weak self] result in
             switch result {
             case let .success(card):
                 if let card = card {
                     self?.update(with: CardDTO(card: card))
                 }
 
-                self?.userWalletModel?.update(entries: entries, result: completion)
+                completion(.success(()))
             case let .failure(error):
                 completion(.failure(error))
             }
