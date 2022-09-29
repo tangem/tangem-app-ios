@@ -35,6 +35,17 @@
             ]
         },
         {
+            "id": "ethereum-pow-iou",
+            "symbol": "ETCW",
+            "name": "Ethereum PoW",
+            "networks":
+            [
+                {
+                    "networkId": "ethereum-pow-iou/test"
+                }
+            ]
+        },
+        {
             "id": "binancecoin",
             "symbol": "BNB",
             "name": "Binance",
@@ -127,8 +138,8 @@
         },
         {
             "id": "optimistic-ethereum",
-            "symbol": "OP",
-            "name": "Optimism",
+            "symbol": "ETH",
+            "name": "Optimistic Ethereum",
             "networks":
             [
                 {
