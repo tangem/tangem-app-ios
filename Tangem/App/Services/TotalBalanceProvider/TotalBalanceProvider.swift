@@ -35,7 +35,8 @@ extension TotalBalanceProvider: TotalBalanceProviding {
 
 private extension TotalBalanceProvider {
     func loadCurrenciesAndUpdateBalance() {
-        let tokenItemViewModels = userWalletModel.getWalletModels().flatMap { $0.tokenItemViewModels }
+        let tokenItemViewModels = userWalletModel.getWalletModels()
+            .flatMap { $0.allTokenItemViewModels() }
 
         refreshSubscription = tangemApiService.loadCurrencies()
             .tryMap { currencies -> TotalBalance in
