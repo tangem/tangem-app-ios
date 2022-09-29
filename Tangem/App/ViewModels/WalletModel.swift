@@ -10,7 +10,7 @@ import Foundation
 import Combine
 import BlockchainSdk
 
-class WalletModel: ObservableObject, Identifiable { // Initializable
+class WalletModel: ObservableObject, Identifiable {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     var walletDidChange: AnyPublisher<Void, Never> {
@@ -122,12 +122,12 @@ class WalletModel: ObservableObject, Identifiable { // Initializable
         self.updatePublisher = newUpdatePublisher
 
         // Check if time interval after latest update not enough
-        guard self.checkLatestUpdateTime(silent: silent) else {
+        guard checkLatestUpdateTime(silent: silent) else {
             return newUpdatePublisher.eraseToAnyPublisher()
         }
 
-        if case .loading = self.state {
-            assertionFailure("Unreal case because we return updating publisher")
+        if case .loading = state {
+            assertionFailure("Unreal case because we should return updating publisher above")
             return newUpdatePublisher.eraseToAnyPublisher()
         }
 
@@ -144,6 +144,7 @@ class WalletModel: ObservableObject, Identifiable { // Initializable
                 switch completion {
                 case .finished:
                     if !silent {
+                        // Don't update noAccount state
                         if !state.isNoAccount {
                             updateState(.idle)
                         }
@@ -216,7 +217,7 @@ class WalletModel: ObservableObject, Identifiable { // Initializable
             return
         }
 
-        print("Update state \(state) for blockchain: \(blockchainNetwork.blockchain.displayName)")
+        print("Update state \(state) in WalletModel: \(blockchainNetwork.blockchain.displayName)")
         DispatchQueue.main.async { [weak self] in
             self?.state = state
         }
