@@ -26,12 +26,11 @@ class MainViewModel: ObservableObject {
     @Published var showTradeSheet: Bool = false
     @Published var showSelectWalletSheet: Bool = false
     @Published var image: UIImage? = nil
-    @Published var isOnboardingModal: Bool = true
+    @Published var isLackDerivationWarningViewVisible: Bool = false
+    @Published var isBackupAllowed: Bool = false
 
     @Published var singleWalletContentViewModel: SingleWalletContentViewModel?
     @Published var multiWalletContentViewModel: MultiWalletContentViewModel?
-
-    @Published var isLackDerivationWarningViewVisible: Bool = false
 
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
@@ -126,10 +125,6 @@ class MainViewModel: ObservableObject {
         exchangeService.sellRequestUrl.removeLatestSlash()
     }
 
-    var isBackupAllowed: Bool {
-        cardModel.canCreateBackup
-    }
-
     var isMultiWalletMode: Bool {
         cardModel.isMultiWallet
     }
@@ -151,6 +146,7 @@ class MainViewModel: ObservableObject {
 
         bind()
         updateContent()
+        updateIsBackupAllowed()
         cardModel.setupWarnings()
         validateHashesCount()
     }
@@ -191,6 +187,10 @@ class MainViewModel: ObservableObject {
                 output: self
             )
         }
+    }
+
+    func updateIsBackupAllowed() {
+        isBackupAllowed = cardModel.canCreateBackup
     }
 
     func getDataCollector(for feedbackCase: EmailFeedbackCase) -> EmailDataCollector {
