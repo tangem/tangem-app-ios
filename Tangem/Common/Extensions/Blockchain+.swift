@@ -42,6 +42,8 @@ extension Blockchain {
         case "dash": self = .dash(testnet: isTestnet)
         case "xdai": self = .gnosis
         case "optimistic-ethereum": self = .optimism(testnet: isTestnet)
+        case "ethereum-pow-iou": self = .ethereumPoW(testnet: isTestnet)
+        case "ethereumfair": self = .ethereumFair
         default:
             print("⚠️⚠️⚠️ Failed to map network ID \"\(stringId)\"")
             return nil
@@ -75,6 +77,8 @@ extension Blockchain {
         case .dash: return "dash"
         case .gnosis: return "xdai"
         case .optimism: return "optimistic-ethereum"
+        case .ethereumPoW: return "ethereum-pow-iou"
+        case .ethereumFair: return "ethereumfair"
         }
     }
 
@@ -118,6 +122,8 @@ extension Blockchain {
         case .dash: return "dash"
         case .gnosis: return "xdai"
         case .optimism: return "optimistic-ethereum"
+        case .ethereumPoW: return "ethereum-pow-iou"
+        case .ethereumFair: return "ethereumfair"
         }
     }
 
