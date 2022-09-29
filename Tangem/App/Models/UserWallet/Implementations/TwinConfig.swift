@@ -184,10 +184,6 @@ extension TwinConfig: UserWalletConfig {
                                                             pairKey: savedPairKey,
                                                             isTestnet: isTestnet)
 
-        let model = WalletModel(walletManager: twinManager,
-                                derivationStyle: card.derivationStyle)
-
-//        model.initialize()
-        return model
+        return WalletModel(walletManager: twinManager, derivationStyle: card.derivationStyle)
     }
 }
