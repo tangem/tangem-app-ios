@@ -15,10 +15,8 @@ protocol UserWalletModel {
 
     var userWallet: UserWallet { get }
 
-    func setUserWallet(_ userWallet: UserWallet)
-
     func updateUserWalletModel(with config: UserWalletConfig)
-    func update(userWalletId: Data)
+    func updateUserWallet(_ userWallet: UserWallet)
 
     func getWalletModels() -> [WalletModel]
     func subscribeToWalletModels() -> AnyPublisher<[WalletModel], Never>
