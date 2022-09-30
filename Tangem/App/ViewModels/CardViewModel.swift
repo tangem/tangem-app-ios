@@ -220,7 +220,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func appendDefaultBlockchains() {
-        add(entries: config.defaultBlockchains) { _ in }
+        userWalletModel?.append(entries: config.defaultBlockchains) { _ in }
     }
 
     func deriveEntriesWithoutDerivation() {
@@ -388,6 +388,7 @@ class CardViewModel: Identifiable, ObservableObject {
         warningsService.setupWarnings(for: config)
         createUserWalletModelIfNeeded()
         userWalletModel?.updateUserWalletModel(with: config)
+        userWalletModel?.update(userWalletId: userWalletId)
     }
 
     private func searchBlockchains() {
