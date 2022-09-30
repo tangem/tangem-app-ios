@@ -79,6 +79,7 @@ extension Blockchain {
         case .optimism: return "optimistic-ethereum"
         case .ethereumPoW: return "ethereum-pow-iou"
         case .ethereumFair: return "ethereumfair"
+        case .saltPay: return ""
         }
     }
 
@@ -124,6 +125,7 @@ extension Blockchain {
         case .optimism: return "optimistic-ethereum"
         case .ethereumPoW: return "ethereum-pow-iou"
         case .ethereumFair: return "ethereumfair"
+        case .saltPay: return ""
         }
     }
 
