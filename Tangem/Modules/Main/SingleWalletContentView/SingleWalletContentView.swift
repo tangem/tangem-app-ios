@@ -43,13 +43,13 @@ struct SingleWalletContentView: View {
     private var walletView: some View {
         if let singleWalletModel = viewModel.singleWalletModel {
             switch singleWalletModel.state {
-            case .created:
+            case .created, .noDerivation:
                 EmptyView()
 
             case .idle, .loading, .failed:
                 BalanceView(
-                    balanceViewModel: singleWalletModel.balanceViewModel,
-                    tokenViewModels: singleWalletModel.tokenViewModels
+                    balanceViewModel: singleWalletModel.balanceViewModel(),
+                    tokenBalanceViewModels: singleWalletModel.tokenBalanceViewModels()
                 )
                 .padding(.horizontal, 16.0)
 
