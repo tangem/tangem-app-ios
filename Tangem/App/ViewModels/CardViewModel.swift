@@ -366,6 +366,7 @@ class CardViewModel: Identifiable, ObservableObject {
     func update(with cardInfo: CardInfo) {
         print("🔄 Updating Card view model with new CardInfo")
         self.cardInfo = cardInfo
+        config = UserWalletConfigFactory(cardInfo).makeConfig()
         updateModel()
     }
 
