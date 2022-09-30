@@ -50,12 +50,17 @@ class MainCoordinator: CoordinatorObject {
             cardImageProvider: CardImageProvider(supportsOnlineImage: options.cardModel.supportsOnlineImage),
             coordinator: self
         )
+
+        if options.shouldRefresh {
+            mainViewModel?.onRefresh {}
+        }
     }
 }
 
 extension MainCoordinator {
     struct Options {
         let cardModel: CardViewModel
+        let shouldRefresh: Bool
     }
 }
 
@@ -239,7 +244,7 @@ extension MainCoordinator: UserWalletListRoutable {
     }
 
     func didTapUserWallet(userWallet: UserWallet) {
-        start(with: .init(cardModel: .init(userWallet: userWallet)))
+        start(with: .init(cardModel: CardViewModel(userWallet: userWallet), shouldRefresh: true))
     }
 }
 
