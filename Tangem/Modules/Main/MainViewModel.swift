@@ -150,7 +150,6 @@ class MainViewModel: ObservableObject {
         updateIsBackupAllowed()
         cardModel.setupWarnings()
         validateHashesCount()
-//        updateWalletTokenListViewModel()
         showUserWalletSaveIfNeeded()
     }
 
@@ -218,6 +217,8 @@ class MainViewModel: ObservableObject {
                 withAnimation { done() }
             }
         }
+
+        loadImage()
     }
 
     func onScan() {
@@ -248,11 +249,7 @@ class MainViewModel: ObservableObject {
     func onAppear() {
         singleWalletContentViewModel?.onAppear()
         multiWalletContentViewModel?.onAppear()
-
-        cardImageProvider
-            .loadImage(cardId: cardModel.cardId, cardPublicKey: cardModel.cardPublicKey)
-            .weakAssignAnimated(to: \.image, on: self)
-            .store(in: &bag)
+        loadImage()
     }
 
     func deriveEntriesWithoutDerivation() {
@@ -323,6 +320,30 @@ class MainViewModel: ObservableObject {
     func prepareForBackup() {
         if let input = cardModel.backupInput {
             self.openOnboarding(with: input)
+        }
+    }
+
+    func didDeclineToSaveUserWallets() {
+        AppSettings.shared.saveUserWallets = false
+    }
+
+    func didAgreeToSaveUserWallets() {
+        userWalletListService.unlockWithBiometry { [weak self, cardModel] result in
+            if case let .failure(error) = result {
+                print("Failed to enable biometry: \(error)")
+                return
+            }
+
+            // Doesn't seem to work without the delay
+            let delay = 1.0
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                guard let userWallet = cardModel.userWallet else { return }
+
+                let _ = self?.userWalletListService.save(userWallet)
+                self?.coordinator.openUserWalletList()
+                AppSettings.shared.saveUserWallets = true
+                AppSettings.shared.saveAccessCodes = true
+            }
         }
     }
 
@@ -413,28 +434,11 @@ class MainViewModel: ObservableObject {
         }
     }
 
-    func didDeclineToSaveUserWallets() {
-        AppSettings.shared.saveUserWallets = false
-    }
-
-    func didAgreeToSaveUserWallets() {
-        userWalletListService.unlockWithBiometry { [weak self, cardModel] result in
-            if case let .failure(error) = result {
-                print("Failed to enable biometry: \(error)")
-                return
-            }
-
-            // Doesn't seem to work without the delay
-            let delay = 1.0
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                guard let userWallet = cardModel.userWallet else { return }
-
-                let _ = self?.userWalletListService.save(userWallet)
-                self?.coordinator.openUserWalletList()
-                AppSettings.shared.saveUserWallets = true
-                AppSettings.shared.saveAccessCodes = true
-            }
-        }
+    private func loadImage() {
+        cardImageProvider
+            .loadImage(cardId: cardModel.cardId, cardPublicKey: cardModel.cardPublicKey)
+            .weakAssignAnimated(to: \.image, on: self)
+            .store(in: &bag)
     }
 }
 
