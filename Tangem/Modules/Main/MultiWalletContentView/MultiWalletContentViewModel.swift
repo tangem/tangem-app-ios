@@ -7,6 +7,7 @@
 //
 
 import Combine
+import BlockchainSdk
 
 protocol MultiWalletContentViewModelOutput: AnyObject {
     func openCurrencySelection()
@@ -77,15 +78,28 @@ class MultiWalletContentViewModel: ObservableObject {
 
 private extension MultiWalletContentViewModel {
     func bind() {
-        userWalletModel.subscribeToWalletModels()
-            .map { wallets in
-                wallets
-                    .map { $0.$tokenItemViewModels }
+        let viewModelsWithoutDerivation = userWalletModel.subscribeToEntriesWithoutDerivation()
+            .map { [unowned self] entries in
+                entries.flatMap(self.mapToTokenItemViewModels)
+            }
+
+        let walletModels = userWalletModel.subscribeToWalletModels()
+            .map { wallets -> AnyPublisher<[TokenItemViewModel], Never> in
+                if wallets.isEmpty {
+                    return Just([]).eraseToAnyPublisher()
+                }
+
+                return wallets.map { $0.walletDidChange }
                     .combineLatest()
+                    .map { _ in wallets.flatMap { $0.allTokenItemViewModels() } }
+                    .eraseToAnyPublisher()
             }
             .switchToLatest()
-            .sink { [unowned self] wallets in
-                updateView()
+
+        Publishers.CombineLatest(viewModelsWithoutDerivation, walletModels)
+            .map(+)
+            .sink { [unowned self] viewModels in
+                updateView(viewModels: viewModels)
             }
             .store(in: &bag)
 
@@ -95,10 +109,33 @@ private extension MultiWalletContentViewModel {
             .store(in: &bag)
     }
 
-    func updateView() {
-        let itemsViewModel = userWalletModel.getWalletModels().flatMap { $0.tokenItemViewModels }
+    func updateView(viewModels: [TokenItemViewModel]) {
+        tokenListIsEmpty = viewModels.isEmpty
+        contentState = .loaded(viewModels)
+    }
 
-        tokenListIsEmpty = itemsViewModel.isEmpty
-        contentState = .loaded(itemsViewModel)
+    func mapToTokenItemViewModels(entry: StorageEntry) -> [TokenItemViewModel] {
+        let network = entry.blockchainNetwork
+        var items: [TokenItemViewModel] = [
+            TokenItemViewModel(
+                state: .noDerivation,
+                name: network.blockchain.displayName,
+                blockchainNetwork: network,
+                amountType: .coin,
+                isCustom: false
+            ),
+        ]
+
+        items += entry.tokens.map { token in
+            TokenItemViewModel(
+                state: .noDerivation,
+                name: token.name,
+                blockchainNetwork: network,
+                amountType: .token(value: token),
+                isCustom: token.isCustom
+            )
+        }
+
+        return items
     }
 }
