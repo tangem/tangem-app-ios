@@ -236,12 +236,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
 
         let count = config.cardsCount
-        switch count {
-        case 1:
-            return "\(count) Card"
-        default:
-            return "\(count) Cards"
-        }
+        return String.localizedStringWithFormat("card_label_card_count".localized, count)
     }
 
     private var searchBlockchainsCancellable: AnyCancellable? = nil
