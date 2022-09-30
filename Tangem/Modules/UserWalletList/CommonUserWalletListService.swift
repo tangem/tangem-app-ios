@@ -74,8 +74,8 @@ class CommonUserWalletListService: UserWalletListService {
             switch biometryResult {
             case .failure(let error):
                 internalResult = .failure(error)
-            case .success(let context):
-                internalResult = self.unlockWithBiometryInternal(context: context)
+            case .success:
+                internalResult = self.unlockWithBiometryInternal()
             }
 
             DispatchQueue.main.async {
@@ -162,8 +162,8 @@ class CommonUserWalletListService: UserWalletListService {
         encryptionKeyStorage.clear()
     }
 
-    private func unlockWithBiometryInternal(context: LAContext) -> Result<Void, Error> {
-        encryptionKeyByUserWalletId = encryptionKeyStorage.fetch(using: context)
+    private func unlockWithBiometryInternal() -> Result<Void, Error> {
+        encryptionKeyByUserWalletId = encryptionKeyStorage.fetch()
         loadModels()
         isUnlocked = true
         return .success(())
