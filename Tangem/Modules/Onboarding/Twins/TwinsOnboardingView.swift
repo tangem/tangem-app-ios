@@ -90,7 +90,9 @@ struct TwinsOnboardingView: View {
                             refreshButtonOpacity: currentStep.backgroundOpacity
                         )
 
-                        OnboardingCircleButton(refreshAction: {},
+                        OnboardingCircleButton(refreshAction: {
+                                                   viewModel.updateCardBalance()
+                                               },
                                                state: currentStep.successCircleState,
                                                size: .huge)
                             .offset(y: 8)
