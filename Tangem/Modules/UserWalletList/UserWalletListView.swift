@@ -31,27 +31,25 @@ struct UserWalletListView: ResizableSheetView {
     var body: some View {
         ZStack {
             VStack(spacing: 16) {
-                #warning("l10n")
-                Text("My wallets")
+                Text("user_wallet_list_title".localized)
                     .style(Fonts.Bold.body, color: Colors.Text.primary1)
 
                 ScrollView(.vertical) {
                     VStack(spacing: 0) {
-                        #warning("l10n")
-                        section("Multi-currency", for: viewModel.multiCurrencyModels)
-
-                        #warning("l10n")
-                        section("Single-currency", for: viewModel.singleCurrencyModels)
+                        section("user_wallet_list_multi_header".localized, for: viewModel.multiCurrencyModels)
+                        section("user_wallet_list_single_header".localized, for: viewModel.singleCurrencyModels)
                     }
                 }
                 .background(Colors.Background.primary)
                 .cornerRadius(14)
 
-                #warning("l10n")
-                TangemButton(title: "Add new wallet", image: "tangemIconBlack", iconPosition: .trailing) {
-                    viewModel.addUserWallet()
+                if !viewModel.isUnlocked {
+                    TangemButton(title: viewModel.unlockAllButtonLocalizationKey, action: viewModel.unlockAllWallets)
+                        .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
                 }
-                .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt3, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
+
+                TangemButton(title: "user_wallet_list_add_button", image: "tangemIconBlack", iconPosition: .trailing, action: viewModel.addUserWallet)
+                    .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt3, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
             }
 
             ScanTroubleshootingView(isPresented: $viewModel.showTroubleshootingView,
@@ -114,7 +112,7 @@ struct UserWalletListView: ResizableSheetView {
     @ViewBuilder
     private func deleteButtonLabel() -> some View {
         HStack {
-            Text("Delete")
+            Text("common_delete")
             Image(systemName: "trash")
         }
     }
