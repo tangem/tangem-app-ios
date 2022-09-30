@@ -118,7 +118,7 @@ private extension MultiWalletContentViewModel {
         let network = entry.blockchainNetwork
         var items: [TokenItemViewModel] = [
             TokenItemViewModel(
-                state: .notDerivation,
+                state: .noDerivation,
                 name: network.blockchain.displayName,
                 blockchainNetwork: network,
                 amountType: .coin,
@@ -128,7 +128,7 @@ private extension MultiWalletContentViewModel {
 
         items += entry.tokens.map { token in
             TokenItemViewModel(
-                state: .notDerivation,
+                state: .noDerivation,
                 name: token.name,
                 blockchainNetwork: network,
                 amountType: .token(value: token),

@@ -43,7 +43,7 @@ struct SingleWalletContentView: View {
     private var walletView: some View {
         if let singleWalletModel = viewModel.singleWalletModel {
             switch singleWalletModel.state {
-            case .created, .notDerivation:
+            case .created, .noDerivation:
                 EmptyView()
 
             case .idle, .loading, .failed:
