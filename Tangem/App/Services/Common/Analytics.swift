@@ -24,11 +24,16 @@ class Analytics {
             case .appsflyer, .firebase:
                 log(event: event, with: params)
             case .amplitude: // [REDACTED_TODO_COMMENT]
-//                let convertParams = params.reduce(into: [:]) { $0[$1.key.rawValue] = $1.value }
-//                logAmplitude(event, params: convertParams)
+                let convertParams = params.reduce(into: [:]) { $0[$1.key.rawValue] = $1.value }
+                logAmplitude(.onboarding, event: event, params: convertParams)
                 break
             }
         }
+    }
+
+    static func log(_ category: Category, event: Event, params: [ParameterKey: String] = [:]) {
+        let convertParams = params.reduce(into: [:]) { $0[$1.key.rawValue] = $1.value }
+
     }
 
     static func log(event: Event, with params: [ParameterKey: Any]? = nil) {
@@ -151,7 +156,7 @@ class Analytics {
     }
     #endif
 
-    static func logAmplitude(_ event: Event, params: [String: String] = [:]) {
+    static func logAmplitude(_ category: Category, event: Event, params: [String: String] = [:]) {
         #if !CLIP
         Amplitude.instance().logEvent(event.rawValue.camelCaseToSnakeCase(), withEventProperties: params)
         #endif
@@ -185,6 +190,94 @@ extension Analytics {
         case demoActivated = "demo_mode_activated"
 
         // MARK: - Amplitude
+        case buttonTokensList
+        case buttonBuyCards
+        case buttonRequestSupport
+        case shopScreenOpened
+        case purchased
+        case redirected
+        case buttonBiometricSignIn
+        case buttonCardSignIn
+        case onboardingStarted
+        case onboardingFinished
+        case createWalletScreenOpened
+        case buttonCreateWallet
+        case walletCreatedSuccessfully
+        case backupScreenOpened
+        case backupStarted
+        case backupSkipped
+        case settingAccessCodeStarted
+        case accessCodeEntered
+        case accessCodeReEntered
+        case backupFinished
+        case activationScreenOpened
+        case buttonBuyCrypto
+        case buttonShowTheWalletAddress
+        case enableBiometric
+        case allowBiometricID
+        case twinningScreenOpened
+        case twinSetupStarted
+        case twinSetupFinished
+        case screenOpened
+        case buttonScanCard
+        case cardWasScanned
+        case buttonMyWallets
+        case mainCurrencyChanged
+        case noticeRateTheAppButtonTapped
+        case noticeBackupYourWalletTapped
+        case noticeScanYourCardTapped
+        case refreshed
+        case buttonManageTokens
+        case tokenIsTapped
+        case detailsScreenOpened
+        case buttonRemoveToken
+        case buttonExplore
+        case buttonBuy
+        case buttonSell
+        case buttonExchange
+        case buttonSend
+        case recieveScreenOpened
+        case buttonCopyAddress
+        case buttonShareAddress
+        case sendScreenOpened
+        case buttonPaste
+        case buttonQRCode
+        case buttonSwapCurrency
+        case transactionSent
+        case topUpScreenOpened
+        case p2PScreenOpened
+        case withdrawScreenOpened
+        case manageTokensScreenOpened
+        case tokenSearched
+        case tokenSwitcherChanged
+        case buttonSaveChanges
+        case buttonCustomToken
+        case customTokenScreenOpened
+        case customTokenWasAdded
+        case settingsScreenOpened
+        case buttonChat
+        case buttonSendFeedback
+        case buttonStartWalletConnectSession
+        case buttonStopWalletConnectSession
+        case buttonCardSettings
+        case buttonAppSettings
+        case buttonCreateBackup
+        case buttonSocialNetwork
+        case buttonFactoryReset
+        case factoryResetFinished
+        case buttonChangeUserCode
+        case userCodeChanged
+        case buttonChangeSecurityMode
+        case securityModeChanged
+        case faceIDSwitcherChanged
+        case saveAccessCodeSwitcherChanged
+        case buttonEnableBiometricAuthentication
+        case newSessionEstablished
+        case sessionDisconnected
+        case requestSigned
+        case chatScreenOpened
+
+        // MARK: -
         case viewStoryIntro
         case viewStoryWallet
         case viewStoryKeys
@@ -247,6 +340,9 @@ extension Analytics {
         fileprivate static var nfcError: String {
             "nfc_error"
         }
+
+        func category() {
+        }
     }
 
     enum Action: String {
@@ -296,6 +392,77 @@ extension Analytics {
         case firebase
         case amplitude
         case appsflyer
+    }
+
+    enum Category: String {
+        case introductionProcess
+        case shop
+        case onboarding
+        case createWallet
+        case backup
+        case topUp
+        case biometric
+        case twins
+        case mainScreen
+        case portfolio
+        case detailsScreen
+        case token
+        case tokenRecieve
+        case tokenSend
+        case tokenWithdraw
+        case manageTokens
+        case myWallets
+        case settings
+        case cardSettings
+        case walletConnect
+        case chat
+
+        var rawValue: String {
+            switch self {
+            case .introductionProcess:
+                return "Introduction Process"
+            case .shop:
+                return "Shop"
+            case .onboarding:
+                return "Onboarding"
+            case .createWallet:
+                return "Onboarding / Create Wallet"
+            case .backup:
+                return "Onboarding / Backup"
+            case .topUp:
+                return "Onboarding / Top Up"
+            case .biometric:
+                return "Onboarding / Biometric"
+            case .twins:
+                return "Onboarding / Twins"
+            case .mainScreen:
+                return "Main Screen"
+            case .portfolio:
+                return "Portfolio"
+            case .detailsScreen:
+                return "Details Screen"
+            case .token:
+                return "Token"
+            case .tokenRecieve:
+                return "Token / Recieve"
+            case .tokenSend:
+                return "Token / Send"
+            case .tokenWithdraw:
+                return "Token / Withdraw"
+            case .manageTokens:
+                return "Manage Tokens"
+            case .myWallets:
+                return "My Wallets"
+            case .settings:
+                return "Settings"
+            case .cardSettings:
+                return "Settings / Card Settings"
+            case .walletConnect:
+                return "Wallet Connect"
+            case .chat:
+                return "Chat"
+            }
+        }
     }
 
     #if !CLIP
