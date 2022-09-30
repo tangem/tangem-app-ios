@@ -31,7 +31,8 @@ extension ScanCardSettingsViewModel {
         scan { [weak self] result in
             switch result {
             case let .success(cardInfo):
-                let cardModel = CardViewModel(cardInfo: cardInfo)
+                let config = UserWalletConfigFactory(cardInfo).makeConfig()
+                let cardModel = CardViewModel(cardInfo: cardInfo, config: config)
                 cardModel.didScan() // [REDACTED_TODO_COMMENT]
                 self?.coordinator.openCardSettings(cardModel: cardModel)
             case let .failure(error):
