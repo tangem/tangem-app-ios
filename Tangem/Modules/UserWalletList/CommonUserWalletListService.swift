@@ -34,6 +34,8 @@ class CommonUserWalletListService: UserWalletListService {
         savedUserWallets().isEmpty
     }
 
+    private(set) var isUnlocked: Bool = false
+
     private var userWallets: [UserWallet] = []
 
     private var encryptionKeyByUserWalletId: [Data: SymmetricKey] = [:]
@@ -163,6 +165,7 @@ class CommonUserWalletListService: UserWalletListService {
     private func unlockWithBiometryInternal(context: LAContext) -> Result<Void, Error> {
         encryptionKeyByUserWalletId = encryptionKeyStorage.fetch(using: context)
         loadModels()
+        isUnlocked = true
         return .success(())
     }
 
