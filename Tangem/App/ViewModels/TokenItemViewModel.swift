@@ -81,7 +81,7 @@ struct TokenItemViewModel: Identifiable, Equatable, Comparable {
     }
 
     var displayRateText: String {
-        if state.isBlockchainUnreachable || state == .notDerivation {
+        if state.isBlockchainUnreachable || state == .noDerivation {
             return "wallet_balance_blockchain_unreachable".localized
         }
 
