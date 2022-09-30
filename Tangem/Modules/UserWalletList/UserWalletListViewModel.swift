@@ -26,6 +26,23 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
     var bottomSheetHeightUpdateCallback: ((ResizeSheetAction) -> ())?
 
+    var unlockAllButtonLocalizationKey: LocalizedStringKey {
+        switch BiometricAuthorizationUtils.biometryType {
+        case .faceID:
+            return "user_wallet_list_unlock_all_face_id"
+        case .touchID:
+            return "user_wallet_list_unlock_all_touch_id"
+        case .none:
+            return ""
+        @unknown default:
+            return ""
+        }
+    }
+
+    var isUnlocked: Bool {
+        userWalletListService.isUnlocked
+    }
+
     private unowned let coordinator: UserWalletListRoutable
     private var bag: Set<AnyCancellable> = []
     private var initialized = false
@@ -62,6 +79,13 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             .map(mapToUserWalletListCellViewModel(userWalletModel:))
     }
 
+    func unlockAllWallets() {
+        userWalletListService.unlockWithBiometry { [weak self] result in
+            #warning("[REDACTED_TODO_COMMENT]")
+            self?.updateModels()
+        }
+    }
+
     func addUserWallet() {
         scanCardInternal { [weak self] cardModel in
             self?.processScannedCard(cardModel)
@@ -85,17 +109,16 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         }
     }
 
-    func editUserWallet(_ viewModel: UserWalletListCellViewModel) {
-        #warning("l10n")
-        let alert = UIAlertController(title: "Rename Wallet", message: nil, preferredStyle: .alert)
+    func editUserWallet(_ userWallet: UserWallet) {
+        let alert = UIAlertController(title: "user_wallet_list_rename_popup_title".localized, message: nil, preferredStyle: .alert)
         let cancelAction = UIAlertAction(title: "common_cancel".localized, style: .cancel) { _ in }
         alert.addAction(cancelAction)
 
         var nameTextField: UITextField?
         alert.addTextField { textField in
             nameTextField = textField
-            nameTextField?.placeholder = "Wallet name"
-            nameTextField?.text = viewModel.name
+            nameTextField?.placeholder = "user_wallet_list_rename_popup_placeholder".localized
+            nameTextField?.text = userWallet.name
             nameTextField?.clearButtonMode = .whileEditing
             nameTextField?.autocapitalizationType = .sentences
         }
