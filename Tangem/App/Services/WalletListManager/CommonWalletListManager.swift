@@ -156,7 +156,9 @@ private extension CommonWalletListManager {
     }
 
     func updateWalletModelsPublisher() -> AnyPublisher<Void, Never> {
-        let publishers = getWalletModels().map { $0.update().replaceError(with: (())) }
+        let publishers = getWalletModels().map {
+            $0.update(silent: false).replaceError(with: (()))
+        }
 
         return Publishers
             .MergeMany(publishers)
