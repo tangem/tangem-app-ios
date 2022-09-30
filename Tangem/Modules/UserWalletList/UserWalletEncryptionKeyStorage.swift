@@ -20,13 +20,13 @@ class UserWalletEncryptionKeyStorage {
 
     }
 
-    func fetch(using context: LAContext) -> [Data: SymmetricKey] {
+    func fetch() -> [Data: SymmetricKey] {
         do {
             var keys: [Data: SymmetricKey] = [:]
 
             let userWalletIds = try userWalletIds()
             for userWalletId in userWalletIds {
-                let userWalletEncryptionKeyResult = biometricsStorage.get(encryptionKeyStorageKey(for: userWalletId), context: context)
+                let userWalletEncryptionKeyResult = biometricsStorage.get(encryptionKeyStorageKey(for: userWalletId))
 
                 switch userWalletEncryptionKeyResult {
                 case .failure(let error):
