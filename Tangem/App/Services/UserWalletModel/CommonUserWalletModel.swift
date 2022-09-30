@@ -28,6 +28,11 @@ class CommonUserWalletModel {
 // MARK: - UserWalletModel
 
 extension CommonUserWalletModel: UserWalletModel {
+    func update(userWalletId: Data) {
+        print("🔄 Updating UserWalletModel with new userWalletId")
+        userTokenListManager.update(userWalletId: userWalletId)
+    }
+
     func updateUserWalletModel(with config: UserWalletConfig) {
         print("🔄 Updating UserWalletModel with new config")
         walletListManager.update(config: config)
