@@ -101,16 +101,15 @@ extension CommonTangemApiService: TangemApiService {
             .eraseToAnyPublisher()
     }
 
-    func loadRates(for coinIds: [String]) -> AnyPublisher<[String: Decimal], Never> {
+    func loadRates(for coinIds: [String]) -> AnyPublisher<[String: Decimal], Error> {
         provider
             .requestPublisher(TangemApiTarget(type: .rates(coinIds: coinIds,
                                                            currencyId: AppSettings.shared.selectedCurrencyCode),
                                               authData: authData))
             .filterSuccessfulStatusAndRedirectCodes()
             .map(RatesResponse.self)
+            .eraseError()
             .map { $0.rates }
-            .catch { _ in Empty(completeImmediately: true) }
-            .subscribe(on: DispatchQueue.global())
             .eraseToAnyPublisher()
     }
 
