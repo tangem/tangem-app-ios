@@ -87,7 +87,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
                 case .failed(let error):
                     self.alert = error.alertBinder
                     self.resetRefreshButtonState()
-                case .loading, .created, .notDerivation:
+                case .loading, .created, .noDerivation:
                     return
                 }
                 self.walletModelUpdateCancellable = nil
