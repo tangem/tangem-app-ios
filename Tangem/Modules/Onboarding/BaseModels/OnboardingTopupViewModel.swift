@@ -61,7 +61,9 @@ class OnboardingTopupViewModel<Step: OnboardingStep>: OnboardingViewModel<Step> 
 
     func updateCardBalance() {
         guard let walletModel = cardModel.walletModels.first,
-              walletModelUpdateCancellable == nil else { return }
+              walletModelUpdateCancellable == nil else {
+            return
+        }
 
         refreshButtonState = .activityIndicator
         walletModelUpdateCancellable = walletModel.$state
