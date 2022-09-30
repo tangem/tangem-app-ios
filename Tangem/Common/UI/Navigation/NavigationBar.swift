@@ -61,8 +61,7 @@ struct SkipButton: View {
     let action: () -> Void
 
     var body: some View {
-        #warning("l10n")
-        Button("Skip", action: action)
+        Button("common_skip", action: action)
             .opacity(isVisible ? 1.0 : 0.0)
             .foregroundColor(DefaultNavigationBarSettings.color)
             .padding(.horizontal, DefaultNavigationBarSettings.padding)
