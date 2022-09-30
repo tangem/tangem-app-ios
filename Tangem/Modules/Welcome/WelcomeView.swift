@@ -44,22 +44,21 @@ struct WelcomeView: View {
                 .foregroundColor(Colors.Text.primary1)
                 .padding(.bottom, 48)
 
-            Text("Unlock your wallet")
+            Text("welcome_unlock_title")
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
                 .padding(.bottom, 14)
 
-            Text("To unlock your wallet use biometric authentication or scan a card")
+            Text("welcome_unlock_description".localized(BiometricAuthorizationUtils.biometryType.name))
                 .style(Fonts.Regular.callout, color: Colors.Text.secondary)
                 .multilineTextAlignment(.center)
 
             Spacer()
 
-            #warning("TOUCH ID?")
-            TangemButton(title: "Unlock with Face ID", action: viewModel.unlockWithBiometry)
+            TangemButton(title: viewModel.unlockWithBiometryLocalizationKey, action: viewModel.unlockWithBiometry)
                 .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt3, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
                 .padding(.bottom, 11)
 
-            TangemButton(title: "Unlock with card", image: "tangemIconWhite", iconPosition: .trailing, action: viewModel.unlockWithCard)
+            TangemButton(title: "welcome_unlock_card", image: "tangemIconWhite", iconPosition: .trailing, action: viewModel.unlockWithCard)
                 .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth, isLoading: viewModel.isScanningCard))
         }
         .padding()
