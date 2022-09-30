@@ -143,11 +143,9 @@ class WalletModel: ObservableObject, Identifiable {
             .receiveCompletion { [unowned self] completion in
                 switch completion {
                 case .finished:
-                    if !silent {
-                        // Don't update noAccount state
-                        if !state.isNoAccount {
-                            updateState(.idle)
-                        }
+                    // Don't update noAccount state
+                    if !silent, !state.isNoAccount {
+                        updateState(.idle)
                     }
 
                     updatePublisher?.send(completion: .finished)
@@ -177,7 +175,6 @@ class WalletModel: ObservableObject, Identifiable {
                         // If we don't have a account just update state and loadRates
                         self?.updateState(.noAccount(message: message))
                         promise(.success(()))
-
                     default:
                         promise(.failure(error.detailedError))
                     }
@@ -515,7 +512,7 @@ extension WalletModel {
         case loading
         case noAccount(message: String)
         case failed(error: Error)
-        case notDerivation
+        case noDerivation
 
         var isLoading: Bool {
             switch self {
@@ -575,7 +572,7 @@ extension WalletModel {
 
         fileprivate var canCreateOrPurgeWallet: Bool {
             switch self {
-            case .failed, .loading, .created, .notDerivation:
+            case .failed, .loading, .created, .noDerivation:
                 return false
             case .noAccount, .idle:
                 return true
@@ -592,7 +589,7 @@ extension WalletModel.State: Equatable {
              (.idle, .idle),
              (.loading, .loading),
              (.failed, .failed),
-             (.notDerivation, .notDerivation):
+             (.noDerivation, .noDerivation):
             return true
         default:
             return false
