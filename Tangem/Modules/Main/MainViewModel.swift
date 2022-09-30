@@ -150,7 +150,7 @@ class MainViewModel: ObservableObject {
         updateIsBackupAllowed()
         cardModel.setupWarnings()
         validateHashesCount()
-        updateWalletTokenListViewModel()
+//        updateWalletTokenListViewModel()
         showUserWalletSaveIfNeeded()
     }
 
