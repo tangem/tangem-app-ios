@@ -45,7 +45,7 @@ class CommonUserWalletModel {
 // MARK: - UserWalletModel
 
 extension CommonUserWalletModel: UserWalletModel {
-    func setUserWallet(_ userWallet: UserWallet) {
+    func updateUserWallet(_ userWallet: UserWallet) {
         print("🔄 Updating UserWalletModel with new userWalletId")
         self.userWallet = userWallet
         userTokenListManager.update(userWalletId: userWallet.userWalletId)
