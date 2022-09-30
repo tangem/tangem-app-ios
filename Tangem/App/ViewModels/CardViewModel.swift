@@ -401,7 +401,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     func setUserWallet(_ userWallet: UserWallet) {
         cardInfo = userWallet.cardInfo()
-        userWalletModel?.setUserWallet(userWallet)
+        userWalletModel?.updateUserWallet(userWallet)
     }
 
     // MARK: - Update
@@ -478,7 +478,9 @@ class CardViewModel: Identifiable, ObservableObject {
         warningsService.setupWarnings(for: config)
         createUserWalletModelIfNeeded()
         userWalletModel?.updateUserWalletModel(with: config)
-        userWalletModel?.update(userWalletId: userWalletId)
+        if let userWallet = userWallet {
+            userWalletModel?.updateUserWallet(userWallet)
+        }
     }
 
     private func searchBlockchains() {
@@ -596,7 +598,7 @@ class CardViewModel: Identifiable, ObservableObject {
     private func updateUserWallet() {
         let userWallet = UserWalletFactory().userWallet(from: self)
 
-        userWalletModel?.setUserWallet(userWallet)
+        userWalletModel?.updateUserWallet(userWallet)
 
         if userWalletListService.contains(userWallet) {
             let _ = userWalletListService.save(userWallet)
