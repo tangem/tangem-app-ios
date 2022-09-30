@@ -22,11 +22,7 @@ class WalletModelFactory {
             walletManager.addTokens([token])
         }
 
-        let model = WalletModel(walletManager: walletManager,
-                                derivationStyle: derivationStyle)
-
-        model.initialize()
-        return model
+        return WalletModel(walletManager: walletManager, derivationStyle: derivationStyle)
     }
 
     func makeMultipleWallet(walletPublicKeys: [EllipticCurve: Data],
@@ -41,10 +37,7 @@ class WalletModelFactory {
                                                           walletPublicKey: walletPublicKey)
 
         walletManager.addTokens(entry.tokens)
-
-        let model = WalletModel(walletManager: walletManager, derivationStyle: derivationStyle)
-        model.initialize()
-        return model
+        return WalletModel(walletManager: walletManager, derivationStyle: derivationStyle)
     }
 
     func makeMultipleWallet(seedKeys: [EllipticCurve: Data],
@@ -66,9 +59,6 @@ class WalletModelFactory {
                                                           derivedKey: derivedKey,
                                                           derivation: .custom(derivationPath))
         walletManager.addTokens(entry.tokens)
-
-        let model = WalletModel(walletManager: walletManager, derivationStyle: derivationStyle)
-        model.initialize()
-        return model
+        return WalletModel(walletManager: walletManager, derivationStyle: derivationStyle)
     }
 }
