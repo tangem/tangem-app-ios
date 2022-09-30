@@ -139,7 +139,9 @@ class TwinsWalletCreationUtil {
             switch result {
             case .success(let response):
                 self.card.update(with: response.getCardInfo())
-                self.step.send(.done)
+                self.card.userWalletModel?.updateAndReloadWalletModels { [weak self] in
+                    self?.step.send(.done)
+                }
             case .failure(let error):
                 self.occuredError.send(error)
             }
