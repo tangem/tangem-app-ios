@@ -20,14 +20,11 @@ class TwinsWalletCreationUtil {
 
     /// Determines is user start twin wallet creation from Twin card with first number
     var isStartedFromFirstNumber: Bool {
-        guard let twin = twinData else { return true }
-        return twin.series.number == 1
+        twinData.series.number == 1
     }
 
     var stepCardNumber: Int {
-        guard let twin = twinData else { return 1 }
-
-        let series = twin.series
+        let series = twinData.series
 
         switch step.value {
         case .first, .third, .done:
@@ -42,7 +39,7 @@ class TwinsWalletCreationUtil {
     private let twinFileEncoder: TwinCardFileEncoder = TwinCardTlvFileEncoder()
     private var firstTwinCid: String = ""
     // private var secondTwinCid: String = ""
-    private var twinData: TwinData?
+    private var twinData: TwinData
     private let card: CardViewModel
 
     private var firstTwinPublicKey: Data?
@@ -83,8 +80,9 @@ class TwinsWalletCreationUtil {
             switch result {
             case .success(let response):
                 self.card.clearTwinPairKey()
-                self.card.update(with: response.card)
                 self.firstTwinPublicKey = response.createWalletResponse.wallet.publicKey
+                self.card.update(with: response.card)
+                self.card.appendDefaultBlockchains()
                 self.step.send(.second)
             case .failure(let error):
                 self.occuredError.send(error)
@@ -111,6 +109,8 @@ class TwinsWalletCreationUtil {
             case .success(let response):
                 self.secondTwinPublicKey = response.createWalletResponse.wallet.publicKey
                 self.twinPairCardId = response.createWalletResponse.cardId
+                self.card.update(with: response.card)
+                self.card.appendDefaultBlockchains()
                 self.step.send(.third)
             case .failure(let error):
                 self.occuredError.send(error)
@@ -163,9 +163,7 @@ class TwinsWalletCreationUtil {
     private func initialMessage(for cardId: String) -> Message {
         Message(header: String(format: scanMessageKey.localized, AppTwinCardIdFormatter.format(cid: cardId, cardNumber: stepCardNumber)))
     }
-
 }
-
 
 extension TwinsWalletCreationUtil {
     enum CreationStep {
