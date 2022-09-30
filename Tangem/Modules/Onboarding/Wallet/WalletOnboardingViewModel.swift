@@ -466,7 +466,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                    let accessCode = self.accessCode,
                    let cardIds = self.cardIds
                 {
-                    self.tangemSdk.saveAccessCode(accessCode, for: cardIds, completion: completion)
+                    let accessCodeData: Data = accessCode.sha256()
+                    let accessCodeRepository = AccessCodeRepository()
+                    accessCodeRepository.save(accessCodeData, for: cardIds, completion: completion)
                 } else {
                     completion(.success(()))
                 }
@@ -710,4 +712,8 @@ extension NotificationCenter {
             .setFailureType(to: Error.self)
             .eraseToAnyPublisher()
     }
+}
+
+fileprivate extension BackupService {
+    var allCardIds: [String] { [primaryCardId].compactMap { $0 } + backupCardIds }
 }
