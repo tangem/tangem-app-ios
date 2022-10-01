@@ -13,7 +13,7 @@ struct BalanceAddressView: View {
     @ObservedObject var walletModel: WalletModel
     var amountType: Amount.AmountType
     var isRefreshing: Bool
-    @Binding var showExplorerURL: URL?
+    let showExplorerURL: (URL?) -> Void
     @State private var selectedAddressIndex: Int = 0
 
     var blockchainText: String {
@@ -137,7 +137,7 @@ struct BalanceAddressView: View {
                                 .fixedSize(horizontal: false, vertical: true)
 
                             ExploreButton(url: walletModel.exploreURL(for: selectedAddressIndex),
-                                          urlBinding: $showExplorerURL)
+                                          showExplorerURL: showExplorerURL)
 
                             HStack {
                                 RoundedRectButton(action: { copyAddress() },
@@ -190,15 +190,6 @@ struct BalanceAddressView_Previews: PreviewProvider {
         let vm = PreviewCard.stellar.cardModel.walletModels.first!
         vm.state = .failed(error: "Failed to load. Internet connection is unnreachable")
         vm.state = .idle
-        vm.balanceViewModel = BalanceViewModel(isToken: false,
-                                               hasTransactionInProgress: true,
-                                               state: .idle,
-                                               name: "Ethereum smart contract token",
-                                               fiatBalance: "$3.45",
-                                               balance: "0.67538451 BTC",
-                                               secondaryBalance: "",
-                                               secondaryFiatBalance: "",
-                                               secondaryName: "")
         return vm
     }
 
@@ -207,7 +198,7 @@ struct BalanceAddressView_Previews: PreviewProvider {
             Color.gray
             ScrollView {
                 BalanceAddressView(
-                    walletModel: walletModel, amountType: .coin, isRefreshing: false, showExplorerURL: .constant(nil))
+                    walletModel: walletModel, amountType: .coin, isRefreshing: false, showExplorerURL: { _ in })
                     .padding()
             }
         }
