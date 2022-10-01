@@ -109,7 +109,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         }
     }
 
-    func editUserWallet(_ userWallet: UserWallet) {
+    func editUserWallet(_ viewModel: UserWalletListCellViewModel) {
         let alert = UIAlertController(title: "user_wallet_list_rename_popup_title".localized, message: nil, preferredStyle: .alert)
         let cancelAction = UIAlertAction(title: "common_cancel".localized, style: .cancel) { _ in }
         alert.addAction(cancelAction)
@@ -118,7 +118,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         alert.addTextField { textField in
             nameTextField = textField
             nameTextField?.placeholder = "user_wallet_list_rename_popup_placeholder".localized
-            nameTextField?.text = userWallet.name
+            nameTextField?.text = viewModel.userWallet.name
             nameTextField?.clearButtonMode = .whileEditing
             nameTextField?.autocapitalizationType = .sentences
         }
@@ -222,7 +222,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             let newModel = CardViewModel(userWallet: userWallet)
 
             if let cellModel = newModel.userWalletModel.map(mapToUserWalletListCellViewModel(userWalletModel:)) {
-
                 if newModel.isMultiWallet {
                     multiCurrencyModels.append(cellModel)
                 } else {
