@@ -15,13 +15,13 @@ protocol UserWalletModel {
 
     var userWallet: UserWallet { get }
 
-    func setUserWallet(_ userWallet: UserWallet)
-
     func updateUserWalletModel(with config: UserWalletConfig)
+    func updateUserWallet(_ userWallet: UserWallet)
 
     func getWalletModels() -> [WalletModel]
     func subscribeToWalletModels() -> AnyPublisher<[WalletModel], Never>
 
+    func getSavedEntries() -> [StorageEntry]
     func getEntriesWithoutDerivation() -> [StorageEntry]
     func subscribeToEntriesWithoutDerivation() -> AnyPublisher<[StorageEntry], Never>
 
@@ -29,13 +29,12 @@ protocol UserWalletModel {
     func update(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void)
     func append(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void)
     func remove(item: CommonUserWalletModel.RemoveItem, result: @escaping (Result<UserTokenList, Error>) -> Void)
-    func clearRepository(result: @escaping (Result<UserTokenList, Error>) -> Void)
 
-    func updateAndReloadWalletModels(showProgressLoading: Bool, result: @escaping (Result<Void, Error>) -> Void)
+    func updateAndReloadWalletModels(completion: @escaping () -> Void)
 }
 
 extension UserWalletModel {
-    func updateAndReloadWalletModels(showProgressLoading show: Bool = true) {
-        updateAndReloadWalletModels(showProgressLoading: show, result: { _ in })
+    func updateAndReloadWalletModels() {
+        updateAndReloadWalletModels(completion: {})
     }
 }
