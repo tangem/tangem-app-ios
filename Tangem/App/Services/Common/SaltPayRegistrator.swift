@@ -176,8 +176,8 @@ extension GnosisRegistrator {
     enum Signatures {
         static let approve: Data = "approve(address,uint256)".signedPrefix
         static let setSpendLimit: Data = "setSpendLimit(address,uint256)".signedPrefix
-        static let initOTP: Data = "setSpendLimit(address,uint256)".signedPrefix // 0x0ac81ec3
-        static let setWallet: Data = "setSpendLimit(address,uint256)".signedPrefix // 0xdeaa59df
+        static let initOTP: Data = "initOTP(bytes16,uint16)".signedPrefix // 0x0ac81ec3
+        static let setWallet: Data = "setWallet(address)".signedPrefix // 0xdeaa59df
     }
 }
 
