@@ -97,7 +97,7 @@ struct TokenDetailsView: View {
                             BalanceAddressView(walletModel: walletModel,
                                                amountType: viewModel.amountType,
                                                isRefreshing: viewModel.isRefreshing,
-                                               showExplorerURL: $viewModel.showExplorerURL)
+                                               showExplorerURL: viewModel.showExplorerURL)
                         }
 
                         bottomButtons
@@ -108,11 +108,20 @@ struct TokenDetailsView: View {
                             AlertCardView(title: "", message: sendBlockedReason)
                         }
 
+                        if let existentialDepositWarning = viewModel.existentialDepositWarning {
+                            AlertCardView(title: "common_warning".localized, message: existentialDepositWarning)
+                        }
+
+                        if let transactionLengthWarning = viewModel.transactionLengthWarning {
+                            AlertCardView(title: "common_warning".localized, message: transactionLengthWarning)
+                        }
+
                         if let solanaRentWarning = viewModel.solanaRentWarning {
                             AlertCardView(title: "common_warning".localized, message: solanaRentWarning)
                         }
                     }
                     .padding(.horizontal, 16)
+                    .padding(.bottom, 32)
                     .frame(width: geometry.size.width)
                 }
             }
