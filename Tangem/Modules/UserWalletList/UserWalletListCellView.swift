@@ -12,11 +12,11 @@ import Combine
 class UserWalletListCellViewModel: ObservableObject {
     @Published var balance: String = ""
     @Published var image: UIImage?
+    @Published var isSelected = false
 
     let userWallet: UserWallet
     let subtitle: String
     let numberOfTokens: String?
-    let isSelected: Bool
     let didTapUserWallet: () -> Void
 
     var userWalletId: Data { userWallet.userWalletId }
