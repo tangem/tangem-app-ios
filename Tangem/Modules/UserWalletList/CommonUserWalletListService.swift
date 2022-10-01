@@ -51,11 +51,6 @@ class CommonUserWalletListService: UserWalletListService {
 
     private var bag: Set<AnyCancellable> = []
 
-    #warning("l10n")
-    private var localizedBiometricsReason: String {
-        "Reason"
-    }
-
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
 
     init() {
@@ -67,20 +62,10 @@ class CommonUserWalletListService: UserWalletListService {
     }
 
     func unlockWithBiometry(completion: @escaping (Result<Void, Error>) -> Void) {
-        BiometricsUtil.requestAccess(localizedReason: localizedBiometricsReason) { [weak self] biometryResult in
-            guard let self = self else { return }
+        let result = self.unlockWithBiometryInternal()
 
-            let internalResult: Result<Void, Error>
-            switch biometryResult {
-            case .failure(let error):
-                internalResult = .failure(error)
-            case .success:
-                internalResult = self.unlockWithBiometryInternal()
-            }
-
-            DispatchQueue.main.async {
-                completion(internalResult)
-            }
+        DispatchQueue.main.async {
+            completion(result)
         }
     }
 
@@ -163,10 +148,14 @@ class CommonUserWalletListService: UserWalletListService {
     }
 
     private func unlockWithBiometryInternal() -> Result<Void, Error> {
-        encryptionKeyByUserWalletId = encryptionKeyStorage.fetch()
-        loadModels()
-        isUnlocked = true
-        return .success(())
+        do {
+            encryptionKeyByUserWalletId = try encryptionKeyStorage.fetch()
+            loadModels()
+            isUnlocked = true
+            return .success(())
+        } catch let error {
+            return .failure(error)
+        }
     }
 
     private func savedUserWallets() -> [UserWallet] {
