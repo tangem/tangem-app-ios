@@ -314,6 +314,10 @@ extension WalletConnectService: ServerDelegate {
     }
 
     private func getWalletInfo(for dAppInfo: Session.DAppInfo) throws -> WalletInfo {
+        guard DApps().isSupported(dAppInfo.peerMeta.url) else {
+            throw WalletConnectServiceError.unsupportedDApp
+        }
+
         guard cardModel.supportsWalletConnect else {
             throw WalletConnectServiceError.notValidCard
         }
@@ -510,6 +514,7 @@ enum WalletConnectServiceError: LocalizedError {
     case switchChainNotSupported
     case notValidCard
     case networkNotFound(name: String)
+    case unsupportedDApp
 
     var shouldHandle: Bool {
         switch self {
@@ -531,6 +536,7 @@ enum WalletConnectServiceError: LocalizedError {
         case .unsupportedNetwork: return "wallet_connect_scanner_error_unsupported_network".localized
         case .notValidCard: return "wallet_connect_scanner_error_not_valid_card".localized
         case .networkNotFound(let name): return "wallet_connect_network_not_found_format".localized(name)
+        case .unsupportedDApp: return "wallet_connect_error_unsupported_dapp".localized
         default: return ""
         }
     }
@@ -543,5 +549,19 @@ extension WalletConnectServiceError {
         case noWalletManager
         case wrongAddress
         case noValue
+    }
+}
+
+fileprivate struct DApps {
+    private let unsupportedList: [String] = ["dydx.exchange"]
+
+    func isSupported(_ dAppURL: URL) -> Bool {
+        for dApp in unsupportedList {
+            if dAppURL.absoluteString.contains(dApp) {
+                return false
+            }
+        }
+
+        return true
     }
 }
