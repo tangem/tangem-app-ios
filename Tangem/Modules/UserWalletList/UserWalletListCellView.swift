@@ -88,7 +88,6 @@ struct UserWalletListCellView: View {
                 .overlay(selectionIcon.offset(x: 4, y: -4), alignment: .topTrailing)
 
             VStack(alignment: .leading, spacing: 2) {
-                #warning("TODO")
                 Text(viewModel.name)
                     .style(Fonts.Bold.subheadline, color: viewModel.isSelected ? Colors.Text.accent : Colors.Text.primary1)
 
