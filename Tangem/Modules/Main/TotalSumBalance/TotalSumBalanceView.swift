@@ -25,14 +25,13 @@ struct TotalSumBalanceView: View {
 
                 Spacer()
 
-                Button {
-                    viewModel.tapOnCurrencySymbol()
-                } label: {
+                Button(action: viewModel.didTapOnCurrencySymbol) {
                     HStack(spacing: 6) {
                         Text(currencyType)
                             .lineLimit(1)
                             .font(.system(size: 13, weight: .medium))
-                        Image("tangemArrowDown")
+
+                        Assets.tangemArrowDown
                     }
                     .foregroundColor(.tangemGrayLight7)
                 }
@@ -50,7 +49,7 @@ struct TotalSumBalanceView: View {
             }
         }
         .padding(16)
-        .background(Color.white)
+        .background(Colors.Background.primary)
         .cornerRadius(16)
     }
 
@@ -61,10 +60,9 @@ struct TotalSumBalanceView: View {
                 .skeletonable(isShown: viewModel.isLoading, size: CGSize(width: 100, height: 25))
                 .frame(height: 33)
 
-            if let tokenModel = viewModel.tokenItemViewModel {
-                Text(tokenModel.balance)
-                    .font(.footnote)
-                    .foregroundColor(Colors.Text.tertiary)
+            if let balance = viewModel.singleWalletBalance {
+                Text(balance)
+                    .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     .layoutPriority(1)
             }
         }
