@@ -23,6 +23,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     private var accessCode: String? = nil
     private var cardIds: [String]? = nil
     private var stepPublisher: AnyCancellable?
+    private var prepareTask: PreparePrimaryCardTask? = nil
 
 //    override var isBackButtonVisible: Bool {
 //        switch currentStep {
@@ -555,12 +556,14 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
 
     private func preparePrimaryCardPublisher() -> AnyPublisher<Void, Error> {
         let cardId = input.cardInput.cardId
+        let task = PreparePrimaryCardTask()
+        prepareTask = task
 
         return Deferred {
             Future { [weak self] promise in
                 guard let self = self else { return }
 
-                self.tangemSdk.startSession(with: PreparePrimaryCardTask(),
+                self.tangemSdk.startSession(with: task,
                                             cardId: cardId,
                                             initialMessage: Message(header: nil,
                                                                     body: "initial_message_create_wallet_body".localized)) { [weak self] result in
@@ -577,6 +580,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                     case .failure(let error):
                         promise(.failure(error))
                     }
+
+                    self?.prepareTask = nil
                 }
             }
         }
