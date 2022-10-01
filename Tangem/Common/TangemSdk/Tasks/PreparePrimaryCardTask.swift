@@ -13,6 +13,10 @@ class PreparePrimaryCardTask: CardSessionRunnable {
     private var derivingCommand: DeriveMultipleWalletPublicKeysTask? = nil
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
 
+    deinit {
+        print("PreparePrimaryCardTask deinit")
+    }
+
     func run(in session: CardSession, completion: @escaping CompletionResult<PreparePrimaryCardTaskResponse>) {
         guard let card = session.environment.card else {
             completion(.failure(.missingPreflightRead))

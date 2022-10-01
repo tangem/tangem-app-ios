@@ -44,18 +44,23 @@ class MainCoordinator: CoordinatorObject {
     }
 
     func start(with options: MainCoordinator.Options) {
-        options.cardModel.onAppear()
         mainViewModel = MainViewModel(
             cardModel: options.cardModel,
             userWalletModel: options.cardModel.userWalletModel!,
+            cardImageProvider: CardImageProvider(supportsOnlineImage: options.cardModel.supportsOnlineImage),
             coordinator: self
         )
+
+        if options.shouldRefresh {
+            mainViewModel?.onRefresh {}
+        }
     }
 }
 
 extension MainCoordinator {
     struct Options {
         let cardModel: CardViewModel
+        let shouldRefresh: Bool
     }
 }
 
@@ -63,6 +68,7 @@ extension MainCoordinator: MainRoutable {
     func openOnboardingModal(with input: OnboardingInput) {
         let dismissAction: Action = { [weak self] in
             self?.modalOnboardingCoordinator = nil
+            self?.mainViewModel?.updateIsBackupAllowed()
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
@@ -238,7 +244,7 @@ extension MainCoordinator: UserWalletListRoutable {
     }
 
     func didTapUserWallet(userWallet: UserWallet) {
-        start(with: .init(cardModel: .init(userWallet: userWallet)))
+        start(with: .init(cardModel: CardViewModel(userWallet: userWallet), shouldRefresh: true))
     }
 }
 
