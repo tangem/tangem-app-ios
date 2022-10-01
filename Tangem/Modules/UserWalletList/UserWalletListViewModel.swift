@@ -51,6 +51,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         coordinator: UserWalletListRoutable
     ) {
         self.coordinator = coordinator
+        selectedUserWalletId = userWalletListService.selectedUserWalletId
         updateModels()
     }
 
@@ -62,8 +63,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                 model.updateTotalBalance()
                 model.loadImage()
             }
-
-            selectedUserWalletId = userWalletListService.selectedUserWalletId
         }
     }
 
@@ -238,7 +237,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     }
 
     private func setSelectedWallet(_ userWallet: UserWallet) {
-        guard selectedUserWalletId != userWallet.userWalletId else {
+        guard selectedUserWalletId != nil && selectedUserWalletId != userWallet.userWalletId else {
             return
         }
 
@@ -246,6 +245,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             self?.selectedUserWalletId = userWallet.userWalletId
             self?.userWalletListService.selectedUserWalletId = userWallet.userWalletId
             self?.coordinator.didTapUserWallet(userWallet: userWallet)
+            self?.updateSelectedWalletModel()
         }
 
         if !userWallet.isLocked {
@@ -276,6 +276,13 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
                 completion(userWallet)
             }
+        }
+    }
+
+    private func updateSelectedWalletModel() {
+        let models = multiCurrencyModels + singleCurrencyModels
+        for model in models {
+            model.isSelected = selectedUserWalletId == model.userWalletId
         }
     }
 
