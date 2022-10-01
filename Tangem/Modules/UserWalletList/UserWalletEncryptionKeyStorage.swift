@@ -20,7 +20,7 @@ class UserWalletEncryptionKeyStorage {
 
     }
 
-    func fetch() -> [Data: SymmetricKey] {
+    func fetch() throws -> [Data: SymmetricKey] {
         do {
             var keys: [Data: SymmetricKey] = [:]
 
@@ -31,6 +31,7 @@ class UserWalletEncryptionKeyStorage {
                 switch userWalletEncryptionKeyResult {
                 case .failure(let error):
                     print("Failed to get encryption key for UserWallet", error)
+                    throw error
                 case .success(let encryptionKeyData):
                     if let encryptionKeyData = encryptionKeyData {
                         keys[userWalletId] = SymmetricKey(data: encryptionKeyData)
@@ -39,8 +40,8 @@ class UserWalletEncryptionKeyStorage {
             }
 
             return keys
-        } catch {
-            return [:]
+        } catch let error {
+            throw error
         }
     }
 
