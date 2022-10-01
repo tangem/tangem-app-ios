@@ -235,17 +235,18 @@ class CardViewModel: Identifiable, ObservableObject {
         let cardInfo = userWallet.cardInfo()
         let config = UserWalletConfigFactory(cardInfo).makeConfig()
 
-        self.init(cardInfo: userWallet.cardInfo(), config: config)
+        self.init(cardInfo: userWallet.cardInfo(), config: config, userWallet: userWallet)
     }
 
     init(
         cardInfo: CardInfo,
-        config: UserWalletConfig
+        config: UserWalletConfig,
+        userWallet: UserWallet? = nil
     ) {
         self.cardInfo = cardInfo
         self.config = config
 
-        createUserWalletModelIfNeeded()
+        createUserWalletModelIfNeeded(with: userWallet)
         updateCardPinSettings()
         updateCurrentSecurityOption()
         bind()
@@ -583,12 +584,25 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
 
-    private func createUserWalletModelIfNeeded() {
-        guard userWalletModel == nil, cardInfo.card.hasWallets else { return }
-        let userWallet = UserWalletFactory().userWallet(from: cardInfo, config: config)
+    private func createUserWalletModelIfNeeded(with savedUserWallet: UserWallet? = nil) {
+        let userWallet: UserWallet
+        let userWalletId: Data
+        if let savedUserWallet = savedUserWallet {
+            userWallet = savedUserWallet
+            userWalletId = savedUserWallet.userWalletId
+        } else {
+            guard
+                userWalletModel == nil,
+                cardInfo.card.hasWallets
+            else {
+                return
+            }
+            userWallet = UserWalletFactory().userWallet(from: cardInfo, config: config)
+            userWalletId = cardInfo.card.userWalletId
+        }
 
         // [REDACTED_TODO_COMMENT]
-        let userTokenListManager = CommonUserTokenListManager(config: config, userWalletId: cardInfo.card.userWalletId)
+        let userTokenListManager = CommonUserTokenListManager(config: config, userWalletId: userWalletId)
         let walletListManager = CommonWalletListManager(
             config: config,
             userTokenListManager: userTokenListManager
