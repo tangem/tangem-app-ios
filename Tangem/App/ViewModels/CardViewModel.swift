@@ -224,19 +224,8 @@ class CardViewModel: Identifiable, ObservableObject {
 
     var canExchangeCrypto: Bool { config.hasFeature(.exchange) }
 
-    var cachedImage: UIImage? = nil
-
     var userWallet: UserWallet? {
         userWalletModel?.userWallet
-    }
-
-    var subtitle: String {
-        if let embeddedBlockchain = config.embeddedBlockchain {
-            return embeddedBlockchain.blockchainNetwork.blockchain.displayName
-        }
-
-        let count = config.cardsCount
-        return String.localizedStringWithFormat("card_label_card_count".localized, count)
     }
 
     private var searchBlockchainsCancellable: AnyCancellable? = nil
