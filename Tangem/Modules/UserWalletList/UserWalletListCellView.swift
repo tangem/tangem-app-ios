@@ -84,19 +84,8 @@ struct UserWalletListCellView: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            if let image = viewModel.image {
-                Image(uiImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(maxWidth: 50, minHeight: 30, maxHeight: 30)
-                    .overlay(selectionIcon.offset(x: 4, y: -4), alignment: .topTrailing)
-            } else {
-                Color.tangemGrayLight4
-                    .transition(.opacity)
-                    .opacity(0.5)
-                    .cornerRadius(3)
-                    .frame(width: 50, height: 30)
-            }
+            cardImage
+                .overlay(selectionIcon.offset(x: 4, y: -4), alignment: .topTrailing)
 
             VStack(alignment: .leading, spacing: 2) {
                 #warning("TODO")
@@ -130,6 +119,22 @@ struct UserWalletListCellView: View {
         .background(Colors.Background.primary)
         .onTapGesture {
             viewModel.didTapUserWallet()
+        }
+    }
+
+    @ViewBuilder
+    private var cardImage: some View {
+        if let image = viewModel.image {
+            Image(uiImage: image)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(maxWidth: 50, minHeight: 30, maxHeight: 30)
+        } else {
+            Color.tangemGrayLight4
+                .transition(.opacity)
+                .opacity(0.5)
+                .cornerRadius(3)
+                .frame(width: 50, height: 30)
         }
     }
 
