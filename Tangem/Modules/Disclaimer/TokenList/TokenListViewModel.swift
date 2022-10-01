@@ -44,7 +44,7 @@ class TokenListViewModel: ObservableObject {
     }
 
     var shouldShowAlert: Bool {
-        cardModel?.shoulShowLegacyDerivationAlert ?? false
+        cardModel?.shouldShowLegacyDerivationAlert ?? false
     }
 
     var isSaveDisabled: Bool {
@@ -95,12 +95,19 @@ class TokenListViewModel: ObservableObject {
             switch tokenItem {
             case let .blockchain(blockchain):
                 let network = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: nil)
-                let entry = StorageEntry(blockchainNetwork: network, tokens: [])
-                alreadySaved.append(entry)
+                if !alreadySaved.contains(where: { $0.blockchainNetwork == network }) {
+                    let entry = StorageEntry(blockchainNetwork: network, tokens: [])
+                    alreadySaved.append(entry)
+                }
             case let .token(token, blockchain):
                 let network = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: nil)
-                let entry = StorageEntry(blockchainNetwork: network, token: token)
-                alreadySaved.append(entry)
+
+                if let entry = alreadySaved.firstIndex(where: { $0.blockchainNetwork == network }) {
+                    alreadySaved[entry].tokens.append(token)
+                } else {
+                    let entry = StorageEntry(blockchainNetwork: network, token: token)
+                    alreadySaved.append(entry)
+                }
             }
         }
 
@@ -110,16 +117,26 @@ class TokenListViewModel: ObservableObject {
 
             switch result {
             case .success:
-                self?.closeModule()
-                Analytics.log(.tokenListSave)
+                self?.tokenListDidSave()
             case .failure(let error):
                 if let sdkError = error as? TangemSdkError, sdkError.isUserCancelled {
+                    return
+                }
+
+                /// Don't show alert if we have an error due to sync in API
+                if error is TangemAPIError {
+                    self?.tokenListDidSave()
                     return
                 }
 
                 self?.alert = error.alertBinder
             }
         }
+    }
+
+    func tokenListDidSave() {
+        Analytics.log(.tokenListSave)
+        closeModule()
     }
 
     func onAppear() {
