@@ -12,13 +12,182 @@ import BlockchainSdk
 import web3swift
 import Combine
 
-enum SaltPayRegistratorError: Error {
-    case failedToMakeTxData
+class SaltPayRegistrator {
+    @Published public private(set) var state: State = .needPin
+    @Published public private(set) var error: Error? = nil
+    @Published public private(set) var isBusy: Bool = false
+    
+    @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
+    
+    private let repo: SaltPayRepo = .init()
+    private let api: SaltPayApi = .init()
+    private let gnosis: GnosisRegistrator
+    private let cardId: String
+    private var bag: Set<AnyCancellable> = .init()
+    private var pin: String? = nil
+    private var registrationTask: RegistrationTask? = nil
+    private var accessCode: String? = nil
+    
+    private let approvalValue: Decimal = 1 //[REDACTED_TODO_COMMENT]
+    private let spendLimitValue: Decimal = 1 //[REDACTED_TODO_COMMENT]
+    
+    init(cardId: String,
+         walletPublicKey: Data,
+         gnosis: GnosisRegistrator,
+         accessCode: String?) {
+        self.gnosis = gnosis
+        self.accessCode = accessCode
+        self.cardId = cardId
+        updateState()
+        update()
+    }
+    
+    func setPin(_ pin: String) {
+        self.pin = pin
+        updateState()
+    }
+    
+    func update() {
+        if state == .needPin || state == .noGas {
+            checkGas()
+        } else {
+            checkRegistration()
+        }
+    }
+    
+    func register() {
+        isBusy = true
+        
+        api
+            .requestAttestationChallenge()
+            .flatMap {[weak self] challenge -> AnyPublisher<RegistrationTask.RegistrationTaskResponse, Error> in
+                guard let self = self else { return }
+                
+                let task = RegistrationTask(gnosis: gnosis,
+                                            challenge: challenge,
+                                            approvalValue: approvalValue,
+                                            spendLimitValue: spendLimitValue)
+                self.registrationTask = task
+                
+                return self.tangemSdkProvider.sdk.startSessionPublisher(with: task,
+                                                                        cardId: cardId,
+                                                                        initialMessage: nil)
+            }
+            .flatMap {[weak self] response -> AnyPublisher<RegistrationTask.RegistrationTaskResponse, Error> in
+                guard let self = self else { return }
+                
+                guard let pin = self.pin else {
+                    return .anyFail(error: SaltPayRegistratorError.needPin)
+                }
+                
+                return self.api.registerWallet(pin: pin, cardSignature: response.cardSignature, salt: response.publicKeySalt)
+                    .map {[weak self] registrationResponse -> RegistrationTask.RegistrationTaskResponse in
+                        self.updateState(with: registrationResponse)
+                        return response
+                    }
+            }
+            .flatMap {[weak self] response -> AnyPublisher<[String], Error> in
+                guard let self = self else { return }
+                
+                return self.gnosis.sendTransactions(response.signedTransactions)
+            }
+            .sink {[weak self] completion in
+                if case let .failure(error) = completion {
+                    self?.error = error
+                }
+                
+                self?.isBusy = false
+            } receiveValue: {[weak self] sendedTxs in
+                self?.repo.data.transactionsSended = true
+                self?.updateState()
+            }
+            .store(in: &bag)
+    }
+    
+    private func updateState(with registrationResponse: RegistrationResponse? = nil) {
+        var newState: State = state
+        
+        if repo.data.kycFinished {
+            newState = .finished
+        } else if repo.data.transactionsSended {
+            newState = .kycStart
+        } else if self.pin != nil {
+            newState = .registration
+        }
+        
+        if let response = registrationResponse {
+            if !response.pin {
+                newState = .needPin
+            } else if !response.registration {
+                newState = .registration
+            } else if response.kyc == .none {
+                newState = .kycStart
+            } else if response.kyc == .waiting {
+                newState = .kycWaiting
+            } else {
+                newState = .finished
+            }
+        }
+        
+        if newState != state {
+            self.state = newState
+        }
+    }
+    
+    private func checkGas() {
+        gnosis.checkHasGas()
+            .sink(receiveCompletion: {[weak self] completion in
+                if case let .failure(error) = completion {
+                    self?.error = error
+                }
+            }, receiveValue: {[weak self] hasGas in
+                if hasGas {
+                    self?.checkRegistration()
+                } else  {
+                    self?.state = .noGas
+                }
+            })
+            .store(in: &bag)
+    }
+    
+    private func checkRegistration() {
+        api.checkRegistration()
+            .sink {[weak self] completion in
+                if case let .failure(error) = completion {
+                    self?.error = error
+                }
+            } receiveValue: {[weak self] response in
+                guard let self = self else { return }
+                
+                if response.kyc == .success {
+                    self.repo.data.kycFinished = true
+                }
+                
+                self.updateState(with: response)
+            }
+            .store(in: &bag)
+    }
 }
 
-class SaltPayRegistrator {
-    
+extension SaltPayRegistrator {
+    enum State: Equatable {
+        case needPin
+        case noGas
+        
+        case registration
+        
+        case kycStart
+        case kycWaiting
+        case finished
+    }
 }
+
+enum SaltPayRegistratorError: Error {
+    case failedToMakeTxData
+    case needPin
+}
+
+//MARK: - Gnosis chain
 
 class GnosisRegistrator {
     private let settings: GnosisRegistrator.Settings
@@ -44,14 +213,11 @@ class GnosisRegistrator {
             .eraseToAnyPublisher()
     }
     
-    func sendTransactions(_ transactions: [SignedEthereumTransaction]) -> AnyPublisher<Void, Error> {
+    func sendTransactions(_ transactions: [SignedEthereumTransaction]) -> AnyPublisher<[String], Error> {
         let publishers = transactions.map { walletManager.send($0) }
         
         return Publishers.MergeMany(publishers)
             .collect()
-            .map { responses -> Void in
-                print(responses)
-            }
             .eraseToAnyPublisher()
     }
     
@@ -99,7 +265,7 @@ class GnosisRegistrator {
             }
             .eraseToAnyPublisher()
     }
-
+    
     func makeSetWalletTx() -> AnyPublisher<CompilledEthereumTransaction, Error>  {
         do {
             let setWalletData = try makeTxData(sig: Signatures.setWallet, address: cardAddress, amount: nil)
@@ -227,232 +393,238 @@ fileprivate extension String {
     }
 }
 
-//public class otpSetup {
-//    private static final Logger logger = LoggerFactory.getLogger(otpSetup.class);
-//
-//    String addressTokenContract = "0x69cca8D8295de046C7c14019D9029Ccc77987A48";
-//    int decimalsToken = 0;
-//    String symbolToken = "MyERC20";
-//
-//    String sAddressProcessorContract = "0x710BF23486b549836509a08c184cE0188830f197";
-//
-//    String rpcUrl = "https://rpc-chiado.gnosistestnet.com";
-//
-//    Blockchain testBlockchain = Blockchain.GnosisChiado;
-//
-////    String addressTokenContract = "0x4346186e7461cB4DF06bCFCB4cD591423022e417";
-////    int decimalsToken = 18;
-////    String symbolToken = "WXDAI";
-////
-////    String sAddressProcessorContract = "0x3B4397C817A26521Df8bD01a949AFDE2251d91C2";
-////
-////    String rpcUrl = "https://optimism.gnosischain.com";
-////
-////    Blockchain testBlockchain = Blockchain.GnosisOptimism;
-//
-//    byte[] pubkeyCard = Util.hexToBytes("04DA2410EC47D6573974B92FE8A549A9590A9D4A75FB8E64DF038E6BF618FFF03C520B43C520700646EE6E65198AFF3F97EA60D08EDF75E1C25539F1D7BDFE5179");
-//    String sAddressCard = "0x5c9b5c6313a3746a1246d07bbedc0292da99f8e2";
-//
-//    Token testToken = new Token(symbolToken, addressTokenContract, decimalsToken);
-//    HashSet<Token> testTokens = new HashSet<>();
-//    Wallet walletCard;
-//
-//    EthereumTransactionBuilder transactionBuilderCard;
-//    List<EthereumJsonRpcProvider> rpcProviders = new ArrayList<EthereumJsonRpcProvider>();
-//    EthereumNetworkService networkService;
-//
-//    Address addressCard;
-//    HashSet<Address> addressesCard ;
-//
-//    void testInit() {
-//        CryptoUtils.INSTANCE.initCrypto();
-//
-//        addressCard = new Address(sAddressCard, testBlockchain.defaultAddressType());
-//        addressesCard = new HashSet<Address>();
-//        addressesCard.add(addressCard);
-//        testTokens.add(testToken);
-//
-//        walletCard = new Wallet(testBlockchain, addressesCard, new Wallet.PublicKey(pubkeyCard, null, null), testTokens);
-//
-//        transactionBuilderCard = new EthereumTransactionBuilder(pubkeyCard, testBlockchain);
-//
-//        rpcProviders.add(new EthereumJsonRpcProvider(rpcUrl, ""));
-//        networkService = new EthereumNetworkService(rpcProviders);
-//    }
-//
-//    public void setCardAddress(byte[] walletPublicKey) {
-//        if( walletPublicKey != null ) {
-//            pubkeyCard = walletPublicKey;
-//            sAddressCard = (new EthereumAddressService()).makeAddress(pubkeyCard, EllipticCurve.Secp256k1);
-//            testInit();
-//        }else{
-//            pubkeyCard = new byte[]{};
-//            sAddressCard = "";
-//            testInit();
-//        }
-//    }
-//
-//
-//    public void doSetup(Reader.UiCallbacks uiCallbacks, BigDecimal approveValue, BigDecimal spendLimit, byte[] otp, int otpCounter, TransactionSimpleSigner signer) throws Exception {
-//        testInit();
-//
-//        EthereumWalletManager walletManager = new EthereumWalletManager(walletCard, transactionBuilderCard, networkService, testTokens);
-//
-//        doApprove(uiCallbacks, walletManager, signer, approveValue);
-//
-//        setWallet(uiCallbacks, walletManager, signer);
-//
-//        setSpendLimit(uiCallbacks, walletManager, signer, spendLimit);
-//
-//        initOTP(uiCallbacks, walletManager, signer, otp, otpCounter);
-//
-//        doUpdate(uiCallbacks, walletManager);
-//        doGetAllowance(uiCallbacks, walletManager);
-//    }
-//
-//    private void initOTP(Reader.UiCallbacks uiCallbacks, EthereumWalletManager walletManager, TransactionSimpleSigner signer, byte[] otpRoot, int otpRootCounter) throws Exception {
-//        // Init OTP
-//        uiCallbacks.onStart("Init OTP");
-//        doUpdate(uiCallbacks,walletManager);
-//
-//        Result<List<Amount>> fees = walletManager.getFeeToInitOTPAsync(sAddressProcessorContract, otpRoot, otpRootCounter ).get();
-//        Amount feeAmount=extractFeeAmount(uiCallbacks,walletManager,fees);
-//        uiCallbacks.onOkay("Gas limit: " + walletManager.getGasLimitToApprove());
-//        uiCallbacks.onOkay("Init otp fee: " + feeAmount.toString());
-//
-//        TransactionToSign transactionToSign = walletManager.getTransactionBuilder().buildInitOTPToSign(sAddressProcessorContract, sAddressCard, otpRoot, otpRootCounter, feeAmount, walletManager.getGasLimitToInitOTP(), BigInteger.valueOf(walletManager.getTxCount()));
-//
-//        if(!signAndSend(signer, transactionToSign, uiCallbacks, walletManager))
-//        {
-//            throw new Exception("Can't set wallet");
-//        }
-//        uiCallbacks.onOkay("Set wallet result: OK");
-//        uiCallbacks.onSeparator();
-//
-//    }
-//
-//    private void doGetAllowance(Reader.UiCallbacks uiCallbacks, EthereumWalletManager walletManager) throws Exception {
-//        uiCallbacks.onStart("Get allowance");
-//        Result<Amount> allowance= walletManager.getALlowanceAsync(sAddressProcessorContract,testToken).get();
-//        if( allowance instanceof Result.Failure )
-//        {
-//            uiCallbacks.onError(((Result.Failure) allowance).getError().getCustomMessage());
-//            throw new Exception("Can't get allowance");
-//        }
-//        uiCallbacks.onOkay("Allowance : " + new GsonBuilder().setPrettyPrinting().create().toJson(allowance));
-//        uiCallbacks.onSeparator();
-//    }
-//
-//    private void setSpendLimit(Reader.UiCallbacks uiCallbacks, EthereumWalletManager walletManager, TransactionSimpleSigner signer, BigDecimal spendLimit) throws Exception {
-//        // Set spend limit
-//        uiCallbacks.onStart("Set spend limit");
-//        Amount limitAmount=new Amount(testToken, spendLimit);
-//
-//        doUpdate(uiCallbacks,walletManager);
-//
-//        Result<List<Amount>> fees = walletManager.getFeeToSetSpendLimitAsync(sAddressProcessorContract, limitAmount).get();
-//        Amount feeAmount = extractFeeAmount(uiCallbacks,walletManager,fees);
-//        uiCallbacks.onOkay("Gas limit: " + walletManager.getGasLimitToSetSpendLimit());
-//        uiCallbacks.onOkay("Set spend limit fee: " + feeAmount.toString());
-//
-//        TransactionToSign transactionToSign = walletManager.getTransactionBuilder().buildSetSpendLimitToSign(sAddressProcessorContract, sAddressCard, limitAmount, feeAmount, walletManager.getGasLimitToSetSpendLimit(), BigInteger.valueOf(walletManager.getTxCount()));
-//
-//        if(! signAndSend(signer, transactionToSign, uiCallbacks, walletManager) )
-//        {
-//            throw new Exception("Can't set spend limit");
-//        }
-//        uiCallbacks.onOkay("Set spend limit result: OK");
-//        uiCallbacks.onSeparator();
-//    }
-//
-//    private void setWallet(Reader.UiCallbacks uiCallbacks, EthereumWalletManager walletManager, TransactionSimpleSigner signer) throws Exception {
-//        uiCallbacks.onStart("Set wallet");
-//        doUpdate(uiCallbacks,walletManager);
-//
-//        Result<List<Amount>> fees = walletManager.getFeeToSetWalletAsync(sAddressProcessorContract).get();
-//        Amount feeAmount = extractFeeAmount(uiCallbacks, walletManager, fees);
-//        uiCallbacks.onOkay("Gas limit: " + walletManager.getGasLimitToSetWallet());
-//        uiCallbacks.onOkay("Set wallet fee: " + feeAmount.toString());
-//
-//        TransactionToSign transactionToSign = walletManager.getTransactionBuilder().buildSetWalletToSign(sAddressProcessorContract, sAddressCard, feeAmount, walletManager.getGasLimitToSetWallet(), BigInteger.valueOf(walletManager.getTxCount()));
-//
-//        if(!signAndSend(signer, transactionToSign, uiCallbacks, walletManager))
-//        {
-//            throw new Exception("Can't set wallet");
-//        }
-//        uiCallbacks.onOkay("Set wallet result: OK");
-//        uiCallbacks.onSeparator();
-//    }
-//
-//    private boolean signAndSend(TransactionSimpleSigner signer, TransactionToSign transactionToSign, Reader.UiCallbacks uiCallbacks, EthereumWalletManager walletManager) throws Exception {
-//        uiCallbacks.onSeparator();
-//        byte[] signature = signer.sign(transactionToSign.getHash(), new Wallet.PublicKey(pubkeyCard,null,null));
-//        if (signature == null) {
-//            throw new Exception("Can't get signature from card");
-//        }
-//        uiCallbacks.onSeparator();
-//
-//        uiCallbacks.onMessageSendHeader(EthereumExtensionsKt.toPrettyString(transactionToSign.getTransaction()));
-//        SimpleResult result = walletManager.sendRawAsync(transactionToSign, signature).get();
-//        if (result instanceof SimpleResult.Failure) {
-//            uiCallbacks.onError(((SimpleResult.Failure) result).getError().getCustomMessage());
-//            return false;
-//        }
-//        uiCallbacks.onOkay("OK");
-//        return true;
-//    }
-//
-//    private void doApprove(Reader.UiCallbacks uiCallbacks, EthereumWalletManager walletManager, TransactionSimpleSigner signer, BigDecimal approveValue) throws Exception {
-//        // Approve
-//        uiCallbacks.onStart("Approve");
-//        doUpdate(uiCallbacks, walletManager);
-//
-//        Amount approveAmount=new Amount(testToken, approveValue);
-//        Result<List<Amount>> fees = walletManager.getFeeToApproveAsync(approveAmount, sAddressProcessorContract).get();
-//        Amount feeAmount = extractFeeAmount(uiCallbacks, walletManager, fees);
-//        uiCallbacks.onOkay("Gas limit: " + walletManager.getGasLimitToApprove());
-//        uiCallbacks.onOkay("Approve fee: " + feeAmount.toString());
-//        uiCallbacks.onSeparator();
-//
-//        TransactionData transactionData = walletManager.createTransaction(approveAmount, feeAmount, sAddressProcessorContract);
-//        TransactionToSign transactionToSign = walletManager.getTransactionBuilder().buildApproveToSign(transactionData, BigInteger.valueOf(walletManager.getTxCount()), walletManager.getGasLimitToApprove());
-//
-//        if(!signAndSend(signer, transactionToSign, uiCallbacks, walletManager))
-//        {
-//            throw new Exception("Can't approve");
-//        }
-//        uiCallbacks.onOkay("Approve result: OK");
-//        uiCallbacks.onSeparator();
-//    }
-//
-//    private static Amount extractFeeAmount(Reader.UiCallbacks uiCallbacks, EthereumWalletManager walletManager, Result<List<Amount>> fees) throws Exception {
-//        uiCallbacks.onOkay("Gas price: " + walletManager.getGasPrice());
-//        if (fees instanceof Result.Failure) {
-//            uiCallbacks.onError(((Result.Failure) fees).getError().getCustomMessage());
-//            throw new Exception("Can't extract fee");
-//        }
-//        Amount feeAmount=((Result.Success<List<Amount>>) fees).getData().get(1);
-//        return feeAmount;
-//    }
-//
-//    private void doUpdate(Reader.UiCallbacks uiCallbacks, EthereumWalletManager walletManager) throws InterruptedException, ExecutionException {
-//        boolean firstTime=true;
-//        do {
-//            walletManager.updateAsync().get();
-//            if( firstTime || walletManager.getTxCount() == walletManager.getPendingTxCount() )
-//            {
-//                uiCallbacks.onSeparator();
-//                uiCallbacks.onOkay("Amounts: ");
-//                for (Amount amount : walletCard.getAmounts().values()) {
-//                    uiCallbacks.onOkay("   " + amount.getValue() + " " + amount.getCurrencySymbol());
-//                }
-//                uiCallbacks.onOkay("Tx Count: " + walletManager.getTxCount());
-//                uiCallbacks.onOkay("Pending Tx Count: " + walletManager.getPendingTxCount());
-//                Thread.sleep(1000);
-//                firstTime=false;
-//            }
-//        }while ( walletManager.getTxCount()!= walletManager.getPendingTxCount());
-//    }
-//
-//
-//}
+//MARK: - Permanent storage
+
+struct SaltPayRegistratorData: Codable {
+    var transactionsSended: Bool = false
+    var kycFinished: Bool = false
+}
+
+class SaltPayRepo {
+    private let storageKey: String = "saltpay_registration_data"
+    private let storage = SecureStorage()
+    private var isFetching: Bool = false
+    
+    var data: SaltPayRegistratorData = .init() {
+        didSet {
+            try? save()
+        }
+    }
+    
+    init () {
+        try? fetch()
+    }
+    
+    func reset() {
+        try? storage.delete(storageKey)
+        data = .init()
+    }
+    
+    private func save() throws {
+        guard !isFetching else { return }
+        
+        let encoded = try JSONEncoder().encode(data)
+        try storage.store(encoded, forKey: storageKey)
+    }
+    
+    private func fetch() throws {
+        self.isFetching = true
+        defer { self.isFetching = false }
+        
+        if let savedData = try storage.get(storageKey) {
+            self.data = try JSONDecoder().decode(SaltPayRegistratorData.self, from: savedData)
+        }
+    }
+}
+
+//MARK: - Networking
+
+class SaltPayApi {
+    func checkRegistration() -> AnyPublisher<RegistrationResponse, Error> {
+        fatalError("not implemented")
+    }
+    
+    func requestAttestationChallenge() -> AnyPublisher<AttestationResponse, Error> {
+        fatalError("not implemented")
+    }
+    
+    func registerWallet(pin: String, cardSignature: Data, salt: Data) -> AnyPublisher<RegistrationResponse, Error> {
+        fatalError("not implemented")
+    }
+}
+
+enum KYCStatus: String, Codable {
+    case none
+    case waiting
+    case success
+}
+
+struct RegistrationResponse: Codable {
+    let registration: Bool
+    let pin: Bool
+    let kyc: KYCStatus
+}
+
+struct AttestationResponse: Codable {
+    let challenge: Data
+}
+
+//MARK: - Registration task
+
+fileprivate class RegistrationTask: CardSessionRunnable {
+    private weak var gnosis: GnosisRegistrator? = nil
+    private var challenge: Data
+    private let approvalValue: Decimal
+    private let spendLimitValue: Decimal
+    
+    private var generateOTPCommand: GenerateOTPCommand? = nil
+    private var attestWalletCommand: AttestWalletKeyCommand? = nil
+    private var signCommand: SignHashesCommand? = nil
+    
+    private var generateOTPResponse: GenerateOTPResponse? = nil
+    private var attestWalletResponse: AttestWalletKeyResponse? = nil
+    private var signedTransactions: [SignedEthereumTransaction] = []
+    
+    private var bag: Set<AnyCancellable> = .init()
+    
+    init(gnosis: GnosisRegistrator,
+         challenge: Data,
+         approvalValue: Decimal,
+         spendLimitValue: Decimal) {
+        self.gnosis = gnosis
+        self.challenge = challenge
+        self.approvalValue = approvalValue
+        self.spendLimitValue = spendLimitValue
+    }
+    
+    deinit {
+        print("RegistrationTask deinit")
+    }
+    
+    func run(in session: CardSession, completion: @escaping CompletionResult<RegistrationTaskResponse>) {
+        generateOTP(in: session, completion: completion)
+    }
+    
+    private func generateOTP(in session: CardSession, completion: @escaping CompletionResult<RegistrationTaskResponse>) {
+        let cmd = GenerateOTPCommand()
+        self.generateOTPCommand = cmd
+        
+        cmd.run(in: session) { result in
+            switch result {
+            case .success(let response):
+                self.generateOTPResponse = response
+                self.attestWallet(in: session, completion: completion)
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    private func attestWallet(in session: CardSession, completion: @escaping CompletionResult<RegistrationTaskResponse>) {
+        guard let card = session.environment.card else {
+            completion(.failure(.missingPreflightRead))
+            return
+        }
+        
+        guard let walletPublicKey = card.wallets.first?.publicKey else {
+            completion(.failure(.walletNotFound))
+            return
+        }
+        
+        let cmd = AttestWalletKeyCommand(publicKey: walletPublicKey,
+                                         challenge: self.challenge,
+                                         confirmationMode: .dynamic)
+        
+        self.attestWalletCommand = cmd
+        
+        cmd.run(in: session) { result in
+            switch result {
+            case .success(let response):
+                self.attestWalletResponse = response
+                self.prepareTransactions(in: session, completion: completion)
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    private func prepareTransactions(in session: CardSession, completion: @escaping CompletionResult<RegistrationTaskResponse>) {
+        guard let gnosis = self.gnosis,
+              let generateOTPResponse = self.generateOTPResponse else {
+            completion(.failure(.unknownError))
+            return
+        }
+        
+        let txPublishers = [
+            gnosis.makeApprovalTx(value: approvalValue),
+            gnosis.makeSetWalletTx(),
+            gnosis.makeInitOtpTx(rootOTP: generateOTPResponse.rootOTP, rootOTPCounter: generateOTPResponse.rootOTPCounter),
+            gnosis.makeSetSpendLimitTx(value: spendLimitValue),
+        ]
+        
+        Publishers
+            .MergeMany(txPublishers)
+            .collect()
+            .sink { completionResult in
+                if case let .failure(error) = completionResult {
+                    completion(.failure(error.toTangemSdkError()))
+                }
+            } receiveValue: { compilledTransactions in
+                self.signTransactions(compilledTransactions, in: session, completion: completion)
+            }
+            .store(in: &bag)
+    }
+    
+    private func signTransactions(_ transactions: [CompilledEthereumTransaction],
+                                  in session: CardSession,
+                                  completion: @escaping CompletionResult<RegistrationTaskResponse>) {
+        guard let walletPublicKey = session.environment.card?.wallets.first?.publicKey else {
+            completion(.failure(.walletNotFound))
+            return
+        }
+        
+        let hashes = transactions.map { $0.hash }
+        let cmd = SignHashesCommand(hashes: hashes, walletPublicKey: walletPublicKey)
+        self.signCommand = cmd
+        
+        cmd.run(in: session) { result in
+            switch result {
+            case .success(let response):
+                let signedTxs = zip(transactions, response.signatures).map { (tx, signature) in
+                    SignedEthereumTransaction(compilledTransaction: tx, signature: signature)
+                }
+                
+                self.signedTransactions = signedTxs
+                self.complete(completion: completion)
+            case .failure(let error):
+                completion(.failure(error))
+            }
+        }
+    }
+    
+    private func complete(completion: @escaping CompletionResult<RegistrationTaskResponse>) {
+        guard let attestWalletResponse = self.attestWalletResponse,
+              !self.signedTransactions.isEmpty,
+              let cardSignature = attestWalletResponse.cardSignature,
+              let publicKeySalt = attestWalletResponse.publicKeySalt else {
+            completion(.failure(.unknownError))
+            return
+        }
+        
+        let response = RegistrationTaskResponse(signedTransactions: signedTransactions,
+                                                cardSignature: cardSignature,
+                                                publicKeySalt: publicKeySalt)
+        
+        completion(.success(response))
+    }
+}
+
+fileprivate extension RegistrationTask {
+    struct RegistrationTaskResponse {
+        let signedTransactions: [SignedEthereumTransaction]
+        let cardSignature: Data
+        let publicKeySalt: Data
+    }
+}
+
+//[REDACTED_TODO_COMMENT]
