@@ -109,21 +109,6 @@ extension WelcomeCoordinator: WelcomeRoutable {
         pushedOnboardingCoordinator = coordinator
     }
 
-    func openSaltPayOnboarding(with input: OnboardingInput) {
-        let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
-            self?.pushedOnboardingCoordinator = nil
-
-            if options.newScan {
-                self?.welcomeViewModel?.scanCard()
-            }
-        }
-
-        let coordinator = OnboardingCoordinator(dismissAction: {}, popToRootAction: popToRootAction)
-        let options = OnboardingCoordinator.Options(input: input, shouldOpenMainOnFinish: true)
-        coordinator.start(with: options)
-        pushedOnboardingCoordinator = coordinator
-    }
-
     func openMain(with cardModel: CardViewModel) {
         let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
             self?.mainCoordinator = nil
