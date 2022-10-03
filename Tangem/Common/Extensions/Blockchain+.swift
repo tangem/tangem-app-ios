@@ -44,7 +44,7 @@ extension Blockchain {
         case "optimistic-ethereum": self = .optimism(testnet: isTestnet)
         case "ethereum-pow-iou": self = .ethereumPoW(testnet: isTestnet)
         case "ethereumfair": self = .ethereumFair
-        case "wxdai": self = .saltPay
+        case "wxdai": self = .saltPay(testnet: isTestnet)
         default:
             print("⚠️⚠️⚠️ Failed to map network ID \"\(stringId)\"")
             return nil
@@ -181,7 +181,7 @@ extension Blockchain {
             .gnosis,
             .dash(testnet: false),
             .optimism(testnet: false),
-            .saltPay,
+            .saltPay(testnet: false),
         ]
     }()
 
