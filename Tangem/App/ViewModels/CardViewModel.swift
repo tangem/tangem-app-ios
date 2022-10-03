@@ -84,18 +84,6 @@ class CardViewModel: Identifiable, ObservableObject {
         config.hasFeature(.walletConnect)
     }
 
-    var isSaltPay: Bool {
-        (config is SaltPayConfig)
-    }
-
-    var walletCreated: Bool {
-        !cardInfo.card.wallets.isEmpty
-    }
-
-    var backUpCreated: Bool {
-        (cardInfo.card.backupStatus ?? .noBackup) != .noBackup
-    }
-
     // Temp for WC. Migrate to userWalletId?
     var secp256k1SeedKey: Data? {
         cardInfo.card.wallets.first(where: { $0.curve == .secp256k1 })?.publicKey
@@ -225,10 +213,6 @@ class CardViewModel: Identifiable, ObservableObject {
         updateCardPinSettings()
         updateCurrentSecurityOption()
         bind()
-//        [REDACTED_TODO_COMMENT]
-        if isSaltPay {
-            appendDefaultBlockchains()
-        }
     }
 
     func setupWarnings() {
