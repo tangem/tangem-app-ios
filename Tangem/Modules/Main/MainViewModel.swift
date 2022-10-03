@@ -221,7 +221,7 @@ class MainViewModel: ObservableObject {
 
     func onScan() {
         DispatchQueue.main.async {
-            Analytics.log(.scanCardTapped)
+            Analytics.log(.buttonScanCard)
             self.coordinator.close(newScan: true)
         }
     }
@@ -474,13 +474,13 @@ extension MainViewModel {
     }
 
     func openBuyCryptoIfPossible() {
-        Analytics.log(.buyTokenTapped)
+        Analytics.log(.buttonBuy)
         if tangemApiService.geoIpRegionCode == LanguageCode.ru {
             coordinator.openBankWarning {
-                Analytics.log(.p2pInstructionTapped, params: [.type: "yes"])
+//                Analytics.log(.p2pInstructionTapped, params: [.type: "yes"])
                 self.openBuyCrypto()
             } declineCallback: {
-                Analytics.log(.p2pInstructionTapped, params: [.type: "no"])
+//                Analytics.log(.p2pInstructionTapped, params: [.type: "no"])
                 self.coordinator.openP2PTutorial()
             }
         } else {
@@ -514,7 +514,7 @@ extension MainViewModel: SingleWalletContentViewModelOutput {
     func showExplorerURL(url: URL?, walletModel: WalletModel) {
         guard let url = url else { return }
 
-        Analytics.log(.exploreAddressTapped)
+//        Analytics.log(.buttonExplore)
         let blockchainName = walletModel.blockchainNetwork.blockchain.displayName
         coordinator.openExplorer(at: url, blockchainDisplayName: blockchainName)
     }

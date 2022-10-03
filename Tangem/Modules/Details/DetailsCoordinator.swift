@@ -78,7 +78,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openWalletConnect(with cardModel: CardViewModel) {
-        Analytics.log(.wcTapped)
+        Analytics.log(.myWalletsScreenOpened)
         let coordinator = WalletConnectCoordinator()
         let options = WalletConnectCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
@@ -104,7 +104,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openSupportChat(cardId: String, dataCollector: EmailDataCollector) {
-        Analytics.log(.chatTapped)
+        Analytics.log(.chatScreenOpened)
         supportChatViewModel = SupportChatViewModel(cardId: cardId, dataCollector: dataCollector)
     }
 
