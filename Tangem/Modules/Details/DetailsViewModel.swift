@@ -72,7 +72,7 @@ class DetailsViewModel: ObservableObject {
     }
 
     func prepareBackup() {
-        Analytics.log(.backupTapped)
+        Analytics.log(.backupScreenOpened)
         if let input = cardModel.backupInput {
             self.openOnboarding(with: input)
         }
@@ -112,12 +112,12 @@ extension DetailsViewModel {
     }
 
     func openCardSettings() {
-        Analytics.log(.cardSettingsTapped)
+        Analytics.log(.buttonCardSettings)
         coordinator.openScanCardSettings()
     }
 
     func openAppSettings() {
-        Analytics.log(.appSettingsTapped)
+        Analytics.log(.settingsScreenOpened)
         coordinator.openAppSettings()
     }
 
