@@ -27,7 +27,8 @@ struct UserWalletConfigFactory {
             } else {
                 if (cardInfo.card.cardId == "AC03000000070529") || (cardInfo.card.cardId == "AC03000000070537")  {
                     let token = Token(name: "Wrapped xDAI", symbol: "WxDAI", contractAddress: "0x4346186e7461cB4DF06bCFCB4cD591423022e417", decimals: 18)
-                    return SaltPayConfig(card: cardInfo.card, walletData: WalletData(blockchain: Blockchain.saltPay.id, token: token))
+                    let walletData = WalletData(blockchain: Blockchain.saltPay(testnet: false).id, token: token)
+                    return SaltPayConfig(card: cardInfo.card, walletData: walletData)
                 }
                 return GenericConfig(card: cardInfo.card)
             }
