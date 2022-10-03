@@ -126,6 +126,10 @@ class AddCustomTokenViewModel: ObservableObject {
                     return
                 }
 
+                if error is TangemAPIError {
+                    return
+                }
+
                 self.error = error.alertBinder
             }
         }
