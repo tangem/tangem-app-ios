@@ -22,6 +22,7 @@ struct SaltPayConfig {
     init(card: Card, walletData: WalletData) {
         self.card = card
         self.walletData = walletData
+        backupServiceProvider.backupService.skipCompatibilityChecks = true
     }
 
     private var defaultBlockchain: Blockchain {
