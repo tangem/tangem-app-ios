@@ -41,7 +41,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
     }
 
-    func update(_ type: UpdateType, result: @escaping (Result<UserTokenList, Error>) -> Void) {
+    func update(_ type: CommonUserTokenListManager.UpdateType, completion: @escaping () -> Void) {
         switch type {
         case let .rewrite(entries):
             tokenItemsRepository.update(entries)
@@ -54,9 +54,9 @@ extension CommonUserTokenListManager: UserTokenListManager {
         }
 
         if hasTokenSynchronization {
-            updateTokensOnServer(result: result)
+            updateTokensOnServer { _ in completion() }
         } else {
-            result(.success(getUserTokenList()))
+            completion()
         }
     }
 
@@ -64,12 +64,12 @@ extension CommonUserTokenListManager: UserTokenListManager {
         tokenItemsRepository.getItems()
     }
 
-    func clearRepository(result: @escaping (Result<UserTokenList, Error>) -> Void) {
+    func clearRepository(completion: @escaping () -> Void) {
         tokenItemsRepository.removeAll()
-        updateTokensOnServer(result: result)
+        updateTokensOnServer { _ in completion() }
     }
 
-    func loadAndSaveUserTokenList(result: @escaping (Result<UserTokenList, Error>) -> Void) {
+    func updateLocalRepositoryFromServer(result: @escaping (Result<UserTokenList, Error>) -> Void) {
         loadUserTokenList(result: result)
     }
 }
