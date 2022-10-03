@@ -129,7 +129,7 @@ class TokenListViewModel: ObservableObject {
     }
 
     func tokenListDidSave() {
-        Analytics.log(.tokenListSave)
+        Analytics.log(.buttonSaveChanges)
         closeModule()
     }
 
@@ -409,7 +409,7 @@ private extension TokenListViewModel {
     }
 
     private func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool, tokenItem: TokenItem) {
-        Analytics.log(tokenIsSelected ? .tokenSwitchOn : .tokenSwitchOff, params: [.tokenName: "\(tokenItem.name) \(tokenItem.symbol)"])
+//        Analytics.log(tokenIsSelected ? .tokenSwitchOn : .tokenSwitchOff, params: [.tokenName: "\(tokenItem.name) \(tokenItem.symbol)"])
     }
 }
 
