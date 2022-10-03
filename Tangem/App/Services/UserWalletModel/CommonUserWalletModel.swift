@@ -74,19 +74,19 @@ extension CommonUserWalletModel: UserWalletModel {
         walletListManager.canManage(amountType: amountType, blockchainNetwork: blockchainNetwork)
     }
 
-    func update(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void) {
-        userTokenListManager.update(.rewrite(entries), result: result)
+    func update(entries: [StorageEntry], completion: @escaping () -> Void) {
+        userTokenListManager.update(.rewrite(entries), completion: completion)
 
         updateAndReloadWalletModels()
     }
 
-    func append(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void) {
-        userTokenListManager.update(.append(entries), result: result)
+    func append(entries: [StorageEntry], completion: @escaping () -> Void) {
+        userTokenListManager.update(.append(entries), completion: completion)
 
         updateAndReloadWalletModels()
     }
 
-    func remove(item: RemoveItem, result: @escaping (Result<UserTokenList, Error>) -> Void) {
+    func remove(item: RemoveItem, completion: @escaping () -> Void) {
         guard walletListManager.canRemove(amountType: item.amount, blockchainNetwork: item.blockchainNetwork) else {
             assertionFailure("\(item.blockchainNetwork.blockchain) can't be remove")
             return
@@ -94,9 +94,9 @@ extension CommonUserWalletModel: UserWalletModel {
 
         switch item.amount {
         case .coin:
-            removeBlockchain(item.blockchainNetwork, result: result)
+            removeBlockchain(item.blockchainNetwork, completion: completion)
         case let .token(token):
-            removeToken(token, in: item.blockchainNetwork, result: result)
+            removeToken(token, in: item.blockchainNetwork, completion: completion)
         case .reserve: break
         }
     }
@@ -105,13 +105,13 @@ extension CommonUserWalletModel: UserWalletModel {
 // MARK: - Wallet models Operations
 
 private extension CommonUserWalletModel {
-    func removeBlockchain(_ network: BlockchainNetwork, result: @escaping (Result<UserTokenList, Error>) -> Void) {
-        userTokenListManager.update(.removeBlockchain(network), result: result)
+    func removeBlockchain(_ network: BlockchainNetwork, completion: @escaping () -> Void) {
+        userTokenListManager.update(.removeBlockchain(network), completion: completion)
         walletListManager.updateWalletModels()
     }
 
-    func removeToken(_ token: Token, in network: BlockchainNetwork, result: @escaping (Result<UserTokenList, Error>) -> Void) {
-        userTokenListManager.update(.removeToken(token, in: network), result: result)
+    func removeToken(_ token: Token, in network: BlockchainNetwork, completion: @escaping () -> Void) {
+        userTokenListManager.update(.removeToken(token, in: network), completion: completion)
         walletListManager.removeToken(token, blockchainNetwork: network)
         walletListManager.updateWalletModels()
     }
