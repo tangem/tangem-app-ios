@@ -307,7 +307,7 @@ class TokenDetailsViewModel: ObservableObject {
         isHidingInProcess = true
 
         let item = CommonUserWalletModel.RemoveItem(amount: amountType, blockchainNetwork: walletModel.blockchainNetwork)
-        card.remove(item: item) { [weak self] result in
+        card.remove(item: item) { [weak self] in
             self?.isHidingInProcess = false
             self?.dismiss()
         }
