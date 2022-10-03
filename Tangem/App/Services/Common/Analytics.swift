@@ -25,8 +25,6 @@ class Analytics {
                 log(event: event, with: params)
             case .amplitude: // [REDACTED_TODO_COMMENT]
                 let convertParams = params.reduce(into: [:]) { $0[$1.key.rawValue] = $1.value }
-                logAmplitude(.onboarding, event: event, params: convertParams)
-                break
             }
         }
     }
@@ -156,8 +154,9 @@ class Analytics {
     }
     #endif
 
-    static func logAmplitude(_ category: Category, event: Event, params: [String: String] = [:]) {
+    static func logAmplitude(event: Event, params: [String: String] = [:]) {
         #if !CLIP
+        let category = "[\(event.category().rawValue)]"
         Amplitude.instance().logEvent(event.rawValue.camelCaseToSnakeCase(), withEventProperties: params)
         #endif
     }
@@ -190,158 +189,311 @@ extension Analytics {
         case demoActivated = "demo_mode_activated"
 
         // MARK: - Amplitude
-        case buttonTokensList
-        case buttonBuyCards
-        case buttonRequestSupport
-        case shopScreenOpened
-        case purchased
-        case redirected
-        case buttonBiometricSignIn
-        case buttonCardSignIn
-        case onboardingStarted
-        case onboardingFinished
-        case createWalletScreenOpened
-        case buttonCreateWallet
-        case walletCreatedSuccessfully
-        case backupScreenOpened
-        case backupStarted
-        case backupSkipped
-        case settingAccessCodeStarted
-        case accessCodeEntered
-        case accessCodeReEntered
-        case backupFinished
-        case activationScreenOpened
-        case buttonBuyCrypto
-        case buttonShowTheWalletAddress
-        case enableBiometric
-        case allowBiometricID
-        case twinningScreenOpened
-        case twinSetupStarted
-        case twinSetupFinished
-        case screenOpened
-        case buttonScanCard
-        case cardWasScanned
-        case buttonMyWallets
-        case mainCurrencyChanged
-        case noticeRateTheAppButtonTapped
-        case noticeBackupYourWalletTapped
-        case noticeScanYourCardTapped
-        case refreshed
-        case buttonManageTokens
-        case tokenIsTapped
-        case detailsScreenOpened
-        case buttonRemoveToken
-        case buttonExplore
-        case buttonBuy
-        case buttonSell
-        case buttonExchange
-        case buttonSend
-        case recieveScreenOpened
-        case buttonCopyAddress
-        case buttonShareAddress
-        case sendScreenOpened
-        case buttonPaste
-        case buttonQRCode
-        case buttonSwapCurrency
-        case transactionSent
-        case topUpScreenOpened
-        case p2PScreenOpened
-        case withdrawScreenOpened
-        case manageTokensScreenOpened
-        case tokenSearched
-        case tokenSwitcherChanged
-        case buttonSaveChanges
-        case buttonCustomToken
-        case customTokenScreenOpened
-        case customTokenWasAdded
-        case settingsScreenOpened
-        case buttonChat
-        case buttonSendFeedback
-        case buttonStartWalletConnectSession
-        case buttonStopWalletConnectSession
-        case buttonCardSettings
-        case buttonAppSettings
-        case buttonCreateBackup
-        case buttonSocialNetwork
-        case buttonFactoryReset
-        case factoryResetFinished
-        case buttonChangeUserCode
-        case userCodeChanged
-        case buttonChangeSecurityMode
-        case securityModeChanged
-        case faceIDSwitcherChanged
-        case saveAccessCodeSwitcherChanged
-        case buttonEnableBiometricAuthentication
-        case newSessionEstablished
-        case sessionDisconnected
-        case requestSigned
-        case chatScreenOpened
-
-        // MARK: -
-        case viewStoryIntro
-        case viewStoryWallet
-        case viewStoryKeys
-        case viewStoryCurrencies
-        case viewStoryDefi
-        case viewStoryEverybody
-        case tokenListTapped
-        case searchToken
-        case buyBottomTapped
-        case firstScan
-        case secondScan
-        case supportTapped
-        case tryAgainTapped
-        case createWalletTapped
-        case backupTapped
-        case backupLaterTapped
-        case firstCardScan
-        case addBackupCard
-        case backupFinish
-        case createAccessCode
-        case accessCodeConfirm
-        case cardCodeSave
-        case backupCardSave
-        case onboardingSuccess
-        case mainPageEnter
-        case mainPageRefresh
-        case currencyTypeTapped
-        case currencyTypeChanged
-        case settingsTapped
-        case manageTokensTapped
-        case tokenTapped
-        case scanCardTapped
-        case chatTapped
-        case wcTapped
-        case factoryResetTapped
-        case factoryResetSuccess
-        case createBackupTapped
-        case makeCommentTapped
-        case walletConnectSuccessResponse
-        case walletConnectInvalidRequest
-        case walletConnectNewSession
-        case walletConnectSessionDisconnected
-        case tokenSearch
-        case tokenSwitchOn
-        case tokenSwitchOff
-        case tokenListSave
-        case сustomTokenTapped
-        case customTokenSave
-        case removeTokenTapped
-        case copyAddressTapped
-        case shareAddressTapped
-        case exploreAddressTapped
-        case cardSettingsTapped
-        case appSettingsTapped
-        case buyTokenTapped
-        case p2pInstructionTapped
-        case sendTokenTapped
+        case signedIn = "Signed in"
+        case toppedUp = "Topped up"
+        case buttonTokensList = "Button - Tokens List"
+        case buttonBuyCards = "Button - Buy Cards"
+        case introductionProcessButtonScanCard = "Button - Scan Card"
+        case introductionProcessCardWasScanned = "Card Was Scanned"
+        case introductionProcessOpened = "Introduction Process Screen Opened"
+        case buttonRequestSupport = "Button - Request Support"
+        case shopScreenOpened = "Shop Screen Opened"
+        case purchased = "Purchased"
+        case redirected = "Redirected"
+        case buttonBiometricSignIn = "Button - Biometric Sign In"
+        case buttonCardSignIn = "Button - Card Sign In"
+        case onboardingStarted = "Onboarding Started"
+        case onboardingFinished = "Onboarding Finished"
+        case createWalletScreenOpened = "Create Wallet Screen Opened"
+        case buttonCreateWallet = "Button - Create Wallet"
+        case walletCreatedSuccessfully = "Wallet Created Successfully"
+        case backupScreenOpened = "Backup Screen Opened"
+        case backupStarted = "Backup Started"
+        case backupSkipped = "Backup Skipped"
+        case settingAccessCodeStarted = "Setting Access Code Started"
+        case accessCodeEntered = "Access Code Entered"
+        case accessCodeReEntered = "Access Code Re-entered"
+        case backupFinished = "Backup Finished"
+        case activationScreenOpened = "Activation Screen Opened"
+        case buttonBuyCrypto = "Button - Buy Crypto"
+        case buttonShowTheWalletAddress = "Button - Show the Wallet Address"
+        case enableBiometric = "Enable Biometric"
+        case allowBiometricID = "Allow Face ID / Touch ID (System)"
+        case twinningScreenOpened = "Twinning Screen Opened"
+        case twinSetupStarted = "Twin Setup Started"
+        case twinSetupFinished = "Twin Setup Finished"
+        case screenOpened = "Screen opened"
+        case buttonScanCard = "Button-Scan Card"
+        case cardWasScanned = "Card Was Scanned "
+        case buttonMyWallets = "Button - My Wallets"
+        case mainCurrencyChanged = "Main Currency Changed"
+        case noticeRateTheAppButtonTapped = "Notice - Rate The App Button Tapped"
+        case noticeBackupYourWalletTapped = "Notice - Backup Your Wallet Tapped"
+        case noticeScanYourCardTapped = "Notice - Scan Your Card Tapped"
+        case refreshed = "Refreshed"
+        case buttonManageTokens = "Button - Manage Tokens"
+        case tokenIsTapped = "Token is Tapped"
+        case detailsScreenOpened = "Details Screen Opened"
+        case buttonRemoveToken = "Button - Remove Token"
+        case buttonExplore = "Button - Explore"
+        case buttonBuy = "Button - Buy"
+        case buttonSell = "Button - Sell"
+        case buttonExchange = "Button - Exchange"
+        case buttonSend = "Button - Send"
+        case recieveScreenOpened = "Recieve Screen Opened"
+        case buttonCopyAddress = "Button - Copy Address"
+        case buttonShareAddress = "Button - Share Address"
+        case sendScreenOpened = "Send Screen Opened"
+        case buttonPaste = "Button - Paste"
+        case buttonQRCode = "Button - QR Code"
+        case buttonSwapCurrency = "Button - Swap Currency"
+        case transactionSent = "Transaction Sent"
+        case topUpScreenOpened = "Top Up Screen Opened"
+        case p2PScreenOpened = "P2P Screen Opened"
+        case withdrawScreenOpened = "Withdraw Screen Opened"
+        case manageTokensScreenOpened = "Manage Tokens Screen Opened"
+        case tokenSearched = "Token Searched"
+        case tokenSwitcherChanged = "Token Switcher Changed"
+        case buttonSaveChanges = "Button - Save Changes"
+        case buttonCustomToken = "Button - Custom Token"
+        case customTokenScreenOpened = "Custom Token Screen Opened"
+        case customTokenWasAdded = "Custom Token Was Added"
+        case myWalletsScreenOpened = "My Wallets Screen Opened"
+        case buttonScanNewCard = "Button - Scan New Card"
+        case myWalletsCardWasScanned = " Card Was Scanned"
+        case buttonUnlockAllWithFaceID = "Button - Unlock all with Face ID"
+        case walletTapped = "Wallet Tapped"
+        case buttonEditWalletTapped = "Button - Edit Wallet Tapped"
+        case buttonDeleteWalletTapped = "Button - Delete Wallet Tapped"
+        case buttonChat = "Button - Chat"
+        case buttonSendFeedback = "Button - Send Feedback"
+        case buttonStartWalletConnectSession = "Button - Start Wallet Connect Session "
+        case buttonStopWalletConnectSession = "Button - Stop Wallet Connect Session"
+        case buttonCardSettings = "Button - Card Settings"
+        case buttonAppSettings = "Button - App Settings"
+        case buttonCreateBackup = "Button - Create Backup"
+        case buttonSocialNetwork = "Button - Social Network"
+        case buttonFactoryReset = "Button - Factory Reset"
+        case factoryResetFinished = "Factory Reset Finished"
+        case buttonChangeUserCode = "Button - Change User Code"
+        case userCodeChanged = "User Code Changed"
+        case buttonChangeSecurityMode = "Button - Change Security Mode"
+        case securityModeChanged = "Security Mode Changed"
+        case faceIDSwitcherChanged = "Face ID Switcher Changed"
+        case saveAccessCodeSwitcherChanged = "Save Access Code Switcher Changed"
+        case buttonEnableBiometricAuthentication = "Button - Enable Biometric Authentication"
+        case newSessionEstablished = "New Session Established"
+        case sessionDisconnected = "Session Disconnected"
+        case requestSigned = "Request Signed"
+        case chatScreenOpened = "Chat Screen Opened"
+        case settingsScreenOpened = "Settings Screen Opened"
 
         // MARK: -
         fileprivate static var nfcError: String {
             "nfc_error"
         }
 
-        func category() {
+        func category() -> Category {
+            switch self {
+            case .signedIn:
+                return .basic
+            case .toppedUp:
+                return .basic
+            case .introductionProcessOpened:
+                return .introductionProcess
+            case .introductionProcessCardWasScanned:
+                return .introductionProcess
+            case .introductionProcessButtonScanCard:
+                return .introductionProcess
+            case .buttonTokensList:
+                return .introductionProcess
+            case .buttonBuyCards:
+                return .introductionProcess
+            case .buttonRequestSupport:
+                return .introductionProcess
+            case .shopScreenOpened:
+                return .shop
+            case .purchased:
+                return .shop
+            case .redirected:
+                return .shop
+            case .buttonBiometricSignIn:
+                return .signIn
+            case .buttonCardSignIn:
+                return .signIn
+            case .onboardingStarted:
+                return .onboarding
+            case .onboardingFinished:
+                return .onboarding
+            case .createWalletScreenOpened:
+                return .createWallet
+            case .buttonCreateWallet:
+                return .createWallet
+            case .walletCreatedSuccessfully:
+                return .createWallet
+            case .backupScreenOpened:
+                return .backup
+            case .backupStarted:
+                return .backup
+            case .backupSkipped:
+                return .backup
+            case .settingAccessCodeStarted:
+                return .backup
+            case .accessCodeEntered:
+                return .backup
+            case .accessCodeReEntered:
+                return .backup
+            case .backupFinished:
+                return .backup
+            case .activationScreenOpened:
+                return .topUp
+            case .buttonBuyCrypto:
+                return .topUp
+            case .buttonShowTheWalletAddress:
+                return .topUp
+            case .enableBiometric:
+                return .biometric
+            case .allowBiometricID:
+                return .biometric
+            case .twinningScreenOpened:
+                return .twins
+            case .twinSetupStarted:
+                return .twins
+            case .twinSetupFinished:
+                return .twins
+            case .screenOpened:
+                return .mainScreen
+            case .buttonScanCard:
+                return .mainScreen
+            case .cardWasScanned:
+                return .mainScreen
+            case .buttonMyWallets:
+                return .mainScreen
+            case .mainCurrencyChanged:
+                return .mainScreen
+            case .noticeRateTheAppButtonTapped:
+                return .mainScreen
+            case .noticeBackupYourWalletTapped:
+                return .mainScreen
+            case .noticeScanYourCardTapped:
+                return .mainScreen
+            case .refreshed:
+                return .token
+            case .buttonManageTokens:
+                return .token
+            case .tokenIsTapped:
+                return .token
+            case .detailsScreenOpened:
+                return .detailsScreen
+            case .buttonRemoveToken:
+                return .token
+            case .buttonExplore:
+                return .token
+            case .buttonBuy:
+                return .token
+            case .buttonSell:
+                return .token
+            case .buttonExchange:
+                return .token
+            case .buttonSend:
+                return .token
+            case .recieveScreenOpened:
+                return .tokenRecieve
+            case .buttonCopyAddress:
+                return .tokenRecieve
+            case .buttonShareAddress:
+                return .tokenRecieve
+            case .sendScreenOpened:
+                return .tokenSend
+            case .buttonPaste:
+                return .tokenSend
+            case .buttonQRCode:
+                return .tokenSend
+            case .buttonSwapCurrency:
+                return .tokenSend
+            case .transactionSent:
+                return .tokenSend
+            case .topUpScreenOpened:
+                return .tokenTopUp
+            case .p2PScreenOpened:
+                return .tokenTopUp
+            case .withdrawScreenOpened:
+                return .tokenWithdraw
+            case .manageTokensScreenOpened:
+                return .manageTokens
+            case .tokenSearched:
+                return .manageTokens
+            case .tokenSwitcherChanged:
+                return .manageTokens
+            case .buttonSaveChanges:
+                return .manageTokens
+            case .buttonCustomToken:
+                return .manageTokens
+            case .customTokenScreenOpened:
+                return .manageTokens
+            case .customTokenWasAdded:
+                return .manageTokens
+            case .settingsScreenOpened:
+                return .settings
+            case .buttonChat:
+                return .settings
+            case .buttonSendFeedback:
+                return .settings
+            case .buttonStartWalletConnectSession:
+                return .settings
+            case .buttonStopWalletConnectSession:
+                return .settings
+            case .buttonCardSettings:
+                return .settings
+            case .buttonAppSettings:
+                return .settings
+            case .buttonCreateBackup:
+                return .settings
+            case .buttonSocialNetwork:
+                return .settings
+            case .buttonFactoryReset:
+                return .appSettings
+            case .factoryResetFinished:
+                return .appSettings
+            case .buttonChangeUserCode:
+                return .appSettings
+            case .userCodeChanged:
+                return .appSettings
+            case .buttonChangeSecurityMode:
+                return .appSettings
+            case .securityModeChanged:
+                return .appSettings
+            case .faceIDSwitcherChanged:
+                return .appSettings
+            case .saveAccessCodeSwitcherChanged:
+                return .appSettings
+            case .buttonEnableBiometricAuthentication:
+                return .appSettings
+            case .newSessionEstablished:
+                return .walletConnect
+            case .sessionDisconnected:
+                return .walletConnect
+            case .requestSigned:
+                return .walletConnect
+            case .chatScreenOpened:
+                return .chat
+            case .myWalletsScreenOpened:
+                return .myWallets
+            case .buttonScanNewCard:
+                return .myWallets
+            case .myWalletsCardWasScanned:
+                return .myWallets
+            case .buttonUnlockAllWithFaceID:
+                return .myWallets
+            case .walletTapped:
+                return .myWallets
+            case .buttonEditWalletTapped:
+                return .myWallets
+            case .buttonDeleteWalletTapped:
+                return .myWallets
+            default:
+                return .uncategorized
+            }
         }
     }
 
@@ -379,7 +531,7 @@ extension Analytics {
         case cardId = "cardId"
         case tokenName = "token_name"
         case type
-        case currency
+        case currency = "Currency Type"
         case success
     }
 
@@ -395,6 +547,8 @@ extension Analytics {
     }
 
     enum Category: String {
+        case uncategorized
+        case basic
         case introductionProcess
         case shop
         case onboarding
@@ -416,9 +570,14 @@ extension Analytics {
         case cardSettings
         case walletConnect
         case chat
+        case appSettings
+        case signIn
+        case tokenTopUp
 
         var rawValue: String {
             switch self {
+            case .basic:
+                return "Basic"
             case .introductionProcess:
                 return "Introduction Process"
             case .shop:
@@ -461,6 +620,14 @@ extension Analytics {
                 return "Wallet Connect"
             case .chat:
                 return "Chat"
+            case .appSettings:
+                return "Settings / App Settings"
+            case .signIn:
+                return "Sign In"
+            case .tokenTopUp:
+                return "Token / Topup"
+            case .uncategorized:
+                return ""
             }
         }
     }
@@ -481,63 +648,104 @@ extension Analytics {
 extension Analytics.Event {
     func analyticsSystems() -> [Analytics.AnalyticSystem] {
         switch self {
-        case .viewStoryIntro,
-             .viewStoryWallet,
-             .viewStoryKeys,
-             .viewStoryCurrencies,
-             .viewStoryDefi,
-             .viewStoryEverybody,
-             .tokenListTapped,
-             .searchToken,
-             .buyBottomTapped,
-             .firstScan,
-             .secondScan,
-             .supportTapped,
-             .tryAgainTapped,
-             .createWalletTapped,
-             .backupTapped,
-             .backupLaterTapped,
-             .firstCardScan,
-             .addBackupCard,
-             .backupFinish,
-             .createAccessCode,
-             .accessCodeConfirm,
-             .cardCodeSave,
-             .backupCardSave,
-             .onboardingSuccess,
-             .mainPageEnter,
-             .mainPageRefresh,
-             .currencyTypeTapped,
-             .currencyTypeChanged,
-             .settingsTapped,
-             .manageTokensTapped,
-             .tokenTapped,
-             .scanCardTapped,
-             .chatTapped,
-             .wcTapped,
-             .factoryResetTapped,
-             .factoryResetSuccess,
-             .createBackupTapped,
-             .makeCommentTapped,
-             .walletConnectSuccessResponse,
-             .walletConnectInvalidRequest,
-             .walletConnectNewSession,
-             .walletConnectSessionDisconnected,
-             .tokenSearch,
-             .tokenSwitchOn,
-             .tokenSwitchOff,
-             .tokenListSave,
-             .сustomTokenTapped,
-             .customTokenSave,
-             .removeTokenTapped,
-             .copyAddressTapped,
-             .shareAddressTapped,
-             .buyTokenTapped,
-             .p2pInstructionTapped,
-             .exploreAddressTapped,
-             .cardSettingsTapped,
-             .appSettingsTapped,
-             .sendTokenTapped:
+        case .signedIn,
+             .toppedUp,
+             .buttonTokensList,
+             .buttonBuyCards,
+             .introductionProcessButtonScanCard,
+             .introductionProcessCardWasScanned,
+             .introductionProcessOpened,
+             .buttonRequestSupport,
+             .shopScreenOpened,
+             .purchased,
+             .redirected,
+             .buttonBiometricSignIn,
+             .buttonCardSignIn,
+             .onboardingStarted,
+             .onboardingFinished,
+             .createWalletScreenOpened,
+             .buttonCreateWallet,
+             .walletCreatedSuccessfully,
+             .backupScreenOpened,
+             .backupStarted,
+             .backupSkipped,
+             .settingAccessCodeStarted,
+             .accessCodeEntered,
+             .accessCodeReEntered,
+             .backupFinished,
+             .activationScreenOpened,
+             .buttonBuyCrypto,
+             .buttonShowTheWalletAddress,
+             .enableBiometric,
+             .allowBiometricID,
+             .twinningScreenOpened,
+             .twinSetupStarted,
+             .twinSetupFinished,
+             .screenOpened,
+             .buttonScanCard,
+             .cardWasScanned,
+             .buttonMyWallets,
+             .mainCurrencyChanged,
+             .noticeRateTheAppButtonTapped,
+             .noticeBackupYourWalletTapped,
+             .noticeScanYourCardTapped,
+             .refreshed,
+             .buttonManageTokens,
+             .tokenIsTapped,
+             .detailsScreenOpened,
+             .buttonRemoveToken,
+             .buttonExplore,
+             .buttonBuy,
+             .buttonSell,
+             .buttonExchange,
+             .buttonSend,
+             .recieveScreenOpened,
+             .buttonCopyAddress,
+             .buttonShareAddress,
+             .sendScreenOpened,
+             .buttonPaste,
+             .buttonQRCode,
+             .buttonSwapCurrency,
+             .transactionSent,
+             .topUpScreenOpened,
+             .p2PScreenOpened,
+             .withdrawScreenOpened,
+             .manageTokensScreenOpened,
+             .tokenSearched,
+             .tokenSwitcherChanged,
+             .buttonSaveChanges,
+             .buttonCustomToken,
+             .customTokenScreenOpened,
+             .customTokenWasAdded,
+             .settingsScreenOpened,
+             .buttonChat,
+             .buttonSendFeedback,
+             .buttonStartWalletConnectSession,
+             .buttonStopWalletConnectSession,
+             .buttonCardSettings,
+             .buttonAppSettings,
+             .buttonCreateBackup,
+             .buttonSocialNetwork,
+             .buttonFactoryReset,
+             .factoryResetFinished,
+             .buttonChangeUserCode,
+             .userCodeChanged,
+             .buttonChangeSecurityMode,
+             .securityModeChanged,
+             .faceIDSwitcherChanged,
+             .saveAccessCodeSwitcherChanged,
+             .buttonEnableBiometricAuthentication,
+             .newSessionEstablished,
+             .sessionDisconnected,
+             .requestSigned,
+             .myWalletsScreenOpened,
+             .buttonScanNewCard,
+             .myWalletsCardWasScanned,
+             .buttonUnlockAllWithFaceID,
+             .walletTapped,
+             .buttonEditWalletTapped,
+             .buttonDeleteWalletTapped,
+             .chatScreenOpened:
             return [.amplitude]
         case .transactionIsSent:
             return [.firebase, .appsflyer, .amplitude]
