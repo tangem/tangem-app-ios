@@ -478,6 +478,7 @@
 		DC3F54AB28EB1D6700BC9A6D /* RegisterWalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3F54AA28EB1D6700BC9A6D /* RegisterWalletView.swift */; };
 		DC3F54AD28EB1D7C00BC9A6D /* StartKYCView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3F54AC28EB1D7C00BC9A6D /* StartKYCView.swift */; };
 		DC3F54B128EB3D5D00BC9A6D /* KYCWaitingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3F54B028EB3D5D00BC9A6D /* KYCWaitingView.swift */; };
+		DC3F54B328EC13DC00BC9A6D /* PinStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3F54B228EC13DC00BC9A6D /* PinStackView.swift */; };
 		DC51185C2860925A004FB954 /* WalletConnectRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC51185B2860925A004FB954 /* WalletConnectRoutable.swift */; };
 		DC51185F28609F67004FB954 /* CardOperationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC51185E28609F67004FB954 /* CardOperationViewModel.swift */; };
 		DC51186128609F71004FB954 /* CardOperationRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC51186028609F71004FB954 /* CardOperationRoutable.swift */; };
@@ -1137,6 +1138,7 @@
 		DC3F54AA28EB1D6700BC9A6D /* RegisterWalletView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterWalletView.swift; sourceTree = "<group>"; };
 		DC3F54AC28EB1D7C00BC9A6D /* StartKYCView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartKYCView.swift; sourceTree = "<group>"; };
 		DC3F54B028EB3D5D00BC9A6D /* KYCWaitingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KYCWaitingView.swift; sourceTree = "<group>"; };
+		DC3F54B228EC13DC00BC9A6D /* PinStackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinStackView.swift; sourceTree = "<group>"; };
 		DC51185B2860925A004FB954 /* WalletConnectRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectRoutable.swift; sourceTree = "<group>"; };
 		DC51185E28609F67004FB954 /* CardOperationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardOperationViewModel.swift; sourceTree = "<group>"; };
 		DC51186028609F71004FB954 /* CardOperationRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardOperationRoutable.swift; sourceTree = "<group>"; };
@@ -2691,6 +2693,7 @@
 				DC3F54AA28EB1D6700BC9A6D /* RegisterWalletView.swift */,
 				DC3F54AC28EB1D7C00BC9A6D /* StartKYCView.swift */,
 				DC3F54B028EB3D5D00BC9A6D /* KYCWaitingView.swift */,
+				DC3F54B228EC13DC00BC9A6D /* PinStackView.swift */,
 			);
 			path = Visa;
 			sourceTree = "<group>";
@@ -3853,6 +3856,7 @@
 				65469D3C28AA6B710092138F /* ResizableBottomSheetModifier.swift in Sources */,
 				5D9DCAEB25517FB50059799C /* CommonCardsRepository.swift in Sources */,
 				B05A645625E0F57B00F154B7 /* ScanTroublehootingView.swift in Sources */,
+				DC3F54B328EC13DC00BC9A6D /* PinStackView.swift in Sources */,
 				5D51036D27C535AB0025EA55 /* ABIEncoder.swift in Sources */,
 				65B4DEC72881A95A001524CF /* BottomSheetTransitionDelegate.swift in Sources */,
 				B0541DBE26FB30060043893E /* WalletOnboardingViewModel.swift in Sources */,
