@@ -534,3 +534,4 @@ URL: %@";
 "user_wallet_list_rename" = "Переименовать";
 "user_wallet_list_rename_popup_title" = "Переименование кошелька";
 "user_wallet_list_rename_popup_placeholder" = "Имя кошелька";
+"user_wallet_list_delete_prompt" = "Вы уверены, что хотите удалить этот кошелек?";
