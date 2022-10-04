@@ -75,14 +75,14 @@ enum WalletOnboardingStep {
 }
 
 extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
-    var title: LocalizedStringKey {
+    var title: LocalizedStringKey? {
         switch self {
         case .welcome: return WelcomeStep.welcome.title
         case .createWallet: return "onboarding_button_create_wallet"
         case .scanPrimaryCard: return "onboarding_title_scan_origin_card"
         case .backupIntro: return "onboarding_title_backup_card"
         case .selectBackupCards: return "onboarding_title_no_backup_cards"
-        case .backupCards, .enterPin, .kycProgress: return ""
+        case .backupCards, .kycProgress: return ""
         case .success: return successTitle
         case .registerWallet:
             return "onboarding_title_register_wallet"
@@ -90,17 +90,19 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
             return "onboarding_title_kyc_start"
         case .kycWaiting:
             return "onboarding_title_kyc_waiting"
+        case .enterPin:
+            return nil
         }
     }
 
-    var subtitle: LocalizedStringKey {
+    var subtitle: LocalizedStringKey? {
         switch self {
         case .welcome: return WelcomeStep.welcome.subtitle
         case .createWallet: return "onboarding_create_subtitle"
         case .scanPrimaryCard: return "onboarding_subtitle_scan_primary"
         case .backupIntro: return "onboarding_subtitle_backup_card"
         case .selectBackupCards: return "onboarding_subtitle_no_backup_cards"
-        case .backupCards, .enterPin, .kycProgress: return ""
+        case .backupCards, .kycProgress: return ""
         case .success: return "onboarding_subtitle_success_backup"
         case .registerWallet:
             return "onboarding_subtitle_register_wallet"
@@ -108,6 +110,8 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
             return "onboarding_subtitle_kyc_start"
         case .kycWaiting:
             return "onboarding_subtitle_kyc_waiting"
+        case .enterPin:
+            return nil
         }
     }
 
