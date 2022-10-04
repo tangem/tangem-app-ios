@@ -3019,7 +3019,6 @@
 			buildConfigurationList = 5D3F77EC24BF56DC00E8695B /* Build configuration list for PBXNativeTarget "Tangem" */;
 			buildPhases = (
 				5E095AC3A2954CFAB66C1261 /* [CP] Check Pods Manifest.lock */,
-				EF4B41BE286451E2003911F6 /* Run Swiftformat */,
 				5D3F77BE24BF56D800E8695B /* Sources */,
 				5D3F77BF24BF56D800E8695B /* Frameworks */,
 				5D3F77C024BF56D800E8695B /* Resources */,
@@ -3351,24 +3350,6 @@
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
-		};
-		EF4B41BE286451E2003911F6 /* Run Swiftformat */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Run Swiftformat";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "UNAME_MACHINE=\"$(/usr/bin/uname -m)\"\n\nif [[ \"${UNAME_MACHINE}\" == \"arm64\" ]]\nthen\n    # On ARM macOS, homebrew installs to /opt/homebrew only\n    PATH=${PATH}:/opt/homebrew/bin\nelse\n    # On Intel macOS, homebrew installs to /usr/local only\n    PATH=${PATH}:/usr/local/bin\nfi\n\necho \"🚀 Running SwiftFormat\"\nmint run swiftformat@0.49.11 . --config .swiftformat\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
