@@ -71,8 +71,6 @@ class UserWalletListCellViewModel: ObservableObject {
 }
 
 struct UserWalletListCellView: View {
-    static let hardcodedHeight = 67.0
-
     @ObservedObject private var viewModel: UserWalletListCellViewModel
 
     init(viewModel: UserWalletListCellViewModel) {
@@ -113,7 +111,7 @@ struct UserWalletListCellView: View {
             }
         }
         .padding(.horizontal, 16)
-        .frame(height: Self.hardcodedHeight)
+        .frame(height: 67.0)
         .contentShape(Rectangle())
         .background(Colors.Background.primary)
         .onTapGesture {
