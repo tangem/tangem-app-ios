@@ -213,6 +213,7 @@ class CardViewModel: Identifiable, ObservableObject {
         updateCardPinSettings()
         updateCurrentSecurityOption()
         bind()
+        appendDefaultBlockchainIfNeeded()
     }
 
     func setupWarnings() {
@@ -519,6 +520,13 @@ class CardViewModel: Identifiable, ObservableObject {
             userTokenListManager: userTokenListManager,
             walletListManager: walletListManager
         )
+    }
+
+    private func appendDefaultBlockchainIfNeeded() {
+        // For single wallet only
+        guard !isMultiWallet, walletModels.isEmpty else { return }
+
+        appendDefaultBlockchains()
     }
 }
 
