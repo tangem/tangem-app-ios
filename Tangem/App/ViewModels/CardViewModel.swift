@@ -192,17 +192,8 @@ class CardViewModel: Identifiable, ObservableObject {
             isStandalone: true)
     }
 
-
     var isResetToFactoryAvailable: Bool {
         config.hasFeature(.resetToFactory)
-    }
-
-    var isSuccesfullyLoaded: Bool {
-        walletModels.allConforms { $0.state.isSuccesfullyLoaded }
-    }
-
-    var hasBalance: Bool {
-        walletModels.contains { $0.hasBalance }
     }
 
     var shouldShowLegacyDerivationAlert: Bool {
@@ -229,7 +220,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func appendDefaultBlockchains() {
-        add(entries: config.defaultBlockchains) { _ in }
+        userWalletModel?.append(entries: config.defaultBlockchains) {}
     }
 
     func deriveEntriesWithoutDerivation() {
@@ -366,6 +357,7 @@ class CardViewModel: Identifiable, ObservableObject {
     func update(with cardInfo: CardInfo) {
         print("🔄 Updating Card view model with new CardInfo")
         self.cardInfo = cardInfo
+        config = UserWalletConfigFactory(cardInfo).makeConfig()
         updateModel()
     }
 
@@ -397,6 +389,7 @@ class CardViewModel: Identifiable, ObservableObject {
         warningsService.setupWarnings(for: config)
         createUserWalletModelIfNeeded()
         userWalletModel?.updateUserWalletModel(with: config)
+        userWalletModel?.update(userWalletId: userWalletId)
     }
 
     private func searchBlockchains() {
@@ -417,21 +410,23 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
 
-        searchBlockchainsCancellable = Publishers.MergeMany(models.map { $0.update() })
-            .collect()
-            .receiveCompletion { [weak self] _ in
-                guard let self = self else { return }
+        searchBlockchainsCancellable = Publishers.MergeMany(
+            models.map { $0.update(silent: false) }
+        )
+        .collect()
+        .receiveCompletion { [weak self] _ in
+            guard let self = self else { return }
 
-                let notEmptyWallets = models.filter { !$0.wallet.isEmpty }
-                if !notEmptyWallets.isEmpty {
-                    let entries = notEmptyWallets.map {
-                        StorageEntry(blockchainNetwork: $0.blockchainNetwork, tokens: [])
-                    }
-
-                    // [REDACTED_TODO_COMMENT]
-                    self.add(entries: entries) { _ in }
+            let notEmptyWallets = models.filter { !$0.wallet.isEmpty }
+            if !notEmptyWallets.isEmpty {
+                let entries = notEmptyWallets.map {
+                    StorageEntry(blockchainNetwork: $0.blockchainNetwork, tokens: [])
                 }
+
+                // [REDACTED_TODO_COMMENT]
+                self.add(entries: entries) { _ in }
             }
+        }
     }
 
     private func searchTokens() {
@@ -548,22 +543,26 @@ extension CardViewModel {
         return userWalletModel.subscribeToEntriesWithoutDerivation()
     }
 
-    func add(entries: [StorageEntry], completion: @escaping (Result<UserTokenList, Error>) -> Void) {
+    func add(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
         derive(entries: entries) { [weak self] result in
             switch result {
             case .success:
-                self?.userWalletModel?.append(entries: entries, result: completion)
+                self?.userWalletModel?.append(entries: entries) {
+                    completion(.success(()))
+                }
             case let .failure(error):
                 completion(.failure(error))
             }
         }
     }
 
-    func update(entries: [StorageEntry], completion: @escaping (Result<UserTokenList, Error>) -> Void) {
+    func update(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
         derive(entries: entries) { [weak self] result in
             switch result {
             case .success:
-                self?.userWalletModel?.update(entries: entries, result: completion)
+                self?.userWalletModel?.update(entries: entries) {
+                    completion(.success(()))
+                }
             case let .failure(error):
                 completion(.failure(error))
             }
@@ -596,13 +595,13 @@ extension CardViewModel {
         return userWalletModel.canManage(amountType: amountType, blockchainNetwork: blockchainNetwork)
     }
 
-    func remove(item: CommonUserWalletModel.RemoveItem, result: @escaping (Result<UserTokenList, Error>) -> Void) {
+    func remove(item: CommonUserWalletModel.RemoveItem, completion: @escaping () -> Void) {
         guard let userWalletModel = userWalletModel else {
             assertionFailure("UserWalletModel not created")
             return
         }
 
-        userWalletModel.remove(item: item, result: result)
+        userWalletModel.remove(item: item, completion: completion)
     }
 }
 
