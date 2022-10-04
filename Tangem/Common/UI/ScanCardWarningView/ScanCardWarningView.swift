@@ -13,10 +13,10 @@ struct ScanCardWarningView: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(alignment: .center, spacing: 10) {
+            HStack(alignment: .center, spacing: 12) {
                 icon
 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 4) {
                     Text("main_scan_card_warning_view_title".localized)
                         .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
@@ -27,11 +27,11 @@ struct ScanCardWarningView: View {
                 Assets.chevron
             }
             .frame(maxWidth: .infinity)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
+            .padding([.vertical, .horizontal], 16)
             .background(Colors.Background.primary)
             .cornerRadius(14)
         }
+        .buttonStyle(PlainButtonStyle())
     }
 
     private var icon: some View {
