@@ -47,10 +47,10 @@ class TotalSumBalanceViewModel: ObservableObject {
         totalBalanceManager.updateTotalBalance()
     }
 
-    func updateForSingleCoinCard(tokenModels: [TokenItemViewModel]) {
+    func updateForSingleCoinCard(walletModels: [WalletModel]) {
         guard isSingleCoinCard else { return }
 
-        singleWalletBalance = tokenModels.first?.balance
+        singleWalletBalance = walletModels.first?.allTokenItemViewModels().first?.balance
     }
 
     func didTapOnCurrencySymbol() {
@@ -67,17 +67,17 @@ class TotalSumBalanceViewModel: ObservableObject {
                 isLoading = true
 
                 return walletModels
-                    .map { $0.$tokenItemViewModels }
+                    .map { $0.walletDidChange }
                     .combineLatest()
-                    .map { $0.reduce([], +) }
+                    .map { _ in walletModels }
                     // Update total balance only after all models succesfully loaded
-                    .filter { $0.allConforms { $0.state.isSuccesfullyLoaded } }
+                    .filter { $0.allConforms { !$0.state.isLoading } }
             }
             .switchToLatest()
-            // Hack with delay until rebuild the "update flow" in WalletModel
+            // Hide skeleton with delay
             .delay(for: 0.2, scheduler: DispatchQueue.main)
             .sink { [unowned self] walletModels in
-                updateForSingleCoinCard(tokenModels: walletModels)
+                updateForSingleCoinCard(walletModels: walletModels)
                 updateBalance()
             }
             .store(in: &bag)
@@ -90,8 +90,14 @@ class TotalSumBalanceViewModel: ObservableObject {
             .weakAssign(to: \.totalFiatValueString, on: self)
             .store(in: &bag)
 
-        totalBalanceManager.totalBalancePublisher()
+        let hasErrorInUpdate = totalBalanceManager.totalBalancePublisher()
             .compactMap { $0.value?.hasError }
+
+        let hasEntriesWithoutDerivation = userWalletModel.subscribeToEntriesWithoutDerivation()
+            .map { !$0.isEmpty }
+
+        Publishers.Zip(hasErrorInUpdate, hasEntriesWithoutDerivation)
+            .map { $0 || $1 }
             .removeDuplicates()
             .weakAssign(to: \.hasError, on: self)
             .store(in: &bag)
