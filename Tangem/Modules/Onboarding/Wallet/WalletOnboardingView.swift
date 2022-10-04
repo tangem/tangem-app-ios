@@ -38,6 +38,24 @@ struct WalletOnboardingView: View {
         .dark
     }
 
+    @ViewBuilder
+    var customContent: some View {
+        switch viewModel.currentStep {
+        case .enterPin:
+            EnterPinView(text: $viewModel.pinText)
+        case .registerWallet:
+            RegisterWalletView()
+        case .kycStart:
+            StartKYCView()
+        case .kycProgress:
+            WebViewContainer(viewModel: viewModel.kycModel)
+        case .kycWaiting:
+            KYCWaitingView()
+        default:
+            EmptyView()
+        }
+    }
+
     var body: some View {
         ZStack {
             ConfettiView(shouldFireConfetti: $viewModel.shouldFireConfetti)
@@ -53,6 +71,7 @@ struct WalletOnboardingView: View {
                             .foregroundColor(.tangemBgGray)
                             .frame(size: viewModel.isInitialAnimPlayed ? currentStep.backgroundFrameSize(in: size) : .zero)
                             .offset(viewModel.isInitialAnimPlayed ? currentStep.backgroundOffset(in: size) : .zero)
+                            .opacity(viewModel.isCustomContentVisible ? 0 : 1)
 
                         // Navbar is added to ZStack instead of VStack because of wrong animation when container changed
                         // and cards jumps instead of smooth transition
@@ -73,68 +92,75 @@ struct WalletOnboardingView: View {
                             .frame(width: screenSize.width - 32)
                             .offset(x: 0, y: -size.height / 2 + viewModel.navbarSize.height + 10)
 
-                        AnimatedView(settings: viewModel.$thirdCardSettings) {
-                            OnboardingCardView(placeholderCardType: secondCardPlaceholder,
-                                               cardImage: viewModel.cardImage,
-                                               cardScanned: (viewModel.backupCardsAddedCount >= 2 || currentStep == .backupIntro) && viewModel.canDisplayCardImage)
-                        }
-
-                        AnimatedView(settings: viewModel.$supplementCardSettings) {
-                            OnboardingCardView(placeholderCardType: secondCardPlaceholder,
-                                               cardImage: viewModel.cardImage,
-                                               cardScanned: (viewModel.backupCardsAddedCount >= 1 || currentStep == .backupIntro) && viewModel.canDisplayCardImage)
-                        }
-
-                        AnimatedView(settings: viewModel.$mainCardSettings) {
-                            ZStack(alignment: .topTrailing) {
-                                OnboardingCardView(placeholderCardType: .dark,
+                        if viewModel.isCustomContentVisible {
+                            customContent
+                        } else {
+                            AnimatedView(settings: viewModel.$thirdCardSettings) {
+                                OnboardingCardView(placeholderCardType: secondCardPlaceholder,
                                                    cardImage: viewModel.cardImage,
-                                                   cardScanned: viewModel.isInitialAnimPlayed && currentStep != .welcome)
-                                Text("common_origin_card")
-                                    .font(.system(size: 13, weight: .semibold))
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 5)
-                                    .background(Color.white.opacity(0.25))
-                                    .cornerRadius(50)
-                                    .zIndex(251)
-                                    .padding(12)
-                                    .opacity(currentStep == .backupCards ? 1.0 : 0.0)
+                                                   cardScanned: (viewModel.backupCardsAddedCount >= 2 || currentStep == .backupIntro) && viewModel.canDisplayCardImage)
                             }
 
-                        }
+                            AnimatedView(settings: viewModel.$supplementCardSettings) {
+                                OnboardingCardView(placeholderCardType: secondCardPlaceholder,
+                                                   cardImage: viewModel.cardImage,
+                                                   cardScanned: (viewModel.backupCardsAddedCount >= 1 || currentStep == .backupIntro) && viewModel.canDisplayCardImage)
+                            }
 
-                        OnboardingCircleButton(refreshAction: {},
-                                               state: currentStep.successCircleState,
-                                               size: .huge)
-                            .offset(y: 8)
-                            .opacity(currentStep.successCircleOpacity)
+                            AnimatedView(settings: viewModel.$mainCardSettings) {
+                                ZStack(alignment: .topTrailing) {
+                                    OnboardingCardView(placeholderCardType: .dark,
+                                                       cardImage: viewModel.cardImage,
+                                                       cardScanned: viewModel.isInitialAnimPlayed && currentStep != .welcome)
+                                    Text("common_origin_card")
+                                        .font(.system(size: 13, weight: .semibold))
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 5)
+                                        .background(Color.white.opacity(0.25))
+                                        .cornerRadius(50)
+                                        .zIndex(251)
+                                        .padding(12)
+                                        .opacity(currentStep == .backupCards ? 1.0 : 0.0)
+                                }
 
-                        if viewModel.isInfoPagerVisible {
-                            OnboardingWalletInfoPager(animated: viewModel.isInfoPagerVisible)
-                                .offset(.init(width: 0, height: size.height / 2 + infoPagerHeight / 2))
-                                .frame(height: infoPagerHeight)
-                                .zIndex(150)
-                                .transition(.opacity)
+                            }
+
+                            OnboardingCircleButton(refreshAction: {},
+                                                   state: currentStep.successCircleState,
+                                                   size: .huge)
+                                .offset(y: 8)
+                                .opacity(currentStep.successCircleOpacity)
+
+                            if viewModel.isInfoPagerVisible {
+                                OnboardingWalletInfoPager(animated: viewModel.isInfoPagerVisible)
+                                    .offset(.init(width: 0, height: size.height / 2 + infoPagerHeight / 2))
+                                    .frame(height: infoPagerHeight)
+                                    .zIndex(150)
+                                    .transition(.opacity)
+                            }
                         }
                     }
                     .position(x: size.width / 2, y: size.height / 2)
-//                    .overlay(Color.red.opacity(0.3))
+                    //                    .overlay(Color.red.opacity(0.3))
                 }
                 .readSize { size in
                     viewModel.setupContainer(with: size)
                 }
-                OnboardingTextButtonView(
-                    title: viewModel.title,
-                    subtitle: viewModel.subtitle,
-                    textOffset: currentStep.messagesOffset,
-                    buttonsSettings: .init(main: viewModel.mainButtonSettings,
-                                           supplement: viewModel.supplementButtonSettings)
 
-                ) {
-                    viewModel.closeOnboarding()
+                if viewModel.isButtonsVisible {
+                    OnboardingTextButtonView(
+                        title: viewModel.title,
+                        subtitle: viewModel.subtitle,
+                        textOffset: currentStep.messagesOffset,
+                        buttonsSettings: .init(main: viewModel.mainButtonSettings,
+                                               supplement: viewModel.supplementButtonSettings)
+
+                    ) {
+                        viewModel.closeOnboarding()
+                    }
+                    .padding(.horizontal, 40)
                 }
-                .padding(.horizontal, 40)
             }
         }
         .alert(item: $viewModel.alert, content: { alertBinder in
