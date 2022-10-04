@@ -205,7 +205,7 @@ class MainViewModel: ObservableObject {
     }
 
     func onRefresh(_ done: @escaping () -> Void) {
-        Analytics.log(.mainPageRefresh)
+        Analytics.log(.refreshed)
         if let singleWalletContentViewModel = singleWalletContentViewModel {
             singleWalletContentViewModel.onRefresh {
                 withAnimation { done() }
@@ -318,6 +318,7 @@ class MainViewModel: ObservableObject {
 
     func prepareForBackup() {
         if let input = cardModel.backupInput {
+            Analytics.log(.noticeBackupYourWalletTapped)
             self.openOnboarding(with: input)
         }
     }
@@ -477,10 +478,8 @@ extension MainViewModel {
         Analytics.log(.buttonBuy)
         if tangemApiService.geoIpRegionCode == LanguageCode.ru {
             coordinator.openBankWarning {
-//                Analytics.log(.p2pInstructionTapped, params: [.type: "yes"])
                 self.openBuyCrypto()
             } declineCallback: {
-//                Analytics.log(.p2pInstructionTapped, params: [.type: "no"])
                 self.coordinator.openP2PTutorial()
             }
         } else {
