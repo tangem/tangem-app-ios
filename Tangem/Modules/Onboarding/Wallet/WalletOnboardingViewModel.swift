@@ -35,7 +35,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         currentStep.navbarTitle
     }
 
-    override var title: LocalizedStringKey {
+    override var title: LocalizedStringKey? {
         switch currentStep {
         case .selectBackupCards:
             switch backupCardsAddedCount {
@@ -56,7 +56,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         return super.title
     }
 
-    override var subtitle: LocalizedStringKey {
+    override var subtitle: LocalizedStringKey? {
         switch currentStep {
         case .selectBackupCards:
             switch backupCardsAddedCount {
@@ -138,7 +138,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     var isMainButtonEnabled: Bool {
         switch currentStep {
         case .selectBackupCards: return canAddBackupCards
-        case .enterPin: return !pinText.isEmpty
+        case .enterPin: return pinText.count == Constants.pinLength
         default: return true
         }
     }
@@ -151,8 +151,12 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         return super.isSupplementButtonVisible
     }
 
-    override var supplementButtonSettings: TangemButtonSettings {
-        .init(
+    override var supplementButtonSettings: TangemButtonSettings? {
+        if currentStep == .enterPin {
+            return nil
+        }
+
+        return .init(
             title: supplementButtonTitle,
             size: .wide,
             action: supplementButtonAction,
@@ -674,5 +678,11 @@ extension NotificationCenter {
         NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
             .setFailureType(to: Error.self)
             .eraseToAnyPublisher()
+    }
+}
+
+extension WalletOnboardingViewModel {
+    enum Constants {
+        static let pinLength: Int = 4
     }
 }
