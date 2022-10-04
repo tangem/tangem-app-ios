@@ -15,6 +15,14 @@ enum WalletOnboardingStep {
     case backupIntro
     case selectBackupCards
     case backupCards
+
+    // visa only
+    case enterPin
+    case registerWallet
+    case kycStart
+    case kycProgress
+    case kycWaiting
+
     case success
 
     var navbarTitle: LocalizedStringKey {
@@ -23,6 +31,16 @@ enum WalletOnboardingStep {
         case .createWallet, .backupIntro: return "onboarding_getting_started"
         case .scanPrimaryCard, .selectBackupCards, .backupCards: return "onboarding_navbar_title_creating_backup"
         case .success: return "common_done"
+        case .enterPin:
+            return "onboarding_navbar_pin"
+        case .registerWallet:
+            return "onboarding_navbar_register_wallet"
+        case .kycStart:
+            return "onboarding_navbar_kyc_start"
+        case .kycProgress:
+            return "onboarding_navbar_kyc_progress"
+        case .kycWaiting:
+            return "onboarding_navbar_kyc_waiting"
         }
     }
 
@@ -64,8 +82,14 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         case .scanPrimaryCard: return "onboarding_title_scan_origin_card"
         case .backupIntro: return "onboarding_title_backup_card"
         case .selectBackupCards: return "onboarding_title_no_backup_cards"
-        case .backupCards: return ""
+        case .backupCards, .enterPin, .kycProgress: return ""
         case .success: return successTitle
+        case .registerWallet:
+            return "onboarding_title_register_wallet"
+        case .kycStart:
+            return "onboarding_title_kyc_start"
+        case .kycWaiting:
+            return "onboarding_title_kyc_waiting"
         }
     }
 
@@ -76,8 +100,14 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         case .scanPrimaryCard: return "onboarding_subtitle_scan_primary"
         case .backupIntro: return "onboarding_subtitle_backup_card"
         case .selectBackupCards: return "onboarding_subtitle_no_backup_cards"
-        case .backupCards: return ""
+        case .backupCards, .enterPin, .kycProgress: return ""
         case .success: return "onboarding_subtitle_success_backup"
+        case .registerWallet:
+            return "onboarding_subtitle_register_wallet"
+        case .kycStart:
+            return "onboarding_subtitle_kyc_start"
+        case .kycWaiting:
+            return "onboarding_subtitle_kyc_waiting"
         }
     }
 
@@ -97,8 +127,16 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
         case .scanPrimaryCard: return "onboarding_button_scan_origin_card"
         case .backupIntro: return "onboarding_button_backup_now"
         case .selectBackupCards: return "onboarding_button_add_backup_card"
-        case .backupCards: return ""
+        case .backupCards, .kycProgress: return ""
         case .success: return "onboarding_button_continue_wallet"
+        case .enterPin:
+            return "onboarding_button_pin"
+        case .registerWallet:
+            return "onboarding_button_register_wallet"
+        case .kycStart:
+            return "onboarding_button_kyc_start"
+        case .kycWaiting:
+            return "onboarding_button_kyc_waiting"
         }
     }
 
@@ -115,7 +153,8 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
 
     var isSupplementButtonVisible: Bool {
         switch self {
-        case .scanPrimaryCard, .backupCards, .success, .createWallet: return false
+        case .scanPrimaryCard, .backupCards, .success, .createWallet,
+             .enterPin, .registerWallet, .kycStart, .kycProgress, .kycWaiting: return false
         default: return true
         }
     }
@@ -149,6 +188,4 @@ extension WalletOnboardingStep: OnboardingProgressStepIndicatable {
     var successCircleState: OnboardingCircleButton.State {
         isOnboardingFinished ? .doneCheckmark : .blank
     }
-
-
 }
