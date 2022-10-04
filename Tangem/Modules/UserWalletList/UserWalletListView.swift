@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct UserWalletListView: ResizableSheetView {
+struct UserWalletListView: View {
     @ObservedObject private var viewModel: UserWalletListViewModel
 
     static var sheetBackground: Color {
@@ -24,10 +24,6 @@ struct UserWalletListView: ResizableSheetView {
 
     init(viewModel: UserWalletListViewModel) {
         self.viewModel = viewModel
-    }
-
-    func setResizeCallback(_ callback: @escaping ResizeCallback) {
-        viewModel.bottomSheetHeightUpdateCallback = callback
     }
 
     var body: some View {
