@@ -48,10 +48,10 @@ struct ButtonsSettings {
 
 struct OnboardingTextButtonView: View {
 
-    let title: LocalizedStringKey
-    let subtitle: LocalizedStringKey
+    let title: LocalizedStringKey?
+    let subtitle: LocalizedStringKey?
     var textOffset: CGSize = .zero
-//    let buttonsSettings: ButtonsSettings
+    //    let buttonsSettings: ButtonsSettings
     let buttonsSettings: OnboardingBottomButtonsSettings
     let titleAction: (() -> Void)?
     var checkmarkText: LocalizedStringKey? = nil
@@ -74,7 +74,7 @@ struct OnboardingTextButtonView: View {
                                            isLoading: mainSettings.isBusy))
 
             if let settings = buttonsSettings.supplement {
-//            if buttonsSettings.containSupplementButton {
+                //            if buttonsSettings.containSupplementButton {
                 TangemButton(title: settings.title) {
                     settings.action?()
                 }
@@ -88,14 +88,16 @@ struct OnboardingTextButtonView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            OnboardingMessagesView(title: title,
-                                   subtitle: subtitle) {
-                titleAction?()
-            }
-            .frame(alignment: .top)
-            .offset(textOffset)
+            if let title = self.title, let subtitle = self.subtitle {
+                OnboardingMessagesView(title: title,
+                                       subtitle: subtitle) {
+                    titleAction?()
+                }
+                .frame(alignment: .top)
+                .offset(textOffset)
 
-            Spacer()
+                Spacer()
+            }
 
             if let checkmarkText = self.checkmarkText {
                 HStack {
@@ -119,7 +121,6 @@ struct OnboardingTextButtonView: View {
         }
         .frame(maxHeight: 304)
     }
-
 }
 
 struct OnboardingTextButtonView_Previews: PreviewProvider {
@@ -153,22 +154,22 @@ struct OnboardingTextButtonView_Previews: PreviewProvider {
             titleAction: { },
             checkmarkText: "I understand",
             isCheckmarkChecked: $isChecked
-//                .init(
-//                mainTitle: "Create wallet",
-//                mainSize: .wide,
-//                mainAction: {
-//
-//                },
-//                mainIsBusy: false,
-//                isMainEnabled: true,
-//                supplementTitle: "What does it mean?",
-//                supplementSize: .wide,
-//                supplementAction: {
-//
-//                },
-//                isVisible: true,
-//                containSupplementButton: false),
-//            titleAction: { }
+            //                .init(
+            //                mainTitle: "Create wallet",
+            //                mainSize: .wide,
+            //                mainAction: {
+            //
+            //                },
+            //                mainIsBusy: false,
+            //                isMainEnabled: true,
+            //                supplementTitle: "What does it mean?",
+            //                supplementSize: .wide,
+            //                supplementAction: {
+            //
+            //                },
+            //                isVisible: true,
+            //                containSupplementButton: false),
+            //            titleAction: { }
         )
         .padding(.horizontal, 40)
     }
