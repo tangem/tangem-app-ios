@@ -97,7 +97,7 @@ class WelcomeViewModel: ObservableObject {
             } receiveValue: { [weak self] cardModel in
                 let numberOfFailedAttempts = self?.failedCardScanTracker.numberOfFailedAttempts ?? 0
                 self?.failedCardScanTracker.resetCounter()
-//                Analytics.log(numberOfFailedAttempts == 0 ? .firstScan : .secondScan)
+                Analytics.log(.cardWasScanned)
                 DispatchQueue.main.async {
                     self?.processScannedCard(cardModel, isWithAnimation: true)
                 }
@@ -107,7 +107,6 @@ class WelcomeViewModel: ObservableObject {
     }
 
     func tryAgain() {
-//        Analytics.log(.tryAgainTapped)
         scanCard()
     }
 
@@ -120,6 +119,7 @@ class WelcomeViewModel: ObservableObject {
     func orderCard() {
         openShop()
         Analytics.log(.getACard, params: [.source: Analytics.ParameterValue.welcome.rawValue])
+        Analytics.log(.buttonBuyCards)
     }
 
     func onAppear() {
@@ -159,12 +159,11 @@ extension WelcomeViewModel {
     }
 
     func openTokensList() {
-        Analytics.log(.manageTokensScreenOpened)
+        Analytics.log(.buttonTokensList)
         coordinator.openTokensList()
     }
 
     func openShop() {
-//        Analytics.log(.buyBottomTapped)
         coordinator.openShop()
     }
 
