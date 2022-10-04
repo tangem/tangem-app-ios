@@ -583,6 +583,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                         case .success(let updatedCard):
                             if updatedCard.cardId == self.backupService.primaryCardId {
                                 self.input.cardInput.cardModel?.update(with: updatedCard)
+                            } else { // add tokens for backup cards
+                                self.addDefaultTokens(for: updatedCard)
                             }
 
                             promise(.success(()))
@@ -622,18 +624,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         let config = GenericConfig(card: card)
         let repository = CommonTokenItemsRepository(key: card.userWalletId.hexString)
         repository.append(config.defaultBlockchains)
-
-        let savedItems = repository.getItems()
-
-        var derivations: [EllipticCurve: [DerivationPath]] = [:]
-        savedItems.forEach { item in
-            if let wallet = card.wallets.first(where: { $0.curve == item.blockchainNetwork.blockchain.curve }),
-               let path = item.blockchainNetwork.derivationPath {
-                derivations[wallet.curve, default: []].append(path)
-            }
-        }
-
-        tangemSdk.config.defaultDerivationPaths = derivations
     }
 }
 
