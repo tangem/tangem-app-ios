@@ -66,6 +66,7 @@ class MultiWalletContentViewModel: ObservableObject {
     }
 
     func openTokensList() {
+        Analytics.log(.buttonManageTokens)
         output.openTokensList()
     }
 
