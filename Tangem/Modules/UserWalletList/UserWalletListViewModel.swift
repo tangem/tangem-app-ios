@@ -24,8 +24,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
 
-    var bottomSheetHeightUpdateCallback: ((ResizeSheetAction) -> ())?
-
     var unlockAllButtonLocalizationKey: LocalizedStringKey {
         switch BiometricAuthorizationUtils.biometryType {
         case .faceID:
@@ -166,8 +164,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         if userWalletListService.isEmpty {
             AppSettings.shared.saveUserWallets = false
             coordinator.popToRoot()
-        } else {
-            updateHeight(oldModelSections: oldModelSections)
         }
     }
 
@@ -231,8 +227,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             }
 
             setSelectedWallet(userWallet)
-
-            updateHeight(oldModelSections: oldModelSections)
         }
     }
 
@@ -290,23 +284,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         DispatchQueue.main.async {
             self.coordinator.openOnboarding(with: input)
         }
-    }
-
-    private func updateHeight(oldModelSections: [[UserWalletListCellViewModel]]) {
-        let newModelSections = [multiCurrencyModels, singleCurrencyModels]
-
-        let cellHeight = UserWalletListCellView.hardcodedHeight
-        let headerHeight = UserWalletListHeaderView.hardcodedHeight
-
-        let oldNumberOfModels = oldModelSections.reduce(into: 0) { $0 += $1.count }
-        let newNumberOfModels = newModelSections.reduce(into: 0) { $0 += $1.count }
-
-        let oldNumberOfSections = oldModelSections.filter { !$0.isEmpty }.count
-        let newNumberOfSections = newModelSections.filter { !$0.isEmpty }.count
-
-        let heightDifference = cellHeight * Double(newNumberOfModels - oldNumberOfModels) + headerHeight * Double(newNumberOfSections - oldNumberOfSections)
-
-        bottomSheetHeightUpdateCallback?(.changeHeight(byValue: heightDifference))
     }
 
     private func getNumberOfTokens(for userWallet: UserWallet) -> String? {
