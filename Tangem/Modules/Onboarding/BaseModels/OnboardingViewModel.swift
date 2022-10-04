@@ -29,8 +29,6 @@ class OnboardingViewModel<Step: OnboardingStep> {
     var bag: Set<AnyCancellable> = []
 
     var currentStep: Step {
-        return WalletOnboardingStep.kycStart as! Step
-
         if currentStepIndex >= steps.count {
             return Step.initialStep
         }
@@ -46,7 +44,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
         "onboarding_getting_started"
     }
 
-    var title: LocalizedStringKey {
+    var title: LocalizedStringKey? {
         if !isInitialAnimPlayed, let welcomeStep = input.welcomeStep {
             return welcomeStep.title
         }
@@ -54,7 +52,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
         return currentStep.title
     }
 
-    var subtitle: LocalizedStringKey {
+    var subtitle: LocalizedStringKey? {
         if !isInitialAnimPlayed, let welcomteStep = input.welcomeStep {
             return welcomteStep.subtitle
         }
