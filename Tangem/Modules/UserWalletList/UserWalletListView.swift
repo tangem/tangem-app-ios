@@ -54,6 +54,13 @@ struct UserWalletListView: View {
         .alert(item: $viewModel.error) {
             $0.alert
         }
+        .actionSheet(isPresented: $viewModel.showingDeleteConfirmation) {
+            ActionSheet(title: Text("user_wallet_list_delete_prompt"),
+                        buttons: [
+                            .destructive(Text("common_delete"), action: viewModel.didConfirmWalletDeletion),
+                            .cancel(Text("common_cancel"), action: viewModel.didCancelWalletDeletion),
+                        ])
+        }
         .background(Self.sheetBackground.edgesIgnoringSafeArea(.all))
         .onAppear(perform: viewModel.onAppear)
     }
@@ -134,7 +141,7 @@ extension UserWalletListView {
                 .listRowBackground(Color.blue)
                 .swipeActions {
                     Button("common_delete") {
-                        self.viewModel.deleteUserWallet(viewModel)
+                        self.viewModel.showDeletionConfirmation(viewModel)
                     }
                     .tint(.red)
 
@@ -164,13 +171,13 @@ extension UserWalletListView {
 
                 if #available(iOS 15, *) {
                     Button(role: .destructive) {
-                        self.viewModel.deleteUserWallet(viewModel)
+                        self.viewModel.showDeletionConfirmation(viewModel)
                     } label: {
                         deleteButtonLabel()
                     }
                 } else {
                     Button {
-                        self.viewModel.deleteUserWallet(viewModel)
+                        self.viewModel.showDeletionConfirmation(viewModel)
                     } label: {
                         deleteButtonLabel()
                     }
