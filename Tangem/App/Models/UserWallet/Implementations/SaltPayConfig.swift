@@ -45,7 +45,7 @@ extension SaltPayConfig: UserWalletConfig {
 
     #warning("l10n")
     var cardName: String {
-        "TODO"
+        "Salt Pay"
     }
 
     var defaultCurve: EllipticCurve? {
