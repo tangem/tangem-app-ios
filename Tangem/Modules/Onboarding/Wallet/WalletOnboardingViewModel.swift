@@ -17,6 +17,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
 
     @Published var thirdCardSettings: AnimatedViewSettings = .zero
     @Published var canDisplayCardImage: Bool = false
+    @Published var pinText: String = ""
 
     private var stackCalculator: StackCalculator = .init()
     private var fanStackCalculator: FanStackCalculator = .init()
@@ -122,7 +123,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     var mainButtonColor: ButtonColorStyle {
         switch currentStep {
         case .selectBackupCards: return .grayAlt
-        default: return .green
+        default: return .black
         }
     }
 
@@ -137,6 +138,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     var isMainButtonEnabled: Bool {
         switch currentStep {
         case .selectBackupCards: return canAddBackupCards
+        case .enterPin: return !pinText.isEmpty
         default: return true
         }
     }
@@ -192,6 +194,31 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         default: return false
         }
     }
+
+    var isCustomContentVisible: Bool {
+        switch currentStep {
+        case .enterPin, .registerWallet, .kycStart, .kycProgress, .kycWaiting:
+            return true
+        default: return false
+        }
+    }
+
+    var isButtonsVisible: Bool {
+        switch currentStep {
+        case .kycProgress: return false
+        default: return true
+        }
+    }
+
+    lazy var kycModel: WebViewContainerViewModel = {
+        .init(url: URL(string: "https://tangem.com")!,
+              title: "",
+              addLoadingIndicator: false,
+              withCloseButton: false,
+              urlActions: ["https://tangem.com/kycdone": { [weak self] _ in
+                  self?.mainButtonAction()
+              }])
+    }()
 
     private var primaryCardStackIndex: Int {
         switch backupServiceState {
@@ -315,6 +342,18 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             backupCard()
         case .success:
             goToNextStep()
+        case .enterPin:
+            // [REDACTED_TODO_COMMENT]
+            goToNextStep()
+        case .registerWallet:
+            // [REDACTED_TODO_COMMENT]
+            break
+        case .kycStart:
+            goToNextStep()
+        case .kycProgress:
+            goToNextStep()
+        case .kycWaiting:
+            goToNextStep() // [REDACTED_TODO_COMMENT]
         }
     }
 
