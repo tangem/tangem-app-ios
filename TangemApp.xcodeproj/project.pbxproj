@@ -474,6 +474,10 @@
 		DC3B49F42893E50700C207EA /* UserWallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3B49F32893E50700C207EA /* UserWallet.swift */; };
 		DC3B49F62893E51B00C207EA /* UserWalletConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3B49F52893E51B00C207EA /* UserWalletConfig.swift */; };
 		DC3B49FA2893EEA600C207EA /* UserWalletConfigFeatures.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3B49F92893EEA600C207EA /* UserWalletConfigFeatures.swift */; };
+		DC3F54A928EB1D4500BC9A6D /* EnterPinView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3F54A828EB1D4500BC9A6D /* EnterPinView.swift */; };
+		DC3F54AB28EB1D6700BC9A6D /* RegisterWalletView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3F54AA28EB1D6700BC9A6D /* RegisterWalletView.swift */; };
+		DC3F54AD28EB1D7C00BC9A6D /* StartKYCView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3F54AC28EB1D7C00BC9A6D /* StartKYCView.swift */; };
+		DC3F54B128EB3D5D00BC9A6D /* KYCWaitingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3F54B028EB3D5D00BC9A6D /* KYCWaitingView.swift */; };
 		DC51185C2860925A004FB954 /* WalletConnectRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC51185B2860925A004FB954 /* WalletConnectRoutable.swift */; };
 		DC51185F28609F67004FB954 /* CardOperationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC51185E28609F67004FB954 /* CardOperationViewModel.swift */; };
 		DC51186128609F71004FB954 /* CardOperationRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC51186028609F71004FB954 /* CardOperationRoutable.swift */; };
@@ -1129,6 +1133,10 @@
 		DC3B49F32893E50700C207EA /* UserWallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWallet.swift; sourceTree = "<group>"; };
 		DC3B49F52893E51B00C207EA /* UserWalletConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletConfig.swift; sourceTree = "<group>"; };
 		DC3B49F92893EEA600C207EA /* UserWalletConfigFeatures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserWalletConfigFeatures.swift; sourceTree = "<group>"; };
+		DC3F54A828EB1D4500BC9A6D /* EnterPinView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnterPinView.swift; sourceTree = "<group>"; };
+		DC3F54AA28EB1D6700BC9A6D /* RegisterWalletView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegisterWalletView.swift; sourceTree = "<group>"; };
+		DC3F54AC28EB1D7C00BC9A6D /* StartKYCView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartKYCView.swift; sourceTree = "<group>"; };
+		DC3F54B028EB3D5D00BC9A6D /* KYCWaitingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KYCWaitingView.swift; sourceTree = "<group>"; };
 		DC51185B2860925A004FB954 /* WalletConnectRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectRoutable.swift; sourceTree = "<group>"; };
 		DC51185E28609F67004FB954 /* CardOperationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardOperationViewModel.swift; sourceTree = "<group>"; };
 		DC51186028609F71004FB954 /* CardOperationRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardOperationRoutable.swift; sourceTree = "<group>"; };
@@ -2288,6 +2296,7 @@
 		B0E1565026B97F81005B33E4 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				DC3F54A528EB1D1300BC9A6D /* Visa */,
 				B029C1DA270229350017C848 /* AccessCode */,
 				B0B8670426DF60DC008DAA67 /* Animators */,
 				B0C6B4C426CE686500FA990B /* ProgressBar */,
@@ -2673,6 +2682,17 @@
 				DC858A3828AA48B000D58EE7 /* CardEmailDataFactory.swift */,
 			);
 			path = UserWallet;
+			sourceTree = "<group>";
+		};
+		DC3F54A528EB1D1300BC9A6D /* Visa */ = {
+			isa = PBXGroup;
+			children = (
+				DC3F54A828EB1D4500BC9A6D /* EnterPinView.swift */,
+				DC3F54AA28EB1D6700BC9A6D /* RegisterWalletView.swift */,
+				DC3F54AC28EB1D7C00BC9A6D /* StartKYCView.swift */,
+				DC3F54B028EB3D5D00BC9A6D /* KYCWaitingView.swift */,
+			);
+			path = Visa;
 			sourceTree = "<group>";
 		};
 		DC51185D28609CA5004FB954 /* CardOperation */ = {
@@ -3404,6 +3424,7 @@
 				DC295B422861C444006CB7B6 /* TokenDetailsCoordinatorView.swift in Sources */,
 				5DD966F925499E8B006070F3 /* WebView.swift in Sources */,
 				B0BA7BC526C4F96B00D7066F /* NonDismissableModalView.swift in Sources */,
+				DC3F54AB28EB1D6700BC9A6D /* RegisterWalletView.swift in Sources */,
 				DC0A582928252FEB0031BECC /* TokenItemsRepository.swift in Sources */,
 				DAC53CFC27BE63830027147D /* AweStoryPage.swift in Sources */,
 				B09BB861259A075600B92000 /* NavigationBar.swift in Sources */,
@@ -3447,6 +3468,7 @@
 				EF130EB628E1C6CB00D37EFC /* MultiWalletContentViewModel.swift in Sources */,
 				B069F3772631B24F00ACFD19 /* WebImage.swift in Sources */,
 				EF9F6F3D28D486B200D6B190 /* Publishers+CombineLatestMany.swift in Sources */,
+				DC3F54AD28EB1D7C00BC9A6D /* StartKYCView.swift in Sources */,
 				B051A1B0262192A300809FD2 /* WalletConnectModels.swift in Sources */,
 				5DFB499C24E6BAF10037E76F /* MessageView.swift in Sources */,
 				DC912D1A28E73C7500D76628 /* SaltPayRegistrator.swift in Sources */,
@@ -3593,6 +3615,7 @@
 				DC0A584A282C07A20031BECC /* WalletConnectServiceProviding.swift in Sources */,
 				5D4B8BB927EDB327002CE87C /* ArrowView.swift in Sources */,
 				B06997D02692EC5E0014A676 /* ExchangeService.swift in Sources */,
+				DC3F54B128EB3D5D00BC9A6D /* KYCWaitingView.swift in Sources */,
 				EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */,
 				EF130EBC28E1D34500D37EFC /* MultiWalletContentView.swift in Sources */,
 				EF0F99B6289125C7008B01DF /* DefaultWarningRow.swift in Sources */,
@@ -3734,6 +3757,7 @@
 				5D51036F27C535D10025EA55 /* ABIValue.swift in Sources */,
 				EF0F99E3289177C6008B01DF /* InfoDictionaryUtils.swift in Sources */,
 				DC66BC0C285B75BF00CDF765 /* PushTxCoordinator.swift in Sources */,
+				DC3F54A928EB1D4500BC9A6D /* EnterPinView.swift in Sources */,
 				B0E1564D26B941AF005B33E4 /* SingleCardOnboardingViewModel.swift in Sources */,
 				B09BB85F259A075600B92000 /* TangemButton.swift in Sources */,
 				DA2D04D327BB9B07006F1E69 /* ShopOrderProgressView.swift in Sources */,
