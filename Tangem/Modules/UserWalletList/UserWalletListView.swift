@@ -69,8 +69,6 @@ extension UserWalletListView {
                 sections()
             }
             .listStyle(.insetGrouped)
-            .background(Colors.Background.primary)
-            .cornerRadius(14)
         } else {
             // Using ScrollView because we can't hide default separators in List on prior OS versions.
             // And since we don't use List we can't use onDelete for the swipe action either.
@@ -96,7 +94,7 @@ extension UserWalletListView {
     @ViewBuilder
     private func section(_ headerName: String, for viewModels: [UserWalletListCellViewModel]) -> some View {
         if !viewModels.isEmpty {
-            header(name: headerName)
+            sectionHeader(name: headerName)
 
             ForEach(viewModels, id: \.userWalletId) { viewModel in
                 cell(for: viewModel)
@@ -111,18 +109,18 @@ extension UserWalletListView {
     // MARK: - Headers
 
     @ViewBuilder
-    private func header(name: String) -> some View {
+    private func sectionHeader(name: String) -> some View {
         if #available(iOS 15, *) {
-            headerInternal(name: name)
+            sectionHeaderInternal(name: name)
                 .listRowSeparator(.hidden)
                 .listRowInsets(EdgeInsets())
         } else {
-            headerInternal(name: name)
+            sectionHeaderInternal(name: name)
         }
     }
 
     @ViewBuilder
-    private func headerInternal(name: String) -> some View {
+    private func sectionHeaderInternal(name: String) -> some View {
         UserWalletListHeaderView(name: name)
     }
 
@@ -140,8 +138,7 @@ extension UserWalletListView {
                     }
                     .tint(.red)
 
-                    #warning("l10n")
-                    Button("Rename") {
+                    Button("user_wallet_list_rename") {
                         self.viewModel.editUserWallet(viewModel)
                     }
                     .tint(Colors.Icon.informative)
@@ -160,8 +157,7 @@ extension UserWalletListView {
                     self.viewModel.editUserWallet(viewModel)
                 } label: {
                     HStack {
-                        #warning("l10n")
-                        Text("Rename")
+                        Text("user_wallet_list_rename")
                         Image(systemName: "pencil")
                     }
                 }
