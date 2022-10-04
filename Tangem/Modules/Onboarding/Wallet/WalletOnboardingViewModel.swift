@@ -14,6 +14,7 @@ import BlockchainSdk
 class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, ObservableObject {
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
+    @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
 
     @Published var thirdCardSettings: AnimatedViewSettings = .zero
     @Published var canDisplayCardImage: Bool = false
@@ -219,7 +220,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
               title: "",
               addLoadingIndicator: false,
               withCloseButton: false,
-              urlActions: ["https://tangem.com/kycdone": { [weak self] _ in
+              urlActions: ["https://success.tangem.com": { [weak self] _ in
                   self?.mainButtonAction()
               }])
     }()
@@ -284,6 +285,42 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                 self.loadImageForRestoredbackup(cardId: cardId, cardPublicKey: Data())
             }
         }
+
+        bindSaltPayIfNeeded()
+    }
+
+    private func bindSaltPayIfNeeded() {
+        guard  let saltPayRegistrator = saltPayRegistratorProvider.registrator else { return }
+
+        saltPayRegistrator
+            .$error
+            .dropFirst()
+            .weakAssign(to: \.alert, on: self)
+            .store(in: &bag)
+
+        saltPayRegistrator
+            .$isBusy
+            .dropFirst()
+            .weakAssign(to: \.isMainButtonBusy, on: self)
+            .store(in: &bag)
+
+        saltPayRegistrator
+            .$state
+            .dropFirst()
+            .sink(receiveValue: { [weak self] newState in
+                switch newState {
+                case .kyc:
+                    if self?.currentStep == .kycWaiting {
+                        break
+                    }
+                    self?.goToNextStep()
+                case .finished:
+                    self?.goToNextStep()
+                default:
+                    break
+                }
+            })
+            .store(in: &bag)
     }
 
     private func loadImageForRestoredbackup(cardId: String, cardPublicKey: Data) {
@@ -347,17 +384,17 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         case .success:
             goToNextStep()
         case .enterPin:
-            // [REDACTED_TODO_COMMENT]
+            saltPayRegistratorProvider.registrator?.setPin(pinText)
             goToNextStep()
         case .registerWallet:
-            // [REDACTED_TODO_COMMENT]
-            break
+            saltPayRegistratorProvider.registrator?.register()
         case .kycStart:
             goToNextStep()
         case .kycProgress:
             goToNextStep()
+            saltPayRegistratorProvider.registrator?.update()
         case .kycWaiting:
-            goToNextStep() // [REDACTED_TODO_COMMENT]
+            saltPayRegistratorProvider.registrator?.update()
         }
     }
 
