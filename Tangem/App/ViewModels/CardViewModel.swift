@@ -263,6 +263,7 @@ class CardViewModel: Identifiable, ObservableObject {
                     self.cardPinSettings.isPin1Default = false
                     self.cardPinSettings.isPin2Default = true
                     self.updateCurrentSecurityOption()
+                    Analytics.log(.userCodeChanged)
                     completion(.success(()))
                 case .failure(let error):
                     Analytics.logCardSdkError(error, for: .changeSecOptions, card: self.cardInfo.card, parameters: [.newSecOption: "Access Code"])
@@ -332,7 +333,7 @@ class CardViewModel: Identifiable, ObservableObject {
                                                        body: "initial_message_purge_wallet_body".localized)) { [weak self] result in
             switch result {
             case .success:
-                Analytics.log(.factoryResetSuccess)
+                Analytics.log(.factoryResetFinished)
                 self?.clearTwinPairKey()
                 completion(.success(()))
             case .failure(let error):

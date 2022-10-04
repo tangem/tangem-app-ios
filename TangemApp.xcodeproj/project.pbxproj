@@ -2798,7 +2798,6 @@
 			children = (
 				EF130EB828E1D32400D37EFC /* SingleWalletContentView */,
 				EF130EB728E1C6EF00D37EFC /* MultiWalletContentView */,
-				EF105A9328A3E59F000BFD71 /* TokenList */,
 				DC295B5C2862E6DE006CB7B6 /* BackUpWarningView.swift */,
 				DC295B3B2861C19C006CB7B6 /* MainCoordinator.swift */,
 				DC295B3D2861C1AD006CB7B6 /* MainCoordinatorView.swift */,
@@ -2884,13 +2883,6 @@
 				EF08A0EE283D1914008BD923 /* Moya+.swift */,
 			);
 			path = Extensions;
-			sourceTree = "<group>";
-		};
-		EF105A9328A3E59F000BFD71 /* TokenList */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = TokenList;
 			sourceTree = "<group>";
 		};
 		EF130EB728E1C6EF00D37EFC /* MultiWalletContentView */ = {
