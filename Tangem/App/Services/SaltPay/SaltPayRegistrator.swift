@@ -14,7 +14,7 @@ import Combine
 
 class SaltPayRegistrator {
     @Published public private(set) var state: State = .needPin
-    @Published public private(set) var error: Error? = nil
+    @Published public private(set) var error: AlertBinder? = nil
     @Published public private(set) var isBusy: Bool = false
 
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
@@ -26,20 +26,20 @@ class SaltPayRegistrator {
     private var bag: Set<AnyCancellable> = .init()
     private var pin: String? = nil
     private var registrationTask: RegistrationTask? = nil
-    private var accessCode: String? = nil
+    private var accessCode: Data? = nil
 
     private let approvalValue: Decimal = 1 // [REDACTED_TODO_COMMENT]
     private let spendLimitValue: Decimal = 1 // [REDACTED_TODO_COMMENT]
 
-    init(cardId: String,
-         walletPublicKey: Data,
-         gnosis: GnosisRegistrator,
-         accessCode: String?) {
+    init(cardId: String, walletPublicKey: Data, gnosis: GnosisRegistrator) {
         self.gnosis = gnosis
-        self.accessCode = accessCode
         self.cardId = cardId
         updateState()
         update()
+    }
+
+    func setAccessCode(_ accessCode: Data) {
+        self.accessCode = accessCode
     }
 
     func setPin(_ pin: String) {
@@ -95,7 +95,7 @@ class SaltPayRegistrator {
             }
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
-                    self?.error = error
+                    self?.error = error.alertBinder
                 }
 
                 self?.isBusy = false
@@ -112,7 +112,7 @@ class SaltPayRegistrator {
         if repo.data.kycFinished {
             newState = .finished
         } else if repo.data.transactionsSended {
-            newState = .kycStart
+            newState = .kyc
         } else if self.pin != nil {
             newState = .registration
         }
@@ -123,7 +123,7 @@ class SaltPayRegistrator {
             } else if !response.registration {
                 newState = .registration
             } else if response.kyc == .none {
-                newState = .kycStart
+                newState = .kyc
             } else if response.kyc == .waiting {
                 newState = .kycWaiting
             } else {
@@ -140,7 +140,7 @@ class SaltPayRegistrator {
         gnosis.checkHasGas()
             .sink(receiveCompletion: { [weak self] completion in
                 if case let .failure(error) = completion {
-                    self?.error = error
+                    self?.error = error.alertBinder
                 }
             }, receiveValue: { [weak self] hasGas in
                 if hasGas {
@@ -156,7 +156,7 @@ class SaltPayRegistrator {
         api.checkRegistration()
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
-                    self?.error = error
+                    self?.error = error.alertBinder
                 }
             } receiveValue: { [weak self] response in
                 guard let self = self else { return }
@@ -178,7 +178,7 @@ extension SaltPayRegistrator {
 
         case registration
 
-        case kycStart
+        case kyc
         case kycWaiting
         case finished
     }
