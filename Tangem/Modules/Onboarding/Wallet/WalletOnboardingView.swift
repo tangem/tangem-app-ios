@@ -42,7 +42,8 @@ struct WalletOnboardingView: View {
     var customContent: some View {
         switch viewModel.currentStep {
         case .enterPin:
-            EnterPinView(text: $viewModel.pinText)
+            EnterPinView(text: $viewModel.pinText,
+                         maxDigits: WalletOnboardingViewModel.Constants.pinLength)
         case .registerWallet:
             RegisterWalletView()
         case .kycStart:
@@ -142,11 +143,11 @@ struct WalletOnboardingView: View {
                         }
                     }
                     .position(x: size.width / 2, y: size.height / 2)
-                    //                    .overlay(Color.red.opacity(0.3))
                 }
                 .readSize { size in
                     viewModel.setupContainer(with: size)
                 }
+                .layoutPriority(1)
 
                 if viewModel.isButtonsVisible {
                     OnboardingTextButtonView(
@@ -155,7 +156,6 @@ struct WalletOnboardingView: View {
                         textOffset: currentStep.messagesOffset,
                         buttonsSettings: .init(main: viewModel.mainButtonSettings,
                                                supplement: viewModel.supplementButtonSettings)
-
                     ) {
                         viewModel.closeOnboarding()
                     }
