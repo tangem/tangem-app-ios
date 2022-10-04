@@ -26,10 +26,12 @@ class PreparePrimaryCardTask: CardSessionRunnable {
         let config = GenericConfig(card: card)
         let blockchainNetworks = config.defaultBlockchains.map { $0.blockchainNetwork }
 
-        let derivations: [EllipticCurve: [DerivationPath]] = blockchainNetworks.reduce(into: [:]) { partialResult, blockchainNetwork in
-            if let wallet = session.environment.card?.wallets.first(where: { $0.curve == blockchainNetwork.blockchain.curve }),
-               let path = blockchainNetwork.derivationPath {
-                partialResult[wallet.curve, default: []].append(path)
+        let derivations: [EllipticCurve: [DerivationPath]] = blockchainNetworks.reduce(into: [:]) { result, network in
+            if let wallet = card.wallets.first(where: { $0.curve == network.blockchain.curve }),
+               let path = network.derivationPath {
+                result[wallet.curve, default: []].append(path)
+            } else if let path = network.derivationPath {
+                result[network.blockchain.curve, default: []].append(path)
             }
         }
 
