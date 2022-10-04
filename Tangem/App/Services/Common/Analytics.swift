@@ -533,6 +533,8 @@ extension Analytics {
         case type
         case currency = "Currency Type"
         case success
+        case token = "Token"
+        case mode = "Mode"
     }
 
     enum ParameterValue: String {
