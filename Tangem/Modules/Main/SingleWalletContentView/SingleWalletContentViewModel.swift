@@ -67,6 +67,7 @@ class SingleWalletContentViewModel: ObservableObject {
         let qrNotice = walletModel.getQRReceiveMessage()
 
         output.openQR(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
+        Analytics.log(.buttonShowTheWalletAddress)
     }
 
     func showExplorerURL(url: URL?) {
@@ -76,7 +77,7 @@ class SingleWalletContentViewModel: ObservableObject {
     }
 
     func copyAddress() {
-        Analytics.log(.copyAddressTapped)
+        Analytics.log(.buttonCopyAddress)
         if let walletModel = singleWalletModel {
             UIPasteboard.general.string = walletModel.displayAddress(for: selectedAddressIndex)
         }
