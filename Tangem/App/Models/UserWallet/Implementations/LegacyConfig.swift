@@ -61,7 +61,7 @@ extension LegacyConfig: UserWalletConfig {
 
     #warning("l10n")
     var cardName: String {
-        "TODO"
+        "Tangem Card"
     }
 
     var defaultCurve: EllipticCurve? {
