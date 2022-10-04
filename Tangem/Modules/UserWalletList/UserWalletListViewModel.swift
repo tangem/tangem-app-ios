@@ -17,6 +17,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     @Published var isScanningCard = false
     @Published var error: AlertBinder?
     @Published var showTroubleshootingView: Bool = false
+    @Published var showingDeleteConfirmation: Bool = false
 
     // MARK: - Dependencies
 
@@ -44,6 +45,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     private unowned let coordinator: UserWalletListRoutable
     private var bag: Set<AnyCancellable> = []
     private var initialized = false
+    private var userWalletIdToBeDeleted: Data?
 
     init(
         coordinator: UserWalletListRoutable
@@ -132,8 +134,22 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         UIApplication.modalFromTop(alert)
     }
 
-    func deleteUserWallet(_ viewModel: UserWalletListCellViewModel) {
+    func showDeletionConfirmation(_ viewModel: UserWalletListCellViewModel) {
+        showingDeleteConfirmation = true
+        userWalletIdToBeDeleted = viewModel.userWalletId
+    }
+
+    func didCancelWalletDeletion() {
+        userWalletIdToBeDeleted = nil
+    }
+
+    func didConfirmWalletDeletion() {
         let models = userWalletListService.models
+
+        let viewModels = (multiCurrencyModels + singleCurrencyModels)
+        guard let viewModel = viewModels.first(where: { $0.userWalletId == userWalletIdToBeDeleted }) else {
+            return
+        }
 
         let newSelectedUserWallet: UserWallet?
 
@@ -150,8 +166,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         } else {
             newSelectedUserWallet = nil
         }
-
-        let oldModelSections = [multiCurrencyModels, singleCurrencyModels]
 
         userWalletListService.delete(viewModel.userWallet)
         multiCurrencyModels.removeAll { $0.userWalletId == viewModel.userWalletId }
