@@ -75,6 +75,7 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openBuyCrypto(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
+        Analytics.log(.topUpScreenOpened)
         pushedWebViewModel = WebViewContainerViewModel(url: url,
                                                        title: "wallet_button_topup".localized,
                                                        addLoadingIndicator: true,
@@ -86,6 +87,7 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openSellCrypto(at url: URL, sellRequestUrl: String, action: @escaping (String) -> Void) {
+        Analytics.log(.withdrawScreenOpened)
         pushedWebViewModel = WebViewContainerViewModel(url: url,
                                                        title: "wallet_button_sell_crypto".localized,
                                                        addLoadingIndicator: true,
