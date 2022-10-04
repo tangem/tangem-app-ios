@@ -26,6 +26,8 @@ struct CardImageProvider {
     }
 }
 
+// MARK: - CardImageProviding
+
 extension CardImageProvider: CardImageProviding {
     func loadImage(cardId: String, cardPublicKey: Data) -> AnyPublisher<UIImage, Never> {
         guard supportsOnlineImage else {
@@ -34,6 +36,7 @@ extension CardImageProvider: CardImageProviding {
 
         return loadImage(cardId: cardId, cardPublicKey: cardPublicKey, cardArtwork: CardImageProvider.cardArtworkCache[cardId] ?? .notLoaded)
             .replaceError(with: defaultImage)
+            .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
 
@@ -44,9 +47,12 @@ extension CardImageProvider: CardImageProviding {
 
         return loadTwinImage(number: number)
             .replaceError(with: defaultImage)
+            .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
 }
+
+// MARK: - Private
 
 private extension CardImageProvider {
     func loadImage(cardId: String, cardPublicKey: Data, cardArtwork: CardArtwork) -> AnyPublisher<UIImage, Error> {
@@ -105,7 +111,6 @@ private extension CardImageProvider {
             .handleEvents(receiveOutput: { image in
                 cacheImage(image, for: cardId)
             })
-            .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
 
@@ -120,7 +125,6 @@ private extension CardImageProvider {
             .handleEvents(receiveOutput: { image in
                 cacheImage(image, for: cacheKey)
             })
-            .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
 
