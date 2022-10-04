@@ -105,6 +105,7 @@ class WelcomeViewModel: ObservableObject {
     }
 
     private func processScannedCard(_ cardModel: CardViewModel, isWithAnimation: Bool) {
+        // [REDACTED_TODO_COMMENT]
         let input = cardModel.onboardingInput
         self.isScanningCard = false
 
