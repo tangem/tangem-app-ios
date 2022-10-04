@@ -29,6 +29,8 @@ class OnboardingViewModel<Step: OnboardingStep> {
     var bag: Set<AnyCancellable> = []
 
     var currentStep: Step {
+        return WalletOnboardingStep.kycStart as! Step
+
         if currentStepIndex >= steps.count {
             return Step.initialStep
         }
@@ -68,7 +70,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
             isBusy: isMainButtonBusy,
             isEnabled: true,
             isVisible: true,
-            color: .green
+            color: .black
         )
     }
 
