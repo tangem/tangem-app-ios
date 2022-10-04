@@ -27,10 +27,7 @@ class PreparePrimaryCardTask: CardSessionRunnable {
         let blockchainNetworks = config.defaultBlockchains.map { $0.blockchainNetwork }
 
         let derivations: [EllipticCurve: [DerivationPath]] = blockchainNetworks.reduce(into: [:]) { result, network in
-            if let wallet = card.wallets.first(where: { $0.curve == network.blockchain.curve }),
-               let path = network.derivationPath {
-                result[wallet.curve, default: []].append(path)
-            } else if let path = network.derivationPath {
+            if let path = network.derivationPath {
                 result[network.blockchain.curve, default: []].append(path)
             }
         }
