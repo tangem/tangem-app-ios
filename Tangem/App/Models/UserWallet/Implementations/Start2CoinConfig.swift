@@ -92,7 +92,7 @@ extension Start2CoinConfig: UserWalletConfig {
 
     #warning("l10n")
     var cardName: String {
-        "TODO"
+        "Start2Coin"
     }
 
     var defaultCurve: EllipticCurve? {
