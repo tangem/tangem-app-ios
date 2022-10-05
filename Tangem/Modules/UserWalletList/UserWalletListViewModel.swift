@@ -61,21 +61,31 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
             for model in (multiCurrencyModels + singleCurrencyModels) {
                 model.updateTotalBalance()
-                model.loadImage()
             }
         }
     }
 
     func updateModels() {
+        let oldModels = multiCurrencyModels + singleCurrencyModels
+        let totalBalanceProviders = Dictionary(oldModels.map {
+            ($0.userWalletId, $0.totalBalanceProvider)
+        }, uniquingKeysWith: { v1, _ in
+            v1
+        })
+
         multiCurrencyModels = userWalletListService.models
             .filter { $0.isMultiWallet }
             .compactMap { $0.userWalletModel }
-            .map(mapToUserWalletListCellViewModel(userWalletModel:))
+            .map {
+                mapToUserWalletListCellViewModel(userWalletModel: $0, totalBalanceProvider: totalBalanceProviders[$0.userWallet.userWalletId])
+            }
 
         singleCurrencyModels = userWalletListService.models
             .filter { !$0.isMultiWallet }
             .compactMap { $0.userWalletModel }
-            .map(mapToUserWalletListCellViewModel(userWalletModel:))
+            .map {
+                mapToUserWalletListCellViewModel(userWalletModel: $0, totalBalanceProvider: totalBalanceProviders[$0.userWallet.userWalletId])
+            }
     }
 
     func unlockAllWallets() {
@@ -228,7 +238,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         if userWalletListService.save(userWallet) {
             let newModel = CardViewModel(userWallet: userWallet)
 
-            if let cellModel = newModel.userWalletModel.map(mapToUserWalletListCellViewModel(userWalletModel:)) {
+            if let cellModel = newModel.userWalletModel.map({ mapToUserWalletListCellViewModel(userWalletModel: $0) }) {
                 if newModel.isMultiWallet {
                     multiCurrencyModels.append(cellModel)
                 } else {
@@ -312,7 +322,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         return String.localizedStringWithFormat("token_count".localized, numberOfTokens)
     }
 
-    private func mapToUserWalletListCellViewModel(userWalletModel: UserWalletModel) -> UserWalletListCellViewModel {
+    private func mapToUserWalletListCellViewModel(userWalletModel: UserWalletModel, totalBalanceProvider: TotalBalanceProviding? = nil) -> UserWalletListCellViewModel {
         let userWallet = userWalletModel.userWallet
         let config = UserWalletConfigFactory(userWallet.cardInfo()).makeConfig()
         let subtitle: String = {
@@ -329,7 +339,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             numberOfTokens: getNumberOfTokens(for: userWallet),
             isUserWalletLocked: userWallet.isLocked,
             isSelected: selectedUserWalletId == userWallet.userWalletId,
-            totalBalanceProvider: TotalBalanceProvider(userWalletModel: userWalletModel),
+            totalBalanceProvider: totalBalanceProvider ?? TotalBalanceProvider(userWalletModel: userWalletModel),
             cardImageProvider: CardImageProvider()
         ) { [weak self] in
             self?.setSelectedWallet(userWallet)
