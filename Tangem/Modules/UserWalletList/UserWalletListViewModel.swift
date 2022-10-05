@@ -80,7 +80,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
     func unlockAllWallets() {
         userWalletListService.unlockWithBiometry { [weak self] result in
-            #warning("[REDACTED_TODO_COMMENT]")
+            guard case .success = result else { return }
             self?.updateModels()
         }
     }
