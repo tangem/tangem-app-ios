@@ -139,7 +139,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     var isMainButtonEnabled: Bool {
         switch currentStep {
         case .selectBackupCards: return canAddBackupCards
-        case .enterPin: return pinText.count == Constants.pinLength
+        case .enterPin: return pinText.count == SaltPayRegistrator.Constants.pinLength
         default: return true
         }
     }
@@ -215,14 +215,15 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         }
     }
 
+    //[REDACTED_TODO_COMMENT]
     lazy var kycModel: WebViewContainerViewModel = {
-        .init(url: URL(string: "https://tangem.com")!,
+        .init(url: URL(string: "https://app-stage.utorg.pro/account/login?externalId=\(input.cardInput.cardModel!.userWalletId)&sid=tangemTEST")!,
               title: "",
               addLoadingIndicator: false,
               withCloseButton: false,
               urlActions: ["https://success.tangem.com": { [weak self] _ in
-                  self?.mainButtonAction()
-              }])
+            self?.mainButtonAction()
+        }])
     }()
 
     private var primaryCardStackIndex: Int {
@@ -314,6 +315,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                         break
                     }
                     self?.goToNextStep()
+                case .registration:
+                    self?.goToNextStep()
                 case .finished:
                     self?.goToNextStep()
                 default:
@@ -385,7 +388,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             goToNextStep()
         case .enterPin:
             saltPayRegistratorProvider.registrator?.setPin(pinText)
-            goToNextStep()
         case .registerWallet:
             saltPayRegistratorProvider.registrator?.register()
         case .kycStart:
@@ -719,11 +721,5 @@ extension NotificationCenter {
         NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)
             .setFailureType(to: Error.self)
             .eraseToAnyPublisher()
-    }
-}
-
-extension WalletOnboardingViewModel {
-    enum Constants {
-        static let pinLength: Int = 4
     }
 }
