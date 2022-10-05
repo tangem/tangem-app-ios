@@ -20,6 +20,10 @@ struct UserWalletConfigFactory {
 
         switch cardInfo.walletData {
         case .none:
+            if cardInfo.card.firmwareVersion <= .backupAvailable {
+                return LegacyConfig(card: cardInfo.card, walletData: nil)
+            }
+
             if isDemo {
                 return GenericDemoConfig(card: cardInfo.card)
             } else {
