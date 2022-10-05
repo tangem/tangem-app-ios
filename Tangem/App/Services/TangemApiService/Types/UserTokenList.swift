@@ -14,42 +14,23 @@ struct UserTokenList: Codable {
     let tokens: [Token]
     
     private let version: Int
-    private let group: GroupType
-    private let sort: SortType
+    private let group: String?
+    private let sort: String?
 
     init(
         tokens: [UserTokenList.Token],
         version: Int = 0,
-        group: UserTokenList.GroupType = .none,
-        sort: UserTokenList.SortType = .manual
+        group: String = GroupType.none.rawValue,
+        sort: String = SortType.manual.rawValue
     ) {
         self.tokens = tokens
         self.version = version
         self.group = group
         self.sort = sort
     }
-
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        version = try container.decode(Int.self, forKey: .version)
-        tokens = try container.decode([Token].self, forKey: .tokens)
-
-        let groupKey = try container.decodeIfPresent(String.self, forKey: .group) ?? ""
-        group = GroupType(rawValue: groupKey) ?? .none
-
-        let sortKey = try container.decodeIfPresent(String.self, forKey: .sort) ?? ""
-        sort = SortType(rawValue: sortKey) ?? .manual
-    }
 }
 
 extension UserTokenList {
-    enum CodingKeys: CodingKey {
-        case version
-        case group
-        case sort
-        case tokens
-    }
-
     struct Token: Codable {
         let id: String?
         let networkId: String
@@ -62,13 +43,9 @@ extension UserTokenList {
 
     enum GroupType: String, Codable {
         case none
-        case network
-        case token
     }
 
     enum SortType: String, Codable {
-        case balance
         case manual
-        case marketCap = "marketcap"
     }
 }
