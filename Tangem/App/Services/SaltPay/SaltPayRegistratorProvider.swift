@@ -20,6 +20,7 @@ class SaltPayRegistratorProvider: SaltPayRegistratorProviding {
                                            factory: wmFactory)
 
         let registrator = SaltPayRegistrator(cardId: cardId,
+                                             cardPublicKey: cardPublicKey,
                                              walletPublicKey: walletPublicKey,
                                              gnosis: gnosis)
 
