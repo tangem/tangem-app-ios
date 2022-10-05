@@ -43,7 +43,7 @@ struct WalletOnboardingView: View {
         switch viewModel.currentStep {
         case .enterPin:
             EnterPinView(text: $viewModel.pinText,
-                         maxDigits: WalletOnboardingViewModel.Constants.pinLength)
+                         maxDigits: SaltPayRegistrator.Constants.pinLength)
         case .registerWallet:
             RegisterWalletView()
         case .kycStart:
