@@ -23,7 +23,7 @@ class UserWalletListCellViewModel: ObservableObject {
     var name: String { userWallet.name }
     var isUserWalletLocked: Bool { userWallet.isLocked }
 
-    private let totalBalanceProvider: TotalBalanceProviding
+    let totalBalanceProvider: TotalBalanceProviding
     private let cardImageProvider: CardImageProviding
 
     private var totalBalanceBag: AnyCancellable?
