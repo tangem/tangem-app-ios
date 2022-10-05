@@ -492,6 +492,10 @@
 		DC51187C2860B728004FB954 /* AppCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC51187B2860B728004FB954 /* AppCoordinatorView.swift */; };
 		DC56EF81289CE06A00C0940A /* DummyConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC56EF80289CE06A00C0940A /* DummyConfig.swift */; };
 		DC5DBBC9289B951600C21E35 /* DemoUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5DBBC8289B951600C21E35 /* DemoUtil.swift */; };
+		DC5E32C628EDC7FC00D6096A /* PaymentologyApiTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5E32C528EDC7FC00D6096A /* PaymentologyApiTarget.swift */; };
+		DC5E32C928EDCCFA00D6096A /* ReqisterWalletRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5E32C828EDCCFA00D6096A /* ReqisterWalletRequest.swift */; };
+		DC5E32CB28EDCFDA00D6096A /* PaymentologyApiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5E32CA28EDCFDA00D6096A /* PaymentologyApiService.swift */; };
+		DC5E32CD28EDD94300D6096A /* Responses.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5E32CC28EDD94300D6096A /* Responses.swift */; };
 		DC6244F428A0CA6300AD3EA8 /* SaltPayConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6244F328A0CA6300AD3EA8 /* SaltPayConfig.swift */; };
 		DC66BBE32858E7A600CDF765 /* WelcomeRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBE22858E7A600CDF765 /* WelcomeRoutable.swift */; };
 		DC66BBE52858EB6300CDF765 /* OnboardingCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBE42858EB6300CDF765 /* OnboardingCoordinator.swift */; };
@@ -1153,6 +1157,10 @@
 		DC51187B2860B728004FB954 /* AppCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppCoordinatorView.swift; sourceTree = "<group>"; };
 		DC56EF80289CE06A00C0940A /* DummyConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DummyConfig.swift; sourceTree = "<group>"; };
 		DC5DBBC8289B951600C21E35 /* DemoUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoUtil.swift; sourceTree = "<group>"; };
+		DC5E32C528EDC7FC00D6096A /* PaymentologyApiTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentologyApiTarget.swift; sourceTree = "<group>"; };
+		DC5E32C828EDCCFA00D6096A /* ReqisterWalletRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReqisterWalletRequest.swift; sourceTree = "<group>"; };
+		DC5E32CA28EDCFDA00D6096A /* PaymentologyApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentologyApiService.swift; sourceTree = "<group>"; };
+		DC5E32CC28EDD94300D6096A /* Responses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Responses.swift; sourceTree = "<group>"; };
 		DC6244F328A0CA6300AD3EA8 /* SaltPayConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaltPayConfig.swift; sourceTree = "<group>"; };
 		DC66BBE22858E7A600CDF765 /* WelcomeRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeRoutable.swift; sourceTree = "<group>"; };
 		DC66BBE42858EB6300CDF765 /* OnboardingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCoordinator.swift; sourceTree = "<group>"; };
@@ -2678,6 +2686,7 @@
 		DC194D2428EC6A4B007FBC99 /* SaltPay */ = {
 			isa = PBXGroup;
 			children = (
+				DC5E32C428EDC7D200D6096A /* PaymentologyApi */,
 				DC912D1928E73C7500D76628 /* SaltPayRegistrator.swift */,
 				DC194D2528EC6A76007FBC99 /* SaltPayRegistratorProvider.swift */,
 				DC194D2728EC6AA0007FBC99 /* SaltPayRegistratorProviding.swift */,
@@ -2729,6 +2738,25 @@
 				DC5118682860B3E1004FB954 /* PreviewCard.swift */,
 			);
 			path = Preview;
+			sourceTree = "<group>";
+		};
+		DC5E32C428EDC7D200D6096A /* PaymentologyApi */ = {
+			isa = PBXGroup;
+			children = (
+				DC5E32C728EDCCE600D6096A /* Entities */,
+				DC5E32C528EDC7FC00D6096A /* PaymentologyApiTarget.swift */,
+				DC5E32CA28EDCFDA00D6096A /* PaymentologyApiService.swift */,
+			);
+			path = PaymentologyApi;
+			sourceTree = "<group>";
+		};
+		DC5E32C728EDCCE600D6096A /* Entities */ = {
+			isa = PBXGroup;
+			children = (
+				DC5E32C828EDCCFA00D6096A /* ReqisterWalletRequest.swift */,
+				DC5E32CC28EDD94300D6096A /* Responses.swift */,
+			);
+			path = Entities;
 			sourceTree = "<group>";
 		};
 		DC66BBE12858DB1900CDF765 /* Welcome */ = {
@@ -3403,6 +3431,7 @@
 				5DDFC2042812B72C005976FE /* Currency.swift in Sources */,
 				5D09382825E7A2D80049B8F0 /* TokenDetailsView.swift in Sources */,
 				B0C4F77B26F0A05C0086D815 /* BlankCard.swift in Sources */,
+				DC5E32CB28EDCFDA00D6096A /* PaymentologyApiService.swift in Sources */,
 				DCE5C6702889964A000C7F67 /* AppStorageCompat.swift in Sources */,
 				DC22535728A4F5BF0094F30C /* GenericDemoConfig.swift in Sources */,
 				DC66BBE52858EB6300CDF765 /* OnboardingCoordinator.swift in Sources */,
@@ -3437,6 +3466,7 @@
 				5DD4CB4E24FAAB1A008F23CC /* KeyboardAdaptive.swift in Sources */,
 				DC66BBE72858EBE400CDF765 /* OnboardingCoordinatorView.swift in Sources */,
 				5DA5067D27A2FF57000A8901 /* URL+.swift in Sources */,
+				DC5E32C928EDCCFA00D6096A /* ReqisterWalletRequest.swift in Sources */,
 				EF3EC523289AB2DE0071BA7F /* TangemProvider.swift in Sources */,
 				5D96BD2827F60AC5000AA797 /* BlockchainNetwork.swift in Sources */,
 				B04FBC3A26CB98F000B397CE /* View+SizeReader.swift in Sources */,
@@ -3736,8 +3766,10 @@
 				65B4DEE22885719C001524CF /* BottomSheetWrappedView.swift in Sources */,
 				DA23788427B24222009795A8 /* Checkout.swift in Sources */,
 				DC56EF81289CE06A00C0940A /* DummyConfig.swift in Sources */,
+				DC5E32CD28EDD94300D6096A /* Responses.swift in Sources */,
 				DA23787F27B24222009795A8 /* CheckoutPayload.swift in Sources */,
 				65C9FCBA2869CC3E00FDE63E /* SupportChatViewModel.swift in Sources */,
+				DC5E32C628EDC7FC00D6096A /* PaymentologyApiTarget.swift in Sources */,
 				DA5FAD8A27B27F7F00EE53AE /* SheetDragHandler.swift in Sources */,
 				B0E1565226B97F8C005B33E4 /* OnboardingCardView.swift in Sources */,
 				EF4BEF8328ACF0E700C5D1BE /* UserTokenListManager.swift in Sources */,
