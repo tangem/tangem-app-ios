@@ -225,8 +225,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             return
         }
 
-        let oldModelSections = [multiCurrencyModels, singleCurrencyModels]
-
         if userWalletListService.save(userWallet) {
             let newModel = CardViewModel(userWallet: userWallet)
 
