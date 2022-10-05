@@ -48,6 +48,7 @@ class UserWalletListCellViewModel: ObservableObject {
         self.didTapUserWallet = didTapUserWallet
 
         bind()
+        loadImage()
     }
 
     func bind() {
@@ -62,7 +63,7 @@ class UserWalletListCellViewModel: ObservableObject {
         totalBalanceProvider.updateTotalBalance()
     }
 
-    func loadImage() {
+    private func loadImage() {
         cardImageBag = cardImageProvider.loadImage(cardId: userWallet.card.cardId, cardPublicKey: userWallet.card.cardPublicKey)
             .sink { [unowned self] image in
                 self.image = image
