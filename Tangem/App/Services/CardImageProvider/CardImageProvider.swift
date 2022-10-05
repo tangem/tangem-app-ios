@@ -21,6 +21,8 @@ struct CardImageProvider {
     private let defaultImage = UIImage(named: "dark_card")!
     private let cacheQueue = DispatchQueue(label: "card_image_cache_queue")
 
+    private let cardVerifier = OnlineCardVerifier()
+
     init(supportsOnlineImage: Bool = true) {
         self.supportsOnlineImage = supportsOnlineImage
     }
@@ -87,17 +89,17 @@ private extension CardImageProvider {
     }
 
     func loadArtworkInfo(cardId: String, cardPublicKey: Data) -> AnyPublisher<CardArtwork, Never> {
-        return Future { promise in
-            tangemSdkProvider.sdk.loadCardInfo(cardPublicKey: cardPublicKey, cardId: cardId) { result in
-                switch result {
-                case .success(let info):
-                    promise(.success(info.artwork.map { .artwork($0) } ?? .noArtwork))
-                case .failure:
-                    promise(.success(.noArtwork))
+        cardVerifier.getCardInfo(cardId: cardId, cardPublicKey: cardPublicKey)
+            .map { info in
+                if let artwork = info.artwork {
+                    return .artwork(artwork)
+                } else {
+                    return .noArtwork
                 }
             }
-        }
-        .eraseToAnyPublisher()
+            .replaceError(with: CardArtwork.noArtwork)
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
     }
 
     func loadImage(cardId: String, cardPublicKey: Data, artworkInfo: ArtworkInfo) -> AnyPublisher<UIImage, Error> {
