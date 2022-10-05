@@ -311,7 +311,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             return nil
         }
 
-        return "\(numberOfTokens) tokens"
+        return String.localizedStringWithFormat("token_count".localized, numberOfTokens)
     }
 
     private func mapToUserWalletListCellViewModel(userWalletModel: UserWalletModel) -> UserWalletListCellViewModel {
@@ -322,13 +322,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                 return embeddedBlockchain.blockchainNetwork.blockchain.displayName
             }
 
-            let count = config.cardsCount
-            switch count {
-            case 1:
-                return "\(count) Card"
-            default:
-                return "\(count) Cards"
-            }
+            return String.localizedStringWithFormat("card_label_card_count".localized, config.cardsCount)
         }()
 
         return UserWalletListCellViewModel(
