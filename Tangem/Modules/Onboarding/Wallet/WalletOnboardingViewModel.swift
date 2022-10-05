@@ -309,7 +309,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             .dropFirst()
             .sink(receiveValue: { [weak self] newState in
                 switch newState {
-                case .kyc:
+                case .kycStart:
                     if self?.currentStep == .kycWaiting {
                         break
                     }
