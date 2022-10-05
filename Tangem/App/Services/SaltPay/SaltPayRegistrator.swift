@@ -47,8 +47,12 @@ class SaltPayRegistrator {
     }
     
     func setPin(_ pin: String) {
-        self.pin = pin
-        updateState()
+        if checkPinValid(pin) {
+            self.pin = pin
+            updateState()
+        } else {
+            error = .init(title: "error_pin_weak_title", message: "error_pin_weak_message")
+        }
     }
     
     func update() {
@@ -111,7 +115,7 @@ class SaltPayRegistrator {
                 }
                 
                 guard let cardSalt = response.attestResponse.publicKeySalt,
-                let cardSignature = response.attestResponse.cardSignature else {
+                      let cardSignature = response.attestResponse.cardSignature else {
                     return .anyFail(error: SaltPayRegistratorError.emptyDynamicAttestResponse)
                 }
                 
@@ -181,6 +185,28 @@ class SaltPayRegistrator {
         api.checkRegistration(for: cardId, publicKey: cardPublicKey)
             .eraseToAnyPublisher()
     }
+    
+    private func checkPinValid(_ pin: String) -> Bool {
+        let array = Array(pin)
+        
+        if array.count < Constants.pinLength {
+            return false
+        }
+        
+        for char in array[1...] {
+            if array[0] != char {
+                return true
+            }
+        }
+        
+        return false
+    }
+}
+
+extension SaltPayRegistrator {
+    enum Constants {
+        static let pinLength: Int = 4
+    }
 }
 
 extension SaltPayRegistrator {
@@ -224,8 +250,6 @@ extension SaltPayRegistrator {
         }
     }
 }
-
-
 
 enum SaltPayRegistratorError: String, Error, LocalizedError {
     case failedToMakeTxData
