@@ -24,6 +24,10 @@ struct SaltPayConfig {
         self.card = card
         self.walletData = walletData
         backupServiceProvider.backupService.skipCompatibilityChecks = true
+        
+        if let wallet = card.wallets.first {
+            try? saltPayRegistratorProvider.initialize(cardId: card.cardId, walletPublicKey: wallet.publicKey, cardPublicKey: card.cardPublicKey)
+        }
     }
 
     private var defaultBlockchain: Blockchain {
@@ -31,8 +35,12 @@ struct SaltPayConfig {
     }
 
     private var _backupSteps: [WalletOnboardingStep] {
+        if let backupStatus = card.backupStatus, backupStatus.isActive {
+            return []
+        }
+        
         var steps: [WalletOnboardingStep] = .init()
-
+        
         steps.append(.backupIntro)
 
         if !card.wallets.isEmpty && !backupServiceProvider.backupService.primaryCardIsSet {
@@ -44,8 +52,27 @@ struct SaltPayConfig {
         }
 
         steps.append(.backupCards)
-        steps.append(.success)
 
+        return steps
+    }
+    
+    private var registrationSteps: [WalletOnboardingStep] {
+        guard let registrator = saltPayRegistratorProvider.registrator else { return [] }
+        
+        var steps: [WalletOnboardingStep] = .init()
+        
+        switch registrator.state {
+        case .finished:
+            return []
+        case .kycStart:
+            steps.append(contentsOf: [.kycStart, .kycProgress, .kycWaiting])
+        case .kycWaiting:
+            steps.append(contentsOf: [.kycWaiting])
+        case .needPin, .noGas, .registration:
+            steps.append(contentsOf: [.enterPin, .registerWallet, .kycStart, .kycProgress, .kycWaiting])
+        }
+        
+        steps.append(.success)
         return steps
     }
 }
@@ -93,10 +120,10 @@ extension SaltPayConfig: UserWalletConfig {
 
     var onboardingSteps: OnboardingSteps {
         if card.wallets.isEmpty {
-            return .singleWallet([.createWallet, .success])
+            return .wallet([.createWallet] + _backupSteps + registrationSteps)
+        } else {
+            return .wallet(_backupSteps + registrationSteps)
         }
-
-        return .singleWallet([])
     }
 
     var backupSteps: OnboardingSteps? {

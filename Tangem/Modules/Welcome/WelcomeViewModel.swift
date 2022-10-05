@@ -14,7 +14,8 @@ class WelcomeViewModel: ObservableObject {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
-
+    @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
+    
     @Published var showTroubleshootingView: Bool = false
     @Published var isScanningCard: Bool = false
     @Published var error: AlertBinder?
@@ -50,6 +51,17 @@ class WelcomeViewModel: ObservableObject {
         var subscription: AnyCancellable? = nil
 
         subscription = cardsRepository.scanPublisher()
+            .flatMap {[weak self] response -> AnyPublisher<CardViewModel, Error> in
+                guard let saltPayRegistrator = self?.saltPayRegistratorProvider.registrator else {
+                    return .justWithError(output: response)
+                }
+                
+                return saltPayRegistrator.updatePublisher()
+                    .map { _ in
+                        return response
+                    }
+                    .eraseToAnyPublisher()
+            }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
@@ -105,7 +117,6 @@ class WelcomeViewModel: ObservableObject {
     }
 
     private func processScannedCard(_ cardModel: CardViewModel, isWithAnimation: Bool) {
-        // [REDACTED_TODO_COMMENT]
         let input = cardModel.onboardingInput
         self.isScanningCard = false
 
