@@ -26,7 +26,6 @@ class AddCustomTokenViewModel: ObservableObject {
     @Published var blockchainsPicker: PickerModel = .empty
     @Published var derivationsPicker: PickerModel = .empty
 
-
     @Published var error: AlertBinder?
 
     @Published var warningContainer = WarningsContainer()
@@ -250,6 +249,23 @@ class AddCustomTokenViewModel: ObservableObject {
         }
     }
 
+    private func validateEnteredContractAddress() throws {
+        guard !contractAddress.isEmpty else {
+            return
+        }
+
+        guard foundStandardToken != nil else {
+            throw TokenSearchError.failedToFindToken
+        }
+
+        do {
+            let blockchain = try enteredBlockchain()
+            _ = try enteredContractAddress(in: blockchain)
+        } catch {
+            throw TokenSearchError.failedToFindToken
+        }
+    }
+
     private func enteredBlockchain() throws -> Blockchain {
         guard let blockchain = blockchainByName[blockchainsPicker.selection] else {
             throw TokenCreationErrors.blockchainNotSelected
@@ -377,13 +393,7 @@ class AddCustomTokenViewModel: ObservableObject {
 
         do {
             try checkLocalStorage()
-
-            if foundStandardToken != nil,
-               let blockchain = try? enteredBlockchain(),
-               let _ = try? enteredContractAddress(in: blockchain)
-            {
-                throw TokenSearchError.failedToFindToken
-            }
+            try validateEnteredContractAddress()
         } catch {
             let tokenSearchError = error as? TokenSearchError
             addButtonDisabled = tokenSearchError?.preventsFromAdding ?? false
