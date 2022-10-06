@@ -522,6 +522,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         stepPublisher = preparePrimaryCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
             .first()
+            .mapVoid()
             .sink(receiveCompletion: { [weak self] completion in
                 if case .failure(let error) = completion {
                     if let cardModel = self?.input.cardInput.cardModel {
@@ -540,6 +541,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         stepPublisher = readPrimaryCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
             .first()
+            .mapVoid()
             .sink(
                 receiveCompletion: { [weak self] completion in
                     if case .failure(let error) = completion {
@@ -606,7 +608,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         .eraseToAnyPublisher()
     }
 
-    private func processPrimaryCardScan(_ result: (Void, Notification)) {
+    private func processPrimaryCardScan() {
         isMainButtonBusy = false
         goToNextStep()
     }
@@ -660,6 +662,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                             } else { // add tokens for backup cards
                                 self.addDefaultTokens(for: CardDTO(card: updatedCard))
                             }
+
                             promise(.success(()))
                         case .failure(let error):
                             promise(.failure(error))
@@ -695,7 +698,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
 
     private func addDefaultTokens(for card: CardDTO) {
         let config = GenericConfig(card: card)
-        CommonTokenItemsRepository(key: card.userWalletId.hexString).append(config.defaultBlockchains)
+        let repository = CommonTokenItemsRepository(key: card.userWalletId.hexString)
+        repository.append(config.defaultBlockchains)
     }
 }
 
