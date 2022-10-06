@@ -54,6 +54,7 @@ class MainViewModel: ObservableObject {
     private var bag = Set<AnyCancellable>()
     private var isHashesCounted = false
     private var isProcessingNewCard = false
+    private var isFirstStart = true
 
     private lazy var testnetBuyCryptoService = TestnetBuyCryptoService()
 

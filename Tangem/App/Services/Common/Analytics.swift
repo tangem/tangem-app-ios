@@ -25,6 +25,7 @@ class Analytics {
                 log(event: event, with: params)
             case .amplitude: // [REDACTED_TODO_COMMENT]
                 let convertParams = params.reduce(into: [:]) { $0[$1.key.rawValue] = $1.value }
+                logAmplitude(event: event, params: convertParams)
             }
         }
     }
@@ -157,7 +158,7 @@ class Analytics {
     static func logAmplitude(event: Event, params: [String: String] = [:]) {
         #if !CLIP
         let category = "[\(event.category().rawValue)]"
-        Amplitude.instance().logEvent(event.rawValue.camelCaseToSnakeCase(), withEventProperties: params)
+        Amplitude.instance().logEvent("\(category) \(event.rawValue)", withEventProperties: params)
         #endif
     }
 
@@ -535,6 +536,9 @@ extension Analytics {
         case success
         case token = "Token"
         case mode = "Mode"
+        case state = "State"
+        case basicCurrency = "Currency"
+        case batch = "Batch"
     }
 
     enum ParameterValue: String {
