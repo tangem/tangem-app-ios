@@ -112,7 +112,7 @@ struct UserWalletListCellView: View {
             }
         }
         .padding(.horizontal, 16)
-        .frame(height: 67.0)
+        .frame(height: 67)
         .contentShape(Rectangle())
         .background(Colors.Background.primary)
         .onTapGesture {
