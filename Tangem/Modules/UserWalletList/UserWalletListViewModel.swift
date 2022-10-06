@@ -44,7 +44,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
     private unowned let coordinator: UserWalletListRoutable
     private var bag: Set<AnyCancellable> = []
-    private var initialized = false
     private var userWalletIdToBeDeleted: Data?
 
     init(
@@ -53,16 +52,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         self.coordinator = coordinator
         selectedUserWalletId = userWalletListService.selectedUserWalletId
         updateModels()
-    }
-
-    func onAppear() {
-        if !initialized {
-            initialized = true
-
-            for model in (multiCurrencyModels + singleCurrencyModels) {
-                model.updateTotalBalance()
-            }
-        }
     }
 
     func updateModels() {
@@ -244,8 +233,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                 } else {
                     singleCurrencyModels.append(cellModel)
                 }
-
-                cellModel.updateTotalBalance()
             }
 
             setSelectedWallet(userWallet)
@@ -334,7 +321,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         }()
 
         return UserWalletListCellViewModel(
-            userWallet: userWallet,
+            userWalletModel: userWalletModel,
             subtitle: subtitle,
             numberOfTokens: getNumberOfTokens(for: userWallet),
             isUserWalletLocked: userWallet.isLocked,
