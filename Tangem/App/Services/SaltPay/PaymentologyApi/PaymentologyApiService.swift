@@ -15,11 +15,11 @@ protocol PaymentologyApiService: AnyObject {
     func checkRegistration(for cardId: String, publicKey: Data) -> AnyPublisher<SaltPayRegistrator.State, Error>
     func requestAttestationChallenge(for cardId: String, publicKey: Data) -> AnyPublisher<AttestationResponse, Error>
     func registerWallet(request: ReqisterWalletRequest) -> AnyPublisher<RegisterWalletResponse, Error>
-    func registerKYC(for walletPublicKey: Data) -> AnyPublisher<RegisterWalletResponse, Error>
+    func registerKYC(request: RegisterKYCRequest) -> AnyPublisher<RegisterWalletResponse, Error>
 }
 
 class CommonPaymentologyApiService {
-    private let provider = TangemProvider<PaymentologyApiTarget>()
+    private let provider = TangemProvider<PaymentologyApiTarget>(stubClosure: MoyaProvider.delayedStub(1.0))
 
     deinit {
         print("PaymentologyApiService deinit")
@@ -69,8 +69,8 @@ extension CommonPaymentologyApiService: PaymentologyApiService {
             .eraseToAnyPublisher()
     }
     
-    func registerKYC(for walletPublicKey: Data) -> AnyPublisher<RegisterWalletResponse, Error> {
-        let target = PaymentologyApiTarget(type: .registerKYC(walletPublicKey: walletPublicKey))
+    func registerKYC(request: RegisterKYCRequest) -> AnyPublisher<RegisterWalletResponse, Error> {
+        let target = PaymentologyApiTarget(type: .registerKYC(request: request))
 
         return provider
             .requestPublisher(target)

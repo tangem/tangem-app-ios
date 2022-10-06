@@ -10,7 +10,15 @@ import SwiftUI
 
 struct KYCWaitingView: View {
     var body: some View {
-        Image(name: "success_waiting")
+        VStack {
+            Spacer()
+
+            Image(name: "success_waiting")
+                .padding(.bottom, 36)
+            
+            Spacer()
+        }
+      
     }
 }
 
