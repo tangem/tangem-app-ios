@@ -62,7 +62,6 @@ struct UserWalletListView: View {
                         ])
         }
         .background(Self.sheetBackground.edgesIgnoringSafeArea(.all))
-        .onAppear(perform: viewModel.onAppear)
     }
 }
 
