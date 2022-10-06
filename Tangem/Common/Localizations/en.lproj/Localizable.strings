@@ -510,8 +510,16 @@ URL: %@";
 "main_scan_card_warning_view_subtitle" = "To access all the networks you need to scan the card";
 "warning_existential_deposit_message" = "%@ network has a concept of Existential Deposit. If your account drops below %@ it will be deactivated and any remaining funds will be destroyed.";
 "token_details_transaction_length_warning" = "iPhone 7/7+ cannot sign a transaction on this network due to system restrictions. Please use a different phone to complete this operation.";
-"saltpay_backup_warning" = "To start working with the card scan the first card and make a backup";
-"saltpay_title_backup_warning" = "Scan the first card";
+
+"saltpay_error_empty_backup_title" = "Attention";
+"saltpay_error_empty_backup_message" = "Tap the card with the visa logo";
+
+"saltpay_error_no_gas_title" = "No funds for activation";
+"saltpay_error_no_gas_message" = "Please contact support";
+
+"saltpay_error_pin_weak_title" = "Four identical digits isn’t safe";
+"saltpay_error_pin_weak_message" = "Such a PIN can be brute-forced easily";
+
 "onboarding_navbar_pin" = "Pin code";
 "onboarding_navbar_register_wallet" = "Connect";
 "onboarding_navbar_kyc_start" = "KYC";
@@ -529,5 +537,4 @@ URL: %@";
 "onboarding_subtitle_kyc_waiting" = "All is done, now you can start using your wallet!";
 "onboarding_title_pin" = "PIN Code";
 "onboarding_subtitle_pin" = "Set PIN code for your SaltPay card";
-"error_pin_weak_title" = "Four identical digits isn’t safe";
-"error_pin_weak_message" = "Such a PIN can be brute-forced easily";
+
