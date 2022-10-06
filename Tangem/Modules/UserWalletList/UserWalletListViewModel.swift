@@ -295,20 +295,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         }
     }
 
-    private func getNumberOfTokens(for userWallet: UserWallet) -> String? {
-        let numberOfBlockchainsPerItem = 1
-        let items = CommonTokenItemsRepository(key: userWallet.userWalletId.hexString).getItems()
-        let numberOfTokens = items.reduce(0) { sum, walletModel in
-            sum + numberOfBlockchainsPerItem + walletModel.tokens.count
-        }
-
-        if numberOfTokens == 0 {
-            return nil
-        }
-
-        return String.localizedStringWithFormat("token_count".localized, numberOfTokens)
-    }
-
     private func mapToUserWalletListCellViewModel(userWalletModel: UserWalletModel, totalBalanceProvider: TotalBalanceProviding? = nil) -> UserWalletListCellViewModel {
         let userWallet = userWalletModel.userWallet
         let config = UserWalletConfigFactory(userWallet.cardInfo()).makeConfig()
@@ -323,7 +309,6 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         return UserWalletListCellViewModel(
             userWalletModel: userWalletModel,
             subtitle: subtitle,
-            numberOfTokens: getNumberOfTokens(for: userWallet),
             isUserWalletLocked: userWallet.isLocked,
             isSelected: selectedUserWalletId == userWallet.userWalletId,
             totalBalanceProvider: totalBalanceProvider ?? TotalBalanceProvider(userWalletModel: userWalletModel),
