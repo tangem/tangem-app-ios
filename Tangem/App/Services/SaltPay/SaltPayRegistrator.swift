@@ -47,11 +47,11 @@ class SaltPayRegistrator {
     }
     
     func setPin(_ pin: String) {
-        if checkPinValid(pin) {
-            self.pin = pin
+        do {
+            try assertPinValid(pin)
             updateState()
-        } else {
-            error = .init(title: "error_pin_weak_title", message: "error_pin_weak_message")
+        } catch {
+            self.error = error.alertBinder
         }
     }
     
@@ -196,20 +196,20 @@ class SaltPayRegistrator {
             .eraseToAnyPublisher()
     }
     
-    private func checkPinValid(_ pin: String) -> Bool {
+    private func assertPinValid(_ pin: String) throws {
         let array = Array(pin)
         
         if array.count < Constants.pinLength {
-            return false
+            throw SaltPayRegistratorError.weakPin
         }
         
         for char in array[1...] {
             if array[0] != char {
-                return true
+                return
             }
         }
         
-        return false
+        throw SaltPayRegistratorError.weakPin
     }
 }
 
@@ -270,9 +270,31 @@ enum SaltPayRegistratorError: String, Error, LocalizedError {
     case cardDisabled
     case cardNotPassed
     case emptyDynamicAttestResponse
+    case emptyBackupCardScanned
+    case weakPin
+    
     
     var errorDescription: String? {
         self.rawValue
+    }
+    
+    var alertBinder: AlertBinder {
+        switch self {
+        case .weakPin:
+            return .init(title: "saltpay_error_pin_weak_title",
+                         message: "saltpay_error_pin_weak_message",
+                         error: self)
+        case .emptyBackupCardScanned:
+            return .init(title: "saltpay_error_empty_backup_title",
+                         message: "saltpay_error_empty_backup_message",
+                         error: self)
+        case .noGas:
+            return .init(title: "saltpay_error_no_gas_title",
+                         message: "saltpay_error_no_gas_message",
+                         error: self)
+        default:
+            return .init(alert: alert, error: self)
+        }
     }
 }
 
@@ -441,19 +463,8 @@ extension GnosisRegistrator {
         case main
         case testnet
         
-        var token: BlockchainSdk.Token {
-            switch self {
-            case .main:
-                return .init(name: "WXDAI",
-                             symbol: "WXDAI",
-                             contractAddress: "0x4346186e7461cB4DF06bCFCB4cD591423022e417",
-                             decimalCount: 18)
-            case .testnet:
-                return .init(name: "WXDAI Test",
-                             symbol: "MyERC20",
-                             contractAddress: "0x69cca8D8295de046C7c14019D9029Ccc77987A48",
-                             decimalCount: 0)
-            }
+        var token: Token {
+            .init(sdkToken)
         }
         
         var otpProcessorContractAddress: String {
@@ -475,7 +486,22 @@ extension GnosisRegistrator {
         }
         
         var walletData: WalletData {
-            .init(blockchain: blockchain.id, token: token)
+            .init(blockchain: blockchain.id, token: sdkToken)
+        }
+        
+        private var sdkToken: WalletData.Token {
+            switch self {
+            case .main:
+                return .init(name: "WXDAI",
+                             symbol: "WXDAI",
+                             contractAddress: "0x4346186e7461cB4DF06bCFCB4cD591423022e417",
+                             decimals: 18)
+            case .testnet:
+                return .init(name: "WXDAI Test",
+                             symbol: "MyERC20",
+                             contractAddress: "0x69cca8D8295de046C7c14019D9029Ccc77987A48",
+                             decimals: 0)
+            }
         }
     }
 }
