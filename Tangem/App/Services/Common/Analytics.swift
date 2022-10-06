@@ -30,11 +30,6 @@ class Analytics {
         }
     }
 
-    static func log(_ category: Category, event: Event, params: [ParameterKey: String] = [:]) {
-        let convertParams = params.reduce(into: [:]) { $0[$1.key.rawValue] = $1.value }
-
-    }
-
     static func log(event: Event, with params: [ParameterKey: Any]? = nil) {
         #if !CLIP
         let key = event.rawValue
@@ -158,7 +153,8 @@ class Analytics {
     static func logAmplitude(event: Event, params: [String: String] = [:]) {
         #if !CLIP
         let category = "[\(event.category().rawValue)]"
-        Amplitude.instance().logEvent("\(category) \(event.rawValue)", withEventProperties: params)
+//        Amplitude.instance().logEvent("\(category) \(event.rawValue)", withEventProperties: params)
+        print("☢️ \(category) \(event.rawValue), parameters: \(params)")
         #endif
     }
 
@@ -288,6 +284,7 @@ extension Analytics {
         case requestSigned = "Request Signed"
         case chatScreenOpened = "Chat Screen Opened"
         case settingsScreenOpened = "Settings Screen Opened"
+        case mainRefreshed = "Refreshed "
 
         // MARK: -
         fileprivate static var nfcError: String {
@@ -380,10 +377,12 @@ extension Analytics {
                 return .mainScreen
             case .refreshed:
                 return .token
+            case .mainRefreshed:
+                return .portfolio
             case .buttonManageTokens:
-                return .token
+                return .portfolio
             case .tokenIsTapped:
-                return .token
+                return .portfolio
             case .detailsScreenOpened:
                 return .detailsScreen
             case .buttonRemoveToken:
@@ -696,6 +695,7 @@ extension Analytics.Event {
              .noticeBackupYourWalletTapped,
              .noticeScanYourCardTapped,
              .refreshed,
+             .mainRefreshed,
              .buttonManageTokens,
              .tokenIsTapped,
              .detailsScreenOpened,
