@@ -29,3 +29,17 @@ struct ReqisterWalletRequest: Codable {
         case pin = "PIN"
     }
 }
+
+struct RegisterKYCRequest: Codable {
+    let cardId: String
+    let publicKey: Data
+    let kycProvider: String
+    let kycRefId: String
+   
+    enum CodingKeys: String, CodingKey {
+        case cardId = "CID"
+        case publicKey
+        case kycProvider
+        case kycRefId
+    }
+}
