@@ -26,12 +26,8 @@ class CardSettingsViewModel: ObservableObject {
         cardModel.cardIssuer
     }
 
-    var cardSignedHashes: String? {
-        if cardModel.canCountHashes {
-            return "\(cardModel.cardSignedHashes)"
-        }
-
-        return nil
+    var cardSignedHashes: String {
+        "\(cardModel.cardSignedHashes)"
     }
 
     var isResetToFactoryAvailable: Bool {
