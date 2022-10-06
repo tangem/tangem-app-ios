@@ -63,7 +63,10 @@ struct SaltPayConfig {
         
         switch registrator.state {
         case .finished:
-            return []
+            if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
+                return []
+            }
+            break
         case .kycStart:
             steps.append(contentsOf: [.kycStart, .kycProgress, .kycWaiting])
         case .kycWaiting:
@@ -79,22 +82,12 @@ struct SaltPayConfig {
 
 extension SaltPayConfig: UserWalletConfig {
     var sdkConfig: Config {
-        var config = Config()
-        config.filter.allowedCardTypes = [.release, .sdk]
-        config.logConfig = Log.Config.custom(logLevel: Log.Level.allCases,
-                                             loggers: [loggerProvider.logger, ConsoleLogger()])
-        config.filter.batchIdFilter = .deny(["0027",
-                                             "0030",
-                                             "0031",
-                                             "0035"])
-
-        config.filter.cardIdFilter = .allow(["AC03000000070529", "AC03000000070537"])
-
-        config.filter.localizedDescription = "Это ошибка, которой пока нет"
-
-
-        config.filter.issuerFilter = .deny(["TTM BANK"])
-        config.allowUntrustedCards = true
+        var config = TangemSdkConfigFactory().makeDefaultConfig()
+        
+       //[REDACTED_TODO_COMMENT]
+//        config.filter.cardIdFilter = .allow(["AC03000000070529", "AC03000000070537"])
+//
+//        config.filter.localizedDescription = "Это ошибка, которой пока нет"
         return config
     }
 
