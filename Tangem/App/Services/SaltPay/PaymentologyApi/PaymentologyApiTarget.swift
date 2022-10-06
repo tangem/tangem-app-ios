@@ -22,6 +22,8 @@ struct PaymentologyApiTarget: TargetType {
             return "/card/get_challenge"
         case .registerWallet:
             return "/card/set_pin"
+        case .registerKYC:
+            return "/card/set_kyc"
         }
     }
     
@@ -37,6 +39,8 @@ struct PaymentologyApiTarget: TargetType {
             return .requestJSONEncodable(request)
         case .registerWallet(let request):
             return .requestCustomJSONEncodable(request, encoder: JSONEncoder.tangemSdkEncoder)
+        case .registerKYC(let walletPublicKey):
+            return .requestParameters(parameters: ["publicKey" : walletPublicKey.hexString], encoding: JSONEncoding())
         }
     }
     
@@ -50,5 +54,6 @@ extension PaymentologyApiTarget {
         case checkRegistration(request: CardVerifyAndGetInfoRequest)
         case requestAttestationChallenge(request: CardVerifyAndGetInfoRequest.Item)
         case registerWallet(request: ReqisterWalletRequest)
+        case registerKYC(walletPublicKey: Data)
     }
 }
