@@ -24,7 +24,8 @@ extension RegistrationResponse {
         let pinSet: Bool?
         let blockchainInit: Bool?
         let kycPassed: Bool?
-        let kycWaiting: Bool?
+        let kycProvider: String?
+        let kycDate: Date?
         let disabledByAdmin: Bool?
         
         enum CodingKeys: String, CodingKey {
@@ -35,7 +36,8 @@ extension RegistrationResponse {
             case pinSet = "pin_set"
             case blockchainInit = "blockchain_init"
             case kycPassed = "kyc_passed"
-            case kycWaiting = "kyc_waiting"
+            case kycProvider = "kyc_provider"
+            case kycDate = "kyc_date"
             case disabledByAdmin = "disabled_by_admin"
         }
     }
