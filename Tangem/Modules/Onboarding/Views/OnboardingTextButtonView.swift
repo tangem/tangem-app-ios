@@ -16,7 +16,7 @@ struct TangemButtonSettings {
     var isEnabled: Bool
     let isVisible: Bool
 
-    var color: ButtonColorStyle = .green
+    var color: ButtonColorStyle = .black
     var customIconName: String = ""
     var systemIconName: String = ""
     var iconPosition: TangemButton.IconPosition = .trailing
@@ -34,7 +34,7 @@ struct ButtonsSettings {
     let mainSize: ButtonLayout
     let mainAction: (() -> Void)?
     let mainIsBusy: Bool
-    var mainColor: ButtonColorStyle = .green
+    var mainColor: ButtonColorStyle = .black
     var mainButtonSystemIconName: String = ""
     let isMainEnabled: Bool
 
