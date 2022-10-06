@@ -37,11 +37,13 @@ private extension SaltPayUtil {
         [
             "AE02",
             "AE03",
+            "FFFF", //[REDACTED_TODO_COMMENT]
         ]
     }
     
     var backupCardIds: [String] {
         [
+            "AC01000000041886", //[REDACTED_TODO_COMMENT]
             "AC01000000033503",
             "AC01000000033594",
             "AC01000000033586",
