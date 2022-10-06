@@ -53,7 +53,7 @@ class MultiWalletContentViewModel: ObservableObject {
     }
 
     func onRefresh(done: @escaping () -> Void) {
-        userTokenListManager.loadAndSaveUserTokenList { [weak self] _ in
+        userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
             self?.userWalletModel.updateAndReloadWalletModels(completion: done)
         }
     }
