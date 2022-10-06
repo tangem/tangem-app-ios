@@ -236,7 +236,6 @@ class SendViewModel: ObservableObject {
         $transaction    // update total block
             .combineLatest($isFiatCalculation.uiPublisherWithFirst)
             .sink { [unowned self] tx, isFiatCalculation in
-                Analytics.log(.buttonSwapCurrency)
                 if let tx = tx {
                     self.updateViewWith(transaction: tx)
                 } else {
@@ -244,6 +243,13 @@ class SendViewModel: ObservableObject {
                 }
             }
             .store(in: &bag)
+
+        $isFiatCalculation
+            .receive(on: DispatchQueue.global())
+            .dropFirst()
+            .sink { _ in
+                Analytics.log(.buttonSwapCurrency)
+            }.store(in: &bag)
 
         $isFiatCalculation // handle conversion
             .uiPublisher

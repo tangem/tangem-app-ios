@@ -206,7 +206,7 @@ class MainViewModel: ObservableObject {
     }
 
     func onRefresh(_ done: @escaping () -> Void) {
-        Analytics.log(.refreshed)
+        Analytics.log(.mainRefreshed)
         if let singleWalletContentViewModel = singleWalletContentViewModel {
             singleWalletContentViewModel.onRefresh {
                 withAnimation { done() }

@@ -391,7 +391,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
 
     override func playInitialAnim(includeInInitialAnim: (() -> Void)? = nil) {
-        Analytics.log(.createWalletScreenOpened)
         super.playInitialAnim {
             self.canDisplayCardImage = true
         }
@@ -578,6 +577,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
 
     private func createWallet() {
         Analytics.log(.buttonCreateWallet)
+        Analytics.log(.createWalletScreenOpened)
 
         isMainButtonBusy = true
         if !input.isStandalone {
