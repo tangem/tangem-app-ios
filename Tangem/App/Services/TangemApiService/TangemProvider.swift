@@ -10,10 +10,11 @@ import Foundation
 import Moya
 
 class TangemProvider<Target: TargetType>: MoyaProvider<Target> {
-    init(configuration: URLSessionConfiguration = .defaultConfiguration) {
+    init(stubClosure: @escaping StubClosure = MoyaProvider.neverStub,
+         configuration: URLSessionConfiguration = .defaultConfiguration) {
         let session = Session(configuration: configuration)
 
-        super.init(session: session)
+        super.init(stubClosure: stubClosure, session: session)
     }
 }
 

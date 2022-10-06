@@ -52,13 +52,13 @@ class WelcomeViewModel: ObservableObject {
 
         subscription = cardsRepository.scanPublisher()
             .flatMap {[weak self] response -> AnyPublisher<CardViewModel, Error> in
-                guard let saltPayRegistrator = self?.saltPayRegistratorProvider.registrator else {
-                    return .justWithError(output: response)
+                if SaltPayUtil().isBackupCard(cardId: response.cardId),
+                   let backupInput = response.backupInput, backupInput.steps.stepsCount > 0 {
+                    return .anyFail(error: SaltPayRegistratorError.emptyBackupCardScanned)
                 }
                 
-                if SaltPayUtil().isBackupCard(cardId: response.cardId),
-                let backupInput = response.backupInput, backupInput.steps.stepsCount > 0 {
-                    return .anyFail(error: SaltPayRegistratorError.emptyBackupCardScanned)
+                guard let saltPayRegistrator = self?.saltPayRegistratorProvider.registrator else {
+                    return .justWithError(output: response)
                 }
                 
                 return saltPayRegistrator.updatePublisher()
@@ -74,12 +74,16 @@ class WelcomeViewModel: ObservableObject {
                     self?.isScanningCard = false
                     self?.failedCardScanTracker.recordFailure()
                     
+                    if let salpayError = error as? SaltPayRegistratorError {
+                        self?.error = salpayError.alertBinder
+                        return
+                    }
                   
                     if self?.failedCardScanTracker.shouldDisplayAlert ?? false {
                         self?.showTroubleshootingView = true
                     } else {
                         switch error.toTangemSdkError() {
-                        case .unknownError, .cardVerificationFailed, .underlying(let error):
+                        case .unknownError, .cardVerificationFailed:
                             self?.error = error.alertBinder
                         default:
                             break
@@ -91,7 +95,9 @@ class WelcomeViewModel: ObservableObject {
                 let numberOfFailedAttempts = self?.failedCardScanTracker.numberOfFailedAttempts ?? 0
                 self?.failedCardScanTracker.resetCounter()
                 Analytics.log(numberOfFailedAttempts == 0 ? .firstScan : .secondScan)
-                self?.processScannedCard(cardModel, isWithAnimation: true)
+                DispatchQueue.main.async {
+                    self?.processScannedCard(cardModel, isWithAnimation: true)
+                }
             }
 
         subscription?.store(in: &bag)

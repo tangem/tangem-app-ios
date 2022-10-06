@@ -45,11 +45,17 @@ struct WalletOnboardingView: View {
             EnterPinView(text: $viewModel.pinText,
                          maxDigits: SaltPayRegistrator.Constants.pinLength)
         case .registerWallet:
-            RegisterWalletView()
+            CustomContentView(imageName: "cards_wallet",
+                              title: viewModel.currentStep.title!,
+                              subtitle: viewModel.currentStep.subtitle!)
         case .kycStart:
-            StartKYCView()
+            CustomContentView(imageName: "passport",
+                              title: viewModel.currentStep.title!,
+                              subtitle: viewModel.currentStep.subtitle!)
         case .kycProgress:
-            WebViewContainer(viewModel: viewModel.kycModel)
+            if let kycModel = viewModel.kycModel {
+                WebViewContainer(viewModel: kycModel)
+            }
         case .kycWaiting:
             KYCWaitingView()
         default:
@@ -147,7 +153,7 @@ struct WalletOnboardingView: View {
                 .readSize { size in
                     viewModel.setupContainer(with: size)
                 }
-                .layoutPriority(1)
+                .layoutPriority(viewModel.isCustomContentVisible ? 1 : 0)
 
                 if viewModel.isButtonsVisible {
                     OnboardingTextButtonView(
