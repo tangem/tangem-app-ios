@@ -11,6 +11,7 @@ import Combine
 
 class UserWalletListCellViewModel: ObservableObject {
     @Published var balance: String = "$0,000.00"
+    @Published var numberOfTokens: String? = nil
     @Published var image: UIImage?
     @Published var isSelected = false
     @Published var isBalanceLoading = true
@@ -18,7 +19,6 @@ class UserWalletListCellViewModel: ObservableObject {
     let userWalletModel: UserWalletModel
     var userWallet: UserWallet { userWalletModel.userWallet }
     let subtitle: String
-    let numberOfTokens: String?
     let didTapUserWallet: () -> Void
 
     var userWalletId: Data { userWallet.userWalletId }
@@ -33,7 +33,6 @@ class UserWalletListCellViewModel: ObservableObject {
     init(
         userWalletModel: UserWalletModel,
         subtitle: String,
-        numberOfTokens: String?,
         isUserWalletLocked: Bool,
         isSelected: Bool,
         totalBalanceProvider: TotalBalanceProviding,
@@ -42,7 +41,6 @@ class UserWalletListCellViewModel: ObservableObject {
     ) {
         self.userWalletModel = userWalletModel
         self.subtitle = subtitle
-        self.numberOfTokens = numberOfTokens
         self.isSelected = isSelected
         self.totalBalanceProvider = totalBalanceProvider
         self.cardImageProvider = cardImageProvider
@@ -75,6 +73,21 @@ class UserWalletListCellViewModel: ObservableObject {
             .sink { [unowned self] _ in
                 self.totalBalanceProvider.updateTotalBalance()
                 self.isBalanceLoading = false
+            }
+            .store(in: &bag)
+
+        userWalletModel.subscribeToWalletModels()
+            .sink { models in
+                let allTokenItemViewModels = models.reduce(into: []) { partialResult, walletModel in
+                    partialResult = partialResult + walletModel.allTokenItemViewModels()
+                }
+
+                let numberOfTokens = allTokenItemViewModels.count
+                if numberOfTokens == 0 {
+                    self.numberOfTokens = nil
+                } else {
+                    self.numberOfTokens = String.localizedStringWithFormat("token_count".localized, numberOfTokens)
+                }
             }
             .store(in: &bag)
 
