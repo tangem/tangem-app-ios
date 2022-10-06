@@ -70,7 +70,8 @@ class CommonUserWalletListService: UserWalletListService {
     }
 
     func unlockWithCard(_ userWallet: UserWallet, completion: @escaping (Result<Void, Error>) -> Void) {
-        guard let encryptionKey = userWallet.encryptionKey
+        guard
+            let encryptionKey = userWallet.encryptionKey
         else {
             completion(.failure(TangemSdkError.cardError))
             return
