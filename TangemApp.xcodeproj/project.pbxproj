@@ -496,6 +496,7 @@
 		DC5E32C928EDCCFA00D6096A /* ReqisterWalletRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5E32C828EDCCFA00D6096A /* ReqisterWalletRequest.swift */; };
 		DC5E32CB28EDCFDA00D6096A /* PaymentologyApiService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5E32CA28EDCFDA00D6096A /* PaymentologyApiService.swift */; };
 		DC5E32CD28EDD94300D6096A /* Responses.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5E32CC28EDD94300D6096A /* Responses.swift */; };
+		DC5E32CF28EEAC3200D6096A /* SaltPayUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5E32CE28EEAC3200D6096A /* SaltPayUtil.swift */; };
 		DC6244F428A0CA6300AD3EA8 /* SaltPayConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC6244F328A0CA6300AD3EA8 /* SaltPayConfig.swift */; };
 		DC66BBE32858E7A600CDF765 /* WelcomeRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBE22858E7A600CDF765 /* WelcomeRoutable.swift */; };
 		DC66BBE52858EB6300CDF765 /* OnboardingCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC66BBE42858EB6300CDF765 /* OnboardingCoordinator.swift */; };
@@ -1161,6 +1162,7 @@
 		DC5E32C828EDCCFA00D6096A /* ReqisterWalletRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReqisterWalletRequest.swift; sourceTree = "<group>"; };
 		DC5E32CA28EDCFDA00D6096A /* PaymentologyApiService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentologyApiService.swift; sourceTree = "<group>"; };
 		DC5E32CC28EDD94300D6096A /* Responses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Responses.swift; sourceTree = "<group>"; };
+		DC5E32CE28EEAC3200D6096A /* SaltPayUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaltPayUtil.swift; sourceTree = "<group>"; };
 		DC6244F328A0CA6300AD3EA8 /* SaltPayConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaltPayConfig.swift; sourceTree = "<group>"; };
 		DC66BBE22858E7A600CDF765 /* WelcomeRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeRoutable.swift; sourceTree = "<group>"; };
 		DC66BBE42858EB6300CDF765 /* OnboardingCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingCoordinator.swift; sourceTree = "<group>"; };
@@ -2690,6 +2692,7 @@
 				DC912D1928E73C7500D76628 /* SaltPayRegistrator.swift */,
 				DC194D2528EC6A76007FBC99 /* SaltPayRegistratorProvider.swift */,
 				DC194D2728EC6AA0007FBC99 /* SaltPayRegistratorProviding.swift */,
+				DC5E32CE28EEAC3200D6096A /* SaltPayUtil.swift */,
 			);
 			path = SaltPay;
 			sourceTree = "<group>";
@@ -3555,6 +3558,7 @@
 				B09BB883259A09CE00B92000 /* WarningEvent+.swift in Sources */,
 				EF74F50E289BF5AE001034D2 /* Text+.swift in Sources */,
 				DAC53CF827BE63830027147D /* StoriesTangemLogo.swift in Sources */,
+				DC5E32CF28EEAC3200D6096A /* SaltPayUtil.swift in Sources */,
 				DC295B4C2861D7CF006CB7B6 /* WalletConnectCoordinator.swift in Sources */,
 				DC0A5801282500460031BECC /* SellCryptoRequest.swift in Sources */,
 				5D09381425E6CB2D0049B8F0 /* HorizontalButtonStack.swift in Sources */,
