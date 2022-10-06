@@ -44,6 +44,8 @@ class ShopViewModel: ObservableObject {
     }
 
     func didAppear() {
+        Analytics.log(.shopScreenOpened)
+
         closeWebCheckout()
 
         fetchProduct()
