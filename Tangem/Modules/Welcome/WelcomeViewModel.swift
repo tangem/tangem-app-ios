@@ -56,6 +56,11 @@ class WelcomeViewModel: ObservableObject {
                     return .justWithError(output: response)
                 }
                 
+                if SaltPayUtil().isBackupCard(cardId: response.cardId),
+                let backupInput = response.backupInput, backupInput.steps.stepsCount > 0 {
+                    return .anyFail(error: SaltPayRegistratorError.emptyBackupCardScanned)
+                }
+                
                 return saltPayRegistrator.updatePublisher()
                     .map { _ in
                         return response
@@ -68,12 +73,13 @@ class WelcomeViewModel: ObservableObject {
                     print("Failed to scan card: \(error)")
                     self?.isScanningCard = false
                     self?.failedCardScanTracker.recordFailure()
-
+                    
+                  
                     if self?.failedCardScanTracker.shouldDisplayAlert ?? false {
                         self?.showTroubleshootingView = true
                     } else {
                         switch error.toTangemSdkError() {
-                        case .unknownError, .cardVerificationFailed:
+                        case .unknownError, .cardVerificationFailed, .underlying(let error):
                             self?.error = error.alertBinder
                         default:
                             break
