@@ -9,6 +9,10 @@
 import Foundation
 
 struct SaltPayUtil {
+    func isSaltPayCard(batchId: String, cardId: String) -> Bool {
+        isPrimaryCard(batchId: batchId) || isBackupCard(cardId: cardId)
+    }
+    
     func isPrimaryCard(batchId: String) -> Bool {
         primaryCardBatches.contains(batchId)
     }
