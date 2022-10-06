@@ -176,6 +176,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
         if userWalletListService.isEmpty {
             AppSettings.shared.saveUserWallets = false
+            coordinator.dismissUserWalletList()
             coordinator.popToRoot()
         }
     }
