@@ -55,6 +55,16 @@ class SaltPayRegistrator {
         }
     }
     
+    func onFinishKYC() {
+        api.registerKYC(for: walletPublicKey)
+            .sink {[weak self] completion in
+                if case let .failure(error) = completion {
+                    self?.error = error.alertBinder
+                }
+            } receiveValue: { _ in }
+            .store(in: &bag)
+    }
+    
     func update() {
         updatePublisher()
             .sink {[weak self] completion in
