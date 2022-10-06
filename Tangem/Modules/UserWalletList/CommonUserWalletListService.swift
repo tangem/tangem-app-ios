@@ -70,13 +70,14 @@ class CommonUserWalletListService: UserWalletListService {
     }
 
     func unlockWithCard(_ userWallet: UserWallet, completion: @escaping (Result<Void, Error>) -> Void) {
-        if let encryptionKey = userWallet.encryptionKey {
-            self.encryptionKeyByUserWalletId[userWallet.userWalletId] = encryptionKey
-        } else {
+        guard let encryptionKey = userWallet.encryptionKey
+        else {
             completion(.failure(TangemSdkError.cardError))
             return
         }
 
+        encryptionKeyByUserWalletId[userWallet.userWalletId] = encryptionKey
+        
         selectedUserWalletId = userWallet.userWalletId
 
         if userWallets.isEmpty {
@@ -87,6 +88,10 @@ class CommonUserWalletListService: UserWalletListService {
         } else {
             completion(.failure(TangemSdkError.cardError))
             return
+        }
+        
+        if models.count == 1 {
+            isUnlocked = true
         }
 
         completion(.success(()))
