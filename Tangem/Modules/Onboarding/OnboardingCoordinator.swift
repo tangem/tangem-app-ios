@@ -37,6 +37,7 @@ class OnboardingCoordinator: CoordinatorObject {
     }
 
     func start(with options: OnboardingCoordinator.Options) {
+        Analytics.log(.onboardingStarted)
         self.options = options
         let input = options.input
         switch input.steps {
