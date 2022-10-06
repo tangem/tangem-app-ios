@@ -17,6 +17,14 @@ class SaltPayRegistrator {
     @Published public private(set) var error: AlertBinder? = nil
     @Published public private(set) var isBusy: Bool = false
     
+    var kycURL: URL {
+        return URL(string: "https://app-stage.utorg.pro/account/login?externalId=\(kycRefId)&sid=tangemTEST")!
+    }
+    
+    var kycDoneURL: String {
+        "https://success.tangem.com"
+    }
+    
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     
     private let repo: SaltPayRepo = .init()
@@ -33,13 +41,16 @@ class SaltPayRegistrator {
     private let approvalValue: Decimal = 1 // [REDACTED_TODO_COMMENT]
     private let spendLimitValue: Decimal = 1 // [REDACTED_TODO_COMMENT]
     
+    private var kycRefId: String {
+        UserWalletId(with: walletPublicKey).stringValue
+    }
+    
     init(cardId: String, cardPublicKey: Data, walletPublicKey: Data, gnosis: GnosisRegistrator) {
         self.gnosis = gnosis
         self.cardId = cardId
         self.cardPublicKey = cardPublicKey
         self.walletPublicKey = walletPublicKey
         updateState()
-        update()
     }
     
     func setAccessCode(_ accessCode: Data) {
@@ -49,14 +60,22 @@ class SaltPayRegistrator {
     func setPin(_ pin: String) {
         do {
             try assertPinValid(pin)
+            self.pin = pin
             updateState()
         } catch {
-            self.error = error.alertBinder
+            self.error = (error as! SaltPayRegistratorError).alertBinder
         }
     }
     
     func onFinishKYC() {
-        api.registerKYC(for: walletPublicKey)
+        updateState(with: .kycWaiting)
+        
+        let request = RegisterKYCRequest(cardId: cardId,
+                                         publicKey: cardPublicKey,
+                                         kycProvider: "UTORG",
+                                         kycRefId: kycRefId)
+        
+        api.registerKYC(request: request)
             .sink {[weak self] completion in
                 if case let .failure(error) = completion {
                     self?.error = error.alertBinder
@@ -117,6 +136,18 @@ class SaltPayRegistrator {
                 .eraseToAnyPublisher()
                 .eraseError()
             }
+            .flatMap {[gnosis] response -> AnyPublisher<RegistrationTask.RegistrationTaskResponse, Error> in
+                return Just(response) //[REDACTED_TODO_COMMENT]
+                    .delay(for: .seconds(5) , scheduler: DispatchQueue.global())
+                    .setFailureType(to: Error.self)
+                    .eraseToAnyPublisher()
+                //                return gnosis.sendTransactions(response.signedTransactions)
+                //                    .map { result -> RegistrationTask.RegistrationTaskResponse in
+                //                        print(result)
+                //                        return response
+                //                    }
+                //                    .eraseToAnyPublisher()
+            }
             .flatMap { [weak self] response -> AnyPublisher<RegistrationTask.RegistrationTaskResponse, Error> in
                 guard let self = self else { return .anyFail(error: SaltPayRegistratorError.empty) }
                 
@@ -145,9 +176,6 @@ class SaltPayRegistrator {
                     }
                     .eraseToAnyPublisher()
             }
-            .flatMap { [gnosis] response -> AnyPublisher<[String], Error> in
-                return gnosis.sendTransactions(response.signedTransactions)
-            }
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
                     self?.error = error.alertBinder
@@ -155,7 +183,7 @@ class SaltPayRegistrator {
                 
                 self?.isBusy = false
             } receiveValue: { [weak self] sendedTxs in
-                self?.repo.data.transactionsSended = true
+                self?.repo.data.transactionsSent = true
                 self?.updateState()
             }
             .store(in: &bag)
@@ -164,7 +192,7 @@ class SaltPayRegistrator {
     private func updateState(with newState: State? = nil) {
         var newState: State = newState ?? state
         
-        if repo.data.transactionsSended {
+        if repo.data.transactionsSent {
             newState = .kycStart
         } else if self.pin != nil {
             newState = .registration
@@ -173,10 +201,12 @@ class SaltPayRegistrator {
         if newState != state {
             self.state = newState
         }
+        
+        self.state = .kycStart
     }
     
     private func checkGasIfNeeded() -> AnyPublisher<Void, Error> {
-        guard state == .needPin || state == .noGas else {
+        if state == .kycStart || state == .kycWaiting {
             return .justWithError(output: ())
         }
         
@@ -231,32 +261,30 @@ extension SaltPayRegistrator {
         case finished
         
         init(from response: RegistrationResponse.Item) throws {
-            guard response.passed == true else {
+            guard response.passed == true else { //passed is false, show error
                 throw SaltPayRegistratorError.cardNotPassed
             }
-
-            guard response.disabledByAdmin == false else {
+            
+            if let disabledByAdmin = response.disabledByAdmin, !disabledByAdmin { //disabledByAdmin is true, show error
                 throw SaltPayRegistratorError.cardDisabled
             }
             
-            if response.active == true {
+            if response.active == true { //active is true, go to success screen
                 self = .finished
+                return
             }
             
-            if response.pinSet == false {
-                self = .needPin
-            }
-            
-            if response.kycPassed == false && response.kycWaiting == false {
-                self = .kycStart
-            }
-            
-            if response.kycWaiting == true {
+            if response.kycDate != nil { //kycDate is set, go to kyc waiting screen
                 self = .kycWaiting
+                return
             }
-        
-            assert(false, "Unexpected state")
-            self = .registration //[REDACTED_TODO_COMMENT]
+            
+            if response.pinSet == true { //pinset is true, go to kyc start screen
+                self = .kycStart
+                return
+            }
+            
+            self = .needPin  //pinset is false, go to enter pin screen, than repeat full registration flow
         }
     }
 }
@@ -281,17 +309,14 @@ enum SaltPayRegistratorError: String, Error, LocalizedError {
     var alertBinder: AlertBinder {
         switch self {
         case .weakPin:
-            return .init(title: "saltpay_error_pin_weak_title",
-                         message: "saltpay_error_pin_weak_message",
-                         error: self)
+            return .init(title: "saltpay_error_pin_weak_title".localized,
+                         message: "saltpay_error_pin_weak_message".localized)
         case .emptyBackupCardScanned:
-            return .init(title: "saltpay_error_empty_backup_title",
-                         message: "saltpay_error_empty_backup_message",
-                         error: self)
+            return .init(title: "saltpay_error_empty_backup_title".localized,
+                         message: "saltpay_error_empty_backup_message".localized)
         case .noGas:
-            return .init(title: "saltpay_error_no_gas_title",
-                         message: "saltpay_error_no_gas_message",
-                         error: self)
+            return .init(title: "saltpay_error_no_gas_title".localized,
+                         message: "saltpay_error_no_gas_message".localized)
         default:
             return .init(alert: alert, error: self)
         }
@@ -333,17 +358,20 @@ class GnosisRegistrator {
     }
     
     func makeSetSpendLimitTx(value: Decimal) -> AnyPublisher<CompilledEthereumTransaction, Error>  {
+        print("!!makeSetSpendLimitTx")
         do {
             let limitAmount = Amount(with: settings.token, value: value)
             let setSpedLimitData = try makeTxData(sig: Signatures.setSpendLimit, address: cardAddress, amount: limitAmount)
             
             return transactionProcessor.getFee(to: settings.otpProcessorContractAddress, data: "0x\(setSpedLimitData.hexString)", amount: nil)
-                .tryMap { [settings, walletManager, cardAddress] fees -> Transaction in
+                .replaceError(with: [Amount(with: settings.blockchain, value: 0.00001), Amount(with: settings.blockchain, value: 0.00001)]) //[REDACTED_TODO_COMMENT]
+                .tryMap { fees -> Transaction in
                     let params = EthereumTransactionParams(data: setSpedLimitData)
-                    var transaction = try walletManager.createTransaction(amount: limitAmount,
-                                                                          fee: fees[1],
-                                                                          destinationAddress: settings.otpProcessorContractAddress,
-                                                                          sourceAddress: cardAddress)
+                    var transaction = try self.walletManager.createTransaction(amount: limitAmount,
+                                                                               fee: fees[1],
+                                                                               destinationAddress: self.settings.otpProcessorContractAddress,
+                                                                               sourceAddress: self.cardAddress,
+                                                                               skipValidation: true)
                     transaction.params = params
                     
                     return transaction
@@ -358,15 +386,18 @@ class GnosisRegistrator {
     }
     
     func makeInitOtpTx(rootOTP: Data, rootOTPCounter: Int) -> AnyPublisher<CompilledEthereumTransaction, Error>  {
+        print("!!makeInitOtpTx")
         let initOTPData = Signatures.initOTP + rootOTP.prefix(16) + Data(count: 46) + rootOTPCounter.bytes2
         
         return transactionProcessor.getFee(to: settings.otpProcessorContractAddress, data: "0x\(initOTPData.hexString)", amount: nil)
-            .tryMap { [settings, walletManager, cardAddress] fees -> Transaction in
+            .replaceError(with: [Amount(with: settings.blockchain, value: 0.00001), Amount(with: settings.blockchain, value: 0.00001)]) //[REDACTED_TODO_COMMENT]
+            .tryMap { fees -> Transaction in
                 let params = EthereumTransactionParams(data: initOTPData)
-                var transaction = try walletManager.createTransaction(amount: Amount(with: settings.blockchain, value: 0),
-                                                                      fee: fees[1],
-                                                                      destinationAddress: settings.otpProcessorContractAddress,
-                                                                      sourceAddress: cardAddress)
+                var transaction = try self.walletManager.createTransaction(amount: Amount(with: self.settings.blockchain, value: 0),
+                                                                           fee: fees[1],
+                                                                           destinationAddress: self.settings.otpProcessorContractAddress,
+                                                                           sourceAddress: self.cardAddress,
+                                                                           skipValidation: true)
                 transaction.params = params
                 
                 return transaction
@@ -378,16 +409,19 @@ class GnosisRegistrator {
     }
     
     func makeSetWalletTx() -> AnyPublisher<CompilledEthereumTransaction, Error>  {
+        print("!!makeSetWalletTx")
         do {
             let setWalletData = try makeTxData(sig: Signatures.setWallet, address: cardAddress, amount: nil)
             
             return transactionProcessor.getFee(to: settings.otpProcessorContractAddress, data: "0x\(setWalletData.hexString)", amount: nil)
-                .tryMap { [settings, walletManager, cardAddress] fees -> Transaction in
+                .replaceError(with: [Amount(with: settings.blockchain, value: 0.00001), Amount(with: settings.blockchain, value: 0.00001)]) //[REDACTED_TODO_COMMENT]
+                .tryMap { fees -> Transaction in
                     let params = EthereumTransactionParams(data: setWalletData)
-                    var transaction = try walletManager.createTransaction(amount: Amount(with: settings.blockchain, value: 0),
-                                                                          fee: fees[1],
-                                                                          destinationAddress: settings.otpProcessorContractAddress,
-                                                                          sourceAddress: cardAddress)
+                    var transaction = try self.walletManager.createTransaction(amount: Amount(with: self.settings.blockchain, value: 0),
+                                                                               fee: fees[1],
+                                                                               destinationAddress: self.settings.otpProcessorContractAddress,
+                                                                               sourceAddress: self.cardAddress,
+                                                                               skipValidation: true)
                     transaction.params = params
                     
                     return transaction
@@ -402,17 +436,20 @@ class GnosisRegistrator {
     }
     
     func makeApprovalTx(value: Decimal) -> AnyPublisher<CompilledEthereumTransaction, Error>  {
+        print("!!makeApprovalTx")
         let approveAmount = Amount(with: settings.token, value: value)
         
         do {
             let approveData = try makeTxData(sig: Signatures.approve, address: settings.otpProcessorContractAddress, amount: approveAmount)
             
             return transactionProcessor.getFee(to: settings.token.contractAddress, data: "0x\(approveData.hexString)", amount: nil)
-                .tryMap { [settings, walletManager] fees -> Transaction in
+                .replaceError(with: [Amount(with: settings.blockchain, value: 0.00001), Amount(with: settings.blockchain, value: 0.00001)]) //[REDACTED_TODO_COMMENT]
+                .tryMap { fees -> Transaction in
                     let params = EthereumTransactionParams(data: approveData)
-                    var transaction = try walletManager.createTransaction(amount: approveAmount,
-                                                                          fee: fees[1],
-                                                                          destinationAddress: settings.otpProcessorContractAddress)
+                    var transaction = try self.walletManager.createTransaction(amount: approveAmount,
+                                                                               fee: fees[1],
+                                                                               destinationAddress: self.settings.otpProcessorContractAddress,
+                                                                               skipValidation: true)
                     transaction.params = params
                     
                     return transaction
@@ -515,7 +552,7 @@ fileprivate extension String {
 // MARK: - Permanent storage
 
 struct SaltPayRegistratorData: Codable {
-    var transactionsSended: Bool = false
+    var transactionsSent: Bool = false
 }
 
 class SaltPayRepo {
@@ -598,6 +635,7 @@ fileprivate class RegistrationTask: CardSessionRunnable {
     private func generateOTP(in session: CardSession, completion: @escaping CompletionResult<RegistrationTaskResponse>) {
         let cmd = GenerateOTPCommand()
         self.generateOTPCommand = cmd
+        session.viewDelegate.showAlertMessage("Generate OTP") //[REDACTED_TODO_COMMENT]
         
         cmd.run(in: session) { result in
             switch result {
@@ -627,6 +665,7 @@ fileprivate class RegistrationTask: CardSessionRunnable {
                                          confirmationMode: .dynamic)
         
         self.attestWalletCommand = cmd
+        session.viewDelegate.showAlertMessage("Attest wallet") //[REDACTED_TODO_COMMENT]
         
         cmd.run(in: session) { result in
             switch result {
@@ -653,6 +692,8 @@ fileprivate class RegistrationTask: CardSessionRunnable {
             gnosis.makeSetSpendLimitTx(value: spendLimitValue),
         ]
         
+        session.viewDelegate.showAlertMessage("Prepare transactions") //[REDACTED_TODO_COMMENT]
+        
         Publishers
             .MergeMany(txPublishers)
             .collect()
@@ -678,6 +719,8 @@ fileprivate class RegistrationTask: CardSessionRunnable {
         let cmd = SignHashesCommand(hashes: hashes, walletPublicKey: walletPublicKey)
         self.signCommand = cmd
         
+        session.viewDelegate.showAlertMessage("Signing") //[REDACTED_TODO_COMMENT]
+        
         cmd.run(in: session) { result in
             switch result {
             case .success(let response):
@@ -686,6 +729,7 @@ fileprivate class RegistrationTask: CardSessionRunnable {
                 }
                 
                 self.signedTransactions = signedTxs
+                session.viewDelegate.showAlertMessage("Done") //[REDACTED_TODO_COMMENT]
                 self.complete(completion: completion)
             case .failure(let error):
                 completion(.failure(error))

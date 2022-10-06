@@ -23,7 +23,7 @@ struct PaymentologyApiTarget: TargetType {
         case .registerWallet:
             return "/card/set_pin"
         case .registerKYC:
-            return "/card/set_kyc"
+            return "/card/kyc"
         }
     }
     
@@ -39,13 +39,52 @@ struct PaymentologyApiTarget: TargetType {
             return .requestJSONEncodable(request)
         case .registerWallet(let request):
             return .requestCustomJSONEncodable(request, encoder: JSONEncoder.tangemSdkEncoder)
-        case .registerKYC(let walletPublicKey):
-            return .requestParameters(parameters: ["publicKey" : walletPublicKey.hexString], encoding: JSONEncoding())
+        case .registerKYC(let request):
+            return .requestCustomJSONEncodable(request, encoder: JSONEncoder.tangemSdkEncoder)
         }
     }
     
     var headers: [String: String]? {
         [:]
+    }
+    
+    var sampleData: Data {
+        switch type {
+        case .checkRegistration(let request):
+            let item = RegistrationResponse.Item(cardId: request.requests[0].cardId,
+                                                 error: nil,
+                                                 passed: true,
+                                                 active: false,
+                                                 pinSet: false,
+                                                 blockchainInit: nil,
+                                                 kycPassed: nil,
+                                                 kycProvider: "SomeProvider",
+                                                 kycDate: nil,
+                                                 disabledByAdmin: nil)
+            
+            let response = RegistrationResponse(results: [item],
+                                                error: nil,
+                                                errorCode: nil,
+                                                success: true)
+            
+            let data = try! JSONEncoder.tangemSdkEncoder.encode(response)
+            return data
+        case .requestAttestationChallenge:
+            let response = AttestationResponse(challenge: try! CryptoUtils.generateRandomBytes(count: 16),
+                                               error: nil,
+                                               errorCode: nil,
+                                               success: true)
+            let data = try! JSONEncoder.tangemSdkEncoder.encode(response)
+            return data
+        case .registerWallet:
+            let response = RegisterWalletResponse(error: nil, errorCode: nil, success: true)
+            let data = try! JSONEncoder.tangemSdkEncoder.encode(response)
+            return data
+        case .registerKYC:
+            let response = RegisterWalletResponse(error: nil, errorCode: nil, success: true)
+            let data = try! JSONEncoder.tangemSdkEncoder.encode(response)
+            return data
+        }
     }
 }
 
@@ -54,6 +93,6 @@ extension PaymentologyApiTarget {
         case checkRegistration(request: CardVerifyAndGetInfoRequest)
         case requestAttestationChallenge(request: CardVerifyAndGetInfoRequest.Item)
         case registerWallet(request: ReqisterWalletRequest)
-        case registerKYC(walletPublicKey: Data)
+        case registerKYC(request: RegisterKYCRequest)
     }
 }
