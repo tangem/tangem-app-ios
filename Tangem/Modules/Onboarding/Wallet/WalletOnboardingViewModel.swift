@@ -393,8 +393,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         case .kycStart:
             goToNextStep()
         case .kycProgress:
-            goToNextStep()
-            saltPayRegistratorProvider.registrator?.update()
+            saltPayRegistratorProvider.registrator?.onFinishKYC()
         case .kycWaiting:
             saltPayRegistratorProvider.registrator?.update()
         }
