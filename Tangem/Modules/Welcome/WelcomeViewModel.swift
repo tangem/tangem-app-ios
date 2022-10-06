@@ -124,6 +124,7 @@ class WelcomeViewModel: ObservableObject {
 
     func onAppear() {
         navigationBarHidden = true
+        Analytics.log(.introductionProcessOpened)
         showInteruptedBackupAlertIfNeeded()
     }
 
