@@ -510,5 +510,30 @@ URL: %@";
 "main_scan_card_warning_view_subtitle" = "Чтобы получить доступ ко всем сетям, вам необходимо отсканировать карту";
 "warning_existential_deposit_message" = "Сеть %@ использует концепцию экзистенциального депозита. Если баланс вашего счета опустится ниже %@, он будет деактивирован, а все оставшиеся средства будут уничтожены.";
 "token_details_transaction_length_warning" = "iPhone 7/7+ не может подписать транзакцию в данной сети из-за системных ограничений. Пожалуйста, используйте другой телефон для выполнения этой операции.";
-"saltpay_backup_warning" = "Для начала работы с картой сначала отсканируйте первую карту и сделайте бэкап";
-"saltpay_title_backup_warning" = "Отсканируйте первую карту";
+
+"saltpay_error_empty_backup_title" = "Внимание";
+"saltpay_error_empty_backup_message" = "Приложите карту с логотипом Visa";
+
+"saltpay_error_no_gas_title" = "Недостаточно средств для активации";
+"saltpay_error_no_gas_message" = "Пожалуйста обратитесь в службу поддержки";
+
+"saltpay_error_pin_weak_title" = "Ввод одинаковых цифр является не безопасным";
+"saltpay_error_pin_weak_message" = "Данный Код доступа может быть легко взломан";
+
+"onboarding_navbar_pin" = "Код доступа";
+"onboarding_navbar_register_wallet" = "Подключиться";
+"onboarding_navbar_kyc_start" = "Верификация клиента";
+"onboarding_navbar_kyc_progress" = "Подтвердите свою личность";
+"onboarding_navbar_kyc_waiting" = "В обработке";
+"onboarding_button_pin" = "Установить Код доступа";
+"onboarding_button_register_wallet" = "Зарегистрироваться";
+"onboarding_button_kyc_start" = "Подтвердить";
+"onboarding_button_kyc_waiting" = "Обновить";
+"onboarding_title_register_wallet" = "Подключите свою карту";
+"onboarding_title_kyc_start" = "Подтвердите свою личность";
+"onboarding_title_kyc_waiting" = "Подтверждение личности в процессе";
+"onboarding_subtitle_register_wallet" = "Подключите вашу карту к децентрализованной платежной системе";
+"onboarding_subtitle_kyc_start" = "Пожалуйста дождитесь завершения процесса подтверждения вашей личности для начала работы с картой";
+"onboarding_subtitle_kyc_waiting" = "Готово, теперь вы можете пользоваться вашим кошельком!";
+"onboarding_title_pin" = "Код доступа";
+"onboarding_subtitle_pin" = "Установите Код доступа для вашей SaltPay карты";

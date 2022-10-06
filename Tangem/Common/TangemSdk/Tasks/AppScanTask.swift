@@ -97,7 +97,7 @@ final class AppScanTask: CardSessionRunnable {
 
         if card.firmwareVersion.doubleValue >= 4.39 {
             if card.settings.maxWalletsCount == 1 {
-                readNote(card, session: session, completion: completion)
+                readFile(card, session: session, completion: completion)
                 return
             }
 
@@ -114,7 +114,7 @@ final class AppScanTask: CardSessionRunnable {
         self.runScanTask(session, completion)
     }
 
-    private func readNote(_ card: Card, session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
+    private func readFile(_ card: Card, session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
         func exit() {
             self.deriveKeysIfNeeded(session, completion)
         }
@@ -143,7 +143,9 @@ final class AppScanTask: CardSessionRunnable {
                     return
                 }
 
-                self.walletData = .note(walletData)
+                if walletData.blockchain != "ANY" {
+                    self.walletData = .note(walletData)
+                }
                 self.runScanTask(session, completion)
             case .failure(let error):
                 switch error {
