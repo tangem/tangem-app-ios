@@ -37,13 +37,12 @@ private extension SaltPayUtil {
         [
             "AE02",
             "AE03",
-            "FFFF", //[REDACTED_TODO_COMMENT]
         ]
     }
     
     var backupCardIds: [String] {
         [
-            "AC01000000041886", //[REDACTED_TODO_COMMENT]
+            "AC03000000000102", //[REDACTED_TODO_COMMENT]
             "AC01000000033503",
             "AC01000000033594",
             "AC01000000033586",
@@ -77,7 +76,7 @@ private extension SaltPayUtil {
     
     var ranges: [CardIdRange] {
         [
-            .init(start: "AC05000000000003", end: "AC05000000023997"),
+            .init(start: "AC05000000000003", end: "AC05000000023997"), //start and end batches must be equal
         ]
     }
 }
@@ -87,12 +86,18 @@ fileprivate struct CardIdRange {
     let end: String
     
     func contains(_ cardId: String) -> Bool {
+        guard cardId.getBatchPrefix() == start.getBatchPrefix() else { return false }
+        
         let range = start.toInt()...end.toInt()
         return range.contains(cardId.toInt())
     }
 }
 
 fileprivate extension String {
+    func getBatchPrefix() -> String {
+        String(self.dropFirst(4)).uppercased()
+    }
+    
     func stripBatchPrefix() -> String {
         String(self.dropFirst(4))
     }

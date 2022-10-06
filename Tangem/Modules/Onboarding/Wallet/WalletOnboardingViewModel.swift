@@ -52,6 +52,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             case .finalizingBackupCard(let index): return LocalizedStringKey(stringLiteral: "onboarding_title_backup_card_number".localized(index))
             default: break
             }
+            
+        case .registerWallet, .kycStart:
+            return nil
         default: break
         }
         return super.title
@@ -86,6 +89,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                 return LocalizedStringKey(stringLiteral: "onboarding_subtitle_scan_backup_card".localized(formattedCardId))
             default: return super.subtitle
             }
+        case .registerWallet, .kycStart:
+            return nil
         default: return super.subtitle
         }
     }
@@ -145,8 +150,14 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
 
     override var isSupplementButtonVisible: Bool {
-        if currentStep == .backupIntro && input.isStandalone {
-            return false
+        if currentStep == .backupIntro {
+            if input.isStandalone {
+                return false
+            }
+           
+            if saltPayRegistratorProvider.registrator != nil {
+                return false
+            }
         }
 
         return super.isSupplementButtonVisible
@@ -177,7 +188,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
 
     var supplementButtonColor: ButtonColorStyle {
         switch currentStep {
-        case .selectBackupCards: return .green
+        case .selectBackupCards: return .black
         default: return .transparentWhite
         }
     }
@@ -215,13 +226,14 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         }
     }
 
-    //[REDACTED_TODO_COMMENT]
-    lazy var kycModel: WebViewContainerViewModel = {
-        .init(url: URL(string: "https://app-stage.utorg.pro/account/login?externalId=\(input.cardInput.cardModel!.userWalletId)&sid=tangemTEST")!,
-              title: "",
-              addLoadingIndicator: false,
-              withCloseButton: false,
-              urlActions: ["https://success.tangem.com": { [weak self] _ in
+    lazy var kycModel: WebViewContainerViewModel? = {
+        guard let registrator = saltPayRegistratorProvider.registrator else { return nil }
+    
+        return .init(url: registrator.kycURL,
+                     title: "",
+                     addLoadingIndicator: false,
+                     withCloseButton: false,
+                     urlActions: [registrator.kycDoneURL: { [weak self] _ in
             self?.mainButtonAction()
         }])
     }()
@@ -465,6 +477,19 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         }
     }
 
+    override func goToNextStep() {
+        super.goToNextStep()
+
+        switch currentStep {
+        case .success:
+            withAnimation {
+                fireConfetti()
+            }
+        default:
+            break
+        }
+    }
+    
     override func backButtonAction() {
         switch currentStep {
         case .backupCards:
@@ -506,7 +531,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         case .backupCards:
             if backupServiceState == .finished {
                 Analytics.log(.backupFinish)
-                fireConfetti()
                 self.goToNextStep()
             } else {
                 setupCardsSettings(animated: true, isContainerSetup: false)
