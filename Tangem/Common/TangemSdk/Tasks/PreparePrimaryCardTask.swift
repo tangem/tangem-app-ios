@@ -26,10 +26,9 @@ class PreparePrimaryCardTask: CardSessionRunnable {
         let config = GenericConfig(card: CardDTO(card: card))
         let blockchainNetworks = config.defaultBlockchains.map { $0.blockchainNetwork }
 
-        let derivations: [EllipticCurve: [DerivationPath]] = blockchainNetworks.reduce(into: [:]) { partialResult, blockchainNetwork in
-            if let wallet = session.environment.card?.wallets.first(where: { $0.curve == blockchainNetwork.blockchain.curve }),
-               let path = blockchainNetwork.derivationPath {
-                partialResult[wallet.curve, default: []].append(path)
+        let derivations: [EllipticCurve: [DerivationPath]] = blockchainNetworks.reduce(into: [:]) { result, network in
+            if let path = network.derivationPath {
+                result[network.blockchain.curve, default: []].append(path)
             }
         }
 
