@@ -13,14 +13,16 @@ import BlockchainSdk
 /// V3 Config
 struct LegacyConfig {
     private let card: CardDTO
-    private let walletData: WalletData
+    private let walletData: WalletData?
 
-    private var defaultBlockchain: Blockchain {
+    private var defaultBlockchain: Blockchain? {
+        guard let walletData = walletData else { return nil }
+
         return Blockchain.from(blockchainName: walletData.blockchain, curve: card.supportedCurves[0])!
     }
 
     private var isTestnet: Bool {
-        defaultBlockchain.isTestnet
+        defaultBlockchain?.isTestnet ?? false
     }
 
     private var isMultiwallet: Bool {
@@ -28,7 +30,7 @@ struct LegacyConfig {
     }
 
     private var defaultToken: BlockchainSdk.Token? {
-        guard let token = walletData.token else { return nil }
+        guard let token = walletData?.token else { return nil }
 
         return .init(name: token.name,
                      symbol: token.symbol,
@@ -36,7 +38,7 @@ struct LegacyConfig {
                      decimalCount: token.decimals)
     }
 
-    init(card: CardDTO, walletData: WalletData) {
+    init(card: CardDTO, walletData: WalletData?) {
         self.card = card
         self.walletData = walletData
     }
@@ -65,7 +67,7 @@ extension LegacyConfig: UserWalletConfig {
     }
 
     var defaultCurve: EllipticCurve? {
-        defaultBlockchain.curve
+        defaultBlockchain?.curve
     }
 
     var onboardingSteps: OnboardingSteps {
@@ -81,17 +83,19 @@ extension LegacyConfig: UserWalletConfig {
     }
 
     var supportedBlockchains: Set<Blockchain> {
-        if hasFeature(.multiCurrency) {
+        if isMultiwallet || defaultBlockchain == nil {
             let allBlockchains = isTestnet ? Blockchain.supportedTestnetBlockchains
                 : Blockchain.supportedBlockchains
 
             return allBlockchains.filter { card.supportedCurves.contains($0.curve) }
         } else {
-            return [defaultBlockchain]
+            return [defaultBlockchain!]
         }
     }
 
     var defaultBlockchains: [StorageEntry] {
+        guard let defaultBlockchain = defaultBlockchain else { return [] }
+
         let derivationPath = defaultBlockchain.derivationPath(for: .legacy)
         let network = BlockchainNetwork(defaultBlockchain, derivationPath: derivationPath)
         let tokens = defaultToken.map { [$0] } ?? []
@@ -196,12 +200,14 @@ extension LegacyConfig: UserWalletConfig {
                                                   entry: token,
                                                   derivationStyle: card.derivationStyle)
         } else {
-            guard let walletPublicKey = card.wallets.first(where: { $0.curve == defaultBlockchain.curve })?.publicKey else {
+            let blockchain = defaultBlockchain ?? token.blockchainNetwork.blockchain
+
+            guard let walletPublicKey = card.wallets.first(where: { $0.curve == blockchain.curve })?.publicKey else {
                 throw CommonError.noData
             }
 
             return try factory.makeSingleWallet(walletPublicKey: walletPublicKey,
-                                                blockchain: defaultBlockchain,
+                                                blockchain: blockchain,
                                                 token: nil,
                                                 derivationStyle: card.derivationStyle)
         }
