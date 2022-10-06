@@ -192,7 +192,9 @@ class MainViewModel: ObservableObject {
     }
 
     func updateIsBackupAllowed() {
-        isBackupAllowed = cardModel.canCreateBackup
+        if isBackupAllowed != cardModel.canCreateBackup {
+            isBackupAllowed = cardModel.canCreateBackup
+        }
     }
 
     func getDataCollector(for feedbackCase: EmailFeedbackCase) -> EmailDataCollector {
@@ -247,6 +249,7 @@ class MainViewModel: ObservableObject {
     }
 
     func onAppear() {
+        updateIsBackupAllowed()
         singleWalletContentViewModel?.onAppear()
         multiWalletContentViewModel?.onAppear()
         loadImage()
