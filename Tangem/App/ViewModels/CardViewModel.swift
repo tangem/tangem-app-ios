@@ -29,6 +29,7 @@ class CardViewModel: Identifiable, ObservableObject {
     var signer: TangemSigner { config.tangemSigner }
 
     var cardId: String { cardInfo.card.cardId }
+    var batchId: String { cardInfo.card.batchId }
     var userWalletId: Data { cardInfo.card.userWalletId }
     var cardPublicKey: Data { cardInfo.card.cardPublicKey }
 
