@@ -391,6 +391,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
 
     override func playInitialAnim(includeInInitialAnim: (() -> Void)? = nil) {
+        Analytics.log(.createWalletScreenOpened)
         super.playInitialAnim {
             self.canDisplayCardImage = true
         }
@@ -577,6 +578,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
 
     private func createWallet() {
         Analytics.log(.buttonCreateWallet)
+
         isMainButtonBusy = true
         if !input.isStandalone {
             AppSettings.shared.cardsStartedActivation.insert(input.cardInput.cardId)
@@ -678,6 +680,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     private func addBackupCard() {
         isMainButtonBusy = true
         Analytics.log(.backupStarted)
+        Analytics.log(.backupScreenOpened)
         stepPublisher =
             Deferred {
                 Future { [unowned self] promise in
