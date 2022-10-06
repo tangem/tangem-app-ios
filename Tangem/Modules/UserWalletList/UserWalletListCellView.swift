@@ -19,6 +19,7 @@ class UserWalletListCellViewModel: ObservableObject {
     let userWalletModel: UserWalletModel
     var userWallet: UserWallet { userWalletModel.userWallet }
     let subtitle: String
+    let isMultiWallet: Bool
     let didTapUserWallet: () -> Void
 
     var userWalletId: Data { userWallet.userWalletId }
@@ -33,6 +34,7 @@ class UserWalletListCellViewModel: ObservableObject {
     init(
         userWalletModel: UserWalletModel,
         subtitle: String,
+        isMultiWallet: Bool,
         isUserWalletLocked: Bool,
         isSelected: Bool,
         totalBalanceProvider: TotalBalanceProviding,
@@ -41,6 +43,7 @@ class UserWalletListCellViewModel: ObservableObject {
     ) {
         self.userWalletModel = userWalletModel
         self.subtitle = subtitle
+        self.isMultiWallet = isMultiWallet
         self.isSelected = isSelected
         self.totalBalanceProvider = totalBalanceProvider
         self.cardImageProvider = cardImageProvider
@@ -76,21 +79,23 @@ class UserWalletListCellViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        userWalletModel.subscribeToWalletModels()
-            .sink { models in
-                let allTokenItemViewModels = models.reduce(into: []) { partialResult, walletModel in
-                    partialResult = partialResult + walletModel.allTokenItemViewModels()
+        if isMultiWallet {
+            userWalletModel.subscribeToWalletModels()
+                .sink { models in
+                    let allTokenItemViewModels = models.reduce(into: []) { partialResult, walletModel in
+                        partialResult = partialResult + walletModel.allTokenItemViewModels()
+                    }
+                    
+                    let numberOfTokens = allTokenItemViewModels.count
+                    if numberOfTokens == 0 {
+                        self.numberOfTokens = nil
+                    } else {
+                        self.numberOfTokens = String.localizedStringWithFormat("token_count".localized, numberOfTokens)
+                    }
                 }
-
-                let numberOfTokens = allTokenItemViewModels.count
-                if numberOfTokens == 0 {
-                    self.numberOfTokens = nil
-                } else {
-                    self.numberOfTokens = String.localizedStringWithFormat("token_count".localized, numberOfTokens)
-                }
-            }
-            .store(in: &bag)
-
+                .store(in: &bag)
+        }
+        
         update()
     }
 
