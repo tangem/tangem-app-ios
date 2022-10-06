@@ -47,12 +47,10 @@ struct CardSettingsView: View {
                 detailsType: .text(viewModel.cardIssuer)
             )
 
-            if let cardSignedHashes = viewModel.cardSignedHashes {
-                DefaultRowView(
-                    title: "details_row_title_signed_hashes".localized,
-                    detailsType: .text("details_row_subtitle_signed_hashes_format".localized(cardSignedHashes))
-                )
-            }
+            DefaultRowView(
+                title: "details_row_title_signed_hashes".localized,
+                detailsType: .text("details_row_subtitle_signed_hashes_format".localized(viewModel.cardSignedHashes))
+            )
         })
     }
 
