@@ -15,6 +15,7 @@ protocol PaymentologyApiService: AnyObject {
     func checkRegistration(for cardId: String, publicKey: Data) -> AnyPublisher<SaltPayRegistrator.State, Error>
     func requestAttestationChallenge(for cardId: String, publicKey: Data) -> AnyPublisher<AttestationResponse, Error>
     func registerWallet(request: ReqisterWalletRequest) -> AnyPublisher<RegisterWalletResponse, Error>
+    func registerKYC(for walletPublicKey: Data) -> AnyPublisher<RegisterWalletResponse, Error>
 }
 
 class CommonPaymentologyApiService {
@@ -58,6 +59,18 @@ extension CommonPaymentologyApiService: PaymentologyApiService {
     
     func registerWallet(request: ReqisterWalletRequest) -> AnyPublisher<RegisterWalletResponse, Error> {
         let target = PaymentologyApiTarget(type: .registerWallet(request: request))
+
+        return provider
+            .requestPublisher(target)
+            .filterSuccessfulStatusCodes()
+            .map(RegisterWalletResponse.self, using: JSONDecoder.tangemSdkDecoder)
+            .tryExtractError()
+            .retry(3)
+            .eraseToAnyPublisher()
+    }
+    
+    func registerKYC(for walletPublicKey: Data) -> AnyPublisher<RegisterWalletResponse, Error> {
+        let target = PaymentologyApiTarget(type: .registerKYC(walletPublicKey: walletPublicKey))
 
         return provider
             .requestPublisher(target)
