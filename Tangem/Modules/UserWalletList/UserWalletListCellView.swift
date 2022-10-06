@@ -10,11 +10,13 @@ import SwiftUI
 import Combine
 
 class UserWalletListCellViewModel: ObservableObject {
-    @Published var balance: String = ""
+    @Published var balance: String = "$0,000.00"
     @Published var image: UIImage?
     @Published var isSelected = false
+    @Published var isBalanceLoading = true
 
-    let userWallet: UserWallet
+    let userWalletModel: UserWalletModel
+    var userWallet: UserWallet { userWalletModel.userWallet }
     let subtitle: String
     let numberOfTokens: String?
     let didTapUserWallet: () -> Void
@@ -26,11 +28,10 @@ class UserWalletListCellViewModel: ObservableObject {
     let totalBalanceProvider: TotalBalanceProviding
     private let cardImageProvider: CardImageProviding
 
-    private var totalBalanceBag: AnyCancellable?
-    private var cardImageBag: AnyCancellable?
+    private var bag: Set<AnyCancellable> = []
 
     init(
-        userWallet: UserWallet,
+        userWalletModel: UserWalletModel,
         subtitle: String,
         numberOfTokens: String?,
         isUserWalletLocked: Bool,
@@ -39,7 +40,7 @@ class UserWalletListCellViewModel: ObservableObject {
         cardImageProvider: CardImageProviding,
         didTapUserWallet: @escaping () -> Void
     ) {
-        self.userWallet = userWallet
+        self.userWalletModel = userWalletModel
         self.subtitle = subtitle
         self.numberOfTokens = numberOfTokens
         self.isSelected = isSelected
@@ -52,22 +53,44 @@ class UserWalletListCellViewModel: ObservableObject {
     }
 
     func bind() {
-        totalBalanceBag = totalBalanceProvider.totalBalancePublisher()
+        totalBalanceProvider.totalBalancePublisher()
             .compactMap { $0.value }
             .sink { [unowned self] balance in
                 self.balance = balance.balance.currencyFormatted(code: balance.currency.code)
             }
+            .store(in: &bag)
+
+        userWalletModel.subscribeToWalletModels()
+            .map { walletModels in
+                self.isBalanceLoading = true
+
+                return walletModels
+                    .map { $0.walletDidChange }
+                    .combineLatest()
+                    .map { _ in walletModels }
+                    // Update total balance only after all models successfully loaded
+                    .filter { $0.allConforms { !$0.state.isLoading } }
+            }
+            .switchToLatest()
+            .sink { [unowned self] _ in
+                self.totalBalanceProvider.updateTotalBalance()
+                self.isBalanceLoading = false
+            }
+            .store(in: &bag)
+
+        update()
     }
 
-    func updateTotalBalance() {
-        totalBalanceProvider.updateTotalBalance()
+    private func update() {
+        userWalletModel.updateAndReloadWalletModels()
     }
 
     private func loadImage() {
-        cardImageBag = cardImageProvider.loadImage(cardId: userWallet.card.cardId, cardPublicKey: userWallet.card.cardPublicKey)
+        cardImageProvider.loadImage(cardId: userWallet.card.cardId, cardPublicKey: userWallet.card.cardPublicKey)
             .sink { [unowned self] image in
                 self.image = image
             }
+            .store(in: &bag)
     }
 }
 
@@ -102,6 +125,7 @@ struct UserWalletListCellView: View {
                     Text(viewModel.balance)
                         .font(Font.subheadline)
                         .foregroundColor(Colors.Text.primary1)
+                        .skeletonable(isShown: viewModel.isBalanceLoading, radius: 6)
 
                     Text(viewModel.numberOfTokens ?? "")
                         .font(Font.footnote)
