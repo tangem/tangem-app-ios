@@ -123,12 +123,6 @@ class TokenListViewModel: ObservableObject {
                     return
                 }
 
-                /// Don't show alert if we have an error due to sync in API
-                if error is TangemAPIError {
-                    self?.tokenListDidSave()
-                    return
-                }
-
                 self?.alert = error.alertBinder
             }
         }
