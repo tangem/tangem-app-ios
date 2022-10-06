@@ -250,6 +250,7 @@ class CardViewModel: Identifiable, ObservableObject {
         updateCardPinSettings()
         updateCurrentSecurityOption()
         bind()
+        appendDefaultBlockchainIfNeeded()
     }
 
     func setupWarnings() {
@@ -257,7 +258,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func appendDefaultBlockchains() {
-        userWalletModel?.append(entries: config.defaultBlockchains) { _ in }
+        userWalletModel?.append(entries: config.defaultBlockchains) {}
     }
 
     func deriveEntriesWithoutDerivation() {
@@ -614,6 +615,13 @@ class CardViewModel: Identifiable, ObservableObject {
             userWallet: userWallet
         )
     }
+
+    private func appendDefaultBlockchainIfNeeded() {
+        // For single wallet only
+        guard !isMultiWallet, walletModels.isEmpty else { return }
+
+        appendDefaultBlockchains()
+    }
 }
 
 // MARK: - Proxy for User Wallet Model
@@ -637,22 +645,26 @@ extension CardViewModel {
         return userWalletModel.subscribeToEntriesWithoutDerivation()
     }
 
-    func add(entries: [StorageEntry], completion: @escaping (Result<UserTokenList, Error>) -> Void) {
+    func add(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
         derive(entries: entries) { [weak self] result in
             switch result {
             case .success:
-                self?.userWalletModel?.append(entries: entries, result: completion)
+                self?.userWalletModel?.append(entries: entries) {
+                    completion(.success(()))
+                }
             case let .failure(error):
                 completion(.failure(error))
             }
         }
     }
 
-    func update(entries: [StorageEntry], completion: @escaping (Result<UserTokenList, Error>) -> Void) {
+    func update(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
         derive(entries: entries) { [weak self] result in
             switch result {
             case .success:
-                self?.userWalletModel?.update(entries: entries, result: completion)
+                self?.userWalletModel?.update(entries: entries) {
+                    completion(.success(()))
+                }
             case let .failure(error):
                 completion(.failure(error))
             }
@@ -685,13 +697,13 @@ extension CardViewModel {
         return userWalletModel.canManage(amountType: amountType, blockchainNetwork: blockchainNetwork)
     }
 
-    func remove(item: CommonUserWalletModel.RemoveItem, result: @escaping (Result<UserTokenList, Error>) -> Void) {
+    func remove(item: CommonUserWalletModel.RemoveItem, completion: @escaping () -> Void) {
         guard let userWalletModel = userWalletModel else {
             assertionFailure("UserWalletModel not created")
             return
         }
 
-        userWalletModel.remove(item: item, result: result)
+        userWalletModel.remove(item: item, completion: completion)
     }
 }
 
