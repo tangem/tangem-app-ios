@@ -22,14 +22,13 @@ struct UserWalletConfigFactory {
 
         switch cardInfo.walletData {
         case .none:
+            let isSaltPay = SaltPayUtil().isSaltPayCard(batchId: cardInfo.card.batchId, cardId: cardInfo.card.cardId)
+            
             if isDemo {
                 return GenericDemoConfig(card: cardInfo.card)
+            } else if isSaltPay {
+                return SaltPayConfig(card: cardInfo.card, walletData: GnosisRegistrator.Settings.main.walletData)
             } else {
-                if (cardInfo.card.cardId == "AC03000000070529") || (cardInfo.card.cardId == "AC03000000070537")  {
-                    let token = Token(name: "Wrapped xDAI", symbol: "WxDAI", contractAddress: "0x4346186e7461cB4DF06bCFCB4cD591423022e417", decimals: 18)
-                    let walletData = WalletData(blockchain: Blockchain.saltPay(testnet: false).id, token: token)
-                    return SaltPayConfig(card: cardInfo.card, walletData: walletData)
-                }
                 return GenericConfig(card: cardInfo.card)
             }
         case .note(let noteData):
