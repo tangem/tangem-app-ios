@@ -473,6 +473,10 @@ extension GnosisRegistrator {
                 return Blockchain.saltPay(testnet: true)
             }
         }
+        
+        var walletData: WalletData {
+            .init(blockchain: blockchain.id, token: token)
+        }
     }
 }
 
