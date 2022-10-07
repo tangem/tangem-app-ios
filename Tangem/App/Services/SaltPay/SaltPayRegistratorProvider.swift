@@ -26,4 +26,8 @@ class SaltPayRegistratorProvider: SaltPayRegistratorProviding {
 
         self.registrator = registrator
     }
+    
+    func reset() {
+        registrator = nil
+    }
 }
