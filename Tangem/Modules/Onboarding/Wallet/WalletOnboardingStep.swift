@@ -91,7 +91,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         case .kycWaiting:
             return "onboarding_title_kyc_waiting"
         case .enterPin:
-            return nil
+            return "onboarding_title_pin"
         }
     }
 
@@ -111,7 +111,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         case .kycWaiting:
             return "onboarding_subtitle_kyc_waiting"
         case .enterPin:
-            return nil
+            return "onboarding_subtitle_pin"
         }
     }
 
