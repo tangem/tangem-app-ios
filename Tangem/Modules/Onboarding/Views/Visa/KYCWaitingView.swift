@@ -15,10 +15,10 @@ struct KYCWaitingView: View {
 
             Image(name: "success_waiting")
                 .padding(.bottom, 36)
-            
+
             Spacer()
         }
-      
+
     }
 }
 

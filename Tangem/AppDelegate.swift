@@ -10,6 +10,7 @@ import UIKit
 import Firebase
 import AppsFlyerLib
 import Amplitude
+import BlockchainSdk
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
