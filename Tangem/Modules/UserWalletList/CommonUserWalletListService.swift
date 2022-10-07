@@ -78,7 +78,7 @@ class CommonUserWalletListService: UserWalletListService {
         }
 
         encryptionKeyByUserWalletId[userWallet.userWalletId] = encryptionKey
-        
+
         selectedUserWalletId = userWallet.userWalletId
 
         if userWallets.isEmpty {
@@ -90,7 +90,7 @@ class CommonUserWalletListService: UserWalletListService {
             completion(.failure(TangemSdkError.cardError))
             return
         }
-        
+
         if models.count == 1 {
             isUnlocked = true
         }
