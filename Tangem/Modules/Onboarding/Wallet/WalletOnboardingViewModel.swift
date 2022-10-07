@@ -52,8 +52,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             case .finalizingBackupCard(let index): return LocalizedStringKey(stringLiteral: "onboarding_title_backup_card_number".localized(index))
             default: break
             }
-            
-        case .registerWallet, .kycStart:
+
+        case .registerWallet, .kycStart, .enterPin:
             return nil
         default: break
         }
@@ -89,7 +89,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                 return LocalizedStringKey(stringLiteral: "onboarding_subtitle_scan_backup_card".localized(formattedCardId))
             default: return super.subtitle
             }
-        case .registerWallet, .kycStart:
+        case .registerWallet, .kycStart, .enterPin:
             return nil
         default: return super.subtitle
         }
@@ -154,7 +154,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             if input.isStandalone {
                 return false
             }
-           
+
             if saltPayRegistratorProvider.registrator != nil {
                 return false
             }
@@ -228,14 +228,14 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
 
     lazy var kycModel: WebViewContainerViewModel? = {
         guard let registrator = saltPayRegistratorProvider.registrator else { return nil }
-    
+
         return .init(url: registrator.kycURL,
                      title: "",
                      addLoadingIndicator: false,
                      withCloseButton: false,
                      urlActions: [registrator.kycDoneURL: { [weak self] _ in
-            self?.mainButtonAction()
-        }])
+                         self?.mainButtonAction()
+                     }])
     }()
 
     private var primaryCardStackIndex: Int {
@@ -341,8 +341,21 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     private func loadImageForRestoredbackup(cardId: String, cardPublicKey: Data) {
         CardImageProvider()
             .loadImage(cardId: cardId, cardPublicKey: cardPublicKey)
+            .map { Image(uiImage: $0) }
             .weakAssign(to: \.cardImage, on: self)
             .store(in: &bag)
+    }
+
+    override func loadImage(supportsOnlineImage: Bool, cardId: String?, cardPublicKey: Data?) {
+        if saltPayRegistratorProvider.registrator == nil {
+            cardImage = nil
+            secondImage = nil
+            super.loadImage(supportsOnlineImage: supportsOnlineImage, cardId: cardId, cardPublicKey: cardPublicKey)
+        } else {
+            let isPrimaryScanned = cardId.map { !SaltPayUtil().isBackupCard(cardId: $0) } ?? false
+            cardImage = isPrimaryScanned ? Assets.saltPay : Assets.saltPayBackup
+            secondImage = isPrimaryScanned ? Assets.saltPayBackup : Assets.saltPay
+        }
     }
 
     override func setupContainer(with size: CGSize) {
@@ -489,7 +502,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             break
         }
     }
-    
+
     override func backButtonAction() {
         switch currentStep {
         case .backupCards:
@@ -512,6 +525,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     private func saveAccessCode(_ code: String) {
         do {
             try backupService.setAccessCode(code)
+            saltPayRegistratorProvider.registrator?.setAccessCode(code)
             Analytics.log(backupService.addedBackupCardsCount == 0 ? .cardCodeSave : .backupCardSave)
             Analytics.log(.createAccessCode)
             stackCalculator.setupNumberOfCards(1 + backupCardsAddedCount)
