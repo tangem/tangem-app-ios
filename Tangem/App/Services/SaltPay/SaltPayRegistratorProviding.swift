@@ -10,8 +10,8 @@ import Foundation
 
 protocol SaltPayRegistratorProviding {
     var registrator: SaltPayRegistrator? { get }
-
     func initialize(cardId: String, walletPublicKey: Data, cardPublicKey: Data) throws
+    func reset()
 }
 
 private struct SaltPayRegistratorProviderKey: InjectionKey {
