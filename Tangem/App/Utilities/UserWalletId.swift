@@ -11,9 +11,9 @@ import CryptoKit
 
 struct UserWalletId {
     let value: Data
-    
+
     var stringValue: String { value.hexString }
-    
+
     init(with walletPublicKey: Data) {
         let keyHash = walletPublicKey.sha256()
         let key = SymmetricKey(data: keyHash)

@@ -27,7 +27,7 @@ struct AlertBinder: Identifiable {
         self.alert = alert
         self.error = error
     }
-    
+
     init(title: String, message: String, error: Error? = nil) {
         self.alert = Alert(title: Text(title),
                            message: Text(message),
