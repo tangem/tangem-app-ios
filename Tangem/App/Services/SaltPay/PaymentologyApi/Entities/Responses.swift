@@ -11,7 +11,7 @@ import Foundation
 struct RegistrationResponse: Codable, ErrorContainer {
     let results: [RegistrationResponse.Item]
     let error: String?
-    let errorCode: String?
+    let errorCode: Int?
     let success: Bool
 }
 
@@ -27,7 +27,7 @@ extension RegistrationResponse {
         let kycProvider: String?
         let kycDate: Date?
         let disabledByAdmin: Bool?
-        
+
         enum CodingKeys: String, CodingKey {
             case cardId = "CID"
             case error
@@ -46,13 +46,13 @@ extension RegistrationResponse {
 struct AttestationResponse: Codable, ErrorContainer {
     let challenge: Data
     let error: String?
-    let errorCode: String?
+    let errorCode: Int?
     let success: Bool
 }
 
 struct RegisterWalletResponse: Codable, ErrorContainer {
     let error: String?
-    let errorCode: String?
+    let errorCode: Int?
     let success: Bool
 }
 
