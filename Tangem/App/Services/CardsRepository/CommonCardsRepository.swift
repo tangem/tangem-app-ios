@@ -25,7 +25,8 @@ class CommonCardsRepository: CardsRepository {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.walletConnectServiceProvider) private var walletConnectServiceProvider: WalletConnectServiceProviding
-
+    @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
+    
     private(set) var cards = [String: CardViewModel]()
 
     private var bag: Set<AnyCancellable> = .init()
@@ -67,9 +68,8 @@ class CommonCardsRepository: CardsRepository {
     private func processScan(_ cardInfo: CardInfo) -> CardViewModel {
         let interaction = INInteraction(intent: ScanTangemCardIntent(), response: nil)
         interaction.donate(completion: nil)
-
+        saltPayRegistratorProvider.reset()
         cardInfo.primaryCard.map { backupServiceProvider.backupService.setPrimaryCard($0) }
-
         let cm = CardViewModel(cardInfo: cardInfo)
         tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
         walletConnectServiceProvider.initialize(with: cm)

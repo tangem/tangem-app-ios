@@ -12,14 +12,14 @@ struct CustomContentView: View {
     let imageName: String
     let title: LocalizedStringKey
     let subtitle: LocalizedStringKey
-    
+
     var body: some View {
         VStack(spacing: 14) {
             Spacer()
 
             Image(name: imageName)
                 .padding(.bottom, 15)
-            
+
             Text(title)
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
 
