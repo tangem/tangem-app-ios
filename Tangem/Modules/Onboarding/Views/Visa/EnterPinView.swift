@@ -10,16 +10,20 @@ import SwiftUI
 
 struct EnterPinView: View {
     @Binding var text: String
+
+    let title: LocalizedStringKey
+    let subtitle: LocalizedStringKey
+
     var maxDigits: Int
 
     var body: some View {
         VStack(spacing: 10) {
             Spacer()
 
-            Text("onboarding_title_pin")
+            Text(title)
                 .style(Fonts.Bold.title1, color: Colors.Text.primary1)
 
-            Text("onboarding_subtitle_pin")
+            Text(subtitle)
                 .style(Fonts.Regular.callout, color: Colors.Text.secondary)
 
             PinStackView(maxDigits: maxDigits, pinText: $text)
@@ -32,6 +36,6 @@ struct EnterPinView: View {
 
 struct EnterPinView_Previews: PreviewProvider {
     static var previews: some View {
-        EnterPinView(text: .constant("0000"), maxDigits: 4)
+        EnterPinView(text: .constant("0000"), title: "onboarding_title_pin", subtitle: "onboarding_subtitle_pin", maxDigits: 4)
     }
 }
