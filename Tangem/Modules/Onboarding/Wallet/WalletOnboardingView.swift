@@ -43,6 +43,8 @@ struct WalletOnboardingView: View {
         switch viewModel.currentStep {
         case .enterPin:
             EnterPinView(text: $viewModel.pinText,
+                         title: viewModel.currentStep.title!,
+                         subtitle: viewModel.currentStep.subtitle!,
                          maxDigits: SaltPayRegistrator.Constants.pinLength)
         case .registerWallet:
             CustomContentView(imageName: "cards_wallet",
@@ -110,7 +112,7 @@ struct WalletOnboardingView: View {
 
                             AnimatedView(settings: viewModel.$supplementCardSettings) {
                                 OnboardingCardView(placeholderCardType: secondCardPlaceholder,
-                                                   cardImage: viewModel.cardImage,
+                                                   cardImage: viewModel.secondImage ?? viewModel.cardImage,
                                                    cardScanned: (viewModel.backupCardsAddedCount >= 1 || currentStep == .backupIntro) && viewModel.canDisplayCardImage)
                             }
 
