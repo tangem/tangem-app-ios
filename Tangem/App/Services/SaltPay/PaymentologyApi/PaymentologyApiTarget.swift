@@ -11,9 +11,9 @@ import TangemSdk
 
 struct PaymentologyApiTarget: TargetType {
     let type: TargetType
-    
+
     var baseURL: URL { URL(string: "https://paymentologygate.oa.r.appspot.com")! }
-    
+
     var path: String {
         switch type {
         case .checkRegistration:
@@ -26,11 +26,11 @@ struct PaymentologyApiTarget: TargetType {
             return "/card/kyc"
         }
     }
-    
+
     var method: Moya.Method {
         .post
     }
-    
+
     var task: Task {
         switch type {
         case .checkRegistration(let request):
@@ -43,11 +43,11 @@ struct PaymentologyApiTarget: TargetType {
             return .requestCustomJSONEncodable(request, encoder: JSONEncoder.tangemSdkEncoder)
         }
     }
-    
+
     var headers: [String: String]? {
         [:]
     }
-    
+
     var sampleData: Data {
         switch type {
         case .checkRegistration(let request):
@@ -61,12 +61,12 @@ struct PaymentologyApiTarget: TargetType {
                                                  kycProvider: "SomeProvider",
                                                  kycDate: nil,
                                                  disabledByAdmin: nil)
-            
+
             let response = RegistrationResponse(results: [item],
                                                 error: nil,
                                                 errorCode: nil,
                                                 success: true)
-            
+
             let data = try! JSONEncoder.tangemSdkEncoder.encode(response)
             return data
         case .requestAttestationChallenge:
