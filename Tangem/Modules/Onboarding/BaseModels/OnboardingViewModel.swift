@@ -23,7 +23,8 @@ class OnboardingViewModel<Step: OnboardingStep> {
     @Published var supplementCardSettings: AnimatedViewSettings = .zero
     @Published var isNavBarVisible: Bool = false
     @Published var alert: AlertBinder?
-    @Published var cardImage: UIImage?
+    @Published var cardImage: Image?
+    @Published var secondImage: Image?
 
     private var confettiFired: Bool = false
     var bag: Set<AnyCancellable> = []
@@ -141,13 +142,14 @@ class OnboardingViewModel<Step: OnboardingStep> {
         )
     }
 
-    private func loadImage(supportsOnlineImage: Bool, cardId: String?, cardPublicKey: Data?) {
+    func loadImage(supportsOnlineImage: Bool, cardId: String?, cardPublicKey: Data?) {
         guard let cardId = cardId, let cardPublicKey = cardPublicKey else {
             return
         }
 
         CardImageProvider(supportsOnlineImage: supportsOnlineImage)
             .loadImage(cardId: cardId, cardPublicKey: cardPublicKey)
+            .map { Image(uiImage: $0) }
             .sink { [weak self] image in
                 withAnimation {
                     self?.cardImage = image
