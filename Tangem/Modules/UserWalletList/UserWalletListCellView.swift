@@ -85,7 +85,7 @@ class UserWalletListCellViewModel: ObservableObject {
                     let allTokenItemViewModels = models.reduce(into: []) { partialResult, walletModel in
                         partialResult = partialResult + walletModel.allTokenItemViewModels()
                     }
-                    
+
                     let numberOfTokens = allTokenItemViewModels.count
                     if numberOfTokens == 0 {
                         self.numberOfTokens = nil
@@ -95,7 +95,7 @@ class UserWalletListCellViewModel: ObservableObject {
                 }
                 .store(in: &bag)
         }
-        
+
         update()
     }
 
