@@ -98,25 +98,30 @@ final class AppScanTask: CardSessionRunnable {
         if card.firmwareVersion.doubleValue >= 4.39 {
             if card.settings.maxWalletsCount == 1 {
                 readFile(card, session: session, completion: completion)
-                return
+            } else {
+                readPrimaryIfNeeded(card, session, completion)
             }
 
-            if AppSettings.shared.cardsStartedActivation.contains(card.cardId),
-               card.backupStatus == .noBackup {
-                readPrimaryCard(session, completion)
-                return
-            } else {
-                deriveKeysIfNeeded(session, completion)
-                return
-            }
+            return
         }
 
         self.runScanTask(session, completion)
     }
 
+    private func readPrimaryIfNeeded(_ card: Card, _ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
+        if AppSettings.shared.cardsStartedActivation.contains(card.cardId),
+           card.settings.isBackupAllowed, card.backupStatus == .noBackup {
+            readPrimaryCard(session, completion)
+            return
+        } else {
+            deriveKeysIfNeeded(session, completion)
+            return
+        }
+    }
+
     private func readFile(_ card: Card, session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
         func exit() {
-            self.deriveKeysIfNeeded(session, completion)
+            self.readPrimaryIfNeeded(card, session, completion)
         }
 
         let readFileCommand = ReadFilesTask(fileName: "blockchainInfo", walletPublicKey: nil)
@@ -146,7 +151,8 @@ final class AppScanTask: CardSessionRunnable {
                 if walletData.blockchain != "ANY" {
                     self.walletData = .note(walletData)
                 }
-                self.runScanTask(session, completion)
+
+                exit()
             case .failure(let error):
                 switch error {
                 case .fileNotFound, .insNotSupported:
