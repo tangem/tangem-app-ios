@@ -19,7 +19,8 @@ protocol PaymentologyApiService: AnyObject {
 }
 
 class CommonPaymentologyApiService {
-    private let provider = TangemProvider<PaymentologyApiTarget>(stubClosure: MoyaProvider.delayedStub(1.0))
+    private let provider = TangemProvider<PaymentologyApiTarget>(plugins: [NetworkLoggerPlugin(configuration: .init(logOptions: .verbose))]
+                                                                 /* stubClosure: MoyaProvider.delayedStub(1.0) */ )
 
     deinit {
         print("PaymentologyApiService deinit")
@@ -31,7 +32,7 @@ extension CommonPaymentologyApiService: PaymentologyApiService {
         let requestItem = CardVerifyAndGetInfoRequest.Item(cardId: cardId, publicKey: publicKey.hexString)
         let request = CardVerifyAndGetInfoRequest(requests: [requestItem])
         let target = PaymentologyApiTarget(type: .checkRegistration(request: request))
-        
+
         return provider
             .requestPublisher(target)
             .filterSuccessfulStatusCodes()
@@ -43,11 +44,11 @@ extension CommonPaymentologyApiService: PaymentologyApiService {
             .retry(3)
             .eraseToAnyPublisher()
     }
-    
+
     func requestAttestationChallenge(for cardId: String, publicKey: Data) -> AnyPublisher<AttestationResponse, Error> {
         let requestItem = CardVerifyAndGetInfoRequest.Item(cardId: cardId, publicKey: publicKey.hexString)
         let target = PaymentologyApiTarget(type: .requestAttestationChallenge(request: requestItem))
-        
+
         return provider
             .requestPublisher(target)
             .filterSuccessfulStatusCodes()
@@ -56,7 +57,7 @@ extension CommonPaymentologyApiService: PaymentologyApiService {
             .retry(3)
             .eraseToAnyPublisher()
     }
-    
+
     func registerWallet(request: ReqisterWalletRequest) -> AnyPublisher<RegisterWalletResponse, Error> {
         let target = PaymentologyApiTarget(type: .registerWallet(request: request))
 
@@ -68,7 +69,7 @@ extension CommonPaymentologyApiService: PaymentologyApiService {
             .retry(3)
             .eraseToAnyPublisher()
     }
-    
+
     func registerKYC(request: RegisterKYCRequest) -> AnyPublisher<RegisterWalletResponse, Error> {
         let target = PaymentologyApiTarget(type: .registerKYC(request: request))
 
@@ -89,7 +90,7 @@ fileprivate extension AnyPublisher where Output: ErrorContainer, Failure: Error 
             if let error = container.error {
                 throw error
             }
-            
+
             return container
         }
         .eraseToAnyPublisher()
@@ -100,9 +101,9 @@ fileprivate extension AnyPublisher where Output == RegistrationResponse, Failure
     func tryGetFirstResult() -> AnyPublisher<RegistrationResponse.Item, Error> {
         self.tryMap { response in
             if let first = response.results.first {
-               return first
+                return first
             }
-            
+
             throw SaltPayRegistratorError.emptyResponse
         }
         .eraseToAnyPublisher()
