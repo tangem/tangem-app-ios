@@ -7,42 +7,41 @@
 //
 
 import Foundation
+import TangemSdk
 
 struct SaltPayUtil {
     func isSaltPayCard(batchId: String, cardId: String) -> Bool {
         isPrimaryCard(batchId: batchId) || isBackupCard(cardId: cardId)
     }
-    
+
     func isPrimaryCard(batchId: String) -> Bool {
         primaryCardBatches.contains(batchId)
     }
-    
+
     func isBackupCard(cardId: String) -> Bool {
         if backupCardIds.contains(cardId) {
             return true
         }
-        
-        for range in ranges {
-            if range.contains(cardId) {
-                return true
-            }
+
+        if backupCardRanges.contains(cardId) {
+            return true
         }
-        
+
         return false
     }
 }
 
-private extension SaltPayUtil {
-    var primaryCardBatches: [String] {
+extension SaltPayUtil {
+    private var primaryCardBatches: [String] {
         [
             "AE02",
             "AE03",
         ]
     }
-    
+
     var backupCardIds: [String] {
         [
-            "AC03000000000102", //[REDACTED_TODO_COMMENT]
+            "AC03000000000102", // [REDACTED_TODO_COMMENT]
             "AC01000000033503",
             "AC01000000033594",
             "AC01000000033586",
@@ -73,36 +72,10 @@ private extension SaltPayUtil {
             "AC03000000076229",
         ]
     }
-    
-    var ranges: [CardIdRange] {
+
+    var backupCardRanges: [CardIdRange] {
         [
-            .init(start: "AC05000000000003", end: "AC05000000023997"), //start and end batches must be equal
+            .init(start: "AC05000000000003", end: "AC05000000023997")!, // start and end batches must be equal
         ]
-    }
-}
-
-fileprivate struct CardIdRange {
-    let start: String
-    let end: String
-    
-    func contains(_ cardId: String) -> Bool {
-        guard cardId.getBatchPrefix() == start.getBatchPrefix() else { return false }
-        
-        let range = start.toInt()...end.toInt()
-        return range.contains(cardId.toInt())
-    }
-}
-
-fileprivate extension String {
-    func getBatchPrefix() -> String {
-        String(self.dropFirst(4)).uppercased()
-    }
-    
-    func stripBatchPrefix() -> String {
-        String(self.dropFirst(4))
-    }
-    
-    func toInt() -> Int {
-        Int(self.stripBatchPrefix())!
     }
 }
