@@ -24,7 +24,7 @@ struct SaltPayConfig {
         self.card = card
         self.walletData = walletData
         backupServiceProvider.backupService.skipCompatibilityChecks = true
-        
+
         if let wallet = card.wallets.first {
             try? saltPayRegistratorProvider.initialize(cardId: card.cardId, walletPublicKey: wallet.publicKey, cardPublicKey: card.cardPublicKey)
         }
@@ -38,9 +38,9 @@ struct SaltPayConfig {
         if let backupStatus = card.backupStatus, backupStatus.isActive {
             return []
         }
-        
+
         var steps: [WalletOnboardingStep] = .init()
-        
+
         steps.append(.backupIntro)
 
         if !card.wallets.isEmpty && !backupServiceProvider.backupService.primaryCardIsSet {
@@ -55,12 +55,12 @@ struct SaltPayConfig {
 
         return steps
     }
-    
+
     private var registrationSteps: [WalletOnboardingStep] {
         guard let registrator = saltPayRegistratorProvider.registrator else { return [] }
-        
+
         var steps: [WalletOnboardingStep] = .init()
-        
+
         switch registrator.state {
         case .finished:
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
@@ -74,7 +74,7 @@ struct SaltPayConfig {
         case .needPin, .noGas, .registration:
             steps.append(contentsOf: [.enterPin, .registerWallet, .kycStart, .kycProgress, .kycWaiting])
         }
-        
+
         steps.append(.success)
         return steps
     }
@@ -83,10 +83,14 @@ struct SaltPayConfig {
 extension SaltPayConfig: UserWalletConfig {
     var sdkConfig: Config {
         var config = TangemSdkConfigFactory().makeDefaultConfig()
-        
-       //[REDACTED_TODO_COMMENT]
-//        config.filter.cardIdFilter = .allow(["AC03000000070529", "AC03000000070537"])
-//
+        let util = SaltPayUtil()
+
+        var cardIds = util.backupCardIds
+        cardIds.append(card.cardId)
+
+        config.filter.cardIdFilter = .allow(Set(cardIds), ranges: util.backupCardRanges)
+
+        // [REDACTED_TODO_COMMENT]
 //        config.filter.localizedDescription = "Это ошибка, которой пока нет"
         return config
     }
