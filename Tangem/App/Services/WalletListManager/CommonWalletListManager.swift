@@ -39,7 +39,7 @@ extension CommonWalletListManager: WalletListManager {
     }
 
     func subscribeToWalletModels() -> AnyPublisher<[WalletModel], Never> {
-        walletModels.dropFirst().eraseToAnyPublisher()
+        walletModels.eraseToAnyPublisher()
     }
 
     func getEntriesWithoutDerivation() -> [StorageEntry] {
