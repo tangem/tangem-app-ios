@@ -133,14 +133,8 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
         case .selectBackupCards: return "onboarding_button_add_backup_card"
         case .backupCards, .kycProgress: return ""
         case .success: return "onboarding_button_continue_wallet"
-        case .enterPin:
-            return "onboarding_button_pin"
-        case .registerWallet:
-            return "onboarding_button_register_wallet"
-        case .kycStart:
-            return "onboarding_button_kyc_start"
-        case .kycWaiting:
-            return "onboarding_button_kyc_waiting"
+        case .kycWaiting: return "onboarding_supplement_button_kyc_waiting"
+        default: return ""
         }
     }
 
@@ -150,6 +144,11 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
         case .createWallet: return "onboarding_button_how_it_works"
         case .backupIntro: return "onboarding_button_skip_backup"
         case .selectBackupCards: return "onboarding_button_finalize_backup"
+        case .kycWaiting: return  "onboarding_button_kyc_waiting"
+        case .enterPin: return "onboarding_button_pin"
+        case .registerWallet:  return "onboarding_button_register_wallet"
+        case .kycStart:  return "onboarding_button_kyc_start"
+
         default: return ""
         }
 
@@ -157,8 +156,7 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
 
     var isSupplementButtonVisible: Bool {
         switch self {
-        case .scanPrimaryCard, .backupCards, .success, .createWallet,
-             .enterPin, .registerWallet, .kycStart, .kycProgress, .kycWaiting: return false
+        case .scanPrimaryCard, .backupCards, .success, .createWallet: return false
         default: return true
         }
     }
