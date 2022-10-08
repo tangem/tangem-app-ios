@@ -59,7 +59,9 @@ struct WalletOnboardingView: View {
                 WebViewContainer(viewModel: kycModel)
             }
         case .kycWaiting:
-            KYCWaitingView()
+            KYCWaitingView(imageName: "success_waiting",
+                           title: viewModel.currentStep.title!,
+                           subtitle: viewModel.currentStep.subtitle!)
         default:
             EmptyView()
         }
@@ -104,8 +106,8 @@ struct WalletOnboardingView: View {
                         if !viewModel.isCustomContentVisible {
                             AnimatedView(settings: viewModel.$thirdCardSettings) {
                                 OnboardingCardView(placeholderCardType: secondCardPlaceholder,
-                                                   cardImage: viewModel.cardImage,
-                                                   cardScanned: (viewModel.backupCardsAddedCount >= 2 || currentStep == .backupIntro) && viewModel.canDisplayCardImage)
+                                                   cardImage: viewModel.secondImage ?? viewModel.cardImage,
+                                                   cardScanned: viewModel.canShowThirdCardImage && (viewModel.backupCardsAddedCount >= 2 || currentStep == .backupIntro) && viewModel.canDisplayCardImage)
                             }
 
                             AnimatedView(settings: viewModel.$supplementCardSettings) {
@@ -155,12 +157,12 @@ struct WalletOnboardingView: View {
                 }
                 .frame(minHeight: viewModel.navbarSize.height + 20)
 
-                
+
                 if viewModel.isCustomContentVisible {
                     customContent
                         .layoutPriority(1)
                 }
-                
+
                 if viewModel.isButtonsVisible {
                     OnboardingTextButtonView(
                         title: viewModel.title,
