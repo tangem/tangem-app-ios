@@ -53,7 +53,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             default: break
             }
 
-        case .registerWallet, .kycStart, .enterPin:
+        case .registerWallet, .kycStart, .enterPin, .kycWaiting:
             return nil
         default: break
         }
@@ -89,14 +89,21 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                 return LocalizedStringKey(stringLiteral: "onboarding_subtitle_scan_backup_card".localized(formattedCardId))
             default: return super.subtitle
             }
-        case .registerWallet, .kycStart, .enterPin:
+        case .registerWallet, .kycStart, .enterPin, .kycWaiting:
             return nil
         default: return super.subtitle
         }
     }
 
-    override var mainButtonSettings: TangemButtonSettings {
-        .init(
+    override var mainButtonSettings: TangemButtonSettings? {
+        switch currentStep {
+        case .enterPin, .registerWallet, .kycStart, .kycProgress:
+            return nil
+        default:
+            break
+        }
+
+        return .init(
             title: mainButtonTitle,
             size: .wide,
             action: mainButtonAction,
@@ -128,7 +135,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
 
     var mainButtonColor: ButtonColorStyle {
         switch currentStep {
-        case .selectBackupCards: return .grayAlt
+        case .selectBackupCards, .kycWaiting: return .grayAlt
         default: return .black
         }
     }
@@ -164,15 +171,11 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
 
     override var supplementButtonSettings: TangemButtonSettings? {
-        if currentStep == .enterPin {
-            return nil
-        }
-
         return .init(
             title: supplementButtonTitle,
             size: .wide,
             action: supplementButtonAction,
-            isBusy: false,
+            isBusy: isSupplementButtonBusy,
             isEnabled: isSupplementButtonEnabled,
             isVisible: isSupplementButtonVisible,
             color: supplementButtonColor
@@ -188,7 +191,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
 
     var supplementButtonColor: ButtonColorStyle {
         switch currentStep {
-        case .selectBackupCards: return .black
+        case .selectBackupCards, .kycWaiting, .enterPin, .registerWallet, .kycStart, .kycProgress: return .black
         default: return .transparentWhite
         }
     }
@@ -235,9 +238,13 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                      withCloseButton: false,
                      withNavigationBar: false,
                      urlActions: [registrator.kycDoneURL: { [weak self] _ in
-                         self?.mainButtonAction()
+                         self?.supplementButtonAction()
                      }])
     }()
+    
+    var canShowThirdCardImage: Bool {
+        saltPayRegistratorProvider.registrator == nil
+    }
 
     private var primaryCardStackIndex: Int {
         switch backupServiceState {
@@ -315,7 +322,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         saltPayRegistrator
             .$isBusy
             .dropFirst()
-            .weakAssign(to: \.isMainButtonBusy, on: self)
+            .weakAssign(to: \.isSupplementButtonBusy, on: self)
             .store(in: &bag)
 
         saltPayRegistrator
@@ -348,14 +355,12 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
 
     override func loadImage(supportsOnlineImage: Bool, cardId: String?, cardPublicKey: Data?) {
+        super.loadImage(supportsOnlineImage: supportsOnlineImage, cardId: cardId, cardPublicKey: cardPublicKey)
         if saltPayRegistratorProvider.registrator == nil {
-            cardImage = nil
             secondImage = nil
-            super.loadImage(supportsOnlineImage: supportsOnlineImage, cardId: cardId, cardPublicKey: cardPublicKey)
         } else {
             let isPrimaryScanned = cardId.map { !SaltPayUtil().isBackupCard(cardId: $0) } ?? false
-            cardImage = isPrimaryScanned ? Assets.saltPay : Assets.saltPayBackup
-            secondImage = isPrimaryScanned ? Assets.saltPayBackup : Assets.saltPay
+            secondImage = isPrimaryScanned ? Assets.saltpayBackup : Assets.saltpay
         }
     }
 
@@ -412,16 +417,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             backupCard()
         case .success:
             goToNextStep()
-        case .enterPin:
-            saltPayRegistratorProvider.registrator?.setPin(pinText)
-        case .registerWallet:
-            saltPayRegistratorProvider.registrator?.register()
-        case .kycStart:
-            goToNextStep()
-        case .kycProgress:
-            saltPayRegistratorProvider.registrator?.onFinishKYC()
         case .kycWaiting:
-            saltPayRegistratorProvider.registrator?.update()
+            openSupportChat()
+        default:
+            break
         }
     }
 
@@ -445,7 +444,16 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             } else {
                 openAccessCode()
             }
-
+        case .kycWaiting:
+            saltPayRegistratorProvider.registrator?.update()
+        case .enterPin:
+            saltPayRegistratorProvider.registrator?.setPin(pinText)
+        case .registerWallet:
+            saltPayRegistratorProvider.registrator?.register()
+        case .kycStart:
+            goToNextStep()
+        case .kycProgress:
+            saltPayRegistratorProvider.registrator?.onFinishKYC()
         default:
             break
         }
@@ -751,6 +759,16 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
 extension WalletOnboardingViewModel {
     func openAccessCode() {
         coordinator.openAccessCodeView(callback: saveAccessCode)
+    }
+
+    func openSupportChat() {
+        guard let cardModel = input.cardInput.cardModel else { return }
+
+        let dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel,
+                                                         userWalletEmailData: cardModel.emailData)
+
+        coordinator.openSupportChat(cardId: cardModel.cardId,
+                                    dataCollector: dataCollector)
     }
 }
 
