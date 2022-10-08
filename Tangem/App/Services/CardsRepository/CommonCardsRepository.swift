@@ -26,7 +26,7 @@ class CommonCardsRepository: CardsRepository {
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.walletConnectServiceProvider) private var walletConnectServiceProvider: WalletConnectServiceProviding
     @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
-    
+
     private(set) var cards = [String: CardViewModel]()
 
     private var bag: Set<AnyCancellable> = .init()
