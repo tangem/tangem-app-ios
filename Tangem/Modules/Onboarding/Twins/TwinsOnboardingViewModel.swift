@@ -90,12 +90,12 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         }
     }
 
-    override var mainButtonSettings: TangemButtonSettings {
+    override var mainButtonSettings: TangemButtonSettings? {
         var settings = super.mainButtonSettings
 
         switch currentStep {
         case .alert:
-            settings.isEnabled = alertAccepted
+            settings?.isEnabled = alertAccepted
         default: break
         }
 
