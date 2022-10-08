@@ -533,7 +533,12 @@ URL: %@";
 "onboarding_title_kyc_start" = "Подтвердите свою личность";
 "onboarding_title_kyc_waiting" = "Подтверждение личности в процессе";
 "onboarding_subtitle_register_wallet" = "Подключите вашу карту к децентрализованной платежной системе";
-"onboarding_subtitle_kyc_start" = "Пожалуйста дождитесь завершения процесса подтверждения вашей личности для начала работы с картой";
-"onboarding_subtitle_kyc_waiting" = "Готово, теперь вы можете пользоваться вашим кошельком!";
+"onboarding_subtitle_kyc_start" = "Для начала работы с картой вам необходимо завершить процесс подтверждения личности";
+"onboarding_subtitle_kyc_waiting" = "Пожалуйста дождитесь завершения процесса подтверждения вашей личности для начала работы с картой";
 "onboarding_title_pin" = "Код доступа";
 "onboarding_subtitle_pin" = "Установите Код доступа для вашей SaltPay карты";
+"onboarding_supplement_button_kyc_waiting" = "Чат поддержки";
+"error_saltpay_wrong_backup_card" = "Данная карта не подходит для бэкапа SaltPay";
+
+
+

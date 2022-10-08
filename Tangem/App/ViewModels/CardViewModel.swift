@@ -139,6 +139,10 @@ class CardViewModel: Identifiable, ObservableObject {
     var canSend: Bool {
         config.hasFeature(.send)
     }
+    
+    var cardAmountType: Amount.AmountType {
+        config.cardAmountType
+    }
 
     var hasWallet: Bool {
         !walletModels.isEmpty

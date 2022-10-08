@@ -24,7 +24,7 @@ struct TangemButtonSettings {
 }
 
 struct OnboardingBottomButtonsSettings {
-    let main: TangemButtonSettings
+    let main: TangemButtonSettings?
 
     var supplement: TangemButtonSettings? = nil
 }
@@ -60,18 +60,19 @@ struct OnboardingTextButtonView: View {
     @ViewBuilder
     var buttons: some View {
         VStack(spacing: 10) {
-            let mainSettings = buttonsSettings.main
-            TangemButton(title: mainSettings.title,
-                         systemImage: mainSettings.systemIconName,
-                         iconPosition: mainSettings.iconPosition) {
-                withAnimation {
-                    mainSettings.action?()
+            if let mainSettings = buttonsSettings.main {
+                TangemButton(title: mainSettings.title,
+                             systemImage: mainSettings.systemIconName,
+                             iconPosition: mainSettings.iconPosition) {
+                    withAnimation {
+                        mainSettings.action?()
+                    }
                 }
+                .buttonStyle(TangemButtonStyle(colorStyle: mainSettings.color,
+                                               layout: mainSettings.size,
+                                               isDisabled: !mainSettings.isEnabled,
+                                               isLoading: mainSettings.isBusy))
             }
-            .buttonStyle(TangemButtonStyle(colorStyle: mainSettings.color,
-                                           layout: mainSettings.size,
-                                           isDisabled: !mainSettings.isEnabled,
-                                           isLoading: mainSettings.isBusy))
 
             if let settings = buttonsSettings.supplement {
                 //            if buttonsSettings.containSupplementButton {
@@ -81,7 +82,8 @@ struct OnboardingTextButtonView: View {
                 .opacity(settings.isVisible ? 1.0 : 0.0)
                 .buttonStyle(TangemButtonStyle(colorStyle: settings.color,
                                                layout: settings.size,
-                                               isDisabled: !settings.isEnabled))
+                                               isDisabled: !settings.isEnabled,
+                                               isLoading: settings.isBusy))
             }
         }
     }
