@@ -36,7 +36,7 @@ class SaltPayRegistrator {
     private var bag: Set<AnyCancellable> = .init()
     private var pin: String? = nil
     private var registrationTask: RegistrationTask? = nil
-    private var accessCode: String? = nil //"111111" //[REDACTED_TODO_COMMENT]
+    private var accessCode: String? = nil // "111111" //[REDACTED_TODO_COMMENT]
 
     private let approvalValue: Decimal = .greatestFiniteMagnitude
     private let spendLimitValue: Decimal = 100
@@ -85,11 +85,15 @@ class SaltPayRegistrator {
     }
 
     func update() {
+        isBusy = true
+
         updatePublisher()
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
                     self?.error = error.alertBinder
                 }
+
+                self?.isBusy = false
             } receiveValue: { _ in }
             .store(in: &bag)
     }
@@ -168,8 +172,8 @@ class SaltPayRegistrator {
                                                     pin: pin)
 
                 return self.api.registerWallet(request: request)
-                   // .replaceError(with: RegisterWalletResponse(error: nil, errorCode: nil, success: true)) //[REDACTED_TODO_COMMENT]
-                   // .setFailureType(to: Error.self) //[REDACTED_TODO_COMMENT]
+                    // .replaceError(with: RegisterWalletResponse(error: nil, errorCode: nil, success: true)) //[REDACTED_TODO_COMMENT]
+                    // .setFailureType(to: Error.self) //[REDACTED_TODO_COMMENT]
                     .eraseToAnyPublisher()
             }
             .sink { [weak self] completion in
@@ -185,6 +189,7 @@ class SaltPayRegistrator {
             .store(in: &bag)
     }
 
+    var counter = 0
     private func updateState(with newState: State? = nil) {
         var newState: State = newState ?? state
 
@@ -198,7 +203,7 @@ class SaltPayRegistrator {
             self.state = newState
         }
 
-        self.state = .kycStart //[REDACTED_TODO_COMMENT]
+        // self.state = .kycStart //[REDACTED_TODO_COMMENT]
     }
 
     private func checkGasIfNeeded() -> AnyPublisher<Void, Error> {
@@ -350,16 +355,15 @@ class GnosisRegistrator {
 
         let start = Just("").setFailureType(to: Error.self).eraseToAnyPublisher()
         let pipe = publishers.reduce(start) { partialResult, nextPublisher in
-            partialResult.flatMap { _ in nextPublisher } .eraseToAnyPublisher()
+            partialResult.flatMap { _ in nextPublisher }.eraseToAnyPublisher()
         }
-        
+
         return pipe
-            .map { _ in return ()}
+            .map { _ in return () }
             .eraseToAnyPublisher()
     }
 
     func makeSetSpendLimitTx(value: Decimal) -> AnyPublisher<CompilledEthereumTransaction, Error>  {
-        print("!!makeSetSpendLimitTx")
         do {
             let limitAmount = Amount(with: settings.token, value: value)
             let setSpedLimitData = try makeTxData(sig: Signatures.setSpendLimit, address: cardAddress, amount: limitAmount)
@@ -387,14 +391,13 @@ class GnosisRegistrator {
     }
 
     func makeInitOtpTx(rootOTP: Data, rootOTPCounter: Int) -> AnyPublisher<CompilledEthereumTransaction, Error>  {
-        print("!!makeInitOtpTx")
         let initOTPData = Signatures.initOTP + rootOTP.prefix(16) + Data(count: 46) + rootOTPCounter.bytes2
 
         return transactionProcessor.getFee(to: settings.otpProcessorContractAddress, data: "0x\(initOTPData.hexString)", amount: nil)
             // .replaceError(with: [Amount(with: settings.blockchain, value: 0.00001), Amount(with: settings.blockchain, value: 0.00001)]) //[REDACTED_TODO_COMMENT]
             .tryMap { fees -> Transaction in
                 print("!!makeInitOtpTx fee done \(fees)")
-                let params = EthereumTransactionParams(data: initOTPData, nonce: self.transactionProcessor.initialNonce+1)
+                let params = EthereumTransactionParams(data: initOTPData, nonce: self.transactionProcessor.initialNonce + 1)
                 var transaction = try self.walletManager.createTransaction(amount: Amount.zeroCoin(for: self.settings.blockchain),
                                                                            fee: fees[1],
                                                                            destinationAddress: self.settings.otpProcessorContractAddress,
@@ -410,7 +413,6 @@ class GnosisRegistrator {
     }
 
     func makeSetWalletTx() -> AnyPublisher<CompilledEthereumTransaction, Error>  {
-        print("!!makeSetWalletTx")
         do {
             let setWalletData = try makeTxData(sig: Signatures.setWallet, address: cardAddress, amount: nil)
 
@@ -418,7 +420,7 @@ class GnosisRegistrator {
                 //   .replaceError(with: [Amount(with: settings.blockchain, value: 0.00001), Amount(with: settings.blockchain, value: 0.00001)]) //[REDACTED_TODO_COMMENT]
                 .tryMap { fees -> Transaction in
                     print("!!makeSetWalletTx fee done \(fees)")
-                    let params = EthereumTransactionParams(data: setWalletData, nonce: self.transactionProcessor.initialNonce+2)
+                    let params = EthereumTransactionParams(data: setWalletData, nonce: self.transactionProcessor.initialNonce + 2)
                     var transaction = try self.walletManager.createTransaction(amount: Amount.zeroCoin(for: self.settings.blockchain),
                                                                                fee: fees[1],
                                                                                destinationAddress: self.settings.otpProcessorContractAddress,
@@ -437,7 +439,6 @@ class GnosisRegistrator {
     }
 
     func makeApprovalTx(value: Decimal) -> AnyPublisher<CompilledEthereumTransaction, Error>  {
-        print("!!makeApprovalTx")
         let approveAmount = Amount(with: settings.token, value: value)
         let zeroApproveAmount = Amount(with: approveAmount, value: 0)
         do {
@@ -447,7 +448,7 @@ class GnosisRegistrator {
                 //   .replaceError(with: [Amount(with: settings.blockchain, value: 0.00001), Amount(with: settings.blockchain, value: 0.00001)]) //[REDACTED_TODO_COMMENT]
                 .tryMap { fees -> Transaction in
                     print("!!makeApprovalTx fee done \(fees)")
-                    let params = EthereumTransactionParams(data: approveData, nonce: self.transactionProcessor.initialNonce+3)
+                    let params = EthereumTransactionParams(data: approveData, nonce: self.transactionProcessor.initialNonce + 3)
                     var transaction = try self.walletManager.createTransaction(amount: zeroApproveAmount,
                                                                                fee: fees[1],
                                                                                destinationAddress: "")
@@ -497,7 +498,7 @@ extension GnosisRegistrator {
         case testnet
 
         var token: Token {
-            .init(sdkToken)
+            .init(sdkToken, id: "wrapped-xdai")
         }
 
         var otpProcessorContractAddress: String {
@@ -516,10 +517,6 @@ extension GnosisRegistrator {
             case .testnet:
                 return Blockchain.saltPay(testnet: true)
             }
-        }
-
-        var walletData: WalletData {
-            .init(blockchain: blockchain.id, token: sdkToken)
         }
 
         private var sdkToken: WalletData.Token {
@@ -631,7 +628,7 @@ fileprivate class RegistrationTask: CardSessionRunnable {
     private func generateOTP(in session: CardSession, completion: @escaping CompletionResult<RegistrationTaskResponse>) {
         let cmd = GenerateOTPCommand()
         self.generateOTPCommand = cmd
-        session.viewDelegate.showAlertMessage("Generate OTP") // [REDACTED_TODO_COMMENT]
+        session.viewDelegate.showAlertMessage("Card is preparing...") // [REDACTED_TODO_COMMENT]
 
         cmd.run(in: session) { result in
             switch result {
@@ -661,7 +658,7 @@ fileprivate class RegistrationTask: CardSessionRunnable {
                                          confirmationMode: .dynamic)
 
         self.attestWalletCommand = cmd
-        session.viewDelegate.showAlertMessage("Attest wallet") // [REDACTED_TODO_COMMENT]
+        session.viewDelegate.showAlertMessage("Binding the wallet...") // [REDACTED_TODO_COMMENT]
 
         cmd.run(in: session) { result in
             switch result {
@@ -680,7 +677,7 @@ fileprivate class RegistrationTask: CardSessionRunnable {
             completion(.failure(.unknownError))
             return
         }
-        
+
         let txPublishers = [
             gnosis.makeApprovalTx(value: approvalValue),
             gnosis.makeSetWalletTx(),
@@ -688,7 +685,7 @@ fileprivate class RegistrationTask: CardSessionRunnable {
             gnosis.makeSetSpendLimitTx(value: spendLimitValue),
         ]
 
-        session.viewDelegate.showAlertMessage("Prepare transactions") // [REDACTED_TODO_COMMENT]
+        session.viewDelegate.showAlertMessage("Preparing blockchain transactions...") // [REDACTED_TODO_COMMENT]
 
         Publishers
             .MergeMany(txPublishers)
@@ -715,7 +712,7 @@ fileprivate class RegistrationTask: CardSessionRunnable {
         let cmd = SignHashesCommand(hashes: hashes, walletPublicKey: walletPublicKey)
         self.signCommand = cmd
 
-        session.viewDelegate.showAlertMessage("Signing") // [REDACTED_TODO_COMMENT]
+        session.viewDelegate.showAlertMessage("Signing blockchain transactions...") // [REDACTED_TODO_COMMENT]
 
         cmd.run(in: session) { result in
             switch result {
@@ -725,7 +722,7 @@ fileprivate class RegistrationTask: CardSessionRunnable {
                 }
 
                 self.signedTransactions = signedTxs
-                session.viewDelegate.showAlertMessage("Done") // [REDACTED_TODO_COMMENT]
+                session.viewDelegate.showAlertMessage("Card interaction complete successfully") // [REDACTED_TODO_COMMENT]
                 self.complete(completion: completion)
             case .failure(let error):
                 completion(.failure(error))
@@ -757,13 +754,13 @@ fileprivate extension RegistrationTask {
 fileprivate extension Data {
     func aligned() -> Data {
         let bytesCount = self.count
-        
+
         guard bytesCount < 32 else {
             return self
         }
-        
-        let prefix = Data(repeating: 0, count: 32-bytesCount)
-        
+
+        let prefix = Data(repeating: 0, count: 32 - bytesCount)
+
         return prefix + self
     }
 }
