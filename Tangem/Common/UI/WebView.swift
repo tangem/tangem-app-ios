@@ -30,7 +30,7 @@ struct WebViewContainer: View {
     private var webViewContent: some View {
         WebView(url: viewModel.url, popupUrl: $popupUrl, urlActions: viewModel.urlActions, isLoading: $isLoading)
     }
-    
+
     private var content: some View {
         ZStack {
             if viewModel.withNavigationBar {
@@ -40,7 +40,7 @@ struct WebViewContainer: View {
             } else {
                 webViewContent
             }
-              
+
             if isLoading && viewModel.addLoadingIndicator {
                 ActivityIndicatorView(color: .tangemGrayDark)
             }
