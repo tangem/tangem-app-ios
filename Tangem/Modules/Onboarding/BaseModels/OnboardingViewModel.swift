@@ -17,6 +17,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
     @Published var steps: [Step] = []
     @Published var currentStepIndex: Int = 0
     @Published var isMainButtonBusy: Bool = false
+    @Published var isSupplementButtonBusy: Bool = false
     @Published var shouldFireConfetti: Bool = false
     @Published var isInitialAnimPlayed = false
     @Published var mainCardSettings: AnimatedViewSettings = .zero
@@ -61,7 +62,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
         return currentStep.subtitle
     }
 
-    var mainButtonSettings: TangemButtonSettings {
+    var mainButtonSettings: TangemButtonSettings? {
         .init(
             title: mainButtonTitle,
             size: .wide,
@@ -90,7 +91,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
             title: supplementButtonTitle,
             size: .wide,
             action: supplementButtonAction,
-            isBusy: false,
+            isBusy: isSupplementButtonBusy,
             isEnabled: true,
             isVisible: isSupplementButtonVisible,
             color: .transparentWhite
@@ -181,7 +182,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
 
     func onOnboardingFinished(for cardId: String) {
         if let existingIndex = AppSettings.shared.cardsStartedActivation.firstIndex(where: { $0 == cardId }) {
-            AppSettings.shared.cardsStartedActivation.remove(at: existingIndex)
+            AppSettings.shared.cardsStartedActivation.remove(at: existingIndex) // [REDACTED_TODO_COMMENT]
         }
     }
 
