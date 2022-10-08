@@ -533,8 +533,9 @@ URL: %@";
 "onboarding_title_kyc_start" = "Verify your identity";
 "onboarding_title_kyc_waiting" = "KYC is in progress";
 "onboarding_subtitle_register_wallet" = "Connect your card to the decentralized payment system";
-"onboarding_subtitle_kyc_start" = "Please wait until the verification is completed to start using your wallet";
-"onboarding_subtitle_kyc_waiting" = "All is done, now you can start using your wallet!";
+"onboarding_subtitle_kyc_start" = "To start using your card you have to pass the KYC process";
+"onboarding_subtitle_kyc_waiting" = "Please wait until the verification is completed to start using your wallet";
 "onboarding_title_pin" = "PIN Code";
 "onboarding_subtitle_pin" = "Set PIN code for your SaltPay card";
-
+"onboarding_supplement_button_kyc_waiting" = "Chat with support";
+"error_saltpay_wrong_backup_card" = "This card is not designed to SaltPay backup";
