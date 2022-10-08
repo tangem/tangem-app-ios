@@ -9,18 +9,18 @@
 import SwiftUI
 
 struct OnboardingCardView: View {
-    
+
     enum CardType {
         case dark
         case light
-        
+
         var imageName: String {
             switch self {
             case .dark: return "dark_card"
             case .light: return "light_card"
             }
         }
-        
+
         var blankCardType: BlankCard.CardType {
             switch self {
             case .dark: return .dark
@@ -28,11 +28,11 @@ struct OnboardingCardView: View {
             }
         }
     }
-    
+
     var placeholderCardType: CardType
     var cardImage: Image?
     var cardScanned: Bool
-    
+
     var body: some View {
         GeometryReader { geom in
             if let image = cardImage {
@@ -51,11 +51,11 @@ struct OnboardingCardView: View {
             }
         }
     }
-    
+
 }
 
 struct OnboardingCardView_Previews: PreviewProvider {
-    
+
     static var previews: some View {
         VStack {
             OnboardingCardView(placeholderCardType: .dark,
@@ -64,8 +64,8 @@ struct OnboardingCardView_Previews: PreviewProvider {
             OnboardingCardView(placeholderCardType: .light,
                                cardImage: nil,
                                cardScanned: false)
-            
+
         }
     }
-    
+
 }
