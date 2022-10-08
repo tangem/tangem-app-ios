@@ -101,9 +101,7 @@ struct WalletOnboardingView: View {
                             .frame(width: screenSize.width - 32)
                             .offset(x: 0, y: -size.height / 2 + viewModel.navbarSize.height + 10)
 
-                        if viewModel.isCustomContentVisible {
-                            customContent
-                        } else {
+                        if !viewModel.isCustomContentVisible {
                             AnimatedView(settings: viewModel.$thirdCardSettings) {
                                 OnboardingCardView(placeholderCardType: secondCardPlaceholder,
                                                    cardImage: viewModel.cardImage,
@@ -155,8 +153,14 @@ struct WalletOnboardingView: View {
                 .readSize { size in
                     viewModel.setupContainer(with: size)
                 }
-                .layoutPriority(viewModel.isCustomContentVisible ? 1 : 0)
+                .frame(minHeight: viewModel.navbarSize.height + 20)
 
+                
+                if viewModel.isCustomContentVisible {
+                    customContent
+                        .layoutPriority(1)
+                }
+                
                 if viewModel.isButtonsVisible {
                     OnboardingTextButtonView(
                         title: viewModel.title,
@@ -168,6 +172,7 @@ struct WalletOnboardingView: View {
                         viewModel.closeOnboarding()
                     }
                     .padding(.horizontal, 40)
+                    .padding(.top, 8)
                 }
             }
         }
