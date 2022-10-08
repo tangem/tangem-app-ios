@@ -139,21 +139,6 @@ class WelcomeViewModel: ObservableObject {
             openMain(with: input)
         }
     }
-
-//    private func processScannedSaltPayCard(_ cardModel: CardViewModel) {
-//        if cardModel.walletCreated {
-//            if cardModel.backUpCreated {
-//                processScannedCard(cardModel, isWithAnimation: true)
-//            } else {
-//                if let backupInput = cardModel.backupInput  {
-//                    openSaltPayOnboarding(with: backupInput)
-//                }
-//            }
-//        } else {
-//            error = AlertBinder(alert: Alert(title: Text("saltpay_title_backup_warning".localized), message: Text("saltpay_backup_warning".localized), dismissButton: nil))
-//            isScanningCard = false
-//        }
-//    }
 }
 
 // MARK: - Navigation
