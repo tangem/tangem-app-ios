@@ -31,7 +31,7 @@ struct UserWalletConfigFactory {
             if isDemo {
                 return GenericDemoConfig(card: cardInfo.card)
             } else if isSaltPay {
-                return SaltPayConfig(card: cardInfo.card, walletData: GnosisRegistrator.Settings.main.walletData)
+                return SaltPayConfig(card: cardInfo.card)
             } else {
                 return GenericConfig(card: cardInfo.card)
             }
