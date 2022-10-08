@@ -233,6 +233,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                      title: "",
                      addLoadingIndicator: false,
                      withCloseButton: false,
+                     withNavigationBar: false,
                      urlActions: [registrator.kycDoneURL: { [weak self] _ in
                          self?.mainButtonAction()
                      }])
