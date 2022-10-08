@@ -18,11 +18,9 @@ struct SaltPayConfig {
     @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
 
     private let card: Card
-    private let walletData: WalletData
 
-    init(card: Card, walletData: WalletData) {
+    init(card: Card) {
         self.card = card
-        self.walletData = walletData
         backupServiceProvider.backupService.skipCompatibilityChecks = true
 
         if let wallet = card.wallets.first {
@@ -31,7 +29,11 @@ struct SaltPayConfig {
     }
 
     private var defaultBlockchain: Blockchain {
-        return Blockchain.from(blockchainName: walletData.blockchain, curve: card.supportedCurves[0])!
+        GnosisRegistrator.Settings.main.blockchain
+    }
+
+    private var defaultToken: Token {
+        GnosisRegistrator.Settings.main.token
     }
 
     private var _backupSteps: [WalletOnboardingStep] {
@@ -89,9 +91,7 @@ extension SaltPayConfig: UserWalletConfig {
         cardIds.append(card.cardId)
 
         config.filter.cardIdFilter = .allow(Set(cardIds), ranges: util.backupCardRanges)
-
-        // [REDACTED_TODO_COMMENT]
-//        config.filter.localizedDescription = "Это ошибка, которой пока нет"
+        config.filter.localizedDescription = "error_saltpay_wrong_backup_card".localized
         return config
     }
 
@@ -134,7 +134,7 @@ extension SaltPayConfig: UserWalletConfig {
     var defaultBlockchains: [StorageEntry] {
         let derivationPath = defaultBlockchain.derivationPath(for: .legacy)
         let network = BlockchainNetwork(defaultBlockchain, derivationPath: derivationPath)
-        let entry = StorageEntry(blockchainNetwork: network, tokens: [])
+        let entry = StorageEntry(blockchainNetwork: network, tokens: [defaultToken])
         return [entry]
     }
 
@@ -153,9 +153,13 @@ extension SaltPayConfig: UserWalletConfig {
     var tangemSigner: TangemSigner { .init(with: card.cardId) }
 
     var emailData: [EmailCollectedData] {
-        CardEmailDataFactory().makeEmailData(for: card, walletData: walletData)
+        CardEmailDataFactory().makeEmailData(for: card, walletData: nil)
     }
 
+    var cardAmountType: Amount.AmountType {
+        .token(value: defaultToken)
+    }
+    
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         .hidden
     }
@@ -168,7 +172,7 @@ extension SaltPayConfig: UserWalletConfig {
         let factory = WalletModelFactory()
         return try factory.makeSingleWallet(walletPublicKey: walletPublicKey,
                                             blockchain: defaultBlockchain,
-                                            token: nil,
+                                            token: defaultToken,
                                             derivationStyle: card.derivationStyle)
     }
 }
