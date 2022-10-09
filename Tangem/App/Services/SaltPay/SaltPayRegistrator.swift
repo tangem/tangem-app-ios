@@ -18,7 +18,16 @@ class SaltPayRegistrator {
     @Published public private(set) var isBusy: Bool = false
 
     var kycURL: URL {
-        return URL(string: "https://app-stage.utorg.pro/account/login?externalId=\(kycRefId)&sid=tangemTEST")!
+        let kycProvider = keysManager.saltPay.kycProvider
+        
+        var urlComponents = URLComponents(string: kycProvider.baseUrl)!
+        
+        var queryItems = [URLQueryItem]()
+        queryItems.append(.init(name: kycProvider.externalIdParameterKey, value: kycRefId))
+        queryItems.append(.init(name: kycProvider.sidParameterKey, value: kycProvider.sidValue))
+     
+        urlComponents.queryItems = queryItems
+        return urlComponents.url!
     }
 
     var kycDoneURL: String {
@@ -26,7 +35,8 @@ class SaltPayRegistrator {
     }
 
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
-
+    @Injected(\.keysManager) private var keysManager: KeysManager
+    
     private let repo: SaltPayRepo = .init()
     private let api: PaymentologyApiService = CommonPaymentologyApiService()
     private let gnosis: GnosisRegistrator
@@ -266,7 +276,7 @@ extension SaltPayRegistrator {
                 throw SaltPayRegistratorError.cardNotPassed
             }
 
-            if let disabledByAdmin = response.disabledByAdmin, !disabledByAdmin { // disabledByAdmin is true, show error
+            if response.disabledByAdmin == true { // disabledByAdmin is true, show error
                 throw SaltPayRegistratorError.cardDisabled
             }
 
@@ -371,7 +381,6 @@ class GnosisRegistrator {
             return transactionProcessor.getFee(to: settings.otpProcessorContractAddress, data: "0x\(setSpedLimitData.hexString)", amount: nil)
                 //  .replaceError(with: [Amount(with: settings.blockchain, value: 0.00001), Amount(with: settings.blockchain, value: 0.00001)]) //[REDACTED_TODO_COMMENT]
                 .tryMap { fees -> Transaction in
-                    print("!!makeSetSpendLimitTx fee done \(fees)")
                     let params = EthereumTransactionParams(data: setSpedLimitData, nonce: self.transactionProcessor.initialNonce)
                     var transaction = try self.walletManager.createTransaction(amount: Amount.zeroCoin(for: self.settings.blockchain),
                                                                                fee: fees[1],
@@ -396,7 +405,6 @@ class GnosisRegistrator {
         return transactionProcessor.getFee(to: settings.otpProcessorContractAddress, data: "0x\(initOTPData.hexString)", amount: nil)
             // .replaceError(with: [Amount(with: settings.blockchain, value: 0.00001), Amount(with: settings.blockchain, value: 0.00001)]) //[REDACTED_TODO_COMMENT]
             .tryMap { fees -> Transaction in
-                print("!!makeInitOtpTx fee done \(fees)")
                 let params = EthereumTransactionParams(data: initOTPData, nonce: self.transactionProcessor.initialNonce + 1)
                 var transaction = try self.walletManager.createTransaction(amount: Amount.zeroCoin(for: self.settings.blockchain),
                                                                            fee: fees[1],
@@ -419,7 +427,6 @@ class GnosisRegistrator {
             return transactionProcessor.getFee(to: settings.otpProcessorContractAddress, data: "0x\(setWalletData.hexString)", amount: nil)
                 //   .replaceError(with: [Amount(with: settings.blockchain, value: 0.00001), Amount(with: settings.blockchain, value: 0.00001)]) //[REDACTED_TODO_COMMENT]
                 .tryMap { fees -> Transaction in
-                    print("!!makeSetWalletTx fee done \(fees)")
                     let params = EthereumTransactionParams(data: setWalletData, nonce: self.transactionProcessor.initialNonce + 2)
                     var transaction = try self.walletManager.createTransaction(amount: Amount.zeroCoin(for: self.settings.blockchain),
                                                                                fee: fees[1],
@@ -447,7 +454,6 @@ class GnosisRegistrator {
             return transactionProcessor.getFee(to: settings.token.contractAddress, data: "0x\(approveData.hexString)", amount: nil)
                 //   .replaceError(with: [Amount(with: settings.blockchain, value: 0.00001), Amount(with: settings.blockchain, value: 0.00001)]) //[REDACTED_TODO_COMMENT]
                 .tryMap { fees -> Transaction in
-                    print("!!makeApprovalTx fee done \(fees)")
                     let params = EthereumTransactionParams(data: approveData, nonce: self.transactionProcessor.initialNonce + 3)
                     var transaction = try self.walletManager.createTransaction(amount: zeroApproveAmount,
                                                                                fee: fees[1],
