@@ -65,6 +65,10 @@ extension CommonKeysManager: KeysManager {
     var amplitudeApiKey: String {
         keys.amplitudeApiKey
     }
+    
+    var saltPay: SaltPayConfiguration {
+        keys.saltPay
+    }
 }
 
 extension CommonKeysManager {
@@ -81,5 +85,6 @@ extension CommonKeysManager {
         let tronGridApiKey: String
         let shopifyShop: ShopifyShop
         let zendesk: ZendeskConfig
+        let saltPay: SaltPayConfiguration
     }
 }
