@@ -38,9 +38,9 @@ struct PaymentologyApiTarget: TargetType {
         case .requestAttestationChallenge(let request):
             return .requestJSONEncodable(request)
         case .registerWallet(let request):
-            return .requestCustomJSONEncodable(request, encoder: JSONEncoder.tangemSdkEncoder)
+            return .requestCustomJSONEncodable(request, encoder: JSONEncoder.saltPayEncoder)
         case .registerKYC(let request):
-            return .requestCustomJSONEncodable(request, encoder: JSONEncoder.tangemSdkEncoder)
+            return .requestCustomJSONEncodable(request, encoder: JSONEncoder.saltPayEncoder)
         }
     }
 
@@ -67,22 +67,22 @@ struct PaymentologyApiTarget: TargetType {
                                                 errorCode: nil,
                                                 success: true)
 
-            let data = try! JSONEncoder.tangemSdkEncoder.encode(response)
+            let data = try! JSONEncoder.saltPayEncoder.encode(response)
             return data
         case .requestAttestationChallenge:
             let response = AttestationResponse(challenge: try! CryptoUtils.generateRandomBytes(count: 16),
                                                error: nil,
                                                errorCode: nil,
                                                success: true)
-            let data = try! JSONEncoder.tangemSdkEncoder.encode(response)
+            let data = try! JSONEncoder.saltPayEncoder.encode(response)
             return data
         case .registerWallet:
             let response = RegisterWalletResponse(error: nil, errorCode: nil, success: true)
-            let data = try! JSONEncoder.tangemSdkEncoder.encode(response)
+            let data = try! JSONEncoder.saltPayEncoder.encode(response)
             return data
         case .registerKYC:
             let response = RegisterWalletResponse(error: nil, errorCode: nil, success: true)
-            let data = try! JSONEncoder.tangemSdkEncoder.encode(response)
+            let data = try! JSONEncoder.saltPayEncoder.encode(response)
             return data
         }
     }
@@ -94,5 +94,30 @@ extension PaymentologyApiTarget {
         case requestAttestationChallenge(request: CardVerifyAndGetInfoRequest.Item)
         case registerWallet(request: ReqisterWalletRequest)
         case registerKYC(request: RegisterKYCRequest)
+    }
+}
+
+extension JSONDecoder {
+    static var saltPayDecoder: JSONDecoder {
+        var decoder = JSONDecoder()
+        decoder.dataDecodingStrategy = .custom { decoder in
+            let container = try decoder.singleValueContainer()
+            let hex = try container.decode(String.self)
+            return Data(hexString: hex)
+        }
+        
+        return decoder
+    }
+}
+
+extension JSONEncoder {
+    static var saltPayEncoder: JSONEncoder  {
+        let encoder = JSONEncoder()
+        encoder.dataEncodingStrategy = .custom{ data, encoder in
+            var container = encoder.singleValueContainer()
+            return try container.encode(data.hexString)
+        }
+        
+        return encoder
     }
 }
