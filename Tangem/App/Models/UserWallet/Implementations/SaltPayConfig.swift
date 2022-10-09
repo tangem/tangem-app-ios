@@ -116,6 +116,10 @@ extension SaltPayConfig: UserWalletConfig {
     }
 
     var onboardingSteps: OnboardingSteps {
+        if SaltPayUtil().isBackupCard(cardId: card.cardId) {
+            return .wallet([])
+        }
+        
         if card.wallets.isEmpty {
             return .wallet([.createWallet] + _backupSteps + registrationSteps)
         } else {
