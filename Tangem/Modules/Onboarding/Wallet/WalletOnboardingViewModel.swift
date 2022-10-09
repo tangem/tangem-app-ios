@@ -455,6 +455,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         case .kycStart:
             goToNextStep()
         case .kycProgress:
+            goToNextStep()
             saltPayRegistratorProvider.registrator?.onFinishKYC()
         default:
             break
