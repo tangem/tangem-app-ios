@@ -335,6 +335,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                         break
                     }
                     self?.goToNextStep()
+                case .needPin:
+                    self?.goToNextStep()
                 case .registration:
                     self?.goToNextStep()
                 case .finished:
