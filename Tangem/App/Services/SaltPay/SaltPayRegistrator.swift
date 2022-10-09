@@ -217,7 +217,7 @@ class SaltPayRegistrator {
     }
 
     private func checkGasIfNeeded() -> AnyPublisher<Void, Error> {
-        if state == .kycStart || state == .kycWaiting {
+        if state == .kycStart || state == .kycWaiting || state == .finished {
             return .justWithError(output: ())
         }
 
