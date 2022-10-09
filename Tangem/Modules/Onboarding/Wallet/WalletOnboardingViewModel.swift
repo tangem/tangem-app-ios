@@ -335,10 +335,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                         break
                     }
                     self?.goToNextStep()
-                case .needPin:
-                    self?.goToNextStep()
-                case .registration:
-                    self?.goToNextStep()
                 case .finished:
                     self?.goToNextStep()
                 default:
@@ -450,6 +446,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             saltPayRegistratorProvider.registrator?.update()
         case .enterPin:
             saltPayRegistratorProvider.registrator?.setPin(pinText)
+            goToNextStep()
         case .registerWallet:
             saltPayRegistratorProvider.registrator?.register()
         case .kycStart:
