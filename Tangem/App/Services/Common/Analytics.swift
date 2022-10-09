@@ -147,14 +147,15 @@ class Analytics {
             AnalyticsParameterValue: order.total,
             AnalyticsParameterCurrency: order.currencyCode,
         ], uniquingKeysWith: { $1 }))
+        
+        logAmplitude(event: .purchased, params: ["SKU": sku, "Count": "\(order.lineItems.count)", "Amount": "\(order.total)\(order.currencyCode)"])
     }
     #endif
 
     static func logAmplitude(event: Event, params: [String: String] = [:]) {
         #if !CLIP
         let category = "[\(event.category().rawValue)]"
-//        Amplitude.instance().logEvent("\(category) \(event.rawValue)", withEventProperties: params)
-        print("☢️ \(category) \(event.rawValue), parameters: \(params)")
+        Amplitude.instance().logEvent("\(category) \(event.rawValue)", withEventProperties: params)
         #endif
     }
 
