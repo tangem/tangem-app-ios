@@ -26,6 +26,8 @@ class CommonCardsRepository: CardsRepository {
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.walletConnectServiceProvider) private var walletConnectServiceProvider: WalletConnectServiceProviding
     @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
+    @Injected(\.supportChatService) private var supportChatService: SupportChatServiceProtocol
+    
 
     private(set) var cards = [String: CardViewModel]()
 
@@ -72,6 +74,7 @@ class CommonCardsRepository: CardsRepository {
         cardInfo.primaryCard.map { backupServiceProvider.backupService.setPrimaryCard($0) }
         let cm = CardViewModel(cardInfo: cardInfo)
         tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
+        supportChatService.initialize(with: cm.supportChatEnvironment)
         walletConnectServiceProvider.initialize(with: cm)
         cm.didScan()
         cards[cardInfo.card.cardId] = cm
