@@ -160,6 +160,10 @@ extension SaltPayConfig: UserWalletConfig {
         .token(value: defaultToken)
     }
     
+    var supportChatEnvironment: SupportChatEnvironment {
+        .saltpay
+    }
+    
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         .hidden
     }

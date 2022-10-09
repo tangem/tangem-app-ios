@@ -25,7 +25,7 @@ extension RegistrationResponse {
         let blockchainInit: Bool?
         let kycPassed: Bool?
         let kycProvider: String?
-        let kycDate: Date?
+        let kycDate: String?
         let disabledByAdmin: Bool?
 
         enum CodingKeys: String, CodingKey {
