@@ -46,6 +46,8 @@ protocol UserWalletConfig {
     var emailData: [EmailCollectedData] { get }
     
     var cardAmountType: Amount.AmountType { get }
+    
+    var supportChatEnvironment: SupportChatEnvironment { get }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability
 
@@ -63,6 +65,10 @@ extension UserWalletConfig {
     
     var cardAmountType: Amount.AmountType {
         .coin
+    }
+    
+    var supportChatEnvironment: SupportChatEnvironment {
+        .default
     }
 }
 
