@@ -36,12 +36,12 @@ extension SaltPayUtil {
         [
             "AE02",
             "AE03",
+            "FF03",
         ]
     }
 
     var backupCardIds: [String] {
         [
-            "AC03000000000102", // [REDACTED_TODO_COMMENT]
             "AC01000000033503",
             "AC01000000033594",
             "AC01000000033586",
@@ -76,6 +76,7 @@ extension SaltPayUtil {
     var backupCardRanges: [CardIdRange] {
         [
             .init(start: "AC05000000000003", end: "AC05000000023997")!, // start and end batches must be equal
+            .init(start: "FF04000000000000", end: "FF04999999999999")!, // start and end batches must be equal
         ]
     }
 }
