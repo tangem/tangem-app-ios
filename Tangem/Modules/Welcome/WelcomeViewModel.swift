@@ -52,9 +52,12 @@ class WelcomeViewModel: ObservableObject {
 
         subscription = cardsRepository.scanPublisher()
             .flatMap { [weak self] response -> AnyPublisher<CardViewModel, Error> in
-                if SaltPayUtil().isBackupCard(cardId: response.cardId),
-                   let backupInput = response.backupInput, backupInput.steps.stepsCount > 0 {
-                    return .anyFail(error: SaltPayRegistratorError.emptyBackupCardScanned)
+                if SaltPayUtil().isBackupCard(cardId: response.cardId) {
+                    if let backupInput = response.backupInput, backupInput.steps.stepsCount > 0 {
+                        return .anyFail(error: SaltPayRegistratorError.emptyBackupCardScanned)
+                    } else {
+                        return .justWithError(output: response)
+                    }
                 }
 
                 guard let saltPayRegistrator = self?.saltPayRegistratorProvider.registrator else {
