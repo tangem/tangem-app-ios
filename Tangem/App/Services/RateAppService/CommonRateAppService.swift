@@ -59,6 +59,7 @@ extension CommonRateAppService: RateAppService {
         AppSettings.shared.didUserRespondToRateApp = true
         shouldShowRateAppWarning = false
         if isPositive {
+            Analytics.log(.noticeRateTheAppButtonTapped)
             SKStoreReviewController.requestReview()
         }
     }
