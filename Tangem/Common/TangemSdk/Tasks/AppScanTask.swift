@@ -109,7 +109,14 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func readPrimaryIfNeeded(_ card: Card, _ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        if AppSettings.shared.cardsStartedActivation.contains(card.cardId),
+        #if CLIP
+        deriveKeysIfNeeded(session, completion)
+        return
+        #else
+        let isSaltPayCard = SaltPayUtil().isPrimaryCard(batchId: card.batchId)
+        let isWalletInOnboarding = AppSettings.shared.cardsStartedActivation.contains(card.cardId)
+        
+        if isSaltPayCard || isWalletInOnboarding,
            card.settings.isBackupAllowed, card.backupStatus == .noBackup {
             readPrimaryCard(session, completion)
             return
@@ -117,6 +124,7 @@ final class AppScanTask: CardSessionRunnable {
             deriveKeysIfNeeded(session, completion)
             return
         }
+        #endif
     }
 
     private func readFile(_ card: Card, session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
