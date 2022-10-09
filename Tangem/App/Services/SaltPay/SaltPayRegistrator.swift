@@ -60,7 +60,7 @@ class SaltPayRegistrator {
         self.cardId = cardId
         self.cardPublicKey = cardPublicKey
         self.walletPublicKey = walletPublicKey
-        updateState()
+        //updateState()
     }
 
     func setAccessCode(_ accessCode: String) {
@@ -71,7 +71,7 @@ class SaltPayRegistrator {
         do {
             try assertPinValid(pin)
             self.pin = pin
-            updateState()
+            updateState(with: .registration)
         } catch {
             self.error = (error as! SaltPayRegistratorError).alertBinder
         }
@@ -194,20 +194,20 @@ class SaltPayRegistrator {
                 self?.isBusy = false
             } receiveValue: { [weak self] sendedTxs in
                 self?.repo.data.transactionsSent = true
-                self?.updateState()
+                self?.updateState(with: .kycStart)
             }
             .store(in: &bag)
     }
 
     var counter = 0
-    private func updateState(with newState: State? = nil) {
-        var newState: State = newState ?? state
+    private func updateState(with newState: State) {
+        // newState: State = newState
 
-        if repo.data.transactionsSent {
-            newState = .kycStart
-        } else if self.pin != nil {
-            newState = .registration
-        }
+//        if repo.data.transactionsSent {
+//            newState = .kycStart
+//        } else if self.pin != nil {
+//            newState = .registration
+//        }
 
         if newState != state {
             self.state = newState
@@ -284,18 +284,18 @@ extension SaltPayRegistrator {
                 self = .finished
                 return
             }
+            
+            if response.pinSet == false {
+                self = .needPin // pinset is false, go topin screen
+                return
+            }
 
             if response.kycDate != nil { // kycDate is set, go to kyc waiting screen
                 self = .kycWaiting
                 return
             }
-
-            if response.pinSet == true { // pinset is true, go to kyc start screen
-                self = .kycStart
-                return
-            }
-
-            self = .needPin  // pinset is false, go to enter pin screen, than repeat full registration flow
+            
+            self = .kycStart  // pinset is true, go to kyc start screen
         }
     }
 }
@@ -306,8 +306,9 @@ enum SaltPayRegistratorError: String, Error, LocalizedError {
     case empty
     case noGas
     case emptyResponse
-    case cardDisabled
+    case card
     case cardNotPassed
+    case cardDisabled
     case emptyBackupCardScanned
     case weakPin
 
