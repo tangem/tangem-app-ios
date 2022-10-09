@@ -36,7 +36,7 @@ extension CommonPaymentologyApiService: PaymentologyApiService {
         return provider
             .requestPublisher(target)
             .filterSuccessfulStatusCodes()
-            .map(RegistrationResponse.self, using: JSONDecoder.tangemSdkDecoder)
+            .map(RegistrationResponse.self, using: JSONDecoder.saltPayDecoder)
             .tryExtractError()
             .tryGetFirstResult()
             .tryExtractError()
@@ -52,7 +52,7 @@ extension CommonPaymentologyApiService: PaymentologyApiService {
         return provider
             .requestPublisher(target)
             .filterSuccessfulStatusCodes()
-            .map(AttestationResponse.self, using: JSONDecoder.tangemSdkDecoder)
+            .map(AttestationResponse.self, using: JSONDecoder.saltPayDecoder)
             .tryExtractError()
             .retry(3)
             .eraseToAnyPublisher()
@@ -64,7 +64,7 @@ extension CommonPaymentologyApiService: PaymentologyApiService {
         return provider
             .requestPublisher(target)
             .filterSuccessfulStatusCodes()
-            .map(RegisterWalletResponse.self, using: JSONDecoder.tangemSdkDecoder)
+            .map(RegisterWalletResponse.self, using: JSONDecoder.saltPayDecoder)
             .tryExtractError()
             .retry(3)
             .eraseToAnyPublisher()
@@ -76,7 +76,7 @@ extension CommonPaymentologyApiService: PaymentologyApiService {
         return provider
             .requestPublisher(target)
             .filterSuccessfulStatusCodes()
-            .map(RegisterWalletResponse.self, using: JSONDecoder.tangemSdkDecoder)
+            .map(RegisterWalletResponse.self, using: JSONDecoder.saltPayDecoder)
             .tryExtractError()
             .retry(3)
             .eraseToAnyPublisher()
