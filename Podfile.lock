@@ -228,7 +228,7 @@ DEPENDENCIES:
   - BigInt
   - BinanceChain (from `https://github.com/tangem/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/tangem/bitcoincore.git`, tag `0.0.16`)
-  - BlockchainSdk (from `../blockchain-sdk-swift`)
+  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-160`)
   - DeviceGuru (= 8.0.0)
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -239,11 +239,11 @@ DEPENDENCIES:
   - Moya
   - ScaleCodec
   - Sodium
-  - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-1`)
+  - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-3`)
   - stellar-ios-mac-sdk
   - SwiftCBOR
   - SwiftyJSON
-  - TangemSdk (from `../tangem-sdk-ios`)
+  - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-166`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.7.0`)
   - web3swift (from `https://github.com/tangem/web3swift.git`, tag `2.2.10`)
   - ZendeskAnswerBotSDK (~> 2.2.0)
@@ -310,7 +310,8 @@ EXTERNAL SOURCES:
     :git: https://github.com/tangem/bitcoincore.git
     :tag: 0.0.16
   BlockchainSdk:
-    :path: "../blockchain-sdk-swift"
+    :git: https://github.com/tangem/blockchain-sdk-swift.git
+    :tag: develop-160
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
@@ -319,9 +320,10 @@ EXTERNAL SOURCES:
     :git: https://github.com/onevcat/Kingfisher.git
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
-    :tag: add-external-signer-1
+    :tag: add-external-signer-3
   TangemSdk:
-    :path: "../tangem-sdk-ios"
+    :git: https://github.com/Tangem/tangem-sdk-ios.git
+    :tag: develop-166
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.7.0
@@ -339,6 +341,9 @@ CHECKOUT OPTIONS:
   BitcoinCore.swift:
     :git: https://github.com/tangem/bitcoincore.git
     :tag: 0.0.16
+  BlockchainSdk:
+    :git: https://github.com/tangem/blockchain-sdk-swift.git
+    :tag: develop-160
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
@@ -347,7 +352,10 @@ CHECKOUT OPTIONS:
     :git: https://github.com/onevcat/Kingfisher.git
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
-    :tag: add-external-signer-1
+    :tag: add-external-signer-3
+  TangemSdk:
+    :git: https://github.com/Tangem/tangem-sdk-ios.git
+    :tag: develop-166
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.7.0
@@ -413,6 +421,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: dcaf002af9ec11d4d4e46b405ff500f64f0a5318
+PODFILE CHECKSUM: 4f244c684b699d3ffaf3a2384a717a4761741d73
 
 COCOAPODS: 1.11.3
