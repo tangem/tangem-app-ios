@@ -27,7 +27,7 @@ class CommonCardsRepository: CardsRepository {
     @Injected(\.walletConnectServiceProvider) private var walletConnectServiceProvider: WalletConnectServiceProviding
     @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
     @Injected(\.supportChatService) private var supportChatService: SupportChatServiceProtocol
-    
+
 
     private(set) var cards = [String: CardViewModel]()
 
@@ -76,14 +76,14 @@ class CommonCardsRepository: CardsRepository {
         tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
         supportChatService.initialize(with: cm.supportChatEnvironment)
         walletConnectServiceProvider.initialize(with: cm)
-      
+
         if SaltPayUtil().isPrimaryCard(batchId: cardInfo.card.batchId),
            let wallet = cardInfo.card.wallets.first {
             try? saltPayRegistratorProvider.initialize(cardId: cardInfo.card.cardId,
                                                        walletPublicKey: wallet.publicKey,
                                                        cardPublicKey: cardInfo.card.cardPublicKey)
         }
-        
+
         cm.didScan()
         cards[cardInfo.card.cardId] = cm
         return cm
