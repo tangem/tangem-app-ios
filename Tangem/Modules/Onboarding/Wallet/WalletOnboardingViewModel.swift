@@ -364,7 +364,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             secondImage = nil
         } else {
             let isPrimaryScanned = cardId.map { !SaltPayUtil().isBackupCard(cardId: $0) } ?? false
-            secondImage = isPrimaryScanned ? Assets.saltpayBackup : Assets.saltpay
+            secondImage = isPrimaryScanned ? Assets.saltPayBackup : Assets.saltpay
         }
     }
 
