@@ -42,10 +42,10 @@ private extension TotalBalanceProvider {
             .flatMap { $0.allTokenItemViewModels() }
             .filter { model in
                 guard let amountType = userWalletAmountType else { return true }
-                
+
                 return model.amountType == amountType
             }
-            
+
 
         refreshSubscription = tangemApiService.loadCurrencies()
             .tryMap { currencies -> TotalBalance in

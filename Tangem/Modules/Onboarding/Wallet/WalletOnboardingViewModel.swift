@@ -241,7 +241,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                          self?.supplementButtonAction()
                      }])
     }()
-    
+
     var canShowThirdCardImage: Bool {
         saltPayRegistratorProvider.registrator == nil
     }
@@ -536,7 +536,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             backupService.discardIncompletedBackup()
         }
     }
-    
+
     private func fireConfettiIfNeeded() {
         if currentStep.isOnboardingFinished {
             fireConfetti()
