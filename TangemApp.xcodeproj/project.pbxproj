@@ -547,6 +547,7 @@
 		DCE7119F28784F6700969857 /* DisclaimerRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE7119E28784F6700969857 /* DisclaimerRoutable.swift */; };
 		DCE7E02C287BF92400063EEC /* SwitchChainHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE7E02B287BF92400063EEC /* SwitchChainHandler.swift */; };
 		DCF8972D28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF8972C28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift */; };
+		DCFCA17528F4232F0037586C /* Array+.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFCA17428F4232F0037586C /* Array+.swift */; };
 		EF07F3AD289D43580065549C /* List+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF07F3AC289D43580065549C /* List+.swift */; };
 		EF08A0EF283D1914008BD923 /* Moya+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0EE283D1914008BD923 /* Moya+.swift */; };
 		EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0F0283D2382008BD923 /* CoinsListRequestModel.swift */; };
@@ -1215,6 +1216,7 @@
 		DCE7119E28784F6700969857 /* DisclaimerRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisclaimerRoutable.swift; sourceTree = "<group>"; };
 		DCE7E02B287BF92400063EEC /* SwitchChainHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchChainHandler.swift; sourceTree = "<group>"; };
 		DCF8972C28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkConfigFactory.swift; sourceTree = "<group>"; };
+		DCFCA17428F4232F0037586C /* Array+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+.swift"; sourceTree = "<group>"; };
 		DFEC35A94293DE7EB96CEBC1 /* Pods-Tangem.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.debug(production).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.debug(production).xcconfig"; sourceTree = "<group>"; };
 		E53081CA3060D2785F9D22F0 /* Pods-Tangem-TangemUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release.xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release.xcconfig"; sourceTree = "<group>"; };
 		EF07F3AC289D43580065549C /* List+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "List+.swift"; sourceTree = "<group>"; };
@@ -1713,6 +1715,7 @@
 				EFF034AB28B4B6ED00F70FF7 /* Publisher+TangemAPIError.swift */,
 				EF98BDF028CF89AF00D51719 /* Collection+.swift */,
 				EF9F6F3C28D486B100D6B190 /* Publishers+CombineLatestMany.swift */,
+				DCFCA17428F4232F0037586C /* Array+.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -3922,6 +3925,7 @@
 				DA23789227B250F6009795A8 /* ShopView.swift in Sources */,
 				DC194D2828EC6AA0007FBC99 /* SaltPayRegistratorProviding.swift in Sources */,
 				B031AAB326C169E900015003 /* ConfettiType.swift in Sources */,
+				DCFCA17528F4232F0037586C /* Array+.swift in Sources */,
 				5D341CC627E31DC00028D8FC /* CoinView.swift in Sources */,
 				DC51187C2860B728004FB954 /* AppCoordinatorView.swift in Sources */,
 				B0F62C5025DE4EC9005C8BA0 /* MailView.swift in Sources */,
