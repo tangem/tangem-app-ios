@@ -40,6 +40,7 @@ struct GenericConfig {
 
     init(card: Card) {
         self.card = card
+        backupServiceProvider.backupService.skipCompatibilityChecks = false
     }
 }
 
