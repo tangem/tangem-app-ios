@@ -17,13 +17,15 @@ class OnboardingViewModel<Step: OnboardingStep> {
     @Published var steps: [Step] = []
     @Published var currentStepIndex: Int = 0
     @Published var isMainButtonBusy: Bool = false
+    @Published var isSupplementButtonBusy: Bool = false
     @Published var shouldFireConfetti: Bool = false
     @Published var isInitialAnimPlayed = false
     @Published var mainCardSettings: AnimatedViewSettings = .zero
     @Published var supplementCardSettings: AnimatedViewSettings = .zero
     @Published var isNavBarVisible: Bool = false
     @Published var alert: AlertBinder?
-    @Published var cardImage: UIImage?
+    @Published var cardImage: Image?
+    @Published var secondImage: Image?
 
     private var confettiFired: Bool = false
     var bag: Set<AnyCancellable> = []
@@ -44,7 +46,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
         "onboarding_getting_started"
     }
 
-    var title: LocalizedStringKey {
+    var title: LocalizedStringKey? {
         if !isInitialAnimPlayed, let welcomeStep = input.welcomeStep {
             return welcomeStep.title
         }
@@ -52,7 +54,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
         return currentStep.title
     }
 
-    var subtitle: LocalizedStringKey {
+    var subtitle: LocalizedStringKey? {
         if !isInitialAnimPlayed, let welcomteStep = input.welcomeStep {
             return welcomteStep.subtitle
         }
@@ -60,7 +62,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
         return currentStep.subtitle
     }
 
-    var mainButtonSettings: TangemButtonSettings {
+    var mainButtonSettings: TangemButtonSettings? {
         .init(
             title: mainButtonTitle,
             size: .wide,
@@ -68,7 +70,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
             isBusy: isMainButtonBusy,
             isEnabled: true,
             isVisible: true,
-            color: .green
+            color: .black
         )
     }
 
@@ -89,7 +91,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
             title: supplementButtonTitle,
             size: .wide,
             action: supplementButtonAction,
-            isBusy: false,
+            isBusy: isSupplementButtonBusy,
             isEnabled: true,
             isVisible: isSupplementButtonVisible,
             color: .transparentWhite
@@ -141,13 +143,14 @@ class OnboardingViewModel<Step: OnboardingStep> {
         )
     }
 
-    private func loadImage(supportsOnlineImage: Bool, cardId: String?, cardPublicKey: Data?) {
+    func loadImage(supportsOnlineImage: Bool, cardId: String?, cardPublicKey: Data?) {
         guard let cardId = cardId, let cardPublicKey = cardPublicKey else {
             return
         }
 
         CardImageProvider(supportsOnlineImage: supportsOnlineImage)
             .loadImage(cardId: cardId, cardPublicKey: cardPublicKey)
+            .map { Image(uiImage: $0) }
             .sink { [weak self] image in
                 withAnimation {
                     self?.cardImage = image
@@ -178,9 +181,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
     }
 
     func onOnboardingFinished(for cardId: String) {
-        if let existingIndex = AppSettings.shared.cardsStartedActivation.firstIndex(where: { $0 == cardId }) {
-            AppSettings.shared.cardsStartedActivation.remove(at: existingIndex)
-        }
+        AppSettings.shared.cardsStartedActivation.remove(cardId)
     }
 
     func backButtonAction() {}
