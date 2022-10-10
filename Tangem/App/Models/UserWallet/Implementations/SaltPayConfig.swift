@@ -22,10 +22,6 @@ struct SaltPayConfig {
     init(card: Card) {
         self.card = card
         backupServiceProvider.backupService.skipCompatibilityChecks = true
-
-        if let wallet = card.wallets.first {
-            try? saltPayRegistratorProvider.initialize(cardId: card.cardId, walletPublicKey: wallet.publicKey, cardPublicKey: card.cardPublicKey)
-        }
         
         if !_backupSteps.isEmpty {
             AppSettings.shared.cardsStartedActivation.insert(card.cardId)
