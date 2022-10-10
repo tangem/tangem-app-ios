@@ -19,7 +19,7 @@ protocol SupportChatServiceProtocol {
 
 class SupportChatService: SupportChatServiceProtocol {
     @Injected(\.keysManager) private var keysManager: KeysManager
-    
+
     func initialize(with env: SupportChatEnvironment) {
         let config = makeConfig(for: env)
         Zendesk.initialize(appId: config.zendeskAppId,
@@ -29,7 +29,7 @@ class SupportChatService: SupportChatServiceProtocol {
         Zendesk.instance?.setIdentity(Identity.createAnonymous())
         Chat.initialize(accountKey: config.zendeskAccountKey, appId: config.zendeskAppId)
     }
-    
+
     private func makeConfig(for env: SupportChatEnvironment) -> ZendeskConfig {
         switch env {
         case .default:
