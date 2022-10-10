@@ -147,7 +147,7 @@ class Analytics {
             AnalyticsParameterValue: order.total,
             AnalyticsParameterCurrency: order.currencyCode,
         ], uniquingKeysWith: { $1 }))
-        
+
         logAmplitude(event: .purchased, params: ["SKU": sku, "Count": "\(order.lineItems.count)", "Amount": "\(order.total)\(order.currencyCode)"])
     }
     #endif
