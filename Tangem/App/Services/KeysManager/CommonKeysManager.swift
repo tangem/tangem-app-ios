@@ -66,7 +66,7 @@ extension CommonKeysManager: KeysManager {
     var amplitudeApiKey: String {
         keys.amplitudeApiKey
     }
-    
+
     var saltPay: SaltPayConfiguration {
         keys.saltPay
     }
