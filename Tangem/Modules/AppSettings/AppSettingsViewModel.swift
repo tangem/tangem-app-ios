@@ -8,6 +8,7 @@
 
 import Combine
 import SwiftUI
+import TangemSdk
 
 class AppSettingsViewModel: ObservableObject {
     // MARK: ViewState
@@ -156,7 +157,8 @@ private extension AppSettingsViewModel {
                 isSavingAccessCodes = false
                 shouldShowAlertOnDisableSaveAccessCodes = true
 
-                sdkProvider.sdk.deleteSavedAccessCodes()
+                let accessCodeRepository = AccessCodeRepository()
+                accessCodeRepository.clear()
             }
         }
     }
