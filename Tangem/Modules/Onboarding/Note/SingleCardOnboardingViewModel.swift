@@ -163,7 +163,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             self.cardModel.appendDefaultBlockchains()
 
             if case let .singleWallet(steps) = self.input.steps, steps.contains(.topup) {
-                AppSettings.shared.cardsStartedActivation.append(self.cardModel.cardId)
+                AppSettings.shared.cardsStartedActivation.insert(self.cardModel.cardId)
             }
 
             self.cardModel.userWalletModel?.updateAndReloadWalletModels()
