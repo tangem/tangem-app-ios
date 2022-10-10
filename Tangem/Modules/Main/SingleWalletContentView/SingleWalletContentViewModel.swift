@@ -56,6 +56,7 @@ class SingleWalletContentViewModel: ObservableObject {
 
     func onAppear() {
         userWalletModel.updateAndReloadWalletModels()
+        singleWalletModel = userWalletModel.getWalletModels().first
     }
 
     func openQR() {
