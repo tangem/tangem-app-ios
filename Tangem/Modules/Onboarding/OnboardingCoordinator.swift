@@ -91,7 +91,6 @@ extension OnboardingCoordinator: WalletOnboardingRoutable {
     }
 
     func openSupportChat(cardId: String, dataCollector: EmailDataCollector) {
-        Analytics.log(.chatTapped)
         supportChatViewModel = SupportChatViewModel(cardId: cardId, dataCollector: dataCollector)
     }
 }
