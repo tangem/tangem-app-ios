@@ -11,15 +11,15 @@ import Combine
 
 class CommonWalletListManager {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
-
+    
     private var config: UserWalletConfig
     private let userTokenListManager: UserTokenListManager
-
+    
     /// Bool flag for migration custom token to token form our API
     private var migrated = false
     private var walletModels = CurrentValueSubject<[WalletModel], Never>([])
     private var entriesWithoutDerivation = CurrentValueSubject<[StorageEntry], Never>([])
-
+    
     init(config: UserWalletConfig, userTokenListManager: UserTokenListManager) {
         self.config = config
         self.userTokenListManager = userTokenListManager
@@ -33,33 +33,35 @@ extension CommonWalletListManager: WalletListManager {
         print("🔄 Updating WalletListManager with new config")
         self.config = config
     }
-
+    
     func getWalletModels() -> [WalletModel] {
         walletModels.value
     }
-
+    
     func subscribeToWalletModels() -> AnyPublisher<[WalletModel], Never> {
-        walletModels.dropFirst().eraseToAnyPublisher()
+        walletModels.eraseToAnyPublisher()
     }
-
+    
     func getEntriesWithoutDerivation() -> [StorageEntry] {
         entriesWithoutDerivation.value
     }
-
+    
     func subscribeToEntriesWithoutDerivation() -> AnyPublisher<[StorageEntry], Never> {
         entriesWithoutDerivation
             .dropFirst()
             .removeDuplicates()
             .eraseToAnyPublisher()
     }
-
+    
     func updateWalletModels() {
         print("🔄 Updating Wallet models")
-
+        
         var walletModels = getWalletModels()
         let entries = userTokenListManager.getEntriesFromRepository()
         log(entires: entries)
-
+        
+        var entriesToAdd: [StorageEntry] = []
+        
         // Update tokens
         entries.forEach { entry in
             if let walletModel = walletModels.first(where: { $0.blockchainNetwork == entry.blockchainNetwork }) {
@@ -68,21 +70,20 @@ extension CommonWalletListManager: WalletListManager {
                         walletModel.addTokens(entry.tokens)
                     }
                 }
-
+                
                 walletModel.getTokens().forEach { token in
                     if !entry.tokens.contains(token) {
                         walletModel.removeToken(token)
                     }
                 }
+            } else {
+                entriesToAdd.append(entry)
             }
         }
-
+        
         var nonDeriveEntries: [StorageEntry] = []
-
-        let walletModelsToAdd = entries
-            .filter { entry in
-                !walletModels.contains(where: { $0.blockchainNetwork == entry.blockchainNetwork })
-            }
+        
+        let walletModelsToAdd = entriesToAdd
             .compactMap { entry in
                 do {
                     let walletModel = try config.makeWalletModel(for: entry)
@@ -94,48 +95,48 @@ extension CommonWalletListManager: WalletListManager {
                     return nil
                 }
             }
-
+        
         walletModels.removeAll { walletModel in
             if !entries.contains(where: { $0.blockchainNetwork == walletModel.blockchainNetwork }) {
                 print("‼️ WalletModel will be removed \(walletModel.blockchainNetwork.blockchain.displayName)")
                 return true
             }
-
+            
             return false
         }
-
+        
         walletModels.append(contentsOf: walletModelsToAdd)
         log(walletModels: walletModels)
-
+        
         entriesWithoutDerivation.send(nonDeriveEntries)
         self.walletModels.send(walletModels)
     }
-
+    
     func reloadWalletModels() -> AnyPublisher<Void, Never> {
         guard !getWalletModels().isEmpty else {
             print("‼️ WalletModels is empty")
             return .just
         }
-
+        
         return reloadAllWalletModelsPublisher()
     }
-
+    
     func canManage(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool {
         if let walletModel = getWalletModels().first(where: { $0.blockchainNetwork == blockchainNetwork }) {
             return walletModel.canRemove(amountType: amountType)
         }
-
+        
         return true
     }
-
+    
     func canRemove(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool {
         if let walletModel = getWalletModels().first(where: { $0.blockchainNetwork == blockchainNetwork }) {
             return walletModel.canRemove(amountType: amountType)
         }
-
+        
         return false
     }
-
+    
     func removeToken(_ token: Token, blockchainNetwork: BlockchainNetwork) {
         getWalletModels().first(where: { $0.blockchainNetwork == blockchainNetwork })?.removeToken(token)
         updateWalletModels()
@@ -149,46 +150,46 @@ private extension CommonWalletListManager {
                 guard let self = self else {
                     return .just
                 }
-
+                
                 return self.updateWalletModelsPublisher()
             }
             .eraseToAnyPublisher()
     }
-
+    
     func updateWalletModelsPublisher() -> AnyPublisher<Void, Never> {
         let publishers = getWalletModels().map {
             $0.update(silent: false).replaceError(with: (()))
         }
-
+        
         return Publishers
             .MergeMany(publishers)
             .collect(publishers.count)
             .mapVoid()
             .eraseToAnyPublisher()
     }
-
+    
     func tryMigrateTokens() -> AnyPublisher<Void, Never>  {
         if migrated {
             return .just
         }
-
+        
         migrated = true
-
+        
         let items = userTokenListManager.getEntriesFromRepository()
         let itemsWithCustomTokens = items.filter { item in
             return item.tokens.contains(where: { $0.isCustom })
         }
-
+        
         if itemsWithCustomTokens.isEmpty {
             return .just
         }
-
+        
         let publishers: [AnyPublisher<Bool, Never>] = itemsWithCustomTokens.reduce(into: []) { result, item in
             result += item.tokens.filter { $0.isCustom }.map { token -> AnyPublisher<Bool, Never> in
                 updateCustomToken(token: token, in: item.blockchainNetwork)
             }
         }
-
+        
         return Publishers.MergeMany(publishers)
             .collect(publishers.count)
             .handleEvents(receiveOutput: { [weak self] migrationResults in
@@ -199,13 +200,13 @@ private extension CommonWalletListManager {
             .mapVoid()
             .eraseToAnyPublisher()
     }
-
+    
     func updateCustomToken(token: Token, in blockchainNetwork: BlockchainNetwork) -> AnyPublisher<Bool, Never> {
         let requestModel = CoinsListRequestModel(
             contractAddress: token.contractAddress,
             networkIds: [blockchainNetwork.blockchain.networkId]
         )
-
+        
         return tangemApiService
             .loadCoins(requestModel: requestModel)
             .replaceError(with: [])
@@ -214,7 +215,7 @@ private extension CommonWalletListManager {
                       let token = models.first?.items.compactMap({ $0.token }).first else {
                     return Just(false).eraseToAnyPublisher()
                 }
-
+                
                 return Future<Bool, Never> { promise in
                     let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: token)
                     self.userTokenListManager.update(.append([entry])) {
@@ -225,7 +226,7 @@ private extension CommonWalletListManager {
             }
             .eraseToAnyPublisher()
     }
-
+    
     func log(entires: [StorageEntry]) {
         let printList = entires.map { entry in
             var text = "blockchain: \(entry.blockchainNetwork.blockchain.displayName)"
@@ -234,10 +235,10 @@ private extension CommonWalletListManager {
             }
             return text
         }
-
+        
         print("✅ Actual List of StorageEntry [\(printList.joined(separator: ", "))]")
     }
-
+    
     func log(walletModels: [WalletModel]) {
         let printList = walletModels.map { walletModel in
             var text = "blockchain: \(walletModel.blockchainNetwork.blockchain.displayName)"
@@ -246,7 +247,7 @@ private extension CommonWalletListManager {
             }
             return text
         }
-
+        
         print("✅ Actual List of WalletModels [\(printList.joined(separator: ", "))]")
     }
 }
