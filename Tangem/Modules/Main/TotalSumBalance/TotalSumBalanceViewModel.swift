@@ -8,6 +8,7 @@
 
 import SwiftUI
 import Combine
+import BlockchainSdk
 
 class TotalSumBalanceViewModel: ObservableObject {
     // MARK: - ViewState
@@ -23,7 +24,7 @@ class TotalSumBalanceViewModel: ObservableObject {
 
     @Injected(\.rateAppService) private var rateAppService: RateAppService
     private let tapOnCurrencySymbol: () -> ()
-    private let isSingleCoinCard: Bool
+    private let cardAmountType: Amount.AmountType?
     private let userWalletModel: UserWalletModel
     private let totalBalanceManager: TotalBalanceProviding
 
@@ -32,12 +33,12 @@ class TotalSumBalanceViewModel: ObservableObject {
     init(
         userWalletModel: UserWalletModel,
         totalBalanceManager: TotalBalanceProviding,
-        isSingleCoinCard: Bool,
+        cardAmountType: Amount.AmountType?,
         tapOnCurrencySymbol: @escaping () -> ()
     ) {
         self.userWalletModel = userWalletModel
         self.totalBalanceManager = totalBalanceManager
-        self.isSingleCoinCard = isSingleCoinCard
+        self.cardAmountType = cardAmountType
         self.tapOnCurrencySymbol = tapOnCurrencySymbol
 
         bind()
@@ -48,9 +49,9 @@ class TotalSumBalanceViewModel: ObservableObject {
     }
 
     func updateForSingleCoinCard(walletModels: [WalletModel]) {
-        guard isSingleCoinCard else { return }
+        guard let cardAmountType = self.cardAmountType else { return }
 
-        singleWalletBalance = walletModels.first?.allTokenItemViewModels().first?.balance
+        singleWalletBalance = walletModels.first?.allTokenItemViewModels().first(where: { $0.amountType == cardAmountType })?.balance
     }
 
     func didTapOnCurrencySymbol() {
@@ -63,6 +64,7 @@ class TotalSumBalanceViewModel: ObservableObject {
 
     private func bind() {
         userWalletModel.subscribeToWalletModels()
+            .receive(on: DispatchQueue.main)
             .map { [unowned self] walletModels in
                 isLoading = true
 
