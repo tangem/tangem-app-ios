@@ -295,6 +295,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
 
         if case let .wallet(steps) = input.steps {
             self.steps = steps
+            DispatchQueue.main.async {
+                self.fireConfettiIfNeeded()
+            }
         }
 
         if isFromMain {
@@ -311,23 +314,26 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
 
     private func bindSaltPayIfNeeded() {
-        guard  let saltPayRegistrator = saltPayRegistratorProvider.registrator else { return }
+        guard let saltPayRegistrator = saltPayRegistratorProvider.registrator else { return }
 
         saltPayRegistrator
             .$error
             .dropFirst()
+            .receive(on: DispatchQueue.main)
             .weakAssign(to: \.alert, on: self)
             .store(in: &bag)
 
         saltPayRegistrator
             .$isBusy
             .dropFirst()
+            .receive(on: DispatchQueue.main)
             .weakAssign(to: \.isSupplementButtonBusy, on: self)
             .store(in: &bag)
 
         saltPayRegistrator
             .$state
             .dropFirst()
+            .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] newState in
                 switch newState {
                 case .kycStart:
@@ -530,6 +536,12 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             backupService.discardIncompletedBackup()
         }
     }
+    
+    private func fireConfettiIfNeeded() {
+        if currentStep.isOnboardingFinished {
+            fireConfetti()
+        }
+    }
 
     private func saveAccessCode(_ code: String) {
         do {
@@ -569,7 +581,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         Analytics.log(.createWalletTapped)
         isMainButtonBusy = true
         if !input.isStandalone {
-            AppSettings.shared.cardsStartedActivation.append(input.cardInput.cardId)
+            AppSettings.shared.cardsStartedActivation.insert(input.cardInput.cardId)
         }
         stepPublisher = preparePrimaryCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)

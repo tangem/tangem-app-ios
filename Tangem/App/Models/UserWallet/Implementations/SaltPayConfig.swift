@@ -26,6 +26,10 @@ struct SaltPayConfig {
         if let wallet = card.wallets.first {
             try? saltPayRegistratorProvider.initialize(cardId: card.cardId, walletPublicKey: wallet.publicKey, cardPublicKey: card.cardPublicKey)
         }
+        
+        if !_backupSteps.isEmpty {
+            AppSettings.shared.cardsStartedActivation.insert(card.cardId)
+        }
     }
 
     private var defaultBlockchain: Blockchain {
@@ -173,14 +177,16 @@ extension SaltPayConfig: UserWalletConfig {
     }
 
     func makeWalletModel(for token: StorageEntry) throws -> WalletModel {
-        guard let walletPublicKey = card.wallets.first(where: { $0.curve == defaultBlockchain.curve })?.publicKey else {
+        let blockchain = token.blockchainNetwork.blockchain
+
+        guard let walletPublicKey = card.wallets.first(where: { $0.curve == blockchain.curve })?.publicKey else {
             throw CommonError.noData
         }
 
         let factory = WalletModelFactory()
         return try factory.makeSingleWallet(walletPublicKey: walletPublicKey,
-                                            blockchain: defaultBlockchain,
-                                            token: defaultToken,
+                                            blockchain: blockchain,
+                                            token: token.tokens.first,
                                             derivationStyle: card.derivationStyle)
     }
 }
