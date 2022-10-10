@@ -19,7 +19,7 @@ class TotalBalanceProvider {
     private let userWalletAmountType: Amount.AmountType?
     private var isFirstLoadForCardInSession: Bool = true
     private let userDefaults = UserDefaults.standard
-    
+
     private var cardBalanceInfoWasSaved: Bool {
         userDefaults.data(forKey: cardSupportInfo.cardNumberHash) != nil
     }
