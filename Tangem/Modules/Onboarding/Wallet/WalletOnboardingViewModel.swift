@@ -406,6 +406,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         case .scanPrimaryCard:
             readPrimaryCard()
         case .backupIntro:
+            Analytics.log(.backupScreenOpened)
             if NFCUtils.isPoorNfcQualityDevice {
                 self.alert = AlertBuilder.makeOldDeviceAlert()
             } else {
@@ -433,6 +434,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         case .createWallet:
             break
         case .backupIntro:
+            Analytics.log(.backupSkipped)
             jumpToLatestStep()
         case .selectBackupCards:
             if backupCardsAddedCount < 2 {
