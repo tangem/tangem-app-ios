@@ -115,7 +115,7 @@ final class AppScanTask: CardSessionRunnable {
         #else
         let isSaltPayCard = SaltPayUtil().isPrimaryCard(batchId: card.batchId)
         let isWalletInOnboarding = AppSettings.shared.cardsStartedActivation.contains(card.cardId)
-        
+
         if isSaltPayCard || isWalletInOnboarding,
            card.settings.isBackupAllowed, card.backupStatus == .noBackup {
             readPrimaryCard(session, completion)
