@@ -62,10 +62,18 @@ class CommonUserWalletListService: UserWalletListService {
     }
 
     func unlockWithBiometry(completion: @escaping (Result<Void, Error>) -> Void) {
-        let result = self.unlockWithBiometryInternal()
-
-        DispatchQueue.main.async {
-            completion(result)
+        encryptionKeyStorage.fetch { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .failure(let error):
+                    completion(.failure(error))
+                case .success(let keys):
+                    self?.encryptionKeyByUserWalletId = keys
+                    self?.loadModels()
+                    self?.isUnlocked = true
+                    completion(.success(()))
+                }
+            }
         }
     }
 
@@ -151,17 +159,6 @@ class CommonUserWalletListService: UserWalletListService {
         models = []
         selectedUserWalletId = nil
         encryptionKeyStorage.clear()
-    }
-
-    private func unlockWithBiometryInternal() -> Result<Void, Error> {
-        do {
-            encryptionKeyByUserWalletId = try encryptionKeyStorage.fetch()
-            loadModels()
-            isUnlocked = true
-            return .success(())
-        } catch let error {
-            return .failure(error)
-        }
     }
 
     private func savedUserWallets() -> [UserWallet] {
