@@ -22,7 +22,7 @@ struct SaltPayConfig {
     init(card: Card) {
         self.card = card
         backupServiceProvider.backupService.skipCompatibilityChecks = true
-        
+
         if !_backupSteps.isEmpty {
             AppSettings.shared.cardsStartedActivation.insert(card.cardId)
         }
@@ -119,7 +119,7 @@ extension SaltPayConfig: UserWalletConfig {
         if SaltPayUtil().isBackupCard(cardId: card.cardId) {
             return .wallet([])
         }
-        
+
         if card.wallets.isEmpty {
             return .wallet([.createWallet] + _backupSteps + registrationSteps)
         } else {
@@ -163,11 +163,11 @@ extension SaltPayConfig: UserWalletConfig {
     var cardAmountType: Amount.AmountType {
         .token(value: defaultToken)
     }
-    
+
     var supportChatEnvironment: SupportChatEnvironment {
         .saltpay
     }
-    
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         .hidden
     }
