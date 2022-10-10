@@ -131,8 +131,13 @@ class SaltPayRegistrator {
     func register() {
         isBusy = true
 
-        api.requestAttestationChallenge(for: cardId, publicKey: cardPublicKey)
-            .flatMap { [weak self] attestationResponse -> AnyPublisher<RegistrationTask.Response, Error> in
+        checkGasIfNeeded()
+            .flatMap {[weak self] _ -> AnyPublisher<AttestationResponse, Error> in
+                guard let self = self else { return .anyFail(error: SaltPayRegistratorError.empty) }
+                
+                return self.api.requestAttestationChallenge(for: self.cardId, publicKey: self.cardPublicKey)
+            }
+            .flatMap {[weak self] attestationResponse -> AnyPublisher<RegistrationTask.Response, Error> in
                 guard let self = self else { return .anyFail(error: SaltPayRegistratorError.empty) }
 
                 let task = RegistrationTask(gnosis: self.gnosis,
