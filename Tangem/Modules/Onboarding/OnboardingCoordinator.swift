@@ -24,6 +24,7 @@ class OnboardingCoordinator: CoordinatorObject {
     @Published var buyCryptoModel: WebViewContainerViewModel? = nil
     @Published var accessCodeModel: OnboardingAccessCodeViewModel? = nil
     @Published var addressQrBottomSheetContentViewVodel: AddressQrBottomSheetContentViewVodel? = nil
+    @Published var supportChatViewModel: SupportChatViewModel? = nil
 
     // For non-dismissable presentation
     var onDismissalAttempt: () -> Void = {}
@@ -86,6 +87,11 @@ extension OnboardingCoordinator: WalletOnboardingRoutable {
             self?.accessCodeModel = nil
             callback(code)
         })
+    }
+
+    func openSupportChat(cardId: String, dataCollector: EmailDataCollector) {
+        Analytics.log(.chatTapped)
+        supportChatViewModel = SupportChatViewModel(cardId: cardId, dataCollector: dataCollector)
     }
 }
 
