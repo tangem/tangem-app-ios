@@ -3,7 +3,7 @@ platform :ios, '13.0'
 project 'TangemApp.xcodeproj'
 
 def common_pods
-   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-160'
+   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-166'
    #pod 'TangemSdk', :path => '../tangem-sdk-ios'
    pod 'KeychainSwift', '~> 19.0'
 end
@@ -25,8 +25,8 @@ target 'Tangem' do
   pod 'HDWalletKit', :git => 'https://github.com/tangem/hdwallet.git', :tag => '0.3.12'
   #pod 'HDWalletKit', :path => '../HDWallet'
   
-  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-158'
-#  pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
+  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-160'
+  #pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
   
   pod 'web3swift', :git => 'https://github.com/tangem/web3swift.git', :tag => '2.2.10'
   #pod 'web3swift', :path => '../web3swift'
@@ -42,7 +42,7 @@ target 'Tangem' do
   pod 'Kingfisher', :git => 'https://github.com/onevcat/Kingfisher.git', :branch => 'version6-xcode13'
   pod 'stellar-ios-mac-sdk'
   pod 'AppsFlyerFramework'
-  pod 'Solana.Swift', :git => 'https://github.com/tangem/Solana.Swift', :tag => 'add-external-signer-1'
+  pod 'Solana.Swift', :git => 'https://github.com/tangem/Solana.Swift', :tag => 'add-external-signer-3'
   # pod 'Solana.Swift', :path => '../Solana.Swift'
   pod 'ScaleCodec'
   pod 'Mobile-Buy-SDK' # Shopify
@@ -89,6 +89,13 @@ pre_install do |installer|
 end
 
 post_install do |installer|
+  installer.pods_project.build_configurations.each do |config|
+      if config.name.include?("Debug")
+          config.build_settings['GCC_OPTIMIZATION_LEVEL'] = '0'
+          config.build_settings['SWIFT_OPTIMIZATION_LEVEL'] = '-Onone'
+      end
+  end
+  
 	installer.pods_project.targets.each do |target|
 		target.build_configurations.each do |config|
 			if Gem::Version.new('9.0') > Gem::Version.new(config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'])
