@@ -149,7 +149,7 @@ extension NoteDemoConfig: UserWalletConfig {
 
     func makeWalletModel(for token: StorageEntry) throws -> WalletModel {
         let blockchain = token.blockchainNetwork.blockchain
-        
+
         guard let walletPublicKey = card.wallets.first(where: { $0.curve == blockchain.curve })?.publicKey else {
             throw CommonError.noData
         }
