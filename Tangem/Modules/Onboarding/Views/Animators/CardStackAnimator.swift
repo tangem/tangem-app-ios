@@ -297,7 +297,7 @@ struct CardStackAnimatorPreview: View {
                     Text("Next")
                         .padding()
                 })
-                .buttonStyle(TangemButtonStyle(colorStyle: .green, font: .system(size: 20, weight: .bold)))
+                .buttonStyle(TangemButtonStyle(colorStyle: .black, font: .system(size: 20, weight: .bold)))
             }
             .padding(.bottom, 16)
         }
