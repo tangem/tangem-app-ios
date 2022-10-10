@@ -483,9 +483,8 @@ extension WalletModel {
     }
 
     func allTokenItemViewModels() -> [TokenItemViewModel] {
-        let tokenViewModels = tokenBalanceViewModels().map { balanceViewModels in
-            let amountType = Amount.AmountType.token(value: balanceViewModels.token)
-            let balanceViewModel = balanceViewModel()
+        let tokenViewModels = tokenBalanceViewModels().map { balanceViewModel in
+            let amountType = Amount.AmountType.token(value: balanceViewModel.token)
 
             return TokenItemViewModel(
                 state: state,
