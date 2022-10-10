@@ -348,24 +348,3 @@ extension AppStorageCompat where Value == [String] {
         })
     }
 }
-
-extension AppStorageCompat where Value == Set<String> {
-    /// Creates a property that can read and write to an integer user default.
-    ///
-    /// - Parameters:
-    ///   - wrappedValue: The default value if an integer value is not specified
-    ///     for the given key.
-    ///   - key: The key to read and write the value to in the user defaults
-    ///     store.
-    ///   - store: The user defaults store to read and write to. A value
-    ///     of `nil` will use the user default store from the environment.
-    init(wrappedValue: Value, _ key: StorageType, store: UserDefaults? = .init(suiteName: AppEnvironment.current.suiteName)) {
-        let store = (store ?? .standard)
-        let initialValue = store.value(forKey: key.rawValue) as? Value ?? wrappedValue
-        self.init(value: initialValue, store: store, key: key, transform: {
-            $0 as? Value
-        }, saveValue: { newValue in
-            store.setValue(newValue, forKey: key.rawValue)
-        })
-    }
-}
