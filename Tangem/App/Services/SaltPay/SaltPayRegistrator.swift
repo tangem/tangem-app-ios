@@ -19,13 +19,13 @@ class SaltPayRegistrator {
 
     var kycURL: URL {
         let kycProvider = keysManager.saltPay.kycProvider
-        
+
         var urlComponents = URLComponents(string: kycProvider.baseUrl)!
-        
+
         var queryItems = [URLQueryItem]()
         queryItems.append(.init(name: kycProvider.externalIdParameterKey, value: kycRefId))
         queryItems.append(.init(name: kycProvider.sidParameterKey, value: kycProvider.sidValue))
-     
+
         urlComponents.queryItems = queryItems
         return urlComponents.url!
     }
@@ -36,7 +36,7 @@ class SaltPayRegistrator {
 
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
     @Injected(\.keysManager) private var keysManager: KeysManager
-    
+
     private let api: PaymentologyApiService = CommonPaymentologyApiService()
     private let gnosis: GnosisRegistrator
     private let cardId: String
@@ -59,7 +59,7 @@ class SaltPayRegistrator {
         self.cardId = cardId
         self.cardPublicKey = cardPublicKey
         self.walletPublicKey = walletPublicKey
-        //updateState()
+        // updateState()
     }
 
     func setAccessCode(_ accessCode: String) {
@@ -104,7 +104,7 @@ class SaltPayRegistrator {
         checkGasIfNeeded()
             .flatMap { [weak self] _ -> AnyPublisher<Void, Error> in
                 guard let self = self else { return .anyFail(error: SaltPayRegistratorError.empty) }
-                
+
                 return self.registerKYCIfNeeded()
             }
             .flatMap { [weak self] _ -> AnyPublisher<State, Error> in
@@ -130,12 +130,12 @@ class SaltPayRegistrator {
         isBusy = true
 
         checkGasIfNeeded()
-            .flatMap {[weak self] _ -> AnyPublisher<AttestationResponse, Error> in
+            .flatMap { [weak self] _ -> AnyPublisher<AttestationResponse, Error> in
                 guard let self = self else { return .anyFail(error: SaltPayRegistratorError.empty) }
-                
+
                 return self.api.requestAttestationChallenge(for: self.cardId, publicKey: self.cardPublicKey)
             }
-            .flatMap {[weak self] attestationResponse -> AnyPublisher<RegistrationTask.Response, Error> in
+            .flatMap { [weak self] attestationResponse -> AnyPublisher<RegistrationTask.Response, Error> in
                 guard let self = self else { return .anyFail(error: SaltPayRegistratorError.empty) }
 
                 let task = RegistrationTask(gnosis: self.gnosis,
@@ -207,19 +207,19 @@ class SaltPayRegistrator {
             self.state = newState
         }
     }
-    
+
     private func registerKYCIfNeeded() -> AnyPublisher<Void, Error> {
         guard state == .kycStart else {
             return .justWithError(output: ())
         }
-        
+
         let request = RegisterKYCRequest(cardId: cardId,
                                          publicKey: cardPublicKey,
                                          kycProvider: "UTORG",
                                          kycRefId: kycRefId)
-        
+
         return api.registerKYC(request: request)
-            .handleEvents(receiveOutput: {[weak self] response in
+            .handleEvents(receiveOutput: { [weak self] response in
                 self?.updateState(with: .kycWaiting)
             })
             .map { _ in }
@@ -292,9 +292,9 @@ extension SaltPayRegistrator {
 
             if response.active == true { // active is true, go to success screen
                 self = .finished
-            return
+                return
             }
-            
+
             if response.pinSet == false {
                 self = .needPin // pinset is false, go topin screen
                 return
@@ -304,7 +304,7 @@ extension SaltPayRegistrator {
                 self = .kycWaiting
                 return
             }
-            
+
             self = .kycStart  // pinset is true, go to kyc start screen
         }
     }
