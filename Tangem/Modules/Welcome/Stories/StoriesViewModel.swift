@@ -121,9 +121,6 @@ class StoriesViewModel: ObservableObject {
     }
 
     private func move(forward: Bool) {
-//        if forward {
-//            sendAnalyticsEvent()
-//        }
         currentPage = WelcomeStoryPage(rawValue: currentPage.rawValue + (forward ? 1 : -1)) ?? pages.first!
         restartTimer()
         if currentPage != pages.first {
@@ -176,23 +173,6 @@ class StoriesViewModel: ObservableObject {
                 self.move(forward: true)
             }
     }
-
-//    private func sendAnalyticsEvent() {
-//        switch currentPage {
-//        case .meetTangem:
-//            Analytics.log(.viewStoryIntro)
-//        case .awe:
-//            Analytics.log(.viewStoryWallet)
-//        case .backup:
-//            Analytics.log(.viewStoryKeys)
-//        case .currencies:
-//            Analytics.log(.viewStoryCurrencies)
-//        case .web3:
-//            Analytics.log(.viewStoryDefi)
-//        case .finish:
-//            Analytics.log(.viewStoryEverybody)
-//        }
-//    }
 }
 
 extension StoriesViewModel: WelcomeViewLifecycleListener {
