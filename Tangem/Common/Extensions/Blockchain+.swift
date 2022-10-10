@@ -159,6 +159,8 @@ extension Blockchain {
         [
             .ethereum(testnet: false),
             .ethereumClassic(testnet: false),
+            .ethereumPoW(testnet: false),
+            .ethereumFair,
             .litecoin,
             .bitcoin(testnet: false),
             .bitcoinCash(testnet: false),
@@ -190,6 +192,7 @@ extension Blockchain {
             .bitcoin(testnet: true),
             .ethereum(testnet: true),
             .ethereumClassic(testnet: true),
+            .ethereumPoW(testnet: true),
             .binance(testnet: true),
             .stellar(testnet: true),
             .bsc(testnet: true),
