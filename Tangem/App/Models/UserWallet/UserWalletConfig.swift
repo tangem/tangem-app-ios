@@ -44,6 +44,10 @@ protocol UserWalletConfig {
     var embeddedBlockchain: StorageEntry? { get }
 
     var emailData: [EmailCollectedData] { get }
+    
+    var cardAmountType: Amount.AmountType { get }
+    
+    var supportChatEnvironment: SupportChatEnvironment { get }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability
 
@@ -57,6 +61,14 @@ extension UserWalletConfig {
 
     func hasFeature(_ feature: UserWalletFeature) -> Bool {
         getFeatureAvailability(feature).isAvailable
+    }
+    
+    var cardAmountType: Amount.AmountType {
+        .coin
+    }
+    
+    var supportChatEnvironment: SupportChatEnvironment {
+        .default
     }
 }
 
