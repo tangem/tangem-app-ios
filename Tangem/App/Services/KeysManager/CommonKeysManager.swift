@@ -51,7 +51,8 @@ extension CommonKeysManager: KeysManager {
         BlockchainSdkConfig(blockchairApiKey: keys.blockchairApiKey,
                             blockcypherTokens: keys.blockcypherTokens,
                             infuraProjectId: keys.infuraProjectId,
-                            tronGridApiKey: keys.tronGridApiKey)
+                            tronGridApiKey: keys.tronGridApiKey,
+                            networkProviderConfiguration: .init(logger: .verbose, urlSessionConfiguration: .standart))
     }
 
     var shopifyShop: ShopifyShop {

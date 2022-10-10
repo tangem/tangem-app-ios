@@ -40,7 +40,7 @@ class AppSettings {
     var lastScannedNdef: String = ""
 
     @AppStorageCompat(StorageType.cardsStartedActivation)
-    var cardsStartedActivation: [String] = []
+    var cardsStartedActivation: Set<String> = []
 
     @AppStorageCompat(StorageType.didDisplayMainScreenStories)
     var didDisplayMainScreenStories: Bool = false
