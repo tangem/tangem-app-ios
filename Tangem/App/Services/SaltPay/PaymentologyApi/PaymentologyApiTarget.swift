@@ -55,7 +55,7 @@ struct PaymentologyApiTarget: TargetType {
                                                  error: nil,
                                                  passed: true,
                                                  active: false,
-                                                 pinSet: true,
+                                                 pinSet: false,
                                                  blockchainInit: nil,
                                                  kycPassed: nil,
                                                  kycProvider: "SomeProvider",
