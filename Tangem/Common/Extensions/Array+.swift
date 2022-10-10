@@ -14,7 +14,7 @@ extension Array where Element: Hashable {
         set.insert(element)
         self = Array(set)
     }
-    
+
     mutating func remove(_ element: Element) {
         var set = Set(self)
         set.remove(element)

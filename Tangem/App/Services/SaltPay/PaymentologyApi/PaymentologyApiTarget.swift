@@ -105,7 +105,7 @@ extension JSONDecoder {
             let hex = try container.decode(String.self)
             return Data(hexString: hex)
         }
-        
+
         return decoder
     }
 }
@@ -113,11 +113,11 @@ extension JSONDecoder {
 extension JSONEncoder {
     static var saltPayEncoder: JSONEncoder  {
         let encoder = JSONEncoder()
-        encoder.dataEncodingStrategy = .custom{ data, encoder in
+        encoder.dataEncodingStrategy = .custom { data, encoder in
             var container = encoder.singleValueContainer()
             return try container.encode(data.hexString)
         }
-        
+
         return encoder
     }
 }
