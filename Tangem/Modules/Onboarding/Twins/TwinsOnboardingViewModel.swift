@@ -175,7 +175,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
             goToNextStep()
         case .first:
             if !retwinMode {
-                AppSettings.shared.cardsStartedActivation.insert(cardModel.cardId)
+                AppSettings.shared.cardsStartedActivation.insert(self.cardModel.cardId)
             }
 
             if twinsService.step.value != .first {
