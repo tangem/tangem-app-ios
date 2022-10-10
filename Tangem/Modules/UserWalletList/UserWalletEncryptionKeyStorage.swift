@@ -20,28 +20,42 @@ class UserWalletEncryptionKeyStorage {
 
     }
 
-    func fetch() throws -> [Data: SymmetricKey] {
+    func fetch(completion: @escaping (Result<[Data: SymmetricKey], Error>) -> Void) {
         do {
-            var keys: [Data: SymmetricKey] = [:]
-
             let userWalletIds = try userWalletIds()
-            for userWalletId in userWalletIds {
-                let userWalletEncryptionKeyResult = biometricsStorage.get(encryptionKeyStorageKey(for: userWalletId))
-
-                switch userWalletEncryptionKeyResult {
+            
+            #warning("l10n")
+            let reason = "Reason"
+            BiometricsUtil.requestAccess(localizedReason: reason) { [weak self] result in
+                guard let self = self else { return }
+                
+                switch result {
                 case .failure(let error):
-                    print("Failed to get encryption key for UserWallet", error)
-                    throw error
-                case .success(let encryptionKeyData):
-                    if let encryptionKeyData = encryptionKeyData {
-                        keys[userWalletId] = SymmetricKey(data: encryptionKeyData)
+                    completion(.failure(error))
+                case .success(let context):
+                    var keys: [Data: SymmetricKey] = [:]
+
+                    for userWalletId in userWalletIds {
+                        let storageKey = self.encryptionKeyStorageKey(for: userWalletId)
+                        let userWalletEncryptionKeyResult = self.biometricsStorage.get(storageKey, context: context)
+                        
+                        switch userWalletEncryptionKeyResult {
+                        case .failure(let error):
+                            print("Failed to get encryption key for UserWallet", error)
+                            completion(.failure(error))
+                            return
+                        case .success(let encryptionKeyData):
+                            if let encryptionKeyData = encryptionKeyData {
+                                keys[userWalletId] = SymmetricKey(data: encryptionKeyData)
+                            }
+                        }
                     }
+                    
+                    completion(.success(keys))
                 }
             }
-
-            return keys
         } catch let error {
-            throw error
+            completion(.failure(error))
         }
     }
 
@@ -63,8 +77,9 @@ class UserWalletEncryptionKeyStorage {
             return
         }
 
-        let storageResult = biometricsStorage.store(userWalletEncryptionKey.dataRepresentationWithHexConversion, forKey: encryptionKeyStorageKey(for: userWallet))
-        if case .failure(let error) = storageResult {
+        let encryptionKeyData = userWalletEncryptionKey.dataRepresentationWithHexConversion
+        let result = biometricsStorage.store(encryptionKeyData, forKey: encryptionKeyStorageKey(for: userWallet))
+        if case .failure(let error) = result {
             print("Failed to store UserWallet encryption key: \(error)")
             return
         }
