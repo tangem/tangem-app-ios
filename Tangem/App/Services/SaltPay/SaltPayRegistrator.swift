@@ -77,14 +77,7 @@ class SaltPayRegistrator {
     }
 
     func onFinishKYC() {
-        updateState(with: .kycWaiting)
-
-        let request = RegisterKYCRequest(cardId: cardId,
-                                         publicKey: cardPublicKey,
-                                         kycProvider: "UTORG",
-                                         kycRefId: kycRefId)
-
-        api.registerKYC(request: request)
+        registerKYCIfNeeded()
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
                     self?.error = error.alertBinder
@@ -109,7 +102,12 @@ class SaltPayRegistrator {
 
     func updatePublisher() -> AnyPublisher<Void, Error> {
         checkGasIfNeeded()
-            .flatMap { [weak self] _ -> AnyPublisher<State, Error>  in
+            .flatMap { [weak self] _ -> AnyPublisher<Void, Error> in
+                guard let self = self else { return .anyFail(error: SaltPayRegistratorError.empty) }
+                
+                return self.registerKYCIfNeeded()
+            }
+            .flatMap { [weak self] _ -> AnyPublisher<State, Error> in
                 guard let self = self else { return .anyFail(error: SaltPayRegistratorError.empty) }
 
                 return self.checkRegistration()
@@ -202,15 +200,30 @@ class SaltPayRegistrator {
             .store(in: &bag)
     }
 
-    var counter = 0
     private func updateState(with newState: State) {
         print("Saltpay. Update state from \(self.state) to \(newState)")
 
         if newState != state {
             self.state = newState
         }
-
-        // self.state = .kycStart //[REDACTED_TODO_COMMENT]
+    }
+    
+    private func registerKYCIfNeeded() -> AnyPublisher<Void, Error> {
+        guard state == .kycStart else {
+            return .justWithError(output: ())
+        }
+        
+        let request = RegisterKYCRequest(cardId: cardId,
+                                         publicKey: cardPublicKey,
+                                         kycProvider: "UTORG",
+                                         kycRefId: kycRefId)
+        
+        return api.registerKYC(request: request)
+            .handleEvents(receiveOutput: {[weak self] response in
+                self?.updateState(with: .kycWaiting)
+            })
+            .map { _ in }
+            .eraseToAnyPublisher()
     }
 
     private func checkGasIfNeeded() -> AnyPublisher<Void, Error> {
