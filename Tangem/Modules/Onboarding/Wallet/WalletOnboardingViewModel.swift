@@ -206,6 +206,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         }
     }
 
+    var infoText: LocalizedStringKey? {
+        currentStep.infoText
+    }
+
     var backupCardsAddedCount: Int {
         return backupService.addedBackupCardsCount
     }
