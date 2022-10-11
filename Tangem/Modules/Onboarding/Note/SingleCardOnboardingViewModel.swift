@@ -34,10 +34,6 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         }
     }
 
-    override var titleLineLimit: Int? {
-        return currentStep.titleLineLimit
-    }
-
     override var mainButtonTitle: LocalizedStringKey {
         if case .topup = currentStep, !canBuyCrypto {
             return "onboarding_button_receive_crypto"

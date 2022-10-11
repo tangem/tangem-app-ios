@@ -138,7 +138,6 @@ struct TwinsOnboardingView: View {
                 OnboardingTextButtonView(
                     title: viewModel.title,
                     subtitle: viewModel.subtitle,
-                    titleLineLimit: viewModel.titleLineLimit,
                     buttonsSettings: .init(main: viewModel.mainButtonSettings,
                                            supplement: viewModel.supplementButtonSettings),
                     infoText: viewModel.infoText,
