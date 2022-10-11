@@ -103,8 +103,7 @@ extension SingleCardOnboardingStep: OnboardingMessagesProvider {
         case .welcome: return WelcomeStep.welcome.title
         case .createWallet: return "onboarding_create_title"
         case .topup: return "onboarding_topup_title"
-            #warning("l10n")
-        case .saveUserWallet: return "Would you like to keep wallet on this device?"
+        case .saveUserWallet: return nil
         case .successTopup: return "onboarding_confetti_title"
         case .success: return successTitle
         }
@@ -115,8 +114,7 @@ extension SingleCardOnboardingStep: OnboardingMessagesProvider {
         case .welcome: return WelcomeStep.welcome.subtitle
         case .createWallet: return "onboarding_create_subtitle"
         case .topup: return "onboarding_topup_subtitle"
-            #warning("l10n")
-        case .saveUserWallet: return "Save your Wallet feature allows you to use your wallet with biometric auth without tapping your card to the phone to gain access"
+        case .saveUserWallet: return nil
         case .successTopup: return "onboarding_confetti_subtitle"
         case .success: return "onboarding_confetti_subtitle"
         }
