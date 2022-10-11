@@ -225,10 +225,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         }
     }
 
-    var isCircleVisible: Bool {
-        currentStep != .saveUserWallet
-    }
-
     var isInfoPagerVisible: Bool {
         switch currentStep {
         case .backupIntro: return true
@@ -236,13 +232,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         }
     }
 
-    var isBiometryLogoVisible: Bool {
-        currentStep == .saveUserWallet
-    }
-
     var isCustomContentVisible: Bool {
         switch currentStep {
-        case .enterPin, .registerWallet, .kycStart, .kycProgress, .kycWaiting:
+        case .saveUserWallet, .enterPin, .registerWallet, .kycStart, .kycProgress, .kycWaiting:
             return true
         default: return false
         }
