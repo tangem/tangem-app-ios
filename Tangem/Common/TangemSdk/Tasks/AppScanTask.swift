@@ -86,10 +86,12 @@ final class AppScanTask: CardSessionRunnable {
             self.walletData = .legacy(legacyWalletData)
         }
 
-        self.readExtra(card, session: session, completion: completion)
+        self.appendWalletsIfNeeded(session: session, completion: completion)
     }
 
-    private func readExtra(_ card: Card, session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
+    private func readExtra(session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
+        let card = session.environment.card!
+
         if TwinCardSeries.series(for: card.cardId) != nil {
             readTwin(card, session: session, completion: completion)
             return
@@ -216,22 +218,23 @@ final class AppScanTask: CardSessionRunnable {
         let existingCurves: Set<EllipticCurve> = .init(card.wallets.map({ $0.curve }))
         let mandatoryСurves: Set<EllipticCurve> = [.secp256k1, .ed25519]
         let missingCurves = mandatoryСurves.subtracting(existingCurves)
+        let hasBackup = card.backupStatus?.isActive ?? false
 
-        if !existingCurves.isEmpty, // not empty card
-           !missingCurves.isEmpty // not enough curves
-        {
-            appendWallets(Array(missingCurves), session: session, completion: completion)
+        guard card.settings.maxWalletsCount > 1,
+              !hasBackup,
+              !existingCurves.isEmpty, !missingCurves.isEmpty else {
+            readExtra(session: session, completion: completion)
             return
         }
 
-        deriveKeysIfNeeded(session, completion)
+        appendWallets(Array(missingCurves), session: session, completion: completion)
     }
 
     private func appendWallets(_ curves: [EllipticCurve], session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
         CreateMultiWalletTask(curves: curves).run(in: session) { result in
             switch result {
             case .success:
-                self.runScanTask(session, completion)
+                self.readExtra(session: session, completion: completion)
             case .failure(let error):
                 completion(.failure(error))
             }
