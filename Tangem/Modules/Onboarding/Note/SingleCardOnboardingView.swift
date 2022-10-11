@@ -19,7 +19,7 @@ struct SingleCardOnboardingView: View {
     private var isTopItemsVisible: Bool {
         viewModel.isNavBarVisible
     }
-    
+
     @ViewBuilder
     var customContent: some View {
         switch viewModel.currentStep {
@@ -78,7 +78,7 @@ struct SingleCardOnboardingView: View {
                                                    cardImage: viewModel.cardImage,
                                                    cardScanned: viewModel.isInitialAnimPlayed && viewModel.isCardScanned)
                             }
-                            
+
                             OnboardingTopupBalanceView(
                                 backgroundFrameSize: backgroundFrame,
                                 cornerSize: currentStep.cardBackgroundCornerRadius(containerSize: size),
@@ -93,12 +93,12 @@ struct SingleCardOnboardingView: View {
                                 refreshButtonSize: .medium,
                                 refreshButtonOpacity: currentStep.balanceStackOpacity
                             )
-                            
+
                             OnboardingCircleButton(refreshAction: {},
                                                    state: currentStep.successCircleState,
                                                    size: .huge)
-                            .offset(y: 8)
-                            .opacity(currentStep.successCircleOpacity)
+                                .offset(y: 8)
+                                .opacity(currentStep.successCircleOpacity)
                         }
                     }
                     .position(x: size.width / 2, y: size.height / 2)
@@ -106,7 +106,7 @@ struct SingleCardOnboardingView: View {
                 .readSize { value in
                     viewModel.setupContainer(with: value)
                 }
-                
+
                 if viewModel.isCustomContentVisible {
                     customContent
                         .layoutPriority(1)
