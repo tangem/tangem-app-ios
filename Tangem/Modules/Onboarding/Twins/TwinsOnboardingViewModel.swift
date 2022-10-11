@@ -103,10 +103,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         }
     }
 
-    var infoText: LocalizedStringKey? {
-        currentStep.infoText
-    }
-
     override var mainButtonSettings: TangemButtonSettings? {
         var settings = super.mainButtonSettings
 

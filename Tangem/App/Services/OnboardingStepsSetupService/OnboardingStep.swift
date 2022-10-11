@@ -42,7 +42,6 @@ protocol OnboardingButtonsInfoProvider {
     var supplementButtonTitle: LocalizedStringKey { get }
     var isSupplementButtonVisible: Bool { get }
     var checkmarkText: LocalizedStringKey? { get }
-    var infoText: LocalizedStringKey? { get }
 }
 
 protocol OnboardingInitialStepInfo {
