@@ -13,20 +13,88 @@ import TangemSdk
 import BlockchainSdk
 
 struct SaltPayConfig {
-    private let card: CardDTO
-    private let walletData: WalletData
+    @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
+    @Injected(\.loggerProvider) var loggerProvider: LoggerProviding
+    @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
 
-    init(card: CardDTO, walletData: WalletData) {
+    private let card: CardDTO
+
+    init(card: CardDTO) {
         self.card = card
-        self.walletData = walletData
+        backupServiceProvider.backupService.skipCompatibilityChecks = true
+
+        if !_backupSteps.isEmpty {
+            AppSettings.shared.cardsStartedActivation.insert(card.cardId)
+        }
     }
 
     private var defaultBlockchain: Blockchain {
-        return Blockchain.from(blockchainName: walletData.blockchain, curve: card.supportedCurves[0])!
+        GnosisRegistrator.Settings.main.blockchain
+    }
+
+    private var defaultToken: Token {
+        GnosisRegistrator.Settings.main.token
+    }
+
+    private var _backupSteps: [WalletOnboardingStep] {
+        if let backupStatus = card.backupStatus, backupStatus.isActive {
+            return []
+        }
+
+        var steps: [WalletOnboardingStep] = .init()
+
+        steps.append(.backupIntro)
+
+        if !card.wallets.isEmpty && !backupServiceProvider.backupService.primaryCardIsSet {
+            steps.append(.scanPrimaryCard)
+        }
+
+        if backupServiceProvider.backupService.addedBackupCardsCount < BackupService.maxBackupCardsCount {
+            steps.append(.selectBackupCards)
+        }
+
+        steps.append(.backupCards)
+
+        return steps
+    }
+
+    private var registrationSteps: [WalletOnboardingStep] {
+        guard let registrator = saltPayRegistratorProvider.registrator else { return [] }
+
+        var steps: [WalletOnboardingStep] = .init()
+
+        switch registrator.state {
+        case .finished:
+            if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
+                return []
+            }
+            break
+        case .kycStart:
+            steps.append(contentsOf: [.kycStart, .kycProgress, .kycWaiting])
+        case .kycWaiting:
+            steps.append(contentsOf: [.kycWaiting])
+        case .needPin, .noGas, .registration:
+            steps.append(contentsOf: [.enterPin, .registerWallet, .kycStart, .kycProgress, .kycWaiting])
+        }
+
+        steps.append(.success)
+        return steps
     }
 }
 
 extension SaltPayConfig: UserWalletConfig {
+    var sdkConfig: Config {
+        var config = TangemSdkConfigFactory().makeDefaultConfig()
+        let util = SaltPayUtil()
+
+        var cardIds = util.backupCardIds
+        cardIds.append(card.cardId)
+
+        config.filter.cardIdFilter = .allow(Set(cardIds), ranges: util.backupCardRanges)
+        config.filter.localizedDescription = "error_saltpay_wrong_backup_card".localized
+        return config
+    }
+
     var emailConfig: EmailConfig {
         .default
     }
@@ -52,15 +120,19 @@ extension SaltPayConfig: UserWalletConfig {
     }
 
     var onboardingSteps: OnboardingSteps {
-        if card.wallets.isEmpty {
-            return .singleWallet([.createWallet, .success])
+        if SaltPayUtil().isBackupCard(cardId: card.cardId) {
+            return .wallet([])
         }
 
-        return .singleWallet([])
+        if card.wallets.isEmpty {
+            return .wallet([.createWallet] + _backupSteps + registrationSteps)
+        } else {
+            return .wallet(_backupSteps + registrationSteps)
+        }
     }
 
     var backupSteps: OnboardingSteps? {
-        return nil
+        return .wallet(_backupSteps)
     }
 
     var supportedBlockchains: Set<Blockchain> {
@@ -70,7 +142,7 @@ extension SaltPayConfig: UserWalletConfig {
     var defaultBlockchains: [StorageEntry] {
         let derivationPath = defaultBlockchain.derivationPath(for: .legacy)
         let network = BlockchainNetwork(defaultBlockchain, derivationPath: derivationPath)
-        let entry = StorageEntry(blockchainNetwork: network, tokens: [])
+        let entry = StorageEntry(blockchainNetwork: network, tokens: [defaultToken])
         return [entry]
     }
 
@@ -89,7 +161,15 @@ extension SaltPayConfig: UserWalletConfig {
     var tangemSigner: TangemSigner { .init(with: card.cardId) }
 
     var emailData: [EmailCollectedData] {
-        CardEmailDataFactory().makeEmailData(for: card, walletData: walletData)
+        CardEmailDataFactory().makeEmailData(for: card, walletData: nil)
+    }
+
+    var cardAmountType: Amount.AmountType {
+        .token(value: defaultToken)
+    }
+
+    var supportChatEnvironment: SupportChatEnvironment {
+        .saltpay
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
@@ -97,14 +177,16 @@ extension SaltPayConfig: UserWalletConfig {
     }
 
     func makeWalletModel(for token: StorageEntry) throws -> WalletModel {
-        guard let walletPublicKey = card.wallets.first(where: { $0.curve == defaultBlockchain.curve })?.publicKey else {
+        let blockchain = token.blockchainNetwork.blockchain
+
+        guard let walletPublicKey = card.wallets.first(where: { $0.curve == blockchain.curve })?.publicKey else {
             throw CommonError.noData
         }
 
         let factory = WalletModelFactory()
         return try factory.makeSingleWallet(walletPublicKey: walletPublicKey,
-                                            blockchain: defaultBlockchain,
-                                            token: nil,
+                                            blockchain: blockchain,
+                                            token: token.tokens.first,
                                             derivationStyle: card.derivationStyle)
     }
 }
