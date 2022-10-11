@@ -43,7 +43,6 @@ extension SaltPayConfig: UserWalletConfig {
         nil
     }
 
-    #warning("l10n")
     var cardName: String {
         "Salt Pay"
     }
