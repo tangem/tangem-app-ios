@@ -19,6 +19,16 @@ struct SingleCardOnboardingView: View {
     private var isTopItemsVisible: Bool {
         viewModel.isNavBarVisible
     }
+    
+    @ViewBuilder
+    var customContent: some View {
+        switch viewModel.currentStep {
+        case .saveUserWallet:
+            UserWalletStorageAgreementView(viewModel: viewModel.userWalletStorageAgreementViewModel)
+        default:
+            EmptyView()
+        }
+    }
 
     var body: some View {
         ZStack {
@@ -57,46 +67,49 @@ struct SingleCardOnboardingView: View {
                         let backgroundFrame = viewModel.isInitialAnimPlayed ? currentStep.cardBackgroundFrame(containerSize: size) : .zero
                         let backgroundOffset = viewModel.isInitialAnimPlayed ? currentStep.cardBackgroundOffset(containerSize: size) : .zero
 
-                        AnimatedView(settings: viewModel.$supplementCardSettings) {
-                            OnboardingCardView(placeholderCardType: .light,
-                                               cardImage: nil,
-                                               cardScanned: false)
-                        }
-                        AnimatedView(settings: viewModel.$mainCardSettings) {
-                            OnboardingCardView(placeholderCardType: .dark,
-                                               cardImage: viewModel.cardImage,
-                                               cardScanned: viewModel.isInitialAnimPlayed && viewModel.isCardScanned)
-                        }
-
-                        OnboardingTopupBalanceView(
-                            backgroundFrameSize: backgroundFrame,
-                            cornerSize: currentStep.cardBackgroundCornerRadius(containerSize: size),
-                            backgroundOffset: backgroundOffset,
-                            balance: viewModel.cardBalance,
-                            balanceUpdaterFrame: backgroundFrame,
-                            balanceUpdaterOffset: backgroundOffset,
-                            refreshAction: {
-                                viewModel.updateCardBalance()
-                            },
-                            refreshButtonState: viewModel.refreshButtonState,
-                            refreshButtonSize: .medium,
-                            refreshButtonOpacity: currentStep.balanceStackOpacity
-                        )
-
-                        OnboardingCircleButton(refreshAction: {},
-                                               state: currentStep.successCircleState,
-                                               size: .huge)
+                        if !viewModel.isCustomContentVisible {
+                            AnimatedView(settings: viewModel.$supplementCardSettings) {
+                                OnboardingCardView(placeholderCardType: .light,
+                                                   cardImage: nil,
+                                                   cardScanned: false)
+                            }
+                            AnimatedView(settings: viewModel.$mainCardSettings) {
+                                OnboardingCardView(placeholderCardType: .dark,
+                                                   cardImage: viewModel.cardImage,
+                                                   cardScanned: viewModel.isInitialAnimPlayed && viewModel.isCardScanned)
+                            }
+                            
+                            OnboardingTopupBalanceView(
+                                backgroundFrameSize: backgroundFrame,
+                                cornerSize: currentStep.cardBackgroundCornerRadius(containerSize: size),
+                                backgroundOffset: backgroundOffset,
+                                balance: viewModel.cardBalance,
+                                balanceUpdaterFrame: backgroundFrame,
+                                balanceUpdaterOffset: backgroundOffset,
+                                refreshAction: {
+                                    viewModel.updateCardBalance()
+                                },
+                                refreshButtonState: viewModel.refreshButtonState,
+                                refreshButtonSize: .medium,
+                                refreshButtonOpacity: currentStep.balanceStackOpacity
+                            )
+                            
+                            OnboardingCircleButton(refreshAction: {},
+                                                   state: currentStep.successCircleState,
+                                                   size: .huge)
                             .offset(y: 8)
                             .opacity(currentStep.successCircleOpacity)
-
-                        if viewModel.isBiometryLogoVisible {
-                            BiometryLogoImage.image
                         }
                     }
                     .position(x: size.width / 2, y: size.height / 2)
                 }
                 .readSize { value in
                     viewModel.setupContainer(with: value)
+                }
+                
+                if viewModel.isCustomContentVisible {
+                    customContent
+                        .layoutPriority(1)
                 }
 
                 OnboardingTextButtonView(

@@ -35,6 +35,16 @@ struct TwinsOnboardingView: View {
 
     var currentStep: TwinsOnboardingStep { viewModel.currentStep }
 
+    @ViewBuilder
+    var customContent: some View {
+        switch viewModel.currentStep {
+        case .saveUserWallet:
+            UserWalletStorageAgreementView(viewModel: viewModel.userWalletStorageAgreementViewModel)
+        default:
+            EmptyView()
+        }
+    }
+
     var body: some View {
         ZStack {
             ConfettiView(shouldFireConfetti: $viewModel.shouldFireConfetti)
@@ -76,44 +86,42 @@ struct TwinsOnboardingView: View {
                             .opacity(isProgressBarVisible ? 1.0 : 0.0)
                             .padding(.horizontal, 16)
 
-                        let backgroundFrame = currentStep.backgroundFrame(in: size)
-                        let backgroundOffset = currentStep.backgroundOffset(in: size)
-                        OnboardingTopupBalanceView(
-                            backgroundFrameSize: backgroundFrame,
-                            cornerSize: currentStep.backgroundCornerRadius(in: size),
-                            backgroundOffset: backgroundOffset,
-                            balance: viewModel.cardBalance,
-                            balanceUpdaterFrame: backgroundFrame,
-                            balanceUpdaterOffset: backgroundOffset,
-                            refreshAction: {
+                        if !viewModel.isCustomContentVisible {
+                            let backgroundFrame = currentStep.backgroundFrame(in: size)
+                            let backgroundOffset = currentStep.backgroundOffset(in: size)
+                            OnboardingTopupBalanceView(
+                                backgroundFrameSize: backgroundFrame,
+                                cornerSize: currentStep.backgroundCornerRadius(in: size),
+                                backgroundOffset: backgroundOffset,
+                                balance: viewModel.cardBalance,
+                                balanceUpdaterFrame: backgroundFrame,
+                                balanceUpdaterOffset: backgroundOffset,
+                                refreshAction: {
+                                    viewModel.updateCardBalance()
+                                },
+                                refreshButtonState: viewModel.refreshButtonState,
+                                refreshButtonSize: .medium,
+                                refreshButtonOpacity: currentStep.backgroundOpacity
+                            )
+                            
+                            OnboardingCircleButton(refreshAction: {
                                 viewModel.updateCardBalance()
                             },
-                            refreshButtonState: viewModel.refreshButtonState,
-                            refreshButtonSize: .medium,
-                            refreshButtonOpacity: currentStep.backgroundOpacity
-                        )
-
-                        OnboardingCircleButton(refreshAction: {
-                                                   viewModel.updateCardBalance()
-                                               },
-                                               state: currentStep.successCircleState,
-                                               size: .huge)
+                                                   state: currentStep.successCircleState,
+                                                   size: .huge)
                             .offset(y: 8)
                             .opacity(currentStep.successCircleOpacity)
-
-                        AnimatedView(settings: viewModel.$supplementCardSettings) {
-                            OnboardingCardView(placeholderCardType: .light,
-                                               cardImage: viewModel.secondTwinImage,
-                                               cardScanned: viewModel.displayTwinImages)
-                        }
-                        AnimatedView(settings: viewModel.$mainCardSettings) {
-                            OnboardingCardView(placeholderCardType: .dark,
-                                               cardImage: viewModel.firstTwinImage,
-                                               cardScanned: viewModel.displayTwinImages)
-                        }
-
-                        if viewModel.isBiometryLogoVisible {
-                            BiometryLogoImage.image
+                            
+                            AnimatedView(settings: viewModel.$supplementCardSettings) {
+                                OnboardingCardView(placeholderCardType: .light,
+                                                   cardImage: viewModel.secondTwinImage,
+                                                   cardScanned: viewModel.displayTwinImages)
+                            }
+                            AnimatedView(settings: viewModel.$mainCardSettings) {
+                                OnboardingCardView(placeholderCardType: .dark,
+                                                   cardImage: viewModel.firstTwinImage,
+                                                   cardScanned: viewModel.displayTwinImages)
+                            }
                         }
                     }
                     .frame(size: geom.size)
@@ -122,7 +130,10 @@ struct TwinsOnboardingView: View {
                     viewModel.setupContainer(with: size)
                 }
 
-                // alert
+                if viewModel.isCustomContentVisible {
+                    customContent
+                        .layoutPriority(1)
+                }
 
                 OnboardingTextButtonView(
                     title: viewModel.title,
