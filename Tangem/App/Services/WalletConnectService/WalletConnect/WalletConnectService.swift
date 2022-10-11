@@ -225,7 +225,6 @@ extension WalletConnectService: WalletConnectHandlerDelegate {
 
     func sendInvalid(_ request: Request) {
         Analytics.logWcEvent(.invalidRequest(json: request.jsonString))
-//        Analytics.log(.walletConnectInvalidRequest)
         server.send(.invalid(request))
     }
 
