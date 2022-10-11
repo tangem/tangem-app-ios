@@ -39,7 +39,7 @@ extension CommonWalletListManager: WalletListManager {
     }
 
     func subscribeToWalletModels() -> AnyPublisher<[WalletModel], Never> {
-        walletModels.dropFirst().eraseToAnyPublisher()
+        walletModels.eraseToAnyPublisher()
     }
 
     func getEntriesWithoutDerivation() -> [StorageEntry] {
@@ -60,6 +60,8 @@ extension CommonWalletListManager: WalletListManager {
         let entries = userTokenListManager.getEntriesFromRepository()
         log(entires: entries)
 
+        var entriesToAdd: [StorageEntry] = []
+
         // Update tokens
         entries.forEach { entry in
             if let walletModel = walletModels.first(where: { $0.blockchainNetwork == entry.blockchainNetwork }) {
@@ -74,15 +76,14 @@ extension CommonWalletListManager: WalletListManager {
                         walletModel.removeToken(token)
                     }
                 }
+            } else {
+                entriesToAdd.append(entry)
             }
         }
 
         var nonDeriveEntries: [StorageEntry] = []
 
-        let walletModelsToAdd = entries
-            .filter { entry in
-                !walletModels.contains(where: { $0.blockchainNetwork == entry.blockchainNetwork })
-            }
+        let walletModelsToAdd = entriesToAdd
             .compactMap { entry in
                 do {
                     let walletModel = try config.makeWalletModel(for: entry)
