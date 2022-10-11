@@ -8,15 +8,18 @@
 
 import Combine
 import Foundation
+import BlockchainSdk
 
 class TotalBalanceProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     private let userWalletModel: UserWalletModel
     private let totalBalanceSubject = CurrentValueSubject<LoadingValue<TotalBalance>, Never>(.loading)
     private var refreshSubscription: AnyCancellable?
+    private let userWalletAmountType: Amount.AmountType?
 
-    init(userWalletModel: UserWalletModel) {
+    init(userWalletModel: UserWalletModel, userWalletAmountType: Amount.AmountType?) {
         self.userWalletModel = userWalletModel
+        self.userWalletAmountType = userWalletAmountType
     }
 }
 
@@ -37,6 +40,12 @@ private extension TotalBalanceProvider {
     func loadCurrenciesAndUpdateBalance() {
         let tokenItemViewModels = userWalletModel.getWalletModels()
             .flatMap { $0.allTokenItemViewModels() }
+            .filter { model in
+                guard let amountType = userWalletAmountType else { return true }
+
+                return model.amountType == amountType
+            }
+
 
         refreshSubscription = tangemApiService.loadCurrencies()
             .tryMap { currencies -> TotalBalance in
