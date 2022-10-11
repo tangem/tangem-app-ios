@@ -313,7 +313,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             isMultiWallet: config.hasFeature(.multiCurrency),
             isUserWalletLocked: userWallet.isLocked,
             isSelected: selectedUserWalletId == userWallet.userWalletId,
-            totalBalanceProvider: totalBalanceProvider ?? TotalBalanceProvider(userWalletModel: userWalletModel),
+            totalBalanceProvider: totalBalanceProvider ?? TotalBalanceProvider(userWalletModel: userWalletModel, userWalletAmountType: nil),
             cardImageProvider: CardImageProvider()
         ) { [weak self] in
             self?.setSelectedWallet(userWallet)
