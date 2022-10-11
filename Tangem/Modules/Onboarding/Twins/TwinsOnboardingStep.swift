@@ -136,7 +136,7 @@ extension TwinsOnboardingStep: OnboardingTopupBalanceLayoutCalculator {}
 extension TwinsOnboardingStep: SuccessStep {}
 
 extension TwinsOnboardingStep: OnboardingMessagesProvider {
-    var title: LocalizedStringKey {
+    var title: LocalizedStringKey? {
         switch self {
         case .welcome: return WelcomeStep.welcome.title
         case .intro: return "twins_onboarding_subtitle"
@@ -152,7 +152,7 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
         }
     }
 
-    var subtitle: LocalizedStringKey {
+    var subtitle: LocalizedStringKey? {
         switch self {
         case .welcome: return WelcomeStep.welcome.subtitle
         case .intro(let pairNumber): return LocalizedStringKey(stringLiteral: "onboarding_subtitle_intro".localized(pairNumber))
