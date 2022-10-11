@@ -25,6 +25,9 @@ class CommonCardsRepository: CardsRepository {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.walletConnectServiceProvider) private var walletConnectServiceProvider: WalletConnectServiceProviding
+    @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
+    @Injected(\.supportChatService) private var supportChatService: SupportChatServiceProtocol
+
 
     private(set) var cards = [String: CardViewModel]()
 
@@ -67,7 +70,7 @@ class CommonCardsRepository: CardsRepository {
     private func processScan(_ cardInfo: CardInfo) -> CardViewModel {
         let interaction = INInteraction(intent: ScanTangemCardIntent(), response: nil)
         interaction.donate(completion: nil)
-
+        saltPayRegistratorProvider.reset()
         cardInfo.primaryCard.map { backupServiceProvider.backupService.setPrimaryCard($0) }
 
         // [REDACTED_TODO_COMMENT]
@@ -76,6 +79,14 @@ class CommonCardsRepository: CardsRepository {
 
         tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
         walletConnectServiceProvider.initialize(with: cardModel)
+
+        if SaltPayUtil().isPrimaryCard(batchId: cardInfo.card.batchId),
+           let wallet = cardInfo.card.wallets.first {
+            try? saltPayRegistratorProvider.initialize(cardId: cardInfo.card.cardId,
+                                                       walletPublicKey: wallet.publicKey,
+                                                       cardPublicKey: cardInfo.card.cardPublicKey)
+        }
+
         cardModel.didScan()
         cards[cardInfo.card.cardId] = cardModel
         return cardModel
