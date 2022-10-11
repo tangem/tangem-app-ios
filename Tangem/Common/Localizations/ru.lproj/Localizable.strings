@@ -536,3 +536,35 @@ URL: %@";
 "user_wallet_list_rename_popup_title" = "Переименование кошелька";
 "user_wallet_list_rename_popup_placeholder" = "Имя кошелька";
 "user_wallet_list_delete_prompt" = "Вы уверены, что хотите удалить этот кошелек?";
+
+"saltpay_error_empty_backup_title" = "Внимание";
+"saltpay_error_empty_backup_message" = "Приложите карту с логотипом Visa";
+
+"saltpay_error_no_gas_title" = "Недостаточно средств для активации";
+"saltpay_error_no_gas_message" = "Пожалуйста обратитесь в службу поддержки";
+
+"saltpay_error_pin_weak_title" = "Ввод одинаковых цифр является не безопасным";
+"saltpay_error_pin_weak_message" = "Данный Код доступа может быть легко взломан";
+
+"onboarding_navbar_pin" = "Код доступа";
+"onboarding_navbar_register_wallet" = "Подключиться";
+"onboarding_navbar_kyc_start" = "Верификация клиента";
+"onboarding_navbar_kyc_progress" = "Подтвердите свою личность";
+"onboarding_navbar_kyc_waiting" = "В обработке";
+"onboarding_button_pin" = "Установить Код доступа";
+"onboarding_button_register_wallet" = "Зарегистрироваться";
+"onboarding_button_kyc_start" = "Подтвердить";
+"onboarding_button_kyc_waiting" = "Обновить";
+"onboarding_title_register_wallet" = "Подключите свою карту";
+"onboarding_title_kyc_start" = "Подтвердите свою личность";
+"onboarding_title_kyc_waiting" = "Подтверждение личности в процессе";
+"onboarding_subtitle_register_wallet" = "Подключите вашу карту к децентрализованной платежной системе";
+"onboarding_subtitle_kyc_start" = "Для начала работы с картой вам необходимо завершить процесс подтверждения личности";
+"onboarding_subtitle_kyc_waiting" = "Пожалуйста дождитесь завершения процесса подтверждения вашей личности для начала работы с картой";
+"onboarding_title_pin" = "Код доступа";
+"onboarding_subtitle_pin" = "Установите Код доступа для вашей SaltPay карты";
+"onboarding_supplement_button_kyc_waiting" = "Чат поддержки";
+"error_saltpay_wrong_backup_card" = "Данная карта не подходит для бэкапа SaltPay";
+
+
+
