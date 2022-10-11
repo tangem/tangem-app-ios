@@ -12,7 +12,6 @@ struct OnboardingMessagesView: View {
 
     let title: LocalizedStringKey
     let subtitle: LocalizedStringKey
-    var titleLineLimit: Int? = 1
     let onTitleTapCallback: (() -> Void)?
 
     var body: some View {
@@ -22,7 +21,6 @@ struct OnboardingMessagesView: View {
 //                .background(Color.red)
                 .font(.system(size: 28, weight: .bold))
                 .multilineTextAlignment(.center)
-                .lineLimit(titleLineLimit)
                 .minimumScaleFactor(0.6)
                 .foregroundColor(.tangemGrayDark6)
                 .padding(.bottom, 14)
