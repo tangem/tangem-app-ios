@@ -183,7 +183,6 @@ extension Blockchain {
             .gnosis,
             .dash(testnet: false),
             .optimism(testnet: false),
-            .saltPay(testnet: false),
         ]
     }()
 
