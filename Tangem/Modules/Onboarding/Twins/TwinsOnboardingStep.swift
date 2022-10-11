@@ -145,8 +145,7 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
         case .third: return "onboarding_title_twin_first_card"
         case .topup: return "onboarding_topup_title"
         case .done: return "onboarding_confetti_title"
-            #warning("l10n")
-        case .saveUserWallet: return "Would you like to keep wallet on this device?"
+        case .saveUserWallet: return nil
         case .success: return successTitle
         case .alert: return "common_warning"
         }
@@ -158,8 +157,7 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
         case .intro(let pairNumber): return LocalizedStringKey(stringLiteral: "onboarding_subtitle_intro".localized(pairNumber))
         case .first, .second, .third: return "onboarding_subtitle_reset_twin_warning"
         case .topup: return "onboarding_topup_subtitle"
-            #warning("l10n")
-        case .saveUserWallet: return "Save your Wallet feature allows you to use your wallet with biometric auth without tapping your card to the phone to gain access"
+        case .saveUserWallet: return nil
         case .done, .success: return "onboarding_success_subtitle"
         case .alert: return "onboarding_alert_twins_recreate_subtitle"
         }
