@@ -15,12 +15,11 @@ class GnosisRegistrator {
     private let settings: GnosisRegistrator.Settings
     private let walletManager: WalletManager
     private var transactionProcessor: EthereumTransactionProcessor { walletManager as! EthereumTransactionProcessor }
-    private let cardAddress: String
+    private var cardAddress: String { walletManager.wallet.address }
 
-    init(settings: GnosisRegistrator.Settings, walletPublicKey: Data, cardPublicKey: Data, factory: WalletManagerFactory) throws {
+    init(settings: GnosisRegistrator.Settings, walletPublicKey: Data, factory: WalletManagerFactory) throws {
         self.settings = settings
         self.walletManager = try factory.makeWalletManager(blockchain: settings.blockchain, walletPublicKey: walletPublicKey)
-        self.cardAddress = try Blockchain.ethereum(testnet: false).makeAddresses(from: cardPublicKey, with: nil)[0].value
     }
 
     func checkHasGas() -> AnyPublisher<Bool, Error> {
@@ -60,8 +59,7 @@ class GnosisRegistrator {
                     let params = EthereumTransactionParams(data: setSpedLimitData, nonce: self.transactionProcessor.initialNonce)
                     var transaction = try self.walletManager.createTransaction(amount: Amount.zeroCoin(for: self.settings.blockchain),
                                                                                fee: fees[1],
-                                                                               destinationAddress: self.settings.otpProcessorContractAddress,
-                                                                               sourceAddress: self.cardAddress)
+                                                                               destinationAddress: self.settings.otpProcessorContractAddress)
                     transaction.params = params
 
                     return transaction
@@ -84,8 +82,7 @@ class GnosisRegistrator {
                 let params = EthereumTransactionParams(data: initOTPData, nonce: self.transactionProcessor.initialNonce + 1)
                 var transaction = try self.walletManager.createTransaction(amount: Amount.zeroCoin(for: self.settings.blockchain),
                                                                            fee: fees[1],
-                                                                           destinationAddress: self.settings.otpProcessorContractAddress,
-                                                                           sourceAddress: self.cardAddress)
+                                                                           destinationAddress: self.settings.otpProcessorContractAddress)
                 transaction.params = params
 
                 return transaction
@@ -106,8 +103,7 @@ class GnosisRegistrator {
                     let params = EthereumTransactionParams(data: setWalletData, nonce: self.transactionProcessor.initialNonce + 2)
                     var transaction = try self.walletManager.createTransaction(amount: Amount.zeroCoin(for: self.settings.blockchain),
                                                                                fee: fees[1],
-                                                                               destinationAddress: self.settings.otpProcessorContractAddress,
-                                                                               sourceAddress: self.cardAddress)
+                                                                               destinationAddress: self.settings.otpProcessorContractAddress)
                     transaction.params = params
 
                     return transaction
