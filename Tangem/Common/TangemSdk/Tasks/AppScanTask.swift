@@ -98,26 +98,39 @@ final class AppScanTask: CardSessionRunnable {
 
         if card.firmwareVersion.doubleValue >= 4.39 {
             if card.settings.maxWalletsCount == 1 {
-                readNote(card, session: session, completion: completion)
-                return
+                readFile(card, session: session, completion: completion)
+            } else {
+                readPrimaryIfNeeded(card, session, completion)
             }
 
-            if AppSettings.shared.cardsStartedActivation.contains(card.cardId),
-               card.backupStatus == .noBackup {
-                readPrimaryCard(session, completion)
-                return
-            } else {
-                deriveKeysIfNeeded(session, completion)
-                return
-            }
+            return
         }
 
         self.runScanTask(session, completion)
     }
 
-    private func readNote(_ card: Card, session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
+    private func readPrimaryIfNeeded(_ card: Card, _ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
+        #if CLIP
+        deriveKeysIfNeeded(session, completion)
+        return
+        #else
+        let isSaltPayCard = SaltPayUtil().isPrimaryCard(batchId: card.batchId)
+        let isWalletInOnboarding = AppSettings.shared.cardsStartedActivation.contains(card.cardId)
+
+        if isSaltPayCard || isWalletInOnboarding,
+           card.settings.isBackupAllowed, card.backupStatus == .noBackup {
+            readPrimaryCard(session, completion)
+            return
+        } else {
+            deriveKeysIfNeeded(session, completion)
+            return
+        }
+        #endif
+    }
+
+    private func readFile(_ card: Card, session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
         func exit() {
-            self.deriveKeysIfNeeded(session, completion)
+            self.readPrimaryIfNeeded(card, session, completion)
         }
 
         let readFileCommand = ReadFilesTask(fileName: "blockchainInfo", walletPublicKey: nil)
@@ -144,8 +157,11 @@ final class AppScanTask: CardSessionRunnable {
                     return
                 }
 
-                self.walletData = .file(walletData)
-                self.runScanTask(session, completion)
+                if walletData.blockchain != "ANY" {
+                    self.walletData = .file(walletData)
+                }
+
+                exit()
             case .failure(let error):
                 switch error {
                 case .fileNotFound, .insNotSupported:
