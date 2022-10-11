@@ -59,13 +59,18 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             return currentStep.isSupplementButtonVisible
         }
     }
+    
+    var isCustomContentVisible: Bool {
+        switch currentStep {
+        case .saveUserWallet:
+            return true
+        default:
+            return false
+        }
+    }
 
     var infoText: LocalizedStringKey? {
         currentStep.infoText
-    }
-
-    var isBiometryLogoVisible: Bool {
-        currentStep == .saveUserWallet
     }
 
     private var previewUpdateCounter: Int = 0
