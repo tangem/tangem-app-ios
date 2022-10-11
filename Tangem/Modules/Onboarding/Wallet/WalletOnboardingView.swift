@@ -176,8 +176,7 @@ struct WalletOnboardingView: View {
                         subtitle: viewModel.subtitle,
                         textOffset: currentStep.messagesOffset,
                         buttonsSettings: .init(main: viewModel.mainButtonSettings,
-                                               supplement: viewModel.supplementButtonSettings),
-                        infoText: viewModel.infoText
+                                               supplement: viewModel.supplementButtonSettings)
                     ) {
                         viewModel.closeOnboarding()
                     }
