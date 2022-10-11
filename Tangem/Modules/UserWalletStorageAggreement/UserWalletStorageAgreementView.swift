@@ -17,7 +17,7 @@ struct UserWalletStorageAgreementView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            if viewModel.showButtons {
+            if viewModel.isStandalone {
                 HStack {
                     Spacer()
 
@@ -39,7 +39,9 @@ struct UserWalletStorageAgreementView: View {
 
                 FlexibleSpacer(maxHeight: 28)
 
-                newFeatureBadge
+                if viewModel.isStandalone {
+                    newFeatureBadge
+                }
             }
 
             Spacer()
@@ -62,7 +64,7 @@ struct UserWalletStorageAgreementView: View {
 
             Spacer()
 
-            if viewModel.showButtons {
+            if viewModel.isStandalone {
                 VStack(spacing: 10) {
                     TangemButton(title: BiometricAuthorizationUtils.allowButtonLocalizationKey, action: viewModel.accept)
                         .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .flexibleWidth))
