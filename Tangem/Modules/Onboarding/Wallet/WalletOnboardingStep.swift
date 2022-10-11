@@ -86,8 +86,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         case .backupIntro: return "onboarding_title_backup_card"
         case .selectBackupCards: return "onboarding_title_no_backup_cards"
         case .backupCards, .kycProgress: return ""
-            #warning("l10n")
-        case .saveUserWallet: return "Would you like to keep wallet on this device?"
+        case .saveUserWallet: return nil
         case .success: return successTitle
         case .registerWallet:
             return "onboarding_title_register_wallet"
@@ -108,8 +107,7 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         case .backupIntro: return "onboarding_subtitle_backup_card"
         case .selectBackupCards: return "onboarding_subtitle_no_backup_cards"
         case .backupCards, .kycProgress: return ""
-            #warning("l10n")
-        case .saveUserWallet: return "Save your Wallet feature allows you to use your wallet with biometric auth without tapping your card to the phone to gain access"
+        case .saveUserWallet: return nil
         case .success: return "onboarding_subtitle_success_backup"
         case .registerWallet:
             return "onboarding_subtitle_register_wallet"
