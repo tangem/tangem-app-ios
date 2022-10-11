@@ -28,8 +28,7 @@ fileprivate struct PDFRepresentedView: UIViewRepresentable {
 
     func makeUIView(context: UIViewRepresentableContext<PDFRepresentedView>) -> PDFRepresentedView.UIViewType {
         let pdfView = PDFView()
-        pdfView.translatesAutoresizingMaskIntoConstraints = false
-
+        
         pdfView.autoScales = true
         pdfView.document = PDFDocument(url: self.url)
         pdfView.minScaleFactor = UIScreen.main.bounds.height * 0.00074
