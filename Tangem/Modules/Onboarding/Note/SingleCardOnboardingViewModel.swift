@@ -55,7 +55,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
             return currentStep.isSupplementButtonVisible
         }
     }
-    
+
     var isCustomContentVisible: Bool {
         switch currentStep {
         case .saveUserWallet:
