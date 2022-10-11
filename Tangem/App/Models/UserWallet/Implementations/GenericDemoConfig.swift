@@ -99,8 +99,13 @@ extension GenericDemoConfig: UserWalletConfig {
         let blockchains: [Blockchain] = [.ethereum(testnet: card.isTestnet), .bitcoin(testnet: card.isTestnet)]
 
         let entries: [StorageEntry] = blockchains.map {
-            let derivationPath = $0.derivationPath(for: card.derivationStyle)
-            let network = BlockchainNetwork($0, derivationPath: derivationPath)
+            if let derivationStyle = card.derivationStyle {
+                let derivationPath = $0.derivationPath(for: derivationStyle)
+                let network = BlockchainNetwork($0, derivationPath: derivationPath)
+                return .init(blockchainNetwork: network, tokens: [])
+            }
+
+            let network = BlockchainNetwork($0, derivationPath: nil)
             return .init(blockchainNetwork: network, tokens: [])
         }
 
@@ -111,8 +116,13 @@ extension GenericDemoConfig: UserWalletConfig {
         let blockchains = DemoUtil().getDemoBlockchains(isTestnet: card.isTestnet)
 
         let entries: [StorageEntry] = blockchains.map {
-            let derivationPath = $0.derivationPath(for: card.derivationStyle)
-            let network = BlockchainNetwork($0, derivationPath: derivationPath)
+            if let derivationStyle = card.derivationStyle {
+                let derivationPath = $0.derivationPath(for: derivationStyle)
+                let network = BlockchainNetwork($0, derivationPath: derivationPath)
+                return .init(blockchainNetwork: network, tokens: [])
+            }
+
+            let network = BlockchainNetwork($0, derivationPath: nil)
             return .init(blockchainNetwork: network, tokens: [])
         }
 
