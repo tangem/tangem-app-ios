@@ -120,14 +120,6 @@ extension SingleCardOnboardingStep: OnboardingMessagesProvider {
         }
     }
 
-    var titleLineLimit: Int? {
-        switch self {
-        case .saveUserWallet:
-            return nil
-        default:
-            return 1
-        }
-    }
     var messagesOffset: CGSize {
         return .zero
 //        switch self {
