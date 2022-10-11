@@ -50,10 +50,6 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         return super.title
     }
 
-    override var titleLineLimit: Int? {
-        return currentStep.titleLineLimit
-    }
-
     override var mainButtonTitle: LocalizedStringKey {
         if !isInitialAnimPlayed {
             return super.mainButtonTitle
