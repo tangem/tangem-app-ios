@@ -12,25 +12,25 @@ import SwiftUI
 final class UserWalletStorageAgreementViewModel: ObservableObject, Identifiable {
     // MARK: - ViewState
 
-    let showButtons: Bool
+    let isStandalone: Bool
 
     // MARK: - Dependencies
 
-    private unowned let coordinator: UserWalletStorageAgreementRoutable
+    private unowned let coordinator: UserWalletStorageAgreementRoutable?
 
     init(
-        showButtons: Bool,
-        coordinator: UserWalletStorageAgreementRoutable
+        isStandalone: Bool,
+        coordinator: UserWalletStorageAgreementRoutable?
     ) {
-        self.showButtons = showButtons
+        self.isStandalone = isStandalone
         self.coordinator = coordinator
     }
 
     func accept() {
-        coordinator.didAgree()
+        coordinator?.didAgree()
     }
 
     func decline() {
-        coordinator.didDecline()
+        coordinator?.didDecline()
     }
 }
