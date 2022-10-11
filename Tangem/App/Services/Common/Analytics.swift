@@ -221,7 +221,7 @@ extension Analytics {
         case twinSetupFinished = "[Onboarding / Twins] Twin Setup Finished"
         case screenOpened = "[Main Screen] Screen opened"
         case buttonScanCard = "[Main Screen] Button - Scan Card"
-        case cardWasScanned = "[Main Screen] Card Was Scanned "
+        case cardWasScanned = "[Main Screen] Card Was Scanned"
         case buttonMyWallets = "[Main Screen] Button - My Wallets"
         case mainCurrencyChanged = "[Main Screen] Main Currency Changed"
         case noticeRateTheAppButtonTapped = "[Main Screen] Notice - Rate The App Button Tapped"
