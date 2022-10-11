@@ -30,7 +30,6 @@ class SingleWalletContentViewModel: ObservableObject {
         userWalletModel: userWalletModel,
         totalBalanceManager: TotalBalanceProvider(userWalletModel: userWalletModel, userWalletAmountType: cardModel.cardAmountType, totalBalanceSupportData: TotalBalanceCardSupportInfo(cardBatchId: cardModel.batchId, cardNumber: cardModel.cardId)),
         cardAmountType: cardModel.cardAmountType,
-        isSingleCoinCard: true,
         tapOnCurrencySymbol: output.openCurrencySelection
     )
 
