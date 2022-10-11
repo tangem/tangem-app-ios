@@ -41,6 +41,8 @@ struct WalletOnboardingView: View {
     @ViewBuilder
     var customContent: some View {
         switch viewModel.currentStep {
+        case .saveUserWallet:
+            UserWalletStorageAgreementView(viewModel: viewModel.userWalletStorageAgreementViewModel)
         case .enterPin:
             EnterPinView(text: $viewModel.pinText,
                          title: viewModel.currentStep.title!,
@@ -78,7 +80,6 @@ struct WalletOnboardingView: View {
                 GeometryReader { geom in
                     let size = geom.size
                     ZStack(alignment: .center) {
-                        #warning("[REDACTED_TODO_COMMENT]")
                         Circle()
                             .foregroundColor(.tangemBgGray)
                             .frame(size: viewModel.isInitialAnimPlayed ? currentStep.backgroundFrameSize(in: size) : .zero)
@@ -154,10 +155,6 @@ struct WalletOnboardingView: View {
                                     .zIndex(150)
                                     .transition(.opacity)
                             }
-                        }
-
-                        if viewModel.isBiometryLogoVisible {
-                            BiometryLogoImage.image
                         }
                     }
                     .position(x: size.width / 2, y: size.height / 2)
