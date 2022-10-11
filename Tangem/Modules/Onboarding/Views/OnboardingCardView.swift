@@ -30,13 +30,13 @@ struct OnboardingCardView: View {
     }
 
     var placeholderCardType: CardType
-    var cardImage: UIImage?
+    var cardImage: Image?
     var cardScanned: Bool
 
     var body: some View {
         GeometryReader { geom in
             if let image = cardImage {
-                Image(uiImage: image)
+                image
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(size: geom.size)
@@ -63,12 +63,6 @@ struct OnboardingCardView_Previews: PreviewProvider {
                                cardScanned: false)
             OnboardingCardView(placeholderCardType: .light,
                                cardImage: nil,
-                               cardScanned: false)
-            OnboardingCardView(placeholderCardType: .dark,
-                               cardImage: UIImage(named: "twin1"),
-                               cardScanned: true)
-            OnboardingCardView(placeholderCardType: .dark,
-                               cardImage: UIImage(named: "tangem_wallet"),
                                cardScanned: false)
 
         }
