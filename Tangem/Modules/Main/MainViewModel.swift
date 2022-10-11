@@ -514,7 +514,6 @@ extension MainViewModel: SingleWalletContentViewModelOutput {
     func showExplorerURL(url: URL?, walletModel: WalletModel) {
         guard let url = url else { return }
 
-//        Analytics.log(.buttonExplore)
         let blockchainName = walletModel.blockchainNetwork.blockchain.displayName
         coordinator.openExplorer(at: url, blockchainDisplayName: blockchainName)
     }
