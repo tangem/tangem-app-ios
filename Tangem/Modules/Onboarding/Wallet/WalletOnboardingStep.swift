@@ -174,6 +174,15 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
     var checkmarkText: LocalizedStringKey? {
         return nil
     }
+
+    var infoText: LocalizedStringKey? {
+        switch self {
+        case .saveUserWallet:
+            return "save_user_wallet_agreement_notice"
+        default:
+            return nil
+        }
+    }
 }
 
 extension WalletOnboardingStep: OnboardingInitialStepInfo {
