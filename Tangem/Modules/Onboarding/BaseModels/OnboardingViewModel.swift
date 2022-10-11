@@ -127,7 +127,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
     }
 
     var isSupplementButtonVisible: Bool { currentStep.isSupplementButtonVisible }
-    
+
     lazy var userWalletStorageAgreementViewModel = UserWalletStorageAgreementViewModel(isStandalone: false, coordinator: nil)
 
     let input: OnboardingInput
