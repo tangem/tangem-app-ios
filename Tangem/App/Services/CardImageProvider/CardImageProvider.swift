@@ -36,6 +36,10 @@ struct CardImageProvider {
 
 extension CardImageProvider: CardImageProviding {
     func loadImage(cardId: String, cardPublicKey: Data) -> AnyPublisher<UIImage, Never> {
+        if SaltPayUtil().isPrimaryCard(batchId: String(cardId.prefix(4))) {
+            return Just(UIImage(named: "saltpay")!).eraseToAnyPublisher()
+        }
+
         guard supportsOnlineImage else {
             return Just(defaultImage).eraseToAnyPublisher()
         }
