@@ -62,10 +62,6 @@ class OnboardingViewModel<Step: OnboardingStep> {
         return currentStep.subtitle
     }
 
-    var titleLineLimit: Int? {
-        return 1
-    }
-
     var mainButtonSettings: TangemButtonSettings? {
         .init(
             title: mainButtonTitle,
