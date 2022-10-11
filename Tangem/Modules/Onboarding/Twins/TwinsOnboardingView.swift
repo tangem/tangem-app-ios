@@ -103,15 +103,15 @@ struct TwinsOnboardingView: View {
                                 refreshButtonSize: .medium,
                                 refreshButtonOpacity: currentStep.backgroundOpacity
                             )
-                            
+
                             OnboardingCircleButton(refreshAction: {
-                                viewModel.updateCardBalance()
-                            },
+                                                       viewModel.updateCardBalance()
+                                                   },
                                                    state: currentStep.successCircleState,
                                                    size: .huge)
-                            .offset(y: 8)
-                            .opacity(currentStep.successCircleOpacity)
-                            
+                                .offset(y: 8)
+                                .opacity(currentStep.successCircleOpacity)
+
                             AnimatedView(settings: viewModel.$supplementCardSettings) {
                                 OnboardingCardView(placeholderCardType: .light,
                                                    cardImage: viewModel.secondTwinImage,
