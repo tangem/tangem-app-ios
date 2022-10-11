@@ -16,7 +16,6 @@ class SaltPayRegistratorProvider: SaltPayRegistratorProviding {
 
         let gnosis = try GnosisRegistrator(settings: .main,
                                            walletPublicKey: walletPublicKey,
-                                           cardPublicKey: cardPublicKey,
                                            factory: wmFactory)
 
         let registrator = SaltPayRegistrator(cardId: cardId,
