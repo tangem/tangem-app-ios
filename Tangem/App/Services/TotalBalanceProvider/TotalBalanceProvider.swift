@@ -69,10 +69,10 @@ private extension TotalBalanceProvider {
                     }
                 }
 
-                self.totalBalanceAnalyticsService.toppedUpCheck(tokenItemViewModels: tokenItemViewModels, balance: balance)
+                self.totalBalanceAnalyticsService.sendToppedUpEventIfNeeded(tokenItemViewModels: tokenItemViewModels, balance: balance)
 
                 if self.isFirstLoadForCardInSession {
-                    self.totalBalanceAnalyticsService.firstLoadBalanceForCard(tokenItemViewModels: tokenItemViewModels, balance: balance)
+                    self.totalBalanceAnalyticsService.sendFirstLoadBalanceEventForCard(tokenItemViewModels: tokenItemViewModels, balance: balance)
                     self.isFirstLoadForCardInSession = false
                 }
 
