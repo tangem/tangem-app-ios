@@ -163,15 +163,6 @@ extension TwinsOnboardingStep: OnboardingMessagesProvider {
         }
     }
 
-    var titleLineLimit: Int? {
-        switch self {
-        case .saveUserWallet:
-            return nil
-        default:
-            return 1
-        }
-    }
-
     var messagesOffset: CGSize {
         switch self {
         default: return .zero
