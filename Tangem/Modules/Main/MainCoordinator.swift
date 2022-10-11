@@ -190,6 +190,7 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openQR(shareAddress: String, address: String, qrNotice: String) {
+        Analytics.log(.receiveScreenOpened)
         addressQrBottomSheetContentViewVodel = .init(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
     }
 
