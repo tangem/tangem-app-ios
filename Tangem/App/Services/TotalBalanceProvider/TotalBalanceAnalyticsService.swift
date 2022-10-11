@@ -30,7 +30,7 @@ class TotalBalanceAnalyticsService {
         self.totalBalanceCardSupportInfo = totalBalanceCardSupportInfo
     }
     
-    func firstLoadBalanceForCard(tokenItemViewModels: [TokenItemViewModel], balance: Decimal) {
+    func sendFirstLoadBalanceEventForCard(tokenItemViewModels: [TokenItemViewModel], balance: Decimal) {
         let fullCurrenciesName: String = tokenItemViewModels
             .filter({ $0.fiatValue > 0 })
             .map({ $0.currencySymbol })
@@ -46,7 +46,7 @@ class TotalBalanceAnalyticsService {
         Analytics.log(.signedIn, params: params)
     }
 
-    func toppedUpCheck(tokenItemViewModels: [TokenItemViewModel], balance: Decimal) {
+    func sendToppedUpEventIfNeeded(tokenItemViewModels: [TokenItemViewModel], balance: Decimal) {
         guard balance > 0 else {
             if !cardBalanceInfoWasSaved {
                 let encodedData = try? JSONEncoder().encode(Decimal(0))
@@ -56,19 +56,18 @@ class TotalBalanceAnalyticsService {
         }
 
         if let data = userDefaults.data(forKey: totalBalanceCardSupportInfo.cardNumberHash),
-           let previousBalance = try? JSONDecoder().decode(Decimal.self, from: data)
+           let previousBalance = try? JSONDecoder().decode(Decimal.self, from: data),
+           previousBalance == 0
         {
-            if previousBalance == 0 {
-                let fullCurrenciesName: String = tokenItemViewModels
-                    .filter({ $0.fiatValue > 0 })
-                    .map({ $0.currencySymbol })
-                    .reduce("") { partialResult, currencySymbol in
-                        "\(partialResult)\(partialResult.isEmpty ? "" : " / ")\(currencySymbol)"
-                    }
-                Analytics.log(.toppedUp, params: [.basicCurrency: fullCurrenciesName])
-                let encodeToData = try? JSONEncoder().encode(balance)
-                userDefaults.set(encodeToData, forKey: totalBalanceCardSupportInfo.cardNumberHash)
-            }
+            let fullCurrenciesName: String = tokenItemViewModels
+                .filter({ $0.fiatValue > 0 })
+                .map({ $0.currencySymbol })
+                .reduce("") { partialResult, currencySymbol in
+                    "\(partialResult)\(partialResult.isEmpty ? "" : " / ")\(currencySymbol)"
+                }
+            Analytics.log(.toppedUp, params: [.basicCurrency: fullCurrenciesName])
+            let encodeToData = try? JSONEncoder().encode(balance)
+            userDefaults.set(encodeToData, forKey: totalBalanceCardSupportInfo.cardNumberHash)
         }
     }
 }
