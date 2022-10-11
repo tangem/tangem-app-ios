@@ -213,7 +213,7 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openUserWalletSaveAcceptanceSheet() {
-        userWalletStorageAgreementViewModel = UserWalletStorageAgreementViewModel(showButtons: true, coordinator: self)
+        userWalletStorageAgreementViewModel = UserWalletStorageAgreementViewModel(isStandalone: true, coordinator: self)
     }
 
     func openUserWalletList() {
