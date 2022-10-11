@@ -45,6 +45,7 @@ struct GenericConfig {
 
     init(card: CardDTO) {
         self.card = card
+        backupServiceProvider.backupService.skipCompatibilityChecks = false
     }
 }
 
