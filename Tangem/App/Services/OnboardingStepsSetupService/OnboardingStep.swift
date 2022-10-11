@@ -32,8 +32,8 @@ enum OnboardingSteps {
 typealias OnboardingStep = OnboardingProgressStepIndicatable & OnboardingMessagesProvider & OnboardingButtonsInfoProvider & OnboardingInitialStepInfo & Equatable
 
 protocol OnboardingMessagesProvider {
-    var title: LocalizedStringKey { get }
-    var subtitle: LocalizedStringKey { get }
+    var title: LocalizedStringKey? { get }
+    var subtitle: LocalizedStringKey? { get }
     var messagesOffset: CGSize { get }
 }
 
