@@ -53,7 +53,6 @@ struct OnboardingTextButtonView: View {
     var textOffset: CGSize = .zero
     //    let buttonsSettings: ButtonsSettings
     let buttonsSettings: OnboardingBottomButtonsSettings
-    let infoText: LocalizedStringKey?
     let titleAction: (() -> Void)?
     var checkmarkText: LocalizedStringKey? = nil
     var isCheckmarkChecked: Binding<Bool> = .constant(false)
@@ -85,18 +84,7 @@ struct OnboardingTextButtonView: View {
                                                layout: settings.size,
                                                isDisabled: !settings.isEnabled,
                                                isLoading: settings.isBusy))
-                .overlay(infoTextView)
             }
-        }
-    }
-
-    @ViewBuilder
-    var infoTextView: some View {
-        if let infoText = infoText {
-            Text(infoText)
-                .style(Fonts.Regular.caption1, color: Colors.Text.tertiary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 16)
         }
     }
 
@@ -165,7 +153,6 @@ struct OnboardingTextButtonView_Previews: PreviewProvider {
                 iconPosition: .leading
             )
             ),
-            infoText: nil,
             titleAction: { },
             checkmarkText: "I understand",
             isCheckmarkChecked: $isChecked
