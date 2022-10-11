@@ -174,7 +174,6 @@ struct WalletOnboardingView: View {
                     OnboardingTextButtonView(
                         title: viewModel.title,
                         subtitle: viewModel.subtitle,
-                        titleLineLimit: viewModel.titleLineLimit,
                         textOffset: currentStep.messagesOffset,
                         buttonsSettings: .init(main: viewModel.mainButtonSettings,
                                                supplement: viewModel.supplementButtonSettings),
