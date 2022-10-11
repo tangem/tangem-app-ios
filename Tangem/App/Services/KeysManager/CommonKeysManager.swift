@@ -31,7 +31,7 @@ class CommonKeysManager {
 }
 
 extension CommonKeysManager: KeysManager {
-    var appsFlyerDevKey: String {
+    var  appsFlyerDevKey: String {
         keys.appsFlyerDevKey
     }
 
