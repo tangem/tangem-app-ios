@@ -61,7 +61,6 @@ extension LegacyConfig: UserWalletConfig {
         1
     }
 
-    #warning("l10n")
     var cardName: String {
         "Tangem Card"
     }
