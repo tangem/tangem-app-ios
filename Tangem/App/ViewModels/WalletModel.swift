@@ -78,7 +78,7 @@ class WalletModel: ObservableObject, Identifiable {
 
     let walletManager: WalletManager
 
-    private let derivationStyle: DerivationStyle
+    private let derivationStyle: DerivationStyle?
     private var latestUpdateTime: Date? = nil
     private var updatePublisher: PassthroughSubject<Void, Error>?
     private var updateTimer: AnyCancellable?
@@ -89,7 +89,7 @@ class WalletModel: ObservableObject, Identifiable {
         print("🗑 WalletModel deinit")
     }
 
-    init(walletManager: WalletManager, derivationStyle: DerivationStyle) {
+    init(walletManager: WalletManager, derivationStyle: DerivationStyle?) {
         self.walletManager = walletManager
         self.derivationStyle = derivationStyle
 
@@ -419,6 +419,10 @@ extension WalletModel {
 
     func isCustom(_ amountType: Amount.AmountType) -> Bool {
         if state.isLoading {
+            return false
+        }
+        
+        guard let derivationStyle = derivationStyle else {
             return false
         }
 
