@@ -15,6 +15,7 @@ class WelcomeViewModel: ObservableObject {
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
     @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
+    @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
 
     @Published var showTroubleshootingView: Bool = false
     @Published var isScanningCard: Bool = false
@@ -64,9 +65,64 @@ class WelcomeViewModel: ObservableObject {
             return
         }
 
-        scanCardInternal { [weak self] cardModel in
-            self?.processScannedCard(cardModel, isWithAnimation: true)
-        }
+        isScanningCard = true
+        Analytics.log(.scanCardTapped)
+        var subscription: AnyCancellable? = nil
+
+        subscription = cardsRepository.scanPublisher()
+            .flatMap { [weak self] response -> AnyPublisher<CardViewModel, Error> in
+                if SaltPayUtil().isBackupCard(cardId: response.cardId) {
+                    if let backupInput = response.backupInput, backupInput.steps.stepsCount > 0 {
+                        return .anyFail(error: SaltPayRegistratorError.emptyBackupCardScanned)
+                    } else {
+                        return .justWithError(output: response)
+                    }
+                }
+
+                guard let saltPayRegistrator = self?.saltPayRegistratorProvider.registrator else {
+                    return .justWithError(output: response)
+                }
+
+                return saltPayRegistrator.updatePublisher()
+                    .map { _ in
+                        return response
+                    }
+                    .eraseToAnyPublisher()
+            }
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] completion in
+                if case let .failure(error) = completion {
+                    print("Failed to scan card: \(error)")
+                    self?.isScanningCard = false
+                    self?.failedCardScanTracker.recordFailure()
+
+                    if let salpayError = error as? SaltPayRegistratorError {
+                        self?.error = salpayError.alertBinder
+                        return
+                    }
+
+                    if self?.failedCardScanTracker.shouldDisplayAlert ?? false {
+                        self?.showTroubleshootingView = true
+                    } else {
+                        switch error.toTangemSdkError() {
+                        case .unknownError, .cardVerificationFailed:
+                            self?.error = error.alertBinder
+                        default:
+                            break
+                        }
+                    }
+                }
+                subscription.map { _ = self?.bag.remove($0) }
+            } receiveValue: { [weak self] cardModel in
+                let numberOfFailedAttempts = self?.failedCardScanTracker.numberOfFailedAttempts ?? 0
+                self?.failedCardScanTracker.resetCounter()
+                Analytics.log(numberOfFailedAttempts == 0 ? .firstScan : .secondScan)
+                DispatchQueue.main.async {
+                    self?.processScannedCard(cardModel, isWithAnimation: true)
+                }
+            }
+
+        subscription?.store(in: &bag)
     }
 
     func unlockWithBiometry() {

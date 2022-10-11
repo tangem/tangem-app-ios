@@ -23,11 +23,11 @@ class UserWalletEncryptionKeyStorage {
     func fetch(completion: @escaping (Result<[Data: SymmetricKey], Error>) -> Void) {
         do {
             let userWalletIds = try userWalletIds()
-            
+
             let reason = "biometry_touch_id_reason".localized
             BiometricsUtil.requestAccess(localizedReason: reason) { [weak self] result in
                 guard let self = self else { return }
-                
+
                 switch result {
                 case .failure(let error):
                     completion(.failure(error))
@@ -37,7 +37,7 @@ class UserWalletEncryptionKeyStorage {
                     for userWalletId in userWalletIds {
                         let storageKey = self.encryptionKeyStorageKey(for: userWalletId)
                         let userWalletEncryptionKeyResult = self.biometricsStorage.get(storageKey, context: context)
-                        
+
                         switch userWalletEncryptionKeyResult {
                         case .failure(let error):
                             print("Failed to get encryption key for UserWallet", error)
@@ -49,7 +49,7 @@ class UserWalletEncryptionKeyStorage {
                             }
                         }
                     }
-                    
+
                     completion(.success(keys))
                 }
             }

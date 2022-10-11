@@ -98,7 +98,7 @@ enum SingleCardOnboardingStep: CaseIterable, Equatable {
 extension SingleCardOnboardingStep: SuccessStep { }
 
 extension SingleCardOnboardingStep: OnboardingMessagesProvider {
-    var title: LocalizedStringKey {
+    var title: LocalizedStringKey? {
         switch self {
         case .welcome: return WelcomeStep.welcome.title
         case .createWallet: return "onboarding_create_title"
@@ -110,7 +110,7 @@ extension SingleCardOnboardingStep: OnboardingMessagesProvider {
         }
     }
 
-    var subtitle: LocalizedStringKey {
+    var subtitle: LocalizedStringKey? {
         switch self {
         case .welcome: return WelcomeStep.welcome.subtitle
         case .createWallet: return "onboarding_create_subtitle"
