@@ -65,6 +65,10 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         }
     }
 
+    var infoText: LocalizedStringKey? {
+        currentStep.infoText
+    }
+
     private var previewUpdateCounter: Int = 0
     private var walletCreatedWhileOnboarding: Bool = false
     private var scheduledUpdate: DispatchWorkItem?
