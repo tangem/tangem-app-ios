@@ -120,15 +120,6 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         }
     }
 
-    var titleLineLimit: Int? {
-        switch self {
-        case .saveUserWallet:
-            return nil
-        default:
-            return 1
-        }
-    }
-
     var messagesOffset: CGSize {
         switch self {
         case .success: return CGSize(width: 0, height: -2)
