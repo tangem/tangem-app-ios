@@ -97,10 +97,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         }
     }
 
-    override var titleLineLimit: Int? {
-        return currentStep.titleLineLimit
-    }
-
     override var mainButtonSettings: TangemButtonSettings? {
         switch currentStep {
         case .enterPin, .registerWallet, .kycStart, .kycProgress:
