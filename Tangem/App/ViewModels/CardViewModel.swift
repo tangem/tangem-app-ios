@@ -162,6 +162,14 @@ class CardViewModel: Identifiable, ObservableObject {
         config.hasFeature(.send)
     }
 
+    var cardAmountType: Amount.AmountType {
+        config.cardAmountType
+    }
+
+    var supportChatEnvironment: SupportChatEnvironment {
+        config.supportChatEnvironment
+    }
+
     var hasWallet: Bool {
         !walletModels.isEmpty
     }
