@@ -98,12 +98,17 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         }
     }
 
-    var infoText: LocalizedStringKey? {
-        currentStep.infoText
+    var isCustomContentVisible: Bool {
+        switch currentStep {
+        case .saveUserWallet:
+            return true
+        default:
+            return false
+        }
     }
 
-    var isBiometryLogoVisible: Bool {
-        currentStep == .saveUserWallet
+    var infoText: LocalizedStringKey? {
+        currentStep.infoText
     }
 
     override var mainButtonSettings: TangemButtonSettings? {
