@@ -85,13 +85,13 @@ final class AppScanTask: CardSessionRunnable {
            legacyWalletData.blockchain != "ANY" {
             self.walletData = .legacy(legacyWalletData)
         }
-        
+
         self.appendWalletsIfNeeded(session: session, completion: completion)
     }
 
     private func readExtra(session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
         let card = session.environment.card!
-        
+
         if TwinCardSeries.series(for: card.cardId) != nil {
             readTwin(card, session: session, completion: completion)
             return
@@ -219,14 +219,14 @@ final class AppScanTask: CardSessionRunnable {
         let mandatoryСurves: Set<EllipticCurve> = [.secp256k1, .ed25519]
         let missingCurves = mandatoryСurves.subtracting(existingCurves)
         let hasBackup = card.backupStatus?.isActive ?? false
-        
+
         guard card.settings.maxWalletsCount > 1,
               !hasBackup,
               !existingCurves.isEmpty, !missingCurves.isEmpty else {
             readExtra(session: session, completion: completion)
             return
         }
-        
+
         appendWallets(Array(missingCurves), session: session, completion: completion)
     }
 
