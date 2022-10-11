@@ -275,6 +275,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
 
     private var canAddBackupCards: Bool {
+        if saltPayRegistratorProvider.registrator != nil {
+            return backupService.addedBackupCardsCount == 0
+        }
+        
         return backupService.canAddBackupCards
     }
 
@@ -436,7 +440,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             jumpToLatestStep()
             Analytics.log(.backupLaterTapped)
         case .selectBackupCards:
-            if backupCardsAddedCount < 2 {
+            if canAddBackupCards {
                 let controller = UIAlertController(title: "common_warning".localized, message: "onboarding_alert_message_not_max_backup_cards_added".localized, preferredStyle: .alert)
                 controller.addAction(UIAlertAction(title: "common_continue".localized, style: .default, handler: { [weak self] _ in
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
