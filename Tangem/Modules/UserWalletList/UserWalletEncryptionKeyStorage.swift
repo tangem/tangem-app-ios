@@ -24,8 +24,7 @@ class UserWalletEncryptionKeyStorage {
         do {
             let userWalletIds = try userWalletIds()
             
-            #warning("l10n")
-            let reason = "Reason"
+            let reason = "biometry_touch_id_reason".localized
             BiometricsUtil.requestAccess(localizedReason: reason) { [weak self] result in
                 guard let self = self else { return }
                 
