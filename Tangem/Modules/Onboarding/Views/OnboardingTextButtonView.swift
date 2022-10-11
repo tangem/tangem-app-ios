@@ -50,7 +50,6 @@ struct OnboardingTextButtonView: View {
 
     let title: LocalizedStringKey?
     let subtitle: LocalizedStringKey?
-    var titleLineLimit: Int? = 1
     var textOffset: CGSize = .zero
     //    let buttonsSettings: ButtonsSettings
     let buttonsSettings: OnboardingBottomButtonsSettings
@@ -105,8 +104,7 @@ struct OnboardingTextButtonView: View {
         VStack(spacing: 0) {
             if let title = self.title, let subtitle = self.subtitle {
                 OnboardingMessagesView(title: title,
-                                       subtitle: subtitle,
-                                       titleLineLimit: titleLineLimit) {
+                                       subtitle: subtitle) {
                     titleAction?()
                 }
                 .frame(alignment: .top)
