@@ -13,13 +13,16 @@ import BlockchainSdk
 class TotalBalanceProvider {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     private let userWalletModel: UserWalletModel
+    private let totalBalanceAnalyticsService: TotalBalanceAnalyticsService?
     private let totalBalanceSubject = CurrentValueSubject<LoadingValue<TotalBalance>, Never>(.loading)
     private var refreshSubscription: AnyCancellable?
     private let userWalletAmountType: Amount.AmountType?
+    private var isFirstLoadForCardInSession: Bool = true
 
-    init(userWalletModel: UserWalletModel, userWalletAmountType: Amount.AmountType?) {
+    init(userWalletModel: UserWalletModel, userWalletAmountType: Amount.AmountType?, totalBalanceAnalyticsService: TotalBalanceAnalyticsService?) {
         self.userWalletModel = userWalletModel
         self.userWalletAmountType = userWalletAmountType
+        self.totalBalanceAnalyticsService = totalBalanceAnalyticsService
     }
 }
 
@@ -48,7 +51,7 @@ private extension TotalBalanceProvider {
 
 
         refreshSubscription = tangemApiService.loadCurrencies()
-            .tryMap { currencies -> TotalBalance in
+            .tryMap { [unowned self] currencies -> TotalBalance in
                 guard let currency = currencies.first(where: { $0.code == AppSettings.shared.selectedCurrencyCode }) else {
                     throw CommonError.noData
                 }
@@ -64,6 +67,13 @@ private extension TotalBalanceProvider {
                     if token.rate.isEmpty || !token.state.isSuccesfullyLoaded {
                         hasError = true
                     }
+                }
+
+                self.totalBalanceAnalyticsService?.sendToppedUpEventIfNeeded(tokenItemViewModels: tokenItemViewModels, balance: balance)
+
+                if self.isFirstLoadForCardInSession {
+                    self.totalBalanceAnalyticsService?.sendFirstLoadBalanceEventForCard(tokenItemViewModels: tokenItemViewModels, balance: balance)
+                    self.isFirstLoadForCardInSession = false
                 }
 
                 return TotalBalance(balance: balance, currency: currency, hasError: hasError)
