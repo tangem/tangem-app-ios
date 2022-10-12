@@ -366,7 +366,7 @@ class MainViewModel: ObservableObject {
             .handleEvents(receiveCancel: {
                 print("⚠️ Hash counter subscription cancelled")
             })
-            .sink(receiveCompletion: { [weak self] failure in
+            .receiveCompletion { [weak self] failure in
                 switch failure {
                 case .finished:
                     break
@@ -374,7 +374,7 @@ class MainViewModel: ObservableObject {
                     self?.showAlertAnimated(.numberOfSignedHashesIncorrect)
                 }
                 exit()
-            }, receiveValue: { _ in })
+            }
             .store(in: &bag)
     }
 
