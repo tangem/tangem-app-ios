@@ -113,62 +113,6 @@ Tangem is the only hardware wallet to offer signature count protection.";
 "details_twins_recreate_toolbar" = "Re-create wallet";
 "details_twins_recreate_warning" = "This action is irreversible. You will not have access to the old wallet.
 The wallet re-creation procedure consists of three steps. You must complete it to the end, otherwise you will have to start from the beginning.";
-"disclaimer_text" = "NOTA LEGALE
-
-1. App Tangem (software)
-
-Il software può essere utilizzato solo con i portafogli hardware Tangem (schede) tramite l'interfaccia NFC. Il software NON esegue le seguenti operazioni:
-
-a) Generazione, archiviazione, trasferimento o accesso a chiavi crittografiche private (segrete) di portafogli blockchain contenenti risorse digitali, inclusa la criptovaluta.
-
-b) Generazione, archiviazione, trasferimento o accesso a chiavi segrete, password, passphrase, frasi di ripristino che possono essere utilizzate per recuperare o copiare chiavi private (segrete) su portafogli blockchain contenenti risorse digitali, inclusa la criptovaluta.
-
-c) Fornitura di servizi di scambio, negoziazione e investimento per conto di Tandem AG.
-
-
-2. Rischi associati al funzionamento del Software
-
-Tandem non sarà ritenuta responsabile per eventuali perdite, danni o reclami derivanti da eventi che rientrano nelle seguenti cinque categorie:
-
-a) Errori commessi dall'utente di qualsiasi software o servizio relativo alla criptovaluta, ad esempio password dimenticate, pagamenti inviati a indirizzi errati e cancellazione accidentale di portafogli blockchain su Schede.
-
-b) Problemi con il software e/o qualsiasi software o servizio correlato a blockchain o criptovaluta, come file danneggiati, transazioni generate in modo improprio, librerie crittografiche non sicure, malware.
-
-c) Malfunzionamenti tecnici nell'hardware dell'utente, incluse le Schede, qualsiasi software o servizio relativo alla criptovaluta, ad esempio, perdita di dati a causa di un dispositivo di archiviazione difettoso o danneggiato.
-
-d) Problemi di sicurezza affrontati dall'utente di qualsiasi software o servizio relativo alla criptovaluta, ad esempio l'accesso non autorizzato a portafogli e/o account utente.
-
-e) Azioni o inattività di terze parti e/o eventi con cui si sono scontrate terze parti, come la bancarotta di fornitori di servizi, attacchi alla sicurezza delle informazioni relative ai fornitori di servizi e frodi perpetrate da terzi.
-
-
-3. Rischi commerciali e di investimento
-
-Qualsiasi transazione che coinvolge lo scambio di criptovalute o altre risorse digitali comporta rischi significativi. Qualsiasi transazione che include una valuta comporta dei rischi, inclusa ma non limitata alla possibilità di cambiamenti nelle condizioni economiche che potrebbero influenzare materialmente il valore o la liquidità della valuta. L'investimento nella speculazione sui cambi di criptovaluta può anche essere soggetto a forti alti e bassi poiché i rispettivi prezzi di mercato fluttuano. È per questo motivo che è consigliabile utilizzare solo capitale di rischio quando si fanno affari in questi mercati.
-
-
-4. Rischi dell'e-commerce
-
-Prima di effettuare transazioni utilizzando un sistema elettronico, è necessario leggere attentamente le norme e i regolamenti delle borse che offrono questo sistema e/o elencano i titoli che si intende negoziare. Il trading online presenta un rischio intrinseco dovuto alla risposta del sistema e ai tempi di accesso, che possono variare a seconda delle condizioni di mercato, delle prestazioni del sistema ed altri fattori. È necessario comprendere questi e altri rischi prima di fare trading.
-
-
-5. Rispetto degli obblighi fiscali
-
-Gli utenti del Software sono gli unici responsabili del determinare le eventuali tasse applicate alle loro transazioni in criptovaluta.  I proprietari o i contributori del Software NON sono responsabili della determinazione delle tasse che si applicano alle transazioni in criptovaluta.
-
-
-6. Assenza di garanzie
-
-Il Software viene fornito \"così com'è\" senza garanzia di alcun tipo riguardo al Software e/o a qualsiasi contenuto, dato, materiale e/o servizio fornito con il Software.
-
-
-7. Limitazione di responsabilità
-
-Salvo quanto diversamente previsto dalla legge, i proprietari o i contributori del Software non saranno in nessun caso responsabili per eventuali danni di qualsiasi tipo, inclusi, ma non limitati a, perdita di utilizzo, perdita di profitti o perdita di dati derivanti o in qualsiasi modo correlati all'uso del Software.  In nessun modo i proprietari o i contributori del Software sono responsabili delle azioni, decisioni o altri comportamenti presi o non presi da voi in relazione al Software.
-
-
-8. Ultima modifica
-
-Questa nota legale è stata modificata l'ultima volta 01.10.2020.";
 "disclaimer_title" = "Termini del servizio";
 "home_button_scan" = "Scansiona carta";
 "initial_message_change_access_code_body" = "To change the access code, connect your phone and the card exactly as it shown above";
