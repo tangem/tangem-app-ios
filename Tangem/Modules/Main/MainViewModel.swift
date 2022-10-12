@@ -331,32 +331,32 @@ class MainViewModel: ObservableObject {
     }
 
     private func validateHashesCount() {
-        func exit() {
+        func didFinishCountingHashes() {
             print("⚠️ Hashes counted")
             isHashesCounted = true
         }
 
         guard !isHashesCounted,
               !AppSettings.shared.validatedSignedHashesCards.contains(cardModel.cardId) else {
-            exit()
+            didFinishCountingHashes()
             return
         }
 
         guard cardModel.cardSignedHashes > 0 else {
             AppSettings.shared.validatedSignedHashesCards.append(cardModel.cardId)
-            exit()
+            didFinishCountingHashes()
             return
         }
 
         guard cardModel.canCountHashes else {
             showAlertAnimated(.multiWalletSignedHashes)
-            exit()
+            didFinishCountingHashes()
             return
         }
 
         guard let validator = cardModel.walletModels.first?.walletManager as? SignatureCountValidator else {
             showAlertAnimated(.numberOfSignedHashesIncorrect)
-            exit()
+            didFinishCountingHashes()
             return
         }
 
@@ -373,7 +373,7 @@ class MainViewModel: ObservableObject {
                 case .failure:
                     self?.showAlertAnimated(.numberOfSignedHashesIncorrect)
                 }
-                exit()
+                didFinishCountingHashes()
             }
             .store(in: &bag)
     }
