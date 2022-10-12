@@ -421,7 +421,7 @@ extension WalletModel {
         if state.isLoading {
             return false
         }
-        
+
         guard let derivationStyle = derivationStyle else {
             return false
         }
