@@ -23,32 +23,32 @@ struct MainView: View {
                     CardView(image: viewModel.image, cardSetLabel: viewModel.cardsCountLabel)
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.horizontal, 16)
-                    
+
                     if viewModel.isBackupAllowed {
                         backupWarningView
                     }
-                    
+
                     if viewModel.isLackDerivationWarningViewVisible {
                         ScanCardWarningView(action: viewModel.deriveEntriesWithoutDerivation)
                             .padding(.horizontal, 16)
                     }
-                    
+
                     WarningListView(warnings: viewModel.warnings, warningButtonAction: {
                         viewModel.warningButtonAction(at: $0, priority: $1, button: $2)
                     })
                     .padding(.horizontal, 16)
-                    
-                    
+
+
                     if let viewModel = viewModel.multiWalletContentViewModel {
                         MultiWalletContentView(viewModel: viewModel)
                     } else if let viewModel = viewModel.singleWalletContentViewModel {
                         SingleWalletContentView(viewModel: viewModel)
                     }
-                    
+
                     Color.clear.frame(width: 10, height: 58, alignment: .center)
                 }
             }
-            
+
             if !viewModel.isMultiWalletMode {
                 bottomButtons
                     .frame(maxWidth: .infinity)
