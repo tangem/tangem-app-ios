@@ -516,6 +516,7 @@ URL: %@";
 "welcome_unlock_face_id" = "Войти с Face ID";
 "welcome_unlock_touch_id" = "Войти с Touch ID";
 "welcome_unlock_card" = "Сканировать карту";
+"onboarding_navbar_save_wallet" = "Сохраните ваш кошелек";
 "biometry_touch_id_reason" = "Touch ID используется для сохранения карт в приложении";
 "save_user_wallet_agreement_header" = "Вы хотите использовать %@?";
 "save_user_wallet_agreement_access_title" = "Доступ в приложение";
