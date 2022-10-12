@@ -22,7 +22,6 @@ class CurrencySelectViewModel: ObservableObject {
 
     func onAppear() {
         loading = true
-        Analytics.log(.currencyTypeTapped)
         tangemApiService
             .loadCurrencies()
             .receive(on: DispatchQueue.main)
@@ -45,7 +44,7 @@ class CurrencySelectViewModel: ObservableObject {
     }
 
     func onSelect(_ currency: CurrenciesResponse.Currency) {
-        Analytics.log(.currencyTypeChanged, params: [.currency: currency.name])
+        Analytics.log(.mainCurrencyChanged, params: [.currency: currency.name])
         objectWillChange.send()
         AppSettings.shared.selectedCurrencyCode = currency.code
     }
