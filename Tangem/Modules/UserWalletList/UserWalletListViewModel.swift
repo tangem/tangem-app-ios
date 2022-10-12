@@ -91,12 +91,11 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     }
 
     func tryAgain() {
-        Analytics.log(.tryAgainTapped)
         addUserWallet()
     }
 
     func requestSupport() {
-        Analytics.log(.supportTapped)
+        Analytics.log(.buttonRequestSupport)
         failedCardScanTracker.resetCounter()
 
         coordinator.dismissUserWalletList()
@@ -313,7 +312,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             isMultiWallet: config.hasFeature(.multiCurrency),
             isUserWalletLocked: userWallet.isLocked,
             isSelected: selectedUserWalletId == userWallet.userWalletId,
-            totalBalanceProvider: totalBalanceProvider ?? TotalBalanceProvider(userWalletModel: userWalletModel, userWalletAmountType: nil),
+            totalBalanceProvider: totalBalanceProvider ?? TotalBalanceProvider(userWalletModel: userWalletModel, userWalletAmountType: nil, totalBalanceAnalyticsService: nil),
             cardImageProvider: CardImageProvider()
         ) { [weak self] in
             self?.setSelectedWallet(userWallet)
