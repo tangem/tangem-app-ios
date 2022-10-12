@@ -21,6 +21,7 @@ struct MainView: View {
             RefreshableScrollView(onRefresh: { viewModel.onRefresh($0) }) {
                 VStack(alignment: .leading, spacing: 8.0) {
                     CardView(image: viewModel.image, cardSetLabel: viewModel.cardsCountLabel)
+                        .fixedSize(horizontal: false, vertical: true)
                         .padding(.horizontal, 16)
                     
                     if viewModel.isBackupAllowed {
