@@ -37,9 +37,15 @@ class CommonCardsRepository: CardsRepository {
         print("CardsRepository deinit")
     }
 
-    func scan(with batch: String? = nil, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
+    func scan(with batch: String? = nil, requestBiometrics: Bool,  _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
-        sdkProvider.setup(with: TangemSdkConfigFactory().makeDefaultConfig())
+        
+        var config = TangemSdkConfigFactory().makeDefaultConfig()
+        if requestBiometrics {
+            config.accessCodeRequestPolicy = .alwaysWithBiometrics
+        }
+        sdkProvider.setup(with: config)
+        
         sdkProvider.sdk.startSession(with: AppScanTask(targetBatch: batch)) { [unowned self] result in
             switch result {
             case .failure(let error):
@@ -51,10 +57,10 @@ class CommonCardsRepository: CardsRepository {
         }
     }
 
-    func scanPublisher(with batch: String? = nil) -> AnyPublisher<CardViewModel, Error>  {
+    func scanPublisher(with batch: String? = nil, requestBiometrics: Bool = false) -> AnyPublisher<CardViewModel, Error>  {
         Deferred {
             Future { [weak self] promise in
-                self?.scan(with: batch) { result in
+                self?.scan(with: batch, requestBiometrics: requestBiometrics) { result in
                     switch result {
                     case .success(let scanResult):
                         promise(.success(scanResult))
