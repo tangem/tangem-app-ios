@@ -24,7 +24,6 @@ struct ScanCardWarningView: View {
                         Text("main_scan_card_warning_view_subtitle")
                             .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
                     }
-                    .frame(maxWidth: .infinity, alignment: .leading)
                     .fixedSize(horizontal: false, vertical: true)
                 }
 
@@ -32,7 +31,7 @@ struct ScanCardWarningView: View {
 
                 Assets.chevron
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(maxWidth: .infinity)
             .padding([.vertical, .horizontal], 16)
             .background(Colors.Background.primary)
             .cornerRadius(14)
