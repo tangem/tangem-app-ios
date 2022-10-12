@@ -67,7 +67,11 @@ extension GenericConfig: UserWalletConfig {
     }
 
     var cardsCount: Int {
-        card.backupStatus?.backupCardsCount ?? 1
+        if let backupCardsCount = card.backupStatus?.backupCardsCount {
+            return backupCardsCount + 1
+        } else {
+            return 1
+        }
     }
 
     var cardName: String {
