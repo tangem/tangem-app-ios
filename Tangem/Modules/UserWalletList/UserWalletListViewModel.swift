@@ -184,7 +184,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     private func scanCardInternal(_ completion: @escaping (CardViewModel) -> Void) {
         isScanningCard = true
 
-        cardsRepository.scanPublisher()
+        cardsRepository.scanPublisher(requestBiometrics: true)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
