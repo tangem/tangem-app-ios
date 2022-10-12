@@ -10,8 +10,8 @@ import Foundation
 import Combine
 
 protocol CardsRepository {
-    func scan(with batch: String?, _ completion: @escaping (Result<CardViewModel, Error>) -> Void)
-    func scanPublisher(with batch: String?) ->  AnyPublisher<CardViewModel, Error>
+    func scan(with batch: String?, requestBiometrics: Bool, _ completion: @escaping (Result<CardViewModel, Error>) -> Void)
+    func scanPublisher(with batch: String?, requestBiometrics: Bool) ->  AnyPublisher<CardViewModel, Error>
 }
 
 private struct CardsRepositoryKey: InjectionKey {
@@ -26,8 +26,8 @@ extension InjectedValues {
 }
 
 extension CardsRepository {
-    func scanPublisher(with batch: String? = nil) ->  AnyPublisher<CardViewModel, Error> {
-        scanPublisher(with: batch)
+    func scanPublisher(with batch: String? = nil, requestBiometrics: Bool = false) ->  AnyPublisher<CardViewModel, Error> {
+        scanPublisher(with: batch, requestBiometrics: requestBiometrics)
     }
 }
 
