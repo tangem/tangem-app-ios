@@ -289,6 +289,10 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
 
     private var canAddBackupCards: Bool {
+        if saltPayRegistratorProvider.registrator != nil {
+            return backupService.addedBackupCardsCount == 0
+        }
+
         return backupService.canAddBackupCards
     }
 
@@ -420,6 +424,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         case .scanPrimaryCard:
             readPrimaryCard()
         case .backupIntro:
+            Analytics.log(.backupScreenOpened)
             if NFCUtils.isPoorNfcQualityDevice {
                 self.alert = AlertBuilder.makeOldDeviceAlert()
             } else {
@@ -450,9 +455,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             break
         case .backupIntro:
             goToStep(steps.contains(.saveUserWallet) ?.saveUserWallet : .success)
-            Analytics.log(.backupLaterTapped)
+            Analytics.log(.backupSkipped)
         case .selectBackupCards:
-            if backupCardsAddedCount < 2 {
+            if canAddBackupCards {
                 let controller = UIAlertController(title: "common_warning".localized, message: "onboarding_alert_message_not_max_backup_cards_added".localized, preferredStyle: .alert)
                 controller.addAction(UIAlertAction(title: "common_continue".localized, style: .default, handler: { [weak self] _ in
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
@@ -610,8 +615,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
 
             saltPayRegistratorProvider.registrator?.setAccessCode(code)
 
-            Analytics.log(backupService.addedBackupCardsCount == 0 ? .cardCodeSave : .backupCardSave)
-            Analytics.log(.createAccessCode)
+            Analytics.log(.settingAccessCodeStarted)
             stackCalculator.setupNumberOfCards(1 + backupCardsAddedCount)
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
@@ -628,20 +632,22 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             setupCardsSettings(animated: true, isContainerSetup: false)
         case .backupCards:
             if backupServiceState == .finished {
-                Analytics.log(.backupFinish)
+                Analytics.log(.backupFinished)
                 self.goToNextStep()
             } else {
                 setupCardsSettings(animated: true, isContainerSetup: false)
             }
         case .success:
-            Analytics.log(.onboardingSuccess)
+            Analytics.log(.onboardingFinished)
         default:
             break
         }
     }
 
     private func createWallet() {
-        Analytics.log(.createWalletTapped)
+        Analytics.log(.buttonCreateWallet)
+        Analytics.log(.createWalletScreenOpened)
+
         isMainButtonBusy = true
         if !input.isStandalone {
             AppSettings.shared.cardsStartedActivation.insert(input.cardInput.cardId)
@@ -742,7 +748,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
 
     private func addBackupCard() {
         isMainButtonBusy = true
-        Analytics.log(.addBackupCard)
+        Analytics.log(.backupStarted)
+        Analytics.log(.backupScreenOpened)
         stepPublisher =
             Deferred {
                 Future { [unowned self] promise in
@@ -777,7 +784,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
 
     private func backupCard() {
         isMainButtonBusy = true
-        Analytics.log(.backupTapped)
+        Analytics.log(.buttonCreateBackup)
         stepPublisher =
             Deferred {
                 Future { [unowned self] promise in
