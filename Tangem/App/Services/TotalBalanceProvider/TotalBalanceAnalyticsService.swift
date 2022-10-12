@@ -25,11 +25,11 @@ class TotalBalanceAnalyticsService {
     private var cardBalanceInfoWasSaved: Bool {
         userDefaults.data(forKey: totalBalanceCardSupportInfo.cardNumberHash) != nil
     }
-    
+
     init(totalBalanceCardSupportInfo: TotalBalanceCardSupportInfo) {
         self.totalBalanceCardSupportInfo = totalBalanceCardSupportInfo
     }
-    
+
     func sendFirstLoadBalanceEventForCard(tokenItemViewModels: [TokenItemViewModel], balance: Decimal) {
         let fullCurrenciesName: String = tokenItemViewModels
             .filter({ $0.fiatValue > 0 })
