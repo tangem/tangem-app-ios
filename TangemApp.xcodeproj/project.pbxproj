@@ -564,6 +564,9 @@
 		DCE7E02C287BF92400063EEC /* SwitchChainHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE7E02B287BF92400063EEC /* SwitchChainHandler.swift */; };
 		DCF8972D28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF8972C28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift */; };
 		DCFCA17528F4232F0037586C /* Array+.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFCA17428F4232F0037586C /* Array+.swift */; };
+		E90FAB5A28EE418000C6DCBE /* TotalBalanceAnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E90FAB5928EE418000C6DCBE /* TotalBalanceAnalyticsService.swift */; };
+		DCFCA17C28F5F6960037586C /* PDFKitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFCA17B28F5F6960037586C /* PDFKitView.swift */; };
+		DCFCA17E28F5F7C40037586C /* T&C.pdf in Resources */ = {isa = PBXBuildFile; fileRef = DCFCA17D28F5F7C40037586C /* T&C.pdf */; };
 		EF07F3AD289D43580065549C /* List+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF07F3AC289D43580065549C /* List+.swift */; };
 		EF08A0EF283D1914008BD923 /* Moya+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0EE283D1914008BD923 /* Moya+.swift */; };
 		EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0F0283D2382008BD923 /* CoinsListRequestModel.swift */; };
@@ -1247,8 +1250,11 @@
 		DCE7E02B287BF92400063EEC /* SwitchChainHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchChainHandler.swift; sourceTree = "<group>"; };
 		DCF8972C28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkConfigFactory.swift; sourceTree = "<group>"; };
 		DCFCA17428F4232F0037586C /* Array+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+.swift"; sourceTree = "<group>"; };
+		DCFCA17B28F5F6960037586C /* PDFKitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFKitView.swift; sourceTree = "<group>"; };
+		DCFCA17D28F5F7C40037586C /* T&C.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "T&C.pdf"; sourceTree = "<group>"; };
 		DFEC35A94293DE7EB96CEBC1 /* Pods-Tangem.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.debug(production).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.debug(production).xcconfig"; sourceTree = "<group>"; };
 		E53081CA3060D2785F9D22F0 /* Pods-Tangem-TangemUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release.xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release.xcconfig"; sourceTree = "<group>"; };
+		E90FAB5928EE418000C6DCBE /* TotalBalanceAnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalBalanceAnalyticsService.swift; sourceTree = "<group>"; };
 		EF07F3AC289D43580065549C /* List+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "List+.swift"; sourceTree = "<group>"; };
 		EF08A0EE283D1914008BD923 /* Moya+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Moya+.swift"; sourceTree = "<group>"; };
 		EF08A0F0283D2382008BD923 /* CoinsListRequestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinsListRequestModel.swift; sourceTree = "<group>"; };
@@ -1408,10 +1414,10 @@
 		5D011A222530776A00758010 /* Disclaimer */ = {
 			isa = PBXGroup;
 			children = (
-				B08ACD8025D2BC2A007387BD /* TokenList */,
 				B09536FD26D3D2460040A90D /* DisclaimerView.swift */,
 				DC66BBEA2859AB8600CDF765 /* DisclaimerViewModel.swift */,
 				DCE7119E28784F6700969857 /* DisclaimerRoutable.swift */,
+				DCFCA17B28F5F6960037586C /* PDFKitView.swift */,
 			);
 			path = Disclaimer;
 			sourceTree = "<group>";
@@ -2283,6 +2289,7 @@
 		B0CC817C25CD626A006D49B9 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				DCFCA17D28F5F7C40037586C /* T&C.pdf */,
 				5DE552F527B418B400D7ADCD /* testnet_tokens.json */,
 			);
 			path = Resources;
@@ -2856,13 +2863,12 @@
 			children = (
 				EF130EB828E1D32400D37EFC /* SingleWalletContentView */,
 				EF130EB728E1C6EF00D37EFC /* MultiWalletContentView */,
-				EF105A9328A3E59F000BFD71 /* TokenList */,
 				DC295B5C2862E6DE006CB7B6 /* BackUpWarningView.swift */,
 				DC295B3B2861C19C006CB7B6 /* MainCoordinator.swift */,
-				DC295B3D2861C1AD006CB7B6 /* MainCoordinatorView.swift */,
 				DC66BBF7285A211F00CDF765 /* MainRoutable.swift */,
 				65C9FCB02864507600FDE63E /* MainView.swift */,
 				65C9FCAF2864507600FDE63E /* MainViewModel.swift */,
+				DC295B3D2861C1AD006CB7B6 /* MainCoordinatorView.swift */,
 				5DFB499724E54A340037E76F /* BalanceView.swift */,
 				5DF6129F24E6D6C8001BF301 /* PendingTxView.swift */,
 				5DF612A324E6E3E2001BF301 /* AddressDetailsView.swift */,
@@ -2912,6 +2918,7 @@
 				5DFCCB7224C3817E0014A293 /* Send */,
 				5D384B9224FD51B200C2C92C /* Details */,
 				5DA7C00A25F8FA5200B6E309 /* TokenDetails */,
+				B08ACD8025D2BC2A007387BD /* TokenList */,
 				5D011A222530776A00758010 /* Disclaimer */,
 				B0E1564926B9417E005B33E4 /* Onboarding */,
 				DC66BBE12858DB1900CDF765 /* Welcome */,
@@ -2944,13 +2951,6 @@
 				EF08A0EE283D1914008BD923 /* Moya+.swift */,
 			);
 			path = Extensions;
-			sourceTree = "<group>";
-		};
-		EF105A9328A3E59F000BFD71 /* TokenList */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = TokenList;
 			sourceTree = "<group>";
 		};
 		EF130EB728E1C6EF00D37EFC /* MultiWalletContentView */ = {
@@ -3008,6 +3008,7 @@
 			children = (
 				EF5A5ACD28D86089002544AC /* TotalBalanceProvider.swift */,
 				EF5A5ACE28D86089002544AC /* TotalBalanceProviding.swift */,
+				E90FAB5928EE418000C6DCBE /* TotalBalanceAnalyticsService.swift */,
 			);
 			path = TotalBalanceProvider;
 			sourceTree = "<group>";
@@ -3297,6 +3298,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DCFCA17E28F5F7C40037586C /* T&C.pdf in Resources */,
 				EF0FF873286608BC00B7CEAF /* GoogleService-Info-Beta.plist in Resources */,
 				DA64C36D27CCAD7E005B5E9A /* InfoPlist.strings in Resources */,
 				EF661E2E28BF41D6005769E5 /* Intents.strings in Resources */,
@@ -3594,6 +3596,7 @@
 				DA23788327B24222009795A8 /* ShippingRate.swift in Sources */,
 				5D6784E425EBC94B00149995 /* Blockchain+.swift in Sources */,
 				5DD95B8C24FA959C00E6B9D0 /* VerticalAlignment+.swift in Sources */,
+				DCFCA17C28F5F6960037586C /* PDFKitView.swift in Sources */,
 				DC194D2628EC6A76007FBC99 /* SaltPayRegistratorProvider.swift in Sources */,
 				EF5A5ACF28D86089002544AC /* TotalBalanceProvider.swift in Sources */,
 				5D6784D925EBA1D800149995 /* TokenItems+Array.swift in Sources */,
@@ -3816,6 +3819,7 @@
 				DC0A582E282BCBEB0031BECC /* ShopifyProtocol.swift in Sources */,
 				DAA5E30D28D2137C003C0E80 /* UserWalletListRoutable.swift in Sources */,
 				B0BA7BCB26C5684E00D7066F /* AddressQrBottomSheetView.swift in Sources */,
+				E90FAB5A28EE418000C6DCBE /* TotalBalanceAnalyticsService.swift in Sources */,
 				EF0F99B428902902008B01DF /* DefaultRowView.swift in Sources */,
 				5D49034F27BE84B20072C642 /* ExploreButton.swift in Sources */,
 				DA4C84CD27DA2D6D00B76F91 /* AnimatableModifiers.swift in Sources */,

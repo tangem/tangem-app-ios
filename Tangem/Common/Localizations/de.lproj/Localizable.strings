@@ -113,62 +113,6 @@ Tangem is the only hardware wallet to offer signature count protection.";
 "details_twins_recreate_toolbar" = "Re-create wallet";
 "details_twins_recreate_warning" = "This action is irreversible. You will not have access to the old wallet.
 The wallet re-creation procedure consists of three steps. You must complete it to the end, otherwise you will have to start from the beginning.";
-"disclaimer_text" = "RECHTLICHER HAFTUNGSAUSSCHLUSS
- 
-1. Tangem App (Software)
- 
-Die Software ist nur für die Verwendung mit Tangem hardware Wallets (Karten) über NFC-Schnittstelle geeignet. Die Software:
- 
-a) generieret, speichert, überträgt KEINE privaten (geheimen) kryptografischen Schlüssel für Blockchain- Wallets mit digitalen Assets, einschließlich Kryptowährung, und hat KEINEN Zugriff darauf.
-
-b) generieret, speichert, überträgt KEINE geheimen Schlüssel, Passwörter, Passphrasen, Wiederherstellungssätze, die verwendet werden können, um private (geheime) Schlüssel in Blockchain- Wallets, die digitale Assets enthalten, wiederherzustellen oder zu kopieren, einschließlich Kryptowährung, und hat KEINEN Zugriff darauf.
-
-c) erbringt KEINE Wechsel-, Handels- und Investitionsdienstleistungen im Auftrag der Tangem AG.
- 
- 
-2. Risiken im Zusammenhang mit der Verwendung von Software
- 
-Tangem haftet nicht für Verluste, Schäden oder Ansprüche aus den Ereignissen, die in den Geltungsbereich von folgenden fünf Kategorien fallen:
- 
-a) Fehler, die der Benutzer einer kryptowährungsbezogenen Software oder eines kryptowährungsbezogenen Services macht, z.B. vergessene Passwörter, an falsche Adressen gesendete Zahlungen und zufälliges Löschen von Blockchain-Wallets auf Karten.
-
-b) Probleme mit Software und/oder blockchain- oder kryptowährungsbezogener Software oder Services, z.B. beschädigte Dateien, falsch konstruierte Transaktionen, unsichere kryptografische Bibliotheken, Schadsoftware.
-
-c) Technische Ausfälle in der Hardware des Benutzers, einschließlich Karten, jeglicher kryptowährungsbezogener Software oder Services, z.B. Datenverlust infolge eines fehlerhaften oder beschädigten Speichers.
-
-d) Sicherheitsprobleme, die der Benutzer einer kryptowährungsbezogenen Software oder eines kryptowährungsbezogenen Services hat, z.B. unbefugter Zugriff auf Benutzer-Wallets und/oder -Konten.
-
-e) Handlungen oder Untätigkeit Dritter und/oder Vorkommnisse bei den Dritten, z.B. Insolvenz von Dienstleistungserbringern, Informationssicherheitsattacken bei den Dienstleistungserbringern und Betrug durch Dritte.
- 
-
-3. Tradings- und Investitionsrisiken
- 
-Bei jeder Kryptowährung oder einer anderen digitalen Assetwechsel-Transaktion besteht ein hohes Risiko. Jede Transaktion mit Währungen birgt Risiken, einschließlich, aber nicht beschränkt auf das Potenzial für sich ändernde wirtschaftliche Bedingungen, die den Preis oder die Liquidität einer Währung erheblich beeinflussen können. Investitionen in Kryptowährungsspekulationen können auch anfällig für starke Anstiege und Rückgänge sein, wenn die relevanten Marktwerte schwanken. Aus diesem Grund ist es bei Spekulationen auf solchen Märkten ratsam, nur das Risikokapital zu verwenden.
- 
-
-4. Risiken im Zusammenhang mit elektronischem Trading
- 
-Bevor Sie Transaktionen über ein elektronisches System tätigen, sollten Sie die Regeln und Vorschriften der Börsen, die das System anbieten, und/oder die Instrumente, mit denen Sie handeln möchten, sorgfältig überprüfen. Der Online-Handel birgt ein dazugehörendes Risiko aufgrund der Systemreaktion und der Zugriffszeiten, die aufgrund der Marktbedingungen, der Systemleistung und anderer Faktoren variieren können. Sie sollten diese und andere Risiken vor dem Tradingsbeginn berücksichtigen.
- 
-
-5. Einhaltung der Steuerpflichten
- 
-Die Benutzer der Software müssen allein bestimmen, welche Steuern, wenn überhaupt, für Ihre Kryptowährungstransaktionen gelten. Die Eigentümer oder die Mitwirkenden an der Software sind für die Ermittlung der Steuern, die für Kryptowährungstransaktionen gelten, NICHT verantwortlich.
- 
-
-6. Garantieausschluss
-
-Die Software wird „wie gesehen“ bereitgestellt, ohne jegliche Gewährleistung in Bezug auf die Software und/oder Inhalte, Daten, Materialien und/oder Services, die zur Software gehören.
- 
-
-7. Haftungsbeschränkung
- 
-Sofern gesetzlich nichts anderes vorgesehen ist, haften die Eigentümer oder die Mitwirkenden an der Software in keinem Fall für Schäden jeglicher Art, einschließlich, aber nicht beschränkt auf Nutzungsausfall, entgangenen Gewinn oder Datenverlust, die aus der Verwendung der Software oder in Zusammenhang mit der jeglichen Verwendung der Software entstehen. Auf keine Weise sind die Eigentümer oder die Mitwirkenden an der Software für die von Ihnen im Vertrauen auf die Software vorgenommenen oder unterlassenen Handlungen, Entscheidungen oder sonstigen Verhaltensweisen verantwortlich.
- 
- 
-8. Letzte Änderung
- 
-Dieser Haftungsausschuss wurde am 1. Oktober 2020 zum letzten Mal geändert.";
 "disclaimer_title" = "Nutzungsbedingungen";
 "home_button_scan" = "Karte scannen";
 "initial_message_change_access_code_body" = "To change the access code, connect your phone and the card exactly as it shown above";
