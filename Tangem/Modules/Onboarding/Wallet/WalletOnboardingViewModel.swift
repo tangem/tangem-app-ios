@@ -278,7 +278,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         if saltPayRegistratorProvider.registrator != nil {
             return backupService.addedBackupCardsCount == 0
         }
-        
+
         return backupService.canAddBackupCards
     }
 
