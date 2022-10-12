@@ -31,8 +31,7 @@ enum WalletOnboardingStep: Equatable {
         case .welcome: return ""
         case .createWallet, .backupIntro: return "onboarding_getting_started"
         case .scanPrimaryCard, .selectBackupCards, .backupCards: return "onboarding_navbar_title_creating_backup"
-            #warning("l10n")
-        case .saveUserWallet: return "Save your wallet"
+        case .saveUserWallet: return "onboarding_navbar_save_wallet"
         case .success: return "common_done"
         case .enterPin:
             return "onboarding_navbar_pin"
