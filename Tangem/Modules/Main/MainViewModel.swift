@@ -324,45 +324,39 @@ class MainViewModel: ObservableObject {
     }
 
     // MARK: - Private functions
+    private func showAlertAnimated(_ event: WarningEvent) {
+        withAnimation {
+            warningsService.appendWarning(for: event)
+        }
+    }
 
     private func validateHashesCount() {
-        guard cardModel.canCountHashes else { return }
-
-        guard cardModel.hasWallet else {
-            if cardModel.isMultiWallet {
-                warningsService.hideWarning(for: .multiWalletSignedHashes)
-            } else {
-                warningsService.hideWarning(for: .numberOfSignedHashesIncorrect)
-            }
-            return
-        }
-
-        if isHashesCounted { return }
-
-        if AppSettings.shared.validatedSignedHashesCards.contains(cardModel.cardId) { return }
-
-        if cardModel.isMultiWallet {
-            if cardModel.cardSignedHashes > 0 {
-                withAnimation {
-                    warningsService.appendWarning(for: .multiWalletSignedHashes)
-                }
-            } else {
-                AppSettings.shared.validatedSignedHashesCards.append(cardModel.cardId)
-            }
+        func exit() {
             print("⚠️ Hashes counted")
+            isHashesCounted = true
+        }
+
+        guard !isHashesCounted,
+              !AppSettings.shared.validatedSignedHashesCards.contains(cardModel.cardId) else {
+            exit()
             return
         }
 
-        func showUntrustedCardAlert() {
-            withAnimation {
-                self.warningsService.appendWarning(for: .numberOfSignedHashesIncorrect)
-            }
+        guard cardModel.cardSignedHashes > 0 else {
+            AppSettings.shared.validatedSignedHashesCards.append(cardModel.cardId)
+            exit()
+            return
         }
 
-        guard cardModel.cardSignedHashes > 0 else { return }
+        guard cardModel.canCountHashes else {
+            showAlertAnimated(.multiWalletSignedHashes)
+            exit()
+            return
+        }
 
         guard let validator = cardModel.walletModels.first?.walletManager as? SignatureCountValidator else {
-            showUntrustedCardAlert()
+            showAlertAnimated(.numberOfSignedHashesIncorrect)
+            exit()
             return
         }
 
@@ -377,10 +371,9 @@ class MainViewModel: ObservableObject {
                 case .finished:
                     break
                 case .failure:
-                    showUntrustedCardAlert()
+                    self?.showAlertAnimated(.numberOfSignedHashesIncorrect)
                 }
-                self?.isHashesCounted = true
-                print("⚠️ Hashes counted")
+                exit()
             }, receiveValue: { _ in })
             .store(in: &bag)
     }
