@@ -335,7 +335,7 @@ final class AppScanTask: CardSessionRunnable {
         }
 
         if card.hasWallets {
-            let tokenMigrator = TokenItemsRepositoryMigrator(cardId: card.cardId, userWalletId: card.userWalletId)
+            let tokenMigrator = TokenItemsRepositoryMigrator(card: card)
             tokenMigrator.migrate()
         }
     }
