@@ -93,6 +93,7 @@ enum ButtonColorStyle {
     case grayAlt2
     case grayAlt3
 
+    #warning("[REDACTED_TODO_COMMENT]")
     var bgColor: Color {
         switch self {
         case .green: return .tangemGreen
@@ -101,7 +102,6 @@ enum ButtonColorStyle {
         case .transparentWhite: return .clear
         case .grayAlt: return .tangemBgGray
         case .grayAlt2: return .tangemBgGray3
-            #warning("[REDACTED_TODO_COMMENT]")
         case .grayAlt3: return Colors.Button.secondary
         }
     }
