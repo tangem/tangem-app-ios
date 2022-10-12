@@ -146,6 +146,7 @@ class MainViewModel: ObservableObject {
         self.coordinator = coordinator
 
         bind()
+        cardModel.updateSdkConfig()
         updateContent()
         updateIsBackupAllowed()
         cardModel.setupWarnings()
@@ -253,6 +254,7 @@ class MainViewModel: ObservableObject {
         singleWalletContentViewModel?.onAppear()
         multiWalletContentViewModel?.onAppear()
         loadImage()
+        cardModel.onAppear()
     }
 
     func deriveEntriesWithoutDerivation() {
