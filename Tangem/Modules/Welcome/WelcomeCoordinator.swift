@@ -124,7 +124,7 @@ extension WelcomeCoordinator: WelcomeRoutable {
             }
         }
 
-        Analytics.log(.mainPageEnter)
+        Analytics.log(.screenOpened)
         let coordinator = MainCoordinator(popToRootAction: popToRootAction)
         let options = MainCoordinator.Options(cardModel: cardModel, shouldRefresh: false)
         coordinator.start(with: options)
