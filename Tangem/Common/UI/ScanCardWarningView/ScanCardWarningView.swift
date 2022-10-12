@@ -23,6 +23,7 @@ struct ScanCardWarningView: View {
                     Text("main_scan_card_warning_view_subtitle".localized)
                         .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
                 }
+                .layoutPriority(1)
 
                 Assets.chevron
             }
