@@ -23,7 +23,8 @@ class MultiWalletContentViewModel: ObservableObject {
 
     lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
         userWalletModel: userWalletModel,
-        totalBalanceManager: TotalBalanceProvider(userWalletModel: userWalletModel, userWalletAmountType: nil),
+        totalBalanceManager: TotalBalanceProvider(userWalletModel: userWalletModel, userWalletAmountType: nil,
+                                                  totalBalanceAnalyticsService: TotalBalanceAnalyticsService(totalBalanceCardSupportInfo: totalBalanceCardSupportInfo)),
         cardAmountType: nil,
         tapOnCurrencySymbol: output.openCurrencySelection
     )
@@ -35,6 +36,9 @@ class MultiWalletContentViewModel: ObservableObject {
     private let userTokenListManager: UserTokenListManager
     private unowned let output: MultiWalletContentViewModelOutput
     private var bag = Set<AnyCancellable>()
+    private var totalBalanceCardSupportInfo: TotalBalanceCardSupportInfo {
+        TotalBalanceCardSupportInfo(cardBatchId: cardModel.batchId, cardNumber: cardModel.cardId)
+    }
 
     private var isFirstTimeOnAppear: Bool = true
 
@@ -66,6 +70,7 @@ class MultiWalletContentViewModel: ObservableObject {
     }
 
     func openTokensList() {
+        Analytics.log(.buttonManageTokens)
         output.openTokensList()
     }
 
