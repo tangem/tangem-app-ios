@@ -40,7 +40,6 @@ class TotalSumBalanceViewModel: ObservableObject {
         self.totalBalanceManager = totalBalanceManager
         self.cardAmountType = cardAmountType
         self.tapOnCurrencySymbol = tapOnCurrencySymbol
-
         bind()
     }
 
