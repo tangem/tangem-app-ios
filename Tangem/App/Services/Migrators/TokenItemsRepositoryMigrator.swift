@@ -25,7 +25,7 @@ struct TokenItemsRepositoryMigrator {
         var oldEntries = oldRepository.getItems()
 
         guard !oldEntries.isEmpty else { return }
-        
+
         if !isHDWalletAllowed {
             // Remove derivationPath if the card not supported HDWallet
             oldEntries = oldEntries.map {
