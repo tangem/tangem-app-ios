@@ -24,6 +24,7 @@ struct MainView: View {
             ScrollView {
                 VStack(spacing: 8) {
                     CardView(image: viewModel.image)
+                        .fixedSize(horizontal: false, vertical: true)
                         .padding(.horizontal, 16)
 
                     Spacer()
