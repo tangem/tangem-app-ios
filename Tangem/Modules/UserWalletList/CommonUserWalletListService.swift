@@ -31,7 +31,7 @@ class CommonUserWalletListService: UserWalletListService {
     }
 
     var isEmpty: Bool {
-        savedUserWallets().isEmpty
+        savedUserWallets(withSensitiveData: false).isEmpty
     }
 
     private(set) var isUnlocked: Bool = false
@@ -107,7 +107,7 @@ class CommonUserWalletListService: UserWalletListService {
     }
 
     func loadModels() {
-        userWallets = savedUserWallets()
+        userWallets = savedUserWallets(withSensitiveData: true)
         models = userWallets.map {
             CardViewModel(userWallet: $0)
         }
@@ -161,7 +161,7 @@ class CommonUserWalletListService: UserWalletListService {
         encryptionKeyStorage.clear()
     }
 
-    private func savedUserWallets() -> [UserWallet] {
+    private func savedUserWallets(withSensitiveData loadSensitiveData: Bool) -> [UserWallet] {
         do {
             guard fileManager.fileExists(atPath: userWalletListPath().path) else {
                 return []
@@ -173,6 +173,10 @@ class CommonUserWalletListService: UserWalletListService {
             let userWalletsPublicData = try decrypt(userWalletsPublicDataEncrypted, with: publicDataEncryptionKey())
             var userWallets = try decoder.decode([UserWallet].self, from: userWalletsPublicData)
 
+            if !loadSensitiveData {
+                return userWallets
+            }
+            
             for i in 0 ..< userWallets.count {
                 let userWallet = userWallets[i]
 
