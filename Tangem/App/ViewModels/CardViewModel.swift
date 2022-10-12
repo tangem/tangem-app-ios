@@ -431,27 +431,26 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func onAppear() {
-        updateConfig()
+        updateSdkConfig()
     }
 
     func getDisabledLocalizedReason(for feature: UserWalletFeature) -> String? {
         config.getFeatureAvailability(feature).disabledLocalizedReason
     }
 
-    private func updateConfig() {
-        var config = config.sdkConfig
+    func updateSdkConfig() {
+        var hasCode = false
         if AppSettings.shared.saveAccessCodes {
-            var hasCode = false
             if card.isAccessCodeSet {
                 hasCode = true
             }
             if let isPasscodeSet = card.isPasscodeSet, isPasscodeSet {
                 hasCode = true
             }
-            if hasCode {
-                config.accessCodeRequestPolicy = .alwaysWithBiometrics
-            }
         }
+
+        var config = config.sdkConfig
+        config.accessCodeRequestPolicy = hasCode ? .alwaysWithBiometrics : .default
 
         tangemSdkProvider.setup(with: config)
     }
