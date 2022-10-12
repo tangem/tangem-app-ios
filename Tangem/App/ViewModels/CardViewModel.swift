@@ -40,6 +40,7 @@ class CardViewModel: Identifiable, ObservableObject {
         cardInfo.walletData
     }
 
+    var batchId: String { cardInfo.card.batchId }
     var cardPublicKey: Data { cardInfo.card.cardPublicKey }
 
     var supportsOnlineImage: Bool {
@@ -300,6 +301,7 @@ class CardViewModel: Identifiable, ObservableObject {
                     self.cardPinSettings.isPin1Default = false
                     self.cardPinSettings.isPin2Default = true
                     self.updateCurrentSecurityOption()
+                    Analytics.log(.userCodeChanged)
                     completion(.success(()))
                 case .failure(let error):
                     Analytics.logCardSdkError(error, for: .changeSecOptions, card: self.cardInfo.card, parameters: [.newSecOption: "Access Code"])
@@ -369,7 +371,7 @@ class CardViewModel: Identifiable, ObservableObject {
                                                        body: "initial_message_purge_wallet_body".localized)) { [weak self] result in
             switch result {
             case .success:
-                Analytics.log(.factoryResetSuccess)
+                Analytics.log(.factoryResetFinished)
                 self?.clearTwinPairKey()
                 completion(.success(()))
             case .failure(let error):
@@ -380,8 +382,16 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func getBlockchainNetwork(for blockchain: Blockchain, derivationPath: DerivationPath?) -> BlockchainNetwork {
-        let derivationPath = derivationPath ?? blockchain.derivationPath(for: cardInfo.card.derivationStyle)
-        return BlockchainNetwork(blockchain, derivationPath: derivationPath)
+        if let derivationPath = derivationPath {
+            return BlockchainNetwork(blockchain, derivationPath: derivationPath)
+        }
+
+        if let derivationStyle = cardInfo.card.derivationStyle {
+            let derivationPath = blockchain.derivationPath(for: derivationStyle)
+            return BlockchainNetwork(blockchain, derivationPath: derivationPath)
+        }
+
+        return BlockchainNetwork(blockchain, derivationPath: nil)
     }
 
     func setUserWallet(_ userWallet: UserWallet) {
