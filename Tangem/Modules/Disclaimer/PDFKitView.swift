@@ -31,7 +31,7 @@ fileprivate struct PDFRepresentedView: UIViewRepresentable {
         
         pdfView.autoScales = true
         pdfView.document = PDFDocument(url: self.url)
-        pdfView.minScaleFactor = UIScreen.main.bounds.height * 0.00074
+        pdfView.minScaleFactor = UIScreen.main.bounds.height * 0.00074 // HACK: restricting PDF scaling because of SwiftUI issues
         pdfView.maxScaleFactor = 5.0
 
         return pdfView
