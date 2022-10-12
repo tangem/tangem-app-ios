@@ -19,10 +19,10 @@ class TotalBalanceProvider {
     private let userWalletAmountType: Amount.AmountType?
     private var isFirstLoadForCardInSession: Bool = true
 
-    init(userWalletModel: UserWalletModel, userWalletAmountType: Amount.AmountType?, totalBalanceSupportData: TotalBalanceCardSupportInfo) {
+    init(userWalletModel: UserWalletModel, userWalletAmountType: Amount.AmountType?, totalBalanceAnalyticsService: TotalBalanceAnalyticsService) {
         self.userWalletModel = userWalletModel
         self.userWalletAmountType = userWalletAmountType
-        totalBalanceAnalyticsService = TotalBalanceAnalyticsService(totalBalanceCardSupportInfo: totalBalanceSupportData)
+        self.totalBalanceAnalyticsService = totalBalanceAnalyticsService
     }
 }
 
