@@ -80,6 +80,7 @@ private extension CardSettingsViewModel {
 
 extension CardSettingsViewModel {
     func openChangeAccessCodeWarningView() {
+        Analytics.log(.buttonChangeUserCode)
         isChangeAccessCodeLoading = true
         cardModel.changeSecurityOption(.accessCode) { [weak self] result in
             DispatchQueue.main.async {
@@ -89,6 +90,7 @@ extension CardSettingsViewModel {
     }
 
     func openSecurityMode() {
+        Analytics.log(.buttonChangeSecurityMode)
         coordinator.openSecurityMode(cardModel: cardModel)
     }
 
