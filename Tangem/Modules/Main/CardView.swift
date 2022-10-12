@@ -10,9 +10,9 @@ import SwiftUI
 
 struct CardView: View {
     var image: UIImage?
-    var width: CGFloat
     var cardSetLabel: String?
 
+    @State private var size: CGSize = .zero
     private let walletImageAspectRatio = 1.5888252149
 
     var body: some View {
@@ -22,13 +22,13 @@ struct CardView: View {
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .transition(.opacity)
-                    .frame(minWidth: width, maxWidth: width, minHeight: 190, alignment: .center)
+                    .frame(maxWidth: .infinity, minHeight: 190, alignment: .center)
                     .padding(.vertical, verticalPadding)
             } else {
                 Color.tangemGrayLight4
                     .transition(.opacity)
                     .opacity(0.5)
-                    .frame(minWidth: width, maxWidth: width, minHeight: width / walletImageAspectRatio, alignment: .center)
+                    .frame(maxWidth: .infinity, minHeight: size.width / walletImageAspectRatio, alignment: .center)
                     .cornerRadius(6)
                     .padding(.vertical, verticalPadding)
             }
@@ -43,6 +43,7 @@ struct CardView: View {
 
             }
         }
+        .readSize { size = $0 }
     }
 
     private var verticalPadding: CGFloat {
@@ -52,6 +53,6 @@ struct CardView: View {
 
 struct CardView_Previews: PreviewProvider {
     static var previews: some View {
-        CardView(image: UIImage(named: "twin"), width: UIScreen.main.bounds.width, cardSetLabel: "1 of 3")
+        CardView(image: UIImage(named: "twin"), cardSetLabel: "1 of 3")
     }
 }
