@@ -37,6 +37,7 @@ class OnboardingCoordinator: CoordinatorObject {
     }
 
     func start(with options: OnboardingCoordinator.Options) {
+        Analytics.log(.onboardingStarted)
         self.options = options
         let input = options.input
         switch input.steps {
@@ -90,7 +91,6 @@ extension OnboardingCoordinator: WalletOnboardingRoutable {
     }
 
     func openSupportChat(cardId: String, dataCollector: EmailDataCollector) {
-        Analytics.log(.chatTapped)
         supportChatViewModel = SupportChatViewModel(cardId: cardId, dataCollector: dataCollector)
     }
 }
@@ -110,7 +110,7 @@ extension OnboardingCoordinator: OnboardingRoutable {
     }
 
     private func openMain(with cardModel: CardViewModel) {
-        Analytics.log(.mainPageEnter)
+        Analytics.log(.screenOpened)
         let coordinator = MainCoordinator(popToRootAction: popToRootAction)
         let options = MainCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
