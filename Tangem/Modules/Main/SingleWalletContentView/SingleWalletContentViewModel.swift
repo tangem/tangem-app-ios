@@ -28,7 +28,9 @@ class SingleWalletContentViewModel: ObservableObject {
 
     lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
         userWalletModel: userWalletModel,
-        totalBalanceManager: TotalBalanceProvider(userWalletModel: userWalletModel, userWalletAmountType: cardModel.cardAmountType, totalBalanceSupportData: TotalBalanceCardSupportInfo(cardBatchId: cardModel.batchId, cardNumber: cardModel.cardId)),
+        totalBalanceManager: TotalBalanceProvider(userWalletModel: userWalletModel,
+                                                  userWalletAmountType: cardModel.cardAmountType,
+                                                  totalBalanceAnalyticsService: TotalBalanceAnalyticsService(totalBalanceCardSupportInfo: totalBalanceCardSupportInfo)),
         cardAmountType: cardModel.cardAmountType,
         tapOnCurrencySymbol: output.openCurrencySelection
     )
@@ -37,6 +39,9 @@ class SingleWalletContentViewModel: ObservableObject {
     private let userWalletModel: UserWalletModel
     private unowned let output: SingleWalletContentViewModelOutput
     private var bag = Set<AnyCancellable>()
+    private var totalBalanceCardSupportInfo: TotalBalanceCardSupportInfo {
+        TotalBalanceCardSupportInfo(cardBatchId: cardModel.batchId, cardNumber: cardModel.cardId)
+    }
 
     init(
         cardModel: CardViewModel,
