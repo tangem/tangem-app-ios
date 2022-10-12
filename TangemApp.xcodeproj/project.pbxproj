@@ -548,6 +548,7 @@
 		DCE7E02C287BF92400063EEC /* SwitchChainHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE7E02B287BF92400063EEC /* SwitchChainHandler.swift */; };
 		DCF8972D28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF8972C28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift */; };
 		DCFCA17528F4232F0037586C /* Array+.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFCA17428F4232F0037586C /* Array+.swift */; };
+		E90FAB5A28EE418000C6DCBE /* TotalBalanceAnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E90FAB5928EE418000C6DCBE /* TotalBalanceAnalyticsService.swift */; };
 		DCFCA17C28F5F6960037586C /* PDFKitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFCA17B28F5F6960037586C /* PDFKitView.swift */; };
 		DCFCA17E28F5F7C40037586C /* T&C.pdf in Resources */ = {isa = PBXBuildFile; fileRef = DCFCA17D28F5F7C40037586C /* T&C.pdf */; };
 		EF07F3AD289D43580065549C /* List+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF07F3AC289D43580065549C /* List+.swift */; };
@@ -1223,6 +1224,7 @@
 		DCFCA17D28F5F7C40037586C /* T&C.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "T&C.pdf"; sourceTree = "<group>"; };
 		DFEC35A94293DE7EB96CEBC1 /* Pods-Tangem.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.debug(production).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.debug(production).xcconfig"; sourceTree = "<group>"; };
 		E53081CA3060D2785F9D22F0 /* Pods-Tangem-TangemUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release.xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release.xcconfig"; sourceTree = "<group>"; };
+		E90FAB5928EE418000C6DCBE /* TotalBalanceAnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalBalanceAnalyticsService.swift; sourceTree = "<group>"; };
 		EF07F3AC289D43580065549C /* List+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "List+.swift"; sourceTree = "<group>"; };
 		EF08A0EE283D1914008BD923 /* Moya+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Moya+.swift"; sourceTree = "<group>"; };
 		EF08A0F0283D2382008BD923 /* CoinsListRequestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinsListRequestModel.swift; sourceTree = "<group>"; };
@@ -2803,13 +2805,12 @@
 			children = (
 				EF130EB828E1D32400D37EFC /* SingleWalletContentView */,
 				EF130EB728E1C6EF00D37EFC /* MultiWalletContentView */,
-				EF105A9328A3E59F000BFD71 /* TokenList */,
 				DC295B5C2862E6DE006CB7B6 /* BackUpWarningView.swift */,
 				DC295B3B2861C19C006CB7B6 /* MainCoordinator.swift */,
-				DC295B3D2861C1AD006CB7B6 /* MainCoordinatorView.swift */,
 				DC66BBF7285A211F00CDF765 /* MainRoutable.swift */,
 				65C9FCB02864507600FDE63E /* MainView.swift */,
 				65C9FCAF2864507600FDE63E /* MainViewModel.swift */,
+				DC295B3D2861C1AD006CB7B6 /* MainCoordinatorView.swift */,
 				5DFB499724E54A340037E76F /* BalanceView.swift */,
 				5DF6129F24E6D6C8001BF301 /* PendingTxView.swift */,
 				5DF612A324E6E3E2001BF301 /* AddressDetailsView.swift */,
@@ -2892,13 +2893,6 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
-		EF105A9328A3E59F000BFD71 /* TokenList */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = TokenList;
-			sourceTree = "<group>";
-		};
 		EF130EB728E1C6EF00D37EFC /* MultiWalletContentView */ = {
 			isa = PBXGroup;
 			children = (
@@ -2954,6 +2948,7 @@
 			children = (
 				EF5A5ACD28D86089002544AC /* TotalBalanceProvider.swift */,
 				EF5A5ACE28D86089002544AC /* TotalBalanceProviding.swift */,
+				E90FAB5928EE418000C6DCBE /* TotalBalanceAnalyticsService.swift */,
 			);
 			path = TotalBalanceProvider;
 			sourceTree = "<group>";
@@ -3754,6 +3749,7 @@
 				5DF2522D24F95E390015B429 /* UIScreen+.swift in Sources */,
 				DC0A582E282BCBEB0031BECC /* ShopifyProtocol.swift in Sources */,
 				B0BA7BCB26C5684E00D7066F /* AddressQrBottomSheetView.swift in Sources */,
+				E90FAB5A28EE418000C6DCBE /* TotalBalanceAnalyticsService.swift in Sources */,
 				EF0F99B428902902008B01DF /* DefaultRowView.swift in Sources */,
 				5D49034F27BE84B20072C642 /* ExploreButton.swift in Sources */,
 				DA4C84CD27DA2D6D00B76F91 /* AnimatableModifiers.swift in Sources */,
