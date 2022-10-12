@@ -84,6 +84,7 @@ class CommonCardsRepository: CardsRepository {
         let cardModel = CardViewModel(cardInfo: cardInfo, config: config)
 
         tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
+        supportChatService.initialize(with: cm.supportChatEnvironment)
         walletConnectServiceProvider.initialize(with: cardModel)
 
         if SaltPayUtil().isPrimaryCard(batchId: cardInfo.card.batchId),
