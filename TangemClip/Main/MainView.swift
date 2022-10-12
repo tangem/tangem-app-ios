@@ -20,12 +20,11 @@ struct MainView: View {
             Text("main_title")
                 .font(.system(size: 17, weight: .medium))
                 .frame(height: 44, alignment: .center)
-            GeometryReader { geometry in
+
                 ScrollView {
                     VStack(spacing: 8) {
-                        CardView(image: viewModel.image,
-                                 width: geometry.size.width - 32)
-                            .fixedSize(horizontal: false, vertical: true)
+                        CardView(image: viewModel.image)
+                            .padding(.horizontal, 16)
 
                         Spacer()
 
@@ -39,8 +38,8 @@ struct MainView: View {
                         Spacer()
                     }
                 }
-                .frame(width: geometry.size.width)
-            }
+                .frame(maxWidth: .infinity)
+            
             .appStoreOverlay(isPresented: $viewModel.shouldShowGetFullApp) { () -> SKOverlay.Configuration in
                 SKOverlay.AppClipConfiguration(position: .bottom)
             }
