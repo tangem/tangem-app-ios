@@ -20,27 +20,27 @@ struct MainView: View {
             Text("main_title")
                 .font(.system(size: 17, weight: .medium))
                 .frame(height: 44, alignment: .center)
+            GeometryReader { geometry in
+                ScrollView {
+                    VStack(spacing: 8) {
+                        CardView(image: viewModel.image,
+                                 width: geometry.size.width - 32)
+                            .fixedSize(horizontal: false, vertical: true)
 
-            ScrollView {
-                VStack(spacing: 8) {
-                    CardView(image: viewModel.image)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(.horizontal, 16)
+                        Spacer()
 
-                    Spacer()
+                        Text("main_warning")
+                            .font(.largeTitle)
+                            .multilineTextAlignment(.center)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 2)
 
-                    Text("main_warning")
-                        .font(.largeTitle)
-                        .multilineTextAlignment(.center)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 2)
-
-                    Spacer()
+                        Spacer()
+                    }
                 }
+                .frame(width: geometry.size.width)
             }
-            .frame(maxWidth: .infinity)
-
             .appStoreOverlay(isPresented: $viewModel.shouldShowGetFullApp) { () -> SKOverlay.Configuration in
                 SKOverlay.AppClipConfiguration(position: .bottom)
             }
