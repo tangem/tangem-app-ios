@@ -114,7 +114,6 @@ class WelcomeViewModel: ObservableObject {
                 }
                 subscription.map { _ = self?.bag.remove($0) }
             } receiveValue: { [weak self] cardModel in
-                let numberOfFailedAttempts = self?.failedCardScanTracker.numberOfFailedAttempts ?? 0
                 self?.failedCardScanTracker.resetCounter()
                 Analytics.log(.cardWasScanned)
                 DispatchQueue.main.async {
@@ -196,7 +195,6 @@ class WelcomeViewModel: ObservableObject {
             } receiveValue: { [weak self] cardModel in
                 guard let self = self else { return }
 
-                let numberOfFailedAttempts = self.failedCardScanTracker.numberOfFailedAttempts
                 self.failedCardScanTracker.resetCounter()
                 Analytics.log(.cardWasScanned)
 
