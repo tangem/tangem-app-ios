@@ -115,7 +115,7 @@ class CardViewModel: Identifiable, ObservableObject {
     // Separate UserWalletModel and CardViewModel
     var userWalletModel: UserWalletModel?
 
-    private var cardInfo: CardInfo
+    private(set) var cardInfo: CardInfo
     private var cardPinSettings: CardPinSettings = CardPinSettings()
     private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
     private var tangemSdk: TangemSdk { tangemSdkProvider.sdk }
