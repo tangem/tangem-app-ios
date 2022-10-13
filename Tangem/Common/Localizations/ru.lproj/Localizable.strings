@@ -478,11 +478,17 @@ URL: %@";
 "onboarding_title_kyc_waiting" = "Подтверждение личности в процессе";
 "onboarding_subtitle_register_wallet" = "Подключите вашу карту к децентрализованной платежной системе";
 "onboarding_subtitle_kyc_start" = "Для начала работы с картой вам необходимо завершить процесс подтверждения личности";
-"onboarding_subtitle_kyc_waiting" = "Пожалуйста дождитесь завершения процесса подтверждения вашей личности для начала работы с картой";
+"onboarding_subtitle_kyc_waiting" = "Пожалуйста дождитесь завершения процесса подтверждения вашей личности. Как правило, это занимает меньше часа. Вы можете закрыть приложение и вернуться позже.";
 "onboarding_title_pin" = "Код доступа";
 "onboarding_subtitle_pin" = "Установите Код доступа для вашей SaltPay карты";
 "onboarding_supplement_button_kyc_waiting" = "Чат поддержки";
 "error_saltpay_wrong_backup_card" = "Данная карта не подходит для бэкапа SaltPay";
-
-
-
+"registration_task_alert_message" = "Пожалуйста, удерживайте карту до завершения операции";
+"onboarding_subtitle_kyc_waiting" = "Please wait until the verification is completed. Usually it takes up to 1 hour. You can close the app and come back later.";
+"onboarding_saltpay_subtitle_no_backup_cards" = "Для начала процесса бэкапа вам необходимо добавить Tangem карту";
+"onboarding_saltpay_title_no_backup_card" = "Бэкап карт не добавлена";
+"onboarding_saltpay_title_one_backup_card" = "Бэкап карта создана";
+"onboarding_saltpay_subtitle_one_backup_card" = "Завершите процесс бэкапа создав код доступа";
+"onboarding_saltpay_title_prepare_origin" = "Приготовьте SaltPay карту";
+"onboarding_saltpay_button_backup_origin" = "Приложите SaltPay карту";
+"onboarding_saltpay_title_backup_card" = "Приложите Tangem карту";
