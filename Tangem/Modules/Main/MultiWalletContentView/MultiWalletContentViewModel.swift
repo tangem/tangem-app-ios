@@ -23,8 +23,7 @@ class MultiWalletContentViewModel: ObservableObject {
 
     lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
         userWalletModel: userWalletModel,
-        totalBalanceManager: TotalBalanceProvider(userWalletModel: userWalletModel, userWalletAmountType: nil,
-                                                  totalBalanceAnalyticsService: TotalBalanceAnalyticsService(totalBalanceCardSupportInfo: totalBalanceCardSupportInfo)),
+        totalBalanceManager: totalBalanceManager,
         cardAmountType: nil,
         tapOnCurrencySymbol: output.openCurrencySelection
     )
@@ -36,9 +35,15 @@ class MultiWalletContentViewModel: ObservableObject {
     private let userTokenListManager: UserTokenListManager
     private unowned let output: MultiWalletContentViewModelOutput
     private var bag = Set<AnyCancellable>()
-    private var totalBalanceCardSupportInfo: TotalBalanceCardSupportInfo {
-        TotalBalanceCardSupportInfo(cardBatchId: cardModel.batchId, cardNumber: cardModel.cardId)
-    }
+    private lazy var totalBalanceManager = TotalBalanceProvider(
+        userWalletModel: userWalletModel,
+        userWalletAmountType: nil,
+        totalBalanceAnalyticsService: TotalBalanceAnalyticsService(totalBalanceCardSupportInfo: totalBalanceCardSupportInfo)
+    )
+    private lazy var totalBalanceCardSupportInfo = TotalBalanceCardSupportInfo(
+        cardBatchId: cardModel.batchId,
+        cardNumber: cardModel.cardId
+    )
 
     private var isFirstTimeOnAppear: Bool = true
 
@@ -83,40 +88,42 @@ class MultiWalletContentViewModel: ObservableObject {
 
 private extension MultiWalletContentViewModel {
     func bind() {
-        let viewModelsWithoutDerivation = userWalletModel.subscribeToEntriesWithoutDerivation()
-            .map { [unowned self] entries in
-                entries.flatMap(self.mapToTokenItemViewModels)
-            }
-
         let walletModels = userWalletModel.subscribeToWalletModels()
-            .map { wallets -> AnyPublisher<[TokenItemViewModel], Never> in
+            .map { wallets -> AnyPublisher<Void, Never> in
                 if wallets.isEmpty {
-                    return Just([]).eraseToAnyPublisher()
+                    return .just
                 }
 
                 return wallets.map { $0.walletDidChange }
                     .combineLatest()
-                    .map { _ in wallets.flatMap { $0.allTokenItemViewModels() } }
+                    .mapVoid()
                     .eraseToAnyPublisher()
             }
             .switchToLatest()
 
-        Publishers.CombineLatest(viewModelsWithoutDerivation, walletModels)
-            .map(+)
-            .sink { [unowned self] viewModels in
-                updateView(viewModels: viewModels)
+        Publishers.CombineLatest(userWalletModel.subscribeToEntriesWithoutDerivation(), walletModels)
+            .sink { [unowned self] _ in
+                updateView()
             }
-            .store(in: &bag)
-
-        userWalletModel.subscribeToWalletModels()
-            .map { $0.isEmpty }
-            .weakAssign(to: \.tokenListIsEmpty, on: self)
             .store(in: &bag)
     }
 
-    func updateView(viewModels: [TokenItemViewModel]) {
+    func updateView() {
+        let viewModels = collectTokenItemViewModels(entries: userWalletModel.getSavedEntries())
+        
         tokenListIsEmpty = viewModels.isEmpty
         contentState = .loaded(viewModels)
+    }
+    
+    func collectTokenItemViewModels(entries: [StorageEntry]) -> [TokenItemViewModel] {
+        let walletModels = userWalletModel.getWalletModels()
+        return entries.reduce([]) { result, entry in
+            if let walletModel = walletModels.first(where: { $0.blockchainNetwork == entry.blockchainNetwork }) {
+                return result + walletModel.allTokenItemViewModels()
+            }
+            
+            return result + mapToTokenItemViewModels(entry: entry)
+        }
     }
 
     func mapToTokenItemViewModels(entry: StorageEntry) -> [TokenItemViewModel] {
