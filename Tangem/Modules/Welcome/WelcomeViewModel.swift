@@ -223,6 +223,7 @@ class WelcomeViewModel: ObservableObject {
         }
 
         guard let model = userWalletListService.selectedModel else { return }
+        cardsRepository.didSwitchToModel(model)
         coordinator.openMain(with: model)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
