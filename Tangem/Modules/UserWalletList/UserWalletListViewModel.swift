@@ -245,9 +245,11 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         }
 
         let completion: (UserWallet) -> Void = { [weak self] userWallet in
+            let cardModel = CardViewModel(userWallet: userWallet)
+            self?.cardsRepository.didSwitchToModel(cardModel)
             self?.selectedUserWalletId = userWallet.userWalletId
             self?.userWalletListService.selectedUserWalletId = userWallet.userWalletId
-            self?.coordinator.didTapUserWallet(userWallet: userWallet)
+            self?.coordinator.didTapCardModel(cardModel: cardModel)
             self?.updateSelectedWalletModel()
         }
 
