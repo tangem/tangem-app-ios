@@ -47,10 +47,7 @@ extension CommonWalletListManager: WalletListManager {
     }
 
     func subscribeToEntriesWithoutDerivation() -> AnyPublisher<[StorageEntry], Never> {
-        entriesWithoutDerivation
-            .dropFirst()
-            .removeDuplicates()
-            .eraseToAnyPublisher()
+        entriesWithoutDerivation.eraseToAnyPublisher()
     }
 
     func updateWalletModels() {
