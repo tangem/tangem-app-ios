@@ -19,7 +19,7 @@ class MultiWalletContentViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published var contentState: LoadingValue<[TokenItemViewModel]> = .loading
-    @Published var tokenListIsEmpty: Bool = false
+    @Published var tokenListIsEmpty: Bool = true
 
     lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
         userWalletModel: userWalletModel,
@@ -89,6 +89,7 @@ class MultiWalletContentViewModel: ObservableObject {
 private extension MultiWalletContentViewModel {
     func bind() {
         let walletModels = userWalletModel.subscribeToWalletModels()
+            .receive(on: DispatchQueue.global())
             .map { wallets -> AnyPublisher<Void, Never> in
                 if wallets.isEmpty {
                     return .just
@@ -102,15 +103,17 @@ private extension MultiWalletContentViewModel {
             .switchToLatest()
 
         Publishers.CombineLatest(userWalletModel.subscribeToEntriesWithoutDerivation(), walletModels)
-            .sink { [unowned self] _ in
-                updateView()
+            .map { [unowned self] _ -> [TokenItemViewModel] in
+                collectTokenItemViewModels(entries: userWalletModel.getSavedEntries())
+            }
+            .receive(on: DispatchQueue.main)
+            .sink { [unowned self] viewModels in
+                updateView(viewModels: viewModels)
             }
             .store(in: &bag)
     }
 
-    func updateView() {
-        let viewModels = collectTokenItemViewModels(entries: userWalletModel.getSavedEntries())
-        
+    func updateView(viewModels: [TokenItemViewModel]) {
         tokenListIsEmpty = viewModels.isEmpty
         contentState = .loaded(viewModels)
     }
