@@ -28,8 +28,7 @@ class CommonCardsRepository: CardsRepository {
     @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
     @Injected(\.supportChatService) private var supportChatService: SupportChatServiceProtocol
 
-
-    private var cards = [CardViewModel]()
+    private(set) var models = [CardViewModel]()
 
     private var bag: Set<AnyCancellable> = .init()
 
@@ -39,13 +38,13 @@ class CommonCardsRepository: CardsRepository {
 
     func scan(with batch: String? = nil, requestBiometrics: Bool,  _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
-        
+
         var config = TangemSdkConfigFactory().makeDefaultConfig()
         if requestBiometrics {
             config.accessCodeRequestPolicy = .alwaysWithBiometrics
         }
         sdkProvider.setup(with: config)
-        
+
         sdkProvider.sdk.startSession(with: AppScanTask(targetBatch: batch)) { [unowned self] result in
             switch result {
             case .failure(let error):
@@ -72,24 +71,42 @@ class CommonCardsRepository: CardsRepository {
         }
         .eraseToAnyPublisher()
     }
-    
+
+    func add(_ cardModel: CardViewModel) {
+        models.append(cardModel)
+    }
+
+    func add(_ cardModels: [CardViewModel]) {
+        models.append(contentsOf: cardModels)
+    }
+
+    func removeModel(withUserWalletId userWalletId: Data) {
+        models.removeAll {
+            $0.userWalletId == userWalletId
+        }
+    }
+
+    func clear() {
+        models = []
+    }
+
     func didSwitchToModel(_ cardModel: CardViewModel) {
         let cardInfo = cardModel.cardInfo
         startInitializingServices(for: cardInfo)
         finishInitializingServices(for: cardModel, cardInfo: cardInfo)
     }
-    
+
     // [REDACTED_TODO_COMMENT]
     private func startInitializingServices(for cardInfo: CardInfo) {
         let interaction = INInteraction(intent: ScanTangemCardIntent(), response: nil)
         interaction.donate(completion: nil)
-        
+
         saltPayRegistratorProvider.reset()
         if let primaryCard = cardInfo.primaryCard {
             backupServiceProvider.backupService.setPrimaryCard(primaryCard)
         }
     }
-    
+
     private func finishInitializingServices(for cardModel: CardViewModel, cardInfo: CardInfo) {
         tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
         supportChatService.initialize(with: cardModel.supportChatEnvironment)
@@ -105,15 +122,15 @@ class CommonCardsRepository: CardsRepository {
 
     private func processScan(_ cardInfo: CardInfo) -> CardViewModel {
         startInitializingServices(for: cardInfo)
-        
+
         // [REDACTED_TODO_COMMENT]
         let config = UserWalletConfigFactory(cardInfo).makeConfig()
         let cardModel = CardViewModel(cardInfo: cardInfo, config: config)
 
         finishInitializingServices(for: cardModel, cardInfo: cardInfo)
-        
+
         cardModel.didScan()
-        cards.append(cardModel)
+        models.append(cardModel)
         return cardModel
     }
 }
