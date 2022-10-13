@@ -45,13 +45,13 @@ class RegistrationTask: CardSessionRunnable {
     }
 
     func run(in session: CardSession, completion: @escaping CompletionResult<RegistrationTaskResponse>) {
+        session.viewDelegate.showAlertMessage("registration_task_alert_message".localized)
         generateOTP(in: session, completion: completion)
     }
 
     private func generateOTP(in session: CardSession, completion: @escaping CompletionResult<RegistrationTaskResponse>) {
         let cmd = GenerateOTPCommand()
         self.generateOTPCommand = cmd
-        session.viewDelegate.showAlertMessage("Card is preparing...") // [REDACTED_TODO_COMMENT]
 
         cmd.run(in: session) { result in
             switch result {
@@ -81,7 +81,6 @@ class RegistrationTask: CardSessionRunnable {
                                          confirmationMode: .dynamic)
 
         self.attestWalletCommand = cmd
-        session.viewDelegate.showAlertMessage("Binding the wallet...") // [REDACTED_TODO_COMMENT]
 
         cmd.run(in: session) { result in
             switch result {
@@ -108,8 +107,6 @@ class RegistrationTask: CardSessionRunnable {
             gnosis.makeSetSpendLimitTx(value: spendLimitValue),
         ]
 
-        session.viewDelegate.showAlertMessage("Preparing blockchain transactions...") // [REDACTED_TODO_COMMENT]
-
         Publishers
             .MergeMany(txPublishers)
             .collect()
@@ -135,8 +132,6 @@ class RegistrationTask: CardSessionRunnable {
         let cmd = SignHashesCommand(hashes: hashes, walletPublicKey: walletPublicKey)
         self.signCommand = cmd
 
-        session.viewDelegate.showAlertMessage("Signing blockchain transactions...") // [REDACTED_TODO_COMMENT]
-
         cmd.run(in: session) { result in
             switch result {
             case .success(let response):
@@ -145,7 +140,6 @@ class RegistrationTask: CardSessionRunnable {
                 }
 
                 self.signedTransactions = signedTxs
-                session.viewDelegate.showAlertMessage("Card interaction complete successfully") // [REDACTED_TODO_COMMENT]
                 self.complete(completion: completion)
             case .failure(let error):
                 completion(.failure(error))
