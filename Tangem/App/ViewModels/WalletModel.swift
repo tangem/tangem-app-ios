@@ -67,7 +67,7 @@ class WalletModel: ObservableObject, Identifiable {
 
     var blockchainNetwork: BlockchainNetwork {
         if wallet.publicKey.derivationPath == nil { // cards without hd wallet
-            return .init(wallet.blockchain, derivationPath: wallet.blockchain.derivationPath(for: .legacy))
+            return BlockchainNetwork(wallet.blockchain, derivationPath: nil)
         }
 
         return .init(wallet.blockchain, derivationPath: wallet.publicKey.derivationPath)
