@@ -10,8 +10,15 @@ import Foundation
 import Combine
 
 protocol CardsRepository {
+    var models: [CardViewModel] { get }
+
     func scan(with batch: String?, requestBiometrics: Bool, _ completion: @escaping (Result<CardViewModel, Error>) -> Void)
     func scanPublisher(with batch: String?, requestBiometrics: Bool) ->  AnyPublisher<CardViewModel, Error>
+
+    func add(_ cardModel: CardViewModel)
+    func add(_ cardModels: [CardViewModel])
+    func removeModel(withUserWalletId userWalletId: Data)
+    func clear()
     func didSwitchToModel(_ cardModel: CardViewModel)
 }
 
