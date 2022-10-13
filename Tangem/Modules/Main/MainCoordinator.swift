@@ -246,8 +246,8 @@ extension MainCoordinator: UserWalletListRoutable {
         pushedOnboardingCoordinator = coordinator
     }
 
-    func didTapUserWallet(userWallet: UserWallet) {
-        start(with: .init(cardModel: CardViewModel(userWallet: userWallet), shouldRefresh: true))
+    func didTapCardModel(cardModel: CardViewModel) {
+        start(with: .init(cardModel: cardModel, shouldRefresh: true))
     }
 }
 
