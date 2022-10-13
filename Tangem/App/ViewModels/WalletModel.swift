@@ -170,7 +170,7 @@ class WalletModel: ObservableObject, Identifiable {
                 self.walletManager.update { [weak self] result in
                     DispatchQueue.global().async {
                         print("🔄 Finished updating wallet model for \(self?.wallet.blockchain.displayName ?? "")")
-                        
+
                         switch result {
                         case let .failure(error):
                             switch error as? WalletError {
@@ -181,14 +181,14 @@ class WalletModel: ObservableObject, Identifiable {
                             default:
                                 promise(.failure(error.detailedError))
                             }
-                            
+
                         case .success:
                             self?.latestUpdateTime = Date()
-                            
+
                             if let demoBalance = self?.demoBalance {
                                 self?.walletManager.wallet.add(coinValue: demoBalance)
                             }
-                            
+
                             promise(.success(()))
                         }
                     }
