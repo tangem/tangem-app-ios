@@ -64,7 +64,11 @@ class TotalSumBalanceViewModel: ObservableObject {
     private func bind() {
         userWalletModel.subscribeToWalletModels()
             .receive(on: DispatchQueue.main)
-            .map { [unowned self] walletModels in
+            .map { [unowned self] walletModels -> AnyPublisher<[WalletModel], Never> in
+                if walletModels.isEmpty {
+                    return Just([]).eraseToAnyPublisher()
+                }
+
                 isLoading = true
 
                 return walletModels
@@ -73,6 +77,7 @@ class TotalSumBalanceViewModel: ObservableObject {
                     .map { _ in walletModels }
                     // Update total balance only after all models succesfully loaded
                     .filter { $0.allConforms { !$0.state.isLoading } }
+                    .eraseToAnyPublisher()
             }
             .switchToLatest()
             // Hide skeleton with delay
@@ -94,10 +99,11 @@ class TotalSumBalanceViewModel: ObservableObject {
         let hasErrorInUpdate = totalBalanceManager.totalBalancePublisher()
             .compactMap { $0.value?.hasError }
 
-        let hasEntriesWithoutDerivation = userWalletModel.subscribeToEntriesWithoutDerivation()
+        let hasEntriesWithoutDerivation = userWalletModel
+            .subscribeToEntriesWithoutDerivation()
             .map { !$0.isEmpty }
 
-        Publishers.Zip(hasErrorInUpdate, hasEntriesWithoutDerivation)
+        Publishers.CombineLatest(hasErrorInUpdate, hasEntriesWithoutDerivation)
             .map { $0 || $1 }
             .removeDuplicates()
             .weakAssign(to: \.hasError, on: self)
