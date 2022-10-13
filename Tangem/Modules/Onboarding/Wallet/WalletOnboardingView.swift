@@ -130,7 +130,7 @@ struct WalletOnboardingView: View {
                                         .cornerRadius(50)
                                         .zIndex(251)
                                         .padding(12)
-                                        .opacity(currentStep == .backupCards ? 1.0 : 0.0)
+                                        .opacity(viewModel.canShowOriginCardLabel ? 1.0 : 0.0)
                                 }
 
                             }
