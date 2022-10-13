@@ -33,12 +33,8 @@ extension CardDTO {
             assertionFailure("Wallet not found, use CardViewModel for create wallet")
         }
 
-        let keyHash = (wallets.first?.publicKey ?? cardPublicKey).sha256()
-        let key = SymmetricKey(data: keyHash)
-        let message = Constants.messageForWalletID.data(using: .utf8)!
-        let authenticationCode = HMAC<SHA256>.authenticationCode(for: message, using: key)
-
-        return Data(authenticationCode)
+        let publicKeyData = wallets.first?.publicKey ?? cardPublicKey
+        return UserWalletId(with: publicKeyData).value
     }
 
     var derivationStyle: DerivationStyle? {
