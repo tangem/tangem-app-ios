@@ -150,7 +150,7 @@ class GnosisRegistrator {
             return sig + addressData
         }
 
-        guard let amountData = amount.encoded else {
+        guard let amountData = amount.encodedAligned else {
             throw SaltPayRegistratorError.failedToMakeTxData
         }
 
