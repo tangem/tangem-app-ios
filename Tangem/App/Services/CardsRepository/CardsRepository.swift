@@ -12,6 +12,7 @@ import Combine
 protocol CardsRepository {
     func scan(with batch: String?, requestBiometrics: Bool, _ completion: @escaping (Result<CardViewModel, Error>) -> Void)
     func scanPublisher(with batch: String?, requestBiometrics: Bool) ->  AnyPublisher<CardViewModel, Error>
+    func didSwitchToModel(_ cardModel: CardViewModel)
 }
 
 private struct CardsRepositoryKey: InjectionKey {
