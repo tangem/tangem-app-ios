@@ -24,7 +24,15 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     private var fanStackCalculator: FanStackCalculator = .init()
     private var stepPublisher: AnyCancellable?
     private var prepareTask: PreparePrimaryCardTask? = nil
-
+    
+    private var cardIdDisplayFormat: CardIdDisplayFormat {
+        isSaltPayOnboarding ? .none : .lastMasked(4)
+    }
+    
+    private var isSaltPayOnboarding: Bool {
+        return true
+        saltPayRegistratorProvider.registrator != nil
+    }
 //    override var isBackButtonVisible: Bool {
 //        switch currentStep {
 //        case .success: return false
@@ -40,16 +48,16 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         switch currentStep {
         case .selectBackupCards:
             switch backupCardsAddedCount {
-            case 0: return "onboarding_title_no_backup_cards"
-            case 1: return "onboarding_title_one_backup_card"
+            case 0: return isSaltPayOnboarding ? "onboarding_saltpay_title_no_backup_card" : "onboarding_title_no_backup_cards"
+            case 1: return isSaltPayOnboarding ? "onboarding_saltpay_title_one_backup_card" : "onboarding_title_one_backup_card"
             default: return "onboarding_title_two_backup_cards"
             }
         case .backupIntro:
             return ""
         case .backupCards:
             switch backupServiceState {
-            case .finalizingPrimaryCard: return "onboarding_title_prepare_origin"
-            case .finalizingBackupCard(let index): return LocalizedStringKey(stringLiteral: "onboarding_title_backup_card_number".localized(index))
+            case .finalizingPrimaryCard: return isSaltPayOnboarding ? "onboarding_saltpay_title_prepare_origin" : "onboarding_title_prepare_origin"
+            case .finalizingBackupCard(let index): return isSaltPayOnboarding ? "onboarding_saltpay_title_backup_card" : LocalizedStringKey(stringLiteral: "onboarding_title_backup_card_number".localized(index))
             default: break
             }
 
@@ -64,8 +72,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         switch currentStep {
         case .selectBackupCards:
             switch backupCardsAddedCount {
-            case 0: return "onboarding_subtitle_no_backup_cards"
-            case 1: return "onboarding_subtitle_one_backup_card"
+            case 0: return isSaltPayOnboarding ? "onboarding_saltpay_subtitle_no_backup_cards" : "onboarding_subtitle_no_backup_cards"
+            case 1: return isSaltPayOnboarding ? "onboarding_saltpay_subtitle_one_backup_card" : "onboarding_subtitle_one_backup_card"
             default: return "onboarding_subtitle_two_backup_cards"
             }
         case .backupIntro:
@@ -79,14 +87,27 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         case .backupCards:
             switch backupServiceState {
             case .finalizingPrimaryCard:
-                return backupService.primaryCardId.map {
-                    LocalizedStringKey(stringLiteral: "onboarding_subtitle_scan_origin_card".localized(CardIdFormatter(style: .lastMasked(4)).string(from: $0)))
+                if isSaltPayOnboarding {
+                    return "onboarding_subtitle_reset_twin_warning"
                 }
-                    ?? super.subtitle
+                
+                guard let primaryCardId = backupService.primaryCardId,
+                      let cardIdFormatted = CardIdFormatter(style: cardIdDisplayFormat).string(from: primaryCardId) else {
+                    return super.subtitle
+                }
+                
+                return LocalizedStringKey(stringLiteral: "onboarding_subtitle_scan_origin_card".localized(cardIdFormatted))
             case .finalizingBackupCard(let index):
+                if isSaltPayOnboarding {
+                    return "onboarding_subtitle_reset_twin_warning"
+                }
+                
                 let cardId = backupService.backupCardIds[index - 1]
-                let formattedCardId = CardIdFormatter(style: .lastMasked(4)).string(from: cardId)
-                return LocalizedStringKey(stringLiteral: "onboarding_subtitle_scan_backup_card".localized(formattedCardId))
+                guard let cardIdFormatted = CardIdFormatter(style: cardIdDisplayFormat).string(from: cardId) else {
+                    return super.subtitle
+                }
+
+                return LocalizedStringKey(stringLiteral: "onboarding_subtitle_scan_backup_card".localized(cardIdFormatted))
             default: return super.subtitle
             }
         case .registerWallet, .kycStart, .enterPin, .kycWaiting:
@@ -122,8 +143,8 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
             return "onboarding_button_add_backup_card"
         case .backupCards:
             switch backupServiceState {
-            case .finalizingPrimaryCard: return "onboarding_button_backup_origin"
-            case .finalizingBackupCard(let index): return LocalizedStringKey(stringLiteral: "onboarding_button_backup_card".localized(index))
+            case .finalizingPrimaryCard: return isSaltPayOnboarding ? "onboarding_saltpay_button_backup_origin" : "onboarding_button_backup_origin"
+            case .finalizingBackupCard(let index): return isSaltPayOnboarding ? "onboarding_saltpay_title_backup_card" : LocalizedStringKey(stringLiteral: "onboarding_button_backup_card".localized(index))
             default: break
             }
         case .success:
@@ -162,7 +183,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                 return false
             }
 
-            if saltPayRegistratorProvider.registrator != nil {
+            if isSaltPayOnboarding {
                 return false
             }
         }
@@ -243,7 +264,15 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }()
 
     var canShowThirdCardImage: Bool {
-        saltPayRegistratorProvider.registrator == nil
+        !isSaltPayOnboarding
+    }
+    
+    var canShowOriginCardLabel: Bool {
+        if isSaltPayOnboarding {
+            return false
+        }
+        
+        return currentStep == .backupCards
     }
 
     private var primaryCardStackIndex: Int {
@@ -275,7 +304,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
 
     private var canAddBackupCards: Bool {
-        if saltPayRegistratorProvider.registrator != nil {
+        if isSaltPayOnboarding {
             return backupService.addedBackupCardsCount == 0
         }
 
@@ -295,6 +324,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
 
     init(input: OnboardingInput, coordinator: WalletOnboardingRoutable) {
         self.coordinator = coordinator
+      
         super.init(input: input, onboardingCoordinator: coordinator)
 
         if case let .wallet(steps) = input.steps {
@@ -364,7 +394,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
 
     override func loadImage(supportsOnlineImage: Bool, cardId: String?, cardPublicKey: Data?) {
         super.loadImage(supportsOnlineImage: supportsOnlineImage, cardId: cardId, cardPublicKey: cardPublicKey)
-        if saltPayRegistratorProvider.registrator == nil {
+        if !isSaltPayOnboarding {
             secondImage = nil
         } else {
             let isPrimaryScanned = cardId.map { !SaltPayUtil().isBackupCard(cardId: $0) } ?? false

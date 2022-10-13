@@ -43,8 +43,6 @@ struct SaltPayConfig {
 
         var steps: [WalletOnboardingStep] = .init()
 
-        steps.append(.backupIntro)
-
         if !card.wallets.isEmpty && !backupServiceProvider.backupService.primaryCardIsSet {
             steps.append(.scanPrimaryCard)
         }
@@ -92,6 +90,7 @@ extension SaltPayConfig: UserWalletConfig {
 
         config.filter.cardIdFilter = .allow(Set(cardIds), ranges: util.backupCardRanges)
         config.filter.localizedDescription = "error_saltpay_wrong_backup_card".localized
+        config.cardIdDisplayFormat = .none
         return config
     }
 
