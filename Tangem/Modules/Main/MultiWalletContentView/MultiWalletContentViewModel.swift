@@ -19,7 +19,7 @@ class MultiWalletContentViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published var contentState: LoadingValue<[TokenItemViewModel]> = .loading
-    @Published var tokenListIsEmpty: Bool = false
+    @Published var tokenListIsEmpty: Bool = true
 
     lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
         userWalletModel: userWalletModel,
@@ -93,6 +93,7 @@ private extension MultiWalletContentViewModel {
             .removeDuplicates()
         
         let walletModels = userWalletModel.subscribeToWalletModels()
+            .receive(on: DispatchQueue.global())
             .map { wallets -> AnyPublisher<Void, Never> in
                 if wallets.isEmpty {
                     return .just
@@ -116,20 +117,18 @@ private extension MultiWalletContentViewModel {
             .store(in: &bag)
     }
 
-    func updateView() {
-        let viewModels = collectTokenItemViewModels(entries: userWalletModel.getSavedEntries())
-        
+    func updateView(viewModels: [TokenItemViewModel]) {
         tokenListIsEmpty = viewModels.isEmpty
         contentState = .loaded(viewModels)
     }
-    
+
     func collectTokenItemViewModels(entries: [StorageEntry]) -> [TokenItemViewModel] {
         let walletModels = userWalletModel.getWalletModels()
         return entries.reduce([]) { result, entry in
             if let walletModel = walletModels.first(where: { $0.blockchainNetwork == entry.blockchainNetwork }) {
                 return result + walletModel.allTokenItemViewModels()
             }
-            
+
             return result + mapToTokenItemViewModels(entry: entry)
         }
     }
