@@ -117,14 +117,14 @@ private extension MultiWalletContentViewModel {
         tokenListIsEmpty = viewModels.isEmpty
         contentState = .loaded(viewModels)
     }
-    
+
     func collectTokenItemViewModels(entries: [StorageEntry]) -> [TokenItemViewModel] {
         let walletModels = userWalletModel.getWalletModels()
         return entries.reduce([]) { result, entry in
             if let walletModel = walletModels.first(where: { $0.blockchainNetwork == entry.blockchainNetwork }) {
                 return result + walletModel.allTokenItemViewModels()
             }
-            
+
             return result + mapToTokenItemViewModels(entry: entry)
         }
     }
