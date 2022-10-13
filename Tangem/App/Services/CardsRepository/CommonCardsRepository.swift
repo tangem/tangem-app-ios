@@ -29,7 +29,7 @@ class CommonCardsRepository: CardsRepository {
     @Injected(\.supportChatService) private var supportChatService: SupportChatServiceProtocol
 
 
-    private(set) var cards = [String: CardViewModel]()
+    private var cards = [CardViewModel]()
 
     private var bag: Set<AnyCancellable> = .init()
 
@@ -72,17 +72,25 @@ class CommonCardsRepository: CardsRepository {
         }
         .eraseToAnyPublisher()
     }
-
-    private func processScan(_ cardInfo: CardInfo) -> CardViewModel {
+    
+    func didSwitchToModel(_ cardModel: CardViewModel) {
+        let cardInfo = cardModel.cardInfo
+        startInitializingServices(for: cardInfo)
+        finishInitializingServices(for: cardModel, cardInfo: cardInfo)
+    }
+    
+    // [REDACTED_TODO_COMMENT]
+    private func startInitializingServices(for cardInfo: CardInfo) {
         let interaction = INInteraction(intent: ScanTangemCardIntent(), response: nil)
         interaction.donate(completion: nil)
+        
         saltPayRegistratorProvider.reset()
-        cardInfo.primaryCard.map { backupServiceProvider.backupService.setPrimaryCard($0) }
-
-        // [REDACTED_TODO_COMMENT]
-        let config = UserWalletConfigFactory(cardInfo).makeConfig()
-        let cardModel = CardViewModel(cardInfo: cardInfo, config: config)
-
+        if let primaryCard = cardInfo.primaryCard {
+            backupServiceProvider.backupService.setPrimaryCard(primaryCard)
+        }
+    }
+    
+    private func finishInitializingServices(for cardModel: CardViewModel, cardInfo: CardInfo) {
         tangemApiService.setAuthData(cardInfo.card.tangemApiAuthData)
         supportChatService.initialize(with: cardModel.supportChatEnvironment)
         walletConnectServiceProvider.initialize(with: cardModel)
@@ -93,9 +101,19 @@ class CommonCardsRepository: CardsRepository {
                                                        walletPublicKey: wallet.publicKey,
                                                        cardPublicKey: cardInfo.card.cardPublicKey)
         }
+    }
 
+    private func processScan(_ cardInfo: CardInfo) -> CardViewModel {
+        startInitializingServices(for: cardInfo)
+        
+        // [REDACTED_TODO_COMMENT]
+        let config = UserWalletConfigFactory(cardInfo).makeConfig()
+        let cardModel = CardViewModel(cardInfo: cardInfo, config: config)
+
+        finishInitializingServices(for: cardModel, cardInfo: cardInfo)
+        
         cardModel.didScan()
-        cards[cardInfo.card.cardId] = cardModel
+        cards.append(cardModel)
         return cardModel
     }
 }
