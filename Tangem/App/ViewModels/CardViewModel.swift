@@ -366,7 +366,6 @@ class CardViewModel: Identifiable, ObservableObject {
         print("🔄 Updating Config with update derivationKeys \n",
               "oldKeys: \(oldKeys.map { $0.keys.map { $0.rawPath }})\n",
               "newKeys: \(newKeys.map { $0.keys.map { $0.rawPath }})")
-
         cardInfo.card = card // [REDACTED_TODO_COMMENT]
         config = UserWalletConfigFactory(cardInfo).makeConfig()
 
@@ -558,15 +557,6 @@ extension CardViewModel {
         }
 
         return userWalletModel.subscribeToWalletModels()
-    }
-
-    func subscribeToEntriesWithoutDerivation() -> AnyPublisher<[StorageEntry], Never> {
-        guard let userWalletModel = userWalletModel else {
-            assertionFailure("UserWalletModel not created")
-            return Just([]).eraseToAnyPublisher()
-        }
-
-        return userWalletModel.subscribeToEntriesWithoutDerivation()
     }
 
     func add(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
