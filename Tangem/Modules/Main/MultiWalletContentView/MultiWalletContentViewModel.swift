@@ -88,6 +88,10 @@ class MultiWalletContentViewModel: ObservableObject {
 
 private extension MultiWalletContentViewModel {
     func bind() {
+        let entriesWithoutDerivation = userWalletModel
+            .subscribeToEntriesWithoutDerivation()
+            .removeDuplicates()
+        
         let walletModels = userWalletModel.subscribeToWalletModels()
             .receive(on: DispatchQueue.global())
             .map { wallets -> AnyPublisher<Void, Never> in
@@ -102,7 +106,7 @@ private extension MultiWalletContentViewModel {
             }
             .switchToLatest()
 
-        Publishers.CombineLatest(userWalletModel.subscribeToEntriesWithoutDerivation(), walletModels)
+        Publishers.CombineLatest(entriesWithoutDerivation, walletModels)
             .map { [unowned self] _ -> [TokenItemViewModel] in
                 collectTokenItemViewModels(entries: userWalletModel.getSavedEntries())
             }
