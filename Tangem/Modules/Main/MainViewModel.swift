@@ -166,6 +166,7 @@ class MainViewModel: ObservableObject {
             .store(in: &bag)
 
         userWalletModel.subscribeToEntriesWithoutDerivation()
+            .removeDuplicates()
             .sink { [unowned self] entries in
                 self.updateLackDerivationWarningView(entries: entries)
             }
