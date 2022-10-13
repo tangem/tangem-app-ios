@@ -80,50 +80,30 @@ class TokenListViewModel: ObservableObject {
 
         var alreadySaved = userWalletModel.userTokenListManager.getEntriesFromRepository()
 
-        pendingRemove.forEach { tokenItem in
-            switch tokenItem {
-            case let .blockchain(blockchain):
-                alreadySaved.removeAll { $0.blockchainNetwork.blockchain.id == blockchain.id }
-            case let .token(token, blockchain):
-                if let index = alreadySaved.firstIndex(where: { $0.blockchainNetwork.blockchain.id == blockchain.id }) {
-                    alreadySaved[index].tokens.removeAll { $0.id == token.id }
-                }
-            }
+        DispatchQueue.global().async {
+            self.update(cardModel: cardModel, entries: &alreadySaved)
+            self.updateStorage(cardModel: cardModel, entries: alreadySaved)
+        }
+    }
+
+    func updateStorage(cardModel: CardViewModel, entries: [StorageEntry]) {
+        DispatchQueue.main.async {
+            self.isSaving = true
         }
 
-        pendingAdd.forEach { tokenItem in
-            switch tokenItem {
-            case let .blockchain(blockchain):
-                let network = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: nil)
-                if !alreadySaved.contains(where: { $0.blockchainNetwork == network }) {
-                    let entry = StorageEntry(blockchainNetwork: network, tokens: [])
-                    alreadySaved.append(entry)
+        cardModel.update(entries: entries) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.isSaving = false
+
+                switch result {
+                case .success:
+                    self?.tokenListDidSave()
+                case .failure(let error):
+                    if let sdkError = error as? TangemSdkError, sdkError.isUserCancelled {
+                        return
+                    }
+                    self?.alert = error.alertBinder
                 }
-            case let .token(token, blockchain):
-                let network = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: nil)
-
-                if let entry = alreadySaved.firstIndex(where: { $0.blockchainNetwork == network }) {
-                    alreadySaved[entry].tokens.append(token)
-                } else {
-                    let entry = StorageEntry(blockchainNetwork: network, token: token)
-                    alreadySaved.append(entry)
-                }
-            }
-        }
-
-        isSaving = true
-        cardModel.update(entries: alreadySaved) { [weak self] result in
-            self?.isSaving = false
-
-            switch result {
-            case .success:
-                self?.tokenListDidSave()
-            case .failure(let error):
-                if let sdkError = error as? TangemSdkError, sdkError.isUserCancelled {
-                    return
-                }
-
-                self?.alert = error.alertBinder
             }
         }
     }
@@ -327,7 +307,7 @@ private extension TokenListViewModel {
         return CoinViewModel(with: coinModel, items: currencyItems)
     }
 
-    private func showWarningDeleteAlertIfNeeded(isSelected: Bool, tokenItem: TokenItem) {
+    func showWarningDeleteAlertIfNeeded(isSelected: Bool, tokenItem: TokenItem) {
         guard !isSelected,
               !self.pendingAdd.contains(tokenItem),
               self.isTokenAvailable(tokenItem) else {
@@ -398,7 +378,7 @@ private extension TokenListViewModel {
         return cardTokens.isEmpty
     }
 
-    private func isTokenAvailable(_ tokenItem: TokenItem) -> Bool {
+    func isTokenAvailable(_ tokenItem: TokenItem) -> Bool {
         if case let .token(_, blockchain) = tokenItem,
            case .solana = blockchain,
            let cardModel = cardModel,
@@ -409,9 +389,42 @@ private extension TokenListViewModel {
         return true
     }
 
-    private func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool, tokenItem: TokenItem) {
+    func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool, tokenItem: TokenItem) {
         if tokenIsSelected {
             Analytics.log(.tokenSwitcherChanged)
+        }
+    }
+
+    func update(cardModel: CardViewModel, entries: inout [StorageEntry]) {
+        pendingRemove.forEach { tokenItem in
+            switch tokenItem {
+            case let .blockchain(blockchain):
+                entries.removeAll { $0.blockchainNetwork.blockchain.id == blockchain.id }
+            case let .token(token, blockchain):
+                if let index = entries.firstIndex(where: { $0.blockchainNetwork.blockchain.id == blockchain.id }) {
+                    entries[index].tokens.removeAll { $0.id == token.id }
+                }
+            }
+        }
+
+        pendingAdd.forEach { tokenItem in
+            switch tokenItem {
+            case let .blockchain(blockchain):
+                let network = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: nil)
+                if !entries.contains(where: { $0.blockchainNetwork == network }) {
+                    let entry = StorageEntry(blockchainNetwork: network, tokens: [])
+                    entries.append(entry)
+                }
+            case let .token(token, blockchain):
+                let network = cardModel.getBlockchainNetwork(for: blockchain, derivationPath: nil)
+
+                if let entry = entries.firstIndex(where: { $0.blockchainNetwork == network }) {
+                    entries[entry].tokens.append(token)
+                } else {
+                    let entry = StorageEntry(blockchainNetwork: network, token: token)
+                    entries.append(entry)
+                }
+            }
         }
     }
 }
