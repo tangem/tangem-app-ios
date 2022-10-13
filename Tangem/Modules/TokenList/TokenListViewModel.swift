@@ -77,24 +77,24 @@ class TokenListViewModel: ObservableObject {
             closeModule()
             return
         }
-        
+
         var alreadySaved = userWalletModel.userTokenListManager.getEntriesFromRepository()
-        
+
         DispatchQueue.global().async {
             self.update(cardModel: cardModel, entries: &alreadySaved)
             self.updateStorage(cardModel: cardModel, entries: alreadySaved)
         }
     }
-    
+
     func updateStorage(cardModel: CardViewModel, entries: [StorageEntry]) {
         DispatchQueue.main.async {
             self.isSaving = true
         }
-        
+
         cardModel.update(entries: entries) { [weak self] result in
             DispatchQueue.main.async {
                 self?.isSaving = false
-                
+
                 switch result {
                 case .success:
                     self?.tokenListDidSave()
@@ -394,7 +394,7 @@ private extension TokenListViewModel {
             Analytics.log(.tokenSwitcherChanged)
         }
     }
-    
+
     func update(cardModel: CardViewModel, entries: inout [StorageEntry]) {
         pendingRemove.forEach { tokenItem in
             switch tokenItem {
