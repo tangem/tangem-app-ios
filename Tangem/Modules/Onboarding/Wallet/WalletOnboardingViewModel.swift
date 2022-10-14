@@ -30,7 +30,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     }
     
     private var isSaltPayOnboarding: Bool {
-        return true
         saltPayRegistratorProvider.registrator != nil
     }
 //    override var isBackButtonVisible: Bool {
