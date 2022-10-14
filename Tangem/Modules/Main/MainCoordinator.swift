@@ -195,12 +195,17 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openBankWarning(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) {
+        let delay = 0.6
         warningBankCardViewModel = .init(confirmCallback: { [weak self] in
-            confirmCallback()
             self?.warningBankCardViewModel = nil
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                confirmCallback()
+            }
         }, declineCallback: { [weak self] in
-            declineCallback()
             self?.warningBankCardViewModel = nil
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                declineCallback()
+            }
         })
     }
 
