@@ -66,7 +66,7 @@ class TotalSumBalanceViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .map { [unowned self] walletModels -> AnyPublisher<[WalletModel], Never> in
                 if walletModels.isEmpty {
-                    return Just([]).eraseToAnyPublisher()
+                    return Empty().eraseToAnyPublisher()
                 }
 
                 isLoading = true
