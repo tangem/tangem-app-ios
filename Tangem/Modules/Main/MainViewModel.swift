@@ -348,9 +348,15 @@ class MainViewModel: ObservableObject {
             didFinishCountingHashes()
             return
         }
+        
+        guard !cardModel.isMultiWallet else {
+            showAlertAnimated(.multiWalletSignedHashes)
+            didFinishCountingHashes()
+            return
+        }
 
         guard cardModel.canCountHashes else {
-            showAlertAnimated(.multiWalletSignedHashes)
+            AppSettings.shared.validatedSignedHashesCards.append(cardModel.cardId)
             didFinishCountingHashes()
             return
         }
