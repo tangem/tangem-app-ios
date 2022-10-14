@@ -673,7 +673,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                         self?.addDefaultTokens(for: result.card)
 
                         if let cardModel = self?.input.cardInput.cardModel {
-                            cardModel.update(with: result.card)
+                            cardModel.onWalletCreated(result.card)
                         }
 
                         self?.backupService.setPrimaryCard(result.primaryCard)
@@ -758,7 +758,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                         switch result {
                         case .success(let updatedCard):
                             if updatedCard.cardId == self.backupService.primaryCardId {
-                                self.input.cardInput.cardModel?.update(with: updatedCard)
+                                self.input.cardInput.cardModel?.onBackupCreated(updatedCard)
                             } else { // add tokens for backup cards
                                 self.addDefaultTokens(for: updatedCard)
                             }
