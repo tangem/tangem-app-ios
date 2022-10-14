@@ -125,7 +125,7 @@ class TokenDetailsViewModel: ObservableObject {
         }
 
         let blockchainName = blockchain.displayName
-        let existentialDepositAmount = existentialDepositProvider.existentialDeposit.description
+        let existentialDepositAmount = existentialDepositProvider.existentialDeposit.string(roundingMode: .plain)
 
         return String(format: "warning_existential_deposit_message".localized, blockchainName, existentialDepositAmount)
     }
