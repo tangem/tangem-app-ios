@@ -10,4 +10,5 @@ import Foundation
 
 protocol WalletOnboardingRoutable: OnboardingRoutable {
     func openAccessCodeView(callback: @escaping (String) -> Void)
+    func openSupportChat(cardId: String, dataCollector: EmailDataCollector)
 }

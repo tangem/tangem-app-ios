@@ -11,6 +11,7 @@ import Firebase
 import AppsFlyerLib
 import Amplitude
 
+
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var loadingView: UIView? = nil
@@ -62,6 +63,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         AppSettings.shared.numberOfLaunches += 1
         return true
     }
+
 
     func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
 
