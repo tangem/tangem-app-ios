@@ -182,7 +182,6 @@ extension Blockchain {
             .arbitrum(testnet: false),
             .gnosis,
             .dash(testnet: false),
-            .optimism(testnet: false),
         ]
     }()
 
@@ -202,7 +201,6 @@ extension Blockchain {
             .polkadot(testnet: true),
             .tron(testnet: true),
             .arbitrum(testnet: true),
-            .optimism(testnet: true),
         ]
     }()
 }
