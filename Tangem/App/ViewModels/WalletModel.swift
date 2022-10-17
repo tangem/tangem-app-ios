@@ -127,7 +127,6 @@ class WalletModel: ObservableObject, Identifiable {
         }
 
         if case .loading = state {
-            assertionFailure("Unreal case because we should return updating publisher above")
             return newUpdatePublisher.eraseToAnyPublisher()
         }
 
@@ -219,7 +218,7 @@ class WalletModel: ObservableObject, Identifiable {
             return
         }
 
-        print("Update state \(state) in WalletModel: \(blockchainNetwork.blockchain.displayName)")
+        print("🔄 Update state \(state) in WalletModel: \(blockchainNetwork.blockchain.displayName)")
         DispatchQueue.main.async { [weak self] in
             self?.state = state
         }
