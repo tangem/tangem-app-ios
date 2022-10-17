@@ -20,15 +20,17 @@ struct CustomTextField: UIViewRepresentable {
         var decimalCount: Int?
         let defaultStringToClear: String?
         var isEnabled = true
+        var maxCount: Int?
 
         init(text: Binding<String>, placeholder: String, decimalCount: Int?, defaultStringToClear: String?,
-             isResponder: Binding<Bool?>, actionButtonTapped: Binding<Bool>) {
+             isResponder: Binding<Bool?>, actionButtonTapped: Binding<Bool>, maxCount: Int?) {
             _text = text
             _isResponder = isResponder
             _actionButtonTapped = actionButtonTapped
             self.placeholder = placeholder
             self.decimalCount = decimalCount
             self.defaultStringToClear = defaultStringToClear
+            self.maxCount = maxCount
         }
 
         func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
@@ -72,13 +74,17 @@ struct CustomTextField: UIViewRepresentable {
         }
 
         func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-            guard let maxLength = self.decimalCount else {
-                return true
-            }
-
             let currentString: NSString = textField.text! as NSString
             let newString: String =
                 currentString.replacingCharacters(in: range, with: string) as String
+
+            if let maxCount = maxCount, newString.count > maxCount {
+                return false
+            }
+
+            guard let maxLength = self.decimalCount else {
+                return true
+            }
 
             guard Array(newString).filter({ $0 == "." || $0 == "," }).count  <= 1 else {
                 return false
@@ -125,6 +131,7 @@ struct CustomTextField: UIViewRepresentable {
     let toolbarItems: [UIBarButtonItem]? = nil
     var decimalCount: Int? = nil
     var isEnabled = true
+    var maxCount: Int? = nil
 
     func makeUIView(context: UIViewRepresentableContext<CustomTextField>) -> UITextField {
         let textField = UITextField(frame: .zero)
@@ -178,7 +185,8 @@ struct CustomTextField: UIViewRepresentable {
                            decimalCount: decimalCount,
                            defaultStringToClear: defaultStringToClear,
                            isResponder: $isResponder,
-                           actionButtonTapped: $actionButtonTapped)
+                           actionButtonTapped: $actionButtonTapped,
+                           maxCount: maxCount)
     }
 
     func updateUIView(_ uiView: UITextField, context: UIViewRepresentableContext<CustomTextField>) {
