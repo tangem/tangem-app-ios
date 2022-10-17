@@ -40,7 +40,7 @@ extension Card {
         return Data(authenticationCode)
     }
 
-    var derivationStyle: DerivationStyle {
+    var derivationStyle: DerivationStyle? {
         Card.getDerivationStyle(for: batchId, isHdWalletAllowed: settings.isHDWalletAllowed)
     }
 
@@ -48,9 +48,9 @@ extension Card {
         .init(cardId: cardId, cardPublicKey: cardPublicKey)
     }
 
-    static func getDerivationStyle(for batchId: String, isHdWalletAllowed: Bool) -> DerivationStyle {
+    static func getDerivationStyle(for batchId: String, isHdWalletAllowed: Bool) -> DerivationStyle? {
         guard isHdWalletAllowed else {
-            return .legacy
+            return nil
         }
 
         let batchId = batchId.uppercased()
