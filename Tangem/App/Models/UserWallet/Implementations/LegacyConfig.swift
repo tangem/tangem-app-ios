@@ -91,8 +91,7 @@ extension LegacyConfig: UserWalletConfig {
     var defaultBlockchains: [StorageEntry] {
         guard let defaultBlockchain = defaultBlockchain else { return [] }
 
-        let derivationPath = defaultBlockchain.derivationPath(for: .legacy)
-        let network = BlockchainNetwork(defaultBlockchain, derivationPath: derivationPath)
+        let network = BlockchainNetwork(defaultBlockchain, derivationPath: nil)
         let tokens = defaultToken.map { [$0] } ?? []
         let entry = StorageEntry(blockchainNetwork: network, tokens: tokens)
         return [entry]
@@ -195,7 +194,7 @@ extension LegacyConfig: UserWalletConfig {
                                                   entry: token,
                                                   derivationStyle: card.derivationStyle)
         } else {
-            let blockchain = defaultBlockchain ?? token.blockchainNetwork.blockchain
+            let blockchain = token.blockchainNetwork.blockchain
 
             guard let walletPublicKey = card.wallets.first(where: { $0.curve == blockchain.curve })?.publicKey else {
                 throw CommonError.noData
@@ -203,7 +202,7 @@ extension LegacyConfig: UserWalletConfig {
 
             return try factory.makeSingleWallet(walletPublicKey: walletPublicKey,
                                                 blockchain: blockchain,
-                                                token: nil,
+                                                token: token.tokens.first,
                                                 derivationStyle: card.derivationStyle)
         }
     }
