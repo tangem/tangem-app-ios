@@ -19,12 +19,12 @@ class MultiWalletContentViewModel: ObservableObject {
     // MARK: - ViewState
 
     @Published var contentState: LoadingValue<[TokenItemViewModel]> = .loading
-    @Published var tokenListIsEmpty: Bool = false
+    @Published var tokenListIsEmpty: Bool = true
 
     lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
         userWalletModel: userWalletModel,
-        totalBalanceManager: TotalBalanceProvider(userWalletModel: userWalletModel),
-        isSingleCoinCard: false,
+        totalBalanceManager: totalBalanceManager,
+        cardAmountType: nil,
         tapOnCurrencySymbol: output.openCurrencySelection
     )
 
@@ -35,6 +35,15 @@ class MultiWalletContentViewModel: ObservableObject {
     private let userTokenListManager: UserTokenListManager
     private unowned let output: MultiWalletContentViewModelOutput
     private var bag = Set<AnyCancellable>()
+    private lazy var totalBalanceManager = TotalBalanceProvider(
+        userWalletModel: userWalletModel,
+        userWalletAmountType: nil,
+        totalBalanceAnalyticsService: TotalBalanceAnalyticsService(totalBalanceCardSupportInfo: totalBalanceCardSupportInfo)
+    )
+    private lazy var totalBalanceCardSupportInfo = TotalBalanceCardSupportInfo(
+        cardBatchId: cardModel.batchId,
+        cardNumber: cardModel.cardId
+    )
 
     private var isFirstTimeOnAppear: Bool = true
 
@@ -66,6 +75,7 @@ class MultiWalletContentViewModel: ObservableObject {
     }
 
     func openTokensList() {
+        Analytics.log(.buttonManageTokens)
         output.openTokensList()
     }
 
@@ -78,40 +88,49 @@ class MultiWalletContentViewModel: ObservableObject {
 
 private extension MultiWalletContentViewModel {
     func bind() {
-        let viewModelsWithoutDerivation = userWalletModel.subscribeToEntriesWithoutDerivation()
-            .map { [unowned self] entries in
-                entries.flatMap(self.mapToTokenItemViewModels)
-            }
-
+        let entriesWithoutDerivation = userWalletModel
+            .subscribeToEntriesWithoutDerivation()
+            .removeDuplicates()
+        
         let walletModels = userWalletModel.subscribeToWalletModels()
-            .map { wallets -> AnyPublisher<[TokenItemViewModel], Never> in
+            .receive(on: DispatchQueue.global())
+            .map { wallets -> AnyPublisher<Void, Never> in
                 if wallets.isEmpty {
-                    return Just([]).eraseToAnyPublisher()
+                    return .just
                 }
 
                 return wallets.map { $0.walletDidChange }
                     .combineLatest()
-                    .map { _ in wallets.flatMap { $0.allTokenItemViewModels() } }
+                    .mapVoid()
                     .eraseToAnyPublisher()
             }
             .switchToLatest()
 
-        Publishers.CombineLatest(viewModelsWithoutDerivation, walletModels)
-            .map(+)
+        Publishers.CombineLatest(entriesWithoutDerivation, walletModels)
+            .map { [unowned self] _ -> [TokenItemViewModel] in
+                collectTokenItemViewModels(entries: userWalletModel.getSavedEntries())
+            }
+            .receive(on: DispatchQueue.main)
             .sink { [unowned self] viewModels in
                 updateView(viewModels: viewModels)
             }
-            .store(in: &bag)
-
-        userWalletModel.subscribeToWalletModels()
-            .map { $0.isEmpty }
-            .weakAssign(to: \.tokenListIsEmpty, on: self)
             .store(in: &bag)
     }
 
     func updateView(viewModels: [TokenItemViewModel]) {
         tokenListIsEmpty = viewModels.isEmpty
         contentState = .loaded(viewModels)
+    }
+
+    func collectTokenItemViewModels(entries: [StorageEntry]) -> [TokenItemViewModel] {
+        let walletModels = userWalletModel.getWalletModels()
+        return entries.reduce([]) { result, entry in
+            if let walletModel = walletModels.first(where: { $0.blockchainNetwork == entry.blockchainNetwork }) {
+                return result + walletModel.allTokenItemViewModels()
+            }
+
+            return result + mapToTokenItemViewModels(entry: entry)
+        }
     }
 
     func mapToTokenItemViewModels(entry: StorageEntry) -> [TokenItemViewModel] {
