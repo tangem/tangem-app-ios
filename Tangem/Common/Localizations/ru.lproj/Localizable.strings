@@ -112,62 +112,6 @@ Tangem — единственный аппаратный кошелек, пре�
 "details_twins_recreate_toolbar" = "Пересоздать кошелек";
 "details_twins_recreate_warning" = "Это действие необратимо. У вас не будет доступа к старому кошельку.
 Процедура пересоздания кошелька состоит из трех шагов. Вы должны пройти ее до конца, иначе вам придется начинать сначала.";
-"disclaimer_text" = "Legal Disclaimer
-
-1. Tangem application (Software)
- 
-The Software is intended for usage only with Tangem hardware wallets (Cards) via NFC interface. The Software DOES NOT:
- 
-a) Generate, store, transmit, or have access to private (secret) cryptographic keys to blockchain wallets holding digital assets, including crypto-currency.
-
-b) Generate, store, transmit, or have access to secret keys, passwords, passphrases, recovery phrases that can be used to restore or to copy private (secret) keys to blockchain wallets holding digital assets, including crypto-currency.
-
-c) Provide exchange, trading, investment services on behalf of Tangem AG.
- 
- 
-2. Risks related to the use of Software
- 
-Tangem will not be responsible for any losses, damages or claims arising from events falling within the scope of the following five categories:
- 
-a) Mistakes made by the user of any cryptocurrency-related software or service, e.g., forgotten passwords, payments sent to wrong addresses, and accidental deletion of blockchain wallets on Cards.
-
-b) Problems of Software and/or any blockchain- or cryptocurrency- related software or service, e.g., corrupted files, incorrectly constructed transactions, unsafe cryptographic libraries, malware.
-
-c) Technical failures in the hardware of the user, including Cards, of any cryptocurrency-related software or service, e.g., data loss due to a faulty or damaged storage device.
-
-d) Security problems experienced by the user of any cryptocurrency-related software or service, e.g., unauthorized access to users' wallets and/or accounts.
-
-e) Actions or inactions of third parties and/or events experienced by third parties, e.g., bankruptcy of service providers, information security attacks on service providers, and fraud conducted by third parties.
- 
-
-3. Trading and Investment risks
- 
-There is considerable exposure to risk in any crypto-currency or other digital asset exchange transaction. Any transaction involving currencies involves risks including, but not limited to, the potential for changing economic conditions that may substantially affect the price or liquidity of a currency. Investments in crypto-currency exchange speculation may also be susceptible to sharp rises and falls as the relevant market values fluctuate. It is for this reason that when speculating in such markets it is advisable to use only risk capital.
- 
- 
-4. Electronic Trading Risks
- 
-Before you engage in transactions using an electronic system, you should carefully review the rules and regulations of the exchanges offering the system and/or listing the instruments you intend to trade. Online trading has inherent risk due to system response and access times that may vary due to market conditions, system performance, and other factors. You should understand these and additional risks before trading.
- 
-
-5. Compliance with tax obligations
- 
-The users of the Software are solely responsible to determinate what, if any, taxes apply to their crypto-currency transactions. The owners of, or contributors to, the Software are NOT responsible for determining the taxes that apply to crypto-currency transactions.
- 
-
-6. No warranties
-
-The Software is provided on an \"as is\" basis without any warranties of any kind regarding the Software and/or any content, data, materials and/or services provided on the Software.
- 
-
-7. Limitation of liability
- 
-Unless otherwise required by law, in no event shall the owners of, or contributors to, the Software be liable for any damages of any kind, including, but not limited to, loss of use, loss of profits, or loss of data arising out of or in any way connected with the use of the Software. In no way are the owners of, or contributors to, the Software responsible for the actions, decisions, or other behavior taken or not taken by you in reliance upon the Software.
- 
- 
-8. Last amendment
- 
-This disclaimer was amended for the last time on October 1st, 2020.";
 "disclaimer_title" = "Условия использования";
 "home_button_scan" = "Сканировать";
 "initial_message_change_access_code_body" = "Чтобы изменить код доступа, соедините телефон и карту в точности, как показано выше.";
@@ -510,3 +454,41 @@ URL: %@";
 "main_scan_card_warning_view_subtitle" = "Чтобы получить доступ ко всем сетям, вам необходимо отсканировать карту";
 "warning_existential_deposit_message" = "Сеть %@ использует концепцию экзистенциального депозита. Если баланс вашего счета опустится ниже %@, он будет деактивирован, а все оставшиеся средства будут уничтожены.";
 "token_details_transaction_length_warning" = "iPhone 7/7+ не может подписать транзакцию в данной сети из-за системных ограничений. Пожалуйста, используйте другой телефон для выполнения этой операции.";
+
+"saltpay_error_empty_backup_title" = "Внимание";
+"saltpay_error_empty_backup_message" = "Приложите карту с логотипом Visa";
+
+"saltpay_error_no_gas_title" = "Недостаточно средств для активации";
+"saltpay_error_no_gas_message" = "Пожалуйста обратитесь в службу поддержки";
+
+"saltpay_error_pin_weak_title" = "Ввод одинаковых цифр является не безопасным";
+"saltpay_error_pin_weak_message" = "Данный Код доступа может быть легко взломан";
+
+"onboarding_navbar_pin" = "Код доступа";
+"onboarding_navbar_register_wallet" = "Подключиться";
+"onboarding_navbar_kyc_start" = "Верификация клиента";
+"onboarding_navbar_kyc_progress" = "Подтвердите свою личность";
+"onboarding_navbar_kyc_waiting" = "В обработке";
+"onboarding_button_pin" = "Установить Код доступа";
+"onboarding_button_register_wallet" = "Зарегистрироваться";
+"onboarding_button_kyc_start" = "Подтвердить";
+"onboarding_button_kyc_waiting" = "Обновить";
+"onboarding_title_register_wallet" = "Подключите свою карту";
+"onboarding_title_kyc_start" = "Подтвердите свою личность";
+"onboarding_title_kyc_waiting" = "Подтверждение личности в процессе";
+"onboarding_subtitle_register_wallet" = "Подключите вашу карту к децентрализованной платежной системе";
+"onboarding_subtitle_kyc_start" = "Для начала работы с картой вам необходимо завершить процесс подтверждения личности";
+"onboarding_subtitle_kyc_waiting" = "Пожалуйста дождитесь завершения процесса подтверждения вашей личности. Как правило, это занимает меньше часа. Вы можете закрыть приложение и вернуться позже.";
+"onboarding_title_pin" = "Код доступа";
+"onboarding_subtitle_pin" = "Установите Код доступа для вашей SaltPay карты";
+"onboarding_supplement_button_kyc_waiting" = "Чат поддержки";
+"error_saltpay_wrong_backup_card" = "Данная карта не подходит для бэкапа SaltPay";
+"registration_task_alert_message" = "Пожалуйста, удерживайте карту до завершения операции";
+"onboarding_subtitle_kyc_waiting" = "Please wait until the verification is completed. Usually it takes up to 1 hour. You can close the app and come back later.";
+"onboarding_saltpay_subtitle_no_backup_cards" = "Для начала процесса бэкапа вам необходимо добавить Tangem карту";
+"onboarding_saltpay_title_no_backup_card" = "Бэкап карт не добавлена";
+"onboarding_saltpay_title_one_backup_card" = "Бэкап карта создана";
+"onboarding_saltpay_subtitle_one_backup_card" = "Завершите процесс бэкапа создав код доступа";
+"onboarding_saltpay_title_prepare_origin" = "Приготовьте SaltPay карту";
+"onboarding_saltpay_button_backup_origin" = "Приложите SaltPay карту";
+"onboarding_saltpay_title_backup_card" = "Приложите Tangem карту";
