@@ -593,7 +593,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                     let accessCodeData: Data = accessCode.sha256()
                     let accessCodeRepository = AccessCodeRepository()
                     let result = accessCodeRepository.save(accessCodeData, for: cardIds)
-                    
+
                     completion(result)
                 } else {
                     completion(.success(()))
