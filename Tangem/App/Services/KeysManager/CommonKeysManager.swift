@@ -53,6 +53,7 @@ extension CommonKeysManager: KeysManager {
                             infuraProjectId: keys.infuraProjectId,
                             tronGridApiKey: keys.tronGridApiKey,
                             quiknodeApiKey: keys.quiknodeApiKey,
+                            quiknodeSubdomain: keys.quiknodeSubdomain,
                             networkProviderConfiguration: .init(logger: .verbose, urlSessionConfiguration: .standart))
     }
 
@@ -86,6 +87,7 @@ extension CommonKeysManager {
         let amplitudeApiKey: String
         let tronGridApiKey: String
         let quiknodeApiKey: String
+        let quiknodeSubdomain: String
         let shopifyShop: ShopifyShop
         let zendesk: ZendeskConfig
         let saltPay: SaltPayConfiguration
