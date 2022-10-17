@@ -13,16 +13,21 @@ struct ScanCardWarningView: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(alignment: .center, spacing: 12) {
-                icon
+            HStack(alignment: .center, spacing: 0) {
+                HStack(spacing: 12) {
+                    icon
 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("main_scan_card_warning_view_title".localized)
-                        .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("main_scan_card_warning_view_title".localized)
+                            .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
-                    Text("main_scan_card_warning_view_subtitle".localized)
-                        .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                        Text("main_scan_card_warning_view_subtitle")
+                            .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
+                    }
+                    .fixedSize(horizontal: false, vertical: true)
                 }
+
+                Spacer()
 
                 Assets.chevron
             }
