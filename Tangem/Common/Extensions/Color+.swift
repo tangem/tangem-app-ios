@@ -53,6 +53,10 @@ extension Color {
 
     // MARK: Gray Dark
 
+    @nonobjc static var tangemGrayDark1: Color {
+        return Color("tangem_gray_dark_1")
+    }
+
     @nonobjc static var tangemGrayDark: Color {
         return Color("tangem_gray_dark")
     }
