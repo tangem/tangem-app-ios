@@ -86,10 +86,12 @@ final class AppScanTask: CardSessionRunnable {
             self.walletData = .legacy(legacyWalletData)
         }
 
-        self.readExtra(card, session: session, completion: completion)
+        self.appendWalletsIfNeeded(session: session, completion: completion)
     }
 
-    private func readExtra(_ card: Card, session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
+    private func readExtra(session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
+        let card = session.environment.card!
+
         if TwinCardSeries.series(for: card.cardId) != nil {
             readTwin(card, session: session, completion: completion)
             return
@@ -97,26 +99,39 @@ final class AppScanTask: CardSessionRunnable {
 
         if card.firmwareVersion.doubleValue >= 4.39 {
             if card.settings.maxWalletsCount == 1 {
-                readNote(card, session: session, completion: completion)
-                return
+                readFile(card, session: session, completion: completion)
+            } else {
+                readPrimaryIfNeeded(card, session, completion)
             }
 
-            if AppSettings.shared.cardsStartedActivation.contains(card.cardId),
-               card.backupStatus == .noBackup {
-                readPrimaryCard(session, completion)
-                return
-            } else {
-                deriveKeysIfNeeded(session, completion)
-                return
-            }
+            return
         }
 
         self.runScanTask(session, completion)
     }
 
-    private func readNote(_ card: Card, session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
+    private func readPrimaryIfNeeded(_ card: Card, _ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
+        #if CLIP
+        deriveKeysIfNeeded(session, completion)
+        return
+        #else
+        let isSaltPayCard = SaltPayUtil().isPrimaryCard(batchId: card.batchId)
+        let isWalletInOnboarding = AppSettings.shared.cardsStartedActivation.contains(card.cardId)
+
+        if isSaltPayCard || isWalletInOnboarding,
+           card.settings.isBackupAllowed, card.backupStatus == .noBackup {
+            readPrimaryCard(session, completion)
+            return
+        } else {
+            deriveKeysIfNeeded(session, completion)
+            return
+        }
+        #endif
+    }
+
+    private func readFile(_ card: Card, session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
         func exit() {
-            self.deriveKeysIfNeeded(session, completion)
+            self.readPrimaryIfNeeded(card, session, completion)
         }
 
         let readFileCommand = ReadFilesTask(fileName: "blockchainInfo", walletPublicKey: nil)
@@ -143,8 +158,11 @@ final class AppScanTask: CardSessionRunnable {
                     return
                 }
 
-                self.walletData = .note(walletData)
-                self.runScanTask(session, completion)
+                if walletData.blockchain != "ANY" {
+                    self.walletData = .note(walletData)
+                }
+
+                exit()
             case .failure(let error):
                 switch error {
                 case .fileNotFound, .insNotSupported:
@@ -200,22 +218,23 @@ final class AppScanTask: CardSessionRunnable {
         let existingCurves: Set<EllipticCurve> = .init(card.wallets.map({ $0.curve }))
         let mandatoryСurves: Set<EllipticCurve> = [.secp256k1, .ed25519]
         let missingCurves = mandatoryСurves.subtracting(existingCurves)
+        let hasBackup = card.backupStatus?.isActive ?? false
 
-        if !existingCurves.isEmpty, // not empty card
-           !missingCurves.isEmpty // not enough curves
-        {
-            appendWallets(Array(missingCurves), session: session, completion: completion)
+        guard card.settings.maxWalletsCount > 1,
+              !hasBackup,
+              !existingCurves.isEmpty, !missingCurves.isEmpty else {
+            readExtra(session: session, completion: completion)
             return
         }
 
-        deriveKeysIfNeeded(session, completion)
+        appendWallets(Array(missingCurves), session: session, completion: completion)
     }
 
     private func appendWallets(_ curves: [EllipticCurve], session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
         CreateMultiWalletTask(curves: curves).run(in: session) { result in
             switch result {
             case .success:
-                self.runScanTask(session, completion)
+                self.readExtra(session: session, completion: completion)
             case .failure(let error):
                 completion(.failure(error))
             }
@@ -316,7 +335,7 @@ final class AppScanTask: CardSessionRunnable {
         }
 
         if card.hasWallets {
-            let tokenMigrator = TokenItemsRepositoryMigrator(cardId: card.cardId, userWalletId: card.userWalletId)
+            let tokenMigrator = TokenItemsRepositoryMigrator(card: card)
             tokenMigrator.migrate()
         }
     }
