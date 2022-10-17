@@ -166,6 +166,7 @@ class MainViewModel: ObservableObject {
             .store(in: &bag)
 
         userWalletModel.subscribeToEntriesWithoutDerivation()
+            .removeDuplicates()
             .sink { [unowned self] entries in
                 self.updateLackDerivationWarningView(entries: entries)
             }
@@ -190,7 +191,9 @@ class MainViewModel: ObservableObject {
     }
 
     func updateIsBackupAllowed() {
-        isBackupAllowed = cardModel.canCreateBackup
+        if isBackupAllowed != cardModel.canCreateBackup {
+            isBackupAllowed = cardModel.canCreateBackup
+        }
     }
 
     func getDataCollector(for feedbackCase: EmailFeedbackCase) -> EmailDataCollector {
@@ -203,7 +206,7 @@ class MainViewModel: ObservableObject {
     }
 
     func onRefresh(_ done: @escaping () -> Void) {
-        Analytics.log(.mainPageRefresh)
+        Analytics.log(.mainRefreshed)
         if let singleWalletContentViewModel = singleWalletContentViewModel {
             singleWalletContentViewModel.onRefresh {
                 withAnimation { done() }
@@ -219,7 +222,7 @@ class MainViewModel: ObservableObject {
 
     func onScan() {
         DispatchQueue.main.async {
-            Analytics.log(.scanCardTapped)
+            Analytics.log(.buttonScanCard)
             self.coordinator.close(newScan: true)
         }
     }
@@ -239,6 +242,7 @@ class MainViewModel: ObservableObject {
     }
 
     func onAppear() {
+        updateIsBackupAllowed()
         singleWalletContentViewModel?.onAppear()
         multiWalletContentViewModel?.onAppear()
 
@@ -315,50 +319,51 @@ class MainViewModel: ObservableObject {
 
     func prepareForBackup() {
         if let input = cardModel.backupInput {
+            Analytics.log(.noticeBackupYourWalletTapped)
             self.openOnboarding(with: input)
         }
     }
 
     // MARK: - Private functions
+    private func showAlertAnimated(_ event: WarningEvent) {
+        withAnimation {
+            warningsService.appendWarning(for: event)
+        }
+    }
 
     private func validateHashesCount() {
-        guard cardModel.canCountHashes else { return }
-
-        guard cardModel.hasWallet else {
-            if cardModel.isMultiWallet {
-                warningsService.hideWarning(for: .multiWalletSignedHashes)
-            } else {
-                warningsService.hideWarning(for: .numberOfSignedHashesIncorrect)
-            }
-            return
-        }
-
-        if isHashesCounted { return }
-
-        if AppSettings.shared.validatedSignedHashesCards.contains(cardModel.cardId) { return }
-
-        if cardModel.isMultiWallet {
-            if cardModel.cardSignedHashes > 0 {
-                withAnimation {
-                    warningsService.appendWarning(for: .multiWalletSignedHashes)
-                }
-            } else {
-                AppSettings.shared.validatedSignedHashesCards.append(cardModel.cardId)
-            }
+        func didFinishCountingHashes() {
             print("⚠️ Hashes counted")
+            isHashesCounted = true
+        }
+
+        guard !isHashesCounted,
+              !AppSettings.shared.validatedSignedHashesCards.contains(cardModel.cardId) else {
+            didFinishCountingHashes()
             return
         }
 
-        func showUntrustedCardAlert() {
-            withAnimation {
-                self.warningsService.appendWarning(for: .numberOfSignedHashesIncorrect)
-            }
+        guard cardModel.cardSignedHashes > 0 else {
+            AppSettings.shared.validatedSignedHashesCards.append(cardModel.cardId)
+            didFinishCountingHashes()
+            return
+        }
+        
+        guard !cardModel.isMultiWallet else {
+            showAlertAnimated(.multiWalletSignedHashes)
+            didFinishCountingHashes()
+            return
         }
 
-        guard cardModel.cardSignedHashes > 0 else { return }
+        guard cardModel.canCountHashes else {
+            AppSettings.shared.validatedSignedHashesCards.append(cardModel.cardId)
+            didFinishCountingHashes()
+            return
+        }
 
         guard let validator = cardModel.walletModels.first?.walletManager as? SignatureCountValidator else {
-            showUntrustedCardAlert()
+            showAlertAnimated(.numberOfSignedHashesIncorrect)
+            didFinishCountingHashes()
             return
         }
 
@@ -368,16 +373,15 @@ class MainViewModel: ObservableObject {
             .handleEvents(receiveCancel: {
                 print("⚠️ Hash counter subscription cancelled")
             })
-            .sink(receiveCompletion: { [weak self] failure in
+            .receiveCompletion { [weak self] failure in
                 switch failure {
                 case .finished:
                     break
                 case .failure:
-                    showUntrustedCardAlert()
+                    self?.showAlertAnimated(.numberOfSignedHashesIncorrect)
                 }
-                self?.isHashesCounted = true
-                print("⚠️ Hashes counted")
-            }, receiveValue: { _ in })
+                didFinishCountingHashes()
+            }
             .store(in: &bag)
     }
 
@@ -471,13 +475,11 @@ extension MainViewModel {
     }
 
     func openBuyCryptoIfPossible() {
-        Analytics.log(.buyTokenTapped)
+        Analytics.log(.buttonBuy)
         if tangemApiService.geoIpRegionCode == LanguageCode.ru {
             coordinator.openBankWarning {
-                Analytics.log(.p2pInstructionTapped, params: [.type: "yes"])
                 self.openBuyCrypto()
             } declineCallback: {
-                Analytics.log(.p2pInstructionTapped, params: [.type: "no"])
                 self.coordinator.openP2PTutorial()
             }
         } else {
@@ -511,7 +513,6 @@ extension MainViewModel: SingleWalletContentViewModelOutput {
     func showExplorerURL(url: URL?, walletModel: WalletModel) {
         guard let url = url else { return }
 
-        Analytics.log(.exploreAddressTapped)
         let blockchainName = walletModel.blockchainNetwork.blockchain.displayName
         coordinator.openExplorer(at: url, blockchainDisplayName: blockchainName)
     }

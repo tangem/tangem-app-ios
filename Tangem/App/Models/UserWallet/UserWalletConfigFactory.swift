@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import TangemSdk
+import BlockchainSdk
 
 struct UserWalletConfigFactory {
     private let cardInfo: CardInfo
@@ -20,12 +22,16 @@ struct UserWalletConfigFactory {
 
         switch cardInfo.walletData {
         case .none:
+            let isSaltPay = SaltPayUtil().isSaltPayCard(batchId: cardInfo.card.batchId, cardId: cardInfo.card.cardId)
+
             if cardInfo.card.firmwareVersion <= .backupAvailable {
                 return LegacyConfig(card: cardInfo.card, walletData: nil)
             }
 
             if isDemo {
                 return GenericDemoConfig(card: cardInfo.card)
+            } else if isSaltPay {
+                return SaltPayConfig(card: cardInfo.card)
             } else {
                 return GenericConfig(card: cardInfo.card)
             }
