@@ -16,6 +16,7 @@ struct WebViewContainerViewModel: Identifiable {
     var title: String
     var addLoadingIndicator = false
     var withCloseButton = false
+    var withNavigationBar: Bool = true
     var urlActions: [String: ((String) -> Void)] = [:]
 }
 
@@ -26,11 +27,20 @@ struct WebViewContainer: View {
     @Environment(\.presentationMode) private var presentationMode
     @State private var isLoading: Bool = true
 
+    private var webViewContent: some View {
+        WebView(url: viewModel.url, popupUrl: $popupUrl, urlActions: viewModel.urlActions, isLoading: $isLoading)
+    }
+
     private var content: some View {
         ZStack {
-            WebView(url: viewModel.url, popupUrl: $popupUrl, urlActions: viewModel.urlActions, isLoading: $isLoading)
-                .navigationBarTitle(Text(viewModel.title), displayMode: .inline)
-                .background(Color.tangemBg.edgesIgnoringSafeArea(.all))
+            if viewModel.withNavigationBar {
+                webViewContent
+                    .navigationBarTitle(Text(viewModel.title), displayMode: .inline)
+                    .background(Color.tangemBg.edgesIgnoringSafeArea(.all))
+            } else {
+                webViewContent
+            }
+
             if isLoading && viewModel.addLoadingIndicator {
                 ActivityIndicatorView(color: .tangemGrayDark)
             }
@@ -102,6 +112,7 @@ struct WebView: UIViewRepresentable {
         }
 
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+            print("decide for url \(String(describing: navigationAction.request.url?.absoluteString))")
             if let url = navigationAction.request.url?.absoluteString.split(separator: "?").first,
                let actionForURL = urlActions[String(url).removeLatestSlash()] {
                 decisionHandler(.cancel)
