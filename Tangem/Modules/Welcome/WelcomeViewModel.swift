@@ -14,6 +14,7 @@ class WelcomeViewModel: ObservableObject {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
+    @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
 
     @Published var showTroubleshootingView: Bool = false
     @Published var isScanningCard: Bool = false
@@ -34,8 +35,8 @@ class WelcomeViewModel: ObservableObject {
         self.coordinator = coordinator
         self.storiesModelSubscription = storiesModel.objectWillChange
             .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [unowned self] in
-                self.objectWillChange.send()
+            .sink(receiveValue: { [weak self] in
+                self?.objectWillChange.send()
             })
     }
 
@@ -46,16 +47,40 @@ class WelcomeViewModel: ObservableObject {
         }
 
         isScanningCard = true
-        Analytics.log(.scanCardTapped)
+        Analytics.log(.buttonScanCard)
         var subscription: AnyCancellable? = nil
 
         subscription = cardsRepository.scanPublisher()
+            .flatMap { [weak self] response -> AnyPublisher<CardViewModel, Error> in
+                if SaltPayUtil().isBackupCard(cardId: response.cardId) {
+                    if let backupInput = response.backupInput, backupInput.steps.stepsCount > 0 {
+                        return .anyFail(error: SaltPayRegistratorError.emptyBackupCardScanned)
+                    } else {
+                        return .justWithError(output: response)
+                    }
+                }
+
+                guard let saltPayRegistrator = self?.saltPayRegistratorProvider.registrator else {
+                    return .justWithError(output: response)
+                }
+
+                return saltPayRegistrator.updatePublisher()
+                    .map { _ in
+                        return response
+                    }
+                    .eraseToAnyPublisher()
+            }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
                     print("Failed to scan card: \(error)")
                     self?.isScanningCard = false
                     self?.failedCardScanTracker.recordFailure()
+
+                    if let salpayError = error as? SaltPayRegistratorError {
+                        self?.error = salpayError.alertBinder
+                        return
+                    }
 
                     if self?.failedCardScanTracker.shouldDisplayAlert ?? false {
                         self?.showTroubleshootingView = true
@@ -72,20 +97,21 @@ class WelcomeViewModel: ObservableObject {
             } receiveValue: { [weak self] cardModel in
                 let numberOfFailedAttempts = self?.failedCardScanTracker.numberOfFailedAttempts ?? 0
                 self?.failedCardScanTracker.resetCounter()
-                Analytics.log(numberOfFailedAttempts == 0 ? .firstScan : .secondScan)
-                self?.processScannedCard(cardModel, isWithAnimation: true)
+                Analytics.log(.cardWasScanned)
+                DispatchQueue.main.async {
+                    self?.processScannedCard(cardModel, isWithAnimation: true)
+                }
             }
 
         subscription?.store(in: &bag)
     }
 
     func tryAgain() {
-        Analytics.log(.tryAgainTapped)
         scanCard()
     }
 
     func requestSupport() {
-        Analytics.log(.supportTapped)
+        Analytics.log(.buttonRequestSupport)
         failedCardScanTracker.resetCounter()
         openMail()
     }
@@ -93,10 +119,12 @@ class WelcomeViewModel: ObservableObject {
     func orderCard() {
         openShop()
         Analytics.log(.getACard, params: [.source: Analytics.ParameterValue.welcome.rawValue])
+        Analytics.log(.buttonBuyCards)
     }
 
     func onAppear() {
         navigationBarHidden = true
+        Analytics.log(.introductionProcessOpened)
         showInteruptedBackupAlertIfNeeded()
     }
 
@@ -132,12 +160,11 @@ extension WelcomeViewModel {
     }
 
     func openTokensList() {
-        Analytics.log(.tokenListTapped)
+        Analytics.log(.buttonTokensList)
         coordinator.openTokensList()
     }
 
     func openShop() {
-        Analytics.log(.buyBottomTapped)
         coordinator.openShop()
     }
 
