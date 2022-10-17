@@ -35,8 +35,8 @@ class WelcomeViewModel: ObservableObject {
         self.coordinator = coordinator
         self.storiesModelSubscription = storiesModel.objectWillChange
             .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [unowned self] in
-                self.objectWillChange.send()
+            .sink(receiveValue: { [weak self] in
+                self?.objectWillChange.send()
             })
     }
 
