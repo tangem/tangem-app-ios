@@ -23,13 +23,7 @@ struct DisclaimerView: View {
                         .padding([.top, .horizontal], 16)
                 }
 
-                ScrollView {
-                    Text("disclaimer_text")
-                        .font(.system(size: 16, weight: .regular, design: .default))
-                        .foregroundColor(.tangemGrayDark5)
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, viewModel.showAccept ? bottomViewHeight : 0)
-                }
+                PDFKitView(url: viewModel.url)
             }
 
             if viewModel.showAccept {
@@ -61,7 +55,9 @@ struct DisclaimerView: View {
             )
 
             TangemButton(title: "common_accept", action: viewModel.onAccept)
-                .buttonStyle(TangemButtonStyle())
+                .buttonStyle(TangemButtonStyle(colorStyle: .black,
+                                               layout: .flexibleWidth))
+                .padding(.horizontal, 16)
         }
     }
 }
