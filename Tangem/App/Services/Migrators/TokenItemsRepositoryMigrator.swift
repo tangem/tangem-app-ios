@@ -7,21 +7,32 @@
 //
 
 import Foundation
+import struct TangemSdk.Card
 
 struct TokenItemsRepositoryMigrator {
     private let cardId: String
     private let userWalletId: Data
+    private let isHDWalletAllowed: Bool
 
-    init(cardId: String, userWalletId: Data) {
-        self.cardId = cardId
-        self.userWalletId = userWalletId
+    init(card: Card) {
+        self.cardId = card.cardId
+        self.userWalletId = card.userWalletId
+        self.isHDWalletAllowed = card.settings.isHDWalletAllowed
     }
 
     func migrate() {
         let oldRepository = CommonTokenItemsRepository(key: cardId)
-        let oldEntries = oldRepository.getItems()
+        var oldEntries = oldRepository.getItems()
 
         guard !oldEntries.isEmpty else { return }
+
+        if !isHDWalletAllowed {
+            // Remove derivationPath if the card not supported HDWallet
+            oldEntries = oldEntries.map {
+                let network = BlockchainNetwork($0.blockchainNetwork.blockchain)
+                return StorageEntry(blockchainNetwork: network, tokens: $0.tokens)
+            }
+        }
 
         // Save a old entries in new repository
         let newRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
