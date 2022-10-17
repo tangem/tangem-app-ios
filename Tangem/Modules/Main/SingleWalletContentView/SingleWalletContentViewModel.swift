@@ -28,8 +28,10 @@ class SingleWalletContentViewModel: ObservableObject {
 
     lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
         userWalletModel: userWalletModel,
-        totalBalanceManager: TotalBalanceProvider(userWalletModel: userWalletModel),
-        isSingleCoinCard: true,
+        totalBalanceManager: TotalBalanceProvider(userWalletModel: userWalletModel,
+                                                  userWalletAmountType: cardModel.cardAmountType,
+                                                  totalBalanceAnalyticsService: TotalBalanceAnalyticsService(totalBalanceCardSupportInfo: totalBalanceCardSupportInfo)),
+        cardAmountType: cardModel.cardAmountType,
         tapOnCurrencySymbol: output.openCurrencySelection
     )
 
@@ -37,6 +39,9 @@ class SingleWalletContentViewModel: ObservableObject {
     private let userWalletModel: UserWalletModel
     private unowned let output: SingleWalletContentViewModelOutput
     private var bag = Set<AnyCancellable>()
+    private var totalBalanceCardSupportInfo: TotalBalanceCardSupportInfo {
+        TotalBalanceCardSupportInfo(cardBatchId: cardModel.batchId, cardNumber: cardModel.cardId)
+    }
 
     init(
         cardModel: CardViewModel,
@@ -56,6 +61,7 @@ class SingleWalletContentViewModel: ObservableObject {
 
     func onAppear() {
         userWalletModel.updateAndReloadWalletModels()
+        singleWalletModel = userWalletModel.getWalletModels().first
     }
 
     func openQR() {
@@ -66,6 +72,7 @@ class SingleWalletContentViewModel: ObservableObject {
         let qrNotice = walletModel.getQRReceiveMessage()
 
         output.openQR(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
+        Analytics.log(.buttonShowTheWalletAddress)
     }
 
     func showExplorerURL(url: URL?) {
@@ -75,7 +82,7 @@ class SingleWalletContentViewModel: ObservableObject {
     }
 
     func copyAddress() {
-        Analytics.log(.copyAddressTapped)
+        Analytics.log(.buttonCopyAddress)
         if let walletModel = singleWalletModel {
             UIPasteboard.general.string = walletModel.displayAddress(for: selectedAddressIndex)
         }
