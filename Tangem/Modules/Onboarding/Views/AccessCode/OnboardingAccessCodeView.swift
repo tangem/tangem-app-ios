@@ -125,7 +125,7 @@ struct OnboardingAccessCodeView: View {
 
                 state = nextState
             }
-            .buttonStyle(TangemButtonStyle(layout: .wide))
+            .buttonStyle(TangemButtonStyle(colorStyle: .black, layout: .wide))
             .padding(.bottom, 16)
         }
         .padding(.horizontal, 40)
