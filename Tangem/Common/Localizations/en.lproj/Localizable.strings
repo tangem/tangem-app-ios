@@ -112,62 +112,6 @@ Tangem is the only hardware wallet to offer signature count protection.";
 "details_twins_recreate_toolbar" = "Re-create wallet";
 "details_twins_recreate_warning" = "This action is irreversible. You will not have access to the old wallet.
 The wallet re-creation procedure consists of three steps. You must complete it to the end, otherwise you will have to start from the beginning.";
-"disclaimer_text" = "Legal Disclaimer
-
-1. Tangem application (Software)
- 
-The Software is intended for usage only with Tangem hardware wallets (Cards) via NFC interface. The Software DOES NOT:
- 
-a) Generate, store, transmit, or have access to private (secret) cryptographic keys to blockchain wallets holding digital assets, including crypto-currency.
-
-b) Generate, store, transmit, or have access to secret keys, passwords, passphrases, recovery phrases that can be used to restore or to copy private (secret) keys to blockchain wallets holding digital assets, including crypto-currency.
-
-c) Provide exchange, trading, investment services on behalf of Tangem AG.
- 
- 
-2. Risks related to the use of Software
- 
-Tangem will not be responsible for any losses, damages or claims arising from events falling within the scope of the following five categories:
- 
-a) Mistakes made by the user of any cryptocurrency-related software or service, e.g., forgotten passwords, payments sent to wrong addresses, and accidental deletion of blockchain wallets on Cards.
-
-b) Problems of Software and/or any blockchain- or cryptocurrency- related software or service, e.g., corrupted files, incorrectly constructed transactions, unsafe cryptographic libraries, malware.
-
-c) Technical failures in the hardware of the user, including Cards, of any cryptocurrency-related software or service, e.g., data loss due to a faulty or damaged storage device.
-
-d) Security problems experienced by the user of any cryptocurrency-related software or service, e.g., unauthorized access to users' wallets and/or accounts.
-
-e) Actions or inactions of third parties and/or events experienced by third parties, e.g., bankruptcy of service providers, information security attacks on service providers, and fraud conducted by third parties.
- 
-
-3. Trading and Investment risks
- 
-There is considerable exposure to risk in any crypto-currency or other digital asset exchange transaction. Any transaction involving currencies involves risks including, but not limited to, the potential for changing economic conditions that may substantially affect the price or liquidity of a currency. Investments in crypto-currency exchange speculation may also be susceptible to sharp rises and falls as the relevant market values fluctuate. It is for this reason that when speculating in such markets it is advisable to use only risk capital.
- 
- 
-4. Electronic Trading Risks
- 
-Before you engage in transactions using an electronic system, you should carefully review the rules and regulations of the exchanges offering the system and/or listing the instruments you intend to trade. Online trading has inherent risk due to system response and access times that may vary due to market conditions, system performance, and other factors. You should understand these and additional risks before trading.
- 
-
-5. Compliance with tax obligations
- 
-The users of the Software are solely responsible to determinate what, if any, taxes apply to their crypto-currency transactions. The owners of, or contributors to, the Software are NOT responsible for determining the taxes that apply to crypto-currency transactions.
- 
-
-6. No warranties
-
-The Software is provided on an \"as is\" basis without any warranties of any kind regarding the Software and/or any content, data, materials and/or services provided on the Software.
- 
-
-7. Limitation of liability
- 
-Unless otherwise required by law, in no event shall the owners of, or contributors to, the Software be liable for any damages of any kind, including, but not limited to, loss of use, loss of profits, or loss of data arising out of or in any way connected with the use of the Software. In no way are the owners of, or contributors to, the Software responsible for the actions, decisions, or other behavior taken or not taken by you in reliance upon the Software.
- 
- 
-8. Last amendment
- 
-This disclaimer was amended for the last time on October 1st, 2020.";
 "disclaimer_title" = "Terms of service";
 "home_button_scan" = "Scan card";
 "initial_message_change_access_code_body" = "To change the access code, connect your phone and the card exactly as it shown above";
@@ -510,3 +454,40 @@ URL: %@";
 "main_scan_card_warning_view_subtitle" = "To access all the networks you need to scan the card";
 "warning_existential_deposit_message" = "%@ network has a concept of Existential Deposit. If your account drops below %@ it will be deactivated and any remaining funds will be destroyed.";
 "token_details_transaction_length_warning" = "iPhone 7/7+ cannot sign a transaction on this network due to system restrictions. Please use a different phone to complete this operation.";
+
+"saltpay_error_empty_backup_title" = "Attention";
+"saltpay_error_empty_backup_message" = "Tap the card with the visa logo";
+
+"saltpay_error_no_gas_title" = "No funds for activation";
+"saltpay_error_no_gas_message" = "Please contact support";
+
+"saltpay_error_pin_weak_title" = "Four identical digits isn’t safe";
+"saltpay_error_pin_weak_message" = "Such a PIN can be brute-forced easily";
+
+"onboarding_navbar_pin" = "Pin code";
+"onboarding_navbar_register_wallet" = "Connect";
+"onboarding_navbar_kyc_start" = "KYC";
+"onboarding_navbar_kyc_progress" = "Verify your identity";
+"onboarding_navbar_kyc_waiting" = "In progress";
+"onboarding_button_pin" = "Set PIN code";
+"onboarding_button_register_wallet" = "Register";
+"onboarding_button_kyc_start" = "Verify";
+"onboarding_button_kyc_waiting" = "Refresh";
+"onboarding_title_register_wallet" = "Connect your card";
+"onboarding_title_kyc_start" = "Verify your identity";
+"onboarding_title_kyc_waiting" = "KYC is in progress";
+"onboarding_subtitle_register_wallet" = "Connect your card to the decentralized payment system";
+"onboarding_subtitle_kyc_start" = "To start using your card you have to pass the KYC process";
+"onboarding_subtitle_kyc_waiting" = "Please wait until the verification is completed. Usually, it takes up to 1 hour. You can close the app and come back later.";
+"onboarding_title_pin" = "PIN Code";
+"onboarding_subtitle_pin" = "Set PIN code for your SaltPay card";
+"onboarding_supplement_button_kyc_waiting" = "Chat with support";
+"error_saltpay_wrong_backup_card" = "This card is not designed to SaltPay backup";
+"registration_task_alert_message" = "Please hold the card until the operation complete";
+"onboarding_saltpay_subtitle_no_backup_cards" = "To start the backup process you have to add Tangem card as your backup";
+"onboarding_saltpay_title_no_backup_card" = "No backup card";
+"onboarding_saltpay_title_one_backup_card" = "Backup card ready";
+"onboarding_saltpay_subtitle_one_backup_card" = "Finalize the backup process by creating an access code";
+"onboarding_saltpay_title_prepare_origin" = "Prepare the SaltPay card";
+"onboarding_saltpay_button_backup_origin" = "Tap the SaltPay card";
+"onboarding_saltpay_title_backup_card" = "Tap the Tangem card";
