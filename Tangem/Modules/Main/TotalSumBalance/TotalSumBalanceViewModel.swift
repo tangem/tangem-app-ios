@@ -63,12 +63,20 @@ class TotalSumBalanceViewModel: ObservableObject {
 
     private func bind() {
         userWalletModel.subscribeToWalletModels()
+            .filter { $0.isEmpty }
+            .map { [unowned self] _ in
+                addAttributeForBalance(0, withCurrencyCode: AppSettings.shared.selectedCurrencyCode)
+            }
             .receive(on: DispatchQueue.main)
+            .sink { [unowned self] balance in
+                isLoading = false
+                totalFiatValueString = balance
+            }
+            .store(in: &bag)
+        
+        userWalletModel.subscribeToWalletModels()
+            .filter { !$0.isEmpty }
             .map { [unowned self] walletModels -> AnyPublisher<[WalletModel], Never> in
-                if walletModels.isEmpty {
-                    return Empty().eraseToAnyPublisher()
-                }
-
                 isLoading = true
 
                 return walletModels
