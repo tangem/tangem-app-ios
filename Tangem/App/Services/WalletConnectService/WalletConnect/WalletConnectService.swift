@@ -129,6 +129,7 @@ class WalletConnectService: ObservableObject {
         setupSessionConnectTimer()
         do {
             try server.connect(to: url)
+            Analytics.log(.newSessionEstablished)
         } catch {
             print(error)
             resetSessionConnectTimer()
@@ -170,7 +171,6 @@ class WalletConnectService: ObservableObject {
         }
 
         Analytics.logWcEvent(.error(error, action))
-        Analytics.log(.walletConnectInvalidRequest)
 
         if let wcError = error as? WalletConnectServiceError {
             switch wcError {
@@ -212,6 +212,12 @@ extension WalletConnectService: WalletConnectHandlerDelegate {
         server.send(response)
         Analytics.logWcEvent(.action(action))
 
+        switch action {
+        case .signTransaction, .bnbSign, .personalSign, .sendTransaction:
+            Analytics.log(.requestSigned)
+        default:
+            break
+        }
 //        if action.shouldDisplaySuccessAlert {
 //            presentOnTop(WalletConnectUIBuilder.makeAlert(for: .success, message: action.successMessage), delay: 0.5)
 //        }
@@ -219,7 +225,6 @@ extension WalletConnectService: WalletConnectHandlerDelegate {
 
     func sendInvalid(_ request: Request) {
         Analytics.logWcEvent(.invalidRequest(json: request.jsonString))
-        Analytics.log(.walletConnectInvalidRequest)
         server.send(.invalid(request))
     }
 
@@ -261,7 +266,7 @@ extension WalletConnectService: WalletConnectSessionController {
             self.sessions.remove(at: index)
             self.save()
             Analytics.logWcEvent(.session(.disconnect, session.session.dAppInfo.peerMeta.url))
-            Analytics.log(.walletConnectSessionDisconnected)
+            Analytics.log(.sessionDisconnected)
         }
     }
 
@@ -427,8 +432,7 @@ extension WalletConnectService: ServerDelegate {
                     self.sessions.append(WalletConnectSession(wallet: wallet, session: session, status: .connected))
                     self.save()
                     Analytics.logWcEvent(.session(.connect, session.dAppInfo.peerMeta.url))
-                    Analytics.log(.walletConnectNewSession)
-                    Analytics.log(.walletConnectSuccessResponse)
+                    Analytics.log(.buttonStartWalletConnectSession)
                 }
             }
 
