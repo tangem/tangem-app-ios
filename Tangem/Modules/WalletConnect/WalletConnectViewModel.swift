@@ -52,6 +52,7 @@ class WalletConnectViewModel: ObservableObject {
     }
 
     func disconnectSession(at index: Int) {
+        Analytics.log(.buttonStopWalletConnectSession)
         walletConnectProvider.service?.disconnectSession(at: index)
         withAnimation {
             self.objectWillChange.send()
