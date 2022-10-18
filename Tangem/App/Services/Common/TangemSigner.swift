@@ -12,6 +12,7 @@ import Combine
 
 struct TangemSigner: TransactionSigner {
     @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
+    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
 
     var signPublisher: AnyPublisher<Card, Never> {
         _signPublisher.eraseToAnyPublisher()
@@ -44,6 +45,8 @@ struct TangemSigner: TransactionSigner {
             self.sdkProvider.sdk.startSession(with: signCommand, cardId: self.cardId, initialMessage: self.initialMessage) { signResult in
                 switch signResult {
                 case .success(let response):
+                    let cardDto = CardDTO(card: response.card)
+                    self.userWalletListService.didScan(card: cardDto)
                     self._signPublisher.send(response.card)
                     promise(.success(response.signatures))
                 case .failure(let error):
