@@ -49,12 +49,10 @@ struct DetailsView: View {
 
                     VStack(alignment: .leading, spacing: 4) {
                         Text("wallet_connect_title")
-                            .font(.body)
-                            .foregroundColor(Colors.Text.primary1)
+                            .style(Fonts.Regular.body, color: Colors.Text.primary1)
 
                         Text("wallet_connect_subtitle")
-                            .font(.footnote)
-                            .foregroundColor(Colors.Text.tertiary)
+                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     }
                     .lineLimit(1)
 
@@ -120,7 +118,7 @@ struct DetailsView: View {
                 viewModel.openDisclaimer()
             }
 
-            if let url = viewModel.cardTOUURL {
+            if let url = viewModel.cardTouURL {
                 DefaultRowView(title: "details_row_title_card_tou".localized) {
                     viewModel.openCardTOU(url: url)
                 }
@@ -139,8 +137,7 @@ struct DetailsView: View {
 
                     if let applicationInfoFooter = viewModel.applicationInfoFooter {
                         Text(applicationInfoFooter)
-                            .font(.footnote)
-                            .foregroundColor(Colors.Text.tertiary)
+                            .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
                     }
                 }
 
