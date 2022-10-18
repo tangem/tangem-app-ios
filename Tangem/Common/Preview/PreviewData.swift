@@ -13,7 +13,7 @@ import BlockchainSdk
 struct PreviewData {
     static var previewNoteCardOnboardingInput: OnboardingInput {
         OnboardingInput(steps: .singleWallet([.createWallet, .success]),
-                        cardInput: .cardModel(PreviewCard.cardanoNote.cardModel),
+                        cardInput: .cardModel(PreviewCard.ethEmptyNote.cardModel),
                         welcomeStep: nil,
                         twinData: nil,
                         currentStepIndex: 0)
