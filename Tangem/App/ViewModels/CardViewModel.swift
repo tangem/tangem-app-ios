@@ -477,15 +477,7 @@ class CardViewModel: Identifiable, ObservableObject {
             return .default
         }
 
-        let hasCode: Bool
-        if card.isAccessCodeSet {
-            hasCode = true
-        } else if let isPasscodeSet = card.isPasscodeSet, isPasscodeSet {
-            hasCode = true
-        } else {
-            hasCode = false
-        }
-
+        let hasCode = card.isAccessCodeSet || (card.isPasscodeSet ?? false)
         if hasCode {
             return AppSettings.shared.saveAccessCodes ? .alwaysWithBiometrics : .always
         }
