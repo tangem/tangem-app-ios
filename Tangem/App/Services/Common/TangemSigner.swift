@@ -12,15 +12,21 @@ import Combine
 
 struct TangemSigner: TransactionSigner {
     @Injected(\.tangemSdkProvider) private var sdkProvider: TangemSdkProviding
-    @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
 
+    var signPublisher: AnyPublisher<Card, Never> {
+        _signPublisher.eraseToAnyPublisher()
+    }
+
+    private var _signPublisher: PassthroughSubject<Card, Never> = .init()
     private var initialMessage: Message { .init(header: nil, body: "initial_message_sign_body".localized) }
     private let cardId: String?
 
     init(with cardId: String?) {
         self.cardId = cardId
+        self._signPublisher = PassthroughSubject<Card, Never>()
     }
 
+    // WC Compatibility
     init(with card: Card) {
         if let backupStatus = card.backupStatus, backupStatus.isActive {
             self.init(with: nil)
@@ -38,7 +44,7 @@ struct TangemSigner: TransactionSigner {
             self.sdkProvider.sdk.startSession(with: signCommand, cardId: self.cardId, initialMessage: self.initialMessage) { signResult in
                 switch signResult {
                 case .success(let response):
-                    self.updateWarningsIfNeeded(with: response.card)
+                    self._signPublisher.send(response.card)
                     promise(.success(response.signatures))
                 case .failure(let error):
                     promise(.failure(error))
@@ -52,9 +58,5 @@ struct TangemSigner: TransactionSigner {
         sign(hashes: [hash], walletPublicKey: walletPublicKey)
             .map { $0[0] }
             .eraseToAnyPublisher()
-    }
-
-    private func updateWarningsIfNeeded(with card: Card) {
-        warningsService.didSign(with: card)
     }
 }

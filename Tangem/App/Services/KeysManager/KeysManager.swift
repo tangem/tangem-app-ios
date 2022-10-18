@@ -17,6 +17,7 @@ protocol KeysManager {
     var blockchainConfig: BlockchainSdkConfig { get }
     var shopifyShop: ShopifyShop { get }
     var zendesk: ZendeskConfig { get }
+    var saltPay: SaltPayConfiguration { get }
 }
 
 private struct KeysManagerKey: InjectionKey {
