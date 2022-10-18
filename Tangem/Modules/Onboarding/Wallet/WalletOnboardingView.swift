@@ -88,11 +88,18 @@ struct WalletOnboardingView: View {
                         // and cards jumps instead of smooth transition
                         NavigationBar(title: viewModel.navbarTitle,
                                       settings: .init(titleFont: .system(size: 17, weight: .semibold), backgroundColor: .clear),
-                                      leftButtons: {
+                                      leftItems: {
                                           BackButton(height: viewModel.navbarSize.height,
                                                      isVisible: viewModel.isBackButtonVisible,
                                                      isEnabled: viewModel.isBackButtonEnabled) {
                                               viewModel.backButtonAction()
+                                          }
+                                      },
+                                      rightItems: {
+                                          ChatButton(height: viewModel.navbarSize.height,
+                                                     isVisible: true,
+                                                     isEnabled: true) {
+                                              viewModel.openSupportChat()
                                           }
                                       })
                                       .offset(x: 0, y: -geom.size.height / 2 + (isNavbarVisible ? viewModel.navbarSize.height / 2 + 4 : 0))
@@ -130,7 +137,7 @@ struct WalletOnboardingView: View {
                                         .cornerRadius(50)
                                         .zIndex(251)
                                         .padding(12)
-                                        .opacity(currentStep == .backupCards ? 1.0 : 0.0)
+                                        .opacity(viewModel.canShowOriginCardLabel ? 1.0 : 0.0)
                                 }
 
                             }
