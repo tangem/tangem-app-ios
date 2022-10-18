@@ -32,7 +32,7 @@ extension ScanCardSettingsViewModel {
             switch result {
             case let .success(cardInfo):
                 let cardModel = CardViewModel(cardInfo: cardInfo)
-                cardModel.updateState()
+                cardModel.didScan() // [REDACTED_TODO_COMMENT]
                 self?.coordinator.openCardSettings(cardModel: cardModel)
             case let .failure(error):
                 self?.showErrorAlert(error: error)
@@ -45,7 +45,7 @@ extension ScanCardSettingsViewModel {
 
 extension ScanCardSettingsViewModel {
     func scan(completion: @escaping (Result<CardInfo, Error>) -> Void) {
-        sdkProvider.prepareScan()
+        sdkProvider.setup(with: TangemSdkConfigFactory().makeDefaultConfig())
         sdkProvider.sdk.startSession(with: AppScanTask(targetBatch: nil)) { result in
             switch result {
             case let .failure(error):
