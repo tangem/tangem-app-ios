@@ -169,6 +169,7 @@ class MainViewModel: ObservableObject {
             .store(in: &bag)
 
         userWalletModel.subscribeToEntriesWithoutDerivation()
+            .removeDuplicates()
             .sink { [unowned self] entries in
                 self.updateLackDerivationWarningView(entries: entries)
             }
@@ -378,8 +379,14 @@ class MainViewModel: ObservableObject {
             return
         }
 
-        guard cardModel.canCountHashes else {
+        guard !cardModel.isMultiWallet else {
             showAlertAnimated(.multiWalletSignedHashes)
+            didFinishCountingHashes()
+            return
+        }
+
+        guard cardModel.canCountHashes else {
+            AppSettings.shared.validatedSignedHashesCards.append(cardModel.cardId)
             didFinishCountingHashes()
             return
         }
