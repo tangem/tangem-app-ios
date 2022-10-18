@@ -48,7 +48,28 @@ struct BackButton: View {
         .foregroundColor(isEnabled ? color : color.opacity(0.5))
         .padding(.horizontal, hPadding)
     }
+}
 
+struct ChatButton: View {
+
+    let height: CGFloat
+    let isVisible: Bool
+    let isEnabled: Bool
+    var color: Color = .tangemGrayDark6
+    var hPadding: CGFloat = 16
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action, label: {
+            Text("onboarding_chat_button_title")
+                .font(.system(size: 17, weight: .regular))
+        })
+        .allowsHitTesting(isEnabled)
+        .opacity(isVisible ? 1.0 : 0.0)
+        .frame(height: height)
+        .foregroundColor(isEnabled ? color : color.opacity(0.5))
+        .padding(.horizontal, hPadding)
+    }
 }
 
 struct NavigationBar<LeftButtons: View, RightButtons: View>: View {
