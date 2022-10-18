@@ -13,21 +13,15 @@ enum EmailType {
     case failedToScanCard
     case failedToSendTx
     case failedToPushTx
-    case appFeedback(support: EmailSupport)
+    case appFeedback(subject: String)
 
     var emailSubject: String {
         switch self {
         case .negativeRateAppFeedback: return "feedback_subject_rate_negative".localized
         case .failedToScanCard: return "feedback_subject_scan_failed".localized
         case .failedToSendTx: return "feedback_subject_tx_failed".localized
-        case .appFeedback(let support):
-            switch support {
-            case .tangem:
-                return "feedback_subject_support_tangem".localized
-            case .start2coin:
-                return "feedback_subject_support".localized
-            }
-
+        case .appFeedback(let subject):
+            return subject
         case .failedToPushTx: return  "feedback_subject_tx_push_failed".localized
         }
     }
