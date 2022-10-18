@@ -226,14 +226,14 @@ class MainViewModel: ObservableObject {
     }
 
     func onScan() {
-        if AppSettings.shared.saveUserWallets {
-            self.coordinator.openUserWalletList()
-        } else {
-            DispatchQueue.main.async {
-                Analytics.log(.buttonScanCard)
-                self.coordinator.close(newScan: true)
-            }
+        DispatchQueue.main.async {
+            Analytics.log(.buttonScanCard)
+            self.coordinator.close(newScan: true)
         }
+    }
+
+    func didTapUserWalletListButton() {
+        self.coordinator.openUserWalletList()
     }
 
     func sendTapped() {
