@@ -74,6 +74,7 @@ class WalletConnectSignHandler: TangemWalletConnectRequestHandler {
             return
         }
 
+        Analytics.log(.requestSigned)
         signerSubscription = sign(data: data,
                                   walletPublicKey: Wallet.PublicKey(seedKey: wallet.walletPublicKey,
                                                                     derivedKey: wallet.derivedPublicKey,
