@@ -348,7 +348,7 @@ class MainViewModel: ObservableObject {
             didFinishCountingHashes()
             return
         }
-        
+
         guard !cardModel.isMultiWallet else {
             showAlertAnimated(.multiWalletSignedHashes)
             didFinishCountingHashes()
