@@ -118,15 +118,15 @@ extension WelcomeCoordinator: WelcomeRoutable {
             }
         }
 
-        Analytics.log(.mainPageEnter)
+        Analytics.log(.screenOpened)
         let coordinator = MainCoordinator(popToRootAction: popToRootAction)
         let options = MainCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
         mainCoordinator = coordinator
     }
 
-    func openMail(with dataCollector: EmailDataCollector) {
-        mailViewModel = MailViewModel(dataCollector: dataCollector, support: .tangem, emailType: .failedToScanCard)
+    func openMail(with dataCollector: EmailDataCollector, recipient: String) {
+        mailViewModel = MailViewModel(dataCollector: dataCollector, recipient: recipient, emailType: .failedToScanCard)
     }
 
     func openDisclaimer() {
