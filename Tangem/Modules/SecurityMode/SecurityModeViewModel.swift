@@ -47,6 +47,7 @@ class SecurityModeViewModel: ObservableObject {
     }
 
     func actionButtonDidTap() {
+        Analytics.log(.securityModeChanged, params: [.mode: currentSecurityOption.rawValue])
         switch currentSecurityOption {
         case .accessCode, .passCode:
             openPinChange()
