@@ -10,7 +10,6 @@ import TangemSdk
 import BlockchainSdk
 
 class PreparePrimaryCardTask: CardSessionRunnable {
-    private var derivingCommand: DeriveMultipleWalletPublicKeysTask? = nil
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
 
     deinit {
