@@ -22,6 +22,8 @@ protocol UserWalletListService: AnyObject, Initializable {
     func unlockWithBiometry(completion: @escaping (Result<Void, Error>) -> Void)
     func unlockWithCard(_ userWallet: UserWallet, completion: @escaping (Result<Void, Error>) -> Void)
 
+    func didScan(card: CardDTO)
+
     func contains(_ userWallet: UserWallet) -> Bool
     func save(_ userWallet: UserWallet) -> Bool
     func delete(_ userWallet: UserWallet)
