@@ -37,10 +37,10 @@ class WelcomeViewModel: ObservableObject {
               let batchId = primaryCard.batchId else {
             return false
         }
-        
+
         return SaltPayUtil().isSaltPayCard(batchId: batchId, cardId: primaryCard.cardId)
     }
-    
+
     init(coordinator: WelcomeRoutable) {
         self.coordinator = coordinator
         self.storiesModelSubscription = storiesModel.objectWillChange
@@ -65,11 +65,11 @@ class WelcomeViewModel: ObservableObject {
                 let saltPayUtil = SaltPayUtil()
                 let hasSaltPayBackup = self?.hasInterruptedSaltPayBackup ?? false
                 let primaryCardId = self?.backupService.primaryCard?.cardId ?? ""
-                
+
                 if hasSaltPayBackup && response.cardId != primaryCardId  {
                     return .anyFail(error: SaltPayRegistratorError.emptyBackupCardScanned)
                 }
-                
+
                 if saltPayUtil.isBackupCard(cardId: response.cardId) {
                     if let backupInput = response.backupInput, backupInput.steps.stepsCount > 0 {
                         return .anyFail(error: SaltPayRegistratorError.emptyBackupCardScanned)
@@ -201,7 +201,7 @@ extension WelcomeViewModel {
 private extension WelcomeViewModel {
     func showInteruptedBackupAlertIfNeeded() {
         guard backupService.hasIncompletedBackup, !hasInterruptedSaltPayBackup else { return }
-        
+
         let alert = Alert(title: Text("common_warning"),
                           message: Text("welcome_interrupted_backup_alert_message"),
                           primaryButton: .default(Text("welcome_interrupted_backup_alert_resume"), action: continueIncompletedBackup),
