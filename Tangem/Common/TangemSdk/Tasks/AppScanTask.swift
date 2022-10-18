@@ -49,6 +49,10 @@ enum AppScanTaskError: String, Error, LocalizedError {
 }
 
 final class AppScanTask: CardSessionRunnable {
+    var accessCodeRequestPolicy: AccessCodeRequestPolicy? {
+        AppSettings.shared.saveAccessCodes ? .defaultWithBiometrics : .default
+    }
+    
     private let targetBatch: String?
     private var walletData: DefaultWalletData = .none
     private var primaryCard: PrimaryCard? = nil
