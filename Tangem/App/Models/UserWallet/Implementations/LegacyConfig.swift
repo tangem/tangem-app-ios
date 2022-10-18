@@ -91,8 +91,7 @@ extension LegacyConfig: UserWalletConfig {
     var defaultBlockchains: [StorageEntry] {
         guard let defaultBlockchain = defaultBlockchain else { return [] }
 
-        let derivationPath = defaultBlockchain.derivationPath(for: .legacy)
-        let network = BlockchainNetwork(defaultBlockchain, derivationPath: derivationPath)
+        let network = BlockchainNetwork(defaultBlockchain, derivationPath: nil)
         let tokens = defaultToken.map { [$0] } ?? []
         let entry = StorageEntry(blockchainNetwork: network, tokens: tokens)
         return [entry]
