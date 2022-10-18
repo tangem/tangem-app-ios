@@ -21,5 +21,20 @@
 		"storefrontApiKey": "",
 		"storefrontApiKeyAndroid": "",
 		"merchantID": ""
-	}
+	},
+    "saltPay": {
+        "zendesk": {
+            "zendeskApiKey": "",
+            "zendeskAppId": "",
+            "zendeskClientId": "",
+            "zendeskAccountKey": "",
+            "zendeskUrl": ""
+        },
+        "kycProvider": {
+            "baseUrl": "",
+            "externalIdParameterKey": "",
+            "sidParameterKey": "",
+            "sidValue": ""
+        }
+    }
 }
