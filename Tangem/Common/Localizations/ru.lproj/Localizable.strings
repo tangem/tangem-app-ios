@@ -491,3 +491,4 @@ URL: %@";
 "onboarding_saltpay_title_prepare_origin" = "Приготовьте SaltPay карту";
 "onboarding_saltpay_button_backup_origin" = "Приложите SaltPay карту";
 "onboarding_saltpay_title_backup_card" = "Приложите Tangem карту";
+"onboarding_chat_button_title" = "Чат";

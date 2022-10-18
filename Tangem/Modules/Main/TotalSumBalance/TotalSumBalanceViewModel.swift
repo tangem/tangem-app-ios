@@ -73,7 +73,7 @@ class TotalSumBalanceViewModel: ObservableObject {
                 totalFiatValueString = balance
             }
             .store(in: &bag)
-        
+
         userWalletModel.subscribeToWalletModels()
             .filter { !$0.isEmpty }
             .map { [unowned self] walletModels -> AnyPublisher<[WalletModel], Never> in
