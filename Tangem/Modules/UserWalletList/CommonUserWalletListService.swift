@@ -108,6 +108,21 @@ class CommonUserWalletListService: UserWalletListService {
         completion(.success(()))
     }
 
+    func didScan(card: CardDTO) {
+        let cardId = card.cardId
+
+        guard
+            card.hasWallets,
+            var userWallet = userWallets.first(where: { $0.userWalletId == card.userWalletId }),
+            !userWallet.associatedCardIds.contains(cardId)
+        else {
+            return
+        }
+
+        userWallet.associatedCardIds.insert(cardId)
+        let _ = save(userWallet)
+    }
+
     func loadModels() {
         userWallets = savedUserWallets(withSensitiveData: true)
 
