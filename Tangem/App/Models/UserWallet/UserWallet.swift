@@ -15,6 +15,7 @@ struct UserWallet: Identifiable, Codable {
     let userWalletId: Data
     var name: String
     var card: CardDTO
+    var associatedCardIds: Set<String>
     let walletData: DefaultWalletData
     let artwork: ArtworkInfo?
     let isHDWalletAllowed: Bool
