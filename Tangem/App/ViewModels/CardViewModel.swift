@@ -466,20 +466,31 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func updateSdkConfig() {
-        var hasCode = false
-        if AppSettings.shared.saveAccessCodes {
-            if card.isAccessCodeSet {
-                hasCode = true
-            }
-            if let isPasscodeSet = card.isPasscodeSet, isPasscodeSet {
-                hasCode = true
-            }
-        }
-
         var config = config.sdkConfig
-        config.accessCodeRequestPolicy = hasCode ? .alwaysWithBiometrics : .default
+        config.accessCodeRequestPolicy = accessCodeRequestPolicy()
 
         tangemSdkProvider.setup(with: config)
+    }
+
+    private func accessCodeRequestPolicy() -> AccessCodeRequestPolicy {
+        guard AppSettings.shared.saveUserWallets else {
+            return .default
+        }
+
+        let hasCode: Bool
+        if card.isAccessCodeSet {
+            hasCode = true
+        } else if let isPasscodeSet = card.isPasscodeSet, isPasscodeSet {
+            hasCode = true
+        } else {
+            hasCode = false
+        }
+
+        if hasCode {
+            return AppSettings.shared.saveAccessCodes ? .alwaysWithBiometrics : .always
+        }
+
+        return .default
     }
 
     private func updateModel() {
