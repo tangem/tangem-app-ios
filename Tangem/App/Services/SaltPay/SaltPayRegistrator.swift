@@ -66,13 +66,15 @@ class SaltPayRegistrator {
         self.accessCode = accessCode
     }
 
-    func setPin(_ pin: String) {
+    func setPin(_ pin: String) -> Bool {
         do {
             try assertPinValid(pin)
             self.pin = pin
             updateState(with: .registration)
+            return true
         } catch {
             self.error = (error as! SaltPayRegistratorError).alertBinder
+            return false
         }
     }
 
@@ -101,16 +103,18 @@ class SaltPayRegistrator {
     }
 
     func updatePublisher() -> AnyPublisher<Void, Error> {
-        checkGasIfNeeded()
-            .flatMap { [weak self] _ -> AnyPublisher<Void, Error> in
-                guard let self = self else { return .anyFail(error: SaltPayRegistratorError.empty) }
-
-                return self.registerKYCIfNeeded()
-            }
+        registerKYCIfNeeded()
             .flatMap { [weak self] _ -> AnyPublisher<State, Error> in
                 guard let self = self else { return .anyFail(error: SaltPayRegistratorError.empty) }
 
                 return self.checkRegistration()
+            }
+            .flatMap { [weak self] newState -> AnyPublisher<State, Error> in
+                guard let self = self else { return .anyFail(error: SaltPayRegistratorError.empty) }
+
+                return self.checkGasIfNeeded()
+                    .map { _ in return newState }
+                    .eraseToAnyPublisher()
             }
             .handleEvents(receiveOutput: { [weak self] newState in
                 self?.updateState(with: newState)
