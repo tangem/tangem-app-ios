@@ -49,6 +49,10 @@ class BottomSheetBaseController: UIViewController {
         }
     }
 
+    func resize(withAction action: ResizeSheetAction) {
+        bottomSheetTransitioningDelegate.resize(withAction: action)
+    }
+
     private lazy var bottomSheetTransitioningDelegate = BottomSheetTransitionDelegate(
         cornerRadius: cornerRadius,
         backgroundColor: backgroundColor

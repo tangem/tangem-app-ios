@@ -9,11 +9,9 @@
 import Foundation
 import WalletConnectSwift
 import Combine
+import BlockchainSdk
 
 class SwitchChainHandler: TangemWalletConnectRequestHandler {
-    @Injected(\.scannedCardsRepository) private var scannedCardsRepo: ScannedCardsRepository
-    @Injected(\.tokenItemsRepository) private var tokenItemsRepository: TokenItemsRepository
-
     var action: WalletConnectAction { .switchChain }
 
     weak var delegate: WalletConnectHandlerDelegate?
@@ -53,22 +51,13 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
             throw WalletConnectServiceError.sessionNotFound
         }
 
-        guard let card = scannedCardsRepo.cards[oldWalletInfo.cid] else {
-            throw WalletConnectServiceError.cardNotFound
-        }
-
-        let supportedBlockchains = SupportedTokenItems().blockchains(for: [.secp256k1], isTestnet: card.isTestnet)
+        let supportedBlockchains = Blockchain.supportedBlockchains.union(Blockchain.supportedTestnetBlockchains)
 
         guard let targetBlockchain = supportedBlockchains.first(where: { $0.chainId == chainId }) else {
             throw WalletConnectServiceError.unsupportedNetwork
         }
 
-        let availableItems = tokenItemsRepository.getItems(for: oldWalletInfo.cid)
-        guard let availableItem = availableItems.first(where: { $0.blockchainNetwork.blockchain.chainId == chainId }) else {
-            throw WalletConnectServiceError.networkNotFound(name: targetBlockchain.displayName)
-        }
-
-        let availableWallet = WalletManagerAssembly.makeWalletModels(from: card, blockchainNetworks: [availableItem.blockchainNetwork])
+        let availableWallet = dataSource?.cardModel.walletModels
             .filter { !$0.isCustom(.coin) }
             .first(where: { $0.wallet.blockchain == targetBlockchain })
             .map { $0.wallet }
@@ -79,8 +68,7 @@ class SwitchChainHandler: TangemWalletConnectRequestHandler {
 
         let derivedKey = wallet.publicKey.blockchainKey != wallet.publicKey.seedKey ? wallet.publicKey.blockchainKey : nil
 
-        let walletInfo = WalletInfo(cid: card.cardId,
-                                    walletPublicKey: wallet.publicKey.seedKey,
+        let walletInfo = WalletInfo(walletPublicKey: wallet.publicKey.seedKey,
                                     derivedPublicKey: derivedKey,
                                     derivationPath: wallet.publicKey.derivationPath,
                                     blockchain: targetBlockchain)
