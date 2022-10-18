@@ -112,7 +112,7 @@ extension AppCoordinator: UIWindowSceneDelegate {
 
     private func process(_ url: URL) {
         handle(url: url)
-        walletConnectServiceProvider.service.handle(url: url)
+        walletConnectServiceProvider.service?.handle(url: url)
     }
 }
 
@@ -120,8 +120,7 @@ extension AppCoordinator: UIWindowSceneDelegate {
 extension AppCoordinator: URLHandler {
     @discardableResult func handle(url: String) -> Bool {
         guard url.starts(with: "https://app.tangem.com")
-            || url.starts(with: Constants.tangemDomain + "/ndef")
-            || url.starts(with: Constants.tangemDomain + "/wc") else { return false }
+            || url.starts(with: Constants.tangemDomain + "/ndef") else { return false }
 
         popToRoot()
         return true
