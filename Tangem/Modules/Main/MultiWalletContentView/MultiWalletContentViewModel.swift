@@ -91,7 +91,7 @@ private extension MultiWalletContentViewModel {
         let entriesWithoutDerivation = userWalletModel
             .subscribeToEntriesWithoutDerivation()
             .removeDuplicates()
-        
+
         let walletModels = userWalletModel.subscribeToWalletModels()
             .receive(on: DispatchQueue.global())
             .map { wallets -> AnyPublisher<Void, Never> in
