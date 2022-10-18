@@ -176,7 +176,7 @@ The wallet re-creation procedure consists of three steps. You must complete it t
 "onboarding_subtitle_scan_primary" = "Scan the primary card to start the backup process.";
 "onboarding_subtitle_success_backup" = "You have created 2 backup cards, and now these cards are ready for use.";
 "onboarding_subtitle_success_backup_one_card" = "You have created 1 backup card, nd now this card are ready for use.";
-"onboarding_subtitle_success_tangem_wallet_onboarding" = "Your Tangem Wallet card is configured and ready for use.";
+"onboarding_subtitle_success_tangem_wallet_onboarding" = "Your wallet card is configured and ready for use.";
 "onboarding_subtitle_two_backup_cards" = "Max number of cards added. Finalize the backup process.";
 "onboarding_success" = "Success!";
 "onboarding_success_subtitle" = "Your crypto card is activated and ready to be used";
@@ -478,7 +478,7 @@ URL: %@";
 "onboarding_title_kyc_waiting" = "KYC is in progress";
 "onboarding_subtitle_register_wallet" = "Connect your card to the decentralized payment system";
 "onboarding_subtitle_kyc_start" = "To start using your card you have to pass the KYC process";
-"onboarding_subtitle_kyc_waiting" = "Please wait until the verification is completed. Usually, it takes up to 1 hour. You can close the app and come back later.";
+"onboarding_subtitle_kyc_waiting" = "Please wait until the verification is completed. You'll be notified via email. Usually it takes up to 1 hour. You can close the app and come back later.";
 "onboarding_title_pin" = "PIN Code";
 "onboarding_subtitle_pin" = "Set PIN code for your SaltPay card";
 "onboarding_supplement_button_kyc_waiting" = "Chat with support";
