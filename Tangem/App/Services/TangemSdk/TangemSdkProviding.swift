@@ -12,8 +12,7 @@ import TangemSdk
 protocol TangemSdkProviding {
     var sdk: TangemSdk { get }
 
-    func prepareScan()
-    func didScan(_ card: Card)
+    func setup(with config: Config)
 }
 
 private struct TangemSdkProviderKey: InjectionKey {

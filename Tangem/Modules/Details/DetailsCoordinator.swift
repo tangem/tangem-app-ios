@@ -72,13 +72,12 @@ extension DetailsCoordinator: DetailsRoutable {
         modalOnboardingCoordinator = coordinator
     }
 
-    func openMail(with dataCollector: EmailDataCollector, support: EmailSupport, emailType: EmailType) {
-        Analytics.log(.makeCommentTapped)
-        mailViewModel = MailViewModel(dataCollector: dataCollector, support: support, emailType: emailType)
+    func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType) {
+        mailViewModel = MailViewModel(dataCollector: dataCollector, recipient: recipient, emailType: emailType)
     }
 
     func openWalletConnect(with cardModel: CardViewModel) {
-        Analytics.log(.wcTapped)
+        Analytics.log(.myWalletsScreenOpened)
         let coordinator = WalletConnectCoordinator()
         let options = WalletConnectCoordinator.Options(cardModel: cardModel)
         coordinator.start(with: options)
@@ -103,9 +102,9 @@ extension DetailsCoordinator: DetailsRoutable {
         appSettingsCoordinator = coordinator
     }
 
-    func openSupportChat(cardId: String) {
-        Analytics.log(.chatTapped)
-        supportChatViewModel = SupportChatViewModel(cardId: cardId)
+    func openSupportChat(cardId: String, dataCollector: EmailDataCollector) {
+        Analytics.log(.chatScreenOpened)
+        supportChatViewModel = SupportChatViewModel(cardId: cardId, dataCollector: dataCollector)
     }
 
     func openInSafari(url: URL) {

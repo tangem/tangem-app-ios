@@ -59,11 +59,11 @@ struct TwinsOnboardingView: View {
                                           }
                                       },
                                       rightItems: {
-                                          Button("common_cancel", action: viewModel.backButtonAction)
-                                              .disabled(!viewModel.isFromMain)
-                                              .padding(.horizontal, 16)
-                                              .opacity(viewModel.isFromMain ? 1.0 : 0.0)
-
+                                          ChatButton(height: viewModel.navbarSize.height,
+                                                     isVisible: true,
+                                                     isEnabled: true) {
+                                              viewModel.openSupportChat()
+                                          }
                                       })
                                       .offset(x: 0, y: -geom.size.height / 2 + (isNavbarVisible ? viewModel.navbarSize.height / 2 : 0))
                                       .opacity(isNavbarVisible ? 1.0 : 0.0)
@@ -90,7 +90,9 @@ struct TwinsOnboardingView: View {
                             refreshButtonOpacity: currentStep.backgroundOpacity
                         )
 
-                        OnboardingCircleButton(refreshAction: {},
+                        OnboardingCircleButton(refreshAction: {
+                                                   viewModel.updateCardBalance()
+                                               },
                                                state: currentStep.successCircleState,
                                                size: .huge)
                             .offset(y: 8)

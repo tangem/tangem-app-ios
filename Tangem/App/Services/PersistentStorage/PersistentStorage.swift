@@ -28,6 +28,7 @@ class PersistentStorage {
 
     init() {
         transferFiles()
+        clean()
     }
 
     deinit {
@@ -62,6 +63,12 @@ class PersistentStorage {
         } catch {
             print(error)
         }
+    }
+
+    private func clean() {
+        let key = PersistentStorageKey.cards
+        let documentPath = self.documentPath(for: key.path)
+        try? fileManager.removeItem(atPath: documentPath.path)
     }
 
     private func documentPath(for key: String) -> URL {
