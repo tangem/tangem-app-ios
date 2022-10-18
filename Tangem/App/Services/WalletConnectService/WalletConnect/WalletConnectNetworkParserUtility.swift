@@ -50,8 +50,7 @@ enum WalletConnectNetworkParserUtility {
     }
 
     private static func makeBlockchain(from chainId: Int) -> Blockchain? {
-        let items = SupportedTokenItems()
-        let allBlockchains = items.blockchains(for: [.secp256k1], isTestnet: nil)
+        let allBlockchains = Blockchain.supportedBlockchains.union(Blockchain.supportedTestnetBlockchains)
         return allBlockchains.first(where: { $0.chainId == chainId })
     }
 }
