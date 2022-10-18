@@ -101,6 +101,12 @@ struct WalletOnboardingView: View {
                                           SkipButton(isVisible: viewModel.isSkipButtonVisible) {
                                               viewModel.skipCurrentStep()
                                           }
+
+                                          ChatButton(height: viewModel.navbarSize.height,
+                                                     isVisible: true,
+                                                     isEnabled: true) {
+                                              viewModel.openSupportChat()
+                                          }
                                       })
                                       .offset(x: 0, y: -geom.size.height / 2 + (isNavbarVisible ? viewModel.navbarSize.height / 2 + 4 : 0))
                                       .opacity(isNavbarVisible ? 1.0 : 0.0)
@@ -137,7 +143,7 @@ struct WalletOnboardingView: View {
                                         .cornerRadius(50)
                                         .zIndex(251)
                                         .padding(12)
-                                        .opacity(currentStep == .backupCards ? 1.0 : 0.0)
+                                        .opacity(viewModel.canShowOriginCardLabel ? 1.0 : 0.0)
                                 }
 
                             }
