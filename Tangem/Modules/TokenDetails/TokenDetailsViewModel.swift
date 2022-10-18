@@ -125,7 +125,7 @@ class TokenDetailsViewModel: ObservableObject {
         }
 
         let blockchainName = blockchain.displayName
-        let existentialDepositAmount = existentialDepositProvider.existentialDeposit.description
+        let existentialDepositAmount = existentialDepositProvider.existentialDeposit.string(roundingMode: .plain)
 
         return String(format: "warning_existential_deposit_message".localized, blockchainName, existentialDepositAmount)
     }
@@ -191,6 +191,7 @@ class TokenDetailsViewModel: ObservableObject {
     }
 
     func onAppear() {
+        Analytics.log(.detailsScreenOpened)
         rentWarningSubscription = walletModel?
             .$state
             .filter { !$0.isLoading }
@@ -214,6 +215,7 @@ class TokenDetailsViewModel: ObservableObject {
     }
 
     func tradeCryptoAction() {
+        Analytics.log(.buttonExchange)
         showTradeSheet = true
     }
 
@@ -256,6 +258,7 @@ class TokenDetailsViewModel: ObservableObject {
     }
 
     func onRefresh(_ done: @escaping () -> Void) {
+        Analytics.log(.refreshed)
         DispatchQueue.main.async {
             self.isRefreshing = true
         }
@@ -335,7 +338,7 @@ class TokenDetailsViewModel: ObservableObject {
             title: title,
             message: "token_details_hide_alert_message".localized,
             primaryButton: .destructive(Text("token_details_hide_alert_hide")) { [weak self] in
-                Analytics.log(.removeTokenTapped)
+                Analytics.log(.buttonRemoveToken)
                 self?.deleteToken()
             }
         )
@@ -362,6 +365,7 @@ extension TokenDetailsViewModel {
     func openSend() {
         guard let amountToSend = self.wallet?.amounts[amountType] else { return }
 
+        Analytics.log(.buttonSend)
         coordinator.openSend(amountToSend: amountToSend, blockchainNetwork: blockchainNetwork, cardViewModel: card)
     }
 
@@ -374,6 +378,7 @@ extension TokenDetailsViewModel {
     }
 
     func openSellCrypto() {
+        Analytics.log(.buttonSell)
         if let disabledLocalizedReason = card.getDisabledLocalizedReason(for: .exchange) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
@@ -387,6 +392,7 @@ extension TokenDetailsViewModel {
     }
 
     func openBuyCrypto() {
+        Analytics.log(.buttonBuy)
         if let disabledLocalizedReason = card.getDisabledLocalizedReason(for: .exchange) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
@@ -410,13 +416,11 @@ extension TokenDetailsViewModel {
     }
 
     func openBuyCryptoIfPossible() {
-        Analytics.log(.buyTokenTapped)
+        Analytics.log(.buttonBuyCrypto)
         if tangemApiService.geoIpRegionCode == LanguageCode.ru {
             coordinator.openBankWarning {
-                Analytics.log(.p2pInstructionTapped, params: [.type: "yes"])
                 self.openBuyCrypto()
             } declineCallback: {
-                Analytics.log(.p2pInstructionTapped, params: [.type: "no"])
                 self.coordinator.openP2PTutorial()
             }
         } else {
@@ -431,7 +435,7 @@ extension TokenDetailsViewModel {
     }
 
     func openExplorer(at url: URL) {
-        Analytics.log(.exploreAddressTapped)
+        Analytics.log(.buttonExplore)
         coordinator.openExplorer(at: url, blockchainDisplayName: blockchainNetwork.blockchain.displayName)
     }
 
