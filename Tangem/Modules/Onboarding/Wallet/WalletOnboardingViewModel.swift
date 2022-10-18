@@ -90,7 +90,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                     return "onboarding_subtitle_reset_twin_warning"
                 }
                 
-                guard let primaryCardId = backupService.primaryCardId,
+                guard let primaryCardId = backupService.primaryCard?.cardId,
                       let cardIdFormatted = CardIdFormatter(style: cardIdDisplayFormat).string(from: primaryCardId) else {
                     return super.subtitle
                 }
@@ -485,8 +485,9 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
         case .kycWaiting:
             saltPayRegistratorProvider.registrator?.update()
         case .enterPin:
-            saltPayRegistratorProvider.registrator?.setPin(pinText)
-            goToNextStep()
+            if saltPayRegistratorProvider.registrator?.setPin(pinText) ?? false {
+                goToNextStep()
+            }
         case .registerWallet:
             saltPayRegistratorProvider.registrator?.register()
         case .kycStart:
@@ -757,7 +758,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                     self.backupService.proceedBackup { result in
                         switch result {
                         case .success(let updatedCard):
-                            if updatedCard.cardId == self.backupService.primaryCardId {
+                            if updatedCard.cardId == self.backupService.primaryCard?.cardId {
                                 self.input.cardInput.cardModel?.onBackupCreated(updatedCard)
                             } else { // add tokens for backup cards
                                 self.addDefaultTokens(for: updatedCard)
