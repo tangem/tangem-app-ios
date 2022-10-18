@@ -52,11 +52,16 @@ final class AppScanTask: CardSessionRunnable {
     var accessCodeRequestPolicy: AccessCodeRequestPolicy? {
         AppSettings.shared.saveAccessCodes ? .defaultWithBiometrics : .default
     }
-    
+
     private let targetBatch: String?
     private var walletData: DefaultWalletData = .none
     private var primaryCard: PrimaryCard? = nil
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
+
+    #if !CLIP
+    @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
+    #endif
+
     #if !CLIP
     init(targetBatch: String? = nil) {
         self.targetBatch = targetBatch
@@ -325,7 +330,9 @@ final class AppScanTask: CardSessionRunnable {
         }
 
         #if !CLIP
-        migrate(card: CardDTO(card: card))
+        let cardDto = CardDTO(card: card)
+        userWalletListService.didScan(card: cardDto)
+        migrate(card: cardDto)
         #endif
 
         completion(.success(AppScanTaskResponse(card: card,
