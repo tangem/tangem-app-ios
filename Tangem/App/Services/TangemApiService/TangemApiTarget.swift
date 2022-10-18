@@ -81,3 +81,14 @@ extension TangemApiTarget {
         }
     }
 }
+
+extension TangemApiTarget: CachePolicyProvider {
+    var cachePolicy: URLRequest.CachePolicy {
+        switch type {
+        case .geo:
+            return .reloadIgnoringLocalAndRemoteCacheData
+        default:
+            return .useProtocolCachePolicy
+        }
+    }
+}
