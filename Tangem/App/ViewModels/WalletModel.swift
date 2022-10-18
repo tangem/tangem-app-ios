@@ -67,7 +67,7 @@ class WalletModel: ObservableObject, Identifiable {
 
     var blockchainNetwork: BlockchainNetwork {
         if wallet.publicKey.derivationPath == nil { // cards without hd wallet
-            return .init(wallet.blockchain, derivationPath: wallet.blockchain.derivationPath(for: .legacy))
+            return BlockchainNetwork(wallet.blockchain, derivationPath: nil)
         }
 
         return .init(wallet.blockchain, derivationPath: wallet.publicKey.derivationPath)
@@ -127,7 +127,6 @@ class WalletModel: ObservableObject, Identifiable {
         }
 
         if case .loading = state {
-            assertionFailure("Unreal case because we should return updating publisher above")
             return newUpdatePublisher.eraseToAnyPublisher()
         }
 
@@ -136,6 +135,7 @@ class WalletModel: ObservableObject, Identifiable {
         }
 
         updateWalletModelBag = updateWalletManager()
+            .receive(on: DispatchQueue.global())
             .map { [unowned self] in
                 loadRates()
             }
@@ -164,29 +164,33 @@ class WalletModel: ObservableObject, Identifiable {
 
     func updateWalletManager() -> AnyPublisher<Void, Error> {
         Future { promise in
-            print("🔄 Updating wallet model for \(self.wallet.blockchain)")
-            self.walletManager.update { [weak self] result in
-                print("🔄 Finished updating wallet model for \(self?.wallet.blockchain.displayName ?? "")")
+            DispatchQueue.global().async {
+                print("🔄 Updating wallet model for \(self.wallet.blockchain)")
+                self.walletManager.update { [weak self] result in
+                    DispatchQueue.global().async {
+                        print("🔄 Finished updating wallet model for \(self?.wallet.blockchain.displayName ?? "")")
 
-                switch result {
-                case let .failure(error):
-                    switch error as? WalletError {
-                    case .noAccount(let message):
-                        // If we don't have a account just update state and loadRates
-                        self?.updateState(.noAccount(message: message))
-                        promise(.success(()))
-                    default:
-                        promise(.failure(error.detailedError))
+                        switch result {
+                        case let .failure(error):
+                            switch error as? WalletError {
+                            case .noAccount(let message):
+                                // If we don't have a account just update state and loadRates
+                                self?.updateState(.noAccount(message: message))
+                                promise(.success(()))
+                            default:
+                                promise(.failure(error.detailedError))
+                            }
+
+                        case .success:
+                            self?.latestUpdateTime = Date()
+
+                            if let demoBalance = self?.demoBalance {
+                                self?.walletManager.wallet.add(coinValue: demoBalance)
+                            }
+
+                            promise(.success(()))
+                        }
                     }
-
-                case .success:
-                    self?.latestUpdateTime = Date()
-
-                    if let demoBalance = self?.demoBalance {
-                        self?.walletManager.wallet.add(coinValue: demoBalance)
-                    }
-
-                    promise(.success(()))
                 }
             }
         }
@@ -214,7 +218,7 @@ class WalletModel: ObservableObject, Identifiable {
             return
         }
 
-        print("Update state \(state) in WalletModel: \(blockchainNetwork.blockchain.displayName)")
+        print("🔄 Update state \(state) in WalletModel: \(blockchainNetwork.blockchain.displayName)")
         DispatchQueue.main.async { [weak self] in
             self?.state = state
         }
