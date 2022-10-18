@@ -37,7 +37,8 @@ struct SaltPayConfig {
     }
 
     private var _backupSteps: [WalletOnboardingStep] {
-        if let backupStatus = card.backupStatus, backupStatus.isActive {
+        if let backupStatus = card.backupStatus, backupStatus.isActive,
+           !backupServiceProvider.backupService.hasIncompletedBackup {
             return []
         }
 
@@ -47,7 +48,7 @@ struct SaltPayConfig {
             steps.append(.scanPrimaryCard)
         }
 
-        if backupServiceProvider.backupService.addedBackupCardsCount < BackupService.maxBackupCardsCount {
+        if backupServiceProvider.backupService.addedBackupCardsCount < 1 {
             steps.append(.selectBackupCards)
         }
 
