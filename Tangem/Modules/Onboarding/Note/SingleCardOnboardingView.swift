@@ -54,6 +54,12 @@ struct SingleCardOnboardingView: View {
                                           SkipButton(isVisible: viewModel.isSkipButtonVisible) {
                                               viewModel.skipCurrentStep()
                                           }
+
+                                          ChatButton(height: viewModel.navbarSize.height,
+                                                     isVisible: true,
+                                                     isEnabled: true) {
+                                              viewModel.openSupportChat()
+                                          }
                                       })
                                       .frame(size: viewModel.navbarSize)
                                       .offset(x: 0, y: -size.height / 2 + (isTopItemsVisible ? viewModel.navbarSize.height / 2 : 0))

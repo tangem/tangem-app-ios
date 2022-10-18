@@ -69,13 +69,14 @@ struct TwinsOnboardingView: View {
                                           }
                                       },
                                       rightItems: {
-                                          Button("common_cancel", action: viewModel.backButtonAction)
-                                              .disabled(!viewModel.isFromMain)
-                                              .padding(.horizontal, 16)
-                                              .opacity(viewModel.isFromMain ? 1.0 : 0.0)
-
                                           SkipButton(isVisible: viewModel.isSkipButtonVisible) {
                                               viewModel.skipCurrentStep()
+                                          }
+
+                                          ChatButton(height: viewModel.navbarSize.height,
+                                                     isVisible: true,
+                                                     isEnabled: true) {
+                                              viewModel.openSupportChat()
                                           }
                                       })
                                       .offset(x: 0, y: -geom.size.height / 2 + (isNavbarVisible ? viewModel.navbarSize.height / 2 : 0))

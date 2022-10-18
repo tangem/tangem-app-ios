@@ -25,3 +25,19 @@ extension Task {
         }
     }
 }
+
+protocol CachePolicyProvider {
+    var cachePolicy: URLRequest.CachePolicy { get }
+}
+
+class CachePolicyPlugin: PluginType {
+    func prepare(_ request: URLRequest, target: TargetType) -> URLRequest {
+        if let cachePolicyGettable = target as? CachePolicyProvider {
+            var mutableRequest = request
+            mutableRequest.cachePolicy = cachePolicyGettable.cachePolicy
+            return mutableRequest
+        }
+
+        return request
+    }
+}
