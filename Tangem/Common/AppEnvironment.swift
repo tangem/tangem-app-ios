@@ -1,5 +1,5 @@
 //
-//  Environment.swift
+//  AppEnvironment.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -13,6 +13,7 @@ private let infoDictionary = Bundle.main.infoDictionary ?? [:]
 enum AppEnvironment: String {
     case beta = "Beta"
     case production = "Production"
+    case alpha = "Alpha"
 }
 
 extension AppEnvironment {
@@ -37,5 +38,17 @@ extension AppEnvironment {
         }
 
         return identifier
+    }
+
+    var isTestnet: Bool  {
+        self == .alpha
+    }
+    
+    var isDebug: Bool {
+    #if DEBUG
+        return true
+    #else
+        return false
+    #endif
     }
 }
