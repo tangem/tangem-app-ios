@@ -151,12 +151,14 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
     }
 
     override func playInitialAnim(includeInInitialAnim: (() -> Void)? = nil) {
+        Analytics.log(.twinningScreenOpened)
         super.playInitialAnim {
             self.displayTwinImages = true
         }
     }
 
     override func onOnboardingFinished(for cardId: String) {
+        Analytics.log(.twinSetupFinished)
         super.onOnboardingFinished(for: cardId)
 
         // remove pair cid
@@ -247,6 +249,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
     }
 
     private func bind() {
+        Analytics.log(.twinSetupStarted)
         twinsService
             .isServiceBusy
             .receive(on: DispatchQueue.main)
