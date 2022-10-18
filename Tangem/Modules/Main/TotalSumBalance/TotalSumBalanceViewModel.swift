@@ -8,101 +8,121 @@
 
 import SwiftUI
 import Combine
+import BlockchainSdk
 
 class TotalSumBalanceViewModel: ObservableObject {
-    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
+    // MARK: - ViewState
 
-    @Published var isLoading: Bool
-    @Published var totalFiatValueString: NSAttributedString
-    @Published var hasError: Bool
-    @Published var isSingleCoinCard: Bool
+    @Published var isLoading: Bool = true
+    @Published var totalFiatValueString: NSAttributedString = NSAttributedString(string: "")
+    @Published var hasError: Bool = false
+
     /// If we have a note or any single coin wallet that we should show this balance
-    @Published var tokenItemViewModel: TokenItemViewModel?
-    let tapOnCurrencySymbol: () -> ()
+    @Published var singleWalletBalance: String?
 
-    private var refreshSubscription: AnyCancellable?
-    private var tokenItemViewModels: [TokenItemViewModel] = [] {
-        didSet {
-            // Need to refactoring it
-            if isSingleCoinCard, let coinModel = tokenItemViewModels.first {
-                tokenItemViewModel = coinModel
-            }
-        }
+    // MARK: - Private
+
+    @Injected(\.rateAppService) private var rateAppService: RateAppService
+    private let tapOnCurrencySymbol: () -> ()
+    private let cardAmountType: Amount.AmountType?
+    private let userWalletModel: UserWalletModel
+    private let totalBalanceManager: TotalBalanceProviding
+
+    private var bag: Set<AnyCancellable> = []
+
+    init(
+        userWalletModel: UserWalletModel,
+        totalBalanceManager: TotalBalanceProviding,
+        cardAmountType: Amount.AmountType?,
+        tapOnCurrencySymbol: @escaping () -> ()
+    ) {
+        self.userWalletModel = userWalletModel
+        self.totalBalanceManager = totalBalanceManager
+        self.cardAmountType = cardAmountType
+        self.tapOnCurrencySymbol = tapOnCurrencySymbol
+        bind()
     }
 
-    init(isLoading: Bool = false,
-         totalFiatValueString: NSAttributedString = NSAttributedString(string: ""),
-         hasError: Bool = false,
-         isSingleCoinCard: Bool,
-         tapOnCurrencySymbol: @escaping () -> ()
-    ) {
-        self.isLoading = isLoading
-        self.totalFiatValueString = totalFiatValueString
-        self.hasError = hasError
-        self.isSingleCoinCard = isSingleCoinCard
-        self.tapOnCurrencySymbol = tapOnCurrencySymbol
+    func updateBalance() {
+        totalBalanceManager.updateTotalBalance()
+    }
+
+    func updateForSingleCoinCard(walletModels: [WalletModel]) {
+        guard let cardAmountType = self.cardAmountType else { return }
+
+        singleWalletBalance = walletModels.first?.allTokenItemViewModels().first(where: { $0.amountType == cardAmountType })?.balance
+    }
+
+    func didTapOnCurrencySymbol() {
+        tapOnCurrencySymbol()
     }
 
     func beginUpdates() {
-        DispatchQueue.main.async {
-            self.isLoading = true
-            self.hasError = false
-        }
+        tapOnCurrencySymbol()
     }
 
-    func update(with tokens: [TokenItemViewModel]) {
-        tokenItemViewModels = tokens
-        refresh()
-    }
-
-    func updateIfNeeded(with tokens: [TokenItemViewModel]) {
-        if tokenItemViewModels == tokens || isLoading {
-            return
-        }
-        tokenItemViewModels = tokens
-        refresh(loadingAnimationEnable: false)
-    }
-
-    func disableLoading(withError: Bool = false) {
-        withAnimation(Animation.spring()) {
-            self.hasError = withError
-            self.isLoading = false
-        }
-    }
-
-    private func refresh(loadingAnimationEnable: Bool = true) {
-        refreshSubscription = tangemApiService
-            .loadCurrencies()
-            .receive(on: RunLoop.main)
-            .sink { _ in
-            } receiveValue: { [weak self] currencies in
-                guard let self = self,
-                      let currency = currencies.first(where: { $0.code == AppSettings.shared.selectedCurrencyCode })
-                else {
-                    return
-                }
-                var hasTotalBalanceError: Bool = false
-                var totalFiatValue: Decimal = 0.0
-                for token in self.tokenItemViewModels {
-                    if token.state.isSuccesfullyLoaded {
-                        totalFiatValue += token.fiatValue
-                    }
-
-                    if token.rate.isEmpty || !token.state.isSuccesfullyLoaded {
-                        hasTotalBalanceError = true
-                    }
-                }
-
-                self.totalFiatValueString = self.addAttributeForBalance(totalFiatValue, withCurrencyCode: currency.code)
-
-                if loadingAnimationEnable {
-                    self.disableLoading(withError: hasTotalBalanceError)
-                } else {
-                    if !self.isLoading && self.tokenItemViewModels.first(where: { $0.displayState == .busy }) == nil {
-                        self.hasError = hasTotalBalanceError
-                    }
-                }
+    private func bind() {
+        userWalletModel.subscribeToWalletModels()
+            .filter { $0.isEmpty }
+            .map { [unowned self] _ in
+                addAttributeForBalance(0, withCurrencyCode: AppSettings.shared.selectedCurrencyCode)
             }
+            .receive(on: DispatchQueue.main)
+            .sink { [unowned self] balance in
+                isLoading = false
+                totalFiatValueString = balance
+            }
+            .store(in: &bag)
+
+        userWalletModel.subscribeToWalletModels()
+            .filter { !$0.isEmpty }
+            .map { [unowned self] walletModels -> AnyPublisher<[WalletModel], Never> in
+                isLoading = true
+
+                return walletModels
+                    .map { $0.walletDidChange }
+                    .combineLatest()
+                    .map { _ in walletModels }
+                    // Update total balance only after all models succesfully loaded
+                    .filter { $0.allConforms { !$0.state.isLoading } }
+                    .eraseToAnyPublisher()
+            }
+            .switchToLatest()
+            // Hide skeleton with delay
+            .delay(for: 0.2, scheduler: DispatchQueue.main)
+            .sink { [unowned self] walletModels in
+                updateForSingleCoinCard(walletModels: walletModels)
+                updateBalance()
+            }
+            .store(in: &bag)
+
+        totalBalanceManager.totalBalancePublisher()
+            .compactMap { $0.value }
+            .map { [unowned self] balance in
+                addAttributeForBalance(balance.balance, withCurrencyCode: balance.currency.code)
+            }
+            .weakAssign(to: \.totalFiatValueString, on: self)
+            .store(in: &bag)
+
+        let hasErrorInUpdate = totalBalanceManager.totalBalancePublisher()
+            .compactMap { $0.value?.hasError }
+
+        let hasEntriesWithoutDerivation = userWalletModel
+            .subscribeToEntriesWithoutDerivation()
+            .map { !$0.isEmpty }
+
+        Publishers.CombineLatest(hasErrorInUpdate, hasEntriesWithoutDerivation)
+            .map { $0 || $1 }
+            .removeDuplicates()
+            .weakAssign(to: \.hasError, on: self)
+            .store(in: &bag)
+
+        totalBalanceManager.totalBalancePublisher()
+            .map { $0.isLoading }
+            .filter { !$0 }
+            .debounce(for: 0.5, scheduler: DispatchQueue.main)
+            .weakAssignAnimated(to: \.isLoading, on: self)
+            .store(in: &bag)
     }
 
     private func addAttributeForBalance(_ balance: Decimal, withCurrencyCode: String) -> NSAttributedString {
@@ -122,5 +142,13 @@ class TotalSumBalanceViewModel: ObservableObject {
         }
 
         return attributedString
+    }
+
+    private func checkPositiveBalance() {
+        guard rateAppService.shouldCheckBalanceForRateApp else { return }
+
+        guard userWalletModel.getWalletModels().contains(where: { !$0.wallet.isEmpty }) else { return }
+
+        rateAppService.registerPositiveBalanceDate()
     }
 }
