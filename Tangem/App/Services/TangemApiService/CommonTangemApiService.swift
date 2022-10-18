@@ -11,7 +11,7 @@ import Combine
 import Moya
 
 class CommonTangemApiService {
-    private let provider = TangemProvider<TangemApiTarget>()
+    private let provider = TangemProvider<TangemApiTarget>(plugins: [CachePolicyPlugin()])
     private var bag: Set<AnyCancellable> = []
 
     private let fallbackRegionCode = Locale.current.regionCode?.lowercased() ?? ""
