@@ -90,7 +90,7 @@ class UserWalletEncryptionKeyStorage {
             try biometricsStorage.delete(encryptionKeyStorageKey(for: userWallet))
 
             let accessCodeRepository = AccessCodeRepository()
-            let result = accessCodeRepository.deleteAccessCode(for: [userWallet.card.cardId])
+            let result = accessCodeRepository.deleteAccessCode(for: Array(userWallet.associatedCardIds))
             if case let .failure(error) = result {
                 print("Failed to delete access code: \(error)")
             }
