@@ -35,6 +35,7 @@ struct BottomSheetWrappedView<Content: View>: View {
                 .buttonStyle(TangemButtonStyle(colorStyle: .grayAlt, layout: .wide))
                 .padding(.bottom, 16)
             }
+            Spacer()
         }
     }
 }
