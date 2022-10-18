@@ -1,4 +1,4 @@
-// ___FILEHEADER___
+//___FILEHEADER___
 
 import SwiftUI
 
@@ -13,5 +13,13 @@ struct ___VARIABLE_moduleName:identifier___View: View {
         VStack {
             Text("Hello, World!")
         }
+    }
+}
+
+struct ___VARIABLE_moduleName:identifier___View_Preview: PreviewProvider {
+    static let viewModel = ___VARIABLE_moduleName: identifier___ViewModel(coordinator: ___VARIABLE_moduleName:identifier___Coordinator())
+
+    static var previews: some View {
+        ___VARIABLE_moduleName: identifier___View(viewModel: viewModel)
     }
 }

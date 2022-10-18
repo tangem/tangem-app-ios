@@ -34,8 +34,7 @@ struct WalletConnectView: View {
                 } else {
                     List {
                         ForEach(Array(viewModel.sessions.enumerated()), id: \.element) { (i, item) -> WalletConnectSessionItemView in
-                            WalletConnectSessionItemView(dAppName: item.session.dAppInfo.peerMeta.name,
-                                                         cardId: item.wallet.cid) {
+                            WalletConnectSessionItemView(dAppName: item.session.dAppInfo.peerMeta.name) {
                                 viewModel.disconnectSession(at: i)
                             }
                         }
