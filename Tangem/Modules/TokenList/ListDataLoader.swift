@@ -52,7 +52,7 @@ class ListDataLoader {
 
     func fetch(_ searchText: String) {
         if !searchText.isEmpty {
-            Analytics.log(.tokenSearch, params: [.tokenName: searchText])
+            Analytics.log(.tokenSearched)
         }
         cancellable = nil
 
