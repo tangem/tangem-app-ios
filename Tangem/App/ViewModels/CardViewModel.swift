@@ -350,29 +350,29 @@ class CardViewModel: Identifiable, ObservableObject {
         cardInfo.card.wallets = card.wallets
         onUpdate()
     }
-    
+
     func onSecurityOptionChanged(isAccessCodeSet: Bool, isPasscodeSet: Bool) {
         cardInfo.card.isAccessCodeSet = isAccessCodeSet
         cardInfo.card.isPasscodeSet = isPasscodeSet
         onUpdate()
     }
-    
+
     func onSigned(_ card: Card) {
         for updatedWallet in card.wallets {
             cardInfo.card.wallets[updatedWallet.publicKey]?.totalSignedHashes = updatedWallet.totalSignedHashes
             cardInfo.card.wallets[updatedWallet.publicKey]?.remainingSignatures = updatedWallet.remainingSignatures
         }
-        
+
         onUpdate()
     }
-    
+
     func onDerived(_ card: Card) {
         for updatedWallet in card.wallets {
             for derivedKey in updatedWallet.derivedKeys {
                 cardInfo.card.wallets[updatedWallet.publicKey]?.derivedKeys[derivedKey.key] = derivedKey.value
             }
         }
-        
+
         onUpdate()
     }
 
@@ -386,12 +386,12 @@ class CardViewModel: Identifiable, ObservableObject {
         cardInfo.card.backupStatus = card.backupStatus
         onUpdate()
     }
-    
+
     func onTwinWalletCreated(_ walletData: DefaultWalletData) { // [REDACTED_TODO_COMMENT]
         self.cardInfo.walletData = walletData
         onUpdate()
     }
-    
+
     private func onUpdate() {
         print("🔄 Updating CardViewModel with new Card")
         config = UserWalletConfigFactory(cardInfo).makeConfig()
