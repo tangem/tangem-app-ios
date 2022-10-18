@@ -40,7 +40,6 @@ class TotalSumBalanceViewModel: ObservableObject {
         self.totalBalanceManager = totalBalanceManager
         self.cardAmountType = cardAmountType
         self.tapOnCurrencySymbol = tapOnCurrencySymbol
-
         bind()
     }
 
@@ -64,8 +63,20 @@ class TotalSumBalanceViewModel: ObservableObject {
 
     private func bind() {
         userWalletModel.subscribeToWalletModels()
+            .filter { $0.isEmpty }
+            .map { [unowned self] _ in
+                addAttributeForBalance(0, withCurrencyCode: AppSettings.shared.selectedCurrencyCode)
+            }
             .receive(on: DispatchQueue.main)
-            .map { [unowned self] walletModels in
+            .sink { [unowned self] balance in
+                isLoading = false
+                totalFiatValueString = balance
+            }
+            .store(in: &bag)
+
+        userWalletModel.subscribeToWalletModels()
+            .filter { !$0.isEmpty }
+            .map { [unowned self] walletModels -> AnyPublisher<[WalletModel], Never> in
                 isLoading = true
 
                 return walletModels
@@ -74,6 +85,7 @@ class TotalSumBalanceViewModel: ObservableObject {
                     .map { _ in walletModels }
                     // Update total balance only after all models succesfully loaded
                     .filter { $0.allConforms { !$0.state.isLoading } }
+                    .eraseToAnyPublisher()
             }
             .switchToLatest()
             // Hide skeleton with delay
@@ -95,10 +107,11 @@ class TotalSumBalanceViewModel: ObservableObject {
         let hasErrorInUpdate = totalBalanceManager.totalBalancePublisher()
             .compactMap { $0.value?.hasError }
 
-        let hasEntriesWithoutDerivation = userWalletModel.subscribeToEntriesWithoutDerivation()
+        let hasEntriesWithoutDerivation = userWalletModel
+            .subscribeToEntriesWithoutDerivation()
             .map { !$0.isEmpty }
 
-        Publishers.Zip(hasErrorInUpdate, hasEntriesWithoutDerivation)
+        Publishers.CombineLatest(hasErrorInUpdate, hasEntriesWithoutDerivation)
             .map { $0 || $1 }
             .removeDuplicates()
             .weakAssign(to: \.hasError, on: self)
