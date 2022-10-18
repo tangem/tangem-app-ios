@@ -41,7 +41,7 @@ extension PushTxCoordinator {
 }
 
 extension PushTxCoordinator: PushTxRoutable {
-    func openMail(with dataCollector: EmailDataCollector) {
-        mailViewModel = MailViewModel(dataCollector: dataCollector, support: .tangem, emailType: .failedToPushTx)
+    func openMail(with dataCollector: EmailDataCollector, recipient: String) {
+        mailViewModel = MailViewModel(dataCollector: dataCollector, recipient: recipient, emailType: .failedToPushTx)
     }
 }
