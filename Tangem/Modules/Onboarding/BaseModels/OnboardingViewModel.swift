@@ -190,6 +190,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
         if !confettiFired {
             shouldFireConfetti = true
             confettiFired = true
+            Analytics.log(.walletCreatedSuccessfully)
         }
     }
 
@@ -236,5 +237,15 @@ extension OnboardingViewModel {
 
     func closeOnboarding() {
         onboardingCoordinator.closeOnboarding()
+    }
+
+    func openSupportChat() {
+        guard let cardModel = input.cardInput.cardModel else { return }
+
+        let dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel,
+                                                         userWalletEmailData: cardModel.emailData)
+
+        onboardingCoordinator.openSupportChat(cardId: cardModel.cardId,
+                                              dataCollector: dataCollector)
     }
 }
