@@ -24,11 +24,11 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     private var fanStackCalculator: FanStackCalculator = .init()
     private var stepPublisher: AnyCancellable?
     private var prepareTask: PreparePrimaryCardTask? = nil
-    
+
     private var cardIdDisplayFormat: CardIdDisplayFormat {
         isSaltPayOnboarding ? .none : .lastMasked(4)
     }
-    
+
     private var isSaltPayOnboarding: Bool {
         saltPayRegistratorProvider.registrator != nil
     }
@@ -89,18 +89,18 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
                 if isSaltPayOnboarding {
                     return "onboarding_subtitle_reset_twin_warning"
                 }
-                
+
                 guard let primaryCardId = backupService.primaryCard?.cardId,
                       let cardIdFormatted = CardIdFormatter(style: cardIdDisplayFormat).string(from: primaryCardId) else {
                     return super.subtitle
                 }
-                
+
                 return LocalizedStringKey(stringLiteral: "onboarding_subtitle_scan_origin_card".localized(cardIdFormatted))
             case .finalizingBackupCard(let index):
                 if isSaltPayOnboarding {
                     return "onboarding_subtitle_reset_twin_warning"
                 }
-                
+
                 let cardId = backupService.backupCardIds[index - 1]
                 guard let cardIdFormatted = CardIdFormatter(style: cardIdDisplayFormat).string(from: cardId) else {
                     return super.subtitle
@@ -265,12 +265,12 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
     var canShowThirdCardImage: Bool {
         !isSaltPayOnboarding
     }
-    
+
     var canShowOriginCardLabel: Bool {
         if isSaltPayOnboarding {
             return false
         }
-        
+
         return currentStep == .backupCards
     }
 
@@ -323,7 +323,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
 
     init(input: OnboardingInput, coordinator: WalletOnboardingRoutable) {
         self.coordinator = coordinator
-      
+
         super.init(input: input, onboardingCoordinator: coordinator)
 
         if case let .wallet(steps) = input.steps {
@@ -808,16 +808,6 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
 extension WalletOnboardingViewModel {
     func openAccessCode() {
         coordinator.openAccessCodeView(callback: saveAccessCode)
-    }
-
-    func openSupportChat() {
-        guard let cardModel = input.cardInput.cardModel else { return }
-
-        let dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel,
-                                                         userWalletEmailData: cardModel.emailData)
-
-        coordinator.openSupportChat(cardId: cardModel.cardId,
-                                    dataCollector: dataCollector)
     }
 }
 
