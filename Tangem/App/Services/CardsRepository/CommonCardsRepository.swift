@@ -130,7 +130,9 @@ class CommonCardsRepository: CardsRepository {
         finishInitializingServices(for: cardModel, cardInfo: cardInfo)
 
         cardModel.didScan()
-        models.append(cardModel)
+        if !models.contains(where: { $0.userWalletId == cardInfo.card.userWalletId }) {
+            models.append(cardModel)
+        }
         return cardModel
     }
 }
