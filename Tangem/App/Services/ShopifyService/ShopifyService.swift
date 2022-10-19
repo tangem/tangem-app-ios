@@ -196,7 +196,7 @@ class ShopifyService: ShopifyProtocol {
                     }
                 }
             }
-            return runCheckoutMutation(mutation: mutation, description: "Replacing checkout items") {
+            return runCheckoutMutation(mutation: mutation, description: "Replacing checkout items", waitUntilReady: false) {
                 $0.checkoutLineItemsReplace
             }
         } else {
@@ -211,7 +211,7 @@ class ShopifyService: ShopifyProtocol {
                     }
                 }
             }
-            return runCheckoutMutation(mutation: mutation, description: "Creating checkout") {
+            return runCheckoutMutation(mutation: mutation, description: "Creating checkout", waitUntilReady: false) {
                 $0.checkoutCreate
             }
         }
@@ -229,7 +229,7 @@ class ShopifyService: ShopifyProtocol {
                     }
                 }
             }
-            return runCheckoutMutation(mutation: mutation, description: "Applying discount") {
+            return runCheckoutMutation(mutation: mutation, description: "Applying discount", waitUntilReady: false) {
                 $0.checkoutDiscountCodeApplyV2
             }
         } else {
@@ -243,7 +243,7 @@ class ShopifyService: ShopifyProtocol {
                     }
                 }
             }
-            return runCheckoutMutation(mutation: mutation, description: "Removing discount") {
+            return runCheckoutMutation(mutation: mutation, description: "Removing discount", waitUntilReady: false) {
                 $0.checkoutDiscountCodeRemove
             }
         }
@@ -261,7 +261,7 @@ class ShopifyService: ShopifyProtocol {
                 }
             }
         }
-        return runCheckoutMutation(mutation: mutation, description: "Updating checkout address", checkShippingRates: waitForShippingRates) {
+        return runCheckoutMutation(mutation: mutation, description: "Updating checkout address", waitUntilReady: false, checkShippingRates: waitForShippingRates) {
             $0.checkoutShippingAddressUpdateV2
         }
     }
@@ -277,7 +277,7 @@ class ShopifyService: ShopifyProtocol {
                 }
             }
         }
-        return runCheckoutMutation(mutation: mutation, description: "Updating email") {
+        return runCheckoutMutation(mutation: mutation, description: "Updating email", waitUntilReady: false) {
             $0.checkoutEmailUpdateV2
         }
     }
@@ -293,7 +293,7 @@ class ShopifyService: ShopifyProtocol {
                 }
             }
         }
-        return runCheckoutMutation(mutation: mutation, description: "Updating shipping rate") {
+        return runCheckoutMutation(mutation: mutation, description: "Updating shipping rate", waitUntilReady: false) {
             $0.checkoutShippingLineUpdate
         }
     }
@@ -309,7 +309,7 @@ class ShopifyService: ShopifyProtocol {
                 }
             }
         }
-        return runCheckoutMutation(mutation: mutation, description: "Completing tokenized payment") {
+        return runCheckoutMutation(mutation: mutation, description: "Completing tokenized payment", waitUntilReady: true) {
             $0.checkoutCompleteWithTokenizedPaymentV3
         }
     }
@@ -458,6 +458,7 @@ extension ShopifyService: PaySessionDelegate {
     // MARK: - Updating checkout
 
     private func retryHandler(
+        waitUntilReady: Bool,
         checkShippingRates: Bool,
         payloadProvider: @escaping (Storefront.Mutation) -> CheckoutPayload?
     ) -> Graph.RetryHandler<Storefront.Mutation> {
@@ -478,7 +479,10 @@ extension ShopifyService: PaySessionDelegate {
                 return true
             }
 
-            if let checkoutReady = checkout?.ready, !checkoutReady {
+            if waitUntilReady,
+               let checkoutReady = checkout?.ready,
+               !checkoutReady
+            {
                 print("Checkout is not ready, continue polling")
                 return true
             }
@@ -490,6 +494,7 @@ extension ShopifyService: PaySessionDelegate {
     private func runCheckoutMutation(
         mutation: Storefront.MutationQuery,
         description: String,
+        waitUntilReady: Bool,
         checkShippingRates: Bool = false,
         payloadProvider: @escaping (Storefront.Mutation) -> CheckoutPayload?
     ) -> AnyPublisher<Checkout, Error> {
@@ -499,7 +504,7 @@ extension ShopifyService: PaySessionDelegate {
                 return
             }
 
-            let retryHandler = self.retryHandler(checkShippingRates: checkShippingRates, payloadProvider: payloadProvider)
+            let retryHandler = self.retryHandler(waitUntilReady: waitUntilReady, checkShippingRates: checkShippingRates, payloadProvider: payloadProvider)
             let task = self.client.mutateGraphWith(mutation, retryHandler: retryHandler) { mutation, error in
                 guard
                     let mutation = mutation,
