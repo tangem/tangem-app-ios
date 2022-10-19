@@ -95,9 +95,12 @@ private extension MultiWalletContentViewModel {
         let walletModels = userWalletModel.subscribeToWalletModels()
             .receive(on: DispatchQueue.global())
             .filter { !$0.isEmpty }
+            .receive(on: DispatchQueue.global())
             .map { wallets -> AnyPublisher<Void, Never> in
                 wallets.map { $0.walletDidChange }
                     .combineLatest()
+                    .map { _ in wallets.map { $0.state.isLoading } }
+                    .removeDuplicates() // Update only if isLoading state changed
                     .mapVoid()
                     .eraseToAnyPublisher()
             }
@@ -107,9 +110,9 @@ private extension MultiWalletContentViewModel {
         Publishers.CombineLatest(entriesWithoutDerivation, walletModels)
             .receive(on: DispatchQueue.global())
             .map { [unowned self] _ -> [TokenItemViewModel] in
-                collectTokenItemViewModels(entries: userWalletModel.getSavedEntries())
+                collectTokenItemViewModels()
             }
-            .receive(on: DispatchQueue.main)
+            .receive(on: RunLoop.main)
             .sink { [unowned self] viewModels in
                 updateView(viewModels: viewModels)
             }
@@ -121,7 +124,8 @@ private extension MultiWalletContentViewModel {
         contentState = .loaded(viewModels)
     }
 
-    func collectTokenItemViewModels(entries: [StorageEntry]) -> [TokenItemViewModel] {
+    func collectTokenItemViewModels() -> [TokenItemViewModel] {
+        let entries = userWalletModel.getSavedEntries()
         let walletModels = userWalletModel.getWalletModels()
         return entries.reduce([]) { result, entry in
             if let walletModel = walletModels.first(where: { $0.blockchainNetwork == entry.blockchainNetwork }) {
