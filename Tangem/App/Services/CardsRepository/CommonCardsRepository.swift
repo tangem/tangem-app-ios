@@ -73,7 +73,7 @@ class CommonCardsRepository: CardsRepository {
     }
 
     func add(_ cardModel: CardViewModel) {
-        models.append(cardModel)
+        add([cardModel])
     }
 
     func add(_ cardModels: [CardViewModel]) {
