@@ -154,7 +154,9 @@ class Analytics {
 
     static func logAmplitude(event: Event, params: [String: String] = [:]) {
         #if !CLIP
-        Amplitude.instance().logEvent(event.rawValue, withEventProperties: params)
+        if !AppEnvironment.current.isDebug {
+            Amplitude.instance().logEvent(event.rawValue, withEventProperties: params)
+        }
         #endif
     }
 
