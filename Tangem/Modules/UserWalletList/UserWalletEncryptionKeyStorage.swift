@@ -87,10 +87,10 @@ class UserWalletEncryptionKeyStorage {
     func delete(_ userWallet: UserWallet) {
         do {
             try deleteUserWalletId(userWallet)
-            
+
             if AppSettings.shared.saveAccessCodes {
                 try biometricsStorage.delete(encryptionKeyStorageKey(for: userWallet))
-                
+
                 let accessCodeRepository = AccessCodeRepository()
                 let result = accessCodeRepository.deleteAccessCode(for: Array(userWallet.associatedCardIds))
                 if case let .failure(error) = result {
