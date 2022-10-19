@@ -473,11 +473,12 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func accessCodeRequestPolicy() -> AccessCodeRequestPolicy {
-        guard AppSettings.shared.saveUserWallets else {
-            return .default
+        let hasCode = card.isAccessCodeSet || (card.isPasscodeSet ?? false)
+
+        if !AppSettings.shared.saveUserWallets {
+            return hasCode ? .always : .default
         }
 
-        let hasCode = card.isAccessCodeSet || (card.isPasscodeSet ?? false)
         if hasCode {
             return AppSettings.shared.saveAccessCodes ? .alwaysWithBiometrics : .always
         }
