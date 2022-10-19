@@ -238,7 +238,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
                 singleCurrencyModels.append(cellModel)
             }
         }
-        
+
         setSelectedWallet(userWallet)
     }
 
