@@ -61,15 +61,15 @@ class MultiWalletContentViewModel: ObservableObject {
         bind()
     }
 
-    func onRefresh(done: @escaping () -> Void) {
+    func onRefresh(silent: Bool = true, done: @escaping () -> Void) {
         userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
-            self?.userWalletModel.updateAndReloadWalletModels(completion: done)
+            self?.userWalletModel.updateAndReloadWalletModels(silent: silent, completion: done)
         }
     }
 
     func onAppear() {
         if isFirstTimeOnAppear {
-            onRefresh {}
+            onRefresh(silent: false) {}
             isFirstTimeOnAppear = false
         }
     }
@@ -94,19 +94,18 @@ private extension MultiWalletContentViewModel {
 
         let walletModels = userWalletModel.subscribeToWalletModels()
             .receive(on: DispatchQueue.global())
+            .filter { !$0.isEmpty }
             .map { wallets -> AnyPublisher<Void, Never> in
-                if wallets.isEmpty {
-                    return .just
-                }
-
-                return wallets.map { $0.walletDidChange }
+                wallets.map { $0.walletDidChange }
                     .combineLatest()
                     .mapVoid()
                     .eraseToAnyPublisher()
             }
             .switchToLatest()
+            .debounce(for: 0.5, scheduler: DispatchQueue.global())
 
         Publishers.CombineLatest(entriesWithoutDerivation, walletModels)
+            .receive(on: DispatchQueue.global())
             .map { [unowned self] _ -> [TokenItemViewModel] in
                 collectTokenItemViewModels(entries: userWalletModel.getSavedEntries())
             }
