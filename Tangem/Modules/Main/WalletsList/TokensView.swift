@@ -85,7 +85,7 @@ struct TokensView_Previews: PreviewProvider {
                                    amountType: .coin,
                                    hasTransactionInProgress: false,
                                    isCustom: false),
-                TokenItemViewModel(state: .failed("The internet connection appears to be offline. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description"),
+                TokenItemViewModel(state: .failed(error: "The internet connection appears to be offline. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description. Very very very long error description"),
                                    name: "Ethereum smart contract token",
                                    balance: " ",
                                    fiatBalance: " ",
