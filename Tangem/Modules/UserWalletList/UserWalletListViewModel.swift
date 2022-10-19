@@ -220,23 +220,26 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     private func processScannedCard(_ cardModel: CardViewModel) {
         guard let userWallet = cardModel.userWallet else { return }
 
-        if userWalletListService.contains(userWallet) {
-            return
-        }
-
-        if userWalletListService.save(userWallet) {
+        if !userWalletListService.contains(userWallet) {
             let newModel = CardViewModel(userWallet: userWallet)
-
-            if let cellModel = newModel.userWalletModel.map({ mapToUserWalletListCellViewModel(userWalletModel: $0) }) {
-                if newModel.isMultiWallet {
-                    multiCurrencyModels.append(cellModel)
-                } else {
-                    singleCurrencyModels.append(cellModel)
-                }
+            guard
+                let cellModel = newModel.userWalletModel.map({ mapToUserWalletListCellViewModel(userWalletModel: $0) })
+            else {
+                return
             }
 
-            setSelectedWallet(userWallet)
+            guard userWalletListService.save(userWallet) else {
+                return
+            }
+
+            if newModel.isMultiWallet {
+                multiCurrencyModels.append(cellModel)
+            } else {
+                singleCurrencyModels.append(cellModel)
+            }
         }
+        
+        setSelectedWallet(userWallet)
     }
 
     private func setSelectedWallet(_ userWallet: UserWallet) {
