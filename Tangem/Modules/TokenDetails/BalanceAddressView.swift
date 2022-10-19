@@ -188,7 +188,7 @@ struct BalanceAddressView: View {
 struct BalanceAddressView_Previews: PreviewProvider {
     static var walletModel: WalletModel {
         let vm = PreviewCard.stellar.cardModel.walletModels.first!
-        vm.state = .failed(error: "Failed to load. Internet connection is unnreachable")
+        vm.state = .failed("Failed to load. Internet connection is unnreachable")
         vm.state = .idle
         return vm
     }
