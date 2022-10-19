@@ -59,7 +59,7 @@ struct MultiWalletContentView: View {
         case let .loaded(viewModels):
             VStack(alignment: .leading, spacing: 6) {
                 ForEach(viewModels, id: \.id) { item in
-                    LazyVStackCompat {
+                    VStack {
                         Button(action: { viewModel.tokenItemDidTap(item) }) {
                             TokenItemView(item: item)
                                 .padding(.horizontal, 16)
