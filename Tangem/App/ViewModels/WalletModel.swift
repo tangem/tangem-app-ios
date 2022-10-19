@@ -153,7 +153,7 @@ class WalletModel: ObservableObject, Identifiable {
 
                 case let .failure(error):
                     Analytics.log(error: error)
-                    updateState(.failed(error.localizedDescription))
+                    updateState(.failed(error: error.localizedDescription))
                     updatePublisher?.send(completion: .failure(error))
                     updatePublisher = nil
                 }
@@ -513,13 +513,12 @@ extension WalletModel {
 }
 
 extension WalletModel {
-    enum State: Hashable
-    {
+    enum State: Hashable {
         case created
         case idle
         case loading
         case noAccount(message: String)
-        case failed(_ localizedDescription: String)
+        case failed(error: String)
         case noDerivation
 
         var isLoading: Bool {
