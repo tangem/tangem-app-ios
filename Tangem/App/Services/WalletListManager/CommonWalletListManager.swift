@@ -109,13 +109,13 @@ extension CommonWalletListManager: WalletListManager {
         self.walletModels.send(walletModels)
     }
 
-    func reloadWalletModels() -> AnyPublisher<Void, Never> {
+    func reloadWalletModels(silent: Bool) -> AnyPublisher<Void, Never> {
         guard !getWalletModels().isEmpty else {
             print("‼️ WalletModels is empty")
             return .just
         }
 
-        return reloadAllWalletModelsPublisher()
+        return reloadAllWalletModelsPublisher(silent: silent)
     }
 
     func canManage(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool {
@@ -141,21 +141,21 @@ extension CommonWalletListManager: WalletListManager {
 }
 
 private extension CommonWalletListManager {
-    func reloadAllWalletModelsPublisher() -> AnyPublisher<Void, Never> {
+    func reloadAllWalletModelsPublisher(silent: Bool) -> AnyPublisher<Void, Never> {
         tryMigrateTokens()
             .flatMap { [weak self] _ -> AnyPublisher<Void, Never> in
                 guard let self = self else {
                     return .just
                 }
 
-                return self.updateWalletModelsPublisher()
+                return self.updateWalletModelsPublisher(silent: silent)
             }
             .eraseToAnyPublisher()
     }
 
-    func updateWalletModelsPublisher() -> AnyPublisher<Void, Never> {
+    func updateWalletModelsPublisher(silent: Bool) -> AnyPublisher<Void, Never> {
         let publishers = getWalletModels().map {
-            $0.update(silent: false).replaceError(with: (()))
+            $0.update(silent: silent).replaceError(with: (()))
         }
 
         return Publishers
