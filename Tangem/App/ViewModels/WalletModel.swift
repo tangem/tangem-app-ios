@@ -14,10 +14,14 @@ class WalletModel: ObservableObject, Identifiable {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     var walletDidChange: AnyPublisher<Void, Never> {
-        Publishers.Merge3(
-            $state.removeDuplicates().mapVoid(),
-            $rates.removeDuplicates().mapVoid(),
-            walletManager.walletPublisher.mapVoid()
+        Publishers.CombineLatest(
+            $state.removeDuplicates()
+                .mapVoid(),
+            $rates.filter { !$0.isEmpty }
+                .removeDuplicates()
+                .combineLatest($state)
+                .filter { !$0.1.isLoading }
+                .mapVoid()
         )
         .mapVoid()
         .receive(on: DispatchQueue.main)
