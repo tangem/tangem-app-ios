@@ -15,12 +15,12 @@ class WalletModel: ObservableObject, Identifiable {
 
     var walletDidChange: AnyPublisher<Void, Never> {
         Publishers.Merge3(
-            $state.mapVoid(),
-            $rates.mapVoid(),
+            $state.removeDuplicates().mapVoid(),
+            $rates.removeDuplicates().mapVoid(),
             walletManager.walletPublisher.mapVoid()
         )
-        .receive(on: DispatchQueue.main)
         .mapVoid()
+        .receive(on: DispatchQueue.main)
         .eraseToAnyPublisher()
     }
 
@@ -153,7 +153,7 @@ class WalletModel: ObservableObject, Identifiable {
 
                 case let .failure(error):
                     Analytics.log(error: error)
-                    updateState(.failed(error: error))
+                    updateState(.failed(error.localizedDescription))
                     updatePublisher?.send(completion: .failure(error))
                     updatePublisher = nil
                 }
@@ -219,8 +219,8 @@ class WalletModel: ObservableObject, Identifiable {
         }
 
         print("🔄 Update state \(state) in WalletModel: \(blockchainNetwork.blockchain.displayName)")
-        DispatchQueue.main.async { [weak self] in
-            self?.state = state
+        DispatchQueue.main.async {
+            self.state = state
         }
     }
 
@@ -513,12 +513,13 @@ extension WalletModel {
 }
 
 extension WalletModel {
-    enum State {
+    enum State: Hashable
+    {
         case created
         case idle
         case loading
         case noAccount(message: String)
-        case failed(error: Error)
+        case failed(_ localizedDescription: String)
         case noDerivation
 
         var isLoading: Bool {
@@ -559,8 +560,8 @@ extension WalletModel {
 
         var errorDescription: String? {
             switch self {
-            case .failed(let error):
-                return error.localizedDescription
+            case .failed(let localizedDescription):
+                return localizedDescription
             case .noAccount(let message):
                 return message
             default:
@@ -570,8 +571,8 @@ extension WalletModel {
 
         var failureDescription: String? {
             switch self {
-            case .failed(let error):
-                return error.localizedDescription
+            case .failed(let localizedDescription):
+                return localizedDescription
             default:
                 return nil
             }
@@ -584,22 +585,6 @@ extension WalletModel {
             case .noAccount, .idle:
                 return true
             }
-        }
-    }
-}
-
-extension WalletModel.State: Equatable {
-    static func == (lhs: WalletModel.State, rhs: WalletModel.State) -> Bool {
-        switch (lhs, rhs) {
-        case (.noAccount, .noAccount),
-             (.created, .created),
-             (.idle, .idle),
-             (.loading, .loading),
-             (.failed, .failed),
-             (.noDerivation, .noDerivation):
-            return true
-        default:
-            return false
         }
     }
 }
