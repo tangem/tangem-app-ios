@@ -104,7 +104,6 @@ private extension MultiWalletContentViewModel {
                     .eraseToAnyPublisher()
             }
             .switchToLatest()
-//            .debounce(for: 0.5, scheduler: DispatchQueue.global())
 
         Publishers.CombineLatest(entriesWithoutDerivation, walletModels)
             .receive(on: DispatchQueue.global())
