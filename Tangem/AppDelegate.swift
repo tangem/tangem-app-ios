@@ -56,9 +56,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             ]
         }
 
-        configureFirebase()
-        configureAppsFlyer()
-        configureAmplitude()
+        if !AppEnvironment.current.isDebug {
+            configureFirebase()
+            configureAppsFlyer()
+            configureAmplitude()
+        }
 
         AppSettings.shared.numberOfLaunches += 1
         return true
@@ -118,11 +120,6 @@ private extension AppDelegate {
 
         AppsFlyerLib.shared().appsFlyerDevKey = try! CommonKeysManager().appsFlyerDevKey
         AppsFlyerLib.shared().appleAppID = "1354868448"
-        #if DEBUG
-        AppsFlyerLib.shared().isDebug = true
-        #else
-        AppsFlyerLib.shared().isDebug = false
-        #endif
     }
 
     func configureAmplitude() {
