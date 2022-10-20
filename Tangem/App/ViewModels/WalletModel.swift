@@ -147,15 +147,15 @@ class WalletModel: ObservableObject, Identifiable {
                     updatePublisher?.send(completion: .failure(error))
                     updatePublisher = nil
                 }
-                
+
             } receiveValue: { [unowned self] rates in
                 updateRatesIfNeeded(rates)
-                
+
                 // Don't update noAccount state
                 if !silent, !state.isNoAccount {
                     updateState(.idle)
                 }
-                
+
                 updatePublisher?.send(completion: .finished)
                 updatePublisher = nil
             }
@@ -169,7 +169,7 @@ class WalletModel: ObservableObject, Identifiable {
             self.walletManager.update { [weak self] result in
                 let blockchainName = self?.wallet.blockchain.displayName ?? ""
                 print("🔄 Finished updating wallet model for \(blockchainName) result: \(result)")
-                
+
                 switch result {
                 case let .failure(error):
                     switch error as? WalletError {
@@ -180,14 +180,14 @@ class WalletModel: ObservableObject, Identifiable {
                     default:
                         promise(.failure(error.detailedError))
                     }
-                    
+
                 case .success:
                     self?.latestUpdateTime = Date()
-                    
+
                     if let demoBalance = self?.demoBalance {
                         self?.walletManager.wallet.add(coinValue: demoBalance)
                     }
-                    
+
                     promise(.success(()))
                 }
             }
