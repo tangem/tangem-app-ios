@@ -50,7 +50,7 @@ final class AppScanTask: CardSessionRunnable {
     private var walletData: DefaultWalletData = .none
     private var primaryCard: PrimaryCard? = nil
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
-    
+
     init(targetBatch: String? = nil) {
         self.targetBatch = targetBatch
     }
