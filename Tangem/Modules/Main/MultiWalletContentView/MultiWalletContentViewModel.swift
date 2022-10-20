@@ -93,10 +93,13 @@ private extension MultiWalletContentViewModel {
             .removeDuplicates()
 
         let walletModels = userWalletModel.subscribeToWalletModels()
-            .filter { !$0.isEmpty }
             .receive(on: DispatchQueue.global())
             .map { wallets -> AnyPublisher<Void, Never> in
-                wallets.map { $0.walletDidChange }
+                if wallets.isEmpty {
+                    return .just
+                }
+
+                return wallets.map { $0.walletDidChange }
                     .combineLatest()
                     .map { _ in wallets.map { $0.state.isLoading } }
                     .removeDuplicates() // Update only if isLoading state changed
