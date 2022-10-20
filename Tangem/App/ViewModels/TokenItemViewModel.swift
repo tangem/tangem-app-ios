@@ -11,8 +11,9 @@ import BlockchainSdk
 import TangemSdk
 import SwiftUI
 
-struct TokenItemViewModel: Identifiable, Equatable, Comparable {
-    let id = UUID()
+struct TokenItemViewModel: Identifiable, Hashable, Equatable, Comparable {
+    var id: Int { hashValue }
+
     let state: WalletModel.State
     let hasTransactionInProgress: Bool
     let name: String
