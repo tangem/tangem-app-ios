@@ -97,11 +97,11 @@ private extension MultiWalletContentViewModel {
             .subscribeToEntriesWithoutDerivation()
             .dropFirst()
             .removeDuplicates()
-        
+
         let newWalletModels = userWalletModel.subscribeToWalletModels()
             .dropFirst()
             .share()
-        
+
         let walletModelsDidChange = newWalletModels
             .filter { !$0.isEmpty }
             .map { wallets -> AnyPublisher<Void, Never> in
