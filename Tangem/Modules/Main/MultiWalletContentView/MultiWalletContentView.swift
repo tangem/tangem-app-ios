@@ -54,7 +54,7 @@ struct MultiWalletContentView: View {
         case .loading:
             ActivityIndicatorView(color: .gray)
                 .padding()
-            
+
         case let .loaded(viewModels):
             LazyVStackCompat(alignment: .leading, spacing: 6) {
                 ForEach(viewModels) { item in
@@ -67,7 +67,7 @@ struct MultiWalletContentView: View {
                         }
                         .buttonStyle(TangemTokenButtonStyle())
                         .disabled(item.state == .noDerivation)
-                        
+
                         if viewModels.last != item {
                             Separator(height: 1, padding: 0, color: .tangemBgGray2)
                                 .padding(.leading, 68)
