@@ -57,7 +57,7 @@ extension CommonUserWalletModel: UserWalletModel {
     func subscribeToEntriesWithoutDerivation() -> AnyPublisher<[StorageEntry], Never> {
         walletListManager.subscribeToEntriesWithoutDerivation()
     }
-    
+
     func updateWalletModels() {
         // Update walletModel list for current storage state
         walletListManager.updateWalletModels()
