@@ -48,7 +48,7 @@ private extension TotalBalanceProvider {
                       let currency = currencies.first(where: { $0.code == AppSettings.shared.selectedCurrencyCode }) else {
                     throw CommonError.noData
                 }
-                
+
                 let tokenItemViewModels = getTokenItemViewModels()
 
                 var hasError: Bool = false
@@ -84,7 +84,7 @@ private extension TotalBalanceProvider {
                 self?.totalBalanceSubject.send(.loaded(balance))
             }
     }
-    
+
     func getTokenItemViewModels() -> [TokenItemViewModel] {
         userWalletModel.getWalletModels()
             .flatMap { $0.allTokenItemViewModels() }
