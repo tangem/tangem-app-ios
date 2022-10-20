@@ -9,11 +9,16 @@
 import Foundation
 import Combine
 import TangemSdk
+import BlockchainSdk
 
 protocol AppWarningsProviding: AnyObject {
     var warningsUpdatePublisher: CurrentValueSubject<Void, Never> { get }
 
-    func setupWarnings(for config: UserWalletConfig)
+    func setupWarnings(
+        for config: UserWalletConfig,
+        card: Card,
+        validator: SignatureCountValidator?
+    )
     func appendWarning(for event: WarningEvent)
     func warnings(for location: WarningsLocation) -> WarningsContainer
     func hideWarning(_ warning: AppWarning)
@@ -21,7 +26,7 @@ protocol AppWarningsProviding: AnyObject {
 }
 
 private struct AppWarningsProvidingKey: InjectionKey {
-    static var currentValue: AppWarningsProviding = WarningsService()
+    static var currentValue: AppWarningsProviding = AppWarningsProvider()
 }
 
 extension InjectedValues {
