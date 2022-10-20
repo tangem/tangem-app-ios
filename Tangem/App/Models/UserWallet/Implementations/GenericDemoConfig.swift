@@ -19,7 +19,7 @@ struct GenericDemoConfig {
         if card.backupStatus?.isActive == true {
             return []
         }
-        
+
         if !card.settings.isBackupAllowed {
             return []
         }
