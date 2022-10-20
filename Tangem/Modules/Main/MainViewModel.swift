@@ -175,7 +175,6 @@ class MainViewModel: ObservableObject {
         updateContent()
         updateIsBackupAllowed()
         cardModel.setupWarnings()
-        validateHashesCount()
     }
 
     deinit {
@@ -350,65 +349,6 @@ class MainViewModel: ObservableObject {
     }
 
     // MARK: - Private functions
-    private func showAlertAnimated(_ event: WarningEvent) {
-        withAnimation {
-            warningsService.appendWarning(for: event)
-        }
-    }
-
-    private func validateHashesCount() {
-        func didFinishCountingHashes() {
-            print("⚠️ Hashes counted")
-            isHashesCounted = true
-        }
-
-        guard !isHashesCounted,
-              !AppSettings.shared.validatedSignedHashesCards.contains(cardModel.cardId) else {
-            didFinishCountingHashes()
-            return
-        }
-
-        guard cardModel.cardSignedHashes > 0 else {
-            AppSettings.shared.validatedSignedHashesCards.append(cardModel.cardId)
-            didFinishCountingHashes()
-            return
-        }
-
-        guard !cardModel.isMultiWallet else {
-            showAlertAnimated(.multiWalletSignedHashes)
-            didFinishCountingHashes()
-            return
-        }
-
-        guard cardModel.canCountHashes else {
-            AppSettings.shared.validatedSignedHashesCards.append(cardModel.cardId)
-            didFinishCountingHashes()
-            return
-        }
-
-        guard let validator = cardModel.walletModels.first?.walletManager as? SignatureCountValidator else {
-            showAlertAnimated(.numberOfSignedHashesIncorrect)
-            didFinishCountingHashes()
-            return
-        }
-
-        validator.validateSignatureCount(signedHashes: cardModel.cardSignedHashes)
-            .subscribe(on: DispatchQueue.global())
-            .receive(on: RunLoop.main)
-            .handleEvents(receiveCancel: {
-                print("⚠️ Hash counter subscription cancelled")
-            })
-            .receiveCompletion { [weak self] failure in
-                switch failure {
-                case .finished:
-                    break
-                case .failure:
-                    self?.showAlertAnimated(.numberOfSignedHashesIncorrect)
-                }
-                didFinishCountingHashes()
-            }
-            .store(in: &bag)
-    }
 
     private func setError(_ error: AlertBinder?)  {
         if self.error != nil {
