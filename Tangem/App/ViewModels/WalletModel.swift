@@ -13,18 +13,12 @@ import BlockchainSdk
 class WalletModel: ObservableObject, Identifiable {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    var walletDidChange: AnyPublisher<Void, Never> {
-        Publishers.Merge(
-            $state.removeDuplicates().mapVoid(),
-            $rates
-                .filter { !$0.isEmpty }
-                .removeDuplicates()
-                // Push only if state is loaded
-                .combineLatest($state)
-                .filter { !$0.1.isLoading }
-                .mapVoid()
+    var walletDidChange: AnyPublisher<WalletModel.State, Never> {
+        Publishers.CombineLatest(
+            $state.dropFirst().removeDuplicates(),
+            $rates.dropFirst().removeDuplicates()
         )
-        .receive(on: DispatchQueue.global())
+        .combineLatest($state).b // Move on latest value state
         .eraseToAnyPublisher()
     }
 
@@ -108,7 +102,7 @@ class WalletModel: ObservableObject, Identifiable {
                 self.loadRates().replaceError(with: [:])
             }
             .switchToLatest()
-            .sink()
+            .receiveValue { [unowned self] in updateRatesIfNeeded($0) }
             .store(in: &bag)
     }
 
@@ -140,27 +134,30 @@ class WalletModel: ObservableObject, Identifiable {
 
         updateWalletModelBag = updateWalletManager()
             .receive(on: DispatchQueue.global())
-            .map { [unowned self] in
-                loadRates()
-            }
+            .map { [unowned self] in loadRates() }
             .switchToLatest()
-            .receiveCompletion { [unowned self] completion in
+            .sink { [unowned self] completion in
                 switch completion {
                 case .finished:
-                    // Don't update noAccount state
-                    if !silent, !state.isNoAccount {
-                        updateState(.idle)
-                    }
-
-                    updatePublisher?.send(completion: .finished)
-                    updatePublisher = nil
-
+                    break
                 case let .failure(error):
                     Analytics.log(error: error)
+                    updateRatesIfNeeded([:])
                     updateState(.failed(error: error.localizedDescription))
                     updatePublisher?.send(completion: .failure(error))
                     updatePublisher = nil
                 }
+                
+            } receiveValue: { [unowned self] rates in
+                updateRatesIfNeeded(rates)
+                
+                // Don't update noAccount state
+                if !silent, !state.isNoAccount {
+                    updateState(.idle)
+                }
+                
+                updatePublisher?.send(completion: .finished)
+                updatePublisher = nil
             }
 
         return newUpdatePublisher.eraseToAnyPublisher()
@@ -168,33 +165,30 @@ class WalletModel: ObservableObject, Identifiable {
 
     func updateWalletManager() -> AnyPublisher<Void, Error> {
         Future { promise in
-            DispatchQueue.global().async {
-                print("🔄 Updating wallet model for \(self.wallet.blockchain)")
-                self.walletManager.update { [weak self] result in
-                    DispatchQueue.global().async {
-                        print("🔄 Finished updating wallet model for \(self?.wallet.blockchain.displayName ?? "")")
-
-                        switch result {
-                        case let .failure(error):
-                            switch error as? WalletError {
-                            case .noAccount(let message):
-                                // If we don't have a account just update state and loadRates
-                                self?.updateState(.noAccount(message: message))
-                                promise(.success(()))
-                            default:
-                                promise(.failure(error.detailedError))
-                            }
-
-                        case .success:
-                            self?.latestUpdateTime = Date()
-
-                            if let demoBalance = self?.demoBalance {
-                                self?.walletManager.wallet.add(coinValue: demoBalance)
-                            }
-
-                            promise(.success(()))
-                        }
+            print("🔄 Updating wallet model for \(self.wallet.blockchain)")
+            self.walletManager.update { [weak self] result in
+                let blockchainName = self?.wallet.blockchain.displayName ?? ""
+                print("🔄 Finished updating wallet model for \(blockchainName) result: \(result)")
+                
+                switch result {
+                case let .failure(error):
+                    switch error as? WalletError {
+                    case .noAccount(let message):
+                        // If we don't have a account just update state and loadRates
+                        self?.updateState(.noAccount(message: message))
+                        promise(.success(()))
+                    default:
+                        promise(.failure(error.detailedError))
                     }
+                    
+                case .success:
+                    self?.latestUpdateTime = Date()
+                    
+                    if let demoBalance = self?.demoBalance {
+                        self?.walletManager.wallet.add(coinValue: demoBalance)
+                    }
+                    
+                    promise(.success(()))
                 }
             }
         }
@@ -238,15 +232,12 @@ class WalletModel: ObservableObject, Identifiable {
 
         return tangemApiService
             .loadRates(for: currenciesToExchange)
-            .receive(on: DispatchQueue.global())
-            .handleEvents(receiveOutput: { [unowned self] rates in
-                updateRatesIfNeeded(rates)
-            })
             .eraseToAnyPublisher()
     }
 
     func updateRatesIfNeeded(_ rates: [String: Decimal]) {
         if !self.rates.isEmpty && rates.isEmpty {
+            print("🔴 New rates for \(wallet.blockchain) isEmpty")
             return
         }
 
