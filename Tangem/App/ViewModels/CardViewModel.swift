@@ -195,8 +195,8 @@ class CardViewModel: Identifiable, ObservableObject {
             isStandalone: true)
     }
 
-    var isResetToFactoryAvailable: Bool {
-        config.hasFeature(.resetToFactory)
+    var resetToFactoryAvailability: UserWalletFeature.Availability {
+        config.getFeatureAvailability(.resetToFactory)
     }
 
     var shouldShowLegacyDerivationAlert: Bool {
