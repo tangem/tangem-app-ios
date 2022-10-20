@@ -174,6 +174,13 @@ class MainViewModel: ObservableObject {
                 self.updateLackDerivationWarningView(entries: entries)
             }
             .store(in: &bag)
+        
+        AppSettings.shared.$saveUserWallets
+            .dropFirst()
+            .sink { _ in
+                self.objectWillChange.send()
+            }
+            .store(in: &bag)
     }
 
     func updateContent() {
