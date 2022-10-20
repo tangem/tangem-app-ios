@@ -141,7 +141,9 @@ class Analytics {
     }
 
     static func logAmplitude(event: Event, params: [String: String] = [:]) {
-        Amplitude.instance().logEvent(event.rawValue, withEventProperties: params)
+        if !AppEnvironment.current.isDebug {
+            Amplitude.instance().logEvent(event.rawValue, withEventProperties: params)
+        }
     }
 
     private static func collectCardData(_ card: Card, additionalParams: [ParameterKey: Any] = [:]) -> [ParameterKey: Any] {
