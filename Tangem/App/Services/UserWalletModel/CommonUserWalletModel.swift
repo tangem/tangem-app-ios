@@ -58,12 +58,12 @@ extension CommonUserWalletModel: UserWalletModel {
         walletListManager.subscribeToEntriesWithoutDerivation()
     }
 
-    func updateAndReloadWalletModels(completion: @escaping () -> Void) {
+    func updateAndReloadWalletModels(silent: Bool, completion: @escaping () -> Void) {
         // Update walletModel list for current storage state
         walletListManager.updateWalletModels()
 
         reloadAllWalletModelsBag = walletListManager
-            .reloadWalletModels()
+            .reloadWalletModels(silent: silent)
             .receive(on: RunLoop.main)
             .receiveCompletion { _ in
                 completion()
