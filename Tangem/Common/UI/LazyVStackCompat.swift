@@ -12,7 +12,7 @@ struct LazyVStackCompat<Content: View>: View {
     private let alignment: HorizontalAlignment
     private let spacing: CGFloat?
     private let content: () -> Content
-    
+
     init(
         alignment: HorizontalAlignment = .center,
         spacing: CGFloat? = nil,
@@ -22,7 +22,7 @@ struct LazyVStackCompat<Content: View>: View {
         self.spacing = spacing
         self.content = content
     }
-    
+
     var body: some View {
         if #available(iOS 14.0, *) {
             LazyVStack(alignment: alignment, spacing: spacing, content: content)
