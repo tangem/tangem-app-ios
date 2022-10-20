@@ -94,7 +94,7 @@ struct TokenItemViewModel: Identifiable, Hashable, Equatable, Comparable {
     }
 
     var isLoading: Bool {
-        state.isLoading // false // 
+        state.isLoading // false //
     }
 
     static func < (lhs: TokenItemViewModel, rhs: TokenItemViewModel) -> Bool {
