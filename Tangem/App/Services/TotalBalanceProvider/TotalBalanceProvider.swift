@@ -35,7 +35,9 @@ extension TotalBalanceProvider: TotalBalanceProviding {
 
     func updateTotalBalance() {
         totalBalanceSubject.send(.loading)
-        loadCurrenciesAndUpdateBalance()
+        DispatchQueue.global().async {
+            self.loadCurrenciesAndUpdateBalance()
+        }
     }
 }
 
@@ -48,7 +50,6 @@ private extension TotalBalanceProvider {
 
                 return model.amountType == amountType
             }
-
 
         refreshSubscription = tangemApiService.loadCurrencies()
             .tryMap { [unowned self] currencies -> TotalBalance in
