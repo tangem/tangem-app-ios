@@ -18,7 +18,7 @@ extension Card {
     var walletCurves: [EllipticCurve] {
         wallets.compactMap { $0.curve }
     }
-    
+
     var hasWallets: Bool {
         !wallets.isEmpty
     }
