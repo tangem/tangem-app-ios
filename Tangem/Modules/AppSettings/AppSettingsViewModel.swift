@@ -28,8 +28,8 @@ class AppSettingsViewModel: ObservableObject {
     // MARK: Properties
 
     private var bag: Set<AnyCancellable> = []
-    private var shouldShowAlertOnDisableSaveWallets: Bool = true
-    private var shouldShowAlertOnDisableSaveAccessCodes: Bool = true
+    private var ignoreSaveWalletChanges = false
+    private var ignoreSaveAccessCodeChanges: Bool = false
     private let userWallet: UserWallet
 
     init(coordinator: AppSettingsRoutable, userWallet: UserWallet) {
@@ -52,17 +52,23 @@ private extension AppSettingsViewModel {
         $isSavingWallet
             .dropFirst()
             .sink { [weak self, userWallet] saveWallet in
+                guard let self = self else { return }
+                
+                if self.ignoreSaveWalletChanges {
+                    return
+                }
+                
                 if saveWallet {
-                    self?.userWalletListService.unlockWithBiometry { result in
+                    self.userWalletListService.unlockWithBiometry { result in
                         if case .success = result {
-                            let _ = self?.userWalletListService.save(userWallet)
-                            self?.setSaveWallets(true)
+                            let _ = self.userWalletListService.save(userWallet)
+                            self.setSaveWallets(true)
                         } else {
-                            self?.setSaveWallets(false)
+                            self.setSaveWallets(false)
                         }
                     }
                 } else {
-                    self?.presentSavingWalletDeleteAlert()
+                    self.presentSavingWalletDeleteAlert()
                 }
             }
             .store(in: &bag)
@@ -70,18 +76,22 @@ private extension AppSettingsViewModel {
         $isSavingAccessCodes
             .dropFirst()
             .sink { [weak self] saveAccessCodes in
+                guard let self = self else { return }
+                
+                if self.ignoreSaveAccessCodeChanges {
+                    return
+                }
+                
                 if saveAccessCodes {
-                    self?.setSaveAccessCodes(true)
+                    self.setSaveAccessCodes(true)
                 } else {
-                    self?.presentSavingAccessCodesDeleteAlert()
+                    self.presentSavingAccessCodesDeleteAlert()
                 }
             }
             .store(in: &bag)
     }
 
     func presentSavingWalletDeleteAlert() {
-        guard shouldShowAlertOnDisableSaveWallets else { return }
-
         let okButton = Alert.Button.destructive(Text("common_delete")) { [weak self] in
             withAnimation {
                 self?.setSaveWallets(false)
@@ -90,7 +100,10 @@ private extension AppSettingsViewModel {
         let cancelButton = Alert.Button.cancel(Text("common_cancel")) { [weak self] in
             withAnimation {
                 self?.setSaveWallets(true)
+
+                self?.ignoreSaveWalletChanges = true
                 self?.isSavingWallet = true
+                self?.ignoreSaveWalletChanges = false
             }
         }
 
@@ -105,8 +118,6 @@ private extension AppSettingsViewModel {
     }
 
     func presentSavingAccessCodesDeleteAlert() {
-        guard shouldShowAlertOnDisableSaveAccessCodes else { return }
-
         let okButton = Alert.Button.destructive(Text("common_delete")) { [weak self] in
             withAnimation {
                 self?.setSaveAccessCodes(false)
@@ -134,9 +145,9 @@ private extension AppSettingsViewModel {
 
         if !saveWallets {
             withAnimation {
-                shouldShowAlertOnDisableSaveWallets = false
+                ignoreSaveWalletChanges = true
                 isSavingWallet = false
-                shouldShowAlertOnDisableSaveWallets = true
+                ignoreSaveWalletChanges = false
             }
 
             setSaveAccessCodes(false)
@@ -153,9 +164,9 @@ private extension AppSettingsViewModel {
                     isSavingWallet = true
                 }
             } else {
-                shouldShowAlertOnDisableSaveAccessCodes = false
+                ignoreSaveAccessCodeChanges = true
                 isSavingAccessCodes = false
-                shouldShowAlertOnDisableSaveAccessCodes = true
+                ignoreSaveAccessCodeChanges = false
 
                 let accessCodeRepository = AccessCodeRepository()
                 accessCodeRepository.clear()
