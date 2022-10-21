@@ -546,6 +546,8 @@
 		DCE5C67128899C42000C7F67 /* AppStorageCompat.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE5C66F2889964A000C7F67 /* AppStorageCompat.swift */; };
 		DCE7119F28784F6700969857 /* DisclaimerRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE7119E28784F6700969857 /* DisclaimerRoutable.swift */; };
 		DCE7E02C287BF92400063EEC /* SwitchChainHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE7E02B287BF92400063EEC /* SwitchChainHandler.swift */; };
+		DCF838B729029BB500162A32 /* abi_wxdai.json in Resources */ = {isa = PBXBuildFile; fileRef = DCF838B629029BB500162A32 /* abi_wxdai.json */; };
+		DCF838BA2902A00D00162A32 /* WXDAIFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF838B92902A00D00162A32 /* WXDAIFactory.swift */; };
 		DCF8972D28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF8972C28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift */; };
 		DCFCA17528F4232F0037586C /* Array+.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFCA17428F4232F0037586C /* Array+.swift */; };
 		DCFCA17C28F5F6960037586C /* PDFKitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFCA17B28F5F6960037586C /* PDFKitView.swift */; };
@@ -1219,6 +1221,8 @@
 		DCE5C66F2889964A000C7F67 /* AppStorageCompat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStorageCompat.swift; sourceTree = "<group>"; };
 		DCE7119E28784F6700969857 /* DisclaimerRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisclaimerRoutable.swift; sourceTree = "<group>"; };
 		DCE7E02B287BF92400063EEC /* SwitchChainHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchChainHandler.swift; sourceTree = "<group>"; };
+		DCF838B629029BB500162A32 /* abi_wxdai.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = abi_wxdai.json; sourceTree = "<group>"; };
+		DCF838B92902A00D00162A32 /* WXDAIFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WXDAIFactory.swift; sourceTree = "<group>"; };
 		DCF8972C28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkConfigFactory.swift; sourceTree = "<group>"; };
 		DCFCA17428F4232F0037586C /* Array+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+.swift"; sourceTree = "<group>"; };
 		DCFCA17B28F5F6960037586C /* PDFKitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFKitView.swift; sourceTree = "<group>"; };
@@ -2689,6 +2693,7 @@
 		DC194D2428EC6A4B007FBC99 /* SaltPay */ = {
 			isa = PBXGroup;
 			children = (
+				DCF838B629029BB500162A32 /* abi_wxdai.json */,
 				DC5E32C428EDC7D200D6096A /* PaymentologyApi */,
 				DC912D1928E73C7500D76628 /* SaltPayRegistrator.swift */,
 				DC194D2528EC6A76007FBC99 /* SaltPayRegistratorProvider.swift */,
@@ -2697,6 +2702,7 @@
 				DC936B6828F3F7D20023C75D /* GnosisRegistrator.swift */,
 				DC936B6A28F3F8140023C75D /* SaltPayRegistratorError.swift */,
 				DC936B6C28F3F83E0023C75D /* RegistrationTask.swift */,
+				DCF838B92902A00D00162A32 /* WXDAIFactory.swift */,
 			);
 			path = SaltPay;
 			sourceTree = "<group>";
@@ -3219,6 +3225,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DCF838B729029BB500162A32 /* abi_wxdai.json in Resources */,
 				DCFCA17E28F5F7C40037586C /* T&C.pdf in Resources */,
 				EF0FF873286608BC00B7CEAF /* GoogleService-Info-Beta.plist in Resources */,
 				DA64C36D27CCAD7E005B5E9A /* InfoPlist.strings in Resources */,
@@ -3857,6 +3864,7 @@
 				DC0A5856282E3E220031BECC /* ServicesManager.swift in Sources */,
 				5D52A75127C3CA32002783F7 /* SignTypedDataHandler.swift in Sources */,
 				B0B2DF6026E1FD5400BC0934 /* AnimatedView.swift in Sources */,
+				DCF838BA2902A00D00162A32 /* WXDAIFactory.swift in Sources */,
 				65C9FCAE28644F9D00FDE63E /* DetailsView.swift in Sources */,
 				B0E1D175257DE75D00A3AB98 /* CommonKeysManager.swift in Sources */,
 				EF50A5A42881CEE30081C5BB /* XCAssets+Generated.swift in Sources */,
