@@ -72,7 +72,7 @@ extension CommonKeysManager: KeysManager {
     var saltPay: SaltPayConfiguration {
         keys.saltPay
     }
-    
+
     var infuraProjectId: String {
         keys.infuraProjectId
     }
