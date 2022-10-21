@@ -259,7 +259,7 @@ class SaltPayRegistrator {
             } else {
                 newState = .finished  // active is true, go to success screen
             }
-        } else if registrationState.pinSet == false {
+        } else if registrationState.pinSet != true {
             if pin == nil {
                 newState = .needPin // pinset is false, go to pin screen
             } else {
