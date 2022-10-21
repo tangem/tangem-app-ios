@@ -74,7 +74,7 @@ enum WalletOnboardingStep {
             return cardOffset
         }
     }
-    
+
     var balanceStackOpacity: Double {
         switch self {
         case .claim, .successClaim: return 1
