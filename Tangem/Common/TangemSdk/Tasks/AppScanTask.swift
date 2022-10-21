@@ -8,9 +8,7 @@
 
 import Foundation
 import TangemSdk
-#if !CLIP
 import BlockchainSdk
-#endif
 
 enum DefaultWalletData {
     case note(WalletData)
@@ -52,15 +50,10 @@ final class AppScanTask: CardSessionRunnable {
     private var walletData: DefaultWalletData = .none
     private var primaryCard: PrimaryCard? = nil
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
-    #if !CLIP
+
     init(targetBatch: String? = nil) {
         self.targetBatch = targetBatch
     }
-    #else
-    init(targetBatch: String? = nil) {
-        self.targetBatch = targetBatch
-    }
-    #endif
 
     deinit {
         print("AppScanTask deinit")
@@ -111,10 +104,6 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func readPrimaryIfNeeded(_ card: Card, _ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        #if CLIP
-        deriveKeysIfNeeded(session, completion)
-        return
-        #else
         let isSaltPayCard = SaltPayUtil().isPrimaryCard(batchId: card.batchId)
         let isWalletInOnboarding = AppSettings.shared.cardsStartedActivation.contains(card.cardId)
 
@@ -126,7 +115,6 @@ final class AppScanTask: CardSessionRunnable {
             deriveKeysIfNeeded(session, completion)
             return
         }
-        #endif
     }
 
     private func readFile(_ card: Card, session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
@@ -255,10 +243,6 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func deriveKeysIfNeeded(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        #if CLIP
-        self.runScanTask(session, completion)
-        return
-        #else
         guard let card = session.environment.card else {
             completion(.failure(.missingPreflightRead))
             return
@@ -297,7 +281,6 @@ final class AppScanTask: CardSessionRunnable {
         sdkConfig.defaultDerivationPaths = derivations
         session.updateConfig(with: sdkConfig)
         self.runScanTask(session, completion)
-        #endif
     }
 
     private func runScanTask(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
@@ -318,16 +301,13 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
 
-        #if !CLIP
         migrate(card: card)
-        #endif
 
         completion(.success(AppScanTaskResponse(card: card,
                                                 walletData: walletData,
                                                 primaryCard: primaryCard)))
     }
 
-    #if !CLIP
     private func migrate(card: Card) {
         let config = UserWalletConfigFactory(CardInfo(card: card, walletData: walletData)).makeConfig()
         if let legacyCardMigrator = LegacyCardMigrator(cardId: card.cardId, config: config) {
@@ -339,5 +319,4 @@ final class AppScanTask: CardSessionRunnable {
             tokenMigrator.migrate()
         }
     }
-    #endif
 }
