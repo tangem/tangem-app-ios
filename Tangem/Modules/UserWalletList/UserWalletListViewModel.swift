@@ -121,8 +121,12 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         }
 
         let acceptButton = UIAlertAction(title: "common_ok".localized, style: .default) { [weak self, nameTextField] _ in
+            let newName = nameTextField?.text ?? ""
+
+            guard viewModel.userWallet.name != newName else { return }
+            
             var newUserWallet = viewModel.userWallet
-            newUserWallet.name = nameTextField?.text ?? ""
+            newUserWallet.name = newName
 
             let _ = self?.userWalletListService.save(newUserWallet)
             self?.updateModels()
