@@ -118,11 +118,11 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         self.twinsService = .init(card: cardModel, twinData: twinData)
 
         super.init(input: input, coordinator: coordinator)
-        
+
         if let walletModel = self.cardModel.walletModels.first {
             updateCardBalanceText(for: walletModel)
         }
-        
+
         if case let .twins(steps) = input.steps {
             self.steps = steps
 
