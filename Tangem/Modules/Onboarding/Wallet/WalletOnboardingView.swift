@@ -82,7 +82,7 @@ struct WalletOnboardingView: View {
                             .foregroundColor(.tangemBgGray)
                             .frame(size: viewModel.isInitialAnimPlayed ? currentStep.backgroundFrameSize(in: size) : .zero)
                             .offset(viewModel.isInitialAnimPlayed ? currentStep.backgroundOffset(in: size) : .zero)
-                            .opacity(viewModel.isCustomContentVisible ? 0 : 1)
+                            .opacity(viewModel.isBackgroundCircleVisible ? 1 : 0)
 
                         // Navbar is added to ZStack instead of VStack because of wrong animation when container changed
                         // and cards jumps instead of smooth transition
@@ -141,6 +141,22 @@ struct WalletOnboardingView: View {
                                 }
 
                             }
+                            
+                            let backgroundFrame = viewModel.isInitialAnimPlayed ? currentStep.backgroundFrameSize(in: size) : .zero
+                            let backgroundOffset = viewModel.isInitialAnimPlayed ? currentStep.backgroundOffset(in: size) : .zero
+                            
+                            OnboardingTopupBalanceView(
+                                backgroundFrameSize: backgroundFrame,
+                                cornerSize: 8,
+                                backgroundOffset: backgroundOffset,
+                                balance: viewModel.cardBalance,
+                                balanceUpdaterFrame: backgroundFrame,
+                                balanceUpdaterOffset: backgroundOffset,
+                                refreshAction: viewModel.onRefresh,
+                                refreshButtonState: viewModel.refreshButtonState,
+                                refreshButtonSize: .medium,
+                                refreshButtonOpacity: currentStep.balanceStackOpacity
+                            )
 
                             OnboardingCircleButton(refreshAction: {},
                                                    state: currentStep.successCircleState,
@@ -160,7 +176,9 @@ struct WalletOnboardingView: View {
                     .position(x: size.width / 2, y: size.height / 2)
                 }
                 .readSize { size in
-                    viewModel.setupContainer(with: size)
+                    if !viewModel.isCustomContentVisible {
+                        viewModel.setupContainer(with: size)
+                    }
                 }
                 .frame(minHeight: viewModel.navbarSize.height + 20)
 
@@ -168,6 +186,9 @@ struct WalletOnboardingView: View {
                 if viewModel.isCustomContentVisible {
                     customContent
                         .layoutPriority(1)
+                        .readSize { size in
+                            viewModel.setupContainer(with: size)
+                        }
                 }
 
                 if viewModel.isButtonsVisible {
