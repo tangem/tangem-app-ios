@@ -220,12 +220,10 @@ PODS:
     - ZendeskSupportProvidersSDK (= 5.5.0)
 
 DEPENDENCIES:
-  - Alamofire
   - AlertToast (from `https://github.com/tangem/AlertToast`)
   - Amplitude (~> 8.8.0)
   - AnyCodable-FlightSchool
   - AppsFlyerFramework
-  - BigInt
   - BinanceChain (from `https://github.com/tangem/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/tangem/bitcoincore.git`, tag `0.0.16`)
   - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-170`)
@@ -238,11 +236,8 @@ DEPENDENCIES:
   - Mobile-Buy-SDK
   - Moya
   - ScaleCodec
-  - Sodium
   - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-3`)
   - stellar-ios-mac-sdk
-  - SwiftCBOR
-  - SwiftyJSON
   - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-172`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.7.0`)
   - web3swift (from `https://github.com/tangem/web3swift.git`, tag `2.2.10`)
@@ -421,6 +416,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: 3960ecb1404e772204354abd9e6ccaf7e090bad0
+PODFILE CHECKSUM: 52348888223f21abd580683f59de4a1466d36f6c
 
 COCOAPODS: 1.11.3
