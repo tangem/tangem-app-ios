@@ -67,16 +67,18 @@ struct SaltPayConfig {
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
                 return []
             }
-            break
+            return [.success]
         case .kycStart:
-            steps.append(contentsOf: [.kycStart, .kycProgress, .kycWaiting])
+            steps.append(contentsOf: [.kycStart, .kycProgress, .kycWaiting, .claim])
         case .kycWaiting:
-            steps.append(contentsOf: [.kycWaiting])
-        case .needPin, .noGas, .registration:
-            steps.append(contentsOf: [.enterPin, .registerWallet, .kycStart, .kycProgress, .kycWaiting])
+            steps.append(contentsOf: [.kycWaiting, .claim])
+        case .needPin, .registration:
+            steps.append(contentsOf: [.enterPin, .registerWallet, .kycStart, .kycProgress, .kycWaiting, .claim])
+        case .claim:
+            steps.append(contentsOf: [.claim])
         }
 
-        steps.append(.success)
+        steps.append(.successClaim)
         return steps
     }
 }
