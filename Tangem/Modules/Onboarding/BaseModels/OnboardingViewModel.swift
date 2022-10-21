@@ -246,6 +246,6 @@ extension OnboardingViewModel {
                                                          userWalletEmailData: cardModel.emailData)
 
         coordinator.openSupportChat(cardId: cardModel.cardId,
-                                              dataCollector: dataCollector)
+                                    dataCollector: dataCollector)
     }
 }
