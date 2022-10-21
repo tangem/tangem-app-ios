@@ -7,13 +7,11 @@
 //
 
 import Foundation
-#if !CLIP // [REDACTED_TODO_COMMENT]
 import FirebaseAnalytics
 import FirebaseCrashlytics
 import AppsFlyerLib
 import BlockchainSdk
 import Amplitude
-#endif
 import TangemSdk
 
 class Analytics {
@@ -31,12 +29,10 @@ class Analytics {
     }
 
     static func log(event: Event, with params: [ParameterKey: Any]? = nil) {
-        #if !CLIP
         let key = event.rawValue
         let values = params?.firebaseParams
         FirebaseAnalytics.Analytics.logEvent(key, parameters: values)
         AppsFlyerLib.shared().logEvent(key, withValues: values)
-        #endif
     }
 
     static func logScan(card: Card, config: UserWalletConfig) {
@@ -53,7 +49,6 @@ class Analytics {
     }
 
     static func logCardSdkError(_ error: TangemSdkError, for action: Action, parameters: [ParameterKey: Any] = [:]) {
-        #if !CLIP
         if case .userCancelled = error { return }
 
         var params = parameters
@@ -62,7 +57,6 @@ class Analytics {
 
         let nsError = NSError(domain: "Tangem SDK Error #\(error.code)", code: error.code, userInfo: params.firebaseParams)
         Crashlytics.crashlytics().record(error: nsError)
-        #endif
     }
 
     static func logCardSdkError(_ error: TangemSdkError, for action: Action, card: Card, parameters: [ParameterKey: Any] = [:]) {
@@ -70,7 +64,6 @@ class Analytics {
     }
 
     static func log(error: Error) {
-        #if !CLIP
         if case .userCancelled = error.toTangemSdkError() {
             return
         }
@@ -86,10 +79,8 @@ class Analytics {
             Crashlytics.crashlytics().record(error: error)
         }
 
-        #endif
     }
 
-    #if !CLIP
     static func logWcEvent(_ event: WalletConnectEvent) {
         var params = [ParameterKey: Any]()
         let firEvent: Event
@@ -120,9 +111,7 @@ class Analytics {
 
         log(event: firEvent, with: params)
     }
-    #endif
 
-    #if !CLIP
     static func logShopifyOrder(_ order: Order) {
         var appsFlyerDiscountParams: [String: Any] = [:]
         var firebaseDiscountParams: [String: Any] = [:]
@@ -150,14 +139,11 @@ class Analytics {
 
         logAmplitude(event: .purchased, params: ["SKU": sku, "Count": "\(order.lineItems.count)", "Amount": "\(order.total)\(order.currencyCode)"])
     }
-    #endif
 
     static func logAmplitude(event: Event, params: [String: String] = [:]) {
-        #if !CLIP
         if !AppEnvironment.current.isDebug {
             Amplitude.instance().logEvent(event.rawValue, withEventProperties: params)
         }
-        #endif
     }
 
     private static func collectCardData(_ card: Card, additionalParams: [ParameterKey: Any] = [:]) -> [ParameterKey: Any] {
@@ -348,7 +334,6 @@ extension Analytics {
         case appsflyer
     }
 
-    #if !CLIP
     enum WalletConnectEvent {
         enum SessionEvent {
             case disconnect
@@ -357,7 +342,6 @@ extension Analytics {
 
         case error(Error, WalletConnectAction?), session(SessionEvent, URL), action(WalletConnectAction), invalidRequest(json: String?)
     }
-    #endif
 }
 
 //  MARK: - Amplitude events
