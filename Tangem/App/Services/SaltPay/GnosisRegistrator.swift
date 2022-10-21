@@ -35,21 +35,20 @@ class GnosisRegistrator {
             }
             .eraseToAnyPublisher()
     }
-    
+
     func getClaimableAmount() -> AnyPublisher<Amount, Error> {
         let wxDaiFactory = WXDAIFactory(blockchain: settings.blockchain, token: settings.token)
-        
+
         guard let wxDai = wxDaiFactory.wxDai else {
             return .anyFail(error: SaltPayRegistratorError.failedToBuildContract)
-            
         }
-        
+
         let parameters = [settings.treasurySafeAddress, cardAddress] as! [AnyObject]
-        
+
         return wxDai.read(method: "allowance", parameters: parameters)
             .tryMap { [settings] response -> Amount in
                 let stringResponse = "\(response)".stripHexPrefix()
-                
+
                 guard let weiAmount = BigUInt(stringResponse),
                       let tokenAmount = Web3.Utils.formatToEthereumUnits(weiAmount,
                                                                          toUnits: .eth,
@@ -59,7 +58,7 @@ class GnosisRegistrator {
                       let decimalAmount = Decimal(string: tokenAmount) else {
                     throw SaltPayRegistratorError.failedToParseAllowance
                 }
-                
+
                 return Amount(with: settings.token, value: decimalAmount)
             }
             .receive(on: DispatchQueue.main)
@@ -174,7 +173,7 @@ class GnosisRegistrator {
             return .anyFail(error: error)
         }
     }
-    
+
     func makeClaimTx(value: Amount) -> AnyPublisher<CompiledEthereumTransaction, Error>  {
         let zeroApproveAmount = Amount(with: value, value: 0)
         do {
@@ -202,22 +201,22 @@ class GnosisRegistrator {
 
     private func makeTxData(sig: Data, address: String, address2: String? = nil, amount: Amount?) throws -> Data {
         let addressData = Data(hexString: address).aligned()
-        
+
         var data: Data = sig + addressData
-        
+
         if let address2 = address2 {
             let address2Data = Data(hexString: address2).aligned()
             data += address2Data
         }
-        
-        if let amount = amount {
+
+        if let amount {
             guard let amountData = amount.encodedAligned else {
                 throw SaltPayRegistratorError.failedToMakeTxData
             }
-            
+
             data += amountData
         }
-        
+
         return data
     }
 }
@@ -258,7 +257,7 @@ extension GnosisRegistrator {
                 return Blockchain.saltPay(testnet: true)
             }
         }
-        
+
         var treasurySafeAddress: String {
             "0x8e9260a049d3Aa9ac60D0d4F27017320E0e2396B"
         }
