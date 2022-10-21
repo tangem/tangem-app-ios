@@ -59,7 +59,7 @@ struct PaymentologyApiTarget: TargetType {
                                                  blockchainInit: true,
                                                  kycPassed: false,
                                                  kycProvider: "SomeProvider",
-                                                 kycDate: "",
+                                                 kycDate: nil,
                                                  disabledByAdmin: nil)
 
             let response = RegistrationResponse(results: [item],
