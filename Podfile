@@ -67,22 +67,6 @@ target 'Tangem' do
 
 end
 
-target 'TangemClip' do
-  use_frameworks!
-  inhibit_all_warnings!
-
-  common_pods
-  
-  pod 'BigInt'
-  pod 'SwiftyJSON'
-  pod 'Alamofire'
-  pod 'Moya'
-  pod 'Sodium'
-  pod 'SwiftCBOR'
-  pod 'AnyCodable-FlightSchool'
-  
-end
-
 pre_install do |installer|
     # workaround for https://github.com/CocoaPods/CocoaPods/issues/3289
     Pod::Installer::Xcode::TargetValidator.send(:define_method, :verify_no_static_framework_transitive_dependencies) {}
