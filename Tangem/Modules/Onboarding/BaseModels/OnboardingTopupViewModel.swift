@@ -47,7 +47,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
     }
 
     private var refreshButtonDispatchWork: DispatchWorkItem?
-    
+
     override init(input: OnboardingInput, coordinator: Coordinator) {
         self.cardModel = input.cardInput.cardModel!
         super.init(input: input, coordinator: coordinator)
@@ -73,12 +73,12 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
                     fallthrough
                 case .idle:
                     if !walletModel.isEmptyIncludingPendingIncomingTxs,
-                       !(walletModel.wallet.amounts[type]?.isZero ?? true){
+                       !(walletModel.wallet.amounts[type]?.isZero ?? true) {
                         self.goToNextStep()
                         self.walletModelUpdateCancellable = nil
                         return
                     }
-                    
+
                     self.resetRefreshButtonState()
                 case .failed(let error):
                     self.alert = error.alertBinder
@@ -99,7 +99,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
 
         if model.wallet.amounts.isEmpty {
             let zeroAmount = type.token.map { Amount(with: $0, value: 0) } ??
-            Amount(with: model.wallet.blockchain, type: type, value: 0)
+                Amount(with: model.wallet.blockchain, type: type, value: 0)
 
             cardBalance = zeroAmount.string(with: 8)
         } else {
