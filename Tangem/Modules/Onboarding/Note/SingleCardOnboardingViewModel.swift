@@ -72,7 +72,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         } else {
             fatalError("Wrong onboarding steps passed to initializer")
         }
-        
+
         if let walletModel = self.cardModel.walletModels.first {
             updateCardBalanceText(for: walletModel)
         }
