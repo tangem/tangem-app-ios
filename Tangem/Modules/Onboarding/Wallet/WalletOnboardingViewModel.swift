@@ -19,13 +19,13 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     @Published var thirdCardSettings: AnimatedViewSettings = .zero
     @Published var canDisplayCardImage: Bool = false
     @Published var pinText: String = ""
-    
+
     private var stackCalculator: StackCalculator = .init()
     private var fanStackCalculator: FanStackCalculator = .init()
     private var stepPublisher: AnyCancellable?
     private var prepareTask: PreparePrimaryCardTask? = nil
     private var claimed: Bool = false
-    
+
     private var cardIdDisplayFormat: CardIdDisplayFormat {
         isSaltPayOnboarding ? .none : .lastMasked(4)
     }
@@ -249,10 +249,10 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         default: return false
         }
     }
-    
+
     var isBackgroundCircleVisible: Bool {
         guard !isCustomContentVisible else { return false }
-        
+
         switch currentStep {
         case .claim, .successClaim:
             return false
@@ -341,7 +341,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     private var saltPayAmountType: Amount.AmountType {
         .token(value: GnosisRegistrator.Settings.main.token)
     }
-    
+
     override init(input: OnboardingInput, coordinator: OnboardingCoordinator) {
         super.init(input: input, coordinator: coordinator)
 
@@ -363,27 +363,27 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         }
 
         bindSaltPayIfNeeded()
-        
+
         if steps.first == .claim && currentStep == .claim {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                 self.onRefresh()
             }
         }
     }
-    
+
     func onRefresh() {
         if isSaltPayOnboarding {
             updateCardBalance(for: saltPayAmountType)
         }
     }
-    
+
     private func bindSaltPayIfNeeded() {
         guard let saltPayRegistrator = saltPayRegistratorProvider.registrator else { return }
 
         if let walletModel = self.cardModel.walletModels.first {
             updateCardBalanceText(for: walletModel, type: saltPayAmountType)
         }
-        
+
         saltPayRegistrator
             .$error
             .dropFirst()
@@ -576,10 +576,10 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             fireConfetti()
         }
     }
-    
+
     func claim() {
         guard let saltPayRegistrator = saltPayRegistratorProvider.registrator else { return }
-        
+
         refreshButtonState = .activityIndicator
         saltPayRegistrator.claim() { [weak self] result in
             switch result {
@@ -591,7 +591,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             }
         }
     }
-    
+
     override func goToNextStep() {
         super.goToNextStep()
 
