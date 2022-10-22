@@ -265,10 +265,25 @@ class SaltPayRegistrator {
             } else {
                 newState = .registration // has enterd pin, go to regstration screen
             }
-        } else if registrationState.kycDate != nil { // kycDate is set, go to kyc waiting screen
-            newState = .kycWaiting
         } else {
-            newState = .kycStart  // pinset is true, go to kyc start screen
+            if let status = registrationState.kycStatus {
+                switch status {
+                case .notStarted, .started, .unknown:
+                    newState = .kycStart
+                case .rejected, .correctionRequested:
+                    newState = .kycRetry
+                case .waitingForApproval:
+                    newState = .kycWaiting
+                case .approved: // Handled by registrationState.active == true ?
+                    if canClaim {
+                        newState = .claim  // active is true, can claim, go to claim screen
+                    } else {
+                        newState = .finished  // active is true, go to success screen
+                    }
+                }
+            } else {
+                newState = .kycStart
+            }
         }
 
         if newState != state {
@@ -366,6 +381,7 @@ extension SaltPayRegistrator {
         case needPin
         case registration
         case kycStart
+        case kycRetry
         case kycWaiting
         case claim
         case finished
