@@ -63,19 +63,21 @@ struct SaltPayConfig {
         var steps: [WalletOnboardingStep] = .init()
 
         switch registrator.state {
+        case .needPin, .registration:
+            steps.append(contentsOf: [.enterPin, .registerWallet, .kycStart, .kycProgress, .kycWaiting, .claim])
+        case .kycRetry:
+            steps.append(contentsOf: [.kycStart, .kycProgress, .kycWaiting, .claim])
+        case .kycStart:
+            steps.append(contentsOf: [.kycStart, .kycProgress, .kycWaiting, .claim])
+        case .kycWaiting:
+            steps.append(contentsOf: [.kycWaiting, .claim])
+        case .claim:
+            steps.append(contentsOf: [.claim])
         case .finished:
             if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
                 return []
             }
             return [.success]
-        case .kycStart:
-            steps.append(contentsOf: [.kycStart, .kycProgress, .kycWaiting, .claim])
-        case .kycWaiting:
-            steps.append(contentsOf: [.kycWaiting, .claim])
-        case .needPin, .registration:
-            steps.append(contentsOf: [.enterPin, .registerWallet, .kycStart, .kycProgress, .kycWaiting, .claim])
-        case .claim:
-            steps.append(contentsOf: [.claim])
         }
 
         steps.append(.successClaim)
