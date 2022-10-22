@@ -86,6 +86,12 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
     // MARK: Functions
 
+    override func backButtonAction() {
+        alert = AlertBuilder.makeExitAlert() { [weak self] in
+            self?.closeOnboarding()
+        }
+    }
+
     override func goToNextStep() {
         super.goToNextStep()
         stepUpdate()
