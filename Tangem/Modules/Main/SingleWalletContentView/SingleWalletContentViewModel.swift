@@ -25,6 +25,14 @@ class SingleWalletContentViewModel: ObservableObject {
     var canShowAddress: Bool {
         cardModel.canShowAddress
     }
+    
+    public var canSend: Bool {
+        guard cardModel.canSend else {
+            return false
+        }
+
+        return singleWalletModel?.wallet.canSend(amountType: .coin) ?? false
+    }
 
     lazy var totalSumBalanceViewModel = TotalSumBalanceViewModel(
         userWalletModel: userWalletModel,
