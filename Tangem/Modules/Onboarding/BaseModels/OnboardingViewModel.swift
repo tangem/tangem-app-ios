@@ -10,7 +10,7 @@ import SwiftUI
 import Combine
 import TangemSdk
 
-class OnboardingViewModel<Step: OnboardingStep> {
+class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable> {
     let navbarSize: CGSize = .init(width: UIScreen.main.bounds.width, height: 44)
     let resetAnimDuration: Double = 0.3
 
@@ -128,11 +128,11 @@ class OnboardingViewModel<Step: OnboardingStep> {
 
     var isFromMain: Bool = false
     private(set) var containerSize: CGSize = .zero
-    unowned let onboardingCoordinator: OnboardingRoutable
+    unowned let coordinator: Coordinator
 
-    init(input: OnboardingInput, onboardingCoordinator: OnboardingRoutable) {
+    init(input: OnboardingInput, coordinator: Coordinator) {
         self.input = input
-        self.onboardingCoordinator = onboardingCoordinator
+        self.coordinator = coordinator
         isFromMain = input.isStandalone
         isNavBarVisible = input.isStandalone
 
@@ -232,11 +232,11 @@ class OnboardingViewModel<Step: OnboardingStep> {
 // MARK: - Navigation
 extension OnboardingViewModel {
     func onboardingDidFinish() {
-        onboardingCoordinator.onboardingDidFinish()
+        coordinator.onboardingDidFinish()
     }
 
     func closeOnboarding() {
-        onboardingCoordinator.closeOnboarding()
+        coordinator.closeOnboarding()
     }
 
     func openSupportChat() {
@@ -245,7 +245,7 @@ extension OnboardingViewModel {
         let dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel,
                                                          userWalletEmailData: cardModel.emailData)
 
-        onboardingCoordinator.openSupportChat(cardId: cardModel.cardId,
-                                              dataCollector: dataCollector)
+        coordinator.openSupportChat(cardId: cardModel.cardId,
+                                    dataCollector: dataCollector)
     }
 }
