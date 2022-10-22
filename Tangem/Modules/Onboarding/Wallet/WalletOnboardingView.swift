@@ -59,9 +59,13 @@ struct WalletOnboardingView: View {
                 WebViewContainer(viewModel: kycModel)
             }
         case .kycWaiting:
-            KYCWaitingView(imageName: "success_waiting",
-                           title: viewModel.currentStep.title!,
-                           subtitle: viewModel.currentStep.subtitle!)
+            KYCView(imageName: "success_waiting",
+                    title: viewModel.currentStep.title!,
+                    subtitle: viewModel.currentStep.subtitle!)
+        case .kycRetry:
+            KYCView(imageName: "error_circle",
+                    title: viewModel.currentStep.title!,
+                    subtitle: viewModel.currentStep.subtitle!)
         default:
             EmptyView()
         }
