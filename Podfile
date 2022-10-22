@@ -5,7 +5,6 @@ project 'TangemApp.xcodeproj'
 def common_pods
    pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-172'
    #pod 'TangemSdk', :path => '../tangem-sdk-ios'
-   pod 'KeychainSwift', '~> 19.0'
 end
 
 
@@ -52,6 +51,7 @@ target 'Tangem' do
   pod 'ZendeskSupportProvidersSDK', '~> 5.5.0'
   pod 'ZendeskChatSDK', '~> 2.12.0'
   pod 'ZendeskAnswerBotSDK', '~> 2.2.0'
+  pod 'KeychainSwift', '~> 19.0'
   
   # Analytics
   pod 'Amplitude', '~> 8.8.0'
@@ -72,15 +72,6 @@ target 'TangemClip' do
   inhibit_all_warnings!
 
   common_pods
-  
-  pod 'BigInt'
-  pod 'SwiftyJSON'
-  pod 'Alamofire'
-  pod 'Moya'
-  pod 'Sodium'
-  pod 'SwiftCBOR'
-  pod 'AnyCodable-FlightSchool'
-  
 end
 
 pre_install do |installer|
