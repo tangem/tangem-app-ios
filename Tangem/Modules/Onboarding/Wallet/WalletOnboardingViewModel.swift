@@ -61,7 +61,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             default: break
             }
 
-        case .registerWallet, .kycStart, .enterPin, .kycWaiting:
+        case .registerWallet, .kycStart, .kycRetry, .enterPin, .kycWaiting:
             return nil
         case .claim:
             let claimValue = saltPayRegistratorProvider.registrator?.claimableAmountDescription ?? ""
@@ -113,7 +113,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                 return LocalizedStringKey(stringLiteral: "onboarding_subtitle_scan_backup_card".localized(cardIdFormatted))
             default: return super.subtitle
             }
-        case .registerWallet, .kycStart, .enterPin, .kycWaiting:
+        case .registerWallet, .kycStart, .kycRetry, .enterPin, .kycWaiting:
             return nil
         case .claim:
             return claimed ? "onboarding_subtitle_claim_progress" : super.subtitle
@@ -123,7 +123,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     override var mainButtonSettings: TangemButtonSettings? {
         switch currentStep {
-        case .enterPin, .registerWallet, .kycStart, .kycProgress, .claim, .successClaim:
+        case .enterPin, .registerWallet, .kycStart, .kycRetry, .kycProgress, .claim, .successClaim:
             return nil
         default:
             break
@@ -219,7 +219,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     var supplementButtonColor: ButtonColorStyle {
         switch currentStep {
-        case .selectBackupCards, .kycWaiting, .enterPin, .registerWallet, .kycStart, .kycProgress, .claim, .successClaim: return .black
+        case .selectBackupCards, .kycWaiting, .enterPin, .registerWallet, .kycStart, .kycRetry, .kycProgress, .claim, .successClaim: return .black
         default: return .transparentWhite
         }
     }
@@ -244,7 +244,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     var isCustomContentVisible: Bool {
         switch currentStep {
-        case .enterPin, .registerWallet, .kycStart, .kycProgress, .kycWaiting:
+        case .enterPin, .registerWallet, .kycStart, .kycRetry, .kycProgress, .kycWaiting:
             return true
         default: return false
         }
@@ -411,6 +411,9 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                     self?.goToNextStep()
                 case .claim:
                     self?.goToNextStep()
+                case .kycRetry:
+                    self?.steps = WalletOnboardingStep.retryKYCSteps
+                    self?.currentStepIndex = 0
                 default:
                     break
                 }
@@ -525,7 +528,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             }
         case .registerWallet:
             saltPayRegistratorProvider.registrator?.register()
-        case .kycStart, .successClaim:
+        case .kycStart, .kycRetry, .successClaim:
             goToNextStep()
         case .kycProgress:
             goToNextStep()
