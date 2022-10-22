@@ -466,9 +466,7 @@ URL: %@";
 
 "onboarding_navbar_pin" = "Код доступа";
 "onboarding_navbar_register_wallet" = "Подключиться";
-"onboarding_navbar_kyc_start" = "Верификация клиента";
 "onboarding_navbar_kyc_progress" = "Подтвердите свою личность";
-"onboarding_navbar_kyc_waiting" = "В обработке";
 "onboarding_button_pin" = "Установить Код доступа";
 "onboarding_button_register_wallet" = "Зарегистрироваться";
 "onboarding_button_kyc_start" = "Подтвердить";
@@ -499,3 +497,5 @@ URL: %@";
 "onboarding_subtitle_success_claim" = "Поздравляем! Ваша платежная крипто карта теперь активирована!";
 "onboarding_title_claim_progress" = "Запрашивается";
 "onboarding_subtitle_claim_progress" = "Это займет несколько секунд";
+"onboarding_title_kyc_retry" = "Что-то пошло не так";
+"onboarding_subtitle_kyc_retry" = "Более подробная информация отправлена на ваш адрес электронной почты.";
