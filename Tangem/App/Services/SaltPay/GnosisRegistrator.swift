@@ -204,7 +204,7 @@ class GnosisRegistrator {
 
         var data: Data = sig + addressData
 
-        if let address2 = address2 {
+        if let address2 {
             let address2Data = Data(hexString: address2).aligned()
             data += address2Data
         }
