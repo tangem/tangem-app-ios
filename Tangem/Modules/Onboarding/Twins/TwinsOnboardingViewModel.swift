@@ -241,7 +241,9 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         case .second, .third:
             alert = AlertBuilder.makeOkGotItAlert(message: "onboarding_twin_exit_warning".localized)
         default:
-            back()
+            alert = AlertBuilder.makeExitAlert() { [weak self] in
+                self?.back()
+            }
         }
     }
 
