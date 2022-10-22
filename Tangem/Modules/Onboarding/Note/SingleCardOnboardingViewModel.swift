@@ -12,7 +12,7 @@ import TangemSdk
 import Combine
 import BlockchainSdk
 
-class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardingStep>, ObservableObject {
+class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardingStep, OnboardingCoordinator>, ObservableObject {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
 
     @Published var isCardScanned: Bool = true
@@ -64,13 +64,17 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         return false
     }
 
-    required init(input: OnboardingInput, coordinator: OnboardingTopupRoutable) {
+    override init(input: OnboardingInput, coordinator: OnboardingCoordinator) {
         super.init(input: input, coordinator: coordinator)
 
         if case let .singleWallet(steps) = input.steps {
             self.steps = steps
         } else {
             fatalError("Wrong onboarding steps passed to initializer")
+        }
+
+        if let walletModel = self.cardModel.walletModels.first {
+            updateCardBalanceText(for: walletModel)
         }
 
         if steps.first == .topup && currentStep == .topup {
