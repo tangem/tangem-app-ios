@@ -55,9 +55,9 @@ struct PaymentologyApiTarget: TargetType {
                                                  error: nil,
                                                  passed: true,
                                                  active: false,
-                                                 pinSet: false,
-                                                 blockchainInit: nil,
-                                                 kycPassed: nil,
+                                                 pinSet: true,
+                                                 blockchainInit: true,
+                                                 kycPassed: false,
                                                  kycProvider: "SomeProvider",
                                                  kycDate: nil,
                                                  disabledByAdmin: nil)
@@ -99,7 +99,7 @@ extension PaymentologyApiTarget {
 
 extension JSONDecoder {
     static var saltPayDecoder: JSONDecoder {
-        var decoder = JSONDecoder()
+        let decoder = JSONDecoder()
         decoder.dataDecodingStrategy = .custom { decoder in
             let container = try decoder.singleValueContainer()
             let hex = try container.decode(String.self)
