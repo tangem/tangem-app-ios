@@ -20,6 +20,7 @@ enum WalletOnboardingStep {
     case enterPin
     case registerWallet
     case kycStart
+    case kycRetry
     case kycProgress
     case kycWaiting
     case claim
@@ -37,12 +38,8 @@ enum WalletOnboardingStep {
             return "onboarding_navbar_pin"
         case .registerWallet:
             return "onboarding_navbar_register_wallet"
-        case .kycStart:
-            return "onboarding_navbar_kyc_start"
-        case .kycProgress:
+        case .kycStart, .kycProgress, .kycWaiting, .kycRetry:
             return "onboarding_navbar_kyc_progress"
-        case .kycWaiting:
-            return "onboarding_navbar_kyc_waiting"
         case .claim, .successClaim:
             return "onboarding_navbar_claim"
         }
@@ -51,6 +48,11 @@ enum WalletOnboardingStep {
     static var resumeBackupSteps: [WalletOnboardingStep] {
         [.backupCards, .success]
     }
+
+    static var retryKYCSteps: [WalletOnboardingStep] {
+        [.kycRetry, .kycProgress, .kycWaiting, .claim, .successClaim]
+    }
+
 
     func backgroundFrameSize(in container: CGSize) -> CGSize {
         switch self {
@@ -97,6 +99,8 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
             return "onboarding_title_register_wallet"
         case .kycStart:
             return "onboarding_title_kyc_start"
+        case .kycRetry:
+            return "onboarding_title_kyc_retry"
         case .kycWaiting:
             return "onboarding_title_kyc_waiting"
         case .enterPin:
@@ -119,6 +123,8 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
             return "onboarding_subtitle_register_wallet"
         case .kycStart:
             return "onboarding_subtitle_kyc_start"
+        case .kycRetry:
+            return "onboarding_subtitle_kyc_retry"
         case .kycWaiting:
             return "onboarding_subtitle_kyc_waiting"
         case .enterPin:
@@ -162,7 +168,7 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
         case .kycWaiting: return  "onboarding_button_kyc_waiting"
         case .enterPin: return "onboarding_button_pin"
         case .registerWallet:  return "onboarding_button_register_wallet"
-        case .kycStart:  return "onboarding_button_kyc_start"
+        case .kycStart, .kycRetry:  return "onboarding_button_kyc_start"
         case .claim: return "onboarding_button_claim"
         case .successClaim: return "onboarding_button_continue_wallet"
         default: return ""
