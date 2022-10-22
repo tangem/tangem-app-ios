@@ -21,7 +21,7 @@ extension RegistrationResponse {
         let error: String?
         let passed: Bool?
         let active: Bool?
-        let pinSet: Bool?
+        var pinSet: Bool?
         let blockchainInit: Bool?
         let kycPassed: Bool?
         let kycProvider: String?
