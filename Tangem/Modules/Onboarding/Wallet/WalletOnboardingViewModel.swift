@@ -622,14 +622,20 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
             alert = AlertBuilder.makeOkGotItAlert(message: "onboarding_backup_exit_warning".localized)
         default:
-            if isFromMain {
-                onboardingDidFinish()
-            } else {
-                closeOnboarding()
+            alert = AlertBuilder.makeExitAlert() { [weak self] in
+                self?.back()
             }
-
-            backupService.discardIncompletedBackup()
         }
+    }
+
+    private func back() {
+        if isFromMain {
+            onboardingDidFinish()
+        } else {
+            closeOnboarding()
+        }
+
+        backupService.discardIncompletedBackup()
     }
 
     private func fireConfettiIfNeeded() {
