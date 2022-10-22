@@ -17,6 +17,18 @@ class SaltPayRegistrator {
     @Published public private(set) var error: AlertBinder? = nil
     @Published public private(set) var isBusy: Bool = false
 
+    var canClaim: Bool {
+        guard let claimableAmount else {
+            return false
+        }
+
+        return !claimableAmount.isZero
+    }
+
+    var claimableAmountDescription: String {
+        claimableAmount?.string(with: 8) ?? ""
+    }
+
     var kycURL: URL {
         let kycProvider = keysManager.saltPay.kycProvider
 
@@ -44,8 +56,11 @@ class SaltPayRegistrator {
     private let walletPublicKey: Data
     private var bag: Set<AnyCancellable> = .init()
     private var pin: String? = nil
+    private var hasGas: Bool? = nil
+    private var registrationState: RegistrationResponse.Item? = nil
     private var registrationTask: RegistrationTask? = nil
-    private var accessCode: String? = nil // "111111" //[REDACTED_TODO_COMMENT]
+    private var accessCode: String? = nil
+    private var claimableAmount: Amount? = nil
 
     private let approvalValue: Decimal = .greatestFiniteMagnitude
     private let spendLimitValue: Decimal = 100
@@ -59,7 +74,6 @@ class SaltPayRegistrator {
         self.cardId = cardId
         self.cardPublicKey = cardPublicKey
         self.walletPublicKey = walletPublicKey
-        // updateState()
     }
 
     func setAccessCode(_ accessCode: String) {
@@ -70,22 +84,12 @@ class SaltPayRegistrator {
         do {
             try assertPinValid(pin)
             self.pin = pin
-            updateState(with: .registration)
+            updateState()
             return true
         } catch {
             self.error = (error as! SaltPayRegistratorError).alertBinder
             return false
         }
-    }
-
-    func onFinishKYC() {
-        registerKYCIfNeeded()
-            .sink { [weak self] completion in
-                if case let .failure(error) = completion {
-                    self?.error = error.alertBinder
-                }
-            } receiveValue: { _ in }
-            .store(in: &bag)
     }
 
     func update() {
@@ -102,31 +106,70 @@ class SaltPayRegistrator {
             .store(in: &bag)
     }
 
+    func claim(_ completion: @escaping (Result<Void, Error>) -> Void) {
+        isBusy = true
+
+        guard let claimableAmount = claimableAmount else {
+            completion(.failure(SaltPayRegistratorError.missingClaimableAmount))
+            return
+        }
+
+        gnosis.checkHasGas()
+            .flatMap { [weak self] _ -> AnyPublisher<CompiledEthereumTransaction, Error> in
+                guard let self = self else { return .anyFail(error: SaltPayRegistratorError.empty) }
+
+                return self.gnosis.makeClaimTx(value: claimableAmount)
+            }
+            .flatMap { [weak self] tx -> AnyPublisher<SignedEthereumTransaction, Error> in
+                guard let self = self else { return .anyFail(error: SaltPayRegistratorError.empty) }
+
+                return self.tangemSdkProvider.sdk.startSessionPublisher(with: SignHashCommand(hash: tx.hash, walletPublicKey: self.walletPublicKey), accessCode: self.accessCode)
+                    .map { signResponse -> SignedEthereumTransaction in
+                        .init(compiledTransaction: tx, signature: signResponse.signature)
+                    }
+                    .eraseError()
+            }
+            .flatMap { [weak self] tx -> AnyPublisher<Void, Error> in
+                guard let self = self else { return .anyFail(error: SaltPayRegistratorError.empty) }
+
+                return self.gnosis.sendTransactions([tx])
+            }
+            .receiveCompletion { [weak self] completionResult in
+                switch completionResult {
+                case .failure(let error):
+                    self?.error = error.alertBinder
+                    completion(.failure(error))
+                case .finished:
+                    self?.claimableAmount = nil
+                    self?.updateState()
+                    completion(.success(()))
+                }
+
+                self?.isBusy = false
+            }
+            .store(in: &bag)
+    }
+
     func updatePublisher() -> AnyPublisher<Void, Error> {
         registerKYCIfNeeded()
-            .flatMap { [weak self] _ -> AnyPublisher<State, Error> in
+            .flatMap { [weak self] _ -> AnyPublisher<Void, Error> in
                 guard let self = self else { return .anyFail(error: SaltPayRegistratorError.empty) }
 
                 return self.checkRegistration()
             }
-            .flatMap { [weak self] newState -> AnyPublisher<State, Error> in
+            .flatMap { [weak self] _ -> AnyPublisher<Void, Error> in
                 guard let self = self else { return .anyFail(error: SaltPayRegistratorError.empty) }
 
                 return self.checkGasIfNeeded()
-                    .map { _ in return newState }
-                    .eraseToAnyPublisher()
             }
-            .handleEvents(receiveOutput: { [weak self] newState in
-                self?.updateState(with: newState)
-            }, receiveCompletion: { [weak self] completion in
-                if case let .failure(error) = completion,
-                   case SaltPayRegistratorError.noGas = error {
-                    self?.state = .noGas
-                }
+            .flatMap { [weak self] _ -> AnyPublisher<Void, Error> in
+                guard let self = self else { return .anyFail(error: SaltPayRegistratorError.empty) }
+
+                return self.checkCanClaimIfNeeded()
+            }
+            .handleEvents(receiveOutput: { [weak self] _ in
+                self?.updateState()
             })
-            .map { _ in
-                return ()
-            }
             .eraseToAnyPublisher()
     }
 
@@ -198,14 +241,35 @@ class SaltPayRegistrator {
                 }
 
                 self?.isBusy = false
-            } receiveValue: { [weak self] sendedTxs in
-                self?.updateState(with: .kycStart)
+            } receiveValue: { [weak self] _ in
+                self?.registrationState?.pinSet = true
+                self?.updateState()
             }
             .store(in: &bag)
     }
 
-    private func updateState(with newState: State) {
-        print("Saltpay. Update state from \(self.state) to \(newState)")
+    private func updateState() {
+        guard let registrationState = registrationState else { return }
+
+        var newState: State = state
+
+        if registrationState.active == true {
+            if canClaim {
+                newState = .claim  // active is true, can claim, go to claim screen
+            } else {
+                newState = .finished  // active is true, go to success screen
+            }
+        } else if registrationState.pinSet != true {
+            if pin == nil {
+                newState = .needPin // pinset is false, go to pin screen
+            } else {
+                newState = .registration // has enterd pin, go to regstration screen
+            }
+        } else if registrationState.kycDate != nil { // kycDate is set, go to kyc waiting screen
+            newState = .kycWaiting
+        } else {
+            newState = .kycStart  // pinset is true, go to kyc start screen
+        }
 
         if newState != state {
             self.state = newState
@@ -223,31 +287,54 @@ class SaltPayRegistrator {
                                          kycRefId: kycRefId)
 
         return api.registerKYC(request: request)
-            .handleEvents(receiveOutput: { [weak self] response in
-                self?.updateState(with: .kycWaiting)
-            })
             .map { _ in }
             .eraseToAnyPublisher()
     }
 
     private func checkGasIfNeeded() -> AnyPublisher<Void, Error> {
-        if state == .kycStart || state == .kycWaiting || state == .finished {
+        guard (state == .registration || state == .needPin) else {
             return .justWithError(output: ())
         }
 
         return gnosis.checkHasGas()
+            .handleEvents(receiveOutput: { [weak self] response in
+                self?.hasGas = response
+            })
             .tryMap { hasGas in
-                if hasGas {
-                    return ()
-                } else {
+                if !hasGas {
                     throw SaltPayRegistratorError.noGas
                 }
             }
             .eraseToAnyPublisher()
     }
 
-    private func checkRegistration() -> AnyPublisher<State, Error> {
+    private func checkCanClaimIfNeeded() -> AnyPublisher<Void, Error> {
+        guard state != .finished else {
+            return .justWithError(output: ())
+        }
+
+        return gnosis.getClaimableAmount()
+            .handleEvents(receiveOutput: { [weak self] claimable in
+                self?.claimableAmount = claimable
+            })
+            .map { _ in }
+            .eraseToAnyPublisher()
+    }
+
+    private func checkRegistration() -> AnyPublisher<Void, Error> {
         api.checkRegistration(for: cardId, publicKey: cardPublicKey)
+            .handleEvents(receiveOutput: { [weak self] response in
+                self?.registrationState = response
+            })
+            .tryMap { response -> Void in
+                guard response.passed == true else { // passed is false, show error
+                    throw SaltPayRegistratorError.cardNotPassed
+                }
+
+                if response.disabledByAdmin == true { // disabledByAdmin is true, show error
+                    throw SaltPayRegistratorError.cardDisabled
+                }
+            }
             .eraseToAnyPublisher()
     }
 
@@ -277,39 +364,10 @@ extension SaltPayRegistrator {
 extension SaltPayRegistrator {
     enum State: Equatable {
         case needPin
-        case noGas
-
         case registration
-
         case kycStart
         case kycWaiting
+        case claim
         case finished
-
-        init(from response: RegistrationResponse.Item) throws {
-            guard response.passed == true else { // passed is false, show error
-                throw SaltPayRegistratorError.cardNotPassed
-            }
-
-            if response.disabledByAdmin == true { // disabledByAdmin is true, show error
-                throw SaltPayRegistratorError.cardDisabled
-            }
-
-            if response.active == true { // active is true, go to success screen
-                self = .finished
-                return
-            }
-
-            if response.pinSet == false {
-                self = .needPin // pinset is false, go topin screen
-                return
-            }
-
-            if response.kycDate != nil { // kycDate is set, go to kyc waiting screen
-                self = .kycWaiting
-                return
-            }
-
-            self = .kycStart  // pinset is true, go to kyc start screen
-        }
     }
 }
