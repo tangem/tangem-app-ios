@@ -29,8 +29,31 @@ class MainViewModel: ObservableObject {
     @Published var isLackDerivationWarningViewVisible: Bool = false
     @Published var isBackupAllowed: Bool = false
 
-    @Published var singleWalletContentViewModel: SingleWalletContentViewModel?
-    @Published var multiWalletContentViewModel: MultiWalletContentViewModel?
+    @Published var singleWalletContentViewModel: SingleWalletContentViewModel? {
+        didSet {
+            singleWalletContentViewModel?.objectWillChange
+                .receive(on: DispatchQueue.main)
+                .sink(receiveValue: { [unowned self] in
+                    withAnimation {
+                        self.objectWillChange.send()
+                    }
+                })
+                .store(in: &bag)
+        }
+    }
+    
+    @Published var multiWalletContentViewModel: MultiWalletContentViewModel? {
+        didSet {
+            multiWalletContentViewModel?.objectWillChange
+                .receive(on: DispatchQueue.main)
+                .sink(receiveValue: { [unowned self] in
+                    withAnimation {
+                        self.objectWillChange.send()
+                    }
+                })
+                .store(in: &bag)
+        }
+    }
 
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
@@ -47,7 +70,19 @@ class MainViewModel: ObservableObject {
 
     // MARK: - Private
 
-    private let cardModel: CardViewModel
+    @Published var cardModel: CardViewModel {
+        didSet {
+            cardModel.objectWillChange
+                .receive(on: DispatchQueue.main)
+                .sink(receiveValue: { [unowned self] in
+                    withAnimation {
+                        self.objectWillChange.send()
+                    }
+                })
+                .store(in: &bag)
+        }
+    }
+    
     private let userWalletModel: UserWalletModel
     private let cardImageProvider: CardImageProviding
 
@@ -60,23 +95,15 @@ class MainViewModel: ObservableObject {
     private unowned let coordinator: MainRoutable
 
     public var canSend: Bool {
-        guard cardModel.canSend else {
-            return false
-        }
-
-        guard let wallet = wallets.first else {
-            return false
-        }
-
-        return wallet.canSend(amountType: .coin)
+        singleWalletContentViewModel?.canSend ?? false
     }
 
-    var wallets: [Wallet] {
-        cardModel.wallets
+    var wallet: Wallet? {
+        singleWalletContentViewModel?.singleWalletModel?.wallet
     }
 
     var currenyCode: String {
-        wallets.first?.blockchain.currencySymbol ?? .unknown
+        wallet?.blockchain.currencySymbol ?? .unknown
     }
 
     var canBuyCrypto: Bool {
@@ -92,7 +119,7 @@ class MainViewModel: ObservableObject {
     }
 
     var buyCryptoURL: URL? {
-        if let wallet = wallets.first {
+        if let wallet {
             let blockchain = wallet.blockchain
             if blockchain.isTestnet {
                 return blockchain.testnetFaucetURL
@@ -107,7 +134,7 @@ class MainViewModel: ObservableObject {
     }
 
     var sellCryptoURL: URL? {
-        if let wallet = wallets.first {
+        if let wallet {
             return exchangeService.getSellUrl(currencySymbol: wallet.blockchain.currencySymbol,
                                               amountType: .coin,
                                               blockchain: wallet.blockchain,
@@ -228,9 +255,7 @@ class MainViewModel: ObservableObject {
     }
 
     func sendTapped() {
-        guard let wallet = wallets.first else {
-            return
-        }
+        guard let wallet else { return }
 
         let hasTokenAmounts = !wallet.amounts.values.filter { $0.type.isToken && !$0.isZero }.isEmpty
 
