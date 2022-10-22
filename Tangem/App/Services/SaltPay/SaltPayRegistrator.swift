@@ -107,7 +107,7 @@ class SaltPayRegistrator {
     }
 
     func claim(_ completion: @escaping (Result<Void, Error>) -> Void) {
-        self.isBusy = true
+        isBusy = true
 
         guard let claimableAmount = claimableAmount else {
             completion(.failure(SaltPayRegistratorError.missingClaimableAmount))
@@ -241,7 +241,7 @@ class SaltPayRegistrator {
                 }
 
                 self?.isBusy = false
-            } receiveValue: { [weak self] sendedTxs in
+            } receiveValue: { [weak self] _ in
                 self?.registrationState?.pinSet = true
                 self?.updateState()
             }
@@ -292,7 +292,7 @@ class SaltPayRegistrator {
     }
 
     private func checkGasIfNeeded() -> AnyPublisher<Void, Error> {
-        guard state == .registration, state == .needPin else {
+        guard (state == .registration || state == .needPin) else {
             return .justWithError(output: ())
         }
 
