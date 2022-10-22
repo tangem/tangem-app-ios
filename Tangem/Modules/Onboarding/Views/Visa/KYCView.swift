@@ -35,7 +35,7 @@ struct KYCView: View {
     }
 }
 
-struct KYCWaitingView_Previews: PreviewProvider {
+struct KYCView_Previews: PreviewProvider {
     static var previews: some View {
         KYCView(imageName: "passport",
                 title: "onboarding_title_pin",
