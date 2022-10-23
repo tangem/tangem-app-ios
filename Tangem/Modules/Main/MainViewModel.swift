@@ -41,7 +41,7 @@ class MainViewModel: ObservableObject {
                 .store(in: &bag)
         }
     }
-    
+
     @Published var multiWalletContentViewModel: MultiWalletContentViewModel? {
         didSet {
             multiWalletContentViewModel?.objectWillChange
@@ -82,12 +82,11 @@ class MainViewModel: ObservableObject {
                 .store(in: &bag)
         }
     }
-    
+
     private let userWalletModel: UserWalletModel
     private let cardImageProvider: CardImageProviding
 
     private var bag = Set<AnyCancellable>()
-    private var isHashesCounted = false
     private var isProcessingNewCard = false
 
     private lazy var testnetBuyCryptoService = TestnetBuyCryptoService()
