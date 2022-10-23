@@ -26,7 +26,7 @@ protocol AppWarningsProviding: AnyObject {
 }
 
 private struct AppWarningsProvidingKey: InjectionKey {
-    static var currentValue: AppWarningsProviding = AppWarningsProvider()
+    static var currentValue: AppWarningsProviding = WarningsService()
 }
 
 extension InjectedValues {
