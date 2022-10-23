@@ -12,7 +12,7 @@ import Combine
 import BlockchainSdk
 import SwiftUI
 
-class AppWarningsProvider {
+class WarningsService {
     @Injected(\.rateAppService) var rateAppChecker: RateAppService
 
     var warningsUpdatePublisher: CurrentValueSubject<Void, Never> = .init(())
@@ -28,7 +28,7 @@ class AppWarningsProvider {
     }
 }
 
-extension AppWarningsProvider: AppWarningsProviding {
+extension WarningsService: AppWarningsProviding {
     func setupWarnings(
         for config: UserWalletConfig,
         card: Card,
@@ -37,7 +37,7 @@ extension AppWarningsProvider: AppWarningsProviding {
         setupWarnings(for: config)
         validateHashesCount(config: config, card: card, validator: validator)
     }
-    
+
     func warnings(for location: WarningsLocation) -> WarningsContainer {
         switch location {
         case .main:
@@ -57,7 +57,7 @@ extension AppWarningsProvider: AppWarningsProviding {
         if event.locationsToDisplay.contains(.send) {
             sendWarnings.add(warning)
         }
-        
+
         warningsUpdatePublisher.send(())
     }
 
@@ -106,7 +106,7 @@ private extension AppWarningsProvider {
         let cardSignedHashes = card.walletSignedHashes
         let isMultiWallet = config.hasFeature(.multiCurrency)
         let canCountHashes = config.hasFeature(.signedHashesCounter)
-        
+
         func didFinishCountingHashes() {
             print("⚠️ Hashes counted")
         }
