@@ -213,7 +213,7 @@ class CardViewModel: Identifiable, ObservableObject {
         bind()
         appendDefaultBlockchainIfNeeded()
     }
-    
+
     func setupWarnings() {
         warningsService.setupWarnings(
             for: config,
