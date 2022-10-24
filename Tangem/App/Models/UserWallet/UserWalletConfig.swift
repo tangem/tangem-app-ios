@@ -72,7 +72,7 @@ extension UserWalletConfig {
     }
     
     var touURL: URL {
-        .init(string: "https://ya.ru")!
+        .init(string: "https://tangem.com")!
     } //[REDACTED_TODO_COMMENT]
 }
 
