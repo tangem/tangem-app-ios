@@ -7,11 +7,8 @@
 //
 
 import TangemSdk
-
-#if !CLIP
 import BlockchainSdk
 import CryptoKit
-#endif
 
 extension Card {
     var walletSignedHashes: Int {
@@ -22,7 +19,6 @@ extension Card {
         wallets.compactMap { $0.curve }
     }
 
-    #if !CLIP
     var hasWallets: Bool {
         !wallets.isEmpty
     }
@@ -40,7 +36,7 @@ extension Card {
         return Data(authenticationCode)
     }
 
-    var derivationStyle: DerivationStyle {
+    var derivationStyle: DerivationStyle? {
         Card.getDerivationStyle(for: batchId, isHdWalletAllowed: settings.isHDWalletAllowed)
     }
 
@@ -48,9 +44,9 @@ extension Card {
         .init(cardId: cardId, cardPublicKey: cardPublicKey)
     }
 
-    static func getDerivationStyle(for batchId: String, isHdWalletAllowed: Bool) -> DerivationStyle {
+    static func getDerivationStyle(for batchId: String, isHdWalletAllowed: Bool) -> DerivationStyle? {
         guard isHdWalletAllowed else {
-            return .legacy
+            return nil
         }
 
         let batchId = batchId.uppercased()
@@ -61,6 +57,4 @@ extension Card {
 
         return .new
     }
-
-    #endif
 }
