@@ -9,35 +9,37 @@
 import Combine
 import BlockchainSdk
 
-protocol UserWalletModelOutput: AnyObject {
-    func userWalletModelRequestUpdate(walletsBalanceState: CardViewModel.WalletsBalanceState)
-}
-
 class CommonUserWalletModel {
     /// Public until managers factory
     let userTokenListManager: UserTokenListManager
     private let walletListManager: WalletListManager
 
-    private weak var output: UserWalletModelOutput?
     private var reloadAllWalletModelsBag: AnyCancellable?
 
-    init(config: UserWalletConfig, userWalletId: Data, output: UserWalletModelOutput?) {
-        self.output = output
-
-        userTokenListManager = CommonUserTokenListManager(config: config, userWalletId: userWalletId)
-        walletListManager = CommonWalletListManager(
-            config: config,
-            userTokenListManager: userTokenListManager
-        )
+    init(
+        userTokenListManager: UserTokenListManager,
+        walletListManager: WalletListManager
+    ) {
+        self.userTokenListManager = userTokenListManager
+        self.walletListManager = walletListManager
     }
 }
 
 // MARK: - UserWalletModel
 
 extension CommonUserWalletModel: UserWalletModel {
+    func update(userWalletId: Data) {
+        print("🔄 Updating UserWalletModel with new userWalletId")
+        userTokenListManager.update(userWalletId: userWalletId)
+    }
+
     func updateUserWalletModel(with config: UserWalletConfig) {
         print("🔄 Updating UserWalletModel with new config")
         walletListManager.update(config: config)
+    }
+
+    func getSavedEntries() -> [StorageEntry] {
+        userTokenListManager.getEntriesFromRepository()
     }
 
     func getWalletModels() -> [WalletModel] {
@@ -56,30 +58,15 @@ extension CommonUserWalletModel: UserWalletModel {
         walletListManager.subscribeToEntriesWithoutDerivation()
     }
 
-    func clearRepository(result: @escaping (Result<UserTokenList, Error>) -> Void) {
-        userTokenListManager.clearRepository(result: result)
-    }
-
-    func updateAndReloadWalletModels(showProgressLoading: Bool, result: @escaping (Result<Void, Error>) -> Void) {
-        if showProgressLoading {
-            output?.userWalletModelRequestUpdate(walletsBalanceState: .inProgress)
-        }
-
+    func updateAndReloadWalletModels(completion: @escaping () -> Void) {
         // Update walletModel list for current storage state
         walletListManager.updateWalletModels()
 
         reloadAllWalletModelsBag = walletListManager
             .reloadWalletModels()
             .receive(on: RunLoop.main)
-            .receiveCompletion { [weak self] completion in
-                self?.output?.userWalletModelRequestUpdate(walletsBalanceState: .loaded)
-
-                switch completion {
-                case .finished:
-                    result(.success(()))
-                case let .failure(error):
-                    result(.failure(error))
-                }
+            .receiveCompletion { _ in
+                completion()
             }
     }
 
@@ -87,19 +74,19 @@ extension CommonUserWalletModel: UserWalletModel {
         walletListManager.canManage(amountType: amountType, blockchainNetwork: blockchainNetwork)
     }
 
-    func update(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void) {
-        userTokenListManager.update(.rewrite(entries), result: result)
+    func update(entries: [StorageEntry], completion: @escaping () -> Void) {
+        userTokenListManager.update(.rewrite(entries), completion: completion)
 
-        updateAndReloadWalletModels(showProgressLoading: true)
+        updateAndReloadWalletModels()
     }
 
-    func append(entries: [StorageEntry], result: @escaping (Result<UserTokenList, Error>) -> Void) {
-        userTokenListManager.update(.append(entries), result: result)
+    func append(entries: [StorageEntry], completion: @escaping () -> Void) {
+        userTokenListManager.update(.append(entries), completion: completion)
 
-        updateAndReloadWalletModels(showProgressLoading: true)
+        updateAndReloadWalletModels()
     }
 
-    func remove(item: RemoveItem, result: @escaping (Result<UserTokenList, Error>) -> Void) {
+    func remove(item: RemoveItem, completion: @escaping () -> Void) {
         guard walletListManager.canRemove(amountType: item.amount, blockchainNetwork: item.blockchainNetwork) else {
             assertionFailure("\(item.blockchainNetwork.blockchain) can't be remove")
             return
@@ -107,9 +94,9 @@ extension CommonUserWalletModel: UserWalletModel {
 
         switch item.amount {
         case .coin:
-            removeBlockchain(item.blockchainNetwork, result: result)
+            removeBlockchain(item.blockchainNetwork, completion: completion)
         case let .token(token):
-            removeToken(token, in: item.blockchainNetwork, result: result)
+            removeToken(token, in: item.blockchainNetwork, completion: completion)
         case .reserve: break
         }
     }
@@ -118,13 +105,13 @@ extension CommonUserWalletModel: UserWalletModel {
 // MARK: - Wallet models Operations
 
 private extension CommonUserWalletModel {
-    func removeBlockchain(_ network: BlockchainNetwork, result: @escaping (Result<UserTokenList, Error>) -> Void) {
-        userTokenListManager.update(.removeBlockchain(network), result: result)
+    func removeBlockchain(_ network: BlockchainNetwork, completion: @escaping () -> Void) {
+        userTokenListManager.update(.removeBlockchain(network), completion: completion)
         walletListManager.updateWalletModels()
     }
 
-    func removeToken(_ token: Token, in network: BlockchainNetwork, result: @escaping (Result<UserTokenList, Error>) -> Void) {
-        userTokenListManager.update(.removeToken(token, in: network), result: result)
+    func removeToken(_ token: Token, in network: BlockchainNetwork, completion: @escaping () -> Void) {
+        userTokenListManager.update(.removeToken(token, in: network), completion: completion)
         walletListManager.removeToken(token, blockchainNetwork: network)
         walletListManager.updateWalletModels()
     }
