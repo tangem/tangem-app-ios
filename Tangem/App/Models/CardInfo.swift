@@ -8,10 +8,7 @@
 
 import Foundation
 import TangemSdk
-
-#if !CLIP
 import BlockchainSdk
-#endif
 
 struct CardInfo {
     var card: Card
