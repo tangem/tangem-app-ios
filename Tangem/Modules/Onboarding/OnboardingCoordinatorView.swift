@@ -60,5 +60,11 @@ struct OnboardingCoordinatorView: CoordinatorView {
             .bottomSheet(item: $coordinator.addressQrBottomSheetContentViewVodel, viewModelSettings: .qr) {
                 AddressQrBottomSheetContent(viewModel: $0)
             }
+
+        NavHolder()
+            .sheet(item: $coordinator.supportChatViewModel) {
+                SupportChatView(viewModel: $0)
+                    .edgesIgnoringSafeArea(.vertical)
+            }
     }
 }
