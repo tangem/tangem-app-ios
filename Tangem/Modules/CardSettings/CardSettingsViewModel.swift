@@ -26,12 +26,8 @@ class CardSettingsViewModel: ObservableObject {
         cardModel.cardIssuer
     }
 
-    var cardSignedHashes: String? {
-        if cardModel.canCountHashes {
-            return "\(cardModel.cardSignedHashes)"
-        }
-
-        return nil
+    var cardSignedHashes: String {
+        "\(cardModel.cardSignedHashes)"
     }
 
     var isResetToFactoryAvailable: Bool {
@@ -84,6 +80,7 @@ private extension CardSettingsViewModel {
 
 extension CardSettingsViewModel {
     func openChangeAccessCodeWarningView() {
+        Analytics.log(.buttonChangeUserCode)
         isChangeAccessCodeLoading = true
         cardModel.changeSecurityOption(.accessCode) { [weak self] result in
             DispatchQueue.main.async {
@@ -93,6 +90,7 @@ extension CardSettingsViewModel {
     }
 
     func openSecurityMode() {
+        Analytics.log(.buttonChangeSecurityMode)
         coordinator.openSecurityMode(cardModel: cardModel)
     }
 
@@ -111,7 +109,9 @@ extension CardSettingsViewModel {
                     case .success:
                         self?.coordinator.resetCardDidFinish()
                     case let .failure(error):
-                        print("ResetCardToFactoryWarning error", error)
+                        if !error.isUserCancelled {
+                            self?.alert = error.alertBinder
+                        }
                     }
                 }
             }

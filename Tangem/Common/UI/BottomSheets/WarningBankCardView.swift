@@ -49,6 +49,7 @@ struct WarningBankCardView: View {
             .padding(.horizontal, 16)
         }
         .multilineTextAlignment(.center)
+        .onAppear(perform: viewModel.onAppear)
     }
 }
 
