@@ -468,7 +468,7 @@ URL: %@";
 "onboarding_navbar_kyc_progress" = "Verify your identity";
 "onboarding_button_pin" = "Set PIN code";
 "onboarding_button_register_wallet" = "Register";
-"onboarding_button_kyc_start" = "Verify";
+"onboarding_button_kyc_start" = "Verify via Utorg";
 "onboarding_button_kyc_waiting" = "Refresh";
 "onboarding_title_register_wallet" = "Connect your card";
 "onboarding_title_kyc_start" = "Verify your identity";
