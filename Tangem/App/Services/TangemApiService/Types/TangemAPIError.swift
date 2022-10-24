@@ -14,15 +14,15 @@ struct TangemBaseAPIError: Decodable {
 
 struct TangemAPIError: Decodable, Error, LocalizedError {
     let code: ErrorCode
-    let description: String?
+    let message: String?
 
     var errorDescription: String? {
-        description ?? code.description
+        message ?? code.description
     }
 
-    init(code: TangemAPIError.ErrorCode, description: String? = nil) {
+    init(code: TangemAPIError.ErrorCode, message: String? = nil) {
         self.code = code
-        self.description = description
+        self.message = message
     }
 }
 
