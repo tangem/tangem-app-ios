@@ -196,7 +196,7 @@ extension GenericDemoConfig: UserWalletConfig {
         case .tokensSearch:
             return .hidden
         case .resetToFactory:
-            return .available
+            return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
         case .receive:
             return .available
         case .withdrawal:
