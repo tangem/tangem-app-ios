@@ -13,19 +13,36 @@ import MessagingSDK
 import ChatSDK
 import ChatProvidersSDK
 
-protocol SupportChatServiceProtocol: Initializable { }
+protocol SupportChatServiceProtocol {
+    func initialize(with env: SupportChatEnvironment)
+}
 
 class SupportChatService: SupportChatServiceProtocol {
     @Injected(\.keysManager) private var keysManager: KeysManager
 
-    func initialize() {
-        Zendesk.initialize(appId: keysManager.zendesk.zendeskAppId,
-                           clientId: keysManager.zendesk.zendeskClientId,
-                           zendeskUrl: keysManager.zendesk.zendeskUrl)
+    func initialize(with env: SupportChatEnvironment) {
+        let config = makeConfig(for: env)
+        Zendesk.initialize(appId: config.zendeskAppId,
+                           clientId: config.zendeskClientId,
+                           zendeskUrl: config.zendeskUrl)
         Support.initialize(withZendesk: Zendesk.instance)
         Zendesk.instance?.setIdentity(Identity.createAnonymous())
-        Chat.initialize(accountKey: keysManager.zendesk.zendeskAccountKey, appId: keysManager.zendesk.zendeskAppId)
+        Chat.initialize(accountKey: config.zendeskAccountKey, appId: config.zendeskAppId)
     }
+
+    private func makeConfig(for env: SupportChatEnvironment) -> ZendeskConfig {
+        switch env {
+        case .default:
+            return keysManager.zendesk
+        case .saltpay:
+            return keysManager.saltPay.zendesk
+        }
+    }
+}
+
+enum SupportChatEnvironment {
+    case `default`
+    case saltpay
 }
 
 private struct KeysManagerKey: InjectionKey {
