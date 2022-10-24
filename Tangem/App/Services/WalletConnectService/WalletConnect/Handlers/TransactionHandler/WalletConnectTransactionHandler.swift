@@ -92,7 +92,7 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
             }
             .filter { $0 == .idle }
 
-        walletModel.update()
+        walletModel.update(silent: false)
 
 
         // This zip attempting to load gas price and update wallet balance.
