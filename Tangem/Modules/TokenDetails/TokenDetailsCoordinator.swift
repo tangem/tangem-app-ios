@@ -48,6 +48,7 @@ extension TokenDetailsCoordinator {
 
 extension TokenDetailsCoordinator: TokenDetailsRoutable {
     func openBuyCrypto(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
+        Analytics.log(.topUpScreenOpened)
         pushedWebViewModel = WebViewContainerViewModel(url: url,
                                                        title: "wallet_button_topup".localized,
                                                        addLoadingIndicator: true,
@@ -72,7 +73,7 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
     }
 
     func openSend(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
-        Analytics.log(.sendTokenTapped)
+        Analytics.log(.sendScreenOpened)
         let coordinator = SendCoordinator { [weak self] in
             self?.sendCoordinator = nil
         }
@@ -110,12 +111,17 @@ extension TokenDetailsCoordinator: TokenDetailsRoutable {
     }
 
     func openBankWarning(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) {
+        let delay = 0.6
         warningBankCardViewModel = .init(confirmCallback: { [weak self] in
-            confirmCallback()
             self?.warningBankCardViewModel = nil
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                confirmCallback()
+            }
         }, declineCallback: { [weak self] in
-            declineCallback()
             self?.warningBankCardViewModel = nil
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                declineCallback()
+            }
         })
     }
 
