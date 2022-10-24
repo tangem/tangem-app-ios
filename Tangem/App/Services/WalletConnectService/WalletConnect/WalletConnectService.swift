@@ -129,6 +129,7 @@ class WalletConnectService: ObservableObject {
         setupSessionConnectTimer()
         do {
             try server.connect(to: url)
+            Analytics.log(.newSessionEstablished)
         } catch {
             print(error)
             resetSessionConnectTimer()
@@ -170,7 +171,6 @@ class WalletConnectService: ObservableObject {
         }
 
         Analytics.logWcEvent(.error(error, action))
-        Analytics.log(.walletConnectInvalidRequest)
 
         if let wcError = error as? WalletConnectServiceError {
             switch wcError {
@@ -212,6 +212,12 @@ extension WalletConnectService: WalletConnectHandlerDelegate {
         server.send(response)
         Analytics.logWcEvent(.action(action))
 
+        switch action {
+        case .signTransaction, .bnbSign, .personalSign, .sendTransaction:
+            Analytics.log(.requestSigned)
+        default:
+            break
+        }
 //        if action.shouldDisplaySuccessAlert {
 //            presentOnTop(WalletConnectUIBuilder.makeAlert(for: .success, message: action.successMessage), delay: 0.5)
 //        }
@@ -219,7 +225,6 @@ extension WalletConnectService: WalletConnectHandlerDelegate {
 
     func sendInvalid(_ request: Request) {
         Analytics.logWcEvent(.invalidRequest(json: request.jsonString))
-        Analytics.log(.walletConnectInvalidRequest)
         server.send(.invalid(request))
     }
 
@@ -261,7 +266,7 @@ extension WalletConnectService: WalletConnectSessionController {
             self.sessions.remove(at: index)
             self.save()
             Analytics.logWcEvent(.session(.disconnect, session.session.dAppInfo.peerMeta.url))
-            Analytics.log(.walletConnectSessionDisconnected)
+            Analytics.log(.sessionDisconnected)
         }
     }
 
@@ -314,6 +319,10 @@ extension WalletConnectService: ServerDelegate {
     }
 
     private func getWalletInfo(for dAppInfo: Session.DAppInfo) throws -> WalletInfo {
+        guard DApps().isSupported(dAppInfo.peerMeta.url) else {
+            throw WalletConnectServiceError.unsupportedDApp
+        }
+
         guard cardModel.supportsWalletConnect else {
             throw WalletConnectServiceError.notValidCard
         }
@@ -423,8 +432,7 @@ extension WalletConnectService: ServerDelegate {
                     self.sessions.append(WalletConnectSession(wallet: wallet, session: session, status: .connected))
                     self.save()
                     Analytics.logWcEvent(.session(.connect, session.dAppInfo.peerMeta.url))
-                    Analytics.log(.walletConnectNewSession)
-                    Analytics.log(.walletConnectSuccessResponse)
+                    Analytics.log(.buttonStartWalletConnectSession)
                 }
             }
 
@@ -510,6 +518,7 @@ enum WalletConnectServiceError: LocalizedError {
     case switchChainNotSupported
     case notValidCard
     case networkNotFound(name: String)
+    case unsupportedDApp
 
     var shouldHandle: Bool {
         switch self {
@@ -531,6 +540,7 @@ enum WalletConnectServiceError: LocalizedError {
         case .unsupportedNetwork: return "wallet_connect_scanner_error_unsupported_network".localized
         case .notValidCard: return "wallet_connect_scanner_error_not_valid_card".localized
         case .networkNotFound(let name): return "wallet_connect_network_not_found_format".localized(name)
+        case .unsupportedDApp: return "wallet_connect_error_unsupported_dapp".localized
         default: return ""
         }
     }
@@ -543,5 +553,19 @@ extension WalletConnectServiceError {
         case noWalletManager
         case wrongAddress
         case noValue
+    }
+}
+
+fileprivate struct DApps {
+    private let unsupportedList: [String] = ["dydx.exchange"]
+
+    func isSupported(_ dAppURL: URL) -> Bool {
+        for dApp in unsupportedList {
+            if dAppURL.absoluteString.contains(dApp) {
+                return false
+            }
+        }
+
+        return true
     }
 }
