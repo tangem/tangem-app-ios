@@ -39,7 +39,7 @@ extension CommonWalletListManager: WalletListManager {
     }
 
     func subscribeToWalletModels() -> AnyPublisher<[WalletModel], Never> {
-        walletModels.dropFirst().eraseToAnyPublisher()
+        walletModels.eraseToAnyPublisher()
     }
 
     func getEntriesWithoutDerivation() -> [StorageEntry] {
@@ -47,10 +47,7 @@ extension CommonWalletListManager: WalletListManager {
     }
 
     func subscribeToEntriesWithoutDerivation() -> AnyPublisher<[StorageEntry], Never> {
-        entriesWithoutDerivation
-            .dropFirst()
-            .removeDuplicates()
-            .eraseToAnyPublisher()
+        entriesWithoutDerivation.eraseToAnyPublisher()
     }
 
     func updateWalletModels() {
@@ -59,6 +56,8 @@ extension CommonWalletListManager: WalletListManager {
         var walletModels = getWalletModels()
         let entries = userTokenListManager.getEntriesFromRepository()
         log(entires: entries)
+
+        var entriesToAdd: [StorageEntry] = []
 
         // Update tokens
         entries.forEach { entry in
@@ -74,15 +73,14 @@ extension CommonWalletListManager: WalletListManager {
                         walletModel.removeToken(token)
                     }
                 }
+            } else {
+                entriesToAdd.append(entry)
             }
         }
 
         var nonDeriveEntries: [StorageEntry] = []
 
-        let walletModelsToAdd = entries
-            .filter { entry in
-                !walletModels.contains(where: { $0.blockchainNetwork == entry.blockchainNetwork })
-            }
+        let walletModelsToAdd = entriesToAdd
             .compactMap { entry in
                 do {
                     let walletModel = try config.makeWalletModel(for: entry)
@@ -156,7 +154,9 @@ private extension CommonWalletListManager {
     }
 
     func updateWalletModelsPublisher() -> AnyPublisher<Void, Never> {
-        let publishers = getWalletModels().map { $0.update().replaceError(with: (())) }
+        let publishers = getWalletModels().map {
+            $0.update(silent: false).replaceError(with: (()))
+        }
 
         return Publishers
             .MergeMany(publishers)
@@ -215,13 +215,8 @@ private extension CommonWalletListManager {
 
                 return Future<Bool, Never> { promise in
                     let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: token)
-                    self.userTokenListManager.update(.append([entry])) { result in
-                        switch result {
-                        case .success:
-                            promise(.success(true))
-                        case .failure:
-                            promise(.success(false))
-                        }
+                    self.userTokenListManager.update(.append([entry])) {
+                        promise(.success(true))
                     }
                 }
                 .eraseToAnyPublisher()

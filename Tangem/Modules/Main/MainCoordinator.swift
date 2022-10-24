@@ -41,9 +41,15 @@ class MainCoordinator: CoordinatorObject {
     }
 
     func start(with options: MainCoordinator.Options) {
+        guard let userWalletModel = options.cardModel.userWalletModel else {
+            assertionFailure("UserWalletModel not created")
+            return
+        }
+
         mainViewModel = MainViewModel(
             cardModel: options.cardModel,
-            userWalletModel: options.cardModel.userWalletModel!,
+            userWalletModel: userWalletModel,
+            cardImageProvider: CardImageProvider(supportsOnlineImage: options.cardModel.supportsOnlineImage),
             coordinator: self
         )
     }
@@ -59,6 +65,7 @@ extension MainCoordinator: MainRoutable {
     func openOnboardingModal(with input: OnboardingInput) {
         let dismissAction: Action = { [weak self] in
             self?.modalOnboardingCoordinator = nil
+            self?.mainViewModel?.updateIsBackupAllowed()
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
@@ -68,6 +75,7 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openBuyCrypto(at url: URL, closeUrl: String, action: @escaping (String) -> Void) {
+        Analytics.log(.topUpScreenOpened)
         pushedWebViewModel = WebViewContainerViewModel(url: url,
                                                        title: "wallet_button_topup".localized,
                                                        addLoadingIndicator: true,
@@ -79,6 +87,7 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openSellCrypto(at url: URL, sellRequestUrl: String, action: @escaping (String) -> Void) {
+        Analytics.log(.withdrawScreenOpened)
         pushedWebViewModel = WebViewContainerViewModel(url: url,
                                                        title: "wallet_button_sell_crypto".localized,
                                                        addLoadingIndicator: true,
@@ -92,7 +101,7 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openSend(amountToSend: Amount, blockchainNetwork: BlockchainNetwork, cardViewModel: CardViewModel) {
-        Analytics.log(.sendTokenTapped)
+        Analytics.log(.sendScreenOpened)
         let coordinator = SendCoordinator { [weak self] in
             self?.sendCoordinator = nil
         }
@@ -134,7 +143,7 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openSettings(cardModel: CardViewModel) {
-        Analytics.log(.settingsTapped)
+        Analytics.log(.settingsScreenOpened)
         let dismissAction: Action = { [weak self] in
             self?.detailsCoordinator = nil
         }
@@ -147,7 +156,7 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openTokenDetails(cardModel: CardViewModel, blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType) {
-        Analytics.log(.tokenTapped)
+        Analytics.log(.tokenIsTapped)
         let dismissAction: Action = { [weak self] in
             self?.tokenDetailsCoordinator = nil
         }
@@ -166,7 +175,7 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openTokensList(with cardModel: CardViewModel) {
-        Analytics.log(.manageTokensTapped)
+        Analytics.log(.manageTokensScreenOpened)
         let dismissAction: Action = { [weak self] in
             self?.tokenListCoordinator = nil
         }
@@ -181,16 +190,22 @@ extension MainCoordinator: MainRoutable {
     }
 
     func openQR(shareAddress: String, address: String, qrNotice: String) {
+        Analytics.log(.receiveScreenOpened)
         addressQrBottomSheetContentViewVodel = .init(shareAddress: shareAddress, address: address, qrNotice: qrNotice)
     }
 
     func openBankWarning(confirmCallback: @escaping () -> (), declineCallback: @escaping () -> ()) {
+        let delay = 0.6
         warningBankCardViewModel = .init(confirmCallback: { [weak self] in
-            confirmCallback()
             self?.warningBankCardViewModel = nil
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                confirmCallback()
+            }
         }, declineCallback: { [weak self] in
-            declineCallback()
             self?.warningBankCardViewModel = nil
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                declineCallback()
+            }
         })
     }
 
