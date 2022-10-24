@@ -13,11 +13,6 @@ import Combine
 import Alamofire
 import SwiftUI
 
-struct CardPinSettings {
-    var isPin1Default: Bool? = nil
-    var isPin2Default: Bool? = nil
-}
-
 class CardViewModel: Identifiable, ObservableObject {
     // MARK: Services
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
@@ -25,11 +20,11 @@ class CardViewModel: Identifiable, ObservableObject {
     @Injected(\.tangemApiService) var tangemApiService: TangemApiService
 
     @Published private(set) var currentSecurityOption: SecurityModeOption = .longTap
-    @Published var walletsBalanceState: WalletsBalanceState = .loaded
 
     var signer: TangemSigner { config.tangemSigner }
 
     var cardId: String { cardInfo.card.cardId }
+    var batchId: String { cardInfo.card.batchId }
     var userWalletId: Data { cardInfo.card.userWalletId }
     var cardPublicKey: Data { cardInfo.card.cardPublicKey }
 
@@ -94,7 +89,6 @@ class CardViewModel: Identifiable, ObservableObject {
     var userWalletModel: UserWalletModel?
 
     private var cardInfo: CardInfo
-    private var cardPinSettings: CardPinSettings = CardPinSettings()
     private let stateUpdateQueue = DispatchQueue(label: "state_update_queue")
     private var tangemSdk: TangemSdk { tangemSdkProvider.sdk }
     private var config: UserWalletConfig
@@ -139,6 +133,14 @@ class CardViewModel: Identifiable, ObservableObject {
 
     var canSend: Bool {
         config.hasFeature(.send)
+    }
+
+    var cardAmountType: Amount.AmountType {
+        config.cardAmountType
+    }
+
+    var supportChatEnvironment: SupportChatEnvironment {
+        config.supportChatEnvironment
     }
 
     var hasWallet: Bool {
@@ -193,20 +195,11 @@ class CardViewModel: Identifiable, ObservableObject {
             isStandalone: true)
     }
 
-
     var isResetToFactoryAvailable: Bool {
         config.hasFeature(.resetToFactory)
     }
 
-    var isSuccesfullyLoaded: Bool {
-        walletModels.allConforms { $0.state.isSuccesfullyLoaded }
-    }
-
-    var hasBalance: Bool {
-        walletModels.contains { $0.hasBalance }
-    }
-
-    var shoulShowLegacyDerivationAlert: Bool {
+    var shouldShowLegacyDerivationAlert: Bool {
         config.warningEvents.contains(where: { $0 == .legacyDerivation })
     }
 
@@ -220,9 +213,9 @@ class CardViewModel: Identifiable, ObservableObject {
         self.config = UserWalletConfigFactory(cardInfo).makeConfig()
 
         createUserWalletModelIfNeeded()
-        updateCardPinSettings()
         updateCurrentSecurityOption()
         bind()
+        appendDefaultBlockchainIfNeeded()
     }
 
     func setupWarnings() {
@@ -230,7 +223,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func appendDefaultBlockchains() {
-        add(entries: config.defaultBlockchains) { _ in }
+        userWalletModel?.append(entries: config.defaultBlockchains) {}
     }
 
     func deriveEntriesWithoutDerivation() {
@@ -239,15 +232,9 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
 
-        let derivationManager = DerivationManager(config: config, cardInfo: cardInfo)
-        derivationManager.deriveIfNeeded(
-            entries: userWalletModel.getEntriesWithoutDerivation()
-        ) { [weak self] result in
+        derive(entries: userWalletModel.getEntriesWithoutDerivation()) { [weak self] result in
             switch result {
-            case let .success(card):
-                if let card = card {
-                    self?.update(with: card)
-                }
+            case .success:
                 self?.userWalletModel?.updateAndReloadWalletModels()
             case .failure:
                 print("Derivation error")
@@ -267,9 +254,8 @@ class CardViewModel: Identifiable, ObservableObject {
 
                 switch result {
                 case .success:
-                    self.cardPinSettings.isPin1Default = false
-                    self.cardPinSettings.isPin2Default = true
-                    self.updateCurrentSecurityOption()
+                    self.onSecurityOptionChanged(isAccessCodeSet: true, isPasscodeSet: false)
+                    Analytics.log(.userCodeChanged)
                     completion(.success(()))
                 case .failure(let error):
                     Analytics.logCardSdkError(error, for: .changeSecOptions, card: self.cardInfo.card, parameters: [.newSecOption: "Access Code"])
@@ -283,9 +269,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
                 switch result {
                 case .success:
-                    self.cardPinSettings.isPin1Default = true
-                    self.cardPinSettings.isPin2Default = true
-                    self.updateCurrentSecurityOption()
+                    self.onSecurityOptionChanged(isAccessCodeSet: false, isPasscodeSet: false)
                     completion(.success(()))
                 case .failure(let error):
                     Analytics.logCardSdkError(error, for: .changeSecOptions, card: self.cardInfo.card, parameters: [.newSecOption: "Long tap"])
@@ -300,9 +284,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
                 switch result {
                 case .success:
-                    self.cardPinSettings.isPin1Default = true
-                    self.cardPinSettings.isPin2Default = false
-                    self.updateCurrentSecurityOption()
+                    self.onSecurityOptionChanged(isAccessCodeSet: false, isPasscodeSet: true)
                     completion(.success(()))
                 case .failure(let error):
                     Analytics.logCardSdkError(error, for: .changeSecOptions, card: self.cardInfo.card, parameters: [.newSecOption: "Pass code"])
@@ -322,7 +304,7 @@ class CardViewModel: Identifiable, ObservableObject {
                                                        body: "initial_message_create_wallet_body".localized)) { [weak self] result in
             switch result {
             case .success(let card):
-                self?.update(with: card)
+                self?.onWalletCreated(card)
                 completion(.success(()))
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .createWallet, card: card)
@@ -331,7 +313,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
 
-    func resetToFactory(completion: @escaping (Result<UserTokenList, Error>) -> Void) {
+    func resetToFactory(completion: @escaping (Result<Void, TangemSdkError>) -> Void) {
         let card = self.cardInfo.card
         tangemSdk.startSession(with: ResetToFactorySettingsTask(),
                                cardId: cardId,
@@ -339,9 +321,9 @@ class CardViewModel: Identifiable, ObservableObject {
                                                        body: "initial_message_purge_wallet_body".localized)) { [weak self] result in
             switch result {
             case .success:
-                Analytics.log(.factoryResetSuccess)
-                self?.userWalletModel?.clearRepository(result: completion)
+                Analytics.log(.factoryResetFinished)
                 self?.clearTwinPairKey()
+                completion(.success(()))
             case .failure(let error):
                 Analytics.logCardSdkError(error, for: .purgeWallet, card: card)
                 completion(.failure(error))
@@ -350,29 +332,69 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func getBlockchainNetwork(for blockchain: Blockchain, derivationPath: DerivationPath?) -> BlockchainNetwork {
-        let derivationPath = derivationPath ?? blockchain.derivationPath(for: cardInfo.card.derivationStyle)
-        return BlockchainNetwork(blockchain, derivationPath: derivationPath)
+        if let derivationPath = derivationPath {
+            return BlockchainNetwork(blockchain, derivationPath: derivationPath)
+        }
+
+        if let derivationStyle = cardInfo.card.derivationStyle {
+            let derivationPath = blockchain.derivationPath(for: derivationStyle)
+            return BlockchainNetwork(blockchain, derivationPath: derivationPath)
+        }
+
+        return BlockchainNetwork(blockchain, derivationPath: nil)
     }
 
     // MARK: - Update
 
-    func update(with card: Card) {
-        print("🔄 Updating CardViewModel with new Card")
-        let oldKeys = cardInfo.card.wallets.map { $0.derivedKeys }
-        let newKeys = card.wallets.map { $0.derivedKeys }
-        print("🔄 Updating Config with update derivationKeys \n",
-              "oldKeys: \(oldKeys.map { $0.keys.map { $0.rawPath }})\n",
-              "newKeys: \(newKeys.map { $0.keys.map { $0.rawPath }})")
-
-        cardInfo.card = card // [REDACTED_TODO_COMMENT]
-        config = UserWalletConfigFactory(cardInfo).makeConfig()
-
-        updateModel()
+    func onWalletCreated(_ card: Card) {
+        cardInfo.card.wallets = card.wallets
+        onUpdate()
     }
 
-    func update(with cardInfo: CardInfo) {
-        print("🔄 Updating Card view model with new CardInfo")
-        self.cardInfo = cardInfo
+    func onSecurityOptionChanged(isAccessCodeSet: Bool, isPasscodeSet: Bool) {
+        cardInfo.card.isAccessCodeSet = isAccessCodeSet
+        cardInfo.card.isPasscodeSet = isPasscodeSet
+        onUpdate()
+    }
+
+    func onSigned(_ card: Card) {
+        for updatedWallet in card.wallets {
+            cardInfo.card.wallets[updatedWallet.publicKey]?.totalSignedHashes = updatedWallet.totalSignedHashes
+            cardInfo.card.wallets[updatedWallet.publicKey]?.remainingSignatures = updatedWallet.remainingSignatures
+        }
+
+        onUpdate()
+    }
+
+    func onDerived(_ card: Card) {
+        for updatedWallet in card.wallets {
+            for derivedKey in updatedWallet.derivedKeys {
+                cardInfo.card.wallets[updatedWallet.publicKey]?.derivedKeys[derivedKey.key] = derivedKey.value
+            }
+        }
+
+        onUpdate()
+    }
+
+    func onBackupCreated(_ card: Card) {
+        for updatedWallet in card.wallets {
+            cardInfo.card.wallets[updatedWallet.publicKey]?.hasBackup = updatedWallet.hasBackup
+        }
+
+        cardInfo.card.settings = card.settings
+        cardInfo.card.isAccessCodeSet = card.isAccessCodeSet
+        cardInfo.card.backupStatus = card.backupStatus
+        onUpdate()
+    }
+
+    func onTwinWalletCreated(_ walletData: DefaultWalletData) { // [REDACTED_TODO_COMMENT]
+        self.cardInfo.walletData = walletData
+        onUpdate()
+    }
+
+    private func onUpdate() {
+        print("🔄 Updating CardViewModel with new Card")
+        config = UserWalletConfigFactory(cardInfo).makeConfig()
         updateModel()
     }
 
@@ -398,12 +420,12 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private func updateModel() {
         print("🔄 Updating Card view model")
-        updateCardPinSettings()
         updateCurrentSecurityOption()
 
         warningsService.setupWarnings(for: config)
         createUserWalletModelIfNeeded()
         userWalletModel?.updateUserWalletModel(with: config)
+        userWalletModel?.update(userWalletId: userWalletId)
     }
 
     private func searchBlockchains() {
@@ -424,21 +446,23 @@ class CardViewModel: Identifiable, ObservableObject {
             return
         }
 
-        searchBlockchainsCancellable = Publishers.MergeMany(models.map { $0.update() })
-            .collect()
-            .receiveCompletion { [weak self] _ in
-                guard let self = self else { return }
+        searchBlockchainsCancellable = Publishers.MergeMany(
+            models.map { $0.update(silent: false) }
+        )
+        .collect()
+        .receiveCompletion { [weak self] _ in
+            guard let self = self else { return }
 
-                let notEmptyWallets = models.filter { !$0.wallet.isEmpty }
-                if !notEmptyWallets.isEmpty {
-                    let entries = notEmptyWallets.map {
-                        StorageEntry(blockchainNetwork: $0.blockchainNetwork, tokens: [])
-                    }
-
-                    // [REDACTED_TODO_COMMENT]
-                    self.add(entries: entries) { _ in }
+            let notEmptyWallets = models.filter { !$0.wallet.isEmpty }
+            if !notEmptyWallets.isEmpty {
+                let entries = notEmptyWallets.map {
+                    StorageEntry(blockchainNetwork: $0.blockchainNetwork, tokens: [])
                 }
+
+                // [REDACTED_TODO_COMMENT]
+                self.add(entries: entries) { _ in }
             }
+        }
     }
 
     private func searchTokens() {
@@ -494,15 +518,10 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
 
-    private func updateCardPinSettings() {
-        cardPinSettings.isPin1Default = !cardInfo.card.isAccessCodeSet
-        cardInfo.card.isPasscodeSet.map { self.cardPinSettings.isPin2Default = !$0 }
-    }
-
     private func updateCurrentSecurityOption() {
-        if !(cardPinSettings.isPin1Default ?? true) {
+        if cardInfo.card.isAccessCodeSet {
             self.currentSecurityOption = .accessCode
-        } else if !(cardPinSettings.isPin2Default ?? true) {
+        } else if (cardInfo.card.isPasscodeSet ?? false) {
             self.currentSecurityOption = .passCode
         } else {
             self.currentSecurityOption = .longTap
@@ -511,8 +530,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     private func bind() {
         signer.signPublisher.sink { [unowned self] card in
-            self.update(with: card)
-            // [REDACTED_TODO_COMMENT]
+            self.onSigned(card)
         }
         .store(in: &bag)
     }
@@ -520,11 +538,24 @@ class CardViewModel: Identifiable, ObservableObject {
     private func createUserWalletModelIfNeeded() {
         guard userWalletModel == nil, cardInfo.card.hasWallets else { return }
 
-        userWalletModel = CommonUserWalletModel(
+        // [REDACTED_TODO_COMMENT]
+        let userTokenListManager = CommonUserTokenListManager(config: config, userWalletId: cardInfo.card.userWalletId)
+        let walletListManager = CommonWalletListManager(
             config: config,
-            userWalletId: cardInfo.card.userWalletId,
-            output: self
+            userTokenListManager: userTokenListManager
         )
+
+        userWalletModel = CommonUserWalletModel(
+            userTokenListManager: userTokenListManager,
+            walletListManager: walletListManager
+        )
+    }
+
+    private func appendDefaultBlockchainIfNeeded() {
+        // For single wallet only
+        guard !isMultiWallet, walletModels.isEmpty else { return }
+
+        appendDefaultBlockchains()
     }
 }
 
@@ -540,41 +571,43 @@ extension CardViewModel {
         return userWalletModel.subscribeToWalletModels()
     }
 
-    func subscribeToEntriesWithoutDerivation() -> AnyPublisher<[StorageEntry], Never> {
-        guard let userWalletModel = userWalletModel else {
-            assertionFailure("UserWalletModel not created")
-            return Just([]).eraseToAnyPublisher()
-        }
-
-        return userWalletModel.subscribeToEntriesWithoutDerivation()
-    }
-
-    func add(entries: [StorageEntry], completion: @escaping (Result<UserTokenList, Error>) -> Void) {
-        let derivationManager = DerivationManager(config: config, cardInfo: cardInfo)
-        derivationManager.deriveIfNeeded(entries: entries) { [weak self] result in
+    func add(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
+        derive(entries: entries) { [weak self] result in
             switch result {
-            case let .success(card):
-                if let card = card {
-                    self?.update(with: card)
+            case .success:
+                self?.userWalletModel?.append(entries: entries) {
+                    completion(.success(()))
                 }
-
-                self?.userWalletModel?.append(entries: entries, result: completion)
             case let .failure(error):
                 completion(.failure(error))
             }
         }
     }
 
-    func update(entries: [StorageEntry], completion: @escaping (Result<UserTokenList, Error>) -> Void) {
+    func update(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
+        derive(entries: entries) { [weak self] result in
+            switch result {
+            case .success:
+                self?.userWalletModel?.update(entries: entries) {
+                    completion(.success(()))
+                }
+            case let .failure(error):
+                completion(.failure(error))
+            }
+        }
+    }
+
+    func derive(entries: [StorageEntry], completion: @escaping (Result<Void, Error>) -> Void) {
         let derivationManager = DerivationManager(config: config, cardInfo: cardInfo)
-        derivationManager.deriveIfNeeded(entries: entries, completion: { [weak self] result in
+        let alreadySaved = userWalletModel?.getSavedEntries() ?? []
+        derivationManager.deriveIfNeeded(entries: alreadySaved + entries, completion: { [weak self] result in
             switch result {
             case let .success(card):
                 if let card = card {
-                    self?.update(with: card)
+                    self?.onDerived(card)
                 }
 
-                self?.userWalletModel?.update(entries: entries, result: completion)
+                completion(.success(()))
             case let .failure(error):
                 completion(.failure(error))
             }
@@ -590,19 +623,13 @@ extension CardViewModel {
         return userWalletModel.canManage(amountType: amountType, blockchainNetwork: blockchainNetwork)
     }
 
-    func remove(item: CommonUserWalletModel.RemoveItem, result: @escaping (Result<UserTokenList, Error>) -> Void) {
+    func remove(item: CommonUserWalletModel.RemoveItem, completion: @escaping () -> Void) {
         guard let userWalletModel = userWalletModel else {
             assertionFailure("UserWalletModel not created")
             return
         }
 
-        userWalletModel.remove(item: item, result: result)
-    }
-}
-
-extension CardViewModel: UserWalletModelOutput {
-    func userWalletModelRequestUpdate(walletsBalanceState: WalletsBalanceState) {
-        self.walletsBalanceState = walletsBalanceState
+        userWalletModel.remove(item: item, completion: completion)
     }
 }
 

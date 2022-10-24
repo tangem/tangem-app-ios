@@ -14,6 +14,7 @@ class WelcomeViewModel: ObservableObject {
     @Injected(\.cardsRepository) private var cardsRepository: CardsRepository
     @Injected(\.backupServiceProvider) private var backupServiceProvider: BackupServiceProviding
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
+    @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
 
     @Published var showTroubleshootingView: Bool = false
     @Published var isScanningCard: Bool = false
@@ -30,12 +31,22 @@ class WelcomeViewModel: ObservableObject {
 
     private unowned let coordinator: WelcomeRoutable
 
+    private var hasInterruptedSaltPayBackup: Bool {
+        guard backupService.hasIncompletedBackup,
+              let primaryCard = backupService.primaryCard,
+              let batchId = primaryCard.batchId else {
+            return false
+        }
+
+        return SaltPayUtil().isSaltPayCard(batchId: batchId, cardId: primaryCard.cardId)
+    }
+
     init(coordinator: WelcomeRoutable) {
         self.coordinator = coordinator
         self.storiesModelSubscription = storiesModel.objectWillChange
             .receive(on: DispatchQueue.main)
-            .sink(receiveValue: { [unowned self] in
-                self.objectWillChange.send()
+            .sink(receiveValue: { [weak self] in
+                self?.objectWillChange.send()
             })
     }
 
@@ -46,16 +57,48 @@ class WelcomeViewModel: ObservableObject {
         }
 
         isScanningCard = true
-        Analytics.log(.scanCardTapped)
+        Analytics.log(.buttonScanCard)
         var subscription: AnyCancellable? = nil
 
         subscription = cardsRepository.scanPublisher()
+            .flatMap { [weak self] response -> AnyPublisher<CardViewModel, Error> in
+                let saltPayUtil = SaltPayUtil()
+                let hasSaltPayBackup = self?.hasInterruptedSaltPayBackup ?? false
+                let primaryCardId = self?.backupService.primaryCard?.cardId ?? ""
+
+                if hasSaltPayBackup && response.cardId != primaryCardId  {
+                    return .anyFail(error: SaltPayRegistratorError.emptyBackupCardScanned)
+                }
+
+                if saltPayUtil.isBackupCard(cardId: response.cardId) {
+                    if let backupInput = response.backupInput, backupInput.steps.stepsCount > 0 {
+                        return .anyFail(error: SaltPayRegistratorError.emptyBackupCardScanned)
+                    } else {
+                        return .justWithError(output: response)
+                    }
+                }
+
+                guard let saltPayRegistrator = self?.saltPayRegistratorProvider.registrator else {
+                    return .justWithError(output: response)
+                }
+
+                return saltPayRegistrator.updatePublisher()
+                    .map { _ in
+                        return response
+                    }
+                    .eraseToAnyPublisher()
+            }
             .receive(on: DispatchQueue.main)
             .sink { [weak self] completion in
                 if case let .failure(error) = completion {
                     print("Failed to scan card: \(error)")
                     self?.isScanningCard = false
                     self?.failedCardScanTracker.recordFailure()
+
+                    if let salpayError = error as? SaltPayRegistratorError {
+                        self?.error = salpayError.alertBinder
+                        return
+                    }
 
                     if self?.failedCardScanTracker.shouldDisplayAlert ?? false {
                         self?.showTroubleshootingView = true
@@ -72,20 +115,21 @@ class WelcomeViewModel: ObservableObject {
             } receiveValue: { [weak self] cardModel in
                 let numberOfFailedAttempts = self?.failedCardScanTracker.numberOfFailedAttempts ?? 0
                 self?.failedCardScanTracker.resetCounter()
-                Analytics.log(numberOfFailedAttempts == 0 ? .firstScan : .secondScan)
-                self?.processScannedCard(cardModel, isWithAnimation: true)
+                Analytics.log(.cardWasScanned)
+                DispatchQueue.main.async {
+                    self?.processScannedCard(cardModel, isWithAnimation: true)
+                }
             }
 
         subscription?.store(in: &bag)
     }
 
     func tryAgain() {
-        Analytics.log(.tryAgainTapped)
         scanCard()
     }
 
     func requestSupport() {
-        Analytics.log(.supportTapped)
+        Analytics.log(.buttonRequestSupport)
         failedCardScanTracker.resetCounter()
         openMail()
     }
@@ -93,10 +137,12 @@ class WelcomeViewModel: ObservableObject {
     func orderCard() {
         openShop()
         Analytics.log(.getACard, params: [.source: Analytics.ParameterValue.welcome.rawValue])
+        Analytics.log(.buttonBuyCards)
     }
 
     func onAppear() {
         navigationBarHidden = true
+        Analytics.log(.introductionProcessOpened)
         showInteruptedBackupAlertIfNeeded()
     }
 
@@ -109,7 +155,7 @@ class WelcomeViewModel: ObservableObject {
         self.isScanningCard = false
 
         if input.steps.needOnboarding {
-            cardModel.userWalletModel?.updateAndReloadWalletModels(showProgressLoading: true)
+            cardModel.userWalletModel?.updateAndReloadWalletModels()
             openOnboarding(with: input)
         } else {
             openMain(with: input)
@@ -132,12 +178,11 @@ extension WelcomeViewModel {
     }
 
     func openTokensList() {
-        Analytics.log(.tokenListTapped)
+        Analytics.log(.buttonTokensList)
         coordinator.openTokensList()
     }
 
     func openShop() {
-        Analytics.log(.buyBottomTapped)
         coordinator.openShop()
     }
 
@@ -155,14 +200,14 @@ extension WelcomeViewModel {
 // MARK: - Resume interrupted backup
 private extension WelcomeViewModel {
     func showInteruptedBackupAlertIfNeeded() {
-        if backupService.hasIncompletedBackup {
-            let alert = Alert(title: Text("common_warning"),
-                              message: Text("welcome_interrupted_backup_alert_message"),
-                              primaryButton: .default(Text("welcome_interrupted_backup_alert_resume"), action: continueIncompletedBackup),
-                              secondaryButton: .destructive(Text("welcome_interrupted_backup_alert_discard"), action: showExtraDiscardAlert))
+        guard backupService.hasIncompletedBackup, !hasInterruptedSaltPayBackup else { return }
 
-            self.error = AlertBinder(alert: alert)
-        }
+        let alert = Alert(title: Text("common_warning"),
+                          message: Text("welcome_interrupted_backup_alert_message"),
+                          primaryButton: .default(Text("welcome_interrupted_backup_alert_resume"), action: continueIncompletedBackup),
+                          secondaryButton: .destructive(Text("welcome_interrupted_backup_alert_discard"), action: showExtraDiscardAlert))
+
+        self.error = AlertBinder(alert: alert)
     }
 
     func showExtraDiscardAlert() {
@@ -178,7 +223,7 @@ private extension WelcomeViewModel {
     }
 
     func continueIncompletedBackup() {
-        guard let primaryCardId = backupService.primaryCardId else {
+        guard let primaryCardId = backupService.primaryCard?.cardId else {
             return
         }
 
