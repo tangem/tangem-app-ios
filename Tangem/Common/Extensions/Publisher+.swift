@@ -75,6 +75,13 @@ public extension Publisher {
     func mapVoid() -> Publishers.Map<Self, Void> {
         map { _ in }
     }
+
+    func eraseError() -> AnyPublisher<Output, Error> {
+        return self.mapError { error -> Error in
+            return error as Error
+        }
+        .eraseToAnyPublisher()
+    }
 }
 
 extension Publisher where Output == Void, Failure == Error {
