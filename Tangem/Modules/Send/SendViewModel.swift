@@ -64,17 +64,6 @@ class SendViewModel: ObservableObject {
         .fields(for: blockchainNetwork.blockchain)
     }
 
-    var memoPlaceholder: String {
-        switch blockchainNetwork.blockchain {
-        case .xrp, .stellar:
-            return "send_extras_hint_memo_id".localized
-        case .binance:
-            return "send_extras_hint_memo".localized
-        default:
-            return ""
-        }
-    }
-
     var inputDecimalsCount: Int? {
         isFiatCalculation ? 2 : amountToSend.decimals
     }
@@ -255,6 +244,13 @@ class SendViewModel: ObservableObject {
             }
             .store(in: &bag)
 
+        $isFiatCalculation
+            .receive(on: DispatchQueue.global())
+            .dropFirst()
+            .sink { _ in
+                Analytics.log(.buttonSwapCurrency)
+            }.store(in: &bag)
+
         $isFiatCalculation // handle conversion
             .uiPublisher
             .filter { [unowned self] _ in self.amountText != "0" }
@@ -351,6 +347,9 @@ class SendViewModel: ObservableObject {
                            $isFeeIncluded)
             .sink { [unowned self] (amount, destination, fee, isFeeIncluded) in
                 guard let amount = amount, let destination = destination, let fee = fee else {
+                    if (destination?.isEmpty == false) || destination == nil {
+                        self.transaction = nil
+                    }
                     return
                 }
 
@@ -413,25 +412,28 @@ class SendViewModel: ObservableObject {
 
                 let tag = UInt32(destTagStr)
                 self.validatedXrpDestinationTag = tag
-                self.destinationTagHint = tag == nil ? TextHint(isError: true, message: "send_error_invalid_destination_tag".localized) : nil
+                self.destinationTagHint = tag == nil ? TextHint(isError: true, message: "send_extras_error_invalid_destination_tag".localized) : nil
             })
             .store(in: &bag)
 
         $memo
             .uiPublisher
             .sink(receiveValue: { [unowned self] memo in
+                self.validatedMemoId = nil
+                self.memoHint = nil
+                self.validatedMemo = nil
+
+                if memo.isEmpty { return }
+
                 switch blockchainNetwork.blockchain {
                 case .binance:
                     self.validatedMemo = memo
-                case .xrp, .stellar:
-                    self.validatedMemoId = nil
-                    self.memoHint = nil
-
-                    if memo.isEmpty { return }
-
-                    let memoId = UInt64(memo)
-                    self.validatedMemoId = memoId
-                    self.memoHint = memoId == nil  ? TextHint(isError: true, message: "send_error_invalid_memo_id".localized) : nil
+                case .stellar:
+                    if let memoId = UInt64(memo) {
+                        self.validatedMemoId = memoId
+                    } else {
+                        self.validatedMemo = memo
+                    }
                 default:
                     break
                 }
@@ -535,6 +537,7 @@ class SendViewModel: ObservableObject {
     // MARK: Validation end -
 
     func pasteClipboardTapped() {
+        Analytics.log(.buttonPaste)
         if let validatedClipboard = self.validatedClipboard {
             destination = validatedClipboard
         }
@@ -571,16 +574,25 @@ class SendViewModel: ObservableObject {
             return
         }
 
-        if let destinationTag = self.validatedXrpDestinationTag {
-            tx.params = XRPTransactionParams(destinationTag: destinationTag)
-        }
-
-        if let memoId = self.validatedMemoId, isAdditionalInputEnabled {
-            tx.params = StellarTransactionParams(memo: .id(memoId))
-        }
-
-        if let memo = self.validatedMemo, isAdditionalInputEnabled {
-            tx.params = BinanceTransactionParams(memo: memo)
+        if isAdditionalInputEnabled {
+            switch blockchainNetwork.blockchain {
+            case .binance:
+                if let memo = self.validatedMemo {
+                    tx.params = BinanceTransactionParams(memo: memo)
+                }
+            case .xrp:
+                if let destinationTag = self.validatedXrpDestinationTag {
+                    tx.params = XRPTransactionParams(destinationTag: destinationTag)
+                }
+            case .stellar:
+                if let memoId = self.validatedMemoId {
+                    tx.params = StellarTransactionParams(memo: .id(memoId))
+                } else if let memoText = self.validatedMemo {
+                    tx.params = StellarTransactionParams(memo: .text(memoText))
+                }
+            default:
+                break
+            }
         }
 
         let appDelegate = UIApplication.shared.delegate as! AppDelegate
@@ -608,6 +620,7 @@ class SendViewModel: ObservableObject {
                     if !isDemo {
                         if self.isSellingCrypto {
                             Analytics.log(.transactionIsSent)
+                            Analytics.log(.transactionSent, params: [.token: "\(tx.amount.currencySymbol)"])
                             Analytics.log(event: .userSoldCrypto, with: [.currencyCode: self.blockchainNetwork.blockchain.currencySymbol])
                         } else {
                             Analytics.logTx(blockchainName: self.blockchainNetwork.blockchain.displayName)
@@ -732,6 +745,7 @@ extension SendViewModel {
     }
 
     func openQRScanner() {
+        Analytics.log(.buttonQRCode)
         if case .denied = AVCaptureDevice.authorizationStatus(for: .video) {
             self.showCameraDeniedAlert = true
         } else {
