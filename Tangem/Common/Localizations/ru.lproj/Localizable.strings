@@ -468,7 +468,7 @@ URL: %@";
 "onboarding_navbar_kyc_progress" = "Подтвердите свою личность";
 "onboarding_button_pin" = "Установить Код доступа";
 "onboarding_button_register_wallet" = "Зарегистрироваться";
-"onboarding_button_kyc_start" = "Подтвердить";
+"onboarding_button_kyc_start" = "Верифицировать (Utorg)";
 "onboarding_button_kyc_waiting" = "Обновить";
 "onboarding_title_register_wallet" = "Подключите свою карту";
 "onboarding_title_kyc_start" = "Подтвердите свою личность";
