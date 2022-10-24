@@ -16,6 +16,10 @@ struct GenericConfig {
     private let card: Card
 
     private var _backupSteps: [WalletOnboardingStep] {
+        if card.backupStatus?.isActive == true {
+            return []
+        }
+
         if !card.settings.isBackupAllowed {
             return []
         }
