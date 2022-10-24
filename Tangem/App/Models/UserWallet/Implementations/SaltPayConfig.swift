@@ -66,7 +66,7 @@ struct SaltPayConfig {
         case .needPin, .registration:
             steps.append(contentsOf: [.enterPin, .registerWallet, .kycStart, .kycProgress, .kycWaiting, .claim])
         case .kycRetry:
-            steps.append(contentsOf: [.kycStart, .kycProgress, .kycWaiting, .claim])
+            steps.append(contentsOf: [.kycRetry, .kycProgress, .kycWaiting, .claim])
         case .kycStart:
             steps.append(contentsOf: [.kycStart, .kycProgress, .kycWaiting, .claim])
         case .kycWaiting:
