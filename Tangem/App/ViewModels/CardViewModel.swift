@@ -68,7 +68,7 @@ class CardViewModel: Identifiable, ObservableObject {
         !config.getFeatureAvailability(.walletConnect).isHidden
     }
 
-    var cardTouURL: URL? {
+    var cardTouURL: URL {
         config.touURL
     }
 
