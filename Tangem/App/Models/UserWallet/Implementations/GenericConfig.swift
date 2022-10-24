@@ -53,10 +53,6 @@ extension GenericConfig: UserWalletConfig {
         .default
     }
 
-    var touURL: URL? {
-        nil
-    }
-
     var cardSetLabel: String? {
         guard let backupCardsCount = card.backupStatus?.backupCardsCount else {
             return nil
