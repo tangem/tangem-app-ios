@@ -11,7 +11,7 @@ import Combine
 import Moya
 
 class CommonTangemApiService {
-    private let provider = TangemProvider<TangemApiTarget>()
+    private let provider = TangemProvider<TangemApiTarget>(plugins: [CachePolicyPlugin()])
     private var bag: Set<AnyCancellable> = []
 
     private let fallbackRegionCode = Locale.current.regionCode?.lowercased() ?? ""
@@ -101,16 +101,15 @@ extension CommonTangemApiService: TangemApiService {
             .eraseToAnyPublisher()
     }
 
-    func loadRates(for coinIds: [String]) -> AnyPublisher<[String: Decimal], Never> {
+    func loadRates(for coinIds: [String]) -> AnyPublisher<[String: Decimal], Error> {
         provider
             .requestPublisher(TangemApiTarget(type: .rates(coinIds: coinIds,
                                                            currencyId: AppSettings.shared.selectedCurrencyCode),
                                               authData: authData))
             .filterSuccessfulStatusAndRedirectCodes()
             .map(RatesResponse.self)
+            .eraseError()
             .map { $0.rates }
-            .catch { _ in Empty(completeImmediately: true) }
-            .subscribe(on: DispatchQueue.global())
             .eraseToAnyPublisher()
     }
 

@@ -8,6 +8,7 @@
 import SwiftUI
 import BlockchainSdk
 import Combine
+import TangemSdk
 
 class TokenDetailsViewModel: ObservableObject {
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
@@ -93,6 +94,10 @@ class TokenDetailsViewModel: ObservableObject {
             return false
         }
 
+        guard canSignLongTransactions else {
+            return false
+        }
+
         return wallet?.canSend(amountType: self.amountType) ?? false
     }
 
@@ -120,9 +125,17 @@ class TokenDetailsViewModel: ObservableObject {
         }
 
         let blockchainName = blockchain.displayName
-        let existentialDepositAmount = existentialDepositProvider.existentialDeposit.description
+        let existentialDepositAmount = existentialDepositProvider.existentialDeposit.string(roundingMode: .plain)
 
         return String(format: "warning_existential_deposit_message".localized, blockchainName, existentialDepositAmount)
+    }
+
+    var transactionLengthWarning: String? {
+        if canSignLongTransactions {
+            return nil
+        }
+
+        return "token_details_transaction_length_warning".localized
     }
 
     var title: String {
@@ -142,8 +155,6 @@ class TokenDetailsViewModel: ObservableObject {
     }
 
     @Published var solanaRentWarning: String? = nil
-    @Published var showExplorerURL: URL? = nil
-
     let amountType: Amount.AmountType
     let blockchainNetwork: BlockchainNetwork
 
@@ -155,6 +166,17 @@ class TokenDetailsViewModel: ObservableObject {
 
     private var currencySymbol: String {
         amountType.token?.symbol ?? blockchainNetwork.blockchain.currencySymbol
+    }
+
+    private var canSignLongTransactions: Bool {
+        if let blockchain = walletModel?.blockchainNetwork.blockchain,
+           NFCUtils.isPoorNfcQualityDevice,
+           case .solana = blockchain
+        {
+            return false
+        } else {
+            return true
+        }
     }
 
     init(cardModel: CardViewModel, blockchainNetwork: BlockchainNetwork, amountType: Amount.AmountType, coordinator: TokenDetailsRoutable) {
@@ -169,6 +191,7 @@ class TokenDetailsViewModel: ObservableObject {
     }
 
     func onAppear() {
+        Analytics.log(.detailsScreenOpened)
         rentWarningSubscription = walletModel?
             .$state
             .filter { !$0.isLoading }
@@ -192,6 +215,7 @@ class TokenDetailsViewModel: ObservableObject {
     }
 
     func tradeCryptoAction() {
+        Analytics.log(.buttonExchange)
         showTradeSheet = true
     }
 
@@ -225,17 +249,16 @@ class TokenDetailsViewModel: ObservableObject {
                 self?.objectWillChange.send()
             }
             .store(in: &bag)
+    }
 
-        $showExplorerURL
-            .compactMap { $0 }
-            .sink { [unowned self] url in
-                self.openExplorer(at: url)
-                self.showExplorerURL = nil
-            }
-            .store(in: &bag)
+    func showExplorerURL(url: URL?) {
+        guard let url = url else { return }
+
+        self.openExplorer(at: url)
     }
 
     func onRefresh(_ done: @escaping () -> Void) {
+        Analytics.log(.refreshed)
         DispatchQueue.main.async {
             self.isRefreshing = true
         }
@@ -287,7 +310,7 @@ class TokenDetailsViewModel: ObservableObject {
         isHidingInProcess = true
 
         let item = CommonUserWalletModel.RemoveItem(amount: amountType, blockchainNetwork: walletModel.blockchainNetwork)
-        card.remove(item: item) { [weak self] result in
+        card.remove(item: item) { [weak self] in
             self?.isHidingInProcess = false
             self?.dismiss()
         }
@@ -315,7 +338,7 @@ class TokenDetailsViewModel: ObservableObject {
             title: title,
             message: "token_details_hide_alert_message".localized,
             primaryButton: .destructive(Text("token_details_hide_alert_hide")) { [weak self] in
-                Analytics.log(.removeTokenTapped)
+                Analytics.log(.buttonRemoveToken)
                 self?.deleteToken()
             }
         )
@@ -342,6 +365,7 @@ extension TokenDetailsViewModel {
     func openSend() {
         guard let amountToSend = self.wallet?.amounts[amountType] else { return }
 
+        Analytics.log(.buttonSend)
         coordinator.openSend(amountToSend: amountToSend, blockchainNetwork: blockchainNetwork, cardViewModel: card)
     }
 
@@ -354,6 +378,7 @@ extension TokenDetailsViewModel {
     }
 
     func openSellCrypto() {
+        Analytics.log(.buttonSell)
         if let disabledLocalizedReason = card.getDisabledLocalizedReason(for: .exchange) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
@@ -367,6 +392,7 @@ extension TokenDetailsViewModel {
     }
 
     func openBuyCrypto() {
+        Analytics.log(.buttonBuy)
         if let disabledLocalizedReason = card.getDisabledLocalizedReason(for: .exchange) {
             alert = AlertBuilder.makeDemoAlert(disabledLocalizedReason)
             return
@@ -390,13 +416,11 @@ extension TokenDetailsViewModel {
     }
 
     func openBuyCryptoIfPossible() {
-        Analytics.log(.buyTokenTapped)
+        Analytics.log(.buttonBuyCrypto)
         if tangemApiService.geoIpRegionCode == LanguageCode.ru {
             coordinator.openBankWarning {
-                Analytics.log(.p2pInstructionTapped, params: [.type: "yes"])
                 self.openBuyCrypto()
             } declineCallback: {
-                Analytics.log(.p2pInstructionTapped, params: [.type: "no"])
                 self.coordinator.openP2PTutorial()
             }
         } else {
@@ -411,7 +435,7 @@ extension TokenDetailsViewModel {
     }
 
     func openExplorer(at url: URL) {
-        Analytics.log(.exploreAddressTapped)
+        Analytics.log(.buttonExplore)
         coordinator.openExplorer(at: url, blockchainDisplayName: blockchainNetwork.blockchain.displayName)
     }
 
