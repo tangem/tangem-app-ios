@@ -12,27 +12,35 @@ import TangemSdk
 
 struct CardImageProvider {
     private static var cardArtworkCache: [String: CardArtwork] = [:]
-    private static var imageCache: [String: UIImage] = [:]
+    private static var imageCache = NSCache<NSString, UIImage>()
 
     @Injected(\.cardImageLoader) private var imageLoader: CardImageLoaderProtocol
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
 
     private let supportsOnlineImage: Bool
     private let defaultImage = UIImage(named: "dark_card")!
+    private let cacheQueue = DispatchQueue(label: "card_image_cache_queue")
 
     init(supportsOnlineImage: Bool = true) {
         self.supportsOnlineImage = supportsOnlineImage
     }
 }
 
+// MARK: - CardImageProviding
+
 extension CardImageProvider: CardImageProviding {
     func loadImage(cardId: String, cardPublicKey: Data) -> AnyPublisher<UIImage, Never> {
+        if SaltPayUtil().isPrimaryCard(batchId: String(cardId.prefix(4))) {
+            return Just(UIImage(named: "saltpay")!).eraseToAnyPublisher()
+        }
+
         guard supportsOnlineImage else {
             return Just(defaultImage).eraseToAnyPublisher()
         }
 
         return loadImage(cardId: cardId, cardPublicKey: cardPublicKey, cardArtwork: CardImageProvider.cardArtworkCache[cardId] ?? .notLoaded)
             .replaceError(with: defaultImage)
+            .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
 
@@ -43,9 +51,12 @@ extension CardImageProvider: CardImageProviding {
 
         return loadTwinImage(number: number)
             .replaceError(with: defaultImage)
+            .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
 }
+
+// MARK: - Private
 
 private extension CardImageProvider {
     func loadImage(cardId: String, cardPublicKey: Data, cardArtwork: CardArtwork) -> AnyPublisher<UIImage, Error> {
@@ -96,30 +107,28 @@ private extension CardImageProvider {
     }
 
     func loadImage(cardId: String, cardPublicKey: Data, artworkInfo: ArtworkInfo) -> AnyPublisher<UIImage, Error> {
-        if let image = CardImageProvider.imageCache[cardId] {
+        if let image = getImage(for: cardId) {
             return .justWithError(output: image)
         }
 
         return imageLoader.loadImage(cid: cardId, cardPublicKey: cardPublicKey, artworkInfoId: artworkInfo.id)
             .handleEvents(receiveOutput: { image in
-                CardImageProvider.imageCache[cardId] = image
+                cacheImage(image, for: cardId)
             })
-            .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
 
     func loadTwinImage(number: Int) -> AnyPublisher<UIImage, Error> {
         let cacheKey = "twin_\(number)"
 
-        if let image = CardImageProvider.imageCache[cacheKey] {
+        if let image = getImage(for: cacheKey) {
             return .justWithError(output: image)
         }
 
         return imageLoader.loadTwinImage(for: number)
             .handleEvents(receiveOutput: { image in
-                CardImageProvider.imageCache[cacheKey] = image
+                cacheImage(image, for: cacheKey)
             })
-            .receive(on: RunLoop.main)
             .eraseToAnyPublisher()
     }
 
@@ -129,5 +138,17 @@ private extension CardImageProvider {
         return TwinCardSeries.allCases.first(where: {
             prefix.elementsEqual($0.rawValue.uppercased())
         })?.number
+    }
+
+    func cacheImage(_ image: UIImage, for key: String) {
+        cacheQueue.sync {
+            CardImageProvider.imageCache.setObject(image, forKey: NSString(string: key))
+        }
+    }
+
+    func getImage(for key: String) -> UIImage? {
+        cacheQueue.sync {
+            CardImageProvider.imageCache.object(forKey: NSString(string: key))
+        }
     }
 }

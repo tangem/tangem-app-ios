@@ -42,6 +42,9 @@ extension Blockchain {
         case "dash": self = .dash(testnet: isTestnet)
         case "xdai": self = .gnosis
         case "optimistic-ethereum": self = .optimism(testnet: isTestnet)
+        case "ethereum-pow-iou": self = .ethereumPoW(testnet: isTestnet)
+        case "ethereumfair": self = .ethereumFair
+        case "sxdai": self = .saltPay(testnet: isTestnet) // [REDACTED_TODO_COMMENT]
         default:
             print("⚠️⚠️⚠️ Failed to map network ID \"\(stringId)\"")
             return nil
@@ -75,6 +78,9 @@ extension Blockchain {
         case .dash: return "dash"
         case .gnosis: return "xdai"
         case .optimism: return "optimistic-ethereum"
+        case .ethereumPoW: return "ethereum-pow-iou"
+        case .ethereumFair: return "ethereumfair"
+        case .saltPay: return "sxdai"
         }
     }
 
@@ -118,6 +124,9 @@ extension Blockchain {
         case .dash: return "dash"
         case .gnosis: return "xdai"
         case .optimism: return "optimistic-ethereum"
+        case .ethereumPoW: return "ethereum-pow-iou"
+        case .ethereumFair: return "ethereumfair"
+        case .saltPay: return "sxdai"
         }
     }
 
@@ -150,6 +159,8 @@ extension Blockchain {
         [
             .ethereum(testnet: false),
             .ethereumClassic(testnet: false),
+            .ethereumPoW(testnet: false),
+            .ethereumFair,
             .litecoin,
             .bitcoin(testnet: false),
             .bitcoinCash(testnet: false),
@@ -171,7 +182,6 @@ extension Blockchain {
             .arbitrum(testnet: false),
             .gnosis,
             .dash(testnet: false),
-            .optimism(testnet: false),
         ]
     }()
 
@@ -180,6 +190,7 @@ extension Blockchain {
             .bitcoin(testnet: true),
             .ethereum(testnet: true),
             .ethereumClassic(testnet: true),
+            .ethereumPoW(testnet: true),
             .binance(testnet: true),
             .stellar(testnet: true),
             .bsc(testnet: true),
@@ -190,7 +201,6 @@ extension Blockchain {
             .polkadot(testnet: true),
             .tron(testnet: true),
             .arbitrum(testnet: true),
-            .optimism(testnet: true),
         ]
     }()
 }

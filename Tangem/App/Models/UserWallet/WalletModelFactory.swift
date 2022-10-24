@@ -14,7 +14,7 @@ class WalletModelFactory {
     func makeSingleWallet(walletPublicKey: Data,
                           blockchain: Blockchain,
                           token: BlockchainSdk.Token?,
-                          derivationStyle: DerivationStyle) throws -> WalletModel {
+                          derivationStyle: DerivationStyle?) throws -> WalletModel {
         let factory = WalletManagerFactoryProvider().factory
         let walletManager = try factory.makeWalletManager(blockchain: blockchain,
                                                           walletPublicKey: walletPublicKey)
@@ -22,16 +22,12 @@ class WalletModelFactory {
             walletManager.addTokens([token])
         }
 
-        let model = WalletModel(walletManager: walletManager,
-                                derivationStyle: derivationStyle)
-
-        model.initialize()
-        return model
+        return WalletModel(walletManager: walletManager, derivationStyle: derivationStyle)
     }
 
     func makeMultipleWallet(walletPublicKeys: [EllipticCurve: Data],
                             entry: StorageEntry,
-                            derivationStyle: DerivationStyle) throws -> WalletModel {
+                            derivationStyle: DerivationStyle?) throws -> WalletModel {
         guard let walletPublicKey = walletPublicKeys[entry.blockchainNetwork.blockchain.curve] else {
             throw CommonError.noData
         }
@@ -41,16 +37,13 @@ class WalletModelFactory {
                                                           walletPublicKey: walletPublicKey)
 
         walletManager.addTokens(entry.tokens)
-
-        let model = WalletModel(walletManager: walletManager, derivationStyle: derivationStyle)
-        model.initialize()
-        return model
+        return WalletModel(walletManager: walletManager, derivationStyle: derivationStyle)
     }
 
     func makeMultipleWallet(seedKeys: [EllipticCurve: Data],
                             entry: StorageEntry,
                             derivedKeys: [EllipticCurve: [DerivationPath: ExtendedPublicKey]],
-                            derivationStyle: DerivationStyle) throws -> WalletModel {
+                            derivationStyle: DerivationStyle?) throws -> WalletModel {
         let curve = entry.blockchainNetwork.blockchain.curve
 
         guard let seedKey = seedKeys[curve],
@@ -66,9 +59,6 @@ class WalletModelFactory {
                                                           derivedKey: derivedKey,
                                                           derivation: .custom(derivationPath))
         walletManager.addTokens(entry.tokens)
-
-        let model = WalletModel(walletManager: walletManager, derivationStyle: derivationStyle)
-        model.initialize()
-        return model
+        return WalletModel(walletManager: walletManager, derivationStyle: derivationStyle)
     }
 }

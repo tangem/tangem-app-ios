@@ -117,7 +117,7 @@ class DetailsViewModel: ObservableObject {
     }
 
     func prepareBackup() {
-        Analytics.log(.backupTapped)
+        Analytics.log(.buttonCreateBackup)
         if let input = cardModel.backupInput {
             self.openOnboarding(with: input)
         }
@@ -128,10 +128,12 @@ class DetailsViewModel: ObservableObject {
 
 extension DetailsViewModel {
     func openOnboarding(with input: OnboardingInput) {
+        Analytics.log(.backupScreenOpened)
         coordinator.openOnboardingModal(with: input)
     }
 
     func openMail() {
+        Analytics.log(.buttonSendFeedback)
         let dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel,
                                                          userWalletEmailData: cardModel.emailData)
 
@@ -145,16 +147,17 @@ extension DetailsViewModel {
     }
 
     func openCardSettings() {
-        Analytics.log(.cardSettingsTapped)
+        Analytics.log(.buttonCardSettings)
         coordinator.openScanCardSettings()
     }
 
     func openAppSettings() {
-        Analytics.log(.appSettingsTapped)
+        Analytics.log(.buttonAppSettings)
         coordinator.openAppSettings()
     }
 
     func openSupportChat() {
+        Analytics.log(.buttonChat)
         let dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel,
                                                          userWalletEmailData: cardModel.emailData)
 
@@ -167,6 +170,7 @@ extension DetailsViewModel {
             return
         }
 
+        Analytics.log(.buttonSocialNetwork)
         coordinator.openInSafari(url: url)
     }
 }
