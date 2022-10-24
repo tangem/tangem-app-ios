@@ -103,8 +103,8 @@ extension SaltPayConfig: UserWalletConfig {
         .default
     }
 
-    var touURL: URL? {
-        nil
+    var touURL: URL {
+        .init(string: "https://google.com")!
     }
 
     var cardsCount: Int {
