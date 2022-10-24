@@ -13,8 +13,6 @@ import BlockchainSdk
 struct DummyConfig: UserWalletConfig {
     var emailConfig: EmailConfig { .default }
 
-    var touURL: URL? { nil }
-
     var cardSetLabel: String? { nil }
 
     var cardsCount: Int {
