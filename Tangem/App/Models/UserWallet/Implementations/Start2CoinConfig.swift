@@ -78,8 +78,8 @@ extension Start2CoinConfig: UserWalletConfig {
               subject: "feedback_subject_support".localized)
     }
 
-    var touURL: URL? {
-        makeTouURL()
+    var touURL: URL {
+        makeTouURL() ?? DummyConfig().touURL
     }
 
     var cardsCount: Int {

@@ -10,37 +10,41 @@ import Foundation
 
 class DisclaimerViewModel: Identifiable {
     let id: UUID = .init()
-
-    let url: URL
     let style: DisclaimerView.Style
-    let showAccept: Bool
-
+    let webViewModel: WebViewContainerViewModel
+    var showAccept: Bool { acceptanceHandler != nil }
+    
     private unowned let coordinator: DisclaimerRoutable?
-
-    init(url: URL = Constants.defaultDocumentURL, style: DisclaimerView.Style, showAccept: Bool, coordinator: DisclaimerRoutable?) {
-        self.url = url
+    private var acceptanceHandler: ((Bool) -> Void)?
+    private var accepted: Bool = false
+    
+    init(url: URL,
+         style: DisclaimerView.Style,
+         coordinator: DisclaimerRoutable?,
+         acceptanceHandler: ((Bool) -> Void)? = nil) {
         self.style = style
-        self.showAccept = showAccept
         self.coordinator = coordinator
+        self.acceptanceHandler = acceptanceHandler
+        self.webViewModel = .init(url: url,
+                                  title: "",
+                                  addLoadingIndicator: true,
+                                  withCloseButton: false,
+                                  withNavigationBar: false)
     }
 
     func onAccept() {
-        AppSettings.shared.isTermsOfServiceAccepted = true
+        accepted = true
         dismissAccepted()
     }
-}
-
-extension DisclaimerViewModel {
-    enum Constants {
-        static var defaultDocumentURL: URL {
-            Bundle.main.url(forResource: "T&C", withExtension: "pdf")!
-        }
+    
+    func onDisappear() {
+        acceptanceHandler?(accepted)
     }
 }
 
 // MARK: - Navigation
 extension DisclaimerViewModel {
     private func dismissAccepted() {
-        coordinator?.dismissAcceptedDisclaimer()
+        coordinator?.dismissDisclaimer()
     }
 }
