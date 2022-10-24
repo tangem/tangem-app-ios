@@ -28,11 +28,15 @@ protocol UserWalletModel {
     func append(entries: [StorageEntry], completion: @escaping () -> Void)
     func remove(item: CommonUserWalletModel.RemoveItem, completion: @escaping () -> Void)
 
-    func updateAndReloadWalletModels(completion: @escaping () -> Void)
+    func updateAndReloadWalletModels(silent: Bool, completion: @escaping () -> Void)
 }
 
 extension UserWalletModel {
+    func updateAndReloadWalletModels(completion: @escaping () -> Void) {
+        updateAndReloadWalletModels(silent: false, completion: completion)
+    }
+
     func updateAndReloadWalletModels() {
-        updateAndReloadWalletModels(completion: {})
+        updateAndReloadWalletModels(silent: false, completion: {})
     }
 }
