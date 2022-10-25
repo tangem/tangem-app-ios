@@ -549,8 +549,6 @@
 		DCF838BC2903121F00162A32 /* registration_mock.json in Resources */ = {isa = PBXBuildFile; fileRef = DCF838BB2903101C00162A32 /* registration_mock.json */; };
 		DCF8972D28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF8972C28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift */; };
 		DCFCA17528F4232F0037586C /* Array+.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFCA17428F4232F0037586C /* Array+.swift */; };
-		DCFCA17C28F5F6960037586C /* PDFKitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFCA17B28F5F6960037586C /* PDFKitView.swift */; };
-		DCFCA17E28F5F7C40037586C /* T&C.pdf in Resources */ = {isa = PBXBuildFile; fileRef = DCFCA17D28F5F7C40037586C /* T&C.pdf */; };
 		E90FAB5A28EE418000C6DCBE /* TotalBalanceAnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E90FAB5928EE418000C6DCBE /* TotalBalanceAnalyticsService.swift */; };
 		EF07F3AD289D43580065549C /* List+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF07F3AC289D43580065549C /* List+.swift */; };
 		EF08A0EF283D1914008BD923 /* Moya+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0EE283D1914008BD923 /* Moya+.swift */; };
@@ -1233,8 +1231,6 @@
 		DCF838BB2903101C00162A32 /* registration_mock.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = registration_mock.json; sourceTree = "<group>"; };
 		DCF8972C28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemSdkConfigFactory.swift; sourceTree = "<group>"; };
 		DCFCA17428F4232F0037586C /* Array+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+.swift"; sourceTree = "<group>"; };
-		DCFCA17B28F5F6960037586C /* PDFKitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFKitView.swift; sourceTree = "<group>"; };
-		DCFCA17D28F5F7C40037586C /* T&C.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "T&C.pdf"; sourceTree = "<group>"; };
 		DFEC35A94293DE7EB96CEBC1 /* Pods-Tangem.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.debug(production).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.debug(production).xcconfig"; sourceTree = "<group>"; };
 		E53081CA3060D2785F9D22F0 /* Pods-Tangem-TangemUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release.xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release.xcconfig"; sourceTree = "<group>"; };
 		E90FAB5928EE418000C6DCBE /* TotalBalanceAnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalBalanceAnalyticsService.swift; sourceTree = "<group>"; };
@@ -1394,7 +1390,6 @@
 				B09536FD26D3D2460040A90D /* DisclaimerView.swift */,
 				DC66BBEA2859AB8600CDF765 /* DisclaimerViewModel.swift */,
 				DCE7119E28784F6700969857 /* DisclaimerRoutable.swift */,
-				DCFCA17B28F5F6960037586C /* PDFKitView.swift */,
 			);
 			path = Disclaimer;
 			sourceTree = "<group>";
@@ -2250,7 +2245,6 @@
 		B0CC817C25CD626A006D49B9 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				DCFCA17D28F5F7C40037586C /* T&C.pdf */,
 				5DE552F527B418B400D7ADCD /* testnet_tokens.json */,
 			);
 			path = Resources;
@@ -3236,7 +3230,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				DCF838B729029BB500162A32 /* abi_wxdai.json in Resources */,
-				DCFCA17E28F5F7C40037586C /* T&C.pdf in Resources */,
 				DCF838BC2903121F00162A32 /* registration_mock.json in Resources */,
 				EF0FF873286608BC00B7CEAF /* GoogleService-Info-Beta.plist in Resources */,
 				DA64C36D27CCAD7E005B5E9A /* InfoPlist.strings in Resources */,
@@ -3532,7 +3525,6 @@
 				DA23788327B24222009795A8 /* ShippingRate.swift in Sources */,
 				5D6784E425EBC94B00149995 /* Blockchain+.swift in Sources */,
 				5DD95B8C24FA959C00E6B9D0 /* VerticalAlignment+.swift in Sources */,
-				DCFCA17C28F5F6960037586C /* PDFKitView.swift in Sources */,
 				DC194D2628EC6A76007FBC99 /* SaltPayRegistratorProvider.swift in Sources */,
 				EF5A5ACF28D86089002544AC /* TotalBalanceProvider.swift in Sources */,
 				5D6784D925EBA1D800149995 /* TokenItems+Array.swift in Sources */,
