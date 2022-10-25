@@ -799,7 +799,7 @@ class WalletOnboardingViewModel: OnboardingViewModel<WalletOnboardingStep>, Obse
 
     private func addDefaultTokens(for card: Card) {
         let config = GenericConfig(card: card)
-        let repository = CommonTokenItemsRepository(key: card.userWalletId.hexString)
+        let repository = CommonTokenItemsRepository(key: card.userWalletId(walletData: nil).toHexString())
         repository.append(config.defaultBlockchains)
     }
 }
