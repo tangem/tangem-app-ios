@@ -380,8 +380,14 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     private func bindSaltPayIfNeeded() {
         guard let saltPayRegistrator = saltPayRegistratorProvider.registrator else { return }
 
-        if let walletModel = self.cardModel.walletModels.first {
+        if let walletModel = cardModel.walletModels.first {
             updateCardBalanceText(for: walletModel, type: saltPayAmountType)
+        }
+        
+        if let backup = cardModel.backupInput, backup.steps.stepsCount > 0,
+           !AppSettings.shared.cardsStartedActivation.contains(cardModel.cardId) {
+            AppSettings.shared.cardsStartedActivation.insert(cardModel.cardId)
+            Analytics.log(.onboardingStarted)
         }
 
         saltPayRegistrator
@@ -417,6 +423,10 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                     self.goToNextStep()
                 case .claim:
                     self.goToNextStep()
+                case .finished:
+                    if self.currentStep == .kycWaiting { //we have nothing to claim
+                        self.goToNextStep()
+                    }
                 case .kycRetry:
                     if case let .wallet(steps) = self.cardModel.onboardingInput.steps { // rebuild steps from scratch
                         self.steps = steps
@@ -532,16 +542,21 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             saltPayRegistratorProvider.registrator?.update()
         case .enterPin:
             if saltPayRegistratorProvider.registrator?.setPin(pinText) ?? false {
+                Analytics.log(.pinCodeSet)
                 goToNextStep()
             }
         case .registerWallet:
+            Analytics.log(.buttonConnect)
             saltPayRegistratorProvider.registrator?.register()
-        case .kycStart, .successClaim:
+        case .kycStart:
+            goToNextStep()
+        case .successClaim:
             goToNextStep()
         case .kycProgress:
             goToNextStep()
             saltPayRegistratorProvider.registrator?.update()
         case .claim:
+            Analytics.log(.buttonClaim)
             claim()
         case .kycRetry:
             saltPayRegistratorProvider.registrator?.update() { [weak self] newState in
@@ -618,6 +633,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         saltPayRegistrator.claim() { [weak self] result in
             switch result {
             case .success:
+                Analytics.log(.claimFinished)
                 self?.claimed = true
                 self?.onRefresh()
             case .failure:
@@ -704,7 +720,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             setupCardsSettings(animated: true, isContainerSetup: false)
         case .backupCards:
             if backupServiceState == .finished {
-                Analytics.log(.backupFinished)
+                Analytics.log(.backupFinished, params: [.cardsCount : String(backupService.addedBackupCardsCount)])
                 self.goToNextStep()
             } else {
                 setupCardsSettings(animated: true, isContainerSetup: false)
@@ -723,6 +739,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         isMainButtonBusy = true
         if !input.isStandalone {
             AppSettings.shared.cardsStartedActivation.insert(input.cardInput.cardId)
+            Analytics.log(.onboardingStarted)
         }
         stepPublisher = preparePrimaryCardPublisher()
             .combineLatest(NotificationCenter.didBecomeActivePublisher)
