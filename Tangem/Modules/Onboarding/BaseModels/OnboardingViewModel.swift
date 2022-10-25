@@ -193,6 +193,13 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             Analytics.log(.walletCreatedSuccessfully)
         }
     }
+    
+    func goToStep(with index: Int) {
+        withAnimation {
+            currentStepIndex = index
+            setupCardsSettings(animated: true, isContainerSetup: false)
+        }
+    }
 
     func goToNextStep() {
         if isOnboardingFinished {
@@ -209,11 +216,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             newIndex = steps.count - 1
         }
 
-        withAnimation {
-            currentStepIndex = newIndex
-
-            setupCardsSettings(animated: true, isContainerSetup: false)
-        }
+        goToStep(with: newIndex)
     }
 
     func mainButtonAction() {
