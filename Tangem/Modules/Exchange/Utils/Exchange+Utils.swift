@@ -27,6 +27,8 @@ extension ExchangeBlockchain {
             return .arbitrum
         case .optimism:
             return .optimism
+        case .gnosis:
+            return .gnosisChain
         default:
             fatalError("Unknown blockchain")
         }
