@@ -74,14 +74,14 @@ extension CommonUserWalletModel: UserWalletModel {
         walletListManager.canManage(amountType: amountType, blockchainNetwork: blockchainNetwork)
     }
 
-    func update(entries: [StorageEntry], completion: @escaping () -> Void) {
-        userTokenListManager.update(.rewrite(entries), completion: completion)
+    func update(entries: [StorageEntry]) {
+        userTokenListManager.update(.rewrite(entries))
 
         updateAndReloadWalletModels()
     }
 
-    func append(entries: [StorageEntry], completion: @escaping () -> Void) {
-        userTokenListManager.update(.append(entries), completion: completion)
+    func append(entries: [StorageEntry]) {
+        userTokenListManager.update(.append(entries))
 
         updateAndReloadWalletModels()
     }
@@ -106,12 +106,12 @@ extension CommonUserWalletModel: UserWalletModel {
 
 private extension CommonUserWalletModel {
     func removeBlockchain(_ network: BlockchainNetwork) {
-        userTokenListManager.update(.removeBlockchain(network)) {}
+        userTokenListManager.update(.removeBlockchain(network))
         walletListManager.updateWalletModels()
     }
 
     func removeToken(_ token: Token, in network: BlockchainNetwork) {
-        userTokenListManager.update(.removeToken(token, in: network)) {}
+        userTokenListManager.update(.removeToken(token, in: network))
         walletListManager.removeToken(token, blockchainNetwork: network)
         walletListManager.updateWalletModels()
     }
