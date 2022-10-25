@@ -34,7 +34,7 @@ class DetailsViewModel: ObservableObject {
         cardModel.shouldShowWC
     }
 
-    var cardTouURL: URL? {
+    var cardTouURL: URL {
         cardModel.cardTouURL
     }
 
@@ -106,11 +106,7 @@ extension DetailsViewModel {
     }
 
     func openDisclaimer() {
-        coordinator.openDisclaimer()
-    }
-
-    func openCardTOU(url: URL) {
-        coordinator.openCardTOU(url: url)
+        coordinator.openDisclaimer(at: cardModel.cardTouURL)
     }
 
     func openCardSettings() {
