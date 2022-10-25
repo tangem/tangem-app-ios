@@ -13,11 +13,11 @@ class DisclaimerViewModel: Identifiable {
     let style: DisclaimerView.Style
     let webViewModel: WebViewContainerViewModel
     var showAccept: Bool { acceptanceHandler != nil }
-    
+
     private unowned let coordinator: DisclaimerRoutable?
     private var acceptanceHandler: ((Bool) -> Void)?
     private var accepted: Bool = false
-    
+
     init(url: URL,
          style: DisclaimerView.Style,
          coordinator: DisclaimerRoutable?,
@@ -36,7 +36,7 @@ class DisclaimerViewModel: Identifiable {
         accepted = true
         dismissAccepted()
     }
-    
+
     func onDisappear() {
         acceptanceHandler?(accepted)
     }
