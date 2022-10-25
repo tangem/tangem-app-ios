@@ -112,14 +112,14 @@ struct OnboardingAccessCodeView: View {
                     guard isAccessCodeValid() else {
                         return
                     }
-                    
+
                     Analytics.log(.accessCodeEntered)
                     nextState = .repeatCode
                 case .repeatCode:
                     guard isAccessCodeValid() else {
                         return
                     }
-                    
+
                     Analytics.log(.accessCodeReEntered)
                     viewModel.successHandler(secondEnteredCode)
                     return
