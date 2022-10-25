@@ -11,8 +11,6 @@ import TangemSdk
 import BlockchainSdk
 
 struct DummyConfig: UserWalletConfig {
-    var emailConfig: EmailConfig { .default }
-
     var cardSetLabel: String? { nil }
 
     var cardsCount: Int {

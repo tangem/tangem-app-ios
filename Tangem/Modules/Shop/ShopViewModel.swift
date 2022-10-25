@@ -297,7 +297,7 @@ extension ShopViewModel {
         guard let checkoutID = checkoutByVariantID[currentVariantID]?.id else {
             return
         }
-        
+
         Analytics.log(.redirected)
 
         // Checking order ID
