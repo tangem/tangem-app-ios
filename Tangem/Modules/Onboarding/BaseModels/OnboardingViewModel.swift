@@ -194,6 +194,13 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
         }
     }
 
+    func goToStep(with index: Int) {
+        withAnimation {
+            currentStepIndex = index
+            setupCardsSettings(animated: true, isContainerSetup: false)
+        }
+    }
+
     func goToNextStep() {
         if isOnboardingFinished {
             DispatchQueue.main.async {
@@ -209,11 +216,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             newIndex = steps.count - 1
         }
 
-        withAnimation {
-            currentStepIndex = newIndex
-
-            setupCardsSettings(animated: true, isContainerSetup: false)
-        }
+        goToStep(with: newIndex)
     }
 
     func mainButtonAction() {
