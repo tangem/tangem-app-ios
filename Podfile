@@ -24,7 +24,7 @@ target 'Tangem' do
   pod 'HDWalletKit', :git => 'https://github.com/tangem/hdwallet.git', :tag => '0.3.12'
   #pod 'HDWalletKit', :path => '../HDWallet'
   
-  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-172'
+  pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-173'
 #  pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
   
   pod 'web3swift', :git => 'https://github.com/tangem/web3swift.git', :tag => '2.2.10'
@@ -41,7 +41,7 @@ target 'Tangem' do
   pod 'Kingfisher', :git => 'https://github.com/onevcat/Kingfisher.git', :branch => 'version6-xcode13'
   pod 'stellar-ios-mac-sdk'
   pod 'AppsFlyerFramework'
-  pod 'Solana.Swift', :git => 'https://github.com/tangem/Solana.Swift', :tag => 'add-external-signer-3'
+  pod 'Solana.Swift', :git => 'https://github.com/tangem/Solana.Swift', :tag => 'add-external-signer-6'
   # pod 'Solana.Swift', :path => '../Solana.Swift'
   pod 'ScaleCodec'
   pod 'Mobile-Buy-SDK' # Shopify
