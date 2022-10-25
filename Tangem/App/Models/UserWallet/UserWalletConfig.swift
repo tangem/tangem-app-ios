@@ -13,7 +13,7 @@ import BlockchainSdk
 protocol UserWalletConfig {
     var sdkConfig: Config { get }
 
-    var emailConfig: EmailConfig { get }
+    var emailConfig: EmailConfig? { get }
 
     var touURL: URL { get }
 
@@ -73,6 +73,10 @@ extension UserWalletConfig {
 
     var touURL: URL {
         .init(string: "https://tangem.com/tangem_tos.html")!
+    }
+
+    var emailConfig: EmailConfig? {
+        .default
     }
 }
 
