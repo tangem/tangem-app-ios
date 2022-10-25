@@ -16,30 +16,29 @@ import Amplitude
 #endif
 import TangemSdk
 
+//todo: singleton
 class Analytics {
+    static private var analyticsSystems: [Analytics.AnalyticSystem] = [.firebase, .appsflyer, .amplitude]
+    static private var persistentParams: [ParameterKey: String] = [:]
+    
+    static func reset() {
+        persistentParams = [:]
+    }
+    
     static func log(_ event: Event, params: [ParameterKey: String] = [:]) {
-        let compatibles = event.analyticsSystems()
-        for compatible in compatibles {
-            switch compatible {
+        for system in analyticsSystems {
+            switch system {
             case .appsflyer, .firebase:
                 log(event: event, with: params)
-            case .amplitude: // [REDACTED_TODO_COMMENT]
-                let convertedParams = params.reduce(into: [:]) { $0[$1.key.rawValue] = $1.value }
-                logAmplitude(event: event, params: convertedParams)
+            case .amplitude:
+                logAmplitude(event: event, params: params)
             }
         }
     }
 
-    static func log(event: Event, with params: [ParameterKey: Any]? = nil) {
-        #if !CLIP
-        let key = event.rawValue
-        let values = params?.firebaseParams
-        FirebaseAnalytics.Analytics.logEvent(key, parameters: values)
-        AppsFlyerLib.shared().logEvent(key, withValues: values)
-        #endif
-    }
-
     static func logScan(card: Card, config: UserWalletConfig) {
+        persistentParams[.batchId] = card.batchId
+        
         log(event: .cardIsScanned, with: collectCardData(card))
 
         if DemoUtil().isDemoCard(cardId: card.cardId) {
@@ -48,11 +47,12 @@ class Analytics {
     }
 
     static func logTx(blockchainName: String?, isPushed: Bool = false) {
-        log(event: isPushed ? .transactionIsPushed : .transactionIsSent,
-            with: [ParameterKey.blockchain: blockchainName ?? ""])
+        let event: Event = isPushed ? .transactionIsPushed : .transactionIsSent
+        let params = [ParameterKey.blockchain: blockchainName ?? ""]
+        log(event, params: params)
     }
 
-    static func logCardSdkError(_ error: TangemSdkError, for action: Action, parameters: [ParameterKey: Any] = [:]) {
+    static func logCardSdkError(_ error: TangemSdkError, for action: Action, parameters: [ParameterKey: String] = [:]) {
         #if !CLIP
         if case .userCancelled = error { return }
 
@@ -65,7 +65,7 @@ class Analytics {
         #endif
     }
 
-    static func logCardSdkError(_ error: TangemSdkError, for action: Action, card: Card, parameters: [ParameterKey: Any] = [:]) {
+    static func logCardSdkError(_ error: TangemSdkError, for action: Action, card: Card, parameters: [ParameterKey: String] = [:]) {
         logCardSdkError(error, for: action, parameters: collectCardData(card, additionalParams: parameters))
     }
 
@@ -76,7 +76,7 @@ class Analytics {
         }
 
         if let detailedDescription = (error as? DetailedError)?.detailedDescription {
-            var params = [ParameterKey: Any]()
+            var params = [ParameterKey: String]()
             params[.errorDescription] = detailedDescription
             let nsError = NSError(domain: "DetailedError",
                                   code: 1,
@@ -91,7 +91,7 @@ class Analytics {
 
     #if !CLIP
     static func logWcEvent(_ event: WalletConnectEvent) {
-        var params = [ParameterKey: Any]()
+        var params = [ParameterKey: String]()
         let firEvent: Event
         switch event {
         case let .error(error, action):
@@ -99,7 +99,9 @@ class Analytics {
                 params[.walletConnectAction] = action.rawValue
             }
             params[.errorDescription] = error.localizedDescription
-            let nsError = NSError(domain: "WalletConnect Error for: \(action?.rawValue ?? "WC Service error")", code: 0, userInfo: params.firebaseParams)
+            let nsError = NSError(domain: "WalletConnect Error for: \(action?.rawValue ?? "WC Service error")",
+                                  code: 0,
+                                  userInfo: params.firebaseParams)
             Crashlytics.crashlytics().record(error: nsError)
             return
         case .action(let action):
@@ -118,7 +120,7 @@ class Analytics {
             params[.walletConnectDappUrl] = url.absoluteString
         }
 
-        log(event: firEvent, with: params)
+        log(firEvent, params: params)
     }
     #endif
 
@@ -148,19 +150,34 @@ class Analytics {
             AnalyticsParameterCurrency: order.currencyCode,
         ], uniquingKeysWith: { $1 }))
 
-        logAmplitude(event: .purchased, params: ["SKU": sku, "Count": "\(order.lineItems.count)", "Amount": "\(order.total)\(order.currencyCode)"])
+        logAmplitude(event: .purchased, params: [.sku: sku,
+                                                 .count: "\(order.lineItems.count)",
+                                                 .amount: "\(order.total)\(order.currencyCode)"])
     }
     #endif
 
-    static func logAmplitude(event: Event, params: [String: String] = [:]) {
+    private static func logAmplitude(event: Event, params: [ParameterKey: String] = [:]) {
         #if !CLIP
-        Amplitude.instance().logEvent(event.rawValue, withEventProperties: params)
+        let mergedParams = params.merging(persistentParams, uniquingKeysWith: { (current, _) in  current })
+        let convertedParams = mergedParams.reduce(into: [:]) { $0[$1.key.rawValue] = $1.value }
+        Amplitude.instance().logEvent(event.rawValue, withEventProperties: convertedParams)
         #endif
     }
 
-    private static func collectCardData(_ card: Card, additionalParams: [ParameterKey: Any] = [:]) -> [ParameterKey: Any] {
+    private static func log(event: Event, with params: [ParameterKey: String]? = nil) {
+        #if !CLIP
+        let key = event.rawValue
+        
+        let mergedParams = params?.merging(persistentParams, uniquingKeysWith: { (current, _) in  current })
+        let values = mergedParams?.firebaseParams
+        
+        FirebaseAnalytics.Analytics.logEvent(key, parameters: values)
+        AppsFlyerLib.shared().logEvent(key, withValues: values)
+        #endif
+    }
+    
+    private static func collectCardData(_ card: Card, additionalParams: [ParameterKey: String] = [:]) -> [ParameterKey: String] {
         var params = additionalParams
-        params[.batchId] = card.batchId
         params[.firmware] = card.firmwareVersion.stringValue
         return params
     }
@@ -219,6 +236,14 @@ extension Analytics {
         case twinningScreenOpened = "[Onboarding / Twins] Twinning Screen Opened"
         case twinSetupStarted = "[Onboarding / Twins] Twin Setup Started"
         case twinSetupFinished = "[Onboarding / Twins] Twin Setup Finished"
+        case pinCodeSet = "[Onboarding] PIN code set"
+        case buttonConnect = "[Onboarding] Button - Connect"
+        case kycProgressScreenOpened = "[Onboarding] KYC started"
+        case kycWaitingScreenOpened = "[Onboarding] KYC in progress"
+        case kycRetryScreenOpened = "[Onboarding] KYC rejected"
+        case claimScreenOpened = "[Onboarding] Claim screen opened"
+        case buttonClaim = "[Onboarding] Button - Claim"
+        case claimFinished = "[Onboarding] Claim was successfully "
         case screenOpened = "[Main Screen] Screen opened"
         case buttonScanCard = "[Main Screen] Button - Scan Card"
         case cardWasScanned = "[Main Screen] Card Was Scanned"
@@ -333,6 +358,10 @@ extension Analytics {
         case state = "State"
         case basicCurrency = "Currency"
         case batch = "Batch"
+        case cardsCount = "Cards count"
+        case sku = "SKU"
+        case amount = "Amount"
+        case count = "Count"
     }
 
     enum ParameterValue: String {
@@ -358,133 +387,7 @@ extension Analytics {
     #endif
 }
 
-//  MARK: - Amplitude events
-extension Analytics.Event {
-    func analyticsSystems() -> [Analytics.AnalyticSystem] {
-        switch self {
-        case .signedIn,
-             .toppedUp,
-             .buttonTokensList,
-             .buttonBuyCards,
-             .introductionProcessButtonScanCard,
-             .introductionProcessCardWasScanned,
-             .introductionProcessOpened,
-             .buttonRequestSupport,
-             .shopScreenOpened,
-             .purchased,
-             .redirected,
-             .buttonBiometricSignIn,
-             .buttonCardSignIn,
-             .onboardingStarted,
-             .onboardingFinished,
-             .createWalletScreenOpened,
-             .buttonCreateWallet,
-             .walletCreatedSuccessfully,
-             .backupScreenOpened,
-             .backupStarted,
-             .backupSkipped,
-             .settingAccessCodeStarted,
-             .accessCodeEntered,
-             .accessCodeReEntered,
-             .backupFinished,
-             .activationScreenOpened,
-             .buttonBuyCrypto,
-             .buttonShowTheWalletAddress,
-             .enableBiometric,
-             .allowBiometricID,
-             .twinningScreenOpened,
-             .twinSetupStarted,
-             .twinSetupFinished,
-             .screenOpened,
-             .buttonScanCard,
-             .cardWasScanned,
-             .buttonMyWallets,
-             .mainCurrencyChanged,
-             .noticeRateTheAppButtonTapped,
-             .noticeBackupYourWalletTapped,
-             .noticeScanYourCardTapped,
-             .refreshed,
-             .mainRefreshed,
-             .buttonManageTokens,
-             .tokenIsTapped,
-             .detailsScreenOpened,
-             .buttonRemoveToken,
-             .buttonExplore,
-             .buttonBuy,
-             .buttonSell,
-             .buttonExchange,
-             .buttonSend,
-             .receiveScreenOpened,
-             .buttonCopyAddress,
-             .buttonShareAddress,
-             .sendScreenOpened,
-             .buttonPaste,
-             .buttonQRCode,
-             .buttonSwapCurrency,
-             .transactionSent,
-             .topUpScreenOpened,
-             .p2PScreenOpened,
-             .withdrawScreenOpened,
-             .manageTokensScreenOpened,
-             .tokenSearched,
-             .tokenSwitcherChanged,
-             .buttonSaveChanges,
-             .buttonCustomToken,
-             .customTokenScreenOpened,
-             .customTokenWasAdded,
-             .settingsScreenOpened,
-             .buttonChat,
-             .buttonSendFeedback,
-             .buttonStartWalletConnectSession,
-             .buttonStopWalletConnectSession,
-             .buttonCardSettings,
-             .buttonAppSettings,
-             .buttonCreateBackup,
-             .buttonSocialNetwork,
-             .buttonFactoryReset,
-             .factoryResetFinished,
-             .buttonChangeUserCode,
-             .userCodeChanged,
-             .buttonChangeSecurityMode,
-             .securityModeChanged,
-             .faceIDSwitcherChanged,
-             .saveAccessCodeSwitcherChanged,
-             .buttonEnableBiometricAuthentication,
-             .newSessionEstablished,
-             .sessionDisconnected,
-             .requestSigned,
-             .myWalletsScreenOpened,
-             .buttonScanNewCard,
-             .myWalletsCardWasScanned,
-             .buttonUnlockAllWithFaceID,
-             .walletTapped,
-             .buttonEditWalletTapped,
-             .buttonDeleteWalletTapped,
-             .chatScreenOpened:
-            return [.amplitude]
-        case .transactionIsSent:
-            return [.firebase, .appsflyer, .amplitude]
-        case .cardIsScanned,
-             .transactionIsPushed,
-             .readyToScan,
-             .displayRateAppWarning,
-             .negativeRateAppFeedback,
-             .positiveRateAppFeedback,
-             .dismissRateAppWarning,
-             .wcSuccessResponse,
-             .wcInvalidRequest,
-             .wcNewSession,
-             .wcSessionDisconnected,
-             .userBoughtCrypto,
-             .userSoldCrypto,
-             .getACard,
-             .demoActivated:
-            return [.firebase, .appsflyer]
-        }
-    }
-}
-
-fileprivate extension Dictionary where Key == Analytics.ParameterKey, Value == Any {
+fileprivate extension Dictionary where Key == Analytics.ParameterKey, Value == String {
     var firebaseParams: [String: Any] {
         var convertedParams = [String: Any]()
         forEach { convertedParams[$0.key.rawValue] = $0.value }
