@@ -141,7 +141,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             cardId: input.cardInput.cardModel?.cardId,
             cardPublicKey: input.cardInput.cardModel?.cardPublicKey
         )
-        
+
         bindAnalytics()
     }
 
@@ -232,16 +232,16 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     func setupCardsSettings(animated: Bool, isContainerSetup: Bool) {
         fatalError("Not implemented")
     }
-    
+
     private func bindAnalytics() {
         $currentStepIndex
             .dropFirst()
             .removeDuplicates()
             .receiveValue { [weak self] index in
                 guard let self else { return }
-                
+
                 let currentStep = self.currentStep
-                
+
                 if let walletStep = currentStep as? WalletOnboardingStep {
                     switch walletStep {
                     case .kycProgress:
