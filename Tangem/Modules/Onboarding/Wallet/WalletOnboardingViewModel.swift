@@ -372,9 +372,9 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     }
 
     func onRefresh() {
-        if isSaltPayOnboarding {
-            updateCardBalance(for: saltPayAmountType)
-        }
+        guard let registrator = saltPayRegistratorProvider.registrator else { return }
+        
+        updateCardBalance(for: saltPayAmountType, shouldGoToNextStep: !registrator.canClaim)
     }
 
     private func bindSaltPayIfNeeded() {
