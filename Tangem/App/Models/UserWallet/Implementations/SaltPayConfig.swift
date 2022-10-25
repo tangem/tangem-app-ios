@@ -22,10 +22,6 @@ struct SaltPayConfig {
     init(card: Card) {
         self.card = card
         backupServiceProvider.backupService.skipCompatibilityChecks = true
-
-        if !_backupSteps.isEmpty {
-            AppSettings.shared.cardsStartedActivation.insert(card.cardId)
-        }
     }
 
     private var defaultBlockchain: Blockchain {

@@ -174,6 +174,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
 
             if case let .singleWallet(steps) = self.input.steps, steps.contains(.topup) {
                 AppSettings.shared.cardsStartedActivation.insert(self.cardModel.cardId)
+                Analytics.log(.onboardingStarted)
             }
 
             self.cardModel.userWalletModel?.updateAndReloadWalletModels()
