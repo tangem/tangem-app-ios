@@ -14,17 +14,17 @@ class ExchangeTimer {
         case passed(seconds: TimeInterval)
         case expired
     }
-    
+
     private let start: Date = Date()
     private var subscription: AnyCancellable?
-    
+
     func startTimer(callback: @escaping (State) -> ()) {
         subscription = Timer
             .publish(every: 1.0, on: .main, in: .common)
             .autoconnect()
             .sink(receiveValue: { [weak self] output in
                 guard let self else { return }
-                
+
                 let timePassedSinceStart = output.timeIntervalSince(self.start)
                 if timePassedSinceStart > 10 {
                     callback(.expired)
@@ -34,7 +34,7 @@ class ExchangeTimer {
                 }
             })
     }
-    
+
     func cancel() {
         subscription = nil
     }
