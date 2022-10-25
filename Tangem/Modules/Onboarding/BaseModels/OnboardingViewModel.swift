@@ -141,6 +141,8 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             cardId: input.cardInput.cardModel?.cardId,
             cardPublicKey: input.cardInput.cardModel?.cardPublicKey
         )
+        
+        bindAnalytics()
     }
 
     func loadImage(supportsOnlineImage: Bool, cardId: String?, cardPublicKey: Data?) {
@@ -229,6 +231,33 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
     func setupCardsSettings(animated: Bool, isContainerSetup: Bool) {
         fatalError("Not implemented")
+    }
+    
+    private func bindAnalytics() {
+        $currentStepIndex
+            .dropFirst()
+            .removeDuplicates()
+            .receiveValue { [weak self] index in
+                guard let self else { return }
+                
+                let currentStep = self.currentStep
+                
+                if let walletStep = currentStep as? WalletOnboardingStep {
+                    switch walletStep {
+                    case .kycProgress:
+                        Analytics.log(.kycProgressScreenOpened)
+                    case .kycRetry:
+                        Analytics.log(.kycRetryScreenOpened)
+                    case .kycWaiting:
+                        Analytics.log(.kycWaitingScreenOpened)
+                    case .claim:
+                        Analytics.log(.claimScreenOpened)
+                    default:
+                        break
+                    }
+                }
+            }
+            .store(in: &bag)
     }
 }
 
