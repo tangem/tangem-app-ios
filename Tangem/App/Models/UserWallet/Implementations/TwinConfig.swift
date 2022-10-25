@@ -37,10 +37,6 @@ extension TwinConfig: UserWalletConfig {
         return config
     }
 
-    var emailConfig: EmailConfig {
-        .default
-    }
-
     var cardSetLabel: String? {
         String.localizedStringWithFormat("card_label_card_count".localized, cardsCount)
     }
