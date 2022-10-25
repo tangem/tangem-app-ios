@@ -78,10 +78,10 @@ extension CommonWalletListManager: WalletListManager {
             }
         }
 
-        if !config.hasFeature(.hdWallets) { //hotfix, do not remove
+        if !config.hasFeature(.hdWallets) { // hotfix, do not remove
             entriesToAdd.removeAll(where: { $0.blockchainNetwork.derivationPath != nil })
         }
-        
+
         var nonDeriveEntries: [StorageEntry] = []
 
         let walletModelsToAdd = entriesToAdd
