@@ -117,13 +117,6 @@ struct DetailsView: View {
             DefaultRowView(title: "disclaimer_title".localized) {
                 viewModel.openDisclaimer()
             }
-
-            if let url = viewModel.cardTouURL {
-                DefaultRowView(title: "details_row_title_card_tou".localized) {
-                    viewModel.openCardTOU(url: url)
-                }
-            }
-
         }, footer: {
             HStack {
                 Spacer()

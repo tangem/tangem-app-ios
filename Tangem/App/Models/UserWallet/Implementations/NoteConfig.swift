@@ -35,10 +35,6 @@ extension NoteConfig: UserWalletConfig {
         .default
     }
 
-    var touURL: URL? {
-        nil
-    }
-
     var cardSetLabel: String? {
         nil
     }
