@@ -54,7 +54,7 @@ class WalletConnectTransactionHandler: TangemWalletConnectRequestHandler {
         let blockchain = wallet.blockchain
         let walletModel = dataSource?.cardModel.walletModels.first(where: {
             $0.wallet.blockchain == wallet.blockchain &&
-            $0.wallet.address.lowercased() == transaction.from.lowercased()
+                $0.wallet.address.lowercased() == transaction.from.lowercased()
         })
 
         guard let walletModel else {
