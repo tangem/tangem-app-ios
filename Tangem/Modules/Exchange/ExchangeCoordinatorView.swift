@@ -10,7 +10,7 @@ import SwiftUI
 
 struct ExchangeCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: ExchangeCoordinator
-    
+
     var body: some View {
         ZStack {
             if let model = coordinator.exchangeViewModel {
