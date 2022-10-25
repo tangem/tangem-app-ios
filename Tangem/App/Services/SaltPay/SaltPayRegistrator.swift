@@ -324,6 +324,10 @@ class SaltPayRegistrator {
                     throw SaltPayRegistratorError.noGas
                 }
             }
+            .mapError { error in
+                Analytics.log(error: error)
+                return SaltPayRegistratorError.blockchainError
+            }
             .eraseToAnyPublisher()
     }
 
