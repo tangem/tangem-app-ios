@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 
-struct ExchangeViewItem: Identifiable {
+struct ExchangeItems: Identifiable {
     var id: UUID = UUID()
     
     let fromItem: ExchangeItem
