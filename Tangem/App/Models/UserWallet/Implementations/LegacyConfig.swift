@@ -45,10 +45,6 @@ struct LegacyConfig {
 }
 
 extension LegacyConfig: UserWalletConfig {
-    var emailConfig: EmailConfig {
-        .default
-    }
-
     var cardSetLabel: String? {
         nil
     }

@@ -73,8 +73,10 @@ struct DetailsView: View {
                 viewModel.openSupportChat()
             }
 
-            DefaultRowView(title: "details_row_title_send_feedback".localized) {
-                viewModel.openMail()
+            if viewModel.canSendMail {
+                DefaultRowView(title: "details_row_title_send_feedback".localized) {
+                    viewModel.openMail()
+                }
             }
         }
     }
