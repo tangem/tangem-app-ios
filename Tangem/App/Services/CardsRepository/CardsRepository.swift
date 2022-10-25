@@ -11,7 +11,7 @@ import Combine
 
 protocol CardsRepository {
     var delegate: CardsRepositoryDelegate? { get set }
-    
+
     func scanPublisher(with batch: String?) -> AnyPublisher<CardViewModel, Error>
 }
 
