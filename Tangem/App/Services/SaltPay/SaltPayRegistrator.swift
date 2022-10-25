@@ -92,16 +92,19 @@ class SaltPayRegistrator {
         }
     }
 
-    func update() {
+    func update(_ completion: ((State) -> Void)? = nil) {
         isBusy = true
 
         updatePublisher()
-            .sink { [weak self] completion in
-                if case let .failure(error) = completion {
-                    self?.error = error.alertBinder
+            .sink { [weak self] completionResult in
+                guard let self = self else { return }
+                
+                if case let .failure(error) = completionResult {
+                    self.error = error.alertBinder
                 }
 
-                self?.isBusy = false
+                self.isBusy = false
+                completion?(self.state)
             } receiveValue: { _ in }
             .store(in: &bag)
     }
@@ -314,6 +317,7 @@ class SaltPayRegistrator {
         return gnosis.checkHasGas()
             .handleEvents(receiveOutput: { [weak self] response in
                 self?.hasGas = response
+                self?.updateState()
             })
             .tryMap { hasGas in
                 if !hasGas {
@@ -331,6 +335,7 @@ class SaltPayRegistrator {
         return gnosis.getClaimableAmount()
             .handleEvents(receiveOutput: { [weak self] claimable in
                 self?.claimableAmount = claimable
+                self?.updateState()
             })
             .map { _ in }
             .eraseToAnyPublisher()
@@ -340,6 +345,7 @@ class SaltPayRegistrator {
         api.checkRegistration(for: cardId, publicKey: cardPublicKey)
             .handleEvents(receiveOutput: { [weak self] response in
                 self?.registrationState = response
+                self?.updateState()
             })
             .tryMap { response -> Void in
                 guard response.passed == true else { // passed is false, show error
