@@ -101,8 +101,8 @@ extension SaltPayConfig: UserWalletConfig {
         return config
     }
 
-    var emailConfig: EmailConfig {
-        .default
+    var emailConfig: EmailConfig? {
+        return nil
     }
 
     var touURL: URL {
