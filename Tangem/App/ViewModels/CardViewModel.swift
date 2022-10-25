@@ -25,7 +25,7 @@ class CardViewModel: Identifiable, ObservableObject {
 
     var cardId: String { cardInfo.card.cardId }
     var batchId: String { cardInfo.card.batchId }
-    var userWalletId: Data { cardInfo.card.userWalletId }
+    var userWalletId: Data { cardInfo.userWalletId }
     var cardPublicKey: Data { cardInfo.card.cardPublicKey }
 
     var supportsOnlineImage: Bool {
@@ -539,7 +539,7 @@ class CardViewModel: Identifiable, ObservableObject {
         guard userWalletModel == nil, cardInfo.card.hasWallets else { return }
 
         // [REDACTED_TODO_COMMENT]
-        let userTokenListManager = CommonUserTokenListManager(config: config, userWalletId: cardInfo.card.userWalletId)
+        let userTokenListManager = CommonUserTokenListManager(config: config, userWalletId: userWalletId)
         let walletListManager = CommonWalletListManager(
             config: config,
             userTokenListManager: userTokenListManager
