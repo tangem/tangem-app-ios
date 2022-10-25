@@ -49,10 +49,6 @@ struct GenericConfig {
 }
 
 extension GenericConfig: UserWalletConfig {
-    var emailConfig: EmailConfig {
-        .default
-    }
-
     var cardSetLabel: String? {
         guard let backupCardsCount = card.backupStatus?.backupCardsCount else {
             return nil
