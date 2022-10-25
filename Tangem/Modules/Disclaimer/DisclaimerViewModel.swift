@@ -13,6 +13,7 @@ class DisclaimerViewModel: Identifiable {
     let style: DisclaimerView.Style
     let webViewModel: WebViewContainerViewModel
     var showAccept: Bool { acceptanceHandler != nil }
+    let bottomOverlayHeight: CGFloat = 150
 
     private unowned let coordinator: DisclaimerRoutable?
     private var acceptanceHandler: ((Bool) -> Void)?
@@ -29,7 +30,8 @@ class DisclaimerViewModel: Identifiable {
                                   title: "",
                                   addLoadingIndicator: true,
                                   withCloseButton: false,
-                                  withNavigationBar: false)
+                                  withNavigationBar: false,
+                                  contentInset: .init(top: 0, left: 0, bottom: bottomOverlayHeight / 2, right: 0))
     }
 
     func onAccept() {
