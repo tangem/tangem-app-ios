@@ -492,7 +492,7 @@
 		E94667C92901FADB0043AD0A /* ExchangeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94667C82901FADB0043AD0A /* ExchangeView.swift */; };
 		E94667CC2902BC260043AD0A /* ExchangeItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94667CB2902BC260043AD0A /* ExchangeItem.swift */; };
 		E9E416722902D6E00028F40E /* Exchange+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E416712902D6E00028F40E /* Exchange+Utils.swift */; };
-		E9E4167429033F300028F40E /* ExchangeViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E4167329033F300028F40E /* ExchangeViewItem.swift */; };
+		E9E4167429033F300028F40E /* ExchangeItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E4167329033F300028F40E /* ExchangeItems.swift */; };
 		E9E416762904B8A80028F40E /* Exchange+Timer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E416752904B8A80028F40E /* Exchange+Timer.swift */; };
 		E9E416782906E11F0028F40E /* ExchangeSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E416772906E11F0028F40E /* ExchangeSigner.swift */; };
 		EF07F3AD289D43580065549C /* List+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF07F3AC289D43580065549C /* List+.swift */; };
@@ -1149,7 +1149,7 @@
 		E94667C82901FADB0043AD0A /* ExchangeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeView.swift; sourceTree = "<group>"; };
 		E94667CB2902BC260043AD0A /* ExchangeItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeItem.swift; sourceTree = "<group>"; };
 		E9E416712902D6E00028F40E /* Exchange+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Exchange+Utils.swift"; sourceTree = "<group>"; };
-		E9E4167329033F300028F40E /* ExchangeViewItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeViewItem.swift; sourceTree = "<group>"; };
+		E9E4167329033F300028F40E /* ExchangeItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeItems.swift; sourceTree = "<group>"; };
 		E9E416752904B8A80028F40E /* Exchange+Timer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Exchange+Timer.swift"; sourceTree = "<group>"; };
 		E9E416772906E11F0028F40E /* ExchangeSigner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeSigner.swift; sourceTree = "<group>"; };
 		EF07F3AC289D43580065549C /* List+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "List+.swift"; sourceTree = "<group>"; };
@@ -2761,7 +2761,7 @@
 				E94667C62901FA9A0043AD0A /* ExchangeCoordinatorView.swift */,
 				E94667C82901FADB0043AD0A /* ExchangeView.swift */,
 				E94667CB2902BC260043AD0A /* ExchangeItem.swift */,
-				E9E4167329033F300028F40E /* ExchangeViewItem.swift */,
+				E9E4167329033F300028F40E /* ExchangeItems.swift */,
 			);
 			path = Exchange;
 			sourceTree = "<group>";
@@ -3465,7 +3465,7 @@
 				DC3B49FA2893EEA600C207EA /* UserWalletConfigFeatures.swift in Sources */,
 				DAFD691627CDEB7F00B36C71 /* CombinedExchangeService.swift in Sources */,
 				DC295B3A28615D03006CB7B6 /* NavHolder.swift in Sources */,
-				E9E4167429033F300028F40E /* ExchangeViewItem.swift in Sources */,
+				E9E4167429033F300028F40E /* ExchangeItems.swift in Sources */,
 				EFFC861328BCF6C500F863CE /* StorageEntry.swift in Sources */,
 				B0E9E2FF2679DA8000269C7A /* AmountView.swift in Sources */,
 				DC51185C2860925A004FB954 /* WalletConnectRoutable.swift in Sources */,
