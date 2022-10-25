@@ -33,12 +33,12 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     private var isSaltPayOnboarding: Bool {
         saltPayRegistratorProvider.registrator != nil
     }
-//    override var isBackButtonVisible: Bool {
-//        switch currentStep {
-//        case .success: return false
-//        default: return super.isBackButtonVisible
-//        }
-//    }
+    //    override var isBackButtonVisible: Bool {
+    //        switch currentStep {
+    //        case .success: return false
+    //        default: return super.isBackButtonVisible
+    //        }
+    //    }
 
     override var navbarTitle: LocalizedStringKey {
         currentStep.navbarTitle
@@ -372,9 +372,9 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     }
 
     func onRefresh() {
-        if isSaltPayOnboarding {
-            updateCardBalance(for: saltPayAmountType)
-        }
+        guard let registrator = saltPayRegistratorProvider.registrator else { return }
+        
+        updateCardBalance(for: saltPayAmountType, shouldGoToNextStep: !registrator.canClaim)
     }
 
     private func bindSaltPayIfNeeded() {
@@ -403,17 +403,25 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             .dropFirst()
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] newState in
+                guard let self else { return }
+
+                guard self.currentStep != .kycRetry else { // we need custom handling
+                    return
+                }
+
                 switch newState {
                 case .kycStart:
-                    if self?.currentStep == .kycWaiting {
+                    if self.currentStep == .kycWaiting {
                         break
                     }
-                    self?.goToNextStep()
+                    self.goToNextStep()
                 case .claim:
-                    self?.goToNextStep()
+                    self.goToNextStep()
                 case .kycRetry:
-                    self?.steps = WalletOnboardingStep.retryKYCSteps
-                    self?.currentStepIndex = 0
+                    if case let .wallet(steps) = self.cardModel.onboardingInput.steps { // rebuild steps from scratch
+                        self.steps = steps
+                        self.currentStepIndex = 0
+                    }
                 default:
                     break
                 }
@@ -528,13 +536,36 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             }
         case .registerWallet:
             saltPayRegistratorProvider.registrator?.register()
-        case .kycStart, .kycRetry, .successClaim:
+        case .kycStart, .successClaim:
             goToNextStep()
         case .kycProgress:
             goToNextStep()
             saltPayRegistratorProvider.registrator?.update()
         case .claim:
             claim()
+        case .kycRetry:
+            saltPayRegistratorProvider.registrator?.update() { [weak self] newState in
+                guard let self = self else { return }
+
+                switch newState {
+                case .kycRetry, .kycStart:
+                    self.goToNextStep()
+                case .claim:
+                    if let index = self.steps.firstIndex(of: .claim) {
+                        self.goToStep(with: index)
+                    }
+                case .finished:
+                    if let index = self.steps.firstIndex(of: .success) {
+                        self.goToStep(with: index)
+                    }
+                case .kycWaiting:
+                    if let index = self.steps.firstIndex(of: .kycWaiting) {
+                        self.goToStep(with: index)
+                    }
+                default:
+                    break
+                }
+            }
         default:
             break
         }
@@ -589,15 +620,23 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             case .success:
                 self?.claimed = true
                 self?.onRefresh()
-            case .failure(let error):
+            case .failure:
                 self?.resetRefreshButtonState()
             }
         }
     }
 
+    override func goToStep(with index: Int) {
+        super.goToStep(with: index)
+        onStep()
+    }
+
     override func goToNextStep() {
         super.goToNextStep()
+        onStep()
+    }
 
+    private func onStep() {
         switch currentStep {
         case .successClaim:
             withAnimation {
