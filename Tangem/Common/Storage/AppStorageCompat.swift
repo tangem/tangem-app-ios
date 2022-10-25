@@ -89,7 +89,7 @@ extension AppStorageCompat where Value == Bool {
     ///     store.
     ///   - store: The user defaults store to read and write to. A value
     ///     of `nil` will use the user default store from the environment.
-    init(wrappedValue: Value, _ key: StorageType, store: UserDefaults? = .init(suiteName: AppEnvironment.current.suiteName)) {
+    init(wrappedValue: Value, _ key: StorageType, store: UserDefaults? = .init(suiteName: AppEnvironment.suiteName)) {
         let store = (store ?? .standard)
         let initialValue = store.value(forKey: key.rawValue) as? Value ?? wrappedValue
         self.init(value: initialValue, store: store, key: key, transform: {
@@ -110,7 +110,7 @@ extension AppStorageCompat where Value == Int? {
     ///     store.
     ///   - store: The user defaults store to read and write to. A value
     ///     of `nil` will use the user default store from the environment.
-    init(wrappedValue: Value, _ key: StorageType, store: UserDefaults? = .init(suiteName: AppEnvironment.current.suiteName)) {
+    init(wrappedValue: Value, _ key: StorageType, store: UserDefaults? = .init(suiteName: AppEnvironment.suiteName)) {
         let store = (store ?? .standard)
         let initialValue = store.value(forKey: key.rawValue) as? Value ?? wrappedValue
         self.init(value: initialValue, store: store, key: key, transform: {
@@ -131,7 +131,7 @@ extension AppStorageCompat where Value == Int {
     ///     store.
     ///   - store: The user defaults store to read and write to. A value
     ///     of `nil` will use the user default store from the environment.
-    init(wrappedValue: Value, _ key: StorageType, store: UserDefaults? = .init(suiteName: AppEnvironment.current.suiteName)) {
+    init(wrappedValue: Value, _ key: StorageType, store: UserDefaults? = .init(suiteName: AppEnvironment.suiteName)) {
         let store = (store ?? .standard)
         let initialValue = store.value(forKey: key.rawValue) as? Value ?? wrappedValue
         self.init(value: initialValue, store: store, key: key, transform: {
@@ -153,7 +153,7 @@ extension AppStorageCompat where Value == Double {
     ///     store.
     ///   - store: The user defaults store to read and write to. A value
     ///     of `nil` will use the user default store from the environment.
-    init(wrappedValue: Value, _ key: StorageType, store: UserDefaults? = .init(suiteName: AppEnvironment.current.suiteName)) {
+    init(wrappedValue: Value, _ key: StorageType, store: UserDefaults? = .init(suiteName: AppEnvironment.suiteName)) {
         let store = (store ?? .standard)
         let initialValue = store.value(forKey: key.rawValue) as? Value ?? wrappedValue
         self.init(value: initialValue, store: store, key: key, transform: {
@@ -175,7 +175,7 @@ extension AppStorageCompat where Value == String {
     ///     store.
     ///   - store: The user defaults store to read and write to. A value
     ///     of `nil` will use the user default store from the environment.
-    init(wrappedValue: Value, _ key: StorageType, store: UserDefaults? = .init(suiteName: AppEnvironment.current.suiteName)) {
+    init(wrappedValue: Value, _ key: StorageType, store: UserDefaults? = .init(suiteName: AppEnvironment.suiteName)) {
         let store = (store ?? .standard)
         let initialValue = store.value(forKey: key.rawValue) as? Value ?? wrappedValue
         self.init(value: initialValue, store: store, key: key, transform: {
@@ -197,7 +197,7 @@ extension AppStorageCompat where Value == URL {
     ///     store.
     ///   - store: The user defaults store to read and write to. A value
     ///     of `nil` will use the user default store from the environment.
-    init(wrappedValue: Value, _ key: StorageType, store: UserDefaults? = .init(suiteName: AppEnvironment.current.suiteName)) {
+    init(wrappedValue: Value, _ key: StorageType, store: UserDefaults? = .init(suiteName: AppEnvironment.suiteName)) {
         let store = (store ?? .standard)
         let initialValue = store.url(forKey: key.rawValue) ?? wrappedValue
         self.init(value: initialValue, store: store, key: key, transform: {
@@ -224,7 +224,7 @@ extension AppStorageCompat where Value == Data {
     ///     store.
     ///   - store: The user defaults store to read and write to. A value
     ///     of `nil` will use the user default store from the environment.
-    init(wrappedValue: Value, _ key: StorageType, store: UserDefaults? = .init(suiteName: AppEnvironment.current.suiteName)) {
+    init(wrappedValue: Value, _ key: StorageType, store: UserDefaults? = .init(suiteName: AppEnvironment.suiteName)) {
         let store = (store ?? .standard)
         let initialValue = store.value(forKey: key.rawValue) as? Value ?? wrappedValue
         self.init(value: initialValue, store: store, key: key, transform: {
@@ -317,7 +317,7 @@ extension AppStorageCompat where Value == Date? {
     ///     store.
     ///   - store: The user defaults store to read and write to. A value
     ///     of `nil` will use the user default store from the environment.
-    init(wrappedValue: Value, _ key: StorageType, store: UserDefaults? = .init(suiteName: AppEnvironment.current.suiteName)) {
+    init(wrappedValue: Value, _ key: StorageType, store: UserDefaults? = .init(suiteName: AppEnvironment.suiteName)) {
         let store = (store ?? .standard)
         let initialValue = store.value(forKey: key.rawValue) as? Value ?? wrappedValue
         self.init(value: initialValue, store: store, key: key, transform: {
@@ -338,7 +338,7 @@ extension AppStorageCompat where Value == [String] {
     ///     store.
     ///   - store: The user defaults store to read and write to. A value
     ///     of `nil` will use the user default store from the environment.
-    init(wrappedValue: Value, _ key: StorageType, store: UserDefaults? = .init(suiteName: AppEnvironment.current.suiteName)) {
+    init(wrappedValue: Value, _ key: StorageType, store: UserDefaults? = .init(suiteName: AppEnvironment.suiteName)) {
         let store = (store ?? .standard)
         let initialValue = store.value(forKey: key.rawValue) as? Value ?? wrappedValue
         self.init(value: initialValue, store: store, key: key, transform: {
