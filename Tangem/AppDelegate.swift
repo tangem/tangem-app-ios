@@ -101,10 +101,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         AppsFlyerLib.shared().start()
     }
-    
+
     private func migrateTOS() {
         guard AppSettings.shared.isTermsOfServiceAccepted else { return }
-        
+
         let defaultUrl = DummyConfig().touURL.absoluteString
         AppSettings.shared.termsOfServicesAccepted.insert(defaultUrl)
         AppSettings.shared.isTermsOfServiceAccepted = false
