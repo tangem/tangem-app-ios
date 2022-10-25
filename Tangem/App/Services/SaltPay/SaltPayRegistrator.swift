@@ -98,7 +98,7 @@ class SaltPayRegistrator {
         updatePublisher()
             .sink { [weak self] completionResult in
                 guard let self = self else { return }
-                
+
                 if case let .failure(error) = completionResult {
                     self.error = error.alertBinder
                 }
