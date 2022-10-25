@@ -120,7 +120,7 @@ private extension CommonUserTokenListManager {
     // MARK: - Mapping
 
     func mapToTokens(entries: [StorageEntry]) -> [UserTokenList.Token] {
-        entries.reduce(into: []) { result, entry in
+        let tokens: [UserTokenList.Token] = entries.reduce(into: []) { result, entry in
             let blockchain = entry.blockchainNetwork.blockchain
             result += [UserTokenList.Token(
                 id: blockchain.id,
@@ -144,6 +144,8 @@ private extension CommonUserTokenListManager {
                 )
             }
         }
+
+        return Array(Set(tokens))
     }
 
     func mapToEntries(list: UserTokenList) -> [StorageEntry] {
@@ -158,7 +160,7 @@ private extension CommonUserTokenListManager {
             }
 
         let entries: [StorageEntry] = blockchains.map { network in
-            return StorageEntry(
+            StorageEntry(
                 blockchainNetwork: network,
                 tokens: list.tokens
                     .filter { $0.contractAddress != nil && $0.networkId == network.blockchain.networkId }
@@ -174,7 +176,7 @@ private extension CommonUserTokenListManager {
             )
         }
 
-        return entries
+        return Array(Set(entries))
     }
 }
 
