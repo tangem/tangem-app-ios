@@ -53,7 +53,7 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
         super.init(input: input, coordinator: coordinator)
     }
 
-    func updateCardBalance(for type: Amount.AmountType = .coin) {
+    func updateCardBalance(for type: Amount.AmountType = .coin, shouldGoToNextStep: Bool = true) {
         guard
             let walletModel = cardModel.walletModels.first,
             walletModelUpdateCancellable == nil
@@ -72,7 +72,8 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
                     print(message)
                     fallthrough
                 case .idle:
-                    if !walletModel.isEmptyIncludingPendingIncomingTxs,
+                    if shouldGoToNextStep,
+                       !walletModel.isEmptyIncludingPendingIncomingTxs,
                        !(walletModel.wallet.amounts[type]?.isZero ?? true) {
                         self.goToNextStep()
                         self.walletModelUpdateCancellable = nil
