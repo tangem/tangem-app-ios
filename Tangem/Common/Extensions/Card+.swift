@@ -23,25 +23,33 @@ extension Card {
         !wallets.isEmpty
     }
 
-    var userWalletId: Data {
-        if !hasWallets {
-            assertionFailure("Wallet not found, use CardViewModel for create wallet")
-        }
-
-        let keyHash = (wallets.first?.publicKey ?? cardPublicKey).sha256()
-        let key = SymmetricKey(data: keyHash)
-        let message = Constants.messageForWalletID.data(using: .utf8)!
-        let authenticationCode = HMAC<SHA256>.authenticationCode(for: message, using: key)
-
-        return Data(authenticationCode)
-    }
-
     var derivationStyle: DerivationStyle? {
         Card.getDerivationStyle(for: batchId, isHdWalletAllowed: settings.isHDWalletAllowed)
     }
 
     var tangemApiAuthData: TangemApiTarget.AuthData {
         .init(cardId: cardId, cardPublicKey: cardPublicKey)
+    }
+    
+    func userWalletId(walletData: DefaultWalletData?) -> Data {
+        if !hasWallets {
+            assertionFailure("Wallet not found, use CardViewModel for create wallet")
+        }
+        
+        let keyHash: Data
+        switch walletData {
+        case .twin(_, let twinData):
+            guard let combinedKey = TwinCardsUtils.makeCombinedWalletKey(for: self, pairData: twinData) else {
+                keyHash = cardPublicKey.sha256()
+                break
+            }
+            
+            keyHash = combinedKey.sha256()
+        default:
+            keyHash = (wallets.first?.publicKey ?? cardPublicKey).sha256()
+        }
+        
+        return UserWalletIdGeneratorUtil.generateUserWalletId(from: keyHash)
     }
 
     static func getDerivationStyle(for batchId: String, isHdWalletAllowed: Bool) -> DerivationStyle? {
