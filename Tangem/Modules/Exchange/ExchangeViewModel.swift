@@ -15,8 +15,7 @@ class ExchangeViewModel: ObservableObject {
     @Injected(\.rateAppService) private var rateAppService: RateAppService
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
     
-    @Published var viewItem: ExchangeViewItem
-    
+    @Published var items: ExchangeItems
     @Published private var swapInformation: SwapDTO?
     
     let amountType: Amount.AmountType
@@ -33,7 +32,7 @@ class ExchangeViewModel: ObservableObject {
         walletModel.walletManager as! EthereumTransactionProcessor
     }
     
-    var userWalletModel: UserWalletModel? {
+    private var userWalletModel: UserWalletModel? {
         cardViewModel.userWalletModel
     }
     
@@ -47,35 +46,24 @@ class ExchangeViewModel: ObservableObject {
         self.walletModel = walletModel
         self.cardViewModel = cardViewModel
         self.blockchainNetwork = blockchainNetwork
-        self.viewItem = ExchangeViewItem(fromItem: ExchangeItem(isMainToken: true, amountType: amountType, blockchainNetwork: blockchainNetwork),
+        self.items = ExchangeItems(fromItem: ExchangeItem(isMainToken: true, amountType: amountType, blockchainNetwork: blockchainNetwork),
                                          toItem: ExchangeItem(isMainToken: false, amountType: amountType, blockchainNetwork: blockchainNetwork))
         preloadAvailableTokens()
         bind()
     }
     
-    func bind() {
-        viewItem
-            .fromItem
-            .$amount
-            .debounce(for: 1.0, scheduler: DispatchQueue.main)
-            .sink { [weak self] _ in
-                self?.onChangeInputAmount()
-            }
-            .store(in: &bag)
-    }
-    
     /// Change token places
     func onSwapItems() {
-        viewItem = ExchangeViewItem(fromItem: viewItem.toItem, toItem: viewItem.fromItem)
-        viewItem.fromItem.fetchApprove(walletAddress: walletModel.wallet.address)
+        items = ExchangeItems(fromItem: items.toItem, toItem: items.fromItem)
+        items.fromItem.fetchApprove(walletAddress: walletModel.wallet.address)
     }
     
     /// Fetch tx data, amount and fee
     func onChangeInputAmount() {
         Task {
-            let swapParameters = SwapParameters(fromTokenAddress: viewItem.fromItem.tokenAddress,
-                                                toTokenAddress: viewItem.toItem.tokenAddress,
-                                                amount: viewItem.fromItem.amount,
+            let swapParameters = SwapParameters(fromTokenAddress: items.fromItem.tokenAddress,
+                                                toTokenAddress: items.toItem.tokenAddress,
+                                                amount: items.fromItem.amount,
                                                 fromAddress: walletModel.wallet.address,
                                                 slippage: 1)
             
@@ -95,6 +83,20 @@ class ExchangeViewModel: ObservableObject {
         guard let txString = swapInformation?.tx.data, let txData = txString.data(using: .utf8) else { return }
         Task {
             do {
+                let signedHash = try await signer.signTx(txData, publicKey: walletModel.wallet.publicKey.seedKey)
+                //[REDACTED_TODO_COMMENT]
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    func onApprove() {
+        Task {
+            do {
+                let approveData = try await items.fromItem.approveTxData()
+                guard let txData = approveData.data.data(using: .utf8) else { return }
+                
                 let signedHash = try await signer.signTx(txData, publicKey: walletModel.wallet.publicKey.seedKey)
                 //[REDACTED_TODO_COMMENT]
             } catch {
@@ -134,18 +136,15 @@ class ExchangeViewModel: ObservableObject {
             .store(in: &bag)
     }
     
-    private func onApprove() {
-        Task {
-            do {
-                let approveData = try await viewItem.fromItem.approveTxData()
-                guard let txData = approveData.data.data(using: .utf8) else { return }
-                
-                let signedHash = try await signer.signTx(txData, publicKey: walletModel.wallet.publicKey.seedKey)
-                //[REDACTED_TODO_COMMENT]
-            } catch {
-                print(error.localizedDescription)
+    private func bind() {
+        items
+            .fromItem
+            .$amount
+            .debounce(for: 1.0, scheduler: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.onChangeInputAmount()
             }
-        }
+            .store(in: &bag)
     }
 }
 
