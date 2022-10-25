@@ -53,7 +53,7 @@ class CommonCardsRepository: CardsRepository {
         }
         .eraseToAnyPublisher()
     }
-    
+
     private func scan(with batch: String? = nil, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
         Analytics.log(event: .readyToScan)
         sdkProvider.setup(with: TangemSdkConfigFactory().makeDefaultConfig())
@@ -67,10 +67,10 @@ class CommonCardsRepository: CardsRepository {
             }
         }
     }
-    
+
     private func acceptTOSIfNeeded(_ cardInfo: CardInfo, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
         let touURL = UserWalletConfigFactory(cardInfo).makeConfig().touURL
-        
+
         guard let delegate, !AppSettings.shared.termsOfServicesAccepted.contains(touURL.absoluteString) else {
             completion(.success(processScan(cardInfo)))
             return
