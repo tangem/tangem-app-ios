@@ -154,20 +154,15 @@ class SaltPayRegistrator {
     }
 
     func updatePublisher() -> AnyPublisher<Void, Error> {
-        registerKYCIfNeeded()
+        checkRegistration()
             .flatMap { [weak self] _ -> AnyPublisher<Void, Error> in
                 guard let self = self else { return .anyFail(error: SaltPayRegistratorError.empty) }
-
-                return self.checkRegistration()
-            }
-            .flatMap { [weak self] _ -> AnyPublisher<Void, Error> in
-                guard let self = self else { return .anyFail(error: SaltPayRegistratorError.empty) }
-
+                
                 return self.checkGasIfNeeded()
             }
             .flatMap { [weak self] _ -> AnyPublisher<Void, Error> in
                 guard let self = self else { return .anyFail(error: SaltPayRegistratorError.empty) }
-
+                
                 return self.checkCanClaimIfNeeded()
             }
             .handleEvents(receiveOutput: { [weak self] _ in
@@ -294,19 +289,16 @@ class SaltPayRegistrator {
         }
     }
 
-    private func registerKYCIfNeeded() -> AnyPublisher<Void, Error> {
-        guard state == .kycStart else {
-            return .justWithError(output: ())
-        }
-
+    public func registerKYC() {
         let request = RegisterKYCRequest(cardId: cardId,
                                          publicKey: cardPublicKey,
                                          kycProvider: "UTORG",
                                          kycRefId: kycRefId)
-
-        return api.registerKYC(request: request)
+        
+        api.registerKYC(request: request)
             .map { _ in }
-            .eraseToAnyPublisher()
+            .receiveCompletion{ _ in }
+            .store(in: &bag)
     }
 
     private func checkGasIfNeeded() -> AnyPublisher<Void, Error> {
