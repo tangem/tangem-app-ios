@@ -24,9 +24,18 @@ class ExchangeViewModel: ObservableObject {
     let cardViewModel: CardViewModel
     let blockchainNetwork: BlockchainNetwork
     var bag = Set<AnyCancellable>()
-    let exchangeFacade: ExchangeFacade = ExchangeFacadeImpl(enableDebugMode: true)
+    var prefetchedAvailableCoins: [CoinModel] = []
     
-    var timer: Timer? 
+    private let exchangeFacade: ExchangeFacade = ExchangeFacadeImpl(enableDebugMode: true)
+    private let signer: ExchangeSigner = ExchangeSigner()
+    
+    private var transactionProcessor: EthereumTransactionProcessor {
+        walletModel.walletManager as! EthereumTransactionProcessor
+    }
+    
+    var userWalletModel: UserWalletModel? {
+        cardViewModel.userWalletModel
+    }
     
     init(
         amountType: Amount.AmountType,
@@ -40,33 +49,29 @@ class ExchangeViewModel: ObservableObject {
         self.blockchainNetwork = blockchainNetwork
         self.viewItem = ExchangeViewItem(fromItem: ExchangeItem(isMainToken: true, amountType: amountType, blockchainNetwork: blockchainNetwork),
                                          toItem: ExchangeItem(isMainToken: false, amountType: amountType, blockchainNetwork: blockchainNetwork))
+        preloadAvailableTokens()
         bind()
     }
     
     func bind() {
-        tangemApiService.loadCoins(requestModel: CoinsListRequestModel.init(networkIds: [blockchainNetwork.blockchain.networkId]))
-            .sink { error in
-                switch error {
-                case .finished: break
-                case .failure(let error):
-                    print(error.localizedDescription)
-                }
-            } receiveValue: { coinModels in
-                for coinModel in coinModels {
-                    print(coinModel)
-                }
+        viewItem
+            .fromItem
+            .$amount
+            .debounce(for: 1.0, scheduler: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.onChangeInputAmount()
             }
             .store(in: &bag)
     }
     
     /// Change token places
-    func swapItems() {
+    func onSwapItems() {
         viewItem = ExchangeViewItem(fromItem: viewItem.toItem, toItem: viewItem.fromItem)
         viewItem.fromItem.fetchApprove(walletAddress: walletModel.wallet.address)
     }
     
     /// Fetch tx data, amount and fee
-    func fetchSwapData() {
+    func onChangeInputAmount() {
         Task {
             let swapParameters = SwapParameters(fromTokenAddress: viewItem.fromItem.tokenAddress,
                                                 toTokenAddress: viewItem.toItem.tokenAddress,
@@ -74,8 +79,8 @@ class ExchangeViewModel: ObservableObject {
                                                 fromAddress: walletModel.wallet.address,
                                                 slippage: 1)
             
-            let swapResult = await exchangeFacade.swap(blockchain: ExchangeBlockchain.convert(from: blockchainNetwork),
-                                                       parameters: swapParameters)
+            let swapResult = await exchangeFacade.swap(blockchain: ExchangeBlockchain.convert(from: blockchainNetwork), parameters: swapParameters)
+            
             switch swapResult {
             case .success(let swapResponse):
                 swapInformation = swapResponse
@@ -86,17 +91,70 @@ class ExchangeViewModel: ObservableObject {
     }
     
     /// Sign and send swap transaction
-    func executeTransaction() {
-        let tx = Transaction.dummyTx(blockchain: blockchainNetwork.blockchain, type: amountType, destinationAddress: "") //[REDACTED_TODO_COMMENT]
+    func onSwap() {
+        guard let txString = swapInformation?.tx.data, let txData = txString.data(using: .utf8) else { return }
+        Task {
+            do {
+                let signedHash = try await signer.signTx(txData, publicKey: walletModel.wallet.publicKey.seedKey)
+                //[REDACTED_TODO_COMMENT]
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+    }
+    
+    //MARK: - Private
+    
+    /// Spender address
+    private func getSpender() async throws -> String {
+        let blockchain = ExchangeBlockchain.convert(from: blockchainNetwork)
         
-        walletModel
-            .walletManager
-            .send(tx, signer: cardViewModel.signer)
-            .sink { error in
-                print(error)
-            } receiveValue: { _ in
-                print("SUCCESS")
+        let spender = await exchangeFacade.spender(blockchain: blockchain)
+        
+        switch spender {
+        case .failure(let error):
+            throw error
+        case .success(let spenderDTO):
+            return spenderDTO.address
+        }
+    }
+    
+    private func preloadAvailableTokens() {
+        tangemApiService
+            .loadCoins(requestModel: CoinsListRequestModel(networkIds: [blockchainNetwork.blockchain.networkId], exchange: true))
+            .sink { completion in
+                switch completion {
+                case .finished: break
+                case .failure(let error):
+                    print(error.localizedDescription)
+                }
+            } receiveValue: { [weak self] coinModels in
+                self?.prefetchedAvailableCoins = coinModels
             }
             .store(in: &bag)
     }
+    
+    private func onApprove() {
+        Task {
+            do {
+                let approveData = try await viewItem.fromItem.approveTxData()
+                guard let txData = approveData.data.data(using: .utf8) else { return }
+                
+                let signedHash = try await signer.signTx(txData, publicKey: walletModel.wallet.publicKey.seedKey)
+                //[REDACTED_TODO_COMMENT]
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+    }
+}
+
+//MARK: - Coordinator
+
+extension ExchangeViewModel {
+    func openTokenList() { } //[REDACTED_TODO_COMMENT]
+    
+    func openApproveView() { } //[REDACTED_TODO_COMMENT]
+    
+    func openSuccessView() { } //[REDACTED_TODO_COMMENT]
 }
