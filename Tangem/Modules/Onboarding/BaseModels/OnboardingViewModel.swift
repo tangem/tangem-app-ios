@@ -193,7 +193,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
             Analytics.log(.walletCreatedSuccessfully)
         }
     }
-    
+
     func goToStep(with index: Int) {
         withAnimation {
             currentStepIndex = index

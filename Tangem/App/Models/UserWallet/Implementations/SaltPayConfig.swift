@@ -79,7 +79,7 @@ struct SaltPayConfig {
             }
             return [.success]
         }
-        
+
         if registrator.canClaim {
             steps.append(.claim)
             steps.append(.successClaim)
