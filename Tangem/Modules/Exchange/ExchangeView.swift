@@ -10,7 +10,7 @@ import SwiftUI
 
 struct ExchangeView: View {
     @ObservedObject var viewModel: ExchangeViewModel
-    
+
     var body: some View {
         Text("Hello, World!")
     }
