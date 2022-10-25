@@ -463,7 +463,6 @@
 		DC7127AF2897ECBB00F60F71 /* NoteConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7127AE2897ECBB00F60F71 /* NoteConfig.swift */; };
 		DC7127B12897ECDF00F60F71 /* LegacyConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7127B02897ECDF00F60F71 /* LegacyConfig.swift */; };
 		DC7127B32897ECEE00F60F71 /* GenericConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7127B22897ECEE00F60F71 /* GenericConfig.swift */; };
-		DC72D0BD2903C7FD000AF934 /* TangemClip.app in Embed App Clips */ = {isa = PBXBuildFile; fileRef = B0D3600125F26C7400929564 /* TangemClip.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		DC74BC2F28EF060600B49850 /* UserWalletId.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC74BC2E28EF060600B49850 /* UserWalletId.swift */; };
 		DC7DA8192844EAFF00AD6DBD /* WelcomeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7DA8182844EAFF00AD6DBD /* WelcomeCoordinator.swift */; };
 		DC7DA81E2844F27800AD6DBD /* WelcomeCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC7DA81D2844F27800AD6DBD /* WelcomeCoordinatorView.swift */; };
@@ -597,7 +596,6 @@
 			dstPath = "$(CONTENTS_FOLDER_PATH)/AppClips";
 			dstSubfolderSpec = 16;
 			files = (
-				DC72D0BD2903C7FD000AF934 /* TangemClip.app in Embed App Clips */,
 			);
 			name = "Embed App Clips";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2945,7 +2943,6 @@
 			);
 			dependencies = (
 				EFCC66C228AA2FDC00EC7757 /* PBXTargetDependency */,
-				DC72D0BF2903C7FD000AF934 /* PBXTargetDependency */,
 			);
 			name = Tangem;
 			productName = "Tangem Tap";
@@ -3132,23 +3129,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
-			showEnvVarsInLog = 0;
-		};
-		6510CAA8089FC914EB22F94C /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-TangemClip/Pods-TangemClip-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-TangemClip/Pods-TangemClip-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-TangemClip/Pods-TangemClip-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		6DEBF4DDA2D75E69DBA6004F /* [CP] Embed Pods Frameworks */ = {
@@ -3743,70 +3723,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				5D3F77E824BF56DC00E8695B /* TangemUITests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B0D35FFD25F26C7400929564 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				DA23788D27B248CD009795A8 /* ShopifyShop.swift in Sources */,
-				DC0A57F22822B89F0031BECC /* InjectedValues.swift in Sources */,
-				5DE7DD152695BF8D00472205 /* Logger.swift in Sources */,
-				5D3FA5AC27E8E8BB00A80221 /* TapSwitchTogglColoredToggleStyleeStyle.swift in Sources */,
-				5D549FCB2698A5DD00CE763A /* Card+Preview.swift in Sources */,
-				B06917E127044A640000E6C1 /* Constants.swift in Sources */,
-				DC0A57F12822AF040031BECC /* LoggerProvider.swift in Sources */,
-				B0869078260A2DFF005976CD /* View+PreviewDevice.swift in Sources */,
-				B0F7361325F7AFFB00DD348F /* TwinData.swift in Sources */,
-				B01416AC2632A92B00D82A9C /* ImageLoader.swift in Sources */,
-				DCE5C67128899C42000C7F67 /* AppStorageCompat.swift in Sources */,
-				5DE7DD4C269627EF00472205 /* MainView.swift in Sources */,
-				DC0A57F82822C14A0031BECC /* CardImageLoaderProtocol.swift in Sources */,
-				B01416A72632A92300D82A9C /* WebImage.swift in Sources */,
-				DC0A57F02822AF030031BECC /* LoggerProviding.swift in Sources */,
-				B0869073260A2D7B005976CD /* TangemButton.swift in Sources */,
-				5D4B8BBC27EDD253002CE87C /* Color+.swift in Sources */,
-				B0D3600425F26C7400929564 /* AppDelegate.swift in Sources */,
-				B0F735B825F7943A00DD348F /* StorageType.swift in Sources */,
-				B0F7361D25F7B03900DD348F /* TwinCardsUtils.swift in Sources */,
-				DC0A57F42822B8A40031BECC /* InjectionKey.swift in Sources */,
-				5D44AB8A27F75C1A00464FD9 /* Card+.swift in Sources */,
-				5DA2473C2799B0AC00DB4E4F /* AddressFormatter.swift in Sources */,
-				B01416B12632A93800D82A9C /* ImageCache.swift in Sources */,
-				DC7127A82897CECC00F60F71 /* AppCardIdFormatter.swift in Sources */,
-				B0CA5AC225F785FA0078F42F /* VerticalAlignment+.swift in Sources */,
-				DC5118662860AD38004FB954 /* CardView.swift in Sources */,
-				DC0A57EE2822AEF70031BECC /* TangemSdkProviding.swift in Sources */,
-				B00BC589260B179200F0647D /* CircleActionButton.swift in Sources */,
-				5D49035027BE8AAE0072C642 /* ExploreButton.swift in Sources */,
-				DC0A57ED2822AEF30031BECC /* PersistentStorageKey.swift in Sources */,
-				B0D3600625F26C7400929564 /* SceneDelegate.swift in Sources */,
-				5DE7DD2B2695CFF800472205 /* CreateMultiWalletTask.swift in Sources */,
-				DC0A57F92822C14C0031BECC /* CardImageLoader.swift in Sources */,
-				5DE7DD122695BEE900472205 /* UrlHandler.swift in Sources */,
-				65339CE5289919CA006429EA /* ChangeObserver.swift in Sources */,
-				5D4B8BBD27EDD2EA002CE87C /* MainViewModel.swift in Sources */,
-				B07FE4D12616F686000F0EF9 /* MessageView.swift in Sources */,
-				B0CA5A8625F7797B0078F42F /* RefreshableScrollView.swift in Sources */,
-				5DE7DD332696236500472205 /* CardViewModel.swift in Sources */,
-				DC0A57EF2822AEFA0031BECC /* TangemSdkProvider.swift in Sources */,
-				B0869069260A2D55005976CD /* ButtonStyles.swift in Sources */,
-				B00BC58E260B19D100F0647D /* CircleImageTextView.swift in Sources */,
-				B082944A260C6D3800014A18 /* Decimal+.swift in Sources */,
-				B086906E260A2D73005976CD /* ActivityIndicatorView.swift in Sources */,
-				EF5A5AD828D860FE002544AC /* CardArtwork.swift in Sources */,
-				B0CA5A8B25F779C60078F42F /* View+.swift in Sources */,
-				5DE7DD4A269625F800472205 /* AppScanTask.swift in Sources */,
-				B0C34953267B19B90027CC9D /* RoundedCorner.swift in Sources */,
-				EF6691D2287ED86900773AA6 /* AppEnvironment.swift in Sources */,
-				5DE7DD232695C27E00472205 /* AppSettings.swift in Sources */,
-				DC0A5853282E3AB60031BECC /* CardInfo.swift in Sources */,
-				B00BC5B8260B210300F0647D /* JsonUtils.swift in Sources */,
-				B00BC584260B178000F0647D /* PickerView.swift in Sources */,
-				DC0A57F32822B8A10031BECC /* InjectedWrapper.swift in Sources */,
-				5D17EC7526946F48002782DE /* String+.swift in Sources */,
-				5DE7DD2C2695CFFE00472205 /* SignerUtils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
