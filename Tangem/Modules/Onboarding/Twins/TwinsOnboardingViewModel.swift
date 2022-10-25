@@ -183,6 +183,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
         case .first:
             if !retwinMode {
                 AppSettings.shared.cardsStartedActivation.insert(self.cardModel.cardId)
+                Analytics.log(.onboardingStarted)
             }
 
             if twinsService.step.value != .first {
