@@ -72,8 +72,8 @@ extension UserWalletConfig {
     }
 
     var touURL: URL {
-        .init(string: "https://tangem.com")!
-    } // [REDACTED_TODO_COMMENT]
+        .init(string: "https://tangem.com/tangem_tos.html")!
+    }
 }
 
 struct EmailConfig {
