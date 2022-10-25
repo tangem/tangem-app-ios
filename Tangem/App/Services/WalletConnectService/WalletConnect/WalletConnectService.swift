@@ -328,7 +328,7 @@ extension WalletConnectService: ServerDelegate {
         }
 
         guard let blockchain = WalletConnectNetworkParserUtility.parse(dAppInfo: dAppInfo,
-                                                                       isTestnet: AppEnvironment.current.isTestnet) else {
+                                                                       isTestnet: AppEnvironment.isTestnet) else {
             throw WalletConnectServiceError.unsupportedNetwork
         }
 
