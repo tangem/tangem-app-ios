@@ -76,7 +76,7 @@ extension DisclaimerView {
 
 struct DisclaimerView_Previews: PreviewProvider {
     private static var url: URL = .init(string: "https://tangem.com")!
-    
+
     static var previews: some View {
         DisclaimerView(viewModel: .init(url: url, style: .sheet, coordinator: nil, acceptanceHandler: { _ in }))
             .previewGroup(devices: [.iPhone12Pro, .iPhone8Plus], withZoomed: false)
