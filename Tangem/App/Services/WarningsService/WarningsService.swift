@@ -42,7 +42,7 @@ extension WarningsService: AppWarningsProviding {
         }
 
         if rateAppChecker.shouldShowRateAppWarning {
-            Analytics.log(event: .displayRateAppWarning)
+            Analytics.log(.displayRateAppWarning)
             main.add(WarningEvent.rateApp.warning)
         }
 
