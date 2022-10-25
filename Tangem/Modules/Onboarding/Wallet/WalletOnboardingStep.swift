@@ -49,11 +49,6 @@ enum WalletOnboardingStep {
         [.backupCards, .success]
     }
 
-    static var retryKYCSteps: [WalletOnboardingStep] {
-        [.kycRetry, .kycProgress, .kycWaiting, .claim, .successClaim]
-    }
-
-
     func backgroundFrameSize(in container: CGSize) -> CGSize {
         switch self {
         case .welcome, .success, .backupCards:
