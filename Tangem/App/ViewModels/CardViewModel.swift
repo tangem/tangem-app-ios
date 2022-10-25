@@ -72,10 +72,6 @@ class CardViewModel: Identifiable, ObservableObject {
         config.touURL
     }
 
-    var canCountHashes: Bool {
-        config.hasFeature(.signedHashesCounter)
-    }
-
     var supportsWalletConnect: Bool {
         config.hasFeature(.walletConnect)
     }
@@ -219,7 +215,11 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func setupWarnings() {
-        warningsService.setupWarnings(for: config)
+        warningsService.setupWarnings(
+            for: config,
+            card: cardInfo.card,
+            validator: walletModels.first?.walletManager as? SignatureCountValidator
+        )
     }
 
     func appendDefaultBlockchains() {
@@ -422,7 +422,7 @@ class CardViewModel: Identifiable, ObservableObject {
         print("🔄 Updating Card view model")
         updateCurrentSecurityOption()
 
-        warningsService.setupWarnings(for: config)
+        setupWarnings()
         createUserWalletModelIfNeeded()
         userWalletModel?.updateUserWalletModel(with: config)
         userWalletModel?.update(userWalletId: userWalletId)
