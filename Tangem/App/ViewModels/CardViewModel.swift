@@ -622,15 +622,6 @@ extension CardViewModel {
 
         return userWalletModel.canManage(amountType: amountType, blockchainNetwork: blockchainNetwork)
     }
-
-    func remove(item: CommonUserWalletModel.RemoveItem, completion: @escaping () -> Void) {
-        guard let userWalletModel = userWalletModel else {
-            assertionFailure("UserWalletModel not created")
-            return
-        }
-
-        userWalletModel.remove(item: item, completion: completion)
-    }
 }
 
 extension CardViewModel {
