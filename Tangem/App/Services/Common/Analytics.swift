@@ -16,15 +16,15 @@ import Amplitude
 #endif
 import TangemSdk
 
-//todo: singleton
+// todo: singleton
 class Analytics {
     static private var analyticsSystems: [Analytics.AnalyticSystem] = [.firebase, .appsflyer, .amplitude]
     static private var persistentParams: [ParameterKey: String] = [:]
-    
+
     static func reset() {
         persistentParams = [:]
     }
-    
+
     static func log(_ event: Event, params: [ParameterKey: String] = [:]) {
         for system in analyticsSystems {
             switch system {
@@ -38,7 +38,7 @@ class Analytics {
 
     static func logScan(card: Card, config: UserWalletConfig) {
         persistentParams[.batchId] = card.batchId
-        
+
         log(event: .cardIsScanned, with: collectCardData(card))
 
         if DemoUtil().isDemoCard(cardId: card.cardId) {
@@ -167,15 +167,15 @@ class Analytics {
     private static func log(event: Event, with params: [ParameterKey: String]? = nil) {
         #if !CLIP
         let key = event.rawValue
-        
+
         let mergedParams = params?.merging(persistentParams, uniquingKeysWith: { (current, _) in  current })
         let values = mergedParams?.firebaseParams
-        
+
         FirebaseAnalytics.Analytics.logEvent(key, parameters: values)
         AppsFlyerLib.shared().logEvent(key, withValues: values)
         #endif
     }
-    
+
     private static func collectCardData(_ card: Card, additionalParams: [ParameterKey: String] = [:]) -> [ParameterKey: String] {
         var params = additionalParams
         params[.firmware] = card.firmwareVersion.stringValue

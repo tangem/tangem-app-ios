@@ -373,7 +373,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     func onRefresh() {
         guard let registrator = saltPayRegistratorProvider.registrator else { return }
-        
+
         updateCardBalance(for: saltPayAmountType, shouldGoToNextStep: !registrator.canClaim)
     }
 
@@ -383,7 +383,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         if let walletModel = cardModel.walletModels.first {
             updateCardBalanceText(for: walletModel, type: saltPayAmountType)
         }
-        
+
         if let backup = cardModel.backupInput, backup.steps.stepsCount > 0,
            !AppSettings.shared.cardsStartedActivation.contains(cardModel.cardId) {
             AppSettings.shared.cardsStartedActivation.insert(cardModel.cardId)
@@ -424,7 +424,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                 case .claim:
                     self.goToNextStep()
                 case .finished:
-                    if self.currentStep == .kycWaiting { //we have nothing to claim
+                    if self.currentStep == .kycWaiting { // we have nothing to claim
                         self.goToNextStep()
                     }
                 case .kycRetry:
@@ -720,7 +720,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
             setupCardsSettings(animated: true, isContainerSetup: false)
         case .backupCards:
             if backupServiceState == .finished {
-                Analytics.log(.backupFinished, params: [.cardsCount : String(backupService.addedBackupCardsCount)])
+                Analytics.log(.backupFinished, params: [.cardsCount: String(backupService.addedBackupCardsCount)])
                 self.goToNextStep()
             } else {
                 setupCardsSettings(animated: true, isContainerSetup: false)
