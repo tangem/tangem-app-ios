@@ -55,7 +55,7 @@ class AppSettings {
 
     @AppStorageCompat(StorageType.selectedCurrencyCode)
     var selectedCurrencyCode: String = "USD"
-    
+
     @AppStorageCompat(StorageType.termsOfServiceAccepted)
     var termsOfServicesAccepted: [String] = []
 
