@@ -519,7 +519,8 @@ extension MainViewModel {
     func openMail(with emailFeedbackCase: EmailFeedbackCase) {
         let collector = getDataCollector(for: emailFeedbackCase)
         let type = emailFeedbackCase.emailType
-        coordinator.openMail(with: collector, emailType: type, recipient: cardModel.emailConfig.recipient)
+        let recipient = cardModel.emailConfig?.recipient ?? EmailConfig.default.recipient
+        coordinator.openMail(with: collector, emailType: type, recipient: recipient)
     }
 }
 
