@@ -12,7 +12,7 @@ import BlockchainSdk
 
 class ExchangeSigner {
     @Injected(\.tangemSdkProvider) private var tangemProvider: TangemSdkProviding
-    
+
     func signTx(_ hash: Data, publicKey: Data) async throws -> Data {
         return try await withCheckedThrowingContinuation { continuation in
             tangemProvider.sdk.sign(hash: hash, walletPublicKey: publicKey) { result in
