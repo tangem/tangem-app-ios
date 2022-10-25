@@ -254,7 +254,7 @@ final class AppScanTask: CardSessionRunnable {
         }
 
         migrate(card: card)
-        let tokenItemsRepository = CommonTokenItemsRepository(key: card.userWalletId.hexString)
+        let tokenItemsRepository = CommonTokenItemsRepository(key: card.userWalletId(walletData: walletData).hexString)
 
         // Force add blockchains for demo cards
         let config = GenericConfig(card: card)
@@ -309,13 +309,14 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func migrate(card: Card) {
-        let config = UserWalletConfigFactory(CardInfo(card: card, walletData: walletData)).makeConfig()
+        let cardInfo = CardInfo(card: card, walletData: walletData)
+        let config = UserWalletConfigFactory(cardInfo).makeConfig()
         if let legacyCardMigrator = LegacyCardMigrator(cardId: card.cardId, config: config) {
             legacyCardMigrator.migrateIfNeeded()
         }
 
         if card.hasWallets {
-            let tokenMigrator = TokenItemsRepositoryMigrator(card: card)
+            let tokenMigrator = TokenItemsRepositoryMigrator(card: card, userWalletId: cardInfo.userWalletId)
             tokenMigrator.migrate()
         }
     }
