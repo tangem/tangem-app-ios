@@ -11,8 +11,6 @@ import SwiftUI
 struct DisclaimerView: View {
     let viewModel: DisclaimerViewModel
 
-    private let bottomViewHeight: CGFloat = 150
-
     var body: some View {
         ZStack(alignment: .bottom) {
             VStack(alignment: .leading, spacing: 16) {
@@ -52,7 +50,7 @@ struct DisclaimerView: View {
             )
             .frame(
                 width: UIScreen.main.bounds.width,
-                height: bottomViewHeight
+                height: viewModel.bottomOverlayHeight
             )
 
             TangemButton(title: "common_accept", action: viewModel.onAccept)
