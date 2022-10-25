@@ -66,7 +66,7 @@ struct SaltPayConfig {
         case .needPin, .registration:
             steps.append(contentsOf: [.enterPin, .registerWallet, .kycStart, .kycProgress, .kycWaiting, .claim])
         case .kycRetry:
-            steps.append(contentsOf: [.kycStart, .kycProgress, .kycWaiting, .claim])
+            steps.append(contentsOf: [.kycRetry, .kycProgress, .kycWaiting, .claim])
         case .kycStart:
             steps.append(contentsOf: [.kycStart, .kycProgress, .kycWaiting, .claim])
         case .kycWaiting:
@@ -103,8 +103,8 @@ extension SaltPayConfig: UserWalletConfig {
         .default
     }
 
-    var touURL: URL? {
-        nil
+    var touURL: URL {
+        .init(string: "https://tangem.com/soltpay_tos.html")!
     }
 
     var cardsCount: Int {
