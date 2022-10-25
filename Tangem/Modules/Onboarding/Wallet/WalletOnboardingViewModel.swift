@@ -553,8 +553,8 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         case .successClaim:
             goToNextStep()
         case .kycProgress:
+            saltPayRegistratorProvider.registrator?.registerKYC()
             goToNextStep()
-            saltPayRegistratorProvider.registrator?.update()
         case .claim:
             Analytics.log(.buttonClaim)
             claim()
