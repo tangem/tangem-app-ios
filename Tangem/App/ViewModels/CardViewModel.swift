@@ -40,7 +40,7 @@ class CardViewModel: Identifiable, ObservableObject {
         config.emailData
     }
 
-    var emailConfig: EmailConfig {
+    var emailConfig: EmailConfig? {
         config.emailConfig
     }
 
