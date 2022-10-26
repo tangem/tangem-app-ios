@@ -118,9 +118,9 @@ private extension CommonUserTokenListManager {
     // MARK: - Mapping
 
     func mapToTokens(entries: [StorageEntry]) -> [UserTokenList.Token] {
-        let tokens: [UserTokenList.Token] = entries.reduce(into: []) { result, entry in
+        entries.reduce(into: []) { result, entry in
             let blockchain = entry.blockchainNetwork.blockchain
-            result += [UserTokenList.Token(
+            let blockchainToken = UserTokenList.Token(
                 id: blockchain.id,
                 networkId: blockchain.networkId,
                 name: blockchain.displayName,
@@ -128,10 +128,13 @@ private extension CommonUserTokenListManager {
                 decimals: blockchain.decimalCount,
                 derivationPath: entry.blockchainNetwork.derivationPath,
                 contractAddress: nil
-            )]
+            )
+            if !result.contains(blockchainToken) {
+                result.append(blockchainToken)
+            }
 
-            result += entry.tokens.map { token in
-                UserTokenList.Token(
+            entry.tokens.forEach { token in
+                let token = UserTokenList.Token(
                     id: token.id,
                     networkId: blockchain.networkId,
                     name: token.name,
@@ -140,10 +143,12 @@ private extension CommonUserTokenListManager {
                     derivationPath: entry.blockchainNetwork.derivationPath,
                     contractAddress: token.contractAddress
                 )
+
+                if !result.contains(token) {
+                    result.append(token)
+                }
             }
         }
-
-        return Array(Set(tokens))
     }
 
     func mapToEntries(list: UserTokenList) -> [StorageEntry] {
@@ -157,8 +162,10 @@ private extension CommonUserTokenListManager {
                 return BlockchainNetwork(blockchain, derivationPath: token.derivationPath)
             }
 
-        let entries: [StorageEntry] = blockchains.map { network in
-            StorageEntry(
+        var entries: [StorageEntry] = []
+        
+        blockchains.forEach { network in
+            let entry = StorageEntry(
                 blockchainNetwork: network,
                 tokens: list.tokens
                     .filter { $0.contractAddress != nil && $0.networkId == network.blockchain.networkId }
@@ -172,9 +179,13 @@ private extension CommonUserTokenListManager {
                         )
                     }
             )
+            
+            if !entries.contains(entry) {
+                entries.append(entry)
+            }
         }
 
-        return Array(Set(entries))
+        return entries
     }
 }
 
