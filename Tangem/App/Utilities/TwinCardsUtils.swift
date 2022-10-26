@@ -37,9 +37,7 @@ enum TwinCardsUtils {
             return nil
         }
 
-        return (pairData.series.number == 1 ?
-                (pairWalletPubKey + walletPubKey) :
-                (walletPubKey + pairWalletPubKey))
+        return try? Secp256k1Utils().sum(compressedPubKey1: walletPubKey, compressedPubKey2: pairWalletPubKey)
     }
 
     private static func calculateLuhn(for cid: String) -> Int {
