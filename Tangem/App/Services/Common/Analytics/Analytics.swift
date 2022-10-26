@@ -15,28 +15,28 @@ import Amplitude
 import TangemSdk
 
 enum Analytics {
+    static private var analyticsSystems: [Analytics.AnalyticSystem] = [.firebase, .appsflyer, .amplitude]
+    static private var persistentParams: [ParameterKey: String] = [:]
+    
+    static func reset() {
+        persistentParams = [:]
+    }
+    
     static func log(_ event: Event, params: [ParameterKey: String] = [:]) {
-        let compatibles = event.analyticsSystems()
-        for compatible in compatibles {
-            switch compatible {
+        for system in analyticsSystems {
+            switch system {
             case .appsflyer, .firebase:
                 log(event: event, with: params)
-            case .amplitude: // [REDACTED_TODO_COMMENT]
-                let convertedParams = params.reduce(into: [:]) { $0[$1.key.rawValue] = $1.value }
-                logAmplitude(event: event, params: convertedParams)
+            case .amplitude:
+                logAmplitude(event: event, params: params)
             }
         }
-        logCrashlytics(event, with: (params as [ParameterKey: Any]).firebaseParams)
-    }
-
-    static func log(event: Event, with params: [ParameterKey: Any]? = nil) {
-        let key = event.rawValue
-        let values = params?.firebaseParams
-        FirebaseAnalytics.Analytics.logEvent(key, parameters: values)
-        AppsFlyerLib.shared().logEvent(key, withValues: values)
+        logCrashlytics(event, with: params.firebaseParams)
     }
 
     static func logScan(card: Card, config: UserWalletConfig) {
+        persistentParams[.batchId] = card.batchId
+        
         log(event: .cardIsScanned, with: collectCardData(card))
 
         if DemoUtil().isDemoCard(cardId: card.cardId) {
@@ -45,11 +45,12 @@ enum Analytics {
     }
 
     static func logTx(blockchainName: String?, isPushed: Bool = false) {
-        log(event: isPushed ? .transactionIsPushed : .transactionIsSent,
-            with: [ParameterKey.blockchain: blockchainName ?? ""])
+        let event: Event = isPushed ? .transactionIsPushed : .transactionIsSent
+        let params = [ParameterKey.blockchain: blockchainName ?? ""]
+        log(event, params: params)
     }
 
-    static func logCardSdkError(_ error: TangemSdkError, for action: Action, parameters: [ParameterKey: Any] = [:]) {
+    static func logCardSdkError(_ error: TangemSdkError, for action: Action, parameters: [ParameterKey: String] = [:]) {
         if case .userCancelled = error { return }
 
         var params = parameters
@@ -60,7 +61,7 @@ enum Analytics {
         Crashlytics.crashlytics().record(error: nsError)
     }
 
-    static func logCardSdkError(_ error: TangemSdkError, for action: Action, card: Card, parameters: [ParameterKey: Any] = [:]) {
+    static func logCardSdkError(_ error: TangemSdkError, for action: Action, card: Card, parameters: [ParameterKey: String] = [:]) {
         logCardSdkError(error, for: action, parameters: collectCardData(card, additionalParams: parameters))
     }
 
@@ -70,7 +71,7 @@ enum Analytics {
         }
 
         if let detailedDescription = (error as? DetailedError)?.detailedDescription {
-            var params = [ParameterKey: Any]()
+            var params = [ParameterKey: String]()
             params[.errorDescription] = detailedDescription
             let nsError = NSError(domain: "DetailedError",
                                   code: 1,
@@ -91,7 +92,7 @@ enum Analytics {
     }
 
     static func logWcEvent(_ event: WalletConnectEvent) {
-        var params = [ParameterKey: Any]()
+        var params = [ParameterKey: String]()
         let firEvent: Event
         switch event {
         case let .error(error, action):
@@ -99,7 +100,9 @@ enum Analytics {
                 params[.walletConnectAction] = action.rawValue
             }
             params[.errorDescription] = error.localizedDescription
-            let nsError = NSError(domain: "WalletConnect Error for: \(action?.rawValue ?? "WC Service error")", code: 0, userInfo: params.firebaseParams)
+            let nsError = NSError(domain: "WalletConnect Error for: \(action?.rawValue ?? "WC Service error")",
+                                  code: 0,
+                                  userInfo: params.firebaseParams)
             Crashlytics.crashlytics().record(error: nsError)
             return
         case .action(let action):
@@ -118,7 +121,7 @@ enum Analytics {
             params[.walletConnectDappUrl] = url.absoluteString
         }
 
-        log(event: firEvent, with: params)
+        log(firEvent, params: params)
     }
 
     static func logShopifyOrder(_ order: Order) {
@@ -146,18 +149,29 @@ enum Analytics {
             AnalyticsParameterCurrency: order.currencyCode,
         ], uniquingKeysWith: { $1 }))
 
-        logAmplitude(event: .purchased, params: ["SKU": sku, "Count": "\(order.lineItems.count)", "Amount": "\(order.total)\(order.currencyCode)"])
+        logAmplitude(event: .purchased, params: [.sku: sku,
+                                                 .count: "\(order.lineItems.count)",
+                                                 .amount: "\(order.total)\(order.currencyCode)"])
     }
 
-    static func logAmplitude(event: Event, params: [String: String] = [:]) {
-        if !AppEnvironment.isDebug {
-            Amplitude.instance().logEvent(event.rawValue, withEventProperties: params)
-        }
+    static func logAmplitude(event: Event, params: [ParameterKey: String] = [:]) {
+        let mergedParams = params.merging(persistentParams, uniquingKeysWith: { (current, _) in  current })
+        let convertedParams = mergedParams.reduce(into: [:]) { $0[$1.key.rawValue] = $1.value }
+        Amplitude.instance().logEvent(event.rawValue, withEventProperties: convertedParams)
+    }
+    
+    static func log(event: Event, with params: [ParameterKey: String]? = nil) {
+        let key = event.rawValue
+        
+        let mergedParams = params?.merging(persistentParams, uniquingKeysWith: { (current, _) in  current })
+        let values = mergedParams?.firebaseParams
+        
+        FirebaseAnalytics.Analytics.logEvent(key, parameters: values)
+        AppsFlyerLib.shared().logEvent(key, withValues: values)
     }
 
-    private static func collectCardData(_ card: Card, additionalParams: [ParameterKey: Any] = [:]) -> [ParameterKey: Any] {
+    private static func collectCardData(_ card: Card, additionalParams: [ParameterKey: String] = [:]) -> [ParameterKey: String] {
         var params = additionalParams
-        params[.batchId] = card.batchId
         params[.firmware] = card.firmwareVersion.stringValue
         params[.currency] = card.walletCurves.reduce("", { $0 + $1.rawValue })
         return params
@@ -206,6 +220,10 @@ extension Analytics {
         case state = "State"
         case basicCurrency = "Currency"
         case batch = "Batch"
+        case cardsCount = "Cards count"
+        case sku = "SKU"
+        case amount = "Amount"
+        case count = "Count"
     }
 
     enum ParameterValue: String {
@@ -229,7 +247,7 @@ extension Analytics {
     }
 }
 
-fileprivate extension Dictionary where Key == Analytics.ParameterKey, Value == Any {
+fileprivate extension Dictionary where Key == Analytics.ParameterKey, Value == String {
     var firebaseParams: [String: Any] {
         var convertedParams = [String: Any]()
         forEach { convertedParams[$0.key.rawValue] = $0.value }
