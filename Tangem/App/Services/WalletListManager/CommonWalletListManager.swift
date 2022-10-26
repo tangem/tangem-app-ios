@@ -219,9 +219,8 @@ private extension CommonWalletListManager {
 
                 return Future<Bool, Never> { promise in
                     let entry = StorageEntry(blockchainNetwork: blockchainNetwork, token: token)
-                    self.userTokenListManager.update(.append([entry])) {
-                        promise(.success(true))
-                    }
+                    self.userTokenListManager.update(.append([entry]))
+                    promise(.success(true))
                 }
                 .eraseToAnyPublisher()
             }
