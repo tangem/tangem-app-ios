@@ -22,10 +22,6 @@ struct CardInfo {
             return AppCardIdFormatter(cid: card.cardId).formatted()
         }
     }
-    
-    var userWalletId: Data {
-        card.userWalletId(walletData: walletData)
-    }
 }
 
 struct ImageLoadDTO: Equatable {
