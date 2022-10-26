@@ -19,7 +19,10 @@ enum SaltPayRegistratorError: String, Error, LocalizedError {
     case cardDisabled
     case emptyBackupCardScanned
     case weakPin
-
+    case failedToBuildContract
+    case failedToParseAllowance
+    case missingClaimableAmount
+    case blockchainError
 
     var errorDescription: String? {
         self.rawValue
