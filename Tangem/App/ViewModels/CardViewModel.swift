@@ -72,10 +72,6 @@ class CardViewModel: Identifiable, ObservableObject {
         config.touURL
     }
 
-    var canCountHashes: Bool {
-        config.hasFeature(.signedHashesCounter)
-    }
-
     var supportsWalletConnect: Bool {
         config.hasFeature(.walletConnect)
     }
@@ -195,8 +191,8 @@ class CardViewModel: Identifiable, ObservableObject {
             isStandalone: true)
     }
 
-    var isResetToFactoryAvailable: Bool {
-        config.hasFeature(.resetToFactory)
+    var resetToFactoryAvailability: UserWalletFeature.Availability {
+        config.getFeatureAvailability(.resetToFactory)
     }
 
     var shouldShowLegacyDerivationAlert: Bool {
@@ -219,11 +215,15 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func setupWarnings() {
-        warningsService.setupWarnings(for: config)
+        warningsService.setupWarnings(
+            for: config,
+            card: cardInfo.card,
+            validator: walletModels.first?.walletManager as? SignatureCountValidator
+        )
     }
 
     func appendDefaultBlockchains() {
-        userWalletModel?.append(entries: config.defaultBlockchains) {}
+        userWalletModel?.append(entries: config.defaultBlockchains)
     }
 
     func deriveEntriesWithoutDerivation() {
@@ -350,29 +350,29 @@ class CardViewModel: Identifiable, ObservableObject {
         cardInfo.card.wallets = card.wallets
         onUpdate()
     }
-    
+
     func onSecurityOptionChanged(isAccessCodeSet: Bool, isPasscodeSet: Bool) {
         cardInfo.card.isAccessCodeSet = isAccessCodeSet
         cardInfo.card.isPasscodeSet = isPasscodeSet
         onUpdate()
     }
-    
+
     func onSigned(_ card: Card) {
         for updatedWallet in card.wallets {
             cardInfo.card.wallets[updatedWallet.publicKey]?.totalSignedHashes = updatedWallet.totalSignedHashes
             cardInfo.card.wallets[updatedWallet.publicKey]?.remainingSignatures = updatedWallet.remainingSignatures
         }
-        
+
         onUpdate()
     }
-    
+
     func onDerived(_ card: Card) {
         for updatedWallet in card.wallets {
             for derivedKey in updatedWallet.derivedKeys {
                 cardInfo.card.wallets[updatedWallet.publicKey]?.derivedKeys[derivedKey.key] = derivedKey.value
             }
         }
-        
+
         onUpdate()
     }
 
@@ -386,12 +386,12 @@ class CardViewModel: Identifiable, ObservableObject {
         cardInfo.card.backupStatus = card.backupStatus
         onUpdate()
     }
-    
+
     func onTwinWalletCreated(_ walletData: DefaultWalletData) { // [REDACTED_TODO_COMMENT]
         self.cardInfo.walletData = walletData
         onUpdate()
     }
-    
+
     private func onUpdate() {
         print("🔄 Updating CardViewModel with new Card")
         config = UserWalletConfigFactory(cardInfo).makeConfig()
@@ -422,7 +422,7 @@ class CardViewModel: Identifiable, ObservableObject {
         print("🔄 Updating Card view model")
         updateCurrentSecurityOption()
 
-        warningsService.setupWarnings(for: config)
+        setupWarnings()
         createUserWalletModelIfNeeded()
         userWalletModel?.updateUserWalletModel(with: config)
         userWalletModel?.update(userWalletId: userWalletId)
@@ -575,9 +575,8 @@ extension CardViewModel {
         derive(entries: entries) { [weak self] result in
             switch result {
             case .success:
-                self?.userWalletModel?.append(entries: entries) {
-                    completion(.success(()))
-                }
+                self?.userWalletModel?.append(entries: entries)
+                completion(.success(()))
             case let .failure(error):
                 completion(.failure(error))
             }
@@ -588,9 +587,8 @@ extension CardViewModel {
         derive(entries: entries) { [weak self] result in
             switch result {
             case .success:
-                self?.userWalletModel?.update(entries: entries) {
-                    completion(.success(()))
-                }
+                self?.userWalletModel?.update(entries: entries)
+                completion(.success(()))
             case let .failure(error):
                 completion(.failure(error))
             }
@@ -621,15 +619,6 @@ extension CardViewModel {
         }
 
         return userWalletModel.canManage(amountType: amountType, blockchainNetwork: blockchainNetwork)
-    }
-
-    func remove(item: CommonUserWalletModel.RemoveItem, completion: @escaping () -> Void) {
-        guard let userWalletModel = userWalletModel else {
-            assertionFailure("UserWalletModel not created")
-            return
-        }
-
-        userWalletModel.remove(item: item, completion: completion)
     }
 }
 
