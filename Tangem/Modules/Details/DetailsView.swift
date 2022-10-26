@@ -154,7 +154,7 @@ struct DetailsView: View {
     private var setupEnvironmentSection: some View {
         Section {
             DefaultRowView(title: "Environment setup") {
-                viewModel.openSetupEnvironment()
+                viewModel.openEnvironmentSetup()
             }
         }
     }
