@@ -39,7 +39,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
         bind()
     }
     
-    func turnOff() {
+    func exit() {
         exit(1)
     }
 }
