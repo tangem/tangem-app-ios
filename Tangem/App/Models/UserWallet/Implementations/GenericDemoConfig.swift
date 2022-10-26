@@ -48,14 +48,6 @@ struct GenericDemoConfig {
 }
 
 extension GenericDemoConfig: UserWalletConfig {
-    var emailConfig: EmailConfig {
-        .default
-    }
-
-    var touURL: URL? {
-        nil
-    }
-
     var cardSetLabel: String? {
         guard let backupCardsCount = card.backupStatus?.backupCardsCount else {
             return nil
