@@ -223,7 +223,7 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     func appendDefaultBlockchains() {
-        userWalletModel?.append(entries: config.defaultBlockchains) {}
+        userWalletModel?.append(entries: config.defaultBlockchains)
     }
 
     func deriveEntriesWithoutDerivation() {
@@ -575,9 +575,8 @@ extension CardViewModel {
         derive(entries: entries) { [weak self] result in
             switch result {
             case .success:
-                self?.userWalletModel?.append(entries: entries) {
-                    completion(.success(()))
-                }
+                self?.userWalletModel?.append(entries: entries)
+                completion(.success(()))
             case let .failure(error):
                 completion(.failure(error))
             }
@@ -588,9 +587,8 @@ extension CardViewModel {
         derive(entries: entries) { [weak self] result in
             switch result {
             case .success:
-                self?.userWalletModel?.update(entries: entries) {
-                    completion(.success(()))
-                }
+                self?.userWalletModel?.update(entries: entries)
+                completion(.success(()))
             case let .failure(error):
                 completion(.failure(error))
             }
@@ -621,15 +619,6 @@ extension CardViewModel {
         }
 
         return userWalletModel.canManage(amountType: amountType, blockchainNetwork: blockchainNetwork)
-    }
-
-    func remove(item: CommonUserWalletModel.RemoveItem, completion: @escaping () -> Void) {
-        guard let userWalletModel = userWalletModel else {
-            assertionFailure("UserWalletModel not created")
-            return
-        }
-
-        userWalletModel.remove(item: item, completion: completion)
     }
 }
 
