@@ -101,6 +101,10 @@ extension NoteConfig: UserWalletConfig {
         CardEmailDataFactory().makeEmailData(for: card, walletData: noteData)
     }
 
+    var userWalletIdSeed: Data? {
+        card.wallets.first?.publicKey
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:

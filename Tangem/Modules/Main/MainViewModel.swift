@@ -41,7 +41,7 @@ class MainViewModel: ObservableObject {
                 .store(in: &bag)
         }
     }
-    
+
     @Published var multiWalletContentViewModel: MultiWalletContentViewModel? {
         didSet {
             multiWalletContentViewModel?.objectWillChange
@@ -82,7 +82,7 @@ class MainViewModel: ObservableObject {
                 .store(in: &bag)
         }
     }
-    
+
     private let userWalletModel: UserWalletModel
     private let cardImageProvider: CardImageProviding
 
