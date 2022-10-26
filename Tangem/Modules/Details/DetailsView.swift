@@ -73,8 +73,10 @@ struct DetailsView: View {
                 viewModel.openSupportChat()
             }
 
-            DefaultRowView(title: "details_row_title_send_feedback".localized) {
-                viewModel.openMail()
+            if viewModel.canSendMail {
+                DefaultRowView(title: "details_row_title_send_feedback".localized) {
+                    viewModel.openMail()
+                }
             }
         }
     }
@@ -117,13 +119,6 @@ struct DetailsView: View {
             DefaultRowView(title: "disclaimer_title".localized) {
                 viewModel.openDisclaimer()
             }
-
-            if let url = viewModel.cardTouURL {
-                DefaultRowView(title: "details_row_title_card_tou".localized) {
-                    viewModel.openCardTOU(url: url)
-                }
-            }
-
         }, footer: {
             HStack {
                 Spacer()

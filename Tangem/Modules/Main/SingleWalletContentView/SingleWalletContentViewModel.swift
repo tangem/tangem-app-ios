@@ -25,7 +25,7 @@ class SingleWalletContentViewModel: ObservableObject {
     var canShowAddress: Bool {
         cardModel.canShowAddress
     }
-    
+
     public var canSend: Bool {
         guard cardModel.canSend else {
             return false

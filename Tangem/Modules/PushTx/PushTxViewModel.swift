@@ -347,7 +347,8 @@ extension PushTxViewModel {
                                                          pushingTxHash: transaction.hash ?? .unknown,
                                                          lastError: lastError)
 
-        coordinator.openMail(with: emailDataCollector, recipient: cardViewModel.emailConfig.recipient)
+        let recipient = cardViewModel.emailConfig?.recipient ?? EmailConfig.default.recipient
+        coordinator.openMail(with: emailDataCollector, recipient: recipient)
     }
 
     func dismiss() {
