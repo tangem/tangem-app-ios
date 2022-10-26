@@ -41,7 +41,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
     }
 
-    func update(_ type: CommonUserTokenListManager.UpdateType, completion: @escaping () -> Void) {
+    func update(_ type: CommonUserTokenListManager.UpdateType) {
         switch type {
         case let .rewrite(entries):
             tokenItemsRepository.update(entries)
@@ -54,9 +54,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
         }
 
         if hasTokenSynchronization {
-            updateTokensOnServer { _ in completion() }
-        } else {
-            completion()
+            updateTokensOnServer()
         }
     }
 
@@ -66,7 +64,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
 
     func clearRepository(completion: @escaping () -> Void) {
         tokenItemsRepository.removeAll()
-        updateTokensOnServer { _ in completion() }
+        updateTokensOnServer()
     }
 
     func updateLocalRepositoryFromServer(result: @escaping (Result<UserTokenList, Error>) -> Void) {
@@ -97,7 +95,7 @@ private extension CommonUserTokenListManager {
             }
     }
 
-    func updateTokensOnServer(result: @escaping (Result<UserTokenList, Error>) -> Void) {
+    func updateTokensOnServer(result: @escaping (Result<UserTokenList, Error>) -> Void = { _ in }) {
         let list = getUserTokenList()
 
         saveTokensCancellable = tangemApiService
