@@ -1,5 +1,5 @@
 //
-//  KYCWaitingView.swift
+//  KYCView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct KYCWaitingView: View {
+struct KYCView: View {
     let imageName: String
     let title: LocalizedStringKey
     let subtitle: LocalizedStringKey
@@ -35,10 +35,10 @@ struct KYCWaitingView: View {
     }
 }
 
-struct KYCWaitingView_Previews: PreviewProvider {
+struct KYCView_Previews: PreviewProvider {
     static var previews: some View {
-        KYCWaitingView(imageName: "passport",
-                       title: "onboarding_title_pin",
-                       subtitle: "onboarding_subtitle_pin")
+        KYCView(imageName: "passport",
+                title: "onboarding_title_pin",
+                subtitle: "onboarding_subtitle_pin")
     }
 }
