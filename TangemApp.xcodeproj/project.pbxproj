@@ -483,6 +483,9 @@
 		DCFCA17C28F5F6960037586C /* PDFKitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFCA17B28F5F6960037586C /* PDFKitView.swift */; };
 		DCFCA17E28F5F7C40037586C /* T&C.pdf in Resources */ = {isa = PBXBuildFile; fileRef = DCFCA17D28F5F7C40037586C /* T&C.pdf */; };
 		E90FAB5A28EE418000C6DCBE /* TotalBalanceAnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E90FAB5928EE418000C6DCBE /* TotalBalanceAnalyticsService.swift */; };
+		EF04ACDD29095E5000837308 /* DefaultToggleRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04ACDC29095E5000837308 /* DefaultToggleRowViewModel.swift */; };
+		EF04ACE029095FBF00837308 /* DefaultWarningRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04ACDF29095FBF00837308 /* DefaultWarningRowViewModel.swift */; };
+		EF04ACE2290973B000837308 /* Buildable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF04ACE1290973B000837308 /* Buildable.swift */; };
 		EF07F3AD289D43580065549C /* List+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF07F3AC289D43580065549C /* List+.swift */; };
 		EF08A0EF283D1914008BD923 /* Moya+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0EE283D1914008BD923 /* Moya+.swift */; };
 		EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0F0283D2382008BD923 /* CoinsListRequestModel.swift */; };
@@ -505,12 +508,12 @@
 		EF130EBC28E1D34500D37EFC /* MultiWalletContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF130EBB28E1D34500D37EFC /* MultiWalletContentView.swift */; };
 		EF3B581F28F81B0300C93810 /* SaltPayConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE3379828F2A4580029A6F5 /* SaltPayConfiguration.swift */; };
 		EF3EC523289AB2DE0071BA7F /* TangemProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */; };
+		EF48288F28D1C99D002809C6 /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = EF48288D28D1C99D002809C6 /* Localizable.stringsdict */; };
+		EF48289528D1CD1F002809C6 /* Collection+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48289428D1CD1F002809C6 /* Collection+.swift */; };
 		EF48289828D1FC7A002809C6 /* GroupedScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48289728D1FC7A002809C6 /* GroupedScrollView.swift */; };
 		EF48289B28D2297B002809C6 /* WalletConnectRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48289A28D2297B002809C6 /* WalletConnectRowView.swift */; };
 		EF48289E28D22B6E002809C6 /* DefaultRowViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48289D28D22B6E002809C6 /* DefaultRowViewModel.swift */; };
 		EF4828A028D22BB8002809C6 /* GroupedSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48289F28D22BB8002809C6 /* GroupedSection.swift */; };
-		EF48288F28D1C99D002809C6 /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = EF48288D28D1C99D002809C6 /* Localizable.stringsdict */; };
-		EF48289528D1CD1F002809C6 /* Collection+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF48289428D1CD1F002809C6 /* Collection+.swift */; };
 		EF4B41BB2864491B003911F6 /* TangemSkeletonModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B41BA2864491B003911F6 /* TangemSkeletonModifier.swift */; };
 		EF4B41BD28644982003911F6 /* SkeletonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4B41BC28644982003911F6 /* SkeletonView.swift */; };
 		EF4BEF7F28AB872E00C5D1BE /* UserTokenList.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFCC66E028AA6FC500EC7757 /* UserTokenList.swift */; };
@@ -1137,6 +1140,9 @@
 		DFEC35A94293DE7EB96CEBC1 /* Pods-Tangem.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.debug(production).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.debug(production).xcconfig"; sourceTree = "<group>"; };
 		E53081CA3060D2785F9D22F0 /* Pods-Tangem-TangemUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release.xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release.xcconfig"; sourceTree = "<group>"; };
 		E90FAB5928EE418000C6DCBE /* TotalBalanceAnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalBalanceAnalyticsService.swift; sourceTree = "<group>"; };
+		EF04ACDC29095E5000837308 /* DefaultToggleRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultToggleRowViewModel.swift; sourceTree = "<group>"; };
+		EF04ACDF29095FBF00837308 /* DefaultWarningRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultWarningRowViewModel.swift; sourceTree = "<group>"; };
+		EF04ACE1290973B000837308 /* Buildable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Buildable.swift; sourceTree = "<group>"; };
 		EF07F3AC289D43580065549C /* List+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "List+.swift"; sourceTree = "<group>"; };
 		EF08A0EE283D1914008BD923 /* Moya+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Moya+.swift"; sourceTree = "<group>"; };
 		EF08A0F0283D2382008BD923 /* CoinsListRequestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinsListRequestModel.swift; sourceTree = "<group>"; };
@@ -1160,16 +1166,16 @@
 		EF2EFDE12865C05D00798051 /* Production.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Production.xcconfig; sourceTree = "<group>"; };
 		EF2EFDE22865C07100798051 /* Beta.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Beta.xcconfig; sourceTree = "<group>"; };
 		EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemProvider.swift; sourceTree = "<group>"; };
-		EF48289728D1FC7A002809C6 /* GroupedScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupedScrollView.swift; sourceTree = "<group>"; };
-		EF48289A28D2297B002809C6 /* WalletConnectRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectRowView.swift; sourceTree = "<group>"; };
-		EF48289D28D22B6E002809C6 /* DefaultRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultRowViewModel.swift; sourceTree = "<group>"; };
-		EF48289F28D22BB8002809C6 /* GroupedSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupedSection.swift; sourceTree = "<group>"; };
 		EF48288E28D1C99D002809C6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = en; path = en.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		EF48289028D1C9A1002809C6 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = fr; path = fr.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		EF48289128D1C9A3002809C6 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = de; path = de.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		EF48289228D1C9A5002809C6 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = it; path = it.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		EF48289328D1C9A6002809C6 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ru; path = ru.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		EF48289428D1CD1F002809C6 /* Collection+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Collection+.swift"; sourceTree = "<group>"; };
+		EF48289728D1FC7A002809C6 /* GroupedScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupedScrollView.swift; sourceTree = "<group>"; };
+		EF48289A28D2297B002809C6 /* WalletConnectRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectRowView.swift; sourceTree = "<group>"; };
+		EF48289D28D22B6E002809C6 /* DefaultRowViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultRowViewModel.swift; sourceTree = "<group>"; };
+		EF48289F28D22BB8002809C6 /* GroupedSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupedSection.swift; sourceTree = "<group>"; };
 		EF4B41BA2864491B003911F6 /* TangemSkeletonModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TangemSkeletonModifier.swift; sourceTree = "<group>"; };
 		EF4B41BC28644982003911F6 /* SkeletonView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SkeletonView.swift; sourceTree = "<group>"; };
 		EF4BEF8028AB953E00C5D1BE /* CommonUserTokenListManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonUserTokenListManager.swift; sourceTree = "<group>"; };
@@ -1537,6 +1543,7 @@
 				65B435FD2844BF7100DEAE1B /* AttributedTextView.swift */,
 				DC295B3928615D03006CB7B6 /* NavHolder.swift */,
 				EF59038D290186DC00C527C9 /* LazyVStackCompat.swift */,
+				EF04ACE1290973B000837308 /* Buildable.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -2724,6 +2731,24 @@
 			path = TangemApiService;
 			sourceTree = "<group>";
 		};
+		EF04ACDB29095E4600837308 /* DefaultToggleRowView */ = {
+			isa = PBXGroup;
+			children = (
+				EF0F99AF28902902008B01DF /* DefaultToggleRowView.swift */,
+				EF04ACDC29095E5000837308 /* DefaultToggleRowViewModel.swift */,
+			);
+			path = DefaultToggleRowView;
+			sourceTree = "<group>";
+		};
+		EF04ACDE29095FAB00837308 /* DefaultWarningRow */ = {
+			isa = PBXGroup;
+			children = (
+				EF0F99B5289125C7008B01DF /* DefaultWarningRow.swift */,
+				EF04ACDF29095FBF00837308 /* DefaultWarningRowViewModel.swift */,
+			);
+			path = DefaultWarningRow;
+			sourceTree = "<group>";
+		};
 		EF08A0ED283D1905008BD923 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -2900,10 +2925,10 @@
 		EF9CFC3A2890233100329BE0 /* DefaultListViews */ = {
 			isa = PBXGroup;
 			children = (
+				EF04ACDE29095FAB00837308 /* DefaultWarningRow */,
+				EF04ACDB29095E4600837308 /* DefaultToggleRowView */,
 				EF48289C28D22B60002809C6 /* DefaultRowView */,
 				EF0F99B028902902008B01DF /* DefaultFooterView.swift */,
-				EF0F99AF28902902008B01DF /* DefaultToggleRowView.swift */,
-				EF0F99B5289125C7008B01DF /* DefaultWarningRow.swift */,
 			);
 			path = DefaultListViews;
 			sourceTree = "<group>";
@@ -3350,6 +3375,7 @@
 				B09BB863259A075600B92000 /* NavigationConfigurator.swift in Sources */,
 				EF50A5B1288976140081C5BB /* View+ConditionalModifiers.swift in Sources */,
 				DABA435427BFB63D00718AC6 /* WelcomeStoryPage.swift in Sources */,
+				EF04ACE029095FBF00837308 /* DefaultWarningRowViewModel.swift in Sources */,
 				DAC53CF727BE63830027147D /* StoriesProgressView.swift in Sources */,
 				B03A9339259877790061FB2D /* WarningsContainer.swift in Sources */,
 				B0EC1200267386FC00137059 /* PendingTransaction.swift in Sources */,
@@ -3560,6 +3586,7 @@
 				B0B8670326DF5AE1008DAA67 /* ModalSheetPreferenceKey.swift in Sources */,
 				DA23787B27B24222009795A8 /* ProductVariant.swift in Sources */,
 				B046EE182578D38E00EA38A5 /* SceneDelegate.swift in Sources */,
+				EF04ACE2290973B000837308 /* Buildable.swift in Sources */,
 				5D341CC827E340770028D8FC /* CoinItemView.swift in Sources */,
 				DC51186128609F71004FB954 /* CardOperationRoutable.swift in Sources */,
 				B0B8670626DF60E7008DAA67 /* CardStackAnimator.swift in Sources */,
@@ -3614,6 +3641,7 @@
 				B02275D72701D9FB004C752B /* PreparePrimaryCardTask.swift in Sources */,
 				B029C1DC270229530017C848 /* OnboardingAccessCodeView.swift in Sources */,
 				B0F62C5525DE4F6B005C8BA0 /* DeviceInfoProvider.swift in Sources */,
+				EF04ACDD29095E5000837308 /* DefaultToggleRowViewModel.swift in Sources */,
 				B020A51426F1DBE700D38596 /* OnboardingInput.swift in Sources */,
 				B0A0911026D3636F00F46DF5 /* AnimationCompletionObserverModifier.swift in Sources */,
 				B0D76D4D25D4E4610073FA98 /* AddCustomTokenViewModel.swift in Sources */,
