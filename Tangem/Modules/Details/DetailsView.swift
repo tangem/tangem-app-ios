@@ -29,6 +29,10 @@ struct DetailsView: View {
                 settingsSection
 
                 legalSection
+
+                if !AppEnvironment.current.isProduction {
+                    setupEnvironmentSection
+                }
             }
 
             socialNetworks
@@ -84,6 +88,14 @@ struct DetailsView: View {
         .frame(maxWidth: .infinity)
         .padding(.bottom, 16)
         .background(Colors.Background.secondary)
+    }
+    
+    private var setupEnvironmentSection: some View {
+        Section {
+            DefaultRowView(title: "Environment setup") {
+                viewModel.openEnvironmentSetup()
+            }
+        }
     }
 
     private func socialNetworkView(network: SocialNetwork) -> some View {
