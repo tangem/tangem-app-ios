@@ -42,7 +42,7 @@ extension TotalBalanceProvider: TotalBalanceProviding {
 private extension TotalBalanceProvider {
     func loadCurrenciesAndUpdateBalance() {
         refreshSubscription = tangemApiService.loadCurrencies()
-        .receive(on: DispatchQueue.global())
+            .receive(on: DispatchQueue.global())
             .tryMap { [weak self] currencies -> TotalBalance in
                 guard let self = self,
                       let currency = currencies.first(where: { $0.code == AppSettings.shared.selectedCurrencyCode }) else {
