@@ -31,7 +31,7 @@ extension AppEnvironment {
         return environment
     }
 
-    static var suiteName: String {
+    var suiteName: String {
         guard let identifier = infoDictionary["SUITE_NAME"] as? String else {
             assertionFailure("SUITE_NAME not found")
             return ""
@@ -40,11 +40,11 @@ extension AppEnvironment {
         return identifier
     }
 
-    static var isTestnet: Bool  {
-        current == .alpha
+    var isTestnet: Bool  {
+        self == .alpha
     }
 
-    static var isDebug: Bool {
+    var isDebug: Bool {
         #if DEBUG
         return true
         #else
@@ -52,11 +52,11 @@ extension AppEnvironment {
         #endif
     }
     
-    static var isProduction: Bool {
-        current == .production
+    var isProduction: Bool {
+        self == .production
     }
     
-    static var isXcodePreview: Bool {
+    var isXcodePreview: Bool {
         ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
     }
 }
