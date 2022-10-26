@@ -175,17 +175,17 @@ class WalletModel: ObservableObject, Identifiable {
                 self.walletManager.update { [weak self] result in
                     let blockchainName = self?.wallet.blockchain.displayName ?? ""
                     print("🔄 Finished updating wallet model for \(blockchainName) result: \(result)")
-                    
+
                     switch result {
                     case .success:
                         self?.latestUpdateTime = Date()
-                        
+
                         if let demoBalance = self?.demoBalance {
                             self?.walletManager.wallet.add(coinValue: demoBalance)
                         }
-                        
+
                         promise(.success(()))
-                        
+
                     case let .failure(error):
                         switch error as? WalletError {
                         case .noAccount(let message):

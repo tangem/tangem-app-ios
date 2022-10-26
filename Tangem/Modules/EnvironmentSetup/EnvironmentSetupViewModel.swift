@@ -14,11 +14,11 @@ final class EnvironmentSetupViewModel: ObservableObject {
 
     @Published var isTestnet: Bool
     @Published var toggles: [FeatureToggleViewModel]
-    
+
     @Published var alert: AlertBinder?
-    
+
     // MARK: - Dependencies
-    
+
     private var bag: Set<AnyCancellable> = []
 
     init() {
@@ -37,10 +37,10 @@ final class EnvironmentSetupViewModel: ObservableObject {
                 }
             )
         }
-        
+
         bind()
     }
-    
+
     func showExitAlert() {
         let alert = Alert(
             title: Text("Are you sure you want to exit the app?"),
