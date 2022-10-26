@@ -1,5 +1,5 @@
 //
-//  DefaultFooterView.swift
+//  DefaultHeaderView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct DefaultFooterView: View {
+struct DefaultHeaderView: View {
     private let title: String
     
     init(_ title: String) {
@@ -16,7 +16,7 @@ struct DefaultFooterView: View {
     }
 
     var body: some View {
-        Text(title)
+        Text(title.uppercased())
             .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
     }
 }
