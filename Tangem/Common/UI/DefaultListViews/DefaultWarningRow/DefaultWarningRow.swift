@@ -9,16 +9,16 @@
 import SwiftUI
 
 struct DefaultWarningRow: View {
-    let icon: Image
-    let title: String
-    let subtitle: String
+    private let viewModel: DefaultWarningRowViewModel
 
-    let action: () -> ()
+    init(viewModel: DefaultWarningRowViewModel) {
+        self.viewModel = viewModel
+    }
 
     var body: some View {
-        Button(action: action) {
+        Button(action: viewModel.action) {
             HStack(alignment: .center, spacing: 12) {
-                icon
+                viewModel.icon
                     .resizable()
                     .frame(width: 24, height: 24)
                     .padding(8)
@@ -26,14 +26,16 @@ struct DefaultWarningRow: View {
                     .cornerRadius(40)
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(title)
+                    Text(viewModel.title)
                         .style(Fonts.Bold.subheadline, color: Colors.Text.primary1)
 
-                    Text(subtitle)
+                    Text(viewModel.subtitle)
                         .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
                 }
+                
+                Spacer()
             }
-            .padding(.vertical, 16)
+            .padding(.vertical, 8)
             .background(Colors.Background.primary)
             .contentShape(Rectangle())
             .cornerRadius(12)
@@ -43,12 +45,14 @@ struct DefaultWarningRow: View {
 }
 
 struct DefaultWarningRow_Preview: PreviewProvider {
+    static let viewModel = DefaultWarningRowViewModel(
+        icon: Assets.attention,
+        title: "Enable biometric authentication",
+        subtitle: "Go to settings to enable biometric authentication in the Tandem App",
+        action: {}
+    )
+
     static var previews: some View {
-        DefaultWarningRow(
-            icon: Assets.attention,
-            title: "Enable biometric authentication",
-            subtitle: "Go to settings to enable biometric authentication in the Tandem App",
-            action: {}
-        )
+        DefaultWarningRow(viewModel: viewModel)
     }
 }
