@@ -47,6 +47,7 @@ struct CurrencySelectView: View {
                                         presentationMode.wrappedValue.dismiss()
                                     }
                                 }
+                                .id(currency.id)
                             }
                     }
 
