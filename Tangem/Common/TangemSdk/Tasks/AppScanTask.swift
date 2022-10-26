@@ -254,21 +254,24 @@ final class AppScanTask: CardSessionRunnable {
         }
 
         migrate(card: card)
-        let tokenItemsRepository = CommonTokenItemsRepository(key: card.userWalletId.hexString)
-
-        // Force add blockchains for demo cards
         let config = GenericConfig(card: card)
-        if let persistentBlockchains = config.persistentBlockchains {
-            tokenItemsRepository.append(persistentBlockchains)
-        }
-
-        let savedItems = tokenItemsRepository.getItems()
-
         var derivations: [EllipticCurve: [DerivationPath]] = [:]
-        savedItems.forEach { item in
-            if let wallet = card.wallets.first(where: { $0.curve == item.blockchainNetwork.blockchain.curve }),
-               let path = item.blockchainNetwork.derivationPath {
-                derivations[wallet.curve, default: []].append(path)
+
+        if let seed = config.userWalletIdSeed {
+            let tokenItemsRepository = CommonTokenItemsRepository(key: UserWalletId(with: seed).stringValue)
+
+            // Force add blockchains for demo cards
+            if let persistentBlockchains = config.persistentBlockchains {
+                tokenItemsRepository.append(persistentBlockchains)
+            }
+
+            let savedItems = tokenItemsRepository.getItems()
+
+            savedItems.forEach { item in
+                if let wallet = card.wallets.first(where: { $0.curve == item.blockchainNetwork.blockchain.curve }),
+                   let path = item.blockchainNetwork.derivationPath {
+                    derivations[wallet.curve, default: []].append(path)
+                }
             }
         }
 
@@ -309,13 +312,16 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func migrate(card: Card) {
-        let config = UserWalletConfigFactory(CardInfo(card: card, walletData: walletData)).makeConfig()
+        let cardInfo = CardInfo(card: card, walletData: walletData)
+        let config = UserWalletConfigFactory(cardInfo).makeConfig()
         if let legacyCardMigrator = LegacyCardMigrator(cardId: card.cardId, config: config) {
             legacyCardMigrator.migrateIfNeeded()
         }
 
-        if card.hasWallets {
-            let tokenMigrator = TokenItemsRepositoryMigrator(card: card)
+        if card.hasWallets,
+           let seed = config.userWalletIdSeed {
+            let userWalletId = UserWalletId(with: seed)
+            let tokenMigrator = TokenItemsRepositoryMigrator(card: card, userWalletId: userWalletId.value)
             tokenMigrator.migrate()
         }
     }
