@@ -89,7 +89,6 @@ private extension CommonUserTokenListManager {
                     result(.failure(error as Error))
                 }
             } receiveValue: { [unowned self] list in
-                let list = UserTokenList(tokens: list.tokens + list.tokens)
                 tokenItemsRepository.update(mapToEntries(list: list))
                 result(.success(list))
             }
@@ -119,7 +118,7 @@ private extension CommonUserTokenListManager {
     // MARK: - Mapping
 
     func mapToTokens(entries: [StorageEntry]) -> [UserTokenList.Token] {
-        let tokens: [UserTokenList.Token] = entries.reduce(into: []) { result, entry in
+        entries.reduce(into: []) { result, entry in
             let blockchain = entry.blockchainNetwork.blockchain
             let blockchainToken = UserTokenList.Token(
                 id: blockchain.id,
@@ -133,9 +132,7 @@ private extension CommonUserTokenListManager {
             if !result.contains(blockchainToken) {
                 result.append(blockchainToken)
             }
-            
-            var tokens: [UserTokenList.Token] = []
-            
+
             entry.tokens.forEach { token in
                 let token = UserTokenList.Token(
                     id: token.id,
@@ -146,16 +143,12 @@ private extension CommonUserTokenListManager {
                     derivationPath: entry.blockchainNetwork.derivationPath,
                     contractAddress: token.contractAddress
                 )
-                
-                if !tokens.contains(token) {
-                    tokens.append(token)
+
+                if !result.contains(token) {
+                    result.append(token)
                 }
             }
-
-            result += tokens
         }
-
-        return tokens
     }
 
     func mapToEntries(list: UserTokenList) -> [StorageEntry] {
