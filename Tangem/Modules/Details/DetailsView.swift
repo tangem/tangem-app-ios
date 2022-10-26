@@ -33,6 +33,7 @@ struct DetailsView: View {
 
             socialNetworks
         }
+        // .groupedListStyleCompatibility(background: Colors.Background.secondary)
         .alert(item: $viewModel.error) { $0.alert }
         .navigationBarTitle("details_title", displayMode: .inline)
         .navigationBarBackButtonHidden(false)
