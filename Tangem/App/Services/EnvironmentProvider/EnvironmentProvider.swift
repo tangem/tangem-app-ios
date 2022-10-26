@@ -10,17 +10,20 @@ import Foundation
 
 // MARK: - Provider
 
-struct EnvironmentProvider {
-    @AppStorageCompat(EnvironmentProviderKeys.testnet)
-    static var isTestnet: Bool = false
+class EnvironmentProvider {
+    static let shared = EnvironmentProvider()
+    private init() {}
     
-    @AppStorageCompat(EnvironmentProviderKeys.integratedFeatures)
-    static var integratedFeatures: [String] = []
+    @AppStorageCompat(EnvironmentProviderKeys.testnet)
+    var isTestnet: Bool = false
+    
+    @AppStorageCompat(EnvironmentProviderKeys.availableFeatures)
+    var availableFeatures: [String] = []
 }
 
 // MARK: - Keys
 
 enum EnvironmentProviderKeys: String {
     case testnet = "testnet"
-    case integratedFeatures = "integrated_features"
+    case availableFeatures = "integrated_features"
 }
