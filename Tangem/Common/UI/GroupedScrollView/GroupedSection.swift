@@ -8,9 +8,10 @@
 
 import SwiftUI
 
-struct GroupedSection<Model: Identifiable, Content: View, Footer: View>: View {
+struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: View>: View {
     private let models: [Model]
     private let content: (Model) -> Content
+    private let header: () -> Header
     private let footer: () -> Footer
 
     @State private var contentVerticalPadding: CGFloat = 12
@@ -21,43 +22,64 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View>: View {
     init(
         _ models: [Model],
         @ViewBuilder content: @escaping (Model) -> Content,
+        @ViewBuilder header: @escaping () -> Header = { EmptyView() },
         @ViewBuilder footer: @escaping () -> Footer = { EmptyView() }
     ) {
         self.models = models
         self.content = content
+        self.header = header
         self.footer = footer
     }
 
     init(
         _ model: Model,
         @ViewBuilder content: @escaping (Model) -> Content,
+        @ViewBuilder header: @escaping () -> Header = { EmptyView() },
         @ViewBuilder footer: @escaping () -> Footer = { EmptyView() }
     ) {
         self.models = [model]
         self.content = content
+        self.header = header
+        self.footer = footer
+    }
+    
+    init(
+        _ model: Model?,
+        @ViewBuilder content: @escaping (Model) -> Content,
+        @ViewBuilder header: @escaping () -> Header = { EmptyView() },
+        @ViewBuilder footer: @escaping () -> Footer = { EmptyView() }
+    ) {
+        self.models = model == nil ? [] : [model!]
+        self.content = content
+        self.header = header
         self.footer = footer
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            VStack(alignment: .leading, spacing: 12) {
-                ForEach(models) { model in
-                    content(model)
-                        .padding(.horizontal, contentOffset)
-
-                    if models.last?.id != model.id {
-                        separator
+        if !models.isEmpty {
+            VStack(alignment: .leading, spacing: 8) {
+                header()
+                    .padding(.horizontal, contentOffset)
+                
+                VStack(alignment: .leading, spacing: 12) {
+                    ForEach(models) { model in
+                        content(model)
+                            .padding(.horizontal, contentOffset)
+                        
+                        if models.last?.id != model.id {
+                            separator
+                        }
                     }
                 }
+                .padding(.vertical, contentVerticalPadding)
+                .background(Colors.Background.primary)
+                .cornerRadius(12)
+                
+                footer()
+                    .padding(.horizontal, contentOffset)
             }
-            .padding(.vertical, contentVerticalPadding)
-            .background(Colors.Background.primary)
-            .cornerRadius(12)
-
-            footer()
-                .padding(.horizontal, contentOffset)
+            .padding(.vertical, 12)
         }
-        .padding(.vertical, 12)
     }
 
     @ViewBuilder private var separator: some View {
@@ -70,12 +92,6 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View>: View {
                 .frame(height: 1)
                 .padding(.leading, separatorOffset)
         }
-    }
-}
-
-extension GroupedSection: Buildable {
-    func contentVerticalPadding(_ padding: CGFloat) -> Self {
-        map { $0.contentVerticalPadding = padding }
     }
 }
 
