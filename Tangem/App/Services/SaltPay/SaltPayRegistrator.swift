@@ -311,14 +311,14 @@ class SaltPayRegistrator {
                 self?.hasGas = response
                 self?.updateState()
             })
+            .mapError { error in
+                Analytics.log(error: error)
+                return SaltPayRegistratorError.blockchainError
+            }
             .tryMap { hasGas in
                 if !hasGas {
                     throw SaltPayRegistratorError.noGas
                 }
-            }
-            .mapError { error in
-                Analytics.log(error: error)
-                return SaltPayRegistratorError.blockchainError
             }
             .eraseToAnyPublisher()
     }
