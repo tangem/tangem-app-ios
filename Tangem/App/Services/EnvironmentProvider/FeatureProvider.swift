@@ -25,7 +25,7 @@ enum FeatureToggle: String, Hashable, CaseIterable {
     
     var name: String {
         switch self {
-        case .test: return "Test (will be able in future)"
+        case .test: return "Test (will be added in the future)"
         }
     }
 }
