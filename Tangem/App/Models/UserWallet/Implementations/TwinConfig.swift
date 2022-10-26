@@ -125,6 +125,10 @@ extension TwinConfig: UserWalletConfig {
         CardEmailDataFactory().makeEmailData(for: card, walletData: walletData)
     }
 
+    var userWalletIdSeed: Data? {
+        TwinCardsUtils.makeCombinedWalletKey(for: card, pairData: twinData)
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
