@@ -157,12 +157,12 @@ class SaltPayRegistrator {
         checkRegistration()
             .flatMap { [weak self] _ -> AnyPublisher<Void, Error> in
                 guard let self = self else { return .anyFail(error: SaltPayRegistratorError.empty) }
-                
+
                 return self.checkGasIfNeeded()
             }
             .flatMap { [weak self] _ -> AnyPublisher<Void, Error> in
                 guard let self = self else { return .anyFail(error: SaltPayRegistratorError.empty) }
-                
+
                 return self.checkCanClaimIfNeeded()
             }
             .handleEvents(receiveOutput: { [weak self] _ in
@@ -294,10 +294,10 @@ class SaltPayRegistrator {
                                          publicKey: cardPublicKey,
                                          kycProvider: "UTORG",
                                          kycRefId: kycRefId)
-        
+
         api.registerKYC(request: request)
             .map { _ in }
-            .receiveCompletion{ _ in }
+            .receiveCompletion { _ in }
             .store(in: &bag)
     }
 
@@ -324,7 +324,7 @@ class SaltPayRegistrator {
     }
 
     private func checkCanClaimIfNeeded() -> AnyPublisher<Void, Error> {
-        guard state != .finished else {
+        guard !self.canClaim else {
             return .justWithError(output: ())
         }
 
