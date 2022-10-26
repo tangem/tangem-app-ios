@@ -72,7 +72,7 @@ extension WarningsService: AppWarningsProviding {
     }
 }
 
-private extension AppWarningsProvider {
+private extension WarningsService {
     func setupWarnings(for config: UserWalletConfig) {
         let main = WarningsContainer()
         let send = WarningsContainer()
