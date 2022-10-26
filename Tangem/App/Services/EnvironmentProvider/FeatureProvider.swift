@@ -14,7 +14,7 @@ import Foundation
 // Will be expand for control availability version
 enum FeatureProvider {
     static func isAvailable(_ toggle: FeatureToggle) -> Bool {
-        EnvironmentProvider.integratedFeatures.contains(toggle.rawValue)
+        EnvironmentProvider.shared.availableFeatures.contains(toggle.rawValue)
     }
 }
 
