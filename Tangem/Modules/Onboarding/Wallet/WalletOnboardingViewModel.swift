@@ -380,11 +380,12 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
     private func bindSaltPayIfNeeded() {
         guard let saltPayRegistrator = saltPayRegistratorProvider.registrator else { return }
 
-        if let walletModel = cardModel.walletModels.first {
+        if let walletModel = cardModel?.walletModels.first {
             updateCardBalanceText(for: walletModel, type: saltPayAmountType)
         }
 
-        if let backup = cardModel.backupInput, backup.steps.stepsCount > 0,
+        if let cardModel = self.cardModel,
+           let backup = cardModel.backupInput, backup.steps.stepsCount > 0,
            !AppSettings.shared.cardsStartedActivation.contains(cardModel.cardId) {
             AppSettings.shared.cardsStartedActivation.insert(cardModel.cardId)
             Analytics.log(.onboardingStarted)
@@ -428,7 +429,7 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                         self.goToNextStep()
                     }
                 case .kycRetry:
-                    if case let .wallet(steps) = self.cardModel.onboardingInput.steps { // rebuild steps from scratch
+                    if case let .wallet(steps) = self.cardModel?.onboardingInput.steps { // rebuild steps from scratch
                         self.steps = steps
                         self.currentStepIndex = 0
                     }
