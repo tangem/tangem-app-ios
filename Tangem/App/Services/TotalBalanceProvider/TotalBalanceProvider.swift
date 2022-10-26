@@ -49,7 +49,7 @@ private extension TotalBalanceProvider {
                     throw CommonError.noData
                 }
 
-                let tokenItemViewModels = getTokenItemViewModels()
+                let tokenItemViewModels = self.getTokenItemViewModels()
 
                 var hasError: Bool = false
                 var balance: Decimal = 0.0
