@@ -31,14 +31,6 @@ struct NoteConfig {
 }
 
 extension NoteConfig: UserWalletConfig {
-    var emailConfig: EmailConfig {
-        .default
-    }
-
-    var touURL: URL? {
-        nil
-    }
-
     var cardSetLabel: String? {
         nil
     }
