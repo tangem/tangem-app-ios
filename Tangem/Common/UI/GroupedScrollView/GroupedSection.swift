@@ -13,6 +13,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View>: View {
     private let content: (Model) -> Content
     private let footer: () -> Footer
 
+    @State private var contentVerticalPadding: CGFloat = 12
     @State private var separatorOffset: CGFloat = 16
     @State private var contentOffset: CGFloat = 16
     @State private var separatorStyle: SeparatorStyle = .single
@@ -49,7 +50,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View>: View {
                     }
                 }
             }
-            .padding(.vertical, 12)
+            .padding(.vertical, contentVerticalPadding)
             .background(Colors.Background.primary)
             .cornerRadius(12)
 
@@ -69,6 +70,12 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View>: View {
                 .frame(height: 1)
                 .padding(.leading, separatorOffset)
         }
+    }
+}
+
+extension GroupedSection: Buildable {
+    func contentVerticalPadding(_ padding: CGFloat) -> Self {
+        map { $0.contentVerticalPadding = padding }
     }
 }
 

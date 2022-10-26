@@ -10,9 +10,17 @@ import SwiftUI
 import UIKit
 
 struct GroupedScrollView<Content: View>: View {
+    private let alignment: HorizontalAlignment
+    private let spacing: CGFloat
     private let content: () -> Content
 
-    init(@ViewBuilder content: @escaping () -> Content) {
+    init(
+        alignment: HorizontalAlignment = .center,
+        spacing: CGFloat = 0,
+        @ViewBuilder content: @escaping () -> Content
+    ) {
+        self.alignment = alignment
+        self.spacing = spacing
         self.content = content
     }
 
@@ -26,17 +34,12 @@ struct GroupedScrollView<Content: View>: View {
     @ViewBuilder
     private var stackContent: some View {
         if #available(iOS 14.0, *) {
-            LazyVStack {
-                content()
-            }
+            LazyVStack(alignment: alignment, spacing: spacing, content: content)
         } else {
-            VStack {
-                content()
-            }
+            VStack(alignment: alignment, spacing: spacing, content: content)
         }
     }
 }
-
 
 struct GroupedScrollView_Previews: PreviewProvider {
     static var previews: some View {
