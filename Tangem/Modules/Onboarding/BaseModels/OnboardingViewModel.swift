@@ -10,7 +10,7 @@ import SwiftUI
 import Combine
 import TangemSdk
 
-class OnboardingViewModel<Step: OnboardingStep> {
+class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable> {
     let navbarSize: CGSize = .init(width: UIScreen.main.bounds.width, height: 44)
     let resetAnimDuration: Double = 0.3
 
@@ -128,11 +128,11 @@ class OnboardingViewModel<Step: OnboardingStep> {
 
     var isFromMain: Bool = false
     private(set) var containerSize: CGSize = .zero
-    unowned let onboardingCoordinator: OnboardingRoutable
+    unowned let coordinator: Coordinator
 
-    init(input: OnboardingInput, onboardingCoordinator: OnboardingRoutable) {
+    init(input: OnboardingInput, coordinator: Coordinator) {
         self.input = input
-        self.onboardingCoordinator = onboardingCoordinator
+        self.coordinator = coordinator
         isFromMain = input.isStandalone
         isNavBarVisible = input.isStandalone
 
@@ -141,6 +141,8 @@ class OnboardingViewModel<Step: OnboardingStep> {
             cardId: input.cardInput.cardModel?.cardId,
             cardPublicKey: input.cardInput.cardModel?.cardPublicKey
         )
+
+        bindAnalytics()
     }
 
     func loadImage(supportsOnlineImage: Bool, cardId: String?, cardPublicKey: Data?) {
@@ -194,6 +196,13 @@ class OnboardingViewModel<Step: OnboardingStep> {
         }
     }
 
+    func goToStep(with index: Int) {
+        withAnimation {
+            currentStepIndex = index
+            setupCardsSettings(animated: true, isContainerSetup: false)
+        }
+    }
+
     func goToNextStep() {
         if isOnboardingFinished {
             DispatchQueue.main.async {
@@ -209,11 +218,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
             newIndex = steps.count - 1
         }
 
-        withAnimation {
-            currentStepIndex = newIndex
-
-            setupCardsSettings(animated: true, isContainerSetup: false)
-        }
+        goToStep(with: newIndex)
     }
 
     func mainButtonAction() {
@@ -227,16 +232,43 @@ class OnboardingViewModel<Step: OnboardingStep> {
     func setupCardsSettings(animated: Bool, isContainerSetup: Bool) {
         fatalError("Not implemented")
     }
+
+    private func bindAnalytics() {
+        $currentStepIndex
+            .dropFirst()
+            .removeDuplicates()
+            .receiveValue { [weak self] index in
+                guard let self else { return }
+
+                let currentStep = self.currentStep
+
+                if let walletStep = currentStep as? WalletOnboardingStep {
+                    switch walletStep {
+                    case .kycProgress:
+                        Analytics.log(.kycProgressScreenOpened)
+                    case .kycRetry:
+                        Analytics.log(.kycRetryScreenOpened)
+                    case .kycWaiting:
+                        Analytics.log(.kycWaitingScreenOpened)
+                    case .claim:
+                        Analytics.log(.claimScreenOpened)
+                    default:
+                        break
+                    }
+                }
+            }
+            .store(in: &bag)
+    }
 }
 
 // MARK: - Navigation
 extension OnboardingViewModel {
     func onboardingDidFinish() {
-        onboardingCoordinator.onboardingDidFinish()
+        coordinator.onboardingDidFinish()
     }
 
     func closeOnboarding() {
-        onboardingCoordinator.closeOnboarding()
+        coordinator.closeOnboarding()
     }
 
     func openSupportChat() {
@@ -245,7 +277,7 @@ extension OnboardingViewModel {
         let dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel,
                                                          userWalletEmailData: cardModel.emailData)
 
-        onboardingCoordinator.openSupportChat(cardId: cardModel.cardId,
-                                              dataCollector: dataCollector)
+        coordinator.openSupportChat(cardId: cardModel.cardId,
+                                    dataCollector: dataCollector)
     }
 }
