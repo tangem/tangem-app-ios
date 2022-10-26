@@ -19,6 +19,7 @@ class DetailsViewModel: ObservableObject {
     @Published var supportSectionModels: [DefaultRowViewModel] = []
     @Published var settingsSectionViewModels: [DefaultRowViewModel] = []
     @Published var legalSectionViewModels: [DefaultRowViewModel] = []
+    @Published var environmentSetupViewModel: DefaultRowViewModel?
 
     @Published var cardModel: CardViewModel
     @Published var error: AlertBinder?
@@ -134,6 +135,7 @@ extension DetailsViewModel {
         setupSupportSectionModels()
         setupSettingsSectionViewModels()
         setupLegalSectionViewModels()
+        setupEnvironmentSetupSection()
     }
     
     func bind() {
@@ -208,5 +210,13 @@ extension DetailsViewModel {
         }
         
         legalSectionViewModels = viewModels
+    }
+    
+    func setupEnvironmentSetupSection() {
+        if AppEnvironment.current.isProduction {
+            environmentSetupViewModel = nil
+        } else {
+            environmentSetupViewModel = DefaultRowViewModel(title: "Environment setup", action: openEnvironmentSetup)
+        }
     }
 }
