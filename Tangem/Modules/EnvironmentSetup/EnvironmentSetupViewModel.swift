@@ -20,17 +20,17 @@ final class EnvironmentSetupViewModel: ObservableObject {
     private var bag: Set<AnyCancellable> = []
 
     init() {
-        isTestnet = EnvironmentStorage.isTestnet
+        isTestnet = EnvironmentProvider.isTestnet
         toggles = FeatureToggle.allCases.map { toggle in
             FeatureToggleViewModel(
                 toggle: toggle,
                 isActive: Binding<Bool> {
-                    EnvironmentStorage.integratedFeatures.contains(toggle.rawValue)
+                    EnvironmentProvider.integratedFeatures.contains(toggle.rawValue)
                 } set: { isActive in
-                    if isActive, !EnvironmentStorage.integratedFeatures.contains(toggle.rawValue) {
-                        EnvironmentStorage.integratedFeatures.append(toggle.rawValue)
+                    if isActive, !EnvironmentProvider.integratedFeatures.contains(toggle.rawValue) {
+                        EnvironmentProvider.integratedFeatures.append(toggle.rawValue)
                     } else {
-                        EnvironmentStorage.integratedFeatures.remove(toggle.rawValue)
+                        EnvironmentProvider.integratedFeatures.remove(toggle.rawValue)
                     }
                 }
             )
@@ -47,7 +47,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
 private extension EnvironmentSetupViewModel {
     func bind() {
         $isTestnet
-            .sink { EnvironmentStorage.isTestnet = $0 }
+            .sink { EnvironmentProvider.isTestnet = $0 }
             .store(in: &bag)
     }
 }
