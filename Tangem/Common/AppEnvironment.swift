@@ -51,4 +51,8 @@ extension AppEnvironment {
         return false
         #endif
     }
+    
+    var isProduction: Bool {
+        self == .production
+    }
 }
