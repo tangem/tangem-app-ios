@@ -43,6 +43,7 @@ class WelcomeViewModel: ObservableObject {
 
     init(coordinator: WelcomeRoutable) {
         self.coordinator = coordinator
+        cardsRepository.delegate = self
         self.storiesModelSubscription = storiesModel.objectWillChange
             .receive(on: DispatchQueue.main)
             .sink(receiveValue: { [weak self] in
@@ -51,11 +52,6 @@ class WelcomeViewModel: ObservableObject {
     }
 
     func scanCard() {
-        guard AppSettings.shared.isTermsOfServiceAccepted else {
-            openDisclaimer()
-            return
-        }
-
         isScanningCard = true
         Analytics.log(.buttonScanCard)
         var subscription: AnyCancellable? = nil
@@ -113,7 +109,6 @@ class WelcomeViewModel: ObservableObject {
                 }
                 subscription.map { _ = self?.bag.remove($0) }
             } receiveValue: { [weak self] cardModel in
-                let numberOfFailedAttempts = self?.failedCardScanTracker.numberOfFailedAttempts ?? 0
                 self?.failedCardScanTracker.resetCounter()
                 Analytics.log(.cardWasScanned)
                 DispatchQueue.main.async {
@@ -171,10 +166,6 @@ extension WelcomeViewModel {
 
     func openMail() {
         coordinator.openMail(with: failedCardScanTracker, recipient: EmailConfig.default.recipient)
-    }
-
-    func openDisclaimer() {
-        coordinator.openDisclaimer()
     }
 
     func openTokensList() {
@@ -238,6 +229,11 @@ private extension WelcomeViewModel {
     }
 }
 
+extension WelcomeViewModel: CardsRepositoryDelegate {
+    func showTOS(at url: URL, _ completion: @escaping (Bool) -> Void) {
+        coordinator.openDisclaimer(at: url, completion)
+    }
+}
 
 extension WelcomeViewModel: WelcomeViewLifecycleListener {
     func resignActve() {
