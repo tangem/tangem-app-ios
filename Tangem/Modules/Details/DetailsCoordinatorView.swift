@@ -45,7 +45,7 @@ struct DetailsCoordinatorView: CoordinatorView {
                 DisclaimerView(viewModel: $0)
             }
             .navigation(item: $coordinator.setupEnvironmentViewModel) {
-                SetupEnvironmentView(viewModel: $0)
+                EnvironmentSetupView(viewModel: $0)
             }
     }
 

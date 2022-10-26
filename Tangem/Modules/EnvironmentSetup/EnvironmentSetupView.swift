@@ -1,5 +1,5 @@
 //
-//  SetupEnvironmentView.swift
+//  EnvironmentSetupView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,10 +8,10 @@
 
 import SwiftUI
 
-struct SetupEnvironmentView: View {
-    @ObservedObject private var viewModel: SetupEnvironmentViewModel
+struct EnvironmentSetupView: View {
+    @ObservedObject private var viewModel: EnvironmentSetupViewModel
 
-    init(viewModel: SetupEnvironmentViewModel) {
+    init(viewModel: EnvironmentSetupViewModel) {
         self.viewModel = viewModel
     }
 
@@ -46,12 +46,12 @@ struct SetupEnvironmentView: View {
     }
 }
 
-struct SetupEnvironmentView_Preview: PreviewProvider {
-    static let viewModel = SetupEnvironmentViewModel()
+struct EnvironmentSetupView_Preview: PreviewProvider {
+    static let viewModel = EnvironmentSetupViewModel()
 
     static var previews: some View {
         NavigationView {
-            SetupEnvironmentView(viewModel: viewModel)
+            EnvironmentSetupView(viewModel: viewModel)
         }
     }
 }
