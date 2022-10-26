@@ -16,26 +16,23 @@ struct EnvironmentSetupView: View {
     }
 
     var body: some View {
-        List {
-            Section {
-                DefaultToggleRowView(title: "isTestnet", isOn: $viewModel.isTestnet)
-            } header: {
-                Text("App settings")
-            }
-            
-            Section {
-                ForEach(viewModel.toggles) { toggle in
-                    DefaultToggleRowView(title: toggle.toggle.name, isOn: toggle.isActive)
-                    
-                    if viewModel.toggles.last != toggle {
-                        Separator()
-                    }
+        ZStack {
+            Colors.Background.secondary.edgesIgnoringSafeArea(.all)
+
+            GroupedScrollView {
+                GroupedSection(viewModel.testnetToggleViewModel) {
+                    DefaultToggleRowView(viewModel: $0)
+                } header: {
+                    DefaultHeaderView("App settings")
                 }
-            } header: {
-                Text("Feature toggles")
+                
+                GroupedSection(viewModel.togglesViewModels) { viewModel in
+                    DefaultToggleRowView(viewModel: viewModel)
+                } header: {
+                    DefaultHeaderView("Feature toggles")
+                }
             }
         }
-        .groupedListStyleCompatibility(background: Colors.Background.secondary)
         .navigationBarTitle(Text("Environment setup"))
         .navigationBarItems(trailing: exitButton)
         .alert(item: $viewModel.alert) { $0.alert }
