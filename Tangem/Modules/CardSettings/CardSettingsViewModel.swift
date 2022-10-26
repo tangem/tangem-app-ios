@@ -17,19 +17,11 @@ class CardSettingsViewModel: ObservableObject {
     @Published var securityModeTitle: String
     @Published var alert: AlertBinder?
     @Published var isChangeAccessCodeLoading: Bool = false
-
-    var cardId: String {
-        cardModel.cardIdFormatted
-    }
-
-    var cardIssuer: String {
-        cardModel.cardIssuer
-    }
-
-    var cardSignedHashes: String {
-        "\(cardModel.cardSignedHashes)"
-    }
-
+    
+    @Published var cardInfoSection: [DefaultRowViewModel] = []
+    @Published var securityModeSection: [DefaultRowViewModel] = []
+    @Published var resetToFactorySection: [DefaultRowViewModel] = []
+    
     var isResetToFactoryAvailable: Bool {
         !cardModel.resetToFactoryAvailability.isHidden
     }
@@ -56,6 +48,7 @@ class CardSettingsViewModel: ObservableObject {
         isChangeAccessCodeVisible = cardModel.currentSecurityOption == .accessCode
 
         bind()
+        setupView()
     }
 }
 
@@ -73,6 +66,36 @@ private extension CardSettingsViewModel {
         if let twinInput = cardModel.twinInput {
             coordinator.openOnboarding(with: twinInput)
         }
+    }
+    
+    func setupView() {
+        cardInfoSection = [
+            DefaultRowViewModel(title: "details_row_title_cid".localized, detailsType: .text(cardModel.cardIdFormatted)),
+            DefaultRowViewModel(title: "details_row_title_issuer".localized, detailsType: .text(cardModel.cardIssuer)),
+            DefaultRowViewModel(title: "details_row_title_signed_hashes".localized,
+                                detailsType: .text("details_row_subtitle_signed_hashes_format".localized("\(cardModel.cardSignedHashes)"))),
+        ]
+        
+        securityModeSection = [DefaultRowViewModel(
+            title: "card_settings_security_mode".localized,
+            detailsType: .text(securityModeTitle),
+            action: hasSingleSecurityMode ? nil : openSecurityMode
+        )]
+        
+        if isChangeAccessCodeVisible {
+            securityModeSection.append(
+                DefaultRowViewModel(
+                    title: "card_settings_change_access_code".localized,
+                    detailsType: isChangeAccessCodeLoading ? .loader : .none,
+                    action: openChangeAccessCodeWarningView
+                )
+            )
+        }
+
+        resetToFactorySection = [DefaultRowViewModel(
+            title: "card_settings_reset_card_to_factory".localized,
+            action: openResetCard
+        )]
     }
 }
 
