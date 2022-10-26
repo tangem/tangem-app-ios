@@ -140,6 +140,10 @@ extension DetailsViewModel {
         Analytics.log(.buttonSocialNetwork)
         coordinator.openInSafari(url: url)
     }
+    
+    func openSetupEnvironment() {
+        coordinator.openSetupEnvironment()
+    }
 }
 
 // MARK: - Private
