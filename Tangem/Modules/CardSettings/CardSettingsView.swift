@@ -31,14 +31,14 @@ struct CardSettingsView: View {
                 GroupedSection(viewModel.securityModeSection) {
                     DefaultRowView(viewModel: $0)
                 } footer: {
-                    DefaultFooterView(title: firstSectionFooterTitle)
+                    DefaultFooterView(firstSectionFooterTitle)
                 }
                 
                 if viewModel.isResetToFactoryAvailable {
                     GroupedSection(viewModel.resetToFactorySection) {
                         DefaultRowView(viewModel: $0)
                     } footer: {
-                        DefaultFooterView(title: "card_settings_reset_card_to_factory_footer".localized)
+                        DefaultFooterView("card_settings_reset_card_to_factory_footer".localized)
                     }
                 }
             }
