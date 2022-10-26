@@ -83,7 +83,7 @@ enum Analytics {
     }
     
     static func logCrashlytics(_ event: Event, with params: [String: Any] = [:]) {
-        if AppEnvironment.isXcodePreview {
+        if AppEnvironment.current.isXcodePreview {
             return
         }
 
