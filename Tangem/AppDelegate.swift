@@ -56,7 +56,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             ]
         }
 
-        if !AppEnvironment.isDebug {
+        if !AppEnvironment.current.isDebug {
             configureFirebase()
             configureAppsFlyer()
             configureAmplitude()
@@ -96,7 +96,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
-        guard AppEnvironment.isProduction else { return }
+        guard AppEnvironment.current.isProduction else { return }
 
         AppsFlyerLib.shared().start()
     }
@@ -116,14 +116,14 @@ private extension AppDelegate {
     }
 
     func configureAppsFlyer() {
-        guard AppEnvironment.isProduction else { return }
+        guard AppEnvironment.current.isProduction else { return }
 
         AppsFlyerLib.shared().appsFlyerDevKey = try! CommonKeysManager().appsFlyerDevKey
         AppsFlyerLib.shared().appleAppID = "1354868448"
     }
 
     func configureAmplitude() {
-        guard AppEnvironment.isProduction else { return }
+        guard AppEnvironment.current.isProduction else { return }
 
         Amplitude.instance().trackingSessionEvents = true
         Amplitude.instance().initializeApiKey(try! CommonKeysManager().amplitudeApiKey)
