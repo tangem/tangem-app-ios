@@ -7,11 +7,8 @@
 //
 
 import TangemSdk
-
-#if !CLIP
 import BlockchainSdk
 import CryptoKit
-#endif
 
 extension Card {
     var walletSignedHashes: Int {
@@ -22,7 +19,6 @@ extension Card {
         wallets.compactMap { $0.curve }
     }
 
-    #if !CLIP
     var hasWallets: Bool {
         !wallets.isEmpty
     }
@@ -61,6 +57,4 @@ extension Card {
 
         return .new
     }
-
-    #endif
 }
