@@ -17,6 +17,8 @@ class DetailsViewModel: ObservableObject {
 
     @Published var cardModel: CardViewModel
     @Published var error: AlertBinder?
+    
+    @Published var sections: [[DefaultRowViewModel]] = []
 
     var walletConnectRowViewModel: WalletConnectRowViewModel? {
         guard cardModel.shouldShowWC else {
@@ -28,53 +30,6 @@ class DetailsViewModel: ObservableObject {
             subtitle: "wallet_connect_subtitle".localized,
             action: openWalletConnect
         )
-    }
-
-    var supportSectionModels: [DefaultRowViewModel] {
-        [
-            DefaultRowViewModel(title: "details_chat".localized, action: openSupportChat),
-            DefaultRowViewModel(title: "details_row_title_send_feedback".localized, action: openMail),
-        ]
-    }
-
-    var settingsSectionViewModels: [DefaultRowViewModel] {
-        var viewModels: [DefaultRowViewModel] = []
-
-        if !cardModel.isMultiWallet {
-            viewModels.append(DefaultRowViewModel(
-                title: "details_row_title_currency".localized,
-                detailsType: .text(selectedCurrencyCode),
-                action: coordinator.openCurrencySelection
-            ))
-        }
-
-        viewModels.append(DefaultRowViewModel(
-            title: "details_row_title_card_settings".localized,
-            action: openCardSettings
-        ))
-
-        if canCreateBackup {
-            viewModels.append(DefaultRowViewModel(
-                title: "details_row_title_create_backup".localized,
-                action: prepareBackup
-            ))
-        }
-
-        return viewModels
-    }
-
-    var legalSectionViewModels: [DefaultRowViewModel] {
-        var viewModels: [DefaultRowViewModel] = [
-            DefaultRowViewModel(title: "disclaimer_title".localized, action: coordinator.openDisclaimer),
-        ]
-
-        if let url = cardModel.cardTouURL {
-            viewModels.append(DefaultRowViewModel(title: "details_row_title_card_tou".localized) { [weak self] in
-                self?.coordinator.openCardTOU(url: url)
-            })
-        }
-
-        return viewModels
     }
 
     var canCreateBackup: Bool {
@@ -114,6 +69,7 @@ class DetailsViewModel: ObservableObject {
         self.coordinator = coordinator
 
         bind()
+        setupView()
     }
 
     func prepareBackup() {
@@ -177,7 +133,15 @@ extension DetailsViewModel {
 
 // MARK: - Private
 
-private extension DetailsViewModel {
+extension DetailsViewModel {
+    func setupView() {
+        sections = [
+            supportSectionModels,
+            settingsSectionViewModels,
+            legalSectionViewModels
+        ]
+    }
+    
     func bind() {
         cardModel.objectWillChange
             .receive(on: RunLoop.main)
@@ -187,4 +151,50 @@ private extension DetailsViewModel {
             .store(in: &bag)
     }
 
+    var supportSectionModels: [DefaultRowViewModel] {
+        [
+            DefaultRowViewModel(title: "details_chat".localized, action: openSupportChat),
+            DefaultRowViewModel(title: "details_row_title_send_feedback".localized, action: openMail),
+        ]
+    }
+
+    var settingsSectionViewModels: [DefaultRowViewModel] {
+        var viewModels: [DefaultRowViewModel] = []
+
+        if !cardModel.isMultiWallet {
+            viewModels.append(DefaultRowViewModel(
+                title: "details_row_title_currency".localized,
+                detailsType: .text(selectedCurrencyCode),
+                action: coordinator.openCurrencySelection
+            ))
+        }
+
+        viewModels.append(DefaultRowViewModel(
+            title: "details_row_title_card_settings".localized,
+            action: openCardSettings
+        ))
+
+        if canCreateBackup {
+            viewModels.append(DefaultRowViewModel(
+                title: "details_row_title_create_backup".localized,
+                action: prepareBackup
+            ))
+        }
+
+        return viewModels
+    }
+
+    var legalSectionViewModels: [DefaultRowViewModel] {
+        var viewModels: [DefaultRowViewModel] = [
+            DefaultRowViewModel(title: "disclaimer_title".localized, action: coordinator.openDisclaimer),
+        ]
+
+        if let url = cardModel.cardTouURL {
+            viewModels.append(DefaultRowViewModel(title: "details_row_title_card_tou".localized) { [weak self] in
+                self?.coordinator.openCardTOU(url: url)
+            })
+        }
+
+        return viewModels
+    }
 }
