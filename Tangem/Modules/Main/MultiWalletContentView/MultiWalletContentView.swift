@@ -32,7 +32,6 @@ struct MultiWalletContentView: View {
         }
     }
 
-
     @ViewBuilder var tokenList: some View {
         if !viewModel.tokenListIsEmpty {
             VStack(alignment: .center, spacing: 0) {
@@ -58,13 +57,14 @@ struct MultiWalletContentView: View {
 
         case let .loaded(viewModels):
             VStack(alignment: .leading, spacing: 6) {
-                ForEach(viewModels) { item in
+                ForEach(viewModels, id: \.id) { item in
                     VStack {
                         Button(action: { viewModel.tokenItemDidTap(item) }) {
                             TokenItemView(item: item)
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 15)
                                 .contentShape(Rectangle())
+                                .id(item)
                         }
                         .buttonStyle(TangemTokenButtonStyle())
                         .disabled(item.state == .noDerivation)
