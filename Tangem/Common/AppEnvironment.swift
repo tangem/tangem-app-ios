@@ -43,12 +43,12 @@ extension AppEnvironment {
     var isTestnet: Bool  {
         self == .alpha
     }
-    
+
     var isDebug: Bool {
-    #if DEBUG
+        #if DEBUG
         return true
-    #else
+        #else
         return false
-    #endif
+        #endif
     }
 }
