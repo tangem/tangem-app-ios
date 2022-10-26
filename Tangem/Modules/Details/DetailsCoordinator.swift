@@ -32,6 +32,7 @@ class DetailsCoordinator: CoordinatorObject {
     @Published var disclaimerViewModel: DisclaimerViewModel? = nil
     @Published var supportChatViewModel: SupportChatViewModel? = nil
     @Published var scanCardSettingsViewModel: ScanCardSettingsViewModel?
+    @Published var setupEnvironmentViewModel: SetupEnvironmentViewModel?
 
     // MARK: - Helpers
 
@@ -109,6 +110,10 @@ extension DetailsCoordinator: DetailsRoutable {
 
     func openInSafari(url: URL) {
         UIApplication.shared.open(url)
+    }
+    
+    func openSetupEnvironment() {
+        setupEnvironmentViewModel = SetupEnvironmentViewModel()
     }
 }
 
