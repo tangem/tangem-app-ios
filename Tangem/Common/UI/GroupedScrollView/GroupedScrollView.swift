@@ -52,7 +52,7 @@ struct GroupedScrollView_Previews: PreviewProvider {
             GroupedSection(viewModels) {
                 DefaultRowView(viewModel: $0)
             } footer: {
-                DefaultFooterView(title: "Colors.Background.secondary.edgesIgnoringSafeArea(.all)")
+                DefaultFooterView("Colors.Background.secondary.edgesIgnoringSafeArea(.all)")
             }
         }
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
