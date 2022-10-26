@@ -35,14 +35,13 @@ struct EnvironmentSetupView: View {
                 Text("Feature toggles")
             }
         }
-        .groupedListStyleCompatibility()
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
+        .groupedListStyleCompatibility(background: Colors.Background.secondary)
         .navigationBarTitle(Text("Environment setup"))
         .navigationBarItems(trailing: exitButton)
     }
     
     private var exitButton: some View {
-        Button("Turn off", action: viewModel.turnOff)
+        Button("Exit", action: viewModel.exit)
     }
 }
 
