@@ -26,6 +26,10 @@ struct DetailsView: View {
             settingsSection
 
             legalSection
+            
+            if !AppEnvironment.current.isProduction {
+                setupEnvironmentSection
+            }
         }
         .groupedListStyleCompatibility()
         .alert(item: $viewModel.error) { $0.alert }
@@ -145,6 +149,14 @@ struct DetailsView: View {
             }
             .padding(.top, 40)
         })
+    }
+    
+    private var setupEnvironmentSection: some View {
+        Section {
+            DefaultRowView(title: "Environment setup") {
+                viewModel.openSetupEnvironment()
+            }
+        }
     }
 
     private func socialNetworkView(network: SocialNetwork) -> some View {
