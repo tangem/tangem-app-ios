@@ -227,7 +227,7 @@ class TokenDetailsViewModel: ObservableObject {
     func sendAnalyticsEvent(_ event: Analytics.Event) {
         switch event {
         case .userBoughtCrypto:
-            Analytics.log(event: event, with: [.currencyCode: blockchainNetwork.blockchain.currencySymbol])
+            Analytics.log(event, params: [.currencyCode: blockchainNetwork.blockchain.currencySymbol])
         default:
             break
         }

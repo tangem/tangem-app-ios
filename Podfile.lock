@@ -240,7 +240,7 @@ DEPENDENCIES:
   - stellar-ios-mac-sdk
   - TangemSdk (from `https://github.com/Tangem/tangem-sdk-ios.git`, tag `develop-174`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.7.0`)
-  - web3swift (from `https://github.com/tangem/web3swift.git`, tag `2.2.10`)
+  - web3swift (from `https://github.com/tangem/web3swift.git`, tag `2.2.11`)
   - ZendeskAnswerBotSDK (~> 2.2.0)
   - ZendeskChatSDK (~> 2.12.0)
   - ZendeskSupportProvidersSDK (~> 5.5.0)
@@ -324,7 +324,7 @@ EXTERNAL SOURCES:
     :tag: 1.7.0
   web3swift:
     :git: https://github.com/tangem/web3swift.git
-    :tag: 2.2.10
+    :tag: 2.2.11
 
 CHECKOUT OPTIONS:
   AlertToast:
@@ -356,7 +356,7 @@ CHECKOUT OPTIONS:
     :tag: 1.7.0
   web3swift:
     :git: https://github.com/tangem/web3swift.git
-    :tag: 2.2.10
+    :tag: 2.2.11
 
 SPEC CHECKSUMS:
   Alamofire: d368e1ff8a298e6dde360e35a3e68e6c610e7204
@@ -416,6 +416,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: 17f0be081ba6f60e0121c7aeaa45a3ee1b70bf12
+PODFILE CHECKSUM: 1866e5a31a009319e277d0a75c254f61f58aab28
 
 COCOAPODS: 1.11.3
