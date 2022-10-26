@@ -16,6 +16,10 @@ struct GenericDemoConfig {
     private let card: Card
 
     private var _backupSteps: [WalletOnboardingStep] {
+        if card.backupStatus?.isActive == true {
+            return []
+        }
+
         if !card.settings.isBackupAllowed {
             return []
         }
@@ -192,7 +196,7 @@ extension GenericDemoConfig: UserWalletConfig {
         case .tokensSearch:
             return .hidden
         case .resetToFactory:
-            return .available
+            return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
         case .receive:
             return .available
         case .withdrawal:
