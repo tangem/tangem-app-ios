@@ -11,12 +11,12 @@ import SwiftUI
 
 class AppSettingsViewModel: ObservableObject {
     // MARK: ViewState
-
-    @Published var isSavingWallet: Bool = true
-    @Published var isSavingAccessCodes: Bool = true
+    @Published var warningSection: [DefaultWarningRowViewModel] = []
+    @Published var savingWalletSection: [DefaultToggleRowViewModel] = []
+    @Published var savingAccessCodesSection: [DefaultToggleRowViewModel] = []
+    
     @Published var alert: AlertBinder?
-    @Published var isBiometryAvailable: Bool = false
-
+    
     // MARK: Dependencies
 
     private unowned let coordinator: AppSettingsRoutable
@@ -25,10 +25,14 @@ class AppSettingsViewModel: ObservableObject {
 
     private var bag: Set<AnyCancellable> = []
     private var shouldShowAlertOnDisableSaveAccessCodes: Bool = true
+    private var isSavingWallet: Bool = true
+    private var isSavingAccessCodes: Bool = true
+    private var isBiometryAvailable: Bool = true
 
     init(coordinator: AppSettingsRoutable) {
         self.coordinator = coordinator
 
+        setupView()
         bind()
         updateBiometricWarning()
     }
@@ -37,22 +41,59 @@ class AppSettingsViewModel: ObservableObject {
 // MARK: - Private
 
 private extension AppSettingsViewModel {
-    func bind() {
-        $isSavingWallet
-            .dropFirst()
-            .filter { !$0 }
-            .sink(receiveValue: { [weak self] _ in
-                self?.presentSavingWalletDeleteAlert()
-            })
-            .store(in: &bag)
+    func setupView() {
+        if isBiometryAvailable {
+            warningSection = [
+                DefaultWarningRowViewModel(
+                    icon: Assets.attention,
+                    title: "app_settings_warning_title".localized,
+                    subtitle: "app_settings_warning_subtitle".localized,
+                    action: openSettings
+                )
+            ]
+        }
 
-        $isSavingAccessCodes
-            .dropFirst()
-            .filter { !$0 }
-            .sink(receiveValue: { [weak self] _ in
-                self?.presentSavingAccessCodesDeleteAlert()
+        savingWalletSection = [DefaultToggleRowViewModel(
+            title: "app_settings_saved_wallet".localized,
+            isEnabled: isBiometryAvailable,
+            isOn: .init(get: { [weak self] in
+                self?.isSavingWallet ?? false
+            }, set: { [weak self] newValue in
+                if !newValue {
+                    self?.presentSavingWalletDeleteAlert()
+                }
             })
-            .store(in: &bag)
+        )]
+        
+        savingAccessCodesSection = [DefaultToggleRowViewModel(
+            title: "app_settings_saved_access_codes".localized,
+            isEnabled: isBiometryAvailable,
+            isOn: .init(get: { [weak self] in
+                self?.isSavingAccessCodes ?? false
+            }, set: { [weak self] newValue in
+                if !newValue {
+                    self?.presentSavingAccessCodesDeleteAlert()
+                }
+            })
+        )]
+    }
+    
+    func bind() {
+//        $isSavingWallet
+//            .dropFirst()
+//            .filter { !$0 }
+//            .sink(receiveValue: { [weak self] _ in
+//                self?.presentSavingWalletDeleteAlert()
+//            })
+//            .store(in: &bag)
+//
+//        $isSavingAccessCodes
+//            .dropFirst()
+//            .filter { !$0 }
+//            .sink(receiveValue: { [weak self] _ in
+//                self?.presentSavingAccessCodesDeleteAlert()
+//            })
+//            .store(in: &bag)
     }
 
     func presentSavingWalletDeleteAlert() {
