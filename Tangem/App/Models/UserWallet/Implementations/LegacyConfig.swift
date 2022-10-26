@@ -130,6 +130,10 @@ extension LegacyConfig: UserWalletConfig {
         CardEmailDataFactory().makeEmailData(for: card, walletData: walletData)
     }
 
+    var userWalletIdSeed: Data? {
+        card.wallets.first?.publicKey
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
