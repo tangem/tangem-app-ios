@@ -62,7 +62,6 @@ struct TokenItemView: View {
                 .minimumScaleFactor(0.8)
                 .foregroundColor(.tangemGrayDark6)
 
-
                 HStack(alignment: .firstTextBaseline, spacing: 5.0) {
                     Text(item.displayRateText)
                         .fixedSize(horizontal: false, vertical: true)
