@@ -41,7 +41,7 @@ extension AppEnvironment {
     }
 
     var isTestnet: Bool  {
-        self == .alpha // [REDACTED_TODO_COMMENT]
+        EnvironmentProvider.shared.isTestnet
     }
 
     var isDebug: Bool {
