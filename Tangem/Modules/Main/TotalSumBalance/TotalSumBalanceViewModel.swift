@@ -80,7 +80,7 @@ class TotalSumBalanceViewModel: ObservableObject {
             .receive(on: DispatchQueue.main)
             .map { [unowned self] walletModels -> AnyPublisher<Void, Never> in
                 isLoading = true
-                
+
                 return walletModels.map { $0.walletDidChange }
                     .combineLatest()
                     .filter { $0.allConforms { !$0.isLoading } }
