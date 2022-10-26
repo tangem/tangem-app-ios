@@ -10,7 +10,6 @@ import Foundation
 import TangemSdk
 
 enum TwinCardsUtils {
-
     static func isCidValid(_ cid: String) -> Bool {
         calculateLuhnRemainder(cid) == 0
     }
@@ -27,12 +26,11 @@ enum TwinCardsUtils {
         let validationNumber = calculateTwinPairValidationNumber(for: pairCidWithoutValidation + "\(0)")
         return pairCidWithoutValidation + "\(validationNumber)"
     }
-    
+
     static func makeCombinedWalletKey(for card: Card, pairData: TwinData?) -> Data? {
         guard
             let walletPubKey = card.wallets.first?.publicKey,
-            let pairData,
-            let pairWalletPubKey = pairData.pairPublicKey
+            let pairWalletPubKey = pairData?.pairPublicKey
         else {
             return nil
         }
