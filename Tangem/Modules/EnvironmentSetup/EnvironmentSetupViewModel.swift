@@ -15,6 +15,8 @@ final class EnvironmentSetupViewModel: ObservableObject {
     @Published var isTestnet: Bool
     @Published var toggles: [FeatureToggleViewModel]
     
+    @Published var alert: AlertBinder?
+    
     // MARK: - Dependencies
     
     private var bag: Set<AnyCancellable> = []
@@ -25,12 +27,12 @@ final class EnvironmentSetupViewModel: ObservableObject {
             FeatureToggleViewModel(
                 toggle: toggle,
                 isActive: Binding<Bool> {
-                    EnvironmentProvider.shared.availableFeatures.contains(toggle.rawValue)
+                    EnvironmentProvider.shared.availableFeatures.contains(toggle)
                 } set: { isActive in
-                    if isActive, !EnvironmentProvider.shared.availableFeatures.contains(toggle.rawValue) {
-                        EnvironmentProvider.shared.availableFeatures.append(toggle.rawValue)
+                    if isActive {
+                        EnvironmentProvider.shared.availableFeatures.insert(toggle)
                     } else {
-                        EnvironmentProvider.shared.availableFeatures.remove(toggle.rawValue)
+                        EnvironmentProvider.shared.availableFeatures.remove(toggle)
                     }
                 }
             )
@@ -39,8 +41,13 @@ final class EnvironmentSetupViewModel: ObservableObject {
         bind()
     }
     
-    func exit() {
-        exit(1)
+    func showExitAlert() {
+        let alert = Alert(
+            title: Text("Are you sure you want to exit the app?"),
+            primaryButton: .destructive(Text("Exit"), action: { exit(1) }),
+            secondaryButton: .cancel()
+        )
+        self.alert = AlertBinder(alert: alert)
     }
 }
 
