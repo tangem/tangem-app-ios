@@ -12,7 +12,7 @@ import TangemSdk
 import Moya
 
 protocol PaymentologyApiService: AnyObject {
-    func checkRegistration(for cardId: String, publicKey: Data) -> AnyPublisher<SaltPayRegistrator.State, Error>
+    func checkRegistration(for cardId: String, publicKey: Data) -> AnyPublisher<RegistrationResponse.Item, Error>
     func requestAttestationChallenge(for cardId: String, publicKey: Data) -> AnyPublisher<AttestationResponse, Error>
     func registerWallet(request: ReqisterWalletRequest) -> AnyPublisher<RegisterWalletResponse, Error>
     func registerKYC(request: RegisterKYCRequest) -> AnyPublisher<RegisterWalletResponse, Error>
@@ -28,7 +28,7 @@ class CommonPaymentologyApiService {
 }
 
 extension CommonPaymentologyApiService: PaymentologyApiService {
-    func checkRegistration(for cardId: String, publicKey: Data) -> AnyPublisher<SaltPayRegistrator.State, Error> {
+    func checkRegistration(for cardId: String, publicKey: Data) -> AnyPublisher<RegistrationResponse.Item, Error> {
         let requestItem = CardVerifyAndGetInfoRequest.Item(cardId: cardId, publicKey: publicKey.hexString)
         let request = CardVerifyAndGetInfoRequest(requests: [requestItem])
         let target = PaymentologyApiTarget(type: .checkRegistration(request: request))
@@ -40,7 +40,6 @@ extension CommonPaymentologyApiService: PaymentologyApiService {
             .tryExtractError()
             .tryGetFirstResult()
             .tryExtractError()
-            .tryMap { try SaltPayRegistrator.State(from: $0) }
             .retry(3)
             .eraseToAnyPublisher()
     }
