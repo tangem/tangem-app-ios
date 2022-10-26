@@ -204,8 +204,8 @@ final class AppScanTask: CardSessionRunnable {
         let card = session.environment.card!
 
         let existingCurves: Set<EllipticCurve> = .init(card.wallets.map({ $0.curve }))
-        let mandatoryСurves: Set<EllipticCurve> = [.secp256k1, .ed25519]
-        let missingCurves = mandatoryСurves.subtracting(existingCurves)
+        let mandatoryCurves: Set<EllipticCurve> = [.secp256k1, .ed25519]
+        let missingCurves = mandatoryCurves.subtracting(existingCurves)
         let hasBackup = card.backupStatus?.isActive ?? false
 
         guard card.settings.maxWalletsCount > 1,
