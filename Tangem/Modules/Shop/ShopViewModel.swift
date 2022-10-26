@@ -298,6 +298,8 @@ extension ShopViewModel {
             return
         }
 
+        Analytics.log(.redirected)
+
         // Checking order ID
         shopifyService.checkout(pollUntilOrder: false, checkoutID: checkoutID)
             .flatMap { [weak self] checkout -> AnyPublisher<Checkout, Error> in
