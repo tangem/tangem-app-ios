@@ -14,7 +14,7 @@ class CardSettingsCoordinator: CoordinatorObject {
 
     // MARK: - Main view model
 
-    @Published private(set) var сardSettingsViewModel: CardSettingsViewModel?
+    @Published private(set) var cardSettingsViewModel: CardSettingsViewModel?
 
     // MARK: - Child view models
 
@@ -35,7 +35,7 @@ class CardSettingsCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        сardSettingsViewModel = CardSettingsViewModel(
+        cardSettingsViewModel = CardSettingsViewModel(
             cardModel: options.cardModel,
             coordinator: self
         )
