@@ -31,9 +31,8 @@ struct DetailsView: View {
                 setupEnvironmentSection
             }
         }
-        .groupedListStyleCompatibility()
+        .groupedListStyleCompatibility(background: Colors.Background.secondary)
         .alert(item: $viewModel.error) { $0.alert }
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("details_title", displayMode: .inline)
         .navigationBarBackButtonHidden(false)
         .navigationBarHidden(false)
