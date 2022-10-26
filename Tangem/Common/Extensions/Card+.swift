@@ -36,20 +36,20 @@ extension Card {
             assertionFailure("Wallet not found, use CardViewModel for create wallet")
         }
         
-        let keyHash: Data
+        let key: Data
         switch walletData {
         case .twin(_, let twinData):
             guard let combinedKey = TwinCardsUtils.makeCombinedWalletKey(for: self, pairData: twinData) else {
-                keyHash = cardPublicKey.sha256()
+                key = cardPublicKey
                 break
             }
             
-            keyHash = combinedKey.sha256()
+            key = combinedKey
         default:
-            keyHash = (wallets.first?.publicKey ?? cardPublicKey).sha256()
+            key = (wallets.first?.publicKey ?? cardPublicKey)
         }
         
-        return UserWalletIdGeneratorUtil.generateUserWalletId(from: keyHash)
+        return UserWalletId(with: key).value
     }
 
     static func getDerivationStyle(for batchId: String, isHdWalletAllowed: Bool) -> DerivationStyle? {
