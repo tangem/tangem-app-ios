@@ -61,6 +61,14 @@ extension Analytics {
         case twinningScreenOpened = "[Onboarding / Twins] Twinning Screen Opened"
         case twinSetupStarted = "[Onboarding / Twins] Twin Setup Started"
         case twinSetupFinished = "[Onboarding / Twins] Twin Setup Finished"
+        case pinCodeSet = "[Onboarding] PIN code set"
+        case buttonConnect = "[Onboarding] Button - Connect"
+        case kycProgressScreenOpened = "[Onboarding] KYC started"
+        case kycWaitingScreenOpened = "[Onboarding] KYC in progress"
+        case kycRetryScreenOpened = "[Onboarding] KYC rejected"
+        case claimScreenOpened = "[Onboarding] Claim screen opened"
+        case buttonClaim = "[Onboarding] Button - Claim"
+        case claimFinished = "[Onboarding] Claim was successfully "
         case screenOpened = "[Main Screen] Screen opened"
         case buttonScanCard = "[Main Screen] Button - Scan Card"
         case cardWasScanned = "[Main Screen] Card Was Scanned"
@@ -131,132 +139,6 @@ extension Analytics {
         // MARK: -
         fileprivate static var nfcError: String {
             "nfc_error"
-        }
-    }
-}
-
-//  MARK: - Amplitude events
-extension Analytics.Event {
-    func analyticsSystems() -> [Analytics.AnalyticSystem] {
-        switch self {
-        case .signedIn,
-                .toppedUp,
-                .buttonTokensList,
-                .buttonBuyCards,
-                .introductionProcessButtonScanCard,
-                .introductionProcessCardWasScanned,
-                .introductionProcessOpened,
-                .buttonRequestSupport,
-                .shopScreenOpened,
-                .purchased,
-                .redirected,
-                .buttonBiometricSignIn,
-                .buttonCardSignIn,
-                .onboardingStarted,
-                .onboardingFinished,
-                .createWalletScreenOpened,
-                .buttonCreateWallet,
-                .walletCreatedSuccessfully,
-                .backupScreenOpened,
-                .backupStarted,
-                .backupSkipped,
-                .settingAccessCodeStarted,
-                .accessCodeEntered,
-                .accessCodeReEntered,
-                .backupFinished,
-                .activationScreenOpened,
-                .buttonBuyCrypto,
-                .buttonShowTheWalletAddress,
-                .enableBiometric,
-                .allowBiometricID,
-                .twinningScreenOpened,
-                .twinSetupStarted,
-                .twinSetupFinished,
-                .screenOpened,
-                .buttonScanCard,
-                .cardWasScanned,
-                .buttonMyWallets,
-                .mainCurrencyChanged,
-                .noticeRateTheAppButtonTapped,
-                .noticeBackupYourWalletTapped,
-                .noticeScanYourCardTapped,
-                .refreshed,
-                .mainRefreshed,
-                .buttonManageTokens,
-                .tokenIsTapped,
-                .detailsScreenOpened,
-                .buttonRemoveToken,
-                .buttonExplore,
-                .buttonBuy,
-                .buttonSell,
-                .buttonExchange,
-                .buttonSend,
-                .receiveScreenOpened,
-                .buttonCopyAddress,
-                .buttonShareAddress,
-                .sendScreenOpened,
-                .buttonPaste,
-                .buttonQRCode,
-                .buttonSwapCurrency,
-                .transactionSent,
-                .topUpScreenOpened,
-                .p2PScreenOpened,
-                .withdrawScreenOpened,
-                .manageTokensScreenOpened,
-                .tokenSearched,
-                .tokenSwitcherChanged,
-                .buttonSaveChanges,
-                .buttonCustomToken,
-                .customTokenScreenOpened,
-                .customTokenWasAdded,
-                .settingsScreenOpened,
-                .buttonChat,
-                .buttonSendFeedback,
-                .buttonStartWalletConnectSession,
-                .buttonStopWalletConnectSession,
-                .buttonCardSettings,
-                .buttonAppSettings,
-                .buttonCreateBackup,
-                .buttonSocialNetwork,
-                .buttonFactoryReset,
-                .factoryResetFinished,
-                .buttonChangeUserCode,
-                .userCodeChanged,
-                .buttonChangeSecurityMode,
-                .securityModeChanged,
-                .faceIDSwitcherChanged,
-                .saveAccessCodeSwitcherChanged,
-                .buttonEnableBiometricAuthentication,
-                .newSessionEstablished,
-                .sessionDisconnected,
-                .requestSigned,
-                .myWalletsScreenOpened,
-                .buttonScanNewCard,
-                .myWalletsCardWasScanned,
-                .buttonUnlockAllWithFaceID,
-                .walletTapped,
-                .buttonEditWalletTapped,
-                .buttonDeleteWalletTapped,
-                .chatScreenOpened:
-            return [.amplitude]
-        case .transactionIsSent:
-            return [.firebase, .appsflyer, .amplitude]
-        case .cardIsScanned,
-                .transactionIsPushed,
-                .readyToScan,
-                .displayRateAppWarning,
-                .negativeRateAppFeedback,
-                .positiveRateAppFeedback,
-                .dismissRateAppWarning,
-                .wcSuccessResponse,
-                .wcInvalidRequest,
-                .wcNewSession,
-                .wcSessionDisconnected,
-                .userBoughtCrypto,
-                .userSoldCrypto,
-                .getACard,
-                .demoActivated:
-            return [.firebase, .appsflyer]
         }
     }
 }
