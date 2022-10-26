@@ -16,54 +16,42 @@ struct AppSettingsView: View {
     }
 
     var body: some View {
-        List {
-            if !viewModel.isBiometryAvailable {
+        ZStack {
+            Colors.Background.secondary.edgesIgnoringSafeArea(.all)
+
+            GroupedScrollView {
                 warningSection
+                
+                savingWalletSection
+                
+                savingAccessCodesSection
             }
-
-            savingWalletSection
-
-            savingAccessCodesSection
         }
-        .groupedListStyleCompatibility(background: Colors.Background.secondary)
         .alert(item: $viewModel.alert) { $0.alert }
         .navigationBarTitle("app_settings_title", displayMode: .inline)
     }
 
     private var warningSection: some View {
-        Section(content: {
-            DefaultWarningRow(
-                icon: Assets.attention,
-                title: "app_settings_warning_title".localized,
-                subtitle: "app_settings_warning_subtitle".localized,
-                action: {
-                    viewModel.openSettings()
-                }
-            )
-        })
+        GroupedSection(viewModel.warningSection) {
+            DefaultWarningRow(viewModel: $0)
+        }
     }
-
+    
     private var savingWalletSection: some View {
-        Section(content: {
-            DefaultToggleRowView(
-                title: "app_settings_saved_wallet".localized,
-                isEnabled: viewModel.isBiometryAvailable,
-                isOn: $viewModel.isSavingWallet
-            )
-        }, footer: {
+        GroupedSection(viewModel.savingWalletSection) {
+            DefaultToggleRowView(viewModel: $0)
+        } footer: {
             DefaultFooterView(title: "app_settings_saved_wallet_footer".localized)
-        })
+        }
+        .contentVerticalPadding(4)
     }
-
+    
     private var savingAccessCodesSection: some View {
-        Section(content: {
-            DefaultToggleRowView(
-                title: "app_settings_saved_access_codes".localized,
-                isEnabled: viewModel.isBiometryAvailable,
-                isOn: $viewModel.isSavingAccessCodes
-            )
-        }, footer: {
+        GroupedSection(viewModel.savingAccessCodesSection) {
+            DefaultToggleRowView(viewModel: $0)
+        } footer: {
             DefaultFooterView(title: "app_settings_saved_access_codes_footer".localized)
-        })
+        }
+        .contentVerticalPadding(4)
     }
 }
