@@ -141,8 +141,8 @@ extension DetailsViewModel {
         coordinator.openInSafari(url: url)
     }
     
-    func openSetupEnvironment() {
-        coordinator.openSetupEnvironment()
+    func openEnvironmentSetup() {
+        coordinator.openEnvironmentSetup()
     }
 }
 
