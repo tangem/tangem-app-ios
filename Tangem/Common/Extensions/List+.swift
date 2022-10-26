@@ -9,8 +9,12 @@
 import SwiftUI
 
 extension List {
-    @ViewBuilder func groupedListStyleCompatibility() -> some View {
-        if #available(iOS 14.0, *) {
+    @ViewBuilder func groupedListStyleCompatibility(background: Color) -> some View {
+        if #available(iOS 16.0, *) {
+            self.listStyle(.insetGrouped)
+                .background(background)
+                .scrollContentBackground(.hidden)
+        } else if #available(iOS 14.0, *) {
             self.listStyle(.insetGrouped)
         } else {
             self.listStyle(.grouped)
