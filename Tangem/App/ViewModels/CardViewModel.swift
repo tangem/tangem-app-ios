@@ -25,7 +25,6 @@ class CardViewModel: Identifiable, ObservableObject {
 
     var cardId: String { cardInfo.card.cardId }
     var batchId: String { cardInfo.card.batchId }
-    var userWalletId: Data { cardInfo.card.userWalletId }
     var cardPublicKey: Data { cardInfo.card.cardPublicKey }
 
     var supportsOnlineImage: Bool {
@@ -79,6 +78,14 @@ class CardViewModel: Identifiable, ObservableObject {
     // Temp for WC. Migrate to userWalletId?
     var secp256k1SeedKey: Data? {
         cardInfo.card.wallets.first(where: { $0.curve == .secp256k1 })?.publicKey
+    }
+
+    var userWalletId: Data? {
+        guard let seed = config.userWalletIdSeed else {
+            return nil
+        }
+
+        return UserWalletId(with: seed).value
     }
 
     // Separate UserWalletModel and CardViewModel
@@ -425,7 +432,10 @@ class CardViewModel: Identifiable, ObservableObject {
         setupWarnings()
         createUserWalletModelIfNeeded()
         userWalletModel?.updateUserWalletModel(with: config)
-        userWalletModel?.update(userWalletId: userWalletId)
+
+        if let userWalletId = userWalletId {
+            userWalletModel?.update(userWalletId: userWalletId)
+        }
     }
 
     private func searchBlockchains() {
@@ -536,10 +546,12 @@ class CardViewModel: Identifiable, ObservableObject {
     }
 
     private func createUserWalletModelIfNeeded() {
-        guard userWalletModel == nil, cardInfo.card.hasWallets else { return }
+        guard userWalletModel == nil, let userWalletId = userWalletId else {
+            return
+        }
 
         // [REDACTED_TODO_COMMENT]
-        let userTokenListManager = CommonUserTokenListManager(config: config, userWalletId: cardInfo.card.userWalletId)
+        let userTokenListManager = CommonUserTokenListManager(config: config, userWalletId: userWalletId)
         let walletListManager = CommonWalletListManager(
             config: config,
             userTokenListManager: userTokenListManager
