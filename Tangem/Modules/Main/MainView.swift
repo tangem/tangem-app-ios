@@ -78,7 +78,7 @@ struct MainView: View {
                        .frame(width: 44, height: 44)
                        .offset(x: -11, y: 0)
                })
-        .buttonStyle(PlainButtonStyle())
+               .buttonStyle(PlainButtonStyle())
     }
 
     var settingsNavigationButton: some View {
@@ -88,8 +88,8 @@ struct MainView: View {
                    .frame(width: 44.0, height: 44.0, alignment: .center)
                    .offset(x: 11, y: 0)
                })
-        .accessibility(label: Text("voice_over_open_card_details"))
-        .padding(0.0)
+               .accessibility(label: Text("voice_over_open_card_details"))
+               .padding(0.0)
     }
 
     var backupWarningView: some View {
