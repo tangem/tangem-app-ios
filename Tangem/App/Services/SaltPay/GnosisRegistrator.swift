@@ -10,6 +10,8 @@ import Foundation
 import BlockchainSdk
 import TangemSdk
 import Combine
+import BigInt
+import web3swift
 
 class GnosisRegistrator {
     private let settings: GnosisRegistrator.Settings
@@ -31,6 +33,35 @@ class GnosisRegistrator {
                     return false
                 }
             }
+            .eraseToAnyPublisher()
+    }
+
+    func getClaimableAmount() -> AnyPublisher<Amount, Error> {
+        let wxDaiFactory = WXDAIFactory(blockchain: settings.blockchain, token: settings.token)
+
+        guard let wxDai = wxDaiFactory.wxDai else {
+            return .anyFail(error: SaltPayRegistratorError.failedToBuildContract)
+        }
+
+        let parameters = [settings.treasurySafeAddress, cardAddress] as! [AnyObject]
+
+        return wxDai.read(method: "allowance", parameters: parameters)
+            .tryMap { [settings] response -> Amount in
+                let stringResponse = "\(response)".stripHexPrefix()
+
+                guard let weiAmount = BigUInt(stringResponse),
+                      let tokenAmount = Web3.Utils.formatToEthereumUnits(weiAmount,
+                                                                         toUnits: .eth,
+                                                                         decimals: settings.token.decimalCount,
+                                                                         decimalSeparator: ".",
+                                                                         fallbackToScientific: false),
+                      let decimalAmount = Decimal(string: tokenAmount) else {
+                    throw SaltPayRegistratorError.failedToParseAllowance
+                }
+
+                return Amount(with: settings.token, value: decimalAmount)
+            }
+            .receive(on: DispatchQueue.main)
             .eraseToAnyPublisher()
     }
 
@@ -143,18 +174,50 @@ class GnosisRegistrator {
         }
     }
 
-    private func makeTxData(sig: Data, address: String, amount: Amount?) throws -> Data {
+    func makeClaimTx(value: Amount) -> AnyPublisher<CompiledEthereumTransaction, Error>  {
+        let zeroApproveAmount = Amount(with: value, value: 0)
+        do {
+            let approveData = try makeTxData(sig: Signatures.claim, address: settings.treasurySafeAddress, address2: cardAddress, amount: value)
+
+            return transactionProcessor.getFee(to: settings.token.contractAddress, data: "0x\(approveData.hexString)", amount: nil)
+                //   .replaceError(with: [Amount(with: settings.blockchain, value: 0.00001), Amount(with: settings.blockchain, value: 0.00001)]) //[REDACTED_TODO_COMMENT]
+                .tryMap { fees -> Transaction in
+                    let params = EthereumTransactionParams(data: approveData, nonce: self.transactionProcessor.initialNonce)
+                    var transaction = try self.walletManager.createTransaction(amount: zeroApproveAmount,
+                                                                               fee: fees[1],
+                                                                               destinationAddress: "")
+                    transaction.params = params
+
+                    return transaction
+                }
+                .flatMap { [transactionProcessor] tx in
+                    transactionProcessor.buildForSign(tx)
+                }
+                .eraseToAnyPublisher()
+        } catch {
+            return .anyFail(error: error)
+        }
+    }
+
+    private func makeTxData(sig: Data, address: String, address2: String? = nil, amount: Amount?) throws -> Data {
         let addressData = Data(hexString: address).aligned()
 
-        guard let amount = amount else {
-            return sig + addressData
+        var data: Data = sig + addressData
+
+        if let address2 {
+            let address2Data = Data(hexString: address2).aligned()
+            data += address2Data
         }
 
-        guard let amountData = amount.encodedAligned else {
-            throw SaltPayRegistratorError.failedToMakeTxData
+        if let amount {
+            guard let amountData = amount.encodedAligned else {
+                throw SaltPayRegistratorError.failedToMakeTxData
+            }
+
+            data += amountData
         }
 
-        return sig + addressData + amountData
+        return data
     }
 }
 
@@ -164,6 +227,7 @@ extension GnosisRegistrator {
         static let setSpendLimit: Data = "setSpendLimit(address,uint256)".signedPrefix
         static let initOTP: Data = "initOTP(bytes16,uint16)".signedPrefix // 0x0ac81ec3
         static let setWallet: Data = "setWallet(address)".signedPrefix // 0xdeaa59df
+        static let claim: Data = "transferFrom(address,address,uint256)".signedPrefix // 0xdeaa59df
     }
 }
 
@@ -192,6 +256,10 @@ extension GnosisRegistrator {
             case .testnet:
                 return Blockchain.saltPay(testnet: true)
             }
+        }
+
+        var treasurySafeAddress: String {
+            "0x8e9260a049d3Aa9ac60D0d4F27017320E0e2396B"
         }
 
         private var sdkToken: WalletData.Token {
