@@ -103,7 +103,7 @@ private extension MultiWalletContentViewModel {
         let walletModelsDidChange = newWalletModels
             .filter { !$0.isEmpty }
             .map { wallets -> AnyPublisher<Void, Never> in
-                Publishers.MergeMany(wallets.map { $0.walletDidChange.print("walletDidChange \($0.blockchainNetwork.blockchain.displayName)") })
+                Publishers.MergeMany(wallets.map { $0.walletDidChange })
                     .mapVoid()
                     .eraseToAnyPublisher()
             }
