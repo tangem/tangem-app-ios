@@ -405,7 +405,7 @@ class CardViewModel: Identifiable, ObservableObject {
         }
     }
 
-    func logSdkError(_ error: Error, action: Analytics.Action, parameters: [Analytics.ParameterKey: Any] = [:]) {
+    func logSdkError(_ error: Error, action: Analytics.Action, parameters: [Analytics.ParameterKey: String] = [:]) {
         Analytics.logCardSdkError(error.toTangemSdkError(), for: action, card: cardInfo.card, parameters: parameters)
     }
 
