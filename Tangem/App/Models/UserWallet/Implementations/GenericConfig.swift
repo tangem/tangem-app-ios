@@ -252,10 +252,6 @@ fileprivate extension Card.BackupStatus {
 
 fileprivate extension Card {
     var isTestnet: Bool {
-        if batchId == "99FF" {
-            return cardId.starts(with: batchId.reversed())
-        } else {
-            return false
-        }
+        AppEnvironment.current.isTestnet
     }
 }
