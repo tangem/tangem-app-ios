@@ -13,16 +13,15 @@ import BlockchainSdk
 class WalletModel: ObservableObject, Identifiable {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    var walletDidChange: AnyPublisher<WalletModel.State, Never> {
+    lazy var walletDidChange: AnyPublisher<WalletModel.State, Never> = {
         Publishers.CombineLatest(
-            $state.dropFirst(),
-            $rates.dropFirst().print("CombineLatest rates")
+            $state.dropFirst().removeDuplicates(),
+            $rates.dropFirst().removeDuplicates()
         )
-        .compactMap { [weak self] _ in self?.state }
-//        .combineLatest($state).b // Move on latest value state
-        .print("CombineLatest state")
+        .map { $0.0 } // Move on latest value state
+        .share()
         .eraseToAnyPublisher()
-    }
+    }()
 
     @Published var state: State = .created
     @Published var rates: [String: Decimal] = [:]
