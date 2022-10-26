@@ -61,16 +61,12 @@ class MultiWalletContentViewModel: ObservableObject {
         tokenListIsEmpty = userWalletModel.getSavedEntries().isEmpty
         bind()
 
-        DispatchQueue.global().async {
-            userWalletModel.updateWalletModels()
-        }
+        userWalletModel.updateWalletModels()
     }
 
     func onRefresh(silent: Bool = true, done: @escaping () -> Void) {
         userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
-            DispatchQueue.global().async {
-                self?.userWalletModel.updateAndReloadWalletModels(silent: silent, completion: done)
-            }
+            self?.userWalletModel.updateAndReloadWalletModels(silent: silent, completion: done)
         }
     }
 
@@ -107,7 +103,7 @@ private extension MultiWalletContentViewModel {
         let walletModelsDidChange = newWalletModels
             .filter { !$0.isEmpty }
             .map { wallets -> AnyPublisher<Void, Never> in
-                Publishers.MergeMany(wallets.map { $0.walletDidChange })
+                Publishers.MergeMany(wallets.map { $0.walletDidChange.print("walletDidChange \($0.blockchainNetwork.blockchain.displayName)") })
                     .mapVoid()
                     .eraseToAnyPublisher()
             }
