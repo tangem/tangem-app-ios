@@ -32,6 +32,7 @@ struct DefaultRowView: View {
                 }
             }
             .lineLimit(1)
+            .padding(.vertical, 2)
         }
         .disabled(!isTappable)
     }
