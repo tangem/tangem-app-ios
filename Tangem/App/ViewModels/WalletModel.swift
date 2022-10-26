@@ -15,10 +15,12 @@ class WalletModel: ObservableObject, Identifiable {
 
     var walletDidChange: AnyPublisher<WalletModel.State, Never> {
         Publishers.CombineLatest(
-            $state.dropFirst().removeDuplicates(),
-            $rates.dropFirst().removeDuplicates()
+            $state.dropFirst(),
+            $rates.dropFirst().print("CombineLatest rates")
         )
-        .combineLatest($state).b // Move on latest value state
+        .compactMap { [weak self] _ in self?.state }
+//        .combineLatest($state).b // Move on latest value state
+        .print("CombineLatest state")
         .eraseToAnyPublisher()
     }
 
@@ -82,6 +84,7 @@ class WalletModel: ObservableObject, Identifiable {
     private var updateTimer: AnyCancellable?
     private var updateWalletModelBag: AnyCancellable?
     private var bag = Set<AnyCancellable>()
+    private var updateQueue = DispatchQueue(label: "walletModel_update_queue")
 
     deinit {
         print("🗑 WalletModel deinit")
@@ -98,10 +101,12 @@ class WalletModel: ObservableObject, Identifiable {
         AppSettings.shared
             .$selectedCurrencyCode
             .dropFirst()
+            .receive(on: updateQueue)
             .map { [unowned self] _ in
                 self.loadRates().replaceError(with: [:])
             }
             .switchToLatest()
+            .receive(on: updateQueue)
             .receiveValue { [unowned self] in updateRatesIfNeeded($0) }
             .store(in: &bag)
     }
@@ -133,9 +138,10 @@ class WalletModel: ObservableObject, Identifiable {
         }
 
         updateWalletModelBag = updateWalletManager()
-            .receive(on: DispatchQueue.global())
+            .receive(on: updateQueue)
             .map { [unowned self] in loadRates() }
             .switchToLatest()
+            .receive(on: updateQueue)
             .sink { [unowned self] completion in
                 switch completion {
                 case .finished:
@@ -165,30 +171,32 @@ class WalletModel: ObservableObject, Identifiable {
 
     func updateWalletManager() -> AnyPublisher<Void, Error> {
         Future { promise in
-            print("🔄 Updating wallet model for \(self.wallet.blockchain)")
-            self.walletManager.update { [weak self] result in
-                let blockchainName = self?.wallet.blockchain.displayName ?? ""
-                print("🔄 Finished updating wallet model for \(blockchainName) result: \(result)")
-
-                switch result {
-                case let .failure(error):
-                    switch error as? WalletError {
-                    case .noAccount(let message):
-                        // If we don't have a account just update state and loadRates
-                        self?.updateState(.noAccount(message: message))
+            self.updateQueue.sync {
+                print("🔄 Updating wallet model for \(self.wallet.blockchain)")
+                self.walletManager.update { [weak self] result in
+                    let blockchainName = self?.wallet.blockchain.displayName ?? ""
+                    print("🔄 Finished updating wallet model for \(blockchainName) result: \(result)")
+                    
+                    switch result {
+                    case .success:
+                        self?.latestUpdateTime = Date()
+                        
+                        if let demoBalance = self?.demoBalance {
+                            self?.walletManager.wallet.add(coinValue: demoBalance)
+                        }
+                        
                         promise(.success(()))
-                    default:
-                        promise(.failure(error.detailedError))
+                        
+                    case let .failure(error):
+                        switch error as? WalletError {
+                        case .noAccount(let message):
+                            // If we don't have a account just update state and loadRates
+                            self?.updateState(.noAccount(message: message))
+                            promise(.success(()))
+                        default:
+                            promise(.failure(error.detailedError))
+                        }
                     }
-
-                case .success:
-                    self?.latestUpdateTime = Date()
-
-                    if let demoBalance = self?.demoBalance {
-                        self?.walletManager.wallet.add(coinValue: demoBalance)
-                    }
-
-                    promise(.success(()))
                 }
             }
         }

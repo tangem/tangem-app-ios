@@ -84,8 +84,13 @@ class TotalSumBalanceViewModel: ObservableObject {
                 return walletModels
                     .map { $0.walletDidChange }
                     .combineLatest()
+                    .delay(for: 0.2, scheduler: DispatchQueue.main)
+                    .map { _ in walletModels.map { $0.state } }
+//                    .print("states")
+//                    .filter { $0.allSatisfy { $0 == .idle } }
                     // Update total balance only after all models succesfully loaded
                     .filter { $0.allConforms { !$0.isLoading } }
+//                    .print("states 2 ")
                     .mapVoid()
                     .eraseToAnyPublisher()
             }
