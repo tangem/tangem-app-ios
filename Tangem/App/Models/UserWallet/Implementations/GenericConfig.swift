@@ -151,6 +151,10 @@ extension GenericConfig: UserWalletConfig {
         }
     }
 
+    var userWalletIdSeed: Data? {
+        card.wallets.first?.publicKey
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
