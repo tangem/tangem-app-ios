@@ -14,23 +14,14 @@ import BlockchainSdk
 
 class DetailsViewModel: ObservableObject {
     // MARK: - View State
+    
+    @Published var walletConnectRowViewModel: WalletConnectRowViewModel?
+    @Published var supportSectionModels: [DefaultRowViewModel] = []
+    @Published var settingsSectionViewModels: [DefaultRowViewModel] = []
+    @Published var legalSectionViewModels: [DefaultRowViewModel] = []
 
     @Published var cardModel: CardViewModel
     @Published var error: AlertBinder?
-    
-    @Published var sections: [[DefaultRowViewModel]] = []
-
-    var walletConnectRowViewModel: WalletConnectRowViewModel? {
-        guard cardModel.shouldShowWC else {
-            return nil
-        }
-
-        return WalletConnectRowViewModel(
-            title: "wallet_connect_title".localized,
-            subtitle: "wallet_connect_subtitle".localized,
-            action: openWalletConnect
-        )
-    }
 
     var canCreateBackup: Bool {
         cardModel.canCreateBackup
@@ -135,11 +126,10 @@ extension DetailsViewModel {
 
 extension DetailsViewModel {
     func setupView() {
-        sections = [
-            supportSectionModels,
-            settingsSectionViewModels,
-            legalSectionViewModels
-        ]
+        setupWalletConnectRowViewModel()
+        setupSupportSectionModels()
+        setupSettingsSectionViewModels()
+        setupLegalSectionViewModels()
     }
     
     func bind() {
@@ -150,15 +140,28 @@ extension DetailsViewModel {
             }
             .store(in: &bag)
     }
+    
+    func setupWalletConnectRowViewModel() {
+        guard cardModel.shouldShowWC else {
+            walletConnectRowViewModel = nil
+            return
+        }
 
-    var supportSectionModels: [DefaultRowViewModel] {
-        [
+        walletConnectRowViewModel = WalletConnectRowViewModel(
+            title: "wallet_connect_title".localized,
+            subtitle: "wallet_connect_subtitle".localized,
+            action: openWalletConnect
+        )
+    }
+    
+    func setupSupportSectionModels() {
+        supportSectionModels = [
             DefaultRowViewModel(title: "details_chat".localized, action: openSupportChat),
             DefaultRowViewModel(title: "details_row_title_send_feedback".localized, action: openMail),
         ]
     }
-
-    var settingsSectionViewModels: [DefaultRowViewModel] {
+    
+    func setupSettingsSectionViewModels() {
         var viewModels: [DefaultRowViewModel] = []
 
         if !cardModel.isMultiWallet {
@@ -173,6 +176,11 @@ extension DetailsViewModel {
             title: "details_row_title_card_settings".localized,
             action: openCardSettings
         ))
+        
+        viewModels.append(DefaultRowViewModel(
+            title: "details_row_title_app_settings".localized,
+            action: openAppSettings
+        ))
 
         if canCreateBackup {
             viewModels.append(DefaultRowViewModel(
@@ -180,11 +188,11 @@ extension DetailsViewModel {
                 action: prepareBackup
             ))
         }
-
-        return viewModels
+        
+        settingsSectionViewModels = viewModels
     }
-
-    var legalSectionViewModels: [DefaultRowViewModel] {
+    
+    func setupLegalSectionViewModels() {
         var viewModels: [DefaultRowViewModel] = [
             DefaultRowViewModel(title: "disclaimer_title".localized, action: coordinator.openDisclaimer),
         ]
@@ -194,7 +202,7 @@ extension DetailsViewModel {
                 self?.coordinator.openCardTOU(url: url)
             })
         }
-
-        return viewModels
+        
+        legalSectionViewModels = viewModels
     }
 }
