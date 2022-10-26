@@ -38,10 +38,11 @@ struct EnvironmentSetupView: View {
         .groupedListStyleCompatibility(background: Colors.Background.secondary)
         .navigationBarTitle(Text("Environment setup"))
         .navigationBarItems(trailing: exitButton)
+        .alert(item: $viewModel.alert) { $0.alert }
     }
     
     private var exitButton: some View {
-        Button("Exit", action: viewModel.exit)
+        Button("Exit", action: viewModel.showExitAlert)
     }
 }
 

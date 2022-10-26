@@ -18,7 +18,7 @@ class EnvironmentProvider {
     var isTestnet: Bool = false
     
     @AppStorageCompat(EnvironmentProviderKeys.availableFeatures)
-    var availableFeatures: [String] = []
+    var availableFeatures: Set<FeatureToggle> = []
 }
 
 // MARK: - Keys
