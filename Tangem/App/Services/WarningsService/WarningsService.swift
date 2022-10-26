@@ -35,7 +35,11 @@ extension WarningsService: AppWarningsProviding {
         validator: SignatureCountValidator?
     ) {
         setupWarnings(for: config)
-        validateHashesCount(config: config, card: card, validator: validator)
+        
+        // The testnet card shouldn't count hashes
+        if !AppEnvironment.current.isTestnet {
+            validateHashesCount(config: config, card: card, validator: validator)
+        }
     }
 
     func warnings(for location: WarningsLocation) -> WarningsContainer {
