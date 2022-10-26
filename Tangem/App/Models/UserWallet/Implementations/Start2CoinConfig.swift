@@ -111,8 +111,7 @@ extension Start2CoinConfig: UserWalletConfig {
     }
 
     var defaultBlockchains: [StorageEntry] {
-        let derivationPath = defaultBlockchain.derivationPath(for: .legacy)
-        let network = BlockchainNetwork(defaultBlockchain, derivationPath: derivationPath)
+        let network = BlockchainNetwork(defaultBlockchain, derivationPath: nil)
         let entry = StorageEntry(blockchainNetwork: network, tokens: [])
         return [entry]
     }
