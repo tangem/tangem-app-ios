@@ -11,7 +11,7 @@ import SwiftUI
 // [REDACTED_TODO_COMMENT]
 struct FeatureToggleViewModel: Identifiable {
     var id: Int { toggle.hashValue }
-    
+
     let toggle: FeatureToggle
     let isActive: Binding<Bool>
 }
