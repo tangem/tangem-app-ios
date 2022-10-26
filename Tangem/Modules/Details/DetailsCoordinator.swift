@@ -106,7 +106,7 @@ extension DetailsCoordinator: DetailsRoutable {
     func openInSafari(url: URL) {
         UIApplication.shared.open(url)
     }
-    
+
     func openEnvironmentSetup() {
         setupEnvironmentViewModel = EnvironmentSetupViewModel()
     }
