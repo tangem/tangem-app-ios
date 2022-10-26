@@ -35,7 +35,9 @@ extension TotalBalanceProvider: TotalBalanceProviding {
 
     func updateTotalBalance() {
         totalBalanceSubject.send(.loading)
-        loadCurrenciesAndUpdateBalance()
+        DispatchQueue.global().async {
+            self.loadCurrenciesAndUpdateBalance()
+        }
     }
 }
 
@@ -49,10 +51,10 @@ private extension TotalBalanceProvider {
                 return model.amountType == amountType
             }
 
-
         refreshSubscription = tangemApiService.loadCurrencies()
-            .tryMap { [unowned self] currencies -> TotalBalance in
-                guard let currency = currencies.first(where: { $0.code == AppSettings.shared.selectedCurrencyCode }) else {
+            .tryMap { [weak self] currencies -> TotalBalance in
+                guard let self = self,
+                      let currency = currencies.first(where: { $0.code == AppSettings.shared.selectedCurrencyCode }) else {
                     throw CommonError.noData
                 }
 
@@ -78,8 +80,8 @@ private extension TotalBalanceProvider {
 
                 return TotalBalance(balance: balance, currency: currency, hasError: hasError)
             }
-            .receiveValue { [unowned self] balance in
-                self.totalBalanceSubject.send(.loaded(balance))
+            .receiveValue { [weak self] balance in
+                self?.totalBalanceSubject.send(.loaded(balance))
             }
     }
 }
