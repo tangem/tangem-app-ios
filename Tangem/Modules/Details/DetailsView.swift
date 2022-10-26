@@ -30,13 +30,12 @@ struct DetailsView: View {
 
                 legalSection
 
-                if !AppEnvironment.current.isProduction {
-                    setupEnvironmentSection
-                }
+                environmentSetupSection
             }
 
             socialNetworks
         }
+        .edgesIgnoringSafeArea(.bottom)
         .alert(item: $viewModel.error) { $0.alert }
         .navigationBarTitle("details_title", displayMode: .inline)
         .navigationBarBackButtonHidden(false)
@@ -59,7 +58,7 @@ struct DetailsView: View {
             DefaultRowView(viewModel: $0)
         } footer: {
             if viewModel.canCreateBackup {
-                DefaultFooterView(title: "details_row_title_create_backup_footer".localized)
+                DefaultFooterView("details_row_title_create_backup_footer".localized)
             }
         }
     }
@@ -86,14 +85,18 @@ struct DetailsView: View {
             }
         }
         .frame(maxWidth: .infinity)
-        .padding(.bottom, 16)
+        .padding(.vertical, 16)
+        .padding(.bottom, UIApplication.safeAreaInsets.bottom)
         .background(Colors.Background.secondary)
     }
     
-    private var setupEnvironmentSection: some View {
-        Section {
-            DefaultRowView(title: "Environment setup") {
-                viewModel.openEnvironmentSetup()
+    @ViewBuilder
+    private var environmentSetupSection: some View {
+        if let viewModel = viewModel.environmentSetupViewModel {
+            GroupedSection(viewModel) {
+                DefaultRowView(viewModel: $0)
+            } header: {
+                DefaultHeaderView("Setup environment in app")
             }
         }
     }
@@ -118,4 +121,3 @@ struct SettingsView_Previews: PreviewProvider {
         .navigationViewStyle(StackNavigationViewStyle())
     }
 }
-
