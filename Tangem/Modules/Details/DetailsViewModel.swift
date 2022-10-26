@@ -93,7 +93,7 @@ extension DetailsViewModel {
                                                          userWalletEmailData: cardModel.emailData)
 
         coordinator.openMail(with: dataCollector,
-                             recipient: cardModel.emailConfig.subject,
+                             recipient: cardModel.emailConfig.recipient,
                              emailType: .appFeedback(subject: cardModel.emailConfig.subject))
     }
 
