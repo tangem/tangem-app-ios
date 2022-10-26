@@ -151,6 +151,10 @@ extension GenericConfig: UserWalletConfig {
         }
     }
 
+    var userWalletIdSeed: Data? {
+        card.wallets.first?.publicKey
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
@@ -248,10 +252,6 @@ fileprivate extension Card.BackupStatus {
 
 fileprivate extension Card {
     var isTestnet: Bool {
-        if batchId == "99FF" {
-            return cardId.starts(with: batchId.reversed())
-        } else {
-            return false
-        }
+        AppEnvironment.current.isTestnet
     }
 }
