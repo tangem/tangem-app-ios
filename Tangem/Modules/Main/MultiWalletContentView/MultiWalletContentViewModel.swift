@@ -61,15 +61,15 @@ class MultiWalletContentViewModel: ObservableObject {
         bind()
     }
 
-    func onRefresh(done: @escaping () -> Void) {
+    func onRefresh(silent: Bool = true, done: @escaping () -> Void) {
         userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
-            self?.userWalletModel.updateAndReloadWalletModels(completion: done)
+            self?.userWalletModel.updateAndReloadWalletModels(silent: silent, completion: done)
         }
     }
 
     func onAppear() {
         if isFirstTimeOnAppear {
-            onRefresh {}
+            onRefresh(silent: false) {}
             isFirstTimeOnAppear = false
         }
     }
@@ -91,8 +91,9 @@ private extension MultiWalletContentViewModel {
         let entriesWithoutDerivation = userWalletModel
             .subscribeToEntriesWithoutDerivation()
             .removeDuplicates()
-        
+
         let walletModels = userWalletModel.subscribeToWalletModels()
+            .dropFirst()
             .receive(on: DispatchQueue.global())
             .map { wallets -> AnyPublisher<Void, Never> in
                 if wallets.isEmpty {
@@ -101,16 +102,19 @@ private extension MultiWalletContentViewModel {
 
                 return wallets.map { $0.walletDidChange }
                     .combineLatest()
+                    .map { _ in wallets.map { $0.state.isLoading } }
+                    .removeDuplicates() // Update only if isLoading state changed
                     .mapVoid()
                     .eraseToAnyPublisher()
             }
             .switchToLatest()
 
         Publishers.CombineLatest(entriesWithoutDerivation, walletModels)
+            .receive(on: DispatchQueue.global())
             .map { [unowned self] _ -> [TokenItemViewModel] in
-                collectTokenItemViewModels(entries: userWalletModel.getSavedEntries())
+                collectTokenItemViewModels()
             }
-            .receive(on: DispatchQueue.main)
+            .receive(on: RunLoop.main)
             .sink { [unowned self] viewModels in
                 updateView(viewModels: viewModels)
             }
@@ -122,7 +126,8 @@ private extension MultiWalletContentViewModel {
         contentState = .loaded(viewModels)
     }
 
-    func collectTokenItemViewModels(entries: [StorageEntry]) -> [TokenItemViewModel] {
+    func collectTokenItemViewModels() -> [TokenItemViewModel] {
+        let entries = userWalletModel.getSavedEntries()
         let walletModels = userWalletModel.getWalletModels()
         return entries.reduce([]) { result, entry in
             if let walletModel = walletModels.first(where: { $0.blockchainNetwork == entry.blockchainNetwork }) {
