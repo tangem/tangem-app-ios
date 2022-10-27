@@ -13,20 +13,15 @@ import BlockchainSdk
 class WalletModel: ObservableObject, Identifiable {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
-    var walletDidChange: AnyPublisher<Void, Never> {
-        Publishers.Merge(
-            $state.removeDuplicates().mapVoid(),
-            $rates
-                .filter { !$0.isEmpty }
-                .removeDuplicates()
-                // Push only if state is loaded
-                .combineLatest($state)
-                .filter { !$0.1.isLoading }
-                .mapVoid()
+    lazy var walletDidChange: AnyPublisher<WalletModel.State, Never> = {
+        Publishers.CombineLatest(
+            $state.dropFirst().removeDuplicates(),
+            $rates.dropFirst().removeDuplicates()
         )
-        .receive(on: DispatchQueue.global())
+        .map { $0.0 } // Move on latest value state
+        .share()
         .eraseToAnyPublisher()
-    }
+    }()
 
     @Published var state: State = .created
     @Published var rates: [String: Decimal] = [:]
@@ -88,6 +83,7 @@ class WalletModel: ObservableObject, Identifiable {
     private var updateTimer: AnyCancellable?
     private var updateWalletModelBag: AnyCancellable?
     private var bag = Set<AnyCancellable>()
+    private var updateQueue = DispatchQueue(label: "walletModel_update_queue")
 
     deinit {
         print("🗑 WalletModel deinit")
@@ -104,11 +100,13 @@ class WalletModel: ObservableObject, Identifiable {
         AppSettings.shared
             .$selectedCurrencyCode
             .dropFirst()
+            .receive(on: updateQueue)
             .map { [unowned self] _ in
                 self.loadRates().replaceError(with: [:])
             }
             .switchToLatest()
-            .sink()
+            .receive(on: updateQueue)
+            .receiveValue { [unowned self] in updateRatesIfNeeded($0) }
             .store(in: &bag)
     }
 
@@ -139,28 +137,32 @@ class WalletModel: ObservableObject, Identifiable {
         }
 
         updateWalletModelBag = updateWalletManager()
-            .receive(on: DispatchQueue.global())
-            .map { [unowned self] in
-                loadRates()
-            }
+            .receive(on: updateQueue)
+            .map { [unowned self] in loadRates() }
             .switchToLatest()
-            .receiveCompletion { [unowned self] completion in
+            .receive(on: updateQueue)
+            .sink { [unowned self] completion in
                 switch completion {
                 case .finished:
-                    // Don't update noAccount state
-                    if !silent, !state.isNoAccount {
-                        updateState(.idle)
-                    }
-
-                    updatePublisher?.send(completion: .finished)
-                    updatePublisher = nil
-
+                    break
                 case let .failure(error):
                     Analytics.log(error: error)
+                    updateRatesIfNeeded([:])
                     updateState(.failed(error: error.localizedDescription))
                     updatePublisher?.send(completion: .failure(error))
                     updatePublisher = nil
                 }
+
+            } receiveValue: { [unowned self] rates in
+                updateRatesIfNeeded(rates)
+
+                // Don't update noAccount state
+                if !silent, !state.isNoAccount {
+                    updateState(.idle)
+                }
+
+                updatePublisher?.send(completion: .finished)
+                updatePublisher = nil
             }
 
         return newUpdatePublisher.eraseToAnyPublisher()
@@ -168,31 +170,30 @@ class WalletModel: ObservableObject, Identifiable {
 
     func updateWalletManager() -> AnyPublisher<Void, Error> {
         Future { promise in
-            DispatchQueue.global().async {
+            self.updateQueue.sync {
                 print("🔄 Updating wallet model for \(self.wallet.blockchain)")
                 self.walletManager.update { [weak self] result in
-                    DispatchQueue.global().async {
-                        print("🔄 Finished updating wallet model for \(self?.wallet.blockchain.displayName ?? "")")
+                    let blockchainName = self?.wallet.blockchain.displayName ?? ""
+                    print("🔄 Finished updating wallet model for \(blockchainName) result: \(result)")
 
-                        switch result {
-                        case let .failure(error):
-                            switch error as? WalletError {
-                            case .noAccount(let message):
-                                // If we don't have a account just update state and loadRates
-                                self?.updateState(.noAccount(message: message))
-                                promise(.success(()))
-                            default:
-                                promise(.failure(error.detailedError))
-                            }
+                    switch result {
+                    case .success:
+                        self?.latestUpdateTime = Date()
 
-                        case .success:
-                            self?.latestUpdateTime = Date()
+                        if let demoBalance = self?.demoBalance {
+                            self?.walletManager.wallet.add(coinValue: demoBalance)
+                        }
 
-                            if let demoBalance = self?.demoBalance {
-                                self?.walletManager.wallet.add(coinValue: demoBalance)
-                            }
+                        promise(.success(()))
 
+                    case let .failure(error):
+                        switch error as? WalletError {
+                        case .noAccount(let message):
+                            // If we don't have a account just update state and loadRates
+                            self?.updateState(.noAccount(message: message))
                             promise(.success(()))
+                        default:
+                            promise(.failure(error.detailedError))
                         }
                     }
                 }
@@ -238,20 +239,19 @@ class WalletModel: ObservableObject, Identifiable {
 
         return tangemApiService
             .loadRates(for: currenciesToExchange)
-            .receive(on: DispatchQueue.global())
-            .handleEvents(receiveOutput: { [unowned self] rates in
-                updateRatesIfNeeded(rates)
-            })
             .eraseToAnyPublisher()
     }
 
     func updateRatesIfNeeded(_ rates: [String: Decimal]) {
         if !self.rates.isEmpty && rates.isEmpty {
+            print("🔴 New rates for \(wallet.blockchain) isEmpty")
             return
         }
 
         print("🔄 Update rates for \(wallet.blockchain)")
-        self.rates = rates
+        DispatchQueue.main.async {
+            self.rates = rates
+        }
     }
 
     // MARK: - Manage tokens

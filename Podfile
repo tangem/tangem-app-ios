@@ -3,7 +3,7 @@ platform :ios, '13.0'
 project 'TangemApp.xcodeproj'
 
 def common_pods
-   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-172'
+   pod 'TangemSdk', :git => 'https://github.com/Tangem/tangem-sdk-ios.git', :tag => 'develop-174'
    #pod 'TangemSdk', :path => '../tangem-sdk-ios'
 end
 
@@ -27,7 +27,7 @@ target 'Tangem' do
   pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-174'
 #  pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
   
-  pod 'web3swift', :git => 'https://github.com/tangem/web3swift.git', :tag => '2.2.10'
+  pod 'web3swift', :git => 'https://github.com/tangem/web3swift.git', :tag => '2.2.11'
   #pod 'web3swift', :path => '../web3swift'
   
   pod 'BitcoinCore.swift', :git => 'https://github.com/tangem/bitcoincore.git', :tag => '0.0.16'

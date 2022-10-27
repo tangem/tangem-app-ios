@@ -11,8 +11,6 @@ import SwiftUI
 struct DisclaimerView: View {
     let viewModel: DisclaimerViewModel
 
-    private let bottomViewHeight: CGFloat = 150
-
     var body: some View {
         ZStack(alignment: .bottom) {
             VStack(alignment: .leading, spacing: 16) {
@@ -23,7 +21,7 @@ struct DisclaimerView: View {
                         .padding([.top, .horizontal], 16)
                 }
 
-                PDFKitView(url: viewModel.url)
+                WebViewContainer(viewModel: viewModel.webViewModel)
             }
 
             if viewModel.showAccept {
@@ -36,6 +34,7 @@ struct DisclaimerView: View {
         .navigationBarTitle(viewModel.style.title)
         .navigationBarBackButtonHidden(viewModel.style.isNavigationBarHidden)
         .navigationBarHidden(viewModel.style.isNavigationBarHidden)
+        .onDisappear(perform: viewModel.onDisappear)
     }
 
     private var bottomView: some View {
@@ -51,7 +50,7 @@ struct DisclaimerView: View {
             )
             .frame(
                 width: UIScreen.main.bounds.width,
-                height: bottomViewHeight
+                height: viewModel.bottomOverlayHeight
             )
 
             TangemButton(title: "common_accept", action: viewModel.onAccept)
@@ -74,12 +73,14 @@ extension DisclaimerView {
 }
 
 struct DisclaimerView_Previews: PreviewProvider {
+    private static var url: URL = .init(string: "https://tangem.com")!
+
     static var previews: some View {
-        DisclaimerView(viewModel: .init(style: .sheet, showAccept: true, coordinator: nil))
+        DisclaimerView(viewModel: .init(url: url, style: .sheet, coordinator: nil, acceptanceHandler: { _ in }))
             .previewGroup(devices: [.iPhone12Pro, .iPhone8Plus], withZoomed: false)
 
         NavigationView(content: {
-            DisclaimerView(viewModel: .init(style: .navbar, showAccept: true, coordinator: nil))
+            DisclaimerView(viewModel: .init(url: url, style: .navbar, coordinator: nil, acceptanceHandler: { _ in }))
         })
     }
 }

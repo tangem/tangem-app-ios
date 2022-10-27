@@ -37,14 +37,6 @@ extension TwinConfig: UserWalletConfig {
         return config
     }
 
-    var emailConfig: EmailConfig {
-        .default
-    }
-
-    var touURL: URL? {
-        nil
-    }
-
     var cardSetLabel: String? {
         String.localizedStringWithFormat("card_label_card_count".localized, cardsCount)
     }
@@ -125,6 +117,10 @@ extension TwinConfig: UserWalletConfig {
         CardEmailDataFactory().makeEmailData(for: card, walletData: walletData)
     }
 
+    var userWalletIdSeed: Data? {
+        TwinCardsUtils.makeCombinedWalletKey(for: card, pairData: twinData)
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
@@ -169,6 +165,8 @@ extension TwinConfig: UserWalletConfig {
             return .available
         case .topup:
             return .available
+        case .tokenSynchronization:
+            return .hidden
         }
     }
 
