@@ -34,12 +34,10 @@ struct CardSettingsView: View {
                     DefaultFooterView(firstSectionFooterTitle)
                 }
                 
-                if viewModel.isResetToFactoryAvailable {
-                    GroupedSection(viewModel.resetToFactorySection) {
-                        DefaultRowView(viewModel: $0)
-                    } footer: {
-                        DefaultFooterView("card_settings_reset_card_to_factory_footer".localized)
-                    }
+                GroupedSection(viewModel.resetToFactoryViewModel) {
+                    DefaultRowView(viewModel: $0)
+                } footer: {
+                    DefaultFooterView("card_settings_reset_card_to_factory_footer".localized)
                 }
             }
         }
