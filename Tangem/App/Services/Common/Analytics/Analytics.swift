@@ -17,11 +17,11 @@ import TangemSdk
 enum Analytics {
     static private var analyticsSystems: [Analytics.AnalyticSystem] = [.firebase, .appsflyer, .amplitude]
     static private var persistentParams: [ParameterKey: String] = [:]
-    
+
     static func reset() {
         persistentParams = [:]
     }
-    
+
     static func log(_ event: Event, params: [ParameterKey: String] = [:]) {
         for system in analyticsSystems {
             switch system {
@@ -36,7 +36,7 @@ enum Analytics {
 
     static func logScan(card: Card, config: UserWalletConfig) {
         persistentParams[.batchId] = card.batchId
-        
+
         log(event: .cardIsScanned, with: collectCardData(card))
 
         if DemoUtil().isDemoCard(cardId: card.cardId) {
@@ -81,7 +81,7 @@ enum Analytics {
             Crashlytics.crashlytics().record(error: error)
         }
     }
-    
+
     static func logCrashlytics(_ event: Event, with params: [String: Any] = [:]) {
         if AppEnvironment.current.isXcodePreview {
             return
@@ -154,18 +154,18 @@ enum Analytics {
                                                  .amount: "\(order.total)\(order.currencyCode)"])
     }
 
-    static func logAmplitude(event: Event, params: [ParameterKey: String] = [:]) {
+    private static func logAmplitude(event: Event, params: [ParameterKey: String] = [:]) {
         let mergedParams = params.merging(persistentParams, uniquingKeysWith: { (current, _) in  current })
         let convertedParams = mergedParams.reduce(into: [:]) { $0[$1.key.rawValue] = $1.value }
         Amplitude.instance().logEvent(event.rawValue, withEventProperties: convertedParams)
     }
-    
-    static func log(event: Event, with params: [ParameterKey: String]? = nil) {
+
+    private static func log(event: Event, with params: [ParameterKey: String]? = nil) {
         let key = event.rawValue
-        
+
         let mergedParams = params?.merging(persistentParams, uniquingKeysWith: { (current, _) in  current })
         let values = mergedParams?.firebaseParams
-        
+
         FirebaseAnalytics.Analytics.logEvent(key, parameters: values)
         AppsFlyerLib.shared().logEvent(key, withValues: values)
     }
