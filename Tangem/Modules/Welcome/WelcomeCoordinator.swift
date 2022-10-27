@@ -85,7 +85,7 @@ extension WelcomeCoordinator: WelcomeRoutable {
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
-        let options = OnboardingCoordinator.Options(input: input, shouldOpenMainOnFinish: false)
+        let options = OnboardingCoordinator.Options(input: input, destination: .dismiss)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
     }
@@ -104,7 +104,7 @@ extension WelcomeCoordinator: WelcomeRoutable {
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
-        let options = OnboardingCoordinator.Options(input: input, shouldOpenMainOnFinish: true)
+        let options = OnboardingCoordinator.Options(input: input, destination: .main)
         coordinator.start(with: options)
         pushedOnboardingCoordinator = coordinator
     }
@@ -129,8 +129,8 @@ extension WelcomeCoordinator: WelcomeRoutable {
         mailViewModel = MailViewModel(dataCollector: dataCollector, recipient: recipient, emailType: .failedToScanCard)
     }
 
-    func openDisclaimer() {
-        disclaimerViewModel = DisclaimerViewModel(style: .sheet, showAccept: true, coordinator: self)
+    func openDisclaimer(at url: URL, _ handler: @escaping (Bool) -> Void) {
+        disclaimerViewModel = DisclaimerViewModel(url: url, style: .sheet, coordinator: self, acceptanceHandler: handler)
     }
 
     func openTokensList() {
@@ -150,8 +150,7 @@ extension WelcomeCoordinator: WelcomeRoutable {
 }
 
 extension WelcomeCoordinator: DisclaimerRoutable {
-    func dismissAcceptedDisclaimer() {
+    func dismissDisclaimer() {
         self.disclaimerViewModel = nil
-        self.welcomeViewModel?.scanCard()
     }
 }
