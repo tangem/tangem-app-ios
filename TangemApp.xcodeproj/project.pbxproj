@@ -1909,7 +1909,7 @@
 				EF46623C2924F1F700346B6C /* ExchangeComponets */,
 				EFEBCE2929265CEA00B0C886 /* TokenIconView */,
 				EF661E3028C0ACD0005769E5 /* ScanCardWarningView */,
-				EFA580642893F89000110DB0 /* AttentionView */,
+				EFA580642893F89000110DB0 /* ResetToFactoryAttentionView */,
 				EF9CFC3A2890233100329BE0 /* DefaultListViews */,
 				65B4DEC52881A948001524CF /* BottomSheet */,
 				EFB4C1302837C50C00E991C1 /* Types */,
@@ -3853,13 +3853,13 @@
 			path = DefaultListViews;
 			sourceTree = "<group>";
 		};
-		EFA580642893F89000110DB0 /* AttentionView */ = {
+		EFA580642893F89000110DB0 /* ResetToFactoryAttentionView */ = {
 			isa = PBXGroup;
 			children = (
-				EFC98EA12897CB3F00261D33 /* AttentionView.swift */,
-				EFC98EA02897CB3F00261D33 /* AttentionViewModel.swift */,
+				EFC98EA12897CB3F00261D33 /* ResetToFactoryAttentionView.swift */,
+				EFC98EA02897CB3F00261D33 /* ResetToFactoryAttentionViewModel.swift */,
 			);
-			path = AttentionView;
+			path = ResetToFactoryAttentionView;
 			sourceTree = "<group>";
 		};
 		EFB4C1302837C50C00E991C1 /* Types */ = {
@@ -4687,7 +4687,7 @@
 				B04CD34029122C6E001EA84A /* ReferralCoordinator.swift in Sources */,
 				EFFE2CE928B8E0B300B9F279 /* UserWalletModel.swift in Sources */,
 				DC66BBFD285A389000CDF765 /* SheetModifier.swift in Sources */,
-				EFC98EA22897CB3F00261D33 /* AttentionViewModel.swift in Sources */,
+				EFC98EA22897CB3F00261D33 /* ResetToFactoryAttentionViewModel.swift in Sources */,
 				B074BAC126779B28005D641B /* PushTxView.swift in Sources */,
 				B085154D26D7797400E1A836 /* TwinsOnboardingView.swift in Sources */,
 				DC936B6D28F3F83E0023C75D /* RegistrationTask.swift in Sources */,
@@ -5009,7 +5009,7 @@
 				DA6C752C292909B20070EEFD /* UserWalletRepositoryUtil.swift in Sources */,
 				DC295B4E2861D871006CB7B6 /* WalletConnectCoordinatorView.swift in Sources */,
 				DC936B6928F3F7D20023C75D /* GnosisRegistrator.swift in Sources */,
-				EFC98EA32897CB3F00261D33 /* AttentionView.swift in Sources */,
+				EFC98EA32897CB3F00261D33 /* ResetToFactoryAttentionView.swift in Sources */,
 				B0F79C6A2689AC56008C9B30 /* FileEncryptionUtility.swift in Sources */,
 				DA6C7528292613D00070EEFD /* UserWalletIdFactory.swift in Sources */,
 				EF11DD9D29378A6F0044B33C /* SwappingTokenItemViewModel.swift in Sources */,
