@@ -13,7 +13,7 @@ struct PerfList<Content: View>: View {
     let dismissKeyboardOnScroll: Bool
     let content: () -> Content
 
-    init(dismissKeyboardOnScroll: Bool, @ViewBuilder _ content: @escaping () -> Content) {
+    init(dismissKeyboardOnScroll: Bool = true, @ViewBuilder _ content: @escaping () -> Content) {
         self.dismissKeyboardOnScroll = dismissKeyboardOnScroll
         self.content = content
     }
@@ -25,7 +25,7 @@ struct PerfList<Content: View>: View {
                     content()
                 }
             }
-            .scrollDismissesKeyboardCompatibility(dismissKeyboardOnScroll)
+            .scrollDismissesKeyboardCompat(dismissKeyboardOnScroll)
         } else {
             List {
                 content()
