@@ -10,6 +10,7 @@ import Foundation
 import Combine
 import BlockchainSdk
 import Exchanger
+import BigInt
 
 class ExchangeViewModel: ObservableObject {
     @Injected(\.rateAppService) private var rateAppService: RateAppService
@@ -20,20 +21,23 @@ class ExchangeViewModel: ObservableObject {
 
     let amountType: Amount.AmountType
     let walletModel: WalletModel
-    let cardViewModel: CardViewModel
+    let card: CardViewModel
     let blockchainNetwork: BlockchainNetwork
+
     var bag = Set<AnyCancellable>()
     var prefetchedAvailableCoins: [CoinModel] = []
 
     private let exchangeFacade: ExchangeFacade = ExchangeFacadeImpl(enableDebugMode: true)
     private let signer: ExchangeSigner = ExchangeSigner()
 
+    private lazy var exchangeInteractor: ExchangeTxInteractor = ExchangeTxInteractor(walletModel: walletModel, card: card)
+
     private var transactionProcessor: EthereumTransactionProcessor {
         walletModel.walletManager as! EthereumTransactionProcessor
     }
 
     private var userWalletModel: UserWalletModel? {
-        cardViewModel.userWalletModel
+        card.userWalletModel
     }
 
     init(
@@ -44,7 +48,7 @@ class ExchangeViewModel: ObservableObject {
     ) {
         self.amountType = amountType
         self.walletModel = walletModel
-        self.cardViewModel = cardViewModel
+        self.card = cardViewModel
         self.blockchainNetwork = blockchainNetwork
         self.items = ExchangeItems(fromItem: ExchangeItem(isMainToken: true, amountType: amountType, blockchainNetwork: blockchainNetwork),
                                    toItem: ExchangeItem(isMainToken: false, amountType: amountType, blockchainNetwork: blockchainNetwork))
@@ -80,25 +84,43 @@ class ExchangeViewModel: ObservableObject {
 
     /// Sign and send swap transaction
     func onSwap() {
-        guard let txString = swapInformation?.tx.data, let txData = txString.data(using: .utf8) else { return }
-        Task {
-            do {
-                let signedHash = try await signer.signTx(txData, publicKey: walletModel.wallet.publicKey.seedKey)
-                // [REDACTED_TODO_COMMENT]
-            } catch {
-                print(error.localizedDescription)
+        guard let swapInformation else { return }
+
+        exchangeInteractor
+            .sendSwapTransaction(info: swapInformation)
+            .sink(receiveCompletion: { completion in
+                switch completion {
+                case .failure(let error):
+                    print(error.localizedDescription)
+                case .finished:
+                    break
+                }
+            }) { [weak self] _ in
+                guard let self else { return }
+                
+                self.openSuccessView()
             }
-        }
+            .store(in: &bag)
     }
 
     func onApprove() {
         Task {
             do {
                 let approveData = try await items.fromItem.approveTxData()
-                guard let txData = approveData.data.data(using: .utf8) else { return }
-
-                let signedHash = try await signer.signTx(txData, publicKey: walletModel.wallet.publicKey.seedKey)
-                // [REDACTED_TODO_COMMENT]
+                
+                exchangeInteractor
+                    .sendApproveTransaction(info: approveData)
+                    .sink { completion in
+                        switch completion {
+                        case .finished:
+                            break
+                        case .failure(let error):
+                            print(error.localizedDescription)
+                        }
+                    } receiveValue: { [weak self] _ in
+                        guard let self else { return }
+                        // [REDACTED_TODO_COMMENT]
+                    }.store(in: &bag)
             } catch {
                 print(error.localizedDescription)
             }
@@ -123,7 +145,8 @@ class ExchangeViewModel: ObservableObject {
 
     private func preloadAvailableTokens() {
         tangemApiService
-            .loadCoins(requestModel: CoinsListRequestModel(networkIds: [blockchainNetwork.blockchain.networkId], exchange: true))
+            .loadCoins(requestModel: .init(networkIds: [blockchainNetwork.blockchain.networkId],
+                                           exchange: true))
             .sink { completion in
                 switch completion {
                 case .finished: break
