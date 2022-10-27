@@ -24,7 +24,7 @@ class CommonUserTokenListManager {
     private let hasTokenSynchronization: Bool
 
     init(config: UserWalletConfig, userWalletId: Data) {
-        self.hasTokenSynchronization = config.hasFeature(.multiCurrency)
+        self.hasTokenSynchronization = config.hasFeature(.tokenSynchronization)
         self.userWalletId = userWalletId
 
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
