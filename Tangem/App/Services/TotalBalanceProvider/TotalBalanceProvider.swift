@@ -35,28 +35,21 @@ extension TotalBalanceProvider: TotalBalanceProviding {
 
     func updateTotalBalance() {
         totalBalanceSubject.send(.loading)
-        DispatchQueue.global().async {
-            self.loadCurrenciesAndUpdateBalance()
-        }
+        loadCurrenciesAndUpdateBalance()
     }
 }
 
 private extension TotalBalanceProvider {
     func loadCurrenciesAndUpdateBalance() {
-        let tokenItemViewModels = userWalletModel.getWalletModels()
-            .flatMap { $0.allTokenItemViewModels() }
-            .filter { model in
-                guard let amountType = userWalletAmountType else { return true }
-
-                return model.amountType == amountType
-            }
-
         refreshSubscription = tangemApiService.loadCurrencies()
+            .receive(on: DispatchQueue.global())
             .tryMap { [weak self] currencies -> TotalBalance in
                 guard let self = self,
                       let currency = currencies.first(where: { $0.code == AppSettings.shared.selectedCurrencyCode }) else {
                     throw CommonError.noData
                 }
+
+                let tokenItemViewModels = self.getTokenItemViewModels()
 
                 var hasError: Bool = false
                 var balance: Decimal = 0.0
@@ -71,17 +64,34 @@ private extension TotalBalanceProvider {
                     }
                 }
 
-                self.totalBalanceAnalyticsService.sendToppedUpEventIfNeeded(tokenItemViewModels: tokenItemViewModels, balance: balance)
+                self.totalBalanceAnalyticsService.sendToppedUpEventIfNeeded(
+                    tokenItemViewModels: tokenItemViewModels,
+                    balance: balance
+                )
 
                 if self.isFirstLoadForCardInSession {
-                    self.totalBalanceAnalyticsService.sendFirstLoadBalanceEventForCard(tokenItemViewModels: tokenItemViewModels, balance: balance)
+                    self.totalBalanceAnalyticsService.sendFirstLoadBalanceEventForCard(
+                        tokenItemViewModels: tokenItemViewModels,
+                        balance: balance
+                    )
                     self.isFirstLoadForCardInSession = false
                 }
 
                 return TotalBalance(balance: balance, currency: currency, hasError: hasError)
             }
+            .receive(on: DispatchQueue.main)
             .receiveValue { [weak self] balance in
                 self?.totalBalanceSubject.send(.loaded(balance))
+            }
+    }
+
+    func getTokenItemViewModels() -> [TokenItemViewModel] {
+        userWalletModel.getWalletModels()
+            .flatMap { $0.allTokenItemViewModels() }
+            .filter { model in
+                guard let amountType = userWalletAmountType else { return true }
+
+                return model.amountType == amountType
             }
     }
 }
