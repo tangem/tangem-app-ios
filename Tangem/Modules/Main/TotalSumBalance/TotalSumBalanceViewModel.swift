@@ -101,7 +101,10 @@ class TotalSumBalanceViewModel: ObservableObject {
         totalBalanceManager.totalBalancePublisher()
             .compactMap { $0.value }
             .map { [unowned self] balance in
-                addAttributeForBalance(balance.balance, withCurrencyCode: balance.currency.code)
+                if balance.balance > 0 {
+                    registerPositiveBalance()
+                }
+                return addAttributeForBalance(balance.balance, withCurrencyCode: balance.currency.code)
             }
             .weakAssign(to: \.totalFiatValueString, on: self)
             .store(in: &bag)
@@ -146,10 +149,8 @@ class TotalSumBalanceViewModel: ObservableObject {
         return attributedString
     }
 
-    private func checkPositiveBalance() {
+    private func registerPositiveBalance() {
         guard rateAppService.shouldCheckBalanceForRateApp else { return }
-
-        guard userWalletModel.getWalletModels().contains(where: { !$0.wallet.isEmpty }) else { return }
 
         rateAppService.registerPositiveBalanceDate()
     }
