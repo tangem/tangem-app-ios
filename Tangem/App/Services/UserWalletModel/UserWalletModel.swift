@@ -28,6 +28,7 @@ protocol UserWalletModel {
     func append(entries: [StorageEntry])
     func remove(item: CommonUserWalletModel.RemoveItem)
 
+    func updateWalletModels()
     func updateAndReloadWalletModels(silent: Bool, completion: @escaping () -> Void)
 }
 
