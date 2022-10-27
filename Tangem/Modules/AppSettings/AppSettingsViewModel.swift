@@ -15,18 +15,18 @@ class AppSettingsViewModel: ObservableObject {
     @Published var warningViewModel: DefaultWarningRowViewModel?
     @Published var savingWalletViewModel: DefaultToggleRowViewModel?
     @Published var savingAccessCodesViewModel: DefaultToggleRowViewModel?
-    
+
     @Published var alert: AlertBinder?
-    
+
     // MARK: Dependencies
 
     private unowned let coordinator: AppSettingsRoutable
 
     // MARK: Properties
-    
+
     private var bag: Set<AnyCancellable> = []
     private var isBiometryAvailable: Bool = true
-    
+
     private var isSavingWallet: Bool = true {
         didSet { self.savingWalletViewModel?.update(isOn: isSavingWalletBinding()) }
     }
@@ -61,14 +61,14 @@ private extension AppSettingsViewModel {
             isEnabled: isBiometryAvailable,
             isOn: isSavingWalletBinding()
         )
-        
+
         savingAccessCodesViewModel = DefaultToggleRowViewModel(
             title: "app_settings_saved_access_codes".localized,
             isEnabled: isBiometryAvailable,
             isOn: isSavingAccessCodesBinding()
         )
     }
-    
+
     func isSavingWalletBinding() -> Binding<Bool> {
         Binding<Bool>(
             root: self,
@@ -83,7 +83,7 @@ private extension AppSettingsViewModel {
             }
         )
     }
-    
+
     func isSavingAccessCodesBinding() -> Binding<Bool> {
         Binding<Bool>(
             root: self,

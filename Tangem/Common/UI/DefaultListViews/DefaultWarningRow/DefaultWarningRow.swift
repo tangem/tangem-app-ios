@@ -32,7 +32,7 @@ struct DefaultWarningRow: View {
                     Text(viewModel.subtitle)
                         .style(Fonts.Regular.footnote, color: Colors.Text.secondary)
                 }
-                
+
                 Spacer()
             }
             .padding(.vertical, 8)

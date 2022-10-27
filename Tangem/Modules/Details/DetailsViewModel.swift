@@ -14,7 +14,7 @@ import BlockchainSdk
 
 class DetailsViewModel: ObservableObject {
     // MARK: - View State
-    
+
     @Published var walletConnectRowViewModel: WalletConnectRowViewModel?
     @Published var supportSectionModels: [DefaultRowViewModel] = []
     @Published var settingsSectionViewModels: [DefaultRowViewModel] = []
@@ -121,7 +121,7 @@ extension DetailsViewModel {
         Analytics.log(.buttonSocialNetwork)
         coordinator.openInSafari(url: url)
     }
-    
+
     func openEnvironmentSetup() {
         coordinator.openEnvironmentSetup()
     }
@@ -137,7 +137,7 @@ extension DetailsViewModel {
         setupLegalSectionViewModels()
         setupEnvironmentSetupSection()
     }
-    
+
     func bind() {
         cardModel.objectWillChange
             .receive(on: RunLoop.main)
@@ -146,7 +146,7 @@ extension DetailsViewModel {
             }
             .store(in: &bag)
     }
-    
+
     func setupWalletConnectRowViewModel() {
         guard cardModel.shouldShowWC else {
             walletConnectRowViewModel = nil
@@ -159,14 +159,14 @@ extension DetailsViewModel {
             action: openWalletConnect
         )
     }
-    
+
     func setupSupportSectionModels() {
         supportSectionModels = [
             DefaultRowViewModel(title: "details_chat".localized, action: openSupportChat),
             DefaultRowViewModel(title: "details_row_title_send_feedback".localized, action: openMail),
         ]
     }
-    
+
     func setupSettingsSectionViewModels() {
         var viewModels: [DefaultRowViewModel] = []
 
@@ -182,14 +182,14 @@ extension DetailsViewModel {
             title: "details_row_title_card_settings".localized,
             action: openCardSettings
         ))
-        
+
         // [REDACTED_TODO_COMMENT]
         /*
-        viewModels.append(DefaultRowViewModel(
-            title: "details_row_title_app_settings".localized,
-            action: openAppSettings
-        ))
-         */
+         viewModels.append(DefaultRowViewModel(
+             title: "details_row_title_app_settings".localized,
+             action: openAppSettings
+         ))
+          */
 
         if canCreateBackup {
             viewModels.append(DefaultRowViewModel(
@@ -197,10 +197,10 @@ extension DetailsViewModel {
                 action: prepareBackup
             ))
         }
-        
+
         settingsSectionViewModels = viewModels
     }
-    
+
     func setupLegalSectionViewModels() {
         var viewModels: [DefaultRowViewModel] = [
             DefaultRowViewModel(title: "disclaimer_title".localized, action: coordinator.openDisclaimer),
@@ -211,10 +211,10 @@ extension DetailsViewModel {
                 self?.coordinator.openCardTOU(url: url)
             })
         }
-        
+
         legalSectionViewModels = viewModels
     }
-    
+
     func setupEnvironmentSetupSection() {
         if AppEnvironment.current.isProduction {
             environmentSetupViewModel = nil
