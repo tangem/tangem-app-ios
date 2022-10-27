@@ -10,7 +10,6 @@ import Foundation
 import Combine
 import BlockchainSdk
 import Exchanger
-import BigInt
 
 class ExchangeViewModel: ObservableObject {
     @Injected(\.rateAppService) private var rateAppService: RateAppService
@@ -51,9 +50,11 @@ class ExchangeViewModel: ObservableObject {
         preloadAvailableTokens()
         bind()
     }
+}
 
-    // MARK: - Methods
-    
+// MARK: - Methods
+
+extension ExchangeViewModel {
     /// Change token places
     func onSwapItems() {
         items = ExchangeItems(fromItem: items.toItem, toItem: items.fromItem)
@@ -95,7 +96,7 @@ class ExchangeViewModel: ObservableObject {
                 }
             }) { [weak self] _ in
                 guard let self else { return }
-                
+
                 self.openSuccessView()
             }
             .store(in: &bag)
@@ -105,7 +106,7 @@ class ExchangeViewModel: ObservableObject {
         Task {
             do {
                 let approveData = try await items.fromItem.approveTxData()
-                
+
                 exchangeInteractor
                     .sendApproveTransaction(info: approveData)
                     .sink { completion in
@@ -124,9 +125,10 @@ class ExchangeViewModel: ObservableObject {
             }
         }
     }
+}
+// MARK: - Private
 
-    // MARK: - Private
-
+extension ExchangeViewModel {
     /// Spender address
     private func getSpender() async throws -> String {
         let blockchain = ExchangeBlockchain.convert(from: blockchainNetwork)
@@ -143,8 +145,7 @@ class ExchangeViewModel: ObservableObject {
 
     private func preloadAvailableTokens() {
         tangemApiService
-            .loadCoins(requestModel: .init(networkIds: [blockchainNetwork.blockchain.networkId],
-                                           exchange: true))
+            .loadCoins(requestModel: .init(networkIds: [blockchainNetwork.blockchain.networkId], exchange: true))
             .sink { completion in
                 switch completion {
                 case .finished: break
