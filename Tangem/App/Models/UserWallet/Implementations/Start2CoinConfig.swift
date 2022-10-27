@@ -182,6 +182,8 @@ extension Start2CoinConfig: UserWalletConfig {
             return .available
         case .topup:
             return .available
+        case .tokenSynchronization:
+            return .hidden
         }
     }
 
