@@ -39,7 +39,7 @@ class CardViewModel: Identifiable, ObservableObject {
         config.emailData
     }
 
-    var emailConfig: EmailConfig {
+    var emailConfig: EmailConfig? {
         config.emailConfig
     }
 
@@ -67,7 +67,7 @@ class CardViewModel: Identifiable, ObservableObject {
         !config.getFeatureAvailability(.walletConnect).isHidden
     }
 
-    var cardTouURL: URL? {
+    var cardTouURL: URL {
         config.touURL
     }
 
