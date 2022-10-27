@@ -491,6 +491,7 @@
 		E94667C72901FA9A0043AD0A /* ExchangeCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94667C62901FA9A0043AD0A /* ExchangeCoordinatorView.swift */; };
 		E94667C92901FADB0043AD0A /* ExchangeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94667C82901FADB0043AD0A /* ExchangeView.swift */; };
 		E94667CC2902BC260043AD0A /* ExchangeItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94667CB2902BC260043AD0A /* ExchangeItem.swift */; };
+		E94D87F82909762F00F82926 /* ExchangeInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94D87F72909762F00F82926 /* ExchangeInteractor.swift */; };
 		E9E416722902D6E00028F40E /* Exchange+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E416712902D6E00028F40E /* Exchange+Utils.swift */; };
 		E9E4167429033F300028F40E /* ExchangeItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E4167329033F300028F40E /* ExchangeItems.swift */; };
 		E9E416762904B8A80028F40E /* Exchange+Timer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E416752904B8A80028F40E /* Exchange+Timer.swift */; };
@@ -1148,6 +1149,7 @@
 		E94667C62901FA9A0043AD0A /* ExchangeCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeCoordinatorView.swift; sourceTree = "<group>"; };
 		E94667C82901FADB0043AD0A /* ExchangeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeView.swift; sourceTree = "<group>"; };
 		E94667CB2902BC260043AD0A /* ExchangeItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeItem.swift; sourceTree = "<group>"; };
+		E94D87F72909762F00F82926 /* ExchangeInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeInteractor.swift; sourceTree = "<group>"; };
 		E9E416712902D6E00028F40E /* Exchange+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Exchange+Utils.swift"; sourceTree = "<group>"; };
 		E9E4167329033F300028F40E /* ExchangeItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeItems.swift; sourceTree = "<group>"; };
 		E9E416752904B8A80028F40E /* Exchange+Timer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Exchange+Timer.swift"; sourceTree = "<group>"; };
@@ -2755,6 +2757,7 @@
 		E94667C12901F5C90043AD0A /* Exchange */ = {
 			isa = PBXGroup;
 			children = (
+				E94D87F6290968B700F82926 /* Interactor */,
 				E94667CD2902D6A80043AD0A /* Utils */,
 				E94667C22901F60A0043AD0A /* ExchangeViewModel.swift */,
 				E94667C42901F8690043AD0A /* ExchangeCoordinator.swift */,
@@ -2774,6 +2777,14 @@
 				E9E416772906E11F0028F40E /* ExchangeSigner.swift */,
 			);
 			path = Utils;
+			sourceTree = "<group>";
+		};
+		E94D87F6290968B700F82926 /* Interactor */ = {
+			isa = PBXGroup;
+			children = (
+				E94D87F72909762F00F82926 /* ExchangeInteractor.swift */,
+			);
+			path = Interactor;
 			sourceTree = "<group>";
 		};
 		EF08A0ED283D1905008BD923 /* Extensions */ = {
@@ -3804,6 +3815,7 @@
 				DC295B502861D9B3006CB7B6 /* SecurityModeCoordinatorView.swift in Sources */,
 				DA23789227B250F6009795A8 /* ShopView.swift in Sources */,
 				DC194D2828EC6AA0007FBC99 /* SaltPayRegistratorProviding.swift in Sources */,
+				E94D87F82909762F00F82926 /* ExchangeInteractor.swift in Sources */,
 				B031AAB326C169E900015003 /* ConfettiType.swift in Sources */,
 				DCFCA17528F4232F0037586C /* Array+.swift in Sources */,
 				5D341CC627E31DC00028D8FC /* CoinView.swift in Sources */,
