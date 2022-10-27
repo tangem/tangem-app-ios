@@ -24,63 +24,47 @@ class ExchangeTxInteractor {
     }
 
     func sendSwapTransaction(info: SwapDTO) -> AnyPublisher<(), Error> {
-        guard let gasLoader = walletModel.walletManager as? EthereumGasLoader else {
-            return Fail(error: ExchangeError.gasLoaderNotFind).eraseToAnyPublisher()
-        }
         let blockchain = walletModel.blockchainNetwork.blockchain
-
         let amount = Amount(with: blockchain, value: Decimal(string: info.tx.value) ?? 0)
+        let gasPrice = Decimal(string: info.tx.gasPrice) ?? 0
 
-        return gasLoader.getGasLimit(amount: amount,
-                                     destination: info.tx.to)
-            .tryMap { [unowned self] gasPrice -> Transaction in
-                let gasAmount = Amount(with: blockchain,
-                                       type: .coin,
-                                       value: Decimal(info.tx.gas * Int(gasPrice)) / blockchain.decimalValue)
-                do {
-                    var tx = try self.walletModel.walletManager.createTransaction(amount: amount,
-                                                                                  fee: gasAmount,
-                                                                                  destinationAddress: info.tx.to)
-                    let txData = Data(hexString: info.tx.data)
-                    tx.params = EthereumTransactionParams(data: txData)
+        let gasValue = Decimal(info.tx.gas) * gasPrice / blockchain.decimalValue
+        let gasAmount = Amount(with: blockchain, type: .coin, value: gasValue)
 
-                    return tx
-                } catch {
-                    throw ExchangeError.failedToBuildTx
-                }
-            }
-            .flatMap({ [unowned self] tx in
-                self.walletModel.send(tx, signer: self.card.signer)
-                    .eraseToAnyPublisher()
-            })
-            .eraseToAnyPublisher()
-    }
-    
-    func sendApproveTransaction(info: ApproveTransactionDTO) -> AnyPublisher<(), Error> {
-        guard let gasLoader = walletModel.walletManager as? EthereumGasLoader else {
-            return Fail(error: ExchangeError.gasLoaderNotFind).eraseToAnyPublisher()
+        do {
+            var tx = try walletModel.walletManager.createTransaction(amount: amount,
+                                                                     fee: gasAmount,
+                                                                     destinationAddress: info.tx.to)
+            let txData = Data(hexString: info.tx.data)
+            tx.params = EthereumTransactionParams(data: txData)
+            return walletModel.send(tx, signer: card.signer).eraseToAnyPublisher()
+        } catch {
+            return Fail(error: error).eraseToAnyPublisher()
         }
+    }
+
+    func sendApproveTransaction(info: ApproveTransactionDTO) -> AnyPublisher<(), Error> {
         let blockchain = walletModel.blockchainNetwork.blockchain
 
         let amount = Amount(with: blockchain, value: Decimal(string: info.value) ?? 0)
-        
+
         let getFeePublisher = walletModel.walletManager.getFee(amount: amount, destination: info.to)
-        
-        return Publishers
-            .CombineLatest(getFeePublisher, gasLoader.getGasPrice())
-            .tryMap { [unowned self] (fees, gasPrice) -> Transaction in
+
+        return getFeePublisher
+            .tryMap { [unowned self] fees -> Transaction in
                 let fee: Amount
                 if fees.count == 3 {
                     fee = fees[1]
                 } else {
                     throw ExchangeError.loadFeeWasFail
                 }
-                
-                let decimalGasPrice = Decimal(Int(gasPrice))
-                
+
+                let decimalGasPrice = Decimal(string: info.gasPrice) ?? 0
+
+                let gasValue = fee.value * decimalGasPrice / blockchain.decimalValue
                 let gasAmount = Amount(with: blockchain,
                                        type: .coin,
-                                       value: fee.value * decimalGasPrice / blockchain.decimalValue)
+                                       value: gasValue)
                 do {
                     var tx = try self.walletModel.walletManager.createTransaction(amount: amount,
                                                                                   fee: gasAmount,
