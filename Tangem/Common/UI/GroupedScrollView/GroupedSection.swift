@@ -42,7 +42,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
         self.header = header
         self.footer = footer
     }
-    
+
     init(
         _ model: Model?,
         @ViewBuilder content: @escaping (Model) -> Content,
@@ -60,12 +60,12 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
             VStack(alignment: .leading, spacing: 8) {
                 header()
                     .padding(.horizontal, contentOffset)
-                
+
                 VStack(alignment: .leading, spacing: 12) {
                     ForEach(models) { model in
                         content(model)
                             .padding(.horizontal, contentOffset)
-                        
+
                         if models.last?.id != model.id {
                             separator
                         }
@@ -74,7 +74,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
                 .padding(.vertical, contentVerticalPadding)
                 .background(Colors.Background.primary)
                 .cornerRadius(12)
-                
+
                 footer()
                     .padding(.horizontal, contentOffset)
             }

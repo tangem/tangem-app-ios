@@ -17,11 +17,11 @@ class CardSettingsViewModel: ObservableObject {
     @Published var securityModeTitle: String
     @Published var alert: AlertBinder?
     @Published var isChangeAccessCodeLoading: Bool = false
-    
+
     @Published var cardInfoSection: [DefaultRowViewModel] = []
     @Published var securityModeSection: [DefaultRowViewModel] = []
     @Published var resetToFactoryViewModel: DefaultRowViewModel?
-    
+
     var isResetToFactoryAvailable: Bool {
         !cardModel.resetToFactoryAvailability.isHidden
     }
@@ -67,7 +67,7 @@ private extension CardSettingsViewModel {
             coordinator.openOnboarding(with: twinInput)
         }
     }
-    
+
     func setupView() {
         cardInfoSection = [
             DefaultRowViewModel(title: "details_row_title_cid".localized, detailsType: .text(cardModel.cardIdFormatted)),
@@ -75,13 +75,13 @@ private extension CardSettingsViewModel {
             DefaultRowViewModel(title: "details_row_title_signed_hashes".localized,
                                 detailsType: .text("details_row_subtitle_signed_hashes_format".localized("\(cardModel.cardSignedHashes)"))),
         ]
-        
+
         securityModeSection = [DefaultRowViewModel(
             title: "card_settings_security_mode".localized,
             detailsType: .text(securityModeTitle),
             action: hasSingleSecurityMode ? nil : openSecurityMode
         )]
-        
+
         if isChangeAccessCodeVisible {
             securityModeSection.append(
                 DefaultRowViewModel(

@@ -37,7 +37,7 @@ struct DefaultToggleRowViewPreview: PreviewProvider {
         isEnabled: true,
         isOn: .constant(true)
     )
-    
+
     static var previews: some View {
         DefaultToggleRowView(viewModel: viewModel)
     }
