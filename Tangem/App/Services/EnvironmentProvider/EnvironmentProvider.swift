@@ -13,10 +13,10 @@ import Foundation
 class EnvironmentProvider {
     static let shared = EnvironmentProvider()
     private init() {}
-    
+
     @AppStorageCompat(EnvironmentProviderKeys.testnet)
     var isTestnet: Bool = false
-    
+
     @AppStorageCompat(EnvironmentProviderKeys.availableFeatures)
     var availableFeatures: Set<FeatureToggle> = []
 }
