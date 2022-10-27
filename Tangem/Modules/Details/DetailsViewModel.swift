@@ -115,10 +115,10 @@ extension DetailsViewModel {
         coordinator.openSupportChat(cardId: cardModel.cardId,
                                     dataCollector: dataCollector)
     }
-    
+
     func openDisclaimer() {
-         coordinator.openDisclaimer(at: cardModel.cardTouURL)
-     }
+        coordinator.openDisclaimer(at: cardModel.cardTouURL)
+    }
 
     func openSocialNetwork(network: SocialNetwork) {
         guard let url = network.url else {
@@ -152,7 +152,7 @@ extension DetailsViewModel {
                 self?.objectWillChange.send()
             }
             .store(in: &bag)
-        
+
         $selectedCurrencyCode
             .dropFirst()
             .sink { [weak self] _ in
@@ -198,12 +198,12 @@ extension DetailsViewModel {
         ))
 
         // [REDACTED_TODO_COMMENT]
-        
-         viewModels.append(DefaultRowViewModel(
-             title: "details_row_title_app_settings".localized,
-             action: openAppSettings
-         ))
-        
+
+        viewModels.append(DefaultRowViewModel(
+            title: "details_row_title_app_settings".localized,
+            action: openAppSettings
+        ))
+
 
         if canCreateBackup {
             viewModels.append(DefaultRowViewModel(
