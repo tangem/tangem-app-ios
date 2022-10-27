@@ -22,11 +22,11 @@ struct EnvironmentSetupView: View {
             } header: {
                 Text("App settings")
             }
-            
+
             Section {
                 ForEach(viewModel.toggles) { toggle in
                     DefaultToggleRowView(title: toggle.toggle.name, isOn: toggle.isActive)
-                    
+
                     if viewModel.toggles.last != toggle {
                         Separator()
                     }
@@ -40,7 +40,7 @@ struct EnvironmentSetupView: View {
         .navigationBarItems(trailing: exitButton)
         .alert(item: $viewModel.alert) { $0.alert }
     }
-    
+
     private var exitButton: some View {
         Button("Exit", action: viewModel.showExitAlert)
     }
