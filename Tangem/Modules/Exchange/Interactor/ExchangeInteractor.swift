@@ -30,7 +30,6 @@ class ExchangeTxInteractor {
         let blockchain = walletModel.blockchainNetwork.blockchain
 
         let amount = Amount(with: blockchain, value: Decimal(string: info.tx.value) ?? 0)
-        let gasPrice = Int(info.tx.gasPrice) ?? 0
 
         return gasLoader.getGasLimit(amount: amount,
                                      destination: info.tx.to)
@@ -65,11 +64,23 @@ class ExchangeTxInteractor {
 
         let amount = Amount(with: blockchain, value: Decimal(string: info.value) ?? 0)
         
-        return gasLoader.getGasPrice()
-            .tryMap { [unowned self] gasPrice -> Transaction in
+        let getFeePublisher = walletModel.walletManager.getFee(amount: amount, destination: info.to)
+        
+        return Publishers
+            .CombineLatest(getFeePublisher, gasLoader.getGasPrice())
+            .tryMap { [unowned self] (fees, gasPrice) -> Transaction in
+                let fee: Amount
+                if fees.count == 3 {
+                    fee = fees[1]
+                } else {
+                    throw ExchangeError.loadFeeWasFail
+                }
+                
+                let decimalGasPrice = Decimal(Int(gasPrice))
+                
                 let gasAmount = Amount(with: blockchain,
                                        type: .coin,
-                                       value: Decimal(Int(gasPrice)) / blockchain.decimalValue)
+                                       value: fee.value * decimalGasPrice / blockchain.decimalValue)
                 do {
                     var tx = try self.walletModel.walletManager.createTransaction(amount: amount,
                                                                                   fee: gasAmount,
@@ -93,5 +104,6 @@ extension ExchangeTxInteractor {
     enum ExchangeError: Error {
         case gasLoaderNotFind
         case failedToBuildTx
+        case loadFeeWasFail
     }
 }
