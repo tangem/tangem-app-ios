@@ -43,12 +43,12 @@ class ResetToFactoryAttentionViewModel: ObservableObject {
 extension ResetToFactoryAttentionViewModel {
     private func showConfirmationAlert() {
         let sheet = ActionSheet(
-            title: Text("Are you sure you want to do this?"), // [REDACTED_TODO_COMMENT]
+            title: Text("card_settings_action_action_sheet_title".localized),
             buttons: [
-                .destructive(Text("Reset"), action: {
-                    [weak self] in self?.resetToFactoryAction()
-                }),
-                .cancel()
+                .destructive(Text("card_settings_action_action_sheet_reset".localized)) { [weak self] in
+                    self?.resetToFactoryAction()
+                },
+                .cancel(Text("common_cancel"))
             ])
 
         self.actionSheet = ActionSheetBinder(sheet: sheet)
