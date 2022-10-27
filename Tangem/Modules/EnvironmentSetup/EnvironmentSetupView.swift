@@ -25,7 +25,7 @@ struct EnvironmentSetupView: View {
                 } header: {
                     DefaultHeaderView("App settings")
                 }
-                
+
                 GroupedSection(viewModel.togglesViewModels) { viewModel in
                     DefaultToggleRowView(viewModel: viewModel)
                 } header: {
@@ -37,7 +37,7 @@ struct EnvironmentSetupView: View {
         .navigationBarItems(trailing: exitButton)
         .alert(item: $viewModel.alert) { $0.alert }
     }
-    
+
     private var exitButton: some View {
         Button("Exit", action: viewModel.showExitAlert)
     }

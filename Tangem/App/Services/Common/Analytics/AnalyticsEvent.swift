@@ -26,7 +26,7 @@ extension Analytics {
         case userSoldCrypto = "user_sold_crypto"
         case getACard = "get_card"
         case demoActivated = "demo_mode_activated"
-        
+
         // MARK: - Amplitude
         case signedIn = "[Basic] Signed in"
         case toppedUp = "[Basic] Topped up"
@@ -135,7 +135,7 @@ extension Analytics {
         case requestSigned = "[Wallet Connect] Request Signed"
         case chatScreenOpened = "[Chat] Chat Screen Opened"
         case settingsScreenOpened = "[Settings] Settings Screen Opened"
-        
+
         // MARK: -
         fileprivate static var nfcError: String {
             "nfc_error"
