@@ -12,7 +12,6 @@ import SwiftUI
 final class EnvironmentSetupViewModel: ObservableObject {
     // MARK: - ViewState
 
-    @Published var isTestnet: Bool = false
     @Published var testnetToggleViewModel: DefaultToggleRowViewModel
     @Published var togglesViewModels: [DefaultToggleRowViewModel]
 
