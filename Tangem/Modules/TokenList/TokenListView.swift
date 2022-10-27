@@ -76,7 +76,7 @@ struct TokenListView: View {
         if !viewModel.isReadonlyMode {
             Button(action: viewModel.openAddCustom) {
                 ZStack {
-                    Circle().fill(Color.tangemGreen2)
+                    Circle().fill(Colors.Button.primary)
 
                     Image(systemName: "plus")
                         .foregroundColor(.white)
