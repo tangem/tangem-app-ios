@@ -31,6 +31,10 @@ enum UserWalletFeature: Int, CaseIterable { // [REDACTED_TODO_COMMENT]
     case resetToFactory
     case signedHashesCounter
     case onlineImage
+    
+    /// Sync tokens between device via user wallet id
+    /// Only for released multi wallet card
+    case tokenSynchronization
 }
 
 extension UserWalletFeature {
