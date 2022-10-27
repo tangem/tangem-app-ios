@@ -89,7 +89,7 @@ struct DetailsView: View {
         .padding(.bottom, UIApplication.safeAreaInsets.bottom)
         .background(Colors.Background.secondary)
     }
-    
+
     @ViewBuilder
     private var environmentSetupSection: some View {
         if let viewModel = viewModel.environmentSetupViewModel {
