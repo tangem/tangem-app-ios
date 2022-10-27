@@ -46,10 +46,8 @@ struct DetailsView: View {
 
     @ViewBuilder
     private var walletConnectSection: some View {
-        if let viewModel = viewModel.walletConnectRowViewModel {
-            GroupedSection(viewModel) {
-                WalletConnectRowView(viewModel: $0)
-            }
+        GroupedSection(viewModel.walletConnectRowViewModel) {
+            WalletConnectRowView(viewModel: $0)
         }
     }
 
@@ -92,12 +90,10 @@ struct DetailsView: View {
 
     @ViewBuilder
     private var environmentSetupSection: some View {
-        if let viewModel = viewModel.environmentSetupViewModel {
-            GroupedSection(viewModel) {
-                DefaultRowView(viewModel: $0)
-            } header: {
-                DefaultHeaderView("Setup environment in app")
-            }
+        GroupedSection(viewModel.environmentSetupViewModel) {
+            DefaultRowView(viewModel: $0)
+        } header: {
+            DefaultHeaderView("Setup environment in app")
         }
     }
 

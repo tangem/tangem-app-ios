@@ -18,23 +18,30 @@ struct DefaultRowView: View {
     private var isTappable: Bool { viewModel.action != nil }
 
     var body: some View {
-        Button(action: { viewModel.action?() }) {
-            HStack {
-                Text(viewModel.title)
-                    .style(Fonts.Regular.body, color: Colors.Text.primary1)
-
-                Spacer()
-
-                detailsView
-
-                if isTappable {
-                    Assets.chevron
-                }
-            }
-            .lineLimit(1)
-            .padding(.vertical, 2)
+        if isTappable {
+            Button(action: { viewModel.action?() }) { content }
+                .buttonStyle(PlainButtonStyle())
+        } else {
+            content
         }
-        .disabled(!isTappable)
+    }
+    
+    private var content: some View {
+        HStack {
+            Text(viewModel.title)
+                .style(Fonts.Regular.body, color: Colors.Text.primary1)
+
+            Spacer()
+
+            detailsView
+
+            if isTappable {
+                Assets.chevron
+            }
+        }
+        .lineLimit(1)
+        .padding(.vertical, 2)
+        .contentShape(Rectangle())
     }
 
     @ViewBuilder
