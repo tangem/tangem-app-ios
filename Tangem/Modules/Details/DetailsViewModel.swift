@@ -18,7 +18,7 @@ class DetailsViewModel: ObservableObject {
     @Published var walletConnectRowViewModel: WalletConnectRowViewModel?
     @Published var supportSectionModels: [DefaultRowViewModel] = []
     @Published var settingsSectionViewModels: [DefaultRowViewModel] = []
-    @Published var legalSectionViewModels: [DefaultRowViewModel] = []
+    @Published var legalSectionViewModel: DefaultRowViewModel?
     @Published var environmentSetupViewModel: DefaultRowViewModel?
 
     @Published var cardModel: CardViewModel
@@ -115,6 +115,10 @@ extension DetailsViewModel {
         coordinator.openSupportChat(cardId: cardModel.cardId,
                                     dataCollector: dataCollector)
     }
+    
+    func openDisclaimer() {
+         coordinator.openDisclaimer(at: cardModel.cardTouURL)
+     }
 
     func openSocialNetwork(network: SocialNetwork) {
         guard let url = network.url else {
@@ -205,12 +209,10 @@ extension DetailsViewModel {
     }
 
     func setupLegalSectionViewModels() {
-        legalSectionViewModels = [
-//            DefaultRowViewModel(title: "disclaimer_title".localized, action: coordinator. openDisclaimer),
-            DefaultRowViewModel(title: "details_row_title_card_tou".localized) { [weak self] in
-                self?.coordinator.openInSafari(url: cardModel.cardTouURL)
-            }
-        ]
+        legalSectionViewModel = DefaultRowViewModel(
+            title: "disclaimer_title".localized,
+            action: openDisclaimer
+        )
     }
 
     func setupEnvironmentSetupSection() {
