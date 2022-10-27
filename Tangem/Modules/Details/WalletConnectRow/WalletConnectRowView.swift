@@ -49,7 +49,7 @@ struct WalletConnectRowView: View {
                 Assets.chevron
             }
             .padding(.vertical, 4)
+            .contentShape(Rectangle())
         }
-        .buttonStyle(PlainButtonStyle())
     }
 }
