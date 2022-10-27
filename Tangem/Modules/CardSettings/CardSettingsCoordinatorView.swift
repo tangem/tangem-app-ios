@@ -33,9 +33,7 @@ struct CardSettingsCoordinatorView: CoordinatorView {
         NavHolder()
             .sheet(item: $coordinator.modalOnboardingCoordinator) {
                 OnboardingCoordinatorView(coordinator: $0)
-                    .presentation(onDismissalAttempt: {
-                        coordinator.modalOnboardingCoordinator = nil
-                    })
+                    .presentation(modal: true, onDismissalAttempt: $0.onDismissalAttempt, onDismissed: nil)
                     .onPreferenceChange(ModalSheetPreferenceKey.self, perform: { value in
                         coordinator.modalOnboardingCoordinatorKeeper = value
                     })
