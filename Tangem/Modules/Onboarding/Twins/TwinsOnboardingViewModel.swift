@@ -247,6 +247,9 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
             alert = AlertBuilder.makeExitAlert() { [weak self] in
                 guard let self else { return }
                 
+                // This part is related only to the twin cards, because for other card types
+                // reset to factory settings goes not through onboarding screens. If back button
+                // appearance logic will change in future - recheck also this code and update it accordingly
                 if self.currentStep.isOnboardingFinished {
                     self.onboardingDidFinish()
                 } else {
