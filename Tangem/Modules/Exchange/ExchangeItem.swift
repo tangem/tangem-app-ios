@@ -18,7 +18,7 @@ class ExchangeItem: Identifiable {
     @Published var amount: String = ""
 
     var allowance: Decimal = 0
-    
+
     private let isMainToken: Bool
     private let exchangeFacade = ExchangeFacadeImpl(enableDebugMode: true)
     private let coinContractAddress: String = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
@@ -71,7 +71,7 @@ class ExchangeItem: Identifiable {
                 case .success(let allowanceDTO):
                     let decimalAllowance = Decimal(string: allowanceDTO.allowance)
                     allowance = decimalAllowance ?? 0
-                    
+
                     await MainActor.run {
                         isLock = (decimalAllowance ?? 0) == 0
                     }
