@@ -13,9 +13,9 @@ import BlockchainSdk
 protocol UserWalletConfig {
     var sdkConfig: Config { get }
 
-    var emailConfig: EmailConfig { get }
+    var emailConfig: EmailConfig? { get }
 
-    var touURL: URL? { get }
+    var touURL: URL { get }
 
     var cardsCount: Int { get }
 
@@ -70,6 +70,14 @@ extension UserWalletConfig {
     }
 
     var supportChatEnvironment: SupportChatEnvironment {
+        .default
+    }
+
+    var touURL: URL {
+        .init(string: "https://tangem.com/tangem_tos.html")!
+    }
+
+    var emailConfig: EmailConfig? {
         .default
     }
 }
