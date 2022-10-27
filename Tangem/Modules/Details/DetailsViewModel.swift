@@ -82,12 +82,15 @@ extension DetailsViewModel {
 
     func openMail() {
         Analytics.log(.buttonSendFeedback)
+
+        guard let emailConfig = cardModel.emailConfig else { return }
+
         let dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel,
                                                          userWalletEmailData: cardModel.emailData)
 
         coordinator.openMail(with: dataCollector,
-                             recipient: cardModel.emailConfig.recipient,
-                             emailType: .appFeedback(subject: cardModel.emailConfig.subject))
+                             recipient: emailConfig.recipient,
+                             emailType: .appFeedback(subject: emailConfig.subject))
     }
 
     func openWalletConnect() {
