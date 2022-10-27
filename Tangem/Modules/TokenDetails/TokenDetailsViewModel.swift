@@ -241,15 +241,10 @@ class TokenDetailsViewModel: ObservableObject {
                 self?.objectWillChange.send()
             }
             .store(in: &bag)
-        
-        guard let walletModel else {
-            return
-        }
 
-        Publishers.MergeMany(walletModel.walletDidChange.mapVoid().eraseToAnyPublisher(),
-                             walletModel.walletManager.walletPublisher.mapVoid().eraseToAnyPublisher())
+        walletModel?.walletManager.walletPublisher
             .receive(on: RunLoop.main)
-            .sink { [weak self] in
+            .sink { [weak self] _ in
                 self?.objectWillChange.send()
             }
             .store(in: &bag)
