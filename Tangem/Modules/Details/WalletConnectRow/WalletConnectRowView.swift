@@ -51,5 +51,6 @@ struct WalletConnectRowView: View {
             .padding(.vertical, 4)
             .contentShape(Rectangle())
         }
+        .buttonStyle(PlainButtonStyle())
     }
 }
