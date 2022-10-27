@@ -66,7 +66,7 @@ struct DetailsView: View {
     // MARK: - Legal Section
 
     private var legalSection: some View {
-        GroupedSection(viewModel.legalSectionViewModels) {
+        GroupedSection(viewModel.legalSectionViewModel) {
             DefaultRowView(viewModel: $0)
         }
     }
