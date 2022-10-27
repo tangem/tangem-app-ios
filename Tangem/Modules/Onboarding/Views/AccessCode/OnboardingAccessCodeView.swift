@@ -113,12 +113,14 @@ struct OnboardingAccessCodeView: View {
                         return
                     }
 
+                    Analytics.log(.accessCodeEntered)
                     nextState = .repeatCode
                 case .repeatCode:
                     guard isAccessCodeValid() else {
                         return
                     }
 
+                    Analytics.log(.accessCodeReEntered)
                     viewModel.successHandler(secondEnteredCode)
                     return
                 }
@@ -205,7 +207,7 @@ struct CustomPasswordTextField: View {
                     .autocapitalization(.none)
                     .transition(.opacity)
                     .foregroundColor(color)
-                    .keyboardType(.alphabet)
+                    .keyboardType(.default)
                     .disableAutocorrection(true)
                 Button(action: {
                     withAnimation {
@@ -256,6 +258,7 @@ private extension CustomPasswordTextField {
                         .focused($focusedField, equals: .plain)
                 }
             }
+            .keyboardType(.default)
             .onAppear(perform: onAppear)
             .onChange(of: isSecured) { newValue in
                 setFocus(for: newValue)
