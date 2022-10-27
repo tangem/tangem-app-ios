@@ -16,7 +16,7 @@ struct TokenListView: View {
 
     var body: some View {
         ZStack {
-            PerfList(dismissKeyboardOnScroll: true) {
+            PerfList {
                 if #available(iOS 15.0, *) {} else {
                     let horizontalInset: CGFloat = UIDevice.isIOS13 ? 8 : 16
                     SearchBar(text: $viewModel.enteredSearchText.value, placeholder: "common_search".localized)
