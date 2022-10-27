@@ -46,9 +46,7 @@ class OnboardingCoordinator: CoordinatorObject {
             singleCardViewModel = model
         case .twins:
             let model = TwinsOnboardingViewModel(input: input, coordinator: self)
-            if options.shouldOpenMainOnFinish {
-                onDismissalAttempt = model.backButtonAction
-            }
+            onDismissalAttempt = model.backButtonAction
             twinsViewModel = model
         case .wallet:
             let model = WalletOnboardingViewModel(input: input, coordinator: self)
