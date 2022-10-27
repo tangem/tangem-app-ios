@@ -74,6 +74,10 @@ class CardViewModel: Identifiable, ObservableObject {
     var supportsWalletConnect: Bool {
         config.hasFeature(.walletConnect)
     }
+    
+    var hasTokenSynchronization: Bool {
+        config.hasFeature(.tokenSynchronization)
+    }
 
     // Temp for WC. Migrate to userWalletId?
     var secp256k1SeedKey: Data? {

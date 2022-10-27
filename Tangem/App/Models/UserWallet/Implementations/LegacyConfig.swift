@@ -175,6 +175,12 @@ extension LegacyConfig: UserWalletConfig {
             return .available
         case .topup:
             return .available
+        case .tokenSynchronization:
+            if isMultiwallet {
+                return .available
+            } else {
+                return .hidden
+            }
         }
     }
 
