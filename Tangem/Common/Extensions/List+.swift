@@ -16,6 +16,7 @@ extension List {
                 .scrollContentBackground(.hidden)
         } else if #available(iOS 14.0, *) {
             self.listStyle(.insetGrouped)
+                .background(background)
         } else {
             self.listStyle(.grouped)
         }
