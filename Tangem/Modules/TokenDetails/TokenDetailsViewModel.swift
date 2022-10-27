@@ -242,9 +242,9 @@ class TokenDetailsViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        walletModel?.objectWillChange
+        walletModel?.walletManager.walletPublisher
             .receive(on: RunLoop.main)
-            .sink { [weak self] in
+            .sink { [weak self] _ in
                 self?.objectWillChange.send()
             }
             .store(in: &bag)
