@@ -65,8 +65,12 @@ class MultiWalletContentViewModel: ObservableObject {
     }
 
     func onRefresh(silent: Bool = true, done: @escaping () -> Void) {
-        userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
-            self?.userWalletModel.updateAndReloadWalletModels(silent: silent, completion: done)
+        if cardModel.hasTokenSynchronization {
+            userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
+                self?.userWalletModel.updateAndReloadWalletModels(silent: silent, completion: done)
+            }
+        } else {
+            userWalletModel.updateAndReloadWalletModels(silent: silent, completion: done)
         }
     }
 

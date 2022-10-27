@@ -28,6 +28,8 @@ struct UserWalletConfigFactory {
                 return LegacyConfig(card: cardInfo.card, walletData: nil)
             }
 
+            return GenericDemoConfig(card: cardInfo.card)
+            
             if isDemo {
                 return GenericDemoConfig(card: cardInfo.card)
             } else if isSaltPay {
