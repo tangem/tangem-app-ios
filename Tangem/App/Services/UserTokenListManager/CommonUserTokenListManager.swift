@@ -24,7 +24,7 @@ class CommonUserTokenListManager {
     private let hasTokenSynchronization: Bool
 
     init(config: UserWalletConfig, userWalletId: Data) {
-        self.hasTokenSynchronization = config.hasFeature(.multiCurrency)
+        self.hasTokenSynchronization = config.hasFeature(.tokenSynchronization)
         self.userWalletId = userWalletId
 
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
@@ -163,7 +163,7 @@ private extension CommonUserTokenListManager {
             }
 
         var entries: [StorageEntry] = []
-        
+
         blockchains.forEach { network in
             let entry = StorageEntry(
                 blockchainNetwork: network,
@@ -179,7 +179,7 @@ private extension CommonUserTokenListManager {
                         )
                     }
             )
-            
+
             if !entries.contains(entry) {
                 entries.append(entry)
             }
