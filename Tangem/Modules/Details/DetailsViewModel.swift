@@ -205,17 +205,12 @@ extension DetailsViewModel {
     }
 
     func setupLegalSectionViewModels() {
-        var viewModels: [DefaultRowViewModel] = [
-            DefaultRowViewModel(title: "disclaimer_title".localized, action: coordinator.openDisclaimer),
+        legalSectionViewModels = [
+//            DefaultRowViewModel(title: "disclaimer_title".localized, action: coordinator. openDisclaimer),
+            DefaultRowViewModel(title: "details_row_title_card_tou".localized) { [weak self] in
+                self?.coordinator.openInSafari(url: cardModel.cardTouURL)
+            }
         ]
-
-        if let url = cardModel.cardTouURL {
-            viewModels.append(DefaultRowViewModel(title: "details_row_title_card_tou".localized) { [weak self] in
-                self?.coordinator.openCardTOU(url: url)
-            })
-        }
-
-        legalSectionViewModels = viewModels
     }
 
     func setupEnvironmentSetupSection() {
