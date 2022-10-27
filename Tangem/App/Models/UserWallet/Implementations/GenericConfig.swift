@@ -49,14 +49,6 @@ struct GenericConfig {
 }
 
 extension GenericConfig: UserWalletConfig {
-    var emailConfig: EmailConfig {
-        .default
-    }
-
-    var touURL: URL? {
-        nil
-    }
-
     var cardSetLabel: String? {
         guard let backupCardsCount = card.backupStatus?.backupCardsCount else {
             return nil
@@ -151,6 +143,10 @@ extension GenericConfig: UserWalletConfig {
         }
     }
 
+    var userWalletIdSeed: Data? {
+        card.wallets.first?.publicKey
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
@@ -207,6 +203,8 @@ extension GenericConfig: UserWalletConfig {
             return .available
         case .topup:
             return .available
+        case .tokenSynchronization:
+            return .available
         }
     }
 
@@ -248,10 +246,6 @@ fileprivate extension Card.BackupStatus {
 
 fileprivate extension Card {
     var isTestnet: Bool {
-        if batchId == "99FF" {
-            return cardId.starts(with: batchId.reversed())
-        } else {
-            return false
-        }
+        AppEnvironment.current.isTestnet
     }
 }
