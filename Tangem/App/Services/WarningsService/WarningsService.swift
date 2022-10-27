@@ -35,7 +35,7 @@ extension WarningsService: AppWarningsProviding {
         validator: SignatureCountValidator?
     ) {
         setupWarnings(for: config)
-        
+
         // The testnet card shouldn't count hashes
         if !AppEnvironment.current.isTestnet {
             validateHashesCount(config: config, card: card, validator: validator)
@@ -92,7 +92,7 @@ private extension WarningsService {
         }
 
         if rateAppChecker.shouldShowRateAppWarning {
-            Analytics.log(event: .displayRateAppWarning)
+            Analytics.log(.displayRateAppWarning)
             main.add(WarningEvent.rateApp.warning)
         }
 
