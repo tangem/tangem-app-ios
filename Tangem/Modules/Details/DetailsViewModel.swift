@@ -152,6 +152,13 @@ extension DetailsViewModel {
                 self?.objectWillChange.send()
             }
             .store(in: &bag)
+        
+        $selectedCurrencyCode
+            .dropFirst()
+            .sink { [weak self] _ in
+                self?.setupSettingsSectionViewModels()
+            }
+            .store(in: &bag)
     }
 
     func setupWalletConnectRowViewModel() {
