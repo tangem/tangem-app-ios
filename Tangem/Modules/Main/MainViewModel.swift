@@ -191,6 +191,7 @@ class MainViewModel: ObservableObject {
             .store(in: &bag)
 
         userWalletModel.subscribeToEntriesWithoutDerivation()
+            .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .sink { [unowned self] entries in
                 self.updateLackDerivationWarningView(entries: entries)
@@ -294,13 +295,13 @@ class MainViewModel: ObservableObject {
                 registerValidatedSignedHashesCard()
             }
         case .rateApp:
-            Analytics.log(event: .positiveRateAppFeedback)
+            Analytics.log(.positiveRateAppFeedback)
             rateAppService.userReactToRateAppWarning(isPositive: true)
         case .dismiss:
-            Analytics.log(event: .dismissRateAppWarning)
+            Analytics.log(.dismissRateAppWarning)
             rateAppService.dismissRateAppWarning()
         case .reportProblem:
-            Analytics.log(event: .negativeRateAppFeedback)
+            Analytics.log(.negativeRateAppFeedback)
             rateAppService.userReactToRateAppWarning(isPositive: false)
             openMail(with: .negativeFeedback)
         case .learnMore:
@@ -334,7 +335,7 @@ class MainViewModel: ObservableObject {
     func sendAnalyticsEvent(_ event: Analytics.Event) {
         switch event {
         case .userBoughtCrypto:
-            Analytics.log(event: event, with: [.currencyCode: currenyCode])
+            Analytics.log(event, params: [.currencyCode: currenyCode])
         default:
             break
         }
@@ -458,7 +459,8 @@ extension MainViewModel {
     func openMail(with emailFeedbackCase: EmailFeedbackCase) {
         let collector = getDataCollector(for: emailFeedbackCase)
         let type = emailFeedbackCase.emailType
-        coordinator.openMail(with: collector, emailType: type, recipient: cardModel.emailConfig.recipient)
+        let recipient = cardModel.emailConfig?.recipient ?? EmailConfig.default.recipient
+        coordinator.openMail(with: collector, emailType: type, recipient: recipient)
     }
 }
 
