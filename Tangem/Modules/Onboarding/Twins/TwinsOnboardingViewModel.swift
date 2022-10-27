@@ -9,7 +9,7 @@
 import SwiftUI
 import Combine
 
-class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, ObservableObject {
+class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, OnboardingCoordinator>, ObservableObject {
     @Published var firstTwinImage: Image?
     @Published var secondTwinImage: Image?
     @Published var pairNumber: String
@@ -109,7 +109,7 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
 
     private var canBuy: Bool { exchangeService.canBuy("BTC", amountType: .coin, blockchain: .bitcoin(testnet: false)) }
 
-    required init(input: OnboardingInput, coordinator: OnboardingTopupRoutable) {
+    override init(input: OnboardingInput, coordinator: OnboardingCoordinator) {
         let cardModel = input.cardInput.cardModel!
         let twinData = input.twinData!
 
@@ -118,6 +118,11 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         self.twinsService = .init(card: cardModel, twinData: twinData)
 
         super.init(input: input, coordinator: coordinator)
+
+        if let walletModel = self.cardModel?.walletModels.first {
+            updateCardBalanceText(for: walletModel)
+        }
+
         if case let .twins(steps) = input.steps {
             self.steps = steps
 
@@ -177,7 +182,10 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
             goToNextStep()
         case .first:
             if !retwinMode {
-                AppSettings.shared.cardsStartedActivation.insert(self.cardModel.cardId)
+                if let cardId = cardModel?.cardId {
+                    AppSettings.shared.cardsStartedActivation.insert(cardId)
+                }
+                Analytics.log(.onboardingStarted)
             }
 
             if twinsService.step.value != .first {
@@ -236,7 +244,9 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep>, O
         case .second, .third:
             alert = AlertBuilder.makeOkGotItAlert(message: "onboarding_twin_exit_warning".localized)
         default:
-            back()
+            alert = AlertBuilder.makeExitAlert() { [weak self] in
+                self?.back()
+            }
         }
     }
 
