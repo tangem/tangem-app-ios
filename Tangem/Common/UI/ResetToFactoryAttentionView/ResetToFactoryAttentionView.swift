@@ -1,5 +1,5 @@
 //
-//  AttentionView.swift
+//  ResetToFactoryAttentionView.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -8,10 +8,10 @@
 
 import SwiftUI
 
-struct AttentionView: View {
-    @ObservedObject private var viewModel: AttentionViewModel
+struct ResetToFactoryAttentionView: View {
+    @ObservedObject private var viewModel: ResetToFactoryAttentionViewModel
 
-    init(viewModel: AttentionViewModel) {
+    init(viewModel: ResetToFactoryAttentionViewModel) {
         self.viewModel = viewModel
     }
 
@@ -38,6 +38,7 @@ struct AttentionView: View {
         .edgesIgnoringSafeArea(.top)
         .padding(.bottom, 16)
         .navigationBarTitle(Text(viewModel.navigationTitle), displayMode: .inline)
+        .actionSheet(item: $viewModel.actionSheet) { $0.sheet }
     }
 
     private var informationViews: some View {
@@ -49,12 +50,8 @@ struct AttentionView: View {
 
             Spacer()
 
-            VStack(spacing: 22) {
-                agreeView
-
-                actionButton
-            }
-            .layoutPriority(1)
+            actionButton
+                .layoutPriority(1)
         }
     }
 
@@ -70,29 +67,6 @@ struct AttentionView: View {
         }
     }
 
-    @ViewBuilder
-    private var agreeView: some View {
-        if let warningText = viewModel.warningText {
-            Button {
-                viewModel.isWarningChecked.toggle()
-            } label: {
-                HStack(spacing: 18) {
-                    circleImage
-                        .resizable()
-                        .frame(width: 22, height: 22)
-
-                    Text(warningText)
-                        .style(Fonts.Regular.caption1, color: Colors.Text.secondary)
-                        .multilineTextAlignment(.leading)
-                }
-            }
-            .padding(.horizontal, 16)
-        }
-    }
-
-    private var circleImage: Image {
-        viewModel.isWarningChecked ? Assets.circleChecked : Assets.circleEmpty
-    }
 
     private var actionButton: some View {
         MainButton(
@@ -105,20 +79,19 @@ struct AttentionView: View {
     }
 }
 
-struct AttentionView_Previews: PreviewProvider {
-    static let viewModel = AttentionViewModel(
-        isWarningChecked: false,
+struct ResetToFactoryAttentionView_Previews: PreviewProvider {
+    static let viewModel = ResetToFactoryAttentionViewModel(
         navigationTitle: "Reset to factory settings",
         title: "Attention",
         message: "This action will lead to the complete removal of the wallet from the selected card and it will not be possible to restore the current wallet on it or use the card to recover the password",
         warningText: "I understand that after performing this action, I will no longer have access to the current wallet",
         buttonTitle: "Reset the card",
-        mainButtonAction: {}
+        resetToFactoryAction: {}
     )
 
     static var previews: some View {
         NavigationView {
-            AttentionView(viewModel: viewModel)
+            ResetToFactoryAttentionView(viewModel: viewModel)
         }
         .previewGroup(withZoomed: false)
     }
