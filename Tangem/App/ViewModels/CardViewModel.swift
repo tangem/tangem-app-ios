@@ -74,7 +74,7 @@ class CardViewModel: Identifiable, ObservableObject {
     var supportsWalletConnect: Bool {
         config.hasFeature(.walletConnect)
     }
-    
+
     var hasTokenSynchronization: Bool {
         config.hasFeature(.tokenSynchronization)
     }
