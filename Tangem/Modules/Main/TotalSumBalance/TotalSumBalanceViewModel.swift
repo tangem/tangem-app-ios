@@ -47,8 +47,9 @@ class TotalSumBalanceViewModel: ObservableObject {
         totalBalanceManager.updateTotalBalance()
     }
 
-    func updateForSingleCoinCard(walletModels: [WalletModel]) {
+    func updateForSingleCoinCard() {
         guard let cardAmountType = self.cardAmountType else { return }
+        let walletModels = userWalletModel.getWalletModels()
 
         singleWalletBalance = walletModels.first?.allTokenItemViewModels().first(where: { $0.amountType == cardAmountType })?.balance
     }
@@ -62,8 +63,10 @@ class TotalSumBalanceViewModel: ObservableObject {
     }
 
     private func bind() {
-        userWalletModel.subscribeToWalletModels()
-            .filter { $0.isEmpty }
+        Publishers.Merge(
+            userWalletModel.subscribeToWalletModels().filter { $0.isEmpty }.mapVoid(),
+            AppSettings.shared.$selectedCurrencyCode.mapVoid()
+        )
             .map { [unowned self] _ in
                 addAttributeForBalance(0, withCurrencyCode: AppSettings.shared.selectedCurrencyCode)
             }
@@ -76,22 +79,21 @@ class TotalSumBalanceViewModel: ObservableObject {
 
         userWalletModel.subscribeToWalletModels()
             .filter { !$0.isEmpty }
-            .map { [unowned self] walletModels -> AnyPublisher<[WalletModel], Never> in
+            .receive(on: DispatchQueue.main)
+            .map { [unowned self] walletModels -> AnyPublisher<Void, Never> in
                 isLoading = true
 
-                return walletModels
-                    .map { $0.walletDidChange }
+                return walletModels.map { $0.walletDidChange }
                     .combineLatest()
-                    .map { _ in walletModels }
-                    // Update total balance only after all models succesfully loaded
-                    .filter { $0.allConforms { !$0.state.isLoading } }
+                    .filter { $0.allConforms { !$0.isLoading } }
+                    .mapVoid()
                     .eraseToAnyPublisher()
             }
             .switchToLatest()
             // Hide skeleton with delay
             .delay(for: 0.2, scheduler: DispatchQueue.main)
             .sink { [unowned self] walletModels in
-                updateForSingleCoinCard(walletModels: walletModels)
+                updateForSingleCoinCard()
                 updateBalance()
             }
             .store(in: &bag)
