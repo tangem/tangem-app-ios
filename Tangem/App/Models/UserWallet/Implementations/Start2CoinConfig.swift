@@ -73,13 +73,13 @@ struct Start2CoinConfig {
 }
 
 extension Start2CoinConfig: UserWalletConfig {
-    var emailConfig: EmailConfig {
+    var emailConfig: EmailConfig? {
         .init(recipient: "cardsupport@start2coin.com",
               subject: "feedback_subject_support".localized)
     }
 
-    var touURL: URL? {
-        makeTouURL()
+    var touURL: URL {
+        makeTouURL() ?? DummyConfig().touURL
     }
 
     var cardsCount: Int {
