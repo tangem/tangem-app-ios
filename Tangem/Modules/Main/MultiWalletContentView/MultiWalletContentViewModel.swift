@@ -58,12 +58,19 @@ class MultiWalletContentViewModel: ObservableObject {
         self.userTokenListManager = userTokenListManager
         self.output = output
 
+        tokenListIsEmpty = userWalletModel.getSavedEntries().isEmpty
         bind()
+
+        userWalletModel.updateWalletModels()
     }
 
     func onRefresh(silent: Bool = true, done: @escaping () -> Void) {
-        userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
-            self?.userWalletModel.updateAndReloadWalletModels(silent: silent, completion: done)
+        if cardModel.hasTokenSynchronization {
+            userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
+                self?.userWalletModel.updateAndReloadWalletModels(silent: silent, completion: done)
+            }
+        } else {
+            userWalletModel.updateAndReloadWalletModels(silent: silent, completion: done)
         }
     }
 
@@ -90,39 +97,44 @@ private extension MultiWalletContentViewModel {
     func bind() {
         let entriesWithoutDerivation = userWalletModel
             .subscribeToEntriesWithoutDerivation()
+            .dropFirst()
             .removeDuplicates()
 
-        let walletModels = userWalletModel.subscribeToWalletModels()
+        let newWalletModels = userWalletModel.subscribeToWalletModels()
             .dropFirst()
-            .receive(on: DispatchQueue.global())
-            .map { wallets -> AnyPublisher<Void, Never> in
-                if wallets.isEmpty {
-                    return .just
-                }
+            .share()
 
-                return wallets.map { $0.walletDidChange }
-                    .combineLatest()
-                    .map { _ in wallets.map { $0.state.isLoading } }
-                    .removeDuplicates() // Update only if isLoading state changed
+        let walletModelsDidChange = newWalletModels
+            .filter { !$0.isEmpty }
+            .map { wallets -> AnyPublisher<Void, Never> in
+                Publishers.MergeMany(wallets.map { $0.walletDidChange })
                     .mapVoid()
                     .eraseToAnyPublisher()
             }
             .switchToLatest()
 
-        Publishers.CombineLatest(entriesWithoutDerivation, walletModels)
-            .receive(on: DispatchQueue.global())
-            .map { [unowned self] _ -> [TokenItemViewModel] in
-                collectTokenItemViewModels()
-            }
-            .receive(on: RunLoop.main)
-            .sink { [unowned self] viewModels in
-                updateView(viewModels: viewModels)
-            }
-            .store(in: &bag)
+        Publishers.Merge3(
+            newWalletModels.mapVoid(),
+            walletModelsDidChange.mapVoid(),
+            entriesWithoutDerivation.mapVoid()
+        )
+        .receive(on: DispatchQueue.global())
+        .map { [unowned self] _ -> [TokenItemViewModel] in
+            collectTokenItemViewModels()
+        }
+        .removeDuplicates()
+        .receive(on: RunLoop.main)
+        .sink { [unowned self] viewModels in
+            updateView(viewModels: viewModels)
+        }
+        .store(in: &bag)
     }
 
     func updateView(viewModels: [TokenItemViewModel]) {
-        tokenListIsEmpty = viewModels.isEmpty
+        if tokenListIsEmpty != viewModels.isEmpty {
+            tokenListIsEmpty = viewModels.isEmpty
+        }
+
         contentState = .loaded(viewModels)
     }
 
