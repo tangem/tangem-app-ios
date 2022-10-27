@@ -63,6 +63,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         AppSettings.shared.numberOfLaunches += 1
+        migrateTOS()
         return true
     }
 
@@ -99,6 +100,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         guard AppEnvironment.current.isProduction else { return }
 
         AppsFlyerLib.shared().start()
+    }
+
+    private func migrateTOS() {
+        guard AppSettings.shared.isTermsOfServiceAccepted else { return }
+
+        let defaultUrl = DummyConfig().touURL.absoluteString
+        AppSettings.shared.termsOfServicesAccepted.insert(defaultUrl)
+        AppSettings.shared.isTermsOfServiceAccepted = false
     }
 }
 
