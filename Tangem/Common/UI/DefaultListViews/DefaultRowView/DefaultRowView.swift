@@ -25,7 +25,7 @@ struct DefaultRowView: View {
             content
         }
     }
-    
+
     private var content: some View {
         HStack {
             Text(viewModel.title)
