@@ -163,7 +163,7 @@ private extension CommonUserTokenListManager {
             }
 
         var entries: [StorageEntry] = []
-        
+
         blockchains.forEach { network in
             let entry = StorageEntry(
                 blockchainNetwork: network,
@@ -179,7 +179,7 @@ private extension CommonUserTokenListManager {
                         )
                     }
             )
-            
+
             if !entries.contains(entry) {
                 entries.append(entry)
             }
