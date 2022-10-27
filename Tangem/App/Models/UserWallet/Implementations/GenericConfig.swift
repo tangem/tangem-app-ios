@@ -203,6 +203,8 @@ extension GenericConfig: UserWalletConfig {
             return .available
         case .topup:
             return .available
+        case .tokenSynchronization:
+            return .available
         }
     }
 
