@@ -25,7 +25,7 @@ struct PerfList<Content: View>: View {
                     content()
                 }
             }
-            .scrollDismissesKeyboardCompatibility(enabled: dismissKeyboardOnScroll)
+            .scrollDismissesKeyboardCompatibility(dismissKeyboardOnScroll)
         } else {
             List {
                 content()
