@@ -28,6 +28,7 @@ class CommonCardsRepository: CardsRepository {
     @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
     @Injected(\.supportChatService) private var supportChatService: SupportChatServiceProtocol
 
+    weak var delegate: CardsRepositoryDelegate? = nil
 
     private(set) var cards = [String: CardViewModel]()
 
@@ -35,20 +36,6 @@ class CommonCardsRepository: CardsRepository {
 
     deinit {
         print("CardsRepository deinit")
-    }
-
-    func scan(with batch: String? = nil, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
-        Analytics.log(event: .readyToScan)
-        sdkProvider.setup(with: TangemSdkConfigFactory().makeDefaultConfig())
-        sdkProvider.sdk.startSession(with: AppScanTask(targetBatch: batch)) { [unowned self] result in
-            switch result {
-            case .failure(let error):
-                Analytics.logCardSdkError(error, for: .scan)
-                completion(.failure(error))
-            case .success(let response):
-                completion(.success(processScan(response.getCardInfo())))
-            }
-        }
     }
 
     func scanPublisher(with batch: String? = nil) -> AnyPublisher<CardViewModel, Error>  {
@@ -65,6 +52,39 @@ class CommonCardsRepository: CardsRepository {
             }
         }
         .eraseToAnyPublisher()
+    }
+
+    private func scan(with batch: String? = nil, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
+        Analytics.reset()
+        Analytics.log(.readyToScan)
+        sdkProvider.setup(with: TangemSdkConfigFactory().makeDefaultConfig())
+        sdkProvider.sdk.startSession(with: AppScanTask(targetBatch: batch)) { [unowned self] result in
+            switch result {
+            case .failure(let error):
+                Analytics.logCardSdkError(error, for: .scan)
+                completion(.failure(error))
+            case .success(let response):
+                self.acceptTOSIfNeeded(response.getCardInfo(), completion)
+            }
+        }
+    }
+
+    private func acceptTOSIfNeeded(_ cardInfo: CardInfo, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
+        let touURL = UserWalletConfigFactory(cardInfo).makeConfig().touURL
+
+        guard let delegate, !AppSettings.shared.termsOfServicesAccepted.contains(touURL.absoluteString) else {
+            completion(.success(processScan(cardInfo)))
+            return
+        }
+
+        delegate.showTOS(at: touURL) { accepted in
+            if accepted {
+                AppSettings.shared.termsOfServicesAccepted.insert(touURL.absoluteString)
+                completion(.success(self.processScan(cardInfo)))
+            } else {
+                completion(.failure(TangemSdkError.userCancelled))
+            }
+        }
     }
 
     private func processScan(_ cardInfo: CardInfo) -> CardViewModel {
