@@ -249,7 +249,9 @@ class WalletModel: ObservableObject, Identifiable {
         }
 
         print("🔄 Update rates for \(wallet.blockchain)")
-        self.rates = rates
+        DispatchQueue.main.async {
+            self.rates = rates
+        }
     }
 
     // MARK: - Manage tokens
