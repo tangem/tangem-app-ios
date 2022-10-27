@@ -27,7 +27,7 @@ target 'Tangem' do
   pod 'BlockchainSdk', :git => 'https://github.com/tangem/blockchain-sdk-swift.git', :tag => 'develop-173'
 #  pod 'BlockchainSdk', :path => '../blockchain-sdk-swift'
   
-  pod 'web3swift', :git => 'https://github.com/tangem/web3swift.git', :tag => '2.2.10'
+  pod 'web3swift', :git => 'https://github.com/tangem/web3swift.git', :tag => '2.2.11'
   #pod 'web3swift', :path => '../web3swift'
   
   pod 'BitcoinCore.swift', :git => 'https://github.com/tangem/bitcoincore.git', :tag => '0.0.16'
