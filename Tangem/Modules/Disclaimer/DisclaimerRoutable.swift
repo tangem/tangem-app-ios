@@ -9,5 +9,5 @@
 import Foundation
 
 protocol DisclaimerRoutable: AnyObject {
-    func dismissAcceptedDisclaimer()
+    func dismissDisclaimer()
 }

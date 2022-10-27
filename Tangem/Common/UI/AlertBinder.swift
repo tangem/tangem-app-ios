@@ -72,4 +72,11 @@ enum AlertBuilder {
                            message: Text("onboarding_alert_message_old_device"),
                            dismissButton: .default(Text("common_ok"), action: {})))
     }
+
+    static func makeExitAlert(okAction: @escaping (() -> Void) = { }) -> AlertBinder {
+        .init(alert: Alert(title: Text("onboarding_exit_alert_title"),
+                           message: Text("onboarding_exit_alert_message"),
+                           primaryButton: .default(Text("common_no"), action: {}),
+                           secondaryButton: .destructive(Text("common_yes"), action: okAction)))
+    }
 }
