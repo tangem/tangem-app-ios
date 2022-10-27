@@ -58,7 +58,9 @@ class OnboardingCoordinator: CoordinatorObject {
 
 extension OnboardingCoordinator {
     enum DestinationOnFinish {
-        case main, root, dismiss
+        case main
+        case root
+        case dismiss
     }
     struct Options {
         let input: OnboardingInput
@@ -105,7 +107,7 @@ extension OnboardingCoordinator: OnboardingRoutable {
                 closeOnboarding()
                 return
             }
-            
+
             openMain(with: card)
         case .root:
             popToRoot()
