@@ -38,7 +38,7 @@ struct SingleCardOnboardingView: View {
                                                      isVisible: viewModel.isBackButtonVisible,
                                                      isEnabled: viewModel.isBackButtonEnabled,
                                                      hPadding: horizontalPadding) {
-                                              viewModel.closeOnboarding()
+                                              viewModel.backButtonAction()
                                           }
                                       }, rightItems: {
                                           ChatButton(height: viewModel.navbarSize.height,
