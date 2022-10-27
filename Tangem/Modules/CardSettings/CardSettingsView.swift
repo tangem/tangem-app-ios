@@ -22,18 +22,18 @@ struct CardSettingsView: View {
     var body: some View {
         ZStack {
             Colors.Background.secondary.edgesIgnoringSafeArea(.all)
-            
+
             GroupedScrollView {
                 GroupedSection(viewModel.cardInfoSection) {
                     DefaultRowView(viewModel: $0)
                 }
-                
+
                 GroupedSection(viewModel.securityModeSection) {
                     DefaultRowView(viewModel: $0)
                 } footer: {
                     DefaultFooterView(firstSectionFooterTitle)
                 }
-                
+
                 GroupedSection(viewModel.resetToFactoryViewModel) {
                     DefaultRowView(viewModel: $0)
                 } footer: {
