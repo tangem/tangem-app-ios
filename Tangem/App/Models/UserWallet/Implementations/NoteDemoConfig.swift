@@ -31,14 +31,6 @@ struct NoteDemoConfig {
 }
 
 extension NoteDemoConfig: UserWalletConfig {
-    var emailConfig: EmailConfig {
-        .default
-    }
-
-    var touURL: URL? {
-        nil
-    }
-
     var cardSetLabel: String? {
         nil
     }
@@ -103,6 +95,10 @@ extension NoteDemoConfig: UserWalletConfig {
         CardEmailDataFactory().makeEmailData(for: card, walletData: noteData)
     }
 
+    var userWalletIdSeed: Data? {
+        card.wallets.first?.publicKey
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
@@ -143,6 +139,8 @@ extension NoteDemoConfig: UserWalletConfig {
             return .available
         case .topup:
             return .available
+        case .tokenSynchronization:
+            return .hidden
         }
     }
 

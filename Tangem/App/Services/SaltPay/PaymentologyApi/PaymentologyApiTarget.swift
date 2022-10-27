@@ -50,24 +50,9 @@ struct PaymentologyApiTarget: TargetType {
 
     var sampleData: Data {
         switch type {
-        case .checkRegistration(let request):
-            let item = RegistrationResponse.Item(cardId: request.requests[0].cardId,
-                                                 error: nil,
-                                                 passed: true,
-                                                 active: false,
-                                                 pinSet: false,
-                                                 blockchainInit: nil,
-                                                 kycPassed: nil,
-                                                 kycProvider: "SomeProvider",
-                                                 kycDate: nil,
-                                                 disabledByAdmin: nil)
-
-            let response = RegistrationResponse(results: [item],
-                                                error: nil,
-                                                errorCode: nil,
-                                                success: true)
-
-            let data = try! JSONEncoder.saltPayEncoder.encode(response)
+        case .checkRegistration:
+            let url = Bundle.main.url(forResource: "registration_mock", withExtension: "json")!
+            let data = try! Data(contentsOf: url)
             return data
         case .requestAttestationChallenge:
             let response = AttestationResponse(challenge: try! CryptoUtils.generateRandomBytes(count: 16),
@@ -99,7 +84,7 @@ extension PaymentologyApiTarget {
 
 extension JSONDecoder {
     static var saltPayDecoder: JSONDecoder {
-        var decoder = JSONDecoder()
+        let decoder = JSONDecoder()
         decoder.dataDecodingStrategy = .custom { decoder in
             let container = try decoder.singleValueContainer()
             let hex = try container.decode(String.self)
