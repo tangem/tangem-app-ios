@@ -21,9 +21,9 @@ struct AppSettingsView: View {
 
             GroupedScrollView {
                 warningSection
-                
+
                 savingWalletSection
-                
+
                 savingAccessCodesSection
             }
         }
@@ -39,7 +39,7 @@ struct AppSettingsView: View {
             }
         }
     }
-    
+
     private var savingWalletSection: some View {
         GroupedSection(viewModel.savingWalletViewModel) {
             DefaultToggleRowView(viewModel: $0)
@@ -47,7 +47,7 @@ struct AppSettingsView: View {
             DefaultFooterView("app_settings_saved_wallet_footer".localized)
         }
     }
-    
+
     private var savingAccessCodesSection: some View {
         GroupedSection(viewModel.savingAccessCodesViewModel) {
             DefaultToggleRowView(viewModel: $0)
