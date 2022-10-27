@@ -26,7 +26,7 @@ struct DetailsView: View {
             settingsSection
 
             legalSection
-            
+
             if !AppEnvironment.current.isProduction {
                 setupEnvironmentSection
             }
@@ -76,8 +76,10 @@ struct DetailsView: View {
                 viewModel.openSupportChat()
             }
 
-            DefaultRowView(title: "details_row_title_send_feedback".localized) {
-                viewModel.openMail()
+            if viewModel.canSendMail {
+                DefaultRowView(title: "details_row_title_send_feedback".localized) {
+                    viewModel.openMail()
+                }
             }
         }
     }
@@ -120,13 +122,6 @@ struct DetailsView: View {
             DefaultRowView(title: "disclaimer_title".localized) {
                 viewModel.openDisclaimer()
             }
-
-            if let url = viewModel.cardTouURL {
-                DefaultRowView(title: "details_row_title_card_tou".localized) {
-                    viewModel.openCardTOU(url: url)
-                }
-            }
-
         }, footer: {
             HStack {
                 Spacer()
@@ -149,7 +144,7 @@ struct DetailsView: View {
             .padding(.top, 40)
         })
     }
-    
+
     private var setupEnvironmentSection: some View {
         Section {
             DefaultRowView(title: "Environment setup") {
