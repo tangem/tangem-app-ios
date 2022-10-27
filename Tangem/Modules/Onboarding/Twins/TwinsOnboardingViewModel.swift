@@ -245,16 +245,14 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
             alert = AlertBuilder.makeOkGotItAlert(message: "onboarding_twin_exit_warning".localized)
         default:
             alert = AlertBuilder.makeExitAlert() { [weak self] in
-                self?.back()
+                guard let self else { return }
+                
+                if self.currentStep.isOnboardingFinished {
+                    self.onboardingDidFinish()
+                } else {
+                    self.closeOnboarding()
+                }
             }
-        }
-    }
-
-    private func back() {
-        if isFromMain {
-            onboardingDidFinish()
-        } else {
-            closeOnboarding()
         }
     }
 
