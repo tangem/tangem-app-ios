@@ -22,7 +22,7 @@ enum FeatureProvider {
 
 enum FeatureToggle: String, Hashable, CaseIterable {
     case test
-    
+
     var name: String {
         switch self {
         case .test: return "Test (will be added in the future)"

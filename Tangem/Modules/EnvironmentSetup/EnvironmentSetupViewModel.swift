@@ -15,11 +15,11 @@ final class EnvironmentSetupViewModel: ObservableObject {
     @Published var isTestnet: Bool = false
     @Published var testnetToggleViewModel: DefaultToggleRowViewModel
     @Published var togglesViewModels: [DefaultToggleRowViewModel]
-    
+
     @Published var alert: AlertBinder?
-    
+
     // MARK: - Dependencies
-    
+
     private var bag: Set<AnyCancellable> = []
 
     init() {
@@ -28,7 +28,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
             isOn: Binding<Bool>(get: { EnvironmentProvider.shared.isTestnet },
                                 set: { EnvironmentProvider.shared.isTestnet = $0 })
         )
-        
+
         togglesViewModels = FeatureToggle.allCases.map { toggle in
             DefaultToggleRowViewModel(
                 title: toggle.name,
@@ -44,7 +44,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
             )
         }
     }
-    
+
     func showExitAlert() {
         let alert = Alert(
             title: Text("Are you sure you want to exit the app?"),
