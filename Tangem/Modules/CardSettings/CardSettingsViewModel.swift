@@ -20,7 +20,7 @@ class CardSettingsViewModel: ObservableObject {
     
     @Published var cardInfoSection: [DefaultRowViewModel] = []
     @Published var securityModeSection: [DefaultRowViewModel] = []
-    @Published var resetToFactorySection: [DefaultRowViewModel] = []
+    @Published var resetToFactoryViewModel: DefaultRowViewModel?
     
     var isResetToFactoryAvailable: Bool {
         !cardModel.resetToFactoryAvailability.isHidden
@@ -92,10 +92,12 @@ private extension CardSettingsViewModel {
             )
         }
 
-        resetToFactorySection = [DefaultRowViewModel(
-            title: "card_settings_reset_card_to_factory".localized,
-            action: openResetCard
-        )]
+        if isResetToFactoryAvailable {
+            resetToFactoryViewModel = DefaultRowViewModel(
+                title: "card_settings_reset_card_to_factory".localized,
+                action: openResetCard
+            )
+        }
     }
 }
 
