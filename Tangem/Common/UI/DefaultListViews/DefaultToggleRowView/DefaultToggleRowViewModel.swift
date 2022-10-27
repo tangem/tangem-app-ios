@@ -13,14 +13,14 @@ struct DefaultToggleRowViewModel {
     let isEnabled: Bool
 
     @Binding var isOn: Bool
-    
+
     init(title: String, isEnabled: Bool = true, isOn: Binding<Bool>) {
         self.title = title
         self.isEnabled = isEnabled
 
         _isOn = isOn
     }
-    
+
     /// Method for update `isOn` binding property
     /// Use this method when you should change toggle state from external place
     /// For instance, in case when you turn off toggle after user accepted alert
