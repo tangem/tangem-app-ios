@@ -10,7 +10,7 @@ import SwiftUI
 
 struct DefaultHeaderView: View {
     private let title: String
-    
+
     init(_ title: String) {
         self.title = title
     }
