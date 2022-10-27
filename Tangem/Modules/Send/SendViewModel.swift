@@ -621,7 +621,7 @@ class SendViewModel: ObservableObject {
                         if self.isSellingCrypto {
                             Analytics.log(.transactionIsSent)
                             Analytics.log(.transactionSent, params: [.token: "\(tx.amount.currencySymbol)"])
-                            Analytics.log(event: .userSoldCrypto, with: [.currencyCode: self.blockchainNetwork.blockchain.currencySymbol])
+                            Analytics.log(.userSoldCrypto, params: [.currencyCode: self.blockchainNetwork.blockchain.currencySymbol])
                         } else {
                             Analytics.logTx(blockchainName: self.blockchainNetwork.blockchain.displayName)
                         }
@@ -737,7 +737,8 @@ extension SendViewModel {
                                                          amountText: amountText,
                                                          lastError: lastError)
 
-        coordinator.openMail(with: emailDataCollector, recipient: cardViewModel.emailConfig.recipient)
+        let recipient = cardViewModel.emailConfig?.recipient ?? EmailConfig.default.recipient
+        coordinator.openMail(with: emailDataCollector, recipient: recipient)
     }
 
     func close() {
