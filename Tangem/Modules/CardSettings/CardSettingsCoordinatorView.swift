@@ -20,7 +20,7 @@ struct CardSettingsCoordinatorView: CoordinatorView {
                         SecurityModeCoordinatorView(coordinator: $0)
                     }
                     .navigation(item: $coordinator.attentionViewModel) {
-                        AttentionView(viewModel: $0)
+                        ResetToFactoryAttentionView(viewModel: $0)
                     }
             }
 
