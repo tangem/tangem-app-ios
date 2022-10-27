@@ -227,7 +227,7 @@ class TokenDetailsViewModel: ObservableObject {
     func sendAnalyticsEvent(_ event: Analytics.Event) {
         switch event {
         case .userBoughtCrypto:
-            Analytics.log(event: event, with: [.currencyCode: blockchainNetwork.blockchain.currencySymbol])
+            Analytics.log(event, params: [.currencyCode: blockchainNetwork.blockchain.currencySymbol])
         default:
             break
         }
@@ -242,9 +242,9 @@ class TokenDetailsViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        walletModel?.objectWillChange
+        walletModel?.walletManager.walletPublisher
             .receive(on: RunLoop.main)
-            .sink { [weak self] in
+            .sink { [weak self] _ in
                 self?.objectWillChange.send()
             }
             .store(in: &bag)
