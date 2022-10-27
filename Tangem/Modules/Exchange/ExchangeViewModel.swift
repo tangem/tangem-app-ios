@@ -32,10 +32,6 @@ class ExchangeViewModel: ObservableObject {
 
     private lazy var exchangeInteractor: ExchangeTxInteractor = ExchangeTxInteractor(walletModel: walletModel, card: card)
 
-    private var transactionProcessor: EthereumTransactionProcessor {
-        walletModel.walletManager as! EthereumTransactionProcessor
-    }
-
     private var userWalletModel: UserWalletModel? {
         card.userWalletModel
     }
@@ -56,6 +52,8 @@ class ExchangeViewModel: ObservableObject {
         bind()
     }
 
+    // MARK: - Methods
+    
     /// Change token places
     func onSwapItems() {
         items = ExchangeItems(fromItem: items.toItem, toItem: items.fromItem)
