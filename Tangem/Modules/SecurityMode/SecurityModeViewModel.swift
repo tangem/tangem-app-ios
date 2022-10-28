@@ -13,8 +13,7 @@ import Combine
 class SecurityModeViewModel: ObservableObject {
     // MARK: ViewState
 
-    @Published var currentSecurityOption: SecurityModeOption
-    @Published var availableSecurityOptions: [SecurityModeOption]
+    @Published var securityViewModels: [DefaultSelectableRowViewModel] = []
     @Published var error: AlertBinder?
     @Published var isLoading: Bool = false
 
@@ -25,16 +24,18 @@ class SecurityModeViewModel: ObservableObject {
     // MARK: Private
 
     private let cardModel: CardViewModel
+    private var currentSecurityOption: SecurityModeOption {
+        didSet { updateView() }
+    }
     private var bag = Set<AnyCancellable>()
     private unowned let coordinator: SecurityModeRoutable
 
     init(cardModel: CardViewModel, coordinator: SecurityModeRoutable) {
         self.cardModel = cardModel
         self.coordinator = coordinator
-
-        currentSecurityOption = cardModel.currentSecurityOption
-        availableSecurityOptions = cardModel.availableSecurityOptions
-
+        self.currentSecurityOption = cardModel.currentSecurityOption
+        
+        updateView()
         bind()
     }
 
@@ -68,17 +69,23 @@ class SecurityModeViewModel: ObservableObject {
             }
         }
     }
+    
+    func updateView() {
+        securityViewModels = cardModel.availableSecurityOptions.map { option in
+            DefaultSelectableRowViewModel(
+                title: option.title,
+                subtitle: option.subtitle,
+                isSelected: isSelected(option: option)
+            )
+        }
+    }
 
     func isSelected(option: SecurityModeOption) -> Binding<Bool> {
-        Binding<Bool> { [weak self] in
-            self?.currentSecurityOption == option
-        } set: { [weak self] isSelected in
-            guard let self = self else { return }
-
+        Binding<Bool>(root: self, default: false) { root in
+            root.currentSecurityOption == option
+        } set: { root, isSelected in
             if isSelected {
-                self.currentSecurityOption = option
-            } else {
-                self.currentSecurityOption = self.cardModel.currentSecurityOption
+                root.currentSecurityOption = option
             }
         }
     }
