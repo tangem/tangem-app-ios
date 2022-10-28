@@ -140,7 +140,7 @@ struct WalletOnboardingView: View {
 
                             }
 
-                            let backgroundFrame = viewModel.isInitialAnimPlayed ? currentStep.backgroundFrameSize(in: size) : .zero
+                            let backgroundFrame = viewModel.isInitialAnimPlayed ? currentStep.cardBackgroundFrame(containerSize: size) : .zero
                             let backgroundOffset = viewModel.isInitialAnimPlayed ? currentStep.backgroundOffset(in: size) : .zero
 
                             OnboardingTopupBalanceView(
