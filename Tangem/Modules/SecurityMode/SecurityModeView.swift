@@ -15,32 +15,17 @@ struct SecurityModeView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             Colors.Background.secondary.edgesIgnoringSafeArea(.all)
-
-            list
+            
+            GroupedScrollView {
+                GroupedSection(viewModel.securityViewModels) {
+                    DefaultSelectableRowView(viewModel: $0)
+                }
+            }
 
             actionButton
         }
         .alert(item: $viewModel.error) { $0.alert }
         .navigationBarTitle(Text(Localization.cardSettingsSecurityMode), displayMode: .inline)
-    }
-
-    private var list: some View {
-        List(viewModel.availableSecurityOptions) { option in
-            section(for: option)
-        }
-        .listStyle(DefaultListStyle())
-    }
-
-    private func section(for option: SecurityModeOption) -> some View {
-        Section {
-            RowView(
-                title: option.title,
-                isSelected: viewModel.isSelected(option: option)
-            )
-        } footer: {
-            Text(option.subtitle)
-                .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
-        }
     }
 
     private var actionButton: some View {
