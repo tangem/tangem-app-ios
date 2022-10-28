@@ -145,7 +145,7 @@ struct WalletOnboardingView: View {
 
                             OnboardingTopupBalanceView(
                                 backgroundFrameSize: backgroundFrame,
-                                cornerSize: 8,
+                                cornerSize: currentStep.cardBackgroundCornerRadius(containerSize: size),
                                 backgroundOffset: backgroundOffset,
                                 balance: viewModel.cardBalance,
                                 balanceUpdaterFrame: backgroundFrame,
