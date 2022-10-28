@@ -63,8 +63,10 @@ class TotalSumBalanceViewModel: ObservableObject {
     }
 
     private func bind() {
-        userWalletModel.subscribeToWalletModels()
-            .filter { $0.isEmpty }
+        Publishers.Merge(
+            userWalletModel.subscribeToWalletModels().filter { $0.isEmpty }.mapVoid(),
+            AppSettings.shared.$selectedCurrencyCode.mapVoid()
+        )
             .map { [unowned self] _ in
                 addAttributeForBalance(0, withCurrencyCode: AppSettings.shared.selectedCurrencyCode)
             }
