@@ -17,11 +17,11 @@ final class ScanCardSettingsViewModel: ObservableObject, Identifiable {
     @Published var isLoading: Bool = false
     @Published var alert: AlertBinder?
 
-    private let cardOnMainWalletId: Data
+    private let expectedUserWalletId: Data
     private unowned let coordinator: ScanCardSettingsRoutable
 
-    init(cardOnMainWalletId: Data, coordinator: ScanCardSettingsRoutable) {
-        self.cardOnMainWalletId = cardOnMainWalletId
+    init(expectedUserWalletId: Data, coordinator: ScanCardSettingsRoutable) {
+        self.expectedUserWalletId = expectedUserWalletId
         self.coordinator = coordinator
     }
 }
@@ -46,7 +46,7 @@ extension ScanCardSettingsViewModel {
         let cardModel = CardViewModel(cardInfo: cardInfo)
         guard
             let userWalletId = cardModel.userWalletId,
-            userWalletId == cardOnMainWalletId
+            userWalletId == expectedUserWalletId
         else {
             showErrorAlert(error: AppError.wrongCardWasTapped)
             return
