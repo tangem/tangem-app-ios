@@ -10,9 +10,11 @@ import Foundation
 import SwiftUI
 
 struct PerfList<Content: View>: View {
+    let dismissKeyboardOnScroll: Bool
     let content: () -> Content
 
-    init(@ViewBuilder _ content: @escaping () -> Content) {
+    init(dismissKeyboardOnScroll: Bool = true, @ViewBuilder _ content: @escaping () -> Content) {
+        self.dismissKeyboardOnScroll = dismissKeyboardOnScroll
         self.content = content
     }
 
@@ -23,6 +25,7 @@ struct PerfList<Content: View>: View {
                     content()
                 }
             }
+            .scrollDismissesKeyboardCompat(dismissKeyboardOnScroll)
         } else {
             List {
                 content()
