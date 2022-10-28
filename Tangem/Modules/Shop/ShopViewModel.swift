@@ -46,6 +46,10 @@ class ShopViewModel: ObservableObject {
     init(coordinator: ShopViewRoutable) {
         self.coordinator = coordinator
     }
+    
+    deinit {
+        shopifyService.cancelTasks()
+    }
 
     func didAppear() {
         Analytics.log(.shopScreenOpened)
