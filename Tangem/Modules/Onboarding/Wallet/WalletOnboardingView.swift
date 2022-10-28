@@ -82,12 +82,6 @@ struct WalletOnboardingView: View {
                 GeometryReader { geom in
                     let size = geom.size
                     ZStack(alignment: .center) {
-                        Circle()
-                            .foregroundColor(.tangemBgGray)
-                            .frame(size: viewModel.isInitialAnimPlayed ? currentStep.backgroundFrameSize(in: size) : .zero)
-                            .offset(viewModel.isInitialAnimPlayed ? currentStep.backgroundOffset(in: size) : .zero)
-                            .opacity(viewModel.isBackgroundCircleVisible ? 1 : 0)
-
                         // Navbar is added to ZStack instead of VStack because of wrong animation when container changed
                         // and cards jumps instead of smooth transition
                         NavigationBar(title: viewModel.navbarTitle,
@@ -146,12 +140,12 @@ struct WalletOnboardingView: View {
 
                             }
 
-                            let backgroundFrame = viewModel.isInitialAnimPlayed ? currentStep.backgroundFrameSize(in: size) : .zero
+                            let backgroundFrame = viewModel.isInitialAnimPlayed ? currentStep.cardBackgroundFrame(containerSize: size) : .zero
                             let backgroundOffset = viewModel.isInitialAnimPlayed ? currentStep.backgroundOffset(in: size) : .zero
 
                             OnboardingTopupBalanceView(
                                 backgroundFrameSize: backgroundFrame,
-                                cornerSize: 8,
+                                cornerSize: currentStep.cardBackgroundCornerRadius(containerSize: size),
                                 backgroundOffset: backgroundOffset,
                                 balance: viewModel.cardBalance,
                                 balanceUpdaterFrame: backgroundFrame,
