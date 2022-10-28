@@ -250,17 +250,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         }
     }
 
-    var isBackgroundCircleVisible: Bool {
-        guard !isCustomContentVisible else { return false }
-
-        switch currentStep {
-        case .claim, .successClaim:
-            return false
-        default:
-            return true
-        }
-    }
-
     var isButtonsVisible: Bool {
         switch currentStep {
         case .kycProgress: return false
