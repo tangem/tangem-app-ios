@@ -3325,6 +3325,15 @@
 			path = Factory;
 			sourceTree = "<group>";
 		};
+		EF04ACE9290BB4B700837308 /* DefaultSelectableRowView */ = {
+			isa = PBXGroup;
+			children = (
+				EF04ACEA290BB4C300837308 /* DefaultSelectableRowViewModel.swift */,
+				EF04ACEC290BB51F00837308 /* DefaultSelectableRowView.swift */,
+			);
+			path = DefaultSelectableRowView;
+			sourceTree = "<group>";
+		};
 		EF08A0ED283D1905008BD923 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -4951,6 +4960,7 @@
 				EF661E2F28BF41D6005769E5 /* Intents.intentdefinition in Sources */,
 				EF80843A293F6708000D91EA /* SwappingDestinationService.swift in Sources */,
 				DC295B402861C27D006CB7B6 /* TokenDetailsCoordinator.swift in Sources */,
+				EF04ACED290BB51F00837308 /* DefaultSelectableRowView.swift in Sources */,
 				5D78D118261DFEBA00F98B18 /* PurgeWalletsAndReadResponse.swift in Sources */,
 				EF0F99E128917003008B01DF /* SocialNetwork.swift in Sources */,
 				B0AA865226DC90E600287F80 /* WelcomeView.swift in Sources */,
@@ -5001,6 +5011,7 @@
 				5DCC20BD2500FC58007B467E /* QRScannerView.swift in Sources */,
 				DC51187A2860B704004FB954 /* AppCoordinator.swift in Sources */,
 				DC66BBFE285A389000CDF765 /* View+Navigation.swift in Sources */,
+				EF04ACEB290BB4C300837308 /* DefaultSelectableRowViewModel.swift in Sources */,
 				5DA3A2F1251CB6CA009A8E08 /* SecurityModeView.swift in Sources */,
 				DC0A57EA2822AD6D0031BECC /* PersistentStorageKey.swift in Sources */,
 				B04CD34429122C8D001EA84A /* ReferralCoordinatorView.swift in Sources */,
