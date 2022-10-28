@@ -52,13 +52,17 @@ extension CardSettingsCoordinator {
 
 extension CardSettingsCoordinator: CardSettingsRoutable {
     func openOnboarding(with input: OnboardingInput) {
-        let dismissAction: Action = { [weak self] in
+        let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
             self?.modalOnboardingCoordinator = nil
             self?.resetCardDidFinish()
         }
+        
+        let dismissAction: Action = { [weak self] in
+            self?.modalOnboardingCoordinator = nil
+        }
 
-        let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
-        let options = OnboardingCoordinator.Options(input: input, shouldOpenMainOnFinish: false)
+        let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+        let options = OnboardingCoordinator.Options(input: input, destination: .root)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
     }
