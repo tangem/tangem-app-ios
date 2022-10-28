@@ -89,7 +89,7 @@ extension DetailsCoordinator: DetailsRoutable {
     }
 
     func openScanCardSettings(with userWalletId: Data) {
-        scanCardSettingsViewModel = ScanCardSettingsViewModel(cardOnMainWalletId: userWalletId, coordinator: self)
+        scanCardSettingsViewModel = ScanCardSettingsViewModel(expectedUserWalletId: userWalletId, coordinator: self)
     }
 
     func openAppSettings() {
