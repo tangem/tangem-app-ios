@@ -160,7 +160,7 @@ extension TwinConfig: UserWalletConfig {
         case .hdWallets:
             return .hidden
         case .onlineImage:
-            return card.firmwareVersion.type == .release ? .available : .hidden
+            return .available
         case .staking:
             return .available
         case .topup:

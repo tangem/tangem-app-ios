@@ -57,9 +57,12 @@ class OnboardingCoordinator: CoordinatorObject {
 }
 
 extension OnboardingCoordinator {
+    enum DestinationOnFinish {
+        case main, root, dismiss
+    }
     struct Options {
         let input: OnboardingInput
-        let shouldOpenMainOnFinish: Bool
+        let destination: DestinationOnFinish
     }
 }
 
@@ -96,10 +99,17 @@ extension OnboardingCoordinator: WalletOnboardingRoutable {
 
 extension OnboardingCoordinator: OnboardingRoutable {
     func onboardingDidFinish() {
-        if let card = options.input.cardInput.cardModel,
-           options.shouldOpenMainOnFinish {
+        switch options.destination {
+        case .main:
+            guard let card = options.input.cardInput.cardModel else {
+                closeOnboarding()
+                return
+            }
+            
             openMain(with: card)
-        } else {
+        case .root:
+            popToRoot()
+        case .dismiss:
             closeOnboarding()
         }
     }
