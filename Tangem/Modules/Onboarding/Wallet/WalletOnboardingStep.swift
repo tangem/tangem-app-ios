@@ -61,6 +61,14 @@ enum WalletOnboardingStep {
             return .init(width: diameter, height: diameter)
         }
     }
+    
+    func cardBackgroundCornerRadius(containerSize: CGSize) -> CGFloat {
+        switch self {
+        case .welcome, .success, .backupCards: return 0
+        case .claim, .successClaim: return 8
+        default: return cardBackgroundFrame(containerSize: containerSize).height / 2
+        }
+    }
 
     func backgroundOffset(in container: CGSize) -> CGSize {
         switch self {
