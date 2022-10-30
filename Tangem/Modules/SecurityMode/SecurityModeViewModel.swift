@@ -35,7 +35,7 @@ class SecurityModeViewModel: ObservableObject {
         self.cardModel = cardModel
         self.coordinator = coordinator
         self.currentSecurityOption = cardModel.currentSecurityOption
-        
+
         updateView()
         bind()
     }
@@ -70,7 +70,7 @@ class SecurityModeViewModel: ObservableObject {
             }
         }
     }
-    
+
     func updateView() {
         securityViewModels = cardModel.availableSecurityOptions.map { option in
             DefaultSelectableRowViewModel(
