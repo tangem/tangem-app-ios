@@ -27,6 +27,7 @@ class SecurityModeViewModel: ObservableObject {
     private var currentSecurityOption: SecurityModeOption {
         didSet { updateView() }
     }
+
     private var bag = Set<AnyCancellable>()
     private unowned let coordinator: SecurityModeRoutable
 
