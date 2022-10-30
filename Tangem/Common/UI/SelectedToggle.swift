@@ -10,7 +10,7 @@ import SwiftUI
 
 struct SelectedToggle: View {
     @Binding private var isSelected: Bool
-    
+
     init(isSelected: Binding<Bool>) {
         _isSelected = isSelected
     }
