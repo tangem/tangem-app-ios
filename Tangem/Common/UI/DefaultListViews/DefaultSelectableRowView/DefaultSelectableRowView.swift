@@ -23,7 +23,7 @@ struct DefaultSelectableRowView: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(viewModel.title)
                         .style(Fonts.Regular.body, color: Colors.Text.primary1)
-                    
+
                     if let subtitle = viewModel.subtitle {
                         Text(subtitle)
                             .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
@@ -31,7 +31,7 @@ struct DefaultSelectableRowView: View {
                 }
 
                 Spacer(minLength: 12)
-                
+
                 SelectedToggle(isSelected: viewModel.$isSelected)
             }
             .contentShape(Rectangle())
