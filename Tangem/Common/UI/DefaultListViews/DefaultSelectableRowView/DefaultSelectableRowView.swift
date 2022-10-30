@@ -10,18 +10,14 @@ import SwiftUI
 
 struct DefaultSelectableRowView: View {
     private var viewModel: DefaultSelectableRowViewModel
-    @State private var isSelected: Bool = false
 
     init(viewModel: DefaultSelectableRowViewModel) {
         self.viewModel = viewModel
-        self.isSelected = viewModel.isSelected
     }
 
     var body: some View {
         Button {
-            withAnimation(nil) {
-                isSelected.toggle()
-            }
+            viewModel.isSelected.toggle()
         } label: {
             HStack(alignment: .center) {
                 VStack(alignment: .leading, spacing: 4) {
@@ -36,33 +32,11 @@ struct DefaultSelectableRowView: View {
 
                 Spacer(minLength: 12)
                 
-                SelectedToggle(isSelected: $isSelected)
+                SelectedToggle(isSelected: viewModel.$isSelected)
             }
             .contentShape(Rectangle())
         }
         .buttonStyle(PlainButtonStyle())
-        .onChange(of: isSelected, perform: { viewModel.isSelected = $0 })
-    }
-}
-
-struct SelectedToggle: View {
-    @Binding private var isSelected: Bool
-    
-    init(isSelected: Binding<Bool>) {
-        _isSelected = isSelected
-    }
-
-    var body: some View {
-        Group {
-            if isSelected {
-                Assets.check.resizable()
-            } else {
-                // Need to cover empty place if unchecking
-                Rectangle()
-                    .fill(Color.clear)
-            }
-        }
-        .frame(width: 20, height: 20)
     }
 }
 
