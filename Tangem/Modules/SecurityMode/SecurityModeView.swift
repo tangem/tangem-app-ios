@@ -15,7 +15,7 @@ struct SecurityModeView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             Colors.Background.secondary.edgesIgnoringSafeArea(.all)
-            
+
             GroupedScrollView {
                 GroupedSection(viewModel.securityViewModels) {
                     DefaultSelectableRowView(viewModel: $0)
