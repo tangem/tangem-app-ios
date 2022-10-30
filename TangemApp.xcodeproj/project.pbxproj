@@ -1437,6 +1437,7 @@
 		EF29BEF329349F4200D7C782 /* Moya.Task+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Moya.Task+.swift"; sourceTree = "<group>"; };
 		EF2EFDE12865C05D00798051 /* Production.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Production.xcconfig; sourceTree = "<group>"; };
 		EF2EFDE22865C07100798051 /* Beta.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Beta.xcconfig; sourceTree = "<group>"; };
+		EF347FD6290E4C4300CA2865 /* SelectedToggle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedToggle.swift; sourceTree = "<group>"; };
 		EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TangemProvider.swift; sourceTree = "<group>"; };
 		EF45E044293F74EB00C7090F /* UserCurrenciesProviderMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCurrenciesProviderMock.swift; sourceTree = "<group>"; };
 		EF46618729237C9F00346B6C /* ProgressViewCompat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressViewCompat.swift; sourceTree = "<group>"; };
@@ -5041,6 +5042,7 @@
 				B0C4F77D26F0BFF90086D815 /* OnboardingMessagesView.swift in Sources */,
 				5D96BD2A27F60B0D000AA797 /* TokenIconView.swift in Sources */,
 				65469D3A28AA64520092138F /* ResizableSheetView.swift in Sources */,
+				EF347FD7290E4C4300CA2865 /* SelectedToggle.swift in Sources */,
 				5D43E2D72514D5B700697E5B /* CardOperationView.swift in Sources */,
 				DAC53CFA27BE63830027147D /* StoriesView.swift in Sources */,
 				5DE2038E24EE8A510044EF46 /* ActivityIndicatorView.swift in Sources */,
