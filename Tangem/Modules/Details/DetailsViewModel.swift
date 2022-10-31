@@ -34,8 +34,12 @@ class DetailsViewModel: ObservableObject {
         cardModel.shouldShowWC
     }
 
-    var cardTouURL: URL? {
+    var cardTouURL: URL {
         cardModel.cardTouURL
+    }
+
+    var canSendMail: Bool {
+        cardModel.emailConfig != nil
     }
 
     var applicationInfoFooter: String? {
@@ -89,12 +93,15 @@ extension DetailsViewModel {
 
     func openMail() {
         Analytics.log(.buttonSendFeedback)
+
+        guard let emailConfig = cardModel.emailConfig else { return }
+
         let dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel,
                                                          userWalletEmailData: cardModel.emailData)
 
         coordinator.openMail(with: dataCollector,
-                             recipient: cardModel.emailConfig.subject,
-                             emailType: .appFeedback(subject: cardModel.emailConfig.subject))
+                             recipient: emailConfig.recipient,
+                             emailType: .appFeedback(subject: emailConfig.subject))
     }
 
     func openWalletConnect() {
@@ -106,16 +113,18 @@ extension DetailsViewModel {
     }
 
     func openDisclaimer() {
-        coordinator.openDisclaimer()
-    }
-
-    func openCardTOU(url: URL) {
-        coordinator.openCardTOU(url: url)
+        coordinator.openDisclaimer(at: cardModel.cardTouURL)
     }
 
     func openCardSettings() {
+        guard let userWalletId = cardModel.userWalletId else {
+            // This shouldn't be the case, because currently user can't reach this screen
+            // with card that doesn't have a wallet.
+            return
+        }
+
         Analytics.log(.buttonCardSettings)
-        coordinator.openScanCardSettings()
+        coordinator.openScanCardSettings(with: userWalletId)
     }
 
     func openAppSettings() {
@@ -140,6 +149,10 @@ extension DetailsViewModel {
 
         Analytics.log(.buttonSocialNetwork)
         coordinator.openInSafari(url: url)
+    }
+
+    func openEnvironmentSetup() {
+        coordinator.openEnvironmentSetup()
     }
 }
 

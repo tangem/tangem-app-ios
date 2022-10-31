@@ -10,7 +10,7 @@ import SwiftUI
 import Combine
 import TangemSdk
 
-class OnboardingViewModel<Step: OnboardingStep> {
+class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable> {
     let navbarSize: CGSize = .init(width: UIScreen.main.bounds.width, height: 44)
     let resetAnimDuration: Double = 0.3
 
@@ -134,15 +134,15 @@ class OnboardingViewModel<Step: OnboardingStep> {
 
     var isFromMain: Bool = false
     private(set) var containerSize: CGSize = .zero
-    unowned let onboardingCoordinator: OnboardingRoutable
+    unowned let coordinator: Coordinator
     private let saveUserWalletOnFinish: Bool
 
     @Injected(\.userWalletListService) private var userWalletListService: UserWalletListService
     @Injected(\.tangemSdkProvider) private var tangemSdkProvider: TangemSdkProviding
 
-    init(input: OnboardingInput, saveUserWalletOnFinish: Bool, onboardingCoordinator: OnboardingRoutable) {
+    init(input: OnboardingInput, coordinator: Coordinator, saveUserWalletOnFinish: Bool) {
         self.input = input
-        self.onboardingCoordinator = onboardingCoordinator
+        self.coordinator = coordinator
         self.saveUserWalletOnFinish = saveUserWalletOnFinish
         isFromMain = input.isStandalone
         isNavBarVisible = input.isStandalone
@@ -156,6 +156,8 @@ class OnboardingViewModel<Step: OnboardingStep> {
         var config = TangemSdkConfigFactory().makeDefaultConfig()
         config.accessCodeRequestPolicy = .default
         tangemSdkProvider.setup(with: config)
+
+        bindAnalytics()
     }
 
     deinit {
@@ -216,6 +218,17 @@ class OnboardingViewModel<Step: OnboardingStep> {
         }
     }
 
+    func goToStep(with index: Int) {
+        withAnimation {
+            currentStepIndex = index
+            setupCardsSettings(animated: true, isContainerSetup: false)
+
+            if index == (steps.count - 1) {
+                fireConfetti()
+            }
+        }
+    }
+
     func goToNextStep() {
         if isOnboardingFinished {
             let completion: (Result<Void, TangemSdkError>) -> Void = { [weak self] result in
@@ -247,15 +260,7 @@ class OnboardingViewModel<Step: OnboardingStep> {
             newIndex = steps.count - 1
         }
 
-        withAnimation {
-            currentStepIndex = newIndex
-
-            setupCardsSettings(animated: true, isContainerSetup: false)
-
-            if newIndex == (steps.count - 1) {
-                fireConfetti()
-            }
-        }
+        goToStep(with: newIndex)
     }
 
     func goToStep(_ step: Step) {
@@ -336,16 +341,43 @@ class OnboardingViewModel<Step: OnboardingStep> {
 
         completion(.success(()))
     }
+
+    private func bindAnalytics() {
+        $currentStepIndex
+            .dropFirst()
+            .removeDuplicates()
+            .receiveValue { [weak self] index in
+                guard let self else { return }
+
+                let currentStep = self.currentStep
+
+                if let walletStep = currentStep as? WalletOnboardingStep {
+                    switch walletStep {
+                    case .kycProgress:
+                        Analytics.log(.kycProgressScreenOpened)
+                    case .kycRetry:
+                        Analytics.log(.kycRetryScreenOpened)
+                    case .kycWaiting:
+                        Analytics.log(.kycWaitingScreenOpened)
+                    case .claim:
+                        Analytics.log(.claimScreenOpened)
+                    default:
+                        break
+                    }
+                }
+            }
+            .store(in: &bag)
+    }
 }
 
 // MARK: - Navigation
 extension OnboardingViewModel {
     func onboardingDidFinish() {
-        onboardingCoordinator.onboardingDidFinish()
+        coordinator.onboardingDidFinish()
     }
 
     func closeOnboarding() {
-        onboardingCoordinator.closeOnboarding()
+        coordinator.closeOnboarding()
     }
 
     func openSupportChat() {
@@ -354,7 +386,7 @@ extension OnboardingViewModel {
         let dataCollector = DetailsFeedbackDataCollector(cardModel: cardModel,
                                                          userWalletEmailData: cardModel.emailData)
 
-        onboardingCoordinator.openSupportChat(cardId: cardModel.cardId,
-                                              dataCollector: dataCollector)
+        coordinator.openSupportChat(cardId: cardModel.cardId,
+                                    dataCollector: dataCollector)
     }
 }
