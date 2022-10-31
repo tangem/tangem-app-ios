@@ -53,11 +53,11 @@ private extension AppSettingsViewModel {
             .dropFirst()
             .sink { [weak self, userWallet] saveWallet in
                 guard let self = self else { return }
-                
+
                 if self.ignoreSaveWalletChanges {
                     return
                 }
-                
+
                 if saveWallet {
                     self.userWalletListService.unlockWithBiometry { result in
                         if case .success = result {
@@ -77,11 +77,11 @@ private extension AppSettingsViewModel {
             .dropFirst()
             .sink { [weak self] saveAccessCodes in
                 guard let self = self else { return }
-                
+
                 if self.ignoreSaveAccessCodeChanges {
                     return
                 }
-                
+
                 if saveAccessCodes {
                     self.setSaveAccessCodes(true)
                 } else {
