@@ -1,5 +1,5 @@
 PODS:
-  - Alamofire (5.5.0)
+  - Alamofire (5.6.2)
   - AlertToast (1.3.7)
   - Amplitude (8.8.0):
     - AnalyticsConnector (~> 1.0.0)
@@ -220,15 +220,13 @@ PODS:
     - ZendeskSupportProvidersSDK (= 5.5.0)
 
 DEPENDENCIES:
-  - Alamofire
   - AlertToast (from `https://github.com/tangem/AlertToast`)
   - Amplitude (~> 8.8.0)
   - AnyCodable-FlightSchool
   - AppsFlyerFramework
-  - BigInt
   - BinanceChain (from `https://github.com/tangem/swiftbinancechain.git`, tag `0.0.9`)
   - BitcoinCore.swift (from `https://github.com/tangem/bitcoincore.git`, tag `0.0.16`)
-  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-170`)
+  - BlockchainSdk (from `https://github.com/tangem/blockchain-sdk-swift.git`, tag `develop-174`)
   - DeviceGuru (= 8.0.0)
   - Firebase/Analytics
   - Firebase/Crashlytics
@@ -238,14 +236,11 @@ DEPENDENCIES:
   - Mobile-Buy-SDK
   - Moya
   - ScaleCodec
-  - Sodium
-  - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-3`)
+  - Solana.Swift (from `https://github.com/tangem/Solana.Swift`, tag `add-external-signer-6`)
   - stellar-ios-mac-sdk
-  - SwiftCBOR
-  - SwiftyJSON
   - TangemSdk (from `../tangem-sdk-ios`)
   - WalletConnectSwift (from `https://github.com/WalletConnect/WalletConnectSwift`, tag `1.7.0`)
-  - web3swift (from `https://github.com/tangem/web3swift.git`, tag `2.2.10`)
+  - web3swift (from `https://github.com/tangem/web3swift.git`, tag `2.2.11`)
   - ZendeskAnswerBotSDK (~> 2.2.0)
   - ZendeskChatSDK (~> 2.12.0)
   - ZendeskSupportProvidersSDK (~> 5.5.0)
@@ -311,7 +306,7 @@ EXTERNAL SOURCES:
     :tag: 0.0.16
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
-    :tag: develop-170
+    :tag: develop-174
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
@@ -320,7 +315,7 @@ EXTERNAL SOURCES:
     :git: https://github.com/onevcat/Kingfisher.git
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
-    :tag: add-external-signer-3
+    :tag: add-external-signer-6
   TangemSdk:
     :path: "../tangem-sdk-ios"
   WalletConnectSwift:
@@ -328,7 +323,7 @@ EXTERNAL SOURCES:
     :tag: 1.7.0
   web3swift:
     :git: https://github.com/tangem/web3swift.git
-    :tag: 2.2.10
+    :tag: 2.2.11
 
 CHECKOUT OPTIONS:
   AlertToast:
@@ -342,7 +337,7 @@ CHECKOUT OPTIONS:
     :tag: 0.0.16
   BlockchainSdk:
     :git: https://github.com/tangem/blockchain-sdk-swift.git
-    :tag: develop-170
+    :tag: develop-174
   HDWalletKit:
     :git: https://github.com/tangem/hdwallet.git
     :tag: 0.3.12
@@ -351,16 +346,16 @@ CHECKOUT OPTIONS:
     :git: https://github.com/onevcat/Kingfisher.git
   Solana.Swift:
     :git: https://github.com/tangem/Solana.Swift
-    :tag: add-external-signer-3
+    :tag: add-external-signer-6
   WalletConnectSwift:
     :git: https://github.com/WalletConnect/WalletConnectSwift
     :tag: 1.7.0
   web3swift:
     :git: https://github.com/tangem/web3swift.git
-    :tag: 2.2.10
+    :tag: 2.2.11
 
 SPEC CHECKSUMS:
-  Alamofire: 1c4fb5369c3fe93d2857c780d8bbe09f06f97e7c
+  Alamofire: d368e1ff8a298e6dde360e35a3e68e6c610e7204
   AlertToast: 8c9d5efb2df6ea728b32b62bce99d876ec3e5393
   Amplitude: 710116f3539c225e86fb70a8abdcd20015683132
   AnalyticsConnector: 4c386d5972ac9da86e22d668564dbbac97558754
@@ -393,7 +388,7 @@ SPEC CHECKSUMS:
   ScaleCodec: 5d7d0439940c600f49babad6ea265a09377c404b
   secp256k1.swift: a7e7a214f6db6ce5db32cc6b2b45e5c4dd633634
   Sodium: 23d11554ecd556196d313cf6130d406dfe7ac6da
-  Solana.Swift: c86f550e70aeaf1f2171435ef95dca16fc55c950
+  Solana.Swift: 81d52fee263fded11b0d4e7859863ae489fe753e
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   stellar-ios-mac-sdk: abb56946a998585fea91250941bd5290b9f2f6a2
   SwiftCBOR: ac340b74d3b2cf1f8884bb748bd09875848e3873
@@ -417,6 +412,6 @@ SPEC CHECKSUMS:
   ZendeskSupportProvidersSDK: 77a62fe6bacc05bb10ff20edce75612fa109fd61
   ZendeskSupportSDK: ba72e90e327635b5fde3d023a3de33242a6ee8ab
 
-PODFILE CHECKSUM: 7e80f52ad0055eb3fec9a2e0a1ac87c838703eda
+PODFILE CHECKSUM: d34140fff61734e5c58579672aa221376e430562
 
 COCOAPODS: 1.11.3

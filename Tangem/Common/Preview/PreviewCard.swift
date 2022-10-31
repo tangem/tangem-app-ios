@@ -27,7 +27,6 @@ enum PreviewCard {
         let ci = CardInfo(card: card, walletData: walletData, name: "Name")
         let config = UserWalletConfigFactory(ci).makeConfig()
         let vm = CardViewModel(cardInfo: ci, config: config)
-        #if !CLIP
         let walletModels: [WalletModel]
         if let blockchain = blockchain {
             let factory = WalletManagerFactory(config: .init(blockchairApiKey: "", blockcypherTokens: [], infuraProjectId: "", tronGridApiKey: "", quiknodeApiKey: "", quiknodeSubdomain: ""))
@@ -39,7 +38,6 @@ enum PreviewCard {
 
         // [REDACTED_TODO_COMMENT]
 //        vm.state = .loaded(walletModel: walletModels)
-        #endif
         return vm
     }
 
@@ -62,7 +60,6 @@ enum PreviewCard {
         }
     }
 
-    #if !CLIP
     var blockchain: Blockchain? {
         switch self {
         case .ethereum:
@@ -79,7 +76,6 @@ enum PreviewCard {
     var blockchainNetwork: BlockchainNetwork? {
         blockchain.map { BlockchainNetwork($0) }
     }
-    #endif
 
     var publicKey: Data {
         // [REDACTED_TODO_COMMENT]
