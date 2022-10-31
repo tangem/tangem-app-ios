@@ -124,7 +124,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             let newName = nameTextField?.text ?? ""
 
             guard viewModel.userWallet.name != newName else { return }
-            
+
             var newUserWallet = viewModel.userWallet
             newUserWallet.name = newName
 
