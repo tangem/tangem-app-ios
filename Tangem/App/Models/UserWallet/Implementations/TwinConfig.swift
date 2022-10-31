@@ -37,14 +37,6 @@ extension TwinConfig: UserWalletConfig {
         return config
     }
 
-    var emailConfig: EmailConfig {
-        .default
-    }
-
-    var touURL: URL? {
-        nil
-    }
-
     var cardSetLabel: String? {
         String.localizedStringWithFormat("card_label_card_count".localized, cardsCount)
     }
@@ -66,8 +58,8 @@ extension TwinConfig: UserWalletConfig {
 
         if !AppSettings.shared.isTwinCardOnboardingWasDisplayed { // show intro only once
             AppSettings.shared.isTwinCardOnboardingWasDisplayed = true
-            let twinPairCid = AppTwinCardIdFormatter.format(cid: "", cardNumber: twinData.series.pair.number)
-            steps.append(.intro(pairNumber: "\(twinPairCid)"))
+            let twinPairNumber = twinData.series.pair.number
+            steps.append(.intro(pairNumber: "\(twinPairNumber)"))
         }
 
         if card.wallets.isEmpty { // twin without created wallet. Start onboarding
@@ -110,8 +102,7 @@ extension TwinConfig: UserWalletConfig {
     }
 
     var defaultBlockchains: [StorageEntry] {
-        let derivationPath = defaultBlockchain.derivationPath(for: .legacy)
-        let network = BlockchainNetwork(defaultBlockchain, derivationPath: derivationPath)
+        let network = BlockchainNetwork(defaultBlockchain, derivationPath: nil)
         let entry = StorageEntry(blockchainNetwork: network, tokens: [])
         return [entry]
     }
@@ -139,6 +130,10 @@ extension TwinConfig: UserWalletConfig {
 
     var emailData: [EmailCollectedData] {
         CardEmailDataFactory().makeEmailData(for: card, walletData: walletData)
+    }
+
+    var userWalletIdSeed: Data? {
+        TwinCardsUtils.makeCombinedWalletKey(for: card, pairData: twinData)
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
@@ -180,11 +175,13 @@ extension TwinConfig: UserWalletConfig {
         case .hdWallets:
             return .hidden
         case .onlineImage:
-            return card.firmwareVersion.type == .release ? .available : .hidden
+            return .available
         case .staking:
             return .available
         case .topup:
             return .available
+        case .tokenSynchronization:
+            return .hidden
         }
     }
 
