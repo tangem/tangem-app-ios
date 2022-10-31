@@ -26,15 +26,20 @@ protocol UserWalletModel {
     func subscribeToEntriesWithoutDerivation() -> AnyPublisher<[StorageEntry], Never>
 
     func canManage(amountType: Amount.AmountType, blockchainNetwork: BlockchainNetwork) -> Bool
-    func update(entries: [StorageEntry], completion: @escaping () -> Void)
-    func append(entries: [StorageEntry], completion: @escaping () -> Void)
-    func remove(item: CommonUserWalletModel.RemoveItem, completion: @escaping () -> Void)
+    func update(entries: [StorageEntry])
+    func append(entries: [StorageEntry])
+    func remove(item: CommonUserWalletModel.RemoveItem)
 
-    func updateAndReloadWalletModels(completion: @escaping () -> Void)
+    func updateWalletModels()
+    func updateAndReloadWalletModels(silent: Bool, completion: @escaping () -> Void)
 }
 
 extension UserWalletModel {
+    func updateAndReloadWalletModels(completion: @escaping () -> Void) {
+        updateAndReloadWalletModels(silent: false, completion: completion)
+    }
+
     func updateAndReloadWalletModels() {
-        updateAndReloadWalletModels(completion: {})
+        updateAndReloadWalletModels(silent: false, completion: {})
     }
 }

@@ -34,6 +34,9 @@ enum WalletOnboardingCardLayout {
         case (_, .selectBackupCards):
             return .init(targetSettings: fanStackCalculator.settingsForCard(at: cardFanStackIndex),
                          intermediateSettings: nil)
+        case (_, .claim), (_, .successClaim):
+            return .init(targetSettings: SingleCardOnboardingCardsLayout.main.cardAnimSettings(for: .topup, containerSize: container, animated: animated),
+                         intermediateSettings: nil)
         case (_, .success):
             return .zero
         case (.origin, _), (.firstBackup, _), (.secondBackup, _):
