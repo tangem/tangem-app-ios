@@ -14,7 +14,7 @@ class CardSettingsCoordinator: CoordinatorObject {
 
     // MARK: - Main view model
 
-    @Published private(set) var сardSettingsViewModel: CardSettingsViewModel?
+    @Published private(set) var cardSettingsViewModel: CardSettingsViewModel?
 
     // MARK: - Child view models
 
@@ -35,7 +35,7 @@ class CardSettingsCoordinator: CoordinatorObject {
     }
 
     func start(with options: Options) {
-        сardSettingsViewModel = CardSettingsViewModel(
+        cardSettingsViewModel = CardSettingsViewModel(
             cardModel: options.cardModel,
             coordinator: self
         )
@@ -52,13 +52,17 @@ extension CardSettingsCoordinator {
 
 extension CardSettingsCoordinator: CardSettingsRoutable {
     func openOnboarding(with input: OnboardingInput) {
-        let dismissAction: Action = { [weak self] in
+        let popToRootAction: ParamsAction<PopToRootOptions> = { [weak self] options in
             self?.modalOnboardingCoordinator = nil
             self?.resetCardDidFinish()
         }
 
-        let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
-        let options = OnboardingCoordinator.Options(input: input, shouldOpenMainOnFinish: false, saveUserWalletOnFinish: false)
+        let dismissAction: Action = { [weak self] in
+            self?.modalOnboardingCoordinator = nil
+        }
+
+        let coordinator = OnboardingCoordinator(dismissAction: dismissAction, popToRootAction: popToRootAction)
+        let options = OnboardingCoordinator.Options(input: input, destination: .root, saveUserWalletOnFinish: false)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
     }
