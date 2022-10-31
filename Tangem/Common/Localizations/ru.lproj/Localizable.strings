@@ -404,6 +404,9 @@ URL: %@";
 "main_processing_full_amount" = "В сумме учтены не все монеты";
 "main_tokens" = "Токены";
 
+// MARK: Errors
+"error_wrong_wallet_tapped" = "Вы использовали карту от другого кошелька. Приложите карту, связанную с этим кошельком.";
+
 // MARK: Token details
 
 "token_details_hide_alert_title" = "Cкрыть %@";
