@@ -73,13 +73,13 @@ struct Start2CoinConfig {
 }
 
 extension Start2CoinConfig: UserWalletConfig {
-    var emailConfig: EmailConfig {
+    var emailConfig: EmailConfig? {
         .init(recipient: "cardsupport@start2coin.com",
               subject: "feedback_subject_support".localized)
     }
 
-    var touURL: URL? {
-        makeTouURL()
+    var touURL: URL {
+        makeTouURL() ?? DummyConfig().touURL
     }
 
     var cardsCount: Int {
@@ -115,8 +115,7 @@ extension Start2CoinConfig: UserWalletConfig {
     }
 
     var defaultBlockchains: [StorageEntry] {
-        let derivationPath = defaultBlockchain.derivationPath(for: .legacy)
-        let network = BlockchainNetwork(defaultBlockchain, derivationPath: derivationPath)
+        let network = BlockchainNetwork(defaultBlockchain, derivationPath: nil)
         let entry = StorageEntry(blockchainNetwork: network, tokens: [])
         return [entry]
     }
@@ -137,6 +136,10 @@ extension Start2CoinConfig: UserWalletConfig {
 
     var emailData: [EmailCollectedData] {
         CardEmailDataFactory().makeEmailData(for: card, walletData: walletData)
+    }
+
+    var userWalletIdSeed: Data? {
+        card.wallets.first?.publicKey
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
@@ -183,6 +186,8 @@ extension Start2CoinConfig: UserWalletConfig {
             return .available
         case .topup:
             return .available
+        case .tokenSynchronization:
+            return .hidden
         }
     }
 
