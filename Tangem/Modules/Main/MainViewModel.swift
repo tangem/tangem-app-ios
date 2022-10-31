@@ -30,8 +30,31 @@ class MainViewModel: ObservableObject {
     @Published var isLackDerivationWarningViewVisible: Bool = false
     @Published var isBackupAllowed: Bool = false
 
-    @Published var singleWalletContentViewModel: SingleWalletContentViewModel?
-    @Published var multiWalletContentViewModel: MultiWalletContentViewModel?
+    @Published var singleWalletContentViewModel: SingleWalletContentViewModel? {
+        didSet {
+            singleWalletContentViewModel?.objectWillChange
+                .receive(on: DispatchQueue.main)
+                .sink(receiveValue: { [unowned self] in
+                    withAnimation {
+                        self.objectWillChange.send()
+                    }
+                })
+                .store(in: &bag)
+        }
+    }
+
+    @Published var multiWalletContentViewModel: MultiWalletContentViewModel? {
+        didSet {
+            multiWalletContentViewModel?.objectWillChange
+                .receive(on: DispatchQueue.main)
+                .sink(receiveValue: { [unowned self] in
+                    withAnimation {
+                        self.objectWillChange.send()
+                    }
+                })
+                .store(in: &bag)
+        }
+    }
 
     @ObservedObject var warnings: WarningsContainer = .init() {
         didSet {
@@ -48,12 +71,23 @@ class MainViewModel: ObservableObject {
 
     // MARK: - Private
 
-    private let cardModel: CardViewModel
+    @Published var cardModel: CardViewModel {
+        didSet {
+            cardModel.objectWillChange
+                .receive(on: DispatchQueue.main)
+                .sink(receiveValue: { [unowned self] in
+                    withAnimation {
+                        self.objectWillChange.send()
+                    }
+                })
+                .store(in: &bag)
+        }
+    }
+
     private let userWalletModel: UserWalletModel
     private let cardImageProvider: CardImageProviding
 
     private var bag = Set<AnyCancellable>()
-    private var isHashesCounted = false
     private var isProcessingNewCard = false
 
     private lazy var testnetBuyCryptoService = TestnetBuyCryptoService()
@@ -61,23 +95,15 @@ class MainViewModel: ObservableObject {
     private unowned let coordinator: MainRoutable
 
     public var canSend: Bool {
-        guard cardModel.canSend else {
-            return false
-        }
-
-        guard let wallet = wallets.first else {
-            return false
-        }
-
-        return wallet.canSend(amountType: .coin)
+        singleWalletContentViewModel?.canSend ?? false
     }
 
-    var wallets: [Wallet] {
-        cardModel.wallets
+    var wallet: Wallet? {
+        singleWalletContentViewModel?.singleWalletModel?.wallet
     }
 
     var currenyCode: String {
-        wallets.first?.blockchain.currencySymbol ?? .unknown
+        wallet?.blockchain.currencySymbol ?? .unknown
     }
 
     var canBuyCrypto: Bool {
@@ -93,7 +119,7 @@ class MainViewModel: ObservableObject {
     }
 
     var buyCryptoURL: URL? {
-        if let wallet = wallets.first {
+        if let wallet {
             let blockchain = wallet.blockchain
             if blockchain.isTestnet {
                 return blockchain.testnetFaucetURL
@@ -108,7 +134,7 @@ class MainViewModel: ObservableObject {
     }
 
     var sellCryptoURL: URL? {
-        if let wallet = wallets.first {
+        if let wallet {
             return exchangeService.getSellUrl(currencySymbol: wallet.blockchain.currencySymbol,
                                               amountType: .coin,
                                               blockchain: wallet.blockchain,
@@ -150,7 +176,6 @@ class MainViewModel: ObservableObject {
         updateContent()
         updateIsBackupAllowed()
         cardModel.setupWarnings()
-        validateHashesCount()
         showUserWalletSaveIfNeeded()
     }
 
@@ -169,12 +194,13 @@ class MainViewModel: ObservableObject {
             .store(in: &bag)
 
         userWalletModel.subscribeToEntriesWithoutDerivation()
+            .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .sink { [unowned self] entries in
                 self.updateLackDerivationWarningView(entries: entries)
             }
             .store(in: &bag)
-        
+
         AppSettings.shared.$saveUserWallets
             .dropFirst()
             .sink { _ in
@@ -244,9 +270,7 @@ class MainViewModel: ObservableObject {
     }
 
     func sendTapped() {
-        guard let wallet = wallets.first else {
-            return
-        }
+        guard let wallet else { return }
 
         let hasTokenAmounts = !wallet.amounts.values.filter { $0.type.isToken && !$0.isZero }.isEmpty
 
@@ -284,13 +308,13 @@ class MainViewModel: ObservableObject {
                 registerValidatedSignedHashesCard()
             }
         case .rateApp:
-            Analytics.log(event: .positiveRateAppFeedback)
+            Analytics.log(.positiveRateAppFeedback)
             rateAppService.userReactToRateAppWarning(isPositive: true)
         case .dismiss:
-            Analytics.log(event: .dismissRateAppWarning)
+            Analytics.log(.dismissRateAppWarning)
             rateAppService.dismissRateAppWarning()
         case .reportProblem:
-            Analytics.log(event: .negativeRateAppFeedback)
+            Analytics.log(.negativeRateAppFeedback)
             rateAppService.userReactToRateAppWarning(isPositive: false)
             openMail(with: .negativeFeedback)
         case .learnMore:
@@ -324,7 +348,7 @@ class MainViewModel: ObservableObject {
     func sendAnalyticsEvent(_ event: Analytics.Event) {
         switch event {
         case .userBoughtCrypto:
-            Analytics.log(event: event, with: [.currencyCode: currenyCode])
+            Analytics.log(event, params: [.currencyCode: currenyCode])
         default:
             break
         }
@@ -362,65 +386,6 @@ class MainViewModel: ObservableObject {
     }
 
     // MARK: - Private functions
-    private func showAlertAnimated(_ event: WarningEvent) {
-        withAnimation {
-            warningsService.appendWarning(for: event)
-        }
-    }
-
-    private func validateHashesCount() {
-        func didFinishCountingHashes() {
-            print("⚠️ Hashes counted")
-            isHashesCounted = true
-        }
-
-        guard !isHashesCounted,
-              !AppSettings.shared.validatedSignedHashesCards.contains(cardModel.cardId) else {
-            didFinishCountingHashes()
-            return
-        }
-
-        guard cardModel.cardSignedHashes > 0 else {
-            AppSettings.shared.validatedSignedHashesCards.append(cardModel.cardId)
-            didFinishCountingHashes()
-            return
-        }
-
-        guard !cardModel.isMultiWallet else {
-            showAlertAnimated(.multiWalletSignedHashes)
-            didFinishCountingHashes()
-            return
-        }
-
-        guard cardModel.canCountHashes else {
-            AppSettings.shared.validatedSignedHashesCards.append(cardModel.cardId)
-            didFinishCountingHashes()
-            return
-        }
-
-        guard let validator = cardModel.walletModels.first?.walletManager as? SignatureCountValidator else {
-            showAlertAnimated(.numberOfSignedHashesIncorrect)
-            didFinishCountingHashes()
-            return
-        }
-
-        validator.validateSignatureCount(signedHashes: cardModel.cardSignedHashes)
-            .subscribe(on: DispatchQueue.global())
-            .receive(on: RunLoop.main)
-            .handleEvents(receiveCancel: {
-                print("⚠️ Hash counter subscription cancelled")
-            })
-            .receiveCompletion { [weak self] failure in
-                switch failure {
-                case .finished:
-                    break
-                case .failure:
-                    self?.showAlertAnimated(.numberOfSignedHashesIncorrect)
-                }
-                didFinishCountingHashes()
-            }
-            .store(in: &bag)
-    }
 
     private func setError(_ error: AlertBinder?)  {
         if self.error != nil {
@@ -551,7 +516,8 @@ extension MainViewModel {
     func openMail(with emailFeedbackCase: EmailFeedbackCase) {
         let collector = getDataCollector(for: emailFeedbackCase)
         let type = emailFeedbackCase.emailType
-        coordinator.openMail(with: collector, emailType: type, recipient: cardModel.emailConfig.recipient)
+        let recipient = cardModel.emailConfig?.recipient ?? EmailConfig.default.recipient
+        coordinator.openMail(with: collector, emailType: type, recipient: recipient)
     }
 }
 
