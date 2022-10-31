@@ -21,8 +21,11 @@ enum WalletOnboardingStep: Equatable {
     case enterPin
     case registerWallet
     case kycStart
+    case kycRetry
     case kycProgress
     case kycWaiting
+    case claim
+    case successClaim
 
     case success
 
@@ -37,12 +40,10 @@ enum WalletOnboardingStep: Equatable {
             return "onboarding_navbar_pin"
         case .registerWallet:
             return "onboarding_navbar_register_wallet"
-        case .kycStart:
-            return "onboarding_navbar_kyc_start"
-        case .kycProgress:
+        case .kycStart, .kycProgress, .kycWaiting, .kycRetry:
             return "onboarding_navbar_kyc_progress"
-        case .kycWaiting:
-            return "onboarding_navbar_kyc_waiting"
+        case .claim, .successClaim:
+            return "onboarding_navbar_claim"
         }
     }
 
@@ -50,30 +51,43 @@ enum WalletOnboardingStep: Equatable {
         [.backupCards, .success]
     }
 
-    func backgroundFrameSize(in container: CGSize) -> CGSize {
+    func cardBackgroundFrame(containerSize: CGSize) -> CGSize {
         switch self {
         case .welcome, .success, .backupCards:
             return .zero
-//        case .backupIntro:
-//            return .init(width: 816, height: 816)
+        case .claim, .successClaim:
+            return defaultBackgroundFrameSize(in: containerSize)
         default:
-            let cardFrame = WalletOnboardingCardLayout.origin.frame(for: self, containerSize: container)
+            let cardFrame = WalletOnboardingCardLayout.origin.frame(for: self, containerSize: containerSize)
             let diameter = cardFrame.height * 1.242
             return .init(width: diameter, height: diameter)
         }
     }
 
-    func backgroundOffset(in container: CGSize) -> CGSize {
+    func cardBackgroundCornerRadius(containerSize: CGSize) -> CGFloat {
         switch self {
-//        case .backupIntro:
-//            return .init(width: 0, height: -container.height * 0.572)
-        default:
-            let cardOffset = WalletOnboardingCardLayout.origin.offset(at: .createWallet, in: container)
-            return cardOffset
-//            return .init(width: 0, height: container.height * 0.089)
+        case .welcome, .success, .backupCards: return 0
+        case .claim, .successClaim: return 8
+        default: return cardBackgroundFrame(containerSize: containerSize).height / 2
         }
     }
 
+    func backgroundOffset(in container: CGSize) -> CGSize {
+        switch self {
+        case .claim, .successClaim:
+            return defaultBackgroundOffset(in: container)
+        default:
+            let cardOffset = WalletOnboardingCardLayout.origin.offset(at: .createWallet, in: container)
+            return cardOffset
+        }
+    }
+
+    var balanceStackOpacity: Double {
+        switch self {
+        case .claim, .successClaim: return 1
+        default: return 0
+        }
+    }
 }
 
 extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
@@ -86,15 +100,19 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
         case .selectBackupCards: return "onboarding_title_no_backup_cards"
         case .backupCards, .kycProgress: return ""
         case .saveUserWallet: return nil
-        case .success: return successTitle
+        case .success, .successClaim: return successTitle
         case .registerWallet:
             return "onboarding_title_register_wallet"
         case .kycStart:
             return "onboarding_title_kyc_start"
+        case .kycRetry:
+            return "onboarding_title_kyc_retry"
         case .kycWaiting:
             return "onboarding_title_kyc_waiting"
         case .enterPin:
             return "onboarding_title_pin"
+        case .claim:
+            return ""
         }
     }
 
@@ -112,16 +130,22 @@ extension WalletOnboardingStep: OnboardingMessagesProvider, SuccessStep {
             return "onboarding_subtitle_register_wallet"
         case .kycStart:
             return "onboarding_subtitle_kyc_start"
+        case .kycRetry:
+            return "onboarding_subtitle_kyc_retry"
         case .kycWaiting:
             return "onboarding_subtitle_kyc_waiting"
         case .enterPin:
             return "onboarding_subtitle_pin"
+        case .claim:
+            return "onboarding_subtitle_claim"
+        case .successClaim:
+            return "onboarding_subtitle_success_claim"
         }
     }
 
     var messagesOffset: CGSize {
         switch self {
-        case .success: return CGSize(width: 0, height: -2)
+        case .success, .claim, .successClaim: return CGSize(width: 0, height: -2)
         default: return .zero
         }
     }
@@ -152,8 +176,9 @@ extension WalletOnboardingStep: OnboardingButtonsInfoProvider {
         case .kycWaiting: return  "onboarding_button_kyc_waiting"
         case .enterPin: return "onboarding_button_pin"
         case .registerWallet:  return "onboarding_button_register_wallet"
-        case .kycStart:  return "onboarding_button_kyc_start"
-
+        case .kycStart, .kycRetry:  return "onboarding_button_kyc_start"
+        case .claim: return "onboarding_button_claim"
+        case .successClaim: return "onboarding_button_continue_wallet"
         default: return ""
         }
 
@@ -188,20 +213,23 @@ extension WalletOnboardingStep: OnboardingInitialStepInfo {
     static var initialStep: WalletOnboardingStep {
         .welcome
     }
-
-
 }
 
 extension WalletOnboardingStep: OnboardingProgressStepIndicatable {
     var isOnboardingFinished: Bool {
-        self == .success
+        self == .success ||  self == .successClaim
     }
 
     var successCircleOpacity: Double {
-        isOnboardingFinished ? 1.0 : 0.0
+        self == .success ? 1.0 : 0.0
     }
 
     var successCircleState: OnboardingCircleButton.State {
-        isOnboardingFinished ? .doneCheckmark : .blank
+        switch self {
+        case .success: return .doneCheckmark
+        default: return .blank
+        }
     }
 }
+
+extension WalletOnboardingStep: OnboardingTopupBalanceLayoutCalculator { }
