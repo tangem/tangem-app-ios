@@ -114,7 +114,7 @@ private extension CommonUserTokenListManager {
                 case .finished:
                     result(.success(listToUpdate))
                 case let .failure(error):
-                    self.pendingListForUpdate = list
+                    self.pendingListForUpdate = listToUpdate
                     result(.failure(error))
                 }
             }
