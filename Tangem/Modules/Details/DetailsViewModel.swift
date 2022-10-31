@@ -98,8 +98,14 @@ extension DetailsViewModel {
     }
 
     func openCardSettings() {
+        guard let userWalletId = cardModel.userWalletId else {
+            // This shouldn't be the case, because currently user can't reach this screen
+            // with card that doesn't have a wallet.
+            return
+        }
+
         Analytics.log(.buttonCardSettings)
-        coordinator.openScanCardSettings()
+        coordinator.openScanCardSettings(with: userWalletId)
     }
 
     func openAppSettings() {
