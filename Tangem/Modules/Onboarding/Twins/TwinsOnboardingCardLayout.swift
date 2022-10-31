@@ -48,7 +48,7 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
         case (.welcome, _), (.saveUserWallet, _), (.success, _): return 0
         case (.intro, _), (.alert, _): return 75
         case (.first, .first), (.second, .second), (.third, .first): return 80
-        case (.first, .second), (.second, .first), (.third, .second): return 120
+        case (.first, .second), (.second, .first), (.third, .second), (.alert, _): return 120
         case (.done, _), (.topup, _):
             return 220
         }
@@ -60,7 +60,7 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
         case (.intro, _), (.alert, _): return 0.431
         case (.first, .first), (.second, .second), (.third, .first):
             return 0.454
-        case (.first, .second), (.second, .first), (.third, .second):
+        case (.first, .second), (.second, .first), (.third, .second), (.alert, _):
             return 0.395
         case (.done, _), (.topup, _):
             return 0.246
@@ -72,7 +72,7 @@ enum TwinOnboardingCardLayout: OnboardingCardFrameCalculator {
         switch (step, self) {
         case (.welcome, _), (.saveUserWallet, _), (.success, _): return .zero
         case (.intro, .first), (.alert, .first):
-            let heightOffset = containerHeight * 0.114
+            let heightOffset = containerHeight * 0.08
             let widthOffset = container.width * 0.131
             return .init(width: -widthOffset, height: -heightOffset)
         case (.intro, .second), (.alert, .second):

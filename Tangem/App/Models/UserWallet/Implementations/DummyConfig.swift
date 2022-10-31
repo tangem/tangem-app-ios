@@ -11,10 +11,6 @@ import TangemSdk
 import BlockchainSdk
 
 struct DummyConfig: UserWalletConfig {
-    var emailConfig: EmailConfig { .default }
-
-    var touURL: URL? { nil }
-
     var cardSetLabel: String? { nil }
 
     var cardsCount: Int {
@@ -44,6 +40,8 @@ struct DummyConfig: UserWalletConfig {
     var emailData: [EmailCollectedData] {
         []
     }
+
+    var userWalletIdSeed: Data? { nil }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         return .available
