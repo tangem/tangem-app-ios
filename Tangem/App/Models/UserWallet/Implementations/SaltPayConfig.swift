@@ -22,10 +22,6 @@ struct SaltPayConfig {
     init(card: CardDTO) {
         self.card = card
         backupServiceProvider.backupService.skipCompatibilityChecks = true
-
-        if !_backupSteps.isEmpty {
-            AppSettings.shared.cardsStartedActivation.insert(card.cardId)
-        }
     }
 
     private var defaultBlockchain: Blockchain {
@@ -63,20 +59,30 @@ struct SaltPayConfig {
         var steps: [WalletOnboardingStep] = .init()
 
         switch registrator.state {
-        case .finished:
-            if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
-                return []
-            }
-            break
+        case .needPin, .registration:
+            steps.append(contentsOf: [.enterPin, .registerWallet, .kycStart, .kycProgress, .kycWaiting])
+        case .kycRetry:
+            steps.append(contentsOf: [.kycRetry, .kycProgress, .kycWaiting])
         case .kycStart:
             steps.append(contentsOf: [.kycStart, .kycProgress, .kycWaiting])
         case .kycWaiting:
             steps.append(contentsOf: [.kycWaiting])
-        case .needPin, .noGas, .registration:
-            steps.append(contentsOf: [.enterPin, .registerWallet, .kycStart, .kycProgress, .kycWaiting])
+        case .claim:
+            break
+        case .finished:
+            if !AppSettings.shared.cardsStartedActivation.contains(card.cardId) {
+                return []
+            }
+            return [.success]
         }
 
-        steps.append(.success)
+        if registrator.canClaim {
+            steps.append(.claim)
+            steps.append(.successClaim)
+        } else {
+            steps.append(.success)
+        }
+
         return steps
     }
 }
@@ -95,12 +101,12 @@ extension SaltPayConfig: UserWalletConfig {
         return config
     }
 
-    var emailConfig: EmailConfig {
-        .default
+    var emailConfig: EmailConfig? {
+        return nil
     }
 
-    var touURL: URL? {
-        nil
+    var touURL: URL {
+        .init(string: "https://tangem.com/soltpay_tos.html")!
     }
 
     var cardsCount: Int {
@@ -140,8 +146,7 @@ extension SaltPayConfig: UserWalletConfig {
     }
 
     var defaultBlockchains: [StorageEntry] {
-        let derivationPath = defaultBlockchain.derivationPath(for: .legacy)
-        let network = BlockchainNetwork(defaultBlockchain, derivationPath: derivationPath)
+        let network = BlockchainNetwork(defaultBlockchain, derivationPath: nil)
         let entry = StorageEntry(blockchainNetwork: network, tokens: [defaultToken])
         return [entry]
     }
@@ -170,6 +175,10 @@ extension SaltPayConfig: UserWalletConfig {
 
     var supportChatEnvironment: SupportChatEnvironment {
         .saltpay
+    }
+
+    var userWalletIdSeed: Data? {
+        card.wallets.first?.publicKey
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
