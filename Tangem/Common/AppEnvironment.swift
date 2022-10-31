@@ -41,7 +41,7 @@ extension AppEnvironment {
     }
 
     var isTestnet: Bool  {
-        self == .alpha
+        EnvironmentProvider.shared.isTestnet
     }
 
     var isDebug: Bool {
@@ -50,5 +50,13 @@ extension AppEnvironment {
         #else
         return false
         #endif
+    }
+
+    var isProduction: Bool {
+        self == .production
+    }
+
+    var isXcodePreview: Bool {
+        ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
     }
 }
