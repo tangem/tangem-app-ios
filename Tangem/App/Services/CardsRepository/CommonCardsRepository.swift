@@ -28,6 +28,8 @@ class CommonCardsRepository: CardsRepository {
     @Injected(\.saletPayRegistratorProvider) private var saltPayRegistratorProvider: SaltPayRegistratorProviding
     @Injected(\.supportChatService) private var supportChatService: SupportChatServiceProtocol
 
+    weak var delegate: CardsRepositoryDelegate? = nil
+
     private(set) var models = [CardViewModel]()
 
     private var bag: Set<AnyCancellable> = .init()
@@ -37,7 +39,8 @@ class CommonCardsRepository: CardsRepository {
     }
 
     func scan(with batch: String? = nil, requestBiometrics: Bool,  _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
-        Analytics.log(event: .readyToScan)
+        Analytics.reset()
+        Analytics.log(.readyToScan)
 
         var config = TangemSdkConfigFactory().makeDefaultConfig()
         if requestBiometrics {
@@ -51,7 +54,7 @@ class CommonCardsRepository: CardsRepository {
                 Analytics.logCardSdkError(error, for: .scan)
                 completion(.failure(error))
             case .success(let response):
-                completion(.success(processScan(response.getCardInfo())))
+                self.acceptTOSIfNeeded(response.getCardInfo(), completion)
             }
         }
     }
@@ -94,6 +97,24 @@ class CommonCardsRepository: CardsRepository {
         let cardInfo = cardModel.cardInfo
         startInitializingServices(for: cardInfo)
         finishInitializingServices(for: cardModel, cardInfo: cardInfo)
+    }
+
+    private func acceptTOSIfNeeded(_ cardInfo: CardInfo, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
+        let touURL = UserWalletConfigFactory(cardInfo).makeConfig().touURL
+
+        guard let delegate, !AppSettings.shared.termsOfServicesAccepted.contains(touURL.absoluteString) else {
+            completion(.success(processScan(cardInfo)))
+            return
+        }
+
+        delegate.showTOS(at: touURL) { accepted in
+            if accepted {
+                AppSettings.shared.termsOfServicesAccepted.insert(touURL.absoluteString)
+                completion(.success(self.processScan(cardInfo)))
+            } else {
+                completion(.failure(TangemSdkError.userCancelled))
+            }
+        }
     }
 
     // [REDACTED_TODO_COMMENT]

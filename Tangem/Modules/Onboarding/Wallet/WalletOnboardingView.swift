@@ -61,9 +61,13 @@ struct WalletOnboardingView: View {
                 WebViewContainer(viewModel: kycModel)
             }
         case .kycWaiting:
-            KYCWaitingView(imageName: "success_waiting",
-                           title: viewModel.currentStep.title!,
-                           subtitle: viewModel.currentStep.subtitle!)
+            KYCView(imageName: "success_waiting",
+                    title: viewModel.currentStep.title!,
+                    subtitle: viewModel.currentStep.subtitle!)
+        case .kycRetry:
+            KYCView(imageName: "error_circle",
+                    title: viewModel.currentStep.title!,
+                    subtitle: viewModel.currentStep.subtitle!)
         default:
             EmptyView()
         }
@@ -80,12 +84,6 @@ struct WalletOnboardingView: View {
                 GeometryReader { geom in
                     let size = geom.size
                     ZStack(alignment: .center) {
-                        Circle()
-                            .foregroundColor(.tangemBgGray)
-                            .frame(size: viewModel.isInitialAnimPlayed ? currentStep.backgroundFrameSize(in: size) : .zero)
-                            .offset(viewModel.isInitialAnimPlayed ? currentStep.backgroundOffset(in: size) : .zero)
-                            .opacity(viewModel.isCustomContentVisible ? 0 : 1)
-
                         // Navbar is added to ZStack instead of VStack because of wrong animation when container changed
                         // and cards jumps instead of smooth transition
                         NavigationBar(title: viewModel.navbarTitle,
@@ -148,6 +146,22 @@ struct WalletOnboardingView: View {
 
                             }
 
+                            let backgroundFrame = viewModel.isInitialAnimPlayed ? currentStep.cardBackgroundFrame(containerSize: size) : .zero
+                            let backgroundOffset = viewModel.isInitialAnimPlayed ? currentStep.backgroundOffset(in: size) : .zero
+
+                            OnboardingTopupBalanceView(
+                                backgroundFrameSize: backgroundFrame,
+                                cornerSize: currentStep.cardBackgroundCornerRadius(containerSize: size),
+                                backgroundOffset: backgroundOffset,
+                                balance: viewModel.cardBalance,
+                                balanceUpdaterFrame: backgroundFrame,
+                                balanceUpdaterOffset: backgroundOffset,
+                                refreshAction: viewModel.onRefresh,
+                                refreshButtonState: viewModel.refreshButtonState,
+                                refreshButtonSize: .medium,
+                                refreshButtonOpacity: currentStep.balanceStackOpacity
+                            )
+
                             OnboardingCircleButton(refreshAction: {},
                                                    state: currentStep.successCircleState,
                                                    size: .huge)
@@ -166,7 +180,9 @@ struct WalletOnboardingView: View {
                     .position(x: size.width / 2, y: size.height / 2)
                 }
                 .readSize { size in
-                    viewModel.setupContainer(with: size)
+                    if !viewModel.isCustomContentVisible {
+                        viewModel.setupContainer(with: size)
+                    }
                 }
                 .frame(minHeight: viewModel.navbarSize.height + 20)
 
@@ -174,6 +190,9 @@ struct WalletOnboardingView: View {
                 if viewModel.isCustomContentVisible {
                     customContent
                         .layoutPriority(1)
+                        .readSize { size in
+                            viewModel.setupContainer(with: size)
+                        }
                 }
 
                 if viewModel.isButtonsVisible {
