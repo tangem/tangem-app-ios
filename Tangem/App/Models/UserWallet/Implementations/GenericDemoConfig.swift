@@ -16,6 +16,10 @@ struct GenericDemoConfig {
     private let card: CardDTO
 
     private var _backupSteps: [WalletOnboardingStep] {
+        if card.backupStatus?.isActive == true {
+            return []
+        }
+
         if !card.settings.isBackupAllowed {
             return []
         }
@@ -44,14 +48,6 @@ struct GenericDemoConfig {
 }
 
 extension GenericDemoConfig: UserWalletConfig {
-    var emailConfig: EmailConfig {
-        .default
-    }
-
-    var touURL: URL? {
-        nil
-    }
-
     var cardSetLabel: String? {
         guard let backupCardsCount = card.backupStatus?.backupCardsCount else {
             return nil
@@ -157,6 +153,10 @@ extension GenericDemoConfig: UserWalletConfig {
         CardEmailDataFactory().makeEmailData(for: card, walletData: nil)
     }
 
+    var userWalletIdSeed: Data? {
+        card.wallets.first?.publicKey
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
@@ -196,7 +196,7 @@ extension GenericDemoConfig: UserWalletConfig {
         case .tokensSearch:
             return .hidden
         case .resetToFactory:
-            return .available
+            return .disabled(localizedReason: "alert_demo_feature_disabled".localized)
         case .receive:
             return .available
         case .withdrawal:
@@ -209,6 +209,8 @@ extension GenericDemoConfig: UserWalletConfig {
             return .available
         case .topup:
             return .available
+        case .tokenSynchronization:
+            return .hidden
         }
     }
 
@@ -255,10 +257,6 @@ fileprivate extension Card.BackupStatus {
 
 fileprivate extension CardDTO {
     var isTestnet: Bool {
-        if batchId == "99FF" {
-            return cardId.starts(with: batchId.reversed())
-        } else {
-            return false
-        }
+        AppEnvironment.current.isTestnet
     }
 }
