@@ -63,6 +63,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         AppSettings.shared.numberOfLaunches += 1
+        migrateTOS()
         return true
     }
 
@@ -96,9 +97,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
-        guard AppEnvironment.current == .production else { return }
+        guard AppEnvironment.current.isProduction else { return }
 
         AppsFlyerLib.shared().start()
+    }
+
+    private func migrateTOS() {
+        guard AppSettings.shared.isTermsOfServiceAccepted else { return }
+
+        let defaultUrl = DummyConfig().touURL.absoluteString
+        AppSettings.shared.termsOfServicesAccepted.insert(defaultUrl)
+        AppSettings.shared.isTermsOfServiceAccepted = false
     }
 }
 
@@ -116,14 +125,14 @@ private extension AppDelegate {
     }
 
     func configureAppsFlyer() {
-        guard AppEnvironment.current == .production else { return }
+        guard AppEnvironment.current.isProduction else { return }
 
         AppsFlyerLib.shared().appsFlyerDevKey = try! CommonKeysManager().appsFlyerDevKey
         AppsFlyerLib.shared().appleAppID = "1354868448"
     }
 
     func configureAmplitude() {
-        guard AppEnvironment.current == .production else { return }
+        guard AppEnvironment.current.isProduction else { return }
 
         Amplitude.instance().trackingSessionEvents = true
         Amplitude.instance().initializeApiKey(try! CommonKeysManager().amplitudeApiKey)
