@@ -18,6 +18,7 @@ struct WebViewContainerViewModel: Identifiable {
     var withCloseButton = false
     var withNavigationBar: Bool = true
     var urlActions: [String: ((String) -> Void)] = [:]
+    var contentInset: UIEdgeInsets? = nil
 }
 
 struct WebViewContainer: View {
@@ -28,7 +29,11 @@ struct WebViewContainer: View {
     @State private var isLoading: Bool = true
 
     private var webViewContent: some View {
-        WebView(url: viewModel.url, popupUrl: $popupUrl, urlActions: viewModel.urlActions, isLoading: $isLoading)
+        WebView(url: viewModel.url,
+                popupUrl: $popupUrl,
+                urlActions: viewModel.urlActions,
+                isLoading: $isLoading,
+                contentInset: viewModel.contentInset)
     }
 
     private var content: some View {
@@ -77,6 +82,7 @@ struct WebView: UIViewRepresentable {
     var popupUrl: Binding<URL?>
     var urlActions: [String: ((String) -> Void)] = [:]
     var isLoading:  Binding<Bool>
+    var contentInset: UIEdgeInsets?
 
     func makeUIView(context: Context) -> WKWebView {
         let preferences = WKPreferences()
@@ -87,14 +93,16 @@ struct WebView: UIViewRepresentable {
         configuration.allowsInlineMediaPlayback = true
         configuration.mediaTypesRequiringUserActionForPlayback = []
 
-        let view =  WKWebView(frame: CGRect(x: 0, y: 0, width: 100, height: 100), configuration: configuration)
+        let view = WKWebView(frame: CGRect(x: 0, y: 0, width: 100, height: 100), configuration: configuration)
         if let url = url {
             print("Loading request with url: \(url)")
             view.load(URLRequest(url: url))
         }
         view.navigationDelegate = context.coordinator
         view.uiDelegate = context.coordinator
-
+        if let contentInset {
+            view.scrollView.contentInset = contentInset
+        }
         return view
     }
 
