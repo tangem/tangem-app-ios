@@ -67,15 +67,15 @@ class TotalSumBalanceViewModel: ObservableObject {
             userWalletModel.subscribeToWalletModels().filter { $0.isEmpty }.mapVoid(),
             AppSettings.shared.$selectedCurrencyCode.mapVoid()
         )
-            .map { [unowned self] _ in
-                addAttributeForBalance(0, withCurrencyCode: AppSettings.shared.selectedCurrencyCode)
-            }
-            .receive(on: DispatchQueue.main)
-            .sink { [unowned self] balance in
-                isLoading = false
-                totalFiatValueString = balance
-            }
-            .store(in: &bag)
+        .map { [unowned self] _ in
+            addAttributeForBalance(0, withCurrencyCode: AppSettings.shared.selectedCurrencyCode)
+        }
+        .receive(on: DispatchQueue.main)
+        .sink { [unowned self] balance in
+            isLoading = false
+            totalFiatValueString = balance
+        }
+        .store(in: &bag)
 
         userWalletModel.subscribeToWalletModels()
             .filter { !$0.isEmpty }
@@ -101,7 +101,8 @@ class TotalSumBalanceViewModel: ObservableObject {
         totalBalanceManager.totalBalancePublisher()
             .compactMap { $0.value }
             .map { [unowned self] balance in
-                addAttributeForBalance(balance.balance, withCurrencyCode: balance.currency.code)
+                checkPositiveBalance()
+                return addAttributeForBalance(balance.balance, withCurrencyCode: balance.currency.code)
             }
             .weakAssign(to: \.totalFiatValueString, on: self)
             .store(in: &bag)

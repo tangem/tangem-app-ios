@@ -56,7 +56,7 @@ extension CardSettingsCoordinator: CardSettingsRoutable {
             self?.modalOnboardingCoordinator = nil
             self?.resetCardDidFinish()
         }
-        
+
         let dismissAction: Action = { [weak self] in
             self?.modalOnboardingCoordinator = nil
         }
