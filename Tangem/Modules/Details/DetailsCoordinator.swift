@@ -88,8 +88,8 @@ extension DetailsCoordinator: DetailsRoutable {
         disclaimerViewModel = .init(url: url, style: .navbar, coordinator: nil)
     }
 
-    func openScanCardSettings() {
-        scanCardSettingsViewModel = ScanCardSettingsViewModel(coordinator: self)
+    func openScanCardSettings(with userWalletId: Data) {
+        scanCardSettingsViewModel = ScanCardSettingsViewModel(expectedUserWalletId: userWalletId, coordinator: self)
     }
 
     func openAppSettings() {
