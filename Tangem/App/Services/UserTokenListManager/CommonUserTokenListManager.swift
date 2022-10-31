@@ -24,7 +24,7 @@ class CommonUserTokenListManager {
     private let hasTokenSynchronization: Bool
 
     init(config: UserWalletConfig, userWalletId: Data) {
-        self.hasTokenSynchronization = config.hasFeature(.multiCurrency)
+        self.hasTokenSynchronization = config.hasFeature(.tokenSynchronization)
         self.userWalletId = userWalletId
 
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
@@ -41,7 +41,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
     }
 
-    func update(_ type: CommonUserTokenListManager.UpdateType, completion: @escaping () -> Void) {
+    func update(_ type: CommonUserTokenListManager.UpdateType) {
         switch type {
         case let .rewrite(entries):
             tokenItemsRepository.update(entries)
@@ -54,9 +54,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
         }
 
         if hasTokenSynchronization {
-            updateTokensOnServer { _ in completion() }
-        } else {
-            completion()
+            updateTokensOnServer()
         }
     }
 
@@ -66,7 +64,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
 
     func clearRepository(completion: @escaping () -> Void) {
         tokenItemsRepository.removeAll()
-        updateTokensOnServer { _ in completion() }
+        updateTokensOnServer()
     }
 
     func updateLocalRepositoryFromServer(result: @escaping (Result<UserTokenList, Error>) -> Void) {
@@ -96,7 +94,7 @@ private extension CommonUserTokenListManager {
             }
     }
 
-    func updateTokensOnServer(result: @escaping (Result<UserTokenList, Error>) -> Void) {
+    func updateTokensOnServer(result: @escaping (Result<UserTokenList, Error>) -> Void = { _ in }) {
         let list = getUserTokenList()
 
         saveTokensCancellable = tangemApiService
@@ -122,7 +120,7 @@ private extension CommonUserTokenListManager {
     func mapToTokens(entries: [StorageEntry]) -> [UserTokenList.Token] {
         entries.reduce(into: []) { result, entry in
             let blockchain = entry.blockchainNetwork.blockchain
-            result += [UserTokenList.Token(
+            let blockchainToken = UserTokenList.Token(
                 id: blockchain.id,
                 networkId: blockchain.networkId,
                 name: blockchain.displayName,
@@ -130,10 +128,13 @@ private extension CommonUserTokenListManager {
                 decimals: blockchain.decimalCount,
                 derivationPath: entry.blockchainNetwork.derivationPath,
                 contractAddress: nil
-            )]
+            )
+            if !result.contains(blockchainToken) {
+                result.append(blockchainToken)
+            }
 
-            result += entry.tokens.map { token in
-                UserTokenList.Token(
+            entry.tokens.forEach { token in
+                let token = UserTokenList.Token(
                     id: token.id,
                     networkId: blockchain.networkId,
                     name: token.name,
@@ -142,6 +143,10 @@ private extension CommonUserTokenListManager {
                     derivationPath: entry.blockchainNetwork.derivationPath,
                     contractAddress: token.contractAddress
                 )
+
+                if !result.contains(token) {
+                    result.append(token)
+                }
             }
         }
     }
@@ -157,8 +162,10 @@ private extension CommonUserTokenListManager {
                 return BlockchainNetwork(blockchain, derivationPath: token.derivationPath)
             }
 
-        let entries: [StorageEntry] = blockchains.map { network in
-            return StorageEntry(
+        var entries: [StorageEntry] = []
+
+        blockchains.forEach { network in
+            let entry = StorageEntry(
                 blockchainNetwork: network,
                 tokens: list.tokens
                     .filter { $0.contractAddress != nil && $0.networkId == network.blockchain.networkId }
@@ -172,6 +179,10 @@ private extension CommonUserTokenListManager {
                         )
                     }
             )
+
+            if !entries.contains(entry) {
+                entries.append(entry)
+            }
         }
 
         return entries

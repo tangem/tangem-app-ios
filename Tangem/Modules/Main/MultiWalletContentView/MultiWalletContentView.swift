@@ -32,7 +32,6 @@ struct MultiWalletContentView: View {
         }
     }
 
-
     @ViewBuilder var tokenList: some View {
         if !viewModel.tokenListIsEmpty {
             VStack(alignment: .center, spacing: 0) {
@@ -57,7 +56,7 @@ struct MultiWalletContentView: View {
                 .padding()
 
         case let .loaded(viewModels):
-            VStack(alignment: .leading, spacing: 6) {
+            LazyVStackCompat(alignment: .leading, spacing: 6) {
                 ForEach(viewModels) { item in
                     VStack {
                         Button(action: { viewModel.tokenItemDidTap(item) }) {

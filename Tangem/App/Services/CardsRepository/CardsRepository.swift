@@ -10,6 +10,8 @@ import Foundation
 import Combine
 
 protocol CardsRepository {
+    var delegate: CardsRepositoryDelegate? { get set }
+
     var models: [CardViewModel] { get }
 
     func scan(with batch: String?, requestBiometrics: Bool, _ completion: @escaping (Result<CardViewModel, Error>) -> Void)
@@ -20,6 +22,10 @@ protocol CardsRepository {
     func removeModel(withUserWalletId userWalletId: Data)
     func clear()
     func didSwitchToModel(_ cardModel: CardViewModel)
+}
+
+protocol CardsRepositoryDelegate: AnyObject {
+    func showTOS(at url: URL, _ completion: @escaping (Bool) -> Void)
 }
 
 private struct CardsRepositoryKey: InjectionKey {
