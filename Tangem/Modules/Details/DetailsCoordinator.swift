@@ -27,11 +27,11 @@ class DetailsCoordinator: CoordinatorObject {
     // MARK: - Child view models
 
     @Published var currencySelectViewModel: CurrencySelectViewModel? = nil
-    @Published var pushedWebViewModel: WebViewContainerViewModel? = nil
     @Published var mailViewModel: MailViewModel? = nil
     @Published var disclaimerViewModel: DisclaimerViewModel? = nil
     @Published var supportChatViewModel: SupportChatViewModel? = nil
     @Published var scanCardSettingsViewModel: ScanCardSettingsViewModel?
+    @Published var setupEnvironmentViewModel: EnvironmentSetupViewModel?
 
     // MARK: - Helpers
 
@@ -67,7 +67,7 @@ extension DetailsCoordinator: DetailsRoutable {
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
-        let options = OnboardingCoordinator.Options(input: input, shouldOpenMainOnFinish: false, saveUserWalletOnFinish: false)
+        let options = OnboardingCoordinator.Options(input: input, destination: .dismiss, saveUserWalletOnFinish: false)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
     }
@@ -84,16 +84,12 @@ extension DetailsCoordinator: DetailsRoutable {
         walletConnectCoordinator = coordinator
     }
 
-    func openDisclaimer() {
-        disclaimerViewModel = .init(style: .navbar, showAccept: false, coordinator: nil)
+    func openDisclaimer(at url: URL) {
+        disclaimerViewModel = .init(url: url, style: .navbar, coordinator: nil)
     }
 
-    func openCardTOU(url: URL) {
-        pushedWebViewModel = WebViewContainerViewModel(url: url, title: "details_row_title_card_tou".localized)
-    }
-
-    func openScanCardSettings() {
-        scanCardSettingsViewModel = ScanCardSettingsViewModel(coordinator: self)
+    func openScanCardSettings(with userWalletId: Data) {
+        scanCardSettingsViewModel = ScanCardSettingsViewModel(expectedUserWalletId: userWalletId, coordinator: self)
     }
 
     func openAppSettings(userWallet: UserWallet) {
@@ -109,6 +105,10 @@ extension DetailsCoordinator: DetailsRoutable {
 
     func openInSafari(url: URL) {
         UIApplication.shared.open(url)
+    }
+
+    func openEnvironmentSetup() {
+        setupEnvironmentViewModel = EnvironmentSetupViewModel()
     }
 }
 

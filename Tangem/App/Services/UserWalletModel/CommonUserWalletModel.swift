@@ -76,12 +76,16 @@ extension CommonUserWalletModel: UserWalletModel {
         walletListManager.subscribeToEntriesWithoutDerivation()
     }
 
-    func updateAndReloadWalletModels(completion: @escaping () -> Void) {
+    func updateWalletModels() {
         // Update walletModel list for current storage state
         walletListManager.updateWalletModels()
+    }
+
+    func updateAndReloadWalletModels(silent: Bool, completion: @escaping () -> Void) {
+        updateWalletModels()
 
         reloadAllWalletModelsBag = walletListManager
-            .reloadWalletModels()
+            .reloadWalletModels(silent: silent)
             .receive(on: RunLoop.main)
             .receiveCompletion { _ in
                 completion()
@@ -92,19 +96,19 @@ extension CommonUserWalletModel: UserWalletModel {
         walletListManager.canManage(amountType: amountType, blockchainNetwork: blockchainNetwork)
     }
 
-    func update(entries: [StorageEntry], completion: @escaping () -> Void) {
-        userTokenListManager.update(.rewrite(entries), completion: completion)
+    func update(entries: [StorageEntry]) {
+        userTokenListManager.update(.rewrite(entries))
 
         updateAndReloadWalletModels()
     }
 
-    func append(entries: [StorageEntry], completion: @escaping () -> Void) {
-        userTokenListManager.update(.append(entries), completion: completion)
+    func append(entries: [StorageEntry]) {
+        userTokenListManager.update(.append(entries))
 
         updateAndReloadWalletModels()
     }
 
-    func remove(item: RemoveItem, completion: @escaping () -> Void) {
+    func remove(item: RemoveItem) {
         guard walletListManager.canRemove(amountType: item.amount, blockchainNetwork: item.blockchainNetwork) else {
             assertionFailure("\(item.blockchainNetwork.blockchain) can't be remove")
             return
@@ -112,9 +116,9 @@ extension CommonUserWalletModel: UserWalletModel {
 
         switch item.amount {
         case .coin:
-            removeBlockchain(item.blockchainNetwork, completion: completion)
+            removeBlockchain(item.blockchainNetwork)
         case let .token(token):
-            removeToken(token, in: item.blockchainNetwork, completion: completion)
+            removeToken(token, in: item.blockchainNetwork)
         case .reserve: break
         }
     }
@@ -123,13 +127,13 @@ extension CommonUserWalletModel: UserWalletModel {
 // MARK: - Wallet models Operations
 
 private extension CommonUserWalletModel {
-    func removeBlockchain(_ network: BlockchainNetwork, completion: @escaping () -> Void) {
-        userTokenListManager.update(.removeBlockchain(network), completion: completion)
+    func removeBlockchain(_ network: BlockchainNetwork) {
+        userTokenListManager.update(.removeBlockchain(network))
         walletListManager.updateWalletModels()
     }
 
-    func removeToken(_ token: Token, in network: BlockchainNetwork, completion: @escaping () -> Void) {
-        userTokenListManager.update(.removeToken(token, in: network), completion: completion)
+    func removeToken(_ token: Token, in network: BlockchainNetwork) {
+        userTokenListManager.update(.removeToken(token, in: network))
         walletListManager.removeToken(token, blockchainNetwork: network)
         walletListManager.updateWalletModels()
     }

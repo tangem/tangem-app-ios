@@ -33,8 +33,6 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>1</string>
-	<key>CLIP_BUNDLE_IDENTIFIER</key>
-	<string>$(CLIP_BUNDLE_IDENTIFIER)</string>
 	<key>ENVIRONMENT_NAME</key>
 	<string>$(ENVIRONMENT_NAME)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
