@@ -31,14 +31,6 @@ struct NoteConfig {
 }
 
 extension NoteConfig: UserWalletConfig {
-    var emailConfig: EmailConfig {
-        .default
-    }
-
-    var touURL: URL? {
-        nil
-    }
-
     var cardSetLabel: String? {
         nil
     }
@@ -81,8 +73,7 @@ extension NoteConfig: UserWalletConfig {
     }
 
     var defaultBlockchains: [StorageEntry] {
-        let derivationPath = defaultBlockchain.derivationPath(for: .legacy)
-        let network = BlockchainNetwork(defaultBlockchain, derivationPath: derivationPath)
+        let network = BlockchainNetwork(defaultBlockchain, derivationPath: nil)
         let entry = StorageEntry(blockchainNetwork: network, tokens: [])
         return [entry]
     }
@@ -109,6 +100,10 @@ extension NoteConfig: UserWalletConfig {
 
     var emailData: [EmailCollectedData] {
         CardEmailDataFactory().makeEmailData(for: card, walletData: noteData)
+    }
+
+    var userWalletIdSeed: Data? {
+        card.wallets.first?.publicKey
     }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
@@ -155,6 +150,8 @@ extension NoteConfig: UserWalletConfig {
             return .available
         case .topup:
             return .available
+        case .tokenSynchronization:
+            return .hidden
         }
     }
 

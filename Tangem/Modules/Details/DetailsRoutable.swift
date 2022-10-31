@@ -13,10 +13,10 @@ protocol DetailsRoutable: AnyObject {
     func openMail(with dataCollector: EmailDataCollector, recipient: String, emailType: EmailType)
     func openWalletConnect(with cardModel: CardViewModel)
     func openCurrencySelection()
-    func openDisclaimer()
-    func openCardTOU(url: URL)
-    func openScanCardSettings()
+    func openDisclaimer(at url: URL)
+    func openScanCardSettings(with userWalletId: Data)
     func openAppSettings(userWallet: UserWallet)
     func openSupportChat(cardId: String, dataCollector: EmailDataCollector)
     func openInSafari(url: URL)
+    func openEnvironmentSetup()
 }
