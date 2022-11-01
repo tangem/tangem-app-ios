@@ -10,11 +10,10 @@ import Combine
 import Foundation
 import class UIKit.UIPasteboard
 
-protocol SingleWalletContentViewModelOutput: AnyObject {
+protocol SingleWalletContentViewModelOutput: OpenCurrencySelectionDelegate {
     func openPushTx(for index: Int, walletModel: WalletModel)
     func openQR(shareAddress: String, address: String, qrNotice: String)
     func showExplorerURL(url: URL?, walletModel: WalletModel)
-    func openCurrencySelection()
 }
 
 class SingleWalletContentViewModel: ObservableObject {
@@ -40,7 +39,7 @@ class SingleWalletContentViewModel: ObservableObject {
                                                   userWalletAmountType: cardModel.cardAmountType,
                                                   totalBalanceAnalyticsService: TotalBalanceAnalyticsService(totalBalanceCardSupportInfo: totalBalanceCardSupportInfo)),
         cardAmountType: cardModel.cardAmountType,
-        tapOnCurrencySymbol: output.openCurrencySelection
+        tapOnCurrencySymbol: output
     )
 
     private let cardModel: CardViewModel
