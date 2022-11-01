@@ -15,7 +15,7 @@ extension ExchangeBlockchain {
         switch blockchainNetwork.blockchain {
         case .ethereum:
             return .ethereum
-        case .binance:
+        case .bsc:
             return .bsc
         case .polygon:
             return .polygon
