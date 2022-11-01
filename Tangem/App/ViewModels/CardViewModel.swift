@@ -26,6 +26,9 @@ class CardViewModel: Identifiable, ObservableObject {
     var cardId: String { cardInfo.card.cardId }
     var batchId: String { cardInfo.card.batchId }
     var cardPublicKey: Data { cardInfo.card.cardPublicKey }
+    var derivationStyle: DerivationStyle? {
+        cardInfo.card.derivationStyle
+    }
 
     var supportsOnlineImage: Bool {
         config.hasFeature(.onlineImage)
