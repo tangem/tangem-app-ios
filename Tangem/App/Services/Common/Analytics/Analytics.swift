@@ -216,6 +216,9 @@ extension Analytics {
         case currency = "Currency Type"
         case success
         case token = "Token"
+        case derivationPath = "Derivation Path"
+        case networkId = "Network Id"
+        case contractAddress = "Contract Address"
         case mode = "Mode"
         case state = "State"
         case basicCurrency = "Currency"
