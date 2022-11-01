@@ -14,13 +14,13 @@ import Combine
 class ExchangeItem: Identifiable {
     let id: UUID = UUID()
 
-    @Published var isLock: Bool = false
+    @Published var isLocked: Bool = false
     @Published var amount: String = ""
 
     var allowance: Decimal = 0
 
     private let isMainToken: Bool
-    private let exchangeFacade = ExchangeSdk.buildInchExchangeService(isDebug: false)
+    private let exchangeService: ExchangeServiceProtocol
     private let coinContractAddress: String = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
 
     private var amountType: Amount.AmountType
@@ -28,21 +28,19 @@ class ExchangeItem: Identifiable {
     private var bag = Set<AnyCancellable>()
 
     var tokenAddress: String {
-        if amountType.isToken {
-            return amountType.token!.contractAddress
-        }
-        return coinContractAddress
+        return amountType.token?.contractAddress ?? coinContractAddress
     }
 
     init(
         isMainToken: Bool,
         amountType: Amount.AmountType,
-        blockchainNetwork: BlockchainNetwork
+        blockchainNetwork: BlockchainNetwork,
+        exchangeService: ExchangeServiceProtocol
     ) {
-        self.isLock = false
         self.isMainToken = isMainToken
         self.amountType = amountType
         self.blockchainNetwork = blockchainNetwork
+        self.exchangeService = exchangeService
 
         bind()
     }
@@ -50,7 +48,7 @@ class ExchangeItem: Identifiable {
     func bind() {
         $amount
             .sink { [unowned self] value in
-                let filtered = value.filter { "0123456789".contains($0) }
+                let filtered = value.filter { "0123456789,".contains($0) }
                 if filtered != value {
                     self.amount = filtered
                 }
@@ -59,25 +57,25 @@ class ExchangeItem: Identifiable {
     }
 
     func fetchApprove(walletAddress: String) {
-        if !isMainToken {
-            Task {
-                let contractAddress: String = amountType.isToken ? amountType.token!.contractAddress : coinContractAddress
-                let parameters = ApproveAllowanceParameters(tokenAddress: contractAddress, walletAddress: walletAddress)
+        guard !isMainToken else { return }
 
-                let allowanceResult = await exchangeFacade.allowance(blockchain: ExchangeBlockchain.convert(from: blockchainNetwork),
-                                                                     allowanceParameters: parameters)
+        Task {
+            let contractAddress: String = amountType.isToken ? amountType.token!.contractAddress : coinContractAddress
+            let parameters = ApproveAllowanceParameters(tokenAddress: contractAddress, walletAddress: walletAddress)
 
-                switch allowanceResult {
-                case .success(let allowanceDTO):
-                    let decimalAllowance = Decimal(string: allowanceDTO.allowance)
-                    allowance = decimalAllowance ?? 0
+            let allowanceResult = await exchangeService.allowance(blockchain: ExchangeBlockchain.convert(from: blockchainNetwork),
+                                                                  allowanceParameters: parameters)
 
-                    await MainActor.run {
-                        isLock = (decimalAllowance ?? 0) == 0
-                    }
-                case .failure(let error):
-                    print(error.localizedDescription)
+            switch allowanceResult {
+            case .success(let allowanceInfo):
+                let decimalAllowance = Decimal(string: allowanceInfo.allowance) ?? 0
+                allowance = decimalAllowance
+
+                await MainActor.run {
+                    isLocked = allowance == 0
                 }
+            case .failure(let error):
+                print(error.localizedDescription)
             }
         }
     }
@@ -86,11 +84,11 @@ class ExchangeItem: Identifiable {
         return try await withCheckedThrowingContinuation({ continuation in
             Task {
                 let parameters = ApproveTransactionParameters(tokenAddress: tokenAddress, amount: .infinite)
-                let txResponse = await exchangeFacade.approveTransaction(blockchain: ExchangeBlockchain.convert(from: blockchainNetwork), approveTransactionParameters: parameters)
+                let txResponse = await exchangeService.approveTransaction(blockchain: ExchangeBlockchain.convert(from: blockchainNetwork), approveTransactionParameters: parameters)
 
                 switch txResponse {
-                case .success(let approveDTO):
-                    continuation.resume(returning: approveDTO)
+                case .success(let approveTxData):
+                    continuation.resume(returning: approveTxData)
                 case .failure(let error):
                     continuation.resume(throwing: error)
                 }
