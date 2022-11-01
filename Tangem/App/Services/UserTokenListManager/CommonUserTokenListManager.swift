@@ -19,7 +19,7 @@ class CommonUserTokenListManager {
     private var userWalletId: Data
     private var tokenItemsRepository: TokenItemsRepository
 
-    private var pendingListForUpdate: UserTokenList?
+    private var pendingTokensToUpdate: UserTokenList?
     private var loadTokensCancellable: AnyCancellable?
     private var saveTokensCancellable: AnyCancellable?
     private let hasTokenSynchronization: Bool
@@ -79,11 +79,11 @@ private extension CommonUserTokenListManager {
     // MARK: - Requests
 
     func loadUserTokenList(result: @escaping (Result<UserTokenList, Error>) -> Void) {
-        if let list = pendingListForUpdate {
+        if let list = pendingTokensToUpdate {
             tokenItemsRepository.update(mapToEntries(list: list))
             updateTokensOnServer(list: list, result: result)
 
-            pendingListForUpdate = nil
+            pendingTokensToUpdate = nil
             return
         }
 
@@ -114,7 +114,7 @@ private extension CommonUserTokenListManager {
                 case .finished:
                     result(.success(listToUpdate))
                 case let .failure(error):
-                    self.pendingListForUpdate = listToUpdate
+                    self.pendingTokensToUpdate = listToUpdate
                     result(.failure(error))
                 }
             }
