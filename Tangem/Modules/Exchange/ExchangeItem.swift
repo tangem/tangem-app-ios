@@ -28,7 +28,7 @@ class ExchangeItem: Identifiable {
     private var bag = Set<AnyCancellable>()
 
     var tokenAddress: String {
-        return amountType.token?.contractAddress ?? coinContractAddress
+        amountType.token?.contractAddress ?? coinContractAddress
     }
 
     init(
@@ -48,7 +48,18 @@ class ExchangeItem: Identifiable {
     func bind() {
         $amount
             .sink { [unowned self] value in
-                let filtered = value.filter { "0123456789,".contains($0) }
+                let filtered = value
+                    .filter { "0123456789.".contains($0) }
+                    .reduce("") { partialResult, character in
+                        var newPartialResult = partialResult
+                        if newPartialResult.isEmpty && "\(character)" == "." {
+                            newPartialResult = "0."
+                        } else {
+                            newPartialResult += String(character)
+                        }
+                        return newPartialResult
+                    }
+
                 if filtered != value {
                     self.amount = filtered
                 }
