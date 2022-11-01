@@ -119,7 +119,8 @@ class AddCustomTokenViewModel: ObservableObject {
             switch result {
             case .success:
                 self.closeModule()
-                Analytics.log(.customTokenWasAdded)
+
+                self.logSuccess(tokenItem: tokenItem, derivationPath: derivationPath)
             case .failure(let error):
                 if case TangemSdkError.userCancelled = error {
                     return
@@ -402,6 +403,25 @@ class AddCustomTokenViewModel: ObservableObject {
                 warningContainer.add(tokenSearchError.appWarning)
             }
         }
+    }
+
+    private func logSuccess(tokenItem: TokenItem, derivationPath: DerivationPath?) {
+        var params: [Analytics.ParameterKey: String] = [
+            .token: tokenItem.currencySymbol,
+        ]
+
+        if let derivationStyle = cardModel.derivationStyle,
+           let usedDerivationPath = derivationPath ?? tokenItem.blockchain.derivationPath(for: derivationStyle)
+        {
+            params[.derivationPath] = usedDerivationPath.rawPath
+        }
+
+        if case let .token(token, blockchain) = tokenItem {
+            params[.networkId] = blockchain.networkId
+            params[.contractAddress] = token.contractAddress
+        }
+
+        Analytics.log(.customTokenWasAdded, params: params)
     }
 }
 
