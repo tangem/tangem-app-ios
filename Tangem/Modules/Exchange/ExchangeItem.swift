@@ -12,7 +12,7 @@ import ExchangeSdk
 import Combine
 
 class ExchangeItem: Identifiable {
-    var id: UUID = UUID()
+    let id: UUID = UUID()
 
     @Published var isLock: Bool = false
     @Published var amount: String = ""
