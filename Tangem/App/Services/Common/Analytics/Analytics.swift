@@ -237,6 +237,8 @@ extension Analytics {
     enum ParameterValue: String {
         case welcome
         case walletOnboarding = "wallet_onboarding"
+        case on = "On"
+        case off = "Off"
     }
 
     enum AnalyticSystem {
