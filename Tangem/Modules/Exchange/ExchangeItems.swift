@@ -9,7 +9,7 @@
 import Foundation
 
 struct ExchangeItems: Identifiable {
-    var id: UUID = UUID()
+    let id: UUID = UUID()
 
     let fromItem: ExchangeItem
     let toItem: ExchangeItem
