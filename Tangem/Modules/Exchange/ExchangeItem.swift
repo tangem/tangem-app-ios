@@ -8,7 +8,7 @@
 
 import Foundation
 import BlockchainSdk
-import Exchanger
+import ExchangeSdk
 import Combine
 
 class ExchangeItem: Identifiable {
@@ -20,7 +20,7 @@ class ExchangeItem: Identifiable {
     var allowance: Decimal = 0
 
     private let isMainToken: Bool
-    private let exchangeFacade = ExchangeFacadeImpl(enableDebugMode: true)
+    private let exchangeFacade = ExchangeSdk.buildInchExchangeService(isDebug: false)
     private let coinContractAddress: String = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
 
     private var amountType: Amount.AmountType
@@ -82,7 +82,7 @@ class ExchangeItem: Identifiable {
         }
     }
 
-    func approveTxData() async throws -> ApproveTransactionDTO {
+    func approveTxData() async throws -> ApprovedTransactionData {
         return try await withCheckedThrowingContinuation({ continuation in
             Task {
                 let parameters = ApproveTransactionParameters(tokenAddress: tokenAddress, amount: .infinite)
