@@ -176,6 +176,7 @@ private extension TokenListViewModel {
             .map { [unowned self] items -> [CoinViewModel] in
                 items.compactMap { self.mapToCoinViewModel(coinModel: $0) }
             }
+            .receive(on: DispatchQueue.main)
             .weakAssign(to: \.coinViewModels, on: self)
             .store(in: &bag)
 
