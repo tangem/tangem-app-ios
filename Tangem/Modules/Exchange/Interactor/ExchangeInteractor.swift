@@ -23,19 +23,19 @@ class ExchangeTxInteractor {
         self.card = card
     }
 
-    func sendSwapTransaction(info: SwapData) -> AnyPublisher<(), Error> {
+    func sendSwapTransaction(swapData: SwapData) -> AnyPublisher<(), Error> {
         let blockchain = walletModel.blockchainNetwork.blockchain
-        let amount = Amount(with: blockchain, value: Decimal(string: info.tx.value) ?? 0)
-        let gasPrice = Decimal(string: info.tx.gasPrice) ?? 0
+        let amount = Amount(with: blockchain, value: Decimal(string: swapData.tx.value) ?? 0)
+        let gasPrice = Decimal(string: swapData.tx.gasPrice) ?? 0
 
-        let gasValue = Decimal(info.tx.gas) * gasPrice / blockchain.decimalValue
+        let gasValue = Decimal(swapData.tx.gas) * gasPrice / blockchain.decimalValue
         let gasAmount = Amount(with: blockchain, type: .coin, value: gasValue)
 
         do {
             var tx = try walletModel.walletManager.createTransaction(amount: amount,
                                                                      fee: gasAmount,
-                                                                     destinationAddress: info.tx.to)
-            let txData = Data(hexString: info.tx.data)
+                                                                     destinationAddress: swapData.tx.to)
+            let txData = Data(hexString: swapData.tx.data)
             tx.params = EthereumTransactionParams(data: txData)
             return walletModel.send(tx, signer: card.signer).eraseToAnyPublisher()
         } catch {
@@ -43,12 +43,12 @@ class ExchangeTxInteractor {
         }
     }
 
-    func sendApproveTransaction(info: ApprovedTransactionData) -> AnyPublisher<(), Error> {
+    func sendApprovedTransaction(approveData: ApprovedTransactionData) -> AnyPublisher<(), Error> {
         let blockchain = walletModel.blockchainNetwork.blockchain
 
-        let amount = Amount(with: blockchain, value: Decimal(string: info.value) ?? 0)
+        let amount = Amount(with: blockchain, value: Decimal(string: approveData.value) ?? 0)
 
-        let getFeePublisher = walletModel.walletManager.getFee(amount: amount, destination: info.to)
+        let getFeePublisher = walletModel.walletManager.getFee(amount: amount, destination: approveData.to)
 
         return getFeePublisher
             .tryMap { [unowned self] fees -> Transaction in
@@ -56,10 +56,10 @@ class ExchangeTxInteractor {
                 if fees.count == 3 {
                     fee = fees[1]
                 } else {
-                    throw ExchangeError.loadFeeWasFail
+                    throw ExchangeError.failedToLoadFee
                 }
 
-                let decimalGasPrice = Decimal(string: info.gasPrice) ?? 0
+                let decimalGasPrice = Decimal(string: approveData.gasPrice) ?? 0
 
                 let gasValue = fee.value * decimalGasPrice / blockchain.decimalValue
                 let gasAmount = Amount(with: blockchain,
@@ -68,8 +68,8 @@ class ExchangeTxInteractor {
                 do {
                     var tx = try self.walletModel.walletManager.createTransaction(amount: amount,
                                                                                   fee: gasAmount,
-                                                                                  destinationAddress: info.to)
-                    let txData = Data(hexString: info.data)
+                                                                                  destinationAddress: approveData.to)
+                    let txData = Data(hexString: approveData.data)
                     tx.params = EthereumTransactionParams(data: txData)
 
                     return tx
@@ -86,8 +86,7 @@ class ExchangeTxInteractor {
 
 extension ExchangeTxInteractor {
     enum ExchangeError: Error {
-        case gasLoaderNotFind
         case failedToBuildTx
-        case loadFeeWasFail
+        case failedToLoadFee
     }
 }
