@@ -9,14 +9,14 @@
 import Foundation
 import Combine
 import BlockchainSdk
-import Exchanger
+import ExchangeSdk
 
 class ExchangeViewModel: ObservableObject {
     @Injected(\.rateAppService) private var rateAppService: RateAppService
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     @Published var items: ExchangeItems
-    @Published private var swapInformation: SwapDTO?
+    @Published private var swapInformation: SwapData?
 
     let amountType: Amount.AmountType
     let walletModel: WalletModel
@@ -26,7 +26,7 @@ class ExchangeViewModel: ObservableObject {
     var bag = Set<AnyCancellable>()
     var prefetchedAvailableCoins: [CoinModel] = []
 
-    private let exchangeFacade: ExchangeFacade = ExchangeFacadeImpl(enableDebugMode: true)
+    private let exchangeFacade: ExchangeServiceProtocol = ExchangeSdk.buildInchExchangeService(isDebug: false)
     private let signer: ExchangeSigner = ExchangeSigner()
 
     private lazy var exchangeInteractor: ExchangeTxInteractor = ExchangeTxInteractor(walletModel: walletModel, card: card)
@@ -138,8 +138,8 @@ extension ExchangeViewModel {
         switch spender {
         case .failure(let error):
             throw error
-        case .success(let spenderDTO):
-            return spenderDTO.address
+        case .success(let spender):
+            return spender.address
         }
     }
 
