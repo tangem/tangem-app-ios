@@ -23,11 +23,10 @@ class ExchangeViewModel: ObservableObject {
     let card: CardViewModel
     let blockchainNetwork: BlockchainNetwork
 
-    var bag = Set<AnyCancellable>()
-    var prefetchedAvailableCoins: [CoinModel] = []
-
     private let exchangeFacade: ExchangeServiceProtocol = ExchangeSdk.buildInchExchangeService(isDebug: false)
     private let signer: ExchangeSigner = ExchangeSigner()
+    private var prefetchedAvailableCoins = [CoinModel]()
+    private var bag = Set<AnyCancellable>()
 
     private lazy var exchangeInteractor: ExchangeTxInteractor = ExchangeTxInteractor(walletModel: walletModel, card: card)
 
