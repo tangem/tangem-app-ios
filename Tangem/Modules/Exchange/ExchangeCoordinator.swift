@@ -21,7 +21,10 @@ class ExchangeCoordinator: CoordinatorObject {
     }
 
     func start(with options: ExchangeCoordinator.Options) {
-        exchangeViewModel = ExchangeViewModel(amountType: options.amountType, walletModel: options.walletModel, cardViewModel: options.cardViewModel, blockchainNetwork: options.blockchainNetwork)
+        exchangeViewModel = ExchangeViewModel(amountType: options.amountType,
+                                              walletModel: options.walletModel,
+                                              cardViewModel: options.cardViewModel,
+                                              blockchainNetwork: options.blockchainNetwork)
     }
 }
 
