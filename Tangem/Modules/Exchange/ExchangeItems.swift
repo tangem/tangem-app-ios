@@ -11,6 +11,6 @@ import Foundation
 struct ExchangeItems: Identifiable {
     let id: UUID = UUID()
 
-    let fromItem: ExchangeItem
-    let toItem: ExchangeItem
+    let sourceItem: ExchangeItem
+    let destinationItem: ExchangeItem
 }
