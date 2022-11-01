@@ -6,14 +6,15 @@
 //  Copyright © 2020 Tangem AG. All rights reserved.
 //
 
-import Foundation
-import Combine
-import SwiftUI
 import BlockchainSdk
+import Combine
+import Foundation
+import SwiftUI
 import TangemSdk
 
 class MainViewModel: ObservableObject {
     // MARK: - Dependencies
+
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
@@ -281,6 +282,7 @@ class MainViewModel: ObservableObject {
     }
 
     // MARK: Warning action handler
+
     func warningButtonAction(at index: Int, priority: WarningPriority, button: WarningButton) {
         guard let warning = warnings.warning(at: index, with: priority) else { return }
 
@@ -344,13 +346,13 @@ class MainViewModel: ObservableObject {
     func prepareForBackup() {
         if let input = cardModel.backupInput {
             Analytics.log(.noticeBackupYourWalletTapped)
-            self.openOnboarding(with: input)
+            openOnboarding(with: input)
         }
     }
 
     // MARK: - Private functions
 
-    private func setError(_ error: AlertBinder?)  {
+    private func setError(_ error: AlertBinder?) {
         if self.error != nil {
             return
         }
