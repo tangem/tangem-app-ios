@@ -9,7 +9,7 @@
 import Foundation
 import Combine
 import BlockchainSdk
-import Exchanger
+import ExchangeSdk
 import BigInt
 
 class ExchangeTxInteractor {
@@ -23,7 +23,7 @@ class ExchangeTxInteractor {
         self.card = card
     }
 
-    func sendSwapTransaction(info: SwapDTO) -> AnyPublisher<(), Error> {
+    func sendSwapTransaction(info: SwapData) -> AnyPublisher<(), Error> {
         let blockchain = walletModel.blockchainNetwork.blockchain
         let amount = Amount(with: blockchain, value: Decimal(string: info.tx.value) ?? 0)
         let gasPrice = Decimal(string: info.tx.gasPrice) ?? 0
@@ -43,7 +43,7 @@ class ExchangeTxInteractor {
         }
     }
 
-    func sendApproveTransaction(info: ApproveTransactionDTO) -> AnyPublisher<(), Error> {
+    func sendApproveTransaction(info: ApprovedTransactionData) -> AnyPublisher<(), Error> {
         let blockchain = walletModel.blockchainNetwork.blockchain
 
         let amount = Amount(with: blockchain, value: Decimal(string: info.value) ?? 0)
