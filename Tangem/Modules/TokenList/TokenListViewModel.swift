@@ -391,9 +391,10 @@ private extension TokenListViewModel {
     }
 
     func sendAnalyticsOnChangeTokenState(tokenIsSelected: Bool, tokenItem: TokenItem) {
-        if tokenIsSelected {
-            Analytics.log(.tokenSwitcherChanged)
-        }
+        let state: Analytics.ParameterValue = tokenIsSelected ? .on : .off
+        Analytics.log(.tokenSwitcherChanged, params: [
+            .state: state.rawValue,
+        ])
     }
 
     func update(cardModel: CardViewModel, entries: inout [StorageEntry]) {
