@@ -111,8 +111,16 @@ extension AppCoordinator: UIWindowSceneDelegate {
     }
 
     private func process(_ url: URL) {
+        guard let wcService = walletConnectServiceProvider.service else {
+            handle(url: url)
+            return
+        }
+
+        if wcService.handle(url: url) || url.lastPathComponent == "wc" {
+            return
+        }
+
         handle(url: url)
-        walletConnectServiceProvider.service?.handle(url: url)
     }
 }
 
