@@ -494,8 +494,7 @@
 		E94D87F82909762F00F82926 /* ExchangeInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94D87F72909762F00F82926 /* ExchangeInteractor.swift */; };
 		E9E416722902D6E00028F40E /* Exchange+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E416712902D6E00028F40E /* Exchange+Utils.swift */; };
 		E9E4167429033F300028F40E /* ExchangeItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E4167329033F300028F40E /* ExchangeItems.swift */; };
-		E9E416762904B8A80028F40E /* Exchange+Timer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E416752904B8A80028F40E /* Exchange+Timer.swift */; };
-		E9E416782906E11F0028F40E /* ExchangeSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E416772906E11F0028F40E /* ExchangeSigner.swift */; };
+		E9E416762904B8A80028F40E /* ExchangeTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E416752904B8A80028F40E /* ExchangeTimer.swift */; };
 		EF07F3AD289D43580065549C /* List+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF07F3AC289D43580065549C /* List+.swift */; };
 		EF08A0EF283D1914008BD923 /* Moya+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0EE283D1914008BD923 /* Moya+.swift */; };
 		EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0F0283D2382008BD923 /* CoinsListRequestModel.swift */; };
@@ -1152,8 +1151,7 @@
 		E94D87F72909762F00F82926 /* ExchangeInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeInteractor.swift; sourceTree = "<group>"; };
 		E9E416712902D6E00028F40E /* Exchange+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Exchange+Utils.swift"; sourceTree = "<group>"; };
 		E9E4167329033F300028F40E /* ExchangeItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeItems.swift; sourceTree = "<group>"; };
-		E9E416752904B8A80028F40E /* Exchange+Timer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Exchange+Timer.swift"; sourceTree = "<group>"; };
-		E9E416772906E11F0028F40E /* ExchangeSigner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeSigner.swift; sourceTree = "<group>"; };
+		E9E416752904B8A80028F40E /* ExchangeTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeTimer.swift; sourceTree = "<group>"; };
 		EF07F3AC289D43580065549C /* List+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "List+.swift"; sourceTree = "<group>"; };
 		EF08A0EE283D1914008BD923 /* Moya+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Moya+.swift"; sourceTree = "<group>"; };
 		EF08A0F0283D2382008BD923 /* CoinsListRequestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinsListRequestModel.swift; sourceTree = "<group>"; };
@@ -2773,8 +2771,7 @@
 			isa = PBXGroup;
 			children = (
 				E9E416712902D6E00028F40E /* Exchange+Utils.swift */,
-				E9E416752904B8A80028F40E /* Exchange+Timer.swift */,
-				E9E416772906E11F0028F40E /* ExchangeSigner.swift */,
+				E9E416752904B8A80028F40E /* ExchangeTimer.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -3364,7 +3361,6 @@
 				5D06E040250A5D54004218D0 /* NSRegualrExpression+.swift in Sources */,
 				EF0F99B228902902008B01DF /* DefaultToggleRowView.swift in Sources */,
 				5D84DBED270E26B90013A813 /* WelcomeBackgroundView.swift in Sources */,
-				E9E416782906E11F0028F40E /* ExchangeSigner.swift in Sources */,
 				B0C171CE264C173400E4BA5C /* CameraAccessDeniedModifier.swift in Sources */,
 				EFB4C1322837C51700E991C1 /* TextHint.swift in Sources */,
 				DC66BC12285C433800CDF765 /* AddCustomTokenRoutable.swift in Sources */,
@@ -3637,7 +3633,7 @@
 				5D49035227BE9D550072C642 /* Data+.swift in Sources */,
 				DAC53CFE27BE63830027147D /* MeetTangemStoryPage.swift in Sources */,
 				B0BA7BC726C4F9A300D7066F /* OnboardingCircleButton.swift in Sources */,
-				E9E416762904B8A80028F40E /* Exchange+Timer.swift in Sources */,
+				E9E416762904B8A80028F40E /* ExchangeTimer.swift in Sources */,
 				B04BA23126F07ECE0036784C /* OnboardingTextButtonView.swift in Sources */,
 				DC74BC2F28EF060600B49850 /* UserWalletId.swift in Sources */,
 				EF4BEF8128AB953E00C5D1BE /* CommonUserTokenListManager.swift in Sources */,

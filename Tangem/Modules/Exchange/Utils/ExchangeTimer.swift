@@ -1,5 +1,5 @@
 //
-//  Exchange+Timer.swift
+//  ExchangeTimer.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
@@ -15,10 +15,11 @@ class ExchangeTimer {
         case expired
     }
 
+    private let timeToRefresh: TimeInterval = 10
     private let start: Date = Date()
     private var subscription: AnyCancellable?
 
-    func startTimer(callback: @escaping (State) -> ()) {
+    func startTimer(completion: @escaping (State) -> ()) {
         subscription = Timer
             .publish(every: 1.0, on: .main, in: .common)
             .autoconnect()
@@ -26,11 +27,11 @@ class ExchangeTimer {
                 guard let self else { return }
 
                 let timePassedSinceStart = output.timeIntervalSince(self.start)
-                if timePassedSinceStart > 10 {
-                    callback(.expired)
+                if timePassedSinceStart >= self.timeToRefresh {
+                    completion(.expired)
                     self.subscription = nil
                 } else {
-                    callback(.passed(seconds: timePassedSinceStart))
+                    completion(.passed(seconds: timePassedSinceStart))
                 }
             })
     }
