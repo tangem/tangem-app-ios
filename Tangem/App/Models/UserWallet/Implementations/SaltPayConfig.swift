@@ -173,6 +173,10 @@ extension SaltPayConfig: UserWalletConfig {
         .saltpay
     }
 
+    var userWalletIdSeed: Data? {
+        card.wallets.first?.publicKey
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         .hidden
     }
