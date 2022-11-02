@@ -49,40 +49,44 @@ private extension TotalBalanceProvider {
                     throw CommonError.noData
                 }
 
-                let tokenItemViewModels = self.getTokenItemViewModels()
-
-                var hasError: Bool = false
-                var balance: Decimal = 0.0
-
-                for token in tokenItemViewModels {
-                    if token.state.isSuccesfullyLoaded {
-                        balance += token.fiatValue
-                    }
-
-                    if token.rate.isEmpty || !token.state.isSuccesfullyLoaded {
-                        hasError = true
-                    }
-                }
-
-                self.totalBalanceAnalyticsService?.sendToppedUpEventIfNeeded(
-                    tokenItemViewModels: tokenItemViewModels,
-                    balance: balance
-                )
-
-                if self.isFirstLoadForCardInSession {
-                    self.totalBalanceAnalyticsService?.sendFirstLoadBalanceEventForCard(
-                        tokenItemViewModels: tokenItemViewModels,
-                        balance: balance
-                    )
-                    self.isFirstLoadForCardInSession = false
-                }
-
-                return TotalBalance(balance: balance, currency: currency, hasError: hasError)
+                return self.mapToTotalBalance(currency: currency)
             }
             .receive(on: DispatchQueue.main)
             .receiveValue { [weak self] balance in
                 self?.totalBalanceSubject.send(.loaded(balance))
             }
+    }
+
+    func mapToTotalBalance(currency: CurrenciesResponse.Currency) -> TotalBalance {
+        let tokenItemViewModels = getTokenItemViewModels()
+
+        var hasError: Bool = false
+        var balance: Decimal = 0.0
+
+        for token in tokenItemViewModels {
+            if token.state.isSuccesfullyLoaded {
+                balance += token.fiatValue
+            }
+
+            if token.rate.isEmpty || !token.state.isSuccesfullyLoaded {
+                hasError = true
+            }
+        }
+
+        totalBalanceAnalyticsService?.sendToppedUpEventIfNeeded(
+            tokenItemViewModels: tokenItemViewModels,
+            balance: balance
+        )
+
+        if isFirstLoadForCardInSession {
+            totalBalanceAnalyticsService?.sendFirstLoadBalanceEventForCard(
+                tokenItemViewModels: tokenItemViewModels,
+                balance: balance
+            )
+            isFirstLoadForCardInSession = false
+        }
+
+        return TotalBalance(balance: balance, currency: currency, hasError: hasError)
     }
 
     func getTokenItemViewModels() -> [TokenItemViewModel] {

@@ -19,6 +19,7 @@ class CommonUserTokenListManager {
     private var userWalletId: Data
     private var tokenItemsRepository: TokenItemsRepository
 
+    private var pendingTokensToUpdate: UserTokenList?
     private var loadTokensCancellable: AnyCancellable?
     private var saveTokensCancellable: AnyCancellable?
     private let hasTokenSynchronization: Bool
@@ -78,6 +79,14 @@ private extension CommonUserTokenListManager {
     // MARK: - Requests
 
     func loadUserTokenList(result: @escaping (Result<UserTokenList, Error>) -> Void) {
+        if let list = pendingTokensToUpdate {
+            tokenItemsRepository.update(mapToEntries(list: list))
+            updateTokensOnServer(list: list, result: result)
+
+            pendingTokensToUpdate = nil
+            return
+        }
+
         self.loadTokensCancellable = tangemApiService
             .loadTokens(for: userWalletId.hexString)
             .sink { [unowned self] completion in
@@ -94,16 +103,18 @@ private extension CommonUserTokenListManager {
             }
     }
 
-    func updateTokensOnServer(result: @escaping (Result<UserTokenList, Error>) -> Void = { _ in }) {
-        let list = getUserTokenList()
+    func updateTokensOnServer(list: UserTokenList? = nil,
+                              result: @escaping (Result<UserTokenList, Error>) -> Void = { _ in }) {
+        let listToUpdate = list ?? getUserTokenList()
 
         saveTokensCancellable = tangemApiService
-            .saveTokens(list: list, for: userWalletId.hexString)
-            .receiveCompletion { completion in
+            .saveTokens(list: listToUpdate, for: userWalletId.hexString)
+            .receiveCompletion { [unowned self] completion in
                 switch completion {
                 case .finished:
-                    result(.success(list))
+                    result(.success(listToUpdate))
                 case let .failure(error):
+                    self.pendingTokensToUpdate = listToUpdate
                     result(.failure(error))
                 }
             }
