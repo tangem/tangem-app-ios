@@ -139,11 +139,15 @@ class WelcomeViewModel: ObservableObject {
     }
 
     func unlockWithBiometry() {
+        Analytics.log(.buttonBiometricSignIn)
+
         showingAuthentication = true
         userWalletListService.unlockWithBiometry(completion: self.didFinishUnlocking)
     }
 
     func unlockWithCard() {
+        Analytics.log(.buttonCardSignIn)
+
         scanCardInternal { [weak self] cardModel in
             guard
                 let self = self,
