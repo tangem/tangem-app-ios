@@ -102,7 +102,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         case .welcome:
             fallthrough
         case .createWallet:
-            сreateWallet()
+            createWallet()
         case .topup:
             if canBuyCrypto {
                 if let disabledLocalizedReason = cardModel?.getDisabledLocalizedReason(for: .exchange) {
@@ -141,7 +141,7 @@ class SingleCardOnboardingViewModel: OnboardingTopupViewModel<SingleCardOnboardi
         supplementCardSettings = .init(targetSettings: SingleCardOnboardingCardsLayout.supplementary.cardAnimSettings(for: currentStep, containerSize: containerSize, animated: animated), intermediateSettings: nil)
     }
 
-    private func сreateWallet() {
+    private func createWallet() {
         guard let cardModel else { return }
 
         isMainButtonBusy = true
