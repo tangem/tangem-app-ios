@@ -49,7 +49,7 @@ struct ScanCardSettingsView: View {
 }
 
 struct ScanCardSettingsView_Preview: PreviewProvider {
-    static let viewModel = ScanCardSettingsViewModel(coordinator: DetailsCoordinator())
+    static let viewModel = ScanCardSettingsViewModel(expectedUserWalletId: Data(), coordinator: DetailsCoordinator())
 
     static var previews: some View {
         ScanCardSettingsView(viewModel: viewModel)
