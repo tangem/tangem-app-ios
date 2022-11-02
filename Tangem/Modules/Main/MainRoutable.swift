@@ -21,3 +21,7 @@ protocol MainRoutable: TokenDetailsRoutable {
     func openUserWalletSaveAcceptanceSheet()
     func openUserWalletList()
 }
+
+protocol OpenCurrencySelectionDelegate: AnyObject {
+    func openCurrencySelection()
+}
