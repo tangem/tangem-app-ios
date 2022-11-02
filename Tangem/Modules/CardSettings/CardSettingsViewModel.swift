@@ -31,7 +31,7 @@ class CardSettingsViewModel: ObservableObject {
     }
 
     var isResetToFactoryAvailable: Bool {
-        cardModel.isResetToFactoryAvailable
+        !cardModel.resetToFactoryAvailability.isHidden
     }
 
     // MARK: Dependecies
