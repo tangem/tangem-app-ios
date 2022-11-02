@@ -267,6 +267,7 @@ class MainViewModel: ObservableObject {
     }
 
     func didTapUserWalletListButton() {
+        Analytics.log(.buttonMyWallets)
         self.coordinator.openUserWalletList()
     }
 
