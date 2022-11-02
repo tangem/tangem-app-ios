@@ -6,14 +6,15 @@
 //  Copyright © 2020 Tangem AG. All rights reserved.
 //
 
-import Foundation
-import Combine
-import SwiftUI
 import BlockchainSdk
+import Combine
+import Foundation
+import SwiftUI
 import TangemSdk
 
 class MainViewModel: ObservableObject {
     // MARK: - Dependencies
+
     @Injected(\.exchangeService) private var exchangeService: ExchangeService
     @Injected(\.appWarningsService) private var warningsService: AppWarningsProviding
     @Injected(\.failedScanTracker) var failedCardScanTracker: FailedScanTrackable
@@ -87,7 +88,6 @@ class MainViewModel: ObservableObject {
     private let cardImageProvider: CardImageProviding
 
     private var bag = Set<AnyCancellable>()
-    private var isHashesCounted = false
     private var isProcessingNewCard = false
 
     private lazy var testnetBuyCryptoService = TestnetBuyCryptoService()
@@ -175,7 +175,6 @@ class MainViewModel: ObservableObject {
         updateContent()
         updateIsBackupAllowed()
         cardModel.setupWarnings()
-        validateHashesCount()
     }
 
     deinit {
@@ -193,6 +192,7 @@ class MainViewModel: ObservableObject {
             .store(in: &bag)
 
         userWalletModel.subscribeToEntriesWithoutDerivation()
+            .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .sink { [unowned self] entries in
                 self.updateLackDerivationWarningView(entries: entries)
@@ -282,6 +282,7 @@ class MainViewModel: ObservableObject {
     }
 
     // MARK: Warning action handler
+
     func warningButtonAction(at index: Int, priority: WarningPriority, button: WarningButton) {
         guard let warning = warnings.warning(at: index, with: priority) else { return }
 
@@ -345,72 +346,13 @@ class MainViewModel: ObservableObject {
     func prepareForBackup() {
         if let input = cardModel.backupInput {
             Analytics.log(.noticeBackupYourWalletTapped)
-            self.openOnboarding(with: input)
+            openOnboarding(with: input)
         }
     }
 
     // MARK: - Private functions
-    private func showAlertAnimated(_ event: WarningEvent) {
-        withAnimation {
-            warningsService.appendWarning(for: event)
-        }
-    }
 
-    private func validateHashesCount() {
-        func didFinishCountingHashes() {
-            print("⚠️ Hashes counted")
-            isHashesCounted = true
-        }
-
-        guard !isHashesCounted,
-              !AppSettings.shared.validatedSignedHashesCards.contains(cardModel.cardId) else {
-            didFinishCountingHashes()
-            return
-        }
-
-        guard cardModel.cardSignedHashes > 0 else {
-            AppSettings.shared.validatedSignedHashesCards.append(cardModel.cardId)
-            didFinishCountingHashes()
-            return
-        }
-
-        guard !cardModel.isMultiWallet else {
-            showAlertAnimated(.multiWalletSignedHashes)
-            didFinishCountingHashes()
-            return
-        }
-
-        guard cardModel.canCountHashes else {
-            AppSettings.shared.validatedSignedHashesCards.append(cardModel.cardId)
-            didFinishCountingHashes()
-            return
-        }
-
-        guard let validator = cardModel.walletModels.first?.walletManager as? SignatureCountValidator else {
-            showAlertAnimated(.numberOfSignedHashesIncorrect)
-            didFinishCountingHashes()
-            return
-        }
-
-        validator.validateSignatureCount(signedHashes: cardModel.cardSignedHashes)
-            .subscribe(on: DispatchQueue.global())
-            .receive(on: RunLoop.main)
-            .handleEvents(receiveCancel: {
-                print("⚠️ Hash counter subscription cancelled")
-            })
-            .receiveCompletion { [weak self] failure in
-                switch failure {
-                case .finished:
-                    break
-                case .failure:
-                    self?.showAlertAnimated(.numberOfSignedHashesIncorrect)
-                }
-                didFinishCountingHashes()
-            }
-            .store(in: &bag)
-    }
-
-    private func setError(_ error: AlertBinder?)  {
+    private func setError(_ error: AlertBinder?) {
         if self.error != nil {
             return
         }
