@@ -270,7 +270,6 @@ extension MainCoordinator: UserWalletStorageAgreementRoutable {
     }
 
     private func logSaveUserWalletStep(agreed: Bool) {
-        let state: Analytics.ParameterValue = agreed ? .on : .off
-        Analytics.log(.mainEnableBiometric, params: [.state: state.rawValue])
+        Analytics.log(.mainEnableBiometric, params: [.state: Analytics.ParameterValue.state(for: agreed).rawValue])
     }
 }
