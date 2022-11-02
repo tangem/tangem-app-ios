@@ -49,16 +49,24 @@ enum WalletOnboardingStep {
         [.backupCards, .success]
     }
 
-    func backgroundFrameSize(in container: CGSize) -> CGSize {
+    func cardBackgroundFrame(containerSize: CGSize) -> CGSize {
         switch self {
         case .welcome, .success, .backupCards:
             return .zero
         case .claim, .successClaim:
-            return defaultBackgroundFrameSize(in: container)
+            return defaultBackgroundFrameSize(in: containerSize)
         default:
-            let cardFrame = WalletOnboardingCardLayout.origin.frame(for: self, containerSize: container)
+            let cardFrame = WalletOnboardingCardLayout.origin.frame(for: self, containerSize: containerSize)
             let diameter = cardFrame.height * 1.242
             return .init(width: diameter, height: diameter)
+        }
+    }
+
+    func cardBackgroundCornerRadius(containerSize: CGSize) -> CGFloat {
+        switch self {
+        case .welcome, .success, .backupCards: return 0
+        case .claim, .successClaim: return 8
+        default: return cardBackgroundFrame(containerSize: containerSize).height / 2
         }
     }
 
