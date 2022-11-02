@@ -39,6 +39,8 @@ struct DummyConfig: UserWalletConfig {
         []
     }
 
+    var userWalletIdSeed: Data? { nil }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         return .available
     }

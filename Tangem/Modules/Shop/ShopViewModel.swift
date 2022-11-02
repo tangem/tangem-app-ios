@@ -47,6 +47,10 @@ class ShopViewModel: ObservableObject {
         self.coordinator = coordinator
     }
 
+    deinit {
+        shopifyService.cancelTasks()
+    }
+
     func didAppear() {
         Analytics.log(.shopScreenOpened)
 
