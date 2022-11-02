@@ -49,6 +49,7 @@ class ExchangeItem: Identifiable {
         $amount
             .sink { [unowned self] value in
                 let filtered = value
+                    .replacingOccurrences(of: ",", with: ".")
                     .filter { "0123456789.".contains($0) }
                     .reduce("") { partialResult, character in
                         var newPartialResult = partialResult
