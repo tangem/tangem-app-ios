@@ -239,6 +239,10 @@ extension Analytics {
         case walletOnboarding = "wallet_onboarding"
         case on = "On"
         case off = "Off"
+
+        static func state(for toggle: Bool) -> ParameterValue {
+            return toggle ? .on : .off
+        }
     }
 
     enum AnalyticSystem {
