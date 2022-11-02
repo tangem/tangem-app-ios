@@ -14,13 +14,10 @@ class WalletModel: ObservableObject, Identifiable {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     lazy var walletDidChange: AnyPublisher<WalletModel.State, Never> = {
-        Publishers.CombineLatest(
-            $state.dropFirst().removeDuplicates(),
-            $rates.dropFirst().removeDuplicates()
-        )
-        .map { $0.0 } // Move on latest value state
-        .share()
-        .eraseToAnyPublisher()
+        Publishers.CombineLatest($state.dropFirst(), $rates.dropFirst())
+            .map { $0.0 } // Move on latest value state
+            .share()
+            .eraseToAnyPublisher()
     }()
 
     @Published var state: State = .created
