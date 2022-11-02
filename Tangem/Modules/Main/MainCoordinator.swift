@@ -258,12 +258,19 @@ extension MainCoordinator: UserWalletListRoutable {
 
 extension MainCoordinator: UserWalletStorageAgreementRoutable {
     func didAgree() {
+        logSaveUserWalletStep(agreed: true)
         userWalletStorageAgreementViewModel = nil
         mainViewModel?.didAgreeToSaveUserWallets()
     }
 
     func didDecline() {
+        logSaveUserWalletStep(agreed: false)
         userWalletStorageAgreementViewModel = nil
         mainViewModel?.didDeclineToSaveUserWallets()
+    }
+
+    private func logSaveUserWalletStep(agreed: Bool) {
+        let state: Analytics.ParameterValue = agreed ? .on : .off
+        Analytics.log(.mainEnableBiometric, params: [.state: state.rawValue])
     }
 }
