@@ -19,12 +19,13 @@ class CommonUserTokenListManager {
     private var userWalletId: Data
     private var tokenItemsRepository: TokenItemsRepository
 
+    private var pendingTokensToUpdate: UserTokenList?
     private var loadTokensCancellable: AnyCancellable?
     private var saveTokensCancellable: AnyCancellable?
     private let hasTokenSynchronization: Bool
 
     init(config: UserWalletConfig, userWalletId: Data) {
-        self.hasTokenSynchronization = config.hasFeature(.multiCurrency)
+        self.hasTokenSynchronization = config.hasFeature(.tokenSynchronization)
         self.userWalletId = userWalletId
 
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
@@ -41,7 +42,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
         tokenItemsRepository = CommonTokenItemsRepository(key: userWalletId.hexString)
     }
 
-    func update(_ type: CommonUserTokenListManager.UpdateType, completion: @escaping () -> Void) {
+    func update(_ type: CommonUserTokenListManager.UpdateType) {
         switch type {
         case let .rewrite(entries):
             tokenItemsRepository.update(entries)
@@ -54,9 +55,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
         }
 
         if hasTokenSynchronization {
-            updateTokensOnServer { _ in completion() }
-        } else {
-            completion()
+            updateTokensOnServer()
         }
     }
 
@@ -66,7 +65,7 @@ extension CommonUserTokenListManager: UserTokenListManager {
 
     func clearRepository(completion: @escaping () -> Void) {
         tokenItemsRepository.removeAll()
-        updateTokensOnServer { _ in completion() }
+        updateTokensOnServer()
     }
 
     func updateLocalRepositoryFromServer(result: @escaping (Result<UserTokenList, Error>) -> Void) {
@@ -80,6 +79,14 @@ private extension CommonUserTokenListManager {
     // MARK: - Requests
 
     func loadUserTokenList(result: @escaping (Result<UserTokenList, Error>) -> Void) {
+        if let list = pendingTokensToUpdate {
+            tokenItemsRepository.update(mapToEntries(list: list))
+            updateTokensOnServer(list: list, result: result)
+
+            pendingTokensToUpdate = nil
+            return
+        }
+
         self.loadTokensCancellable = tangemApiService
             .loadTokens(for: userWalletId.hexString)
             .sink { [unowned self] completion in
@@ -96,16 +103,18 @@ private extension CommonUserTokenListManager {
             }
     }
 
-    func updateTokensOnServer(result: @escaping (Result<UserTokenList, Error>) -> Void) {
-        let list = getUserTokenList()
+    func updateTokensOnServer(list: UserTokenList? = nil,
+                              result: @escaping (Result<UserTokenList, Error>) -> Void = { _ in }) {
+        let listToUpdate = list ?? getUserTokenList()
 
         saveTokensCancellable = tangemApiService
-            .saveTokens(list: list, for: userWalletId.hexString)
-            .receiveCompletion { completion in
+            .saveTokens(list: listToUpdate, for: userWalletId.hexString)
+            .receiveCompletion { [unowned self] completion in
                 switch completion {
                 case .finished:
-                    result(.success(list))
+                    result(.success(listToUpdate))
                 case let .failure(error):
+                    self.pendingTokensToUpdate = listToUpdate
                     result(.failure(error))
                 }
             }
@@ -122,7 +131,7 @@ private extension CommonUserTokenListManager {
     func mapToTokens(entries: [StorageEntry]) -> [UserTokenList.Token] {
         entries.reduce(into: []) { result, entry in
             let blockchain = entry.blockchainNetwork.blockchain
-            result += [UserTokenList.Token(
+            let blockchainToken = UserTokenList.Token(
                 id: blockchain.id,
                 networkId: blockchain.networkId,
                 name: blockchain.displayName,
@@ -130,10 +139,13 @@ private extension CommonUserTokenListManager {
                 decimals: blockchain.decimalCount,
                 derivationPath: entry.blockchainNetwork.derivationPath,
                 contractAddress: nil
-            )]
+            )
+            if !result.contains(blockchainToken) {
+                result.append(blockchainToken)
+            }
 
-            result += entry.tokens.map { token in
-                UserTokenList.Token(
+            entry.tokens.forEach { token in
+                let token = UserTokenList.Token(
                     id: token.id,
                     networkId: blockchain.networkId,
                     name: token.name,
@@ -142,6 +154,10 @@ private extension CommonUserTokenListManager {
                     derivationPath: entry.blockchainNetwork.derivationPath,
                     contractAddress: token.contractAddress
                 )
+
+                if !result.contains(token) {
+                    result.append(token)
+                }
             }
         }
     }
@@ -157,8 +173,10 @@ private extension CommonUserTokenListManager {
                 return BlockchainNetwork(blockchain, derivationPath: token.derivationPath)
             }
 
-        let entries: [StorageEntry] = blockchains.map { network in
-            return StorageEntry(
+        var entries: [StorageEntry] = []
+
+        blockchains.forEach { network in
+            let entry = StorageEntry(
                 blockchainNetwork: network,
                 tokens: list.tokens
                     .filter { $0.contractAddress != nil && $0.networkId == network.blockchain.networkId }
@@ -172,6 +190,10 @@ private extension CommonUserTokenListManager {
                         )
                     }
             )
+
+            if !entries.contains(entry) {
+                entries.append(entry)
+            }
         }
 
         return entries
