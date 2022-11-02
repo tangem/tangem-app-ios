@@ -18,7 +18,6 @@ class TokenDetailsViewModel: ObservableObject {
     @Published var alert: AlertBinder? = nil
     @Published var showTradeSheet: Bool = false
     @Published var isRefreshing: Bool = false
-    @Published var isHidingInProcess: Bool = false
 
     let card: CardViewModel
 
@@ -243,9 +242,9 @@ class TokenDetailsViewModel: ObservableObject {
             }
             .store(in: &bag)
 
-        walletModel?.objectWillChange
+        walletModel?.walletManager.walletPublisher
             .receive(on: RunLoop.main)
-            .sink { [weak self] in
+            .sink { [weak self] _ in
                 self?.objectWillChange.send()
             }
             .store(in: &bag)
@@ -307,13 +306,9 @@ class TokenDetailsViewModel: ObservableObject {
             return
         }
 
-        isHidingInProcess = true
-
         let item = CommonUserWalletModel.RemoveItem(amount: amountType, blockchainNetwork: walletModel.blockchainNetwork)
-        card.remove(item: item) { [weak self] in
-            self?.isHidingInProcess = false
-            self?.dismiss()
-        }
+        card.userWalletModel?.remove(item: item)
+        dismiss()
     }
 
     private func showUnableToHideAlert() {
