@@ -491,7 +491,8 @@
 		E94667C72901FA9A0043AD0A /* ExchangeCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94667C62901FA9A0043AD0A /* ExchangeCoordinatorView.swift */; };
 		E94667C92901FADB0043AD0A /* ExchangeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94667C82901FADB0043AD0A /* ExchangeView.swift */; };
 		E94667CC2902BC260043AD0A /* ExchangeItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94667CB2902BC260043AD0A /* ExchangeItem.swift */; };
-		E94D87F82909762F00F82926 /* ExchangeInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94D87F72909762F00F82926 /* ExchangeInteractor.swift */; };
+		E94D87F82909762F00F82926 /* ExchangeTxInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94D87F72909762F00F82926 /* ExchangeTxInteractor.swift */; };
+		E9C362B729132359001302E5 /* ExchangeOneInchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C362B629132359001302E5 /* ExchangeOneInchService.swift */; };
 		E9E416722902D6E00028F40E /* Exchange+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E416712902D6E00028F40E /* Exchange+Utils.swift */; };
 		E9E4167429033F300028F40E /* ExchangeItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E4167329033F300028F40E /* ExchangeItems.swift */; };
 		E9E416762904B8A80028F40E /* ExchangeTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E416752904B8A80028F40E /* ExchangeTimer.swift */; };
@@ -1148,7 +1149,8 @@
 		E94667C62901FA9A0043AD0A /* ExchangeCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeCoordinatorView.swift; sourceTree = "<group>"; };
 		E94667C82901FADB0043AD0A /* ExchangeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeView.swift; sourceTree = "<group>"; };
 		E94667CB2902BC260043AD0A /* ExchangeItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeItem.swift; sourceTree = "<group>"; };
-		E94D87F72909762F00F82926 /* ExchangeInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeInteractor.swift; sourceTree = "<group>"; };
+		E94D87F72909762F00F82926 /* ExchangeTxInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeTxInteractor.swift; sourceTree = "<group>"; };
+		E9C362B629132359001302E5 /* ExchangeOneInchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeOneInchService.swift; sourceTree = "<group>"; };
 		E9E416712902D6E00028F40E /* Exchange+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Exchange+Utils.swift"; sourceTree = "<group>"; };
 		E9E4167329033F300028F40E /* ExchangeItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeItems.swift; sourceTree = "<group>"; };
 		E9E416752904B8A80028F40E /* ExchangeTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeTimer.swift; sourceTree = "<group>"; };
@@ -2384,6 +2386,7 @@
 		DC0A57DA2822A4DC0031BECC /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				E9C362B52913232B001302E5 /* ExchangeOneInchService */,
 				EF5903A02909283A00C527C9 /* EnvironmentProvider */,
 				DC194D2428EC6A4B007FBC99 /* SaltPay */,
 				EF5A5ACC28D86089002544AC /* TotalBalanceProvider */,
@@ -2779,9 +2782,17 @@
 		E94D87F6290968B700F82926 /* Interactor */ = {
 			isa = PBXGroup;
 			children = (
-				E94D87F72909762F00F82926 /* ExchangeInteractor.swift */,
+				E94D87F72909762F00F82926 /* ExchangeTxInteractor.swift */,
 			);
 			path = Interactor;
+			sourceTree = "<group>";
+		};
+		E9C362B52913232B001302E5 /* ExchangeOneInchService */ = {
+			isa = PBXGroup;
+			children = (
+				E9C362B629132359001302E5 /* ExchangeOneInchService.swift */,
+			);
+			path = ExchangeOneInchService;
 			sourceTree = "<group>";
 		};
 		EF08A0ED283D1905008BD923 /* Extensions */ = {
@@ -3675,6 +3686,7 @@
 				B0E1565226B97F8C005B33E4 /* OnboardingCardView.swift in Sources */,
 				EF4BEF8328ACF0E700C5D1BE /* UserTokenListManager.swift in Sources */,
 				EF130EBA28E1D33000D37EFC /* SingleWalletContentView.swift in Sources */,
+				E9C362B729132359001302E5 /* ExchangeOneInchService.swift in Sources */,
 				B08B8CEB26D6276000D4BB7B /* PreviewData.swift in Sources */,
 				DC66BC14285C44AD00CDF765 /* TokenListRoutable.swift in Sources */,
 				B0A9E93F25921D21007B6D36 /* WarningView.swift in Sources */,
@@ -3811,7 +3823,7 @@
 				DC295B502861D9B3006CB7B6 /* SecurityModeCoordinatorView.swift in Sources */,
 				DA23789227B250F6009795A8 /* ShopView.swift in Sources */,
 				DC194D2828EC6AA0007FBC99 /* SaltPayRegistratorProviding.swift in Sources */,
-				E94D87F82909762F00F82926 /* ExchangeInteractor.swift in Sources */,
+				E94D87F82909762F00F82926 /* ExchangeTxInteractor.swift in Sources */,
 				B031AAB326C169E900015003 /* ConfettiType.swift in Sources */,
 				DCFCA17528F4232F0037586C /* Array+.swift in Sources */,
 				5D341CC627E31DC00028D8FC /* CoinView.swift in Sources */,
