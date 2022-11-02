@@ -127,10 +127,12 @@ enum Analytics {
     static func logShopifyOrder(_ order: Order) {
         var appsFlyerDiscountParams: [String: Any] = [:]
         var firebaseDiscountParams: [String: Any] = [:]
+        var amplitudeDiscountParams: [ParameterKey: String] = [:]
 
         if let discountCode = order.discount?.code {
             appsFlyerDiscountParams[AFEventParamCouponCode] = discountCode
             firebaseDiscountParams[AnalyticsParameterCoupon] = discountCode
+            amplitudeDiscountParams[.couponCode] = discountCode
         }
 
         let sku = order.lineItems.first?.sku ?? "unknown"
@@ -149,9 +151,11 @@ enum Analytics {
             AnalyticsParameterCurrency: order.currencyCode,
         ], uniquingKeysWith: { $1 }))
 
-        logAmplitude(event: .purchased, params: [.sku: sku,
-                                                 .count: "\(order.lineItems.count)",
-                                                 .amount: "\(order.total)\(order.currencyCode)"])
+        logAmplitude(event: .purchased, params: amplitudeDiscountParams.merging([
+            .sku: sku,
+            .count: "\(order.lineItems.count)",
+            .amount: "\(order.total)\(order.currencyCode)",
+        ], uniquingKeysWith: { $1 }))
     }
 
     private static func logAmplitude(event: Event, params: [ParameterKey: String] = [:]) {
@@ -216,6 +220,9 @@ extension Analytics {
         case currency = "Currency Type"
         case success
         case token = "Token"
+        case derivationPath = "Derivation Path"
+        case networkId = "Network Id"
+        case contractAddress = "Contract Address"
         case mode = "Mode"
         case state = "State"
         case basicCurrency = "Currency"
@@ -224,11 +231,14 @@ extension Analytics {
         case sku = "SKU"
         case amount = "Amount"
         case count = "Count"
+        case couponCode = "Coupon Code"
     }
 
     enum ParameterValue: String {
         case welcome
         case walletOnboarding = "wallet_onboarding"
+        case on = "On"
+        case off = "Off"
     }
 
     enum AnalyticSystem {
