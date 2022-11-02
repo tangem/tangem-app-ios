@@ -14,7 +14,7 @@ struct CardSettingsCoordinatorView: CoordinatorView {
 
     var body: some View {
         ZStack {
-            if let model = coordinator.сardSettingsViewModel {
+            if let model = coordinator.cardSettingsViewModel {
                 CardSettingsView(viewModel: model)
                     .navigation(item: $coordinator.securityManagementCoordinator) {
                         SecurityModeCoordinatorView(coordinator: $0)
