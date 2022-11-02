@@ -23,6 +23,7 @@ class DetailsCoordinator: CoordinatorObject {
     @Published var walletConnectCoordinator: WalletConnectCoordinator? = nil
     @Published var cardSettingsCoordinator: CardSettingsCoordinator? = nil
     @Published var appSettingsCoordinator: AppSettingsCoordinator? = nil
+    @Published var referralProgramCoordinator: ReferralCoordinator?
 
     // MARK: - Child view models
 
@@ -109,6 +110,12 @@ extension DetailsCoordinator: DetailsRoutable {
 
     func openEnvironmentSetup() {
         setupEnvironmentViewModel = EnvironmentSetupViewModel()
+    }
+
+    func openReferralProgram(with cardModel: CardViewModel) {
+        let coordinator = ReferralCoordinator()
+        coordinator.start(with: .init(cardModel: cardModel))
+        referralProgramCoordinator = coordinator
     }
 }
 
