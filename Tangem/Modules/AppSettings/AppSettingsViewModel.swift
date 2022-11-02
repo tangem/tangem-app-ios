@@ -58,6 +58,9 @@ private extension AppSettingsViewModel {
                     return
                 }
 
+                Analytics.log(.faceIDSwitcherChanged,
+                              params: [.state: Analytics.ParameterValue.state(for: saveWallet).rawValue])
+
                 if saveWallet {
                     self.userWalletListService.unlockWithBiometry { result in
                         if case .success = result {
@@ -81,6 +84,9 @@ private extension AppSettingsViewModel {
                 if self.ignoreSaveAccessCodeChanges {
                     return
                 }
+
+                Analytics.log(.saveAccessCodeSwitcherChanged,
+                              params: [.state: Analytics.ParameterValue.state(for: saveAccessCodes).rawValue])
 
                 if saveAccessCodes {
                     self.setSaveAccessCodes(true)
@@ -195,7 +201,8 @@ extension AppSettingsViewModel {
         coordinator.openResetSavedCards()
     }
 
-    func openSettings() {
+    func openBiometrySettings() {
+        Analytics.log(.buttonEnableBiometricAuthentication)
         coordinator.openAppSettings()
     }
 }
