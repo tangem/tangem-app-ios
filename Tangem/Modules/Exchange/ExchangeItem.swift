@@ -79,8 +79,7 @@ class ExchangeItem: Identifiable {
 
             switch allowanceResult {
             case .success(let allowanceInfo):
-                let decimalAllowance = Decimal(string: allowanceInfo.allowance) ?? 0
-                allowance = decimalAllowance
+                allowance = Decimal(string: allowanceInfo.allowance) ?? 0
 
                 await MainActor.run {
                     isLocked = allowance == 0
