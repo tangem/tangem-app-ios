@@ -12,6 +12,7 @@ import BlockchainSdk
 import ExchangeSdk
 
 class ExchangeViewModel: ObservableObject {
+    @Injected(\.exchangeOneInchService) private var exchangeService: ExchangeServiceProtocol
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     @Published var items: ExchangeItems
@@ -22,7 +23,6 @@ class ExchangeViewModel: ObservableObject {
     let card: CardViewModel
     let blockchainNetwork: BlockchainNetwork
 
-    private let exchangeService = ExchangeSdk.buildOneInchExchangeService(isDebug: false)
     private var prefetchedAvailableCoins = [CoinModel]()
     private var bag = Set<AnyCancellable>()
 
@@ -45,13 +45,11 @@ class ExchangeViewModel: ObservableObject {
 
         let fromItem = ExchangeItem(isMainToken: true,
                                     amount: amount,
-                                    blockchainNetwork: blockchainNetwork,
-                                    exchangeService: exchangeService)
+                                    blockchainNetwork: blockchainNetwork)
 
         let toItem = ExchangeItem(isMainToken: false,
                                   amount: amount,
-                                  blockchainNetwork: blockchainNetwork,
-                                  exchangeService: exchangeService)
+                                  blockchainNetwork: blockchainNetwork)
 
         self.items = ExchangeItems(sourceItem: fromItem, destinationItem: toItem)
         preloadAvailableTokens()
@@ -65,7 +63,7 @@ extension ExchangeViewModel {
     /// Change token places
     func onSwapItems() {
         items = ExchangeItems(sourceItem: items.destinationItem, destinationItem: items.sourceItem)
-        items.sourceItem.fetchApprove(walletAddress: walletModel.wallet.address)
+        exchangeInteractor.fetchApprove(for: items.sourceItem)
     }
 
     /// Fetch tx data, amount and fee
@@ -83,6 +81,10 @@ extension ExchangeViewModel {
             switch swapResult {
             case .success(let swapResponse):
                 swapData = swapResponse
+
+                await MainActor.run {
+                    items.destinationItem.amountText = swapResponse.toTokenAmount
+                }
             case .failure(let error):
                 print(error.localizedDescription)
             }
@@ -113,7 +115,7 @@ extension ExchangeViewModel {
     func onApprove() {
         Task {
             do {
-                let approveData = try await items.sourceItem.approveTxData()
+                let approveData = try await exchangeInteractor.approveTxData(for: items.sourceItem)
 
                 exchangeInteractor
                     .sendApprovedTransaction(approveData: approveData)
@@ -138,6 +140,17 @@ extension ExchangeViewModel {
 // MARK: - Private
 
 extension ExchangeViewModel {
+    private func bind() {
+        items
+            .sourceItem
+            .$amountText
+            .debounce(for: 1.0, scheduler: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.onChangeInputAmount()
+            }
+            .store(in: &bag)
+    }
+
     /// Spender address
     private func getSpender() async throws -> String {
         let blockchain = ExchangeBlockchain.convert(from: blockchainNetwork)
@@ -163,17 +176,6 @@ extension ExchangeViewModel {
                 }
             } receiveValue: { [weak self] coinModels in
                 self?.prefetchedAvailableCoins = coinModels
-            }
-            .store(in: &bag)
-    }
-
-    private func bind() {
-        items
-            .sourceItem
-            .$amountText
-            .debounce(for: 1.0, scheduler: DispatchQueue.main)
-            .sink { [weak self] _ in
-                self?.onChangeInputAmount()
             }
             .store(in: &bag)
     }
