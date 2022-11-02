@@ -26,10 +26,13 @@ struct DetailsView: View {
             settingsSection
 
             legalSection
+
+            if !AppEnvironment.current.isProduction {
+                setupEnvironmentSection
+            }
         }
-        .groupedListStyleCompatibility()
+        .groupedListStyleCompatibility(background: Colors.Background.secondary)
         .alert(item: $viewModel.error) { $0.alert }
-        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .navigationBarTitle("details_title", displayMode: .inline)
         .navigationBarBackButtonHidden(false)
         .navigationBarHidden(false)
@@ -140,6 +143,14 @@ struct DetailsView: View {
             }
             .padding(.top, 40)
         })
+    }
+
+    private var setupEnvironmentSection: some View {
+        Section {
+            DefaultRowView(title: "Environment setup") {
+                viewModel.openEnvironmentSetup()
+            }
+        }
     }
 
     private func socialNetworkView(network: SocialNetwork) -> some View {
