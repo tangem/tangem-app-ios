@@ -50,7 +50,7 @@ class AppSettings {
     @AppStorageCompat(StorageType.migratedCardsWithDefaultTokens)
     var migratedCardsWithDefaultTokens: [String] = []
 
-    @AppStorageCompat(.validatedSignedHashesCards)
+    @AppStorageCompat(StorageType.validatedSignedHashesCards)
     var validatedSignedHashesCards: [String] = []
 
     @AppStorageCompat(StorageType.selectedCurrencyCode)
