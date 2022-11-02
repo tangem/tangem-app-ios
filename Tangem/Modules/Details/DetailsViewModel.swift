@@ -153,6 +153,10 @@ extension DetailsViewModel {
     func openEnvironmentSetup() {
         coordinator.openEnvironmentSetup()
     }
+
+    func openReferralProgram() {
+        coordinator.openReferralProgram(with: cardModel)
+    }
 }
 
 // MARK: - Private
