@@ -31,6 +31,7 @@ class DetailsCoordinator: CoordinatorObject {
     @Published var disclaimerViewModel: DisclaimerViewModel? = nil
     @Published var supportChatViewModel: SupportChatViewModel? = nil
     @Published var scanCardSettingsViewModel: ScanCardSettingsViewModel?
+    @Published var setupEnvironmentViewModel: EnvironmentSetupViewModel?
 
     // MARK: - Helpers
 
@@ -66,7 +67,7 @@ extension DetailsCoordinator: DetailsRoutable {
         }
 
         let coordinator = OnboardingCoordinator(dismissAction: dismissAction)
-        let options = OnboardingCoordinator.Options(input: input, shouldOpenMainOnFinish: false)
+        let options = OnboardingCoordinator.Options(input: input, destination: .dismiss)
         coordinator.start(with: options)
         modalOnboardingCoordinator = coordinator
     }
@@ -87,8 +88,8 @@ extension DetailsCoordinator: DetailsRoutable {
         disclaimerViewModel = .init(url: url, style: .navbar, coordinator: nil)
     }
 
-    func openScanCardSettings() {
-        scanCardSettingsViewModel = ScanCardSettingsViewModel(coordinator: self)
+    func openScanCardSettings(with userWalletId: Data) {
+        scanCardSettingsViewModel = ScanCardSettingsViewModel(expectedUserWalletId: userWalletId, coordinator: self)
     }
 
     func openAppSettings() {
@@ -104,6 +105,10 @@ extension DetailsCoordinator: DetailsRoutable {
 
     func openInSafari(url: URL) {
         UIApplication.shared.open(url)
+    }
+
+    func openEnvironmentSetup() {
+        setupEnvironmentViewModel = EnvironmentSetupViewModel()
     }
 }
 
