@@ -250,17 +250,6 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
         }
     }
 
-    var isBackgroundCircleVisible: Bool {
-        guard !isCustomContentVisible else { return false }
-
-        switch currentStep {
-        case .claim, .successClaim:
-            return false
-        default:
-            return true
-        }
-    }
-
     var isButtonsVisible: Bool {
         switch currentStep {
         case .kycProgress: return false
@@ -922,7 +911,10 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
 
     private func addDefaultTokens(for card: Card) {
         let config = GenericConfig(card: card)
-        let repository = CommonTokenItemsRepository(key: card.userWalletId.hexString)
+
+        guard let seed = config.userWalletIdSeed else { return }
+
+        let repository = CommonTokenItemsRepository(key: UserWalletId(with: seed).stringValue)
         repository.append(config.defaultBlockchains)
     }
 }
