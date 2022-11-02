@@ -17,23 +17,26 @@ class ExchangeTimer {
 
     private let timeToRefresh: TimeInterval = 10
     private let start: Date = Date()
-    private var subscription: AnyCancellable?
+    private var timer = Timer
+        .publish(every: 1.0, on: .main, in: .common)
+        .autoconnect()
 
     func startTimer() -> AnyPublisher<State, Never> {
-        return Timer
-            .publish(every: 1.0, on: .main, in: .common)
-            .autoconnect()
+        return timer
             .map({ [weak self] output -> State in
                 guard let self else { return State.expired }
 
                 let timePassedSinceStart = output.timeIntervalSince(self.start)
                 if timePassedSinceStart >= self.timeToRefresh {
-                    self.subscription = nil
                     return .expired
                 } else {
                     return .passed(seconds: timePassedSinceStart)
                 }
             })
             .eraseToAnyPublisher()
+    }
+    
+    func cancel() {
+        timer.upstream.connect().cancel()
     }
 }
