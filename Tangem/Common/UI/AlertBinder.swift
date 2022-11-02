@@ -61,6 +61,12 @@ enum AlertBuilder {
                            dismissButton: .default(Text("warning_button_ok"), action: okAction)))
     }
 
+    static func makeOkErrorAlert(message: String, okAction: @escaping (() -> Void) = { }) -> AlertBinder {
+        .init(alert: Alert(title: Text("common_error"),
+                           message: Text(message),
+                           dismissButton: .default(Text("warning_button_ok"), action: okAction)))
+    }
+
     static func makeDemoAlert(_ message: String, okAction: @escaping (() -> Void) = {}) -> AlertBinder {
         .init(alert: Alert(title: Text("common_warning"),
                            message: Text(message),
