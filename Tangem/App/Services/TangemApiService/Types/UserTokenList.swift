@@ -31,7 +31,7 @@ struct UserTokenList: Codable {
 }
 
 extension UserTokenList {
-    struct Token: Codable {
+    struct Token: Codable, Hashable {
         let id: String?
         let networkId: String
         let name: String
