@@ -9,8 +9,7 @@
 import Combine
 import BlockchainSdk
 
-protocol MultiWalletContentViewModelOutput: AnyObject {
-    func openCurrencySelection()
+protocol MultiWalletContentViewModelOutput: OpenCurrencySelectionDelegate {
     func openTokenDetails(_ tokenItem: TokenItemViewModel)
     func openTokensList()
 }
@@ -25,16 +24,20 @@ class MultiWalletContentViewModel: ObservableObject {
         userWalletModel: userWalletModel,
         totalBalanceManager: totalBalanceManager,
         cardAmountType: nil,
-        tapOnCurrencySymbol: output.openCurrencySelection
+        tapOnCurrencySymbol: output
     )
 
     // MARK: Private
 
+    private unowned let output: MultiWalletContentViewModelOutput
+
     private let cardModel: CardViewModel
     private let userWalletModel: UserWalletModel
     private let userTokenListManager: UserTokenListManager
-    private unowned let output: MultiWalletContentViewModelOutput
+
     private var bag = Set<AnyCancellable>()
+    private var isFirstTimeOnAppear: Bool = true
+
     private lazy var totalBalanceManager = TotalBalanceProvider(
         userWalletModel: userWalletModel,
         userWalletAmountType: nil,
@@ -44,8 +47,6 @@ class MultiWalletContentViewModel: ObservableObject {
         cardBatchId: cardModel.batchId,
         cardNumber: cardModel.cardId
     )
-
-    private var isFirstTimeOnAppear: Bool = true
 
     init(
         cardModel: CardViewModel,
@@ -58,12 +59,19 @@ class MultiWalletContentViewModel: ObservableObject {
         self.userTokenListManager = userTokenListManager
         self.output = output
 
+        tokenListIsEmpty = userWalletModel.getSavedEntries().isEmpty
         bind()
+
+        userWalletModel.updateWalletModels()
     }
 
     func onRefresh(silent: Bool = true, done: @escaping () -> Void) {
-        userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
-            self?.userWalletModel.updateAndReloadWalletModels(silent: silent, completion: done)
+        if cardModel.hasTokenSynchronization {
+            userTokenListManager.updateLocalRepositoryFromServer { [weak self] _ in
+                self?.userWalletModel.updateAndReloadWalletModels(silent: silent, completion: done)
+            }
+        } else {
+            userWalletModel.updateAndReloadWalletModels(silent: silent, completion: done)
         }
     }
 
@@ -90,39 +98,44 @@ private extension MultiWalletContentViewModel {
     func bind() {
         let entriesWithoutDerivation = userWalletModel
             .subscribeToEntriesWithoutDerivation()
+            .dropFirst()
             .removeDuplicates()
 
-        let walletModels = userWalletModel.subscribeToWalletModels()
+        let newWalletModels = userWalletModel.subscribeToWalletModels()
             .dropFirst()
-            .receive(on: DispatchQueue.global())
-            .map { wallets -> AnyPublisher<Void, Never> in
-                if wallets.isEmpty {
-                    return .just
-                }
+            .share()
 
-                return wallets.map { $0.walletDidChange }
-                    .combineLatest()
-                    .map { _ in wallets.map { $0.state.isLoading } }
-                    .removeDuplicates() // Update only if isLoading state changed
+        let walletModelsDidChange = newWalletModels
+            .filter { !$0.isEmpty }
+            .map { wallets -> AnyPublisher<Void, Never> in
+                Publishers.MergeMany(wallets.map { $0.walletDidChange })
                     .mapVoid()
                     .eraseToAnyPublisher()
             }
             .switchToLatest()
 
-        Publishers.CombineLatest(entriesWithoutDerivation, walletModels)
-            .receive(on: DispatchQueue.global())
-            .map { [unowned self] _ -> [TokenItemViewModel] in
-                collectTokenItemViewModels()
-            }
-            .receive(on: RunLoop.main)
-            .sink { [unowned self] viewModels in
-                updateView(viewModels: viewModels)
-            }
-            .store(in: &bag)
+        Publishers.Merge3(
+            newWalletModels.mapVoid(),
+            walletModelsDidChange.mapVoid(),
+            entriesWithoutDerivation.mapVoid()
+        )
+        .receive(on: DispatchQueue.global())
+        .map { [unowned self] _ -> [TokenItemViewModel] in
+            collectTokenItemViewModels()
+        }
+        .removeDuplicates()
+        .receive(on: RunLoop.main)
+        .sink { [unowned self] viewModels in
+            updateView(viewModels: viewModels)
+        }
+        .store(in: &bag)
     }
 
     func updateView(viewModels: [TokenItemViewModel]) {
-        tokenListIsEmpty = viewModels.isEmpty
+        if tokenListIsEmpty != viewModels.isEmpty {
+            tokenListIsEmpty = viewModels.isEmpty
+        }
+
         contentState = .loaded(viewModels)
     }
 
