@@ -375,7 +375,7 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
 
     private func logSaveUserWalletStep(agreed: Bool) {
         let state: Analytics.ParameterValue = agreed ? .on : .off
-        Analytics.log(.enableBiometric, params: [.state: state.rawValue])
+        Analytics.log(.onboardingEnableBiometric, params: [.state: state.rawValue])
     }
 }
 
