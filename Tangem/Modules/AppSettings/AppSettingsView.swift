@@ -36,9 +36,7 @@ struct AppSettingsView: View {
                 icon: Assets.attention,
                 title: "app_settings_warning_title".localized,
                 subtitle: "app_settings_warning_subtitle".localized,
-                action: {
-                    viewModel.openSettings()
-                }
+                action: viewModel.openBiometrySettings
             )
         })
     }
