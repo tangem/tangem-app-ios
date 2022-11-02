@@ -17,7 +17,7 @@ class ExchangeViewModel: ObservableObject {
     @Published var items: ExchangeItems
     @Published private var swapData: SwapData?
 
-    let amountType: Amount.AmountType
+    let amount: Amount
     let walletModel: WalletModel
     let card: CardViewModel
     let blockchainNetwork: BlockchainNetwork
@@ -33,23 +33,23 @@ class ExchangeViewModel: ObservableObject {
     }
 
     init(
-        amountType: Amount.AmountType,
+        amount: Amount,
         walletModel: WalletModel,
         cardViewModel: CardViewModel,
         blockchainNetwork: BlockchainNetwork
     ) {
-        self.amountType = amountType
+        self.amount = amount
         self.walletModel = walletModel
         self.card = cardViewModel
         self.blockchainNetwork = blockchainNetwork
 
         let fromItem = ExchangeItem(isMainToken: true,
-                                    amountType: amountType,
+                                    amount: amount,
                                     blockchainNetwork: blockchainNetwork,
                                     exchangeService: exchangeService)
 
         let toItem = ExchangeItem(isMainToken: false,
-                                  amountType: amountType,
+                                  amount: amount,
                                   blockchainNetwork: blockchainNetwork,
                                   exchangeService: exchangeService)
 
@@ -73,11 +73,12 @@ extension ExchangeViewModel {
         Task {
             let swapParameters = SwapParameters(fromTokenAddress: items.sourceItem.tokenAddress,
                                                 toTokenAddress: items.destinationItem.tokenAddress,
-                                                amount: items.sourceItem.amount,
+                                                amount: items.sourceItem.amountText,
                                                 fromAddress: walletModel.wallet.address,
                                                 slippage: 1)
 
-            let swapResult = await exchangeService.swap(blockchain: ExchangeBlockchain.convert(from: blockchainNetwork), parameters: swapParameters)
+            let swapResult = await exchangeService.swap(blockchain: ExchangeBlockchain.convert(from: blockchainNetwork),
+                                                        parameters: swapParameters)
 
             switch swapResult {
             case .success(let swapResponse):
@@ -169,7 +170,7 @@ extension ExchangeViewModel {
     private func bind() {
         items
             .sourceItem
-            .$amount
+            .$amountText
             .debounce(for: 1.0, scheduler: DispatchQueue.main)
             .sink { [weak self] _ in
                 self?.onChangeInputAmount()

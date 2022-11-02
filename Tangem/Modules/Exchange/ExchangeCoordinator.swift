@@ -21,7 +21,7 @@ class ExchangeCoordinator: CoordinatorObject {
     }
 
     func start(with options: ExchangeCoordinator.Options) {
-        exchangeViewModel = ExchangeViewModel(amountType: options.amountType,
+        exchangeViewModel = ExchangeViewModel(amount: options.amount,
                                               walletModel: options.walletModel,
                                               cardViewModel: options.cardViewModel,
                                               blockchainNetwork: options.blockchainNetwork)
@@ -40,7 +40,7 @@ extension ExchangeCoordinator {
     struct Options {
         let cardViewModel: CardViewModel
         let walletModel: WalletModel
-        let amountType: Amount.AmountType
+        let amount: Amount
         let blockchainNetwork: BlockchainNetwork
     }
 }
