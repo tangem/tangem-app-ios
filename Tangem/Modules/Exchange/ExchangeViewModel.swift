@@ -154,7 +154,7 @@ extension ExchangeViewModel {
 
     private func preloadAvailableTokens() {
         tangemApiService
-            .loadCoins(requestModel: .init(networkIds: [blockchainNetwork.blockchain.networkId], isExchangeable: true))
+            .loadCoins(requestModel: .init(networkIds: [blockchainNetwork.blockchain.networkId], exchangeable: true))
             .sink { completion in
                 switch completion {
                 case .finished: break
