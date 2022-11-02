@@ -9,8 +9,7 @@
 import Combine
 import BlockchainSdk
 
-protocol MultiWalletContentViewModelOutput: AnyObject {
-    func openCurrencySelection()
+protocol MultiWalletContentViewModelOutput: OpenCurrencySelectionDelegate {
     func openTokenDetails(_ tokenItem: TokenItemViewModel)
     func openTokensList()
 }
@@ -25,16 +24,20 @@ class MultiWalletContentViewModel: ObservableObject {
         userWalletModel: userWalletModel,
         totalBalanceManager: totalBalanceManager,
         cardAmountType: nil,
-        tapOnCurrencySymbol: output.openCurrencySelection
+        tapOnCurrencySymbol: output
     )
 
     // MARK: Private
 
+    private unowned let output: MultiWalletContentViewModelOutput
+
     private let cardModel: CardViewModel
     private let userWalletModel: UserWalletModel
     private let userTokenListManager: UserTokenListManager
-    private unowned let output: MultiWalletContentViewModelOutput
+
     private var bag = Set<AnyCancellable>()
+    private var isFirstTimeOnAppear: Bool = true
+
     private lazy var totalBalanceManager = TotalBalanceProvider(
         userWalletModel: userWalletModel,
         userWalletAmountType: nil,
@@ -44,8 +47,6 @@ class MultiWalletContentViewModel: ObservableObject {
         cardBatchId: cardModel.batchId,
         cardNumber: cardModel.cardId
     )
-
-    private var isFirstTimeOnAppear: Bool = true
 
     init(
         cardModel: CardViewModel,
