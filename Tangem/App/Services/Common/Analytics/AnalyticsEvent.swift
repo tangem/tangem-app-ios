@@ -110,7 +110,7 @@ extension Analytics {
         case buttonScanNewCard = "[My Wallets] Button - Scan New Card"
         case myWalletsCardWasScanned = "[My Wallets] Card Was Scanned"
         case buttonUnlockAllWithFaceID = "[My Wallets] Button - Unlock all with Face ID"
-        case walletTapped = "[My Wallets] Wallet Tapped"
+        case walletUnlockTapped = "[My Wallets] Wallet Unlock Tapped"
         case buttonEditWalletTapped = "[My Wallets] Button - Edit Wallet Tapped"
         case buttonDeleteWalletTapped = "[My Wallets] Button - Delete Wallet Tapped"
         case buttonChat = "[Settings] Button - Chat"
