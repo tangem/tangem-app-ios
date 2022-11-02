@@ -15,7 +15,7 @@ class ExchangeViewModel: ObservableObject {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     @Published var items: ExchangeItems
-    @Published private var swapInformation: SwapData?
+    @Published private var swapData: SwapData?
 
     let amountType: Amount.AmountType
     let walletModel: WalletModel
@@ -81,7 +81,7 @@ extension ExchangeViewModel {
 
             switch swapResult {
             case .success(let swapResponse):
-                swapInformation = swapResponse
+                swapData = swapResponse
             case .failure(let error):
                 print(error.localizedDescription)
             }
@@ -90,10 +90,10 @@ extension ExchangeViewModel {
 
     /// Sign and send swap transaction
     func onSwap() {
-        guard let swapInformation else { return }
+        guard let swapData else { return }
 
         exchangeInteractor
-            .sendSwapTransaction(swapData: swapInformation)
+            .sendSwapTransaction(swapData: swapData)
             .sink(receiveCompletion: { completion in
                 switch completion {
                 case .failure(let error):
@@ -126,7 +126,8 @@ extension ExchangeViewModel {
                     } receiveValue: { [weak self] _ in
                         guard let self else { return }
                         // [REDACTED_TODO_COMMENT]
-                    }.store(in: &bag)
+                    }
+                    .store(in: &bag)
             } catch {
                 print(error.localizedDescription)
             }

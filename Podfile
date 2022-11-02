@@ -17,7 +17,7 @@ target 'Tangem' do
   
   # Pods for Tangem
   pod 'AnyCodable-FlightSchool'
-  pod 'ExchangeSdk', :git => 'https://github.com/tangem/exchange-sdk-swift', :branch => 'develop'
+  pod 'ExchangeSdk', :git => 'https://github.com/tangem/exchange-sdk-swift', :tag => '1.0.2'
 #  pod 'ExchangeSdk', :git => '../exchange-sdk-swift'
   
   pod 'BinanceChain', :git => 'https://github.com/tangem/swiftbinancechain.git', :tag => '0.0.9'
