@@ -56,15 +56,14 @@ struct MultiWalletContentView: View {
                 .padding()
 
         case let .loaded(viewModels):
-            VStack(alignment: .leading, spacing: 6) {
-                ForEach(viewModels, id: \.id) { item in
+            LazyVStackCompat(alignment: .leading, spacing: 6) {
+                ForEach(viewModels) { item in
                     VStack {
                         Button(action: { viewModel.tokenItemDidTap(item) }) {
                             TokenItemView(item: item)
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 15)
                                 .contentShape(Rectangle())
-                                .id(item)
                         }
                         .buttonStyle(TangemTokenButtonStyle())
                         .disabled(item.state == .noDerivation)

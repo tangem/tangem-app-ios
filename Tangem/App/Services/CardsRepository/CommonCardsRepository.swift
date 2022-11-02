@@ -30,8 +30,6 @@ class CommonCardsRepository: CardsRepository {
 
     weak var delegate: CardsRepositoryDelegate? = nil
 
-    private(set) var cards = [String: CardViewModel]()
-
     private var bag: Set<AnyCancellable> = .init()
 
     deinit {
@@ -105,7 +103,6 @@ class CommonCardsRepository: CardsRepository {
         }
 
         cm.didScan()
-        cards[cardInfo.card.cardId] = cm
         return cm
     }
 }

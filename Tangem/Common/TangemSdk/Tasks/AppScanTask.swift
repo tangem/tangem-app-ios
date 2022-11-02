@@ -8,9 +8,7 @@
 
 import Foundation
 import TangemSdk
-#if !CLIP
 import BlockchainSdk
-#endif
 
 enum DefaultWalletData {
     case note(WalletData)
@@ -52,15 +50,10 @@ final class AppScanTask: CardSessionRunnable {
     private var walletData: DefaultWalletData = .none
     private var primaryCard: PrimaryCard? = nil
     private var linkingCommand: StartPrimaryCardLinkingTask? = nil
-    #if !CLIP
+
     init(targetBatch: String? = nil) {
         self.targetBatch = targetBatch
     }
-    #else
-    init(targetBatch: String? = nil) {
-        self.targetBatch = targetBatch
-    }
-    #endif
 
     deinit {
         print("AppScanTask deinit")
@@ -111,10 +104,6 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func readPrimaryIfNeeded(_ card: Card, _ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        #if CLIP
-        deriveKeysIfNeeded(session, completion)
-        return
-        #else
         let isSaltPayCard = SaltPayUtil().isPrimaryCard(batchId: card.batchId)
         let isWalletInOnboarding = AppSettings.shared.cardsStartedActivation.contains(card.cardId)
 
@@ -126,7 +115,6 @@ final class AppScanTask: CardSessionRunnable {
             deriveKeysIfNeeded(session, completion)
             return
         }
-        #endif
     }
 
     private func readFile(_ card: Card, session: CardSession, completion: @escaping CompletionResult<AppScanTaskResponse>) {
@@ -216,8 +204,8 @@ final class AppScanTask: CardSessionRunnable {
         let card = session.environment.card!
 
         let existingCurves: Set<EllipticCurve> = .init(card.wallets.map({ $0.curve }))
-        let mandatoryСurves: Set<EllipticCurve> = [.secp256k1, .ed25519]
-        let missingCurves = mandatoryСurves.subtracting(existingCurves)
+        let mandatoryCurves: Set<EllipticCurve> = [.secp256k1, .ed25519]
+        let missingCurves = mandatoryCurves.subtracting(existingCurves)
         let hasBackup = card.backupStatus?.isActive ?? false
 
         guard card.settings.maxWalletsCount > 1,
@@ -255,10 +243,6 @@ final class AppScanTask: CardSessionRunnable {
     }
 
     private func deriveKeysIfNeeded(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
-        #if CLIP
-        self.runScanTask(session, completion)
-        return
-        #else
         guard let card = session.environment.card else {
             completion(.failure(.missingPreflightRead))
             return
@@ -270,21 +254,24 @@ final class AppScanTask: CardSessionRunnable {
         }
 
         migrate(card: card)
-        let tokenItemsRepository = CommonTokenItemsRepository(key: card.userWalletId.hexString)
-
-        // Force add blockchains for demo cards
         let config = GenericConfig(card: card)
-        if let persistentBlockchains = config.persistentBlockchains {
-            tokenItemsRepository.append(persistentBlockchains)
-        }
-
-        let savedItems = tokenItemsRepository.getItems()
-
         var derivations: [EllipticCurve: [DerivationPath]] = [:]
-        savedItems.forEach { item in
-            if let wallet = card.wallets.first(where: { $0.curve == item.blockchainNetwork.blockchain.curve }),
-               let path = item.blockchainNetwork.derivationPath {
-                derivations[wallet.curve, default: []].append(path)
+
+        if let seed = config.userWalletIdSeed {
+            let tokenItemsRepository = CommonTokenItemsRepository(key: UserWalletId(with: seed).stringValue)
+
+            // Force add blockchains for demo cards
+            if let persistentBlockchains = config.persistentBlockchains {
+                tokenItemsRepository.append(persistentBlockchains)
+            }
+
+            let savedItems = tokenItemsRepository.getItems()
+
+            savedItems.forEach { item in
+                if let wallet = card.wallets.first(where: { $0.curve == item.blockchainNetwork.blockchain.curve }),
+                   let path = item.blockchainNetwork.derivationPath {
+                    derivations[wallet.curve, default: []].append(path)
+                }
             }
         }
 
@@ -297,7 +284,6 @@ final class AppScanTask: CardSessionRunnable {
         sdkConfig.defaultDerivationPaths = derivations
         session.updateConfig(with: sdkConfig)
         self.runScanTask(session, completion)
-        #endif
     }
 
     private func runScanTask(_ session: CardSession, _ completion: @escaping CompletionResult<AppScanTaskResponse>) {
@@ -318,26 +304,25 @@ final class AppScanTask: CardSessionRunnable {
             return
         }
 
-        #if !CLIP
         migrate(card: card)
-        #endif
 
         completion(.success(AppScanTaskResponse(card: card,
                                                 walletData: walletData,
                                                 primaryCard: primaryCard)))
     }
 
-    #if !CLIP
     private func migrate(card: Card) {
-        let config = UserWalletConfigFactory(CardInfo(card: card, walletData: walletData)).makeConfig()
+        let cardInfo = CardInfo(card: card, walletData: walletData)
+        let config = UserWalletConfigFactory(cardInfo).makeConfig()
         if let legacyCardMigrator = LegacyCardMigrator(cardId: card.cardId, config: config) {
             legacyCardMigrator.migrateIfNeeded()
         }
 
-        if card.hasWallets {
-            let tokenMigrator = TokenItemsRepositoryMigrator(card: card)
+        if card.hasWallets,
+           let seed = config.userWalletIdSeed {
+            let userWalletId = UserWalletId(with: seed)
+            let tokenMigrator = TokenItemsRepositoryMigrator(card: card, userWalletId: userWalletId.value)
             tokenMigrator.migrate()
         }
     }
-    #endif
 }

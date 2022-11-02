@@ -47,6 +47,8 @@ protocol UserWalletConfig {
 
     var cardAmountType: Amount.AmountType { get }
 
+    var userWalletIdSeed: Data? { get }
+
     var supportChatEnvironment: SupportChatEnvironment { get }
 
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability
