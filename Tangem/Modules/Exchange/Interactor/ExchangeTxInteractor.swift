@@ -13,6 +13,8 @@ import ExchangeSdk
 import BigInt
 
 class ExchangeTxInteractor {
+    @Injected(\.exchangeOneInchService) private var exchangeService: ExchangeServiceProtocol
+
     let walletModel: WalletModel
     let card: CardViewModel
 
@@ -52,12 +54,7 @@ class ExchangeTxInteractor {
 
         return getFeePublisher
             .tryMap { [unowned self] fees -> Transaction in
-                let fee: Amount
-                if fees.count == 3 {
-                    fee = fees[1]
-                } else {
-                    throw ExchangeError.failedToLoadFee
-                }
+                let fee: Amount = fees[1]
 
                 let decimalGasPrice = Decimal(string: approveData.gasPrice) ?? 0
 
@@ -65,22 +62,58 @@ class ExchangeTxInteractor {
                 let gasAmount = Amount(with: blockchain,
                                        type: .coin,
                                        value: gasValue)
-                do {
-                    var tx = try self.walletModel.walletManager.createTransaction(amount: amount,
-                                                                                  fee: gasAmount,
-                                                                                  destinationAddress: approveData.to)
-                    let txData = Data(hexString: approveData.data)
-                    tx.params = EthereumTransactionParams(data: txData)
 
-                    return tx
-                } catch {
-                    throw ExchangeError.failedToBuildTx
-                }
+                var tx = try self.walletModel.walletManager.createTransaction(amount: amount,
+                                                                              fee: gasAmount,
+                                                                              destinationAddress: approveData.to)
+                let txData = Data(hexString: approveData.data)
+                tx.params = EthereumTransactionParams(data: txData)
+
+                return tx
             }
             .flatMap { [unowned self] tx in
                 self.walletModel.send(tx, signer: self.card.signer)
                     .eraseToAnyPublisher()
             }.eraseToAnyPublisher()
+    }
+
+    func fetchApprove(for item: ExchangeItem) {
+        guard !item.isMainToken else { return }
+
+        Task {
+            let contractAddress: String = item.tokenAddress
+            let parameters = ApproveAllowanceParameters(tokenAddress: contractAddress, walletAddress: walletModel.wallet.address)
+
+            let allowanceResult = await exchangeService.allowance(blockchain: ExchangeBlockchain.convert(from: walletModel.blockchainNetwork),
+                                                                  allowanceParameters: parameters)
+
+            switch allowanceResult {
+            case .success(let allowanceInfo):
+                item.allowance = Decimal(string: allowanceInfo.allowance) ?? 0
+
+                await MainActor.run {
+                    item.isLocked = item.allowance == 0
+                }
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
+    }
+
+    func approveTxData(for item: ExchangeItem) async throws -> ApprovedTransactionData {
+        return try await withCheckedThrowingContinuation({ continuation in
+            Task {
+                let parameters = ApproveTransactionParameters(tokenAddress: item.tokenAddress, amount: .infinite)
+                let txResponse = await exchangeService.approveTransaction(blockchain: ExchangeBlockchain.convert(from: walletModel.blockchainNetwork), approveTransactionParameters: parameters)
+
+                switch txResponse {
+                case .success(let approveTxData):
+                    continuation.resume(returning: approveTxData)
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        })
     }
 }
 
