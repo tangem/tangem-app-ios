@@ -245,16 +245,17 @@ class TwinsOnboardingViewModel: OnboardingTopupViewModel<TwinsOnboardingStep, On
             alert = AlertBuilder.makeOkGotItAlert(message: "onboarding_twin_exit_warning".localized)
         default:
             alert = AlertBuilder.makeExitAlert() { [weak self] in
-                self?.back()
-            }
-        }
-    }
+                guard let self else { return }
 
-    private func back() {
-        if isFromMain {
-            onboardingDidFinish()
-        } else {
-            closeOnboarding()
+                // This part is related only to the twin cards, because for other card types
+                // reset to factory settings goes not through onboarding screens. If back button
+                // appearance logic will change in future - recheck also this code and update it accordingly
+                if self.currentStep.isOnboardingFinished {
+                    self.onboardingDidFinish()
+                } else {
+                    self.closeOnboarding()
+                }
+            }
         }
     }
 
