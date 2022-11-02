@@ -166,11 +166,7 @@ extension GenericDemoConfig: UserWalletConfig {
 
             return .disabled()
         case .passcode:
-            if card.settings.isSettingPasscodeAllowed {
-                return .available
-            }
-
-            return .disabled()
+            return .hidden
         case .longTap:
             return .hidden
         case .send:
