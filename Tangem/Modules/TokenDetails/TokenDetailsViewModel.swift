@@ -306,6 +306,9 @@ class TokenDetailsViewModel: ObservableObject {
             return
         }
 
+        let currencySymbol = amountType.token?.symbol ?? blockchainNetwork.blockchain.currencySymbol
+        Analytics.log(.buttonRemoveToken, params: [Analytics.ParameterKey.token: currencySymbol])
+
         let item = CommonUserWalletModel.RemoveItem(amount: amountType, blockchainNetwork: walletModel.blockchainNetwork)
         card.userWalletModel?.remove(item: item)
         dismiss()
@@ -333,7 +336,6 @@ class TokenDetailsViewModel: ObservableObject {
             title: title,
             message: "token_details_hide_alert_message".localized,
             primaryButton: .destructive(Text("token_details_hide_alert_hide")) { [weak self] in
-                Analytics.log(.buttonRemoveToken)
                 self?.deleteToken()
             }
         )
