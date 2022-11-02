@@ -289,11 +289,15 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
     }
 
     func skipSaveUserWallet() {
+        logSaveUserWalletStep(agreed: false)
+
         didAskToSaveUserWallets()
         goToNextStep()
     }
 
     func saveUserWallet() {
+        logSaveUserWalletStep(agreed: true)
+
         didAskToSaveUserWallets()
 
         userWalletListService.unlockWithBiometry { [weak self] result in
@@ -367,6 +371,11 @@ class OnboardingViewModel<Step: OnboardingStep, Coordinator: OnboardingRoutable>
                 }
             }
             .store(in: &bag)
+    }
+
+    private func logSaveUserWalletStep(agreed: Bool) {
+        let state: Analytics.ParameterValue = agreed ? .on : .off
+        Analytics.log(.enableBiometric, params: [.state: state.rawValue])
     }
 }
 
