@@ -50,6 +50,8 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
         coordinator: UserWalletListRoutable
     ) {
         self.coordinator = coordinator
+
+        Analytics.log(.myWalletsScreenOpened)
         selectedUserWalletId = userWalletListService.selectedUserWalletId
         updateModels()
     }
@@ -78,6 +80,8 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     }
 
     func unlockAllWallets() {
+        Analytics.log(.buttonUnlockAllWithFaceID)
+
         userWalletListService.unlockWithBiometry { [weak self] result in
             guard case .success = result else { return }
             self?.updateModels()
@@ -85,6 +89,8 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     }
 
     func addUserWallet() {
+        Analytics.log(.buttonScanNewCard)
+
         scanCardInternal { [weak self] cardModel in
             self?.processScannedCard(cardModel)
         }
@@ -107,6 +113,8 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     }
 
     func editUserWallet(_ viewModel: UserWalletListCellViewModel) {
+        Analytics.log(.buttonEditWalletTapped)
+
         let alert = UIAlertController(title: "user_wallet_list_rename_popup_title".localized, message: nil, preferredStyle: .alert)
         let cancelAction = UIAlertAction(title: "common_cancel".localized, style: .cancel) { _ in }
         alert.addAction(cancelAction)
@@ -137,6 +145,8 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     }
 
     func showDeletionConfirmation(_ viewModel: UserWalletListCellViewModel) {
+        Analytics.log(.buttonDeleteWalletTapped)
+
         showingDeleteConfirmation = true
         userWalletIdToBeDeleted = viewModel.userWalletId
     }
@@ -222,6 +232,8 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
     }
 
     private func processScannedCard(_ cardModel: CardViewModel) {
+        Analytics.log(.myWalletsCardWasScanned)
+
         guard let userWallet = cardModel.userWallet else { return }
 
         if !userWalletListService.contains(userWallet) {
@@ -264,6 +276,8 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
             completion(userWallet)
             return
         }
+
+        Analytics.log(.walletUnlockTapped)
 
         scanCardInternal { [weak self] cardModel in
             guard let userWallet = cardModel.userWallet else { return }
