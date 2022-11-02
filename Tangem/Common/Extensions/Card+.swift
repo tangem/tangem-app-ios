@@ -7,11 +7,8 @@
 //
 
 import TangemSdk
-
-#if !CLIP
 import BlockchainSdk
 import CryptoKit
-#endif
 
 extension Card {
     var walletSignedHashes: Int {
@@ -22,22 +19,8 @@ extension Card {
         wallets.compactMap { $0.curve }
     }
 
-    #if !CLIP
     var hasWallets: Bool {
         !wallets.isEmpty
-    }
-
-    var userWalletId: Data {
-        if !hasWallets {
-            assertionFailure("Wallet not found, use CardViewModel for create wallet")
-        }
-
-        let keyHash = (wallets.first?.publicKey ?? cardPublicKey).sha256()
-        let key = SymmetricKey(data: keyHash)
-        let message = Constants.messageForWalletID.data(using: .utf8)!
-        let authenticationCode = HMAC<SHA256>.authenticationCode(for: message, using: key)
-
-        return Data(authenticationCode)
     }
 
     var derivationStyle: DerivationStyle? {
@@ -61,6 +44,4 @@ extension Card {
 
         return .new
     }
-
-    #endif
 }

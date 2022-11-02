@@ -10,6 +10,7 @@ import Foundation
 import TangemSdk
 import Combine
 import BlockchainSdk
+import SwiftUI
 
 class WarningsService {
     @Injected(\.rateAppService) var rateAppChecker: RateAppService
@@ -18,6 +19,7 @@ class WarningsService {
 
     private var mainWarnings: WarningsContainer = .init()
     private var sendWarnings: WarningsContainer = .init()
+    private var bag: Set<AnyCancellable> = []
 
     init() {}
 
@@ -27,6 +29,54 @@ class WarningsService {
 }
 
 extension WarningsService: AppWarningsProviding {
+    func setupWarnings(
+        for config: UserWalletConfig,
+        card: Card,
+        validator: SignatureCountValidator?
+    ) {
+        setupWarnings(for: config)
+
+        // The testnet card shouldn't count hashes
+        if !AppEnvironment.current.isTestnet {
+            validateHashesCount(config: config, card: card, validator: validator)
+        }
+    }
+
+    func warnings(for location: WarningsLocation) -> WarningsContainer {
+        switch location {
+        case .main:
+            return mainWarnings
+        case .send:
+            return sendWarnings
+        case .manageTokens:
+            fatalError("not implemented")
+        }
+    }
+
+    func appendWarning(for event: WarningEvent) {
+        let warning = event.warning
+        if event.locationsToDisplay.contains(.main) {
+            mainWarnings.add(warning)
+        }
+        if event.locationsToDisplay.contains(.send) {
+            sendWarnings.add(warning)
+        }
+
+        warningsUpdatePublisher.send(())
+    }
+
+    func hideWarning(_ warning: AppWarning) {
+        mainWarnings.remove(warning)
+        sendWarnings.remove(warning)
+    }
+
+    func hideWarning(for event: WarningEvent) {
+        mainWarnings.removeWarning(for: event)
+        sendWarnings.removeWarning(for: event)
+    }
+}
+
+private extension WarningsService {
     func setupWarnings(for config: UserWalletConfig) {
         let main = WarningsContainer()
         let send = WarningsContainer()
@@ -51,34 +101,70 @@ extension WarningsService: AppWarningsProviding {
         warningsUpdatePublisher.send(())
     }
 
-    func warnings(for location: WarningsLocation) -> WarningsContainer {
-        switch location {
-        case .main:
-            return mainWarnings
-        case .send:
-            return sendWarnings
-        case .manageTokens:
-            fatalError("not implemented")
+    func validateHashesCount(
+        config: UserWalletConfig,
+        card: Card,
+        validator: SignatureCountValidator?
+    ) {
+        let cardId = card.cardId
+        let cardSignedHashes = card.walletSignedHashes
+        let isMultiWallet = config.hasFeature(.multiCurrency)
+        let canCountHashes = config.hasFeature(.signedHashesCounter)
+
+        func didFinishCountingHashes() {
+            print("⚠️ Hashes counted")
         }
+
+        guard !AppSettings.shared.validatedSignedHashesCards.contains(cardId) else {
+            didFinishCountingHashes()
+            return
+        }
+
+        guard cardSignedHashes > 0 else {
+            AppSettings.shared.validatedSignedHashesCards.append(cardId)
+            didFinishCountingHashes()
+            return
+        }
+
+        guard !isMultiWallet else {
+            showAlertAnimated(.multiWalletSignedHashes)
+            didFinishCountingHashes()
+            return
+        }
+
+        guard canCountHashes else {
+            AppSettings.shared.validatedSignedHashesCards.append(cardId)
+            didFinishCountingHashes()
+            return
+        }
+
+        guard let validator = validator else {
+            showAlertAnimated(.numberOfSignedHashesIncorrect)
+            didFinishCountingHashes()
+            return
+        }
+
+        validator.validateSignatureCount(signedHashes: cardSignedHashes)
+            .subscribe(on: DispatchQueue.global())
+            .receive(on: RunLoop.main)
+            .handleEvents(receiveCancel: {
+                print("⚠️ Hash counter subscription cancelled")
+            })
+            .receiveCompletion { [weak self] completion in
+                switch completion {
+                case .finished:
+                    break
+                case .failure:
+                    self?.showAlertAnimated(.numberOfSignedHashesIncorrect)
+                }
+                didFinishCountingHashes()
+            }
+            .store(in: &bag)
     }
 
-    func appendWarning(for event: WarningEvent) {
-        let warning = event.warning
-        if event.locationsToDisplay.contains(.main) {
-            mainWarnings.add(warning)
+    func showAlertAnimated(_ event: WarningEvent) {
+        withAnimation {
+            appendWarning(for: event)
         }
-        if event.locationsToDisplay.contains(.send) {
-            sendWarnings.add(warning)
-        }
-    }
-
-    func hideWarning(_ warning: AppWarning) {
-        mainWarnings.remove(warning)
-        sendWarnings.remove(warning)
-    }
-
-    func hideWarning(for event: WarningEvent) {
-        mainWarnings.removeWarning(for: event)
-        sendWarnings.removeWarning(for: event)
     }
 }

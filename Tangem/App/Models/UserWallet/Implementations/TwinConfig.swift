@@ -54,8 +54,8 @@ extension TwinConfig: UserWalletConfig {
 
         if !AppSettings.shared.isTwinCardOnboardingWasDisplayed { // show intro only once
             AppSettings.shared.isTwinCardOnboardingWasDisplayed = true
-            let twinPairCid = AppTwinCardIdFormatter.format(cid: "", cardNumber: twinData.series.pair.number)
-            steps.append(.intro(pairNumber: "\(twinPairCid)"))
+            let twinPairNumber = twinData.series.pair.number
+            steps.append(.intro(pairNumber: "\(twinPairNumber)"))
         }
 
         if card.wallets.isEmpty { // twin without created wallet. Start onboarding
@@ -117,6 +117,10 @@ extension TwinConfig: UserWalletConfig {
         CardEmailDataFactory().makeEmailData(for: card, walletData: walletData)
     }
 
+    var userWalletIdSeed: Data? {
+        TwinCardsUtils.makeCombinedWalletKey(for: card, pairData: twinData)
+    }
+
     func getFeatureAvailability(_ feature: UserWalletFeature) -> UserWalletFeature.Availability {
         switch feature {
         case .accessCode:
@@ -156,11 +160,13 @@ extension TwinConfig: UserWalletConfig {
         case .hdWallets:
             return .hidden
         case .onlineImage:
-            return card.firmwareVersion.type == .release ? .available : .hidden
+            return .available
         case .staking:
             return .available
         case .topup:
             return .available
+        case .tokenSynchronization:
+            return .hidden
         }
     }
 
