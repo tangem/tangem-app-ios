@@ -15,7 +15,7 @@ class ExchangeItem: Identifiable {
     let id: UUID = UUID()
 
     @Published var isLocked: Bool = false
-    @Published var amount: String = ""
+    @Published var amountText: String = ""
 
     var allowance: Decimal = 0
 
@@ -23,22 +23,22 @@ class ExchangeItem: Identifiable {
     private let exchangeService: ExchangeServiceProtocol
     private let coinContractAddress: String = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
 
-    private var amountType: Amount.AmountType
+    private var amount: Amount
     private var blockchainNetwork: BlockchainNetwork
     private var bag = Set<AnyCancellable>()
 
     var tokenAddress: String {
-        amountType.token?.contractAddress ?? coinContractAddress
+        amount.type.token?.contractAddress ?? coinContractAddress
     }
 
     init(
         isMainToken: Bool,
-        amountType: Amount.AmountType,
+        amount: Amount,
         blockchainNetwork: BlockchainNetwork,
         exchangeService: ExchangeServiceProtocol
     ) {
         self.isMainToken = isMainToken
-        self.amountType = amountType
+        self.amount = amount
         self.blockchainNetwork = blockchainNetwork
         self.exchangeService = exchangeService
 
@@ -46,23 +46,17 @@ class ExchangeItem: Identifiable {
     }
 
     func bind() {
-        $amount
+        $amountText
             .sink { [unowned self] value in
-                let filtered = value
-                    .replacingOccurrences(of: ",", with: ".")
-                    .filter { "0123456789.".contains($0) }
-                    .reduce("") { partialResult, character in
-                        var newPartialResult = partialResult
-                        if newPartialResult.isEmpty && "\(character)" == "." {
-                            newPartialResult = "0."
-                        } else {
-                            newPartialResult += String(character)
-                        }
-                        return newPartialResult
-                    }
+                let decimals = Decimal(string: value.replacingOccurrences(of: ",", with: ".")) ?? 0
+                let newAmount = Amount(with: amount, value: decimals).value
+                let formatter = NumberFormatter()
+                formatter.numberStyle = .none
 
-                if filtered != value {
-                    self.amount = filtered
+                let newValue = formatter.string(for: newAmount) ?? ""
+
+                if newValue != value {
+                    self.amountText = newValue
                 }
             }
             .store(in: &bag)
@@ -72,7 +66,7 @@ class ExchangeItem: Identifiable {
         guard !isMainToken else { return }
 
         Task {
-            let contractAddress: String = amountType.isToken ? amountType.token!.contractAddress : coinContractAddress
+            let contractAddress: String = amount.type.isToken ? amount.type.token!.contractAddress : coinContractAddress
             let parameters = ApproveAllowanceParameters(tokenAddress: contractAddress, walletAddress: walletAddress)
 
             let allowanceResult = await exchangeService.allowance(blockchain: ExchangeBlockchain.convert(from: blockchainNetwork),
