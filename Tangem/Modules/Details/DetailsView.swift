@@ -81,6 +81,10 @@ struct DetailsView: View {
                     viewModel.openMail()
                 }
             }
+
+            DefaultRowView(title: "details_referral".localized) {
+                viewModel.openReferralProgram()
+            }
         }
     }
 
@@ -167,7 +171,7 @@ struct DetailsView: View {
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationView {
-            DetailsView(viewModel: DetailsViewModel(cardModel: PreviewCard.cardanoNote.cardModel,
+            DetailsView(viewModel: DetailsViewModel(cardModel: PreviewCard.ethereum.cardModel,
                                                     coordinator: DetailsCoordinator()))
         }
         .navigationViewStyle(StackNavigationViewStyle())
