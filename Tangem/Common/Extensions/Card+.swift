@@ -31,6 +31,14 @@ extension Card {
         .init(cardId: cardId, cardPublicKey: cardPublicKey)
     }
 
+    var isDevelopmentCard: Bool {
+        if batchId == "99FF" { // [REDACTED_TODO_COMMENT]
+            return cardId.starts(with: batchId.reversed())
+        }
+
+        return false
+    }
+
     static func getDerivationStyle(for batchId: String, isHdWalletAllowed: Bool) -> DerivationStyle? {
         guard isHdWalletAllowed else {
             return nil
