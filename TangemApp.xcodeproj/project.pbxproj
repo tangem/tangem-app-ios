@@ -213,7 +213,7 @@
 		B04CD34029122C6E001EA84A /* ReferralCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04CD33F29122C6E001EA84A /* ReferralCoordinator.swift */; };
 		B04CD34229122C7D001EA84A /* ReferralRoutable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04CD34129122C7D001EA84A /* ReferralRoutable.swift */; };
 		B04CD34429122C8D001EA84A /* ReferralCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04CD34329122C8D001EA84A /* ReferralCoordinatorView.swift */; };
-		B04CD3482912AA61001EA84A /* ReferralLoaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04CD3472912AA61001EA84A /* ReferralLoaderView.swift */; };
+		B04CD3482912AA61001EA84A /* ReferralPlaceholderPointView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04CD3472912AA61001EA84A /* ReferralPlaceholderPointView.swift */; };
 		B04FBC3A26CB98F000B397CE /* View+SizeReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B04FBC3926CB98F000B397CE /* View+SizeReader.swift */; };
 		B051A1B0262192A300809FD2 /* WalletConnectModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B051A1AF262192A300809FD2 /* WalletConnectModels.swift */; };
 		B051A1B826219D0700809FD2 /* NavigationBusyButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B051A1B726219D0700809FD2 /* NavigationBusyButton.swift */; };
@@ -864,7 +864,7 @@
 		B04CD33F29122C6E001EA84A /* ReferralCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralCoordinator.swift; sourceTree = "<group>"; };
 		B04CD34129122C7D001EA84A /* ReferralRoutable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralRoutable.swift; sourceTree = "<group>"; };
 		B04CD34329122C8D001EA84A /* ReferralCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralCoordinatorView.swift; sourceTree = "<group>"; };
-		B04CD3472912AA61001EA84A /* ReferralLoaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralLoaderView.swift; sourceTree = "<group>"; };
+		B04CD3472912AA61001EA84A /* ReferralPlaceholderPointView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralPlaceholderPointView.swift; sourceTree = "<group>"; };
 		B04FBC3926CB98F000B397CE /* View+SizeReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+SizeReader.swift"; sourceTree = "<group>"; };
 		B051A1AF262192A300809FD2 /* WalletConnectModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectModels.swift; sourceTree = "<group>"; };
 		B051A1B726219D0700809FD2 /* NavigationBusyButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationBusyButton.swift; sourceTree = "<group>"; };
@@ -1897,7 +1897,7 @@
 		B04CD3462912AA47001EA84A /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				B04CD3472912AA61001EA84A /* ReferralLoaderView.swift */,
+				B04CD3472912AA61001EA84A /* ReferralPlaceholderPointView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -3644,7 +3644,7 @@
 				B0CC818325CD63FB006D49B9 /* Token+.swift in Sources */,
 				DC22535B28A4FDE90094F30C /* WarningEventsFactory.swift in Sources */,
 				65B4DEE22885719C001524CF /* BottomSheetWrappedView.swift in Sources */,
-				B04CD3482912AA61001EA84A /* ReferralLoaderView.swift in Sources */,
+				B04CD3482912AA61001EA84A /* ReferralPlaceholderPointView.swift in Sources */,
 				DA23788427B24222009795A8 /* Checkout.swift in Sources */,
 				DC56EF81289CE06A00C0940A /* DummyConfig.swift in Sources */,
 				DC5E32CD28EDD94300D6096A /* Responses.swift in Sources */,
