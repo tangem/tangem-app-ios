@@ -100,6 +100,12 @@ class WalletConnectService: ObservableObject {
         print("WalletConnectService deinit")
     }
 
+    func terminateSessions() {
+        for i in 0 ..< sessions.count {
+            disconnectSession(at: i)
+        }
+    }
+
     private func restore() {
         updateQueue.async { [weak self] in
             guard let self = self else { return }
