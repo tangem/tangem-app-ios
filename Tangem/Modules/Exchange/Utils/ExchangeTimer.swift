@@ -35,7 +35,7 @@ class ExchangeTimer {
             })
             .eraseToAnyPublisher()
     }
-    
+
     func cancel() {
         timer.upstream.connect().cancel()
     }

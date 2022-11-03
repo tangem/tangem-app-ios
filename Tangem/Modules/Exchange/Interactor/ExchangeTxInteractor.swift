@@ -116,10 +116,3 @@ class ExchangeTxInteractor {
         })
     }
 }
-
-extension ExchangeTxInteractor {
-    enum ExchangeError: Error {
-        case failedToBuildTx
-        case failedToLoadFee
-    }
-}
