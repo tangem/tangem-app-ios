@@ -37,7 +37,8 @@ struct RefreshableScrollView<Content: View>: View {
     private var refreshableScrollView: some View {
         ScrollView(.vertical) {
             self.content
-        }.refreshable {
+        }
+        .refreshable {
             await withCheckedContinuation { continuation in
                 onRefresh {
                     continuation.resume()
