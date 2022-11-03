@@ -486,6 +486,16 @@
 		DCF8972D28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCF8972C28ACF8CA002A85F6 /* TangemSdkConfigFactory.swift */; };
 		DCFCA17528F4232F0037586C /* Array+.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCFCA17428F4232F0037586C /* Array+.swift */; };
 		E90FAB5A28EE418000C6DCBE /* TotalBalanceAnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E90FAB5928EE418000C6DCBE /* TotalBalanceAnalyticsService.swift */; };
+		E94667C32901F60A0043AD0A /* ExchangeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94667C22901F60A0043AD0A /* ExchangeViewModel.swift */; };
+		E94667C52901F8690043AD0A /* ExchangeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94667C42901F8690043AD0A /* ExchangeCoordinator.swift */; };
+		E94667C72901FA9A0043AD0A /* ExchangeCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94667C62901FA9A0043AD0A /* ExchangeCoordinatorView.swift */; };
+		E94667C92901FADB0043AD0A /* ExchangeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94667C82901FADB0043AD0A /* ExchangeView.swift */; };
+		E94667CC2902BC260043AD0A /* ExchangeItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94667CB2902BC260043AD0A /* ExchangeItem.swift */; };
+		E94D87F82909762F00F82926 /* ExchangeTxInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94D87F72909762F00F82926 /* ExchangeTxInteractor.swift */; };
+		E9C362B729132359001302E5 /* ExchangeOneInchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C362B629132359001302E5 /* ExchangeOneInchService.swift */; };
+		E9E416722902D6E00028F40E /* Exchange+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E416712902D6E00028F40E /* Exchange+Utils.swift */; };
+		E9E4167429033F300028F40E /* ExchangeItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E4167329033F300028F40E /* ExchangeItems.swift */; };
+		E9E416762904B8A80028F40E /* ExchangeTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E416752904B8A80028F40E /* ExchangeTimer.swift */; };
 		EF07F3AD289D43580065549C /* List+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF07F3AC289D43580065549C /* List+.swift */; };
 		EF08A0EF283D1914008BD923 /* Moya+.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0EE283D1914008BD923 /* Moya+.swift */; };
 		EF08A0F1283D2382008BD923 /* CoinsListRequestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF08A0F0283D2382008BD923 /* CoinsListRequestModel.swift */; };
@@ -1134,6 +1144,16 @@
 		DFEC35A94293DE7EB96CEBC1 /* Pods-Tangem.debug(production).xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem.debug(production).xcconfig"; path = "Target Support Files/Pods-Tangem/Pods-Tangem.debug(production).xcconfig"; sourceTree = "<group>"; };
 		E53081CA3060D2785F9D22F0 /* Pods-Tangem-TangemUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Tangem-TangemUITests.release.xcconfig"; path = "Target Support Files/Pods-Tangem-TangemUITests/Pods-Tangem-TangemUITests.release.xcconfig"; sourceTree = "<group>"; };
 		E90FAB5928EE418000C6DCBE /* TotalBalanceAnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalBalanceAnalyticsService.swift; sourceTree = "<group>"; };
+		E94667C22901F60A0043AD0A /* ExchangeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeViewModel.swift; sourceTree = "<group>"; };
+		E94667C42901F8690043AD0A /* ExchangeCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeCoordinator.swift; sourceTree = "<group>"; };
+		E94667C62901FA9A0043AD0A /* ExchangeCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeCoordinatorView.swift; sourceTree = "<group>"; };
+		E94667C82901FADB0043AD0A /* ExchangeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeView.swift; sourceTree = "<group>"; };
+		E94667CB2902BC260043AD0A /* ExchangeItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeItem.swift; sourceTree = "<group>"; };
+		E94D87F72909762F00F82926 /* ExchangeTxInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeTxInteractor.swift; sourceTree = "<group>"; };
+		E9C362B629132359001302E5 /* ExchangeOneInchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeOneInchService.swift; sourceTree = "<group>"; };
+		E9E416712902D6E00028F40E /* Exchange+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Exchange+Utils.swift"; sourceTree = "<group>"; };
+		E9E4167329033F300028F40E /* ExchangeItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeItems.swift; sourceTree = "<group>"; };
+		E9E416752904B8A80028F40E /* ExchangeTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeTimer.swift; sourceTree = "<group>"; };
 		EF07F3AC289D43580065549C /* List+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "List+.swift"; sourceTree = "<group>"; };
 		EF08A0EE283D1914008BD923 /* Moya+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Moya+.swift"; sourceTree = "<group>"; };
 		EF08A0F0283D2382008BD923 /* CoinsListRequestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinsListRequestModel.swift; sourceTree = "<group>"; };
@@ -2366,6 +2386,7 @@
 		DC0A57DA2822A4DC0031BECC /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				E9C362B52913232B001302E5 /* ExchangeOneInchService */,
 				EF5903A02909283A00C527C9 /* EnvironmentProvider */,
 				DC194D2428EC6A4B007FBC99 /* SaltPay */,
 				EF5A5ACC28D86089002544AC /* TotalBalanceProvider */,
@@ -2702,6 +2723,7 @@
 			isa = PBXGroup;
 			children = (
 				EF59039229091CCE00C527C9 /* EnvironmentSetup */,
+				E94667C12901F5C90043AD0A /* Exchange */,
 				DC66BBF6285A20FE00CDF765 /* Main */,
 				DA23788E27B250D3009795A8 /* Shop */,
 				B074BABF26779B14005D641B /* PushTx */,
@@ -2731,6 +2753,46 @@
 				EF3EC522289AB2DE0071BA7F /* TangemProvider.swift */,
 			);
 			path = TangemApiService;
+			sourceTree = "<group>";
+		};
+		E94667C12901F5C90043AD0A /* Exchange */ = {
+			isa = PBXGroup;
+			children = (
+				E94D87F6290968B700F82926 /* Interactor */,
+				E94667CD2902D6A80043AD0A /* Utils */,
+				E94667C22901F60A0043AD0A /* ExchangeViewModel.swift */,
+				E94667C42901F8690043AD0A /* ExchangeCoordinator.swift */,
+				E94667C62901FA9A0043AD0A /* ExchangeCoordinatorView.swift */,
+				E94667C82901FADB0043AD0A /* ExchangeView.swift */,
+				E94667CB2902BC260043AD0A /* ExchangeItem.swift */,
+				E9E4167329033F300028F40E /* ExchangeItems.swift */,
+			);
+			path = Exchange;
+			sourceTree = "<group>";
+		};
+		E94667CD2902D6A80043AD0A /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				E9E416712902D6E00028F40E /* Exchange+Utils.swift */,
+				E9E416752904B8A80028F40E /* ExchangeTimer.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		E94D87F6290968B700F82926 /* Interactor */ = {
+			isa = PBXGroup;
+			children = (
+				E94D87F72909762F00F82926 /* ExchangeTxInteractor.swift */,
+			);
+			path = Interactor;
+			sourceTree = "<group>";
+		};
+		E9C362B52913232B001302E5 /* ExchangeOneInchService */ = {
+			isa = PBXGroup;
+			children = (
+				E9C362B629132359001302E5 /* ExchangeOneInchService.swift */,
+			);
+			path = ExchangeOneInchService;
 			sourceTree = "<group>";
 		};
 		EF08A0ED283D1905008BD923 /* Extensions */ = {
@@ -3326,6 +3388,7 @@
 				DC7127AB2897EC6B00F60F71 /* Start2CoinConfig.swift in Sources */,
 				B05209C3261F2B4E000DD204 /* WalletConnectUIBuilder.swift in Sources */,
 				B074BAC326779BC8005D641B /* PushTxViewModel.swift in Sources */,
+				E94667C32901F60A0043AD0A /* ExchangeViewModel.swift in Sources */,
 				5D79D3152555ABE700650DD7 /* CardImageLoader.swift in Sources */,
 				DC0A57FC2822C5710031BECC /* BackupServiceProviding.swift in Sources */,
 				B0BA7BC926C565D000D7066F /* OnboardingProgressIconView.swift in Sources */,
@@ -3349,6 +3412,7 @@
 				DA23788327B24222009795A8 /* ShippingRate.swift in Sources */,
 				5D6784E425EBC94B00149995 /* Blockchain+.swift in Sources */,
 				5DD95B8C24FA959C00E6B9D0 /* VerticalAlignment+.swift in Sources */,
+				E94667C52901F8690043AD0A /* ExchangeCoordinator.swift in Sources */,
 				DC194D2628EC6A76007FBC99 /* SaltPayRegistratorProvider.swift in Sources */,
 				EF5A5ACF28D86089002544AC /* TotalBalanceProvider.swift in Sources */,
 				5D6784D925EBA1D800149995 /* TokenItems+Array.swift in Sources */,
@@ -3419,10 +3483,12 @@
 				DC3B49FA2893EEA600C207EA /* UserWalletConfigFeatures.swift in Sources */,
 				DAFD691627CDEB7F00B36C71 /* CombinedExchangeService.swift in Sources */,
 				DC295B3A28615D03006CB7B6 /* NavHolder.swift in Sources */,
+				E9E4167429033F300028F40E /* ExchangeItems.swift in Sources */,
 				EFFC861328BCF6C500F863CE /* StorageEntry.swift in Sources */,
 				B0E9E2FF2679DA8000269C7A /* AmountView.swift in Sources */,
 				DC51185C2860925A004FB954 /* WalletConnectRoutable.swift in Sources */,
 				DC295B522861D9BC006CB7B6 /* SecurityModeCoordinator.swift in Sources */,
+				E94667C92901FADB0043AD0A /* ExchangeView.swift in Sources */,
 				65B4DECB2881ABA4001524CF /* BottomSheetDismissalTransition.swift in Sources */,
 				DC66BC04285B6C5F00CDF765 /* SendCoordinator.swift in Sources */,
 				5D00FCCC2617389E004626DE /* SignTransactionHandler.swift in Sources */,
@@ -3445,6 +3511,7 @@
 				B0C4F76F26F08AB40086D815 /* TwinsOnboardingStep.swift in Sources */,
 				65B4DED828835BE4001524CF /* BottomSheetViewController.swift in Sources */,
 				B018F304259204A200D8F89A /* WarningEvent.swift in Sources */,
+				E94667C72901FA9A0043AD0A /* ExchangeCoordinatorView.swift in Sources */,
 				DC6244F428A0CA6300AD3EA8 /* SaltPayConfig.swift in Sources */,
 				65B4DED6288357DC001524CF /* BottomSheetBaseController.swift in Sources */,
 				EF9CFC13288FECE100329BE0 /* ScanCardSettingsViewModel.swift in Sources */,
@@ -3571,11 +3638,13 @@
 				EF0F99B428902902008B01DF /* DefaultRowView.swift in Sources */,
 				5D49034F27BE84B20072C642 /* ExploreButton.swift in Sources */,
 				DA4C84CD27DA2D6D00B76F91 /* AnimatableModifiers.swift in Sources */,
+				E94667CC2902BC260043AD0A /* ExchangeItem.swift in Sources */,
 				65B435FE2844BF7200DEAE1B /* AttributedTextView.swift in Sources */,
 				5D6C128725E144DF0010A0C5 /* AddTokensView.swift in Sources */,
 				5D49035227BE9D550072C642 /* Data+.swift in Sources */,
 				DAC53CFE27BE63830027147D /* MeetTangemStoryPage.swift in Sources */,
 				B0BA7BC726C4F9A300D7066F /* OnboardingCircleButton.swift in Sources */,
+				E9E416762904B8A80028F40E /* ExchangeTimer.swift in Sources */,
 				B04BA23126F07ECE0036784C /* OnboardingTextButtonView.swift in Sources */,
 				DC74BC2F28EF060600B49850 /* UserWalletId.swift in Sources */,
 				EF4BEF8128AB953E00C5D1BE /* CommonUserTokenListManager.swift in Sources */,
@@ -3617,6 +3686,7 @@
 				B0E1565226B97F8C005B33E4 /* OnboardingCardView.swift in Sources */,
 				EF4BEF8328ACF0E700C5D1BE /* UserTokenListManager.swift in Sources */,
 				EF130EBA28E1D33000D37EFC /* SingleWalletContentView.swift in Sources */,
+				E9C362B729132359001302E5 /* ExchangeOneInchService.swift in Sources */,
 				B08B8CEB26D6276000D4BB7B /* PreviewData.swift in Sources */,
 				DC66BC14285C44AD00CDF765 /* TokenListRoutable.swift in Sources */,
 				B0A9E93F25921D21007B6D36 /* WarningView.swift in Sources */,
@@ -3722,6 +3792,7 @@
 				DC66BBF5285A14CB00CDF765 /* WelcomeViewLifecycleListener.swift in Sources */,
 				B08ACD8225D2BC3D007387BD /* TokenListView.swift in Sources */,
 				B0C4F77526F08CDE0086D815 /* OnboardingProgressStateIndicatable.swift in Sources */,
+				E9E416722902D6E00028F40E /* Exchange+Utils.swift in Sources */,
 				B0E1564B26B941A4005B33E4 /* SingleCardOnboardingView.swift in Sources */,
 				EF130EB428E1C47C00D37EFC /* SingleWalletContentViewModel.swift in Sources */,
 				B04BA23626F083C30036784C /* OnboardingTopupBalanceView.swift in Sources */,
@@ -3752,6 +3823,7 @@
 				DC295B502861D9B3006CB7B6 /* SecurityModeCoordinatorView.swift in Sources */,
 				DA23789227B250F6009795A8 /* ShopView.swift in Sources */,
 				DC194D2828EC6AA0007FBC99 /* SaltPayRegistratorProviding.swift in Sources */,
+				E94D87F82909762F00F82926 /* ExchangeTxInteractor.swift in Sources */,
 				B031AAB326C169E900015003 /* ConfettiType.swift in Sources */,
 				DCFCA17528F4232F0037586C /* Array+.swift in Sources */,
 				5D341CC627E31DC00028D8FC /* CoinView.swift in Sources */,
