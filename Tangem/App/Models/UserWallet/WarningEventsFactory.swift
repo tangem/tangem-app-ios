@@ -18,6 +18,10 @@ struct WarningEventsFactory {
             warnings.append(.failedToValidateCard)
         }
 
+        if AppEnvironment.current.isTestnet {
+            warnings.append(.testnetCard)
+        }
+
         for wallet in card.wallets {
             if let remainingSignatures = wallet.remainingSignatures,
                remainingSignatures <= 10 {
