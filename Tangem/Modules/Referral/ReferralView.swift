@@ -11,8 +11,6 @@ import SwiftUI
 struct ReferralView: View {
     @ObservedObject var viewModel: ReferralViewModel
 
-    var isLoading: Bool { !viewModel.isLoading }
-
     var body: some View {
         ScrollView {
             VStack {
@@ -21,6 +19,7 @@ struct ReferralView: View {
                     .aspectRatio(contentMode: .fit)
                     .padding(.horizontal, 40)
                     .frame(maxHeight: 222)
+                
                 Text("referral_title".localized)
                     .font(Fonts.Bold.title1)
                     .multilineTextAlignment(.center)
@@ -28,11 +27,13 @@ struct ReferralView: View {
                     .padding(.horizontal, 57)
                     .padding(.top, 20)
                     .padding(.bottom, 32)
+                
                 content
+                
                 Spacer()
             }
         }
-        .navigationBarTitle("details_referral".localized)
+        .navigationBarTitle("details_referral_title".localized)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
     }
 
@@ -54,8 +55,9 @@ struct ReferralView: View {
     @ViewBuilder
     var loaderContent: some View {
         VStack(alignment: .leading, spacing: 38) {
-            ReferralLoaderView { Assets.cryptocurrencies }
-            ReferralLoaderView { Assets.discount }
+            ReferralPlaceholderPointView { Assets.cryptocurrencies }
+            
+            ReferralPlaceholderPointView { Assets.discount }
         }
         .padding(.horizontal, 16)
     }
