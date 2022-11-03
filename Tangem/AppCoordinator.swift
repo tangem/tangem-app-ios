@@ -39,7 +39,8 @@ class AppCoordinator: NSObject, CoordinatorObject {
     }
 
     func popToRoot() {
-        welcomeCoordinator.reset()
+        welcomeCoordinator = .init()
+        welcomeCoordinator.start(with: .init(shouldScan: false))
     }
 }
 
@@ -118,7 +119,6 @@ extension AppCoordinator: UIWindowSceneDelegate {
             }
 
             handle(url: url)
-
         } else {
             handle(url: url)
 
@@ -141,7 +141,6 @@ extension AppCoordinator: URLHandler {
         guard url.starts(with: "https://app.tangem.com")
             || url.starts(with: Constants.tangemDomain + "/ndef") else { return false }
 
-        popToRoot()
         return true
     }
 
