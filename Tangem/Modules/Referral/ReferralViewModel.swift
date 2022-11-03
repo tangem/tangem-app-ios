@@ -9,7 +9,6 @@
 import Combine
 
 class ReferralViewModel: ObservableObject {
-
     @Published var isLoading: Bool = true
 
     private let coordinator: ReferralRoutable
