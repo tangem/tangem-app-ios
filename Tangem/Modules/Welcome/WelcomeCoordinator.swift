@@ -60,6 +60,15 @@ class WelcomeCoordinator: CoordinatorObject {
         }
     }
 
+    func reset() {
+        mainCoordinator = nil
+        mailViewModel = nil
+        shopCoordinator = nil
+        modalOnboardingCoordinator = nil
+        tokenListCoordinator = nil
+        disclaimerViewModel = nil
+    }
+
     private func subscribeToWelcomeLifecycle() {
         welcomeLifecycleSubscription = lifecyclePublisher
             .sink { [unowned self] viewDismissed in
