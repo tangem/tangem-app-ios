@@ -154,8 +154,8 @@ extension DetailsViewModel {
         coordinator.openEnvironmentSetup()
     }
 
-    func openReferralProgram() {
-        coordinator.openReferralProgram(with: cardModel)
+    func openReferral() {
+        coordinator.openReferral(with: cardModel)
     }
 }
 
