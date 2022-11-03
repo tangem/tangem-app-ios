@@ -39,8 +39,7 @@ class AppCoordinator: NSObject, CoordinatorObject {
     }
 
     func popToRoot() {
-        welcomeCoordinator = .init()
-        welcomeCoordinator.start(with: .init(shouldScan: false))
+        welcomeCoordinator.reset()
     }
 }
 
@@ -111,16 +110,28 @@ extension AppCoordinator: UIWindowSceneDelegate {
     }
 
     private func process(_ url: URL) {
-        guard let wcService = walletConnectServiceProvider.service else {
+        let isContainWcSuffix = url.lastPathComponent == "wc"
+
+        if let wcService = walletConnectServiceProvider.service {
+            if wcService.handle(url: url) || isContainWcSuffix {
+                return
+            }
+
             handle(url: url)
-            return
-        }
 
-        if wcService.handle(url: url) || url.lastPathComponent == "wc" {
-            return
-        }
+        } else {
+            handle(url: url)
 
-        handle(url: url)
+            guard isContainWcSuffix else {
+                return
+            }
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
+                UIApplication.modalFromTop(
+                    AlertBuilder.makeOkGotItAlertController(message: "wallet_connect_need_to_scan_card".localized)
+                )
+            })
+        }
     }
 }
 
