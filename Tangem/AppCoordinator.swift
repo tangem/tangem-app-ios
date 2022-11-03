@@ -110,10 +110,10 @@ extension AppCoordinator: UIWindowSceneDelegate {
     }
 
     private func process(_ url: URL) {
-        let isContainWcSuffix = url.lastPathComponent == "wc"
+        let hasWcSuffix = url.lastPathComponent == "wc"
 
         if let wcService = walletConnectServiceProvider.service {
-            if wcService.handle(url: url) || isContainWcSuffix {
+            if wcService.handle(url: url) || hasWcSuffix {
                 return
             }
 
@@ -122,7 +122,7 @@ extension AppCoordinator: UIWindowSceneDelegate {
         } else {
             handle(url: url)
 
-            guard isContainWcSuffix else {
+            guard hasWcSuffix else {
                 return
             }
 
