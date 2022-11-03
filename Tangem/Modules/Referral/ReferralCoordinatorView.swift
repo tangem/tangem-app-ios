@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-struct ReferralCoordinatorView: View {
+struct ReferralCoordinatorView: CoordinatorView {
     @ObservedObject var coordinator: ReferralCoordinator
 
     var body: some View {
