@@ -82,8 +82,8 @@ struct DetailsView: View {
                 }
             }
 
-            DefaultRowView(title: "details_referral".localized) {
-                viewModel.openReferralProgram()
+            DefaultRowView(title: "details_referral_title".localized) {
+                viewModel.openReferral()
             }
         }
     }
