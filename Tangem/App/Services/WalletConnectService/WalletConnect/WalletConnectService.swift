@@ -102,11 +102,7 @@ class WalletConnectService: ObservableObject {
 
     func terminateSessions() {
         for session in sessions {
-            do {
-                try server.disconnect(from: session.session)
-            } catch {
-                print("Failed to disconnect WC session: \(error.localizedDescription)")
-            }
+            disconnect(session)
         }
 
         sessions.removeAll()
@@ -205,6 +201,18 @@ class WalletConnectService: ObservableObject {
             UIApplication.modalFromTop(vc)
         }
     }
+
+    private func disconnect(_ wcSession: WalletConnectSession) {
+        let session = wcSession.session
+        do {
+            try server.disconnect(from: session)
+        } catch {
+            print("Failed to disconnect WC session: \(error.localizedDescription)")
+        }
+
+        Analytics.logWcEvent(.session(.disconnect, session.dAppInfo.peerMeta.url))
+        Analytics.log(.sessionDisconnected)
+    }
 }
 
 extension WalletConnectService: WalletConnectHandlerDataSource {
@@ -270,16 +278,9 @@ extension WalletConnectService: WalletConnectSessionController {
 
             let session = self.sessions[index]
 
-            do {
-                try self.server.disconnect(from: session.session)
-            } catch {
-                print(error)
-            }
-
+            self.disconnect(session)
             self.sessions.remove(at: index)
             self.save()
-            Analytics.logWcEvent(.session(.disconnect, session.session.dAppInfo.peerMeta.url))
-            Analytics.log(.sessionDisconnected)
         }
     }
 
