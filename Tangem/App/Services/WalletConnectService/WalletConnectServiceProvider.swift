@@ -14,4 +14,9 @@ class WalletConnectServiceProvider: WalletConnectServiceProviding {
     func initialize(with cardModel: CardViewModel) {
         service = .init(with: cardModel)
     }
+
+    func reset() {
+        service?.terminateSessions()
+        service = nil
+    }
 }
