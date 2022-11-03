@@ -101,9 +101,16 @@ class WalletConnectService: ObservableObject {
     }
 
     func terminateSessions() {
-        for i in 0 ..< sessions.count {
-            disconnectSession(at: i)
+        for session in sessions {
+            do {
+                try server.disconnect(from: session.session)
+            } catch {
+                print("Failed to disconnect WC session: \(error.localizedDescription)")
+            }
         }
+
+        sessions.removeAll()
+        save()
     }
 
     private func restore() {
