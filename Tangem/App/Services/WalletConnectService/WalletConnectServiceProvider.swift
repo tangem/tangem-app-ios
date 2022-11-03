@@ -16,7 +16,6 @@ class WalletConnectServiceProvider: WalletConnectServiceProviding {
     }
 
     func reset() {
-        service?.terminateSessions()
         service = nil
     }
 }
