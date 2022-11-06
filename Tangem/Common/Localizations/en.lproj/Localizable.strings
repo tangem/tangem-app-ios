@@ -503,3 +503,5 @@ URL: %@";
 "onboarding_subtitle_kyc_retry" = "Please check you email for further instructions";
 "onboarding_exit_alert_title" = "Do you want to exit the activation process?";
 "onboarding_exit_alert_message" = "In this case, you will need to start from the beginning.";
+"details_referral_title" = "Referral program";
+"referral_title" = "Invite your friends to Tangem";
