@@ -12,6 +12,7 @@ protocol WalletConnectServiceProviding {
     var service: WalletConnectService? { get }
 
     func initialize(with cardModel: CardViewModel)
+    func reset()
 }
 
 private struct WalletConnectServiceProviderKey: InjectionKey {
