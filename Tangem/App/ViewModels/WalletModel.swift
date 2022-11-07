@@ -420,7 +420,7 @@ extension WalletModel {
 
     func getFiatBalance(for type: Amount.AmountType) -> String {
         let amount = wallet.amounts[type] ?? Amount(with: wallet.blockchain, type: type, value: .zero)
-        return getFiatFormatted(for: amount) ?? "–"
+        return getFiatFormatted(for: amount, roundingMode: .plain) ?? "–"
     }
 
     func isCustom(_ amountType: Amount.AmountType) -> Bool {
