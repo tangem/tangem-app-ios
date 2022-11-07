@@ -26,6 +26,10 @@ struct WarningEventsFactory {
             }
         }
 
+        if AppEnvironment.current.isTestnet {
+            warnings.append(.testnetCard)
+        }
+
         return warnings
     }
 }
