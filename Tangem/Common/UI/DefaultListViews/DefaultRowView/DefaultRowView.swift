@@ -44,7 +44,7 @@ struct DefaultRowView: View {
             }
         }
         .lineLimit(1)
-        .padding(.vertical, 2)
+        .padding(.vertical, 14)
         .contentShape(Rectangle())
     }
 
