@@ -19,14 +19,14 @@ struct DefaultToggleRowView: View {
         HStack {
             Text(viewModel.title)
                 .style(Fonts.Regular.body,
-                       color: viewModel.isEnabled ? Colors.Text.primary1 : Colors.Text.disabled)
+                       color: viewModel.isDisabled ? Colors.Text.disabled : Colors.Text.primary1)
 
             Spacer()
 
             Toggle("", isOn: viewModel.$isOn)
                 .labelsHidden()
                 .toggleStyleCompat(Colors.Control.checked)
-                .disabled(!viewModel.isEnabled)
+                .disabled(viewModel.isDisabled)
         }
     }
 }
@@ -34,7 +34,6 @@ struct DefaultToggleRowView: View {
 struct DefaultToggleRowViewPreview: PreviewProvider {
     static let viewModel = DefaultToggleRowViewModel(
         title: "Title",
-        isEnabled: true,
         isOn: .constant(true)
     )
 
