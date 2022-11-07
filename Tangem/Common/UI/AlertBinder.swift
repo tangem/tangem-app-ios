@@ -41,6 +41,10 @@ enum AlertBuilder {
         "common_success".localized
     }
 
+    static var warningTitle: String {
+        "common_warning".localized
+    }
+
     static var okButtonTitle: String { "common_ok".localized }
 
     static func makeSuccessAlert(message: String, okAction: @escaping (() -> Void) = { }) -> AlertBinder {
@@ -56,9 +60,15 @@ enum AlertBuilder {
     }
 
     static func makeOkGotItAlert(message: String, okAction: @escaping (() -> Void) = { }) -> AlertBinder {
-        .init(alert: Alert(title: Text("common_warning"),
+        .init(alert: Alert(title: Text(warningTitle),
                            message: Text(message),
                            dismissButton: .default(Text("warning_button_ok"), action: okAction)))
+    }
+
+    static func makeOkGotItAlertController(message: String, okAction: @escaping (() -> Void) = { }) -> UIAlertController {
+        let alert = UIAlertController(title: warningTitle, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: okButtonTitle, style: .default, handler: { _ in okAction() }))
+        return alert
     }
 
     static func makeOkErrorAlert(message: String, okAction: @escaping (() -> Void) = { }) -> AlertBinder {
@@ -68,13 +78,13 @@ enum AlertBuilder {
     }
 
     static func makeDemoAlert(_ message: String, okAction: @escaping (() -> Void) = {}) -> AlertBinder {
-        .init(alert: Alert(title: Text("common_warning"),
+        .init(alert: Alert(title: Text(warningTitle),
                            message: Text(message),
                            dismissButton: Alert.Button.default(Text(okButtonTitle), action: okAction)))
     }
 
     static func makeOldDeviceAlert() -> AlertBinder {
-        .init(alert: Alert(title: Text("common_warning"),
+        .init(alert: Alert(title: Text(warningTitle),
                            message: Text("onboarding_alert_message_old_device"),
                            dismissButton: .default(Text("common_ok"), action: {})))
     }
