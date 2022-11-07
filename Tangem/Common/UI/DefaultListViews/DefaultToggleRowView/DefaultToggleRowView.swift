@@ -28,6 +28,7 @@ struct DefaultToggleRowView: View {
                 .toggleStyleCompat(Colors.Control.checked)
                 .disabled(viewModel.isDisabled)
         }
+        .padding(.vertical, 8)
     }
 }
 
