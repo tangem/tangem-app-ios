@@ -189,7 +189,6 @@
 		B020FFBE25DE895E00EF422C /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = B020FFBD25DE895E00EF422C /* Logger.swift */; };
 		B02275D72701D9FB004C752B /* PreparePrimaryCardTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02275D62701D9FB004C752B /* PreparePrimaryCardTask.swift */; };
 		B022DB3D26C24D13006F18B4 /* ConfettiGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B022DB3C26C24D13006F18B4 /* ConfettiGenerator.swift */; };
-		B023F7E2291415D1006FA386 /* WalletConnectStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B023F7E1291415D1006FA386 /* WalletConnectStorage.swift */; };
 		B026178D26FCAB7900B5107F /* FanStackCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B026178C26FCAB7900B5107F /* FanStackCalculator.swift */; };
 		B029C1DC270229530017C848 /* OnboardingAccessCodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B029C1DB270229530017C848 /* OnboardingAccessCodeView.swift */; };
 		B031AAB126C1443E00015003 /* Confetti.swift in Sources */ = {isa = PBXBuildFile; fileRef = B031AAB026C1443D00015003 /* Confetti.swift */; };
@@ -837,7 +836,6 @@
 		B02275D62701D9FB004C752B /* PreparePrimaryCardTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreparePrimaryCardTask.swift; sourceTree = "<group>"; };
 		B022D30F253746C900D934D7 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		B022DB3C26C24D13006F18B4 /* ConfettiGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfettiGenerator.swift; sourceTree = "<group>"; };
-		B023F7E1291415D1006FA386 /* WalletConnectStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectStorage.swift; sourceTree = "<group>"; };
 		B026178C26FCAB7900B5107F /* FanStackCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FanStackCalculator.swift; sourceTree = "<group>"; };
 		B029C1DB270229530017C848 /* OnboardingAccessCodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAccessCodeView.swift; sourceTree = "<group>"; };
 		B031AAB026C1443D00015003 /* Confetti.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Confetti.swift; sourceTree = "<group>"; };
@@ -1279,7 +1277,6 @@
 				5D00FCD0261738C5004626DE /* WalletConnectEthTransaction.swift */,
 				B05209C2261F2B4E000DD204 /* WalletConnectUIBuilder.swift */,
 				B0D1271D26AEF341008DC75C /* WalletConnectNetworkParserUtility.swift */,
-				B023F7E1291415D1006FA386 /* WalletConnectStorage.swift */,
 			);
 			path = WalletConnect;
 			sourceTree = "<group>";
@@ -3568,7 +3565,6 @@
 				EFFC860E28BCE87700F863CE /* LegacyCardMigrator.swift in Sources */,
 				5D119E85256BF1E50046CAD2 /* Option.swift in Sources */,
 				5DF2522D24F95E390015B429 /* UIScreen+.swift in Sources */,
-				B023F7E2291415D1006FA386 /* WalletConnectStorage.swift in Sources */,
 				DC0A582E282BCBEB0031BECC /* ShopifyProtocol.swift in Sources */,
 				B0BA7BCB26C5684E00D7066F /* AddressQrBottomSheetView.swift in Sources */,
 				E90FAB5A28EE418000C6DCBE /* TotalBalanceAnalyticsService.swift in Sources */,
