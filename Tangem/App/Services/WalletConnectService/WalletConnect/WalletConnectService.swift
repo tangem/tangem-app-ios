@@ -21,8 +21,8 @@ protocol WalletConnectChecker: AnyObject {
 }
 
 protocol WalletConnectSessionController: WalletConnectChecker {
-    var sessionsPublisher: Published<[WalletConnectSession]>.Publisher { get }
-    func disconnectSession(at index: Int)
+    var sessionsPublisher: AnyPublisher<[WalletConnectSession], Never> { get }
+    func disconnectSession(_ session: WalletConnectSession)
     func canHandle(url: String) -> Bool
     func handle(url: String) -> Bool
 }
@@ -72,7 +72,15 @@ class WalletConnectService: ObservableObject {
     var cardModel: CardViewModel
 
     @Published private(set) var sessions: [WalletConnectSession] = .init()
-    var sessionsPublisher: Published<[WalletConnectSession]>.Publisher { $sessions }
+    var sessionsPublisher: AnyPublisher<[WalletConnectSession], Never> {
+        $sessions
+            .map { [weak self] wcSessions in
+                guard let self = self else { return [] }
+
+                return wcSessions.filter { $0.wallet.walletPublicKey == self.cardModel.secp256k1SeedKey }
+            }
+            .eraseToAnyPublisher()
+    }
 
     private(set) var server: Server!
 
@@ -82,18 +90,6 @@ class WalletConnectService: ObservableObject {
     private var isWaitingToConnect: Bool = false
     private var timer: DispatchWorkItem?
     private let updateQueue = DispatchQueue(label: "ws_sessions_update_queue")
-
-    var savedSessions: [WalletConnectSession] {
-        let decoder = JSONDecoder()
-        guard
-            let sessionsObject = UserDefaults.standard.object(forKey: self.sessionsKey) as? Data,
-            let decodedSessions = try? decoder.decode([WalletConnectSession].self, from: sessionsObject)
-        else {
-            return []
-        }
-
-        return decodedSessions
-    }
 
     init(with cardModel: CardViewModel) {
         self.cardModel = cardModel
@@ -116,18 +112,23 @@ class WalletConnectService: ObservableObject {
         updateQueue.async { [weak self] in
             guard let self = self else { return }
 
-            // [REDACTED_TODO_COMMENT]
-            let filteredSessions = self.savedSessions.filter { $0.wallet.walletPublicKey == self.cardModel.secp256k1SeedKey }
-            filteredSessions.forEach {
-                do {
-                    try self.server.reconnect(to: $0.session)
-                } catch {
-                    self.handle(WalletConnectServiceError.other(error))
-                }
-            }
+            let decoder = JSONDecoder()
+            if let oldSessionsObject = UserDefaults.standard.object(forKey: self.sessionsKey) as? Data {
+                let decodedSessions = (try? decoder.decode([WalletConnectSession].self, from: oldSessionsObject)) ?? []
 
-            DispatchQueue.main.async {
-                self.sessions = filteredSessions
+                // [REDACTED_TODO_COMMENT]
+                let filteredSessions = decodedSessions.filter { $0.wallet.walletPublicKey == self.cardModel.secp256k1SeedKey }
+                filteredSessions.forEach {
+                    do {
+                        try self.server.reconnect(to: $0.session)
+                    } catch {
+                        self.handle(WalletConnectServiceError.other(error))
+                    }
+                }
+
+                DispatchQueue.main.async {
+                    self.sessions = decodedSessions
+                }
             }
         }
     }
@@ -142,6 +143,13 @@ class WalletConnectService: ObservableObject {
             resetSessionConnectTimer()
             handle(error)
             isServiceBusy.send(false)
+        }
+    }
+
+    private func save() {
+        let encoder = JSONEncoder()
+        if let sessionsData = try? encoder.encode(self.sessions) {
+            UserDefaults.standard.set(sessionsData, forKey: self.sessionsKey)
         }
     }
 
@@ -192,49 +200,6 @@ class WalletConnectService: ObservableObject {
             UIApplication.modalFromTop(vc)
         }
     }
-
-    private func disconnect(_ wcSession: WalletConnectSession) {
-        let session = wcSession.session
-        do {
-            try server.disconnect(from: session)
-        } catch {
-            print("Failed to disconnect WC session: \(error.localizedDescription)")
-        }
-
-        Analytics.logWcEvent(.session(.disconnect, session.dAppInfo.peerMeta.url))
-        Analytics.log(.sessionDisconnected)
-    }
-
-    private func saveNewSessionToDefaults(_ session: WalletConnectSession) {
-        var sessionsToSave = savedSessions
-        if !sessionsToSave.contains(where: { $0.session == session.session }) {
-            sessionsToSave.append(session)
-            encodeSessionsToDefaults(sessionsToSave)
-        }
-    }
-
-    private func deleteSessionFromDefaults(_ session: WalletConnectSession) {
-        var sessionsToSave = savedSessions
-        if let index = sessionsToSave.firstIndex(where: { $0.session == session.session }) {
-            sessionsToSave.remove(at: index)
-            encodeSessionsToDefaults(sessionsToSave)
-        }
-    }
-
-    private func updateSessionInDefaults(from oldSession: WalletConnectSession, to newSession: WalletConnectSession) {
-        var savedSessions = savedSessions
-        if let index = savedSessions.firstIndex(where: { $0.session == oldSession.session }) {
-            savedSessions[index] = newSession
-            encodeSessionsToDefaults(savedSessions)
-        }
-    }
-
-    private func encodeSessionsToDefaults(_ sessions: [WalletConnectSession]) {
-        let encoder = JSONEncoder()
-        if let dataToSave = try? encoder.encode(sessions) {
-            UserDefaults.standard.set(dataToSave, forKey: sessionsKey)
-        }
-    }
 }
 
 extension WalletConnectService: WalletConnectHandlerDataSource {
@@ -244,9 +209,8 @@ extension WalletConnectService: WalletConnectHandlerDataSource {
 
     func updateSession(_ session: WalletConnectSession) {
         if let index = sessions.firstIndex(where: { $0.id == session.id }) {
-            let oldSession = sessions[index]
             sessions[index] = session
-            updateSessionInDefaults(from: oldSession, to: session)
+            save()
         }
     }
 }
@@ -293,17 +257,22 @@ extension WalletConnectService: WalletConnectChecker {
 }
 
 extension WalletConnectService: WalletConnectSessionController {
-    func disconnectSession(at index: Int) {
+    func disconnectSession(_ session: WalletConnectSession) {
         updateQueue.async { [weak self] in
             guard let self = self else { return }
 
-            guard index < self.sessions.count else { return }
+            guard let index = self.sessions.firstIndex(where: { $0.session == session.session }) else { return }
 
-            let session = self.sessions[index]
+            do {
+                try self.server.disconnect(from: session.session)
+            } catch {
+                print("Failed to disconnect WC session: \(error.localizedDescription)")
+            }
 
-            self.disconnect(session)
             self.sessions.remove(at: index)
-            self.deleteSessionFromDefaults(session)
+            self.save()
+            Analytics.logWcEvent(.session(.disconnect, session.session.dAppInfo.peerMeta.url))
+            Analytics.log(.sessionDisconnected)
         }
     }
 
@@ -466,9 +435,8 @@ extension WalletConnectService: ServerDelegate {
                 self.sessions[sessionIndex].status = .connected
             } else {
                 if let wallet = self.wallet { // new session only if wallet exists
-                    let wcSession = WalletConnectSession(wallet: wallet, session: session, status: .connected)
-                    self.sessions.append(wcSession)
-                    self.saveNewSessionToDefaults(wcSession)
+                    self.sessions.append(WalletConnectSession(wallet: wallet, session: session, status: .connected))
+                    self.save()
                     Analytics.logWcEvent(.session(.connect, session.dAppInfo.peerMeta.url))
                     Analytics.log(.buttonStartWalletConnectSession)
                 }
@@ -483,8 +451,8 @@ extension WalletConnectService: ServerDelegate {
             guard let self = self else { return }
 
             if let index = self.sessions.firstIndex(where: { $0.session == session }) {
-                self.deleteSessionFromDefaults(self.sessions[index])
                 self.sessions.remove(at: index)
+                self.save()
             }
         }
     }
