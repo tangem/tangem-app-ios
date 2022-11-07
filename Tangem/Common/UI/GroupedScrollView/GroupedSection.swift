@@ -49,17 +49,17 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
                 header()
                     .padding(.horizontal, contentOffset)
 
-                VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 0) {
                     ForEach(models) { model in
                         content(model)
                             .padding(.horizontal, contentOffset)
+                            .padding(.vertical, contentVerticalPadding)
 
                         if models.last?.id != model.id {
                             separator
                         }
                     }
                 }
-                .padding(.vertical, contentVerticalPadding)
                 .background(Colors.Background.primary)
                 .cornerRadius(12)
 
