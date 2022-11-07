@@ -14,10 +14,10 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
     private let header: () -> Header
     private let footer: () -> Footer
 
-    @State private var contentVerticalPadding: CGFloat = 12
-    @State private var separatorOffset: CGFloat = 16
-    @State private var contentOffset: CGFloat = 16
-    @State private var separatorStyle: SeparatorStyle = .single
+    private let contentVerticalPadding: CGFloat = 12
+    private let separatorOffset: CGFloat = 16
+    private let contentOffset: CGFloat = 16
+    private let separatorStyle: SeparatorStyle = .single
 
     init(
         _ models: [Model],
@@ -26,18 +26,6 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
         @ViewBuilder footer: @escaping () -> Footer = { EmptyView() }
     ) {
         self.models = models
-        self.content = content
-        self.header = header
-        self.footer = footer
-    }
-
-    init(
-        _ model: Model,
-        @ViewBuilder content: @escaping (Model) -> Content,
-        @ViewBuilder header: @escaping () -> Header = { EmptyView() },
-        @ViewBuilder footer: @escaping () -> Footer = { EmptyView() }
-    ) {
-        self.models = [model]
         self.content = content
         self.header = header
         self.footer = footer
@@ -95,7 +83,9 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
     }
 }
 
-enum SeparatorStyle: Int, Hashable {
-    case none
-    case single
+extension GroupedSection {
+    enum SeparatorStyle: Int, Hashable {
+        case none
+        case single
+    }
 }
