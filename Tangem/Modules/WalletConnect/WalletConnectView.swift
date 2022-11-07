@@ -35,7 +35,7 @@ struct WalletConnectView: View {
                     List {
                         ForEach(Array(viewModel.sessions.enumerated()), id: \.element) { (i, item) -> WalletConnectSessionItemView in
                             WalletConnectSessionItemView(dAppName: item.session.dAppInfo.peerMeta.name) {
-                                viewModel.disconnectSession(at: i)
+                                viewModel.disconnectSession(item)
                             }
                         }
                         .listRowInsets(.none)
