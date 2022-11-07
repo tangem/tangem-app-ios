@@ -68,8 +68,6 @@ enum WalletConnectAction: String {
 }
 
 class WalletConnectService: ObservableObject {
-    @Injected(\.walletConnectStorage) var storage: WalletConnectStorage
-
     var isServiceBusy: CurrentValueSubject<Bool, Never> = .init(false)
     var cardModel: CardViewModel
 
@@ -84,6 +82,18 @@ class WalletConnectService: ObservableObject {
     private var isWaitingToConnect: Bool = false
     private var timer: DispatchWorkItem?
     private let updateQueue = DispatchQueue(label: "ws_sessions_update_queue")
+
+    var savedSessions: [WalletConnectSession] {
+        let decoder = JSONDecoder()
+        guard
+            let sessionsObject = UserDefaults.standard.object(forKey: self.sessionsKey) as? Data,
+            let decodedSessions = try? decoder.decode([WalletConnectSession].self, from: sessionsObject)
+        else {
+            return []
+        }
+
+        return decodedSessions
+    }
 
     init(with cardModel: CardViewModel) {
         self.cardModel = cardModel
@@ -106,10 +116,8 @@ class WalletConnectService: ObservableObject {
         updateQueue.async { [weak self] in
             guard let self = self else { return }
 
-            let savedSessions = self.storage.savedSessions
-
             // [REDACTED_TODO_COMMENT]
-            let filteredSessions = savedSessions.filter { $0.wallet.walletPublicKey == self.cardModel.secp256k1SeedKey }
+            let filteredSessions = self.savedSessions.filter { $0.wallet.walletPublicKey == self.cardModel.secp256k1SeedKey }
             filteredSessions.forEach {
                 do {
                     try self.server.reconnect(to: $0.session)
@@ -196,6 +204,37 @@ class WalletConnectService: ObservableObject {
         Analytics.logWcEvent(.session(.disconnect, session.dAppInfo.peerMeta.url))
         Analytics.log(.sessionDisconnected)
     }
+
+    private func saveNewSessionToDefaults(_ session: WalletConnectSession) {
+        var sessionsToSave = savedSessions
+        if !sessionsToSave.contains(where: { $0.session == session.session }) {
+            sessionsToSave.append(session)
+            encodeSessionsToDefaults(sessionsToSave)
+        }
+    }
+
+    private func deleteSessionFromDefaults(_ session: WalletConnectSession) {
+        var sessionsToSave = savedSessions
+        if let index = sessionsToSave.firstIndex(where: { $0.session == session.session }) {
+            sessionsToSave.remove(at: index)
+            encodeSessionsToDefaults(sessionsToSave)
+        }
+    }
+
+    private func updateSessionInDefaults(from oldSession: WalletConnectSession, to newSession: WalletConnectSession) {
+        var savedSessions = savedSessions
+        if let index = savedSessions.firstIndex(where: { $0.session == oldSession.session }) {
+            savedSessions[index] = newSession
+            encodeSessionsToDefaults(savedSessions)
+        }
+    }
+
+    private func encodeSessionsToDefaults(_ sessions: [WalletConnectSession]) {
+        let encoder = JSONEncoder()
+        if let dataToSave = try? encoder.encode(sessions) {
+            UserDefaults.standard.set(dataToSave, forKey: sessionsKey)
+        }
+    }
 }
 
 extension WalletConnectService: WalletConnectHandlerDataSource {
@@ -207,7 +246,7 @@ extension WalletConnectService: WalletConnectHandlerDataSource {
         if let index = sessions.firstIndex(where: { $0.id == session.id }) {
             let oldSession = sessions[index]
             sessions[index] = session
-            storage.updateSessionInDefaults(from: oldSession, to: session)
+            updateSessionInDefaults(from: oldSession, to: session)
         }
     }
 }
@@ -264,7 +303,7 @@ extension WalletConnectService: WalletConnectSessionController {
 
             self.disconnect(session)
             self.sessions.remove(at: index)
-            self.storage.deleteSessionFromDefaults(session)
+            self.deleteSessionFromDefaults(session)
         }
     }
 
@@ -429,7 +468,7 @@ extension WalletConnectService: ServerDelegate {
                 if let wallet = self.wallet { // new session only if wallet exists
                     let wcSession = WalletConnectSession(wallet: wallet, session: session, status: .connected)
                     self.sessions.append(wcSession)
-                    self.storage.saveNewSessionToDefaults(wcSession)
+                    self.saveNewSessionToDefaults(wcSession)
                     Analytics.logWcEvent(.session(.connect, session.dAppInfo.peerMeta.url))
                     Analytics.log(.buttonStartWalletConnectSession)
                 }
@@ -444,7 +483,7 @@ extension WalletConnectService: ServerDelegate {
             guard let self = self else { return }
 
             if let index = self.sessions.firstIndex(where: { $0.session == session }) {
-                self.storage.deleteSessionFromDefaults(self.sessions[index])
+                self.deleteSessionFromDefaults(self.sessions[index])
                 self.sessions.remove(at: index)
             }
         }
