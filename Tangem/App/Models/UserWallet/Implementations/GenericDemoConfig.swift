@@ -81,7 +81,7 @@ extension GenericDemoConfig: UserWalletConfig {
     }
 
     var supportedBlockchains: Set<Blockchain> {
-        let allBlockchains = card.isTestnet ? Blockchain.supportedTestnetBlockchains
+        let allBlockchains = AppEnvironment.current.isTestnet ? Blockchain.supportedTestnetBlockchains
             : Blockchain.supportedBlockchains
 
         return allBlockchains.filter { card.supportedCurves.contains($0.curve) }
@@ -92,7 +92,8 @@ extension GenericDemoConfig: UserWalletConfig {
             return persistentBlockchains
         }
 
-        let blockchains: [Blockchain] = [.ethereum(testnet: card.isTestnet), .bitcoin(testnet: card.isTestnet)]
+        let isTestnet = AppEnvironment.current.isTestnet
+        let blockchains: [Blockchain] = [.ethereum(testnet: isTestnet), .bitcoin(testnet: isTestnet)]
 
         let entries: [StorageEntry] = blockchains.map {
             if let derivationStyle = card.derivationStyle {
@@ -109,7 +110,7 @@ extension GenericDemoConfig: UserWalletConfig {
     }
 
     var persistentBlockchains: [StorageEntry]? {
-        let blockchains = DemoUtil().getDemoBlockchains(isTestnet: card.isTestnet)
+        let blockchains = DemoUtil().getDemoBlockchains(isTestnet: AppEnvironment.current.isTestnet)
 
         let entries: [StorageEntry] = blockchains.map {
             if let derivationStyle = card.derivationStyle {
@@ -132,9 +133,7 @@ extension GenericDemoConfig: UserWalletConfig {
     var warningEvents: [WarningEvent] {
         var warnings = WarningEventsFactory().makeWarningEvents(for: card)
 
-        if card.isTestnet {
-            warnings.append(.testnetCard)
-        } else {
+        if !AppEnvironment.current.isTestnet {
             warnings.append(.demoCard)
         }
 
@@ -244,11 +243,5 @@ fileprivate extension Card.BackupStatus {
         }
 
         return nil
-    }
-}
-
-fileprivate extension Card {
-    var isTestnet: Bool {
-        AppEnvironment.current.isTestnet
     }
 }
