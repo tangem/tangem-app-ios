@@ -723,22 +723,26 @@ class WalletOnboardingViewModel: OnboardingTopupViewModel<WalletOnboardingStep, 
                 return
             }
 
-            switch result {
-            case .failure:
+            if case .failure = result {
                 completion(result)
-            case .success:
-                if AppSettings.shared.saveAccessCodes,
-                   let accessCode = self.accessCode,
-                   let cardIds = self.cardIds
-                {
-                    let accessCodeData: Data = accessCode.sha256()
-                    let accessCodeRepository = AccessCodeRepository()
-                    let result = accessCodeRepository.save(accessCodeData, for: cardIds)
+                return
+            }
 
-                    completion(result)
-                } else {
-                    completion(.success(()))
-                }
+            guard AppSettings.shared.saveAccessCodes,
+                  let accessCode = self.accessCode,
+                  let cardIds = self.cardIds
+            else {
+                completion(.success(()))
+                return
+            }
+
+            do {
+                let accessCodeData: Data = accessCode.sha256()
+                let accessCodeRepository = AccessCodeRepository()
+                try accessCodeRepository.save(accessCodeData, for: cardIds)
+                completion(.success(()))
+            } catch {
+                completion(.failure(error.toTangemSdkError()))
             }
         }
     }
