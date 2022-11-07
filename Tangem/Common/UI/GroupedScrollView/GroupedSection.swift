@@ -53,7 +53,6 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
                     ForEach(models) { model in
                         content(model)
                             .padding(.horizontal, contentOffset)
-                            .padding(.vertical, contentVerticalPadding)
 
                         if models.last?.id != model.id {
                             separator
