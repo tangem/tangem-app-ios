@@ -35,7 +35,7 @@ struct DefaultWarningRow: View {
 
                 Spacer()
             }
-            .padding(.vertical, 8)
+            .padding(.vertical, 16)
             .background(Colors.Background.primary)
             .contentShape(Rectangle())
             .cornerRadius(12)
