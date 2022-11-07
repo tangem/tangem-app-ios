@@ -23,7 +23,7 @@ final class EnvironmentSetupViewModel: ObservableObject {
 
     init() {
         testnetToggleViewModel = DefaultToggleRowViewModel(
-            title: "isTestnet",
+            title: "Use testnet",
             isOn: Binding<Bool>(get: { EnvironmentProvider.shared.isTestnet },
                                 set: { EnvironmentProvider.shared.isTestnet = $0 })
         )
