@@ -229,9 +229,7 @@ extension DetailsViewModel {
     }
 
     func setupEnvironmentSetupSection() {
-        if AppEnvironment.current.isProduction {
-            environmentSetupViewModel = nil
-        } else {
+        if !AppEnvironment.current.isProduction {
             environmentSetupViewModel = DefaultRowViewModel(title: "Environment setup", action: openEnvironmentSetup)
         }
     }
