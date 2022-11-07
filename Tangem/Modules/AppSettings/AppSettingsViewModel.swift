@@ -58,13 +58,13 @@ private extension AppSettingsViewModel {
 
         savingWalletViewModel = DefaultToggleRowViewModel(
             title: "app_settings_saved_wallet".localized,
-            isEnabled: isBiometryAvailable,
+            isDisabled: !isBiometryAvailable,
             isOn: isSavingWalletBinding()
         )
 
         savingAccessCodesViewModel = DefaultToggleRowViewModel(
             title: "app_settings_saved_access_codes".localized,
-            isEnabled: isBiometryAvailable,
+            isDisabled: !isBiometryAvailable,
             isOn: isSavingAccessCodesBinding()
         )
     }
