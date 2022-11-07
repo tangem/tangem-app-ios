@@ -33,10 +33,8 @@ struct AppSettingsView: View {
 
     @ViewBuilder
     private var warningSection: some View {
-        if let viewModel = viewModel.warningViewModel {
-            GroupedSection(viewModel) {
-                DefaultWarningRow(viewModel: $0)
-            }
+        GroupedSection(viewModel.warningViewModel) {
+            DefaultWarningRow(viewModel: $0)
         }
     }
 
