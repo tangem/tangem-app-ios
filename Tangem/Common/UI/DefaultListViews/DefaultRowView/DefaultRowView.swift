@@ -19,8 +19,12 @@ struct DefaultRowView: View {
 
     var body: some View {
         if isTappable {
-            Button(action: { viewModel.action?() }) { content }
-                .buttonStyle(PlainButtonStyle())
+            Button {
+                viewModel.action?()
+            } label: {
+                content
+            }
+            .buttonStyle(PlainButtonStyle())
         } else {
             content
         }
@@ -51,7 +55,7 @@ struct DefaultRowView: View {
             EmptyView()
         case .loader:
             ActivityIndicatorView(style: .medium, color: .gray)
-        case let .text(string):
+        case .text(let string):
             Text(string)
                 .style(Fonts.Regular.body, color: Colors.Text.tertiary)
                 .layoutPriority(1)
