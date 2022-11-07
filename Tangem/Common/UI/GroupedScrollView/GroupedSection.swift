@@ -14,9 +14,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
     private let header: () -> Header
     private let footer: () -> Footer
 
-    private let contentVerticalPadding: CGFloat = 12
-    private let separatorOffset: CGFloat = 16
-    private let contentOffset: CGFloat = 16
+    private let horizontalPadding: CGFloat = 16
     private let separatorStyle: SeparatorStyle = .single
 
     init(
@@ -47,12 +45,12 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
         if !models.isEmpty {
             VStack(alignment: .leading, spacing: 8) {
                 header()
-                    .padding(.horizontal, contentOffset)
+                    .padding(.horizontal, horizontalPadding)
 
                 VStack(alignment: .leading, spacing: 0) {
                     ForEach(models) { model in
                         content(model)
-                            .padding(.horizontal, contentOffset)
+                            .padding(.horizontal, horizontalPadding)
 
                         if models.last?.id != model.id {
                             separator
@@ -63,7 +61,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
                 .cornerRadius(12)
 
                 footer()
-                    .padding(.horizontal, contentOffset)
+                    .padding(.horizontal, horizontalPadding)
             }
             .padding(.vertical, 12)
         }
@@ -77,7 +75,7 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
             Colors.Stroke.primary
                 .frame(maxWidth: .infinity)
                 .frame(height: 1)
-                .padding(.leading, separatorOffset)
+                .padding(.leading, horizontalPadding)
         }
     }
 }
