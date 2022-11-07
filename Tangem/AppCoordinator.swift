@@ -111,27 +111,20 @@ extension AppCoordinator: UIWindowSceneDelegate {
     }
 
     private func process(_ url: URL) {
-        let hasWcSuffix = url.lastPathComponent == "wc"
-
         if let wcService = walletConnectServiceProvider.service {
-            if wcService.handle(url: url) || hasWcSuffix {
-                return
-            }
-
-            handle(url: url)
-        } else {
-            handle(url: url)
-
-            guard hasWcSuffix else {
-                return
-            }
-
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
-                UIApplication.modalFromTop(
-                    AlertBuilder.makeOkGotItAlertController(message: "wallet_connect_need_to_scan_card".localized)
-                )
-            })
+            wcService.handle(url: url)
+            return
         }
+
+        guard url.lastPathComponent == "wc" else {
+            return
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
+            UIApplication.modalFromTop(
+                AlertBuilder.makeOkGotItAlertController(message: "wallet_connect_need_to_scan_card".localized)
+            )
+        })
     }
 }
 
