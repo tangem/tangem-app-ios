@@ -24,10 +24,6 @@ struct NoteConfig {
         let defaultBlockchain = Blockchain.from(blockchainName: blockchainName, curve: .secp256k1)!
         return defaultBlockchain
     }
-
-    private var isTestnet: Bool {
-        defaultBlockchain.isTestnet
-    }
 }
 
 extension NoteConfig: UserWalletConfig {
@@ -87,13 +83,7 @@ extension NoteConfig: UserWalletConfig {
     }
 
     var warningEvents: [WarningEvent] {
-        var warnings = WarningEventsFactory().makeWarningEvents(for: card)
-
-        if isTestnet {
-            warnings.append(.testnetCard)
-        }
-
-        return warnings
+        WarningEventsFactory().makeWarningEvents(for: card)
     }
 
     var tangemSigner: TangemSigner { .init(with: card.cardId) }
