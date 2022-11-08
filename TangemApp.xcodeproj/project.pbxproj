@@ -491,7 +491,11 @@
 		E94667C72901FA9A0043AD0A /* ExchangeCoordinatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94667C62901FA9A0043AD0A /* ExchangeCoordinatorView.swift */; };
 		E94667C92901FADB0043AD0A /* ExchangeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94667C82901FADB0043AD0A /* ExchangeView.swift */; };
 		E94667CC2902BC260043AD0A /* ExchangeItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94667CB2902BC260043AD0A /* ExchangeItem.swift */; };
-		E94D87F82909762F00F82926 /* ExchangeTxInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E94D87F72909762F00F82926 /* ExchangeTxInteractor.swift */; };
+		E9C17C5929170FBB00FDE4BC /* ExchangeFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5829170FBB00FDE4BC /* ExchangeFacade.swift */; };
+		E9C17C5B29170FCD00FDE4BC /* ExchangeCurrency.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5A29170FCD00FDE4BC /* ExchangeCurrency.swift */; };
+		E9C17C5D2919507D00FDE4BC /* ExchangeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5C2919507D00FDE4BC /* ExchangeManager.swift */; };
+		E9C17C5F291951BF00FDE4BC /* AnyPublisher+.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */; };
+		E9C17C61291A580200FDE4BC /* ExchangeTokensFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C17C60291A580200FDE4BC /* ExchangeTokensFactory.swift */; };
 		E9C362B729132359001302E5 /* ExchangeOneInchService.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9C362B629132359001302E5 /* ExchangeOneInchService.swift */; };
 		E9E416722902D6E00028F40E /* Exchange+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E416712902D6E00028F40E /* Exchange+Utils.swift */; };
 		E9E4167429033F300028F40E /* ExchangeItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9E4167329033F300028F40E /* ExchangeItems.swift */; };
@@ -1149,7 +1153,11 @@
 		E94667C62901FA9A0043AD0A /* ExchangeCoordinatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeCoordinatorView.swift; sourceTree = "<group>"; };
 		E94667C82901FADB0043AD0A /* ExchangeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeView.swift; sourceTree = "<group>"; };
 		E94667CB2902BC260043AD0A /* ExchangeItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeItem.swift; sourceTree = "<group>"; };
-		E94D87F72909762F00F82926 /* ExchangeTxInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeTxInteractor.swift; sourceTree = "<group>"; };
+		E9C17C5829170FBB00FDE4BC /* ExchangeFacade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeFacade.swift; sourceTree = "<group>"; };
+		E9C17C5A29170FCD00FDE4BC /* ExchangeCurrency.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeCurrency.swift; sourceTree = "<group>"; };
+		E9C17C5C2919507D00FDE4BC /* ExchangeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeManager.swift; sourceTree = "<group>"; };
+		E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AnyPublisher+.swift"; sourceTree = "<group>"; };
+		E9C17C60291A580200FDE4BC /* ExchangeTokensFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeTokensFactory.swift; sourceTree = "<group>"; };
 		E9C362B629132359001302E5 /* ExchangeOneInchService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeOneInchService.swift; sourceTree = "<group>"; };
 		E9E416712902D6E00028F40E /* Exchange+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Exchange+Utils.swift"; sourceTree = "<group>"; };
 		E9E4167329033F300028F40E /* ExchangeItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExchangeItems.swift; sourceTree = "<group>"; };
@@ -1630,6 +1638,7 @@
 				5D6784D825EBA1D800149995 /* TokenItems+Array.swift */,
 				5D6784E325EBC94B00149995 /* Blockchain+.swift */,
 				5D74F718262722FF00B03897 /* Publisher+.swift */,
+				E9C17C5E291951BF00FDE4BC /* AnyPublisher+.swift */,
 				5DA5067C27A2FF56000A8901 /* URL+.swift */,
 				5D62446027A7CAB60069DEC2 /* Bool+.swift */,
 				5D49035127BE9D550072C642 /* Data+.swift */,
@@ -2758,7 +2767,7 @@
 		E94667C12901F5C90043AD0A /* Exchange */ = {
 			isa = PBXGroup;
 			children = (
-				E94D87F6290968B700F82926 /* Interactor */,
+				E9C17C62291A687D00FDE4BC /* Factory */,
 				E94667CD2902D6A80043AD0A /* Utils */,
 				E94667C22901F60A0043AD0A /* ExchangeViewModel.swift */,
 				E94667C42901F8690043AD0A /* ExchangeCoordinator.swift */,
@@ -2766,6 +2775,9 @@
 				E94667C82901FADB0043AD0A /* ExchangeView.swift */,
 				E94667CB2902BC260043AD0A /* ExchangeItem.swift */,
 				E9E4167329033F300028F40E /* ExchangeItems.swift */,
+				E9C17C5829170FBB00FDE4BC /* ExchangeFacade.swift */,
+				E9C17C5A29170FCD00FDE4BC /* ExchangeCurrency.swift */,
+				E9C17C5C2919507D00FDE4BC /* ExchangeManager.swift */,
 			);
 			path = Exchange;
 			sourceTree = "<group>";
@@ -2779,12 +2791,12 @@
 			path = Utils;
 			sourceTree = "<group>";
 		};
-		E94D87F6290968B700F82926 /* Interactor */ = {
+		E9C17C62291A687D00FDE4BC /* Factory */ = {
 			isa = PBXGroup;
 			children = (
-				E94D87F72909762F00F82926 /* ExchangeTxInteractor.swift */,
+				E9C17C60291A580200FDE4BC /* ExchangeTokensFactory.swift */,
 			);
-			path = Interactor;
+			path = Factory;
 			sourceTree = "<group>";
 		};
 		E9C362B52913232B001302E5 /* ExchangeOneInchService */ = {
@@ -3494,8 +3506,10 @@
 				5D00FCCC2617389E004626DE /* SignTransactionHandler.swift in Sources */,
 				5DDFC1FD2812A622005976FE /* Coin.swift in Sources */,
 				5D51036B27C534CB0025EA55 /* EIP712TypedData.swift in Sources */,
+				E9C17C5F291951BF00FDE4BC /* AnyPublisher+.swift in Sources */,
 				5DDE22EA2608DC94008657C6 /* UrlHandler.swift in Sources */,
 				DA23788B27B2488D009795A8 /* ShopifyShop.swift in Sources */,
+				E9C17C61291A580200FDE4BC /* ExchangeTokensFactory.swift in Sources */,
 				DC0A57DD2822A5020031BECC /* LoggerProviding.swift in Sources */,
 				5D39515925597DA5002CC452 /* WalletModel.swift in Sources */,
 				65C9FCB22864507600FDE63E /* MainView.swift in Sources */,
@@ -3592,12 +3606,14 @@
 				B03ACAC92567CFFF00F5D269 /* CardView.swift in Sources */,
 				DC295B4A2861C4CB006CB7B6 /* DetailsCoordinatorView.swift in Sources */,
 				B09BB86D259A080900B92000 /* SendAdditionalFields.swift in Sources */,
+				E9C17C5929170FBB00FDE4BC /* ExchangeFacade.swift in Sources */,
 				B09536FE26D3D2460040A90D /* DisclaimerView.swift in Sources */,
 				5D09383225E7A9820049B8F0 /* Wallet+.swift in Sources */,
 				5D39516125597DB1002CC452 /* BalanceViewModel.swift in Sources */,
 				5D4B8BC327EDD601002CE87C /* CardInfo.swift in Sources */,
 				5D9DCB06255193C30059799C /* AppSettings.swift in Sources */,
 				DC66BBF32859B79600CDF765 /* TokenListCoordinatorView.swift in Sources */,
+				E9C17C5B29170FCD00FDE4BC /* ExchangeCurrency.swift in Sources */,
 				B0541DC026FB300F0043893E /* WalletOnboardingStep.swift in Sources */,
 				B0C4F76D26F089850086D815 /* SingleCardOnboardingStep.swift in Sources */,
 				DC5118692860B3E1004FB954 /* PreviewCard.swift in Sources */,
@@ -3656,6 +3672,7 @@
 				DA23787B27B24222009795A8 /* ProductVariant.swift in Sources */,
 				B046EE182578D38E00EA38A5 /* SceneDelegate.swift in Sources */,
 				5D341CC827E340770028D8FC /* CoinItemView.swift in Sources */,
+				E9C17C5D2919507D00FDE4BC /* ExchangeManager.swift in Sources */,
 				DC51186128609F71004FB954 /* CardOperationRoutable.swift in Sources */,
 				B0B8670626DF60E7008DAA67 /* CardStackAnimator.swift in Sources */,
 				EF08A0EF283D1914008BD923 /* Moya+.swift in Sources */,
@@ -3823,7 +3840,6 @@
 				DC295B502861D9B3006CB7B6 /* SecurityModeCoordinatorView.swift in Sources */,
 				DA23789227B250F6009795A8 /* ShopView.swift in Sources */,
 				DC194D2828EC6AA0007FBC99 /* SaltPayRegistratorProviding.swift in Sources */,
-				E94D87F82909762F00F82926 /* ExchangeTxInteractor.swift in Sources */,
 				B031AAB326C169E900015003 /* ConfettiType.swift in Sources */,
 				DCFCA17528F4232F0037586C /* Array+.swift in Sources */,
 				5D341CC627E31DC00028D8FC /* CoinView.swift in Sources */,
