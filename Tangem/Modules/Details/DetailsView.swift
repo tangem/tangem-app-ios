@@ -10,6 +10,7 @@ import SwiftUI
 
 struct DetailsView: View {
     @ObservedObject private var viewModel: DetailsViewModel
+    @State private var socialNetworksViewSize: CGSize = .zero
 
     init(viewModel: DetailsViewModel) {
         self.viewModel = viewModel
@@ -17,8 +18,6 @@ struct DetailsView: View {
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            Colors.Background.secondary.edgesIgnoringSafeArea(.all)
-
             GroupedScrollView {
                 walletConnectSection
 
@@ -32,14 +31,16 @@ struct DetailsView: View {
 
                 environmentSetupSection
             }
+            .padding(.bottom, socialNetworksViewSize.height)
 
             socialNetworks
+                .readSize { socialNetworksViewSize = $0 }
         }
-        .edgesIgnoringSafeArea(.bottom)
-        .alert(item: $viewModel.error) { $0.alert }
-        .navigationBarTitle("details_title", displayMode: .inline)
+        .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
         .navigationBarBackButtonHidden(false)
         .navigationBarHidden(false)
+        .alert(item: $viewModel.error) { $0.alert }
+        .navigationBarTitle("details_title", displayMode: .inline)
     }
 
     // MARK: - Wallet Connect Section
@@ -84,7 +85,6 @@ struct DetailsView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 16)
-        .padding(.bottom, UIApplication.safeAreaInsets.bottom)
         .background(Colors.Background.secondary)
     }
 
