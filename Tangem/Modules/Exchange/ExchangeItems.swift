@@ -1,5 +1,5 @@
 //
-//  ExchangeViewItem.swift
+//  ExchangeItems.swift
 //  Tangem
 //
 //  Created by [REDACTED_AUTHOR]
