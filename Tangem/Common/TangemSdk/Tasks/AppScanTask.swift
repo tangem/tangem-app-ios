@@ -47,7 +47,7 @@ enum AppScanTaskError: String, Error, LocalizedError {
 }
 
 final class AppScanTask: CardSessionRunnable {
-    let skipBiometricsRequest = true
+    let allowsAccessCodeFromRepository = false
 
     private let targetBatch: String?
     private var walletData: DefaultWalletData = .none
