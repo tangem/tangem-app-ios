@@ -32,25 +32,22 @@ class UserWalletEncryptionKeyStorage {
                 case .failure(let error):
                     completion(.failure(error))
                 case .success(let context):
-                    var keys: [Data: SymmetricKey] = [:]
+                    do {
+                        var keys: [Data: SymmetricKey] = [:]
 
-                    for userWalletId in userWalletIds {
-                        let storageKey = self.encryptionKeyStorageKey(for: userWalletId)
-                        let userWalletEncryptionKeyResult = self.biometricsStorage.get(storageKey, context: context)
-
-                        switch userWalletEncryptionKeyResult {
-                        case .failure(let error):
-                            print("Failed to get encryption key for UserWallet", error)
-                            completion(.failure(error))
-                            return
-                        case .success(let encryptionKeyData):
+                        for userWalletId in userWalletIds {
+                            let storageKey = self.encryptionKeyStorageKey(for: userWalletId)
+                            let encryptionKeyData = try self.biometricsStorage.get(storageKey, context: context)
                             if let encryptionKeyData = encryptionKeyData {
                                 keys[userWalletId] = SymmetricKey(data: encryptionKeyData)
                             }
                         }
-                    }
 
-                    completion(.success(keys))
+                        completion(.success(keys))
+                    } catch {
+                        print("Failed to get encryption key for UserWallet", error)
+                        completion(.failure(error))
+                    }
                 }
             }
         } catch let error {
@@ -71,15 +68,11 @@ class UserWalletEncryptionKeyStorage {
             }
 
             try addUserWalletId(userWallet)
+
+            let encryptionKeyData = userWalletEncryptionKey.dataRepresentationWithHexConversion
+            try biometricsStorage.store(encryptionKeyData, forKey: encryptionKeyStorageKey(for: userWallet))
         } catch {
             print("Failed to add UserWallet ID to the list: \(error)")
-            return
-        }
-
-        let encryptionKeyData = userWalletEncryptionKey.dataRepresentationWithHexConversion
-        let result = biometricsStorage.store(encryptionKeyData, forKey: encryptionKeyStorageKey(for: userWallet))
-        if case .failure(let error) = result {
-            print("Failed to store UserWallet encryption key: \(error)")
             return
         }
     }
