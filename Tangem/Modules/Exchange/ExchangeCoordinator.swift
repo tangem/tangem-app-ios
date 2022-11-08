@@ -21,10 +21,25 @@ class ExchangeCoordinator: CoordinatorObject {
     }
 
     func start(with options: ExchangeCoordinator.Options) {
-        exchangeViewModel = ExchangeViewModel(amount: options.amount,
-                                              walletModel: options.walletModel,
-                                              cardViewModel: options.cardViewModel,
-                                              blockchainNetwork: options.blockchainNetwork)
+        let factory = ExchangeTokensFactory()
+        
+        let exchangeCurrency: ExchangeCurrency
+        switch options.amount {
+        case .coin:
+            do {
+                exchangeCurrency = try factory.createCoin(for: options.walletModel.blockchainNetwork)
+            } catch {
+                exchangeCurrency = ExchangeCurrency(type: .coin(blockchainNetwork: options.walletModel.blockchainNetwork))
+            }
+        case .token:
+            let contractAddress = options.amount.token?.contractAddress ?? ""
+            exchangeCurrency = ExchangeCurrency(type: .token(blockchainNetwork: options.walletModel.blockchainNetwork, contractAddress: contractAddress))
+        default:
+            fatalError("")
+        }
+        exchangeViewModel = ExchangeViewModel(currency: exchangeCurrency,
+                                              exchangeManager: options.walletModel,
+                                              signer: options.signer)
     }
 }
 
@@ -38,9 +53,8 @@ extension ExchangeCoordinator {
 
 extension ExchangeCoordinator {
     struct Options {
-        let cardViewModel: CardViewModel
+        let signer: TangemSigner
         let walletModel: WalletModel
-        let amount: Amount
-        let blockchainNetwork: BlockchainNetwork
+        let amount: Amount.AmountType
     }
 }
