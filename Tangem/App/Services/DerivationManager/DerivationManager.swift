@@ -54,7 +54,7 @@ struct DerivationManager {
         }
 
         tangemSdkProvider.sdk.config.defaultDerivationPaths = derivations
-        tangemSdkProvider.sdk.startSession(with: ScanTask(accessCodeRequestPolicy: nil), cardId: card.cardId) { result in
+        tangemSdkProvider.sdk.startSession(with: ScanTask(), cardId: card.cardId) { result in
             switch result {
             case .success(let card):
                 completion(.success(card))
