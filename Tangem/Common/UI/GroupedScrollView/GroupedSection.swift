@@ -35,10 +35,12 @@ struct GroupedSection<Model: Identifiable, Content: View, Footer: View, Header: 
         @ViewBuilder header: @escaping () -> Header = { EmptyView() },
         @ViewBuilder footer: @escaping () -> Footer = { EmptyView() }
     ) {
-        self.models = model == nil ? [] : [model!]
-        self.content = content
-        self.header = header
-        self.footer = footer
+        self.init(
+            model == nil ? [] : [model!],
+            content: content,
+            header: header,
+            footer: footer
+        )
     }
 
     var body: some View {
