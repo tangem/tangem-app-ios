@@ -88,14 +88,12 @@ class ExchangeTokensFactory {
                                     decimalCount: decimalCount)
         }
     }
-    
+
     func createCoin(for blockchainNetwork: BlockchainNetwork) throws -> ExchangeCurrency {
-        let contractAddress = Constants.oneInchCoinContractAddress
-        
         let name: String
         let symbol: String
         let decimalCount: Decimal
-        
+
         switch blockchainNetwork.blockchain {
         case .bsc:
             name = "BNB"
