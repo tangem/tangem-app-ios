@@ -240,6 +240,7 @@
 		B074BAC126779B28005D641B /* PushTxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B074BAC026779B28005D641B /* PushTxView.swift */; };
 		B074BAC326779BC8005D641B /* PushTxViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B074BAC226779BC8005D641B /* PushTxViewModel.swift */; };
 		B07AE16C25DD548A0045179A /* CommonRateAppService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07AE16B25DD548A0045179A /* CommonRateAppService.swift */; };
+		B07D1983291BB89F00FFDFAE /* ReferralMocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07D1982291BB89F00FFDFAE /* ReferralMocks.swift */; };
 		B082E923255A8EF000A0CEA9 /* StorageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B082E922255A8EF000A0CEA9 /* StorageType.swift */; };
 		B085154D26D7797400E1A836 /* TwinsOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B085154C26D7797400E1A836 /* TwinsOnboardingView.swift */; };
 		B085154F26D77C2400E1A836 /* TwinsOnboardingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B085154E26D77C2400E1A836 /* TwinsOnboardingViewModel.swift */; };
@@ -897,6 +898,7 @@
 		B074BAC026779B28005D641B /* PushTxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTxView.swift; sourceTree = "<group>"; };
 		B074BAC226779BC8005D641B /* PushTxViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushTxViewModel.swift; sourceTree = "<group>"; };
 		B07AE16B25DD548A0045179A /* CommonRateAppService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonRateAppService.swift; sourceTree = "<group>"; };
+		B07D1982291BB89F00FFDFAE /* ReferralMocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralMocks.swift; sourceTree = "<group>"; };
 		B082E922255A8EF000A0CEA9 /* StorageType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageType.swift; sourceTree = "<group>"; };
 		B085154C26D7797400E1A836 /* TwinsOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsOnboardingView.swift; sourceTree = "<group>"; };
 		B085154E26D77C2400E1A836 /* TwinsOnboardingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwinsOnboardingViewModel.swift; sourceTree = "<group>"; };
@@ -1872,6 +1874,7 @@
 			isa = PBXGroup;
 			children = (
 				B0431B432919F94400F84DEF /* ReferralModels.swift */,
+				B07D1982291BB89F00FFDFAE /* ReferralMocks.swift */,
 			);
 			path = Referral;
 			sourceTree = "<group>";
@@ -3745,6 +3748,7 @@
 				B053759126CA3EFA0090FCFC /* CheckmarkSwitch.swift in Sources */,
 				5DF2522924F93C2A0015B429 /* QRCodeView.swift in Sources */,
 				DC936B6B28F3F8140023C75D /* SaltPayRegistratorError.swift in Sources */,
+				B07D1983291BB89F00FFDFAE /* ReferralMocks.swift in Sources */,
 				EFFC860D28BCE87700F863CE /* TokenItemsRepositoryMigrator.swift in Sources */,
 				B04CD34229122C7D001EA84A /* ReferralRoutable.swift in Sources */,
 				B08ACD8A25D2BC47007387BD /* TokenListViewModel.swift in Sources */,
