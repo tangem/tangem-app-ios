@@ -9,7 +9,7 @@
 import Foundation
 import BlockchainSdk
 
-protocol ExchangeManager: AnyObject {
+protocol ExchangeManager {
     var blockchainNetwork: BlockchainNetwork { get }
     var walletAddress: String { get }
 
@@ -36,7 +36,9 @@ extension WalletModel: ExchangeManager {
     }
 
     func getFee(amount: Amount, destination: String) async throws -> [Amount] {
-        try await self.walletManager.getFee(amount: amount, destination: destination).async()
+        try await self.walletManager
+            .getFee(amount: amount, destination: destination)
+            .async()
     }
 
     func createTransaction(amount: Amount,
