@@ -236,6 +236,9 @@ class WalletModel: ObservableObject, Identifiable {
 
         return tangemApiService
             .loadRates(for: currenciesToExchange)
+            .replaceError(with: [:])
+            /// Hack that use `switchToLatest()` which is available in iOS 14.0. Remove it after update target version
+            .setFailureType(to: Error.self)
             .eraseToAnyPublisher()
     }
 
