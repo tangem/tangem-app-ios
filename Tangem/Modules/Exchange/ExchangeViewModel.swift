@@ -20,7 +20,7 @@ class ExchangeViewModel: ObservableObject {
     @Published var items: ExchangeItems
 
     private var exchangeFacade: ExchangeFacade
-    private var swapData: ExchangeSwapDataModel?
+    private var swapDataModel: ExchangeSwapDataModel?
     private var prefetchedAvailableCoins = [CoinModel]()
     private var bag = Set<AnyCancellable>()
 
@@ -76,15 +76,15 @@ extension ExchangeViewModel {
 
     /// Sign and send swap transaction
     func onSwap() {
-        guard let swapData else { return }
+        guard let swapDataModel else { return }
 
         Task {
             do {
-                _ = try await exchangeFacade.sendSwapTransaction(destinationAddress: swapData.destinationAddress,
+                _ = try await exchangeFacade.sendSwapTransaction(destinationAddress: swapDataModel.destinationAddress,
                                                                  amount: inputAmountText,
-                                                                 gas: "\(swapData.gas)",
-                                                                 gasPrice: swapData.gasPrice,
-                                                                 txData: swapData.txData,
+                                                                 gas: "\(swapDataModel.gas)",
+                                                                 gasPrice: swapDataModel.gasPrice,
+                                                                 txData: swapDataModel.txData,
                                                                  sourceItem: items.sourceItem)
                 self.openSuccessView()
             } catch {
@@ -161,11 +161,11 @@ extension ExchangeViewModel {
         }
     }
 
-    private func updateSwapData(_ swapData: ExchangeSwapDataModel) async {
-        self.swapData = swapData
+    private func updateSwapData(_ swapDataModel: ExchangeSwapDataModel) async {
+        self.swapDataModel = swapDataModel
 
         await MainActor.run {
-            outputAmountText = swapData.toTokenAmount
+            outputAmountText = swapDataModel.toTokenAmount
             withAnimation {
                 self.objectWillChange.send()
             }
@@ -179,13 +179,14 @@ extension ExchangeViewModel {
             self.objectWillChange.send()
             return
         }
+
         cancelRefreshTimer()
         Task {
             do {
-                let swapData = try await exchangeFacade.fetchTxDataForSwap(amount: inputAmountText,
-                                                                           slippage: 1,
-                                                                           items: items)
-                await updateSwapData(swapData)
+                let swapDataModel = try await exchangeFacade.fetchTxDataForSwap(amount: inputAmountText,
+                                                                                slippage: 1,
+                                                                                items: items)
+                await updateSwapData(swapDataModel)
 
                 self.refreshTimer()
             } catch ExchangeInchError.parsedError(let error) {
