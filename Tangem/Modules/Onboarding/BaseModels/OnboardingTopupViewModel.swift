@@ -12,6 +12,7 @@ import BlockchainSdk
 
 class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopupRoutable>: OnboardingViewModel<Step, Coordinator> {
     @Injected(\.exchangeService) var exchangeService: ExchangeService
+    @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     @Published var refreshButtonState: OnboardingCircleButton.State = .refreshButton
     @Published var cardBalance: String = ""
@@ -125,7 +126,23 @@ class OnboardingTopupViewModel<Step: OnboardingStep, Coordinator: OnboardingTopu
 
 // MARK: - Navigation
 extension OnboardingTopupViewModel {
-    func openCryptoShop() {
+    func openCryptoShopIfPossible() {
+        if tangemApiService.geoIpRegionCode == LanguageCode.ru {
+            coordinator.openBankWarning {
+                self.openBuyCrypto()
+            } declineCallback: {
+                self.openP2PTutorial()
+            }
+        } else {
+            openBuyCrypto()
+        }
+    }
+
+    func openQR() {
+        coordinator.openQR(shareAddress: shareAddress, address: walletAddress, qrNotice: qrNoticeMessage)
+    }
+
+    private func openBuyCrypto() {
         guard let url = buyCryptoURL else { return }
 
         coordinator.openCryptoShop(at: url, closeUrl: buyCryptoCloseUrl) { [weak self] _ in
@@ -133,7 +150,7 @@ extension OnboardingTopupViewModel {
         }
     }
 
-    func openQR() {
-        coordinator.openQR(shareAddress: shareAddress, address: walletAddress, qrNotice: qrNoticeMessage)
+    private func openP2PTutorial() {
+        coordinator.openP2PTutorial()
     }
 }
