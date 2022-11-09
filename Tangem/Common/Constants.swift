@@ -21,6 +21,6 @@ enum Constants {
     }
 
     static let messageForWalletID = "UserWalletID"
-    
+
     static let oneInchCoinContractAddress = "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"
 }
