@@ -25,7 +25,7 @@ struct ReferralPointView: View {
     }
 
     var body: some View {
-        HStack(spacing: 14) {
+        HStack(alignment: .top, spacing: 14) {
             icon
                 .roundedBackground(with: .secondary,
                                    padding: 14,
@@ -38,6 +38,8 @@ struct ReferralPointView: View {
 
                 bodyDescription
                     .style(Fonts.Regular.footnote, color: Colors.Text.tertiary)
+                    .lineSpacing(4)
+                    .fixedSize(horizontal: false, vertical: true)
             }
 
             Spacer()
@@ -52,7 +54,7 @@ struct ReferralPointView_Previews: PreviewProvider {
                 Assets.cryptocurrencies,
                 header: { Text("You") },
                 body: {
-                    Text("Will get ") + Text("10 USDT").foregroundColor(Colors.Text.primary1) + Text(" for each wallet bought by your friend on your Tron network adress")
+                    Text("Will get ") + Text("10 USDT").foregroundColor(Colors.Text.primary1) + Text(" for each wallet bought by your friend on your Tron network address 0x032980ca98fdfc67ab767b")
                 }
             )
             ReferralPointView(
