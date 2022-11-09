@@ -25,30 +25,6 @@ struct TangemSdkConfigFactory {
         config.filter.issuerFilter = .deny(["TTM BANK"])
         config.allowUntrustedCards = true
         config.biometricsLocalizedReason = "biometry_touch_id_reason".localized
-        #warning("[REDACTED_TODO_COMMENT]")
-        #warning("[REDACTED_TODO_COMMENT]")
-        #warning("[REDACTED_TODO_COMMENT]")
-        #warning("[REDACTED_TODO_COMMENT]")
-        #warning("[REDACTED_TODO_COMMENT]")
-        #warning("[REDACTED_TODO_COMMENT]")
-        #warning("[REDACTED_TODO_COMMENT]")
-        #warning("[REDACTED_TODO_COMMENT]")
-        #warning("[REDACTED_TODO_COMMENT]")
-        #warning("[REDACTED_TODO_COMMENT]")
-        #warning("[REDACTED_TODO_COMMENT]")
-        #warning("[REDACTED_TODO_COMMENT]")
-        #warning("[REDACTED_TODO_COMMENT]")
-        #warning("[REDACTED_TODO_COMMENT]")
-        #warning("[REDACTED_TODO_COMMENT]")
-        #warning("[REDACTED_TODO_COMMENT]")
-        #warning("[REDACTED_TODO_COMMENT]")
-        #warning("[REDACTED_TODO_COMMENT]")
-        #warning("[REDACTED_TODO_COMMENT]")
-        #warning("[REDACTED_TODO_COMMENT]")
-        #warning("[REDACTED_TODO_COMMENT]")
-        #warning("[REDACTED_TODO_COMMENT]")
-        config.attestationMode = .offline
-
         return config
     }
 }
