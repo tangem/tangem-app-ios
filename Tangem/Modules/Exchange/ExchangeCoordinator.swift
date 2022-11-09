@@ -22,7 +22,8 @@ class ExchangeCoordinator: CoordinatorObject {
 
     func start(with options: ExchangeCoordinator.Options) {
         let factory = ExchangeTokensFactory()
-        
+        let exchangeFacadeFactory = ExchangeFacadeFactory()
+
         let exchangeCurrency: ExchangeCurrency
         switch options.amount {
         case .coin:
@@ -37,9 +38,11 @@ class ExchangeCoordinator: CoordinatorObject {
         default:
             fatalError("")
         }
+
         exchangeViewModel = ExchangeViewModel(currency: exchangeCurrency,
-                                              exchangeManager: options.walletModel,
-                                              signer: options.signer)
+                                              exchangeFacade: exchangeFacadeFactory.createFacade(for: .oneInch,
+                                                                                                 exchangeManager: options.walletModel,
+                                                                                                 signer: options.signer))
     }
 }
 
