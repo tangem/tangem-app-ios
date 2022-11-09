@@ -52,27 +52,27 @@ struct ExchangeCurrency {
 // MARK: - Factory
 
 extension ExchangeCurrency {
-    static func daiToken(exchangeManager: ExchangeManager) -> ExchangeCurrency {
+    static func daiToken(blockchainNetwork: BlockchainNetwork) -> ExchangeCurrency {
         let factory = ExchangeTokensFactory()
 
         do {
-            return try factory.createToken(token: .dai(blockchain: exchangeManager.blockchainNetwork))
+            return try factory.createToken(token: .dai(blockchain: blockchainNetwork))
         } catch {
             fatalError(error.localizedDescription)
         }
     }
 
-    static func tetherToken(exchangeManager: ExchangeManager) -> ExchangeCurrency {
+    static func tetherToken(blockchainNetwork: BlockchainNetwork) -> ExchangeCurrency {
         let factory = ExchangeTokensFactory()
 
         do {
-            return try factory.createToken(token: .tether(blockchain: exchangeManager.blockchainNetwork))
+            return try factory.createToken(token: .tether(blockchain: blockchainNetwork))
         } catch ExchangeTokensFactory.FactoryError.unavailableTokenForCurrentBlockchain {
-            let token = try? factory.createToken(token: .dai(blockchain: exchangeManager.blockchainNetwork))
+            let token = try? factory.createToken(token: .dai(blockchain: blockchainNetwork))
             if let token {
                 return token
             }
-            
+
             fatalError("Token is unavailable")
         } catch {
             fatalError(error.localizedDescription)
@@ -91,6 +91,15 @@ extension ExchangeCurrency {
                 return Constants.oneInchCoinContractAddress
             case .token(_, let contractAddress):
                 return contractAddress
+            }
+        }
+
+        var blockchainNetwork: BlockchainNetwork {
+            switch self {
+            case let .coin(blockchainNetwork):
+                return blockchainNetwork
+            case let .token(blockchainNetwork, _):
+                return blockchainNetwork
             }
         }
     }
