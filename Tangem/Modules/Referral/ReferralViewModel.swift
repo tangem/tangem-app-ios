@@ -9,6 +9,8 @@
 import Foundation
 import Combine
 import class UIKit.UIPasteboard
+import struct SwiftUI.LocalizedStringKey
+import struct SwiftUI.EdgeInsets
 
 class ReferralViewModel: ObservableObject {
     @Published var isLoading: Bool = false
@@ -30,16 +32,16 @@ class ReferralViewModel: ObservableObject {
             return ""
         }
 
-        return "\(info.conditions.discount)\(info.conditions.discountType.symbol)"
+        return String(format: "referral_point_discount_description_value".localized, "\(info.conditions.discount)\(info.conditions.discountType.symbol)")
     }
 
     var numberOfWalletsBought: String {
-        let stringFormat = "referral_wallets_bought"
+        let stringFormat = "referral_wallets_bought_count".localized
         guard let info = referralProgramInfo?.referral else {
-            return String(format: stringFormat, 0)
+            return String.localizedStringWithFormat(stringFormat, 0)
         }
 
-        return String(format: stringFormat, info.walletPurchase)
+        return String.localizedStringWithFormat(stringFormat, info.walletPurchase)
     }
 
     var promoCode: String {
@@ -50,7 +52,7 @@ class ReferralViewModel: ObservableObject {
         return info.promoCode
     }
 
-    var touButtonPrefix: String {
+    var touButtonPrefix: LocalizedStringKey {
         if referralProgramInfo?.referral == nil {
             return "referral_tou_not_enroled_prefix"
         }
@@ -67,10 +69,14 @@ class ReferralViewModel: ObservableObject {
 
     private let coordinator: ReferralRoutable
 
-    init(coordinator: ReferralRoutable, json: String = "") {
+    private init(coordinator: ReferralRoutable, json: String = "") {
         self.coordinator = coordinator
         let jsonDecoder = JSONDecoder()
         referralProgramInfo = try! jsonDecoder.decode(ReferralProgramInfo.self, from: json.data(using: .utf8)!)
+    }
+
+    static func mock(_ mock: ReferralMock, with coordinator: ReferralRoutable) -> ReferralViewModel {
+        .init(coordinator: coordinator, json: mock.json)
     }
 
     func openTou() {
