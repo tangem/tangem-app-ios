@@ -83,11 +83,9 @@ struct MainView: View {
 
     var settingsNavigationButton: some View {
         Button(action: viewModel.openSettings) {
-            Assets.verticalDots
-                .resizable()
-                .renderingMode(.template)
-                .foregroundColor(Colors.Button.primary)
-                .frame(width: 44.0, height: 44.0)
+            Image("verticalDots")
+                .foregroundColor(Color.tangemGrayDark6)
+                .frame(width: 44, height: 44)
                 .offset(x: 11)
         }
         .buttonStyle(PlainButtonStyle())
