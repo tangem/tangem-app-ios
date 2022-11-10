@@ -107,10 +107,6 @@ extension ExchangeViewModel {
         $inputAmountText
             .debounce(for: 1.0, scheduler: DispatchQueue.main)
             .sink { [weak self] value in
-                if value.isEmpty {
-                    self?.cancelRefreshTimer()
-                    self?.outputAmountText = "0"
-                }
                 self?.onChangeInputAmount()
             }
             .store(in: &bag)
@@ -145,7 +141,7 @@ extension ExchangeViewModel {
     }
 
     private func resetItemsInput() {
-        outputAmountText = ""
+        outputAmountText = "0"
         self.onChangeInputAmount()
     }
 
@@ -161,7 +157,7 @@ extension ExchangeViewModel {
     private func onChangeInputAmount() {
         guard !inputAmountText.isEmpty else {
             cancelRefreshTimer()
-            outputAmountText = ""
+            outputAmountText = "0"
             return
         }
 
