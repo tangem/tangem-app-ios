@@ -13,6 +13,7 @@ import Combine
 class ExchangeItem: Identifiable {
     let isLockedForChange: Bool
     var currency: ExchangeCurrency
+    var allowance: Decimal = 0
 
     var name: String? {
         currency.name
@@ -30,15 +31,9 @@ class ExchangeItem: Identifiable {
         currency.contractAddress
     }
 
-    private var allowance: Decimal = 0
-
     init(isLockedForChange: Bool, currency: ExchangeCurrency) {
         self.isLockedForChange = isLockedForChange
         self.currency = currency
-    }
-
-    func updateAllowance(_ allowance: Decimal) {
-        self.allowance = allowance
     }
 
     func isAvailableForExchange(for amountValue: Decimal) -> Bool {
