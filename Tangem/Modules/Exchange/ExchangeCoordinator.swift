@@ -10,39 +10,26 @@ import Foundation
 import BlockchainSdk
 
 class ExchangeCoordinator: CoordinatorObject {
+    let exchangeViewModelFactory: ExchangeViewModelFactory
+
     var dismissAction: Action
     var popToRootAction: ParamsAction<PopToRootOptions>
 
     @Published var exchangeViewModel: ExchangeViewModel? = nil
 
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
+        exchangeViewModelFactory = ExchangeViewModelFactory()
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
 
     func start(with options: ExchangeCoordinator.Options) {
-        let factory = ExchangeTokensFactory()
-        let exchangeFacadeFactory = ExchangeFacadeFactory()
-
-        let exchangeCurrency: ExchangeCurrency
-        switch options.amount {
-        case .coin:
-            do {
-                exchangeCurrency = try factory.createCoin(for: options.walletModel.blockchainNetwork)
-            } catch {
-                exchangeCurrency = ExchangeCurrency(type: .coin(blockchainNetwork: options.walletModel.blockchainNetwork))
-            }
-        case .token:
-            let contractAddress = options.amount.token?.contractAddress ?? ""
-            exchangeCurrency = ExchangeCurrency(type: .token(blockchainNetwork: options.walletModel.blockchainNetwork, contractAddress: contractAddress))
-        default:
-            fatalError("")
-        }
-
-        exchangeViewModel = ExchangeViewModel(currency: exchangeCurrency,
-                                              exchangeFacade: exchangeFacadeFactory.createFacade(for: .oneInch,
-                                                                                                 exchangeManager: options.walletModel,
-                                                                                                 signer: options.signer))
+        let walletModelAdapter = WalletModelAdapter(walletModel: options.walletModel)
+        exchangeViewModel = exchangeViewModelFactory.createExchangeViewModel(exchangeManager: walletModelAdapter,
+                                                                             amountType: options.amount,
+                                                                             signer: options.signer,
+                                                                             blockchainNetwork: options.walletModel.blockchainNetwork,
+                                                                             exchangeRouter: .oneInch)
     }
 }
 
