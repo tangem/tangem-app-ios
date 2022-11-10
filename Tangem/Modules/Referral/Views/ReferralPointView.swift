@@ -51,7 +51,7 @@ struct ReferralPointView_Previews: PreviewProvider {
     static var previews: some View {
         VStack {
             ReferralPointView(
-                Assets.cryptocurrencies,
+                Assets.cryptoCurrencies,
                 header: { Text("You") },
                 body: {
                     Text("Will get ") + Text("10 USDT").foregroundColor(Colors.Text.primary1) + Text(" for each wallet bought by your friend on your Tron network address 0x032980ca98fdfc67ab767b")
