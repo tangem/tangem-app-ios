@@ -34,6 +34,6 @@ struct ReferralPlaceholderPointView: View {
 
 struct ReferralLoaderView_Previews: PreviewProvider {
     static var previews: some View {
-        ReferralPlaceholderPointView(icon: Assets.cryptocurrencies)
+        ReferralPlaceholderPointView(icon: Assets.cryptoCurrencies)
     }
 }
