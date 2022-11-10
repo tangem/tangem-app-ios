@@ -8,7 +8,6 @@
 
 import Foundation
 import Combine
-import BlockchainSdk
 import ExchangeSdk
 import SwiftUI
 
@@ -16,7 +15,7 @@ class ExchangeViewModel: ObservableObject {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
 
     @Published var inputAmountText: String = ""
-    @Published var outputAmountText: String = ""
+    @Published private(set) var outputAmountText: String = ""
     @Published var items: ExchangeItems
 
     private var exchangeFacade: ExchangeFacade
@@ -30,21 +29,14 @@ class ExchangeViewModel: ObservableObject {
         items.sourceItem.currency.type.blockchainNetwork
     }
 
-    init(currency: ExchangeCurrency, exchangeFacade: ExchangeFacade) {
+    init(sourceCurrency: ExchangeCurrency, destinationCurrency: ExchangeCurrency, exchangeFacade: ExchangeFacade) {
         self.exchangeFacade = exchangeFacade
 
         let sourceItem = ExchangeItem(isLockedForChange: true,
-                                      currency: currency)
+                                      currency: sourceCurrency)
 
-        let destinationItem: ExchangeItem
-        switch currency.type {
-        case .coin:
-            destinationItem = ExchangeItem(isLockedForChange: false,
-                                           currency: ExchangeCurrency.daiToken(blockchainNetwork: sourceItem.currency.type.blockchainNetwork))
-        case .token:
-            destinationItem = ExchangeItem(isLockedForChange: false,
-                                           currency: ExchangeCurrency(type: .coin(blockchainNetwork: sourceItem.currency.type.blockchainNetwork)))
-        }
+        let destinationItem: ExchangeItem = ExchangeItem(isLockedForChange: false, currency: destinationCurrency)
+
 
         items = ExchangeItems(sourceItem: sourceItem, destinationItem: destinationItem)
         preloadAvailableTokens()
@@ -52,8 +44,9 @@ class ExchangeViewModel: ObservableObject {
     }
 
     convenience init(blockchainNetwork: BlockchainNetwork, exchangeFacade: ExchangeFacade) {
-        let currency = ExchangeCurrency(type: .coin(blockchainNetwork: blockchainNetwork))
-        self.init(currency: currency, exchangeFacade: exchangeFacade)
+        let sourceCurrency = ExchangeCurrency(type: .coin(blockchainNetwork: blockchainNetwork))
+        let destinationCurrency = ExchangeCurrency.daiToken(blockchainNetwork: blockchainNetwork)
+        self.init(sourceCurrency: sourceCurrency, destinationCurrency: destinationCurrency, exchangeFacade: exchangeFacade)
     }
 }
 
@@ -64,13 +57,13 @@ extension ExchangeViewModel {
     func onSwapItems() {
         Task {
             items = ExchangeItems(sourceItem: items.destinationItem, destinationItem: items.sourceItem)
-            await exchangeFacade.fetchExchangeAmountLimit(for: items.sourceItem)
+            do {
+                try await exchangeFacade.fetchExchangeAmountLimit(for: items.sourceItem)
+            } catch {
+                print(error.localizedDescription)
+            }
 
             resetItemsInput()
-
-            withAnimation {
-                self.objectWillChange.send()
-            }
         }
     }
 
@@ -80,13 +73,13 @@ extension ExchangeViewModel {
 
         Task {
             do {
-                _ = try await exchangeFacade.sendSwapTransaction(destinationAddress: swapDataModel.destinationAddress,
-                                                                 amount: inputAmountText,
-                                                                 gas: "\(swapDataModel.gas)",
-                                                                 gasPrice: swapDataModel.gasPrice,
-                                                                 txData: swapDataModel.txData,
-                                                                 sourceItem: items.sourceItem)
-                self.openSuccessView()
+                try await exchangeFacade.sendSwapTransaction(destinationAddress: swapDataModel.destinationAddress,
+                                                             amount: inputAmountText,
+                                                             gas: "\(swapDataModel.gas)",
+                                                             gasPrice: swapDataModel.gasPrice,
+                                                             txData: swapDataModel.txData,
+                                                             sourceItem: items.sourceItem)
+                openSuccessView()
             } catch {
                 print(error.localizedDescription)
             }
@@ -97,10 +90,10 @@ extension ExchangeViewModel {
         Task {
             do {
                 let approveData = try await exchangeFacade.approveTxData(for: items.sourceItem)
-                _ = try await exchangeFacade.submitPermissionForToken(destinationAddress: approveData.to,
-                                                                      gasPrice: approveData.gasPrice,
-                                                                      txData: approveData.data,
-                                                                      for: items.sourceItem)
+                try await exchangeFacade.submitPermissionForToken(destinationAddress: approveData.tokenAddress,
+                                                                  gasPrice: approveData.gasPrice,
+                                                                  txData: approveData.data,
+                                                                  for: items.sourceItem)
                 // [REDACTED_TODO_COMMENT]
             } catch {
                 print(error.localizedDescription)
@@ -117,6 +110,7 @@ extension ExchangeViewModel {
             .sink { [weak self] value in
                 if value.isEmpty {
                     self?.cancelRefreshTimer()
+                    self?.outputAmountText = "0"
                 }
                 self?.onChangeInputAmount()
             }
@@ -141,10 +135,8 @@ extension ExchangeViewModel {
     private func preloadAvailableTokens() {
         tangemApiService
             .loadCoins(requestModel: .init(networkIds: [blockchainNetwork.blockchain.networkId], exchangeable: true))
-            .sink { completion in
-                switch completion {
-                case .finished: break
-                case .failure(let error):
+            .sink {
+                if case .failure(let error) = $0 {
                     print(error.localizedDescription)
                 }
             } receiveValue: { [weak self] coinModels in
@@ -156,9 +148,6 @@ extension ExchangeViewModel {
     private func resetItemsInput() {
         outputAmountText = ""
         self.onChangeInputAmount()
-        withAnimation {
-            self.objectWillChange.send()
-        }
     }
 
     private func updateSwapData(_ swapDataModel: ExchangeSwapDataModel) async {
@@ -166,9 +155,7 @@ extension ExchangeViewModel {
 
         await MainActor.run {
             outputAmountText = swapDataModel.toTokenAmount
-            withAnimation {
-                self.objectWillChange.send()
-            }
+            self.objectWillChange.send()
         }
     }
 
@@ -176,7 +163,6 @@ extension ExchangeViewModel {
         guard !inputAmountText.isEmpty else {
             cancelRefreshTimer()
             outputAmountText = ""
-            self.objectWillChange.send()
             return
         }
 
@@ -188,7 +174,7 @@ extension ExchangeViewModel {
                                                                                 items: items)
                 await updateSwapData(swapDataModel)
 
-                self.refreshTimer()
+                refreshTimer()
             } catch ExchangeInchError.parsedError(let error) {
                 print(error.localizedDescription)
             } catch {
