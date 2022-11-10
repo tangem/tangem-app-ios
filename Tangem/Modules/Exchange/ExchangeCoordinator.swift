@@ -10,25 +10,23 @@ import Foundation
 import BlockchainSdk
 
 class ExchangeCoordinator: CoordinatorObject {
-    let exchangeViewModelFactory: ExchangeViewModelFactory
-
     var dismissAction: Action
     var popToRootAction: ParamsAction<PopToRootOptions>
 
     @Published var exchangeViewModel: ExchangeViewModel? = nil
 
     required init(dismissAction: @escaping Action, popToRootAction: @escaping ParamsAction<PopToRootOptions>) {
-        exchangeViewModelFactory = ExchangeViewModelFactory()
         self.dismissAction = dismissAction
         self.popToRootAction = popToRootAction
     }
 
     func start(with options: ExchangeCoordinator.Options) {
-        let walletModelAdapter = WalletModelAdapter(walletModel: options.walletModel)
+        let exchangeViewModelFactory = ExchangeViewModelFactory()
+        let walletModelAdapter = WalletModelAdapter(walletManager: options.walletManager)
         exchangeViewModel = exchangeViewModelFactory.createExchangeViewModel(exchangeManager: walletModelAdapter,
                                                                              amountType: options.amount,
                                                                              signer: options.signer,
-                                                                             blockchainNetwork: options.walletModel.blockchainNetwork,
+                                                                             blockchainNetwork: options.blockchainNetwork,
                                                                              exchangeRouter: .oneInch)
     }
 }
@@ -44,7 +42,8 @@ extension ExchangeCoordinator {
 extension ExchangeCoordinator {
     struct Options {
         let signer: TangemSigner
-        let walletModel: WalletModel
+        let walletManager: WalletManager
+        let blockchainNetwork: BlockchainNetwork
         let amount: Amount.AmountType
     }
 }
