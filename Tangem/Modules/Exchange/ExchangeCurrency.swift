@@ -54,29 +54,13 @@ struct ExchangeCurrency {
 extension ExchangeCurrency {
     static func daiToken(blockchainNetwork: BlockchainNetwork) -> ExchangeCurrency {
         let factory = ExchangeTokensFactory()
-
-        do {
-            return try factory.createToken(token: .dai(blockchain: blockchainNetwork))
-        } catch {
-            fatalError(error.localizedDescription)
-        }
+        return factory.createToken(token: .dai(blockchain: blockchainNetwork))
     }
 
     static func tetherToken(blockchainNetwork: BlockchainNetwork) -> ExchangeCurrency {
         let factory = ExchangeTokensFactory()
 
-        do {
-            return try factory.createToken(token: .tether(blockchain: blockchainNetwork))
-        } catch ExchangeTokensFactory.FactoryError.unavailableTokenForCurrentBlockchain {
-            let token = try? factory.createToken(token: .dai(blockchain: blockchainNetwork))
-            if let token {
-                return token
-            }
-
-            fatalError("Token is unavailable")
-        } catch {
-            fatalError(error.localizedDescription)
-        }
+        return factory.createToken(token: .tether(blockchain: blockchainNetwork))
     }
 }
 

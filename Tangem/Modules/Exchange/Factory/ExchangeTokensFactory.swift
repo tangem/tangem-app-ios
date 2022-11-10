@@ -10,17 +10,12 @@ import Foundation
 import BlockchainSdk
 
 class ExchangeTokensFactory {
-    enum FactoryError: Error {
-        case unknownBlockchainForOneInchRouter
-        case unavailableTokenForCurrentBlockchain
-    }
-
     enum Token {
         case dai(blockchain: BlockchainNetwork)
         case tether(blockchain: BlockchainNetwork)
     }
 
-    func createToken(token: Token) throws -> ExchangeCurrency {
+    func createToken(token: Token) -> ExchangeCurrency {
         switch token {
         case let .dai(blockchainNetwork):
             var name = "Dai Stablecoin"
@@ -47,13 +42,14 @@ class ExchangeTokensFactory {
             case .fantom:
                 contractAddress = "0x8d11ec38a3eb5e956b052f67da8bdc9bef8abf3e"
             default:
-                throw FactoryError.unknownBlockchainForOneInchRouter
+                return ExchangeCurrency(type: .coin(blockchainNetwork: BlockchainNetwork(.ethereum(testnet: false))))
             }
 
             return ExchangeCurrency(type: .token(blockchainNetwork: blockchainNetwork, contractAddress: contractAddress),
                                     name: name,
                                     symbol: symbol,
                                     decimalCount: decimalCount)
+
         case let .tether(blockchainNetwork):
             var name = "Tether USD"
             var symbol = "USDT"
@@ -76,10 +72,8 @@ class ExchangeTokensFactory {
             case .gnosis:
                 name = "Tether on xDai"
                 contractAddress = "0x4ecaba5870353805a9f068101a40e0f32ed605c6"
-            case .fantom:
-                throw FactoryError.unavailableTokenForCurrentBlockchain
             default:
-                throw FactoryError.unknownBlockchainForOneInchRouter
+                return ExchangeCurrency(type: .coin(blockchainNetwork: BlockchainNetwork(.ethereum(testnet: false))))
             }
 
             return ExchangeCurrency(type: .token(blockchainNetwork: blockchainNetwork, contractAddress: contractAddress),
@@ -89,7 +83,7 @@ class ExchangeTokensFactory {
         }
     }
 
-    func createCoin(for blockchainNetwork: BlockchainNetwork) throws -> ExchangeCurrency {
+    func createCoin(for blockchainNetwork: BlockchainNetwork) -> ExchangeCurrency {
         let name: String
         let symbol: String
         let decimalCount: Decimal
@@ -128,7 +122,10 @@ class ExchangeTokensFactory {
             symbol = "FTM"
             decimalCount = 18
         default:
-            throw FactoryError.unknownBlockchainForOneInchRouter
+            return ExchangeCurrency(type: .coin(blockchainNetwork: BlockchainNetwork(.ethereum(testnet: false))),
+                                    name: "Ethereum",
+                                    symbol: "ETH",
+                                    decimalCount: 18)
         }
         return ExchangeCurrency(type: .coin(blockchainNetwork: blockchainNetwork),
                                 name: name,
