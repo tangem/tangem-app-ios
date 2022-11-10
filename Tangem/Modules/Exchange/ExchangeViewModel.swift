@@ -9,7 +9,6 @@
 import Foundation
 import Combine
 import ExchangeSdk
-import SwiftUI
 
 class ExchangeViewModel: ObservableObject {
     @Injected(\.tangemApiService) private var tangemApiService: TangemApiService
