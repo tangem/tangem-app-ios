@@ -154,7 +154,7 @@ class WalletModel: ObservableObject, Identifiable {
                 updateRatesIfNeeded(rates)
 
                 // Don't update noAccount state
-                if !silent, !state.isNoAccount {
+                if !state.isNoAccount {
                     updateState(.idle)
                 }
 
