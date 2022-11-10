@@ -25,7 +25,7 @@ protocol ExchangeFacade {
                             slippage: Int,
                             items: ExchangeItems) async throws -> ExchangeSwapDataModel
 
-    func fetchExchangeAmountLimit(for item: ExchangeItem) async
+    func fetchExchangeAmountLimit(for item: ExchangeItem) async throws
     func approveTxData(for item: ExchangeItem) async throws -> ExchangeApprovedDataModel
     func getSpenderAddress() async throws -> String
 }
