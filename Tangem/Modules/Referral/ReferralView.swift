@@ -29,11 +29,14 @@ struct ReferralView: View {
                         .padding(.bottom, 32)
 
                     content
-                        .padding(.bottom, geometry.safeAreaInsets.bottom == 0 ? 8 : geometry.safeAreaInsets.bottom)
+                        .padding(.bottom, geometry.safeAreaInsets.bottom == 0 ? 10 : geometry.safeAreaInsets.bottom)
+                    
                 }
                 .frame(minWidth: geometry.size.width, maxWidth: geometry.size.width, minHeight: geometry.size.height + geometry.safeAreaInsets.bottom)
+                
             }
             .edgesIgnoringSafeArea(.bottom)
+            
         }
         .navigationBarTitle("details_referral_title", displayMode: .inline)
         .background(Colors.Background.secondary.edgesIgnoringSafeArea(.all))
@@ -52,7 +55,7 @@ struct ReferralView: View {
     var referralContent: some View {
         VStack(spacing: 0) {
             ReferralPointView(
-                Assets.cryptocurrencies,
+                Assets.cryptoCurrencies,
                 header: { Text("referral_point_currencies_title") },
                 body: {
                     Text("referral_point_currencies_description_prefix") +
@@ -76,7 +79,6 @@ struct ReferralView: View {
 
             if viewModel.isAlreadyReferral {
                 alreadyReferralBottomView
-
             } else {
                 notReferralView
             }
@@ -87,7 +89,7 @@ struct ReferralView: View {
     @ViewBuilder
     var loaderContent: some View {
         VStack(alignment: .leading, spacing: 38) {
-            ReferralPlaceholderPointView(icon: Assets.cryptocurrencies)
+            ReferralPlaceholderPointView(icon: Assets.cryptoCurrencies)
 
             ReferralPlaceholderPointView(icon: Assets.discount)
         }
@@ -192,13 +194,13 @@ struct ReferralView_Previews: PreviewProvider {
                 viewModel: ReferralViewModel.mock(.notReferral, with: ReferralCoordinator())
             )
         }
-        .previewGroup(devices: [.iPhone8Plus, .iPhone12Mini, .iPhone11Pro], withZoomed: false)
+        .previewGroup(devices: [.iPhone8Plus], withZoomed: false)
 
         NavigationView {
             ReferralView(
                 viewModel: ReferralViewModel.mock(.referral, with: ReferralCoordinator())
             )
         }
-        .previewGroup(devices: [.iPhone8Plus, .iPhone12Mini, .iPhone11Pro], withZoomed: false)
+        .previewGroup(devices: [.iPhone8Plus], withZoomed: false)
     }
 }
