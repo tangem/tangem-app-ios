@@ -10,24 +10,22 @@ import Foundation
 import BlockchainSdk
 
 class WalletModelAdapter: ExchangeManager {
-    let walletModel: WalletModel
+    let walletManager: WalletManager
 
     var walletAddress: String {
-        walletModel.wallet.address
+        walletManager.wallet.address
     }
 
-    init(walletModel: WalletModel) {
-        self.walletModel = walletModel
+    init(walletManager: WalletManager) {
+        self.walletManager = walletManager
     }
 
     func send(_ tx: Transaction, signer: TangemSigner) async throws {
-        try await walletModel
-            .send(tx, signer: signer)
-            .async()
+        try await walletManager.send(tx, signer: signer).async()
     }
 
     func getFee(amount: Amount, destination: String) async throws -> [Amount] {
-        try await walletModel.walletManager
+        try await walletManager
             .getFee(amount: amount, destination: destination)
             .async()
     }
@@ -37,10 +35,10 @@ class WalletModelAdapter: ExchangeManager {
                            destinationAddress: String,
                            sourceAddress: String? = nil,
                            changeAddress: String? = nil) throws -> Transaction {
-        try walletModel.walletManager.createTransaction(amount: amount,
-                                                        fee: fee,
-                                                        destinationAddress: destinationAddress,
-                                                        sourceAddress: sourceAddress,
-                                                        changeAddress: changeAddress)
+        try walletManager.createTransaction(amount: amount,
+                                            fee: fee,
+                                            destinationAddress: destinationAddress,
+                                            sourceAddress: sourceAddress,
+                                            changeAddress: changeAddress)
     }
 }
