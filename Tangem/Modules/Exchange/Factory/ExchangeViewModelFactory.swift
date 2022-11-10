@@ -10,19 +10,14 @@ import Foundation
 import BlockchainSdk
 
 class ExchangeViewModelFactory {
-    let exchangeFacadeFactory: ExchangeFacadeFactory
-    let tokensFactory: ExchangeTokensFactory
-
-    init() {
-        exchangeFacadeFactory = ExchangeFacadeFactory()
-        tokensFactory = ExchangeTokensFactory()
-    }
-
     func createExchangeViewModel(exchangeManager: ExchangeManager,
                                  amountType: Amount.AmountType,
                                  signer: TangemSigner,
                                  blockchainNetwork: BlockchainNetwork,
                                  exchangeRouter: ExchangeFacadeFactory.Router) -> ExchangeViewModel {
+
+        let exchangeFacadeFactory = ExchangeFacadeFactory()
+        let tokensFactory = ExchangeTokensFactory()
 
         let exchangeCurrency: ExchangeCurrency
         switch amountType {
@@ -44,11 +39,13 @@ class ExchangeViewModelFactory {
             destinationCurrency = ExchangeCurrency(type: .coin(blockchainNetwork: blockchainNetwork))
         }
 
+        let exchangeFacade = exchangeFacadeFactory.createFacade(for: exchangeRouter,
+                                                                exchangeManager: exchangeManager,
+                                                                signer: signer,
+                                                                blockchainNetwork: blockchainNetwork)
+
         return ExchangeViewModel(sourceCurrency: exchangeCurrency,
                                  destinationCurrency: destinationCurrency,
-                                 exchangeFacade: exchangeFacadeFactory.createFacade(for: exchangeRouter,
-                                                                                    exchangeManager: exchangeManager,
-                                                                                    signer: signer,
-                                                                                    blockchainNetwork: blockchainNetwork))
+                                 exchangeFacade: exchangeFacade)
     }
 }
