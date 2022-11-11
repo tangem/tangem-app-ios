@@ -26,7 +26,7 @@ class UserWalletEncryptionKeyStorage {
 
             let reason = "biometry_touch_id_reason".localized
             BiometricsUtil.requestAccess(localizedReason: reason) { [weak self] result in
-                guard let self = self else { return }
+                guard let self else { return }
 
                 switch result {
                 case .failure(let error):
