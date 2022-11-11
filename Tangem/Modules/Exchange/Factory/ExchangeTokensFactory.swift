@@ -42,10 +42,10 @@ class ExchangeTokensFactory {
             case .fantom:
                 contractAddress = "0x8d11ec38a3eb5e956b052f67da8bdc9bef8abf3e"
             default:
-                return ExchangeCurrency(type: .coin(blockchainNetwork: BlockchainNetwork(.ethereum(testnet: false))))
+                return ExchangeCurrency(type: .coin(BlockchainNetwork(.ethereum(testnet: false))))
             }
 
-            return ExchangeCurrency(type: .token(blockchainNetwork: blockchainNetwork, contractAddress: contractAddress),
+            return ExchangeCurrency(type: .token(blockchainNetwork, contractAddress: contractAddress),
                                     name: name,
                                     symbol: symbol,
                                     decimalCount: decimalCount)
@@ -73,10 +73,10 @@ class ExchangeTokensFactory {
                 name = "Tether on xDai"
                 contractAddress = "0x4ecaba5870353805a9f068101a40e0f32ed605c6"
             default:
-                return ExchangeCurrency(type: .coin(blockchainNetwork: BlockchainNetwork(.ethereum(testnet: false))))
+                return ExchangeCurrency(type: .coin(BlockchainNetwork(.ethereum(testnet: false))))
             }
 
-            return ExchangeCurrency(type: .token(blockchainNetwork: blockchainNetwork, contractAddress: contractAddress),
+            return ExchangeCurrency(type: .token(blockchainNetwork, contractAddress: contractAddress),
                                     name: name,
                                     symbol: symbol,
                                     decimalCount: decimalCount)
@@ -122,12 +122,12 @@ class ExchangeTokensFactory {
             symbol = "FTM"
             decimalCount = 18
         default:
-            return ExchangeCurrency(type: .coin(blockchainNetwork: BlockchainNetwork(.ethereum(testnet: false))),
+            return ExchangeCurrency(type: .coin(BlockchainNetwork(.ethereum(testnet: false))),
                                     name: "Ethereum",
                                     symbol: "ETH",
                                     decimalCount: 18)
         }
-        return ExchangeCurrency(type: .coin(blockchainNetwork: blockchainNetwork),
+        return ExchangeCurrency(type: .coin(blockchainNetwork),
                                 name: name,
                                 symbol: symbol,
                                 decimalCount: decimalCount)
