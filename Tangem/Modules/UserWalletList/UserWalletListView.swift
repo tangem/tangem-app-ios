@@ -149,7 +149,6 @@ extension UserWalletListView {
                     }
                     .tint(Colors.Icon.informative)
                 }
-
         } else {
             cellInternal(for: viewModel)
         }
