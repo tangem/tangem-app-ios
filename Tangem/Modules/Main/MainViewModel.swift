@@ -380,7 +380,7 @@ class MainViewModel: ObservableObject {
             DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
                 guard let userWallet = cardModel.userWallet else { return }
 
-                let _ = self?.userWalletListService.save(userWallet)
+                self?.userWalletListService.save(userWallet)
                 self?.coordinator.openUserWalletList()
                 AppSettings.shared.saveUserWallets = true
                 AppSettings.shared.saveAccessCodes = true
