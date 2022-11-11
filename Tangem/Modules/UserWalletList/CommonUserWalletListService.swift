@@ -116,7 +116,7 @@ class CommonUserWalletListService: UserWalletListService {
         }
 
         userWallet.associatedCardIds.insert(cardId)
-        let _ = save(userWallet)
+        save(userWallet)
     }
 
     func loadModels() {
@@ -132,7 +132,7 @@ class CommonUserWalletListService: UserWalletListService {
         userWallets.contains { $0.userWalletId == userWallet.userWalletId }
     }
 
-    func save(_ userWallet: UserWallet) -> Bool {
+    func save(_ userWallet: UserWallet) {
         if userWallets.isEmpty {
             selectedUserWalletId = userWallet.userWalletId
         }
@@ -153,8 +153,6 @@ class CommonUserWalletListService: UserWalletListService {
             let newModel = CardViewModel(userWallet: userWallet)
             cardsRepository.add(newModel)
         }
-
-        return true
     }
 
     func delete(_ userWallet: UserWallet) {
@@ -168,7 +166,7 @@ class CommonUserWalletListService: UserWalletListService {
     }
 
     func clear() {
-        let _ = saveUserWallets([])
+        saveUserWallets([])
         encryptionKeyByUserWalletId = [:]
         userWallets = []
         cardsRepository.clear()
