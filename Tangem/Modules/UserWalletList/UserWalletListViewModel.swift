@@ -84,6 +84,7 @@ final class UserWalletListViewModel: ObservableObject, Identifiable {
 
         userWalletListService.unlockWithBiometry { [weak self] result in
             guard case .success = result else { return }
+
             self?.updateModels()
         }
     }
