@@ -21,4 +21,5 @@ enum Constants {
     }
 
     static let messageForWalletID = "UserWalletID"
+    static let messageForTokensKey = "TokensSymmetricKey"
 }
