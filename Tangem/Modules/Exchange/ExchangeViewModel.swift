@@ -28,13 +28,14 @@ class ExchangeViewModel: ObservableObject {
         items.sourceItem.currency.type.blockchainNetwork
     }
 
-    init(sourceCurrency: ExchangeCurrency, destinationCurrency: ExchangeCurrency, exchangeFacade: ExchangeFacade) {
+    init(exchangeFacade: ExchangeFacade, sourceCurrency: ExchangeCurrency, destinationCurrency: ExchangeCurrency) {
         self.exchangeFacade = exchangeFacade
 
         let sourceItem = ExchangeItem(isLockedForChange: true,
                                       currency: sourceCurrency)
 
-        let destinationItem: ExchangeItem = ExchangeItem(isLockedForChange: false, currency: destinationCurrency)
+        let destinationItem = ExchangeItem(isLockedForChange: false,
+                                           currency: destinationCurrency)
 
 
         items = ExchangeItems(sourceItem: sourceItem, destinationItem: destinationItem)
@@ -42,10 +43,10 @@ class ExchangeViewModel: ObservableObject {
         bind()
     }
 
-    convenience init(blockchainNetwork: BlockchainNetwork, exchangeFacade: ExchangeFacade) {
-        let sourceCurrency = ExchangeCurrency(type: .coin(blockchainNetwork: blockchainNetwork))
+    convenience init(exchangeFacade: ExchangeFacade, blockchainNetwork: BlockchainNetwork) {
+        let sourceCurrency = ExchangeCurrency(type: .coin(blockchainNetwork))
         let destinationCurrency = ExchangeCurrency.daiToken(blockchainNetwork: blockchainNetwork)
-        self.init(sourceCurrency: sourceCurrency, destinationCurrency: destinationCurrency, exchangeFacade: exchangeFacade)
+        self.init(exchangeFacade: exchangeFacade, sourceCurrency: sourceCurrency, destinationCurrency: destinationCurrency)
     }
 }
 
