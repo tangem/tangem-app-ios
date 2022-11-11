@@ -67,6 +67,7 @@ private extension AppSettingsViewModel {
                             self.userWalletListService.save(userWallet)
                             self.setSaveWallets(true)
                         } else {
+                            self.updateBiometricWarning()
                             self.setSaveWallets(false)
                         }
                     }
@@ -182,11 +183,6 @@ private extension AppSettingsViewModel {
 
     func updateBiometricWarning() {
         isBiometryAvailable = BiometricAuthorizationUtils.getBiometricState() == .available
-
-        if !isBiometryAvailable {
-            isSavingWallet = false
-            isSavingAccessCodes = false
-        }
     }
 }
 
