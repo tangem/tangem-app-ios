@@ -9,8 +9,6 @@
 import Foundation
 
 class UserWalletFactory {
-    init() { }
-
     func userWallet(from cardInfo: CardInfo, config: UserWalletConfig) -> UserWallet {
         let walletData: DefaultWalletData = cardInfo.walletData
 
