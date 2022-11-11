@@ -50,6 +50,7 @@ class UserWalletListCellViewModel: ObservableObject {
         self.didTapUserWallet = didTapUserWallet
 
         bind()
+        update()
         loadImage()
     }
 
@@ -58,23 +59,6 @@ class UserWalletListCellViewModel: ObservableObject {
             .compactMap { $0.value }
             .sink { [unowned self] balance in
                 self.balance = balance.balance.currencyFormatted(code: balance.currency.code)
-            }
-            .store(in: &bag)
-
-        userWalletModel.subscribeToWalletModels()
-            .map { walletModels in
-                self.isBalanceLoading = true
-
-                return walletModels
-                    .map { $0.walletDidChange }
-                    .combineLatest()
-                    .map { _ in walletModels }
-                    // Update total balance only after all models successfully loaded
-                    .filter { $0.allConforms { !$0.state.isLoading } }
-            }
-            .switchToLatest()
-            .sink { [unowned self] _ in
-                self.totalBalanceProvider.updateTotalBalance()
                 self.isBalanceLoading = false
             }
             .store(in: &bag)
@@ -95,12 +79,14 @@ class UserWalletListCellViewModel: ObservableObject {
                 }
                 .store(in: &bag)
         }
-
-        update()
     }
 
     private func update() {
-        userWalletModel.updateAndReloadWalletModels()
+        isBalanceLoading = true
+
+        userWalletModel.updateAndReloadWalletModels { [weak self] in
+            self?.totalBalanceProvider.updateTotalBalance()
+        }
     }
 
     private func loadImage() {
