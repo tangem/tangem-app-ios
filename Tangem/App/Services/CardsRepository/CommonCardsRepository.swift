@@ -38,6 +38,22 @@ class CommonCardsRepository: CardsRepository {
         print("CardsRepository deinit")
     }
 
+    func scanPublisher(with batch: String? = nil, requestBiometrics: Bool = false) -> AnyPublisher<CardViewModel, Error>  {
+        Deferred {
+            Future { [weak self] promise in
+                self?.scan(with: batch, requestBiometrics: requestBiometrics) { result in
+                    switch result {
+                    case .success(let scanResult):
+                        promise(.success(scanResult))
+                    case .failure(let error):
+                        promise(.failure(error))
+                    }
+                }
+            }
+        }
+        .eraseToAnyPublisher()
+    }
+
     func scan(with batch: String? = nil, requestBiometrics: Bool, _ completion: @escaping (Result<CardViewModel, Error>) -> Void) {
         Analytics.reset()
         Analytics.log(.readyToScan)
@@ -59,23 +75,7 @@ class CommonCardsRepository: CardsRepository {
             }
         }
     }
-
-    func scanPublisher(with batch: String? = nil, requestBiometrics: Bool = false) -> AnyPublisher<CardViewModel, Error>  {
-        Deferred {
-            Future { [weak self] promise in
-                self?.scan(with: batch, requestBiometrics: requestBiometrics) { result in
-                    switch result {
-                    case .success(let scanResult):
-                        promise(.success(scanResult))
-                    case .failure(let error):
-                        promise(.failure(error))
-                    }
-                }
-            }
-        }
-        .eraseToAnyPublisher()
-    }
-
+    
     func add(_ cardModels: [CardViewModel]) {
         models.append(contentsOf: cardModels)
     }
