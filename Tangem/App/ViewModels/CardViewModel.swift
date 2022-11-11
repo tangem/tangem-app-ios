@@ -248,7 +248,7 @@ class CardViewModel: Identifiable, ObservableObject {
         let cardInfo = userWallet.cardInfo()
         let config = UserWalletConfigFactory(cardInfo).makeConfig()
 
-        self.init(cardInfo: userWallet.cardInfo(), config: config, userWallet: userWallet)
+        self.init(cardInfo: cardInfo, config: config, userWallet: userWallet)
     }
 
     init(
