@@ -25,7 +25,7 @@ protocol UserWalletListService: AnyObject, Initializable {
     func didScan(card: CardDTO)
 
     func contains(_ userWallet: UserWallet) -> Bool
-    func save(_ userWallet: UserWallet) -> Bool
+    func save(_ userWallet: UserWallet)
     func delete(_ userWallet: UserWallet)
     func clear()
 }
