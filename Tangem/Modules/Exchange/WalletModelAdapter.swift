@@ -10,11 +10,11 @@ import Foundation
 import BlockchainSdk
 
 class WalletModelAdapter: ExchangeManager {
-    let walletManager: WalletManager
-
     var walletAddress: String {
         walletManager.wallet.address
     }
+    
+    private let walletManager: WalletManager
 
     init(walletManager: WalletManager) {
         self.walletManager = walletManager

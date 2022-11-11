@@ -12,9 +12,9 @@ import Combine
 extension AnyPublisher {
     func async() async throws -> Output {
         try await withCheckedThrowingContinuation({ continuation in
-            var cancellabel: AnyCancellable?
+            var cancellable: AnyCancellable?
 
-            cancellabel = first()
+            cancellable = first()
                 .sink(receiveCompletion: { result in
                     switch result {
                     case .finished:
@@ -22,7 +22,7 @@ extension AnyPublisher {
                     case let .failure(error):
                         continuation.resume(throwing: error)
                     }
-                    cancellabel?.cancel()
+                    cancellable?.cancel()
                 }, receiveValue: { output in
                     continuation.resume(returning: output)
                 })

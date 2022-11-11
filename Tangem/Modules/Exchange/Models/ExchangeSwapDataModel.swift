@@ -20,15 +20,16 @@ struct ExchangeSwapDataModel {
     let fromTokenAddress: String?
     let toTokenAddress: String?
 
-    init(gas: Int,
-         gasPrice: String,
-         destinationAddress: String,
-         sourceAddress: String,
-         txData: Data,
-         fromTokenAmount: String,
-         toTokenAmount: String,
-         fromTokenAddress: String? = nil,
-         toTokenAddress: String? = nil
+    init(
+        gas: Int,
+        gasPrice: String,
+        destinationAddress: String,
+        sourceAddress: String,
+        txData: Data,
+        fromTokenAmount: String,
+        toTokenAmount: String,
+        fromTokenAddress: String? = nil,
+        toTokenAddress: String? = nil
     ) {
         self.gas = gas
         self.gasPrice = gasPrice
